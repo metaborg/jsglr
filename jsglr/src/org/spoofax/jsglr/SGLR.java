@@ -36,14 +36,21 @@ public class SGLR {
     private Stack<Frame> forActorDelayed;
 
     SGLR() {
+        basicInit();
+    }
+
+    private void basicInit() {
         factory = new PureFactory();
         activeStacks = new Vector<Frame>();
     }
 
-    public void loadParseTable(InputStream r) throws IOException {
+    public SGLR(InputStream r) throws IOException, FatalException {
+        basicInit();
+        loadParseTable(r);
+    }
+    
+    public void loadParseTable(InputStream r) throws IOException, FatalException {
         ATerm pt = factory.readFromFile(r);
-
-        Tools.debug("" + pt);
 
         parseTable = new ParseTable(pt);
     }

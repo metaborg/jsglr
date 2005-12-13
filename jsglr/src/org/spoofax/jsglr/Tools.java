@@ -12,4 +12,12 @@ public class Tools {
     public static void debug(String s) {
         System.out.println(s);
     }
+
+    public static void debug(int stateNumber) {
+        debug("" + stateNumber);
+    }
+
+    public static void debug(Object o) {
+        debug(o.toString());
+    }
 }

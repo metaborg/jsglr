@@ -31,6 +31,14 @@ public class Term {
         return (ATermAppl) v;
     }
     
+    public static int toInt(ATermInt t) {
+        return t.getInt();
+    }
+
+    public static int toInt(ATerm t) {
+        return ((ATermInt)t).getInt();
+    }
+    
     public static int intAt(ATerm pt, int i) {
         return asInt(asAppl(pt).getChildAt(i)).getInt();
     }
@@ -45,6 +53,18 @@ public class Term {
 
     public static ATermAppl applAt(ATerm pt, int i) {
         return asAppl(asAppl(pt).getChildAt(i));
+    }
+
+    public static ATermAppl applAt(ATermList pt, int i) {
+        return asAppl(pt.getChildAt(i));
+    }
+
+    public static ATerm termAt(ATermList t, int i) {
+        return (ATerm) t.getChildAt(i);
+    }
+
+    public static boolean isInt(ATerm t) {
+        return t.getType() == ATerm.INT;
     }
 
 }

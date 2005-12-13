@@ -146,7 +146,7 @@ public class SGLR {
         if (acceptingStack == null)
             return null;
 
-        Step s = acceptingStack.findStep(st0);
+        Link s = acceptingStack.findLink(st0);
 
         if (s != null)
             return s.label;
@@ -175,10 +175,10 @@ public class SGLR {
 
             Frame st1 = findStack(activeStacks, s);
             if (st1 != null) {
-                st1.addStep(st0, t);
+                st1.addLink(st0, t);
             } else {
                 st1 = new Frame(as.s);
-                st1.addStep(st0, t);
+                st1.addLink(st0, t);
                 activeStacks.add(st1);
             }
         }
@@ -262,15 +262,15 @@ public class SGLR {
             int x = 0;
         }
 
-        List<Path> paths = st.computePathsToRoot(prod.arity);
+        Path<Link> paths = st.computePathsToRoot(prod.arity);
         Tools.debug(paths);
 
-        for (Path path : paths) {
-            List<ATerm> kids = path.collectTerms();
+        for (List<Link> path : paths) {
+            List<ATerm> kids = Path.collectTerms(path);
 
             Tools.debug(path);
 
-            Frame st0 = path.getStep().destination;
+            Frame st0 = path.get(0).parent;
 
             Tools.debug(st0.state);
 
@@ -305,7 +305,7 @@ public class SGLR {
 
         Frame st1 = findStack(activeStacks, s);
         if (st1 != null) {
-            Step nl = st1.findStep(st0);
+            Link nl = st1.findLink(st0);
 
             if (nl != null) {
                 nl.addAmbiguity(t);
@@ -314,7 +314,7 @@ public class SGLR {
                     nl.reject();
 
             } else {
-                nl = st1.addStep(st0, t);
+                nl = st1.addLink(st0, t);
 
                 if (prod.status == Production.REJECT)
                     nl.reject();
@@ -339,7 +339,7 @@ public class SGLR {
             }
         } else {
             st1 = new Frame(s);
-            Step nl = st1.addStep(st0, t);
+            Link nl = st1.addLink(st0, t);
             activeStacks.add(st1);
             if (st1.peek().rejectable()) {
                 forActorDelayed.push(st1);
@@ -373,14 +373,14 @@ public class SGLR {
         return null;
     }
 
-    private void doLimitedReductions(Frame st, Production prod, Step l) {
+    private void doLimitedReductions(Frame st, Production prod, Link l) {
         Tools.debug("doLimitedReductions()");
 
-        List<Path> paths = st.computePathsToRoot(prod.arity, l);
+        Path<Link> paths = st.computePathsToRoot(prod.arity, l);
         Frame st0 = st.getRoot();
 
-        for (Path path : paths) {
-            List<ATerm> kids = path.collectTerms();
+        for (List<Link> path : paths) {
+            List<ATerm> kids = Path.collectTerms(path);
             reducer(st0, parseTable.go(st0.peek(), prod.label), prod, kids);
         }
     }

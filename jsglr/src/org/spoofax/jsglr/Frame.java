@@ -17,14 +17,14 @@ public class Frame {
 
     public final State state;
 
-    private List<Step> steps;
+    private List<Link> steps;
 
     // FIXME: All frames except the root must have a step with a label
     // that goes to the parent frame. Should we enforce this in this
     // constructor?
     public Frame(State s) {
         state = s;
-        steps = new Vector<Step>();
+        steps = new Vector<Link>();
     }
 
     public boolean allLinksRejected() {
@@ -32,7 +32,7 @@ public class Frame {
         if (steps.size() == 0)
             return false;
 
-        for (Step s : steps) {
+        for (Link s : steps) {
             if (!s.isRejected())
                 return false;
         }
@@ -44,33 +44,29 @@ public class Frame {
         return state;
     }
 
-    public List<Path> computePathsToRoot(int arity) {
+    public Path<Link> computePathsToRoot(int arity) {
         if (arity == 0) {
-            List<Path> ret = new Vector<Path>();
-            Path p = new Path();
-            // FIXME: What is the label on this path?
-            p.addStep(new Step(this, null));
-            ret.add(p);
+            Path<Link> ret = new Path<Link>();
+            Link ln = new Link(this, null);
+            ret.add(ln);
             return ret;
         }
 
         return doComputePathsToRoot(arity);
     }
 
-    public List<Path> doComputePathsToRoot(int arity) {
+    public Path<Link> doComputePathsToRoot(int arity) {
 
-        List<Path> ret = new Vector<Path>();
+        Path<Link> ret = new Path<Link>();
 
         if (arity == 0) {
-            Path p = new Path();
-            ret.add(p);
+            Link ln = new Link(this, null);
+            ret.add(ln);
         } else if (steps.size() > 0) {
-            for (Step s : steps) {
-                List<Path> paths = s.destination.doComputePathsToRoot(arity - 1);
-                for (Path p : paths) {
-                    p.addStep(s);
-                }
-                ret.addAll(paths);
+            for (Link ln : steps) {
+                Path<Link> p = ln.parent.doComputePathsToRoot(arity - 1);
+                p.add(ln);
+                ret.add(p);
             }
         } else {
             Tools.debug("Error: Stack not deep enough for arity");
@@ -84,32 +80,21 @@ public class Frame {
         // that the user applies addStep correctly.
         if (steps.size() == 0)
             return this;
-        return steps.get(0).destination.getRoot();
+        return steps.get(0).parent.getRoot();
     }
 
-    public Step findStep(Frame st0) {
-        for (Step s : steps) {
-            if (s.destination == st0)
+    public Link findLink(Frame st0) {
+        for (Link s : steps) {
+            if (s.parent == st0)
                 return s;
         }
         return null;
     }
 
-    public Step addStep(Frame st0, ATerm t) {
-        Step s = new Step(st0, t);
+    public Link addLink(Frame st0, ATerm t) {
+        Link s = new Link(st0, t);
         steps.add(s);
         return s;
-    }
-
-    public List<Path> computePathsToRoot(int arity, Step l) {
-        // FIXME: I think l can only occur in the first step of the path.
-        // but this must be verified
-
-        List<Path> paths = l.destination.computePathsToRoot(arity - 1);
-        for (Path p : paths)
-            p.addStep(l);
-
-        return paths;
     }
 
     public String dumpStack() {
@@ -123,35 +108,15 @@ public class Frame {
         StringBuffer sb = new StringBuffer();
         boolean hasForked = false;
         sb.append(" " + state.stateNumber);
-        for (Step s : steps) {
+        for (Link s : steps) {
             if (!hasForked) {
-                sb.append(", " + s.destination.dumpStack(false));
+                sb.append(", " + s.parent.dumpStack(false));
                 hasForked = true;
             } else {
-                sb.append("[ " + s.destination.dumpStack(false) + "]");
+                sb.append("[ " + s.parent.dumpStack(false) + "]");
             }
         }
         return sb.toString();
-    }
-
-    public void dropPaths(List<Path> paths) {
-        // FIXME: Over estimated number of new Steps
-        // FIXME: This is probably not even remotely correct in the face of GSS
-        // "joins"
-        List<Step> newSteps = new Vector<Step>(paths.size());
-
-        for (Path p : paths) {
-            Step s = p.getRoot();
-            if (s != null)
-                newSteps.add(s);
-        }
-        steps = newSteps;
-    }
-
-    public Frame peekAt(int arity) {
-        if (arity == 0)
-            return this;
-        return steps.get(0).destination.peekAt(arity - 1);
     }
 
     public List<Frame> computeFramesAtDepth(int depth) {
@@ -160,8 +125,8 @@ public class Frame {
         if (depth == 0) {
             frames.add(this);
         } else {
-            for (Step s : steps) {
-                Frame st = s.destination;
+            for (Link s : steps) {
+                Frame st = s.parent;
                 frames.addAll(st.computeFramesAtDepth(depth - 1));
             }
         }

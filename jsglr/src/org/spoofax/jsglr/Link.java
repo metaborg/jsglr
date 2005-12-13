@@ -7,16 +7,22 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+
 import aterm.ATerm;
 
-public class Step {
+public class Link {
 
-    public final Frame destination;
+    public final Frame parent;
+
     public ATerm label;
+
     private boolean rejected;
-    
-    public Step(Frame destination, ATerm t) {
-        this.destination = destination;
+
+    public Link(Frame destination, ATerm t) {
+        this.parent = destination;
         label = t;
         rejected = false;
     }
@@ -29,7 +35,7 @@ public class Step {
     public void reject() {
         rejected = true;
     }
-    
+
     public boolean isRejected() {
         return rejected;
     }

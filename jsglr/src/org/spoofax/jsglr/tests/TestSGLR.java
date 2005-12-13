@@ -33,7 +33,7 @@ public class TestSGLR extends TestCase {
         sglr = new SGLR(pf, new FileInputStream("tests/grammars/Booleans.tbl"));
     }
 
-/*
+
     public void testB0() throws FileNotFoundException, IOException {
         doParseTest("b0");
     }
@@ -45,8 +45,8 @@ public class TestSGLR extends TestCase {
     public void testB2() throws FileNotFoundException, IOException {
         doParseTest("b2");
     }
-*/    
-/*
+
+    /*
     public void testB3() throws FileNotFoundException, IOException {
         doParseTest("b3");
     }

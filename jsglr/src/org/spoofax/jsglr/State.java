@@ -8,6 +8,7 @@
 package org.spoofax.jsglr;
 
 import java.util.List;
+import java.util.Vector;
 
 public class State {
 
@@ -21,13 +22,18 @@ public class State {
         this.actions = actions;
     }
 
-    public List<Action> getActions(int currentToken) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<ActionItem> getActionItems(int currentToken) {
+        
+        List <ActionItem> ret = new Vector<ActionItem>();
+        
+        for(Action a : actions) {
+            a.accepts(currentToken);
+            ret.addAll(a.getActionItems());
+        }
+        return ret;
     }
 
     public State go(Production prod) {
-        // TODO Auto-generated method stub
         return null;
     }
 

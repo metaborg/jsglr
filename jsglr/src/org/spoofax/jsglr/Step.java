@@ -11,20 +11,23 @@ import aterm.ATerm;
 
 public class Step {
 
+    public final Frame destination;
+
     public final ATerm label;
-    
-    public Step(ATerm t) {
-       label = t;
+
+    public Step(Frame destination, ATerm t) {
+        this.destination = destination;
+        label = t;
     }
 
     public void addAmbiguity(ATerm t) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void reject() {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

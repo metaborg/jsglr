@@ -18,4 +18,5 @@ public abstract class ActionItem {
     public ActionItem(int type) {
         this.type = type;
     }
+
 }

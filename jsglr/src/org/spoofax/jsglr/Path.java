@@ -8,14 +8,30 @@
 package org.spoofax.jsglr;
 
 import java.util.List;
+import java.util.Vector;
 
 import aterm.ATerm;
 
 public class Path {
 
+    private List<Step> steps;
+    
+    public Path() {
+        steps = new Vector<Step>();
+    }
+    
     public List<ATerm> collectTerms() {
-        // TODO Auto-generated method stub
-        return null;
+        
+        List<ATerm> labels = new Vector<ATerm>(steps.size());
+        
+        for(Step s : steps)
+            labels.add(s.label);
+        
+        return labels;
+    }
+
+    public void addStep(Step s) {
+        steps.add(s);
     }
 
 }

@@ -132,17 +132,14 @@ public class SGLR {
 
     private void actor(Frame st) {
         State s = st.peek();
-        for (Action a : s.getActions(currentToken)) {
-            switch (a.type) {
-            case Action.SHIFT:
+        for (ActionItem ai : s.getActionItems(currentToken)) {
+            if(ai instanceof Shift) {
                 forShifter.add(new ActionState(st, s));
-                break;
-            case Action.REDUCE:
-                doReductions(st, a.getProduction());
-                break;
-            case Action.ACCEPT:
+            } else if(ai instanceof Reduce) {
+                Reduce red = (Reduce) ai;
+                doReductions(st, red.production);
+            } else if(ai instanceof Accept) {
                 acceptingStack = st;
-                break;
             }
         }
     }
@@ -150,7 +147,7 @@ public class SGLR {
     private void doReductions(Frame st, Production prod) {
         Frame st0 = st.getRoot();
 
-        for (Path path : st.computePathsToRoot(prod.getArity())) {
+        for (Path path : st.computePathsToRoot(prod.arity)) {
             List<ATerm> kids = path.collectTerms();
             reducer(st0, st0.peek().go(prod), prod, kids);
         }
@@ -167,13 +164,13 @@ public class SGLR {
             if (nl != null) {
                 nl.addAmbiguity(t);
 
-                if (prod.type == Production.REJECT)
+                if (prod.status == Production.REJECT)
                     nl.reject();
 
             } else {
                 nl = st1.addStep(st0, t);
 
-                if (prod.type == Production.REJECT)
+                if (prod.status == Production.REJECT)
                     nl.reject();
 
                 for (Frame st2 : activeStacks) {
@@ -184,10 +181,11 @@ public class SGLR {
                     if (forActorDelayed.contains(st2))
                         continue;
 
-                    for (Action r : st2.peek().getActions(currentToken)) {
-                        if (r.type == Action.REDUCE)
-                            // FIXME: Is Action == Production?
-                            doLimitedReductions(st2, r.getProduction(), nl);
+                    for (ActionItem ai : st2.peek().getActionItems(currentToken)) {
+                        if (ai instanceof Reduce) {
+                            Reduce red = (Reduce) ai;
+                            doLimitedReductions(st2, red.production, nl);
+                        }
                     }
 
                 }
@@ -205,10 +203,11 @@ public class SGLR {
     }
 
     private void doLimitedReductions(Frame st, Production prod, Step l) {
-        List<Path> paths = st.computePathsToRoot(prod.getArity(), l);
+        List<Path> paths = st.computePathsToRoot(prod.arity, l);
         Frame st0 = st.getRoot();
         for (Path path : paths) {
             List<ATerm> kids = path.collectTerms();
+            // FIXME: Not correct, where do we go to?
             reducer(st0, st0.peek().go(prod), prod, kids);
         }
     }

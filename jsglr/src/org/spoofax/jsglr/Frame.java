@@ -15,8 +15,12 @@ import aterm.ATerm;
 public class Frame {
 
     public final State state;
+
     private List<Step> steps;
 
+    // FIXME: All frames except the root must have a step with a label
+    // that goes to the parent frame. Should we enforce this in this
+    // constructor?
     public Frame(State s) {
         state = s;
         steps = new Vector<Step>();
@@ -28,18 +32,33 @@ public class Frame {
     }
 
     public State peek() {
-        // TODO Auto-generated method stub
-        return null;
+        return state;
     }
 
     public List<Path> computePathsToRoot(int arity) {
-        // TODO Auto-generated method stub
-        return null;
+
+        List<Path> ret = new Vector<Path>();
+        
+        if (arity == 0 || steps.size() == 0) {
+            ret.add(new Path());
+        } else {
+            for (Step s : steps) {
+                List<Path> paths = s.destination.computePathsToRoot(arity - 1);
+                for (Path p : paths) {
+                    p.addStep(s);
+                }
+                ret.addAll(paths);
+            }
+        }
+        return ret;
     }
 
     public Frame getRoot() {
-        // TODO Auto-generated method stub
-        return null;
+        // FIXME: I'm iffy about the contract here. The assumption is
+        // that the user applies addStep correctly.
+        if (steps.size() == 0)
+            return this;
+        return steps.get(0).destination.getRoot();
     }
 
     public Step findStep(Frame st0) {
@@ -48,7 +67,7 @@ public class Frame {
     }
 
     public Step addStep(Frame st0, ATerm t) {
-        Step s= new Step(t);
+        Step s = new Step(st0, t);
         steps.add(s);
         return s;
     }

@@ -12,7 +12,7 @@ import java.util.Vector;
 
 public class State {
 
-    private final int stateNumber;
+    public final int stateNumber;
     private final List<Goto> gotos;
     private final List<Action> actions;
     
@@ -27,8 +27,8 @@ public class State {
         List <ActionItem> ret = new Vector<ActionItem>();
         
         for(Action a : actions) {
-            a.accepts(currentToken);
-            ret.addAll(a.getActionItems());
+            if(a.accepts(currentToken))
+                ret.addAll(a.getActionItems());
         }
         return ret;
     }

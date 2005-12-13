@@ -199,6 +199,7 @@ public class ParseTable {
     }
 
     public State go(State s, int label) {
+        Tools.debug("goto(" + s.stateNumber + "," + label + ")");
         return states.get(s.go(label));
     }
 
@@ -209,6 +210,10 @@ public class ParseTable {
                 return l;
         }
         return null;
+    }
+
+    public State getState(int s) {
+        return states.get(s);
     }
 
 }

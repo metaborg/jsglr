@@ -19,6 +19,9 @@ import aterm.pure.PureFactory;
 
 public class SGLR {
 
+    // FIXME: Should probably be put elsewhere
+    private static final int EOF = 256;
+
     private PureFactory factory;
 
     private Frame acceptingStack;
@@ -90,7 +93,7 @@ public class SGLR {
             currentToken = getNextToken(fis);
             parseCharacter();
             shifter();
-        } while (currentToken != -1 && activeStacks.size() > 0);
+        } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
 
         if(acceptingStack == null)
             return null;
@@ -104,6 +107,11 @@ public class SGLR {
     }
 
     private void shifter() {
+        Tools.debug("shifter()");
+        
+        Tools.debug(" token   : " + currentToken);
+        Tools.debug(" parsers : " + forShifter.size());
+        
         activeStacks.clear();
 
         ATerm t = makeTerm(currentToken);
@@ -151,9 +159,17 @@ public class SGLR {
 
         State s = st.peek();
 
-        for (ActionItem ai : s.getActionItems(currentToken)) {
+        Tools.debug(" state : " + s.stateNumber);
+        Tools.debug(" token : " + currentToken);
+        
+        List <ActionItem> actionItems = s.getActionItems(currentToken);
+        
+        Tools.debug(" actions : " + actionItems.size());
+        
+        for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
-                forShifter.add(new ActionState(st, s));
+                Shift sh = (Shift)ai;
+                forShifter.add(new ActionState(st, parseTable.getState(sh.nextState)));
             } else if (ai instanceof Reduce) {
                 Reduce red = (Reduce) ai;
                 doReductions(st, red.production);
@@ -168,10 +184,18 @@ public class SGLR {
         Tools.debug("doReductions()");
 
         Frame st0 = st.getRoot();
-
+        
+        Tools.debug(" state : " + st0.peek().stateNumber);
+        Tools.debug(" token : " + currentToken);
+        
         for (Path path : st.computePathsToRoot(prod.arity)) {
             List<ATerm> kids = path.collectTerms();
-            reducer(st0, parseTable.go(st0.peek(), prod.label), prod, kids);
+            
+            State next = parseTable.go(st0.peek(), prod.label);
+            
+            Tools.debug(" next  : goto(" + st0.peek().stateNumber + "," + prod.label + ") = " + next.stateNumber);
+            
+            reducer(st0, next, prod, kids);
         }
 
     }
@@ -179,6 +203,10 @@ public class SGLR {
     private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
         Tools.debug("reducer()");
 
+        Tools.debug(" state      : " + s.stateNumber);
+        Tools.debug(" token      : " + currentToken);
+        Tools.debug(" production : " + prod.label);
+        
         ATerm t = prod.apply(kids, parseTable);
 
         Frame st1 = findStack(activeStacks, s);
@@ -259,8 +287,12 @@ public class SGLR {
     }
 
     private int getNextToken(FileInputStream fis) throws IOException {
-        Tools.debug("getNextToken()");
-        return fis.read();
+        int t = fis.read();
+        
+        Tools.debug("getNextToken() - " + t);
+
+        // FIXME: Is 256 the EOF? 
+        return t == -1 ? SGLR.EOF : t; 
     }
 
 }

@@ -7,81 +7,48 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 import aterm.ATerm;
 
-public class Path<T> implements Iterable<List<T>> {
+public class Path {
 
-    private List<List<T>> lists;
+    public final Path parent;
 
-    public Path() {
-        lists = new Vector<List<T>>();
-        lists.add(new Vector<T>());
+    public final ATerm label;
+
+    public final Frame frame;
+
+    Path(Path parent, ATerm label, Frame frame) {
+        this.parent = parent;
+        this.label = label;
+        this.frame = frame;
     }
 
-    public void add(T t) {
-        for (List<T> l : lists) {
-            l.add(t);
+    public Frame getEnd() {
+        return frame;
+    }
+
+    public final List<ATerm> getATerms() {
+        List<ATerm> ret = new LinkedList<ATerm>();
+        for (Path n = parent; n != null; n = n.parent) {
+            ret.add(n.label);
         }
-    }
-
-    private List<List<T>> copy() {
-        
-        if (lists.size() == 0)
-            return lists;
-        
-        List<List<T>> newList = new Vector<List<T>>(lists.size());
-        for (List<T> e : lists) {
-            newList.add(e);
-        }
-        return newList;
-    }
-
-    public Iterator<List<T>> iterator() {
-        return new Iterator<List<T>>() {
-            private Iterator<List<T>> localIter = lists.iterator();
-
-            public boolean hasNext() {
-                return localIter.hasNext();
-            }
-
-            public List<T> next() {
-                return localIter.next();
-            }
-
-            public void remove() {
-                localIter.remove();
-            }
-        };
-    }
-
-    public void add(Path<T> p) {
-        List<List<T>> newList = new Vector<List<T>>();
-
-        for (List<T> ls : p) {
-            List<List<T>> n = copy();
-            for (List<T> ls2 : n)
-                ls2.addAll(ls);
-            newList.addAll(n);
-        }
-    }
-
-    public static List<ATerm> collectTerms(List<Link> path) {
-        List<ATerm> ret = new Vector<ATerm>(path.size());
-        for (Link ln : path)
-            ret.add(ln.label);
         return ret;
     }
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("[");
-        for (List<T> ls : lists)
-            sb.append(ls);
-        sb.append("]");
+        boolean first = true;
+        sb.append("<");
+        for (Path p = this; p != null; p = p.parent) {
+            if (!first)
+                sb.append(", ");
+            sb.append(p.frame.state.stateNumber);
+            first = false;
+        }
+        sb.append(">");
         return sb.toString();
     }
 

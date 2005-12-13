@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -44,35 +45,31 @@ public class Frame {
         return state;
     }
 
-    public Path<Link> computePathsToRoot(int arity) {
-        
+    public List<Path> computePathsToRoot(int arity) {
+
         if (arity == 0) {
-            Path<Link> ret = new Path<Link>();
-            Link ln = new Link(this, null);
-            ret.add(ln);
+            List<Path> ret = new LinkedList<Path>();
+            ret.add(new Path(null, null, this));
             return ret;
         }
 
-        return doComputePathsToRoot(arity);
-    }
-
-    public Path<Link> doComputePathsToRoot(int arity) {
-
-        Path<Link> ret = new Path<Link>();
-
-        if (arity == 0) {
-            return ret;
-        } else if (steps.size() > 0) {
-            for (Link ln : steps) {
-                Path<Link> p = ln.parent.doComputePathsToRoot(arity - 1);
-                p.add(ln);
-                ret.add(p);
-            }
-        } else {
-            Tools.debug("Error: Stack not deep enough for arity");
-        }
-
+        List<Path> ret = new LinkedList<Path>();
+        doComputePathsToRoot(ret, null, arity);
+        Collections.reverse(ret);
         return ret;
+    }
+    
+    private void doComputePathsToRoot(List<Path> collect, Path node, int arity) {
+
+        if (arity == 0) {
+            Path n = new Path(node, null, this);
+            collect.add(n);
+        }
+
+        for (Link ln : steps) {
+            Path n = new Path(node, ln.label, this);
+            ln.parent.doComputePathsToRoot(collect, n, arity - 1);
+        }
     }
 
     public Frame getRoot() {
@@ -134,6 +131,35 @@ public class Frame {
             }
         }
         return frames;
+    }
+
+    public List<Path> computePathsToRoot(int arity, Link l) {
+
+        if (arity == 0) {
+            List<Path> ret = new LinkedList<Path>();
+            ret.add(new Path(null, null, this));
+            return ret;
+        }
+
+        List<Path> ret = new LinkedList<Path>();
+        doComputePathsToRoot(ret, null, l, false, arity);
+        // FIXME: Necessary?
+        Collections.reverse(ret);
+        return ret;
+    }
+    
+    private void doComputePathsToRoot(List<Path> collect, Path node, Link l, boolean seen, int arity) {
+
+        if (arity == 0 && seen) {
+            Path n = new Path(node, null, this);
+            collect.add(n);
+        }
+
+        for (Link ln : steps) {
+            Path n = new Path(node, ln.label, this);
+            boolean seenIt = seen || (ln == l);
+            ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1);
+        }
     }
 
 }

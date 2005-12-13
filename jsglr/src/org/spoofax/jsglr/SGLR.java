@@ -205,7 +205,7 @@ public class SGLR {
 
     private void parseCharacter() {
         Tools.debug("parseCharacter() - " + dumpActiveStacks());
-        
+
         Tools.debug(" # active stacks : " + activeStacks.size());
 
         forActor = computeStackOfStacks(activeStacks);
@@ -213,12 +213,12 @@ public class SGLR {
         forShifter = new Stack<ActionState>();
 
         Tools.debug(" forActor        : " + forActor);
-        
+
         while (forActor.size() > 0 || forActorDelayed.size() > 0) {
             if (forActor.size() == 0) {
                 forActor.add(forActorDelayed.pop());
             }
-            while (forActor.size() > 0) {
+            if (forActor.size() > 0) {
                 Frame st = forActor.pop();
                 if (!st.allLinksRejected())
                     actor(st);
@@ -255,13 +255,13 @@ public class SGLR {
     }
 
     private void statsRecordParsers() {
-        if(forShifter.size() > maxBranches) {
+        if (forShifter.size() > maxBranches) {
             maxBranches = forShifter.size();
             maxToken = currentToken;
             maxColumn = columnNumber;
             maxLine = lineNumber;
             maxTokenNumber = tokensSeen;
-        }                
+        }
     }
 
     private void doReductions(Frame st, Production prod) {
@@ -274,15 +274,15 @@ public class SGLR {
         Tools.debug(" arity : " + prod.arity);
         Tools.debug(" stack : " + st.dumpStack());
 
-        Path<Link> paths = st.computePathsToRoot(prod.arity);
+        List<Path> paths = st.computePathsToRoot(prod.arity);
         Tools.debug(paths);
 
-        for (List<Link> path : paths) {
-            List<ATerm> kids = Path.collectTerms(path);
+        for (Path path : paths) {
+            List<ATerm> kids = path.getATerms();
 
             Tools.debug(path);
 
-            Frame st0 = path.get(0).parent;
+            Frame st0 = path.getEnd();
 
             Tools.debug(st0.state);
 
@@ -321,6 +321,8 @@ public class SGLR {
             Link nl = st1.findLink(st0);
 
             if (nl != null) {
+                Tools.logger("Ambiguity: direct link " + st0.state.stateNumber
+                        + " -> " + st1.state.stateNumber);
                 nl.addAmbiguity(t);
 
                 if (prod.status == Production.REJECT)
@@ -328,6 +330,9 @@ public class SGLR {
 
             } else {
                 nl = st1.addLink(st0, t);
+                Tools.debug(" added link " + nl + " from "
+                        + st1.state.stateNumber + " to "
+                        + st0.state.stateNumber);
 
                 if (prod.status == Production.REJECT)
                     nl.reject();
@@ -379,14 +384,32 @@ public class SGLR {
     }
 
     private void doLimitedReductions(Frame st, Production prod, Link l) {
-        Tools.debug("doLimitedReductions()");
+        Tools.debug("doLimitedReductions() - " + dumpActiveStacks());
 
-        Path<Link> paths = st.computePathsToRoot(prod.arity, l);
-        Frame st0 = st.getRoot();
+        Tools.debug(" state : " + st.peek().stateNumber);
+        Tools.debug(" token : " + currentToken);
+        Tools.debug(" label : " + prod.label);
+        Tools.debug(" arity : " + prod.arity);
+        Tools.debug(" stack : " + st.dumpStack());
 
-        for (List<Link> path : paths) {
-            List<ATerm> kids = Path.collectTerms(path);
-            reducer(st0, parseTable.go(st0.peek(), prod.label), prod, kids);
+        List<Path> paths = st.computePathsToRoot(prod.arity, l);
+        Tools.debug(paths);
+
+        for (Path path : paths) {
+            List<ATerm> kids = path.getATerms();
+
+            Tools.debug(path);
+
+            Frame st0 = path.getEnd();
+
+            Tools.debug(st0.state);
+
+            State next = parseTable.go(st0.peek(), prod.label);
+
+            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label
+                    + ") == " + next.stateNumber);
+
+            reducer(st0, next, prod, kids);
         }
     }
 
@@ -418,7 +441,7 @@ public class SGLR {
             sb.append(" GSS unitialized");
         } else {
             for (Frame f : activeStacks) {
-                if(!first)
+                if (!first)
                     sb.append(", ");
                 sb.append(f.dumpStack());
                 first = false;

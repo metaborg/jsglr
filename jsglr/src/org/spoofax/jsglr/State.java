@@ -76,7 +76,7 @@ public class State {
 
     public boolean hasAvoid() {
         for(Action a : actions) {
-            if (a.hasPrefer())
+            if (a.hasAvoid())
                 return true;
         }
         return false;

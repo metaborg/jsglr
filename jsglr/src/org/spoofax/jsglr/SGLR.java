@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import sun.security.krb5.internal.ac;
-
 import aterm.ATerm;
 import aterm.pure.PureFactory;
 
@@ -165,7 +163,7 @@ public class SGLR {
 
         activeStacks.clear();
 
-        ATerm t = makeTerm(currentToken);
+        ATerm t = parseTable.lookupProduction(currentToken);
 
         while (forShifter.size() > 0) {
             ActionState as = forShifter.pop();
@@ -196,11 +194,6 @@ public class SGLR {
         default:
             return "" + (char) currentToken;
         }
-    }
-
-    private ATerm makeTerm(int token) {
-        // FIXME: Is this correct?
-        return factory.makeInt(token);
     }
 
     private void parseCharacter() {
@@ -275,13 +268,16 @@ public class SGLR {
         Tools.debug(" stack : " + st.dumpStack());
 
         List<Path> paths = st.computePathsToRoot(prod.arity);
-        Tools.debug(paths);
+        
+        Tools.debug(" paths : " + paths.size());
 
         for (Path path : paths) {
+            
             List<ATerm> kids = path.getATerms();
 
             Tools.debug(path);
-
+            Tools.debug(kids);
+            
             Frame st0 = path.getEnd();
 
             Tools.debug(st0.state);

@@ -58,7 +58,7 @@ public class Frame {
         Collections.reverse(ret);
         return ret;
     }
-    
+
     private void doComputePathsToRoot(List<Path> collect, Path node, int arity) {
 
         if (arity == 0) {
@@ -97,24 +97,53 @@ public class Frame {
     public String dumpStack() {
         StringBuffer sb = new StringBuffer();
 
-        sb.append("GSS [" + dumpStack(false) + " ]");
+        sb.append("GSS [\n" + doDumpStack(2) + "\n  ]");
         return sb.toString();
     }
 
-    public String dumpStack(boolean f) {
+    public String doDumpStack(int indent) {
         StringBuffer sb = new StringBuffer();
         sb.append(" " + state.stateNumber);
         if (steps.size() > 1) {
             sb.append(" ( ");
             for (Link s : steps) {
-                sb.append(s.parent.dumpStack(false));
+                sb.append(s.parent.doDumpStack(indent + 1));
                 sb.append(" | ");
             }
             sb.append(")");
 
         } else {
-            for (Link s : steps)
-                sb.append(", " + s.parent.dumpStack(false));
+            for (Link s : steps) {
+                sb.append(" <" + s.label + "> "
+                        + s.parent.state.stateNumber + "\n");
+                sb.append(s.parent.doDumpStack(indent));
+            }
+        }
+        return sb.toString();
+    }
+
+    public String dumpStackCompact() {
+        StringBuffer sb = new StringBuffer();
+
+        sb.append("GSS [" + doDumpStackCompact() + " ]");
+        return sb.toString();
+    }
+
+    public String doDumpStackCompact() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" " + state.stateNumber);
+        if (steps.size() > 1) {
+            sb.append(" ( ");
+            for (Link s : steps) {
+                sb.append(s.parent.doDumpStackCompact());
+                sb.append(" | ");
+            }
+            sb.append(")");
+
+        } else {
+            for (Link s : steps) {
+                sb.append(", " + s.parent.doDumpStackCompact());
+            }
         }
         return sb.toString();
     }
@@ -147,8 +176,9 @@ public class Frame {
         Collections.reverse(ret);
         return ret;
     }
-    
-    private void doComputePathsToRoot(List<Path> collect, Path node, Link l, boolean seen, int arity) {
+
+    private void doComputePathsToRoot(List<Path> collect, Path node, Link l,
+            boolean seen, int arity) {
 
         if (arity == 0 && seen) {
             Path n = new Path(node, null, this);

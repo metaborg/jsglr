@@ -10,7 +10,7 @@ package org.spoofax.jsglr;
 public class Tools {
 
     public static void debug(String s) {
-        // System.out.println(s);
+        System.out.println(s);
     }
 
     public static void debug(int stateNumber) {

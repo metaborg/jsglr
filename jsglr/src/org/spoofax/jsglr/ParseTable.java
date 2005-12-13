@@ -13,6 +13,7 @@ import java.util.Vector;
 
 import aterm.ATerm;
 import aterm.ATermAppl;
+import aterm.ATermFactory;
 import aterm.ATermList;
 
 public class ParseTable {
@@ -22,11 +23,15 @@ public class ParseTable {
     private int startState;
     private List<Label> labels;
     private List<Priority> priorities;
+    private ATermFactory factory;
     
     public ParseTable(ATerm pt) throws FatalException, InvalidParseTableException {
         parse(pt);
+        factory = pt.getFactory();
     }
 
+    public ATermFactory getFactory() { return factory; }
+    
     private boolean parse(ATerm pt) throws FatalException, InvalidParseTableException {
         int version = Term.intAt(pt, 0);
         startState = Term.intAt(pt, 1);
@@ -277,6 +282,15 @@ public class ParseTable {
             if(s.hasAvoid())
                 return true;
         return false;
+    }
+
+    public ATerm lookupProduction(int currentToken) {
+        // FIXME: Indexed instead of list.
+        for(Label l : labels)
+            if(l.labelNumber == currentToken)
+                return l.prod;
+        
+        return factory.makeInt(currentToken);
     }
         
 }

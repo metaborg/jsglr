@@ -7,9 +7,12 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.List;
+
 import jjtraveler.Visitable;
 import aterm.ATerm;
 import aterm.ATermAppl;
+import aterm.ATermFactory;
 import aterm.ATermInt;
 import aterm.ATermList;
 
@@ -65,6 +68,14 @@ public class Term {
 
     public static boolean isInt(ATerm t) {
         return t.getType() == ATerm.INT;
+    }
+
+    public static ATermList makeList(ATermFactory f, List<ATerm> kids) {
+        ATermList ret = f.makeList();
+        // FIXME: Slowest insertion method
+        for(ATerm t : kids)
+            ret = ret.append(t);
+        return ret;
     }
 
 }

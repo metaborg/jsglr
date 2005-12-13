@@ -35,13 +35,14 @@ public abstract class ParseTestCase extends TestCase {
     public void doParseTest(String s) throws FileNotFoundException, IOException {
         ATerm parsed = sglr.parse(new FileInputStream("tests/data/" + s
                 + "." + suffix));
-        //ATerm loaded = pf.readFromFile("tests/data/" + s + ".txt");
+        ATerm loaded = pf.readFromFile("tests/data/" + s + ".trm");
     
         Tools.debug(parsed);
     
         assertNotNull(parsed);
-        //assertNotNull(loaded);
-        // assertTrue(parsed.match(loaded) != null);
+        assertNotNull(loaded);
+        System.out.println(parsed);
+        assertTrue(parsed.match(loaded) != null);
     }
 
 }

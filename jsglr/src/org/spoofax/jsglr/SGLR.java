@@ -78,7 +78,7 @@ public class SGLR {
     }
 
     public void loadParseTable(InputStream r) throws IOException,
-            FatalException, InvalidParseTableException {
+            InvalidParseTableException {
         Tools.debug("loadParseTable()");
 
         ATerm pt = factory.readFromFile(r);

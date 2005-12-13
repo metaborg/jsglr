@@ -25,14 +25,14 @@ public class ParseTable {
     private List<Priority> priorities;
     private ATermFactory factory;
     
-    public ParseTable(ATerm pt) throws FatalException, InvalidParseTableException {
+    public ParseTable(ATerm pt) throws InvalidParseTableException {
         parse(pt);
         factory = pt.getFactory();
     }
 
     public ATermFactory getFactory() { return factory; }
     
-    private boolean parse(ATerm pt) throws FatalException, InvalidParseTableException {
+    private boolean parse(ATerm pt) throws InvalidParseTableException {
         int version = Term.intAt(pt, 0);
         startState = Term.intAt(pt, 1);
         ATermList labelsTerm = Term.listAt(pt, 2);
@@ -51,7 +51,7 @@ public class ParseTable {
         return true;
     }
 
-    private List<Priority> parsePriorities(ATermAppl prioritiesTerm) throws FatalException {
+    private List<Priority> parsePriorities(ATermAppl prioritiesTerm) throws InvalidParseTableException {
         
         List<Priority> ret = new Vector<Priority>(prioritiesTerm.getChildCount());
         
@@ -70,7 +70,7 @@ public class ParseTable {
             } else if(a.getName().equals("gtr-prio")) {
                 ret.add(new Priority(Priority.GTR, left, right));
             } else {
-                throw new FatalException("Unknown priority");
+                throw new InvalidParseTableException("Unknown priority : " + a.getName());
             }
         }
         return ret;

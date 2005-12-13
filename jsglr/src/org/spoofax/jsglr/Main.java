@@ -15,7 +15,7 @@ import aterm.ATerm;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException, IOException, FatalException, InvalidParseTableException {
+    public static void main(String[] args) throws FileNotFoundException, IOException, InvalidParseTableException {
         
         SGLR sglr= new SGLR();
         

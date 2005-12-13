@@ -29,6 +29,10 @@ public class TestStratego extends ParseTestCase {
         doParseTest("s1");
     }
 
+    public void testS2() throws FileNotFoundException, IOException {
+        doParseTest("s2");
+    }
+
     public void testS3() throws FileNotFoundException, IOException {
         doParseTest("s3");
     }

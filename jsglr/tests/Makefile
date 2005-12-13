@@ -35,3 +35,6 @@ trace-diff-% : sglr-trace-% jsglr-trace-%
 
 clean:
 	rm -f sglr-trace-* jsglr-trace-* trace-diff-*
+
+fullclean : clean
+	rm -f sglr*full* jsglr*full*

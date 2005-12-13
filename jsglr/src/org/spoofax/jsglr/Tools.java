@@ -7,8 +7,32 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class Tools {
 
+    private static FileOutputStream fos;
+    private static String outfile = null;
+    
+    public static void setOutput(String d) {
+        outfile = d;
+        fos = null;
+    }
+    
+    private static void initOutput() {
+        if(fos == null) {
+            try {
+                if(outfile == null)
+                    outfile = ".jsglr-log";
+                fos = new FileOutputStream(outfile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public static void debug(String s) {
         System.out.println(s);
     }
@@ -24,7 +48,13 @@ public class Tools {
             debug(o.toString());
     }
 
-    public static void logger(String string) {
-        System.err.println(string);
+    public static void logger(String s) {
+        initOutput();
+        try {
+            fos.write((s + "\n").getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.err.println(s);
     }
 }

@@ -33,6 +33,7 @@ public abstract class ParseTestCase extends TestCase {
     }
 
     public void doParseTest(String s) throws FileNotFoundException, IOException {
+        Tools.setOutput("tests/jsglr-full-trace-" + s);
         ATerm parsed = sglr.parse(new FileInputStream("tests/data/" + s
                 + "." + suffix));
         ATerm loaded = pf.readFromFile("tests/data/" + s + ".trm");

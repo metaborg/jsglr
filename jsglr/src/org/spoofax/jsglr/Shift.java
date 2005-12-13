@@ -16,4 +16,7 @@ public class Shift extends ActionItem {
         this.nextState = nextState;
     }
 
+    public String toString() {
+        return "shift(" + nextState + ")";
+    }
 }

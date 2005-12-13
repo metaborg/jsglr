@@ -33,4 +33,8 @@ public class Reduce extends ActionItem {
       
         production = new Production(arity, label, status);
     }
+    
+    public String toString() {
+        return "reduce(" + arity + ", " + label + ", " + status + ")";
+    }
 }

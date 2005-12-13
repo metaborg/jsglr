@@ -34,4 +34,19 @@ public class Path {
         steps.add(s);
     }
 
+    public Step getRoot() {
+        if(steps.size() < 1) 
+            return null;
+        return steps.get(steps.size()-1);
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("< ");
+        for(Step s : steps) {
+            sb.append( s.destination.state.stateNumber + ", ");
+        }   
+        sb.append(">");
+        return sb.toString();
+    }
 }

@@ -185,7 +185,7 @@ public class SGLR {
 
         List<ActionItem> actionItems = s.getActionItems(currentToken);
 
-        Tools.debug(" actions : " + actionItems.size());
+        Tools.debug(" actions : " + actionItems);
 
         for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
@@ -203,16 +203,21 @@ public class SGLR {
 
     // FIXME: Second argument should be Action, not Production?
     private void doReductions(Frame st, Production prod) {
-        Tools.debug("doReductions()");
+        Tools.debug("doReductions() - " + dumpActiveStacks());
 
-        Frame st0 = st.getRoot();
-
-        Tools.debug(" state : " + st0.peek().stateNumber);
+        Tools.debug(" state : " + st.peek().stateNumber);
         Tools.debug(" token : " + currentToken);
+        Tools.debug(" arity : " + prod.arity);
 
-        for (Path path : st.computePathsToRoot(prod.arity)) {
+        List<Path> paths = st.computePathsToRoot(prod.arity);
+
+        for (Path path : paths) {
             List<ATerm> kids = path.collectTerms();
-
+            
+            Tools.debug(path);
+            
+            Frame st0 = path.getRoot().destination;
+            
             State next = parseTable.go(st0.peek(), prod.label);
 
             Tools.debug(" next  : goto(" + st0.peek().stateNumber + ","
@@ -220,6 +225,24 @@ public class SGLR {
 
             reducer(st0, next, prod, kids);
         }
+
+//        dropPaths(st, paths);
+        Tools.debug("<doReductions() - " + dumpActiveStacks());
+
+    }
+
+    private void dropPaths(Frame st, List<Path> paths) {
+        // FIXME: this one updates activeStacks by side-effect!
+
+        for (Path p : paths) {
+            Step s = p.getRoot();
+            if (s != null && s.destination != null)
+                activeStacks.add(s.destination);
+        }
+        if(!activeStacks.remove(st)) {
+            Tools.debug("EXCEPTION");
+        }
+            
 
     }
 
@@ -289,10 +312,8 @@ public class SGLR {
         Tools.debug(" looking for " + s.stateNumber);
         for (Frame st : stacks)
             if (st.state.stateNumber == s.stateNumber) {
-                Tools.debug(" Found");
                 return st;
             }
-        Tools.debug(" Not found");
         return null;
     }
 

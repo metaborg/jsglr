@@ -48,7 +48,10 @@ public class Frame {
         List<Path> ret = new Vector<Path>();
 
         if (arity == 0 || steps.size() == 0) {
-            ret.add(new Path());
+            Path p = new Path();
+            // FIXME: WOW! this is bad
+            p.addStep(new Step(this, null));
+            ret.add(p);
         } else {
             for (Step s : steps) {
                 List<Path> paths = s.destination.computePathsToRoot(arity - 1);
@@ -97,7 +100,7 @@ public class Frame {
     public String dumpStack() {
         StringBuffer sb = new StringBuffer();
         
-        sb.append("GSS [ " + dumpStack(false) + " ]");
+        sb.append("GSS [" + dumpStack(false) + " ]");
         return sb.toString();
     }
 
@@ -114,6 +117,19 @@ public class Frame {
             }
         }
         return sb.toString();
+    }
+
+    public void dropPaths(List<Path> paths) {
+        // FIXME: Over estimated number of new Steps
+        // FIXME: This is probably not even remotely correct in the face of GSS "joins"
+        List<Step> newSteps = new Vector<Step>(paths.size());
+        
+        for(Path p : paths) {
+            Step s = p.getRoot();
+            if(s != null)
+            newSteps.add(s);
+        }
+        steps = newSteps;
     }
 
 }

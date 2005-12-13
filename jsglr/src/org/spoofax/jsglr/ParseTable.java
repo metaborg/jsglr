@@ -183,7 +183,7 @@ public class ParseTable {
                 int j = Term.toInt(t);
                 // Anything > 256 is a label, anything below is a char
                 // FIXME: Should it be <= ?
-                if(j < 256) 
+                if(j <= 256) 
                     ret.add(new Range(j));
             } else {
                 int low = Term.intAt(t, 0);

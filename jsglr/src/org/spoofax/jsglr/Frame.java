@@ -22,11 +22,6 @@ public class Frame {
         steps = new Vector<Step>();
     }
 
-    public void clear() {
-        // TODO Auto-generated method stub
-        
-    }
-
     public boolean allLinksRejected() {
         // TODO Auto-generated method stub
         return false;

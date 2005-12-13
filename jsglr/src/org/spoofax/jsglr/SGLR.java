@@ -23,7 +23,7 @@ public class SGLR {
 
     private Frame acceptingStack;
 
-    private Vector<Frame> activeStacks;
+    private List<Frame> activeStacks;
 
     private ParseTable parseTable;
 
@@ -37,12 +37,15 @@ public class SGLR {
 
     SGLR() {
         factory = new PureFactory();
+        activeStacks = new Vector<Frame>();
     }
 
-    public boolean loadParseTable(InputStream r) throws IOException {
+    public void loadParseTable(InputStream r) throws IOException {
         ATerm pt = factory.readFromFile(r);
 
-        return computeParseTable(pt);
+        Tools.debug("" + pt);
+
+        parseTable = new ParseTable(pt);
     }
 
     private boolean computeParseTable(ATerm pt) {
@@ -51,9 +54,9 @@ public class SGLR {
     }
 
     /**
-     * Initializes the active stacks. At the start of parsing there is
-     * only one active stack, and this stack contains the start symbol
-     * obtained from the parse table.
+     * Initializes the active stacks. At the start of parsing there is only one
+     * active stack, and this stack contains the start symbol obtained from the
+     * parse table.
      * 
      * @return the initial stack
      */
@@ -66,8 +69,8 @@ public class SGLR {
 
     public ATerm parse(FileInputStream fis) throws IOException {
 
-        acceptingStack.clear();
-        Frame st0= initActiveStacks();
+        acceptingStack = null;
+        Frame st0 = initActiveStacks();
 
         do {
             currentToken = getNextToken(fis);
@@ -81,18 +84,18 @@ public class SGLR {
 
     private void shifter() {
         activeStacks.clear();
-        
-        ATerm t= makeTerm(currentToken);
-        
-        for(ActionState as : forShifter) {
+
+        ATerm t = makeTerm(currentToken);
+
+        for (ActionState as : forShifter) {
             State s = as.s;
             Frame st0 = as.st;
-            
-            Frame st1= findStack(activeStacks, s);
-            if(st1 != null) {
+
+            Frame st1 = findStack(activeStacks, s);
+            if (st1 != null) {
                 st1.addStep(st0, t);
             } else {
-                st1= new Frame(as.s);
+                st1 = new Frame(as.s);
                 st1.addStep(st0, t);
                 activeStacks.add(st1);
             }
@@ -147,8 +150,7 @@ public class SGLR {
 
     }
 
-    private void reducer(Frame st0, State s, Production prod,
-            List<ATerm> kids) {
+    private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
         ATerm t = prod.apply(kids);
 
         Frame st1 = findStack(activeStacks, s);
@@ -164,23 +166,23 @@ public class SGLR {
             } else {
                 nl = st1.addStep(st0, t);
 
-                if(prod.type == Production.REJECT) 
+                if (prod.type == Production.REJECT)
                     nl.reject();
-                
-                for(Frame st2 : activeStacks) {
-                    if(st2.rejected())
+
+                for (Frame st2 : activeStacks) {
+                    if (st2.rejected())
                         continue;
-                    if(forActor.contains(st2))
+                    if (forActor.contains(st2))
                         continue;
-                    if(forActorDelayed.contains(st2))
+                    if (forActorDelayed.contains(st2))
                         continue;
-                    
-                    for(Action r: st2.peek().getActions(currentToken)) {
-                        if(r.type == Action.REDUCE)
+
+                    for (Action r : st2.peek().getActions(currentToken)) {
+                        if (r.type == Action.REDUCE)
                             // FIXME: Is Action == Production?
                             doLimitedReductions(st2, r.getProduction(), nl);
                     }
-                        
+
                 }
             }
         } else {
@@ -188,9 +190,9 @@ public class SGLR {
         }
     }
 
-    private Frame findStack(Vector<Frame> stacks, State s) {
-        for(Frame st : stacks)
-            if(st.state.equals(s))
+    private Frame findStack(List<Frame> stacks, State s) {
+        for (Frame st : stacks)
+            if (st.state.equals(s))
                 return st;
         return null;
     }
@@ -198,20 +200,21 @@ public class SGLR {
     private void doLimitedReductions(Frame st, Production prod, Step l) {
         List<Path> paths = st.computePathsToRoot(prod.getArity(), l);
         Frame st0 = st.getRoot();
-        for(Path path : paths) {
+        for (Path path : paths) {
             List<ATerm> kids = path.collectTerms();
             reducer(st0, st0.peek().go(prod), prod, kids);
         }
     }
 
-    private List<Frame> getListOfStacks(Vector<Frame> st) {
+    private List<Frame> getListOfStacks(List<Frame> st) {
         List<Frame> ret = new Vector<Frame>();
         for (Frame s : st)
             ret.add(s);
         return ret;
     }
 
-   private int getNextToken(FileInputStream fis) throws IOException {
+    private int getNextToken(FileInputStream fis) throws IOException {
         return fis.read();
     }
+
 }

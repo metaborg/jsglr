@@ -46,11 +46,10 @@ public class TestSGLR extends TestCase {
         doParseTest("b2");
     }
 
-    /*
     public void testB3() throws FileNotFoundException, IOException {
         doParseTest("b3");
     }
-*/
+
     public void testB4() throws FileNotFoundException, IOException {
         doParseTest("b4");
     }

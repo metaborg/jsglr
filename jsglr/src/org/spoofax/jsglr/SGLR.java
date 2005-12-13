@@ -258,10 +258,6 @@ public class SGLR {
         Tools.debug(" arity : " + prod.arity);
         Tools.debug(" stack : " + st.dumpStack());
 
-        if (prod.arity > 1) {
-            int x = 0;
-        }
-
         Path<Link> paths = st.computePathsToRoot(prod.arity);
         Tools.debug(paths);
 

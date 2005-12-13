@@ -74,5 +74,13 @@ public class Path<T> implements Iterable<List<T>> {
         return ret;
     }
     
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        for(List<T> ls : lists)
+            sb.append(ls);
+        sb.append("]");
+        return sb.toString();
+    }
     
 }

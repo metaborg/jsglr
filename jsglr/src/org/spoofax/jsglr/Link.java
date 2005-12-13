@@ -40,4 +40,7 @@ public class Link {
         return rejected;
     }
 
+    public String toString() {
+        return "" + parent.state.stateNumber;
+    }
 }

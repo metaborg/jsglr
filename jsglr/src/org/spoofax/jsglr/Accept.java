@@ -12,4 +12,8 @@ public class Accept extends ActionItem {
     public Accept() {
         super(ACCEPT);
     }
+
+    public String toString() {
+        return "accept";
+    }
 }

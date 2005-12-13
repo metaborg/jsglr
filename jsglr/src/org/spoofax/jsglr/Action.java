@@ -35,11 +35,34 @@ public class Action {
         for(ActionItem ai : items) {
             if(ai instanceof Reduce) {
                 Reduce r = (Reduce) ai;
-                if(r.type == Reduce.REJECT)
+                if(r.status == Reduce.REJECT)
                     return true;
             }
                 
         }
+        return false;
+    }
+
+    public boolean hasPrefer() {
+        for(ActionItem ai : items)
+            if(ai instanceof Reduce) {
+                Reduce r = (Reduce) ai;
+                if(r.status == Reduce.PREFER)
+                    return true;
+            }
+        return false;
+    }
+
+    public boolean hasAvoid() {
+        for(ActionItem ai : items)
+            if(ai instanceof Reduce) {
+                Reduce r = (Reduce) ai;
+                if(r.status == Reduce.AVOID) {
+                    Tools.debug(this);
+                    return true;                    
+                }
+
+            }
         return false;
     }
 

@@ -50,4 +50,36 @@ public class State {
         return false;
     }
 
+    public int getActionItemCount() {
+        int total = 0;
+        for(Action a : actions) {
+            total += a.getActionItems().size();
+        }
+        return total;
+    }
+
+    public int getGotoCount() {
+        return gotos.size();
+    }
+
+    public int getActionCount() {
+        return actions.size();
+    }
+
+    public boolean hasPrefer() {
+        for(Action a : actions) {
+            if (a.hasPrefer())
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasAvoid() {
+        for(Action a : actions) {
+            if (a.hasPrefer())
+                return true;
+        }
+        return false;
+    }
+
 }

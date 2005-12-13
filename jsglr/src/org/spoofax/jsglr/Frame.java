@@ -94,4 +94,26 @@ public class Frame {
         return paths;
     }
 
+    public String dumpStack() {
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append("GSS [ " + dumpStack(false) + " ]");
+        return sb.toString();
+    }
+
+    public String dumpStack(boolean f) {
+        StringBuffer sb = new StringBuffer();
+        boolean hasForked = false;
+        sb.append(" " + state.stateNumber);
+        for(Step s : steps) {
+            if(!hasForked) {
+                sb.append(", " + s.destination.dumpStack(false));
+                hasForked = true;
+            } else {
+                sb.append("[ " + s.destination.dumpStack(false) + "]");
+            }
+        }
+        return sb.toString();
+    }
+
 }

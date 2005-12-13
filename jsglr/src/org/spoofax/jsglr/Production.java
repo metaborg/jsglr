@@ -17,12 +17,11 @@ public class Production {
     public final int label;
     public final int status;
     
-    // FIXME: These are most certainly wrong. Must check SGLR parse table
-    // definition to get the real numbers otherwise, all heck is loose.
-    public static final int PREFER = 1;
-    public static final int AVOID = 2; 
-    public static final int REJECT = 3;
-    public static final int NORMAL = 4;
+    // FIXME: These should be factored out in a separate constant class.
+    public static final int NORMAL = Reduce.NORMAL;
+    public static final int PREFER = Reduce.PREFER;
+    public static final int AVOID = Reduce.AVOID; 
+    public static final int REJECT = Reduce.REJECT;
     
     public Production(int arity, int label, int status) {
         this.arity = arity;

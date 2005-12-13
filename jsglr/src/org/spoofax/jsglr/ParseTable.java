@@ -199,8 +199,9 @@ public class ParseTable {
     }
 
     public State go(State s, int label) {
-        Tools.debug("goto(" + s.stateNumber + "," + label + ")");
-        return states.get(s.go(label));
+        State n = states.get(s.go(label));
+        Tools.debug("goto(" + s.stateNumber + "," + label + ") = " + n.stateNumber);
+        return n;
     }
 
     // FIXME: Why can't this.labels just be an array and label the index? 
@@ -216,4 +217,66 @@ public class ParseTable {
         return states.get(s);
     }
 
+    public int getStateCount() {
+        return states.values().size();
+    }
+
+    public int getProductionCount() {
+        // FIXME: What are labels really?
+        return labels.size();
+    }
+
+    public int getActionEntryCount() {
+        int total = 0;
+        for(State s : states.values()) {
+            total += s.getActionItemCount();
+        }
+        return total;
+    }
+
+    public int getGotoEntries() {
+        int total = 0;
+        for(State s : states.values()) {
+            total += s.getGotoCount();
+        }
+        return total;
+    }
+
+    public int getActionCount() {
+        int total = 0;
+        for(State s : states.values()) {
+            total += s.getActionCount();
+        }
+        return total;
+    }
+
+    public boolean hasRejects() {
+        
+        for(State s : states.values())
+            if(s.rejectable())
+                return true;
+        
+        return false;
+    }
+
+    public boolean hasPriorities() {
+        if(priorities.size() > 0)
+            return true;
+        return false;
+    }
+    
+    public boolean hasPrefers() {
+        for(State s : states.values())
+            if(s.hasPrefer())
+                return true;
+        return false;
+    }
+
+    public boolean hasAvoids() {
+        for(State s : states.values())
+            if(s.hasAvoid())
+                return true;
+        return false;
+    }
+        
 }

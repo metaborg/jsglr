@@ -30,7 +30,7 @@ public class Reduce extends ActionItem {
         this.arity = arity;
         this.label = label;
         this.status = status;
-        
+      
         production = new Production(arity, label, status);
     }
 }

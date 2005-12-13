@@ -33,8 +33,21 @@ public class State {
         return ret;
     }
 
-    public State go(Production prod) {
-        return null;
+    public int go(int labelNumber) {
+        // FIXME: I can't see how this is correct
+        for(Goto g : gotos) {
+            if(g.hasProd(labelNumber))
+                return g.nextState;
+        }
+        return -1;
+    }
+
+    public boolean rejectable() {
+        for(Action a : actions) {
+            if(a.rejectable()) 
+                return true;
+        }
+        return false;
     }
 
 }

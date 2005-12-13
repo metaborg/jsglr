@@ -31,33 +31,38 @@ public class SGLR {
 
     private int currentToken;
 
-    private List<Frame> forActor;
+    private Stack<Frame> forActor;
 
     private Stack<Frame> forActorDelayed;
 
     SGLR() {
-        basicInit();
+        basicInit(null);
     }
 
-    private void basicInit() {
-        factory = new PureFactory();
+    private void basicInit(PureFactory pf) {
+        factory = pf;
+        if (factory == null)
+            factory = new PureFactory();
         activeStacks = new Vector<Frame>();
     }
 
-    public SGLR(InputStream r) throws IOException, FatalException {
-        basicInit();
-        loadParseTable(r);
+    public SGLR(InputStream is) throws IOException, FatalException,
+            InvalidParseTableException {
+        basicInit(null);
+        loadParseTable(is);
     }
-    
-    public void loadParseTable(InputStream r) throws IOException, FatalException {
+
+    public SGLR(PureFactory pf, InputStream is) throws IOException,
+            FatalException, InvalidParseTableException {
+        basicInit(pf);
+        loadParseTable(is);
+    }
+
+    public void loadParseTable(InputStream r) throws IOException,
+            FatalException, InvalidParseTableException {
         ATerm pt = factory.readFromFile(r);
 
         parseTable = new ParseTable(pt);
-    }
-
-    private boolean computeParseTable(ATerm pt) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     /**
@@ -76,6 +81,8 @@ public class SGLR {
 
     public ATerm parse(FileInputStream fis) throws IOException {
 
+        Tools.debug("parse()");
+
         acceptingStack = null;
         Frame st0 = initActiveStacks();
 
@@ -85,8 +92,15 @@ public class SGLR {
             shifter();
         } while (currentToken != -1 && activeStacks.size() > 0);
 
-        // FIXME: How can this return multiple alternatives?
-        return acceptingStack.findStep(st0).label;
+        if(acceptingStack == null)
+            return null;
+        
+        Step s = acceptingStack.findStep(st0);
+        
+        if(s != null)
+            return s.label;
+        
+        return null;
     }
 
     private void shifter() {
@@ -110,52 +124,62 @@ public class SGLR {
 
     }
 
-    private ATerm makeTerm(int currentToken2) {
-        // TODO Auto-generated method stub
-        return null;
+    private ATerm makeTerm(int token) {
+        // FIXME: Is this correct?
+        return factory.makeInt(token);
     }
 
     private void parseCharacter() {
-        forActor = getListOfStacks(activeStacks);
+        Tools.debug("parseCharacter()");
+
+        forActor = computeStackOfStacks(activeStacks);
         forActorDelayed = new Stack<Frame>();
         forShifter = new Vector<ActionState>();
+
         while (forActor.size() > 0 || forActorDelayed.size() > 0) {
             if (forActor.size() == 0) {
                 forActor.add(forActorDelayed.pop());
             }
-            for (Frame st : forActor) {
-                if (!st.allLinksRejected())
-                    actor(st);
-            }
+            Frame st = forActor.pop();
+            if (!st.allLinksRejected())
+                actor(st);
         }
     }
 
     private void actor(Frame st) {
+        Tools.debug("actor()");
+
         State s = st.peek();
+
         for (ActionItem ai : s.getActionItems(currentToken)) {
-            if(ai instanceof Shift) {
+            if (ai instanceof Shift) {
                 forShifter.add(new ActionState(st, s));
-            } else if(ai instanceof Reduce) {
+            } else if (ai instanceof Reduce) {
                 Reduce red = (Reduce) ai;
                 doReductions(st, red.production);
-            } else if(ai instanceof Accept) {
+            } else if (ai instanceof Accept) {
                 acceptingStack = st;
             }
         }
     }
 
+    // FIXME: Second argument should be Action, not Production?
     private void doReductions(Frame st, Production prod) {
+        Tools.debug("doReductions()");
+
         Frame st0 = st.getRoot();
 
         for (Path path : st.computePathsToRoot(prod.arity)) {
             List<ATerm> kids = path.collectTerms();
-            reducer(st0, st0.peek().go(prod), prod, kids);
+            reducer(st0, parseTable.go(st0.peek(), prod.label), prod, kids);
         }
 
     }
 
     private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
-        ATerm t = prod.apply(kids);
+        Tools.debug("reducer()");
+
+        ATerm t = prod.apply(kids, parseTable);
 
         Frame st1 = findStack(activeStacks, s);
         if (st1 != null) {
@@ -174,14 +198,15 @@ public class SGLR {
                     nl.reject();
 
                 for (Frame st2 : activeStacks) {
-                    if (st2.rejected())
+                    if (st2.allLinksRejected())
                         continue;
                     if (forActor.contains(st2))
                         continue;
                     if (forActorDelayed.contains(st2))
                         continue;
 
-                    for (ActionItem ai : st2.peek().getActionItems(currentToken)) {
+                    for (ActionItem ai : st2.peek()
+                            .getActionItems(currentToken)) {
                         if (ai instanceof Reduce) {
                             Reduce red = (Reduce) ai;
                             doLimitedReductions(st2, red.production, nl);
@@ -192,6 +217,18 @@ public class SGLR {
             }
         } else {
             st1 = new Frame(s);
+            Step nl = st1.addStep(st0, t);
+            activeStacks.add(st1);
+            if (st1.peek().rejectable()) {
+                forActorDelayed.push(st1);
+            } else {
+                forActor.clear();
+                forActor.add(st1);
+                forActor.addAll(forActorDelayed);
+            }
+
+            if (prod.status == Production.REJECT)
+                nl.reject();
         }
     }
 
@@ -203,23 +240,26 @@ public class SGLR {
     }
 
     private void doLimitedReductions(Frame st, Production prod, Step l) {
+        Tools.debug("doLimitedReductions()");
+
         List<Path> paths = st.computePathsToRoot(prod.arity, l);
         Frame st0 = st.getRoot();
+
         for (Path path : paths) {
             List<ATerm> kids = path.collectTerms();
-            // FIXME: Not correct, where do we go to?
-            reducer(st0, st0.peek().go(prod), prod, kids);
+            reducer(st0, parseTable.go(st0.peek(), prod.label), prod, kids);
         }
     }
 
-    private List<Frame> getListOfStacks(List<Frame> st) {
-        List<Frame> ret = new Vector<Frame>();
+    private Stack<Frame> computeStackOfStacks(List<Frame> st) {
+        Stack<Frame> ret = new Stack<Frame>();
         for (Frame s : st)
-            ret.add(s);
+            ret.push(s);
         return ret;
     }
 
     private int getNextToken(FileInputStream fis) throws IOException {
+        Tools.debug("getNextToken()");
         return fis.read();
     }
 

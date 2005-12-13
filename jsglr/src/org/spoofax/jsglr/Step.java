@@ -12,22 +12,26 @@ import aterm.ATerm;
 public class Step {
 
     public final Frame destination;
-
-    public final ATerm label;
-
+    public ATerm label;
+    private boolean rejected;
+    
     public Step(Frame destination, ATerm t) {
         this.destination = destination;
         label = t;
+        rejected = false;
     }
 
     public void addAmbiguity(ATerm t) {
-        // TODO Auto-generated method stub
-
+        // FIXME: Speed up
+        label = label.getFactory().parse("amb(" + t + "," + label + ")");
     }
 
     public void reject() {
-        // TODO Auto-generated method stub
-
+        rejected = true;
+    }
+    
+    public boolean isRejected() {
+        return rejected;
     }
 
 }

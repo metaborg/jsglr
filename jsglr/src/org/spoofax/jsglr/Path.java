@@ -22,12 +22,12 @@ public class Path {
     
     public List<ATerm> collectTerms() {
         
-        List<ATerm> labels = new Vector<ATerm>(steps.size());
+        List<ATerm> ret = new Vector<ATerm>(steps.size());
         
         for(Step s : steps)
-            labels.add(s.label);
+            ret.add(s.label);
         
-        return labels;
+        return ret;
     }
 
     public void addStep(Step s) {

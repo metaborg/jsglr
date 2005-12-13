@@ -18,6 +18,9 @@ public class Tools {
     }
 
     public static void debug(Object o) {
-        debug(o.toString());
+        if(o == null)
+            debug(null);
+        else 
+            debug(o.toString());
     }
 }

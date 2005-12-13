@@ -27,8 +27,16 @@ public class Frame {
     }
 
     public boolean allLinksRejected() {
-        // TODO Auto-generated method stub
-        return false;
+        
+        if(steps.size() == 0)
+            return false;
+        
+        for (Step s : steps) {
+            if (!s.isRejected())
+                return false;
+        }
+        
+        return true;
     }
 
     public State peek() {
@@ -38,7 +46,7 @@ public class Frame {
     public List<Path> computePathsToRoot(int arity) {
 
         List<Path> ret = new Vector<Path>();
-        
+
         if (arity == 0 || steps.size() == 0) {
             ret.add(new Path());
         } else {
@@ -62,7 +70,10 @@ public class Frame {
     }
 
     public Step findStep(Frame st0) {
-        // TODO Auto-generated method stub
+        for(Step s : steps) {
+            if(s.destination == st0)
+                return s;
+        }
         return null;
     }
 
@@ -72,14 +83,15 @@ public class Frame {
         return s;
     }
 
-    public boolean rejected() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
     public List<Path> computePathsToRoot(int arity, Step l) {
-        // TODO Auto-generated method stub
-        return null;
+        // FIXME: I think l can only occur in the first step of the path.
+        //        but this must be verified
+        
+        List<Path> paths = l.destination.computePathsToRoot(arity - 1);
+        for(Path p : paths)
+            p.addStep(l);
+        
+        return paths;
     }
 
 }

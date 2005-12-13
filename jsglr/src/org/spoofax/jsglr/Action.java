@@ -20,12 +20,6 @@ public class Action {
         this.items = items;
     }
 
-    // TODO: Should this be List<Production> ?
-    public Production getProduction() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public List<ActionItem> getActionItems() {
         return items;
     }
@@ -34,6 +28,18 @@ public class Action {
         for (Range r : ranges)
             if (r.within(currentToken))
                 return true;
+        return false;
+    }
+
+    public boolean rejectable() {
+        for(ActionItem ai : items) {
+            if(ai instanceof Reduce) {
+                Reduce r = (Reduce) ai;
+                if(r.type == Reduce.REJECT)
+                    return true;
+            }
+                
+        }
         return false;
     }
 

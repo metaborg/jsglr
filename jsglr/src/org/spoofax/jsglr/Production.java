@@ -30,9 +30,12 @@ public class Production {
         this.status = status;
     }
 
-    public ATerm apply(List<ATerm> kids) {
-        // TODO Auto-generated method stub
-        return null;
+    // FIXME: This is fugly
+    public ATerm apply(List<ATerm> kids, ParseTable pt) {
+        Label l = pt.getLabel(label);
+        Tools.debug("Applying : " + kids);
+        Tools.debug("      to : " + l.prod);
+        return l.prod;
     }
 
 }

@@ -12,18 +12,22 @@ import aterm.ATermInt;
 public class Range {
 
     public final int low;
-    public final int hi;
+    public final int high;
     
-    public Range(int low, int hi) {
+    public Range(int low, int high) throws InvalidParseTableException {
+        
+        if(low < 0 || high > 256) 
+            throw new InvalidParseTableException("Invalid ranges ([" + low + " - " + high + "])");
+
         this.low = low;
-        this.hi = hi;
+        this.high = high;
     }
     
     public Range(int n) {
-        low = hi = n;
+        low = high = n;
     }
 
     boolean within(int c) {
-        return c >= low && c <= hi;
+        return c >= low && c <= high;
     }
 }

@@ -12,21 +12,37 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.spoofax.jsglr.FatalException;
+import org.spoofax.jsglr.InvalidParseTableException;
 import org.spoofax.jsglr.SGLR;
+import org.spoofax.jsglr.Tools;
+
+import aterm.ATerm;
+import aterm.pure.PureFactory;
 
 import junit.framework.TestCase;
 
 public class TestSGLR extends TestCase {
 
     SGLR sglr;
-
-    public void setUp() throws FileNotFoundException, IOException, FatalException {
-        sglr = new SGLR(new FileInputStream("tests/grammars/Booleans.tbl"));
+    PureFactory pf;
+    
+    public void setUp() throws FileNotFoundException, IOException, FatalException, InvalidParseTableException {
+        pf = new PureFactory();
+        sglr = new SGLR(pf, new FileInputStream("tests/grammars/Booleans.tbl"));
     }
 
-    public void testBoolean() throws FileNotFoundException, IOException {
+    public void testB0() throws FileNotFoundException, IOException {
+        doParseTest("b0");
+   }
+    
+    public void doParseTest(String s) throws FileNotFoundException, IOException {
+        ATerm parsed = sglr.parse(new FileInputStream("tests/data/" + s + ".txt"));
+        ATerm loaded = pf.readFromFile("tests/data/" + s + ".txt");
 
-        sglr.parse(new FileInputStream("tests/data/b0.txt"));
-
+        Tools.debug(parsed);
+        
+        assertNotNull(parsed);
+        assertNotNull(loaded);
+        assertTrue(parsed.match(loaded) != null);
     }
 }

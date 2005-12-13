@@ -23,11 +23,11 @@ public class ParseTable {
     private List<Label> labels;
     private List<Priority> priorities;
     
-    public ParseTable(ATerm pt) throws FatalException {
+    public ParseTable(ATerm pt) throws FatalException, InvalidParseTableException {
         parse(pt);
     }
 
-    private boolean parse(ATerm pt) throws FatalException {
+    private boolean parse(ATerm pt) throws FatalException, InvalidParseTableException {
         int version = Term.intAt(pt, 0);
         startState = Term.intAt(pt, 1);
         ATermList labelsTerm = Term.listAt(pt, 2);
@@ -86,7 +86,7 @@ public class ParseTable {
         return ret;
     }
 
-    private HashMap<Integer, State> parseStates(ATermAppl statesTerm) {
+    private HashMap<Integer, State> parseStates(ATermAppl statesTerm) throws InvalidParseTableException {
 
         ATermList states = Term.listAt(statesTerm, 0);
         HashMap<Integer, State> ret = new HashMap<Integer, State>();
@@ -104,7 +104,7 @@ public class ParseTable {
         return ret;
     }
 
-    private List<Action> parseActions(ATermList actionList) {
+    private List<Action> parseActions(ATermList actionList) throws InvalidParseTableException {
         
         List<Action> ret = new Vector<Action>(actionList.getChildCount());
 
@@ -139,7 +139,7 @@ public class ParseTable {
         return ret;
     }
 
-    private List<Goto> parseGotos(ATermList gotos) {
+    private List<Goto> parseGotos(ATermList gotos) throws InvalidParseTableException {
 
         List<Goto> ret = new Vector<Goto>(gotos.getChildCount());
 
@@ -148,20 +148,43 @@ public class ParseTable {
             ATermList rangeList = Term.listAt(go, 0);
             int newStateNumber = Term.intAt(go, 1);
             List<Range> ranges = parseRanges(rangeList);
-            ret.add(new Goto(ranges, newStateNumber));
+            List<Integer> productionLabels = parseProductionLabels(rangeList);
+            ret.add(new Goto(ranges, productionLabels, newStateNumber));
         }
 
         return ret;
     }
 
-    private List<Range> parseRanges(ATermList ranges) {
+    private List<Integer> parseProductionLabels(ATermList ranges) {
 
+        // FIXME: Allocates too much memory
+        List<Integer> ret = new Vector<Integer>(ranges.getChildCount());
+
+        for(int i=0;i<ranges.getChildCount();i++) {
+            ATerm t = Term.termAt(ranges, i);
+            if(Term.isInt(t)) {
+                int j = Term.toInt(t);
+                if(j > 256) {
+                    ret.add(new Integer(j));
+                }
+            }
+        }
+        return ret;
+    }
+
+    private List<Range> parseRanges(ATermList ranges) throws InvalidParseTableException {
+
+        // FIXME: Allocates too much memory
         List<Range> ret = new Vector<Range>(ranges.getChildCount());
 
         for (int i = 0; i < ranges.getChildCount(); i++) {
             ATerm t = Term.termAt(ranges, i);
             if (Term.isInt(t)) {
-                ret.add(new Range(Term.toInt(t)));
+                int j = Term.toInt(t);
+                // Anything > 256 is a label, anything below is a char
+                // FIXME: Should it be <= ?
+                if(j < 256) 
+                    ret.add(new Range(j));
             } else {
                 int low = Term.intAt(t, 0);
                 int hi = Term.intAt(t, 1);
@@ -173,6 +196,19 @@ public class ParseTable {
 
     public State getInitialState() {
         return states.get(startState);
+    }
+
+    public State go(State s, int label) {
+        return states.get(s.go(label));
+    }
+
+    // FIXME: Why can't this.labels just be an array and label the index? 
+    public Label getLabel(int label) {
+        for(Label l : labels) {
+            if (l.labelNumber == label)
+                return l;
+        }
+        return null;
     }
 
 }

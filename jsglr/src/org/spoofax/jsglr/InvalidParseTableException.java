@@ -1,5 +1,5 @@
 /*
- * Created on 06.des.2005
+ * Created on 08.des.2005
  *
  * Copyright (c) 2005, Karl Trygve Kalleberg <karltk@ii.uib.no>
  * 
@@ -7,13 +7,13 @@
  */
 package org.spoofax.jsglr;
 
-public class FatalException extends Exception {
 
- 
-    private static final long serialVersionUID = -7565203797064665307L;
-    private String reason;
+public class InvalidParseTableException extends Exception {
+
+    private static final long serialVersionUID = 7932152591235406499L;
+    private final String reason;
     
-    public FatalException(String reason) {
+    public InvalidParseTableException(String reason) {
         this.reason = reason;
     }
 

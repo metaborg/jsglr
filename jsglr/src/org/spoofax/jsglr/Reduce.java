@@ -17,6 +17,12 @@ public class Reduce extends ActionItem {
 
     public final Production production;
     
+    // FIXME: Must check that these are correct
+    public static final int NORMAL = 0;
+    public static final int PREFER = 1;
+    public static final int AVOID = 2;
+    public static final int REJECT = 3;
+    
     public Reduce(int arity, int label, int status) {
         
         super(REDUCE);

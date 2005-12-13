@@ -11,13 +11,14 @@ import java.util.List;
 
 public class Goto {
 
-    private List<Range> ranges;
+    // FIXME: Curiously, goto is on labels, not tokens.
+    // private List<Range> ranges;
     private List<Integer> productionRefs;
     public final int nextState;
     
     public Goto(List<Range> ranges, List<Integer> productionRefs, int nextState) {
         this.nextState = nextState;
-        this.ranges = ranges;
+        // this.ranges = ranges;
         this.productionRefs = productionRefs;
     }
 

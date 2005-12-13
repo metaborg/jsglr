@@ -282,6 +282,7 @@ public class SGLR {
         }
 
         activeStacks.remove(st);
+
         Tools.debug("<doReductions() - " + dumpActiveStacks());
 
     }

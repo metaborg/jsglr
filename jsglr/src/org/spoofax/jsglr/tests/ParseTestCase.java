@@ -1,5 +1,5 @@
 /*
- * Created on 05.des.2005
+ * Created on 13.des.2005
  *
  * Copyright (c) 2005, Karl Trygve Kalleberg <karltk@ii.uib.no>
  * 
@@ -18,51 +18,30 @@ import org.spoofax.jsglr.Tools;
 
 import aterm.ATerm;
 import aterm.pure.PureFactory;
-
 import junit.framework.TestCase;
 
-public class TestSGLR extends TestCase {
+public abstract class ParseTestCase extends TestCase {
 
     SGLR sglr;
-
     PureFactory pf;
-
-    public void setUp() throws FileNotFoundException, IOException,
-            FatalException, InvalidParseTableException {
+    String suffix;
+    
+    public void setUp(String grammar, String suffix) throws FileNotFoundException, IOException, FatalException, InvalidParseTableException {
+        this.suffix = suffix;
         pf = new PureFactory();
-        sglr = new SGLR(pf, new FileInputStream("tests/grammars/Booleans.tbl"));
-    }
-
-
-    public void testB0() throws FileNotFoundException, IOException {
-        doParseTest("b0");
-    }
-
-    public void testB1() throws FileNotFoundException, IOException {
-        doParseTest("b1");
-    }
-
-    public void testB2() throws FileNotFoundException, IOException {
-        doParseTest("b2");
-    }
-
-    public void testB3() throws FileNotFoundException, IOException {
-        doParseTest("b3");
-    }
-
-    public void testB4() throws FileNotFoundException, IOException {
-        doParseTest("b4");
+        sglr = new SGLR(pf, new FileInputStream("tests/grammars/" + grammar + ".tbl"));
     }
 
     public void doParseTest(String s) throws FileNotFoundException, IOException {
         ATerm parsed = sglr.parse(new FileInputStream("tests/data/" + s
-                + ".txt"));
+                + "." + suffix));
         //ATerm loaded = pf.readFromFile("tests/data/" + s + ".txt");
-
+    
         Tools.debug(parsed);
-
+    
         assertNotNull(parsed);
         //assertNotNull(loaded);
         // assertTrue(parsed.match(loaded) != null);
     }
+
 }

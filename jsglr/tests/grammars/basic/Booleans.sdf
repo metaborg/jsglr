@@ -1,6 +1,8 @@
 module basic/Booleans
 
-imports basic/BoolCon
+imports 
+  basic/BoolCon
+
 exports
   sorts Boolean
   
@@ -16,14 +18,21 @@ exports
   
       Boolean "&" Boolean              -> Boolean
     > Boolean "|" Boolean              -> Boolean
+
     
 hiddens
+  sorts
+    S
+
+  context-free syntax
+    Boolean -> S
+      
   context-free start-symbols
-    Boolean    
-    
+    S
+        
   imports
     basic/Comments
-  
+    
   variables
     "Bool"[0-9]*                    -> Boolean
     "Bool-con"[0-9]*                -> BoolCon

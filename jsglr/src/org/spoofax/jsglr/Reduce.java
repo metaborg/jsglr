@@ -19,9 +19,10 @@ public class Reduce extends ActionItem {
     
     // FIXME: Must check that these are correct
     public static final int NORMAL = 0;
-    public static final int PREFER = 1;
-    public static final int AVOID = 2;
-    public static final int REJECT = 3;
+    public static final int REJECT = 1;
+    public static final int PREFER = 2;
+    public static final int AVOID = 4;
+
     
     public Reduce(int arity, int label, int status) {
         

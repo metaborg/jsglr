@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
+import sun.security.krb5.internal.ac;
+
 import aterm.ATerm;
 import aterm.pure.PureFactory;
 
@@ -208,15 +210,23 @@ public class SGLR {
         Tools.debug(" state : " + st.peek().stateNumber);
         Tools.debug(" token : " + currentToken);
         Tools.debug(" arity : " + prod.arity);
-
+        Tools.debug(" stack : " + st.dumpStack());
+        
+        if(prod.arity > 1){
+            int x = 0;
+        }
+        
         List<Path> paths = st.computePathsToRoot(prod.arity);
-
+        Tools.debug(paths);
+        
         for (Path path : paths) {
             List<ATerm> kids = path.collectTerms();
-            
+
             Tools.debug(path);
-            
-            Frame st0 = path.getRoot().destination;
+
+            Frame st0 = path.getStep().destination;
+
+            Tools.debug(st0.state);
             
             State next = parseTable.go(st0.peek(), prod.label);
 
@@ -226,23 +236,21 @@ public class SGLR {
             reducer(st0, next, prod, kids);
         }
 
-//        dropPaths(st, paths);
+        activeStacks.remove(st);
         Tools.debug("<doReductions() - " + dumpActiveStacks());
 
     }
 
-    private void dropPaths(Frame st, List<Path> paths) {
-        // FIXME: this one updates activeStacks by side-effect!
+    private void popStack(Frame st, int arity) {
+        Tools.debug("popStack(" + arity + ") - " + st.dumpStack());
 
-        for (Path p : paths) {
-            Step s = p.getRoot();
-            if (s != null && s.destination != null)
-                activeStacks.add(s.destination);
+        if (arity > 0) {
+            List<Frame> frames = st.computeFramesAtDepth(arity);
+
+            Tools.debug(frames);
+            activeStacks.addAll(frames);
         }
-        if(!activeStacks.remove(st)) {
-            Tools.debug("EXCEPTION");
-        }
-            
+        activeStacks.remove(st);
 
     }
 

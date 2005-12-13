@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -27,15 +28,15 @@ public class Frame {
     }
 
     public boolean allLinksRejected() {
-        
-        if(steps.size() == 0)
+
+        if (steps.size() == 0)
             return false;
-        
+
         for (Step s : steps) {
             if (!s.isRejected())
                 return false;
         }
-        
+
         return true;
     }
 
@@ -44,23 +45,37 @@ public class Frame {
     }
 
     public List<Path> computePathsToRoot(int arity) {
+        if (arity == 0) {
+            List<Path> ret = new Vector<Path>();
+            Path p = new Path();
+            // FIXME: What is the label on this path?
+            p.addStep(new Step(this, null));
+            ret.add(p);
+            return ret;
+        }
+
+        return doComputePathsToRoot(arity);
+    }
+
+    public List<Path> doComputePathsToRoot(int arity) {
 
         List<Path> ret = new Vector<Path>();
 
-        if (arity == 0 || steps.size() == 0) {
+        if (arity == 0) {
             Path p = new Path();
-            // FIXME: WOW! this is bad
-            p.addStep(new Step(this, null));
             ret.add(p);
-        } else {
+        } else if (steps.size() > 0) {
             for (Step s : steps) {
-                List<Path> paths = s.destination.computePathsToRoot(arity - 1);
+                List<Path> paths = s.destination.doComputePathsToRoot(arity - 1);
                 for (Path p : paths) {
                     p.addStep(s);
                 }
                 ret.addAll(paths);
             }
+        } else {
+            Tools.debug("Error: Stack not deep enough for arity");
         }
+
         return ret;
     }
 
@@ -73,8 +88,8 @@ public class Frame {
     }
 
     public Step findStep(Frame st0) {
-        for(Step s : steps) {
-            if(s.destination == st0)
+        for (Step s : steps) {
+            if (s.destination == st0)
                 return s;
         }
         return null;
@@ -88,18 +103,18 @@ public class Frame {
 
     public List<Path> computePathsToRoot(int arity, Step l) {
         // FIXME: I think l can only occur in the first step of the path.
-        //        but this must be verified
-        
+        // but this must be verified
+
         List<Path> paths = l.destination.computePathsToRoot(arity - 1);
-        for(Path p : paths)
+        for (Path p : paths)
             p.addStep(l);
-        
+
         return paths;
     }
 
     public String dumpStack() {
         StringBuffer sb = new StringBuffer();
-        
+
         sb.append("GSS [" + dumpStack(false) + " ]");
         return sb.toString();
     }
@@ -108,8 +123,8 @@ public class Frame {
         StringBuffer sb = new StringBuffer();
         boolean hasForked = false;
         sb.append(" " + state.stateNumber);
-        for(Step s : steps) {
-            if(!hasForked) {
+        for (Step s : steps) {
+            if (!hasForked) {
                 sb.append(", " + s.destination.dumpStack(false));
                 hasForked = true;
             } else {
@@ -121,15 +136,36 @@ public class Frame {
 
     public void dropPaths(List<Path> paths) {
         // FIXME: Over estimated number of new Steps
-        // FIXME: This is probably not even remotely correct in the face of GSS "joins"
+        // FIXME: This is probably not even remotely correct in the face of GSS
+        // "joins"
         List<Step> newSteps = new Vector<Step>(paths.size());
-        
-        for(Path p : paths) {
+
+        for (Path p : paths) {
             Step s = p.getRoot();
-            if(s != null)
-            newSteps.add(s);
+            if (s != null)
+                newSteps.add(s);
         }
         steps = newSteps;
+    }
+
+    public Frame peekAt(int arity) {
+        if (arity == 0)
+            return this;
+        return steps.get(0).destination.peekAt(arity - 1);
+    }
+
+    public List<Frame> computeFramesAtDepth(int depth) {
+        List<Frame> frames = new LinkedList<Frame>();
+
+        if (depth == 0) {
+            frames.add(this);
+        } else {
+            for (Step s : steps) {
+                Frame st = s.destination;
+                frames.addAll(st.computeFramesAtDepth(depth - 1));
+            }
+        }
+        return frames;
     }
 
 }

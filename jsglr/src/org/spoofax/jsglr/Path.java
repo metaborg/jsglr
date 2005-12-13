@@ -49,4 +49,8 @@ public class Path {
         sb.append(">");
         return sb.toString();
     }
+
+    public Step getStep() {
+        return steps.get(0);
+    }
 }

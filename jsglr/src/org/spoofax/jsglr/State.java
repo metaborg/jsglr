@@ -82,4 +82,7 @@ public class State {
         return false;
     }
 
+    public String toString() {
+        return "State(" + stateNumber + ", # " + actions.size() + " actions, # " + gotos.size() + " gotos)";
+    }
 }

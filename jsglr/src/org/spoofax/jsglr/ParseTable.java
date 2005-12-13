@@ -157,7 +157,7 @@ public class ParseTable {
 
     private List<Integer> parseProductionLabels(ATermList ranges) {
 
-        // FIXME: Allocates too much memory
+        // TODO: Allocates too much memory
         List<Integer> ret = new Vector<Integer>(ranges.getChildCount());
 
         for(int i=0;i<ranges.getChildCount();i++) {
@@ -182,7 +182,6 @@ public class ParseTable {
             if (Term.isInt(t)) {
                 int j = Term.toInt(t);
                 // Anything > 256 is a label, anything below is a char
-                // FIXME: Should it be <= ?
                 if(j <= 256) 
                     ret.add(new Range(j));
             } else {

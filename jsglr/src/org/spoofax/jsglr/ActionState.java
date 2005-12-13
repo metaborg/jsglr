@@ -14,7 +14,6 @@ public class ActionState {
     public final State s;
     
     public ActionState(Frame st, State s) {
-        /** TODO: should st be a copy? */
         this.st = st;
         this.s = s;
     }

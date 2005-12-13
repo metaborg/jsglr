@@ -16,22 +16,25 @@ import aterm.ATerm;
 public class Path<T> implements Iterable<List<T>> {
 
     private List<List<T>> lists;
-    
+
     public Path() {
         lists = new Vector<List<T>>();
         lists.add(new Vector<T>());
     }
-  
 
     public void add(T t) {
-        for(List<T> l : lists) {
+        for (List<T> l : lists) {
             l.add(t);
         }
     }
 
-   private List<List<T>> copy() {
+    private List<List<T>> copy() {
+        
+        if (lists.size() == 0)
+            return lists;
+        
         List<List<T>> newList = new Vector<List<T>>(lists.size());
-        for(List<T> e : lists) {
+        for (List<T> e : lists) {
             newList.add(e);
         }
         return newList;
@@ -39,7 +42,8 @@ public class Path<T> implements Iterable<List<T>> {
 
     public Iterator<List<T>> iterator() {
         return new Iterator<List<T>>() {
-            private Iterator<List<T>> localIter = lists.iterator(); 
+            private Iterator<List<T>> localIter = lists.iterator();
+
             public boolean hasNext() {
                 return localIter.hasNext();
             }
@@ -49,38 +53,36 @@ public class Path<T> implements Iterable<List<T>> {
             }
 
             public void remove() {
-               localIter.remove();
+                localIter.remove();
             }
         };
     }
 
-
     public void add(Path<T> p) {
         List<List<T>> newList = new Vector<List<T>>();
-        
-        for(List<T> ls : p) {
+
+        for (List<T> ls : p) {
             List<List<T>> n = copy();
-            for(List<T> ls2 : n) 
+            for (List<T> ls2 : n)
                 ls2.addAll(ls);
             newList.addAll(n);
         }
     }
 
-
     public static List<ATerm> collectTerms(List<Link> path) {
         List<ATerm> ret = new Vector<ATerm>(path.size());
-        for(Link ln : path)
+        for (Link ln : path)
             ret.add(ln.label);
         return ret;
     }
-    
+
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[");
-        for(List<T> ls : lists)
+        for (List<T> ls : lists)
             sb.append(ls);
         sb.append("]");
         return sb.toString();
     }
-    
+
 }

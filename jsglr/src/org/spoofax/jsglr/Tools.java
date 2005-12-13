@@ -25,6 +25,6 @@ public class Tools {
     }
 
     public static void logger(String string) {
-        System.out.println(string);
+        System.err.println(string);
     }
 }

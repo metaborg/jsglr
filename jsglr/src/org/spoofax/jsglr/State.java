@@ -34,7 +34,7 @@ public class State {
     }
 
     public int go(int labelNumber) {
-        // FIXME: I can't see how this is correct
+        // Goto never happens on a token, only labels
         for(Goto g : gotos) {
             if(g.hasProd(labelNumber))
                 return g.nextState;

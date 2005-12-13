@@ -1,16 +1,5 @@
-module foo
+module m
 imports
- foo
- bar/zap
- znip/fex/-
-
+ z/-
+ 
 strategies
-
-  main = <foo> max
-
-rules
-
-  Fule: 
-   Foo(X) -> Bar(z)
-  where
-   ?x@Boz

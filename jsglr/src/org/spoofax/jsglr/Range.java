@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr;
 
-import aterm.ATermInt;
 
 public class Range {
 

@@ -45,6 +45,7 @@ public class Frame {
     }
 
     public Path<Link> computePathsToRoot(int arity) {
+        
         if (arity == 0) {
             Path<Link> ret = new Path<Link>();
             Link ln = new Link(this, null);
@@ -60,8 +61,7 @@ public class Frame {
         Path<Link> ret = new Path<Link>();
 
         if (arity == 0) {
-            Link ln = new Link(this, null);
-            ret.add(ln);
+            return ret;
         } else if (steps.size() > 0) {
             for (Link ln : steps) {
                 Path<Link> p = ln.parent.doComputePathsToRoot(arity - 1);
@@ -106,15 +106,18 @@ public class Frame {
 
     public String dumpStack(boolean f) {
         StringBuffer sb = new StringBuffer();
-        boolean hasForked = false;
         sb.append(" " + state.stateNumber);
-        for (Link s : steps) {
-            if (!hasForked) {
-                sb.append(", " + s.parent.dumpStack(false));
-                hasForked = true;
-            } else {
-                sb.append("[ " + s.parent.dumpStack(false) + "]");
+        if (steps.size() > 1) {
+            sb.append(" ( ");
+            for (Link s : steps) {
+                sb.append(s.parent.dumpStack(false));
+                sb.append(" | ");
             }
+            sb.append(")");
+
+        } else {
+            for (Link s : steps)
+                sb.append(", " + s.parent.dumpStack(false));
         }
         return sb.toString();
     }

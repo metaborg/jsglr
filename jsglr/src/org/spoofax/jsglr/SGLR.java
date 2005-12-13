@@ -155,7 +155,7 @@ public class SGLR {
     }
 
     private void shifter() {
-        Tools.logger("#" + tokensSeen + ": shifting " + activeStacks.size()
+        Tools.logger("#" + tokensSeen + ": shifting " + forShifter.size()
                 + " parser(s) -- token " + charify(currentToken) + ", line "
                 + lineNumber + ", column " + columnNumber);
         Tools.debug("shifter()");
@@ -205,11 +205,15 @@ public class SGLR {
 
     private void parseCharacter() {
         Tools.debug("parseCharacter() - " + dumpActiveStacks());
+        
+        Tools.debug(" # active stacks : " + activeStacks.size());
 
         forActor = computeStackOfStacks(activeStacks);
         forActorDelayed = new Stack<Frame>();
         forShifter = new Stack<ActionState>();
 
+        Tools.debug(" forActor        : " + forActor);
+        
         while (forActor.size() > 0 || forActorDelayed.size() > 0) {
             if (forActor.size() == 0) {
                 forActor.add(forActorDelayed.pop());
@@ -239,22 +243,34 @@ public class SGLR {
                 Shift sh = (Shift) ai;
                 forShifter.push(new ActionState(st, parseTable
                         .getState(sh.nextState)));
+                statsRecordParsers();
             } else if (ai instanceof Reduce) {
                 Reduce red = (Reduce) ai;
                 doReductions(st, red.production);
             } else if (ai instanceof Accept) {
                 acceptingStack = st;
+                Tools.logger("Reached the accepting state");
             }
         }
     }
 
-    // FIXME: Second argument should be Action, not Production?
+    private void statsRecordParsers() {
+        if(forShifter.size() > maxBranches) {
+            maxBranches = forShifter.size();
+            maxToken = currentToken;
+            maxColumn = columnNumber;
+            maxLine = lineNumber;
+            maxTokenNumber = tokensSeen;
+        }                
+    }
+
     private void doReductions(Frame st, Production prod) {
 
         Tools.debug("doReductions() - " + dumpActiveStacks());
 
         Tools.debug(" state : " + st.peek().stateNumber);
         Tools.debug(" token : " + currentToken);
+        Tools.debug(" label : " + prod.label);
         Tools.debug(" arity : " + prod.arity);
         Tools.debug(" stack : " + st.dumpStack());
 
@@ -288,7 +304,7 @@ public class SGLR {
     }
 
     private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
-        Tools.logger("Reducing; state " + st0.peek().stateNumber + ", token: "
+        Tools.logger("Reducing; state " + s.stateNumber + ", token: "
                 + charify(currentToken) + ", production: " + prod.label);
 
         Tools.debug("reducer() - " + dumpActiveStacks());
@@ -338,7 +354,7 @@ public class SGLR {
             st1 = new Frame(s);
             Link nl = st1.addLink(st0, t);
             activeStacks.add(st1);
-            if (st1.peek().rejectable()) {
+            if (st1.peek().rejectable()) { // prod.status == Reduce.REJECT) {
                 forActorDelayed.push(st1);
             } else {
                 forActor.clear();
@@ -349,18 +365,10 @@ public class SGLR {
             if (prod.status == Production.REJECT)
                 nl.reject();
         }
-        
-        if(activeStacks.size() > maxBranches) {
-            maxBranches = activeStacks.size();
-            maxToken = currentToken;
-            maxColumn = columnNumber;
-            maxLine = lineNumber;
-            maxTokenNumber = tokensSeen;
-        }
     }
 
     private Frame findStack(List<Frame> stacks, State s) {
-        // FIXME: Should we recurse into the stacks, too?
+        // We need only check the top frames of the active stacks.
         Tools.debug("findStack() - " + dumpActiveStacks());
         Tools.debug(" looking for " + s.stateNumber);
         for (Frame st : stacks)
@@ -400,17 +408,20 @@ public class SGLR {
         }
         Tools.debug("getNextToken() - " + t);
 
-        // FIXME: Is 256 the EOF?
         return t == -1 ? SGLR.EOF : t;
     }
 
     private String dumpActiveStacks() {
         StringBuffer sb = new StringBuffer();
+        boolean first = true;
         if (activeStacks == null) {
             sb.append(" GSS unitialized");
         } else {
             for (Frame f : activeStacks) {
+                if(!first)
+                    sb.append(", ");
                 sb.append(f.dumpStack());
+                first = false;
             }
         }
         return sb.toString();

@@ -7,10 +7,6 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
-
 import aterm.ATerm;
 
 public class Link {

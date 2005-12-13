@@ -36,9 +36,25 @@ public class SGLR {
 
     private int currentToken;
 
+    private int tokensSeen;
+
+    private int lineNumber;
+
+    private int columnNumber;
+
     private Stack<Frame> forActor;
 
     private Stack<Frame> forActorDelayed;
+
+    private int maxBranches;
+
+    private int maxToken;
+
+    private int maxLine;
+
+    private int maxColumn;
+
+    private int maxTokenNumber;
 
     SGLR() {
         basicInit(null);
@@ -105,14 +121,27 @@ public class SGLR {
 
         Tools.debug("parse() - " + dumpActiveStacks());
 
+        tokensSeen = 0;
+        columnNumber = 0;
+        lineNumber = 1;
+
         acceptingStack = null;
         Frame st0 = initActiveStacks();
 
         do {
+            Tools.logger("Current token (#" + tokensSeen + "): "
+                    + charify(currentToken));
+
             currentToken = getNextToken(fis);
             parseCharacter();
             shifter();
         } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
+
+        Tools.logger("Number of lines: " + lineNumber);
+        Tools.logger("Maximum " + maxBranches
+                + " parse branches reached at token " + charify(maxToken)
+                + ", line " + maxLine + ", column " + maxColumn + " (token #"
+                + maxTokenNumber + ")");
 
         if (acceptingStack == null)
             return null;
@@ -126,6 +155,9 @@ public class SGLR {
     }
 
     private void shifter() {
+        Tools.logger("#" + tokensSeen + ": shifting " + activeStacks.size()
+                + " parser(s) -- token " + charify(currentToken) + ", line "
+                + lineNumber + ", column " + columnNumber);
         Tools.debug("shifter()");
 
         Tools.debug(" token   : " + currentToken);
@@ -151,6 +183,19 @@ public class SGLR {
             }
         }
 
+    }
+
+    private String charify(int currentToken) {
+        switch (currentToken) {
+        case 256:
+            return "EOF";
+        case '\n':
+            return "\\n";
+        case 0:
+            return "\\0";
+        default:
+            return "" + (char) currentToken;
+        }
     }
 
     private ATerm makeTerm(int token) {
@@ -205,20 +250,21 @@ public class SGLR {
 
     // FIXME: Second argument should be Action, not Production?
     private void doReductions(Frame st, Production prod) {
+
         Tools.debug("doReductions() - " + dumpActiveStacks());
 
         Tools.debug(" state : " + st.peek().stateNumber);
         Tools.debug(" token : " + currentToken);
         Tools.debug(" arity : " + prod.arity);
         Tools.debug(" stack : " + st.dumpStack());
-        
-        if(prod.arity > 1){
+
+        if (prod.arity > 1) {
             int x = 0;
         }
-        
+
         List<Path> paths = st.computePathsToRoot(prod.arity);
         Tools.debug(paths);
-        
+
         for (Path path : paths) {
             List<ATerm> kids = path.collectTerms();
 
@@ -227,8 +273,11 @@ public class SGLR {
             Frame st0 = path.getStep().destination;
 
             Tools.debug(st0.state);
-            
+
             State next = parseTable.go(st0.peek(), prod.label);
+
+            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label
+                    + ") == " + next.stateNumber);
 
             Tools.debug(" next  : goto(" + st0.peek().stateNumber + ","
                     + prod.label + ") = " + next.stateNumber);
@@ -241,24 +290,15 @@ public class SGLR {
 
     }
 
-    private void popStack(Frame st, int arity) {
-        Tools.debug("popStack(" + arity + ") - " + st.dumpStack());
-
-        if (arity > 0) {
-            List<Frame> frames = st.computeFramesAtDepth(arity);
-
-            Tools.debug(frames);
-            activeStacks.addAll(frames);
-        }
-        activeStacks.remove(st);
-
-    }
-
     private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
+        Tools.logger("Reducing; state " + st0.peek().stateNumber + ", token: "
+                + charify(currentToken) + ", production: " + prod.label);
+
         Tools.debug("reducer() - " + dumpActiveStacks());
 
         Tools.debug(" state      : " + s.stateNumber);
-        Tools.debug(" token      : " + currentToken);
+        Tools.debug(" token      : " + charify(currentToken) + " ("
+                + currentToken + ")");
         Tools.debug(" production : " + prod.label);
 
         ATerm t = prod.apply(kids, parseTable);
@@ -312,6 +352,14 @@ public class SGLR {
             if (prod.status == Production.REJECT)
                 nl.reject();
         }
+        
+        if(activeStacks.size() > maxBranches) {
+            maxBranches = activeStacks.size();
+            maxToken = currentToken;
+            maxColumn = columnNumber;
+            maxLine = lineNumber;
+            maxTokenNumber = tokensSeen;
+        }
     }
 
     private Frame findStack(List<Frame> stacks, State s) {
@@ -347,6 +395,12 @@ public class SGLR {
     private int getNextToken(FileInputStream fis) throws IOException {
         int t = fis.read();
 
+        tokensSeen++;
+        columnNumber++;
+        if (t == '\n') {
+            lineNumber++;
+            columnNumber = 0;
+        }
         Tools.debug("getNextToken() - " + t);
 
         // FIXME: Is 256 the EOF?

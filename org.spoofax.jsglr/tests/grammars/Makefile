@@ -1,10 +1,10 @@
 all : Booleans.tbl
 
-Booleans.tbl : Booleans.def
-	sdf2table -i Booleans.def -o Booleans.tbl -t -m basic/Booleans
+%.tbl : %.def
+	sdf2table -i $< -o $@ -t -m basic/$(basename $<)
 
-Booleans.def : basic/*.sdf
-	pack-sdf -I . -i basic/Booleans.sdf -o Booleans.def
+%.def : basic/%.sdf
+	pack-sdf -I . -i $< -o $@
 
 
 clean:

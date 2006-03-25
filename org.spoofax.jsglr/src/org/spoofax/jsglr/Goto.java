@@ -28,4 +28,9 @@ public class Goto {
                 return true;
         return false;
     }
+    
+    @Override
+    public String toString() {
+        return "goto(" + productionRefs + "," + nextState + ")"; 
+    }
 }

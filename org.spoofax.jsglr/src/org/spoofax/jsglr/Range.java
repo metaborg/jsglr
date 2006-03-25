@@ -29,4 +29,11 @@ public class Range {
     boolean within(int c) {
         return c >= low && c <= high;
     }
+    
+    @Override
+    public String toString() {
+        if(low == high)
+            return "" +low;
+        return "[" + low + "," + high + "]";
+    }
 }

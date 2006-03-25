@@ -66,4 +66,8 @@ public class Action {
         return false;
     }
 
+    @Override
+    public String toString() {
+     return "action(" + ranges + "," + items + ")";
+    }
 }

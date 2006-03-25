@@ -10,13 +10,25 @@ package org.spoofax.jsglr;
 public abstract class ActionItem {
 
     public final int type;
-    
+
     public static final int REDUCE = 1;
+
     public static final int SHIFT = 2;
+
     public static final int ACCEPT = 3;
-    
+
     public ActionItem(int type) {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        if (type == REDUCE)
+            return "reduce";
+        else if (type == SHIFT)
+            return "shift";
+        else if (type == ACCEPT)
+            return "accept";
+        return null;
+    }
 }

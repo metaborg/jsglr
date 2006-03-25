@@ -34,7 +34,7 @@ public class State {
     }
 
     public int go(int labelNumber) {
-        // Goto never happens on a token, only labels
+        // FIXME: Goto can also happen on a label? 
         for(Goto g : gotos) {
             if(g.hasProd(labelNumber))
                 return g.nextState;
@@ -83,6 +83,6 @@ public class State {
     }
 
     public String toString() {
-        return "State(" + stateNumber + ", # " + actions.size() + " actions, # " + gotos.size() + " gotos)";
+        return "State(" + stateNumber + ", # " + actions.size() + " actions, # " + gotos.size() + " gotos) \n - " + gotos + "\n - " + actions;
     }
 }

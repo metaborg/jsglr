@@ -1,0 +1,18 @@
+module basic/G0
+
+exports
+  sorts A B C D E F
+  
+context-free syntax
+
+  "a" ( "x" | "y" ) "c" "d" -> A
+%%  "a" ( "x" | "y" ) "c" "e" -> B
+  "a" ( "y" | "z" ) "c" "f" -> C
+  
+  A 
+%%  | B | 
+  | C -> D
+    
+context-free start-symbols
+
+  D

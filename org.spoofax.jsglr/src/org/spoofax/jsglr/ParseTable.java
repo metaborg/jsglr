@@ -169,9 +169,9 @@ public class ParseTable {
             ATerm t = Term.termAt(ranges, i);
             if(Term.isInt(t)) {
                 int j = Term.toInt(t);
-                if(j > 256) {
+                //if(j > 256) {
                     ret.add(new Integer(j));
-                }
+                //}
             }
         }
         return ret;
@@ -187,8 +187,10 @@ public class ParseTable {
             if (Term.isInt(t)) {
                 int j = Term.toInt(t);
                 // Anything > 256 is a label, anything below is a char
-                if(j <= 256) 
+                //if(j <= 256) 
                     ret.add(new Range(j));
+                //else
+                //    throw new InvalidParseTableException("Spurious character!");
             } else {
                 int low = Term.intAt(t, 0);
                 int hi = Term.intAt(t, 1);
@@ -203,10 +205,7 @@ public class ParseTable {
     }
 
     public State go(State s, int label) {
-        Tools.debug("goto(" + s.stateNumber + "," + label + ")");
-        State n = states.get(s.go(label));
-        Tools.debug("goto(" + s.stateNumber + "," + label + ") = " + n.stateNumber);
-        return n;
+        return states.get(s.go(label));
     }
 
     // FIXME: Why can't this.labels just be an array and label the index? 

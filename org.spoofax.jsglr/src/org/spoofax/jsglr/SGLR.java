@@ -156,7 +156,7 @@ public class SGLR {
         Tools.logger("#" + tokensSeen + ": shifting " + forShifter.size()
                 + " parser(s) -- token " + charify(currentToken) + ", line "
                 + lineNumber + ", column " + columnNumber);
-        Tools.debug("shifter()");
+        Tools.debug("shifter() - " + dumpActiveStacks());
 
         Tools.debug(" token   : " + currentToken);
         Tools.debug(" parsers : " + forShifter.size());
@@ -202,10 +202,11 @@ public class SGLR {
         Tools.debug(" # active stacks : " + activeStacks.size());
 
         forActor = computeStackOfStacks(activeStacks);
+
+        Tools.debug(" # for actor     : " + forActor.size());
+
         forActorDelayed = new Stack<Frame>();
         forShifter = new Stack<ActionState>();
-
-        Tools.debug(" forActor        : " + forActor);
 
         while (forActor.size() > 0 || forActorDelayed.size() > 0) {
             if (forActor.size() == 0) {
@@ -213,8 +214,10 @@ public class SGLR {
             }
             if (forActor.size() > 0) {
                 Frame st = forActor.pop();
-                if (!st.allLinksRejected())
+                if (!st.allLinksRejected()) {
                     actor(st);
+                }
+                    
             }
         }
     }
@@ -287,9 +290,6 @@ public class SGLR {
             Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label
                     + ") == " + next.stateNumber);
 
-            Tools.debug(" next  : goto(" + st0.peek().stateNumber + ","
-                    + prod.label + ") = " + next.stateNumber);
-
             reducer(st0, next, prod, kids);
         }
 
@@ -358,7 +358,7 @@ public class SGLR {
             if (st1.peek().rejectable()) { // prod.status == Reduce.REJECT) {
                 forActorDelayed.push(st1);
             } else {
-                forActor.clear();
+                //forActor.clear();
                 forActor.add(st1);
                 forActor.addAll(forActorDelayed);
             }
@@ -436,6 +436,7 @@ public class SGLR {
         if (activeStacks == null) {
             sb.append(" GSS unitialized");
         } else {
+            sb.append("{" + activeStacks.size() + "} ");
             for (Frame f : activeStacks) {
                 if (!first)
                     sb.append(", ");

@@ -19,6 +19,10 @@ public class Main {
         
         SGLR sglr= new SGLR();
         
+        if(args.length < 2) {
+            System.out.println("Usage: org.spoofax.jsglr.Main <parsetable.tbl> <inputfile>");
+            System.exit(-1);
+        }
         sglr.loadParseTable(new FileInputStream(args[0]));
         FileInputStream fis= new FileInputStream(args[1]);
         

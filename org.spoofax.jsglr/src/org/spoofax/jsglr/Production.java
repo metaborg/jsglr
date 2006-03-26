@@ -71,4 +71,7 @@ public class Production {
         return t;
     }
 
+    boolean isReject() {
+        return status == REJECT;
+    }
 }

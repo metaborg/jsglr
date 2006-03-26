@@ -1,17 +1,14 @@
 module basic/G0
 
 exports
-  sorts A B C D E F
+  sorts A C D
   
 context-free syntax
 
   "a" ( "x" | "y" ) "c" "d" -> A
-%%  "a" ( "x" | "y" ) "c" "e" -> B
   "a" ( "y" | "z" ) "c" "f" -> C
   
-  A 
-%%  | B | 
-  | C -> D
+  A | C -> D
     
 context-free start-symbols
 

@@ -33,28 +33,22 @@ public class Tools {
         }
     }
     
-    public static void debug(String s) {
-        System.out.println(s);
+    public static void debug(Object ...s) {
+        // FIXME Use debug from org.spoofax.interpreter
+        for(Object o : s) {
+            System.out.print(o);
+        }
+        System.out.println("");
     }
 
-    public static void debug(int stateNumber) {
-        debug("" + stateNumber);
-    }
-
-    public static void debug(Object o) {
-        if (o == null)
-            debug(null);
-        else
-            debug(o.toString());
-    }
-
-    public static void logger(String s) {
+    public static void logger(Object ...s) {
         initOutput();
         try {
-            fos.write((s + "\n").getBytes());
+            for(Object o : s)
+                fos.write(o.toString().getBytes());
+            fos.write("\n".getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.err.println(s);
     }
 }

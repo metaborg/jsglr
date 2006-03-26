@@ -54,15 +54,12 @@ public class SGLR {
 
     private int maxTokenNumber;
 
+    private static boolean debugging;
+
+    private boolean logging;
+
     SGLR() {
         basicInit(null);
-    }
-
-    private void basicInit(PureFactory pf) {
-        factory = pf;
-        if (factory == null)
-            factory = new PureFactory();
-        activeStacks = new Vector<Frame>();
     }
 
     public SGLR(InputStream is) throws IOException, FatalException, InvalidParseTableException {
@@ -76,6 +73,31 @@ public class SGLR {
         loadParseTable(is);
     }
 
+    private void basicInit(PureFactory pf) {
+        debugging = false;
+        logging = false;
+        factory = pf;
+        if (factory == null)
+            factory = new PureFactory();
+        activeStacks = new Vector<Frame>();
+    }
+
+    public static boolean isDebugging() {
+        return debugging;
+    }
+
+    public boolean isLogging() {
+        return logging;
+    }
+
+    public void setLogging(boolean enableLogging) {
+        logging = enableLogging;
+    }
+
+    public void setDebug(boolean enableDebug) {
+        debugging = enableDebug;
+    }
+
     public void loadParseTable(InputStream r) throws IOException, InvalidParseTableException {
         Tools.debug("loadParseTable()");
 
@@ -83,15 +105,17 @@ public class SGLR {
 
         parseTable = new ParseTable(pt);
 
-        Tools.debug(" # states         : " + parseTable.getStateCount());
-        Tools.debug(" # productions    : " + parseTable.getProductionCount());
-        Tools.debug(" # actions        : " + parseTable.getActionCount());
-        Tools.debug(" # gotos          : " + parseTable.getGotoEntries());
+        if (isDebugging()) {
+            Tools.debug(" # states         : ", parseTable.getStateCount());
+            Tools.debug(" # productions    : ", parseTable.getProductionCount());
+            Tools.debug(" # actions        : ", parseTable.getActionCount());
+            Tools.debug(" # gotos          : ", parseTable.getGotoEntries());
 
-        Tools.debug(" " + (parseTable.hasRejects() ? "Includes" : "Excludes") + " rejects");
-        Tools.debug(" " + (parseTable.hasPriorities() ? "Includes" : "Excludes") + " priorities");
-        Tools.debug(" " + (parseTable.hasPrefers() ? "Includes" : "Excludes") + " prefer actions");
-        Tools.debug(" " + (parseTable.hasAvoids() ? "Includes" : "Excludes") + " avoid actions");
+            Tools.debug((parseTable.hasRejects() ? "Includes" : "Excludes"), " rejects");
+            Tools.debug((parseTable.hasPriorities() ? "Includes" : "Excludes"), " priorities");
+            Tools.debug((parseTable.hasPrefers() ? "Includes" : "Excludes"), " prefer actions");
+            Tools.debug((parseTable.hasAvoids() ? "Includes" : "Excludes"), " avoid actions");
+        }
     }
 
     /**
@@ -110,7 +134,9 @@ public class SGLR {
 
     public ATerm parse(FileInputStream fis) throws IOException {
 
-        Tools.debug("parse() - " + dumpActiveStacks());
+        if (isDebugging()) {
+            Tools.debug("parse() - ", dumpActiveStacks());
+        }
 
         tokensSeen = 0;
         columnNumber = 0;
@@ -120,17 +146,21 @@ public class SGLR {
         Frame st0 = initActiveStacks();
 
         do {
-            Tools.logger("Current token (#" + tokensSeen + "): " + charify(currentToken));
+            if (isLogging()) {
+                Tools.logger("Current token (#", tokensSeen, "): ", charify(currentToken));
+            }
 
             currentToken = getNextToken(fis);
             parseCharacter();
             shifter();
         } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
 
-        Tools.logger("Number of lines: " + lineNumber);
-        Tools.logger("Maximum " + maxBranches + " parse branches reached at token "
-                + charify(maxToken) + ", line " + maxLine + ", column " + maxColumn + " (token #"
-                + maxTokenNumber + ")");
+        if (isLogging()) {
+            Tools.logger("Number of lines: ", lineNumber);
+            Tools.logger("Maximum ", maxBranches, " parse branches reached at token ",
+                         charify(maxToken), ", line ", maxLine, ", column ", maxColumn,
+                         " (token #", maxTokenNumber, ")");
+        }
 
         if (acceptingStack == null)
             return null;
@@ -144,13 +174,17 @@ public class SGLR {
     }
 
     private void shifter() {
-        Tools.logger("#" + tokensSeen + ": shifting " + forShifter.size() + " parser(s) -- token "
-                + charify(currentToken) + ", line " + lineNumber + ", column " + columnNumber);
-        Tools.debug("shifter() - " + dumpActiveStacks());
+        if (isLogging()) {
+            Tools.logger("#", tokensSeen, ": shifting ", forShifter.size(), " parser(s) -- token ",
+                         charify(currentToken), ", line ", lineNumber, ", column ", columnNumber);
+        }
 
-        Tools.debug(" token   : " + currentToken);
-        Tools.debug(" parsers : " + forShifter.size());
+        if (isDebugging()) {
+            Tools.debug("shifter() - " + dumpActiveStacks());
 
+            Tools.debug(" token   : " + currentToken);
+            Tools.debug(" parsers : " + forShifter.size());
+        }
         activeStacks.clear();
 
         ATerm t = parseTable.lookupProduction(currentToken);
@@ -189,13 +223,17 @@ public class SGLR {
     }
 
     private void parseCharacter() {
-        Tools.debug("parseCharacter() - " + dumpActiveStacks());
 
-        Tools.debug(" # active stacks : " + activeStacks.size());
+        if (isDebugging()) {
+            Tools.debug("parseCharacter() - " + dumpActiveStacks());
+            Tools.debug(" # active stacks : " + activeStacks.size());
+        }
 
         forActor = computeStackOfStacks(activeStacks);
 
-        Tools.debug(" # for actor     : " + forActor.size());
+        if (isDebugging()) {
+            Tools.debug(" # for actor     : " + forActor.size());
+        }
 
         forActorDelayed = new Stack<Frame>();
         forShifter = new Stack<ActionState>();
@@ -215,16 +253,23 @@ public class SGLR {
     }
 
     private void actor(Frame st) {
-        Tools.debug("actor() - " + dumpActiveStacks());
+
+        if (isDebugging()) {
+            Tools.debug("actor() - ", dumpActiveStacks());
+        }
 
         State s = st.peek();
 
-        Tools.debug(" state   : " + s.stateNumber);
-        Tools.debug(" token   : " + currentToken);
+        if (isDebugging()) {
+            Tools.debug(" state   : ", s.stateNumber);
+            Tools.debug(" token   : ", currentToken);
+        }
 
         List<ActionItem> actionItems = s.getActionItems(currentToken);
 
-        Tools.debug(" actions : " + actionItems);
+        if (isDebugging()) {
+            Tools.debug(" actions : ", actionItems);
+        }
 
         for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
@@ -236,7 +281,9 @@ public class SGLR {
                 doReductions(st, red.production);
             } else if (ai instanceof Accept) {
                 acceptingStack = st;
-                Tools.logger("Reached the accepting state");
+                if (isLogging()) {
+                    Tools.logger("Reached the accepting state");
+                }
             }
         }
     }
@@ -253,52 +300,69 @@ public class SGLR {
 
     private void doReductions(Frame st, Production prod) {
 
-        Tools.debug("doReductions() - " + dumpActiveStacks());
+        if (isDebugging()) {
+            Tools.debug("doReductions() - " + dumpActiveStacks());
 
-        Tools.debug(" state : " + st.peek().stateNumber);
-        Tools.debug(" token : " + currentToken);
-        Tools.debug(" label : " + prod.label);
-        Tools.debug(" arity : " + prod.arity);
-        Tools.debug(" stack : " + st.dumpStack());
+            Tools.debug(" state : " + st.peek().stateNumber);
+            Tools.debug(" token : " + currentToken);
+            Tools.debug(" label : " + prod.label);
+            Tools.debug(" arity : " + prod.arity);
+            Tools.debug(" stack : " + st.dumpStack());
+        }
 
         List<Path> paths = st.computePathsToRoot(prod.arity);
 
-        Tools.debug(" paths : " + paths.size());
+        if (isDebugging()) {
+            Tools.debug(" paths : " + paths.size());
+        }
 
         for (Path path : paths) {
 
             List<ATerm> kids = path.getATerms();
 
-            Tools.debug(path);
-            Tools.debug(kids);
+            if (isDebugging()) {
+                Tools.debug(path);
+                Tools.debug(kids);
+            }
 
             Frame st0 = path.getEnd();
 
-            Tools.debug(st0.state);
+            if (isDebugging()) {
+                Tools.debug(st0.state);
+            }
 
             State next = parseTable.go(st0.peek(), prod.label);
 
-            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label + ") == "
-                    + next.stateNumber);
+            if (isLogging()) {
+                Tools.logger("Goto(", st0.peek().stateNumber, ",", prod.label + ") == ",
+                             next.stateNumber);
+            }
 
             reducer(st0, next, prod, kids);
         }
 
         activeStacks.remove(st);
 
-        Tools.debug("<doReductions() - " + dumpActiveStacks());
+        if (isDebugging()) {
+            Tools.debug("<doReductions() - " + dumpActiveStacks());
+        }
 
     }
 
     private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
-        Tools.logger("Reducing; state " + s.stateNumber + ", token: " + charify(currentToken)
-                + ", production: " + prod.label);
 
-        Tools.debug("reducer() - " + dumpActiveStacks());
+        if (isLogging()) {
+            Tools.logger("Reducing; state ", s.stateNumber, ", token: ", charify(currentToken),
+                         ", production: ", prod.label);
+        }
 
-        Tools.debug(" state      : " + s.stateNumber);
-        Tools.debug(" token      : " + charify(currentToken) + " (" + currentToken + ")");
-        Tools.debug(" production : " + prod.label);
+        if (isDebugging()) {
+            Tools.debug("reducer() - ", dumpActiveStacks());
+
+            Tools.debug(" state      : ", s.stateNumber);
+            Tools.debug(" token      : ", charify(currentToken) + " (" + currentToken + ")");
+            Tools.debug(" production : ", prod.label);
+        }
 
         ATerm t = prod.apply(kids, parseTable);
 
@@ -315,7 +379,9 @@ public class SGLR {
             }
 
             if (prod.status == Production.REJECT) {
-                Tools.logger("Reject [new]");
+                if (isLogging()) {
+                    Tools.logger("Reject [new]");
+                }
                 nl.reject();
             }
         } else {
@@ -323,9 +389,10 @@ public class SGLR {
             Link nl = st1.findLink(st0);
 
             if (nl != null) {
-                Tools.logger("Ambiguity: direct link " + st0.state.stateNumber + " -> "
-                        + st1.state.stateNumber + " "
-                        + (prod.status == Production.REJECT ? "{reject}" : ""));
+                if (isLogging()) {
+                    Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
+                                 st1.state.stateNumber, " ", (prod.isReject() ? "{reject}" : ""));
+                }
                 nl.addAmbiguity(t);
 
                 if (prod.isReject()) {
@@ -334,8 +401,10 @@ public class SGLR {
 
             } else {
                 nl = st1.addLink(st0, t);
-                Tools.debug(" added link " + nl + " from " + st1.state.stateNumber + " to "
-                        + st0.state.stateNumber);
+                if (isDebugging()) {
+                    Tools.debug(" added link ", nl, " from ", st1.state.stateNumber, " to ",
+                                st0.state.stateNumber);
+                }
 
                 if (prod.isReject())
                     nl.reject();
@@ -362,8 +431,10 @@ public class SGLR {
 
     private Frame findStack(List<Frame> stacks, State s) {
         // We need only check the top frames of the active stacks.
-        Tools.debug("findStack() - " + dumpActiveStacks());
-        Tools.debug(" looking for " + s.stateNumber);
+        if (isDebugging()) {
+            Tools.debug("findStack() - ", dumpActiveStacks());
+            Tools.debug(" looking for ", s.stateNumber);
+        }
         for (Frame st : stacks)
             if (st.state.stateNumber == s.stateNumber) {
                 return st;
@@ -372,30 +443,40 @@ public class SGLR {
     }
 
     private void doLimitedReductions(Frame st, Production prod, Link l) {
-        Tools.debug("doLimitedReductions() - " + dumpActiveStacks());
+        if (isDebugging()) {
+            Tools.debug("doLimitedReductions() - ", dumpActiveStacks());
 
-        Tools.debug(" state : " + st.peek().stateNumber);
-        Tools.debug(" token : " + currentToken);
-        Tools.debug(" label : " + prod.label);
-        Tools.debug(" arity : " + prod.arity);
-        Tools.debug(" stack : " + st.dumpStack());
+            Tools.debug(" state : ", st.peek().stateNumber);
+            Tools.debug(" token : ", currentToken);
+            Tools.debug(" label : ", prod.label);
+            Tools.debug(" arity : ", prod.arity);
+            Tools.debug(" stack : ", st.dumpStack());
+        }
 
         List<Path> paths = st.computePathsToRoot(prod.arity, l);
-        Tools.debug(paths);
+
+        if (isDebugging()) {
+            Tools.debug(paths);
+        }
 
         for (Path path : paths) {
             List<ATerm> kids = path.getATerms();
 
-            Tools.debug(path);
+            if (isDebugging()) {
+                Tools.debug(path);
+            }
 
             Frame st0 = path.getEnd();
 
-            Tools.debug(st0.state);
-
+            if (isDebugging()) {
+                Tools.debug(st0.state);
+            }
             State next = parseTable.go(st0.peek(), prod.label);
 
-            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label + ") == "
-                    + next.stateNumber);
+            if (isLogging()) {
+                Tools.logger("Goto(", st0.peek().stateNumber, ",", prod.label, ") == ",
+                             next.stateNumber);
+            }
 
             reducer(st0, next, prod, kids);
         }
@@ -417,7 +498,10 @@ public class SGLR {
             lineNumber++;
             columnNumber = 0;
         }
-        Tools.debug("getNextToken() - " + t);
+
+        if (isDebugging()) {
+            Tools.debug("getNextToken() - ", t);
+        }
 
         return t == -1 ? SGLR.EOF : t;
     }

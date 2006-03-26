@@ -65,20 +65,18 @@ public class SGLR {
         activeStacks = new Vector<Frame>();
     }
 
-    public SGLR(InputStream is) throws IOException, FatalException,
-            InvalidParseTableException {
+    public SGLR(InputStream is) throws IOException, FatalException, InvalidParseTableException {
         basicInit(null);
         loadParseTable(is);
     }
 
-    public SGLR(PureFactory pf, InputStream is) throws IOException,
-            FatalException, InvalidParseTableException {
+    public SGLR(PureFactory pf, InputStream is) throws IOException, FatalException,
+            InvalidParseTableException {
         basicInit(pf);
         loadParseTable(is);
     }
 
-    public void loadParseTable(InputStream r) throws IOException,
-            InvalidParseTableException {
+    public void loadParseTable(InputStream r) throws IOException, InvalidParseTableException {
         Tools.debug("loadParseTable()");
 
         ATerm pt = factory.readFromFile(r);
@@ -90,15 +88,10 @@ public class SGLR {
         Tools.debug(" # actions        : " + parseTable.getActionCount());
         Tools.debug(" # gotos          : " + parseTable.getGotoEntries());
 
-        Tools.debug(" " + (parseTable.hasRejects() ? "Includes" : "Excludes")
-                + " rejects");
-        Tools.debug(" "
-                + (parseTable.hasPriorities() ? "Includes" : "Excludes")
-                + " priorities");
-        Tools.debug(" " + (parseTable.hasPrefers() ? "Includes" : "Excludes")
-                + " prefer actions");
-        Tools.debug(" " + (parseTable.hasAvoids() ? "Includes" : "Excludes")
-                + " avoid actions");
+        Tools.debug(" " + (parseTable.hasRejects() ? "Includes" : "Excludes") + " rejects");
+        Tools.debug(" " + (parseTable.hasPriorities() ? "Includes" : "Excludes") + " priorities");
+        Tools.debug(" " + (parseTable.hasPrefers() ? "Includes" : "Excludes") + " prefer actions");
+        Tools.debug(" " + (parseTable.hasAvoids() ? "Includes" : "Excludes") + " avoid actions");
     }
 
     /**
@@ -127,8 +120,7 @@ public class SGLR {
         Frame st0 = initActiveStacks();
 
         do {
-            Tools.logger("Current token (#" + tokensSeen + "): "
-                    + charify(currentToken));
+            Tools.logger("Current token (#" + tokensSeen + "): " + charify(currentToken));
 
             currentToken = getNextToken(fis);
             parseCharacter();
@@ -136,9 +128,8 @@ public class SGLR {
         } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
 
         Tools.logger("Number of lines: " + lineNumber);
-        Tools.logger("Maximum " + maxBranches
-                + " parse branches reached at token " + charify(maxToken)
-                + ", line " + maxLine + ", column " + maxColumn + " (token #"
+        Tools.logger("Maximum " + maxBranches + " parse branches reached at token "
+                + charify(maxToken) + ", line " + maxLine + ", column " + maxColumn + " (token #"
                 + maxTokenNumber + ")");
 
         if (acceptingStack == null)
@@ -153,9 +144,8 @@ public class SGLR {
     }
 
     private void shifter() {
-        Tools.logger("#" + tokensSeen + ": shifting " + forShifter.size()
-                + " parser(s) -- token " + charify(currentToken) + ", line "
-                + lineNumber + ", column " + columnNumber);
+        Tools.logger("#" + tokensSeen + ": shifting " + forShifter.size() + " parser(s) -- token "
+                + charify(currentToken) + ", line " + lineNumber + ", column " + columnNumber);
         Tools.debug("shifter() - " + dumpActiveStacks());
 
         Tools.debug(" token   : " + currentToken);
@@ -185,6 +175,8 @@ public class SGLR {
 
     private String charify(int currentToken) {
         switch (currentToken) {
+        case 32:
+            return "\\32";
         case 256:
             return "EOF";
         case '\n':
@@ -217,7 +209,7 @@ public class SGLR {
                 if (!st.allLinksRejected()) {
                     actor(st);
                 }
-                    
+
             }
         }
     }
@@ -237,8 +229,7 @@ public class SGLR {
         for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
                 Shift sh = (Shift) ai;
-                forShifter.push(new ActionState(st, parseTable
-                        .getState(sh.nextState)));
+                forShifter.push(new ActionState(st, parseTable.getState(sh.nextState)));
                 statsRecordParsers();
             } else if (ai instanceof Reduce) {
                 Reduce red = (Reduce) ai;
@@ -271,24 +262,24 @@ public class SGLR {
         Tools.debug(" stack : " + st.dumpStack());
 
         List<Path> paths = st.computePathsToRoot(prod.arity);
-        
+
         Tools.debug(" paths : " + paths.size());
 
         for (Path path : paths) {
-            
+
             List<ATerm> kids = path.getATerms();
 
             Tools.debug(path);
             Tools.debug(kids);
-            
+
             Frame st0 = path.getEnd();
 
             Tools.debug(st0.state);
 
             State next = parseTable.go(st0.peek(), prod.label);
 
-            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label
-                    + ") == " + next.stateNumber);
+            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label + ") == "
+                    + next.stateNumber);
 
             reducer(st0, next, prod, kids);
         }
@@ -300,37 +291,53 @@ public class SGLR {
     }
 
     private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
-        Tools.logger("Reducing; state " + s.stateNumber + ", token: "
-                + charify(currentToken) + ", production: " + prod.label);
+        Tools.logger("Reducing; state " + s.stateNumber + ", token: " + charify(currentToken)
+                + ", production: " + prod.label);
 
         Tools.debug("reducer() - " + dumpActiveStacks());
 
         Tools.debug(" state      : " + s.stateNumber);
-        Tools.debug(" token      : " + charify(currentToken) + " ("
-                + currentToken + ")");
+        Tools.debug(" token      : " + charify(currentToken) + " (" + currentToken + ")");
         Tools.debug(" production : " + prod.label);
 
         ATerm t = prod.apply(kids, parseTable);
 
         Frame st1 = findStack(activeStacks, s);
-        if (st1 != null) {
+        if (st1 == null) {
+            /* Found no existing stack with for state s; make new stack */
+            st1 = new Frame(s);
+            Link nl = st1.addLink(st0, t);
+            activeStacks.add(st1);
+            if (st1.peek().rejectable()) {
+                forActorDelayed.push(st1);
+            } else {
+                forActor.add(st1);
+            }
+
+            if (prod.status == Production.REJECT) {
+                Tools.logger("Reject [new]");
+                nl.reject();
+            }
+        } else {
+            /* A stack with state s exists; check for ambiguities */
             Link nl = st1.findLink(st0);
 
             if (nl != null) {
-                Tools.logger("Ambiguity: direct link " + st0.state.stateNumber
-                        + " -> " + st1.state.stateNumber);
+                Tools.logger("Ambiguity: direct link " + st0.state.stateNumber + " -> "
+                        + st1.state.stateNumber + " "
+                        + (prod.status == Production.REJECT ? "{reject}" : ""));
                 nl.addAmbiguity(t);
 
-                if (prod.status == Production.REJECT)
+                if (prod.isReject()) {
                     nl.reject();
+                }
 
             } else {
                 nl = st1.addLink(st0, t);
-                Tools.debug(" added link " + nl + " from "
-                        + st1.state.stateNumber + " to "
+                Tools.debug(" added link " + nl + " from " + st1.state.stateNumber + " to "
                         + st0.state.stateNumber);
 
-                if (prod.status == Production.REJECT)
+                if (prod.isReject())
                     nl.reject();
 
                 for (Frame st2 : activeStacks) {
@@ -341,8 +348,7 @@ public class SGLR {
                     if (forActorDelayed.contains(st2))
                         continue;
 
-                    for (ActionItem ai : st2.peek()
-                            .getActionItems(currentToken)) {
+                    for (ActionItem ai : st2.peek().getActionItems(currentToken)) {
                         if (ai instanceof Reduce) {
                             Reduce red = (Reduce) ai;
                             doLimitedReductions(st2, red.production, nl);
@@ -351,20 +357,6 @@ public class SGLR {
 
                 }
             }
-        } else {
-            st1 = new Frame(s);
-            Link nl = st1.addLink(st0, t);
-            activeStacks.add(st1);
-            if (st1.peek().rejectable()) { // prod.status == Reduce.REJECT) {
-                forActorDelayed.push(st1);
-            } else {
-                //forActor.clear();
-                forActor.add(st1);
-                forActor.addAll(forActorDelayed);
-            }
-
-            if (prod.status == Production.REJECT)
-                nl.reject();
         }
     }
 
@@ -402,8 +394,8 @@ public class SGLR {
 
             State next = parseTable.go(st0.peek(), prod.label);
 
-            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label
-                    + ") == " + next.stateNumber);
+            Tools.logger("Goto(" + st0.peek().stateNumber + "," + prod.label + ") == "
+                    + next.stateNumber);
 
             reducer(st0, next, prod, kids);
         }

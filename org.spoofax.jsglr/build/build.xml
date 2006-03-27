@@ -1,0 +1,54 @@
+<project name="aterm" default="compile" basedir=".">
+
+    <property name="compiler.debug" value="on"/>
+
+    <property name="src.dir" value="../src"/>
+    <property name="lib.dir" value="../ext"/>
+    <property name="build.dir" value=".."/>
+    <property name="classes.dir" value="${build.dir}/bin"/>
+    <property name="version" value="0.1"/>
+    <property name="jar.file" value="jsglr-${version}.jar"/>
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}">
+            <include name="jjtraveler-0.4.3.jar"/>
+            <include name="shared-objects-1.4.jar"/>
+            <include name="junit-3.8.1.jar"/>
+        </fileset>
+        <!-- todo: better idea? -->
+        <pathelement location="../../org.spoofax.aterm/aterm-1.6.jar"/>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+    </target>
+
+    <!-- ############################ Compile ############################ -->
+    <target name="compile" depends="init">
+        <mkdir dir="${classes.dir}"/>
+        <javac
+          srcdir="${src.dir}"
+          destdir="${classes.dir}"
+          nowarn="on"
+          debug="${compiler.debug}">
+            <classpath refid="classpath"/>
+        </javac>
+
+    </target>
+
+    <!-- ############################ Jar ############################ -->
+    <target name="jar" depends="compile">
+        <jar jarfile="${build.dir}/${jar.file}"
+             basedir="${classes.dir}"/>
+    </target>
+
+    <!-- ############################ Clean ############################ -->
+    <target name="clean">
+        <delete dir="${classes.dir}"/>
+    </target>
+
+    <target name="clean.full" depends="clean">
+        <delete file="${build.dir}/${jar.file}"/>
+    </target>
+</project>
+

@@ -10,6 +10,7 @@ package org.spoofax.jsglr;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
@@ -75,7 +76,7 @@ public class SGLR {
 
     private void basicInit(PureFactory pf) {
         debugging = false;
-        logging = false;
+        logging = true;
         factory = pf;
         if (factory == null)
             factory = new PureFactory();
@@ -409,7 +410,9 @@ public class SGLR {
                 if (prod.isReject())
                     nl.reject();
 
-                for (Frame st2 : activeStacks) {
+                // FIXME activeStacks can be modified inside doLimitedReductions; what should we do?
+                for (int i = 0; i< activeStacks.size(); i++) { // Frame st2 : activeStacks) {
+                    Frame st2 = activeStacks.get(i);
                     if (st2.allLinksRejected())
                         continue;
                     if (forActor.contains(st2))

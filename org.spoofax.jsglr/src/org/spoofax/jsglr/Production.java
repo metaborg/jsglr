@@ -74,4 +74,12 @@ public class Production {
     boolean isReject() {
         return status == REJECT;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Production))
+            return false;
+        Production o = (Production)obj;
+        return arity == o.arity && label == o.label && status == o.status;
+    }
 }

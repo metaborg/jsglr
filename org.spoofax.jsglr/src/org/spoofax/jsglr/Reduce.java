@@ -34,6 +34,21 @@ public class Reduce extends ActionItem {
         production = new Production(arity, label, status);
     }
     
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Reduce))
+            return false;
+        Reduce o = (Reduce)obj;
+        return arity == o.arity && label == o.label && status == o.status;
+    }
+    
+    @Override
+    public int hashCode() {
+        return arity + status * 10 + label * 100;
+    }
+    
+    
     public String toString() {
         return "reduce(" + arity + ", " + label + ", " + status + ")";
     }

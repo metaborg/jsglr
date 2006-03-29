@@ -15,9 +15,6 @@ public class Range {
     
     public Range(int low, int high) throws InvalidParseTableException {
         
-        if(low < 0 || high > 256) 
-            throw new InvalidParseTableException("Invalid ranges ([" + low + " - " + high + "])");
-
         this.low = low;
         this.high = high;
     }
@@ -28,6 +25,19 @@ public class Range {
 
     boolean within(int c) {
         return c >= low && c <= high;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Range))
+            return false;
+        Range o = (Range)obj;
+        return low == o.low && high == o.high;
+    }
+    
+    @Override
+    public int hashCode() {
+        return low + high * 10000;
     }
     
     @Override

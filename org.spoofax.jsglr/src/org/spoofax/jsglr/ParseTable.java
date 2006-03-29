@@ -7,6 +7,9 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import aterm.ATerm;
 import aterm.ATermAppl;
 import aterm.ATermFactory;
@@ -71,16 +74,16 @@ public class ParseTable {
         return ret;
     }
 
-    private Label[] parseLabels(ATermList labelsTerm) {
+    private Label[] parseLabels(ATermList labelsTerm) throws InvalidParseTableException {
 
-        Label[] ret = new Label[labelsTerm.getChildCount()];
+        Label[] ret = new Label[labelsTerm.getChildCount() + 256 + 1];
         
         for(int i=0;i<labelsTerm.getChildCount();i++) {
             ATermAppl a = Term.applAt(labelsTerm, i);
             ATermAppl prod = Term.applAt(a, 0);
             int labelNumber = Term.intAt(a, 1);
             
-            ret[i] = new Label(labelNumber, prod);
+            ret[labelNumber] = new Label(labelNumber, prod);
         }
         
         return ret;
@@ -103,6 +106,17 @@ public class ParseTable {
         }
 
         return ret;
+    }
+    
+    Map<Goto, Goto> gotoMap = new HashMap<Goto, Goto>();
+    
+    private Goto makeGoto(int newStateNumber, Range[] ranges, int[] productionLabels) {
+        Goto g = new Goto(ranges, productionLabels, newStateNumber);
+        if(gotoMap.containsKey(g)) {
+            return gotoMap.get(g);
+        }
+        gotoMap.put(g,g);
+        return g;
     }
 
     private Action[] parseActions(ATermList actionList) throws InvalidParseTableException {
@@ -130,18 +144,38 @@ public class ParseTable {
                 int productionArity = Term.intAt(a, 0);
                 int label = Term.intAt(a, 1);
                 int status = Term.intAt(a, 2);
-                item = new Reduce(productionArity, label, status);
+                item = makeReduce(productionArity, label, status);
             } else if(a.getName().equals("accept")) {
                 item = new Accept();
             } else if(a.getName().equals("shift")) {
                 int nextState = Term.intAt(a, 0); 
-                item = new Shift(nextState);
+                item = makeShift(nextState);
             }
             ret[i] = item;
         }
         return ret;
     }
 
+    Map<Reduce, Reduce> reduceMap = new HashMap<Reduce,Reduce>();
+    
+    private Reduce makeReduce(int arity, int label, int status) {
+        Reduce s = new Reduce(arity, label, status);
+        if(reduceMap.containsKey(s))
+            return reduceMap.get(s);
+        reduceMap.put(s,s);
+        return s;
+    }
+
+    Map<Shift, Shift> shiftMap = new HashMap<Shift,Shift>();
+    
+    private Shift makeShift(int nextState) {
+        Shift s = new Shift(nextState);
+        if(shiftMap.containsKey(s))
+            return shiftMap.get(s);
+        shiftMap.put(s,s);
+        return s;
+    }
+    
     private Goto[] parseGotos(ATermList gotos) throws InvalidParseTableException {
 
         Goto[] ret = new Goto[gotos.getChildCount()];
@@ -152,7 +186,7 @@ public class ParseTable {
             int newStateNumber = Term.intAt(go, 1);
             Range[] ranges = parseRanges(rangeList);
             int[] productionLabels = parseProductionLabels(rangeList);
-            ret[i] = new Goto(ranges, productionLabels, newStateNumber);
+            ret[i] = makeGoto(newStateNumber, ranges, productionLabels);
         }
 
         return ret;
@@ -175,20 +209,33 @@ public class ParseTable {
 
     private Range[] parseRanges(ATermList ranges) throws InvalidParseTableException {
 
-        // FIXME: Allocates too much memory
         Range[] ret = new Range[ranges.getChildCount()];
 
         for (int i = 0; i < ranges.getChildCount(); i++) {
             ATerm t = Term.termAt(ranges, i);
             if (Term.isInt(t)) {
-                ret[i] = new Range(Term.toInt(t));
+                ret[i] = makeRange(Term.toInt(t));
             } else {
                 int low = Term.intAt(t, 0);
                 int hi = Term.intAt(t, 1);
-                ret[i] = new Range(low, hi);
+                ret[i] = makeRange(low, hi);
             }
         }
         return ret;
+    }
+    
+    Map<Range, Range> rangeMap = new HashMap<Range, Range>();
+    
+    private Range makeRange(int low, int hi) throws InvalidParseTableException {
+        Range r = new Range(low, hi);
+        if(rangeMap.containsKey(r))
+            return rangeMap.get(r);
+        rangeMap.put(r,r);
+        return r;
+    }
+    
+    private Range makeRange(int n) throws InvalidParseTableException {
+        return makeRange(n, n);
     }
 
     public State getInitialState() {
@@ -199,13 +246,8 @@ public class ParseTable {
         return states[s.go(label)];
     }
 
-    // FIXME: Why can't this.labels just be an array and label the index? 
     public Label getLabel(int label) {
-        for(Label l : labels) {
-            if (l.labelNumber == label)
-                return l;
-        }
-        return null;
+        return labels[label];
     }
 
     public State getState(int s) {
@@ -217,7 +259,7 @@ public class ParseTable {
     }
 
     public int getProductionCount() {
-        return labels.length;
+        return labels.length - 256;
     }
 
     public int getActionEntryCount() {
@@ -274,10 +316,8 @@ public class ParseTable {
     }
 
     public ATerm lookupProduction(int currentToken) {
-        // FIXME: Indexed instead of list.
-        for(Label l : labels)
-            if(l.labelNumber == currentToken)
-                return l.prod;
+        if(currentToken > 256)
+            return labels[currentToken].prod;
         
         return factory.makeInt(currentToken);
     }

@@ -16,6 +16,18 @@ public class Shift extends ActionItem {
         this.nextState = nextState;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Shift))
+            return false;
+        return nextState == ((Shift)obj).nextState;
+    }
+    
+    @Override
+    public int hashCode() {
+        return nextState;
+    }
+    
     public String toString() {
         return "shift(" + nextState + ")";
     }

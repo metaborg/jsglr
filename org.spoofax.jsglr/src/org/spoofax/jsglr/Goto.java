@@ -28,6 +28,29 @@ public class Goto {
     }
     
     @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Goto))
+            return false;
+        Goto o = (Goto)obj;
+        if(nextState != o.nextState)
+            return false;
+        if(productionRefs.length != o.productionRefs.length)
+            return false;
+        for(int i=0;i<productionRefs.length;i++)
+            if(productionRefs[i] != o.productionRefs[i])
+                return false;
+        return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        // FIXME Can probably be made to work a lot better
+        int r = nextState * 94716;
+        for(int i=0; i < productionRefs.length; i++)
+            r += productionRefs[i] * i * 3000;
+        return r;
+    }
+    @Override
     public String toString() {
         return "goto(" + productionRefs + "," + nextState + ")"; 
     }

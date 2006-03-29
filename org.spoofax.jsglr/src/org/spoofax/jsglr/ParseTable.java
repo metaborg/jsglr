@@ -7,10 +7,6 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
-
 import aterm.ATerm;
 import aterm.ATermAppl;
 import aterm.ATermFactory;
@@ -19,10 +15,10 @@ import aterm.ATermList;
 public class ParseTable {
 
     // FIXME: This should be an array
-    private HashMap<Integer, State> states;
+    private State[] states;
     private int startState;
-    private List<Label> labels;
-    private List<Priority> priorities;
+    private Label[] labels;
+    private Priority[] priorities;
     private ATermFactory factory;
     
     public ParseTable(ATerm pt) throws InvalidParseTableException {
@@ -51,24 +47,23 @@ public class ParseTable {
         return true;
     }
 
-    private List<Priority> parsePriorities(ATermAppl prioritiesTerm) throws InvalidParseTableException {
-        
-        List<Priority> ret = new Vector<Priority>(prioritiesTerm.getChildCount());
+    private Priority[] parsePriorities(ATermAppl prioritiesTerm) throws InvalidParseTableException {
         
         ATermList prods = Term.listAt(prioritiesTerm, 0);
+        Priority[] ret = new Priority[prods.getChildCount()];
         
         for(int i=0;i<prods.getChildCount();i++) {
             ATermAppl a = Term.applAt(prods, i);
             int left = Term.intAt(a, 0);
             int right = Term.intAt(a, 1);
             if(a.getName().equals("left-prio")) {
-                ret.add(new Priority(Priority.LEFT, left, right));
+                ret[i] = new Priority(Priority.LEFT, left, right);
             } else if(a.getName().equals("right-prio")) {
-                ret.add(new Priority(Priority.RIGHT, left, right));
+                ret[i] = new Priority(Priority.RIGHT, left, right);
             } else if(a.getName().equals("non-assoc")) {
-                ret.add(new Priority(Priority.NONASSOC, left, right));
+                ret[i] = new Priority(Priority.NONASSOC, left, right);
             } else if(a.getName().equals("gtr-prio")) {
-                ret.add(new Priority(Priority.GTR, left, right));
+                ret[i] = new Priority(Priority.GTR, left, right);
             } else {
                 throw new InvalidParseTableException("Unknown priority : " + a.getName());
             }
@@ -76,55 +71,58 @@ public class ParseTable {
         return ret;
     }
 
-    private List<Label> parseLabels(ATermList labelsTerm) {
+    private Label[] parseLabels(ATermList labelsTerm) {
 
-        List<Label> ret = new Vector<Label>(labelsTerm.getChildCount());
+        Label[] ret = new Label[labelsTerm.getChildCount()];
         
         for(int i=0;i<labelsTerm.getChildCount();i++) {
             ATermAppl a = Term.applAt(labelsTerm, i);
             ATermAppl prod = Term.applAt(a, 0);
             int labelNumber = Term.intAt(a, 1);
             
-            ret.add(new Label(labelNumber, prod));
+            ret[i] = new Label(labelNumber, prod);
         }
         
         return ret;
     }
 
-    private HashMap<Integer, State> parseStates(ATermAppl statesTerm) throws InvalidParseTableException {
+    private State[] parseStates(ATermAppl statesTerm) throws InvalidParseTableException {
 
         ATermList states = Term.listAt(statesTerm, 0);
-        HashMap<Integer, State> ret = new HashMap<Integer, State>();
+        State[] ret = new State[states.getLength()];
 
         for (int i = 0; i < states.getLength(); i++) {
+            
             ATermAppl stateRec = Term.applAt(states, i);
             int stateNumber = Term.intAt(stateRec, 0);
-            List<Goto> gotos = parseGotos(Term.listAt(stateRec, 1));
-            List<Action> actions = parseActions(Term.listAt(stateRec, 2));
+            Goto[] gotos = parseGotos(Term.listAt(stateRec, 1));
+            Action[] actions = parseActions(Term.listAt(stateRec, 2));
             
-            ret.put(stateNumber, new State(stateNumber, gotos, actions));
+            ret[i] = new State(stateNumber, gotos, actions);
 
         }
 
         return ret;
     }
 
-    private List<Action> parseActions(ATermList actionList) throws InvalidParseTableException {
+    private Action[] parseActions(ATermList actionList) throws InvalidParseTableException {
         
-        List<Action> ret = new Vector<Action>(actionList.getChildCount());
+        Action[] ret = new Action[actionList.getChildCount()];
 
         for (int i = 0; i < actionList.getChildCount(); i++) {
             ATermAppl action = Term.applAt(actionList, i);
-            List<Range> ranges = parseRanges(Term.listAt(action, 0));
-            List<ActionItem> items = parseActionItems(Term
+            Range[] ranges = parseRanges(Term.listAt(action, 0));
+            ActionItem[] items = parseActionItems(Term
                     .listAt(action, 1));
-            ret.add(new Action(ranges, items));
+            ret[i] = new Action(ranges, items);
         }
         return ret;
     }
 
-    private List<ActionItem> parseActionItems(ATermList items) {
-        List<ActionItem> ret = new Vector<ActionItem>(items.getChildCount());
+    private ActionItem[] parseActionItems(ATermList items) {
+        
+        ActionItem[] ret = new ActionItem[items.getChildCount()];
+        
         for(int i=0;i<items.getChildCount();i++) {
             ActionItem item = null;
             ATermAppl a = Term.applAt(items, i);
@@ -139,73 +137,66 @@ public class ParseTable {
                 int nextState = Term.intAt(a, 0); 
                 item = new Shift(nextState);
             }
-            ret.add(item);
+            ret[i] = item;
         }
         return ret;
     }
 
-    private List<Goto> parseGotos(ATermList gotos) throws InvalidParseTableException {
+    private Goto[] parseGotos(ATermList gotos) throws InvalidParseTableException {
 
-        List<Goto> ret = new Vector<Goto>(gotos.getChildCount());
+        Goto[] ret = new Goto[gotos.getChildCount()];
 
         for (int i = 0; i < gotos.getChildCount(); i++) {
             ATermAppl go = Term.applAt(gotos, i);
             ATermList rangeList = Term.listAt(go, 0);
             int newStateNumber = Term.intAt(go, 1);
-            List<Range> ranges = parseRanges(rangeList);
-            List<Integer> productionLabels = parseProductionLabels(rangeList);
-            ret.add(new Goto(ranges, productionLabels, newStateNumber));
+            Range[] ranges = parseRanges(rangeList);
+            int[] productionLabels = parseProductionLabels(rangeList);
+            ret[i] = new Goto(ranges, productionLabels, newStateNumber);
         }
 
         return ret;
     }
 
-    private List<Integer> parseProductionLabels(ATermList ranges) {
+    private int[] parseProductionLabels(ATermList ranges) throws InvalidParseTableException {
 
-        // TODO: Allocates too much memory
-        List<Integer> ret = new Vector<Integer>(ranges.getChildCount());
+        int[] ret = new int[ranges.getChildCount()];
 
         for(int i=0;i<ranges.getChildCount();i++) {
             ATerm t = Term.termAt(ranges, i);
             if(Term.isInt(t)) {
-                int j = Term.toInt(t);
-                //if(j > 256) {
-                    ret.add(new Integer(j));
-                //}
+                ret[i] = Term.toInt(t);
+            } else {
+                // FIXME What happens here?
             }
         }
         return ret;
     }
 
-    private List<Range> parseRanges(ATermList ranges) throws InvalidParseTableException {
+    private Range[] parseRanges(ATermList ranges) throws InvalidParseTableException {
 
         // FIXME: Allocates too much memory
-        List<Range> ret = new Vector<Range>(ranges.getChildCount());
+        Range[] ret = new Range[ranges.getChildCount()];
 
         for (int i = 0; i < ranges.getChildCount(); i++) {
             ATerm t = Term.termAt(ranges, i);
             if (Term.isInt(t)) {
-                int j = Term.toInt(t);
-                // Anything > 256 is a label, anything below is a char
-                //if(j <= 256) 
-                    ret.add(new Range(j));
-                //else
-                //    throw new InvalidParseTableException("Spurious character!");
+                ret[i] = new Range(Term.toInt(t));
             } else {
                 int low = Term.intAt(t, 0);
                 int hi = Term.intAt(t, 1);
-                ret.add(new Range(low, hi));
+                ret[i] = new Range(low, hi);
             }
         }
         return ret;
     }
 
     public State getInitialState() {
-        return states.get(startState);
+        return states[startState];
     }
 
     public State go(State s, int label) {
-        return states.get(s.go(label));
+        return states[s.go(label)];
     }
 
     // FIXME: Why can't this.labels just be an array and label the index? 
@@ -218,29 +209,28 @@ public class ParseTable {
     }
 
     public State getState(int s) {
-        return states.get(s);
+        return states[s];
     }
 
     public int getStateCount() {
-        return states.values().size();
+        return states.length;
     }
 
     public int getProductionCount() {
-        // FIXME: What are labels really?
-        return labels.size();
+        return labels.length;
     }
 
     public int getActionEntryCount() {
         int total = 0;
-        for(State s : states.values()) {
+        for(State s : states) {
             total += s.getActionItemCount();
         }
         return total;
     }
 
-    public int getGotoEntries() {
+    public int getGotoCount() {
         int total = 0;
-        for(State s : states.values()) {
+        for(State s : states) {
             total += s.getGotoCount();
         }
         return total;
@@ -248,7 +238,7 @@ public class ParseTable {
 
     public int getActionCount() {
         int total = 0;
-        for(State s : states.values()) {
+        for(State s : states) {
             total += s.getActionCount();
         }
         return total;
@@ -256,7 +246,7 @@ public class ParseTable {
 
     public boolean hasRejects() {
         
-        for(State s : states.values())
+        for(State s : states)
             if(s.rejectable())
                 return true;
         
@@ -264,20 +254,20 @@ public class ParseTable {
     }
 
     public boolean hasPriorities() {
-        if(priorities.size() > 0)
+        if(priorities.length > 0)
             return true;
         return false;
     }
     
     public boolean hasPrefers() {
-        for(State s : states.values())
+        for(State s : states)
             if(s.hasPrefer())
                 return true;
         return false;
     }
 
     public boolean hasAvoids() {
-        for(State s : states.values())
+        for(State s : states)
             if(s.hasAvoid())
                 return true;
         return false;

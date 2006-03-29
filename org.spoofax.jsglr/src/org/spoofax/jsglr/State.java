@@ -13,10 +13,10 @@ import java.util.Vector;
 public class State {
 
     public final int stateNumber;
-    private final List<Goto> gotos;
-    private final List<Action> actions;
+    private final Goto[] gotos;
+    private final Action[] actions;
     
-    public State(int stateNumber, List<Goto> gotos, List<Action> actions) {
+    public State(int stateNumber, Goto[] gotos, Action[] actions) {
         this.stateNumber = stateNumber;
         this.gotos = gotos;
         this.actions = actions;
@@ -28,13 +28,13 @@ public class State {
         
         for(Action a : actions) {
             if(a.accepts(currentToken))
-                ret.addAll(a.getActionItems());
+                for(ActionItem it : a.getActionItems())
+                    ret.add(it);
         }
         return ret;
     }
 
     public int go(int labelNumber) {
-        // FIXME: Goto can also happen on a label? 
         for(Goto g : gotos) {
             if(g.hasProd(labelNumber))
                 return g.nextState;
@@ -53,17 +53,17 @@ public class State {
     public int getActionItemCount() {
         int total = 0;
         for(Action a : actions) {
-            total += a.getActionItems().size();
+            total += a.getActionItems().length;
         }
         return total;
     }
 
     public int getGotoCount() {
-        return gotos.size();
+        return gotos.length;
     }
 
     public int getActionCount() {
-        return actions.size();
+        return actions.length;
     }
 
     public boolean hasPrefer() {
@@ -83,6 +83,6 @@ public class State {
     }
 
     public String toString() {
-        return "State(" + stateNumber + ", # " + actions.size() + " actions, # " + gotos.size() + " gotos) \n - " + gotos + "\n - " + actions;
+        return "State(" + stateNumber + ", # " + actions.length + " actions, # " + gotos.length + " gotos) \n - " + gotos + "\n - " + actions;
     }
 }

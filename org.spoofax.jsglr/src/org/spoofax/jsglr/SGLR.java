@@ -10,7 +10,6 @@ package org.spoofax.jsglr;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
@@ -110,7 +109,7 @@ public class SGLR {
             Tools.debug(" # states         : ", parseTable.getStateCount());
             Tools.debug(" # productions    : ", parseTable.getProductionCount());
             Tools.debug(" # actions        : ", parseTable.getActionCount());
-            Tools.debug(" # gotos          : ", parseTable.getGotoEntries());
+            Tools.debug(" # gotos          : ", parseTable.getGotoCount());
 
             Tools.debug((parseTable.hasRejects() ? "Includes" : "Excludes"), " rejects");
             Tools.debug((parseTable.hasPriorities() ? "Includes" : "Excludes"), " priorities");

@@ -7,24 +7,22 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.List;
-
 public class Goto {
 
     // FIXME: Curiously, goto is on labels, not tokens.
     // private List<Range> ranges;
-    private List<Integer> productionRefs;
+    private int[] productionRefs;
     public final int nextState;
     
-    public Goto(List<Range> ranges, List<Integer> productionRefs, int nextState) {
+    public Goto(Range[] ranges, int[] productionRefs, int nextState) {
         this.nextState = nextState;
         // this.ranges = ranges;
         this.productionRefs = productionRefs;
     }
 
     public boolean hasProd(int label) {
-        for(Integer i : productionRefs)
-            if(i == label)
+        for(int i=0; i < productionRefs.length; i++)
+            if(productionRefs[i] == label)
                 return true;
         return false;
     }

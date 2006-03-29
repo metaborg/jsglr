@@ -7,20 +7,19 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.List;
 
 public class Action {
 
-    private List<Range> ranges;
+    private Range[] ranges;
 
-    private List<ActionItem> items;
+    private ActionItem[] items;
 
-    public Action(List<Range> ranges, List<ActionItem> items) {
+    public Action(Range[] ranges, ActionItem[] items) {
         this.ranges = ranges;
         this.items = items;
     }
 
-    public List<ActionItem> getActionItems() {
+    public ActionItem[] getActionItems() {
         return items;
     }
 

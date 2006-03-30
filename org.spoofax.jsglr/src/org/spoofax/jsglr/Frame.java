@@ -88,8 +88,8 @@ public class Frame {
         return null;
     }
 
-    public Link addLink(Frame st0, ATerm t) {
-        Link s = new Link(st0, t);
+    public Link addLink(Frame st0, IParseNode n) {
+        Link s = new Link(st0, n);
         steps.add(s);
         return s;
     }

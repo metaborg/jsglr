@@ -38,37 +38,9 @@ public class Production {
 
     }
 
-    // FIXME: This is fugly
-    public ATerm apply(List<ATerm> kids, ParseTable pt) {
-        AFun fun;
-        ATermFactory pf = pt.getFactory();
-
-        // FIXME: These AFuns are constants, but require a live
-        // factory to work.
-        switch (status) {
-        case NORMAL:
-            fun = pf.makeAFun("regular", 2, false);
-            break;
-        case REJECT:
-            fun = pf.makeAFun("reject", 2, false);
-            break;
-        case PREFER:
-            fun = pf.makeAFun("prefer", 2, false);
-            break;
-        case AVOID:
-            fun = pf.makeAFun("avoid", 2, false);
-            break;
-        default:
-            fun = null;
-        }
-
-        AFun prod = pf.makeAFun("aprod", 1, false);
-        ATerm prodLabel = pf.makeAppl(prod, pf.makeInt(label));
-
-        ATermList l = Term.makeList(pf, kids);
-        ATerm t = pf.makeAppl(fun, prodLabel, l);
-        
-        return t;
+ 
+    public Node apply(List<IParseNode> kids) {
+        return new Node(status, label, kids);
     }
 
     boolean isReject() {

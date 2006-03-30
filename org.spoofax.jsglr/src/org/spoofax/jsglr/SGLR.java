@@ -58,6 +58,7 @@ public class SGLR {
 
     private boolean logging;
 
+
     SGLR() {
         basicInit(null);
     }
@@ -100,21 +101,23 @@ public class SGLR {
 
     public void loadParseTable(InputStream r) throws IOException, InvalidParseTableException {
         Tools.debug("loadParseTable()");
-
+        long start = System.currentTimeMillis();
         ATerm pt = factory.readFromFile(r);
 
         parseTable = new ParseTable(pt);
+        long elapsed = System.currentTimeMillis() - start;
+        
+        if (isLogging()) {
+            Tools.logger("Loading parse table took " + elapsed/1000.0f + "s");
+            Tools.logger("No. of states: ", parseTable.getStateCount());
+            Tools.logger("No. of productions: ", parseTable.getProductionCount());
+            Tools.logger("No. of action entries: ", parseTable.getActionCount());
+            Tools.logger("No. of gotos entries: ", parseTable.getGotoCount());
 
-        if (isDebugging()) {
-            Tools.debug(" # states         : ", parseTable.getStateCount());
-            Tools.debug(" # productions    : ", parseTable.getProductionCount());
-            Tools.debug(" # actions        : ", parseTable.getActionCount());
-            Tools.debug(" # gotos          : ", parseTable.getGotoCount());
-
-            Tools.debug((parseTable.hasRejects() ? "Includes" : "Excludes"), " rejects");
-            Tools.debug((parseTable.hasPriorities() ? "Includes" : "Excludes"), " priorities");
-            Tools.debug((parseTable.hasPrefers() ? "Includes" : "Excludes"), " prefer actions");
-            Tools.debug((parseTable.hasAvoids() ? "Includes" : "Excludes"), " avoid actions");
+            Tools.logger((parseTable.hasRejects() ? "Includes" : "Excludes"), " rejects");
+            Tools.logger((parseTable.hasPriorities() ? "Includes" : "Excludes"), " priorities");
+            Tools.logger((parseTable.hasPrefers() ? "Includes" : "Excludes"), " prefer actions");
+            Tools.logger((parseTable.hasAvoids() ? "Includes" : "Excludes"), " avoid actions");
         }
     }
 
@@ -138,6 +141,8 @@ public class SGLR {
             Tools.debug("parse() - ", dumpActiveStacks());
         }
 
+        long start = System.currentTimeMillis();
+        
         tokensSeen = 0;
         columnNumber = 0;
         lineNumber = 1;
@@ -160,16 +165,23 @@ public class SGLR {
             Tools.logger("Maximum ", maxBranches, " parse branches reached at token ",
                          charify(maxToken), ", line ", maxLine, ", column ", maxColumn,
                          " (token #", maxTokenNumber, ")");
+            
+            long elapsed = System.currentTimeMillis() - start;
+            Tools.logger("Parse time: " + elapsed/1000.0f + "s");
         }
 
+        
         if (acceptingStack == null)
             return null;
 
         Link s = acceptingStack.findLink(st0);
 
-        if (s != null)
-            return s.label;
+        if (s != null) {
+            System.out.println(s.label);
+            return magic; //s.label;
+        }
 
+        
         return null;
     }
 
@@ -187,7 +199,7 @@ public class SGLR {
         }
         activeStacks.clear();
 
-        ATerm t = parseTable.lookupProduction(currentToken);
+        IParseNode prod = parseTable.lookupProduction(currentToken);
 
         while (forShifter.size() > 0) {
             ActionState as = forShifter.pop();
@@ -197,10 +209,10 @@ public class SGLR {
 
             Frame st1 = findStack(activeStacks, s);
             if (st1 != null) {
-                st1.addLink(st0, t);
+                st1.addLink(st0, prod);
             } else {
                 st1 = new Frame(as.s);
-                st1.addLink(st0, t);
+                st1.addLink(st0, prod);
                 activeStacks.add(st1);
             }
         }
@@ -318,7 +330,7 @@ public class SGLR {
 
         for (Path path : paths) {
 
-            List<ATerm> kids = path.getATerms();
+            List<IParseNode> kids = path.getATerms();
 
             if (isDebugging()) {
                 Tools.debug(path);
@@ -349,7 +361,7 @@ public class SGLR {
 
     }
 
-    private void reducer(Frame st0, State s, Production prod, List<ATerm> kids) {
+    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids) {
 
         if (isLogging()) {
             Tools.logger("Reducing; state ", s.stateNumber, ", token: ", charify(currentToken),
@@ -364,7 +376,7 @@ public class SGLR {
             Tools.debug(" production : ", prod.label);
         }
 
-        ATerm t = prod.apply(kids, parseTable);
+        Node t = prod.apply(kids);
 
         Frame st1 = findStack(activeStacks, s);
         if (st1 == null) {
@@ -462,7 +474,7 @@ public class SGLR {
         }
 
         for (Path path : paths) {
-            List<ATerm> kids = path.getATerms();
+            List<IParseNode> kids = path.getATerms();
 
             if (isDebugging()) {
                 Tools.debug(path);

@@ -17,7 +17,6 @@ import aterm.ATermList;
 
 public class ParseTable {
 
-    // FIXME: This should be an array
     private State[] states;
     private int startState;
     private Label[] labels;
@@ -315,11 +314,14 @@ public class ParseTable {
         return false;
     }
 
-    public ATerm lookupProduction(int currentToken) {
+    public IParseNode lookupProduction(int currentToken) {
+        return new ParseNode(currentToken);
+/*        
         if(currentToken > 256)
             return labels[currentToken].prod;
         
         return factory.makeInt(currentToken);
+*/        
     }
         
 }

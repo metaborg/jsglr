@@ -26,7 +26,7 @@ public class Main {
         sglr.loadParseTable(new FileInputStream(args[0]));
         FileInputStream fis= new FileInputStream(args[1]);
         
-        ATerm t= sglr.parse(fis);
+        ATerm t = sglr.parse(fis);
         System.out.println(t);
     }
 }

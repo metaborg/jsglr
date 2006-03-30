@@ -13,19 +13,18 @@ public class Link {
 
     public final Frame parent;
 
-    public ATerm label;
+    public IParseNode label;
 
     private boolean rejected;
 
-    public Link(Frame destination, ATerm t) {
+    public Link(Frame destination, IParseNode t) {
         this.parent = destination;
         label = t;
         rejected = false;
     }
 
-    public void addAmbiguity(ATerm t) {
-        // FIXME: Speed up
-        label = label.getFactory().parse("amb(" + t + "," + label + ")");
+    public void addAmbiguity(IParseNode t) {
+        label = new Amb(label);
     }
 
     public void reject() {

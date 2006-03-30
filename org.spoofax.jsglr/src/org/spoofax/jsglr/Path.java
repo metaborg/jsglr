@@ -16,11 +16,11 @@ public class Path {
 
     public final Path parent;
 
-    public final ATerm label;
+    public final IParseNode label;
 
     public final Frame frame;
 
-    Path(Path parent, ATerm label, Frame frame) {
+    Path(Path parent, IParseNode label, Frame frame) {
         this.parent = parent;
         this.label = label;
         this.frame = frame;
@@ -30,8 +30,8 @@ public class Path {
         return frame;
     }
 
-    public final List<ATerm> getATerms() {
-        List<ATerm> ret = new LinkedList<ATerm>();
+    public final List<IParseNode> getATerms() {
+        List<IParseNode> ret = new LinkedList<IParseNode>();
         for (Path n = parent; n != null; n = n.parent) {
             ret.add(n.label);
         }

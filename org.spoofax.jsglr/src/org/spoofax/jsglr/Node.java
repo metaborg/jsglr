@@ -7,7 +7,11 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.LinkedList;
 import java.util.List;
+
+import aterm.ATerm;
+import aterm.ATermFactory;
 
 public class Node implements IParseNode {
 
@@ -21,6 +25,19 @@ public class Node implements IParseNode {
         this.type = type;
         this.label = label;
         this.kids = kids;
+    }
+    
+    public ATerm toParseTree(ParseTable pt) {
+    	ATermFactory factory = pt.getFactory();
+    	if(type == Production.NORMAL) {
+    		List<ATerm> r = new LinkedList<ATerm>();
+    		for(IParseNode n : kids)
+    			r.add(n.toParseTree(pt));
+    		
+    		return factory.parse("appl(" + pt.getProduction(label) + "," + r + ")");
+    	}
+   		
+    	return null;
     }
     
     @Override

@@ -10,8 +10,6 @@ package org.spoofax.jsglr;
 import java.util.LinkedList;
 import java.util.List;
 
-import aterm.ATerm;
-
 public class Path {
 
     public final Path parent;

@@ -7,6 +7,8 @@
  */
 package org.spoofax.jsglr;
 
+import aterm.ATerm;
+
 public class ParseNode implements IParseNode {
 
     public final int prod;
@@ -15,6 +17,9 @@ public class ParseNode implements IParseNode {
         this.prod = prod;
     }
     
+    public ATerm toParseTree(ParseTable pt) {
+    	return pt.getProduction(prod);
+    }
     @Override
     public String toString() {
         return "aprod(" + prod + ")";

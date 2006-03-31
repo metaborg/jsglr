@@ -178,7 +178,7 @@ public class SGLR {
 
         if (s != null) {
             System.out.println(s.label);
-            return magic; //s.label;
+            return parseTable.getFactory().parse("parsetree(" + s.label.toParseTree(parseTable) + ")");
         }
 
         

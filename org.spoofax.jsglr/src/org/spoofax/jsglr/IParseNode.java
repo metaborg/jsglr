@@ -7,6 +7,9 @@
  */
 package org.spoofax.jsglr;
 
+import aterm.ATerm;
+
 public interface IParseNode {
 
+	public ATerm toParseTree(ParseTable pt); 
 }

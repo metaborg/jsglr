@@ -323,5 +323,11 @@ public class ParseTable {
         return factory.makeInt(currentToken);
 */        
     }
+
+	public ATerm getProduction(int prod) {
+		if(prod < 256)
+			return factory.parse("lit(\"" + new Character((char)prod).toString() + "\")");
+		return labels[prod].prod;
+	}
         
 }

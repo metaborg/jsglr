@@ -7,12 +7,18 @@
  */
 package org.spoofax.jsglr;
 
+import aterm.ATerm;
+
 public class Amb implements IParseNode {
 
     public final IParseNode kid;
     
     Amb(IParseNode kid) {
         this.kid = kid; 
+    }
+    
+    public ATerm toParseTree(ParseTable pt) {
+    	return pt.getFactory().parse("amb(" + kid.toParseTree(pt) + ")");
     }
     
     @Override

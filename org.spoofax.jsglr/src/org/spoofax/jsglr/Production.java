@@ -9,11 +9,6 @@ package org.spoofax.jsglr;
 
 import java.util.List;
 
-import aterm.ATerm;
-import aterm.AFun;
-import aterm.ATermFactory;
-import aterm.ATermList;
-
 public class Production {
 
     public final int arity;

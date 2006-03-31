@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import junit.framework.TestCase;
+
 import org.spoofax.jsglr.FatalException;
 import org.spoofax.jsglr.InvalidParseTableException;
 import org.spoofax.jsglr.SGLR;
@@ -18,7 +20,6 @@ import org.spoofax.jsglr.Tools;
 
 import aterm.ATerm;
 import aterm.pure.PureFactory;
-import junit.framework.TestCase;
 
 public abstract class ParseTestCase extends TestCase {
 

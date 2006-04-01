@@ -100,7 +100,9 @@ public class SGLR {
     }
 
     public void loadParseTable(InputStream r) throws IOException, InvalidParseTableException {
-        Tools.debug("loadParseTable()");
+        if(isDebugging()) {
+        	Tools.debug("loadParseTable()");
+        }
         long start = System.currentTimeMillis();
         ATerm pt = factory.readFromFile(r);
 
@@ -177,7 +179,9 @@ public class SGLR {
         Link s = acceptingStack.findLink(st0);
 
         if (s != null) {
-            System.out.println(s.label);
+        	if(isDebugging()) {
+        		System.out.println(s.label);
+        	}
             return parseTable.getFactory().parse("parsetree(" + s.label.toParseTree(parseTable) + ")");
         }
 

@@ -325,9 +325,15 @@ public class ParseTable {
     }
 
 	public ATerm getProduction(int prod) {
-		if(prod < 256)
-			return factory.parse("lit(\"" + new Character((char)prod).toString() + "\")");
+		if(prod < 256) {
+			return makeAppl(prod);
+		}
 		return labels[prod].prod;
+	}
+
+	private ATerm makeAppl(int prod) {
+		char lit = (char)prod;
+		return factory.parse("appl(prod([char-class([" + prod + "])], lit(\"" + lit + "\"), no-attrs),[lit(\"" + lit + "\")])");
 	}
         
 }

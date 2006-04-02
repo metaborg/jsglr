@@ -39,12 +39,10 @@ public abstract class ParseTestCase extends TestCase {
                 + "." + suffix));
         ATerm loaded = pf.readFromFile("tests/data/" + s + ".trm");
     
-        Tools.debug(parsed);
-    
         assertNotNull(parsed);
         assertNotNull(loaded);
-        System.out.println(parsed);
-        // assertTrue(parsed.match(loaded) != null);
+
+        assertTrue(parsed.match(loaded) != null);
     }
 
 }

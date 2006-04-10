@@ -316,24 +316,12 @@ public class ParseTable {
 
     public IParseNode lookupProduction(int currentToken) {
         return new ParseNode(currentToken);
-/*        
-        if(currentToken > 256)
-            return labels[currentToken].prod;
-        
-        return factory.makeInt(currentToken);
-*/        
     }
 
 	public ATerm getProduction(int prod) {
 		if(prod < 256) {
-			return makeAppl(prod);
+			return factory.makeInt(prod);
 		}
 		return labels[prod].prod;
-	}
-
-	private ATerm makeAppl(int prod) {
-		char lit = (char)prod;
-		return factory.parse("appl(prod([char-class([" + prod + "])], lit(\"" + lit + "\"), no-attrs),[lit(\"" + lit + "\")])");
-	}
-        
+	}        
 }

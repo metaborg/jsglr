@@ -1,0 +1,24 @@
+module basic/G2
+
+exports
+  sorts A C D E F
+  
+context-free syntax
+
+  "a" E "c" "d" -> A
+  "a" F "c" "d" -> C {prefer}
+ 
+  "x" | "y" -> E
+  "y" | "z" -> F
+  
+  A -> D
+  C -> D
+
+context-free priorities
+
+   A -> D
+>  C -> D
+    
+context-free start-symbols
+
+  D

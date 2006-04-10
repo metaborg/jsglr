@@ -12,8 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import aterm.ATerm;
-
 public class Frame {
 
     public final State state;
@@ -88,8 +86,8 @@ public class Frame {
         return null;
     }
 
-    public Link addLink(Frame st0, IParseNode n) {
-        Link s = new Link(st0, n);
+    public Link addLink(Frame st0, IParseNode n, int length) {
+        Link s = new Link(st0, n, length);
         steps.add(s);
         return s;
     }
@@ -191,5 +189,4 @@ public class Frame {
             ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1);
         }
     }
-
 }

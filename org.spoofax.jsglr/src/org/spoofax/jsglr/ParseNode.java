@@ -17,6 +17,10 @@ public class ParseNode implements IParseNode {
         this.prod = prod;
     }
     
+    public boolean isLiteral() {
+        return false;
+    }
+    
     public ATerm toParseTree(ParseTable pt) {
     	return pt.getProduction(prod);
     }

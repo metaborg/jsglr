@@ -36,9 +36,9 @@ public class Tools {
     public static void debug(Object ...s) {
         // FIXME Use debug from org.spoofax.interpreter
         for(Object o : s) {
-            System.out.print(o);
+            System.err.print(o);
         }
-        System.out.println("");
+        System.err.println("");
     }
 
     public static void logger(Object ...s) {

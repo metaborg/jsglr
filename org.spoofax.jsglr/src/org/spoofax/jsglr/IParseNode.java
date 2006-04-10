@@ -11,5 +11,7 @@ import aterm.ATerm;
 
 public interface IParseNode {
 
-	public ATerm toParseTree(ParseTable pt); 
+	public ATerm toParseTree(ParseTable pt);
+
+    public boolean isLiteral(); 
 }

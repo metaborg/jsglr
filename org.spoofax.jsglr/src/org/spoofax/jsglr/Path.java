@@ -49,5 +49,11 @@ public class Path {
         sb.append(">");
         return sb.toString();
     }
-
+    
+    public int getLength() {
+        if(parent == null)
+            return 0;
+        else
+            return 1 + parent.getLength();
+    }
 }

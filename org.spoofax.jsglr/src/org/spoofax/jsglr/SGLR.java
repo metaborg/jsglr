@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -58,6 +57,12 @@ public class SGLR {
 
     private boolean logging;
 
+    private AmbiguityManager ambMgr;
+
+    private boolean detectCycles;
+
+    private boolean filter;
+
 
     SGLR() {
         basicInit(null);
@@ -76,11 +81,13 @@ public class SGLR {
 
     private void basicInit(PureFactory pf) {
         debugging = false;
+        detectCycles = true;
         logging = true;
         factory = pf;
         if (factory == null)
             factory = new PureFactory();
         activeStacks = new Vector<Frame>();
+        ambMgr = new AmbiguityManager();
     }
 
     public static boolean isDebugging() {
@@ -137,7 +144,7 @@ public class SGLR {
         return st0;
     }
 
-    public ATerm parse(FileInputStream fis) throws IOException {
+    public ATerm parse(InputStream fis) throws IOException {
 
         if (isDebugging()) {
             Tools.debug("parse() - ", dumpActiveStacks());
@@ -172,20 +179,81 @@ public class SGLR {
             Tools.logger("Parse time: " + elapsed/1000.0f + "s");
         }
 
+        if(isDebugging()) {
+            Tools.debug("Parsing complete: all tokens read");
+        }
         
         if (acceptingStack == null)
             return null;
 
+        if(isDebugging()) {
+            Tools.debug("Accepting stack exists");
+        }
+        
         Link s = acceptingStack.findLink(st0);
 
         if (s != null) {
         	if(isDebugging()) {
-        		System.out.println(s.label);
+        		Tools.debug("internal parse tree:\n", s.label);
         	}
-            return parseTable.getFactory().parse("parsetree(" + s.label.toParseTree(parseTable) + ")");
+            return parseResult(s.label, null);
+        } else {
+            Tools.debug("Accepting stack has no link");
+            return null;
         }
+    }
 
+    private ATerm parseResult(IParseNode root, String sort) {
         
+        IParseNode t = root;
+        
+        if(sort != null) {
+             t = selectOnTopSort();
+             if(t == null) {
+                 return parseError("Desired top sort not found");
+             }
+        }
+        
+        if(detectCycles) {
+            if(ambMgr.getMaxAmbiguityCount() > 0) {
+                if(isCyclicTerm(t))
+                    parseError("Term is cyclic");
+            }
+        }
+        
+        if(filter) {
+            t = filterTree(t);
+        }
+        
+        if(t != null) {
+            ATerm r = yieldTree(t);
+            int ambCount = ambMgr.getAmbiguityCount();
+            return parseTable.getFactory().parse("parsetree(" + r + "," + ambCount + ")");
+        }
+        
+        return null;
+    }
+
+    private ATerm yieldTree(IParseNode t) {
+        return t.toParseTree(parseTable);
+    }
+
+    private IParseNode filterTree(IParseNode t) {
+        return t;
+    }
+
+    private boolean isCyclicTerm(IParseNode t) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    private ATerm parseError(String msg) {
+        System.err.println("Parse error: " + msg);
+        return null;
+    }
+
+    private IParseNode selectOnTopSort() {
+        // TODO Auto-generated method stub
         return null;
     }
 
@@ -213,10 +281,10 @@ public class SGLR {
 
             Frame st1 = findStack(activeStacks, s);
             if (st1 != null) {
-                st1.addLink(st0, prod);
+                st1.addLink(st0, prod, 1);
             } else {
                 st1 = new Frame(as.s);
-                st1.addLink(st0, prod);
+                st1.addLink(st0, prod, 1);
                 activeStacks.add(st1);
             }
         }
@@ -354,7 +422,7 @@ public class SGLR {
                              next.stateNumber);
             }
 
-            reducer(st0, next, prod, kids);
+            reducer(st0, next, prod, kids, path.getLength());
         }
 
         activeStacks.remove(st);
@@ -365,7 +433,7 @@ public class SGLR {
 
     }
 
-    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids) {
+    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, int length) {
 
         if (isLogging()) {
             Tools.logger("Reducing; state ", s.stateNumber, ", token: ", charify(currentToken),
@@ -386,7 +454,7 @@ public class SGLR {
         if (st1 == null) {
             /* Found no existing stack with for state s; make new stack */
             st1 = new Frame(s);
-            Link nl = st1.addLink(st0, t);
+            Link nl = st1.addLink(st0, t, length);
             activeStacks.add(st1);
             if (st1.peek().rejectable()) {
                 forActorDelayed.push(st1);
@@ -409,14 +477,15 @@ public class SGLR {
                     Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
                                  st1.state.stateNumber, " ", (prod.isReject() ? "{reject}" : ""));
                 }
-                nl.addAmbiguity(t);
+                
+                ambMgr.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
 
                 if (prod.isReject()) {
                     nl.reject();
                 }
 
             } else {
-                nl = st1.addLink(st0, t);
+                nl = st1.addLink(st0, t, length);
                 if (isDebugging()) {
                     Tools.debug(" added link ", nl, " from ", st1.state.stateNumber, " to ",
                                 st0.state.stateNumber);
@@ -496,7 +565,7 @@ public class SGLR {
                              next.stateNumber);
             }
 
-            reducer(st0, next, prod, kids);
+            reducer(st0, next, prod, kids, path.getLength());
         }
     }
 
@@ -507,7 +576,7 @@ public class SGLR {
         return ret;
     }
 
-    private int getNextToken(FileInputStream fis) throws IOException {
+    private int getNextToken(InputStream fis) throws IOException {
         int t = fis.read();
 
         tokensSeen++;
@@ -539,5 +608,13 @@ public class SGLR {
             }
         }
         return sb.toString();
+    }
+
+    public void setCycleDetect(boolean detectCycles) {
+        this.detectCycles = detectCycles;
+    }
+
+    public void setFilter(boolean filter) {
+        this.filter = filter;
     }
 }

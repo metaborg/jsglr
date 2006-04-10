@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr;
 
-import aterm.ATerm;
 
 public class Link {
 
@@ -16,15 +15,15 @@ public class Link {
     public IParseNode label;
 
     private boolean rejected;
+    
+    private final int length;
+    
 
-    public Link(Frame destination, IParseNode t) {
+    public Link(Frame destination, IParseNode t, int length) {
         this.parent = destination;
         label = t;
         rejected = false;
-    }
-
-    public void addAmbiguity(IParseNode t) {
-        label = new Amb(label);
+        this.length = length;
     }
 
     public void reject() {
@@ -37,5 +36,9 @@ public class Link {
 
     public String toString() {
         return "" + parent.state.stateNumber;
+    }
+
+    public int getLength() {
+        return length;
     }
 }

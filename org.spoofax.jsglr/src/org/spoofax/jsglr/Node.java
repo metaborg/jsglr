@@ -10,6 +10,8 @@ package org.spoofax.jsglr;
 import java.util.LinkedList;
 import java.util.List;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import aterm.ATerm;
 import aterm.ATermFactory;
 
@@ -27,6 +29,10 @@ public class Node implements IParseNode {
         this.kids = kids;
     }
     
+    public boolean isLiteral() {
+        return false;
+    }
+    
     public ATerm toParseTree(ParseTable pt) {
     	ATermFactory factory = pt.getFactory();
     	if(type == Production.NORMAL) {
@@ -35,8 +41,17 @@ public class Node implements IParseNode {
     			r.add(n.toParseTree(pt));
     		
     		return factory.parse("appl(" + pt.getProduction(label) + "," + r + ")");
-    	}
-   		
+    	} else if (type == Production.AVOID) {
+            // FIXME Extremely temporary hack: never use sun.*
+    	    throw new NotImplementedException();
+        } else if (type == Production.PREFER) {
+            // FIXME Extremely temporary hack: never use sun.*
+            throw new NotImplementedException();
+        } else if (type == Production.REJECT) {
+            // FIXME Extremely temporary hack: never use sun.*
+            throw new NotImplementedException();
+        }
+        
     	return null;
     }
     

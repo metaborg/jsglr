@@ -11,18 +11,37 @@ import aterm.ATerm;
 
 public class Amb implements IParseNode {
 
-    public final IParseNode kid;
+    public final IParseNode left, right;
     
-    Amb(IParseNode kid) {
-        this.kid = kid; 
+    Amb(IParseNode left, IParseNode right) {
+        this.left = left;
+        this.right = right;
+    }
+    
+    public boolean isLiteral() {
+        return false;
     }
     
     public ATerm toParseTree(ParseTable pt) {
-    	return pt.getFactory().parse("amb(" + kid.toParseTree(pt) + ")");
+    	return pt.getFactory().parse("amb(" + left.toParseTree(pt) + "," + right.toParseTree(pt) + ")");
     }
     
     @Override
     public String toString() {
-        return "amb(" + kid + ")";
+        return "amb(" + left + "," + right + ")";
+    }
+
+    public boolean hasAmbiguity(IParseNode newNode) {
+        boolean found = false;
+        
+        if(left instanceof Amb) {
+            found = found && ((Amb)left).hasAmbiguity(newNode);
+        }
+        
+        if(right instanceof Amb) {
+            found = found && ((Amb)right).hasAmbiguity(newNode);
+        }
+        
+        return found || (left == newNode) || (right == newNode); 
     }
 }

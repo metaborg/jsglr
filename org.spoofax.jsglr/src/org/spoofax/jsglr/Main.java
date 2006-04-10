@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import aterm.ATerm;
@@ -55,7 +56,7 @@ public class Main {
             }
         }
 
-        if(input == null || parseTable == null)
+        if(parseTable == null)
             usage();
         
 
@@ -67,7 +68,12 @@ public class Main {
         sglr.setFilter(filter);
         
         sglr.loadParseTable(new FileInputStream(parseTable));
-        FileInputStream fis= new FileInputStream(input);
+        InputStream fis = null;
+        if(input == null)
+            fis = System.in;
+        else
+            fis = new FileInputStream(input);
+        
         OutputStream ous = null;
         if(output != null)
             ous = new FileOutputStream(output);
@@ -75,10 +81,11 @@ public class Main {
             ous = System.out;
             
         ATerm t = sglr.parse(fis);
+        
         if(t != null)
             ous.write(t.toString().getBytes());
         else
-            System.err.println("Parse error");
+            System.err.println("Parsing failed");
     }
 
     private static void usage() {

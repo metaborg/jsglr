@@ -7,8 +7,12 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.Serializable;
 
-public class Action {
+
+public class Action implements Serializable {
+
+    static final long serialVersionUID = -2742456888004361679L;
 
     private Range[] ranges;
 

@@ -7,12 +7,15 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.Serializable;
 
-public class ActionState {
+
+public class ActionState implements Serializable {
+    static final long serialVersionUID = 2059615768756265051L;
 
     public final Frame st;
     public final State s;
-    
+
     public ActionState(Frame st, State s) {
         this.st = st;
         this.s = s;

@@ -8,8 +8,11 @@
 package org.spoofax.jsglr;
 
 import java.util.List;
+import java.io.Serializable;
 
-public class Production {
+public class Production implements Serializable {
+
+    static final long serialVersionUID = 8767621343854666185L;
 
     public final int arity;
 
@@ -33,7 +36,7 @@ public class Production {
 
     }
 
- 
+
     public Node apply(List<IParseNode> kids) {
         return new Node(status, label, kids);
     }
@@ -41,7 +44,7 @@ public class Production {
     boolean isReject() {
         return status == REJECT;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof Production))

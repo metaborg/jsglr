@@ -7,7 +7,11 @@
  */
 package org.spoofax.jsglr;
 
-public class Priority {
+import java.io.Serializable;
+
+public class Priority implements Serializable {
+
+    static final long serialVersionUID = -608253385493058906L;
 
     public static final int LEFT = 1;
     public static final int RIGHT = 2;
@@ -17,7 +21,7 @@ public class Priority {
     public final int left;
     public final int right;
     public final int type;
-    
+
     public Priority(int type, int left, int right) {
         this.type = type;
         this.left = left;

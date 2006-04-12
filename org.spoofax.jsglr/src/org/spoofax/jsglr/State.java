@@ -9,13 +9,16 @@ package org.spoofax.jsglr;
 
 import java.util.List;
 import java.util.Vector;
+import java.io.Serializable;
 
-public class State {
+public class State implements Serializable {
+
+    static final long serialVersionUID = 3383369639779986307L;
 
     public final int stateNumber;
     private final Goto[] gotos;
     private final Action[] actions;
-    
+
     public State(int stateNumber, Goto[] gotos, Action[] actions) {
         this.stateNumber = stateNumber;
         this.gotos = gotos;

@@ -9,23 +9,35 @@ package org.spoofax.jsglr;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.Serializable;
 
 import aterm.ATerm;
 import aterm.ATermAppl;
 import aterm.ATermFactory;
 import aterm.ATermList;
+import aterm.AFun;
 
-public class ParseTable {
+public class ParseTable implements Serializable {
+
+    static final long serialVersionUID = -3372429249660900093L;
 
     private State[] states;
     private int startState;
     private Label[] labels;
     private Priority[] priorities;
-    private ATermFactory factory;
-    
+    transient private ATermFactory factory;
+    transient public AFun applAFun;
+    transient public AFun ambAFun;
+
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         parse(pt);
-        factory = pt.getFactory();
+        initAFuns(pt.getFactory());
+    }
+
+    public void initAFuns(ATermFactory factory) {
+        this.factory = factory;
+        applAFun = factory.makeAFun("appl", 2, false);
+        ambAFun = factory.makeAFun("amb", 2, false);
     }
 
     public ATermFactory getFactory() { return factory; }
@@ -159,22 +171,24 @@ public class ParseTable {
     
     private Reduce makeReduce(int arity, int label, int status) {
         Reduce s = new Reduce(arity, label, status);
-        if(reduceMap.containsKey(s))
+        if (reduceMap.containsKey(s)) {
             return reduceMap.get(s);
+        }
         reduceMap.put(s,s);
         return s;
     }
 
     Map<Shift, Shift> shiftMap = new HashMap<Shift,Shift>();
-    
+
     private Shift makeShift(int nextState) {
         Shift s = new Shift(nextState);
-        if(shiftMap.containsKey(s))
+        if (shiftMap.containsKey(s)) {
             return shiftMap.get(s);
+        }
         shiftMap.put(s,s);
         return s;
     }
-    
+
     private Goto[] parseGotos(ATermList gotos) throws InvalidParseTableException {
 
         Goto[] ret = new Goto[gotos.getChildCount()];
@@ -222,17 +236,18 @@ public class ParseTable {
         }
         return ret;
     }
-    
+
     Map<Range, Range> rangeMap = new HashMap<Range, Range>();
-    
+
     private Range makeRange(int low, int hi) throws InvalidParseTableException {
         Range r = new Range(low, hi);
-        if(rangeMap.containsKey(r))
+        if (rangeMap.containsKey(r)) {
             return rangeMap.get(r);
+        }
         rangeMap.put(r,r);
         return r;
     }
-    
+
     private Range makeRange(int n) throws InvalidParseTableException {
         return makeRange(n, n);
     }
@@ -286,31 +301,38 @@ public class ParseTable {
     }
 
     public boolean hasRejects() {
-        
-        for(State s : states)
-            if(s.rejectable())
+
+        for (State s : states) {
+            if (s.rejectable()) {
                 return true;
-        
+            }
+        }
+
         return false;
     }
 
     public boolean hasPriorities() {
-        if(priorities.length > 0)
+        if (priorities.length > 0) {
             return true;
+        }
         return false;
     }
-    
+
     public boolean hasPrefers() {
-        for(State s : states)
-            if(s.hasPrefer())
+        for (State s : states) {
+            if (s.hasPrefer()) {
                 return true;
+            }
+        }
         return false;
     }
 
     public boolean hasAvoids() {
-        for(State s : states)
-            if(s.hasAvoid())
+        for (State s : states) {
+            if (s.hasAvoid()) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -318,10 +340,10 @@ public class ParseTable {
         return new ParseNode(currentToken);
     }
 
-	public ATerm getProduction(int prod) {
-		if(prod < 256) {
-			return factory.makeInt(prod);
-		}
-		return labels[prod].prod;
-	}        
+    public ATerm getProduction(int prod) {
+        if(prod < 256) {
+            return factory.makeInt(prod);
+        }
+        return labels[prod].prod;
+    }
 }

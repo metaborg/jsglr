@@ -7,13 +7,15 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import aterm.ATerm;
 import aterm.ATermFactory;
+import aterm.ATermList;
+import aterm.pure.PureFactory;
 
 public class Node implements IParseNode {
 
@@ -34,13 +36,16 @@ public class Node implements IParseNode {
     }
     
     public ATerm toParseTree(ParseTable pt) {
-    	ATermFactory factory = pt.getFactory();
-    	if(type == Production.NORMAL) {
-    		List<ATerm> r = new LinkedList<ATerm>();
-    		for(IParseNode n : kids)
-    			r.add(n.toParseTree(pt));
-    		
-    		return factory.parse("appl(" + pt.getProduction(label) + "," + r + ")");
+        ATermFactory factory = pt.getFactory();
+        if(type == Production.NORMAL) {
+            List<ATerm> r = new Vector<ATerm>();
+            for(IParseNode n : kids)
+                r.add(n.toParseTree(pt));
+
+            ATermList l1 = makeList((PureFactory)factory, r);
+            ATerm appl = factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
+            r.clear();
+            return appl;
     	} else if (type == Production.AVOID) {
             // FIXME Extremely temporary hack: never use sun.*
     	    throw new NotImplementedException();
@@ -54,7 +59,18 @@ public class Node implements IParseNode {
         
     	return null;
     }
-    
+
+    /**
+     * todo: stolen from TAFReader; move elsewhere
+     */
+    public static ATermList makeList(PureFactory factory, List<ATerm> terms) {
+        ATermList result = factory.getEmpty();
+        for (int i = terms.size() - 1; i >= 0; i--) {
+            result = factory.makeList(terms.get(i), result);
+        }
+        return result;
+    }
+
     @Override
     public String toString() {
         String s;

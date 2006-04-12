@@ -23,7 +23,7 @@ public class Amb implements IParseNode {
     }
     
     public ATerm toParseTree(ParseTable pt) {
-    	return pt.getFactory().parse("amb(" + left.toParseTree(pt) + "," + right.toParseTree(pt) + ")");
+        return pt.getFactory().makeAppl(pt.ambAFun, left.toParseTree(pt), right.toParseTree(pt));
     }
     
     @Override

@@ -7,8 +7,12 @@
  */
 package org.spoofax.jsglr;
 
-public class Goto {
+import java.io.Serializable;
 
+public class Goto implements Serializable {
+
+    static final long serialVersionUID = 4361136767191244085L;
+    
     // FIXME: Curiously, goto is on labels, not tokens.
     // private List<Range> ranges;
     private int[] productionRefs;

@@ -7,8 +7,12 @@
  */
 package org.spoofax.jsglr;
 
-public abstract class ActionItem {
+import java.io.Serializable;
 
+public abstract class ActionItem implements Serializable {
+
+    static final long serialVersionUID = -340934714889427356L;
+    
     public final int type;
 
     public static final int REDUCE = 1;

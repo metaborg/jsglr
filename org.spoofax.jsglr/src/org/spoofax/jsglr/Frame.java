@@ -11,9 +11,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.io.Serializable;
 
-public class Frame {
+public class Frame implements Serializable {
 
+    static final long serialVersionUID = -4757644376472129935L;
+    
     public final State state;
 
     private List<Link> steps;

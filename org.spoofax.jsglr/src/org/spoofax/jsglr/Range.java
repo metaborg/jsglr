@@ -7,18 +7,22 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.Serializable;
 
-public class Range {
+
+public class Range implements Serializable {
+
+    static final long serialVersionUID = 3615037984707218175L;
 
     public final int low;
     public final int high;
-    
-    public Range(int low, int high) throws InvalidParseTableException {
-        
+
+    public Range(int low, int high) {
+
         this.low = low;
         this.high = high;
     }
-    
+
     public Range(int n) {
         low = high = n;
     }
@@ -26,7 +30,7 @@ public class Range {
     boolean within(int c) {
         return c >= low && c <= high;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof Range))
@@ -34,12 +38,12 @@ public class Range {
         Range o = (Range)obj;
         return low == o.low && high == o.high;
     }
-    
+
     @Override
     public int hashCode() {
         return low + high * 10000;
     }
-    
+
     @Override
     public String toString() {
         if(low == high)

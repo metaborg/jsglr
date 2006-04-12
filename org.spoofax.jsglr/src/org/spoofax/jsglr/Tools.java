@@ -10,23 +10,30 @@ package org.spoofax.jsglr;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
 
 public class Tools {
 
-    private static FileOutputStream fos;
+    private static OutputStream fos;
     private static String outfile = null;
-    
+
     public static void setOutput(String d) {
         outfile = d;
         fos = null;
+        initOutput();
     }
-    
+
+    static {
+        initOutput();
+    }
+
     private static void initOutput() {
         if(fos == null) {
             try {
                 if(outfile == null)
                     outfile = ".jsglr-log";
-                fos = new FileOutputStream(outfile);
+                fos = new BufferedOutputStream(new FileOutputStream(outfile));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -42,7 +49,7 @@ public class Tools {
     }
 
     public static void logger(Object ...s) {
-        initOutput();
+        //initOutput();
         try {
             for(Object o : s)
                 fos.write(o.toString().getBytes());

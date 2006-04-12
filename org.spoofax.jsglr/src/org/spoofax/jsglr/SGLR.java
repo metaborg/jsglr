@@ -9,12 +9,21 @@ package org.spoofax.jsglr;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.FileNotFoundException;
+import java.io.InvalidClassException;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
 
 import aterm.ATerm;
 import aterm.pure.PureFactory;
+import aterm.pure.ATermImpl;
 
 public class SGLR {
 
@@ -68,15 +77,73 @@ public class SGLR {
         basicInit(null);
     }
 
-    public SGLR(InputStream is) throws IOException, FatalException, InvalidParseTableException {
+    public SGLR(InputStream is) throws IOException, InvalidParseTableException {
         basicInit(null);
         loadParseTable(is);
     }
 
-    public SGLR(PureFactory pf, InputStream is) throws IOException, FatalException,
-            InvalidParseTableException {
+    public SGLR(PureFactory pf, InputStream is) throws IOException, InvalidParseTableException {
         basicInit(pf);
         loadParseTable(is);
+    }
+
+    static final Map<String, ParseTable> parseTables = new HashMap<String, ParseTable>();
+
+    public SGLR(String parseTableFileName) throws IOException, InvalidParseTableException {
+
+        assert factory == null;
+        assert parseTable == null;
+
+        // Try to get cached
+        parseTable = parseTables.get(parseTableFileName);
+        if(parseTable != null) {
+
+            basicInit((PureFactory)parseTable.getFactory());
+
+        } else {
+
+            // Init with a new factory for both serialized or BAF instances.
+            basicInit(new PureFactory());
+
+            // Try to load from serialized form
+            boolean tableWasPersisted = false;
+            try {
+                ObjectInputStream reader = new ObjectInputStream(new FileInputStream(parseTableFileName + ".bin"));
+
+                // todo: find a better solution to make the current factory available to the various readResolve()
+                ATermImpl.the_factory = getFactory();
+                parseTable = (ParseTable)reader.readObject();
+                parseTable.initAFuns(getFactory());
+
+                tableWasPersisted = true;
+            }
+            catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            catch (InvalidClassException e) {
+                // ... some problem loading; load from TBL file
+                loadParseTable(new FileInputStream(parseTableFileName));
+
+            } catch (FileNotFoundException e) {
+                // ... not present or some other problem loading; load from TBL file
+                loadParseTable(new FileInputStream(parseTableFileName));
+            }
+
+            // Cache
+            parseTables.put(parseTableFileName, parseTable);
+
+            // If not serialized then save it in this form
+            if(!tableWasPersisted) {
+                try {
+                    ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(parseTableFileName + ".bin"));
+                    writer.writeObject(parseTable);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 
     private void basicInit(PureFactory pf) {
@@ -84,8 +151,9 @@ public class SGLR {
         detectCycles = true;
         logging = true;
         factory = pf;
-        if (factory == null)
+        if (factory == null) {
             factory = new PureFactory();
+        }
         activeStacks = new Vector<Frame>();
         ambMgr = new AmbiguityManager();
     }
@@ -108,14 +176,14 @@ public class SGLR {
 
     public void loadParseTable(InputStream r) throws IOException, InvalidParseTableException {
         if(isDebugging()) {
-        	Tools.debug("loadParseTable()");
+            Tools.debug("loadParseTable()");
         }
         long start = System.currentTimeMillis();
         ATerm pt = factory.readFromFile(r);
 
         parseTable = new ParseTable(pt);
         long elapsed = System.currentTimeMillis() - start;
-        
+
         if (isLogging()) {
             Tools.logger("Loading parse table took " + elapsed/1000.0f + "s");
             Tools.logger("No. of states: ", parseTable.getStateCount());
@@ -130,11 +198,15 @@ public class SGLR {
         }
     }
 
+    public PureFactory getFactory() {
+        return factory;
+    }
+
     /**
      * Initializes the active stacks. At the start of parsing there is only one
      * active stack, and this stack contains the start symbol obtained from the
      * parse table.
-     * 
+     *
      * @return the initial stack
      */
     private Frame initActiveStacks() {
@@ -151,7 +223,7 @@ public class SGLR {
         }
 
         long start = System.currentTimeMillis();
-        
+
         tokensSeen = 0;
         columnNumber = 0;
         lineNumber = 1;
@@ -174,7 +246,7 @@ public class SGLR {
             Tools.logger("Maximum ", maxBranches, " parse branches reached at token ",
                          charify(maxToken), ", line ", maxLine, ", column ", maxColumn,
                          " (token #", maxTokenNumber, ")");
-            
+
             long elapsed = System.currentTimeMillis() - start;
             Tools.logger("Parse time: " + elapsed/1000.0f + "s");
         }
@@ -182,20 +254,21 @@ public class SGLR {
         if(isDebugging()) {
             Tools.debug("Parsing complete: all tokens read");
         }
-        
-        if (acceptingStack == null)
+
+        if (acceptingStack == null) {
             return null;
+        }
 
         if(isDebugging()) {
             Tools.debug("Accepting stack exists");
         }
-        
+
         Link s = acceptingStack.findLink(st0);
 
         if (s != null) {
-        	if(isDebugging()) {
-        		Tools.debug("internal parse tree:\n", s.label);
-        	}
+            if(isDebugging()) {
+                Tools.debug("internal parse tree:\n", s.label);
+            }
             return parseResult(s.label, null);
         } else {
             Tools.debug("Accepting stack has no link");
@@ -204,33 +277,37 @@ public class SGLR {
     }
 
     private ATerm parseResult(IParseNode root, String sort) {
-        
+
         IParseNode t = root;
-        
+
         if(sort != null) {
              t = selectOnTopSort();
              if(t == null) {
                  return parseError("Desired top sort not found");
              }
         }
-        
+
         if(detectCycles) {
             if(ambMgr.getMaxAmbiguityCount() > 0) {
-                if(isCyclicTerm(t))
+                if (isCyclicTerm(t)) {
                     parseError("Term is cyclic");
+                }
             }
         }
-        
+
         if(filter) {
             t = filterTree(t);
         }
-        
+
         if(t != null) {
             ATerm r = yieldTree(t);
             int ambCount = ambMgr.getAmbiguityCount();
-            return parseTable.getFactory().parse("parsetree(" + r + "," + ambCount + ")");
+
+            ATerm pt1 = parseTable.getFactory().makeAppl(parseTable.getFactory().makeAFun("parsetree", 2, false),
+              r, factory.makeInt(ambCount));
+            return pt1;
         }
-        
+
         return null;
     }
 
@@ -477,7 +554,7 @@ public class SGLR {
                     Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
                                  st1.state.stateNumber, " ", (prod.isReject() ? "{reject}" : ""));
                 }
-                
+
                 ambMgr.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
 
                 if (prod.isReject()) {
@@ -491,18 +568,22 @@ public class SGLR {
                                 st0.state.stateNumber);
                 }
 
-                if (prod.isReject())
+                if (prod.isReject()) {
                     nl.reject();
+                }
 
                 // FIXME activeStacks can be modified inside doLimitedReductions; what should we do?
                 for (int i = 0; i< activeStacks.size(); i++) { // Frame st2 : activeStacks) {
                     Frame st2 = activeStacks.get(i);
-                    if (st2.allLinksRejected())
+                    if (st2.allLinksRejected()) {
                         continue;
-                    if (forActor.contains(st2))
+                    }
+                    if (forActor.contains(st2)) {
                         continue;
-                    if (forActorDelayed.contains(st2))
+                    }
+                    if (forActorDelayed.contains(st2)) {
                         continue;
+                    }
 
                     for (ActionItem ai : st2.peek().getActionItems(currentToken)) {
                         if (ai instanceof Reduce) {
@@ -522,10 +603,11 @@ public class SGLR {
             Tools.debug("findStack() - ", dumpActiveStacks());
             Tools.debug(" looking for ", s.stateNumber);
         }
-        for (Frame st : stacks)
+        for (Frame st : stacks) {
             if (st.state.stateNumber == s.stateNumber) {
                 return st;
             }
+        }
         return null;
     }
 
@@ -571,8 +653,9 @@ public class SGLR {
 
     private Stack<Frame> computeStackOfStacks(List<Frame> st) {
         Stack<Frame> ret = new Stack<Frame>();
-        for (Frame s : st)
+        for (Frame s : st) {
             ret.push(s);
+        }
         return ret;
     }
 
@@ -601,8 +684,9 @@ public class SGLR {
         } else {
             sb.append("{" + activeStacks.size() + "} ");
             for (Frame f : activeStacks) {
-                if (!first)
+                if (!first) {
                     sb.append(", ");
+                }
                 sb.append(f.dumpStack());
                 first = false;
             }

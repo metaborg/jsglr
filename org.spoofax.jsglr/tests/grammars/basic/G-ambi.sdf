@@ -1,10 +1,10 @@
 %%
-%% Test of trivial ambiguity
+%% Test of trivial, temporary ambiguity
 %%
 %% Copyright (c) 2006-2007, Karl Trygve Kalleberg <karltk@ii.uib.no>
 %%
 
-module basic/G0
+module basic/G-ambi
 
 exports
   sorts A C D

@@ -13,19 +13,19 @@ import java.io.IOException;
 import org.spoofax.jsglr.FatalException;
 import org.spoofax.jsglr.InvalidParseTableException;
 
-public class TestG0 extends ParseTestCase {
+public class TestG_ambi extends ParseTestCase {
 
     public void setUp() throws FileNotFoundException, IOException,
             FatalException, InvalidParseTableException {
-        super.setUp("G0", "txt");
+        super.setUp("G-ambi", "txt");
     }
 
 
-    public void testG0_1() throws FileNotFoundException, IOException {
-        doParseTest("g0_1");
+    public void testG_ambi_1() throws FileNotFoundException, IOException {
+        doParseTest("g-ambi-1");
     }
 
-    public void testG0_2() throws FileNotFoundException, IOException {
-        doParseTest("g0_2");
+    public void testG_ambi_2() throws FileNotFoundException, IOException {
+        doParseTest("g-ambi-2");
     }
 }

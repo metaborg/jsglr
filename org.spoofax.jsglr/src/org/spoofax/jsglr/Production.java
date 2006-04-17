@@ -37,8 +37,18 @@ public class Production implements Serializable {
     }
 
 
-    public Node apply(List<IParseNode> kids) {
-        return new Node(status, label, kids);
+    public IParseNode apply(List<IParseNode> kids) {
+        switch(status) {
+        case REJECT:
+            return new ParseReject();
+        case AVOID:
+            return new ParseAvoid();
+        case PREFER:
+            return new ParsePrefer();
+        case NORMAL:
+            return new Node(label, kids);
+        }
+        throw new FatalError();
     }
 
     boolean isReject() {

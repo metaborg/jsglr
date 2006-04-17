@@ -29,7 +29,7 @@ public abstract class ParseTestCase extends TestCase {
     
     public void setUp(String grammar, String suffix) throws FileNotFoundException, IOException, FatalException, InvalidParseTableException {
         this.suffix = suffix;
-        sglr = new SGLR("tests/grammars/" + grammar + ".tbl");
+        sglr = new SGLR(new FileInputStream("tests/grammars/" + grammar + ".tbl"));
     }
 
     public void doParseTest(String s) throws FileNotFoundException, IOException {

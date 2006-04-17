@@ -7,9 +7,13 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.io.Serializable;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import aterm.ATerm;
 import aterm.ATermAppl;
@@ -93,11 +97,47 @@ public class ParseTable implements Serializable {
             ATermAppl a = Term.applAt(labelsTerm, i);
             ATermAppl prod = Term.applAt(a, 0);
             int labelNumber = Term.intAt(a, 1);
-            
-            ret[labelNumber] = new Label(labelNumber, prod);
+            ProductionAttributes pa = parseProductionAttributes(prod);
+            ret[labelNumber] = new Label(labelNumber, prod, pa);
         }
         
         return ret;
+    }
+
+    private ProductionAttributes parseProductionAttributes(ATermAppl prod) throws InvalidParseTableException {
+        if(prod.getName().equals("attrs")) {
+            ATermList ls = (ATermList)prod.getChildAt(0);
+            int type = 0;
+            ATerm term = null;
+            for(int i=0;i<ls.getChildCount();i++) {
+                ATermAppl t = (ATermAppl)ls.getChildAt(i);
+                String ctor = t.getName();
+                if(ctor.equals("reject")) {
+                    type = ProductionAttributes.REJECT;
+                } else if(ctor.equals("prefer")) {
+                    type = ProductionAttributes.PREFER;
+                } else if(ctor.equals("avoid")) {
+                    type = ProductionAttributes.AVOID;
+                } else if(ctor.equals("bracket")) {
+                    type = ProductionAttributes.BRACKET;
+                } else if(ctor.equals("assoc")) {
+                    ATermAppl a = (ATermAppl)t.getChildAt(0);
+                    if(a.getName().equals("left")) {
+                        type = ProductionAttributes.LEFT_ASSOCIATIVE;
+                    } else if (a.getName().equals("right")) {
+                        type = ProductionAttributes.RIGHT_ASSOCIATIVE;
+                    } else {
+                        throw new InvalidParseTableException("Unknown assocativity: " + a.getName());
+                    }
+                } else if(ctor.equals("term")) {
+                    term = (ATerm)t.getChildAt(0).getChildAt(0);
+                } else {
+                    throw new InvalidParseTableException("Unknown attribute: " + t);
+                }
+            }
+            return new ProductionAttributes(type, term);
+        }
+        return null;
     }
 
     private State[] parseStates(ATermAppl statesTerm) throws InvalidParseTableException {
@@ -337,7 +377,7 @@ public class ParseTable implements Serializable {
     }
 
     public IParseNode lookupProduction(int currentToken) {
-        return new ParseNode(currentToken);
+        return new ParseProductionNode(currentToken);
     }
 
     public ATerm getProduction(int prod) {
@@ -345,5 +385,19 @@ public class ParseTable implements Serializable {
             return factory.makeInt(prod);
         }
         return labels[prod].prod;
+    }
+
+    public List<Label> getPriorities(Label prodLabel) {
+        List<Label> ret = new ArrayList<Label>();
+        for(Priority p : priorities) {
+            if(p.left == prodLabel.labelNumber) {
+                ret.add(labels[p.right]);
+            }
+        }
+        return ret;
+    }
+
+    public Object lookupInjection(int prod) {
+        throw new NotImplementedException();
     }
 }

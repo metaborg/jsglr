@@ -1,5 +1,5 @@
 /*
- * Created on 30.mar.2006
+ * Created on 17.apr.2006
  *
  * Copyright (c) 2005, Karl Trygve Kalleberg <karltk@ii.uib.no>
  * 
@@ -7,10 +7,8 @@
  */
 package org.spoofax.jsglr;
 
-import aterm.ATerm;
+public class FatalError extends RuntimeException {
 
-public abstract class IParseNode {
-
-	public abstract ATerm toParseTree(ParseTable pt);
+    private static final long serialVersionUID = 7683640314752021983L;
 
 }

@@ -7,41 +7,48 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import aterm.ATerm;
 
-public class Amb implements IParseNode {
+public class Amb extends IParseNode {
 
-    public final IParseNode left, right;
+    public final List<IParseNode> alternatives;
     
     Amb(IParseNode left, IParseNode right) {
-        this.left = left;
-        this.right = right;
+        alternatives = new ArrayList<IParseNode>();
+        alternatives.add(left);
+        alternatives.add(right);
     }
     
+    public Amb(List<IParseNode> alternatives) {
+        this.alternatives = alternatives;
+    }
+
     public boolean isLiteral() {
         return false;
     }
     
     public ATerm toParseTree(ParseTable pt) {
-        return pt.getFactory().makeAppl(pt.ambAFun, left.toParseTree(pt), right.toParseTree(pt));
+        List<ATerm> r = new ArrayList<ATerm>();
+        for(IParseNode pn : alternatives)
+            r.add(pn.toParseTree(pt));
+        return pt.getFactory().parse("amb(" + r + ")");
     }
     
     @Override
     public String toString() {
-        return "amb(" + left + "," + right + ")";
+        return "amb(" + alternatives + ")";
     }
 
     public boolean hasAmbiguity(IParseNode newNode) {
-        boolean found = false;
-        
-        if(left instanceof Amb) {
-            found = found && ((Amb)left).hasAmbiguity(newNode);
-        }
-        
-        if(right instanceof Amb) {
-            found = found && ((Amb)right).hasAmbiguity(newNode);
-        }
-        
-        return found || (left == newNode) || (right == newNode); 
+        throw new NotImplementedException();
+    }
+
+    public List<IParseNode> getAlternatives() {
+        return alternatives;
     }
 }

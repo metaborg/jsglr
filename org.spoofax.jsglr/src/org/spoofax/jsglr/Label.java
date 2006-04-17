@@ -17,10 +17,20 @@ public class Label implements Serializable {
     
     public final int labelNumber;
     public final ATermAppl prod;
+    public final ProductionAttributes productionAttributes;
     
-    public Label(int labelNumber, ATermAppl prod) {
+    public Label(int labelNumber, ATermAppl prod, ProductionAttributes productionAttributes) {
         this.labelNumber = labelNumber;
         this.prod = prod;
+        this.productionAttributes = productionAttributes;
+    }
+
+    public boolean isLeftAssociative() {
+        return productionAttributes.type == ProductionAttributes.LEFT_ASSOCIATIVE;
+    }
+
+    public boolean isRightAssociative() {
+        return productionAttributes.type == ProductionAttributes.RIGHT_ASSOCIATIVE;
     }
 
 }

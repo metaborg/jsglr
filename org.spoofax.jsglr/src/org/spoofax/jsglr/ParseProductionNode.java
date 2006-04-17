@@ -9,16 +9,12 @@ package org.spoofax.jsglr;
 
 import aterm.ATerm;
 
-public class ParseNode implements IParseNode {
+public class ParseProductionNode extends IParseNode {
 
     public final int prod;
     
-    ParseNode(int prod) {
+    ParseProductionNode(int prod) {
         this.prod = prod;
-    }
-    
-    public boolean isLiteral() {
-        return false;
     }
     
     public ATerm toParseTree(ParseTable pt) {
@@ -28,4 +24,6 @@ public class ParseNode implements IParseNode {
     public String toString() {
         return "aprod(" + prod + ")";
     }
+    
+    public int getProduction() { return prod; }
 }

@@ -12,8 +12,16 @@ import java.util.Map;
 
 public class AmbiguityManager {
 
-    private int maxAmbiguityCount;
-    private int ambiguityCallCount;
+    private int injectionFilterSucceededCount;
+    private int eagernessFilterSucceededCount;
+    private int injectionCallsCount;
+    private int eagernessGreaterCallsCount;
+    private int preferAndAvoidCallsCount;
+    private int ambiguityCallsCount;
+    private int maxNumberOfAmbiguitiesCount;
+    private int ambiguitiesCount;
+    private int clustersVisitedCount;
+    
     private Map<AmbKey,Integer> indexTable;
     private Map<Integer, Amb> clusterTable;
 
@@ -57,10 +65,6 @@ public class AmbiguityManager {
         indexTable.put(new AmbKey(existing, pos), idx);
     }
 
-    private int increaseMaxAmbiguityCount() {
-        return maxAmbiguityCount++;
-    }
-
     private int getIndex(IParseNode existing, int pos) {
         Integer i = indexTable.get(new AmbKey(existing, pos));
         if(i == null)
@@ -68,16 +72,28 @@ public class AmbiguityManager {
         return i.intValue();
     }
 
+    private int increaseMaxAmbiguityCount() {
+        return maxNumberOfAmbiguitiesCount++;
+    }
+
     private int increaseAmbiguityCalls() {
-        return ambiguityCallCount++;
+        return ambiguityCallsCount++;
     }
 
-    public int getAmbiguityCount() {
-        return ambiguityCallCount;
+    public int getAmbiguityCallsCount() {
+        return ambiguityCallsCount;
+    }
+    
+    public int getAmbiguitiesCount() {
+        return ambiguitiesCount;
     }
 
-    public int getMaxAmbiguityCount() {
-        return maxAmbiguityCount;
+    public int getMaxNumberOfAmbiguities() {
+        return maxNumberOfAmbiguitiesCount;
+    }
+
+    public void resetClustersVisitedCount() {
+        clustersVisitedCount = 0;
     }
 
 }

@@ -41,7 +41,7 @@ public class Tools {
     }
     
     public static void debug(Object ...s) {
-        // FIXME Use debug from org.spoofax.interpreter
+        // FIXME Copy debug() from org.spoofax.interpreter
         for(Object o : s) {
             System.err.print(o);
         }

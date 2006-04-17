@@ -7,6 +7,8 @@
  */
 package org.spoofax.jsglr;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 
 public class Link {
 
@@ -34,6 +36,10 @@ public class Link {
         return rejected;
     }
 
+    public int getLabelNumber() {
+        throw new NotImplementedException();
+    }
+    
     public String toString() {
         return "" + parent.state.stateNumber;
     }

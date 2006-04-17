@@ -54,6 +54,7 @@ public class Tools {
             for(Object o : s)
                 fos.write(o.toString().getBytes());
             fos.write("\n".getBytes());
+            fos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

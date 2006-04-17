@@ -110,6 +110,7 @@ public class SGLR {
 
     public void setLogging(boolean enableLogging) {
         logging = enableLogging;
+        Tools.setOutput(".jsglr-log");
     }
 
     public void setDebug(boolean enableDebug) {
@@ -434,6 +435,9 @@ public class SGLR {
                 if (isLogging()) {
                     Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
                                  st1.state.stateNumber, " ", (prod.isReject() ? "{reject}" : ""));
+                    if(nl.label instanceof ParseNode) {
+                        Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ", ((ParseNode)nl.label).label);
+                    }
                 }
                 
                 ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);

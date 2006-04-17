@@ -1,3 +1,8 @@
+%%
+%% Test of trivial ambiguity with prefer
+%%
+%% Copyright (c) 2006-2007, Karl Trygve Kalleberg <karltk@ii.uib.no>
+%%
 module basic/G2
 
 exports
@@ -5,9 +10,11 @@ exports
   
 context-free syntax
 
+%% prefer
+
   "a" E "c" "d" -> A
   "a" F "c" "d" -> C {prefer}
- 
+  
   "x" | "y" -> E
   "y" | "z" -> F
   

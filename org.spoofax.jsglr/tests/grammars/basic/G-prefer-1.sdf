@@ -1,18 +1,18 @@
 %%
-%% Test of trivial ambiguity
+%% Test of trivial ambiguity with prefer
 %%
 %% Copyright (c) 2006-2007, Karl Trygve Kalleberg <karltk@ii.uib.no>
 %%
 
-module basic/G0
+module basic/G-prefer-1
 
 exports
   sorts A C D
   
 context-free syntax
 
-  "a" ( "x" | "y" ) "c" "d" -> A
-  "a" ( "y" | "z" ) "c" "f" -> C
+  "a" ( "x" | "y" ) "c" "d" -> A {prefer}
+  "a" ( "y" | "z" ) "c" "d" -> C
   
   A | C -> D
     

@@ -377,10 +377,10 @@ public class PostFilter {
 
     private List<IParseNode> computeCyclicTerm(IParseNode t) {
         PositionMap visited = new PositionMap(ambiguityManager.getMaxNumberOfAmbiguities());
-        int pos = 0;
 
         ambiguityManager.resetAmbiguityCount();
         initializeMarks();
+        tokenPosition = 0;
 
         return computeCyclicTerm(t, false, visited);
     }

@@ -1,3 +1,9 @@
+%%
+%% Test of trivial ambiguity with reject
+%%
+%% Copyright (c) 2006-2007, Karl Trygve Kalleberg <karltk@ii.uib.no>
+%%
+
 module basic/G1
 
 exports

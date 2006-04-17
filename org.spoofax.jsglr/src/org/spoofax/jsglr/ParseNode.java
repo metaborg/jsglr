@@ -15,14 +15,14 @@ import aterm.ATermFactory;
 import aterm.ATermList;
 import aterm.pure.PureFactory;
 
-public class Node extends IParseNode {
+public class ParseNode extends IParseNode {
 
     public final int label;
     protected List<IParseNode> kids;
     
-    private Node() { label = 0; }
+    private ParseNode() { label = 0; }
     
-    public Node(int label, List<IParseNode> kids) {
+    public ParseNode(int label, List<IParseNode> kids) {
         this.label = label;
         this.kids = kids;
     }

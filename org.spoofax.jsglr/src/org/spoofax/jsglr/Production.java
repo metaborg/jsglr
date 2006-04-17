@@ -46,7 +46,7 @@ public class Production implements Serializable {
         case PREFER:
             return new ParsePrefer();
         case NORMAL:
-            return new Node(label, kids);
+            return new ParseNode(label, kids);
         }
         throw new FatalError();
     }

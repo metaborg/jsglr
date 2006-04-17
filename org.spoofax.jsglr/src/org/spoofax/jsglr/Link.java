@@ -10,9 +10,9 @@ package org.spoofax.jsglr;
 
 public class Link {
 
-    public final Frame parent;
+    protected final Frame parent;
 
-    public IParseNode label;
+    protected final IParseNode label;
 
     private boolean rejected;
     

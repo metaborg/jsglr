@@ -10,6 +10,8 @@ package org.spoofax.jsglr;
 import java.util.HashMap;
 import java.util.Map;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public class AmbiguityManager {
 
     private int injectionFilterSucceededCount;
@@ -53,7 +55,7 @@ public class AmbiguityManager {
         //setAmbiguityMapSet(pos);
     }
 
-    private Amb getClusterOnIndex(int idx) {
+    protected Amb getClusterOnIndex(int idx) {
         return clusterTable.get(idx);
     }
 
@@ -94,6 +96,18 @@ public class AmbiguityManager {
 
     public void resetClustersVisitedCount() {
         clustersVisitedCount = 0;
+    }
+
+    public void resetAmbiguityCount() {
+        ambiguitiesCount = 0;
+    }
+
+    public void increaseAmbiguityCount() {
+        ambiguitiesCount++;
+    }
+
+    public int getClusterIndex(IParseNode t, int pos) {
+        throw new NotImplementedException();
     }
 
 }

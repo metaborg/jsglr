@@ -7,10 +7,16 @@
  */
 package org.spoofax.jsglr;
 
+import java.util.List;
+
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import aterm.ATerm;
 
-public class ParseReject extends IParseNode {
+public class ParseReject extends ParseNode {
+
+    public ParseReject(int label, List<IParseNode> kids) {
+        super(label, kids);
+    }
 
     @Override
     public ATerm toParseTree(ParseTable pt) {

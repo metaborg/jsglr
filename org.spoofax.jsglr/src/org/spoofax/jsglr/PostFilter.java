@@ -19,70 +19,79 @@ import aterm.ATerm;
 public class PostFilter {
 
     SGLR parser;
+
     AmbiguityManager ambiguityManager;
+
     ParseTable parseTable;
-    
+
     Map<Object, Integer> posTable;
+
     Map<Object, IParseNode> resolvedTable;
-    private boolean[] inputAmbiguityMap;  
-    
+
+    private AmbiguityMap inputAmbiguityMap;
+
+    private AmbiguityMap markMap;
+
+    private PositionMap positionMap;
+
+    private int tokenPosition;
+
     PostFilter(SGLR parser) {
         this.parser = parser;
     }
-    
+
     private void initializeFromParser() {
         parseTable = parser.getParseTable();
         ambiguityManager = parser.getAmbiguityManager();
     }
 
     protected ATerm parseResult(IParseNode root, String sort, int inputLength) {
-        
+
         initializeAmbiguityMaps(inputLength);
         initializeFromParser();
-        
-        
+
         IParseNode t = root;
         AmbiguityManager ambMgr = parser.getAmbiguityManager();
         ParseTable parseTable = parser.getParseTable();
 
         Tools.debug("pre-select: ", t);
 
-        if(sort != null) {
-             t = selectOnTopSort();
-             if(t == null) {
-                 return parseError("Desired top sort not found");
-             }
+        if (sort != null) {
+            t = selectOnTopSort();
+            if (t == null) {
+                return parseError("Desired top sort not found");
+            }
         }
 
         Tools.debug("pre-cycle detect: ", t);
-        
-        if(parser.isDetectCyclesEnabled()) {
-            if(ambMgr.getMaxNumberOfAmbiguities() > 0) {
-                if(isCyclicTerm(t))
+
+        if (parser.isDetectCyclesEnabled()) {
+            if (ambMgr.getMaxNumberOfAmbiguities() > 0) {
+                if (isCyclicTerm(t))
                     parseError("Term is cyclic");
             }
         }
 
         Tools.debug("pre-filtering detect: ", t);
-        
-        if(parser.isFilteringEnabled()) {
+
+        if (parser.isFilteringEnabled()) {
             t = filterTree(t);
         }
 
         Tools.debug("pre-yield: ", t);
 
-        if(t != null) {
+        if (t != null) {
             ATerm r = yieldTree(t);
             int ambCount = ambMgr.getAmbiguitiesCount();
             Tools.debug("yield: ", r);
             return parseTable.getFactory().parse("parsetree(" + r + "," + ambCount + ")");
         }
-        
+
         return null;
     }
-    
+
     private void initializeAmbiguityMaps(int inputLength) {
-        inputAmbiguityMap = new boolean[inputLength];
+        inputAmbiguityMap = new AmbiguityMap(inputLength);
     }
 
     private ATerm yieldTree(IParseNode t) {
@@ -95,29 +104,29 @@ public class PostFilter {
     }
 
     private IParseNode filterTree(IParseNode t, int pos, boolean inAmbiguityCluster) {
-        
-        //if(SGLR.isDebugging()) {
-            Tools.debug("filterTree() - " + t.getClass());
-        //}
-        
+
+        // if(SGLR.isDebugging()) {
+        Tools.debug("filterTree() - " + t.getClass());
+        // }
+
         List<IParseNode> ambs = null;
         Object key;
         IParseNode newT;
-        
+
         // If APPL
-        if(inputAmbiguityMapIsSet(pos)) {
-             ambs = getCluster(t, pos);
+        if (inputAmbiguityMapIsSet(pos)) {
+            ambs = getCluster(t, pos);
         } else {
             ambs = getEmptyList();
         }
-        
-        if(!inAmbiguityCluster && !ambs.isEmpty()) {
+
+        if (!inAmbiguityCluster && !ambs.isEmpty()) {
             key = createAmbiguityKey(ambs, pos);
-            
+
             newT = resolvedTable.get(key);
-            if(newT == null) {
+            if (newT == null) {
                 newT = filterAmbiguities(ambs, pos);
-                if(newT != null) {
+                if (newT != null) {
                     resolvedTable.put(key, newT);
                     posTable.put(key, pos);
                 } else {
@@ -128,19 +137,19 @@ public class PostFilter {
                 pos = posTable.get(key);
             }
             t = newT;
-        } else if(t instanceof ParseNode) {
-            ParseNode node = (ParseNode)t;
+        } else if (t instanceof ParseNode) {
+            ParseNode node = (ParseNode) t;
             List<IParseNode> args = node.getKids();
             List<IParseNode> newArgs = filterTree(args, pos, false);
-            
-            if(parser.isFilteringEnabled()) {
-                if(parser.isRejectFilterEnabled() && parseTable.hasRejects()) {
-                    if(hasRejectProd(t))
+
+            if (parser.isFilteringEnabled()) {
+                if (parser.isRejectFilterEnabled() && parseTable.hasRejects()) {
+                    if (hasRejectProd(t))
                         return null;
                 }
             }
-            
-            if(newArgs != null) {
+
+            if (newArgs != null) {
                 t = new ParseNode(node.label, newArgs);
             } else {
                 return null;
@@ -149,7 +158,7 @@ public class PostFilter {
             return t;
         }
 
-        if(parser.isFilteringEnabled()) {
+        if (parser.isFilteringEnabled()) {
             return applyAssociativityPriorityFilter(t);
         } else {
             return t;
@@ -160,33 +169,33 @@ public class PostFilter {
         // FIXME This is ugly and slow!
         List<IParseNode> tail = new LinkedList<IParseNode>();
         tail.addAll(list);
-        tail.remove(0); 
+        tail.remove(0);
         return tail;
     }
-    
+
     private List<IParseNode> filterTree(List<IParseNode> args, int pos, boolean inAmbiguityCluster) {
 
         List<IParseNode> t = args;
-        
-        if(!args.isEmpty()) {
+
+        if (!args.isEmpty()) {
             IParseNode arg = args.get(0);
-            
+
             List<IParseNode> tail = tail(args);
             IParseNode newArg = filterTree(arg, pos, false);
-            
+
             List<IParseNode> newTail;
-            
-            if(tail.isEmpty()) {
+
+            if (tail.isEmpty()) {
                 newTail = getEmptyList();
             } else {
                 newTail = filterTree(tail, pos, false);
-                
-                if(newTail == null)
+
+                if (newTail == null)
                     return null;
             }
-            
+
             if (newArg != null) {
-                if(!arg.equals(newArg) || !tail.equals(newTail)) {
+                if (!arg.equals(newArg) || !tail.equals(newTail)) {
                     newTail.add(0, newArg);
                     t = newTail;
                 }
@@ -194,10 +203,10 @@ public class PostFilter {
                 return null;
             }
         }
-        
-        if(parser.isFilteringEnabled()) {
+
+        if (parser.isFilteringEnabled()) {
             List<IParseNode> filtered = new ArrayList<IParseNode>();
-            for(IParseNode n : t)
+            for (IParseNode n : t)
                 filtered.add(applyAssociativityPriorityFilter(n));
             return filtered;
         } else {
@@ -206,66 +215,65 @@ public class PostFilter {
     }
 
     private IParseNode applyAssociativityPriorityFilter(IParseNode t) {
-        
+
         IParseNode r = t;
 
-        if(t instanceof Amb) {
+        if (t instanceof Amb) {
             Label prodLabel = getProductionLabel(t);
-            
-            if(parser.isAssociativityFilterEnabled()) {
-                if(prodLabel.isLeftAssociative()) {
-                    r = applyLeftAssociativeFilter(t, prodLabel); 
-                } else if(prodLabel.isRightAssociative()) {
+
+            if (parser.isAssociativityFilterEnabled()) {
+                if (prodLabel.isLeftAssociative()) {
+                    r = applyLeftAssociativeFilter(t, prodLabel);
+                } else if (prodLabel.isRightAssociative()) {
                     throw new NotImplementedException();
-                    //r = applyRightAssociativeFilter(t, prodLabel);
+                    // r = applyRightAssociativeFilter(t, prodLabel);
                 }
             }
-            
-            if(r != null && parser.isPriorityFilterEnabled()) {
-                if(lookupGtrPriority(prodLabel) != null) {
+
+            if (r != null && parser.isPriorityFilterEnabled()) {
+                if (lookupGtrPriority(prodLabel) != null) {
                     return applyPriorityFilter(r, prodLabel);
                 }
             }
         }
-        
+
         return r;
     }
-    
+
     private IParseNode applyPriorityFilter(IParseNode r, Label prodLabel) {
-    
+
         List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
-        List<IParseNode> alternatives = ((Amb)r).getAlternatives();
+        List<IParseNode> alternatives = ((Amb) r).getAlternatives();
         int l0 = prodLabel.labelNumber;
-        
-        for(IParseNode alt : alternatives) {
+
+        for (IParseNode alt : alternatives) {
             IParseNode injection = jumpOverInjections(alt);
-            
-            if(injection instanceof Amb) {
-                
+
+            if (injection instanceof Amb) {
+
             } else {
-                int l1 = ((ParseNode)injection).label;
-                if(hasGreaterPriority(l0, l1)) {
+                int l1 = ((ParseNode) injection).label;
+                if (hasGreaterPriority(l0, l1)) {
                     return null;
                 }
             }
         }
-        
-        
+
         return null;
     }
 
     private IParseNode jumpOverInjections(IParseNode alt) {
-       
-        if(!(alt instanceof Amb)) {
-            int prod = ((ParseNode)alt).label;
-            while(isUserDefinedLabel(prod)) {
-                List<IParseNode> kids = ((ParseNode)alt).getKids();
+
+        if (!(alt instanceof Amb)) {
+            int prod = ((ParseNode) alt).label;
+            while (isUserDefinedLabel(prod)) {
+                List<IParseNode> kids = ((ParseNode) alt).getKids();
                 throw new NotImplementedException();
             }
         } else {
             return alt;
         }
-        
+
         return null;
     }
 
@@ -273,12 +281,12 @@ public class PostFilter {
         return parseTable.lookupInjection(prod) != null;
     }
 
-    /** Returns true if the first production has higher priority than the
-     * second.
+    /**
+     * Returns true if the first production has higher priority than the second.
      * 
      * @param l0
      * @param l1
-     * @return true if production l0 has greater priority than l1 
+     * @return true if production l0 has greater priority than l1
      */
     private boolean hasGreaterPriority(int l0, int l1) {
         throw new NotImplementedException();
@@ -289,26 +297,26 @@ public class PostFilter {
     }
 
     private IParseNode applyLeftAssociativeFilter(IParseNode t, Label prodLabel) {
-        
+
         List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
-        List<IParseNode> alternatives = ((Amb)t).getAlternatives();
+        List<IParseNode> alternatives = ((Amb) t).getAlternatives();
         IParseNode last = alternatives.get(alternatives.size() - 1);
-        
-        if(last instanceof Amb) {
+
+        if (last instanceof Amb) {
             List<IParseNode> rest = new ArrayList<IParseNode>();
             rest.addAll(alternatives);
             rest.remove(rest.size() - 1);
-            
-            List<IParseNode> ambs = ((Amb)last).getAlternatives();
-            for(IParseNode amb : ambs) {
-                Label other = parseTable.getLabel(((ParseNode)amb).getLabel());
-                if(!prodLabel.equals(other)) {
+
+            List<IParseNode> ambs = ((Amb) last).getAlternatives();
+            for (IParseNode amb : ambs) {
+                Label other = parseTable.getLabel(((ParseNode) amb).getLabel());
+                if (!prodLabel.equals(other)) {
                     newAmbiguities.add(amb);
                 }
             }
-            
-            if(!newAmbiguities.isEmpty()) {
-                if(newAmbiguities.size() > 1) { 
+
+            if (!newAmbiguities.isEmpty()) {
+                if (newAmbiguities.size() > 1) {
                     last = new Amb(newAmbiguities);
                 } else {
                     last = newAmbiguities.get(0);
@@ -318,9 +326,9 @@ public class PostFilter {
             } else {
                 return null;
             }
-        } else if(last instanceof ParseNode) {
-            Label other = parseTable.getLabel(((ParseNode)last).getLabel());
-            if(prodLabel.equals(other)) {
+        } else if (last instanceof ParseNode) {
+            Label other = parseTable.getLabel(((ParseNode) last).getLabel());
+            if (prodLabel.equals(other)) {
                 return null;
             }
         }
@@ -328,10 +336,10 @@ public class PostFilter {
     }
 
     private Label getProductionLabel(IParseNode t) {
-        if(t instanceof ParseNode) {
-            return parseTable.getLabel(((ParseNode)t).getLabel());
+        if (t instanceof ParseNode) {
+            return parseTable.getLabel(((ParseNode) t).getLabel());
         } else if (t instanceof ParseProductionNode) {
-            return parseTable.getLabel(((ParseProductionNode)t).getProduction());
+            return parseTable.getLabel(((ParseProductionNode) t).getProduction());
         }
         return null;
     }
@@ -357,11 +365,91 @@ public class PostFilter {
     }
 
     private boolean inputAmbiguityMapIsSet(int pos) {
-        return inputAmbiguityMap[pos];
+        return inputAmbiguityMap.isMarked(pos);
     }
 
     private boolean isCyclicTerm(IParseNode t) {
+
+        List<IParseNode> cycles = computeCyclicTerm(t);
+
+        return cycles != null && cycles.size() > 0;
+    }
+
+    private List<IParseNode> computeCyclicTerm(IParseNode t) {
+        PositionMap visited = new PositionMap(ambiguityManager.getMaxNumberOfAmbiguities());
+        int pos = 0;
+
+        ambiguityManager.resetAmbiguityCount();
+        initializeMarks();
+
+        return computeCyclicTerm(t, false, visited);
+    }
+
+    private List<IParseNode> computeCyclicTerm(IParseNode t, boolean inAmbiguityCluster,
+            PositionMap visited) {
+
+        if (t instanceof ParseProductionNode) {
+            tokenPosition++;
+            return null;
+        } else if (t instanceof ParseNode) {
+            Amb ambiguities = null;
+            List<IParseNode> cycle = null;
+            int clusterIndex;
+            ParseNode n = (ParseNode) t;
+
+            if (inAmbiguityCluster) {
+                cycle = computeCyclicTerm(n.getKids(), false, visited);
+            } else {
+                if (inputAmbiguityMap.isMarked(tokenPosition)) {
+                    ambiguityManager.increaseAmbiguityCount();
+                    clusterIndex = ambiguityManager.getClusterIndex(t, tokenPosition);
+                    if (markMap.isMarked(clusterIndex)) {
+                        return new ArrayList<IParseNode>();
+                    }
+                    ambiguities = ambiguityManager.getClusterOnIndex(clusterIndex);
+                } else {
+                    clusterIndex = -1;
+                }
+
+                if (ambiguities == null) {
+                    cycle = computeCyclicTerm(((ParseNode) t).getKids(), false, visited);
+                } else {
+                    int length = visited.getValue(clusterIndex);
+                    int savePos = tokenPosition;
+
+                    if (length == -1) {
+                        markMap.mark(clusterIndex);
+                        cycle = computeCyclicTermInAmbiguityCluster(ambiguities, visited);
+                        visited.put(clusterIndex, tokenPosition - savePos);
+                        markMap.unmark(clusterIndex);
+                    } else {
+                        tokenPosition += length;
+                    }
+                }
+            }
+            return cycle;
+        } else {
+            throw new FatalError();
+        }
+    }
+
+    private List<IParseNode> computeCyclicTermInAmbiguityCluster(Amb ambiguities,
+            PositionMap visited) {
         throw new NotImplementedException();
+    }
+
+    private List<IParseNode> computeCyclicTerm(List<IParseNode> kids, boolean b, PositionMap visited) {
+
+        for (IParseNode kid : kids) {
+            List<IParseNode> cycle = computeCyclicTerm(kid, false, visited);
+            if (cycle != null)
+                return cycle;
+        }
+        return null;
+    }
+
+    private void initializeMarks() {
+        markMap = new AmbiguityMap(1024);
     }
 
     private ATerm parseError(String msg) {

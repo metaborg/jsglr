@@ -40,11 +40,11 @@ public class Production implements Serializable {
     public IParseNode apply(List<IParseNode> kids) {
         switch(status) {
         case REJECT:
-            return new ParseReject();
+            return new ParseReject(label, kids);
         case AVOID:
-            return new ParseAvoid();
+            return new ParseAvoid(label, kids);
         case PREFER:
-            return new ParsePrefer();
+            return new ParsePrefer(label, kids);
         case NORMAL:
             return new ParseNode(label, kids);
         }

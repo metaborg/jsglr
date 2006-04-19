@@ -185,7 +185,8 @@ public class SGLR {
         forActorDelayed = new LinkedList<Frame>();
         forShifter = new LinkedList<ActionState>();
 
-        ambiguityManager = new AmbiguityManager();
+        // FIXME This is *wrong*
+        ambiguityManager = new AmbiguityManager(10000);
         filter = true;
         rejectFilter = true;
         postFilter = new PostFilter(this);
@@ -262,6 +263,7 @@ public class SGLR {
         Frame st0 = initActiveStacks();
 
         bootstrapTemporaryObjectsOnce();
+
         do {
             if (isLogging()) {
                 Tools.logger("Current token (#", tokensSeen, "): ", charify(currentToken));
@@ -436,7 +438,7 @@ public class SGLR {
             } else if (ai instanceof Accept) {
                 acceptingStack = st;
                 if (isLogging()) {
-                    Tools.logger("Reached the accepting state");
+                    Tools.logger("Reached the accept state");
                 }
             }
         }
@@ -553,7 +555,7 @@ public class SGLR {
                         Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ", ((ParseNode)nl.label).label);
                     }
                 }
-
+                
                 ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
 
                 if (prod.isReject()) {
@@ -700,7 +702,7 @@ public class SGLR {
     }
 
     public boolean isDetectCyclesEnabled() {
-        return detectCycles;
+        return filter && detectCycles;
     }
 
     public void setFilter(boolean filter) {
@@ -772,15 +774,15 @@ public class SGLR {
     }
 
     public boolean isRejectFilterEnabled() {
-        return rejectFilter;
+        return filter && rejectFilter;
     }
 
     public boolean isAssociativityFilterEnabled() {
-        return associtivityFilter;
+        return filter && associtivityFilter;
     }
 
     public boolean isPriorityFilterEnabled() {
-        return priorityFilter;
+        return filter && priorityFilter;
     }
 
     public PureFactory getFactory() {

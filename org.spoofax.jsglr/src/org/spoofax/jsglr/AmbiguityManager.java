@@ -26,10 +26,18 @@ public class AmbiguityManager {
     
     private Map<AmbKey,Integer> indexTable;
     private Map<Integer, Amb> clusterTable;
+    
+    private AmbiguityMap inputAmbiguityMap;
 
-    AmbiguityManager() {
+
+    AmbiguityManager(int inputLength) {
         indexTable = new HashMap<AmbKey, Integer>();
         clusterTable = new HashMap<Integer, Amb>();
+        initializeAmbiguityMap(inputLength);
+    }
+
+    void initializeAmbiguityMap(int inputLength) {
+        inputAmbiguityMap = new AmbiguityMap(inputLength);
     }
     
     void createAmbiguityCluster(IParseNode existing, IParseNode newNode, int pos) {
@@ -52,7 +60,7 @@ public class AmbiguityManager {
         
         addIndex(newNode, pos, idx);
         updateCluster(idx, newAmbiguities);
-        //setAmbiguityMapSet(pos);
+        inputAmbiguityMap.mark(pos);
     }
 
     protected Amb getClusterOnIndex(int idx) {
@@ -63,8 +71,13 @@ public class AmbiguityManager {
         clusterTable.put(idx, cluster);
     }
 
-    private void addIndex(IParseNode existing, int pos, int idx) {
-        indexTable.put(new AmbKey(existing, pos), idx);
+    private void addIndex(IParseNode t, int pos, int idx) {
+        if(SGLR.isDebugging()) {
+            Tools.debug("addIndex()");
+            Tools.debug(" - " + t);
+            Tools.debug(" - " + pos);
+        }
+        indexTable.put(new AmbKey(t, pos), idx);
     }
 
     private int getIndex(IParseNode existing, int pos) {
@@ -107,7 +120,18 @@ public class AmbiguityManager {
     }
 
     public int getClusterIndex(IParseNode t, int pos) {
-        throw new NotImplementedException();
+        if(SGLR.isDebugging()) {
+            Tools.debug("getClusterIndex()");
+            Tools.debug(" t - " + t);
+            Tools.debug(" pos - " + pos);
+            Tools.debug(indexTable);
+        }
+        AmbKey k = new AmbKey(t, pos);
+        return indexTable.get(k);
+    }
+
+    public boolean isInputAmbiguousAt(int pos) {
+        return inputAmbiguityMap.isMarked(pos);
     }
 
 }

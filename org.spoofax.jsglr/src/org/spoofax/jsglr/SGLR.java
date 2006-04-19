@@ -15,7 +15,9 @@ import java.io.InvalidClassException;
 import java.io.FileNotFoundException;
 import java.io.ObjectOutputStream;
 import java.io.FileOutputStream;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.HashMap;
@@ -38,8 +40,6 @@ public class SGLR {
 
     private ParseTable parseTable;
 
-    private Stack<ActionState> forShifter;
-
     private int currentToken;
 
     private int tokensSeen;
@@ -48,9 +48,11 @@ public class SGLR {
 
     private int columnNumber;
 
-    private Stack<Frame> forActor;
+    private Queue<ActionState> forShifter;
 
-    private Stack<Frame> forActorDelayed;
+    private Queue<Frame> forActor;
+
+    private Queue<Frame> forActorDelayed;
 
     private int maxBranches;
 
@@ -179,9 +181,9 @@ public class SGLR {
             factory = new PureFactory();
         activeStacks = new Vector<Frame>();
 
-        forActor = new Stack<Frame>();
-        forActorDelayed = new Stack<Frame>();
-        forShifter = new Stack<ActionState>();
+        forActor = new LinkedList<Frame>();
+        forActorDelayed = new LinkedList<Frame>();
+        forShifter = new LinkedList<ActionState>();
 
         ambiguityManager = new AmbiguityManager();
         filter = true;
@@ -348,7 +350,7 @@ public class SGLR {
         IParseNode prod = parseTable.lookupProduction(currentToken);
 
         while (forShifter.size() > 0) {
-            ActionState as = forShifter.pop();
+            ActionState as = forShifter.remove();
 
             Frame st1 = findStack(activeStacks, as.s);
             if (st1 == null) {
@@ -393,10 +395,10 @@ public class SGLR {
 
         while (forActor.size() > 0 || forActorDelayed.size() > 0) {
             if (forActor.size() == 0) {
-                forActor.add(forActorDelayed.pop());
+                forActor.add(forActorDelayed.remove());
             }
             if (forActor.size() > 0) {
-                Frame st = forActor.pop();
+                Frame st = forActor.remove();
                 if (!st.allLinksRejected()) {
                     actor(st);
                 }
@@ -426,7 +428,7 @@ public class SGLR {
         for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
                 Shift sh = (Shift) ai;
-                forShifter.push(new ActionState(st, parseTable.getState(sh.nextState)));
+                forShifter.add(new ActionState(st, parseTable.getState(sh.nextState)));
                 statsRecordParsers();
             } else if (ai instanceof Reduce) {
                 Reduce red = (Reduce) ai;
@@ -528,7 +530,7 @@ public class SGLR {
             Link nl = st1.addLink(st0, t, length);
             activeStacks.add(st1);
             if (st1.peek().rejectable()) {
-                forActorDelayed.push(st1);
+                forActorDelayed.add(st1);
             } else {
                 forActor.add(st1);
             }
@@ -652,10 +654,10 @@ public class SGLR {
 
     private /*Stack<Frame> */void computeStackOfStacks(List<Frame> st) {
         clearForActor(false);
-        Stack<Frame> ret = forActor;
+        Queue<Frame> ret = forActor;
         final int size = st.size();
         for (int i = 0; i < size; i++) {
-            ret.push(st.get(i));
+            ret.add(st.get(i));
         }
     }
 
@@ -722,9 +724,8 @@ public class SGLR {
 
     private void clearForShifter(boolean all) {
         if (all) {
-            for (int i = 0; i < forShifter.size(); i++) {
-                ActionState actionState = forShifter.get(i);
-                actionState.clear(all);
+            for (ActionState as : forShifter) {
+                as.clear(all);
             }
         }
         this.forShifter.clear();
@@ -732,22 +733,20 @@ public class SGLR {
 
     private void clearForActor(boolean all) {
         if(all) {
-            for (int i = 0; i < forActor.size(); i++) {
-                Frame frame = forActor.get(i);
+            for(Frame frame : forActor) {
                 frame.clear();
             }
         }
-        this.forActor.clear();
+        forActor.clear();
     }
 
     private void clearForActorDelayed(boolean all) {
         if (all) {
-            for (int i = 0; i < forActorDelayed.size(); i++) {
-                Frame frame = forActorDelayed.get(i);
+            for(Frame frame : forActorDelayed) {
                 frame.clear();
             }
         }
-        this.forActorDelayed.clear();
+        forActorDelayed.clear();
     }
 
     private void clearActiveStacks(boolean all) {
@@ -757,7 +756,7 @@ public class SGLR {
                 frame.clear();
             }
         }
-        this.activeStacks.clear();
+        activeStacks.clear();
     }
 
     public boolean isFilteringEnabled() {

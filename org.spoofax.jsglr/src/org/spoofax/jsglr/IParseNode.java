@@ -11,6 +11,7 @@ import aterm.ATerm;
 
 public abstract class IParseNode {
 
-	public abstract ATerm toParseTree(ParseTable pt);
+    public abstract ATerm toParseTree(ParseTable pt);
 
+    abstract void clear();
 }

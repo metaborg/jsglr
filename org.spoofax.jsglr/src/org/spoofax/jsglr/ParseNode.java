@@ -19,25 +19,23 @@ public class ParseNode extends IParseNode {
 
     public final int label;
     protected List<IParseNode> kids;
-    
+
     private ParseNode() { label = 0; }
-    
+
     public ParseNode(int label, List<IParseNode> kids) {
         this.label = label;
         this.kids = kids;
     }
-    
+
     public ATerm toParseTree(ParseTable pt) {
         ATermFactory factory = pt.getFactory();
 
-        List<ATerm> r = new Vector<ATerm>();
-        for(IParseNode n : kids)
-            r.add(n.toParseTree(pt));
+        ATermList l1 = factory.makeList();
+        for (int i = kids.size() - 1; i >= 0; i--) {
+            l1 = factory.makeList(kids.get(i).toParseTree(pt), l1);
+        }
 
-        ATermList l1 = makeList((PureFactory)factory, r);
-        ATerm appl = factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
-        r.clear();
-        return appl;
+        return factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
     }
 
     /**
@@ -55,7 +53,14 @@ public class ParseNode extends IParseNode {
     public String toString() {
         return "regular(" + label + "," + kids + ")";
     }
-    
+
     public int getLabel() { return label; }
     public List<IParseNode> getKids() { return kids; }
+
+    void clear() {
+        for (int i = 0; i < kids.size(); i++) {
+            kids.get(i).clear();
+        }
+        kids.clear();
+    }
 }

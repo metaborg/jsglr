@@ -13,32 +13,40 @@ import java.util.List;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import aterm.ATerm;
+import aterm.ATermList;
+import aterm.ATermFactory;
 
 public class Amb extends IParseNode {
 
     public final List<IParseNode> alternatives;
-    
+
     Amb(IParseNode left, IParseNode right) {
         alternatives = new ArrayList<IParseNode>();
         alternatives.add(left);
         alternatives.add(right);
     }
-    
+
     public Amb(List<IParseNode> alternatives) {
         this.alternatives = alternatives;
     }
 
-    public boolean isLiteral() {
-        return false;
-    }
-    
     public ATerm toParseTree(ParseTable pt) {
-        List<ATerm> r = new ArrayList<ATerm>();
-        for(IParseNode pn : alternatives)
-            r.add(pn.toParseTree(pt));
-        return pt.getFactory().parse("amb(" + r + ")");
+
+        ATermFactory factory = pt.getFactory();
+        ATermList l1 = factory.makeList();
+        for (int i = alternatives.size() - 1; i >= 0; i--) {
+            l1 = factory.makeList(alternatives.get(i).toParseTree(pt), l1);
+        }
+        return pt.getFactory().makeAppl(pt.ambAFun, l1);
     }
-    
+
+    public void clear() {
+        for (int i = 0; i < alternatives.size(); i++) {
+            alternatives.get(i).clear();
+        }
+        alternatives.clear();
+    }
+
     @Override
     public String toString() {
         return "amb(" + alternatives + ")";

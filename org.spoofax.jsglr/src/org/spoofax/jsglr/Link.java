@@ -12,9 +12,9 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Link {
 
-    protected final Frame parent;
+    public Frame parent;
 
-    protected final IParseNode label;
+    protected IParseNode label;
 
     private boolean rejected;
     
@@ -46,5 +46,12 @@ public class Link {
 
     public int getLength() {
         return length;
+    }
+
+    public void clear() {
+        if(parent != null) {
+            parent = null;//todo.clear();
+        }
+        this.label = null;
     }
 }

@@ -25,9 +25,11 @@ public class Goto implements Serializable {
     }
 
     public boolean hasProd(int label) {
-        for(int i=0; i < productionRefs.length; i++)
-            if(productionRefs[i] == label)
+        for (int productionRef : productionRefs) {
+            if (productionRef == label) {
                 return true;
+            }
+        }
         return false;
     }
     

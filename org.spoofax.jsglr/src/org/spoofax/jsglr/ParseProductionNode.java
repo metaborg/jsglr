@@ -26,4 +26,6 @@ public class ParseProductionNode extends IParseNode {
     }
     
     public int getProduction() { return prod; }
+
+    void clear() {}
 }

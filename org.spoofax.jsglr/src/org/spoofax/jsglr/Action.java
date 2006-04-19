@@ -61,8 +61,10 @@ public class Action implements Serializable {
             if(ai instanceof Reduce) {
                 Reduce r = (Reduce) ai;
                 if(r.status == Reduce.AVOID) {
-                    Tools.debug(this);
-                    return true;                    
+                    if(SGLR.isDebugging()) {
+                        Tools.debug(this);
+                    }
+                    return true;
                 }
 
             }

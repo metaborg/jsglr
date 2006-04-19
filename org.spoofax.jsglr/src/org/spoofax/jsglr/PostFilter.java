@@ -15,6 +15,7 @@ import java.util.Map;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import aterm.ATerm;
+import aterm.AFun;
 
 public class PostFilter {
 
@@ -54,7 +55,9 @@ public class PostFilter {
         AmbiguityManager ambMgr = parser.getAmbiguityManager();
         ParseTable parseTable = parser.getParseTable();
 
-        Tools.debug("pre-select: ", t);
+        if(SGLR.isDebugging()) {
+            Tools.debug("pre-select: ", t);
+        }
 
         if (sort != null) {
             t = selectOnTopSort();
@@ -63,7 +66,9 @@ public class PostFilter {
             }
         }
 
-        Tools.debug("pre-cycle detect: ", t);
+        if(SGLR.isDebugging()) {
+            Tools.debug("pre-cycle detect: ", t);
+        }
 
         if (parser.isDetectCyclesEnabled()) {
             if (ambMgr.getMaxNumberOfAmbiguities() > 0) {
@@ -72,19 +77,27 @@ public class PostFilter {
             }
         }
 
-        Tools.debug("pre-filtering detect: ", t);
+        if(SGLR.isDebugging()) {
+            Tools.debug("pre-filtering detect: ", t);
+        }
 
         if (parser.isFilteringEnabled()) {
             t = filterTree(t);
         }
 
-        Tools.debug("pre-yield: ", t);
+        if(SGLR.isDebugging()) {
+            Tools.debug("pre-yield: ", t);
+        }
 
         if (t != null) {
             ATerm r = yieldTree(t);
             int ambCount = ambMgr.getAmbiguitiesCount();
-            Tools.debug("yield: ", r);
-            return parseTable.getFactory().parse("parsetree(" + r + "," + ambCount + ")");
+            if(SGLR.isDebugging()) {
+                Tools.debug("yield: ", r);
+            }
+            final AFun parseTreeAfun = parseTable.getFactory().makeAFun("parsetree", 2, false);
+            return parseTable.getFactory().makeAppl(parseTreeAfun, r,
+              parseTable.getFactory().makeInt(ambCount));
         }
 
         return null;
@@ -105,9 +118,9 @@ public class PostFilter {
 
     private IParseNode filterTree(IParseNode t, int pos, boolean inAmbiguityCluster) {
 
-        // if(SGLR.isDebugging()) {
-        Tools.debug("filterTree() - " + t.getClass());
-        // }
+        if(SGLR.isDebugging()) {
+            Tools.debug("filterTree() - " + t.getClass());
+        }
 
         List<IParseNode> ambs = null;
         Object key;

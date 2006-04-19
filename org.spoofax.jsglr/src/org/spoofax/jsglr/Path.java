@@ -7,16 +7,43 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.LinkedList;
+//todo managed
+//import javolution.realtime.ObjectFactory;
+//import javolution.realtime.ObjectPool;
+//import javolution.realtime.PoolContext;
+//import javolution.realtime.Context;
+
 import java.util.List;
+import java.util.Vector;
 
-public class Path {
+public class Path /*todo managed extends RealtimeObject*/ {
 
-    public final Path parent;
+    public Path parent;
 
-    public final IParseNode label;
+    public IParseNode label;
 
-    public final Frame frame;
+    public Frame frame;
+
+    public static int totalCount = 0;
+
+    //todo managed
+    //public static final PathObjectFactory FACTORY = new PathObjectFactory();
+
+    public static boolean logNewInstanceCreation = false;
+
+    Path() {
+        super();
+    }
+
+    public static Path valueOf(Path parent, IParseNode label, Frame frame) {
+        Path _this = new Path();//(Path)FACTORY.object(); //todo managed
+
+        _this.parent = parent;
+        _this.label = label;
+        _this.frame = frame;
+
+        return _this;
+    }
 
     Path(Path parent, IParseNode label, Frame frame) {
         this.parent = parent;
@@ -29,7 +56,7 @@ public class Path {
     }
 
     public final List<IParseNode> getATerms() {
-        List<IParseNode> ret = new LinkedList<IParseNode>();
+        List<IParseNode> ret = new Vector<IParseNode>();
         for (Path n = parent; n != null; n = n.parent) {
             ret.add(n.label);
         }
@@ -41,19 +68,49 @@ public class Path {
         boolean first = true;
         sb.append("<");
         for (Path p = this; p != null; p = p.parent) {
-            if (!first)
+            if (!first) {
                 sb.append(", ");
+            }
             sb.append(p.frame.state.stateNumber);
             first = false;
         }
         sb.append(">");
         return sb.toString();
     }
-    
+
     public int getLength() {
-        if(parent == null)
+        if (parent == null) {
             return 0;
-        else
+        }
+        else {
             return 1 + parent.getLength();
+        }
     }
+
+    //todo managed
+//    public static final class PathObjectFactory extends ObjectFactory {
+//        protected Path create() {
+//            return new Path();
+//        }
+//
+//        private ObjectPool _cachedPool;
+//
+//        /**
+//         * This needs to be called once per thread
+//         *
+//         * @param poolContext
+//         */
+//        public final void attach(final Context poolContext) {
+//            _cachedPool = ((PoolContext)poolContext).getPool(_index);
+//        }
+//
+//        public Object/*T*/object() {
+//            return _cachedPool.next();
+//        }
+//
+////        protected void cleanup(Object/*T*/obj) {
+////            //((Path)obj).clear(false);
+////        }
+//    }
 }
+

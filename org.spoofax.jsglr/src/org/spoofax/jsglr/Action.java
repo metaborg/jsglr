@@ -73,6 +73,20 @@ public class Action implements Serializable {
 
     @Override
     public String toString() {
-     return "action(" + ranges + "," + items + ")";
+        StringBuilder sb = new StringBuilder();
+        sb.append("action([");
+        for(int i=0;i<ranges.length;i++) {
+            sb.append(ranges[i]);
+            if(i < ranges.length - 1)
+                sb.append(", ");
+        }
+        sb.append("], [");
+        for(int i=0;i<items.length;i++) {
+            sb.append(items[i]);
+            if(i < items.length - 1)
+                sb.append(", ");
+        }
+        sb.append("])");
+        return sb.toString();
     }
 }

@@ -9,6 +9,8 @@ package org.spoofax.jsglr;
 
 public class Reduce extends ActionItem {
 
+    private static final long serialVersionUID = 8620275049778432244L;
+
     public final int arity;
 
     public final int label;

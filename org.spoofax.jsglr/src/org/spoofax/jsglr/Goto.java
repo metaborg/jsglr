@@ -58,6 +58,16 @@ public class Goto implements Serializable {
     }
     @Override
     public String toString() {
-        return "goto(" + productionRefs + "," + nextState + ")"; 
+        StringBuilder sb = new StringBuilder();
+        sb.append("goto([");
+        for(int i=0;i<productionRefs.length;i++) {
+            sb.append(productionRefs[i]);
+            if(i < productionRefs.length - 1) 
+                sb.append(",");
+        }
+        sb.append("], ");
+        sb.append(nextState);
+        sb.append(")");
+        return sb.toString(); 
     }
 }

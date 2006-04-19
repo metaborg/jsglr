@@ -86,6 +86,27 @@ public class State implements Serializable {
     }
 
     public String toString() {
-        return "State(" + stateNumber + ", # " + actions.length + " actions, # " + gotos.length + " gotos) \n - " + gotos + "\n - " + actions;
+        StringBuilder sb = new StringBuilder();
+        sb.append("State(");
+        sb.append(stateNumber);
+        sb.append(", #");
+        sb.append(actions.length);
+        sb.append(" actions, #");
+        sb.append(gotos.length);
+        sb.append(" gotos)");
+        sb.append("\n - [");
+        for(int i=0;i<gotos.length;i++) {
+            sb.append(gotos[i]);
+            if(i < gotos.length -1)
+                sb.append(", ");
+        }
+        sb.append("]\n - [");
+        for(int i=0;i<actions.length;i++) {
+            sb.append(actions[i]);
+            if(i < actions.length -1)
+                sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

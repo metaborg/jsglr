@@ -16,10 +16,18 @@ public class AllTests {
         TestSuite suite = new TestSuite("Test for org.spoofax.jsglr.tests");
         //$JUnit-BEGIN$
         suite.addTestSuite(TestG_ambi.class);
+        suite.addTestSuite(TestG_avoid_1.class);
+        suite.addTestSuite(TestG_avoid_2.class);
+        suite.addTestSuite(TestG_prefer_1.class);
+        suite.addTestSuite(TestG_prefer_2.class);
+        suite.addTestSuite(TestG_reject_1.class);
+        suite.addTestSuite(TestG_reject_2.class);
+        suite.addTestSuite(TestG_right_assoc.class);
+        suite.addTestSuite(TestG_left_assoc.class);
         suite.addTestSuite(TestG1.class);
+        suite.addTestSuite(TestG2.class);
         suite.addTestSuite(TestStratego.class);
         suite.addTestSuite(TestBooleans.class);
-        suite.addTestSuite(TestG2.class);
         //$JUnit-END$
         return suite;
     }

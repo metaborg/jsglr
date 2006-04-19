@@ -43,7 +43,7 @@ public abstract class ParseTestCase extends TestCase {
         sglr.clear();
     }
 
-    final static boolean doCompare = false;
+    final static boolean doCompare = true;
     public void doParseTest(String s) throws FileNotFoundException, IOException {
         Tools.setOutput("tests/jsglr-full-trace-" + s);
 

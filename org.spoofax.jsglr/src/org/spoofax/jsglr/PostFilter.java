@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import aterm.ATerm;
 import aterm.AFun;
+import aterm.ATerm;
 
 public class PostFilter {
 
@@ -29,11 +28,7 @@ public class PostFilter {
 
     Map<Object, IParseNode> resolvedTable;
 
-    private AmbiguityMap inputAmbiguityMap;
-
     private AmbiguityMap markMap;
-
-    private PositionMap positionMap;
 
     private int tokenPosition;
 
@@ -48,7 +43,6 @@ public class PostFilter {
 
     protected ATerm parseResult(IParseNode root, String sort, int inputLength) {
 
-        initializeAmbiguityMaps(inputLength);
         initializeFromParser();
 
         IParseNode t = root;
@@ -103,10 +97,6 @@ public class PostFilter {
         return null;
     }
 
-    private void initializeAmbiguityMaps(int inputLength) {
-        inputAmbiguityMap = new AmbiguityMap(inputLength);
-    }
-
     private ATerm yieldTree(IParseNode t) {
         return t.toParseTree(parser.getParseTable());
     }
@@ -127,7 +117,7 @@ public class PostFilter {
         IParseNode newT;
 
         // If APPL
-        if (inputAmbiguityMapIsSet(pos)) {
+        if (ambiguityManager.isInputAmbiguousAt(pos)) {
             ambs = getCluster(t, pos);
         } else {
             ambs = getEmptyList();
@@ -377,10 +367,6 @@ public class PostFilter {
         throw new NotImplementedException();
     }
 
-    private boolean inputAmbiguityMapIsSet(int pos) {
-        return inputAmbiguityMap.isMarked(pos);
-    }
-
     private boolean isCyclicTerm(IParseNode t) {
 
         List<IParseNode> cycles = computeCyclicTerm(t);
@@ -413,7 +399,7 @@ public class PostFilter {
             if (inAmbiguityCluster) {
                 cycle = computeCyclicTerm(n.getKids(), false, visited);
             } else {
-                if (inputAmbiguityMap.isMarked(tokenPosition)) {
+                if (ambiguityManager.isInputAmbiguousAt(tokenPosition)) {
                     ambiguityManager.increaseAmbiguityCount();
                     clusterIndex = ambiguityManager.getClusterIndex(t, tokenPosition);
                     if (markMap.isMarked(clusterIndex)) {

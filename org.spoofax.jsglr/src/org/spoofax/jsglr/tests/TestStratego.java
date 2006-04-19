@@ -10,13 +10,13 @@ package org.spoofax.jsglr.tests;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.spoofax.jsglr.FatalException;
+import org.spoofax.jsglr.ParserException;
 import org.spoofax.jsglr.InvalidParseTableException;
 
 public class TestStratego extends ParseTestCase {
 
     public void setUp() throws FileNotFoundException, IOException,
-            FatalException, InvalidParseTableException {
+            ParserException, InvalidParseTableException {
         super.setUp("Stratego", "str");
     }
 
@@ -40,4 +40,13 @@ public class TestStratego extends ParseTestCase {
     public void testS4() throws FileNotFoundException, IOException {
         doParseTest("s4");
     }
+
+    public void testS5() throws FileNotFoundException, IOException {
+        doParseTest("s5");
+    }
+
+    public void testS6() throws FileNotFoundException, IOException {
+        doParseTest("s6");
+    }
+
 }

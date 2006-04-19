@@ -21,4 +21,9 @@ public class AmbKey {
     public int hashCode() {
         return key.hashCode() ^ (pos * 129357);
     }
+    
+    @Override
+    public String toString() {
+        return "AmbKey(" + key + ", " + pos + ")";
+    }
 }

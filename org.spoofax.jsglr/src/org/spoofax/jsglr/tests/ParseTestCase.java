@@ -15,7 +15,7 @@ import java.io.FileOutputStream;
 
 import junit.framework.TestCase;
 
-import org.spoofax.jsglr.FatalException;
+import org.spoofax.jsglr.ParserException;
 import org.spoofax.jsglr.InvalidParseTableException;
 import org.spoofax.jsglr.SGLR;
 import org.spoofax.jsglr.Tools;
@@ -30,7 +30,7 @@ public abstract class ParseTestCase extends TestCase {
     // shared by all tests
     static final PureFactory pf = new PureFactory();
 
-    public void setUp(String grammar, String suffix) throws FileNotFoundException, IOException, FatalException, InvalidParseTableException {
+    public void setUp(String grammar, String suffix) throws FileNotFoundException, IOException, ParserException, InvalidParseTableException {
         this.suffix = suffix;
 
         sglr = new SGLR(pf, "tests/grammars/" + grammar + ".tbl");

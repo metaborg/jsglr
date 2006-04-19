@@ -7,13 +7,13 @@
  */
 package org.spoofax.jsglr;
 
-public class FatalException extends Exception {
+public class ParserException extends Exception {
 
  
     private static final long serialVersionUID = -7565203797064665307L;
     private String reason;
     
-    public FatalException(String reason) {
+    public ParserException(String reason) {
         this.reason = reason;
     }
 

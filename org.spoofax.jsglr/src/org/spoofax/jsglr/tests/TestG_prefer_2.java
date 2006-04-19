@@ -10,13 +10,13 @@ package org.spoofax.jsglr.tests;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.spoofax.jsglr.FatalException;
+import org.spoofax.jsglr.ParserException;
 import org.spoofax.jsglr.InvalidParseTableException;
 
 public class TestG_prefer_2 extends ParseTestCase {
 
     public void setUp() throws FileNotFoundException, IOException,
-            FatalException, InvalidParseTableException {
+            ParserException, InvalidParseTableException {
         super.setUp("G-prefer-2", "txt");
     }
 

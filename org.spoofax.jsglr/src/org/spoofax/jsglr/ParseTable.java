@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.io.Serializable;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import aterm.ATerm;
 import aterm.ATermAppl;
 import aterm.ATermFactory;

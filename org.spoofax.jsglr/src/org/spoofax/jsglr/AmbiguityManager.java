@@ -10,8 +10,6 @@ package org.spoofax.jsglr;
 import java.util.HashMap;
 import java.util.Map;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class AmbiguityManager {
 
     private int injectionFilterSucceededCount;

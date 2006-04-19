@@ -10,8 +10,6 @@ package org.spoofax.jsglr;
 import java.util.ArrayList;
 import java.util.List;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import aterm.ATerm;
 import aterm.ATermList;
 import aterm.ATermFactory;

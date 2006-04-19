@@ -48,7 +48,7 @@ public class Production implements Serializable {
         case NORMAL:
             return new ParseNode(label, kids);
         }
-        throw new FatalError();
+        throw new FatalException();
     }
 
     boolean isReject() {

@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import aterm.AFun;
 import aterm.ATerm;
 
@@ -428,7 +427,7 @@ public class PostFilter {
             }
             return cycle;
         } else {
-            throw new FatalError();
+            throw new FatalException();
         }
     }
 

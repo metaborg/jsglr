@@ -7,8 +7,6 @@
  */
 package org.spoofax.jsglr;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 
 public class Link {
 

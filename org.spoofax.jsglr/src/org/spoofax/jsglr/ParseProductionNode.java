@@ -27,5 +27,13 @@ public class ParseProductionNode extends IParseNode {
     
     public int getProduction() { return prod; }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof ParseProductionNode))
+            return false;
+        return prod == ((ParseProductionNode)obj).prod;
+    }
+    
+    @Override
     void clear() {}
 }

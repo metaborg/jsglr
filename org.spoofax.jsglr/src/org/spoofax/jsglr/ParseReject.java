@@ -23,4 +23,10 @@ public class ParseReject extends ParseNode {
         throw new NotImplementedException();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof ParseReject))
+            return false;
+        return super.equals(obj);
+    }
 }

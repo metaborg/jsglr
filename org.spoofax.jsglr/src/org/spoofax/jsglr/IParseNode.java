@@ -14,4 +14,5 @@ public abstract class IParseNode {
     public abstract ATerm toParseTree(ParseTable pt);
 
     abstract void clear();
+    abstract public boolean equals(Object obj);
 }

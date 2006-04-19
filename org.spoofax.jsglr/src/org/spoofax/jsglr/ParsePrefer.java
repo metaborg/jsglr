@@ -20,7 +20,19 @@ public class ParsePrefer extends ParseNode {
 
     @Override
     public ATerm toParseTree(ParseTable pt) {
+        //return super.toParseTree(pt);
         throw new NotImplementedException();
     }
 
+    @Override
+    public String toString() {
+        return "prefer(" + label + ", " + kids + ")";
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof ParsePrefer))
+            return false;
+        return super.equals(obj);
+    }
 }

@@ -8,7 +8,6 @@
 package org.spoofax.jsglr;
 
 import java.util.List;
-import java.util.Vector;
 
 import aterm.ATerm;
 import aterm.ATermFactory;
@@ -62,5 +61,21 @@ public class ParseNode extends IParseNode {
             kids.get(i).clear();
         }
         kids.clear();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof ParseNode))
+            return false;
+        ParseNode o = (ParseNode)obj;
+        if(label != o.label)
+            return false;
+        if(kids.size() != o.kids.size())
+            return false;
+        for(int i=0;i<kids.size();i++) {
+            if(kids.get(i) != o.kids.get(i))
+                return false;
+        }
+        return true;
     }
 }

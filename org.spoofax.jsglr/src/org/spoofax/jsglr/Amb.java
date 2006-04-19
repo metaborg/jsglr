@@ -59,4 +59,17 @@ public class Amb extends IParseNode {
     public List<IParseNode> getAlternatives() {
         return alternatives;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Amb))
+            return false;
+        Amb o = (Amb)obj;
+        if(o.alternatives.size() != alternatives.size())
+            return false;
+        for(int i=0;i<alternatives.size();i++)
+            if(alternatives.get(i) != o.alternatives.get(i))
+                return false;
+        return true;
+    }
 }

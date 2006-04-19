@@ -21,7 +21,7 @@ public class TestG_avoid_1 extends ParseTestCase {
     }
 
 
-    public void testG_prefer_1_1() throws FileNotFoundException, IOException {
+    public void testG_avoid_1_1() throws FileNotFoundException, IOException {
         doParseTest("g-avoid-1_1");
     }
 }

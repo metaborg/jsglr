@@ -667,17 +667,26 @@ public class SGLR {
         int t = fis.read();
 
         tokensSeen++;
-        columnNumber++;
-        if (t == '\n') {
-            lineNumber++;
-            columnNumber = 0;
-        }
 
         if (isDebugging()) {
             Tools.debug("getNextToken() - ", t);
         }
 
-        return t == -1 ? SGLR.EOF : t;
+        switch(t) {
+        case '\n':
+            lineNumber++;
+            columnNumber = 0;
+            break;
+        case '\t':
+            columnNumber = (columnNumber / 8 + 1 ) * 8;
+            break;
+        case -1:
+            return SGLR.EOF;
+        default:
+            columnNumber++;
+        }
+
+        return t;
     }
 
     private String dumpActiveStacks() {

@@ -29,7 +29,7 @@ public class PostFilter {
 
     private AmbiguityMap markMap;
 
-    private int tokenPosition;
+    private int parseTreePosition;
 
     PostFilter(SGLR parser) {
         this.parser = parser;
@@ -378,7 +378,7 @@ public class PostFilter {
 
         ambiguityManager.resetAmbiguityCount();
         initializeMarks();
-        tokenPosition = 0;
+        parseTreePosition = 0;
 
         return computeCyclicTerm(t, false, visited);
     }
@@ -387,7 +387,7 @@ public class PostFilter {
             PositionMap visited) {
 
         if (t instanceof ParseProductionNode) {
-            tokenPosition++;
+            parseTreePosition++;
             return null;
         } else if (t instanceof ParseNode) {
             Amb ambiguities = null;
@@ -398,9 +398,9 @@ public class PostFilter {
             if (inAmbiguityCluster) {
                 cycle = computeCyclicTerm(n.getKids(), false, visited);
             } else {
-                if (ambiguityManager.isInputAmbiguousAt(tokenPosition)) {
+                if (ambiguityManager.isInputAmbiguousAt(parseTreePosition)) {
                     ambiguityManager.increaseAmbiguityCount();
-                    clusterIndex = ambiguityManager.getClusterIndex(t, tokenPosition);
+                    clusterIndex = ambiguityManager.getClusterIndex(t, parseTreePosition);
                     if (markMap.isMarked(clusterIndex)) {
                         return new ArrayList<IParseNode>();
                     }
@@ -413,15 +413,15 @@ public class PostFilter {
                     cycle = computeCyclicTerm(((ParseNode) t).getKids(), false, visited);
                 } else {
                     int length = visited.getValue(clusterIndex);
-                    int savePos = tokenPosition;
+                    int savePos = parseTreePosition;
 
                     if (length == -1) {
                         markMap.mark(clusterIndex);
                         cycle = computeCyclicTermInAmbiguityCluster(ambiguities, visited);
-                        visited.put(clusterIndex, tokenPosition - savePos);
+                        visited.put(clusterIndex, parseTreePosition - savePos);
                         markMap.unmark(clusterIndex);
                     } else {
-                        tokenPosition += length;
+                        parseTreePosition += length;
                     }
                 }
             }

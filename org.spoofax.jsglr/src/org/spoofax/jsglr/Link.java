@@ -34,10 +34,6 @@ public class Link {
         return rejected;
     }
 
-    public int getLabelNumber() {
-        throw new NotImplementedException();
-    }
-    
     public String toString() {
         return "" + parent.state.stateNumber;
     }

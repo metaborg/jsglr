@@ -23,6 +23,15 @@ public class AmbKey {
     }
     
     @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof AmbKey)) {
+            return false;
+        }
+        AmbKey o = (AmbKey)obj;
+        return pos == o.pos && key.equals(o.key);
+    }
+    
+    @Override
     public String toString() {
         return "AmbKey(" + key + ", " + pos + ")";
     }

@@ -81,6 +81,8 @@ public class SGLR {
 
     private boolean priorityFilter;
 
+    private boolean injectionCountFilter;
+
     SGLR() {
         basicInit(null);
     }
@@ -186,8 +188,14 @@ public class SGLR {
 
         // FIXME This is *wrong*
         ambiguityManager = new AmbiguityManager(10000);
+        
+        // FIXME filter flags should probably be moved to PostFilter class 
         filter = true;
         rejectFilter = true;
+        injectionCountFilter = true;
+        priorityFilter = true;
+        associtivityFilter = true;
+        
         postFilter = new PostFilter(this);
     }
 
@@ -799,5 +807,9 @@ public class SGLR {
 
     public PureFactory getFactory() {
         return factory;
+    }
+
+    public boolean isInjectionCountFilterEnabled() {
+        return filter && injectionCountFilter;
     }
 }

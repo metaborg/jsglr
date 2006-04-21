@@ -18,11 +18,13 @@ public class Label implements Serializable {
     public final int labelNumber;
     public final ATermAppl prod;
     public final ProductionAttributes productionAttributes;
+    public final boolean injection;
     
-    public Label(int labelNumber, ATermAppl prod, ProductionAttributes productionAttributes) {
+    public Label(int labelNumber, ATermAppl prod, ProductionAttributes productionAttributes, boolean injection) {
         this.labelNumber = labelNumber;
         this.prod = prod;
         this.productionAttributes = productionAttributes;
+        this.injection = injection;
     }
 
     public boolean isLeftAssociative() {
@@ -33,4 +35,15 @@ public class Label implements Serializable {
         return productionAttributes.type == ProductionAttributes.RIGHT_ASSOCIATIVE;
     }
 
+    public boolean isMoreEager(Label rightProd) {
+        return productionAttributes.isMoreEager(rightProd.productionAttributes);
+    }
+
+    public ProductionAttributes getAttributes() {
+        return productionAttributes;
+    }
+
+    public boolean isInjection() {
+        return injection;
+    }
 }

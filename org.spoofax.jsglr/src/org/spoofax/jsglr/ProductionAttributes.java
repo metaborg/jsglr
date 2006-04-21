@@ -12,21 +12,37 @@ import aterm.ATerm;
 public class ProductionAttributes {
 
     public final static int NO_TYPE = 0;
+
     public final static int LEFT_ASSOCIATIVE = 1;
+
     public final static int RIGHT_ASSOCIATIVE = 2;
+
     public final static int PREFER = 3;
+
     public final static int AVOID = 4;
+
     public final static int BRACKET = 5;
+
     public final static int REJECT = 6;
-    
+
     protected final int type;
+
     protected final ATerm abstractCtor;
-    
+
     ProductionAttributes(int type, ATerm ctor) {
         this.type = type;
         this.abstractCtor = ctor;
     }
-    
-    public final int getType() { return type; }
-    public final ATerm getTerm() { return abstractCtor; }
+
+    public final int getType() {
+        return type;
+    }
+
+    public final ATerm getTerm() {
+        return abstractCtor;
+    }
+
+    public boolean isMoreEager(ProductionAttributes other) {
+        return type != other.type && (type == PREFER || other.type == AVOID);
+    }
 }

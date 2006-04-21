@@ -122,7 +122,7 @@ public class AmbiguityManager {
             Tools.debug("getClusterIndex()");
             Tools.debug(" t - " + t);
             Tools.debug(" pos - " + pos);
-            Tools.debug(indexTable);
+            //Tools.debug(indexTable);
         }
         AmbKey k = new AmbKey(t, pos);
         Integer r = indexTable.get(k);
@@ -131,6 +131,10 @@ public class AmbiguityManager {
 
     public boolean isInputAmbiguousAt(int pos) {
         return inputAmbiguityMap.isMarked(pos);
+    }
+
+    public void dumpIndexTable() {
+        Tools.debug(indexTable);
     }
 
 }

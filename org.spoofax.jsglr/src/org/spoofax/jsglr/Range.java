@@ -41,13 +41,13 @@ public class Range implements Serializable {
 
     @Override
     public int hashCode() {
-        return low + high * 10000;
+        return low + high * 7919;
     }
 
     @Override
     public String toString() {
         if(low == high)
-            return "" +low;
-        return "[" + low + "," + high + "]";
+            return "" + low;
+        return "range(" + low + ", " + high + ")";
     }
 }

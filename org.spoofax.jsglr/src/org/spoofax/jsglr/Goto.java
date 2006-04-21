@@ -13,18 +13,17 @@ public class Goto implements Serializable {
 
     static final long serialVersionUID = 4361136767191244085L;
     
-    private int[] productionRefs;
+    private Range[] ranges;
     public final int nextState;
     
-    public Goto(Range[] ranges, int[] productionRefs, int nextState) {
+    public Goto(Range[] ranges, int nextState) {
+        this.ranges = ranges;
         this.nextState = nextState;
-        // this.ranges = ranges;
-        this.productionRefs = productionRefs;
     }
 
     public boolean hasProd(int label) {
-        for (int productionRef : productionRefs) {
-            if (productionRef == label) {
+        for (Range r : ranges) {
+            if(r.within(label)) {
                 return true;
             }
         }
@@ -38,10 +37,10 @@ public class Goto implements Serializable {
         Goto o = (Goto)obj;
         if(nextState != o.nextState)
             return false;
-        if(productionRefs.length != o.productionRefs.length)
+        if(ranges.length != o.ranges.length)
             return false;
-        for(int i=0;i<productionRefs.length;i++)
-            if(productionRefs[i] != o.productionRefs[i])
+        for(int i=0;i<ranges.length;i++)
+            if(ranges[i].equals(o.ranges[i]))
                 return false;
         return true;
     }
@@ -50,17 +49,17 @@ public class Goto implements Serializable {
     public int hashCode() {
         // FIXME Can probably be made to work a lot better
         int r = nextState * 94716;
-        for(int i=0; i < productionRefs.length; i++)
-            r += productionRefs[i] * i * 3000;
+        for(int i = 0; i < ranges.length; i++)
+            r += ranges[i].hashCode() + i * 3617;
         return r;
     }
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("goto([");
-        for(int i=0;i<productionRefs.length;i++) {
-            sb.append(productionRefs[i]);
-            if(i < productionRefs.length - 1) 
+        for(int i = 0;i < ranges.length;i++) {
+            sb.append(ranges[i].toString());
+            if(i < ranges.length - 1) 
                 sb.append(",");
         }
         sb.append("], ");

@@ -7,9 +7,13 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.Serializable;
+
 import aterm.ATerm;
 
-public class ProductionAttributes {
+public class ProductionAttributes implements Serializable {
+
+    private static final long serialVersionUID = 556855017447626835L;
 
     public final static int NO_TYPE = 0;
 

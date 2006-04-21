@@ -127,10 +127,10 @@ public class ParseTable implements Serializable {
         return false;
     }
 
-    private ProductionAttributes parseProductionAttributes(ATermAppl prod)
+    private ProductionAttributes parseProductionAttributes(ATermAppl attr)
             throws InvalidParseTableException {
-        if (prod.getName().equals("attrs")) {
-            ATermList ls = (ATermList) prod.getChildAt(0);
+        if (attr.getName().equals("attrs")) {
+            ATermList ls = (ATermList) attr.getChildAt(0);
             int type = 0;
             ATerm term = null;
             for (int i = 0; i < ls.getChildCount(); i++) {
@@ -155,15 +155,17 @@ public class ParseTable implements Serializable {
                     }
                 } else if (ctor.equals("term")) {
                     term = (ATerm) t.getChildAt(0).getChildAt(0);
+                } else if (ctor.equals("id")) {
+                    // FIXME Unimplemented
                 } else {
                     throw new InvalidParseTableException("Unknown attribute: " + t);
                 }
             }
             return new ProductionAttributes(type, term);
-        } else if (prod.getName().equals("no-attrs")) {
+        } else if (attr.getName().equals("no-attrs")) {
             return new ProductionAttributes(ProductionAttributes.NO_TYPE, null);
         }
-        throw new InvalidParseTableException("Unknown attribute type: " + prod);
+        throw new InvalidParseTableException("Unknown attribute type: " + attr);
     }
 
     private State[] parseStates(ATermAppl statesTerm) throws InvalidParseTableException {
@@ -187,8 +189,8 @@ public class ParseTable implements Serializable {
 
     Map<Goto, Goto> gotoMap = new HashMap<Goto, Goto>();
 
-    private Goto makeGoto(int newStateNumber, Range[] ranges, int[] productionLabels) {
-        Goto g = new Goto(ranges, productionLabels, newStateNumber);
+    private Goto makeGoto(int newStateNumber, Range[] ranges) {
+        Goto g = new Goto(ranges, newStateNumber);
         if (gotoMap.containsKey(g)) {
             return gotoMap.get(g);
         }
@@ -263,8 +265,8 @@ public class ParseTable implements Serializable {
             ATermList rangeList = Term.listAt(go, 0);
             int newStateNumber = Term.intAt(go, 1);
             Range[] ranges = parseRanges(rangeList);
-            int[] productionLabels = parseProductionLabels(rangeList);
-            ret[i] = makeGoto(newStateNumber, ranges, productionLabels);
+            //int[] productionLabels = parseProductionLabels(rangeList);
+            ret[i] = makeGoto(newStateNumber, ranges);
         }
 
         return ret;
@@ -279,7 +281,11 @@ public class ParseTable implements Serializable {
             if (Term.isInt(t)) {
                 ret[i] = Term.toInt(t);
             } else {
-                throw new NotImplementedException();
+//                else if(Term.isAppl(t) && ((ATermAppl)t).getName().equals("range")) {
+//                int s = Term.intAt(t, 0);
+//                int e = Term.intAt(t, 1);
+                Tools.debug(t);
+                throw new InvalidParseTableException("");
             }
         }
         return ret;

@@ -25,6 +25,9 @@ public class Label implements Serializable {
         this.prod = prod;
         this.productionAttributes = productionAttributes;
         this.injection = injection;
+        
+        if(productionAttributes == null)
+            throw new RuntimeException();
     }
 
     public boolean isLeftAssociative() {

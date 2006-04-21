@@ -54,6 +54,7 @@ public class ParseNode extends IParseNode {
     }
 
     public int getLabel() { return label; }
+    
     public List<IParseNode> getKids() { return kids; }
 
     void clear() {

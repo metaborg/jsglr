@@ -78,4 +78,8 @@ public class Term {
         return ret;
     }
 
+    public static boolean isAppl(ATerm t) {
+        return t.getType() == ATerm.APPL;
+    }
+
 }

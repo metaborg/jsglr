@@ -50,12 +50,6 @@ public class Frame implements Serializable {
 
     public List<Path> computePathsToRoot(int arity) {
 
-        if (arity == 0) {
-            List<Path> ret = new Vector<Path>();
-            ret.add(Path.valueOf(null, null, this));
-            return ret;
-        }
-
         List<Path> ret = new Vector<Path>();
         doComputePathsToRoot(ret, null, arity);
         Collections.reverse(ret);
@@ -65,15 +59,15 @@ public class Frame implements Serializable {
     private void doComputePathsToRoot(List<Path> collect, Path node, int arity) {
 
         if (arity == 0) {
-            Path n = Path.valueOf(node, null, this);
+            Path n = Path.valueOf(node, null, this, 0);
             collect.add(n);
-        }
-
-        for (int i = 0; i < stepsCount; i++) {
-            Link ln = steps[i];
-
-            Path n = Path.valueOf(node, ln.label, this);
-            ln.parent.doComputePathsToRoot(collect, n, arity - 1);
+        } else { 
+            for (int i = 0; i < stepsCount; i++) {
+                Link ln = steps[i];
+                
+                Path n = Path.valueOf(node, ln.label, this, ln.getLength());
+                ln.parent.doComputePathsToRoot(collect, n, arity - 1);
+            }
         }
     }
 
@@ -179,15 +173,8 @@ public class Frame implements Serializable {
 
     public List<Path> computePathsToRoot(int arity, Link l) {
 
-        if (arity == 0) {
-            List<Path> ret = new Vector<Path>();
-            ret.add(Path.valueOf(null, null, this));
-            return ret;
-        }
-
         List<Path> ret = new Vector<Path>();
         doComputePathsToRoot(ret, null, l, false, arity);
-        // FIXME: Necessary?
         Collections.reverse(ret);
         return ret;
     }
@@ -196,15 +183,15 @@ public class Frame implements Serializable {
       boolean seen, int arity) {
 
         if (arity == 0 && seen) {
-            Path n = Path.valueOf(node, null, this);
+            Path n = Path.valueOf(node, null, this, 0);
             collect.add(n);
-        }
-
-        for (int i = 0; i < stepsCount; i++) {
-            Link ln = steps[i];
-            boolean seenIt = seen || (ln == l);
-            Path n = Path.valueOf(node, ln.label, this);
-            ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1);
+        } else {
+            for (int i = 0; i < stepsCount; i++) {
+                Link ln = steps[i];
+                boolean seenIt = seen || (ln == l);
+                Path n = Path.valueOf(node, ln.label, this, ln.getLength());
+                ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1);
+            }
         }
     }
 

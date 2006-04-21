@@ -37,8 +37,8 @@ public class Path /*todo managed extends RealtimeObject*/ {
         super();
     }
 */
-    public static Path valueOf(Path parent, IParseNode label, Frame frame) {
-        Path _this = new Path(parent, label, frame);//(Path)FACTORY.object(); //todo managed
+    public static Path valueOf(Path parent, IParseNode label, Frame frame, int length) {
+        Path _this = new Path(parent, label, frame, length);//(Path)FACTORY.object(); //todo managed
 /*
         _this.parent = parent;
         _this.label = label;
@@ -47,11 +47,11 @@ public class Path /*todo managed extends RealtimeObject*/ {
         return _this;
     }
 
-    Path(Path parent, IParseNode label, Frame frame) {
+    Path(Path parent, IParseNode label, Frame frame, int length) {
         this.parent = parent;
         this.label = label;
         this.frame = frame;
-        length = computeLength();
+        this.length = length;
     }
 
     public Frame getEnd() {
@@ -81,17 +81,13 @@ public class Path /*todo managed extends RealtimeObject*/ {
         return sb.toString();
     }
 
-    private int computeLength() { 
+    public int getLength() { 
         if (parent == null) {
-            return 1;
+            return length;
         }
         else {
-            return 1 + parent.getLength();
+            return length + parent.getLength();
         }
-    }
-
-    public int getLength() {
-        return length;
     }
 
     //todo managed

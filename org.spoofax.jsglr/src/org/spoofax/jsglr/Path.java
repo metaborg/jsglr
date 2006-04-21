@@ -18,12 +18,14 @@ import java.util.Vector;
 
 public class Path /*todo managed extends RealtimeObject*/ {
 
-    public Path parent;
+    public final Path parent;
 
-    public IParseNode label;
+    public final IParseNode label;
 
-    public Frame frame;
+    public final Frame frame;
 
+    protected final int length;
+    
     public static int totalCount = 0;
 
     //todo managed
@@ -31,17 +33,17 @@ public class Path /*todo managed extends RealtimeObject*/ {
 
     public static boolean logNewInstanceCreation = false;
 
-    Path() {
+/*    Path() {
         super();
     }
-
+*/
     public static Path valueOf(Path parent, IParseNode label, Frame frame) {
-        Path _this = new Path();//(Path)FACTORY.object(); //todo managed
-
+        Path _this = new Path(parent, label, frame);//(Path)FACTORY.object(); //todo managed
+/*
         _this.parent = parent;
         _this.label = label;
         _this.frame = frame;
-
+*/
         return _this;
     }
 
@@ -49,6 +51,7 @@ public class Path /*todo managed extends RealtimeObject*/ {
         this.parent = parent;
         this.label = label;
         this.frame = frame;
+        length = computeLength();
     }
 
     public Frame getEnd() {
@@ -78,13 +81,17 @@ public class Path /*todo managed extends RealtimeObject*/ {
         return sb.toString();
     }
 
-    public int getLength() {
+    private int computeLength() { 
         if (parent == null) {
-            return 0;
+            return 1;
         }
         else {
             return 1 + parent.getLength();
         }
+    }
+
+    public int getLength() {
+        return length;
     }
 
     //todo managed

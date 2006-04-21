@@ -555,7 +555,9 @@ public class SGLR {
                     }
                 }
                 
-                Tools.debug("CreateAmbCluster - ", tokensSeen - nl.getLength() - 1, "/", nl.getLength());
+                if(isDebugging()) {
+                    Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/", nl.getLength());
+                }
                 
                 ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
 

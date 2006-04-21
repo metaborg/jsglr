@@ -122,7 +122,7 @@ public class PostFilter {
             ambs = getEmptyList();
         }
 
-        if (!inAmbiguityCluster && !ambs.isEmpty()) {
+        if (!inAmbiguityCluster && (ambs != null && !ambs.isEmpty())) {
             key = createAmbiguityKey(ambs, pos);
 
             newT = resolvedTable.get(key);
@@ -363,7 +363,9 @@ public class PostFilter {
     }
 
     private List<IParseNode> getCluster(IParseNode t, int pos) {
-        throw new NotImplementedException();
+        int idx = ambiguityManager.getClusterIndex(t, pos);
+        Amb amb = idx == -1 ? null : ambiguityManager.getClusterOnIndex(idx);
+        return amb == null ? null : amb.getAlternatives(); 
     }
 
     private boolean isCyclicTerm(IParseNode t) {
@@ -393,7 +395,9 @@ public class PostFilter {
         
         if (t instanceof ParseProductionNode) {
             parseTreePosition++;
-            Tools.debug("bumping");
+            if(SGLR.isDebugging()) {
+                Tools.debug("bumping");
+            }
             return null;
         } else if (t instanceof ParseNode) {
             Amb ambiguities = null;

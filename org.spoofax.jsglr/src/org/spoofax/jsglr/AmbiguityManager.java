@@ -125,7 +125,8 @@ public class AmbiguityManager {
             Tools.debug(indexTable);
         }
         AmbKey k = new AmbKey(t, pos);
-        return indexTable.get(k);
+        Integer r = indexTable.get(k);
+        return r == null ? -1 : r.intValue();
     }
 
     public boolean isInputAmbiguousAt(int pos) {

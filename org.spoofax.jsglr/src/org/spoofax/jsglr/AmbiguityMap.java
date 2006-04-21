@@ -16,6 +16,8 @@ public class AmbiguityMap {
     }
 
     public boolean isMarked(int pos) {
+        if(pos < 0 || pos > positions.length)
+            return false;
         return positions[pos];
     }
 

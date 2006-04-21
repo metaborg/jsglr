@@ -73,9 +73,18 @@ public class ParseNode extends IParseNode {
         if(kids.size() != o.kids.size())
             return false;
         for(int i=0;i<kids.size();i++) {
-            if(kids.get(i) != o.kids.get(i))
+            if(!kids.get(i).equals(o.kids.get(i)))
                 return false;
         }
         return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        // FIXME improve
+        int r = 1337 * label ;
+        for(IParseNode n : kids)
+            r += kids.hashCode();
+        return r;
     }
 }

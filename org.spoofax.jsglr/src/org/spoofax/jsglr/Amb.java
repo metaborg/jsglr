@@ -66,8 +66,16 @@ public class Amb extends IParseNode {
         if(o.alternatives.size() != alternatives.size())
             return false;
         for(int i=0;i<alternatives.size();i++)
-            if(alternatives.get(i) != o.alternatives.get(i))
+            if(!alternatives.get(i).equals(o.alternatives.get(i)))
                 return false;
         return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        int r = 0;
+        for(IParseNode n : alternatives)
+            r += n.hashCode();
+        return r;
     }
 }

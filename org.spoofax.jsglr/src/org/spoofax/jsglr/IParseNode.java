@@ -15,4 +15,5 @@ public abstract class IParseNode {
 
     abstract void clear();
     abstract public boolean equals(Object obj);
+    abstract public int hashCode();
 }

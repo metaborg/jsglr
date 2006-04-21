@@ -137,4 +137,12 @@ public class AmbiguityManager {
         Tools.debug(indexTable);
     }
 
+    public void increaseEagernessFilterSucceededCount() {
+        eagernessFilterSucceededCount++;
+    }
+
+    public void increaseInjectionFilterSucceededCount() {
+        injectionFilterSucceededCount++;
+    }
+
 }

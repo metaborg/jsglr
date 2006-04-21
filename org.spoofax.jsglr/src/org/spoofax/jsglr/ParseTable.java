@@ -279,7 +279,7 @@ public class ParseTable implements Serializable {
             if (Term.isInt(t)) {
                 ret[i] = Term.toInt(t);
             } else {
-                // FIXME What happens here?
+                throw new NotImplementedException();
             }
         }
         return ret;

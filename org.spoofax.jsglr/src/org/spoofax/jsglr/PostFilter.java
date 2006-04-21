@@ -30,7 +30,7 @@ public class PostFilter {
 
     ParseTable parseTable;
 
-    Map<Object, Integer> posTable;
+    Map<AmbKey, Integer> posTable;
 
     Map<AmbKey, IParseNode> resolvedTable;
 
@@ -41,6 +41,7 @@ public class PostFilter {
     PostFilter(SGLR parser) {
         this.parser = parser;
         resolvedTable = new HashMap<AmbKey, IParseNode>();
+        posTable = new HashMap<AmbKey, Integer>();
     }
 
     private void initializeFromParser() {
@@ -53,8 +54,6 @@ public class PostFilter {
         initializeFromParser();
 
         IParseNode t = root;
-        AmbiguityManager ambMgr = parser.getAmbiguityManager();
-        ParseTable parseTable = parser.getParseTable();
 
         if (SGLR.isDebugging()) {
             Tools.debug("pre-select: ", t);
@@ -72,7 +71,7 @@ public class PostFilter {
         }
 
         if (parser.isDetectCyclesEnabled()) {
-            if (ambMgr.getMaxNumberOfAmbiguities() > 0) {
+            if (ambiguityManager.getMaxNumberOfAmbiguities() > 0) {
                 if (isCyclicTerm(t))
                     parseError("Term is cyclic");
             }
@@ -92,7 +91,7 @@ public class PostFilter {
 
         if (t != null) {
             ATerm r = yieldTree(t);
-            int ambCount = ambMgr.getAmbiguitiesCount();
+            int ambCount = 0; //ambiguityManager.getAmbiguitiesCount();
             if (SGLR.isDebugging()) {
                 Tools.debug("yield: ", r);
             }
@@ -458,11 +457,115 @@ public class PostFilter {
     }
 
     private int filterOnInjectionCount(IParseNode left, IParseNode right) {
-        throw new NotImplementedException();
+        
+        int leftInjectionCount = countAllInjections(left);
+        int rightInjectionCount = countAllInjections(right);
+        
+        if(leftInjectionCount != rightInjectionCount) {
+            ambiguityManager.increaseInjectionFilterSucceededCount();
+        }
+        
+        if(leftInjectionCount > rightInjectionCount) {
+            return FILTER_RIGHT_WINS;
+        } else if(rightInjectionCount > leftInjectionCount) {
+            return FILTER_LEFT_WINS;
+        }
+        
+        return FILTER_DRAW;
+    }
+
+    private int countAllInjections(IParseNode t) {
+        if(t instanceof Amb) {
+            // Trick from forest.c
+            return countAllInjections(((Amb)t).getAlternatives().get(0));
+        } else if(t instanceof ParseNode) {
+            int c = getProductionLabel(t).isInjection() ? 1 : 0;
+            return c + countAllInjections(((ParseNode)t).getKids());
+        } 
+        return 0;
+    }
+
+    private int countAllInjections(List<IParseNode> ls) {
+        int r = 0;
+        for(IParseNode n : ls)
+            r += countAllInjections(n);
+        return r;
     }
 
     private int filterOnPreferCount(IParseNode left, IParseNode right) {
-        throw new NotImplementedException();
+        
+        int r = FILTER_DRAW;
+        if(parseTable.hasPrefers() || parseTable.hasAvoids()) {
+            int leftPreferCount = countPrefers(left);
+            int rightPreferCount = countPrefers(right);
+            int leftAvoidCount = countAvoids(left);
+            int rightAvoidCount = countAvoids(right);
+            
+            if((leftPreferCount > rightPreferCount && leftAvoidCount <= rightAvoidCount)
+                    || (leftPreferCount == rightPreferCount && leftAvoidCount < rightAvoidCount)) {
+                Tools.logger("Eagerness priority: ", left, " > ", right);
+                r = FILTER_LEFT_WINS;
+            }
+            
+            if((rightPreferCount > leftPreferCount && rightAvoidCount <= leftAvoidCount)
+                    || (rightPreferCount == leftPreferCount && rightAvoidCount < leftPreferCount)) {
+                if(r != FILTER_DRAW) {
+                    Tools.logger("Symmetric eagerness priority: ", left, " == ", right);
+                    r = FILTER_DRAW; 
+                } else {
+                    Tools.logger("Eagerness priority: ", right, " > ", left);
+                    r = FILTER_RIGHT_WINS;
+                }
+            }
+        }
+        
+        if(r != FILTER_DRAW) {
+            ambiguityManager.increaseEagernessFilterSucceededCount();
+        }
+        
+        return r;
+    }
+
+    private int countPrefers(IParseNode t) {
+        if(t instanceof Amb) {
+            return countPrefers(((Amb)t).getAlternatives());
+        } else if(t instanceof ParseNode) {
+            int type = getProductionType(t);
+            if(type == ProductionAttributes.PREFER)
+                return 1;
+            else if(type == ProductionAttributes.AVOID)
+                return 0;
+            return countPrefers(((ParseNode)t).getKids());
+        }
+        return 0;
+    }
+
+    private int countPrefers(List<IParseNode> ls) {
+        int r = 0;
+        for(IParseNode n : ls)
+            r += countPrefers(n);
+        return r;
+    }
+
+    private int countAvoids(IParseNode t) {
+        if(t instanceof Amb) {
+            return countAvoids(((Amb)t).getAlternatives());
+        } else if(t instanceof ParseNode) {
+            int type = getProductionType(t);
+            if(type == ProductionAttributes.PREFER)
+                return 0;
+            else if(type == ProductionAttributes.AVOID)
+                return 1;
+            return countAvoids(((ParseNode)t).getKids());
+        }
+        return 0;
+    }
+
+    private int countAvoids(List<IParseNode> ls) {
+        int r = 0;
+        for(IParseNode n : ls)
+            r += countAvoids(n);
+        return r;
     }
 
     private int filterOnIndirectPrefers(IParseNode left, IParseNode right) {

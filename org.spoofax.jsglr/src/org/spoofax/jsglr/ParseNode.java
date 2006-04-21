@@ -84,7 +84,7 @@ public class ParseNode extends IParseNode {
         // FIXME improve
         int r = 1337 * label ;
         for(IParseNode n : kids)
-            r += kids.hashCode();
+            r += n.hashCode();
         return r;
     }
 }

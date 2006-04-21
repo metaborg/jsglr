@@ -7,8 +7,6 @@
  */
 package org.spoofax.jsglr;
 
-import com.sun.org.apache.xpath.internal.operations.Equals;
-
 import aterm.ATerm;
 
 public class ParseProductionNode extends IParseNode {

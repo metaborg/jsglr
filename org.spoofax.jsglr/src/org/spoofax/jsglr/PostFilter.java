@@ -386,8 +386,14 @@ public class PostFilter {
     private List<IParseNode> computeCyclicTerm(IParseNode t, boolean inAmbiguityCluster,
             PositionMap visited) {
 
+        if(SGLR.isDebugging()) {
+            Tools.debug("computeCyclicTerm()");
+            Tools.debug(" - t : " + t);
+        }
+        
         if (t instanceof ParseProductionNode) {
             parseTreePosition++;
+            Tools.debug("bumping");
             return null;
         } else if (t instanceof ParseNode) {
             Amb ambiguities = null;

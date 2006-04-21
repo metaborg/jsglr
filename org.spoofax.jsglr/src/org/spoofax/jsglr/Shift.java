@@ -9,6 +9,8 @@ package org.spoofax.jsglr;
 
 public class Shift extends ActionItem {
 
+    private static final long serialVersionUID = -5777912109162535928L;
+    
     public final int nextState;
     
     public Shift(int nextState) {

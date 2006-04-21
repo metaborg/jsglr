@@ -78,8 +78,8 @@ public class Frame implements Serializable {
     }
 
     public Frame getRoot() {
-        // FIXME: I'm iffy about the contract here. The assumption is
-        // that the user applies addStep correctly.
+        // FIXME: I'm not happy about the contract here. The assumption is
+        // that the holder of the Frame class applies addStep correctly.
         if (stepsCount == 0)
             return this;
         return steps[0].parent.getRoot();
@@ -95,10 +95,7 @@ public class Frame implements Serializable {
     }
 
     public Link addLink(Frame st0, IParseNode n, int length) {
-        Link s = new Link(st0, n, length);
-        steps[stepsCount] = s;
-        stepsCount++;
-        return s;
+        return steps[stepsCount++] = new Link(st0, n, length); 
     }
 
     public String dumpStack() {

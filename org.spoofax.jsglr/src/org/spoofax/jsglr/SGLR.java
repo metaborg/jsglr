@@ -7,25 +7,24 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.io.InvalidClassException;
-import java.io.FileNotFoundException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.FileOutputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Stack;
-import java.util.Vector;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Vector;
 
 import aterm.ATerm;
-import aterm.pure.PureFactory;
 import aterm.pure.ATermImpl;
+import aterm.pure.PureFactory;
 
 public class SGLR {
 
@@ -479,8 +478,8 @@ public class SGLR {
             List<IParseNode> kids = path.getATerms();
 
             if (isDebugging()) {
-                Tools.debug(path);
-                Tools.debug(kids);
+                Tools.debug(" path: ", path);
+                Tools.debug(" kids: ", kids);
             }
 
             Frame st0 = path.getEnd();
@@ -555,6 +554,8 @@ public class SGLR {
                         Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ", ((ParseNode)nl.label).label);
                     }
                 }
+                
+                Tools.debug("CreateAmbCluster - ", tokensSeen - nl.getLength() - 1, "/", nl.getLength());
                 
                 ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
 

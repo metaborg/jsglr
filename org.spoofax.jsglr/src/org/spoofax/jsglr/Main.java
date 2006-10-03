@@ -79,13 +79,14 @@ public class Main {
             ous = new FileOutputStream(output);
         else 
             ous = System.out;
-            
-        ATerm t = sglr.parse(fis);
+
+        try {
+            ATerm t = sglr.parse(fis);
         
-        if(t != null)
             ous.write(t.toString().getBytes());
-        else
-            System.err.println("Parsing failed");
+        } catch(SGLRException e) {
+            System.err.println("Parsing failed : " + e);
+        }
     }
 
     private static void usage() {

@@ -80,9 +80,7 @@ public class AmbiguityManager {
 
     private int getIndex(IParseNode existing, int pos) {
         Integer i = indexTable.get(new AmbKey(existing, pos));
-        if(i == null)
-            return -1;
-        return i.intValue();
+        return i == null ? -1 : i.intValue();
     }
 
     private int increaseMaxAmbiguityCount() {
@@ -143,6 +141,28 @@ public class AmbiguityManager {
 
     public void increaseInjectionFilterSucceededCount() {
         injectionFilterSucceededCount++;
+    }
+
+    public int getEagernessComparisonCount() {
+        return eagernessGreaterCallsCount;
+    }
+
+    public void increaseEagernessFilterCalledCount() {
+        eagernessGreaterCallsCount++;
+        
+    }
+
+    public int getEagernessSucceededCount() {
+        return eagernessFilterSucceededCount;
+    }
+
+    public void increaseInjectionCount() {
+        injectionCallsCount++;
+        
+    }
+
+    public int getInjectionCount() {
+        return injectionCallsCount;
     }
 
 }

@@ -48,4 +48,8 @@ public class Link {
         }
         this.label = null;
     }
+
+    public void addAmbiguity(IParseNode t) {
+        label = new Amb(label, t);
+    }
 }

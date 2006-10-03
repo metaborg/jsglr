@@ -78,4 +78,9 @@ public class Amb extends IParseNode {
             r += n.hashCode();
         return r;
     }
+
+    @Override
+    public String toStringShallow() {
+        return "Amb";
+    }
 }

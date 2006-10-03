@@ -22,7 +22,7 @@ public class ParseProductionNode extends IParseNode {
     }
     @Override
     public String toString() {
-        return "aprod(" + prod + ")";
+        return "" + prod;
     }
     
     public int getProduction() { return prod; }
@@ -40,5 +40,10 @@ public class ParseProductionNode extends IParseNode {
     @Override
     public int hashCode() {
         return 6359 * prod;
+    }
+
+    @Override
+    public String toStringShallow() {
+        return "prod*(" + prod + ")";
     }
 }

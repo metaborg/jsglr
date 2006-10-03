@@ -50,7 +50,7 @@ public class ParseNode extends IParseNode {
 
     @Override
     public String toString() {
-        return "regular(" + label + "," + kids + ")";
+        return "regular(aprod(" + label + ")," + kids + ")";
     }
 
     public int getLabel() { return label; }
@@ -87,5 +87,10 @@ public class ParseNode extends IParseNode {
         for(IParseNode n : kids)
             r += n.hashCode();
         return r;
+    }
+
+    @Override
+    public String toStringShallow() {
+        return "regular*(" + label + ", {" +  kids.size() + "})";
     }
 }

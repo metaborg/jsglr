@@ -30,12 +30,16 @@ public class ParseTable implements Serializable {
     private Label[] labels;
 
     private Priority[] priorities;
+    
+    private Associativity[] associativities;
 
     transient private ATermFactory factory;
 
     transient public AFun applAFun;
 
     transient public AFun ambAFun;
+
+    private Label[] injections;
 
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         parse(pt);
@@ -45,7 +49,7 @@ public class ParseTable implements Serializable {
     public void initAFuns(ATermFactory factory) {
         this.factory = factory;
         applAFun = factory.makeAFun("appl", 2, false);
-        ambAFun = factory.makeAFun("amb", 2, false);
+        ambAFun = factory.makeAFun("amb", 1, false);
     }
 
     public ATermFactory getFactory() {
@@ -66,32 +70,66 @@ public class ParseTable implements Serializable {
         labels = parseLabels(labelsTerm);
         states = parseStates(statesTerm);
         priorities = parsePriorities(prioritiesTerm);
+        associativities = parseAssociativities(prioritiesTerm);
 
+        injections = new Label[labels.length];
+        for(int i=0;i<labels.length;i++)
+            if(labels[i] != null && labels[i].isInjection())
+                injections[i] = labels[i];
+        
         return true;
     }
 
     private Priority[] parsePriorities(ATermAppl prioritiesTerm) throws InvalidParseTableException {
 
         ATermList prods = Term.listAt(prioritiesTerm, 0);
-        Priority[] ret = new Priority[prods.getChildCount()];
-
+        List<Priority> ret = new ArrayList<Priority>();
+        
         for (int i = 0; i < prods.getChildCount(); i++) {
             ATermAppl a = Term.applAt(prods, i);
             int left = Term.intAt(a, 0);
             int right = Term.intAt(a, 1);
             if (a.getName().equals("left-prio")) {
-                ret[i] = new Priority(Priority.LEFT, left, right);
+                // handled by parseAssociativities
             } else if (a.getName().equals("right-prio")) {
-                ret[i] = new Priority(Priority.RIGHT, left, right);
+                // handled by parseAssociativities
             } else if (a.getName().equals("non-assoc")) {
-                ret[i] = new Priority(Priority.NONASSOC, left, right);
+                // handled by parseAssociativities
             } else if (a.getName().equals("gtr-prio")) {
-                ret[i] = new Priority(Priority.GTR, left, right);
+                if(left != right)
+                    ret.add(new Priority(Priority.GTR, left, right));
             } else {
                 throw new InvalidParseTableException("Unknown priority : " + a.getName());
             }
         }
-        return ret;
+        return ret.toArray(new Priority[0]);
+    }
+
+    private Associativity[] parseAssociativities(ATermAppl prioritiesTerm) throws InvalidParseTableException {
+
+        ATermList prods = Term.listAt(prioritiesTerm, 0);
+        List<Associativity> ret = new ArrayList<Associativity>();
+        
+        for (int i = 0; i < prods.getChildCount(); i++) {
+            ATermAppl a = Term.applAt(prods, i);
+            int left = Term.intAt(a, 0);
+            int right = Term.intAt(a, 1);
+            if (a.getName().equals("left-prio")) {
+                if(left == right)
+                    ret.add(new Associativity(Priority.LEFT, left));
+            } else if (a.getName().equals("right-prio")) {
+                if(left == right)
+                    ret.add(new Associativity(Priority.RIGHT, left));
+            } else if (a.getName().equals("non-assoc")) {
+                if(left == right)
+                    ret.add(new Associativity(Priority.NONASSOC, left));
+            } else if (a.getName().equals("gtr-prio")) {
+                // handled by parsePriorities
+            } else {
+                throw new InvalidParseTableException("Unknown priority : " + a.getName());
+            }
+        }
+        return ret.toArray(new Associativity[0]);
     }
 
     private Label[] parseLabels(ATermList labelsTerm) throws InvalidParseTableException {
@@ -112,7 +150,7 @@ public class ParseTable implements Serializable {
 
     private boolean isInjection(ATermAppl prod) {
 
-        List r = prod.match("prod([<term>],cf(<term>),<term>)");
+        List r = prod.match("prod([<term>],cf(sort(<term>)),<term>)");
         if (r != null && r.size() == 1) {
             ATerm x = (ATerm) r.get(0);
             return !(x.match("lit(<str>)") == null);
@@ -272,24 +310,24 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    private int[] parseProductionLabels(ATermList ranges) throws InvalidParseTableException {
-
-        int[] ret = new int[ranges.getChildCount()];
-
-        for (int i = 0; i < ranges.getChildCount(); i++) {
-            ATerm t = Term.termAt(ranges, i);
-            if (Term.isInt(t)) {
-                ret[i] = Term.toInt(t);
-            } else {
-//                else if(Term.isAppl(t) && ((ATermAppl)t).getName().equals("range")) {
-//                int s = Term.intAt(t, 0);
-//                int e = Term.intAt(t, 1);
-                Tools.debug(t);
-                throw new InvalidParseTableException("");
-            }
-        }
-        return ret;
-    }
+//    private int[] parseProductionLabels(ATermList ranges) throws InvalidParseTableException {
+//
+//        int[] ret = new int[ranges.getChildCount()];
+//
+//        for (int i = 0; i < ranges.getChildCount(); i++) {
+//            ATerm t = Term.termAt(ranges, i);
+//            if (Term.isInt(t)) {
+//                ret[i] = Term.toInt(t);
+//            } else {
+////                else if(Term.isAppl(t) && ((ATermAppl)t).getName().equals("range")) {
+////                int s = Term.intAt(t, 0);
+////                int e = Term.intAt(t, 1);
+//                Tools.debug(t);
+//                throw new InvalidParseTableException("");
+//            }
+//        }
+//        return ret;
+//    }
 
     private Range[] parseRanges(ATermList ranges) throws InvalidParseTableException {
 
@@ -383,10 +421,7 @@ public class ParseTable implements Serializable {
     }
 
     public boolean hasPriorities() {
-        if (priorities.length > 0) {
-            return true;
-        }
-        return false;
+        return priorities.length > 0 || associativities.length > 0;
     }
 
     public boolean hasPrefers() {
@@ -421,14 +456,14 @@ public class ParseTable implements Serializable {
     public List<Label> getPriorities(Label prodLabel) {
         List<Label> ret = new ArrayList<Label>();
         for (Priority p : priorities) {
-            if (p.left == prodLabel.labelNumber) {
+            if (p.left == prodLabel.labelNumber && p.type == Priority.GTR) {
                 ret.add(labels[p.right]);
             }
         }
         return ret;
     }
 
-    public Object lookupInjection(int prod) {
-        throw new NotImplementedException();
+    public Label lookupInjection(int prod) {
+        return injections[prod];
     }
 }

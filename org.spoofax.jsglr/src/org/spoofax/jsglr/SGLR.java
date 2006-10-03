@@ -83,6 +83,11 @@ public class SGLR {
 
     private boolean injectionCountFilter;
 
+    private int rejectCount;
+    
+    private int reductionCount;
+    
+
     SGLR() {
         basicInit(null);
     }
@@ -254,7 +259,7 @@ public class SGLR {
         return st0;
     }
 
-    public ATerm parse(InputStream fis) throws IOException {
+    public ATerm parse(InputStream fis) throws IOException, SGLRException {
 
         if (isDebugging()) {
             Tools.debug("parse() - ", dumpActiveStacks());
@@ -311,20 +316,19 @@ public class SGLR {
 
         Link s = acceptingStack.findLink(st0);
 
-        if (s != null) {
-        	if(isDebugging()) {
-        		Tools.debug("internal parse tree:\n", s.label);
-        	}
-            return postFilter.parseResult(s.label, null, tokensSeen);
-        } else {
-            if(SGLR.isDebugging()) {
-                Tools.debug("Accepting stack has no link");
-            }
-            return null;
+        if(s == null)
+            throw new ParseException("Accepting stack has no link");
+        
+        if(isDebugging()) {
+            Tools.debug("internal parse tree:\n", s.label);
         }
+        
+        return postFilter.applyFilters(s.label, null, tokensSeen);
+        
     }
 
     private static boolean doBootstrap = false; //todo managed
+    
     public void bootstrapTemporaryObjectsOnce() {
         if(doBootstrap) {
             //todo managed
@@ -530,6 +534,8 @@ public class SGLR {
             Tools.debug(" production : ", prod.label);
         }
 
+        increaseReductionCount();
+        
         IParseNode t = prod.apply(kids);
 
         Frame st1 = findStack(activeStacks, s);
@@ -549,6 +555,7 @@ public class SGLR {
                     Tools.logger("Reject [new]");
                 }
                 nl.reject();
+                increaseRejectCount();
             }
         } else {
             /* A stack with state s exists; check for ambiguities */
@@ -567,7 +574,12 @@ public class SGLR {
                     Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/", nl.getLength());
                 }
                 
+                
+                //new Amb(nl.label, t);
+                //nl.addAmbiguity(t);
+                
                 ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
+                
 
                 if (prod.isReject()) {
                     nl.reject();
@@ -603,6 +615,18 @@ public class SGLR {
                 }
             }
         }
+    }
+
+    private void increaseReductionCount() {
+        reductionCount++;
+    }
+
+    protected void increaseRejectCount() {
+        rejectCount++;
+    }
+    
+    protected int getRejectCount() {
+        return rejectCount;
     }
 
     private Frame findStack(List<Frame> stacks, State s) {
@@ -811,5 +835,13 @@ public class SGLR {
 
     public boolean isInjectionCountFilterEnabled() {
         return filter && injectionCountFilter;
+    }
+
+    public int getReductionCount() {
+        return reductionCount;
+    }
+    
+    public int getRejectionCount() {
+        return rejectCount;
     }
 }

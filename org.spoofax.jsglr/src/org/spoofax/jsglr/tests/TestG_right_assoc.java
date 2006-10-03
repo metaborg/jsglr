@@ -21,7 +21,7 @@ public class TestG_right_assoc extends ParseTestCase {
     }
 
 
-    public void testG_reject_2_1() throws FileNotFoundException, IOException {
+    public void testG_right_assoc_1() throws FileNotFoundException, IOException {
         doParseTest("g-right-assoc-1");
     }
 }

@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.spoofax.jsglr.ParserException;
 import org.spoofax.jsglr.InvalidParseTableException;
 import org.spoofax.jsglr.SGLR;
+import org.spoofax.jsglr.SGLRException;
 import org.spoofax.jsglr.Tools;
 
 import aterm.ATerm;
@@ -47,11 +48,16 @@ public abstract class ParseTestCase extends TestCase {
     public void doParseTest(String s) throws FileNotFoundException, IOException {
         Tools.setOutput("tests/jsglr-full-trace-" + s);
 
-        SGLR.forceGC();
+        //SGLR.forceGC();
         sglr.bootstrapTemporaryObjectsOnce();
 
         long parseTime = System.nanoTime();
-        ATerm parsed = sglr.parse(new FileInputStream("tests/data/" + s + "." + suffix));
+        ATerm parsed = null;
+        try {
+             parsed = sglr.parse(new FileInputStream("tests/data/" + s + "." + suffix));
+        } catch(SGLRException e) {
+            e.printStackTrace();
+        }
         parseTime = System.nanoTime() - parseTime;
         Tools.logger("Parsing ", s, " took " + parseTime/1000/1000, " millis.");
         System.out.println("Parsing " + s + " took " + parseTime/1000/1000 + " millis.");
@@ -67,6 +73,8 @@ public abstract class ParseTestCase extends TestCase {
                 PrintWriter printWriter = new PrintWriter(new FileOutputStream("tests/data/" + s + ".trm.parsed"));
                 printWriter.print(parsed.toString());
                 printWriter.flush();
+                System.err.println("Saw    : " + parsed);
+                System.err.println("Wanted : " + loaded);
                 assertTrue(false);
             }
         }

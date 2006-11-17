@@ -9,6 +9,8 @@ package org.spoofax.jsglr;
 
 public class ParseException extends SGLRException {
 
+    private static final long serialVersionUID = -7341039998837389710L;
+
     public ParseException(String string) {
         // TODO Auto-generated constructor stub
     }

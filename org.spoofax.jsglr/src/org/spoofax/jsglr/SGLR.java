@@ -575,10 +575,10 @@ public class SGLR {
                 }
                 
                 
-                //new Amb(nl.label, t);
-                //nl.addAmbiguity(t);
+                new Amb(nl.label, t);
+                nl.addAmbiguity(t);
                 
-                ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
+                //ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
                 
 
                 if (prod.isReject()) {

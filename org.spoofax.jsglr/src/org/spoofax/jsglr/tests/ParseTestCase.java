@@ -35,6 +35,7 @@ public abstract class ParseTestCase extends TestCase {
         this.suffix = suffix;
 
         sglr = new SGLR(pf, "tests/grammars/" + grammar + ".tbl");
+        sglr.setDebug(true);
     }
 
     protected void tearDown()

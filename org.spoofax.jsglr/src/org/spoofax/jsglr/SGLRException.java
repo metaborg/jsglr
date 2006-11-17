@@ -9,4 +9,6 @@ package org.spoofax.jsglr;
 
 public class SGLRException extends Exception {
 
+    private static final long serialVersionUID = -8467572969588110480L;
+
 }

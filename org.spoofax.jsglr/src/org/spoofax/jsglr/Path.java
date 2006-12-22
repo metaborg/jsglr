@@ -38,7 +38,9 @@ public class Path /*todo managed extends RealtimeObject*/ {
     }
 */
     public static Path valueOf(Path parent, IParseNode label, Frame frame, int length) {
-        Path _this = new Path(parent, label, frame, length);//(Path)FACTORY.object(); //todo managed
+        Path _this = new Path(parent, label, frame, length);
+        
+        //(Path)FACTORY.object(); //todo managed
 /*
         _this.parent = parent;
         _this.label = label;
@@ -86,7 +88,7 @@ public class Path /*todo managed extends RealtimeObject*/ {
             return length;
         }
         else {
-            return length + parent.getLength();
+            return length; //+ parent.getLength();
         }
     }
 

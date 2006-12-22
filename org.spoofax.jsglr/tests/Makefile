@@ -1,40 +1,28 @@
-SFILES = \
-        trace-diff-s0 \
-	trace-diff-s1 \
-	trace-diff-s2 \
-	trace-diff-s3 \
-	trace-diff-s4
 
-BFILES = \
-        trace-diff-b0 \
-	trace-diff-b1 \
-	trace-diff-b2 \
-	trace-diff-b3 \
-	trace-diff-b4 \
-	trace-diff-b5 \
-	trace-diff-b6
+STR_FILES = $(wildcard data/s*.str)
+SGLR_TRACES = $(patsubst data/%.str,sglr-trace-%.txt,$(STR_FILES))
+JSGLR_TRACES = $(patsubst data/%.str,jsglr-trace-%.txt,$(STR_FILES))
+TESTS = $(patsubst data/%.str,trace-diff-%.txt,$(STR_FILES))
 
-all: $(SFILES) $(BFILES)
+SGLR=../../../sglr/sglr-2.1M1/sglr/sglr/sglr
 
-sglr-full-trace-s% : data/s%.str
-	sglr -tvd -p grammars/Stratego.tbl -i $<
-	cp .sglr-log $@
+all: $(TESTS) $(SGLR_TRACES) $(JSGLR_TRACES)
 
-sglr-full-trace-b% : data/b%.txt
-	sglr -tvd -p grammars/Booleans.tbl -i $<
-	cp .sglr-log $@
+sglr-only: $(SGLR_TRACES)
 
-sglr-trace-% : sglr-full-trace-%
-	grep Goto $< > $@
+sglr-trace-%.txt : data/%.str
+	$(SGLR) -2 -fa -fd -fe -fi -fp -fr -t -lvd -p grammars/Stratego.tbl -i $<
+	cat .sglr-log | egrep "^(Goto|Reducing|\#|Current|nl|Amb)" > $@
 
-jsglr-trace-% : jsglr-full-trace-%
-	grep Goto $< > $@
+jsglr-trace-%.txt : data/%.str
+	../jsglr -v -p grammars/Stratego.tbl -i $<
+	cat .jsglr-log | egrep "^(Goto|Reducing|\#|Current|nl|Amb)" > $@
 
-trace-diff-% : sglr-trace-% jsglr-trace-%
+trace-diff-%.txt : sglr-trace-%.txt jsglr-trace-%.txt
 	-diff $^ > $@
 
 clean:
 	rm -f sglr-trace-* jsglr-trace-* trace-diff-*
 
 fullclean : clean
-	rm -f sglr*full* jsglr*full*
+	rm -f sglr*trace* jsglr*trace*

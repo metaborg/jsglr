@@ -7,23 +7,15 @@
  */
 package org.spoofax.jsglr;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Vector;
 
 import aterm.ATerm;
-import aterm.pure.ATermImpl;
+import aterm.ATermFactory;
 import aterm.pure.PureFactory;
 
 public class SGLR {
@@ -31,7 +23,7 @@ public class SGLR {
     // FIXME: Should probably be put elsewhere
     private static final int EOF = 256;
 
-    private PureFactory factory;
+    private ATermFactory factory;
 
     private Frame acceptingStack;
 
@@ -63,17 +55,13 @@ public class SGLR {
 
     private int maxTokenNumber;
 
-    private static boolean debugging;
-
-    private boolean logging;
-
     private AmbiguityManager ambiguityManager;
 
     private boolean detectCycles;
 
     private boolean filter;
 
-    private PostFilter postFilter;
+    private Disambiguator postFilter;
 
     private boolean rejectFilter;
 
@@ -84,88 +72,23 @@ public class SGLR {
     private boolean injectionCountFilter;
 
     private int rejectCount;
-    
+
     private int reductionCount;
-    
 
     SGLR() {
         basicInit(null);
     }
 
-    public SGLR(InputStream is) throws IOException, InvalidParseTableException {
-        basicInit(null);
-        loadParseTable(is);
-    }
-
-    public SGLR(PureFactory pf, InputStream is) throws IOException, InvalidParseTableException {
-        basicInit(pf);
-        loadParseTable(is);
-    }
-
-    static final Map<String, ParseTable> parseTables = new HashMap<String, ParseTable>();
-
-    public SGLR(final PureFactory pf, String parseTableFileName) throws IOException, InvalidParseTableException {
+    public SGLR(final ATermFactory pf, ParseTable parseTable) throws IOException,
+            InvalidParseTableException {
 
         assert factory == null;
         assert parseTable == null;
 
-        // Try to get cached
-        parseTable = parseTables.get(parseTableFileName);
-        if(parseTable != null) {
+        // Init with a new factory for both serialized or BAF instances.
+        basicInit(pf);
 
-            basicInit((PureFactory)parseTable.getFactory());
-
-        } else {
-
-            // Init with a new factory for both serialized or BAF instances.
-            basicInit(pf);
-
-            // Try to load from serialized form
-            boolean tableWasPersisted = false;
-            try {
-                final FileInputStream in = new FileInputStream(parseTableFileName + ".bin");
-                ObjectInputStream reader = new ObjectInputStream(in);
-
-                // todo: find a better solution to make the current factory available to the various readResolve()
-                ATermImpl.the_factory = getFactory();
-                parseTable = (ParseTable)reader.readObject();
-                in.close();
-                reader.close();
-                forceGC();
-                parseTable.initAFuns(getFactory());
-
-                tableWasPersisted = true;
-            }
-            catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            catch (InvalidClassException e) {
-                // ... some problem loading; load from TBL file
-                loadParseTable(new FileInputStream(parseTableFileName));
-
-            } catch (FileNotFoundException e) {
-                // ... not present or some other problem loading; load from TBL file
-                loadParseTable(new FileInputStream(parseTableFileName));
-            }
-
-            // Cache
-            parseTables.put(parseTableFileName, parseTable);
-
-            // If not serialized then save it in this form
-            if(!tableWasPersisted) {
-                try {
-                    final FileOutputStream out = new FileOutputStream(parseTableFileName + ".bin");
-                    ObjectOutputStream writer = new ObjectOutputStream(out);
-                    writer.writeObject(parseTable);
-
-                    writer.close();
-                    out.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        this.parseTable = parseTable;
 
     }
 
@@ -178,11 +101,9 @@ public class SGLR {
         }
     }
 
-    private void basicInit(PureFactory pf) {
-        debugging = false;
+    private void basicInit(ATermFactory factory) {
         detectCycles = true;
-        logging = false;
-        factory = pf;
+        this.factory = factory;
         if (factory == null)
             factory = new PureFactory();
         activeStacks = new Vector<Frame>();
@@ -193,73 +114,41 @@ public class SGLR {
 
         // FIXME This is *wrong*
         ambiguityManager = new AmbiguityManager(10000);
-        
-        // FIXME filter flags should probably be moved to PostFilter class 
+
+        // FIXME filter flags should probably be moved to PostFilter class
         filter = true;
         rejectFilter = true;
         injectionCountFilter = true;
         priorityFilter = true;
         associtivityFilter = true;
-        
-        postFilter = new PostFilter(this);
+
+        postFilter = new Disambiguator(this);
     }
 
     public static boolean isDebugging() {
-        return debugging;
+        return Tools.debugging;
     }
 
-    public boolean isLogging() {
-        return logging;
-    }
-
-    public void setLogging(boolean enableLogging) {
-        logging = enableLogging;
-        Tools.setOutput(".jsglr-log");
-    }
-
-    public void setDebug(boolean enableDebug) {
-        debugging = enableDebug;
-    }
-
-    public void loadParseTable(InputStream r) throws IOException, InvalidParseTableException {
-        if(isDebugging()) {
-        	Tools.debug("loadParseTable()");
-        }
-        long start = System.currentTimeMillis();
-        ATerm pt = factory.readFromFile(r);
-
-        parseTable = new ParseTable(pt);
-        long elapsed = System.currentTimeMillis() - start;
-
-        if (isLogging()) {
-            Tools.logger("Loading parse table took " + elapsed/1000.0f + "s");
-            Tools.logger("No. of states: ", parseTable.getStateCount());
-            Tools.logger("No. of productions: ", parseTable.getProductionCount());
-            Tools.logger("No. of action entries: ", parseTable.getActionCount());
-            Tools.logger("No. of gotos entries: ", parseTable.getGotoCount());
-
-            Tools.logger((parseTable.hasRejects() ? "Includes" : "Excludes"), " rejects");
-            Tools.logger((parseTable.hasPriorities() ? "Includes" : "Excludes"), " priorities");
-            Tools.logger((parseTable.hasPrefers() ? "Includes" : "Excludes"), " prefer actions");
-            Tools.logger((parseTable.hasAvoids() ? "Includes" : "Excludes"), " avoid actions");
-        }
+    public static boolean isLogging() {
+        return Tools.logging;
     }
 
     /**
      * Initializes the active stacks. At the start of parsing there is only one
      * active stack, and this stack contains the start symbol obtained from the
      * parse table.
-     *
+     * 
      * @return the initial stack
      */
     private Frame initActiveStacks() {
         activeStacks.clear();
-        Frame st0 = new Frame(parseTable.getInitialState());
-        activeStacks.add(st0);
+        Frame st0 = newStack(parseTable.getInitialState());
+        addStack(st0);
         return st0;
     }
 
     public ATerm parse(InputStream fis) throws IOException, SGLRException {
+        TRACE("SG_Parse() - ");
 
         if (isDebugging()) {
             Tools.debug("parse() - ", dumpActiveStacks());
@@ -274,8 +163,6 @@ public class SGLR {
         acceptingStack = null;
         Frame st0 = initActiveStacks();
 
-        bootstrapTemporaryObjectsOnce();
-
         do {
             if (isLogging()) {
                 Tools.logger("Current token (#", tokensSeen, "): ", charify(currentToken));
@@ -283,13 +170,8 @@ public class SGLR {
 
             currentToken = getNextToken(fis);
 
-            //PoolContext.enter(); //todo managed
-            //Path.FACTORY.attach(PoolContext.current());  //todo managed
-
             parseCharacter();
             shifter();
-
-            //PoolContext.exit(); //todo managed
 
         } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
 
@@ -300,53 +182,37 @@ public class SGLR {
                          " (token #", maxTokenNumber, ")");
 
             long elapsed = System.currentTimeMillis() - start;
-            Tools.logger("Parse time: " + elapsed/1000.0f + "s");
+            Tools.logger("Parse time: " + elapsed / 1000.0f + "s");
         }
 
-        if(isDebugging()) {
+        if (isDebugging()) {
             Tools.debug("Parsing complete: all tokens read");
         }
 
         if (acceptingStack == null)
             return null;
 
-        if(isDebugging()) {
+        if (isDebugging()) {
             Tools.debug("Accepting stack exists");
         }
 
-        Link s = acceptingStack.findLink(st0);
+        Link s = acceptingStack.findDirectLink(st0);
 
-        if(s == null)
+        if (s == null)
             throw new ParseException("Accepting stack has no link");
-        
-        if(isDebugging()) {
+
+        if (isDebugging()) {
             Tools.debug("internal parse tree:\n", s.label);
         }
-        
-        return postFilter.applyFilters(s.label, null, tokensSeen);
-        
-    }
 
-    private static boolean doBootstrap = false; //todo managed
-    
-    public void bootstrapTemporaryObjectsOnce() {
-        if(doBootstrap) {
-            //todo managed
-//            PoolContext.enter();
-//
-//            Path.FACTORY.attach(PoolContext.current());
-//
-//            for(int i = 0; i < 500000; i++) {
-//                Path.FACTORY.object();
-//            }
-//            PoolContext.exit();
-//            doBootstrap = false;
-//
-//            Path.logNewInstanceCreation = true;
-        }
+        return postFilter.applyFilters(s.label, null, tokensSeen);
+
     }
 
     private void shifter() {
+        TRACE("SG_Shifter() - ");
+        TRACE_ActiveStacks();
+        
         if (isLogging()) {
             Tools.logger("#", tokensSeen, ": shifting ", forShifter.size(), " parser(s) -- token ",
                          charify(currentToken), ", line ", lineNumber, ", column ", columnNumber);
@@ -365,14 +231,27 @@ public class SGLR {
         while (forShifter.size() > 0) {
             ActionState as = forShifter.remove();
 
-            Frame st1 = findStack(activeStacks, as.s);
-            if (st1 == null) {
-                st1 = new Frame(as.s);
-                activeStacks.add(st1);
+            if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {
+                Frame st1 = findStack(activeStacks, as.s);
+                if (st1 == null) {
+                    st1 = newStack(as.s);
+                    addStack(st1);
+                }
+                st1.addLink(as.st, prod, 1);
+            } else {
+                if (isLogging()) {
+                    Tools.logger("Shifter: skipping rejected stack with state ",
+                                 as.st.state.stateNumber);
+                }
             }
-            st1.addLink(as.st, prod, 1);
         }
+        TRACE("SG_DiscardShiftPairs() - ");
+        TRACE_ActiveStacks();
+    }
 
+    private void addStack(Frame st1) {
+        TRACE("SG_AddStack() - ");
+        activeStacks.add(st1);
     }
 
     private String charify(int currentToken) {
@@ -391,20 +270,21 @@ public class SGLR {
     }
 
     private void parseCharacter() {
+        TRACE("SG_ParseToken() - ");
 
         if (isDebugging()) {
             Tools.debug("parseCharacter() - " + dumpActiveStacks());
             Tools.debug(" # active stacks : " + activeStacks.size());
         }
 
-        /*forActor = */computeStackOfStacks(activeStacks);
+        /* forActor = */computeStackOfStacks(activeStacks);
 
         if (isDebugging()) {
             Tools.debug(" # for actor     : " + forActor.size());
         }
 
-        clearForActorDelayed(false); //todo: use true?
-        clearForShifter(false); //todo: use true?
+        clearForActorDelayed(false); // todo: use true?
+        clearForShifter(false); // todo: use true?
 
         while (forActor.size() > 0 || forActorDelayed.size() > 0) {
             if (forActor.size() == 0) {
@@ -420,7 +300,9 @@ public class SGLR {
     }
 
     private void actor(Frame st) {
-
+        TRACE("SG_Actor() - " + st.state.stateNumber);
+        TRACE_ActiveStacks();
+        
         if (isDebugging()) {
             Tools.debug("actor() - ", dumpActiveStacks());
         }
@@ -441,18 +323,27 @@ public class SGLR {
         for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
                 Shift sh = (Shift) ai;
-                forShifter.add(new ActionState(st, parseTable.getState(sh.nextState)));
+                addShiftPair(new ActionState(st, parseTable.getState(sh.nextState)));
                 statsRecordParsers();
             } else if (ai instanceof Reduce) {
                 Reduce red = (Reduce) ai;
                 doReductions(st, red.production);
             } else if (ai instanceof Accept) {
-                acceptingStack = st;
-                if (isLogging()) {
-                    Tools.logger("Reached the accept state");
+                if (!st.allLinksRejected()) {
+                    acceptingStack = st;
+                    if (isLogging()) {
+                        Tools.logger("Reached the accept state");
+                    }
                 }
+            } else {
+                throw new NotImplementedException();
             }
         }
+    }
+
+    private void addShiftPair(ActionState state) {
+        TRACE("SG_AddShiftPair() - " + state.s.stateNumber);
+        forShifter.add(state);
     }
 
     private void statsRecordParsers() {
@@ -466,6 +357,7 @@ public class SGLR {
     }
 
     private void doReductions(Frame st, Production prod) {
+        TRACE("SG_DoReductions() - " + st.state.stateNumber);
 
         if (isDebugging()) {
             Tools.debug("doReductions() - " + dumpActiveStacks());
@@ -477,7 +369,7 @@ public class SGLR {
             Tools.debug(" stack : " + st.dumpStack());
         }
 
-        List<Path> paths = st.computePathsToRoot(prod.arity);
+        List<Path> paths = st.findAllPaths(prod.arity);
 
         final int pathsCount = paths.size();
         if (isDebugging()) {
@@ -510,16 +402,21 @@ public class SGLR {
             reducer(st0, next, prod, kids, path.getLength());
         }
 
-        activeStacks.remove(st);
-
-        paths.clear();
+        clearPath(paths);
 
         if (isDebugging()) {
             Tools.debug("<doReductions() - " + dumpActiveStacks());
         }
     }
 
+    private void clearPath(List<Path> paths) {
+        SGLR.TRACE("SG_ClearPath() - ");
+        paths.clear();
+    }
+
     private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, int length) {
+        TRACE("SG_Reducer() - " + s.stateNumber + ", " + length + ", " + prod.label);
+        TRACE_ActiveStacks();
 
         if (isLogging()) {
             Tools.logger("Reducing; state ", s.stateNumber, ", token: ", charify(currentToken),
@@ -535,20 +432,23 @@ public class SGLR {
         }
 
         increaseReductionCount();
-        
+
         IParseNode t = prod.apply(kids);
 
         Frame st1 = findStack(activeStacks, s);
         if (st1 == null) {
             /* Found no existing stack with for state s; make new stack */
-            st1 = new Frame(s);
+            st1 = newStack(s);
             Link nl = st1.addLink(st0, t, length);
-            activeStacks.add(st1);
-            if (st1.peek().rejectable()) {
-                forActorDelayed.add(st1);
-            } else {
-                forActor.add(st1);
-            }
+            addStack(st1);
+            TRACE("SG_AddStack() - ");
+            forActorDelayed.add(st1);
+
+            //if (st1.peek().rejectable()) {
+//            } else {
+//                TRACE("SG_AddStack() - ");
+//                forActor.add(st1);
+//            }
 
             if (prod.status == Production.REJECT) {
                 if (isLogging()) {
@@ -559,27 +459,24 @@ public class SGLR {
             }
         } else {
             /* A stack with state s exists; check for ambiguities */
-            Link nl = st1.findLink(st0);
+            Link nl = st1.findDirectLink(st0);
 
             if (nl != null) {
                 if (isLogging()) {
                     Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
                                  st1.state.stateNumber, " ", (prod.isReject() ? "{reject}" : ""));
-                    if(nl.label instanceof ParseNode) {
-                        Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ", ((ParseNode)nl.label).label);
+                    if (nl.label instanceof ParseNode) {
+                        Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ",
+                                     ((ParseNode) nl.label).label);
                     }
                 }
-                
-                if(isDebugging()) {
-                    Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/", nl.getLength());
+
+                if (isDebugging()) {
+                    Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/",
+                                nl.getLength());
                 }
-                
-                
-                new Amb(nl.label, t);
+
                 nl.addAmbiguity(t);
-                
-                //ambiguityManager.createAmbiguityCluster(nl.label, t, tokensSeen - nl.getLength() - 1);
-                
 
                 if (prod.isReject()) {
                     nl.reject();
@@ -595,26 +492,48 @@ public class SGLR {
                 if (prod.isReject())
                     nl.reject();
 
+                TRACE_ActiveStacks();
+
+                
                 // Note: ActiveStacks can be modified inside doLimitedReductions
-                for (int i = 0; i< activeStacks.size(); i++) {
-                    Frame st2 = activeStacks.get(i);
-                    if (st2.allLinksRejected())
-                        continue;
-                    if (forActor.contains(st2))
-                        continue;
-                    if (forActorDelayed.contains(st2))
+                for (int i = 0; i < activeStacks.size(); i++) {
+                    TRACE("SG_ activeStack - ");
+                    int p = activeStacks.size() - i - 1;
+                    Frame st2 = activeStacks.get(p);
+                    boolean b0 = st2.allLinksRejected();
+                    boolean b1 = inReduceStacks(forActor, st2);
+                    boolean b2 = inReduceStacks(forActorDelayed, st2);
+                    if (b0 || b1 || b2)
                         continue;
 
                     for (ActionItem ai : st2.peek().getActionItems(currentToken)) {
                         if (ai instanceof Reduce) {
                             Reduce red = (Reduce) ai;
                             doLimitedReductions(st2, red.production, nl);
+                            TRACE("SG_ - back in reducer ");
+                            TRACE_ActiveStacks();
                         }
                     }
 
                 }
             }
         }
+        TRACE_ActiveStacks();
+        TRACE("SG_ - reducer done");
+    }
+
+    private void TRACE_ActiveStacks() {
+        TRACE("SG_ - active stacks: " + activeStacks.size());
+    }
+
+    private boolean inReduceStacks(Queue<Frame> q, Frame frame) {
+        SGLR.TRACE("SG_InReduceStacks() - " + frame.state.stateNumber);
+        return q.contains(frame);
+    }
+
+    private Frame newStack(State s) {
+        TRACE("SG_NewStack() - " + s.stateNumber);
+        return new Frame(s);
     }
 
     private void increaseReductionCount() {
@@ -624,12 +543,14 @@ public class SGLR {
     protected void increaseRejectCount() {
         rejectCount++;
     }
-    
+
     protected int getRejectCount() {
         return rejectCount;
     }
 
     private Frame findStack(List<Frame> stacks, State s) {
+        TRACE("SG_FindStack() - " + s.stateNumber);
+
         // We need only check the top frames of the active stacks.
         if (isDebugging()) {
             Tools.debug("findStack() - ", dumpActiveStacks());
@@ -639,13 +560,17 @@ public class SGLR {
         final int size = stacks.size();
         for (int i = 0; i < size; i++) {
             if (stacks.get(i).state.stateNumber == s.stateNumber) {
+                System.err.println("SG_ - found stack");
                 return stacks.get(i);
             }
         }
+        System.err.println("SG_ - stack not found");
         return null;
     }
 
     private void doLimitedReductions(Frame st, Production prod, Link l) {
+        TRACE("SG_DoLimitedReductions() - " + st.state.stateNumber);
+
         if (isDebugging()) {
             Tools.debug("doLimitedReductions() - ", dumpActiveStacks());
 
@@ -656,7 +581,7 @@ public class SGLR {
             Tools.debug(" stack : ", st.dumpStack());
         }
 
-        List<Path> paths = st.computePathsToRoot(prod.arity, l);
+        List<Path> paths = st.findLimitedPaths(prod.arity, l);
 
         if (isDebugging()) {
             Tools.debug(paths);
@@ -686,10 +611,10 @@ public class SGLR {
 
             reducer(st0, next, prod, kids, path.getLength());
         }
-        paths.clear();
+        clearPath(paths);
     }
 
-    private /*Stack<Frame> */void computeStackOfStacks(List<Frame> st) {
+    private/* Stack<Frame> */void computeStackOfStacks(List<Frame> st) {
         clearForActor(false);
         Queue<Frame> ret = forActor;
         final int size = st.size();
@@ -699,21 +624,23 @@ public class SGLR {
     }
 
     private int getNextToken(InputStream fis) throws IOException {
+        TRACE("SG_NextToken() - ");
+
         int t = fis.read();
 
         tokensSeen++;
 
         if (isDebugging()) {
-            Tools.debug("getNextToken() - ", t);
+            Tools.debug("getNextToken() - ", t, "(", (char) t, ")");
         }
 
-        switch(t) {
+        switch (t) {
         case '\n':
             lineNumber++;
             columnNumber = 0;
             break;
         case '\t':
-            columnNumber = (columnNumber / 8 + 1 ) * 8;
+            columnNumber = (columnNumber / 8 + 1) * 8;
             break;
         case -1:
             return SGLR.EOF;
@@ -722,6 +649,13 @@ public class SGLR {
         }
 
         return t;
+    }
+
+    static int num = 0;
+
+    static void TRACE(String string) {
+        System.err.println("[" + num + "] " + string);
+        num++;
     }
 
     private String dumpActiveStacks() {
@@ -754,7 +688,7 @@ public class SGLR {
     }
 
     public void clear() {
-        if(this.acceptingStack != null) {
+        if (this.acceptingStack != null) {
             this.acceptingStack.clear();
         }
 
@@ -765,7 +699,7 @@ public class SGLR {
 
         this.parseTable = null;
         this.factory = null;
-        this.ambiguityManager = null; //todo clear
+        this.ambiguityManager = null; // todo clear
     }
 
     private void clearForShifter(boolean all) {
@@ -778,8 +712,8 @@ public class SGLR {
     }
 
     private void clearForActor(boolean all) {
-        if(all) {
-            for(Frame frame : forActor) {
+        if (all) {
+            for (Frame frame : forActor) {
                 frame.clear();
             }
         }
@@ -788,7 +722,7 @@ public class SGLR {
 
     private void clearForActorDelayed(boolean all) {
         if (all) {
-            for(Frame frame : forActorDelayed) {
+            for (Frame frame : forActorDelayed) {
                 frame.clear();
             }
         }
@@ -829,7 +763,7 @@ public class SGLR {
         return filter && priorityFilter;
     }
 
-    public PureFactory getFactory() {
+    public ATermFactory getFactory() {
         return factory;
     }
 
@@ -840,7 +774,7 @@ public class SGLR {
     public int getReductionCount() {
         return reductionCount;
     }
-    
+
     public int getRejectionCount() {
         return rejectCount;
     }

@@ -7,10 +7,9 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Vector;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Frame implements Serializable {
 
@@ -32,7 +31,8 @@ public class Frame implements Serializable {
     }
 
     public boolean allLinksRejected() {
-
+        SGLR.TRACE("SG_Rejected() - " + state.stateNumber);
+        
         if (stepsCount == 0)
             return false;
 
@@ -48,25 +48,26 @@ public class Frame implements Serializable {
         return state;
     }
 
-    public List<Path> computePathsToRoot(int arity) {
-
-        List<Path> ret = new Vector<Path>();
-        doComputePathsToRoot(ret, null, arity);
-        Collections.reverse(ret);
+    public List<Path> findAllPaths(int arity) {
+        LinkedList<Path> ret = new LinkedList<Path>();
+        doComputePathsToRoot(ret, null, arity, 0);
+        System.err.println("SG_ " + ret);
         return ret;
     }
 
-    private void doComputePathsToRoot(List<Path> collect, Path node, int arity) {
+    private void doComputePathsToRoot(LinkedList<Path> collect, Path node, int arity, int length) {
+        SGLR.TRACE("SG_FindAllPaths() - " + arity + ", " + length);
 
         if (arity == 0) {
-            Path n = Path.valueOf(node, null, this, 0);
-            collect.add(n);
+            Path n = Path.valueOf(node, null, this, length);
+            SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + n.length);
+            collect.addFirst(n);
         } else { 
             for (int i = 0; i < stepsCount; i++) {
-                Link ln = steps[i];
+                Link ln = steps[stepsCount - i - 1];
                 
                 Path n = Path.valueOf(node, ln.label, this, ln.getLength());
-                ln.parent.doComputePathsToRoot(collect, n, arity - 1);
+                ln.parent.doComputePathsToRoot(collect, n, arity - 1, length + ln.getLength());
             }
         }
     }
@@ -79,8 +80,10 @@ public class Frame implements Serializable {
         return steps[0].parent.getRoot();
     }
 
-    public Link findLink(Frame st0) {
+    public Link findDirectLink(Frame st0) {
 
+        SGLR.TRACE("SG_FindDirectLink() - [" + state.stateNumber + ", " + st0.state.stateNumber + "]");
+        
         for (int i = 0; i < stepsCount; i++) {
             if (steps[i].parent == st0)
                 return steps[i];
@@ -89,6 +92,7 @@ public class Frame implements Serializable {
     }
 
     public Link addLink(Frame st0, IParseNode n, int length) {
+        SGLR.TRACE("SG_AddLink() - " + state.stateNumber + ", " + st0.state.stateNumber + ", " + length);
         return steps[stepsCount++] = new Link(st0, n, length); 
     }
 
@@ -157,40 +161,41 @@ public class Frame implements Serializable {
         return sb.toString();
     }
 
-//    public List<Frame> computeFramesAtDepth(int depth) {
-//        List<Frame> frames = new LinkedList<Frame>();
-//
-//        if (depth == 0) {
-//            frames.add(this);
-//        } else {
-//            for (Link s : steps) {
-//                Frame st = s.parent;
-//                frames.addAll(st.computeFramesAtDepth(depth - 1));
-//            }
-//        }
-//        return frames;
-//    }
-
-    public List<Path> computePathsToRoot(int arity, Link l) {
-
-        List<Path> ret = new Vector<Path>();
-        doComputePathsToRoot(ret, null, l, false, arity);
-        Collections.reverse(ret);
+    public List<Path> findLimitedPaths(int arity, Link l) {
+        SGLR.TRACE("SG_FindLimitedPaths() - " + arity + ", " + l.getLength());
+        LinkedList<Path> ret = new LinkedList<Path>();
+        if(findLink(arity, l)) { 
+            doComputePathsToRoot(ret, null, l, false, arity, 0);
+        } 
         return ret;
     }
 
-    private void doComputePathsToRoot(List<Path> collect, Path node, Link l,
-      boolean seen, int arity) {
+    private boolean findLink(int arity, Link l0) {
+        SGLR.TRACE("SG_FindLink() - " + arity);
+        if(arity > 0) {
+            for(int i = 0; i < stepsCount; i++) {
+                Link l1 = steps[i];
+                if(l0 == l1 || l1.parent.findLink(arity - 1, l0))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private void doComputePathsToRoot(LinkedList<Path> collect, Path node, Link l,
+      boolean seen, int arity, int length) {
+        SGLR.TRACE("SG_FindPaths() - " + arity);
 
         if (arity == 0 && seen) {
-            Path n = Path.valueOf(node, null, this, 0);
-            collect.add(n);
-        } else {
+            Path n = Path.valueOf(node, null, this, length);
+            SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + n.length);
+            collect.addFirst(n);
+        } else if(arity > 0) {
             for (int i = 0; i < stepsCount; i++) {
                 Link ln = steps[i];
                 boolean seenIt = seen || (ln == l);
                 Path n = Path.valueOf(node, ln.label, this, ln.getLength());
-                ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1);
+                ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1, length + ln.getLength());
             }
         }
     }

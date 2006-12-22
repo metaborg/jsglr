@@ -16,7 +16,7 @@ import java.util.Map;
 import aterm.AFun;
 import aterm.ATerm;
 
-public class PostFilter {
+public class Disambiguator {
 
     private static final int FILTER_DRAW = 1;
 
@@ -30,18 +30,11 @@ public class PostFilter {
 
     ParseTable parseTable;
 
-    Map<AmbKey, Integer> posTable;
-
     Map<AmbKey, IParseNode> resolvedTable;
 
-    private AmbiguityMap markMap;
-
-    private int parseTreePosition;
-
-    PostFilter(SGLR parser) {
+    Disambiguator(SGLR parser) {
         this.parser = parser;
         resolvedTable = new HashMap<AmbKey, IParseNode>();
-        posTable = new HashMap<AmbKey, Integer>();
     }
 
     private void initializeFromParser() {
@@ -96,7 +89,7 @@ public class PostFilter {
         }
 
         if (parser.isFilteringEnabled()) {
-            t = filterTree(t);
+            t = disambiguate(t);
         }
         return t;
     }
@@ -147,48 +140,55 @@ public class PostFilter {
         return t.toParseTree(parser.getParseTable());
     }
 
-    private IParseNode filterTree(IParseNode t) throws FilterException {
+    private IParseNode disambiguate(IParseNode t) throws FilterException {
+        // SG_FilterTree
         ambiguityManager.resetClustersVisitedCount();
-        return filterTree(t, 0, false);
+        return filterTree(t, false);
     }
 
-    private IParseNode filterTree(IParseNode t, int pos, boolean inAmbiguityCluster) throws FilterException {
-
+    private IParseNode filterTree(IParseNode t, boolean inAmbiguityCluster) throws FilterException {
+        // SG_FilterTreeRecursive
         if (SGLR.isDebugging()) {
             Tools.debug("filterTree(node)    - ", t);
         }
 
         if (t instanceof Amb) {
             if (!inAmbiguityCluster) {
-                LinkedList<IParseNode> ambs = new LinkedList<IParseNode>();
-                ambs.add((Amb)t);
-                t = filterAmbiguities(ambs, pos);
+                List<IParseNode> ambs = ((Amb)t).getAlternatives();
+                t = filterAmbiguities(ambs);
+            } else {
+                throw new NotImplementedException();
             }
         } else if(t instanceof ParseNode) {
             ParseNode node = (ParseNode) t;
             List<IParseNode> args = node.getKids();
-            List<IParseNode> newArgs = filterTree(args, pos, false);
+            List<IParseNode> newArgs = filterTree(args, false);
 
-            if (parser.isRejectFilterEnabled() && parseTable.hasRejects()) {
+            if (isRejectFilterEnabled() && parseTable.hasRejects()) {
                 if (hasRejectProd(t))
                     throw new FilterException("");
             }
 
             t = new ParseNode(node.label, newArgs);
         } else if(t instanceof ParseProductionNode) {
-            // do nothing
+            // leaf node -- do thing (cannot be any ambiguities here)
+            return t;
         } else {
             throw new FatalException();
         }
 
-        if (parser.isFilteringEnabled()) {
+        if (parser.isAssociativityFilterEnabled()) {
             return applyAssociativityPriorityFilter(t);
         } else {
             return t;
         }
     }
 
-    private List<IParseNode> filterTree(List<IParseNode> args, int pos, boolean inAmbiguityCluster) throws FilterException {
+    private boolean isRejectFilterEnabled() {
+        return parser.isRejectFilterEnabled();
+    }
+
+    private List<IParseNode> filterTree(List<IParseNode> args, boolean inAmbiguityCluster) throws FilterException {
 
         if(SGLR.isDebugging()) {
             Tools.debug("filterTree(<nodes>) - ", args);
@@ -198,7 +198,7 @@ public class PostFilter {
         boolean changed = false;
 
         for (IParseNode n : args) {
-            IParseNode filtered = filterTree(n, pos, false);
+            IParseNode filtered = filterTree(n, false);
             
             changed = !filtered.equals(n) || changed;
             newArgs.add(filtered);
@@ -463,40 +463,26 @@ public class PostFilter {
         return t instanceof ParseReject;
     }
 
-    private IParseNode filterAmbiguities(List<IParseNode> ambs, int pos) throws FilterException {
-
+    private IParseNode filterAmbiguities(List<IParseNode> ambs) throws FilterException {
+        // SG_FilterAmb
+        
         if(SGLR.isDebugging()) {
-            Tools.debug("filterAmbiguities()");
-        }
-
-        int savedPos = parseTreePosition;
-
-        if (parser.isRejectFilterEnabled() && parseTable.hasRejects()) {
-            for (IParseNode amb : ambs) {
-                if (amb instanceof Amb) {
-                    throw new NotImplementedException();
-                    //filterTree(amb, pos, true);
-                    //return null;
-                }
-            }
+            Tools.debug("filterAmbiguities() - [", ambs.size(), "]");
         }
 
         List<IParseNode> newAmbiguities = new LinkedList<IParseNode>();
 
         for (IParseNode amb : ambs) {
-            parseTreePosition = savedPos;
-            newAmbiguities.add(filterTree(amb, pos, true));
+            newAmbiguities.add(filterTree(amb, true));
         }
 
-        if (parser.isFilteringEnabled()) {
-            // FIXME ??
-            if (newAmbiguities.size() > 1) {
-                List<IParseNode> oldAmbiguities = new LinkedList<IParseNode>();
-                oldAmbiguities.addAll(newAmbiguities);
-                for (IParseNode amb : oldAmbiguities) {
-                    if (newAmbiguities.remove(amb)) {
-                        newAmbiguities = filterAmbiguityList(newAmbiguities, amb);
-                    }
+        if (newAmbiguities.size() > 1) {
+            /* Handle ambiguities inside this ambiguity cluster */
+            List<IParseNode> oldAmbiguities = new LinkedList<IParseNode>();
+            oldAmbiguities.addAll(newAmbiguities);
+            for (IParseNode amb : oldAmbiguities) {
+                if (newAmbiguities.remove(amb)) {
+                    newAmbiguities = filterAmbiguityList(newAmbiguities, amb);
                 }
             }
         }
@@ -511,7 +497,8 @@ public class PostFilter {
     }
 
     private List<IParseNode> filterAmbiguityList(List<IParseNode> ambiguities, IParseNode t) {
-
+        // SG_FilterAmbList
+        
         boolean keepT = true;
         List<IParseNode> r = new LinkedList<IParseNode>();
 
@@ -597,6 +584,8 @@ public class PostFilter {
     }
 
     private int countAllInjections(IParseNode t) {
+        // SG_CountAllInjectionsInTree
+        // - ok
         if (t instanceof Amb) {
             // Trick from forest.c
             return countAllInjections(((Amb) t).getAlternatives().get(0));
@@ -608,6 +597,8 @@ public class PostFilter {
     }
 
     private int countAllInjections(List<IParseNode> ls) {
+        // SG_CountAllInjectionsInTree
+        // - ok
         int r = 0;
         for (IParseNode n : ls)
             r += countAllInjections(n);
@@ -655,6 +646,8 @@ public class PostFilter {
     }
 
     private int countPrefers(IParseNode t) {
+        // SG_CountPrefersInTree
+        // - ok
         if (t instanceof Amb) {
             return countPrefers(((Amb) t).getAlternatives());
         } else if (t instanceof ParseNode) {
@@ -669,6 +662,8 @@ public class PostFilter {
     }
 
     private int countPrefers(List<IParseNode> ls) {
+        // SG_CountPrefersInTree
+        // - ok
         int r = 0;
         for (IParseNode n : ls)
             r += countPrefers(n);
@@ -676,6 +671,8 @@ public class PostFilter {
     }
 
     private int countAvoids(IParseNode t) {
+        // SG_CountAvoidsInTree
+        // - ok
         if (t instanceof Amb) {
             return countAvoids(((Amb) t).getAlternatives());
         } else if (t instanceof ParseNode) {
@@ -690,6 +687,8 @@ public class PostFilter {
     }
 
     private int countAvoids(List<IParseNode> ls) {
+        // SG_CountAvoidsInTree
+        // - ok
         int r = 0;
         for (IParseNode n : ls)
             r += countAvoids(n);
@@ -828,16 +827,6 @@ public class PostFilter {
         return r;
     }
 
-    private List<IParseNode> getEmptyList() {
-        return new ArrayList<IParseNode>(0);
-    }
-
-    private List<IParseNode> getCluster(IParseNode t, int pos) {
-        int idx = ambiguityManager.getClusterIndex(t, pos);
-        Amb amb = idx == -1 ? null : ambiguityManager.getClusterOnIndex(idx);
-        return amb == null ? getEmptyList() : amb.getAlternatives();
-    }
-
     private boolean isCyclicTerm(IParseNode t) {
 
         ambiguityManager.dumpIndexTable();
@@ -848,11 +837,10 @@ public class PostFilter {
     }
 
     private List<IParseNode> computeCyclicTerm(IParseNode t) {
+        // FIXME rewrite to use HashMap and object id
         PositionMap visited = new PositionMap(ambiguityManager.getMaxNumberOfAmbiguities());
 
         ambiguityManager.resetAmbiguityCount();
-        initializeMarks();
-        parseTreePosition = 0;
 
         return computeCyclicTerm(t, false, visited);
     }
@@ -865,7 +853,6 @@ public class PostFilter {
         }
 
         if (t instanceof ParseProductionNode) {
-            parseTreePosition++;
             if (SGLR.isDebugging()) {
                 Tools.debug(" bumping");
             }
@@ -879,6 +866,7 @@ public class PostFilter {
             if (inAmbiguityCluster) {
                 cycle = computeCyclicTerm(n.getKids(), false, visited);
             } else {
+                /*
                 if (ambiguityManager.isInputAmbiguousAt(parseTreePosition)) {
                     ambiguityManager.increaseAmbiguityCount();
                     clusterIndex = ambiguityManager.getClusterIndex(t, parseTreePosition);
@@ -891,8 +879,10 @@ public class PostFilter {
                     ambiguities = ambiguityManager.getClusterOnIndex(clusterIndex);
                 } else {
                     clusterIndex = -1;
-                }
-
+                }*/
+                
+                throw new NotImplementedException();
+/*
                 if (ambiguities == null) {
                     cycle = computeCyclicTerm(((ParseNode) t).getKids(), false, visited);
                 } else {
@@ -900,14 +890,15 @@ public class PostFilter {
                     int savePos = parseTreePosition;
 
                     if (length == -1) {
-                        markMap.mark(clusterIndex);
+                        //markMap.mark(clusterIndex);
                         cycle = computeCyclicTermInAmbiguityCluster(ambiguities, visited);
                         visited.put(clusterIndex, parseTreePosition - savePos);
-                        markMap.unmark(clusterIndex);
+                        //markMap.unmark(clusterIndex);
                     } else {
                         parseTreePosition += length;
                     }
                 }
+ */
             }
             return cycle;
         } else {
@@ -918,10 +909,7 @@ public class PostFilter {
     private List<IParseNode> computeCyclicTermInAmbiguityCluster(Amb ambiguities,
             PositionMap visited) {
 
-        int savedPos = parseTreePosition;
-
         for (IParseNode n : ambiguities.getAlternatives()) {
-            parseTreePosition = savedPos;
             List<IParseNode> cycle = computeCyclicTerm(n, true, visited);
             if (cycle != null)
                 return cycle;
@@ -937,10 +925,6 @@ public class PostFilter {
                 return cycle;
         }
         return null;
-    }
-
-    private void initializeMarks() {
-        markMap = new AmbiguityMap(1024);
     }
 
     private IParseNode selectOnTopSort() {

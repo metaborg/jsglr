@@ -25,15 +25,15 @@ public class AmbiguityManager {
     private Map<AmbKey,Integer> indexTable;
     private Map<Integer, Amb> clusterTable;
     
-    private AmbiguityMap inputAmbiguityMap;
+    //private AmbiguityMap inputAmbiguityMap;
 
 
     AmbiguityManager(int inputLength) {
         indexTable = new HashMap<AmbKey, Integer>();
         clusterTable = new HashMap<Integer, Amb>();
-        initializeAmbiguityMap(inputLength);
+        //initializeAmbiguityMap(inputLength);
     }
-
+/*
     void initializeAmbiguityMap(int inputLength) {
         inputAmbiguityMap = new AmbiguityMap(inputLength);
     }
@@ -68,7 +68,7 @@ public class AmbiguityManager {
     private void updateCluster(int idx, Amb cluster) {
         clusterTable.put(idx, cluster);
     }
-
+*/
     private void addIndex(IParseNode t, int pos, int idx) {
         if(SGLR.isDebugging()) {
             Tools.debug("addIndex()");
@@ -78,11 +78,12 @@ public class AmbiguityManager {
         indexTable.put(new AmbKey(t, pos), idx);
     }
 
+    /*
     private int getIndex(IParseNode existing, int pos) {
         Integer i = indexTable.get(new AmbKey(existing, pos));
         return i == null ? -1 : i.intValue();
     }
-
+*/
     private int increaseMaxAmbiguityCount() {
         return maxNumberOfAmbiguitiesCount++;
     }
@@ -126,11 +127,11 @@ public class AmbiguityManager {
         Integer r = indexTable.get(k);
         return r == null ? -1 : r.intValue();
     }
-
+/*
     public boolean isInputAmbiguousAt(int pos) {
         return inputAmbiguityMap.isMarked(pos);
     }
-
+*/
     public void dumpIndexTable() {
         Tools.debug(indexTable);
     }

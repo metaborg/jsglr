@@ -14,17 +14,12 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 
 public class Tools {
-
+    
     private static OutputStream fos;
     private static String outfile = null;
 
     public static void setOutput(String d) {
         outfile = d;
-        fos = null;
-        initOutput();
-    }
-
-    static {
         initOutput();
     }
 
@@ -49,7 +44,6 @@ public class Tools {
     }
 
     public static void logger(Object ...s) {
-        //initOutput();
         try {
             for(Object o : s)
                 fos.write(o.toString().getBytes());
@@ -58,5 +52,17 @@ public class Tools {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    static boolean debugging;
+    static boolean logging;
+
+    public static void setDebug(boolean enableDebug) {
+        debugging = enableDebug;
+    }
+
+    public static void setLogging(boolean enableLogging) {
+        logging = enableLogging;
+        setOutput(".jsglr-log");
     }
 }

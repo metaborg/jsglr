@@ -1,7 +1,7 @@
 %%
 %% Test of trivial ambiguity with prefer
 %%
-%% Copyright (c) 2006-2007, Karl Trygve Kalleberg <karltk@ii.uib.no>
+%% Copyright (c) 2005-2006, Karl Trygve Kalleberg <karltk@ii.uib.no>
 %%
 module basic/G2
 

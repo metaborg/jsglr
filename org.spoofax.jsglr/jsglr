@@ -1,7 +1,9 @@
 #! /bin/bash
 
+x=$(dirname $0)
+
 java \
 	-Xmx1024m \
-	-cp bin:../org.spoofax.aterm/aterm-1.6.jar:ext/jjtraveler-0.4.3.jar:ext/shared-objects-1.4.jar \
+	-cp ${x}/bin:${x}/../org.spoofax.aterm/aterm-1.6.jar:${x}/ext/jjtraveler-0.4.3.jar:${x}/ext/shared-objects-1.4.jar \
 	org.spoofax.jsglr.Main $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 

@@ -15,6 +15,8 @@ import java.io.FileOutputStream;
 
 import junit.framework.TestCase;
 
+import org.spoofax.jsglr.ParseTable;
+import org.spoofax.jsglr.ParseTableManager;
 import org.spoofax.jsglr.ParserException;
 import org.spoofax.jsglr.InvalidParseTableException;
 import org.spoofax.jsglr.SGLR;
@@ -33,9 +35,11 @@ public abstract class ParseTestCase extends TestCase {
 
     public void setUp(String grammar, String suffix) throws FileNotFoundException, IOException, ParserException, InvalidParseTableException {
         this.suffix = suffix;
-
-        sglr = new SGLR(pf, "tests/grammars/" + grammar + ".tbl");
-        sglr.setDebug(true);
+        Tools.setDebug(true);
+        Tools.setLogging(true);
+        ParseTableManager ptm = new ParseTableManager(pf);
+        ParseTable pt = ptm.loadFromFile("tests/grammars/" + grammar + ".tbl");
+        sglr = new SGLR(pf, pt);
     }
 
     protected void tearDown()
@@ -48,9 +52,6 @@ public abstract class ParseTestCase extends TestCase {
     final static boolean doCompare = true;
     public void doParseTest(String s) throws FileNotFoundException, IOException {
         Tools.setOutput("tests/jsglr-full-trace-" + s);
-
-        //SGLR.forceGC();
-        sglr.bootstrapTemporaryObjectsOnce();
 
         long parseTime = System.nanoTime();
         ATerm parsed = null;

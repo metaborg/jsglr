@@ -60,14 +60,14 @@ public class Main {
             usage();
         
 
-        SGLR sglr = new SGLR();
+        ParseTableManager ptm = new ParseTableManager();
+        SGLR sglr = new SGLR(ptm.getFactory(), ptm.loadFromFile(parseTable));
 
-        sglr.setDebug(debugging);
-        sglr.setLogging(logging);
+        Tools.setDebug(debugging);
+        Tools.setLogging(logging);
         sglr.setCycleDetect(detectCycles);
         sglr.setFilter(filter);
         
-        sglr.loadParseTable(new FileInputStream(parseTable));
         InputStream fis = null;
         if(input == null)
             fis = System.in;
@@ -82,15 +82,15 @@ public class Main {
 
         try {
             ATerm t = sglr.parse(fis);
-        
-            ous.write(t.toString().getBytes());
+            if(t != null)
+                ous.write(t.toString().getBytes());
         } catch(SGLRException e) {
             System.err.println("Parsing failed : " + e);
         }
     }
 
     private static void usage() {
-        System.out.println("Usage: org.spoofax.jsglr.Main -p <parsetable.tbl> -i <inputfile>");
+        System.out.println("Usage: org.spoofax.jsglr.Main [-f -d -v] -p <parsetable.tbl> -i <inputfile>");
         System.exit(-1);
     }
 }

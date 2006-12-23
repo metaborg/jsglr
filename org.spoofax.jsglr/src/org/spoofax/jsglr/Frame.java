@@ -63,8 +63,8 @@ public class Frame implements Serializable {
             SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + n.length);
             collect.addFirst(n);
         } else { 
-            for (int i = 0; i < stepsCount; i++) {
-                Link ln = steps[stepsCount - i - 1];
+            for (int i = 1; i <= stepsCount; i++) {
+                Link ln = steps[stepsCount - i];
                 
                 Path n = Path.valueOf(node, ln.label, this, ln.getLength());
                 ln.parent.doComputePathsToRoot(collect, n, arity - 1, length + ln.getLength());

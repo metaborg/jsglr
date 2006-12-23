@@ -27,7 +27,7 @@ public class SGLR {
 
     private Frame acceptingStack;
 
-    private List<Frame> activeStacks;
+    private LinkedList<Frame> activeStacks;
 
     private ParseTable parseTable;
 
@@ -41,9 +41,9 @@ public class SGLR {
 
     private Queue<ActionState> forShifter;
 
-    private Queue<Frame> forActor;
+    private LinkedList<Frame> forActor;
 
-    private Queue<Frame> forActorDelayed;
+    private LinkedList<Frame> forActorDelayed;
 
     private int maxBranches;
 
@@ -106,7 +106,7 @@ public class SGLR {
         this.factory = factory;
         if (factory == null)
             factory = new PureFactory();
-        activeStacks = new Vector<Frame>();
+        activeStacks = new LinkedList<Frame>();
 
         forActor = new LinkedList<Frame>();
         forActorDelayed = new LinkedList<Frame>();
@@ -250,8 +250,8 @@ public class SGLR {
     }
 
     private void addStack(Frame st1) {
-        TRACE("SG_AddStack() - ");
-        activeStacks.add(st1);
+        TRACE("SG_AddStack() - " + st1.state.stateNumber);
+        activeStacks.addFirst(st1);
     }
 
     private String charify(int currentToken) {
@@ -283,19 +283,28 @@ public class SGLR {
             Tools.debug(" # for actor     : " + forActor.size());
         }
 
-        clearForActorDelayed(false); // todo: use true?
+        LinkedList<Frame> actives = new LinkedList<Frame>();
+        actives.addAll(activeStacks); // FIXME avoid garbage
+        
+        //clearForActorDelayed(false); // todo: use true?
         clearForShifter(false); // todo: use true?
 
-        while (forActor.size() > 0 || forActorDelayed.size() > 0) {
-            if (forActor.size() == 0) {
-                forActor.add(forActorDelayed.remove());
+        while (actives.size() > 0 || forActor.size() > 0) {
+            Frame st;
+            if(actives.size() > 0)
+                st = actives.remove();
+            else
+                st = forActor.remove();
+
+            if (!st.allLinksRejected()) {
+                actor(st);
             }
-            if (forActor.size() > 0) {
-                Frame st = forActor.remove();
-                if (!st.allLinksRejected()) {
-                    actor(st);
-                }
+            
+            if(actives.size() == 0 && forActor.size() == 0) {
+                forActor = forActorDelayed;
+                forActorDelayed = new LinkedList<Frame>(); // FIXME: avoid garbage
             }
+                
         }
     }
 
@@ -339,6 +348,7 @@ public class SGLR {
                 throw new NotImplementedException();
             }
         }
+        TRACE("SG_ - actor done");
     }
 
     private void addShiftPair(ActionState state) {
@@ -407,6 +417,8 @@ public class SGLR {
         if (isDebugging()) {
             Tools.debug("<doReductions() - " + dumpActiveStacks());
         }
+        
+        TRACE("SG_ - doreductions done");
     }
 
     private void clearPath(List<Path> paths) {
@@ -441,8 +453,8 @@ public class SGLR {
             st1 = newStack(s);
             Link nl = st1.addLink(st0, t, length);
             addStack(st1);
-            TRACE("SG_AddStack() - ");
-            forActorDelayed.add(st1);
+            TRACE("SG_AddStack() - " + st1.state.stateNumber);
+            forActorDelayed.addFirst(st1);
 
             //if (st1.peek().rejectable()) {
 //            } else {
@@ -450,7 +462,7 @@ public class SGLR {
 //                forActor.add(st1);
 //            }
 
-            if (prod.status == Production.REJECT) {
+            if (prod.isReject()) {
                 if (isLogging()) {
                     Tools.logger("Reject [new]");
                 }
@@ -496,10 +508,11 @@ public class SGLR {
 
                 
                 // Note: ActiveStacks can be modified inside doLimitedReductions
-                for (int i = 0; i < activeStacks.size(); i++) {
+//                for (int i = 0; i < activeStacks.size(); i++) {
+                for(Frame st2 : activeStacks) {
                     TRACE("SG_ activeStack - ");
-                    int p = activeStacks.size() - i - 1;
-                    Frame st2 = activeStacks.get(p);
+                    //int p = activeStacks.size() - i - 1;
+                    //Frame st2 = activeStacks.get(p);
                     boolean b0 = st2.allLinksRejected();
                     boolean b1 = inReduceStacks(forActor, st2);
                     boolean b2 = inReduceStacks(forActorDelayed, st2);
@@ -731,8 +744,7 @@ public class SGLR {
 
     private void clearActiveStacks(boolean all) {
         if (all) {
-            for (int i = 0; i < activeStacks.size(); i++) {
-                Frame frame = activeStacks.get(i);
+            for (Frame frame : activeStacks) {
                 frame.clear();
             }
         }

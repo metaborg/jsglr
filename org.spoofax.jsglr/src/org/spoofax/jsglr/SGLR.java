@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Vector;
 
 import aterm.ATerm;
 import aterm.ATermFactory;

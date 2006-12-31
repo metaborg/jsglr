@@ -10,7 +10,6 @@ package org.spoofax.jsglr;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -163,7 +162,7 @@ public class SGLR {
         columnNumber = 0;
         lineNumber = 1;
 
-        currentInputStream = new PushbackInputStream(fis);
+        currentInputStream = new PushbackInputStream(fis, 1024);
         
         acceptingStack = null;
         Frame st0 = initActiveStacks();
@@ -210,6 +209,8 @@ public class SGLR {
             Tools.debug("internal parse tree:\n", s.label);
         }
 
+        TRACE("SG_ - internal tree: " + s.label);
+        
         return postFilter.applyFilters(s.label, null, tokensSeen);
 
     }
@@ -521,11 +522,12 @@ public class SGLR {
                                 nl.getLength());
                 }
 
-                nl.addAmbiguity(t);
-
                 if (prod.isReject()) {
                     nl.reject();
                 }
+
+                nl.addAmbiguity(t, tokensSeen);
+                ambiguityManager.increaseAmbiguityCount();
 
             } else {
                 nl = st1.addLink(st0, t, length);

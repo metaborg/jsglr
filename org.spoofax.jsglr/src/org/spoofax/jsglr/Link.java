@@ -50,7 +50,9 @@ public class Link {
         this.label = null;
     }
 
-    public void addAmbiguity(IParseNode t) {
+    public void addAmbiguity(IParseNode t, int tokensSeen) {
+        SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
+        
         label = new Amb(label, t);
     }
     

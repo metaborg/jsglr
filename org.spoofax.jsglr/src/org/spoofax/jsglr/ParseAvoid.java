@@ -19,13 +19,13 @@ public class ParseAvoid extends ParseNode {
 
     @Override
     public ATerm toParseTree(ParseTable pt) {
-        //return super.toParseTree(pt);
-        throw new NotImplementedException();
+        return super.toParseTree(pt);
+        //throw new NotImplementedException();
     }
 
     @Override
     public String toString() {
-        return "avoid(" + label + ", " + kids + ")";
+        return "avoid(aprod(" + label + "), " + kids + ")";
     }
     
     @Override

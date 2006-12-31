@@ -35,8 +35,8 @@ public abstract class ParseTestCase extends TestCase {
 
     public void setUp(String grammar, String suffix) throws FileNotFoundException, IOException, ParserException, InvalidParseTableException {
         this.suffix = suffix;
-        Tools.setDebug(true);
-        Tools.setLogging(true);
+        Tools.setDebug(false);
+        Tools.setLogging(false);
         ParseTableManager ptm = new ParseTableManager(pf);
         ParseTable pt = ptm.loadFromFile("tests/grammars/" + grammar + ".tbl");
         sglr = new SGLR(pf, pt);

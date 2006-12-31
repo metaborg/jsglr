@@ -19,13 +19,13 @@ public class ParsePrefer extends ParseNode {
 
     @Override
     public ATerm toParseTree(ParseTable pt) {
-        //return super.toParseTree(pt);
-        throw new NotImplementedException();
+        return super.toParseTree(pt);
+        //throw new NotImplementedException();
     }
 
     @Override
     public String toString() {
-        return "prefer(" + label + ", " + kids + ")";
+        return "prefer(aprod(" + label + "), " + kids + ")";
     }
     
     @Override

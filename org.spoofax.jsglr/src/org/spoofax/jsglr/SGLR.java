@@ -527,7 +527,7 @@ public class SGLR {
                 }
 
                 nl.addAmbiguity(t, tokensSeen);
-                ambiguityManager.increaseAmbiguityCount();
+                ambiguityManager.increaseAmbiguityCalls();
 
             } else {
                 nl = st1.addLink(st0, t, length);

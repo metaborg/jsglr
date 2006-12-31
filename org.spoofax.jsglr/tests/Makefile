@@ -11,11 +11,11 @@ all: $(TESTS) $(SGLR_TRACES) $(JSGLR_TRACES)
 sglr-only: $(SGLR_TRACES)
 
 sglr-trace-%.txt : data/%.str
-	$(SGLR) -2 -fa -fd -fe -fi -fp -fr -t -lvd -p grammars/Stratego.tbl -i $<
+	$(SGLR) -2 -fa -fd -fe -fi -fp -fr -t -lvd -p grammars/Stratego.tbl -i $< -o sglr.trm
 	cat .sglr-log | egrep "^(Goto|Reducing|\#|Current|nl|Amb)" > $@
 
 jsglr-trace-%.txt : data/%.str
-	../jsglr -v -p grammars/Stratego.tbl -i $<
+	../jsglr -v -p grammars/Stratego.tbl -i $< -o jsglr.trm
 	cat .jsglr-log | egrep "^(Goto|Reducing|\#|Current|nl|Amb)" > $@
 
 trace-diff-%.txt : sglr-trace-%.txt jsglr-trace-%.txt

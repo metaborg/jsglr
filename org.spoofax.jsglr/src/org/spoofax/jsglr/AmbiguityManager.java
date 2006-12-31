@@ -88,7 +88,7 @@ public class AmbiguityManager {
         return maxNumberOfAmbiguitiesCount++;
     }
 
-    private int increaseAmbiguityCalls() {
+    public int increaseAmbiguityCalls() {
         return ambiguityCallsCount++;
     }
 

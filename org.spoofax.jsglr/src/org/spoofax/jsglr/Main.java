@@ -31,6 +31,7 @@ public class Main {
         boolean logging = false;
         boolean detectCycles = true;
         boolean filter = true;
+        boolean waitForProfiler = false;
         
         int skip = 0;
         for(int i=0;i<args.length;i++) {
@@ -53,6 +54,8 @@ public class Main {
                 filter = false;
             } else if(args[i].equals("-c")) {
                 detectCycles = false;
+            } else if(args[i].equals("--wait-for-profiler")) {
+                waitForProfiler = true;
             }
         }
 
@@ -87,6 +90,9 @@ public class Main {
         } catch(SGLRException e) {
             System.err.println("Parsing failed : " + e);
         }
+        
+        if(waitForProfiler)
+            System.in.read();
     }
 
     private static void usage() {

@@ -51,13 +51,13 @@ public class Disambiguator {
         initializeFromParser();
 
         IParseNode t = root;
-/*
+
         t = applyTopSortFilter(sort, t);
 
         t = applyCycleDetectFilter(t);
 
         t = applyOtherFilters(t);
-*/
+
         return convertToATerm(t);
         
     }

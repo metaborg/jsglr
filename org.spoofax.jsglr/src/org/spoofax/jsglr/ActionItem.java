@@ -15,12 +15,15 @@ public abstract class ActionItem implements Serializable {
     
     public final int type;
 
+    // FIXME do we need these? instanceof is too slow?
     public static final int REDUCE = 1;
 
     public static final int SHIFT = 2;
 
     public static final int ACCEPT = 3;
 
+    public static final int REDUCE_LOOKAHEAD = 4;
+    
     public ActionItem(int type) {
         this.type = type;
     }
@@ -33,6 +36,8 @@ public abstract class ActionItem implements Serializable {
             return "shift";
         else if (type == ACCEPT)
             return "accept";
+        else if (type == REDUCE_LOOKAHEAD)
+            return "reduce_la";
         return null;
     }
 }

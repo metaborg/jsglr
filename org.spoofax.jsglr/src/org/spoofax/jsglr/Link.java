@@ -27,6 +27,7 @@ public class Link {
     }
 
     public void reject() {
+        SGLR.TRACE("SG_MarkLinkRejected() - " + parent.state.stateNumber + ", " + length);
         rejected = true;
     }
 
@@ -51,5 +52,17 @@ public class Link {
 
     public void addAmbiguity(IParseNode t) {
         label = new Amb(label, t);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Link))
+            return false;
+        Link o = (Link)obj;
+        
+        return o.parent == parent &&
+        o.label == label &&
+        o.rejected == rejected &&
+        o.length == length;
     }
 }

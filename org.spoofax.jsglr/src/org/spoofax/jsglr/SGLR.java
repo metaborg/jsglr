@@ -9,6 +9,8 @@ package org.spoofax.jsglr;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -73,6 +75,8 @@ public class SGLR {
     private int rejectCount;
 
     private int reductionCount;
+
+    private PushbackInputStream currentInputStream;
 
     SGLR() {
         basicInit(null);
@@ -159,6 +163,8 @@ public class SGLR {
         columnNumber = 0;
         lineNumber = 1;
 
+        currentInputStream = new PushbackInputStream(fis);
+        
         acceptingStack = null;
         Frame st0 = initActiveStacks();
 
@@ -167,7 +173,7 @@ public class SGLR {
                 Tools.logger("Current token (#", tokensSeen, "): ", charify(currentToken));
             }
 
-            currentToken = getNextToken(fis);
+            currentToken = getNextToken();
 
             parseCharacter();
             shifter();
@@ -268,7 +274,7 @@ public class SGLR {
         }
     }
 
-    private void parseCharacter() {
+    private void parseCharacter() throws IOException {
         TRACE("SG_ParseToken() - ");
 
         if (isDebugging()) {
@@ -276,7 +282,7 @@ public class SGLR {
             Tools.debug(" # active stacks : " + activeStacks.size());
         }
 
-        /* forActor = */computeStackOfStacks(activeStacks);
+        /* forActor = *///computeStackOfStacks(activeStacks);
 
         if (isDebugging()) {
             Tools.debug(" # for actor     : " + forActor.size());
@@ -285,21 +291,25 @@ public class SGLR {
         LinkedList<Frame> actives = new LinkedList<Frame>();
         actives.addAll(activeStacks); // FIXME avoid garbage
         
-        //clearForActorDelayed(false); // todo: use true?
-        clearForShifter(false); // todo: use true?
+        clearForActorDelayed(false);
+        clearForShifter(false);
 
         while (actives.size() > 0 || forActor.size() > 0) {
             Frame st;
-            if(actives.size() > 0)
+            if(actives.size() > 0) {
+                TRACE("SG_ - took active");
                 st = actives.remove();
-            else
+            } else {
+                TRACE("SG_ - took foractor");
                 st = forActor.remove();
+            }
 
             if (!st.allLinksRejected()) {
                 actor(st);
             }
             
             if(actives.size() == 0 && forActor.size() == 0) {
+                TRACE("SG_ - both empty");
                 forActor = forActorDelayed;
                 forActorDelayed = new LinkedList<Frame>(); // FIXME: avoid garbage
             }
@@ -307,7 +317,7 @@ public class SGLR {
         }
     }
 
-    private void actor(Frame st) {
+    private void actor(Frame st) throws IOException {
         TRACE("SG_Actor() - " + st.state.stateNumber);
         TRACE_ActiveStacks();
         
@@ -327,7 +337,9 @@ public class SGLR {
         if (isDebugging()) {
             Tools.debug(" actions : ", actionItems);
         }
-
+        
+        TRACE("SG_ - actions: " + actionItems.size());
+        
         for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
                 Shift sh = (Shift) ai;
@@ -336,6 +348,12 @@ public class SGLR {
             } else if (ai instanceof Reduce) {
                 Reduce red = (Reduce) ai;
                 doReductions(st, red.production);
+            } else if(ai instanceof ReduceLookahead) {
+                ReduceLookahead red = (ReduceLookahead) ai;
+                if(checkLookahead(red)) {
+                    TRACE("SG_ - ok");
+                    doReductions(st, red.production);
+                }
             } else if (ai instanceof Accept) {
                 if (!st.allLinksRejected()) {
                     acceptingStack = st;
@@ -348,6 +366,28 @@ public class SGLR {
             }
         }
         TRACE("SG_ - actor done");
+    }
+
+    private boolean checkLookahead(ReduceLookahead red) throws IOException {
+        return doCheckLookahead(red, red.getCharClasses(), 0);
+    }
+    
+    private boolean doCheckLookahead(ReduceLookahead red, Range[] charClass, int pos) throws IOException {
+        TRACE("SG_CheckLookAhead() - ");
+        
+        int c = currentInputStream.read();
+        
+        // EOF
+        if(c == -1) 
+            return true;
+        
+        boolean permit = true;
+        
+        if(pos < charClass.length)
+            permit = charClass[pos].within(c) ? false : doCheckLookahead(red, charClass, pos + 1);
+
+        currentInputStream.unread(c);
+        return permit;
     }
 
     private void addShiftPair(ActionState state) {
@@ -365,7 +405,7 @@ public class SGLR {
         }
     }
 
-    private void doReductions(Frame st, Production prod) {
+    private void doReductions(Frame st, Production prod) throws IOException {
         TRACE("SG_DoReductions() - " + st.state.stateNumber);
 
         if (isDebugging()) {
@@ -421,11 +461,11 @@ public class SGLR {
     }
 
     private void clearPath(List<Path> paths) {
-        SGLR.TRACE("SG_ClearPath() - ");
+        SGLR.TRACE("SG_ClearPath() - " + paths.size());
         paths.clear();
     }
 
-    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, int length) {
+    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, int length) throws IOException {
         TRACE("SG_Reducer() - " + s.stateNumber + ", " + length + ", " + prod.label);
         TRACE_ActiveStacks();
 
@@ -454,12 +494,6 @@ public class SGLR {
             addStack(st1);
             TRACE("SG_AddStack() - " + st1.state.stateNumber);
             forActorDelayed.addFirst(st1);
-
-            //if (st1.peek().rejectable()) {
-//            } else {
-//                TRACE("SG_AddStack() - ");
-//                forActor.add(st1);
-//            }
 
             if (prod.isReject()) {
                 if (isLogging()) {
@@ -507,11 +541,13 @@ public class SGLR {
 
                 
                 // Note: ActiveStacks can be modified inside doLimitedReductions
-//                for (int i = 0; i < activeStacks.size(); i++) {
-                for(Frame st2 : activeStacks) {
+                // new elements may be inserted at the beginning
+                final int sz = activeStacks.size();
+                for (int i = 0; i < sz; i++) {
+//                for(Frame st2 : activeStacks) {
                     TRACE("SG_ activeStack - ");
-                    //int p = activeStacks.size() - i - 1;
-                    //Frame st2 = activeStacks.get(p);
+                    int pos = activeStacks.size() - sz + i;
+                    Frame st2 = activeStacks.get(pos);
                     boolean b0 = st2.allLinksRejected();
                     boolean b1 = inReduceStacks(forActor, st2);
                     boolean b2 = inReduceStacks(forActorDelayed, st2);
@@ -524,6 +560,13 @@ public class SGLR {
                             doLimitedReductions(st2, red.production, nl);
                             TRACE("SG_ - back in reducer ");
                             TRACE_ActiveStacks();
+                        } else if(ai instanceof ReduceLookahead) {
+                            ReduceLookahead red = (ReduceLookahead) ai;
+                            if(checkLookahead(red)) {
+                                doLimitedReductions(st2, red.production, nl);
+                                TRACE("SG_ - back in reducer ");
+                                TRACE_ActiveStacks();
+                            }
                         }
                     }
 
@@ -536,6 +579,8 @@ public class SGLR {
 
     private void TRACE_ActiveStacks() {
         TRACE("SG_ - active stacks: " + activeStacks.size());
+        TRACE("SG_ - for_actor stacks: " + forActor.size());
+        TRACE("SG_ - for_actor_delayed stacks: " + forActorDelayed.size());
     }
 
     private boolean inReduceStacks(Queue<Frame> q, Frame frame) {
@@ -580,8 +625,8 @@ public class SGLR {
         return null;
     }
 
-    private void doLimitedReductions(Frame st, Production prod, Link l) {
-        TRACE("SG_DoLimitedReductions() - " + st.state.stateNumber);
+    private void doLimitedReductions(Frame st, Production prod, Link l) throws IOException {
+        TRACE("SG_DoLimitedReductions() - " + st.state.stateNumber + ", " + l.parent.state.stateNumber);
 
         if (isDebugging()) {
             Tools.debug("doLimitedReductions() - ", dumpActiveStacks());
@@ -635,10 +680,10 @@ public class SGLR {
         }
     }
 
-    private int getNextToken(InputStream fis) throws IOException {
+    private int getNextToken() throws IOException {
         TRACE("SG_NextToken() - ");
 
-        int t = fis.read();
+        int t = currentInputStream.read();
 
         tokensSeen++;
 

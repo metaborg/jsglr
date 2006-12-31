@@ -162,7 +162,8 @@ public class Frame implements Serializable {
     }
 
     public List<Path> findLimitedPaths(int arity, Link l) {
-        SGLR.TRACE("SG_FindLimitedPaths() - " + arity + ", " + l.getLength());
+        SGLR.TRACE("SG_FindLimitedPaths() - " + arity + ", " + l.getLength() + ", " + l.parent.state.stateNumber);
+        TRACE_DumpLinks(steps);
         LinkedList<Path> ret = new LinkedList<Path>();
         if(findLink(arity, l)) { 
             doComputePathsToRoot(ret, null, l, false, arity, 0);
@@ -170,13 +171,27 @@ public class Frame implements Serializable {
         return ret;
     }
 
+    private void TRACE_DumpLinks(Link[] st) {
+        for(int i = 0; i < stepsCount; i++) {
+            Link l = st[stepsCount - i - 1];
+            SGLR.TRACE("SG_ - dump link: " + l.parent.state.stateNumber);
+        }
+    }
+
     private boolean findLink(int arity, Link l0) {
         SGLR.TRACE("SG_FindLink() - " + arity);
+        SGLR.TRACE("SG_ - links: " + stepsCount);
+        
         if(arity > 0) {
             for(int i = 0; i < stepsCount; i++) {
-                Link l1 = steps[i];
-                if(l0 == l1 || l1.parent.findLink(arity - 1, l0))
+                Link l1 = steps[stepsCount - i - 1];
+                if(l0 == l1) {
+                    SGLR.TRACE("SG_ - l0 == l1");
                     return true;
+                } else if (l1.parent.findLink(arity - 1, l0)) {
+                    SGLR.TRACE("SG_ - findlink");
+                    return true;
+                }
             }
         }
         return false;
@@ -192,7 +207,7 @@ public class Frame implements Serializable {
             collect.addFirst(n);
         } else if(arity > 0) {
             for (int i = 0; i < stepsCount; i++) {
-                Link ln = steps[i];
+                Link ln = steps[stepsCount - i - 1];
                 boolean seenIt = seen || (ln == l);
                 Path n = Path.valueOf(node, ln.label, this, ln.getLength());
                 ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1, length + ln.getLength());

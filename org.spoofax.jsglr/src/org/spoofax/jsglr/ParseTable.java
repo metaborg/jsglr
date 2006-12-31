@@ -249,27 +249,55 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    private ActionItem[] parseActionItems(ATermList items) {
+    private ActionItem[] parseActionItems(ATermList items) throws InvalidParseTableException {
 
         ActionItem[] ret = new ActionItem[items.getChildCount()];
 
         for (int i = 0; i < items.getChildCount(); i++) {
             ActionItem item = null;
             ATermAppl a = Term.applAt(items, i);
-            if (a.getName().equals("reduce")) {
+            if (a.getName().equals("reduce") && a.getAFun().getArity() == 3) {
                 int productionArity = Term.intAt(a, 0);
                 int label = Term.intAt(a, 1);
                 int status = Term.intAt(a, 2);
                 item = makeReduce(productionArity, label, status);
+            } else if(a.getName().equals("reduce") && a.getAFun().getArity() == 4) {
+                int productionArity = Term.intAt(a, 0);
+                int label = Term.intAt(a, 1);
+                int status = Term.intAt(a, 2);
+                Range[] charClasses = parseCharClasses(Term.listAt(a, 3));
+                item = makeReduceLookahead(productionArity, label, status, charClasses);
+                
             } else if (a.getName().equals("accept")) {
                 item = new Accept();
             } else if (a.getName().equals("shift")) {
                 int nextState = Term.intAt(a, 0);
                 item = makeShift(nextState);
+            } else {
+                throw new InvalidParseTableException("Unknown action " + a.getName());
             }
             ret[i] = item;
         }
         return ret;
+    }
+
+    private Range[] parseCharClasses(ATermList list) throws InvalidParseTableException {
+        Range[] ret = new Range[list.getLength()];
+        for(int i=0;i<ret.length; i++) {
+            ATerm t = list.getFirst();
+            list = list.getNext();
+            ATermList l = Term.listAt(Term.applAt(t, 0), 0);
+            ATermList n = Term.listAt(t, 1);
+            if(n.getLength() > 0)
+                throw new InvalidParseTableException("Multiple lookahead not supported");
+            
+            ret[i] = new Range(Term.intAt(l, 0), Term.intAt(l, 1));
+        }
+        return ret;
+    }
+
+    private ActionItem makeReduceLookahead(int productionArity, int label, int status, Range[] charClasses) {
+        return new ReduceLookahead(productionArity, label, status, charClasses);
     }
 
     Map<Reduce, Reduce> reduceMap = new HashMap<Reduce, Reduce>();

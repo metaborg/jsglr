@@ -194,7 +194,8 @@ public class ParseTable implements Serializable {
                 } else if (ctor.equals("term")) {
                     term = (ATerm) t.getChildAt(0).getChildAt(0);
                 } else if (ctor.equals("id")) {
-                    throw new NotImplementedException();
+                    // FIXME not certain about this
+                    term = (ATerm) t.getChildAt(0);
                 } else {
                     throw new InvalidParseTableException("Unknown attribute: " + t);
                 }

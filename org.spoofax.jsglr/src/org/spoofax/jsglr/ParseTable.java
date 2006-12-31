@@ -64,7 +64,7 @@ public class ParseTable implements Serializable {
         ATermAppl prioritiesTerm = Term.applAt(pt, 4);
 
         if (version != 4) {
-            return false;
+            throw new InvalidParseTableException("Only supports version 4 tables.");
         }
 
         labels = parseLabels(labelsTerm);

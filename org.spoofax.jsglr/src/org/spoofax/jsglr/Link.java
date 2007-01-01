@@ -27,7 +27,9 @@ public class Link {
     }
 
     public void reject() {
-        SGLR.TRACE("SG_MarkLinkRejected() - " + parent.state.stateNumber + ", " + length);
+        if(Tools.tracing) {
+            SGLR.TRACE("SG_MarkLinkRejected() - " + parent.state.stateNumber + ", " + length);
+        }
         rejected = true;
     }
 
@@ -51,7 +53,9 @@ public class Link {
     }
 
     public void addAmbiguity(IParseNode t, int tokensSeen) {
-        SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
+        if(Tools.tracing) {
+            SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
+        }
         
         label = new Amb(label, t);
     }

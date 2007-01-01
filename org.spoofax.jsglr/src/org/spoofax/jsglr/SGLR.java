@@ -23,6 +23,7 @@ public class SGLR {
     // FIXME: Should probably be put elsewhere
     private static final int EOF = 256;
 
+    
     private ATermFactory factory;
 
     private Frame acceptingStack;
@@ -150,9 +151,11 @@ public class SGLR {
     }
 
     public ATerm parse(InputStream fis) throws IOException, SGLRException {
-        TRACE("SG_Parse() - ");
+        if(Tools.tracing) {
+            TRACE("SG_Parse() - ");
+        }
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("parse() - ", dumpActiveStacks());
         }
 
@@ -209,22 +212,26 @@ public class SGLR {
             Tools.debug("internal parse tree:\n", s.label);
         }
 
-        TRACE("SG_ - internal tree: " + s.label);
+        if(Tools.tracing) {
+            TRACE("SG_ - internal tree: " + s.label);
+        }
         
         return postFilter.applyFilters(s.label, null, tokensSeen);
 
     }
 
     private void shifter() {
-        TRACE("SG_Shifter() - ");
-        TRACE_ActiveStacks();
+        if(Tools.tracing) {
+            TRACE("SG_Shifter() - ");
+            TRACE_ActiveStacks();
+        }
         
-        if (isLogging()) {
+        if (Tools.logging) {
             Tools.logger("#", tokensSeen, ": shifting ", forShifter.size(), " parser(s) -- token ",
                          charify(currentToken), ", line ", lineNumber, ", column ", columnNumber);
         }
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("shifter() - " + dumpActiveStacks());
 
             Tools.debug(" token   : " + currentToken);
@@ -245,18 +252,22 @@ public class SGLR {
                 }
                 st1.addLink(as.st, prod, 1);
             } else {
-                if (isLogging()) {
+                if (Tools.logging) {
                     Tools.logger("Shifter: skipping rejected stack with state ",
                                  as.st.state.stateNumber);
                 }
             }
         }
-        TRACE("SG_DiscardShiftPairs() - ");
-        TRACE_ActiveStacks();
+        if(Tools.tracing) {
+            TRACE("SG_DiscardShiftPairs() - ");
+            TRACE_ActiveStacks();
+        }
     }
 
     private void addStack(Frame st1) {
-        TRACE("SG_AddStack() - " + st1.state.stateNumber);
+        if(Tools.tracing) {
+            TRACE("SG_AddStack() - " + st1.state.stateNumber);
+        }
         activeStacks.addFirst(st1);
     }
 
@@ -276,16 +287,18 @@ public class SGLR {
     }
 
     private void parseCharacter() throws IOException {
-        TRACE("SG_ParseToken() - ");
+        if(Tools.tracing) {
+            TRACE("SG_ParseToken() - ");
+        }
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("parseCharacter() - " + dumpActiveStacks());
             Tools.debug(" # active stacks : " + activeStacks.size());
         }
 
         /* forActor = *///computeStackOfStacks(activeStacks);
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug(" # for actor     : " + forActor.size());
         }
 
@@ -298,10 +311,14 @@ public class SGLR {
         while (actives.size() > 0 || forActor.size() > 0) {
             Frame st;
             if(actives.size() > 0) {
-                TRACE("SG_ - took active");
+                if(Tools.tracing) {
+                    TRACE("SG_ - took active");
+                }
                 st = actives.remove();
             } else {
-                TRACE("SG_ - took foractor");
+                if(Tools.tracing) {
+                    TRACE("SG_ - took foractor");
+                }
                 st = forActor.remove();
             }
 
@@ -310,7 +327,9 @@ public class SGLR {
             }
             
             if(actives.size() == 0 && forActor.size() == 0) {
-                TRACE("SG_ - both empty");
+                if(Tools.tracing) {
+                    TRACE("SG_ - both empty");
+                }
                 forActor = forActorDelayed;
                 forActorDelayed = new LinkedList<Frame>(); // FIXME: avoid garbage
             }
@@ -319,27 +338,31 @@ public class SGLR {
     }
 
     private void actor(Frame st) throws IOException {
-        TRACE("SG_Actor() - " + st.state.stateNumber);
-        TRACE_ActiveStacks();
+        if(Tools.tracing) {
+            TRACE("SG_Actor() - " + st.state.stateNumber);
+            TRACE_ActiveStacks();
+        }
         
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("actor() - ", dumpActiveStacks());
         }
 
         State s = st.peek();
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug(" state   : ", s.stateNumber);
             Tools.debug(" token   : ", currentToken);
         }
 
         List<ActionItem> actionItems = s.getActionItems(currentToken);
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug(" actions : ", actionItems);
         }
         
-        TRACE("SG_ - actions: " + actionItems.size());
+        if(Tools.tracing) {
+            TRACE("SG_ - actions: " + actionItems.size());
+        }
         
         for (ActionItem ai : actionItems) {
             if (ai instanceof Shift) {
@@ -352,13 +375,15 @@ public class SGLR {
             } else if(ai instanceof ReduceLookahead) {
                 ReduceLookahead red = (ReduceLookahead) ai;
                 if(checkLookahead(red)) {
-                    TRACE("SG_ - ok");
+                    if(Tools.tracing) {
+                        TRACE("SG_ - ok");
+                    }
                     doReductions(st, red.production);
                 }
             } else if (ai instanceof Accept) {
                 if (!st.allLinksRejected()) {
                     acceptingStack = st;
-                    if (isLogging()) {
+                    if (Tools.logging) {
                         Tools.logger("Reached the accept state");
                     }
                 }
@@ -366,7 +391,10 @@ public class SGLR {
                 throw new NotImplementedException();
             }
         }
-        TRACE("SG_ - actor done");
+        
+        if(Tools.tracing) {
+            TRACE("SG_ - actor done");
+        }
     }
 
     private boolean checkLookahead(ReduceLookahead red) throws IOException {
@@ -374,7 +402,9 @@ public class SGLR {
     }
     
     private boolean doCheckLookahead(ReduceLookahead red, Range[] charClass, int pos) throws IOException {
-        TRACE("SG_CheckLookAhead() - ");
+        if(Tools.tracing) {
+            TRACE("SG_CheckLookAhead() - ");
+        }
         
         int c = currentInputStream.read();
         
@@ -392,7 +422,9 @@ public class SGLR {
     }
 
     private void addShiftPair(ActionState state) {
-        TRACE("SG_AddShiftPair() - " + state.s.stateNumber);
+        if(Tools.tracing) {
+            TRACE("SG_AddShiftPair() - " + state.s.stateNumber);
+        }
         forShifter.add(state);
     }
 
@@ -407,9 +439,11 @@ public class SGLR {
     }
 
     private void doReductions(Frame st, Production prod) throws IOException {
-        TRACE("SG_DoReductions() - " + st.state.stateNumber);
+        if(Tools.tracing) {
+            TRACE("SG_DoReductions() - " + st.state.stateNumber);
+        }
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("doReductions() - " + dumpActiveStacks());
 
             Tools.debug(" state : " + st.peek().stateNumber);
@@ -422,7 +456,7 @@ public class SGLR {
         List<Path> paths = st.findAllPaths(prod.arity);
 
         final int pathsCount = paths.size();
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug(" paths : " + pathsCount);
         }
 
@@ -431,20 +465,20 @@ public class SGLR {
 
             List<IParseNode> kids = path.getATerms();
 
-            if (isDebugging()) {
+            if (Tools.debugging) {
                 Tools.debug(" path: ", path);
                 Tools.debug(" kids: ", kids);
             }
 
             Frame st0 = path.getEnd();
 
-            if (isDebugging()) {
+            if (Tools.debugging) {
                 Tools.debug(st0.state);
             }
 
             State next = parseTable.go(st0.peek(), prod.label);
 
-            if (isLogging()) {
+            if (Tools.logging) {
                 Tools.logger("Goto(", st0.peek().stateNumber, ",", prod.label + ") == ",
                              next.stateNumber);
             }
@@ -454,28 +488,34 @@ public class SGLR {
 
         clearPath(paths);
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("<doReductions() - " + dumpActiveStacks());
         }
         
-        TRACE("SG_ - doreductions done");
+        if(Tools.tracing) {
+            TRACE("SG_ - doreductions done");
+        }
     }
 
     private void clearPath(List<Path> paths) {
-        SGLR.TRACE("SG_ClearPath() - " + paths.size());
+        if(Tools.tracing) {
+            SGLR.TRACE("SG_ClearPath() - " + paths.size());
+        }
         paths.clear();
     }
 
     private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, int length) throws IOException {
-        TRACE("SG_Reducer() - " + s.stateNumber + ", " + length + ", " + prod.label);
-        TRACE_ActiveStacks();
+        if(Tools.tracing) {
+            TRACE("SG_Reducer() - " + s.stateNumber + ", " + length + ", " + prod.label);
+            TRACE_ActiveStacks();
+        }
 
-        if (isLogging()) {
+        if (Tools.logging) {
             Tools.logger("Reducing; state ", s.stateNumber, ", token: ", charify(currentToken),
                          ", production: ", prod.label);
         }
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("reducer() - ", dumpActiveStacks());
 
             Tools.debug(" state      : ", s.stateNumber);
@@ -493,11 +533,13 @@ public class SGLR {
             st1 = newStack(s);
             Link nl = st1.addLink(st0, t, length);
             addStack(st1);
-            TRACE("SG_AddStack() - " + st1.state.stateNumber);
+            if(Tools.tracing) {
+                TRACE("SG_AddStack() - " + st1.state.stateNumber);
+            }
             forActorDelayed.addFirst(st1);
 
             if (prod.isReject()) {
-                if (isLogging()) {
+                if (Tools.logging) {
                     Tools.logger("Reject [new]");
                 }
                 nl.reject();
@@ -508,7 +550,7 @@ public class SGLR {
             Link nl = st1.findDirectLink(st0);
 
             if (nl != null) {
-                if (isLogging()) {
+                if (Tools.logging) {
                     Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
                                  st1.state.stateNumber, " ", (prod.isReject() ? "{reject}" : ""));
                     if (nl.label instanceof ParseNode) {
@@ -517,7 +559,7 @@ public class SGLR {
                     }
                 }
 
-                if (isDebugging()) {
+                if (Tools.debugging) {
                     Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/",
                                 nl.getLength());
                 }
@@ -531,7 +573,7 @@ public class SGLR {
 
             } else {
                 nl = st1.addLink(st0, t, length);
-                if (isDebugging()) {
+                if (Tools.debugging) {
                     Tools.debug(" added link ", nl, " from ", st1.state.stateNumber, " to ",
                                 st0.state.stateNumber);
                 }
@@ -539,15 +581,18 @@ public class SGLR {
                 if (prod.isReject())
                     nl.reject();
 
-                TRACE_ActiveStacks();
-
+                if(Tools.tracing) {
+                    TRACE_ActiveStacks();
+                }
                 
                 // Note: ActiveStacks can be modified inside doLimitedReductions
                 // new elements may be inserted at the beginning
                 final int sz = activeStacks.size();
                 for (int i = 0; i < sz; i++) {
 //                for(Frame st2 : activeStacks) {
-                    TRACE("SG_ activeStack - ");
+                    if(Tools.tracing) {
+                        TRACE("SG_ activeStack - ");
+                    }
                     int pos = activeStacks.size() - sz + i;
                     Frame st2 = activeStacks.get(pos);
                     boolean b0 = st2.allLinksRejected();
@@ -560,14 +605,18 @@ public class SGLR {
                         if (ai instanceof Reduce) {
                             Reduce red = (Reduce) ai;
                             doLimitedReductions(st2, red.production, nl);
-                            TRACE("SG_ - back in reducer ");
-                            TRACE_ActiveStacks();
+                            if(Tools.tracing) {
+                                TRACE("SG_ - back in reducer ");
+                                TRACE_ActiveStacks();
+                            }
                         } else if(ai instanceof ReduceLookahead) {
                             ReduceLookahead red = (ReduceLookahead) ai;
                             if(checkLookahead(red)) {
                                 doLimitedReductions(st2, red.production, nl);
-                                TRACE("SG_ - back in reducer ");
-                                TRACE_ActiveStacks();
+                                if(Tools.tracing) {
+                                    TRACE("SG_ - back in reducer ");
+                                    TRACE_ActiveStacks();
+                                }
                             }
                         }
                     }
@@ -575,8 +624,10 @@ public class SGLR {
                 }
             }
         }
-        TRACE_ActiveStacks();
-        TRACE("SG_ - reducer done");
+        if(Tools.tracing) {
+            TRACE_ActiveStacks();
+            TRACE("SG_ - reducer done");
+        }
     }
 
     private void TRACE_ActiveStacks() {
@@ -586,12 +637,16 @@ public class SGLR {
     }
 
     private boolean inReduceStacks(Queue<Frame> q, Frame frame) {
-        SGLR.TRACE("SG_InReduceStacks() - " + frame.state.stateNumber);
+        if(Tools.tracing) {
+            TRACE("SG_InReduceStacks() - " + frame.state.stateNumber);
+        }
         return q.contains(frame);
     }
 
     private Frame newStack(State s) {
-        TRACE("SG_NewStack() - " + s.stateNumber);
+        if(Tools.tracing) {
+            TRACE("SG_NewStack() - " + s.stateNumber);
+        }
         return new Frame(s);
     }
 
@@ -608,10 +663,12 @@ public class SGLR {
     }
 
     private Frame findStack(List<Frame> stacks, State s) {
-        TRACE("SG_FindStack() - " + s.stateNumber);
+        if(Tools.tracing) {
+            TRACE("SG_FindStack() - " + s.stateNumber);
+        }
 
         // We need only check the top frames of the active stacks.
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("findStack() - ", dumpActiveStacks());
             Tools.debug(" looking for ", s.stateNumber);
         }
@@ -619,18 +676,24 @@ public class SGLR {
         final int size = stacks.size();
         for (int i = 0; i < size; i++) {
             if (stacks.get(i).state.stateNumber == s.stateNumber) {
-                System.err.println("SG_ - found stack");
+                if(Tools.tracing) {
+                    TRACE("SG_ - found stack");
+                }
                 return stacks.get(i);
             }
         }
-        System.err.println("SG_ - stack not found");
+        if(Tools.tracing) {
+            TRACE("SG_ - stack not found");
+        }
         return null;
     }
 
     private void doLimitedReductions(Frame st, Production prod, Link l) throws IOException {
-        TRACE("SG_DoLimitedReductions() - " + st.state.stateNumber + ", " + l.parent.state.stateNumber);
+        if(Tools.tracing) {
+            TRACE("SG_DoLimitedReductions() - " + st.state.stateNumber + ", " + l.parent.state.stateNumber);
+        }
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("doLimitedReductions() - ", dumpActiveStacks());
 
             Tools.debug(" state : ", st.peek().stateNumber);
@@ -642,7 +705,7 @@ public class SGLR {
 
         List<Path> paths = st.findLimitedPaths(prod.arity, l);
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug(paths);
         }
 
@@ -652,18 +715,18 @@ public class SGLR {
 
             List<IParseNode> kids = path.getATerms();
 
-            if (isDebugging()) {
+            if (Tools.debugging) {
                 Tools.debug(path);
             }
 
             Frame st0 = path.getEnd();
 
-            if (isDebugging()) {
+            if (Tools.debugging) {
                 Tools.debug(st0.state);
             }
             State next = parseTable.go(st0.peek(), prod.label);
 
-            if (isLogging()) {
+            if (Tools.logging) {
                 Tools.logger("Goto(", st0.peek().stateNumber, ",", prod.label, ") == ",
                              next.stateNumber);
             }
@@ -683,13 +746,15 @@ public class SGLR {
     }
 
     private int getNextToken() throws IOException {
-        TRACE("SG_NextToken() - ");
+        if(Tools.tracing) {
+            TRACE("SG_NextToken() - ");
+        }
 
         int t = currentInputStream.read();
 
         tokensSeen++;
 
-        if (isDebugging()) {
+        if (Tools.debugging) {
             Tools.debug("getNextToken() - ", t, "(", (char) t, ")");
         }
 

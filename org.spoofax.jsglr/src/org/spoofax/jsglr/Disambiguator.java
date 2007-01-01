@@ -245,12 +245,19 @@ public class Disambiguator {
             }
 
             if (parser.isPriorityFilterEnabled()) {
-                Tools.debug(" - about to look up : ",  prodLabel.labelNumber);
+                if(Tools.debugging) { 
+                    Tools.debug(" - about to look up : ",  prodLabel.labelNumber);
+                }
+                
                 if (!lookupGtrPriority(prodLabel).isEmpty()) {
-                    Tools.debug(" - found");
+                    if(Tools.debugging) {
+                        Tools.debug(" - found");
+                    }
                     return applyPriorityFilter((ParseNode) r, prodLabel);
                 }
-                Tools.debug(" - not found");
+                if(Tools.debugging) {
+                    Tools.debug(" - not found");
+                }
             }
         }
 

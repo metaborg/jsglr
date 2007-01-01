@@ -54,9 +54,14 @@ public class Tools {
         }
     }
 
-    static boolean debugging;
-    static boolean logging;
-
+    static boolean debugging = false;
+    static boolean logging = false;
+    static boolean tracing = false;
+ 
+    public static void setTracing(boolean enableTracing) {
+        tracing = enableTracing;
+    }
+    
     public static void setDebug(boolean enableDebug) {
         debugging = enableDebug;
     }

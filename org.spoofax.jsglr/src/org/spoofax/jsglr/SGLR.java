@@ -736,15 +736,6 @@ public class SGLR {
         clearPath(paths);
     }
 
-    private/* Stack<Frame> */void computeStackOfStacks(List<Frame> st) {
-        clearForActor(false);
-        Queue<Frame> ret = forActor;
-        final int size = st.size();
-        for (int i = 0; i < size; i++) {
-            ret.add(st.get(i));
-        }
-    }
-
     private int getNextToken() throws IOException {
         if(Tools.tracing) {
             TRACE("SG_NextToken() - ");

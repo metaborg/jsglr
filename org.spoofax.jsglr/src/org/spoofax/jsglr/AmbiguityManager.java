@@ -33,57 +33,7 @@ public class AmbiguityManager {
         clusterTable = new HashMap<Integer, Amb>();
         //initializeAmbiguityMap(inputLength);
     }
-/*
-    void initializeAmbiguityMap(int inputLength) {
-        inputAmbiguityMap = new AmbiguityMap(inputLength);
-    }
-    
-    void createAmbiguityCluster(IParseNode existing, IParseNode newNode, int pos) {
-        
-        increaseAmbiguityCalls();
-        
-        Amb newAmbiguities = null;
-        
-        int idx = getIndex(existing, pos);
-        if(idx == -1) {
-            idx = increaseMaxAmbiguityCount();
-            addIndex(existing, pos, idx);
-            newAmbiguities = new Amb(existing, newNode);
-        } else {
-            Amb oldAmbiguities = getClusterOnIndex(idx);
-            if(oldAmbiguities.hasAmbiguity(newNode))
-                return;
-            newAmbiguities = new Amb(oldAmbiguities, newNode);
-        }
-        
-        addIndex(newNode, pos, idx);
-        updateCluster(idx, newAmbiguities);
-        inputAmbiguityMap.mark(pos);
-    }
 
-    protected Amb getClusterOnIndex(int idx) {
-        return clusterTable.get(idx);
-    }
-
-    private void updateCluster(int idx, Amb cluster) {
-        clusterTable.put(idx, cluster);
-    }
-*/
-    private void addIndex(IParseNode t, int pos, int idx) {
-        if(SGLR.isDebugging()) {
-            Tools.debug("addIndex()");
-            Tools.debug(" - " + t);
-            Tools.debug(" - " + pos);
-        }
-        indexTable.put(new AmbKey(t, pos), idx);
-    }
-
-    /*
-    private int getIndex(IParseNode existing, int pos) {
-        Integer i = indexTable.get(new AmbKey(existing, pos));
-        return i == null ? -1 : i.intValue();
-    }
-*/
     private int increaseMaxAmbiguityCount() {
         return maxNumberOfAmbiguitiesCount++;
     }

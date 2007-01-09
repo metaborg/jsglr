@@ -20,11 +20,20 @@ public class Priority implements Serializable {
 
     public final int left;
     public final int right;
+    public final int arg;
     public final int type;
 
     public Priority(int type, int left, int right) {
         this.type = type;
         this.left = left;
         this.right = right;
+        this.arg = -1;
+    }
+    
+    public Priority(int type, int left, int right, int arg) {
+        this.type = type;
+        this.left = left;
+        this.right = right;
+       	this.arg = arg;
     }
 }

@@ -63,8 +63,8 @@ public class ParseTable implements Serializable {
         ATermAppl statesTerm = Term.applAt(pt, 3);
         ATermAppl prioritiesTerm = Term.applAt(pt, 4);
 
-        if (version != 4) {
-            throw new InvalidParseTableException("Only supports version 4 tables.");
+        if (version != 4 && version !=6) {
+            throw new InvalidParseTableException("Only supports version 4 and 6 tables.");
         }
 
         labels = parseLabels(labelsTerm);
@@ -98,6 +98,11 @@ public class ParseTable implements Serializable {
             } else if (a.getName().equals("gtr-prio")) {
                 if(left != right)
                     ret.add(new Priority(Priority.GTR, left, right));
+            } else if (a.getName().equals("arg-gtr-prio")) {
+            	int arg = right;
+            	right = Term.intAt(a, 1);
+                if(left != right)
+                    ret.add(new Priority(Priority.GTR, left, right, arg));
             } else {
                 throw new InvalidParseTableException("Unknown priority : " + a.getName());
             }
@@ -124,6 +129,8 @@ public class ParseTable implements Serializable {
                 if(left == right)
                     ret.add(new Associativity(Priority.NONASSOC, left));
             } else if (a.getName().equals("gtr-prio")) {
+                // handled by parsePriorities
+            } else if (a.getName().equals("arg-gtr-prio")) {
                 // handled by parsePriorities
             } else {
                 throw new InvalidParseTableException("Unknown priority : " + a.getName());
@@ -482,11 +489,11 @@ public class ParseTable implements Serializable {
         return labels[prod].prod;
     }
 
-    public List<Label> getPriorities(Label prodLabel) {
-        List<Label> ret = new ArrayList<Label>();
+    public List<Priority> getPriorities(Label prodLabel) {
+        List<Priority> ret = new ArrayList<Priority>();
         for (Priority p : priorities) {
             if (p.left == prodLabel.labelNumber && p.type == Priority.GTR) {
-                ret.add(labels[p.right]);
+                ret.add(p);
             }
         }
         return ret;

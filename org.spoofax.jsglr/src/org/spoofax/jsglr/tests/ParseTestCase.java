@@ -77,7 +77,20 @@ public abstract class ParseTestCase extends TestCase {
                 printWriter.flush();
                 System.err.println("Saw    : " + parsed);
                 System.err.println("Wanted : " + loaded);
-                assertTrue(false);
+                System.err.println("Trying to compare to the alternative file.");
+                
+                loaded = sglr.getFactory().readFromFile("tests/data/" + s + "-bis.trm");
+
+                assertNotNull(loaded);
+
+                if(parsed.match(loaded) == null) {
+                    printWriter = new PrintWriter(new FileOutputStream("tests/data/" + s + ".trm.parsed"));
+                    printWriter.print(parsed.toString());
+                    printWriter.flush();
+                    System.err.println("Saw    : " + parsed);
+                    System.err.println("Wanted : " + loaded);
+                    assertTrue(false);
+                }
             }
         }
     }

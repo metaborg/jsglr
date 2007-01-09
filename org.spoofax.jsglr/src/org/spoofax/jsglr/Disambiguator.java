@@ -321,6 +321,7 @@ public class Disambiguator {
         List<IParseNode> newKids = new LinkedList<IParseNode>();
         
         int l0 = prodLabel.labelNumber;
+        int kidnumber = 0;
 
         for (IParseNode alt : kids) {
             IParseNode newKid = alt;
@@ -335,7 +336,7 @@ public class Disambiguator {
 
                     if (injAmb instanceof ParseNode) {
                         Label label = getProductionLabel(t);
-                        if(hasGreaterPriority(l0, label.labelNumber)) {
+                        if(hasGreaterPriority(l0, label.labelNumber, kidnumber)) {
                             newAmbiguities.add(amb);
                         }
                     }
@@ -354,12 +355,13 @@ public class Disambiguator {
                 }
             } else if (injection instanceof ParseNode) {
                 int l1 = ((ParseNode) injection).label;
-                if (hasGreaterPriority(l0, l1)) {
+                if (hasGreaterPriority(l0, l1, kidnumber)) {
                     throw new FilterException("");
                 }
             }
             
             newKids.add(newKid);
+            kidnumber++;
         }
 
         return new ParseNode(t.label, newKids);
@@ -403,12 +405,19 @@ public class Disambiguator {
         return l.isInjection();
     }
 
-    private boolean hasGreaterPriority(int l0, int l1) {
-        List<Label> prios = lookupGtrPriority(parseTable.getLabel(l0));
-        return prios.contains(parseTable.getLabel(l1));
+    private boolean hasGreaterPriority(int l0, int l1, int arg) {
+        List<Priority> prios = lookupGtrPriority(parseTable.getLabel(l0));
+        	
+        for (Priority p : prios) {
+        	if (l1 == p.right)
+        		if (p.arg == -1 || p.arg == arg) {
+        			return true;
+        	}
+        }
+        return false;
     }
 
-    private List<Label> lookupGtrPriority(Label prodLabel) {
+    private List<Priority> lookupGtrPriority(Label prodLabel) {
         return parseTable.getPriorities(prodLabel);
     }
 

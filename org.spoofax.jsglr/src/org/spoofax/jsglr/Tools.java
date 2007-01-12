@@ -18,6 +18,10 @@ public class Tools {
     private static OutputStream fos;
     private static String outfile = null;
 
+    static {
+    	initOutput();
+    }
+    
     public static void setOutput(String d) {
         outfile = d;
         initOutput();

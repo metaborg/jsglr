@@ -218,16 +218,15 @@ public class ParseTable implements Serializable {
 
         ATermList states = Term.listAt(statesTerm, 0);
         State[] ret = new State[states.getLength()];
+        for(int i = 0; i < ret.length; i++) {
+            ATermAppl stateRec = (ATermAppl) states.getFirst();
+            states = states.getNext();
 
-        for (int i = 0; i < states.getLength(); i++) {
-
-            ATermAppl stateRec = Term.applAt(states, i);
             int stateNumber = Term.intAt(stateRec, 0);
             Goto[] gotos = parseGotos(Term.listAt(stateRec, 1));
             Action[] actions = parseActions(Term.listAt(stateRec, 2));
 
             ret[i] = new State(stateNumber, gotos, actions);
-
         }
 
         return ret;
@@ -245,11 +244,11 @@ public class ParseTable implements Serializable {
     }
 
     private Action[] parseActions(ATermList actionList) throws InvalidParseTableException {
-
         Action[] ret = new Action[actionList.getChildCount()];
 
-        for (int i = 0; i < actionList.getChildCount(); i++) {
-            ATermAppl action = Term.applAt(actionList, i);
+        for(int i = 0; i < ret.length; i++) {
+            ATermAppl action = (ATermAppl) actionList.getFirst();
+            actionList = actionList.getNext();
             Range[] ranges = parseRanges(Term.listAt(action, 0));
             ActionItem[] items = parseActionItems(Term.listAt(action, 1));
             ret[i] = new Action(ranges, items);
@@ -261,9 +260,11 @@ public class ParseTable implements Serializable {
 
         ActionItem[] ret = new ActionItem[items.getChildCount()];
 
-        for (int i = 0; i < items.getChildCount(); i++) {
+        for(int i = 0; i < ret.length; i++) {
             ActionItem item = null;
-            ATermAppl a = Term.applAt(items, i);
+            ATermAppl a = (ATermAppl) items.getFirst();
+            items = items.getNext();
+
             if (a.getName().equals("reduce") && a.getAFun().getArity() == 3) {
                 int productionArity = Term.intAt(a, 0);
                 int label = Term.intAt(a, 1);
@@ -331,11 +332,11 @@ public class ParseTable implements Serializable {
     }
 
     private Goto[] parseGotos(ATermList gotos) throws InvalidParseTableException {
-
         Goto[] ret = new Goto[gotos.getChildCount()];
+        for(int i = 0; i < ret.length; i++) {
+            ATermAppl go = (ATermAppl) gotos.getFirst();
+            gotos = gotos.getNext();
 
-        for (int i = 0; i < gotos.getChildCount(); i++) {
-            ATermAppl go = Term.applAt(gotos, i);
             ATermList rangeList = Term.listAt(go, 0);
             int newStateNumber = Term.intAt(go, 1);
             Range[] ranges = parseRanges(rangeList);
@@ -369,8 +370,9 @@ public class ParseTable implements Serializable {
 
         Range[] ret = new Range[ranges.getChildCount()];
 
-        for (int i = 0; i < ranges.getChildCount(); i++) {
-            ATerm t = Term.termAt(ranges, i);
+        for(int i = 0; i < ret.length; i++) {
+            ATerm t = ranges.getFirst();
+            ranges = ranges.getNext();
             if (Term.isInt(t)) {
                 ret[i] = makeRange(Term.toInt(t));
             } else {

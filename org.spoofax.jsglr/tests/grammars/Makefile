@@ -23,5 +23,8 @@ gen-%.def : basic/%.sdf Makefile
 	   echo;		\
 	 done) >$@
 
+Stratego.def: Stratego.def.in
+	ln -sf $< $@
+
 clean:
 	rm -f *.def *.tbl

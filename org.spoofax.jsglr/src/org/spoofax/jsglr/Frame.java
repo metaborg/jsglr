@@ -11,8 +11,6 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.sun.jmx.trace.Trace;
-
 public class Frame implements Serializable {
 
     static final long serialVersionUID = -4757644376472129935L;

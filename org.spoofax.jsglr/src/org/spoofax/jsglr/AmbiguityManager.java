@@ -16,26 +16,16 @@ public class AmbiguityManager {
     private int eagernessFilterSucceededCount;
     private int injectionCallsCount;
     private int eagernessGreaterCallsCount;
-    private int preferAndAvoidCallsCount;
+    //private int preferAndAvoidCallsCount;
     private int ambiguityCallsCount;
     private int maxNumberOfAmbiguitiesCount;
     private int ambiguitiesCount;
-    private int clustersVisitedCount;
+    protected int clustersVisitedCount;
     
     private Map<AmbKey,Integer> indexTable;
-    private Map<Integer, Amb> clusterTable;
-    
-    //private AmbiguityMap inputAmbiguityMap;
-
 
     AmbiguityManager(int inputLength) {
         indexTable = new HashMap<AmbKey, Integer>();
-        clusterTable = new HashMap<Integer, Amb>();
-        //initializeAmbiguityMap(inputLength);
-    }
-
-    private int increaseMaxAmbiguityCount() {
-        return maxNumberOfAmbiguitiesCount++;
     }
 
     public int increaseAmbiguityCalls() {
@@ -77,11 +67,7 @@ public class AmbiguityManager {
         Integer r = indexTable.get(k);
         return r == null ? -1 : r.intValue();
     }
-/*
-    public boolean isInputAmbiguousAt(int pos) {
-        return inputAmbiguityMap.isMarked(pos);
-    }
-*/
+
     public void dumpIndexTable() {
         Tools.debug(indexTable);
     }

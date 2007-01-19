@@ -45,10 +45,12 @@
     </target>
 	
     <!-- ############################ Tests ############################ -->
+	<!--
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
         <classpath refid="classpath"/>
     </taskdef>
-
+    -->
+	
     <target name="run.tests" depends="jar">
         <mkdir dir="${test.out.dir}"/>
         <junit printsummary="yes" fork="no" haltonfailure="no">

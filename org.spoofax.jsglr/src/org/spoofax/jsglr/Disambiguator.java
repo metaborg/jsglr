@@ -874,9 +874,9 @@ public class Disambiguator {
             }
             return null;
         } else if (t instanceof ParseNode) {
-            Amb ambiguities = null;
+            //Amb ambiguities = null;
             List<IParseNode> cycle = null;
-            int clusterIndex;
+            //int clusterIndex;
             ParseNode n = (ParseNode) t;
 
             if (inAmbiguityCluster) {
@@ -922,6 +922,7 @@ public class Disambiguator {
         }
     }
 
+    /*
     private List<IParseNode> computeCyclicTermInAmbiguityCluster(Amb ambiguities,
             PositionMap visited) {
 
@@ -932,7 +933,8 @@ public class Disambiguator {
         }
         return null;
     }
-
+     */
+    
     private List<IParseNode> computeCyclicTerm(List<IParseNode> kids, boolean b, PositionMap visited) {
 
         for (IParseNode kid : kids) {

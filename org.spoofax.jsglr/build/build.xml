@@ -2,13 +2,14 @@
 
     <property name="compiler.debug" value="on"/>
 
+    <property file="build.properties"/>
+
     <property name="src.dir" value="../src"/>
     <property name="lib.dir" value="../ext"/>
     <property name="build.dir" value=".."/>
     <property name="classes.dir" value="${build.dir}/bin"/>
-    <property name="version" value="0.1"/>
     <property name="jar.file" value="jsglr-${version}.jar"/>
-    <property name="test.out.dir" value="../testout"/>
+    <property name="test.out.dir" value="../tests/output"/>
     <property name="haltonfailure" value="no"/>
 
     <path id="classpath">
@@ -16,6 +17,7 @@
             <include name="jjtraveler-0.4.3.jar"/>
             <include name="shared-objects-1.4.jar"/>
             <include name="junit-3.8.1.jar"/>
+            <include name="ant-junit-1.6.5.jar"/>
         </fileset>
         <!-- todo: better idea? -->
         <pathelement location="../../org.spoofax.aterm/aterm-1.6.jar"/>
@@ -41,27 +43,26 @@
     <!-- ############################ Jar ############################ -->
     <target name="jar" depends="compile">
         <jar jarfile="${build.dir}/${jar.file}"
-             basedir="${classes.dir}"/>
+             basedir="${classes.dir}"
+             includes="org/spoofax/**"
+             excludes="org/spoofax/jsglr/tests/**"/>
     </target>
 	
     <!-- ############################ Tests ############################ -->
-	<!--
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
         <classpath refid="classpath"/>
     </taskdef>
-    -->
 	
-    <target name="run.tests" depends="jar">
+    <target name="check" depends="jar">
         <mkdir dir="${test.out.dir}"/>
         <junit printsummary="yes" fork="no" haltonfailure="no">
             <classpath>
                 <path refid="classpath"/>
                 <pathelement location="${build.dir}/${jar.file}"/>
-                <!--<pathelement location="../../../shared-objects-JJTraveler-bundle/shared-objects-1.4.2/classes"/>-->
             </classpath>
             <formatter type="plain"/>
-        	<test name="org.spoofax.jsglr.tests.TestG_ambi" todir="${test.out.dir}" haltonfailure="${haltonfailure}"/>
-	        <test name="org.spoofax.jsglr.tests.TestG_avoid_1" todir="${test.out.dir}" haltonfailure="${haltonfailure}"/>
+            <test name="org.spoofax.jsglr.tests.TestG_ambi" todir="${test.out.dir}" haltonfailure="${haltonfailure}"/>
+	    <test name="org.spoofax.jsglr.tests.TestG_avoid_1" todir="${test.out.dir}" haltonfailure="${haltonfailure}"/>
             <test name="org.spoofax.jsglr.tests.TestG_avoid_2" todir="${test.out.dir}" haltonfailure="${haltonfailure}"/>
             <test name="org.spoofax.jsglr.tests.TestG_prefer_1" todir="${test.out.dir}" haltonfailure="${haltonfailure}"/>
             <test name="org.spoofax.jsglr.tests.TestG_prefer_2" todir="${test.out.dir}" haltonfailure="${haltonfailure}"/>
@@ -81,7 +82,7 @@
         <delete dir="${classes.dir}"/>
     </target>
 
-    <target name="clean.full" depends="clean">
+    <target name="fullclean" depends="clean">
         <delete file="${build.dir}/${jar.file}"/>
     </target>
 </project>

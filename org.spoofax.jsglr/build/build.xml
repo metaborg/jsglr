@@ -14,13 +14,14 @@
 
     <path id="classpath">
         <fileset dir="${lib.dir}">
+            <!-- hack by martin, need better place? -->
+            <include name="aterm-0.2.0.jar"/>
+
             <include name="jjtraveler-0.4.3.jar"/>
             <include name="shared-objects-1.4.jar"/>
             <include name="junit-3.8.1.jar"/>
             <include name="ant-junit-1.6.5.jar"/>
         </fileset>
-        <!-- todo: better idea? -->
-        <pathelement location="../../org.spoofax.aterm/aterm-1.6.jar"/>
     </path>
 
     <target name="init">

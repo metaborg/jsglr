@@ -47,10 +47,13 @@ public class ParseTableManager {
         if(SGLR.isDebugging()) {
             Tools.debug("loadFromStream()");
         }
-        long start = System.currentTimeMillis();
-        ATerm pt = factory.readFromFile(r);
 
-        ParseTable parseTable = new ParseTable(pt);
+        return initializeParseTable(factory.readFromFile(r));
+    }
+
+	private ParseTable initializeParseTable(ATerm pt) throws InvalidParseTableException {
+        long start = System.currentTimeMillis();
+		ParseTable parseTable = new ParseTable(pt);
         long elapsed = System.currentTimeMillis() - start;
 
         if (SGLR.isLogging()) {
@@ -67,10 +70,14 @@ public class ParseTableManager {
         }
         
         return parseTable;
-    }
+	}
 
     public ATermFactory getFactory() {
         return factory;
     }
+
+	public ParseTable loadFromTerm(ATerm term) throws InvalidParseTableException {
+		return initializeParseTable(term);
+	}
 
 }

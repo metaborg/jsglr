@@ -82,8 +82,7 @@ public class SGLR {
         basicInit(null);
     }
 
-    public SGLR(final ATermFactory pf, ParseTable parseTable) throws IOException,
-            InvalidParseTableException {
+    public SGLR(final ATermFactory pf, ParseTable parseTable) {
 
         assert factory == null;
         assert parseTable == null;

@@ -44,6 +44,7 @@
     <!-- ############################ Jar ############################ -->
     <target name="jar" depends="compile">
         <jar jarfile="${build.dir}/${jar.file}"
+             manifest="jsglr.mf"
              basedir="${classes.dir}"
              includes="org/spoofax/**"
              excludes="org/spoofax/jsglr/tests/**"/>

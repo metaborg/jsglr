@@ -1,9 +1,9 @@
 package org.spoofax.interpreter.library.jsglr;
 
-import org.spoofax.interpreter.IConstruct;
 import org.spoofax.interpreter.IContext;
 import org.spoofax.interpreter.InterpreterException;
 import org.spoofax.interpreter.adapter.aterm.WrappedATerm;
+import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.InvalidParseTableException;
 import org.spoofax.jsglr.ParseTable;
@@ -15,7 +15,7 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
 	}
 
 	@Override
-	public boolean call(IContext env, IConstruct[] svars, IStrategoTerm[] tvars)
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 		if(!(tvars[0] instanceof WrappedATerm))
 			return false;

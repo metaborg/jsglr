@@ -4,12 +4,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.spoofax.interpreter.IConstruct;
 import org.spoofax.interpreter.IContext;
 import org.spoofax.interpreter.InterpreterException;
 import org.spoofax.interpreter.Tools;
-import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.library.AbstractPrimitive;
+import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.InvalidParseTableException;
@@ -23,15 +22,15 @@ import aterm.pure.PureFactory;
 
 public class JSGLR_parse_stratego extends AbstractPrimitive {
 	private SGLR StrategoSGLR;
-	private WrappedATermFactory factory;
+	private PureFactory factory;
 	
-	JSGLR_parse_stratego(WrappedATermFactory factory) {
+	JSGLR_parse_stratego(PureFactory factory2) {
 		super("JSGLR_parse_stratego", 0, 1);
-		this.factory = factory;
+		this.factory = factory2;
 	}
 	
 	@Override
-	public boolean call(IContext env, IConstruct[] svars,
+	public boolean call(IContext env, Strategy[] svars,
 			IStrategoTerm[] tvars) throws InterpreterException {
 		
 		if (!Tools.isTermString(tvars[0]))
@@ -44,7 +43,6 @@ public class JSGLR_parse_stratego extends AbstractPrimitive {
 			return false;
 		try {
 			parsed = StrategoSGLR.parse(new FileInputStream(path));
-			System.err.println("Yes!");
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found.");
 			return false;
@@ -55,24 +53,23 @@ public class JSGLR_parse_stratego extends AbstractPrimitive {
 			System.err.println("SGLR Exc");
 			return false;
 		}
-		System.err.println(parsed);
+		//System.err.println(parsed);
 		if (parsed == null)
 			return false;
         // FIXME this is dangerous!
-        WrappedATermFactory fac = (WrappedATermFactory) env.getFactory();
-		env.setCurrent(fac.wrapTerm(parsed));
+        //StrATermFactory fac = (StrATermFactory) env.getFactory();
+		env.setCurrent(parsed);
 		return true;
 	}
 
 	private void initialize() {
 		// FIXME this must be cleaned
-		PureFactory pf = ((WrappedATermFactory) factory).getFactory();
-		ParseTableManager ptm = new ParseTableManager(pf);
+		ParseTableManager ptm = new ParseTableManager(factory);
 
 		ParseTable pt;
 		try {
 				pt = ptm.loadFromFile("data/Stratego.tbl");
-				StrategoSGLR = new SGLR(pf, pt);
+				StrategoSGLR = new SGLR(factory, pt);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

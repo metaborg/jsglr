@@ -4,10 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.spoofax.interpreter.IConstruct;
 import org.spoofax.interpreter.IContext;
 import org.spoofax.interpreter.InterpreterException;
 import org.spoofax.interpreter.Tools;
+import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.ParseTable;
 import org.spoofax.jsglr.SGLR;
@@ -20,7 +20,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 	}
 
 	@Override
-	public boolean call(IContext env, IConstruct[] svars, IStrategoTerm[] tvars)
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 		
 		if(!Tools.isTermString(tvars[0]))
@@ -35,7 +35,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		
 		InputStream is = new ByteArrayInputStream(Tools.asJavaString(tvars[0]).getBytes());
 		try {
-			env.setCurrent(lib.getFactory().wrapTerm(parser.parse(is)));
+			env.setCurrent(parser.parse(is));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -3,16 +3,13 @@ package org.spoofax.interpreter.library.jsglr;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.ParseTable;
 import org.spoofax.jsglr.ParseTableManager;
 
 import aterm.ATermFactory;
-import aterm.pure.PureFactory;
-
-import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
-//import aterm.pure.StrATermFactory;
 
 public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
     

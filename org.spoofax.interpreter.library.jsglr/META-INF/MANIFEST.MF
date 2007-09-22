@@ -5,7 +5,6 @@ Bundle-SymbolicName: org.spoofax.interpreter.library.jsglr
 Bundle-Version: 0.3.9
 Bundle-Activator: org.spoofax.interpreter.library.jsglr.Activator
 Bundle-Vendor: Spoofax.org
-Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.spoofax.interpreter,

@@ -19,7 +19,6 @@ import org.spoofax.jsglr.SGLR;
 import org.spoofax.jsglr.SGLRException;
 
 import aterm.ATerm;
-import aterm.pure.PureFactory;
 
 public class JSGLR_parse_stratego extends AbstractPrimitive {
 	private SGLR StrategoSGLR;

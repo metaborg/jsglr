@@ -155,7 +155,8 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    private boolean isInjection(ATermAppl prod) {
+    @SuppressWarnings("unchecked")
+	private boolean isInjection(ATermAppl prod) {
 
         List r = prod.match("prod([<term>],cf(sort(<term>)),<term>)");
         if (r != null && r.size() == 1) {

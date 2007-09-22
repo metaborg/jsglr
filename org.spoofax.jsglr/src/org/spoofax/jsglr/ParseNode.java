@@ -19,8 +19,6 @@ public class ParseNode extends IParseNode {
     public final int label;
     protected List<IParseNode> kids;
 
-    private ParseNode() { label = 0; }
-
     public ParseNode(int label, List<IParseNode> kids) {
         this.label = label;
         this.kids = kids;

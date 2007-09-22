@@ -5,6 +5,6 @@ Bundle-SymbolicName: org.spoofax.jsglr
 Bundle-Version: 0.2.0
 Bundle-Localization: plugin
 Export-Package: org.spoofax.jsglr
-Bundle-Vendor: org.spoofax
+Bundle-Vendor: Spoofax.org
 Require-Bundle: org.spoofax.aterm,
  org.junit

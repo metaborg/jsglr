@@ -8,6 +8,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.ParseTable;
 import org.spoofax.jsglr.ParseTableManager;
 
+import aterm.ATermFactory;
 import aterm.pure.PureFactory;
 
 import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
@@ -17,16 +18,16 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
     
 	public static final String REGISTRY_NAME = "JSGLR";
 	private ParseTableManager parseTableManager;
-	private ITermFactory factory;
+	private WrappedATermFactory factory;
 	private int parseTableCounter;
 	private Map<Integer, ParseTable> parseTables;
 
-	public JSGLRLibrary(ITermFactory factory2) {
-		this.factory = factory2;
+	public JSGLRLibrary(WrappedATermFactory termFactory) {
+		this.factory = termFactory;
 		init();
-        add(new JSGLR_parse_stratego(getATermFactory()));
+        add(new JSGLR_parse_stratego(factory));
         add(new JSGLR_open_parsetable());
-        add(new JSGLR_parse_string_pt());
+        add(new JSGLR_parse_string_pt(factory));
     }
 
 	private void init() {
@@ -37,7 +38,7 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 
 	public ParseTableManager getParseTableManager() {
 		if(parseTableManager == null)
-			parseTableManager = new ParseTableManager(getATermFactory());
+			parseTableManager = new ParseTableManager(factory.getFactory());
 		return parseTableManager;
 	}
 
@@ -56,10 +57,7 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		return factory;
 	}
 	
-	PureFactory getATermFactory() {
-		//in case of using the branch of ATerm implementing the IStrategoTerm
-		//interface, uncomment the following line
-		//return ((StrATermFactory)factory).getFactory();
-		return ((WrappedATermFactory)factory).getFactory();
+	ATermFactory getATermFactory() {
+		return factory.getFactory();
 	}
 }

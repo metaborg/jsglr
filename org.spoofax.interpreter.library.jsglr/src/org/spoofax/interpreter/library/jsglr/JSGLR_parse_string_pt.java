@@ -7,6 +7,7 @@ import java.io.InputStream;
 import org.spoofax.interpreter.IContext;
 import org.spoofax.interpreter.InterpreterException;
 import org.spoofax.interpreter.Tools;
+import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.ParseTable;
@@ -15,8 +16,11 @@ import org.spoofax.jsglr.SGLRException;
 
 public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 
-	protected JSGLR_parse_string_pt() {
+	private WrappedATermFactory factory;
+
+	protected JSGLR_parse_string_pt(WrappedATermFactory termFactory) {
 		super("JSGLR_parse_string_pt", 1, 4);
+		this.factory = termFactory;
 	}
 
 	@Override
@@ -31,11 +35,11 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		JSGLRLibrary lib = getLibrary(env);
 		ParseTable pt = lib.getParseTable(Tools.asJavaInt(tvars[1]));
 		
-		SGLR parser = new SGLR(lib.getATermFactory(), pt);
+		SGLR parser = new SGLR(factory.getFactory(), pt);
 		
 		InputStream is = new ByteArrayInputStream(Tools.asJavaString(tvars[0]).getBytes());
 		try {
-			env.setCurrent(parser.parse(is));
+			env.setCurrent(factory.wrapTerm(parser.parse(is)));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();

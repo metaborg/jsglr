@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.spoofax.interpreter.IContext;
 import org.spoofax.interpreter.InterpreterException;
 import org.spoofax.interpreter.Tools;
+import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -22,11 +23,11 @@ import aterm.pure.PureFactory;
 
 public class JSGLR_parse_stratego extends AbstractPrimitive {
 	private SGLR StrategoSGLR;
-	private PureFactory factory;
+	private WrappedATermFactory factory;
 	
-	JSGLR_parse_stratego(PureFactory factory2) {
+	JSGLR_parse_stratego(WrappedATermFactory termFactory) {
 		super("JSGLR_parse_stratego", 0, 1);
-		this.factory = factory2;
+		this.factory = termFactory;
 	}
 	
 	@Override
@@ -53,23 +54,20 @@ public class JSGLR_parse_stratego extends AbstractPrimitive {
 			System.err.println("SGLR Exc");
 			return false;
 		}
-		//System.err.println(parsed);
 		if (parsed == null)
 			return false;
-        // FIXME this is dangerous!
-        //StrATermFactory fac = (StrATermFactory) env.getFactory();
-		env.setCurrent(parsed);
+		env.setCurrent(factory.wrapTerm(parsed));
 		return true;
 	}
 
 	private void initialize() {
 		// FIXME this must be cleaned
-		ParseTableManager ptm = new ParseTableManager(factory);
+		ParseTableManager ptm = new ParseTableManager(factory.getFactory());
 
 		ParseTable pt;
 		try {
 				pt = ptm.loadFromFile("data/Stratego.tbl");
-				StrategoSGLR = new SGLR(factory, pt);
+				StrategoSGLR = new SGLR(factory.getFactory(), pt);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -1,0 +1,13 @@
+<ivysettings>
+  <settings defaultResolver="spoofax" />
+  <resolvers>
+    <chain name="spoofax">
+      <ivyrep name="spoofax-ivy-repo"
+          ivyroot="http://www.ii.uib.no/~karltk/spoofax/ivy-repo/"
+          ivypattern="[organisation]/[module]/[revision]/ivy.xml"
+          artroot="http://www.ii.uib.no/~karltk/spoofax/ivy-repo/"
+          artpattern="[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
+      <ibiblio name="ibiblio" />
+    </chain>
+  </resolvers>
+</ivysettings>

@@ -1,46 +1,12 @@
 <project name="spoofax-aterm" default="jar" xmlns:ivy="antlib:org.apache.ivy.ant">
-    <property name="lib.dir" value="lib" />
-    <property name="build.dir" value="build" />
-    <property name="src.dir" value="src" />
- 
-    <property name="project.version" value="0.2.0" />
-
-    <path id="lib.path.id">
-        <fileset dir="${lib.dir}" />
-	</path>
-    <path id="run.path.id">
-        <path refid="lib.path.id" />
-        <path location="${build.dir}" />
-    </path>
-    
-    <target name="resolve" description="--> retreive dependencies with ivy">
-        <ivy:retrieve/>
-    </target>    
-    
-    <target name="report" depends="resolve" description="--> generates a report of dependencies">
-        <ivy:report todir="${build.dir}"/>
-    </target>
+	
+    <import file="../common.xml" />
 
     <target name="compile" depends="resolve" description="--> compile the project">
         <mkdir dir="${build.dir}/classes" />
         <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id">
-           <exclude name="org/spoofax/jsglr/tests/**" />
+            <exclude name="org/spoofax/interpreter/test/**" />
         </javac>
-    </target>
-
-    <target name="jar" depends="compile">
-        <jar destfile="${build.dir}/jsglr-${project.version}.jar" basedir="${build.dir}/classes" />
-    </target>
-
-    <target name="clean" description="--> clean the project">
-        <delete includeemptydirs="true">
-            <fileset dir="${build.dir}" />
-            <fileset dir="${lib.dir}" />
-    	</delete>
-    </target>
-	
-    <target name="clean-cache" description="--> clean the ivy cache">
-        <ivy:cleancache />
     </target>
 
 </project>

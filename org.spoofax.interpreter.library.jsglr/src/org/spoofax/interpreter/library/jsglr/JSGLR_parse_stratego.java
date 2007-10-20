@@ -65,7 +65,7 @@ public class JSGLR_parse_stratego extends AbstractPrimitive {
 
 		ParseTable pt;
 		try {
-				pt = ptm.loadFromFile("data/Stratego.tbl");
+				pt = ptm.loadFromFile(System.getProperty("stratego.dir") + "/share/sdf/stratego-front/Stratego.tbl");
 				StrategoSGLR = new SGLR(factory.getFactory(), pt);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

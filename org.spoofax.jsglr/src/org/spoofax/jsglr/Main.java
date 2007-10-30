@@ -32,6 +32,7 @@ public class Main {
         boolean detectCycles = true;
         boolean filter = true;
         boolean waitForProfiler = false;
+        boolean timing = false;
         
         int skip = 0;
         for(int i=0;i<args.length;i++) {
@@ -56,6 +57,8 @@ public class Main {
                 detectCycles = false;
             } else if(args[i].equals("--wait-for-profiler")) {
                 waitForProfiler = true;
+            } else if(args[i].equals("--timing")) {
+            	timing = true;
             }
         }
 
@@ -64,7 +67,9 @@ public class Main {
         
 
         ParseTableManager ptm = new ParseTableManager();
+        long tableLoadingTime = System.currentTimeMillis(); 
         SGLR sglr = new SGLR(ptm.getFactory(), ptm.loadFromFile(parseTable));
+        tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
 
         Tools.setDebug(debugging);
         Tools.setLogging(logging);
@@ -83,8 +88,11 @@ public class Main {
         else 
             ous = System.out;
 
+        long parsingTime = 0;
         try {
+        	parsingTime = System.currentTimeMillis();
             ATerm t = sglr.parse(fis);
+            parsingTime = System.currentTimeMillis() - parsingTime;
             if(t != null)
                 ous.write(t.toString().getBytes());
         } catch(SGLRException e) {
@@ -93,6 +101,10 @@ public class Main {
         
         if(waitForProfiler)
             System.in.read();
+        if(timing) {
+        	System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
+        	System.err.println("Parsing time             : " + parsingTime + "ms");
+        }
     }
 
     private static void usage() {

@@ -9,4 +9,18 @@
         </javac>
     </target>
 
+   <target name="install" depends="jar" description="--> install the project into prefix">
+        <mkdir dir="${prefix}/bin" />
+        <mkdir dir="${prefix}/share/java" />
+
+        <copy todir="${prefix}/share/java">
+            <fileset dir="${lib.dir}/" />
+        </copy>
+
+        <copy file="build/${jarname}-${version}.jar" todir="${prefix}/share/java" />
+
+        <copy file="jsglr" todir="${prefix}/bin" />
+        <chmod perm="a+x" file="${prefix}/bin/jsglr" />
+   </target>
+
 </project>

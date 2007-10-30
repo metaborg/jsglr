@@ -1,9 +1,18 @@
 #! /bin/bash
 
-x=$(dirname $0)
+base=$(dirname $0)
+jars=${base}/../share/java
+
+cp="jjtraveler-0.4.3.jar junit-3.8.2.jar shared-objects-1.4.jar spoofax-aterm-0.2.0.jar jsglr-0.2.0.jar"
+
+fcp=""
+for x in ${cp} ; do
+	fcp="${fcp}:${jars}/${x}"
+done
 
 java \
 	-Xmx1024m \
-	-cp ${x}/bin:${x}/../org.spoofax.aterm/bin:${x}/ext/jjtraveler-0.4.3.jar:${x}/ext/shared-objects-1.4.jar \
+	-Xss10m \
+	-cp ${fcp} \
 	org.spoofax.jsglr.Main $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12
 

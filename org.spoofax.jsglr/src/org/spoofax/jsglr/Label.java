@@ -16,7 +16,7 @@ public class Label implements Serializable {
     static final long serialVersionUID = -4080621639747161438L;
     
     public final int labelNumber;
-    public final ATermAppl prod;
+    public final transient ATermAppl prod;
     public final ProductionAttributes productionAttributes;
     public final boolean injection;
     

@@ -31,7 +31,7 @@ public class ProductionAttributes implements Serializable {
 
     protected final int type;
 
-    protected final ATerm abstractCtor;
+    protected final transient ATerm abstractCtor;
 
     ProductionAttributes(int type, ATerm ctor) {
         this.type = type;

@@ -30,14 +30,12 @@ public abstract class ActionItem implements Serializable {
 
     @Override
     public String toString() {
-        if (type == REDUCE)
-            return "reduce";
-        else if (type == SHIFT)
-            return "shift";
-        else if (type == ACCEPT)
-            return "accept";
-        else if (type == REDUCE_LOOKAHEAD)
-            return "reduce_la";
+    	switch(type) {
+    	case REDUCE: return "reduce";
+    	case SHIFT: return "shift";
+    	case ACCEPT: return "accept";
+    	case REDUCE_LOOKAHEAD: return "reduce_la";
+    	}
         return null;
     }
 }

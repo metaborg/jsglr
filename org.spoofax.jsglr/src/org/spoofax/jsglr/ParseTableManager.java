@@ -7,10 +7,14 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +27,8 @@ public class ParseTableManager {
     private Map<String, ParseTable> knownTables;
     private ATermFactory factory;
     
+    private static boolean cacheTables = true;
+    
     public ParseTableManager() {
         factory = new PureFactory();
         knownTables = new HashMap<String, ParseTable>();
@@ -34,16 +40,60 @@ public class ParseTableManager {
     }
     
     public ParseTable loadFromFile(String filename) throws FileNotFoundException, IOException, InvalidParseTableException {
-        if(knownTables.containsKey(filename))
-            return knownTables.get(filename);
         
-        ParseTable pt = loadFromStream(new FileInputStream(filename));
+    	if(knownTables.containsKey(filename))
+            return knownTables.get(filename);
+    	
+    	ParseTable pt = null;
+    	
+        if(cacheTables) {
+        	final String cachedTable = hashFilename(filename);
+        	File cached = new File(cachedTable);
+        	File table = new File(filename);
+        	if(cached.lastModified() >= table.lastModified()) {
+        		try {
+					pt = loadFromCache(cachedTable);
+					pt.initAFuns(factory);
+				} catch (ClassNotFoundException e) {
+				}
+        	}
+        }
+
+        if(pt == null) {
+        	pt = loadFromStream(new FileInputStream(filename));
+        	if(cacheTables) {
+        		storeInCache(pt, filename);
+        	}
+        }
         
         knownTables.put(filename, pt);
         return pt;
     }
     
-    public ParseTable loadFromStream(InputStream r) throws IOException, InvalidParseTableException {
+    private void storeInCache(ParseTable pt, String filename) throws FileNotFoundException, IOException {
+    	String storeName = hashFilename(filename);
+    	File dir = new File(System.getProperty("user.home") + "/.jsglr/cache/");
+    	if(!dir.exists()) {
+    		dir.mkdirs();
+    	}
+    	ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(storeName));
+    	ous.writeObject(pt);
+    	ous.close();
+	}
+
+	private ParseTable loadFromCache(String cachedTable) throws FileNotFoundException, IOException, ClassNotFoundException {
+		System.out.println("Loading " + cachedTable);
+    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cachedTable));
+    	ParseTable pt = (ParseTable)ois.readObject();
+    	return pt;
+	}
+
+	private String hashFilename(String filename) {
+    	// FIXME use a real hash instead
+    	return System.getProperty("user.home") + "/.jsglr/cache/" + String.format("%x", filename.hashCode());
+	}
+
+	public ParseTable loadFromStream(InputStream r) throws IOException, InvalidParseTableException {
         if(SGLR.isDebugging()) {
             Tools.debug("loadFromStream()");
         }

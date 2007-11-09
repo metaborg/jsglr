@@ -41,6 +41,13 @@ public class ParseTable implements Serializable {
 
     private Label[] injections;
 
+    private Map<Goto, Goto> gotoMap = new HashMap<Goto, Goto>();
+
+    private Map<Shift, Shift> shiftMap = new HashMap<Shift, Shift>();
+
+    private Map<Reduce, Reduce> reduceMap = new HashMap<Reduce, Reduce>();
+
+    
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         parse(pt);
         initAFuns(pt.getFactory());
@@ -233,8 +240,6 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    Map<Goto, Goto> gotoMap = new HashMap<Goto, Goto>();
-
     private Goto makeGoto(int newStateNumber, Range[] ranges) {
         Goto g = new Goto(ranges, newStateNumber);
         if (gotoMap.containsKey(g)) {
@@ -310,8 +315,6 @@ public class ParseTable implements Serializable {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
 
-    Map<Reduce, Reduce> reduceMap = new HashMap<Reduce, Reduce>();
-
     private Reduce makeReduce(int arity, int label, int status) {
         Reduce s = new Reduce(arity, label, status);
         if (reduceMap.containsKey(s)) {
@@ -320,8 +323,6 @@ public class ParseTable implements Serializable {
         reduceMap.put(s, s);
         return s;
     }
-
-    Map<Shift, Shift> shiftMap = new HashMap<Shift, Shift>();
 
     private Shift makeShift(int nextState) {
         Shift s = new Shift(nextState);
@@ -449,13 +450,11 @@ public class ParseTable implements Serializable {
     }
 
     public boolean hasRejects() {
-
         for (State s : states) {
             if (s.rejectable()) {
                 return true;
             }
         }
-
         return false;
     }
 

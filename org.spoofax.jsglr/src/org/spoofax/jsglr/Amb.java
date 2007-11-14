@@ -16,7 +16,7 @@ import aterm.ATermFactory;
 
 public class Amb extends IParseNode {
 
-    public final List<IParseNode> alternatives;
+    private final List<IParseNode> alternatives;
 
     Amb(IParseNode left, IParseNode right) {
         alternatives = new ArrayList<IParseNode>();

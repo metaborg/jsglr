@@ -22,6 +22,8 @@ public class SGLR {
 
     // FIXME: Should probably be put elsewhere
     private static final int EOF = 256;
+    
+    private static final int TAB_SIZE = 8;
 
     
     private ATermFactory factory;
@@ -83,9 +85,8 @@ public class SGLR {
     }
 
     public SGLR(final ATermFactory pf, ParseTable parseTable) {
-
-        assert factory == null;
-        assert parseTable == null;
+        assert pf != null;
+        assert parseTable != null;
 
         // Init with a new factory for both serialized or BAF instances.
         basicInit(pf);
@@ -754,7 +755,7 @@ public class SGLR {
             columnNumber = 0;
             break;
         case '\t':
-            columnNumber = (columnNumber / 8 + 1) * 8;
+            columnNumber = (columnNumber / TAB_SIZE + 1) * TAB_SIZE;
             break;
         case -1:
             return SGLR.EOF;

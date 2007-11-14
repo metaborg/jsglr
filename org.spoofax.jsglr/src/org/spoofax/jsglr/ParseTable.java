@@ -199,7 +199,8 @@ public class ParseTable implements Serializable {
                     type = ProductionAttributes.BRACKET;
                 } else if (ctor.equals("assoc")) {
                     ATermAppl a = (ATermAppl) t.getChildAt(0);
-                    if (a.getName().equals("left")) {
+                    if (a.getName().equals("left") || a.getName().equals("assoc")) {
+                    	// ('assoc' is identical to 'left' for the parser)
                         type = ProductionAttributes.LEFT_ASSOCIATIVE;
                     } else if (a.getName().equals("right")) {
                         type = ProductionAttributes.RIGHT_ASSOCIATIVE;

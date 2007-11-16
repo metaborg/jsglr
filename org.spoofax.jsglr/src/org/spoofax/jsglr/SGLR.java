@@ -149,8 +149,12 @@ public class SGLR {
         addStack(st0);
         return st0;
     }
-
-    public ATerm parse(InputStream fis) throws IOException, SGLRException {
+    
+    public ATerm parse(InputStream fis)  throws IOException, SGLRException {
+        return parse(fis, null);
+    }
+    
+    public ATerm parse(InputStream fis, String startSymbol)  throws IOException, SGLRException {
         if(Tools.tracing) {
             TRACE("SG_Parse() - ");
         }
@@ -196,8 +200,10 @@ public class SGLR {
             Tools.debug("Parsing complete: all tokens read");
         }
 
-        if (acceptingStack == null)
-            return null;
+        if (acceptingStack == null) {
+            throw new UnexpectedTokenException(
+            		currentToken, tokensSeen - 1, lineNumber, columnNumber);
+        }
 
         if (isDebugging()) {
             Tools.debug("Accepting stack exists");
@@ -216,8 +222,7 @@ public class SGLR {
             TRACE("SG_ - internal tree: " + s.label);
         }
         
-        return postFilter.applyFilters(s.label, null, tokensSeen);
-
+        return postFilter.applyFilters(s.label, startSymbol, tokensSeen);
     }
 
     private void shifter() {

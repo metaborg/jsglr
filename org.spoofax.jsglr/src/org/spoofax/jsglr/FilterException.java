@@ -11,8 +11,8 @@ public class FilterException extends SGLRException {
 
     private static final long serialVersionUID = -3107849742654999518L;
 
-    public FilterException(String string) {
-        // TODO Auto-generated constructor stub
+    public FilterException(String message) {
+        super(message);
     }
 
 }

@@ -36,6 +36,13 @@ public class State implements Serializable {
         }
         return ret;
     }
+    
+    /**
+     * @return  The single action associated with this state, or null if not applicable.
+     */
+    public Action getSingularAction() {
+        return actions.length == 1 ? actions[0] : null;
+    }
 
     public int go(int labelNumber) {
         for(Goto g : gotos) {

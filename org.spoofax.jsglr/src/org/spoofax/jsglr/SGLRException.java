@@ -11,6 +11,8 @@ public class SGLRException extends Exception {
 
     private static final long serialVersionUID = -8467572969588110480L;
 
+    public SGLRException() {}
+    
     public SGLRException(String message) {
         super(message);
     }

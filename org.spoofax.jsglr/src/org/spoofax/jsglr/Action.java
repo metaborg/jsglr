@@ -33,6 +33,17 @@ public class Action implements Serializable {
                 return true;
         return false;
     }
+    
+    /**
+     * Gets the character of a single-character range.
+     * 
+     * @return  The single range character, or -1 if not applicable.
+     */
+    public int getSingularRange() {
+        if (ranges.length != 1 || ranges[0].low != ranges[0].high)
+            return -1;
+        return ranges[0].high;
+    }
 
     public boolean rejectable() {
         for(ActionItem ai : items) {

@@ -21,7 +21,7 @@ import aterm.pure.PureFactory;
 public class SGLR {
 
     // FIXME: Should probably be put elsewhere
-    private static final int EOF = 256;
+    static final int EOF = 256;
     
     private static final int TAB_SIZE = 8;
 
@@ -154,7 +154,7 @@ public class SGLR {
         return parse(fis, null);
     }
     
-    public ATerm parse(InputStream fis, String startSymbol)  throws IOException, SGLRException {
+    public ATerm parse(InputStream fis, String startSymbol)  throws IOException, TokenExpectedException, BadTokenException, SGLRException {
         if(Tools.tracing) {
             TRACE("SG_Parse() - ");
         }
@@ -173,17 +173,22 @@ public class SGLR {
         
         acceptingStack = null;
         Frame st0 = initActiveStacks();
+        Frame singlePreviousStack;
 
         do {
             if (isLogging()) {
                 Tools.logger("Current token (#", tokensSeen, "): ", charify(currentToken));
             }
-
+            
             currentToken = getNextToken();
+
+            singlePreviousStack = activeStacks.size() == 1
+                                ? activeStacks.get(0)
+                                : null;
 
             parseCharacter();
             shifter();
-
+            
         } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
 
         if (isLogging()) {
@@ -201,8 +206,7 @@ public class SGLR {
         }
 
         if (acceptingStack == null) {
-            throw new UnexpectedTokenException(
-            		currentToken, tokensSeen - 1, lineNumber, columnNumber);
+            reportInvalidToken(singlePreviousStack);
         }
 
         if (isDebugging()) {
@@ -223,6 +227,39 @@ public class SGLR {
         }
         
         return postFilter.applyFilters(s.label, startSymbol, tokensSeen);
+    }
+
+    private void reportInvalidToken(Frame singlePreviousStack)
+            throws BadTokenException, TokenExpectedException {
+        if (singlePreviousStack != null) {
+            Action action = singlePreviousStack.peek().getSingularAction();
+            
+            if (action != null && action.getActionItems().length == 1) {
+                StringBuilder expected = new StringBuilder();
+                
+                do {
+                    int token = action.getSingularRange();
+                    if (token == -1) break;
+                    expected.append((char) token);
+                    
+                    ActionItem[] items = action.getActionItems();
+                    
+                    if (!(items.length == 1 && items[0] instanceof Shift))
+                        break;
+                    
+                    Shift shift = (Shift) items[0];
+                    action = parseTable.getState(shift.nextState).getSingularAction();
+                                        
+                } while (action != null);
+
+                if (expected.length() > 0)
+                    throw new TokenExpectedException(expected.toString(), currentToken,
+                                                     tokensSeen - 1, lineNumber, columnNumber);
+            }
+        }
+        
+        throw new BadTokenException(currentToken, tokensSeen - 1, lineNumber,
+                                           columnNumber);
     }
 
     private void shifter() {

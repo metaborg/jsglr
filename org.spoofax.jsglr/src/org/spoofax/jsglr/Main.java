@@ -95,7 +95,7 @@ public class Main {
             parsingTime = System.currentTimeMillis() - parsingTime;
             if(t != null)
                 ous.write(t.toString().getBytes());
-        } catch(UnexpectedTokenException e) {
+        } catch(BadTokenException e) {
             System.err.println("Parsing failed : " + e.getMessage());
         } catch(SGLRException e) {
             // Detailed message for other exceptions

@@ -27,7 +27,7 @@ public class ParseTableManager {
     private Map<String, ParseTable> knownTables;
     private ATermFactory factory;
     
-    private static boolean cacheTables = true;
+    private static boolean cacheTables = false;
     
     public ParseTableManager() {
         factory = new PureFactory();
@@ -50,7 +50,8 @@ public class ParseTableManager {
         	final String cachedTable = hashFilename(filename);
         	File cached = new File(cachedTable);
         	File table = new File(filename);
-        	if(cached.lastModified() >= table.lastModified()) {
+        	if(cached.exists() && 
+        			cached.lastModified() >= table.lastModified()) {
         		try {
 					pt = loadFromCache(cachedTable);
 					pt.initAFuns(factory);

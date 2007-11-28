@@ -47,23 +47,16 @@ public class Term {
     }
 
     public static ATermList listAt(ATerm pt, int i) {
-        return asList(asAppl(pt).getChildAt(i));
-    }
-
-    private static ATermList asList(Visitable v) {
-         return (ATermList) v;
+        return termAt(pt, i);
     }
 
     public static ATermAppl applAt(ATerm pt, int i) {
-        return asAppl(asAppl(pt).getChildAt(i));
+        return termAt(pt, i);
     }
 
-    public static ATermAppl applAt(ATermList pt, int i) {
-        return asAppl(pt.getChildAt(i));
-    }
-
-    public static ATerm termAt(ATermList t, int i) {
-        return (ATerm) t.getChildAt(i);
+    @SuppressWarnings("unchecked") // casting is inherently unsafe, but doesn't warrant a warning here
+    public static<T extends ATerm> T termAt(ATerm t, int i) {
+        return (T) t.getChildAt(i);
     }
 
     public static boolean isInt(ATerm t) {

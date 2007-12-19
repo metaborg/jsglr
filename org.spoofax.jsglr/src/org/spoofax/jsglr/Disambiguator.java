@@ -398,6 +398,8 @@ public class Disambiguator {
         return t;
     }
 
+    // TODO: shouldn't this be called isInjection?
+    
     private boolean isUserDefinedLabel(int prod) {
         Label l = parseTable.lookupInjection(prod);
         if(l == null)

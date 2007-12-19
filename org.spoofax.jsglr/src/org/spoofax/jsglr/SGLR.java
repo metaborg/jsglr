@@ -25,6 +25,7 @@ public class SGLR {
     
     private static final int TAB_SIZE = 8;
 
+    protected static boolean WORK_AROUND_MULTIPLE_LOOKAHEAD;
     
     private ATermFactory factory;
 
@@ -933,5 +934,9 @@ public class SGLR {
 
     public int getRejectionCount() {
         return rejectCount;
+    }
+    
+    public static void setWorkAroundMultipleLookahead(boolean value) {
+        WORK_AROUND_MULTIPLE_LOOKAHEAD = value;
     }
 }

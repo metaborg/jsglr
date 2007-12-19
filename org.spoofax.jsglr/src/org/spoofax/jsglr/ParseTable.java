@@ -304,10 +304,20 @@ public class ParseTable implements Serializable {
             list = list.getNext();
             ATermList l = Term.listAt(Term.applAt(t, 0), 0);
             ATermList n = Term.listAt(t, 1);
-            if(n.getLength() > 0)
-                throw new InvalidParseTableException("Multiple lookahead not supported");
             
-            ret[i] = new Range(Term.intAt(l, 0), Term.intAt(l, 1));
+            if (Term.termAt(l, 1) == null) {
+                if (SGLR.WORK_AROUND_MULTIPLE_LOOKAHEAD) {
+                    System.err.println("Warning: using multiple lookahead work-around");
+                    ret[i] = new Range(Term.intAt(l, 0), Term.intAt(l, 0));
+                } else {
+                    throw new InvalidParseTableException("Multiple lookahead not supported");
+                }
+            } else if(n.getLength() > 0) {
+                // TODO: Is this a legal state?
+                throw new InvalidParseTableException("Multiple lookahead not supported");
+            } else {            
+                ret[i] = new Range(Term.intAt(l, 0), Term.intAt(l, 1));
+            }
         }
         return ret;
     }

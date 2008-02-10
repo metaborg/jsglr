@@ -1,6 +1,6 @@
 package org.spoofax.interpreter.library.jsglr;
 
-import org.spoofax.interpreter.IContext;
+import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 
 public abstract class JSGLRPrimitive extends AbstractPrimitive {

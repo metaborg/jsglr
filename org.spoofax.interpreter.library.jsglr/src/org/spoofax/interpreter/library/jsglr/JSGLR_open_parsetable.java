@@ -1,7 +1,7 @@
 package org.spoofax.interpreter.library.jsglr;
 
-import org.spoofax.interpreter.IContext;
-import org.spoofax.interpreter.InterpreterException;
+import org.spoofax.interpreter.core.IContext;
+import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.adapter.aterm.WrappedATerm;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;

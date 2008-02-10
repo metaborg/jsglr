@@ -515,4 +515,8 @@ public class ParseTable implements Serializable {
     public Label lookupInjection(int prod) {
         return injections[prod];
     }
+
+	public void lookupAction(int stateNumber, int peekNextToken) {
+		throw new NotImplementedException();
+	}
 }

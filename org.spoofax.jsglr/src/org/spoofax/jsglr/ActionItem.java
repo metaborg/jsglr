@@ -12,7 +12,7 @@ import java.io.Serializable;
 public abstract class ActionItem implements Serializable {
 
     static final long serialVersionUID = -340934714889427356L;
-    
+
     public final int type;
 
     // FIXME do we need these? instanceof is too slow?
@@ -23,7 +23,9 @@ public abstract class ActionItem implements Serializable {
     public static final int ACCEPT = 3;
 
     public static final int REDUCE_LOOKAHEAD = 4;
-    
+
+	public static final int ERROR = 5;
+
     public ActionItem(int type) {
         this.type = type;
     }

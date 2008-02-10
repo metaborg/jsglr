@@ -7,6 +7,9 @@
  */
 package org.spoofax.jsglr;
 
+import org.spoofax.jsglr.rnsglr.Arguments;
+import org.spoofax.jsglr.rnsglr.SpecialAttribute;
+
 public class Reduce extends ActionItem {
 
     private static final long serialVersionUID = 8620275049778432244L;
@@ -18,6 +21,10 @@ public class Reduce extends ActionItem {
     public final int status;
 
     public final Production production;
+
+	public SpecialAttribute specialAttribute;
+
+	public Arguments eTree;
     
     public static final int NORMAL = 0;
     public static final int REJECT = 1;

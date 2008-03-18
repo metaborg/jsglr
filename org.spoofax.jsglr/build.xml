@@ -2,6 +2,9 @@
 	
     <import file="../common.xml" />
 
+    <target name="check" depends="compile" description="--> test the project">
+    </target>
+
     <target name="compile" depends="resolve" description="--> compile the project">
         <mkdir dir="${build.dir}/classes" />
         <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id">

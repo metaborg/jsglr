@@ -16,7 +16,7 @@ public class TokenExpectedException extends BadTokenException {
     
     @Override
     public String getShortMessage() {
-        return "Expecting '" + expected + "'";
+        return "Syntax error near expected token '" + expected + "'";
     }
 
     public TokenExpectedException(String expected, int token, int offset, int lineNumber, int columnNumber) {

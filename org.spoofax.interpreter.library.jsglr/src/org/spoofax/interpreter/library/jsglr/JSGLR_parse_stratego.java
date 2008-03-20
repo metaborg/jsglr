@@ -35,7 +35,7 @@ public class JSGLR_parse_stratego extends AbstractPrimitive {
 		
 		if (!Tools.isTermString(tvars[0]))
 			return false;
-		String path = ((IStrategoString)tvars[0]).getStringValue();
+		String path = ((IStrategoString)tvars[0]).stringValue();
 		ATerm parsed = null;
 		if(StrategoSGLR == null)
 			initialize();

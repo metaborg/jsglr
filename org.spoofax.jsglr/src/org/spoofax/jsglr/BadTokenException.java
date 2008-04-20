@@ -38,7 +38,7 @@ public class BadTokenException extends SGLRException {
         if (isEOFToken())
             return "Unexpected end of file";
         else
-            return "Syntax near unexpected character '" + (char) token + "'";
+            return "Syntax error near unexpected character '" + (char) token + "'";
     }
 
     public BadTokenException(int token, int offset, int lineNumber, int columnNumber) {

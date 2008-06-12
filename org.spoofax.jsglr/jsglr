@@ -3,7 +3,7 @@
 base=$(dirname $0)
 jars=${base}/../share/java
 
-cp="jjtraveler-0.4.3.jar junit-3.8.2.jar shared-objects-1.4.jar spoofax-aterm-0.2.0.jar jsglr-0.2.0.jar"
+cp="jjtraveler-0.4.3.jar junit-3.8.2.jar shared-objects-1.4.jar spoofax-aterm-0.2.1.jar spoofax-jsglr-0.2.0.jar"
 
 fcp=""
 for x in ${cp} ; do

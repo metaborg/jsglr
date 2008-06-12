@@ -31,6 +31,10 @@
            <tarfileset prefix="${jarname}-${version}/" dir=".">
              <include name="*.xml" />
              <include name="*.properties" />
+             <include name="build/*.xml" />
+             <include name="build/*.properties" />
+             <include name="jsglr" />
+             <include name="jsglr-prof" />
            </tarfileset>
            <tarfileset prefix="${jarname}-${version}/" dir="." includes="INSTALL Makefile"/>
            <tarfileset prefix="${jarname}-${version}/" dir="." includes="META-INF/" />

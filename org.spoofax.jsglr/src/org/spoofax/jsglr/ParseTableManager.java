@@ -100,7 +100,7 @@ public class ParseTableManager {
         }
         
         if (stream == null) {
-            throw new IllegalArgumentException("stream is null");
+            throw new InvalidParseTableException("stream is null");
         }
 
         return initializeParseTable(factory.readFromFile(stream));

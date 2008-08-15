@@ -94,12 +94,16 @@ public class ParseTableManager {
     	return System.getProperty("user.home") + "/.jsglr/cache/" + String.format("%x", filename.hashCode());
 	}
 
-	public ParseTable loadFromStream(InputStream r) throws IOException, InvalidParseTableException {
+	public ParseTable loadFromStream(InputStream stream) throws IOException, InvalidParseTableException {
         if(SGLR.isDebugging()) {
             Tools.debug("loadFromStream()");
         }
+        
+        if (stream == null) {
+            throw new IllegalArgumentException("stream is null");
+        }
 
-        return initializeParseTable(factory.readFromFile(r));
+        return initializeParseTable(factory.readFromFile(stream));
     }
 
 	private ParseTable initializeParseTable(ATerm pt) throws InvalidParseTableException {

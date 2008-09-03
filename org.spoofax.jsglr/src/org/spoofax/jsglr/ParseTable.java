@@ -21,7 +21,9 @@ import aterm.AFun;
 
 public class ParseTable implements Serializable {
 
-    static final long serialVersionUID = -3372429249660900093L;
+    private static final long serialVersionUID = -3372429249660900093L;
+    
+    private static boolean printedWarning;
 
     private State[] states;
 
@@ -307,7 +309,10 @@ public class ParseTable implements Serializable {
             
             if (Term.termAt(l, 1) == null) {
                 if (SGLR.WORK_AROUND_MULTIPLE_LOOKAHEAD) {
-                    System.err.println("Warning: using multiple lookahead work-around");
+                    if (!printedWarning) {
+                        printedWarning = true;
+                        System.err.println("Warning: using multiple lookahead work-around");
+                    }
                     ret[i] = new Range(Term.intAt(l, 0), Term.intAt(l, 0));
                 } else {
                     throw new InvalidParseTableException("Multiple lookahead not supported");

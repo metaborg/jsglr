@@ -30,6 +30,7 @@ public class BadTokenException extends SGLRException {
         return token == SGLR.EOF;
     }
     
+    @Override
     public String getMessage() {
         return getShortMessage() + " at line " + lineNumber + ", column " + columnNumber;
     }

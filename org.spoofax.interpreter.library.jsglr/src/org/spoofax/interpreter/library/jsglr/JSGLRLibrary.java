@@ -39,22 +39,22 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		return parseTableManager;
 	}
 
-	int addParseTable(ParseTable pt) {
+	public int addParseTable(ParseTable pt) {
 		final int ret = parseTableCounter;
 		parseTables.put(ret, pt);
 		parseTableCounter++;
 		return ret;
 	}
 
-	ParseTable getParseTable(int idx) {
+	public ParseTable getParseTable(int idx) {
 		return parseTables.get(idx);
 	}
 
-	ITermFactory getFactory() {
+	protected ITermFactory getFactory() {
 		return factory;
 	}
 	
-	ATermFactory getATermFactory() {
+	protected ATermFactory getATermFactory() {
 		return factory.getFactory();
 	}
 }

@@ -17,7 +17,7 @@ public class TokenStream {
 	}
 
 	public boolean isEmpty() {
-		return input.isEmpty();
+		return input.length() == 0;
 	}
 
 	public Token readNextToken() {

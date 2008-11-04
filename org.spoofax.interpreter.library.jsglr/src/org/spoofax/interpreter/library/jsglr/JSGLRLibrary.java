@@ -23,7 +23,7 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		this.factory = termFactory;
 		init();
         add(new JSGLR_parse_stratego(factory));
-        add(new JSGLR_open_parsetable());
+        add(new JSGLR_open_parsetable(factory));
         add(new JSGLR_parse_string_pt(factory));
     }
 

@@ -209,8 +209,13 @@ public class ParseTable implements Serializable {
                     } else {
                         throw new InvalidParseTableException("Unknown assocativity: " + a.getName());
                     }
-                } else if (ctor.equals("term")) {
-                    term = (ATerm) t.getChildAt(0).getChildAt(0);
+                } else if (	ctor.equals("term") && t.getChildCount() == 1) {
+                	// Term needs to be shaped as term(cons(Constructor)) to be a constructor
+                	if(	t.getChildAt(0) instanceof ATermAppl &&
+                		((ATermAppl)t.getChildAt(0)).getName().equals("cons") && 
+                		((ATermAppl)t.getChildAt(0)).getChildCount() == 1		)
+                			term = (ATerm) t.getChildAt(0).getChildAt(0);
+                	// TODO Support other terms that are not a constructor (custom annotations)
                 } else if (ctor.equals("id")) {
                     // FIXME not certain about this
                     term = (ATerm) t.getChildAt(0);

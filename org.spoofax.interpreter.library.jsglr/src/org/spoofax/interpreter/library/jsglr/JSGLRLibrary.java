@@ -19,14 +19,17 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 	private int parseTableCounter;
 	private Map<Integer, ParseTable> parseTables;
 
-	public JSGLRLibrary(WrappedATermFactory termFactory) {
-		this.factory = termFactory;
+	public JSGLRLibrary(ITermFactory termFactory) {
+		this.factory = (WrappedATermFactory)termFactory;
 		init();
         add(new JSGLR_parse_stratego(factory));
         add(new JSGLR_open_parsetable(factory));
         add(new JSGLR_parse_string_pt(factory));
     }
 
+	public String getOperatorRegistryName() {
+		return REGISTRY_NAME;
+	}
 	private void init() {
 		parseTableCounter = 0;
 		parseTables = new HashMap<Integer, ParseTable>();

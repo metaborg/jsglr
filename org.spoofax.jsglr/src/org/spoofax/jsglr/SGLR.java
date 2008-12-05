@@ -245,7 +245,7 @@ public class SGLR {
                     
                     ActionItem[] items = action.getActionItems();
                     
-                    if (!(items.length == 1 && items[0] instanceof Shift))
+                    if (!(items.length == 1 && items[0].type == ActionItem.SHIFT))
                         break;
                     
                     Shift shift = (Shift) items[0];
@@ -408,31 +408,40 @@ public class SGLR {
         }
         
         for (ActionItem ai : actionItems) {
-            if (ai instanceof Shift) {
-                Shift sh = (Shift) ai;
-                addShiftPair(new ActionState(st, parseTable.getState(sh.nextState)));
-                statsRecordParsers();
-            } else if (ai instanceof Reduce) {
-                Reduce red = (Reduce) ai;
-                doReductions(st, red.production);
-            } else if(ai instanceof ReduceLookahead) {
-                ReduceLookahead red = (ReduceLookahead) ai;
-                if(checkLookahead(red)) {
-                    if(Tools.tracing) {
-                        TRACE("SG_ - ok");
-                    }
-                    doReductions(st, red.production);
-                }
-            } else if (ai instanceof Accept) {
-                if (!st.allLinksRejected()) {
-                    acceptingStack = st;
-                    if (Tools.logging) {
-                        Tools.logger("Reached the accept state");
-                    }
-                }
-            } else {
-                throw new NotImplementedException();
-            }
+        	switch(ai.type) {
+        	case ActionItem.SHIFT: {
+        		Shift sh = (Shift) ai;
+        		addShiftPair(new ActionState(st, parseTable.getState(sh.nextState)));
+        		statsRecordParsers();
+        		break;
+        	}
+        	case ActionItem.REDUCE: {
+        		Reduce red = (Reduce) ai;
+        		doReductions(st, red.production);
+        		break;
+        	}
+        	case ActionItem.REDUCE_LOOKAHEAD: {
+        		ReduceLookahead red = (ReduceLookahead) ai;
+        		if(checkLookahead(red)) {
+        			if(Tools.tracing) {
+        				TRACE("SG_ - ok");
+        			}
+        			doReductions(st, red.production);
+        		}
+        		break;
+        	}
+        	case ActionItem.ACCEPT: {
+        		if (!st.allLinksRejected()) {
+        			acceptingStack = st;
+        			if (Tools.logging) {
+        				Tools.logger("Reached the accept state");
+        			}
+        		}
+        		break;
+        	}
+        	default:
+        		throw new NotImplementedException();
+        	}
         }
         
         if(Tools.tracing) {
@@ -645,23 +654,28 @@ public class SGLR {
                         continue;
 
                     for (ActionItem ai : st2.peek().getActionItems(currentToken)) {
-                        if (ai instanceof Reduce) {
-                            Reduce red = (Reduce) ai;
-                            doLimitedReductions(st2, red.production, nl);
-                            if(Tools.tracing) {
-                                TRACE("SG_ - back in reducer ");
-                                TRACE_ActiveStacks();
-                            }
-                        } else if(ai instanceof ReduceLookahead) {
-                            ReduceLookahead red = (ReduceLookahead) ai;
-                            if(checkLookahead(red)) {
-                                doLimitedReductions(st2, red.production, nl);
-                                if(Tools.tracing) {
-                                    TRACE("SG_ - back in reducer ");
-                                    TRACE_ActiveStacks();
-                                }
-                            }
-                        }
+                    	switch(ai.type) {
+                    	case ActionItem.REDUCE: {
+                    		Reduce red = (Reduce) ai;
+                    		doLimitedReductions(st2, red.production, nl);
+                    		if(Tools.tracing) {
+                    			TRACE("SG_ - back in reducer ");
+                    			TRACE_ActiveStacks();
+                    		}
+                    		break;
+                    	}
+                    	case ActionItem.REDUCE_LOOKAHEAD: {
+                    		ReduceLookahead red = (ReduceLookahead) ai;
+                    		if(checkLookahead(red)) {
+                    			doLimitedReductions(st2, red.production, nl);
+                    			if(Tools.tracing) {
+                    				TRACE("SG_ - back in reducer ");
+                    				TRACE_ActiveStacks();
+                    			}
+                    		}
+                    		break;
+                    	}
+                    	}
                     }
 
                 }

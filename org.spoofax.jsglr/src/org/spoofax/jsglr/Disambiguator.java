@@ -792,7 +792,7 @@ public class Disambiguator {
             ParseNode n = (ParseNode) t;
 
             while (prod.isInjection()) {
-                IParseNode x = (ParseNode) n.getKids().get(0);
+                IParseNode x = n.getKids().get(0);
 
                 int prodTypeX = getProductionType(x);
 

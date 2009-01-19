@@ -30,12 +30,12 @@ strategies
 
   make-permissive =
     with(
-      say(!"Scope prods:");
+      say(!"SCOPE PRODS:");
       collect-all(id.is-scope-prod; debug-sdf(!""))      
     );
     
     with(
-      say(!"Lists around scope prods:");
+      say(!"\n\nLISTS AROUND SCOPE PRODS:");
       collect-all(id.is-list-around-scope-prod; debug-sdf(!""))
     );
     

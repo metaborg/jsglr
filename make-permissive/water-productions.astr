@@ -10,19 +10,44 @@ attributes
        lexical restrictions
          ~water -/- ~[\ \t\12\r\n]
        
+       sorts
+         ~wstar ~wplus ~water
+       
        context-free syntax
        
          p1
-         ~sort  ~wstar -> ~wstar {ast("<conc([<1>],<2>)>)")}
-         ~water ~wstar -> ~wstar {ast("<conc([Water(<1>)],<2>)>"), avoid}
-                       -> ~wstar {ast("[]")}
+         
+         ~wplus -> ~wstar
+                -> ~wstar {ast("[]")} %% "nil"
+         
+         ~sort  ~wplus -> ~wplus {ast("<conc([<1>],<2>)>)")}              %% "cons"
+         ~water ~wplus -> ~wplus {ast("<conc([Water(<1>)],<2>)>"), avoid} %% "cons"
     ]|
-    where
+    with
       p1    := id.replace-water-pattern;
-      wstar := <conc-strings> (sort, "WStar");
+      wstar := sort.iter-star-pattern-name;
+      wplus := sort.iter-pattern-name;
       water := "WATER"
   
-  // TODO: what about iter-star-sep, iter-sep?
+  // TODO: iter-sep, iter-star-sep    
+     
   def rewrite-bu replace-water-pattern:
-    iter-star(sort(pattern)) -> sort(<conc-strings> (pattern, "WStar"))
+    iter(sort(pattern))               -> sort(pattern.iter-pattern-name)
+    iter-star(sort(pattern))          -> sort(pattern.iter-star-pattern-name)
+    iter-sep(sort(pattern), sep)      -> sort(pattern.iter-sep-pattern-name(|sep))
+    iter-star-sep(sort(pattern), sep) -> sort(pattern.iter-star-sep-pattern-name(|sep))
+
+attributes // Names of generated symbols
+  
+  def context-free iter-pattern-name:
+    name -> <newname> <conc-strings> (name, "WPlus")
+   
+  def context-free iter-star-pattern-name:
+    name -> <newname> <conc-strings> (name, "WStar")
+  
+  def context-free iter-sep-pattern-name(|sep):
+    name -> <newname> <conc-strings> (name, "WPlusSep")
+  
+  def context-free iter-star-sep-pattern-name(|sep):
+    name -> <newname> <conc-strings> (name, "WStarSep")
 

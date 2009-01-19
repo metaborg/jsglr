@@ -64,29 +64,12 @@ attributes // Graph structure properties
          )
       )
 
-decorators
+decorators // TODO: Think about a better idiom and/or name for this
 
-  decorator sort-search-operation(a) =
-    id.cached(
-      set-cached-attribute(|id.global-cache, id, id.signature.uninit, EVAL_FAILED());
-      a
-    | a.signature.uninit
-    )
-  
-  /*
-  decorator fail-if-circular(a) =
-    set-cached-attribute(|a.signature, id, EVAL_FAILED());
+  decorator /*alter-signature(a.signature.uninit)*/ context-free(a) =
+    id.uninit;
+    id.cached(a|a.signature.uninit)
+
+  decorator context-free sort-search-operation(a) =
+    set-cached-attribute(|id.global-cache, id, id.signature.uninit, EVAL_FAILED());
     a
-  
-  decorator structural-param-cached(a) =
-    id.cached(
-      a
-    | id.signature.uninit
-    )
-    
-  decorator structural-param-cached'(a) =
-    id.alter-signature(a|a.signature)
-  
-  decorator alter-signature(a|sig) =
-    a.call-with-alternate-signature(|sig)
-  */

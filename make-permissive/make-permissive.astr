@@ -31,6 +31,16 @@ strategies
 
   make-permissive =
     with(
+      oncetd(id.is-scope-prod; not(?first); ?prod);
+      !prod;
+      debug-sdf(!"PROD:");
+      id.water-prods;
+      debug-sdf(!"WATER:")
+    );
+    
+    <exit> 0;
+  
+    with(
       say(!"SCOPE PRODS:");
       collect-all(id.is-scope-prod; debug-sdf(!""))      
     );

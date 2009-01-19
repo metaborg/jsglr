@@ -11,12 +11,19 @@ attributes // Graph structure-based properties
     where
       id.direct-contained-sorts;
       one(
-        id.in-iter-pattern;
-        id.lookup-all;
-        one(id.is-injection-to(|sort))
+        id.is-scope-pattern
       )
     where
       not(id.is-injection)
+   
+   def is-scope-pattern:
+     sort -> id
+     where
+       id.in-iter-pattern;
+       id.lookup-all;
+       one(
+         id.is-injection-to(|id.current-sort)
+       )
 
 attributes // Derived from is-scope-prod
   

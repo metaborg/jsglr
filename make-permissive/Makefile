@@ -5,7 +5,7 @@ STRS=$(ASTRS:.astr=.str)
 
 make-permissive : make-permissive.str $(STRS)
 	strc -i $< -m main-make-permissive \
-	     -I . \
+	     -I .  -I ../../syntax \
 	     -la stratego-aterm \
 	     -la stratego-lib \
 	     -la stratego-xtc \
@@ -13,7 +13,7 @@ make-permissive : make-permissive.str $(STRS)
 	     -la ~/.nix-profile/lib/libstratego-sdf.la
 	     
 make-permissive.str : $(ASTRS)
-	aster --verbose 2 -i $(ASTRS)
+	aster --verbose 2 -i $(ASTRS) -I ../../syntax
 
 clean :
 	rm -f $(STRS)

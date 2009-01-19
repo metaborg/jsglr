@@ -38,6 +38,7 @@ attributes // Basic properties for productions and sorts
     prod(_, _, _) -> id
   
   def test down in-iter-pattern:
+    iter(_)             -> id
     iter-star(_)        -> id
     iter-star-sep(_, _) -> id
     iter-sep(_, _)      -> id

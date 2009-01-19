@@ -11,6 +11,7 @@ imports
 
   sdf-analysis
   sdf-heuristics
+  water-productions
 
 strategies // I/O
 

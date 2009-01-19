@@ -1,0 +1,28 @@
+module water-productions
+
+attributes
+
+  def water-prods:
+    prod(_, sort(sort), _) ->
+    |[ lexical syntax
+         ~[\ \t\12\r\n]+ -> ~water
+   
+       lexical restrictions
+         ~water -/- ~[\ \t\12\r\n]
+       
+       context-free syntax
+       
+         p1
+         ~sort  ~wstar -> ~wstar {ast("<conc([<1>],<2>)>)")}
+         ~water ~wstar -> ~wstar {ast("<conc([Water(<1>)],<2>)>"), avoid}
+                       -> ~wstar {ast("[]")}
+    ]|
+    where
+      p1    := id.replace-water-pattern;
+      wstar := <conc-strings> (sort, "WStar");
+      water := "WATER"
+  
+  // TODO: what about iter-star-sep, iter-sep?
+  def rewrite-bu replace-water-pattern:
+    iter-star(sort(pattern)) -> sort(<conc-strings> (pattern, "WStar"))
+

@@ -1,0 +1,23 @@
+module sdf-injections
+
+imports
+  sdf-analysis
+
+attributes // Graph structure properties
+
+  def is-injection:
+    prod(_, _, _) -> id
+    where
+      id.direct-contained-sorts => [single];
+      not(single.in-iter-pattern)
+  
+  def sort-search-operation is-injection-to(|sort):
+    prod(_, _, _) -> id
+    where
+      id.direct-contained-sorts => [single];
+      (  single.eq(|sort(sort))
+      <+ single.lookup-all;
+         one(
+           id.is-injection-to(|sort)
+         )
+      )

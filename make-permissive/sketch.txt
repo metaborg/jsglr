@@ -1,0 +1,26 @@
+SCOPES
+in:
+
+  "{" BlockStm* "}" -> Block {cons("Block")}
+
+out:
+
+  "{" BlockStmStar "}" -> Block {cons("Block")}
+
+    BlockStm         BlockStmStar     -> BlockStmStar {ast("<conc([<1>],<2>)>)")}
+    BlockStmMetaStar BlockStmStar     -> BlockStmStar {ast("<conc(<1>,<2>)>)")}
+    BlockStmStar     BlockStmMetaStar -> BlockStmStar {ast("<conc(<1>,<2>)>)")}
+    WATER            BlockStmStar     -> BlockStmStar {ast("<conc([Water(<1>)],<2>)>"), avoid}
+                                      -> BlockStmStar {ast("[]")}
+
+Note: WATER for nestable scopes should probably not accept "}".
+
+
+META-VARIABLES
+in:
+
+  "~*" Id -> BlockStm* {prefer}
+
+out:
+  
+  "~*" Id -> BlockStmMetaStar

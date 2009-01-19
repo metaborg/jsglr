@@ -1,0 +1,54 @@
+module make-permissive
+
+imports
+  libstratego-lib
+  libstratego-xtc
+  libstratego-sdf
+  libstratego-sglr
+  libstratego-gpp
+  
+  lib/sdf-desugar
+
+  sdf-analysis
+  sdf-heuristics
+
+strategies // I/O
+
+  main-make-permissive =
+    xtc-io-wrap(
+      parse-xtc-file-report-errors(|<get-sdf-parse-table>, None());
+      id.init;
+      
+      make-permissive;
+      
+      sdf-desugar;
+      pp-sdf-string;
+      print-to
+    )
+
+strategies
+
+  make-permissive =
+    with(
+      say(!"Scope prods:");
+      collect-all(id.is-scope-prod; debug-sdf(!""))      
+    );
+    
+    with(
+      say(!"Lists around scope prods:");
+      collect-all(id.is-list-around-scope-prod; debug-sdf(!""))
+    );
+    
+    <exit> 0
+
+  debug-sdf(m) =
+    with(
+      say(m);
+      (is-list <+ ![<id>]);
+      map(
+        strip-annos;
+        sdf-desugar;
+        pp-sdf-string;
+        debug(!"  ")
+      )
+    )

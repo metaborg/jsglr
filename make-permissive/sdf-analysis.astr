@@ -1,0 +1,91 @@
+module sdf-analysis
+
+imports
+  sdf-injections
+
+strategies
+
+  Prod = prod(id, id, id)
+
+attributes // Looking up productions
+
+  def List lookup-all:
+    sort(sort) -> id.lookup-all-sort(|sort)
+  
+  def cached(|id.signature.uninit) lookup-multiple-global lookup-all-sort(|sort):
+    prod(_, sort(sort), _) -> id
+
+attributes // Basic properties for productions and sorts
+
+  def down current-sort:
+    prod(_, sort(sort), _) -> sort
+  
+  def down in-pattern:
+    prod(pattern, _, _).pattern -> id
+  
+  def direct-contained-sorts:
+    prod(pattern, _, _) -> <collect-all(?sort(_))> pattern
+    
+  def direct-container-prods:
+    prod(_, sort, _) -> sort.sort-direct-container-prods
+    sort(_)          -> id.sort-direct-container-prods
+  
+  /**
+   * Helper attribute that creates collections,
+   * adding all productions to their 'direct-contained-sorts'.
+   */
+  def contributes-to(id.direct-contained-sorts, id.uninit) sort-direct-container-prods:
+    prod(_, _, _) -> id
+  
+  def test down in-iter-pattern:
+    iter-star(_)        -> id
+    iter-star-sep(_, _) -> id
+    iter-sep(_, _)      -> id
+
+attributes // Graph structure properties
+
+  def Type(Prod, Prod) sort-search-operation is-contained-by(|sort):
+    prod(_, _, _) -> id
+    where
+      id.direct-container-prods;
+      (  one(id.current-sort.eq(|sort))
+      <+ one(id.is-contained-by(|sort))
+      )
+
+  def Type(Prod, Prod) sort-search-operation is-container-of(|sort):
+    prod(_, _, _) -> id
+    where
+      id.direct-contained-sorts;
+      (  one(id.eq(|sort(sort)))
+      <+ one(
+           id.lookup-all;
+           one(id.is-container-of(|sort))
+         )
+      )
+
+decorators
+
+  decorator sort-search-operation(a) =
+    id.cached(
+      set-cached-attribute(|id.global-cache, id, id.signature.uninit, EVAL_FAILED());
+      a
+    | a.signature.uninit
+    )
+  
+  /*
+  decorator fail-if-circular(a) =
+    set-cached-attribute(|a.signature, id, EVAL_FAILED());
+    a
+  
+  decorator structural-param-cached(a) =
+    id.cached(
+      a
+    | id.signature.uninit
+    )
+    
+  decorator structural-param-cached'(a) =
+    id.alter-signature(a|a.signature)
+  
+  decorator alter-signature(a|sig) =
+    a.call-with-alternate-signature(|sig)
+  */

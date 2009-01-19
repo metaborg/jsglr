@@ -1,0 +1,39 @@
+module sdf-heuristics
+
+imports
+  sdf-analysis
+  sdf-injections
+
+attributes // Graph structure-based properties
+
+  def is-scope-prod:
+    prod(_, sort(sort), _) -> id
+    where
+      id.direct-contained-sorts;
+      one(
+        id.in-iter-pattern;
+        id.lookup-all;
+        one(id.is-injection-to(|sort))
+      )
+    where
+      not(id.is-injection)
+  
+  def sort-search-operation is-container-of-scope-prod:
+    prod(_, sort(sort), _) -> id
+    where
+      id.direct-contained-sorts;
+      map(id.lookup-all);
+
+      (  one(one(id.is-scope-prod))
+      <+ one(one(id.is-container-of-scope-prod)))
+
+  def is-list-around-scope-prod:
+    prod(_, sort, _) -> id
+    where
+      not(id.is-scope-prod)
+    where
+      id.direct-contained-sorts;
+      one(
+        id.in-iter-pattern;
+        id.is-container-of-scope-prod
+      )

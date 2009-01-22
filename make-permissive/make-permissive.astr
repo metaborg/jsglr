@@ -30,6 +30,7 @@ strategies // I/O
 strategies
 
   make-permissive =
+    /*
     with(
       oncetd(id.is-scope-prod; not(?first); ?prod);
       !prod;
@@ -39,6 +40,7 @@ strategies
     );
     
     <exit> 0;
+    */
   
     with(
       say(!"SCOPE PRODS:");

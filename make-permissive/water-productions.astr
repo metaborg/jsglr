@@ -27,7 +27,7 @@ attributes
       p1    := id.replace-water-pattern;
       wstar := sort.iter-star-pattern-name;
       wplus := sort.iter-pattern-name;
-      water := "WATER"
+      water := sort.water-name
   
   // TODO: iter-sep, iter-star-sep    
      
@@ -38,6 +38,9 @@ attributes
     iter-star-sep(sort(pattern), sep) -> sort(pattern.iter-star-sep-pattern-name(|sep))
 
 attributes // Names of generated symbols
+  
+  def context-free water-name:
+    name -> <newname> <conc-strings> (name, "Water")
   
   def context-free iter-pattern-name:
     name -> <newname> <conc-strings> (name, "WPlus")

@@ -8,6 +8,7 @@ imports
   libstratego-gpp
   
   lib/sdf-desugar
+  lib/multi-options
 
   sdf-analysis
   sdf-heuristics
@@ -17,6 +18,11 @@ strategies // I/O
 
   main-make-permissive =
     xtc-io-wrap(
+      MultiArgOption("-s"
+      , <set-config> ("-s", <id>)
+      , !"-s                  Specifies the symbols to make permissive"
+      )
+    ,
       parse-xtc-file-report-errors(|<get-sdf-parse-table>, None());
       id.init;
       
@@ -28,6 +34,31 @@ strategies // I/O
     )
 
 strategies
+
+  replace-productions:
+    "module"#([name, x, sections]) ->
+    "module"#([name, x, sections'])
+    with
+      {| Generated:
+        !sections;
+        topdown-consnil(try(
+          replace-production
+        ));
+        try(oncetd(
+          \exports(e*) -> exports(conc-grammars(e*, <bagof-Generated>))\
+        ));
+        ?sections'
+      |}
+
+  replace-production:
+    [p @ prod(_, sort(sort), _) | p*] -> p*
+    where
+      <get-config> "-s";
+      one(id.eq(|sort))
+    with
+      rules(
+        Generated :+= p.water-prods
+      )
 
   make-permissive =
     /*
@@ -52,7 +83,7 @@ strategies
       collect-all(id.is-list-around-scope-prod; debug-sdf(!""))
     );
     
-    <exit> 0
+    alltd(replace-productions)
 
   debug-sdf(m) =
     with(

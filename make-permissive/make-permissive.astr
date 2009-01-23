@@ -42,7 +42,7 @@ strategies
       {| Generated:
         !sections;
         topdown-consnil(try(
-          replace-production
+          extract-water
         ));
         try(oncetd(
           \exports(e*) -> exports(conc-grammars(e*, <bagof-Generated>))\
@@ -50,7 +50,7 @@ strategies
         ?sections'
       |}
 
-  replace-production:
+  extract-water:
     [p @ prod(_, sort(sort), _) | p*] -> p*
     where
       <get-config> "-s";
@@ -59,6 +59,8 @@ strategies
       rules(
         Generated :+= p.water-prods
       )
+
+strategies
 
   make-permissive =
     /*

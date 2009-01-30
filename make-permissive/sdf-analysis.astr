@@ -66,10 +66,6 @@ attributes // Graph structure properties
 
 decorators // TODO: Think about a better idiom and/or name for this
 
-  decorator /*alter-signature(a.signature.uninit)*/ context-free(a) =
-    id.uninit;
-    id.cached(a|a.signature.uninit)
-
-  decorator context-free sort-search-operation(a) =
-    set-cached-attribute(|id.global-cache, id, id.signature.uninit, EVAL_FAILED());
+  decorator context-free-args sort-search-operation(a) =
+    set-cached-attribute(|id.global-cache, id, a.signature, EVAL_FAILED());
     a

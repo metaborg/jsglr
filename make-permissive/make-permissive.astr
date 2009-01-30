@@ -85,6 +85,11 @@ strategies
       collect-all(id.is-list-around-scope-prod; debug-sdf(!""))
     );
     
+    if not(<get-config> "-s") then
+      ![];
+      fatal-err(|"Please specify sorts to make permissive")
+    end;
+    
     alltd(replace-productions)
 
   debug-sdf(m) =

@@ -29,7 +29,7 @@ attributes
       wplus := sort.iter-pattern-name;
       water := sort.water-name
   
-  // TODO: iter-sep, iter-star-sep    
+  // TODO: water-prods definition for things like sequences  
      
   def rewrite-bu replace-water-pattern:
     iter(sort(pattern))               -> sort(pattern.iter-pattern-name)

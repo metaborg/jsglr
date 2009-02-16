@@ -67,5 +67,5 @@ attributes // Graph structure properties
 decorators // TODO: Think about a better idiom and/or name for this
 
   decorator context-free-args sort-search-operation(a) =
-    set-cached-attribute(|id.global-cache, id, a.signature, EVAL_FAILED());
+    id.set-cached(|a.signature, EVAL_FAILED());
     a

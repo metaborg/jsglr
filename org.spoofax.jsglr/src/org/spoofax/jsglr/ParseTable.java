@@ -94,8 +94,7 @@ public class ParseTable implements Serializable {
         ATermList prods = Term.listAt(prioritiesTerm, 0);
         List<Priority> ret = new ArrayList<Priority>();
         
-        for (int i = 0; i < prods.getChildCount(); i++) {
-            ATermAppl a = Term.applAt(prods, i);
+        for (ATermAppl a = (ATermAppl) prods.getFirst(); !prods.getNext().isEmpty(); prods = prods.getNext()) {
             int left = Term.intAt(a, 0);
             int right = Term.intAt(a, 1);
             if (a.getName().equals("left-prio")) {
@@ -124,8 +123,7 @@ public class ParseTable implements Serializable {
         ATermList prods = Term.listAt(prioritiesTerm, 0);
         List<Associativity> ret = new ArrayList<Associativity>();
         
-        for (int i = 0; i < prods.getChildCount(); i++) {
-            ATermAppl a = Term.applAt(prods, i);
+        for (ATermAppl a = (ATermAppl) prods.getFirst(); !prods.getNext().isEmpty(); prods = prods.getNext()) {
             int left = Term.intAt(a, 0);
             int right = Term.intAt(a, 1);
             if (a.getName().equals("left-prio")) {
@@ -188,8 +186,7 @@ public class ParseTable implements Serializable {
             ATermList ls = (ATermList) attr.getChildAt(0);
             int type = 0;
             ATerm term = null;
-            for (int i = 0; i < ls.getChildCount(); i++) {
-                ATermAppl t = (ATermAppl) ls.getChildAt(i);
+            for (ATermAppl t = (ATermAppl) ls.getFirst(); !ls.getNext().isEmpty(); ls = ls.getNext()) {
                 String ctor = t.getName();
                 if (ctor.equals("reject")) {
                     type = ProductionAttributes.REJECT;
@@ -250,11 +247,13 @@ public class ParseTable implements Serializable {
 
     private Goto makeGoto(int newStateNumber, Range[] ranges) {
         Goto g = new Goto(ranges, newStateNumber);
-        if (gotoMap.containsKey(g)) {
-            return gotoMap.get(g);
+        Goto cached = gotoMap.get(g);
+        if (cached == null) {
+            gotoMap.put(g, g);
+            return g;
+        } else {
+            return cached;
         }
-        gotoMap.put(g, g);
-        return g;
     }
 
     private Action[] parseActions(ATermList actionList) throws InvalidParseTableException {
@@ -337,21 +336,25 @@ public class ParseTable implements Serializable {
     }
 
     private Reduce makeReduce(int arity, int label, int status) {
-        Reduce s = new Reduce(arity, label, status);
-        if (reduceMap.containsKey(s)) {
-            return reduceMap.get(s);
+        Reduce r = new Reduce(arity, label, status);
+        Reduce cached = reduceMap.get(r);
+        if (cached == null) {
+            reduceMap.put(r, r);
+            return r;
+        } else {
+            return cached;
         }
-        reduceMap.put(s, s);
-        return s;
     }
 
     private Shift makeShift(int nextState) {
         Shift s = new Shift(nextState);
-        if (shiftMap.containsKey(s)) {
-            return shiftMap.get(s);
+        Shift cached = shiftMap.get(s);
+        if (cached == null) {
+            shiftMap.put(s, s);
+            return s;
+        } else {
+            return cached;
         }
-        shiftMap.put(s, s);
-        return s;
     }
 
     private Goto[] parseGotos(ATermList gotos) throws InvalidParseTableException {

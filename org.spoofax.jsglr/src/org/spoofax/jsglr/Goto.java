@@ -8,12 +8,13 @@
 package org.spoofax.jsglr;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Goto implements Serializable {
 
     static final long serialVersionUID = 4361136767191244085L;
     
-    private Range[] ranges;
+    private final Range[] ranges;
     public final int nextState;
     
     public Goto(Range[] ranges, int nextState) {
@@ -39,19 +40,12 @@ public class Goto implements Serializable {
             return false;
         if(ranges.length != o.ranges.length)
             return false;
-        for(int i=0;i<ranges.length;i++)
-            if(ranges[i].equals(o.ranges[i]))
-                return false;
-        return true;
+        return Arrays.deepEquals(ranges, o.ranges);
     }
     
     @Override
     public int hashCode() {
-        // FIXME Can probably be made to work a lot better
-        int r = nextState * 94716;
-        for(int i = 0; i < ranges.length; i++)
-            r += ranges[i].hashCode() + i * 3617;
-        return r;
+        return Arrays.deepHashCode(ranges);
     }
     @Override
     public String toString() {

@@ -5,7 +5,7 @@ STRS=$(ASTRS:.astr=.str)
 
 make-permissive : make-permissive.str $(STRS)
 	strc -i $< -m main-make-permissive \
-	     -I .  -I ../../syntax \
+	     -I . -I syntax \
 	     -la stratego-aterm \
 	     -la stratego-lib \
 	     -la stratego-xtc \

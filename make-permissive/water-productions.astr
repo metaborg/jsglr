@@ -2,55 +2,68 @@ module water-productions
 
 attributes
 
-  def water-prods:
-    prod(_, sort(sort), _) ->
-    |[ lexical syntax
-         ~[\ \t\12\r\n]+ -> ~water
-   
-       lexical restrictions
-         ~water -/- ~[\ \t\12\r\n]
+  def all-permissive-sections:
+    grammar ->
+    conc-grammars(
+      water-sections
+    , insert-sections
+    )
+    with
+      water-sections  := grammar.water-sections;
+      insert-sections := grammar.insert-sections
+
+  def water-sections:
+    id ->
+    |[ sorts
+         WATER WATERTOKEN WATERTOKENSTART WATERTOKENSEPARATOR WATEREOF
        
-       sorts
-         ~wstar ~wplus ~water
-       
+       lexical syntax
+         [A-Za-z0-9\_]                  -> WATERTOKENSTART {avoid}
+         WATERTOKENSTART [A-Za-z0-9\_]* -> WATERTOKEN
+         ~[A-Za-z0-9\_\ \t\12\r\n]      -> WATERTOKENSEPARATOR {avoid}
+         WATERTOKEN                     -> WATER
+         WATERTOKENSEPARATOR            -> WATER
+  
+       lexical restrictions    
+         WATEREOF        -/- ~[]
+         WATERTOKEN -/- [A-Za-z0-9\_]
+  
        context-free syntax
-       
-         p1
-         
-         ~wplus -> ~wstar
-                -> ~wstar {ast("[]")} %% "nil"
-         
-         ~sort  ~wplus -> ~wplus {ast("<conc([<1>],<2>)>)")}              %% "cons"
-         ~water ~wplus -> ~wplus {ast("<conc([Water(<1>)],<2>)>"), avoid} %% "cons"
+         WATER -> LAYOUT {cons("WATER")}
+    ]|
+
+attributes
+
+  def insert-sections:
+    id ->
+    |[ lexical syntax
+         p*
     ]|
     with
-      p1    := id.replace-water-pattern;
-      wstar := sort.iter-star-pattern-name;
-      wplus := sort.iter-pattern-name;
-      water := sort.water-name
+      p* := id.all-insert-prods
   
-  // TODO: water-prods definition for things like sequences  
-     
-  def rewrite-bu replace-water-pattern:
-    iter(sort(pattern))               -> sort(pattern.iter-pattern-name)
-    iter-star(sort(pattern))          -> sort(pattern.iter-star-pattern-name)
-    iter-sep(sort(pattern), sep)      -> sort(pattern.iter-sep-pattern-name(|sep))
-    iter-star-sep(sort(pattern), sep) -> sort(pattern.iter-star-sep-pattern-name(|sep))
+  def collect-all all-insert-prods:
+    prod([lit(_) | pattern], _, _) ->
+    |[ 
+       -> ~closinglit {avoid, cons("INSERTION")}
+    ]|
+    where
+      id.in-context-free-section;
+      <last> pattern => closinglit;
+      id.is-only-used-as-closing-literal
+  
+  def is-only-used-as-closing-literal:
+    lit(x) -> id
+    where
+      not(
+        id.root;
+        oncetd(
+          id.eq(|lit(x));
+          id.next-sibling => [_ | _] // not last in list
+        )
+      )
 
-attributes // Names of generated symbols
-  
-  def context-free water-name:
-    name -> <newname> <conc-strings> (name, "Water")
-  
-  def context-free iter-pattern-name:
-    name -> <newname> <conc-strings> (name, "WPlus")
-   
-  def context-free iter-star-pattern-name:
-    name -> <newname> <conc-strings> (name, "WStar")
-  
-  def context-free iter-sep-pattern-name(|sep):
-    name -> <newname> <conc-strings> (name, "WPlusSep")
-  
-  def context-free iter-star-sep-pattern-name(|sep):
-    name -> <newname> <conc-strings> (name, "WStarSep")
+attributes
 
+  def down in-context-free-section:
+    context-free-syntax(_) -> id

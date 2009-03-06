@@ -25,8 +25,7 @@ strategies // I/O
     ,
       parse-xtc-file-report-errors(|<get-sdf-parse-table>, None());
       id.init;
-      
-      make-permissive;
+      add-permissive-sections;
       
       sdf-desugar;
       pp-sdf-string;
@@ -35,62 +34,16 @@ strategies // I/O
 
 strategies
 
-  replace-productions:
+  add-permissive-sections:
     "module"#([name, x, sections]) ->
     "module"#([name, x, sections'])
     with
-      {| Generated:
-        !sections;
-        topdown-consnil(try(
-          extract-water
-        ));
-        try(oncetd(
-          \exports(e*) -> exports(conc-grammars(e*, <bagof-Generated>))\
-        ));
-        ?sections'
-      |}
-
-  extract-water:
-    [p @ prod(_, sort(sort), _) | p*] -> p*
-    where
-      <get-config> "-s";
-      one(id.eq(|sort))
-    with
-      rules(
-        Generated :+= p.water-prods
-      )
-
-strategies
-
-  make-permissive =
-    /*
-    with(
-      oncetd(id.is-scope-prod; not(?first); ?prod);
-      !prod;
-      debug-sdf(!"PROD:");
-      id.water-prods;
-      debug-sdf(!"WATER:")
-    );
-    
-    <exit> 0;
-    */
-  
-    with(
-      say(!"SCOPE PRODS:");
-      collect-all(id.is-scope-prod; debug-sdf(!""))      
-    );
-    
-    with(
-      say(!"\n\nLISTS AROUND SCOPE PRODS:");
-      collect-all(id.is-list-around-scope-prod; debug-sdf(!""))
-    );
-    
-    if not(<get-config> "-s") then
-      ![];
-      fatal-err(|"Please specify sorts to make permissive")
-    end;
-    
-    alltd(replace-productions)
+      added := id.all-permissive-sections;
+      !sections;
+      try(oncetd(
+        \exports(e*) -> exports(conc-grammars(e*, added))\
+      ));
+      ?sections'
 
   debug-sdf(m) =
     with(

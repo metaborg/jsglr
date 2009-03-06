@@ -5,7 +5,7 @@ attributes
   def water-sections:
     id ->
     |[ sorts
-         WATER WATERTOKEN WATERTOKENSTART WATERTOKENSEPARATOR WATEREOF
+         WATER WATERTOKEN WATERTOKENSTART WATERTOKENSEPARATOR
        
        lexical syntax
          [A-Za-z0-9\_]                  -> WATERTOKENSTART {avoid}
@@ -15,7 +15,6 @@ attributes
          WATERTOKENSEPARATOR            -> WATER
   
        lexical restrictions    
-         WATEREOF        -/- ~[]
          WATERTOKEN -/- [A-Za-z0-9\_]
   
        context-free syntax

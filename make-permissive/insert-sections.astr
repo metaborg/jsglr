@@ -1,24 +1,39 @@
 module insert-sections
 
+imports
+  sdf-injections
+
 attributes
 
   def insert-sections:
     id ->
-    |[ lexical syntax
+    |[ sorts
+         WATEREOF
+  
+       lexical restrictions    
+         WATEREOF -/- ~[]
+         
+       lexical syntax
          p*
     ]|
     with
       p* := id.all-insert-prods
   
-  def collect-all all-insert-prods:
+  def after(flatten-list) collect-all all-insert-prods =
+    id.insert-prod
+  
+attributes // Simple closing literals (e.g., "}")
+
+  def insert-prod:
     prod([lit(_) | pattern], _, _) ->
     |[ 
        -> ~closinglit {avoid, cons("INSERTION")}
     ]|
     where
-      id.in-context-free-section;
-      <last> pattern => closinglit;
-      id.is-only-used-as-closing-literal
+      id.in-context-free-section
+    where
+      closinglit := <last> pattern;
+      closinglit.is-only-used-as-closing-literal
   
   def is-only-used-as-closing-literal:
     lit(x) -> id
@@ -30,3 +45,35 @@ attributes
           id.next-sibling => [_ | _] // not last in list
         )
       )
+
+attributes // Comment closing literals
+
+  def insert-prod:
+    prod([openinglit | pattern-and-lit], sort, _) ->
+    |[ 
+       ~openinglit                    -> ~openingsort {avoid}
+       ~openingsort ~pattern WATEREOF -> ~sort {cons("INSERTEND", avoid)}
+    ]|
+    where
+      id.is-comment-prod
+    with
+      (pattern, closinglit) := <split-last> pattern-and-lit;
+      openingsort           := <newname> "INSERTSTART"
+
+  def is-comment-prod:
+    prod([lit(_) | pattern-and-lit], target, _) -> id
+    where
+      closinglit := <last> pattern-and-lit;
+      ?lit(_)
+    where
+      layout().eq(|target)
+    <+
+      target.direct-container-prods;
+      one(
+        // TODO: Use "is-injection-from"
+        ?prod(_, layout(), _)
+      )
+  
+attributes // String closing literals
+
+  // TODO

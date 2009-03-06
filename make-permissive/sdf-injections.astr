@@ -16,6 +16,7 @@ attributes // Graph structure properties
     where
       id.direct-contained-sorts => [single];
       (  single.eq(|sort(sort))
+      <+ (!sort; debug(!1) => layout(); !single; debug(!2) => layout())
       <+ single.lookup-all;
          one(
            id.is-injection-to(|sort)

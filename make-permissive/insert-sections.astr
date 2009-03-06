@@ -1,0 +1,32 @@
+module insert-sections
+
+attributes
+
+  def insert-sections:
+    id ->
+    |[ lexical syntax
+         p*
+    ]|
+    with
+      p* := id.all-insert-prods
+  
+  def collect-all all-insert-prods:
+    prod([lit(_) | pattern], _, _) ->
+    |[ 
+       -> ~closinglit {avoid, cons("INSERTION")}
+    ]|
+    where
+      id.in-context-free-section;
+      <last> pattern => closinglit;
+      id.is-only-used-as-closing-literal
+  
+  def is-only-used-as-closing-literal:
+    lit(x) -> id
+    where
+      not(
+        id.root;
+        oncetd(
+          id.eq(|lit(x));
+          id.next-sibling => [_ | _] // not last in list
+        )
+      )

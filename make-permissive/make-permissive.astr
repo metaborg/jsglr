@@ -12,7 +12,8 @@ imports
 
   sdf-analysis
   sdf-heuristics
-  water-productions
+  water-sections
+  insert-sections
 
 strategies // I/O
 
@@ -56,3 +57,15 @@ strategies
         debug(!"  ")
       )
     )
+
+attributes
+
+  def all-permissive-sections:
+    grammar ->
+    conc-grammars(
+      water-sections
+    , insert-sections
+    )
+    with
+      water-sections  := grammar.water-sections;
+      insert-sections := grammar.insert-sections

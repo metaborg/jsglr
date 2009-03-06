@@ -22,6 +22,9 @@ attributes // Basic properties for productions and sorts
   
   def down in-pattern:
     prod(pattern, _, _).pattern -> id
+
+  def down in-context-free-section:
+    context-free-syntax(_) -> id
   
   def direct-contained-sorts:
     prod(pattern, _, _) -> <collect-all(?sort(_))> pattern

@@ -1,0 +1,23 @@
+module water-sections
+
+attributes
+
+  def water-sections:
+    id ->
+    |[ sorts
+         WATER WATERTOKEN WATERTOKENSTART WATERTOKENSEPARATOR WATEREOF
+       
+       lexical syntax
+         [A-Za-z0-9\_]                  -> WATERTOKENSTART {avoid}
+         WATERTOKENSTART [A-Za-z0-9\_]* -> WATERTOKEN
+         ~[A-Za-z0-9\_\ \t\12\r\n]      -> WATERTOKENSEPARATOR {avoid}
+         WATERTOKEN                     -> WATER
+         WATERTOKENSEPARATOR            -> WATER
+  
+       lexical restrictions    
+         WATEREOF        -/- ~[]
+         WATERTOKEN -/- [A-Za-z0-9\_]
+  
+       context-free syntax
+         WATER -> LAYOUT {cons("WATER")}
+    ]|

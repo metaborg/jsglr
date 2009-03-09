@@ -117,12 +117,8 @@ attributes // String closing literals
        ~openingquote                  -> INSERTOPENQUOTE {avoid}
        INSERTOPENQUOTE ~pattern "\\n" -> ~sort {cons("INSERTEND"), avoid}
     ]|
-    // where
-    //   id.in-lexical-section + id.in-kernel-section
     where
       (pattern, closingquote) := <split-last> pattern-and-quote
-    // where
-    //   not(pattern.pattern-allows-newlines)
     where
       openingquote.eq(|closingquote);
       openingquote.is-quote-lit
@@ -146,7 +142,7 @@ attributes // String closing literals
     where
       (pattern, closingquote) := <split-last> pattern-and-quote
     where
-      not(pattern.pattern-allows-newlines)
-    where
       openingquote.eq(|closingquote)
+    where
+      not(pattern.pattern-allows-newlines)
 

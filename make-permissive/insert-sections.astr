@@ -117,18 +117,36 @@ attributes // String closing literals
        ~openingquote                  -> INSERTOPENQUOTE {avoid}
        INSERTOPENQUOTE ~pattern "\\n" -> ~sort {cons("INSERTEND"), avoid}
     ]|
+    // where
+    //   id.in-lexical-section + id.in-kernel-section
+    where
+      (pattern, closingquote) := <split-last> pattern-and-quote
+    // where
+    //   not(pattern.pattern-allows-newlines)
+    where
+      openingquote.eq(|closingquote);
+      openingquote.is-quote-lit
+      
+  def id.pattern-allows-newlines =
+    fail // TODO: Check if string pattern does not allow newlines?
+  
+  def Test is-quote-lit:
+    lit(quote) -> id
+    where
+      id.root;
+      alltd(
+        id.eq(|lit(quote));
+        id.in-potential-quote-prod
+      )
+
+  def Test down in-potential-quote-prod:
+    prod([openingquote | pattern-and-quote], _, _) -> id
     where
       id.in-lexical-section + id.in-kernel-section
     where
-      id // TODO: Check if string pattern does not allow newlines?
-    where
       (pattern, closingquote) := <split-last> pattern-and-quote
     where
-      openingquote.is-quote-lit;
+      not(pattern.pattern-allows-newlines)
+    where
       openingquote.eq(|closingquote)
-
-  // TODO: Generalize is-quote-lit? e.g., ensure that it never occurs as a starting lit in other non-quote prods
-  def Test is-quote-lit:
-    lit("\"\\\"\"") -> id // (matches sdf's way of saying ")
-    lit("\"'\"")    -> id
 

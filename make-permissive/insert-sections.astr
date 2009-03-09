@@ -38,20 +38,23 @@ attributes // Simple closing literals (e.g., "}")
       id.in-context-free-section
     where
       closinglit := <last> pattern;
-      closinglit.is-only-used-as-closing-literal
+      ?lit(_)
+    where
+      not(closinglit.is-used-as-opening-literal)
   
-  // TODO: make this "is-never-used-as-opening-literal" instead..?
-  
-  def is-only-used-as-closing-literal:
+  def Test is-used-as-opening-literal:
     lit(x) -> id
     where
-      not(
-        id.root;
-        oncetd(
-          id.eq(|lit(x));
-          id.next-sibling => [_ | _] // not last in list
-        )
+      id.root;
+      oncetd(
+        id.eq(|lit(x));
+        id.is-list-head
       )
+  
+  def Test is-list-head:
+    [x | _] -> id
+    where
+      not(id.parent => [_ | _])
 
 attributes // Comment closing literals
 
@@ -67,7 +70,7 @@ attributes // Comment closing literals
       (pattern, closinglit) := <split-last> pattern-and-lit;
       openingsort           := <newname> "INSERTSTART"
 
-  def is-comment-prod:
+  def Test is-comment-prod:
     prod([lit(_) | pattern-and-lit], target, _) -> id
     where
       closinglit := <last> pattern-and-lit;

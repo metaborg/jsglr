@@ -26,6 +26,7 @@ strategies // I/O
     ,
       parse-xtc-file-report-errors(|<get-sdf-parse-table>, None());
       id.init;
+      (?definition(_) <+ fatal-err(|"Please specify a packed .def file."));
       add-permissive-sections;
       
       sdf-desugar;

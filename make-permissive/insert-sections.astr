@@ -19,8 +19,13 @@ attributes
     with
       p* := id.all-insert-prods
   
-  def after(flatten-list) collect-all all-insert-prods =
-    id.insert-prod
+  def at-root all-insert-prods =
+    collect-all(
+      id.insert-prod
+    , id.union
+    );
+    flatten-list
+    
   
 attributes // Simple closing literals (e.g., "}")
 
@@ -34,6 +39,8 @@ attributes // Simple closing literals (e.g., "}")
     where
       closinglit := <last> pattern;
       closinglit.is-only-used-as-closing-literal
+  
+  // TODO: make this "is-never-used-as-opening-literal" instead..?
   
   def is-only-used-as-closing-literal:
     lit(x) -> id

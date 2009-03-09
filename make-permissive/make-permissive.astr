@@ -35,6 +35,9 @@ strategies // I/O
 
 strategies
 
+  add-permissive-sections =
+    definition(one(add-permissive-sections))
+
   add-permissive-sections:
     "module"#([name, x, sections]) ->
     "module"#([name, x, sections'])

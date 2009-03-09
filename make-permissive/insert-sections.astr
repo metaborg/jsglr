@@ -78,7 +78,7 @@ attributes // Comment closing literals
     prod([openinglit | pattern-and-lit], sort, _) ->
     |[ 
        ~openinglit                    -> ~openingsort {avoid}
-       ~openingsort ~pattern WATEREOF -> ~sort {cons("INSERTEND", avoid)}
+       ~openingsort ~pattern WATEREOF -> ~sort {avoid, cons("INSERTEND")}
     ]|
     where
       id.is-comment-prod
@@ -115,7 +115,7 @@ attributes // String closing literals
     prod([openingquote | pattern-and-quote], sort, _) ->
     |[ 
        ~openingquote                  -> INSERTOPENQUOTE {avoid}
-       INSERTOPENQUOTE ~pattern "\\n" -> ~sort {cons("INSERTEND"), avoid}
+       INSERTOPENQUOTE ~pattern "\\n" -> ~sort {avoid, cons("INSERTEND")}
     ]|
     where
       (pattern, closingquote) := <split-last> pattern-and-quote

@@ -46,7 +46,7 @@ strategies
       added := id.all-permissive-sections;
       !sections;
       try(oncetd(
-        \exports(e*) -> exports(conc-grammars(e*, added))\
+        \exports(e*) -> exports(conc-grammars(added, e*))\
       ));
       ?sections'
 

@@ -20,11 +20,17 @@ attributes // Basic properties for productions and sorts
   def down current-sort:
     prod(_, sort(sort), _) -> sort
   
-  def down in-pattern:
+  def Test down in-pattern:
     prod(pattern, _, _).pattern -> id
 
-  def down in-context-free-section:
+  def Test down in-context-free-section:
     context-free-syntax(_) -> id
+
+  def Test down in-lexical-section:
+    lexical-syntax(_) -> id
+
+  def Test down in-kernel-section:
+    syntax(_) -> id
   
   def direct-contained-sorts:
     prod(pattern, _, _) -> <collect-all(?sort(_))> pattern

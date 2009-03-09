@@ -6,7 +6,7 @@ imports
 attributes
 
   def insert-sections:
-    id ->
+    sections ->
     |[ sorts
          WATEREOF
   
@@ -14,22 +14,36 @@ attributes
          WATEREOF -/- ~[]
          
        lexical syntax
-         p*
+         p1*
+       
+       syntax
+         p2*
     ]|
     with
-      p* := id.all-insert-prods
+      p1* := sections.all-lexical-insert-prods;
+      p2* := sections.all-kernel-insert-prods
   
-  def at-root all-insert-prods =
+  def at-root all-lexical-insert-prods =
     collect-all(
-      id.insert-prod
+      id.lexical-insert-prod
     , id.union
     );
     flatten-list
-    
+  
+  def at-root all-kernel-insert-prods =
+    collect-all(
+      id.kernel-insert-prod
+    , id.union
+    );
+    flatten-list
+  
+  def lexical-insert-prod
+  
+  def kernel-insert-prod
   
 attributes // Simple closing literals (e.g., "}")
 
-  def insert-prod:
+  eq lexical-insert-prod:
     prod([lit(_) | pattern], _, _) ->
     |[ 
        -> ~closinglit {avoid, cons("INSERTION")}
@@ -58,7 +72,9 @@ attributes // Simple closing literals (e.g., "}")
 
 attributes // Comment closing literals
 
-  def insert-prod:
+  // TODO: INSERTSTART*, INSERTOPENQUOTE sorts should be declared
+
+  eq lexical-insert-prod:
     prod([openinglit | pattern-and-lit], sort, _) ->
     |[ 
        ~openinglit                    -> ~openingsort {avoid}
@@ -66,9 +82,10 @@ attributes // Comment closing literals
     ]|
     where
       id.is-comment-prod
+    where
+      (pattern, closinglit) := <split-last> pattern-and-lit
     with
-      (pattern, closinglit) := <split-last> pattern-and-lit;
-      openingsort           := <newname> "INSERTSTART"
+      openingsort := <newname> "INSERTSTART"
 
   def Test is-comment-prod:
     prod([lit(_) | pattern-and-lit], target, _) -> id
@@ -86,4 +103,32 @@ attributes // Comment closing literals
   
 attributes // String closing literals
 
-  // TODO
+  eq lexical-insert-prod =
+    id.in-lexical-section;
+    id.insert-quote-prod
+  
+  eq kernel-insert-prod =
+    id.in-kernel-section;
+    id.insert-quote-prod
+
+  def insert-quote-prod:
+    prod([openingquote | pattern-and-quote], sort, _) ->
+    |[ 
+       ~openingquote                  -> INSERTOPENQUOTE {avoid}
+       INSERTOPENQUOTE ~pattern "\\n" -> ~sort {cons("INSERTEND"), avoid}
+    ]|
+    where
+      id.in-lexical-section + id.in-kernel-section
+    where
+      id // TODO: Check if string pattern does not allow newlines?
+    where
+      (pattern, closingquote) := <split-last> pattern-and-quote
+    where
+      openingquote.is-quote-lit;
+      openingquote.eq(|closingquote)
+
+  // TODO: Generalize is-quote-lit? e.g., ensure that it never occurs as a starting lit in other non-quote prods
+  def Test is-quote-lit:
+    lit("\"\\\"\"") -> id // (matches sdf's way of saying ")
+    lit("\"'\"")    -> id
+

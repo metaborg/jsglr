@@ -20,3 +20,10 @@ attributes
        context-free syntax
          WATER -> LAYOUT {cons("WATER")}
     ]|
+    where
+      if-switch(|WATER_ON())
+  
+  eq water-sections:
+    id -> |[ context-free syntax ]|
+    where
+      not(if-switch(|WATER_ON()))

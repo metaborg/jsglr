@@ -9,20 +9,24 @@ imports
   
   lib/sdf-desugar
   lib/multi-options
+  lib/switch-options
 
   sdf-analysis
   sdf-heuristics
   water-sections
   insert-sections
 
+overlays
+
+  WATER_ON           = "water"
+  OPEN_INSERTIONS_ON = "open-insertions"
+  INSERTIONS_ON      = "insertions"
+
 strategies // I/O
 
   main-make-permissive =
     xtc-io-wrap(
-      MultiArgOption("-s"
-      , <set-config> ("-s", <id>)
-      , !"-s                  Specifies the symbols to make permissive"
-      )
+      options
     ,
       parse-xtc-file-report-errors(|<get-sdf-parse-table>, None());
       id.init;
@@ -33,6 +37,27 @@ strategies // I/O
       pp-sdf-string;
       print-to
     )
+  
+  options =
+    SwitchOption(|
+      OPEN_INSERTIONS_ON()
+    , "off"
+    , "Add recovery rules for opening braces"
+    )
+  + SwitchOption(|
+      INSERTIONS_ON()
+    , "on"
+    , "Add insertion recovery rules"
+   )
+  + SwitchOption(|
+      WATER_ON()
+    , "on"
+    , "Add water recovery rules"
+    )
+
+  if-switch(|switch) =
+    if-switch(!switch, ?x);
+    where(!x)
 
 strategies
 

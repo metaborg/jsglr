@@ -19,15 +19,27 @@ attributes
        syntax
          p2*
     ]|
+    where
+      if-switch(|INSERTIONS_ON())
     with
       p1* := sections.all-lexical-insert-prods;
       p2* := sections.all-kernel-insert-prods
   
+  eq insert-sections:
+    sections -> |[ context-free syntax ]|
+    where
+      not(if-switch(|INSERTIONS_ON()))
+  
   def at-root all-lexical-insert-prods =
-    collect-all(
-      id.lexical-insert-prod
-    , id.union
-    );
+    ![ <collect-all(
+          id.lexical-insert-prod
+        , id.union
+        )>
+     , <collect-all(
+          id.lexical-insert-open-prod
+        , id.union
+       )>
+    ];
     flatten-list
   
   def at-root all-kernel-insert-prods =
@@ -69,8 +81,26 @@ attributes // Simple closing literals (e.g., "}")
     [x | _] -> id
     where
       not(id.parent => [_ | _])
+  
+attributes // Simple opening literals (e.g., "{")
 
-attributes // Comment closing literals
+  def lexical-insert-open-prod:
+    prod([openinglit | pattern], _, _) ->
+    |[ 
+       -> ~openinglit {avoid, cons("INSERTION")}
+    ]|
+    where
+      id.in-context-free-section
+    where
+      !openinglit => lit(_)
+    where
+      <split-last> pattern => (_, closinglit @ lit(_))
+    where
+      not(closinglit.eq(|openinglit)) // handled by "string" insertion
+    where
+      if-switch(|OPEN_INSERTIONS_ON())
+
+attributes // Layout closing literals (e.g., comments)
 
   // TODO: INSERTSTART*, INSERTOPENQUOTE sorts should be declared
 
@@ -101,7 +131,7 @@ attributes // Comment closing literals
         ?prod(_, layout(), _)
       )
   
-attributes // String closing literals
+attributes // Matched (e.g. string) closing literals
 
   eq lexical-insert-prod =
     id.in-lexical-section;

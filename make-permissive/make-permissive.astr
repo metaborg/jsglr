@@ -10,6 +10,7 @@ imports
   lib/sdf-desugar
   lib/multi-options
   lib/switch-options
+  lib/sdf-parenthesize
 
   sdf-analysis
   sdf-heuristics
@@ -37,7 +38,8 @@ strategies // I/O
 
       add-permissive-sections;
       
-      sdf-desugar;
+      sdf-desugar;      
+      parenthesize-Sdf2;
       pp-sdf-string;
       print-to
     )
@@ -121,7 +123,7 @@ strategies
       (is-list <+ ![<id>]);
       map(
         strip-annos;
-        sdf-desugar;
+        parenthesize-Sdf2;
         pp-sdf-string;
         debug(!"  ")
       )

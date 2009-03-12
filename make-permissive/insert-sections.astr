@@ -144,14 +144,16 @@ attributes // Matched (e.g. string) closing literals
   def insert-quote-prod:
     prod([openingquote | pattern-and-quote], sort, _) ->
     |[ 
-       ~openingquote                  -> INSERTOPENQUOTE {avoid}
-       INSERTOPENQUOTE ~pattern "\\n" -> ~sort {avoid, cons("INSERTEND")}
+       ~openingquote                    -> ~openingquotesort {avoid}
+       ~openingquotesort ~pattern "\\n" -> ~sort {avoid, cons("INSERTEND")}
     ]|
     where
       (pattern, closingquote) := <split-last> pattern-and-quote
     where
       openingquote.eq(|closingquote);
       openingquote.is-quote-lit
+    with
+      openingquotesort := <newname> "INSERTOPENQUOTE"
       
   def id.pattern-allows-newlines =
     fail // TODO: Check if string pattern does not allow newlines?

@@ -56,14 +56,14 @@ attributes
 attributes // Simple closing literals (e.g., "}")
 
   eq lexical-insert-prod:
-    prod([lit(_) | pattern], _, _) ->
+    prod([lit(_) | pattern-and-lit], _, _) ->
     |[ 
        -> ~closinglit {avoid, cons("INSERTION")}
     ]|
     where
       id.in-context-free-section
     where
-      closinglit := <last> pattern;
+      closinglit := <last> pattern-and-lit;
       ?lit(_)
     where
       not(closinglit.is-used-as-opening-literal)
@@ -85,7 +85,7 @@ attributes // Simple closing literals (e.g., "}")
 attributes // Simple opening literals (e.g., "{")
 
   def lexical-insert-open-prod:
-    prod([openinglit | pattern], _, _) ->
+    prod([openinglit | pattern-and-lit], _, _) ->
     |[ 
        -> ~openinglit {avoid, cons("INSERTION")}
     ]|
@@ -94,7 +94,7 @@ attributes // Simple opening literals (e.g., "{")
     where
       !openinglit => lit(_)
     where
-      <split-last> pattern => (_, closinglit @ lit(_))
+      <split-last> pattern-and-lit => (_, closinglit @ lit(_))
     where
       not(closinglit.eq(|openinglit)) // handled by "string" insertion
     where

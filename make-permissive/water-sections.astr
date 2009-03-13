@@ -2,6 +2,8 @@ module water-sections
 
 attributes
 
+  // TODO: WATERTOKENSEPARATOR should be based on the definition of LAYOUT
+
   def water-sections:
     id ->
     |[ sorts

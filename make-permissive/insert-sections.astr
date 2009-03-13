@@ -108,7 +108,7 @@ attributes // Layout closing literals (e.g., comments)
     prod([openinglit | pattern-and-lit], sort, _) ->
     |[ 
        ~openinglit                    -> ~openingsort {avoid}
-       ~openingsort ~pattern WATEREOF -> ~sort {avoid, cons("INSERTEND")}
+       ~openingsort ~pattern WATEREOF -> ~sort {cons("INSERTEND")}
     ]|
     where
       id.is-comment-prod

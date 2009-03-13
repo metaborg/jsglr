@@ -22,6 +22,7 @@ overlays
   WATER_ON           = "water"
   OPEN_INSERTIONS_ON = "open-insertions"
   INSERTIONS_ON      = "insertions"
+  SEPARATORS_ON      = "separators"
 
 strategies // I/O
 
@@ -59,6 +60,11 @@ strategies // I/O
       WATER_ON()
     , "on"
     , "Add water recovery rules"
+    )
+  + SwitchOption(|
+      SEPARATORS_ON()
+    , "on"
+    , "Add separator recovery rules"
     )
   + ArgOption(
       "-m"

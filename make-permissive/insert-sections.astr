@@ -178,3 +178,23 @@ attributes // Matched (e.g. string) closing literals
     where
       not(pattern.pattern-allows-newlines)
 
+attributes // Separator literals (e.g., ",")
+
+/*
+  // TODO: Separator literal insertions
+  //       for iter-sep, iter-star-sep, etc etc
+
+  def lexical-insert-separator-prod:
+    |[ { ~sort ~lit } ]| ->
+    |[ -> ~lit ]|
+    where
+      id.in-context-free-section
+    where
+      !lit => lit(_)
+    where
+      if-switch(|OPEN_INSERTIONS_ON())
+    <+
+      not(lit.is-used-as-opening-literal)
+    where
+      if-switch(|SEPARATORS_ON())
+*/

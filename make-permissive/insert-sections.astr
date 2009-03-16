@@ -30,16 +30,17 @@ attributes
     where
       not(if-switch(|INSERTIONS_ON()))
   
+  // TODO: Is there a better way to aggregate these attribute results?
+  //       Perhaps using a new Aster language primitive?
+  //       This same pattern seems useful for collection attributes...
   def at-root all-lexical-insert-prods =
-    ![ <collect-all(
-          id.lexical-insert-prod
-        , id.union
-        )>
-     , <collect-all(
-          id.lexical-insert-open-prod
-        , id.union
-       )>
-    ];
+    collect-all(
+      ![ <id.lexical-insert-prod      <+ ![]>
+       , <id.lexical-insert-open-prod <+ ![]>
+       , <id.lexical-insert-all-prod  <+ ![]>
+       ]
+    , id.union
+    );
     flatten-list
   
   def at-root all-kernel-insert-prods =
@@ -198,3 +199,14 @@ attributes // Separator literals (e.g., ",")
     where
       if-switch(|SEPARATORS_ON())
 */
+
+attributes // All-literal insertion
+
+  def lexical-insert-all-prod:
+    lit @ lit(_) ->
+    |[ -> ~lit {avoid, cons("INSERTION")} ]|
+    where
+      id.in-context-free-section
+    where
+      if-switch(|ALL_INSERTIONS_ON())
+

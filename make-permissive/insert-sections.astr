@@ -137,6 +137,12 @@ attributes // Matched (e.g. string) closing literals
   eq lexical-insert-prod =
     id.in-lexical-section;
     id.insert-quote-prod
+    
+  // XXX: Insertions based on kernel productions need to maintain the constructor
+  // i.e., in Java, the original production is:
+  //   "\""             StringPart* "\"" -> StringLiteral {cons("String")}
+  // and cannot just be transformed to:
+  //   INSERTOPENQUOTE0 StringPart* "\n" -> StringLiteral    {avoid, cons("INSERTEND")}
   
   eq kernel-insert-prod =
     id.in-kernel-section;

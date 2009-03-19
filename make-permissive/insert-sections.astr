@@ -41,7 +41,8 @@ attributes
        ]
     , id.union
     );
-    flatten-list
+    flatten-list;
+    id.make-set
   
   def at-root all-kernel-insert-prods =
     collect-all(
@@ -151,8 +152,9 @@ attributes // Matched (e.g. string) closing literals
   def insert-quote-prod:
     prod([openingquote | pattern-and-quote], sort, _) ->
     |[ 
-       ~openingquote                    -> ~openingquotesort {avoid}
-       ~openingquotesort ~pattern "\\n" -> ~sort {avoid, cons("INSERTEND")}
+       ~openingquote                       -> ~openingquotesort {avoid}
+       ~openingquotesort ~pattern "\\n"    -> ~sort             {cons("INSERTEND")}
+       ~openingquotesort ~pattern WATEREOF -> ~sort             {cons("INSERTEND")}
     ]|
     where
       (pattern, closingquote) := <split-last> pattern-and-quote

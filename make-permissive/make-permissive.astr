@@ -103,11 +103,20 @@ strategies
     "module"#([name, x, sections'])
     with
       added := id.all-permissive-sections;
+      show-statistics(|sections, added);
       !sections;
       try(oncetd(
         \exports(e*) -> exports(conc-grammars(added, e*))\
       ));
       ?sections'
+  
+  show-statistics(|input-sections, output-sections) =
+    with(
+      input-length  := <collect-all(?prod(_, _, _)); length> input-sections;
+      output-length := <collect-all(?prod(_, _, _)); length> output-sections;
+      log(|Info(), ["Number of rules analyzed:  ", input-length]);
+      log(|Info(), ["Number of rules generated: ", output-length])
+    )
 
   rename-main-module:
     "module"#([unparameterized(name),  x, sections]) ->

@@ -218,3 +218,5 @@ attributes // All-literal insertion
     where
       if-switch(|ALL_INSERTIONS_ON())
 
+// TODO: Special case for context brackets, like |[ and ]|?
+//       - these cannot be nested, and only appear in a fully balanced fashion

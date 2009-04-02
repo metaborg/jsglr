@@ -3,16 +3,17 @@ ASTRS=$(wildcard *.astr) \
 
 STRS=$(ASTRS:.astr=.str)
 
-make-permissive : make-permissive.str $(STRS)
+make-permissive : make-permissive.str $(STRS) Makefile
 	strc -i $< -m main-make-permissive \
 	     -I . -I syntax \
 	     -la stratego-aterm \
 	     -la stratego-lib \
 	     -la stratego-xtc \
 	     -la stratego-sglr \
-	     -la ~/.nix-profile/lib/libstratego-sdf.la
+	     -la ~/.nix-profile/lib/libstratego-sdf.la \
+	     `pkg-config --variable=strcxtcflags strategoxt`
 	     
-make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl
+make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl Makefile
 	aster --verbose 2 -i $(ASTRS) -I syntax
 
 %.tbl : %.def

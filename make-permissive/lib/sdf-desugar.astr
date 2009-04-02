@@ -14,6 +14,18 @@ imports
   libstratego-aterm
 
 strategies
+
+  /**
+   * Normalizes an SDF syntax definition to a grammar.
+   *
+   * Result is in desugared abstract syntax.
+   */
+  sdf-normalize =
+    xtc-transform(!"sdf2table", !["-n", "-m", <get-config> "-m"]);
+    xtc-transform(!"implodePT");
+    sdf-desugar
+
+strategies
   
   sdf-desugar =
       topdown(repeat(Desugar); try(DesugarOnce))

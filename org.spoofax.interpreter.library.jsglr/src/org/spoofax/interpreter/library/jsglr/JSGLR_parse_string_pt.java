@@ -7,9 +7,11 @@ import java.io.InputStream;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Tools;
+import org.spoofax.interpreter.adapter.aterm.WrappedATerm;
 import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.ParseTable;
 import org.spoofax.jsglr.SGLR;
 import org.spoofax.jsglr.SGLRException;
@@ -39,7 +41,11 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		
 		InputStream is = new ByteArrayInputStream(Tools.asJavaString(tvars[0]).getBytes());
 		try {
-			env.setCurrent(factory.wrapTerm(parser.parse(is)));
+			IStrategoTerm result = factory.wrapTerm(parser.parse(is));
+			if (!(tvars[0] instanceof WrappedATerm))
+				result = TermConverter.convert(env.getFactory(), result);
+			
+			env.setCurrent(result);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();

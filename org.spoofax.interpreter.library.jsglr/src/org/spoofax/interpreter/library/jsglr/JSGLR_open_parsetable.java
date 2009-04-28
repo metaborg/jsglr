@@ -20,12 +20,12 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
     private final WeakHashMap<IStrategoTerm, IStrategoInt> parseTableCache =
         new WeakHashMap<IStrategoTerm, IStrategoInt>();
     
-    private final TermConverter termConverter;
+    private final TermConverter wrappedFactoryConverter;
 
 	protected JSGLR_open_parsetable(WrappedATermFactory factory) {
 		super("JSGLR_open_parsetable", 0, 1);
 		
-		termConverter = new TermConverter(factory);
+		wrappedFactoryConverter = new TermConverter(factory);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
 	    
 	    WrappedATerm tableTerm = tvars[0] instanceof WrappedATerm
 	            ? (WrappedATerm) tvars[0]
-	            : (WrappedATerm) termConverter.convert(tvars[0]);
+	            : (WrappedATerm) wrappedFactoryConverter.convert(tvars[0]);
 		
 		JSGLRLibrary lib = getLibrary(env);
 		try {

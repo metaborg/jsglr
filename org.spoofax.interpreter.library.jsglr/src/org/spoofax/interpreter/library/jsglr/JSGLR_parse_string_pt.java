@@ -46,7 +46,6 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		InputStream is = new ByteArrayInputStream(Tools.asJavaString(tvars[0]).getBytes());
 		try {
 			IStrategoTerm result = factory.wrapTerm(parser.parse(is));
-			System.out.println(result);
 			if (!(tvars[0] instanceof WrappedATerm))
 				result = TermConverter.convert(env.getFactory(), result);
 			

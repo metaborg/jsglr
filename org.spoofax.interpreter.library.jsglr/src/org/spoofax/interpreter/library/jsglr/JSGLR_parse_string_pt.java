@@ -10,6 +10,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.stratego.Strategy;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.ParseTable;
@@ -20,21 +21,53 @@ import aterm.ATermFactory;
 
 public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 
-	private WrappedATermFactory factory;
+	private final WrappedATermFactory factory;
+	
+	private SGLRException lastException;
+	
+	private String lastPath;
 
 	protected JSGLR_parse_string_pt(WrappedATermFactory termFactory) {
 		super("JSGLR_parse_string_pt", 1, 4);
 		this.factory = termFactory;
+	}
+	
+	public String getLastPath() {
+		return lastPath;
+	}
+	
+	public SGLRException getLastException() {
+		return lastException;
+	}
+	
+	public void clearLastException() {
+		lastException = null;
 	}
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 		
-		if(!Tools.isTermString(tvars[0]))
+		clearLastException();
+		
+		if (!Tools.isTermString(tvars[0]))
 			return false;
-		if(!Tools.isTermInt(tvars[1]))
+		if (!Tools.isTermInt(tvars[1]))
 			return false;
+		if(!Tools.isTermString(tvars[3]))
+			return false;
+
+		String startSymbol;
+		if (Tools.isTermString(tvars[2])) {
+			startSymbol = Tools.asJavaString(tvars[2]);
+		} else if (tvars[2].getSubtermCount() == 0 && tvars[2].getTermType() == IStrategoTerm.APPL && ((IStrategoAppl) tvars[2]).getConstructor().getName().equals("None")) {
+			startSymbol = null;
+		} else {
+			return false;
+		}
+
+		lastPath = Tools.asJavaString(tvars[3]);
+		Strategy onParseError = svars[0];
 		
 		JSGLRLibrary lib = getLibrary(env);
 		ParseTable pt = lib.getParseTable(Tools.asJavaInt(tvars[1]));
@@ -45,7 +78,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		
 		InputStream is = new ByteArrayInputStream(Tools.asJavaString(tvars[0]).getBytes());
 		try {
-			IStrategoTerm result = factory.wrapTerm(parser.parse(is));
+			IStrategoTerm result = factory.wrapTerm(parser.parse(is, startSymbol));
 			if (!(tvars[0] instanceof WrappedATerm))
 				result = TermConverter.convert(env.getFactory(), result);
 			
@@ -54,7 +87,12 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SGLRException e) {
-			e.printStackTrace();
+			lastException = e;
+			IStrategoTerm errorTerm = factory.wrapTerm(e.toTerm(lastPath));
+			env.setCurrent(TermConverter.convert(env.getFactory(), errorTerm));
+			
+			// TODO: Stratego doesn't seem to print the erroneous line in Java
+			return onParseError.evaluate(env);
 		}
 		return false;
 	}

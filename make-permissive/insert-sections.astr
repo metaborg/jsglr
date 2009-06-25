@@ -60,7 +60,7 @@ attributes // Simple closing literals (e.g., "}")
   eq lexical-insert-prod:
     prod([lit(_) | pattern-and-lit], _, _) ->
     |[ 
-       -> ~closinglit {avoid, cons("INSERTION")}
+       -> ~closinglit {recover, cons("INSERTION")}
     ]|
     where
       id.in-context-free-section
@@ -89,7 +89,7 @@ attributes // Simple opening literals (e.g., "{")
   def lexical-insert-open-prod:
     prod([openinglit | pattern-and-lit], _, _) ->
     |[ 
-       -> ~openinglit {avoid, cons("INSERTION")}
+       -> ~openinglit {recover, cons("INSERTION")}
     ]|
     where
       id.in-context-free-section
@@ -109,7 +109,7 @@ attributes // Layout closing literals (e.g., comments)
   eq lexical-insert-prod:
     prod([openinglit | pattern-and-lit], sort, _) ->
     |[ 
-       ~openinglit                    -> ~openingsort {avoid}
+       ~openinglit                    -> ~openingsort {recover}
        ~openingsort ~pattern WATEREOF -> ~sort {cons("INSERTEND")}
     ]|
     where
@@ -143,7 +143,7 @@ attributes // Matched (e.g. string) closing literals
   // i.e., in Java, the original production is:
   //   "\""             StringPart* "\"" -> StringLiteral {cons("String")}
   // and cannot just be transformed to:
-  //   INSERTOPENQUOTE0 StringPart* "\n" -> StringLiteral    {avoid, cons("INSERTEND")}
+  //   INSERTOPENQUOTE0 StringPart* "\n" -> StringLiteral {recover, cons("INSERTEND")}
   
   eq kernel-insert-prod =
     id.in-kernel-section;
@@ -152,7 +152,7 @@ attributes // Matched (e.g. string) closing literals
   def insert-quote-prod:
     prod([openingquote | pattern-and-quote], sort, _) ->
     |[ 
-       ~openingquote                       -> ~openingquotesort {avoid}
+       ~openingquote                       -> ~openingquotesort {recover}
        ~openingquotesort ~pattern "\\n"    -> ~sort             {cons("INSERTEND")}
        ~openingquotesort ~pattern WATEREOF -> ~sort             {cons("INSERTEND")}
     ]|
@@ -212,7 +212,7 @@ attributes // All-literal insertion
 
   def lexical-insert-all-prod:
     lit @ lit(_) ->
-    |[ -> ~lit {avoid, cons("INSERTION")} ]|
+    |[ -> ~lit {recover, cons("INSERTION")} ]|
     where
       id.in-context-free-section
     where

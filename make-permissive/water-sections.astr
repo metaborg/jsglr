@@ -10,9 +10,9 @@ attributes
          WATER WATERTOKEN WATERTOKENSTART WATERTOKENSEPARATOR
        
        lexical syntax
-         [A-Za-z0-9\_]                  -> WATERTOKENSTART {avoid}
+         [A-Za-z0-9\_]                  -> WATERTOKENSTART {recover}
          WATERTOKENSTART [A-Za-z0-9\_]* -> WATERTOKEN
-         ~[A-Za-z0-9\_\ \t\12\r\n]      -> WATERTOKENSEPARATOR {avoid}
+         ~[A-Za-z0-9\_\ \t\12\r\n]      -> WATERTOKENSEPARATOR {recover}
          WATERTOKEN                     -> WATER
          WATERTOKENSEPARATOR            -> WATER
   

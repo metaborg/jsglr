@@ -10,7 +10,7 @@ out:
     BlockStm         BlockStmStar     -> BlockStmStar {ast("<conc([<1>],<2>)>)")}
     BlockStmMetaStar BlockStmStar     -> BlockStmStar {ast("<conc(<1>,<2>)>)")}
     BlockStmStar     BlockStmMetaStar -> BlockStmStar {ast("<conc(<1>,<2>)>)")}
-    WATER            BlockStmStar     -> BlockStmStar {ast("<conc([Water(<1>)],<2>)>"), avoid}
+    WATER            BlockStmStar     -> BlockStmStar {ast("<conc([Water(<1>)],<2>)>"), recover}
                                       -> BlockStmStar {ast("[]")}
 
 Note: WATER for nestable scopes should probably not accept "}".

@@ -16,6 +16,7 @@ imports
   sdf-heuristics
   water-sections
   insert-sections
+  optimize
 
 overlays
 
@@ -24,6 +25,7 @@ overlays
   ALL_INSERTIONS_ON  = "all-insertions"
   INSERTIONS_ON      = "insertions"
   SEPARATORS_ON      = "separators"
+  OPTIMIZE_ON        = "optimize"
 
 strategies // I/O
 
@@ -39,6 +41,7 @@ strategies // I/O
       id.init;
 
       add-permissive-sections;
+      optimize-sdf;
       
       sdf-desugar;      
       parenthesize-Sdf2;
@@ -71,6 +74,11 @@ strategies // I/O
       ALL_INSERTIONS_ON()
     , "off"
     , "Add insertion recovery rules for all literals (not recommended)"
+    )
+  + SwitchOption(|
+      OPTIMIZE_ON()
+    , "off"
+    , "Optimize the inserted literals to character groups"
     )
   + ArgOption(
       "-m"

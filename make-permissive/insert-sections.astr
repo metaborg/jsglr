@@ -74,6 +74,7 @@ attributes // Simple closing literals (e.g., "}")
     where
       not(closinglit.is-used-as-opening-literal)
   
+  // TODO: Optimize: use lookup-global?
   def Test is-used-as-opening-literal:
     lit(x) -> id
     where

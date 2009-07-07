@@ -21,6 +21,11 @@ attributes // Basic properties for productions and sorts
   def down current-sort:
     prod(_, sort(sort), _) -> sort
   
+  def down current-cons:
+    prod(_, _, attrs(a*)) -> cons
+    where
+      <one(?term(cons(cons)))> a*
+  
   def Test down in-pattern:
     prod(pattern, _, _).pattern -> id
 
@@ -76,11 +81,11 @@ attributes // Graph structure properties
 
 decorators 
 
-  // TODO: Remove non-circular; it's now in the standard library
-  decorator non-circular(a) =
-    id.set-cached(a.signature|EVAL_FAILED());
+  // TODO: Remove non-circular'; it's now in the standard library
+  decorator non-circular'(a) =
+    id.set-cached(a|EVAL_FAILED());
     a
 
   // TODO: Better name for this?? 'graph-search'?
-  decorator context-free-args non-circular sort-search-operation(a) =
+  decorator context-free-args non-circular' sort-search-operation(a) =
     a

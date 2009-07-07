@@ -41,6 +41,7 @@ strategies // I/O
     ,
       parse-xtc-file-report-errors(|<get-sdf-parse-table>, None());
       (?definition(_) <+ fatal-err(|"Please specify a packed .def file."));
+      // TODO: sdf-desugar; ??
       
       (oncetd(rename-main-module) <+ check-specified-main-module);
 

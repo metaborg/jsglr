@@ -35,9 +35,10 @@ attributes
   //       This same pattern seems useful for collection attributes...
   def at-root all-lexical-insert-prods =
     collect-all(
-      ![ <id.lexical-insert-prod      <+ ![]>
-       , <id.lexical-insert-open-prod <+ ![]>
-       , <id.lexical-insert-all-prod  <+ ![]>
+      ![ <id.lexical-insert-prod           <+ ![]>
+       , <id.lexical-insert-open-prod      <+ ![]>
+       , <id.lexical-insert-all-prod       <+ ![]>
+       , <id.lexical-insert-separator-prod <+ ![]>
        ]
     , id.union
     );
@@ -192,24 +193,17 @@ attributes // Matched (e.g. string) closing literals
 
 attributes // Separator literals (e.g., ",")
 
-/*
-  // TODO: Separator literal insertions
-  //       for iter-sep, iter-star-sep, etc etc
-
-  def lexical-insert-separator-prod:
-    |[ { ~sort ~lit } ]| ->
-    |[ -> ~lit ]|
+  def collect-all lexical-insert-separator-prod:
+    lit @ lit(_) -> |[ -> ~lit ]|
     where
-      id.in-context-free-section
-    where
-      !lit => lit(_)
+      id.in-context-free-section;
+      id.in-iter-pattern
     where
       if-switch(|OPEN_INSERTIONS_ON())
     <+
       not(lit.is-used-as-opening-literal)
     where
       if-switch(|SEPARATORS_ON())
-*/
 
 attributes // All-literal insertion
 

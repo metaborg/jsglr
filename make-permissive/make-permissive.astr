@@ -49,7 +49,7 @@ strategies // I/O
 
       add-permissive-sections;
       
-      if-switch(!OPTIMIZE_ON,
+      if-switch(!OPTIMIZE_ON(),
         optimize-sdf
       );
       

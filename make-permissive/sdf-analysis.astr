@@ -6,6 +6,7 @@ imports
 strategies
 
   Prod = prod(id, id, id)
+  Sort = sort(id)
 
 attributes // Looking up productions
 
@@ -73,8 +74,13 @@ attributes // Graph structure properties
          )
       )
 
-decorators // TODO: Think about a better idiom and/or name for this
+decorators 
 
-  decorator context-free-args sort-search-operation(a) =
-    id.set-cached(|a.signature, EVAL_FAILED());
+  // TODO: Remove non-circular; it's now in the standard library
+  decorator non-circular(a) =
+    id.set-cached(a.signature|EVAL_FAILED());
+    a
+
+  // TODO: Better name for this?? 'graph-search'?
+  decorator context-free-args non-circular sort-search-operation(a) =
     a

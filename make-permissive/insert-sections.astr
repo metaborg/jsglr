@@ -57,6 +57,9 @@ attributes
   
 attributes // Simple closing literals (e.g., "}")
 
+  // TODO: Opening and closing literals may also appear in pairs
+  //       e.g. "begin" "do" S "while" E "end" "do" -> S
+
   eq lexical-insert-prod:
     prod([lit(_) | pattern-and-lit], _, _) ->
     |[ 
@@ -220,3 +223,4 @@ attributes // All-literal insertion
 
 // TODO: Special case for context brackets, like |[ and ]|?
 //       - these cannot be nested, and only appear in a fully balanced fashion
+//       - an open-brace insertion is extremely useful for these

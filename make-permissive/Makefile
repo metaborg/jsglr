@@ -12,7 +12,7 @@ make-permissive : make-permissive.str $(STRS)
 	     -la stratego-sglr \
 	     -la ~/.nix-profile/lib/libstratego-sdf.la
 	     
-make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl
+make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Comments.pp.af
 	aster --verbose 2 -i $(ASTRS) -I syntax
 
 %.tbl : %.def

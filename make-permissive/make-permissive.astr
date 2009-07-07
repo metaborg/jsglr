@@ -17,6 +17,7 @@ imports
   water-sections
   insert-sections
   optimize
+  pp-commented-sdf
 
 overlays
 
@@ -26,6 +27,11 @@ overlays
   INSERTIONS_ON      = "insertions"
   SEPARATORS_ON      = "separators"
   OPTIMIZE_ON        = "optimize"
+
+signature constructors
+
+  EmptyLine   : Production
+  CommentLine : String -> Production
 
 strategies // I/O
 
@@ -41,11 +47,14 @@ strategies // I/O
       id.init;
 
       add-permissive-sections;
-      optimize-sdf;
+      
+      if-switch(!OPTIMIZE_ON,
+        optimize-sdf
+      );
       
       sdf-desugar;      
       parenthesize-Sdf2;
-      pp-sdf-string;
+      pp-commented-sdf-string;
       print-to
     )
   

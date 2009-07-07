@@ -3,6 +3,8 @@ module Stratego-Attributes-Sdf2
 imports
   MixStratego-Attributes[AG]
   Stratego-Sdf2
+  Comments[Production]
+  Comments[Grammar]
 
 hiddens
   context-free start-symbols

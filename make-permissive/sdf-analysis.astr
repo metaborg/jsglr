@@ -8,6 +8,16 @@ strategies
   Prod = prod(id, id, id)
   Sort = sort(id)
 
+decorators 
+
+  decorator context-free-args non-circular' graph-search(a) =
+    a
+
+  // TODO: Remove non-circular'; it's now in the standard library
+  decorator non-circular'(a) =
+    id.set-cached(a|EVAL_FAILED());
+    a
+
 attributes // Looking up productions
 
   def List lookup-all:
@@ -60,7 +70,7 @@ attributes // Basic properties for productions and sorts
 
 attributes // Graph structure properties
 
-  def Type(Prod, Prod) sort-search-operation is-contained-by(|sort):
+  def Type(Prod, Prod) graph-search is-contained-by(|sort):
     prod(_, _, _) -> id
     where
       id.direct-container-prods;
@@ -68,7 +78,7 @@ attributes // Graph structure properties
       <+ one(id.is-contained-by(|sort))
       )
 
-  def Type(Prod, Prod) sort-search-operation is-container-of(|sort):
+  def Type(Prod, Prod) graph-search is-container-of(|sort):
     prod(_, _, _) -> id
     where
       id.direct-contained-sorts;
@@ -78,14 +88,3 @@ attributes // Graph structure properties
            one(id.is-container-of(|sort))
          )
       )
-
-decorators 
-
-  // TODO: Remove non-circular'; it's now in the standard library
-  decorator non-circular'(a) =
-    id.set-cached(a|EVAL_FAILED());
-    a
-
-  // TODO: Better name for this?? 'graph-search'?
-  decorator context-free-args non-circular' sort-search-operation(a) =
-    a

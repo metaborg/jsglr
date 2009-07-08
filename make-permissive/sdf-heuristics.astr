@@ -27,7 +27,7 @@ attributes // Graph structure-based properties
 
 attributes // Derived from is-scope-prod
   
-  def sort-search-operation is-container-of-scope-prod:
+  def graph-search is-container-of-scope-prod:
     prod(_, _, _) -> id
     where
       id.direct-contained-sorts;
@@ -36,7 +36,7 @@ attributes // Derived from is-scope-prod
       (  one(one(id.is-scope-prod))
       <+ one(one(id.is-container-of-scope-prod)))
   
-  def sort-search-operation is-contained-by-scope-prod:
+  def graph-search is-contained-by-scope-prod:
     prod(_, sort, _) -> id
     where
       id.direct-container-prods;

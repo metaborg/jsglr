@@ -194,11 +194,11 @@ attributes // Matched (e.g. string) closing literals
 
 attributes // Separator literals (e.g., ",")
 
-  def collect-all lexical-insert-separator-prod:
+  def lexical-insert-separator-prod:
     lit @ lit(_) -> |[ -> ~lit ]|
     where
-      id.in-context-free-section;
-      id.in-iter-pattern
+      id.in-iter-pattern;
+      id.in-context-free-section
     where
       if-switch(|OPEN_INSERTIONS_ON())
     <+

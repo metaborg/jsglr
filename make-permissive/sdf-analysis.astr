@@ -62,7 +62,7 @@ attributes // Basic properties for productions and sorts
   def contributes-to(id.direct-contained-sorts, id.uninit) sort-direct-container-prods:
     prod(_, _, _) -> id
   
-  def test down in-iter-pattern:
+  def Test down in-iter-pattern:
     iter(_)             -> id
     iter-star(_)        -> id
     iter-star-sep(_, _) -> id

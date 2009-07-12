@@ -26,3 +26,6 @@ make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Commen
 
 clean :
 	rm -f $(STRS) syntax/*.tbl
+
+%.pp.af : %.pp
+	parse-pp-table -i $< -o $@

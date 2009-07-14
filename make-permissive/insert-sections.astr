@@ -173,7 +173,7 @@ attributes // Matched (e.g. string) closing literals
 attributes // Separator literals (e.g., ",")
 
   eq lexical-insert-prods:
-    lit @ lit(_) -> |[ -> ~lit ]|
+    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
     where
       id.in-iter-pattern;
       id.in-context-free-section

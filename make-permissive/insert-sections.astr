@@ -22,46 +22,24 @@ attributes
     where
       if-switch(|INSERTIONS_ON())
     with
-      p1* := sections.all-lexical-insert-prods;
-      p2* := sections.all-kernel-insert-prods
+      p1* := sections.lexical-insert-prods;
+      p2* := sections.kernel-insert-prods
   
   eq insert-sections:
     sections -> |[ context-free syntax ]|
     where
       not(if-switch(|INSERTIONS_ON()))
   
-  // TODO: Is there a better way to aggregate these attribute results?
-  //       Perhaps using a new Aster language primitive?
-  //       This same pattern seems useful for collection attributes...
-  def at-root all-lexical-insert-prods =
-    collect-all(
-      ![ <id.lexical-insert-prod           <+ ![]>
-       , <id.lexical-insert-open-prod      <+ ![]>
-       , <id.lexical-insert-all-prod       <+ ![]>
-       , <id.lexical-insert-separator-prod <+ ![]>
-       ]
-    , id.union
-    );
-    flatten-list;
-    id.make-set
+  def after(id.make-set) Set collect-bagof lexical-insert-prods
   
-  def at-root all-kernel-insert-prods =
-    collect-all(
-      id.kernel-insert-prod
-    , id.union
-    );
-    flatten-list
-  
-  def lexical-insert-prod
-  
-  def kernel-insert-prod
+  def after(id.make-set) Set collect-bagof kernel-insert-prods
   
 attributes // Simple closing literals (e.g., "}")
 
   // TODO: Opening and closing literals may also appear in pairs
   //       e.g. "begin" "do" S "while" E "end" "do" -> S
 
-  eq lexical-insert-prod:
+  eq lexical-insert-prods:
     prod([lit(_) | pattern-and-lit], _, _) ->
     |[ 
        -> ~closinglit {recover, cons("INSERTION")}
@@ -91,7 +69,7 @@ attributes // Simple closing literals (e.g., "}")
   
 attributes // Simple opening literals (e.g., "{")
 
-  def lexical-insert-open-prod:
+  eq lexical-insert-prods:
     prod([openinglit | pattern-and-lit], _, _) ->
     |[ 
        -> ~openinglit {recover, cons("INSERTION")}
@@ -111,7 +89,7 @@ attributes // Layout closing literals (e.g., comments)
 
   // TODO: INSERTSTART*, INSERTOPENQUOTE sorts should be declared
 
-  eq lexical-insert-prod:
+  eq lexical-insert-prods:
     prod([openinglit | pattern-and-lit], sort, _) ->
     |[ 
        ~openinglit                    -> ~openingsort {recover}
@@ -140,7 +118,7 @@ attributes // Layout closing literals (e.g., comments)
   
 attributes // Matched (e.g. string) closing literals
 
-  eq lexical-insert-prod =
+  eq lexical-insert-prods =
     id.in-lexical-section;
     id.insert-quote-prod
     
@@ -150,7 +128,7 @@ attributes // Matched (e.g. string) closing literals
   // and cannot just be transformed to:
   //   INSERTOPENQUOTE0 StringPart* "\n" -> StringLiteral {recover, cons("INSERTEND")}
   
-  eq kernel-insert-prod =
+  eq kernel-insert-prods =
     id.in-kernel-section;
     id.insert-quote-prod
 
@@ -194,7 +172,7 @@ attributes // Matched (e.g. string) closing literals
 
 attributes // Separator literals (e.g., ",")
 
-  def lexical-insert-separator-prod:
+  eq lexical-insert-prods:
     lit @ lit(_) -> |[ -> ~lit ]|
     where
       id.in-iter-pattern;
@@ -208,7 +186,7 @@ attributes // Separator literals (e.g., ",")
 
 attributes // All-literal insertion
 
-  def lexical-insert-all-prod:
+  eq lexical-insert-prods:
     lit @ lit(_) ->
     |[ -> ~lit {recover, cons("INSERTION")} ]|
     where

@@ -71,10 +71,10 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		
 		JSGLRLibrary lib = getLibrary(env);
 		ParseTable pt = lib.getParseTable(Tools.asJavaInt(tvars[1]));
+		if (pt == null)
+			return false;
 		
 		SGLR parser = makeSGLR(factory.getFactory(), pt);
-		// parser.setFilter(true);
-		// parser.setHeuristicFilters(false);
 		
 		InputStream is = new ByteArrayInputStream(Tools.asJavaString(tvars[0]).getBytes());
 		try {
@@ -97,6 +97,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		return false;
 	}
 
+	// overridden in JSGLR_parse_string_compat
 	protected SGLR makeSGLR(ATermFactory factory, ParseTable table) {
 		return new SGLR(factory, table);
 	}

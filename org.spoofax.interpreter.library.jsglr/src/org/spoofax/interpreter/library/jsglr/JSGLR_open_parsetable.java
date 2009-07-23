@@ -35,6 +35,8 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
 	    IStrategoInt cached = parseTableCache.get(tvars[0]);
 	    if (cached != null) {
 	        env.setCurrent(cached);
+	        if(getLibrary(env).getParseTable(cached.intValue()) == null)
+	        	throw new IllegalStateException("Inconsistent context: wrong JSGLR library instance");
 	        return true;
 	    }
 	    

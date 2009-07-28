@@ -34,7 +34,10 @@ attributes // Basic properties for productions and sorts
   def down current-cons:
     prod(_, _, attrs(a*)) -> cons
     where
-      <one(?term(cons(cons)))> a*
+      a*.one(?term(cons(cons)))
+  
+  def down current-prod:
+    prod(_, _, _) -> id
   
   def Test down in-pattern:
     prod(pattern, _, _).pattern -> id
@@ -68,8 +71,19 @@ attributes // Basic properties for productions and sorts
     iter-star-sep(_, _) -> id
     iter-sep(_, _)      -> id
 
+attributes // Start symbols
+
+  def Test lookup-global is-start-symbol(|sort):
+    context-free-start-symbols(s*) -> sort where s*.one(sort(id.eq(|sort)))
+    lexical-start-symbols(s*)      -> sort where s*.one(sort(id.eq(|sort)))
+    kernel-start-symbols(s*)       -> sort where s*.one(sort(id.eq(|sort)))
+
 attributes // Graph structure properties
 
+  /**
+   * Tests if the current production directly or indirectly
+   * is referenced by any production for the given sort.
+   */
   def Type(Prod, Prod) graph-search is-contained-by(|sort):
     prod(_, _, _) -> id
     where
@@ -78,6 +92,10 @@ attributes // Graph structure properties
       <+ one(id.is-contained-by(|sort))
       )
 
+  /**
+   * Tests if the current production directly or indirectly
+   * contains a reference to the given sort.
+   */
   def Type(Prod, Prod) graph-search is-container-of(|sort):
     prod(_, _, _) -> id
     where

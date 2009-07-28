@@ -184,6 +184,19 @@ attributes // Separator literals (e.g., ",")
     where
       if-switch(|SEPARATORS_ON())
 
+attributes // Start production literals (e.g., "module")
+
+  eq lexical-insert-prods:
+    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
+    where
+      id.is-start-symbol(|id.current-sort)
+    where
+      if-switch(|OPEN_INSERTIONS_ON())
+    <+
+      not(lit.is-used-as-opening-literal)
+    where
+      not(id.current-prod.is-contained-by(|id.current-sort))
+
 attributes // All-literal insertion
 
   eq lexical-insert-prods:

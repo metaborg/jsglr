@@ -10,13 +10,17 @@ STRCFLAGS=\
   -la stratego-lib \
   -la stratego-xtc \
   -la stratego-sglr \
+  -la stratego-gpp \
   -la ~/.nix-profile/lib/libstratego-sdf.la
 
 make-permissive : make-permissive.str $(STRS)
 	strc -i $< -m main-make-permissive $(STRCFLAGS)
 
-make-permissive.java : make-permissive.str $(STRS)
-	strj -i $< -m main-make-permissive $(STRCFLAGS)
+java make_permissive.java : make-permissive.str $(STRS)
+	strj -i $< -m main-make-permissive -la stratego-sdf $(STRCFLAGS)
+
+jar make_permissive.jar : make_permissive.java
+	strj-jar -i $<
 	     
 make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Comments.pp.af
 	aster --verbose 2 -i $(ASTRS) -I syntax

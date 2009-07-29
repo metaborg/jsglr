@@ -17,7 +17,7 @@ make-permissive : make-permissive.str $(STRS)
 	strc -i $< -m main-make-permissive $(STRCFLAGS)
 
 java make_permissive.java : make-permissive.str $(STRS)
-	strj -i $< -m main-make-permissive -la stratego-sdf $(STRCFLAGS)
+	strj -i $< -m main-make-permissive -p org.strategoxt.permissivegrammars -la stratego-sdf $(STRCFLAGS)
 
 jar make_permissive.jar : make_permissive.java
 	strj-jar -i $<

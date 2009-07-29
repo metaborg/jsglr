@@ -3,14 +3,20 @@ ASTRS=$(wildcard *.astr) \
 
 STRS=$(ASTRS:.astr=.str)
 
+STRCFLAGS=\
+  -I . \
+  -I syntax \
+  -la stratego-aterm \
+  -la stratego-lib \
+  -la stratego-xtc \
+  -la stratego-sglr \
+  -la ~/.nix-profile/lib/libstratego-sdf.la
+
 make-permissive : make-permissive.str $(STRS)
-	strc -i $< -m main-make-permissive \
-	     -I . -I syntax \
-	     -la stratego-aterm \
-	     -la stratego-lib \
-	     -la stratego-xtc \
-	     -la stratego-sglr \
-	     -la ~/.nix-profile/lib/libstratego-sdf.la
+	strc -i $< -m main-make-permissive $(STRCFLAGS)
+
+make-permissive.java : make-permissive.str $(STRS)
+	strj -i $< -m main-make-permissive $(STRCFLAGS)
 	     
 make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Comments.pp.af
 	aster --verbose 2 -i $(ASTRS) -I syntax

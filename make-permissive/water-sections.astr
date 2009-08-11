@@ -1,6 +1,8 @@
 module water-sections
 
 attributes
+  
+  // TODO: WATER -> LAYOUT rule should be in lexical syntax
 
   // TODO: WATERTOKENSEPARATOR should be based on the definition of LAYOUT
 

@@ -1,0 +1,223 @@
+module insert-sections
+
+imports
+  sdf-injections
+
+attributes
+
+  def insert-sections:
+    sections ->
+    |[ sorts
+         WATEREOF
+  
+       lexical restrictions    
+         WATEREOF -/- ~[]
+         
+       lexical syntax
+         p1*
+       
+       syntax
+         p2*
+    ]|
+    where
+      if-switch(|INSERTIONS_ON())
+    with
+      p1* := sections.all-lexical-insert-prods;
+      p2* := sections.all-kernel-insert-prods
+  
+  eq insert-sections:
+    sections -> |[ context-free syntax ]|
+    where
+      not(if-switch(|INSERTIONS_ON()))
+  
+  // TODO: Is there a better way to aggregate these attribute results?
+  //       Perhaps using a new Aster language primitive?
+  //       This same pattern seems useful for collection attributes...
+  def at-root all-lexical-insert-prods =
+    collect-all(
+      ![ <id.lexical-insert-prod      <+ ![]>
+       , <id.lexical-insert-open-prod <+ ![]>
+       , <id.lexical-insert-all-prod  <+ ![]>
+       ]
+    , id.union
+    );
+    flatten-list;
+    id.make-set
+  
+  def at-root all-kernel-insert-prods =
+    collect-all(
+      id.kernel-insert-prod
+    , id.union
+    );
+    flatten-list
+  
+  def lexical-insert-prod
+  
+  def kernel-insert-prod
+  
+attributes // Simple closing literals (e.g., "}")
+
+  eq lexical-insert-prod:
+    prod([lit(_) | pattern-and-lit], _, _) ->
+    |[ 
+       -> ~closinglit {avoid, cons("INSERTION")}
+    ]|
+    where
+      id.in-context-free-section
+    where
+      closinglit := <last> pattern-and-lit;
+      ?lit(_)
+    where
+      not(closinglit.is-used-as-opening-literal)
+  
+  // TODO: Discard any nullable components in this test
+  def Test is-used-as-opening-literal:
+    lit(x) -> id
+    where
+      id.root;
+      oncetd(
+        id.eq(|lit(x));
+        id.is-list-head
+      )
+  
+  def Test is-list-head:
+    [x | _] -> id
+    where
+      not(id.parent => [_ | _])
+  
+attributes // Simple opening literals (e.g., "{")
+
+  def lexical-insert-open-prod:
+    prod([openinglit | pattern-and-lit], _, _) ->
+    |[ 
+       -> ~openinglit {avoid, cons("INSERTION")}
+    ]|
+    where
+      id.in-context-free-section
+    where
+      !openinglit => lit(_)
+    where
+      <split-last> pattern-and-lit => (_, closinglit @ lit(_))
+    where
+      not(closinglit.eq(|openinglit)) // handled by "string" insertion
+    where
+      if-switch(|OPEN_INSERTIONS_ON())
+
+attributes // Layout closing literals (e.g., comments)
+
+  // TODO: INSERTSTART*, INSERTOPENQUOTE sorts should be declared
+
+  eq lexical-insert-prod:
+    prod([openinglit | pattern-and-lit], sort, _) ->
+    |[ 
+       ~openinglit                    -> ~openingsort {avoid}
+       ~openingsort ~pattern WATEREOF -> ~sort {cons("INSERTEND")}
+    ]|
+    where
+      id.is-comment-prod
+    where
+      (pattern, closinglit) := <split-last> pattern-and-lit
+    with
+      openingsort := <newname> "INSERTSTART"
+
+  def Test is-comment-prod:
+    prod([lit(_) | pattern-and-lit], target, _) -> id
+    where
+      closinglit := <last> pattern-and-lit;
+      ?lit(_)
+    where
+      layout().eq(|target)
+    <+
+      target.direct-container-prods;
+      one(
+        // TODO: Use "is-injection-from"
+        ?prod(_, layout(), _)
+      )
+  
+attributes // Matched (e.g. string) closing literals
+
+  eq lexical-insert-prod =
+    id.in-lexical-section;
+    id.insert-quote-prod
+    
+  // XXX: Insertions based on kernel productions need to maintain the constructor
+  // i.e., in Java, the original production is:
+  //   "\""             StringPart* "\"" -> StringLiteral {cons("String")}
+  // and cannot just be transformed to:
+  //   INSERTOPENQUOTE0 StringPart* "\n" -> StringLiteral    {avoid, cons("INSERTEND")}
+  
+  eq kernel-insert-prod =
+    id.in-kernel-section;
+    id.insert-quote-prod
+
+  def insert-quote-prod:
+    prod([openingquote | pattern-and-quote], sort, _) ->
+    |[ 
+       ~openingquote                       -> ~openingquotesort {avoid}
+       ~openingquotesort ~pattern "\\n"    -> ~sort             {cons("INSERTEND")}
+       ~openingquotesort ~pattern WATEREOF -> ~sort             {cons("INSERTEND")}
+    ]|
+    where
+      (pattern, closingquote) := <split-last> pattern-and-quote
+    where
+      openingquote.eq(|closingquote);
+      openingquote.is-quote-lit
+    with
+      openingquotesort := <newname> "INSERTOPENQUOTE"
+      
+  def id.pattern-allows-newlines =
+    fail // TODO: Check if string pattern does not allow newlines?
+  
+  def Test is-quote-lit:
+    lit(quote) -> id
+    where
+      id.root;
+      alltd(
+        id.eq(|lit(quote));
+        id.in-potential-quote-prod
+      )
+
+  def Test down in-potential-quote-prod:
+    prod([openingquote | pattern-and-quote], _, _) -> id
+    where
+      id.in-lexical-section + id.in-kernel-section
+    where
+      (pattern, closingquote) := <split-last> pattern-and-quote
+    where
+      openingquote.eq(|closingquote)
+    where
+      not(pattern.pattern-allows-newlines)
+
+attributes // Separator literals (e.g., ",")
+
+/*
+  // TODO: Separator literal insertions
+  //       for iter-sep, iter-star-sep, etc etc
+
+  def lexical-insert-separator-prod:
+    |[ { ~sort ~lit } ]| ->
+    |[ -> ~lit ]|
+    where
+      id.in-context-free-section
+    where
+      !lit => lit(_)
+    where
+      if-switch(|OPEN_INSERTIONS_ON())
+    <+
+      not(lit.is-used-as-opening-literal)
+    where
+      if-switch(|SEPARATORS_ON())
+*/
+
+attributes // All-literal insertion
+
+  def lexical-insert-all-prod:
+    lit @ lit(_) ->
+    |[ -> ~lit {avoid, cons("INSERTION")} ]|
+    where
+      id.in-context-free-section
+    where
+      if-switch(|ALL_INSERTIONS_ON())
+
+// TODO: Special case for context brackets, like |[ and ]|?
+//       - these cannot be nested, and only appear in a fully balanced fashion

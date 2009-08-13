@@ -16,10 +16,11 @@ STRCFLAGS=\
 make-permissive : make-permissive.str $(STRS)
 	strc -i $< -m main-make-permissive $(STRCFLAGS)
 
-java make_permissive.java : make-permissive.str $(STRS)
-	strj -i $< -m main-make-permissive -p org.strategoxt.permissivegrammars -la stratego-sdf $(STRCFLAGS)
+java bin/make_permissive.java : make-permissive.str $(STRS)
+	[ -e bin ] || mkdir bin
+	strj -i $< -o $@ -m main-make-permissive -p org.strategoxt.permissivegrammars -la stratego-sdf $(STRCFLAGS)
 
-jar make_permissive.jar : make_permissive.java
+jar bin/make_permissive.jar : bin/make_permissive.java
 	strj-jar -i $<
 	     
 make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Comments.pp.af

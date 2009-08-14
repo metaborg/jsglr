@@ -22,7 +22,7 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
     
     private final TermConverter wrappedFactoryConverter;
 
-	protected JSGLR_open_parsetable(WrappedATermFactory factory) {
+	public JSGLR_open_parsetable(WrappedATermFactory factory) {
 		super("JSGLR_open_parsetable", 0, 1);
 		
 		wrappedFactoryConverter = new TermConverter(factory);

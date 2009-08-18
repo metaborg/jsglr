@@ -17,7 +17,7 @@ exports
 
   syntax  
   
-    "%%" <CommentLine[[E]]-LEX> -> <E-CF> {cons("CommentLine")}
+    "~%%" <CommentLine[[E]]-LEX> -> <E-CF> {cons("CommentLine")}
   
   context-free syntax
   

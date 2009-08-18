@@ -14,9 +14,11 @@ attributes
          WATEREOF -/- ~[]
          
        lexical syntax
+         ~%% Lexical insertion recovery rules
          p1*
        
        syntax
+         ~%% Kernel syntax insertion recovery rules
          p2*
     ]|
     where

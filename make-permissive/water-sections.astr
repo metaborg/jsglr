@@ -12,6 +12,7 @@ attributes
          WATER WATERTOKEN WATERTOKENSTART WATERTOKENSEPARATOR
        
        lexical syntax
+         ~%% Water-based recovery rules
          [A-Za-z0-9\_]                  -> WATERTOKENSTART {recover}
          WATERTOKENSTART [A-Za-z0-9\_]* -> WATERTOKEN
          ~[A-Za-z0-9\_\ \t\12\r\n]      -> WATERTOKENSEPARATOR {recover}

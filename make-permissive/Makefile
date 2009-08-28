@@ -20,8 +20,8 @@ java bin/org/strategoxt/permissivegrammars/make_permissive.java : make-permissiv
 	[ -e bin/org/strategoxt/permissivegrammars ] || mkdir -p bin/org/strategoxt/permissivegrammars
 	strj -i $< -o $@ -m main-make-permissive -p org.strategoxt.permissivegrammars -la stratego-sdf $(STRCFLAGS)
 
-jar bin/org/strategoxt/permissivegrammars/make_permissive.jar : bin/org/strategoxt/permissivegrammars/make_permissive.java
-	strj-jar -i $< -cp bin
+jar bin/make_permissive.jar : bin/org/strategoxt/permissivegrammars/make_permissive.java
+	strj-jar -i $< -o bin/make_permissive.jar -cp bin
 	     
 make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Comments.pp.af
 	aster --verbose 2 -i $(ASTRS) -I syntax

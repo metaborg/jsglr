@@ -11,14 +11,17 @@ STRCFLAGS=\
   -la stratego-xtc \
   -la stratego-sglr \
   -la stratego-gpp \
-  -la ~/.nix-profile/lib/libstratego-sdf.la
+  -la ~/.nix-profile/lib/libstratego-sdf.la \
+  -O 3
+  
+all : make-permissive # jar
 
 make-permissive : make-permissive.str $(STRS)
 	strc -i $< -m main-make-permissive $(STRCFLAGS)
 
 java bin/org/strategoxt/permissivegrammars/make_permissive.java : make-permissive.str $(STRS)
 	[ -e bin/org/strategoxt/permissivegrammars ] || mkdir -p bin/org/strategoxt/permissivegrammars
-	strj -i $< -o $@ -m main-make-permissive -p org.strategoxt.permissivegrammars -la stratego-sdf $(STRCFLAGS)
+	strj -clean -i $< -o bin/org/strategoxt/permissivegrammars/make_permissive.java -m main-make-permissive -p org.strategoxt.permissivegrammars -la stratego-sdf $(STRCFLAGS)
 
 jar bin/make_permissive.jar : bin/org/strategoxt/permissivegrammars/make_permissive.java
 	strj-jar -i $< -o bin/make_permissive.jar -cp bin

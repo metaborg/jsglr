@@ -27,9 +27,14 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 	
 	private String lastPath;
 
-	protected JSGLR_parse_string_pt(WrappedATermFactory termFactory) {
+	protected JSGLR_parse_string_pt(WrappedATermFactory factory) {
 		super("JSGLR_parse_string_pt", 1, 4);
-		this.factory = termFactory;
+		this.factory = factory;
+	}
+	
+	protected JSGLR_parse_string_pt(WrappedATermFactory factory, String name, int svars, int tvars) {
+		super(name, svars, tvars);
+		this.factory = factory;
 	}
 	
 	public String getLastPath() {

@@ -1,14 +1,19 @@
 package org.spoofax.interpreter.library.jsglr;
 
+import static org.spoofax.interpreter.core.Tools.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 import org.spoofax.interpreter.adapter.aterm.WrappedATerm;
 import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Tools;
+import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -16,8 +21,6 @@ import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.ParseTable;
 import org.spoofax.jsglr.SGLR;
 import org.spoofax.jsglr.SGLRException;
-
-import aterm.ATermFactory;
 
 public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 
@@ -71,39 +74,42 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			return false;
 		}
 
-		lastPath = Tools.asJavaString(tvars[3]);
-		Strategy onParseError = svars[0];
+		lastPath = asJavaString(tvars[3]);
 		
 		JSGLRLibrary lib = getLibrary(env);
-		ParseTable pt = lib.getParseTable(Tools.asJavaInt(tvars[1]));
-		if (pt == null)
+		ParseTable table = lib.getParseTable(asJavaInt(tvars[1]));
+		if (table == null)
 			return false;
-		
-		SGLR parser = makeSGLR(factory.getFactory(), pt);
-		
-		InputStream is = new ByteArrayInputStream(Tools.asJavaString(tvars[0]).getBytes());
+
 		try {
-			IStrategoTerm result = factory.wrapTerm(parser.parse(is, startSymbol));
-			if (!(tvars[0] instanceof WrappedATerm))
-				result = TermConverter.convert(env.getFactory(), result);
-			
+			IStrategoTerm result = call(env, asJavaString(tvars[0]), table, startSymbol, tvars[0] instanceof WrappedATerm);
 			env.setCurrent(result);
-			return true;
+			return result != null;
 		} catch (IOException e) {
-			e.printStackTrace();
+			PrintStream err = SSLLibrary.instance(env).getIOAgent().getOutputStream(IOAgent.CONST_STDERR);
+			err.println("JSGLR_parse_string_pt: could not parse " + getLastPath() + " - " + e.getMessage());
+			return false;
 		} catch (SGLRException e) {
 			lastException = e;
 			IStrategoTerm errorTerm = factory.wrapTerm(e.toTerm(lastPath));
 			env.setCurrent(TermConverter.convert(env.getFactory(), errorTerm));
 			
-			// TODO: Stratego doesn't seem to print the erroneous line in Java
-			return onParseError.evaluate(env);
+			// FIXME: Stratego doesn't seem to print the erroneous line in Java
+			return svars[0].evaluate(env);
 		}
-		return false;
 	}
-
-	// overridden in JSGLR_parse_string_compat
-	protected SGLR makeSGLR(ATermFactory factory, ParseTable table) {
-		return new SGLR(factory, table);
+	
+	public IStrategoTerm call(IContext env, String input,
+			ParseTable table, String startSymbol, boolean outputWrappedATerm)
+			throws InterpreterException, IOException, SGLRException {
+		
+		SGLR parser = new SGLR(factory.getFactory(), table);
+		
+		InputStream is = new ByteArrayInputStream(input.getBytes());
+		IStrategoTerm result = factory.wrapTerm(parser.parse(is, startSymbol));
+		if (!outputWrappedATerm)
+			result = TermConverter.convert(env.getFactory(), result);
+		
+		return result;
 	}
 }

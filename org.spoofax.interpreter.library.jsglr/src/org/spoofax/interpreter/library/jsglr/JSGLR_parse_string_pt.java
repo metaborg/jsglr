@@ -105,7 +105,8 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		
 		SGLR parser = new SGLR(factory.getFactory(), table);
 		
-		InputStream is = new ByteArrayInputStream(input.getBytes());
+		// TODO: Use SGLR.parse(String, String) instead
+		InputStream is = new ByteArrayInputStream(input.getBytes("ISO-8859-1"));
 		IStrategoTerm result = factory.wrapTerm(parser.parse(is, startSymbol));
 		if (!outputWrappedATerm)
 			result = TermConverter.convert(env.getFactory(), result);

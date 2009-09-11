@@ -10,12 +10,12 @@ package org.spoofax.jsglr;
 import java.io.Serializable;
 
 
-public class Range implements Serializable {
+public class Range implements Serializable, Comparable<Range> {
 
     static final long serialVersionUID = 3615037984707218175L;
 
-    public final int low;
-    public final int high;
+    public int low;
+    public int high;
 
     public Range(int low, int high) {
 
@@ -49,5 +49,9 @@ public class Range implements Serializable {
         if(low == high)
             return "" + low;
         return "range(" + low + ", " + high + ")";
+    }
+
+    public int compareTo(Range o) {
+        return o.low < low ? 1 : o.low == low ? 0 : -1;
     }
 }

@@ -19,8 +19,8 @@ public class TokenExpectedException extends BadTokenException {
         return "Syntax error near expected token '" + expected + "'";
     }
 
-    public TokenExpectedException(String expected, int token, int offset, int lineNumber, int columnNumber) {
-        super(token, offset, lineNumber, columnNumber);
+    public TokenExpectedException(SGLR parser, String expected, int token, int offset, int lineNumber, int columnNumber) {
+        super(parser, token, offset, lineNumber, columnNumber);
         this.expected = expected;
     }
 }

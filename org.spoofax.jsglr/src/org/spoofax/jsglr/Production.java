@@ -7,8 +7,10 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.List;
+import static org.spoofax.jsglr.ProductionType.*;
+
 import java.io.Serializable;
+import java.util.List;
 
 public class Production implements Serializable {
 
@@ -19,23 +21,15 @@ public class Production implements Serializable {
     public final int label;
 
     public final int status;
+    
+    private final boolean isRecover;
 
-    // FIXME: These should be factored out in a separate constant class.
-    public static final int NORMAL = Reduce.NORMAL;
-
-    public static final int PREFER = Reduce.PREFER;
-
-    public static final int AVOID = Reduce.AVOID;
-
-    public static final int REJECT = Reduce.REJECT;
-
-    public Production(int arity, int label, int status) {
+    public Production(int arity, int label, int status, boolean isRecover) {
         this.arity = arity;
         this.label = label;
         this.status = status;
-
+        this.isRecover = isRecover;
     }
-
 
     public IParseNode apply(List<IParseNode> kids) {
         switch(status) {
@@ -45,14 +39,18 @@ public class Production implements Serializable {
             return new ParseAvoid(label, kids);
         case PREFER:
             return new ParsePrefer(label, kids);
-        case NORMAL:
+        case NO_TYPE:
             return new ParseNode(label, kids);
         }
-        throw new FatalException();
+        throw new IllegalStateException();
     }
 
-    boolean isReject() {
+    public boolean isRejectProduction() {
         return status == REJECT;
+    }
+    
+    public boolean isRecoverProduction() {
+        return isRecover;
     }
 
     @Override

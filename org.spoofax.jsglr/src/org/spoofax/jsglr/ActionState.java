@@ -15,6 +15,7 @@ public class ActionState implements Serializable {
 
     public Frame st;
     public State s;
+    public int currentToken;
 
     public ActionState(Frame st, State s) {
         this.st = st;

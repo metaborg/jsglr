@@ -31,11 +31,15 @@ public class Label implements Serializable {
     }
 
     public boolean isLeftAssociative() {
-        return productionAttributes.type == ProductionAttributes.LEFT_ASSOCIATIVE;
+        return productionAttributes.getType() == ProductionType.LEFT_ASSOCIATIVE;
     }
 
     public boolean isRightAssociative() {
-        return productionAttributes.type == ProductionAttributes.RIGHT_ASSOCIATIVE;
+        return productionAttributes.getType() == ProductionType.RIGHT_ASSOCIATIVE;
+    }
+    
+    public boolean isRecoverProduction() {
+        return productionAttributes.isRecoverProduction();
     }
 
     public boolean isMoreEager(Label rightProd) {

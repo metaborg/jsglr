@@ -66,6 +66,8 @@ public class ParseNode extends IParseNode {
     public boolean equals(Object obj) {
         if(!(obj instanceof ParseNode))
             return false;
+        if (obj == this)
+            return true;
         ParseNode o = (ParseNode)obj;
         if(label != o.label)
             return false;

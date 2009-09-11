@@ -11,8 +11,8 @@ public class ParseException extends SGLRException {
 
     private static final long serialVersionUID = -7341039998837389710L;
 
-    public ParseException(String message) {
-        super(message);
+    public ParseException(SGLR parser, String message) {
+        super(parser, message);
     }
 
 }

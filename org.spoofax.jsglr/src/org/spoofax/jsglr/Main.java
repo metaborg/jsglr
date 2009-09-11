@@ -68,13 +68,16 @@ public class Main {
 
         ParseTableManager ptm = new ParseTableManager();
         long tableLoadingTime = System.currentTimeMillis(); 
-        SGLR sglr = new SGLR(ptm.getFactory(), ptm.loadFromFile(parseTable));
+        SGLR sglr = new SGLR(ptm.getFactory(), ptm.loadFromFile(parseTable));        
+
         tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
 
         Tools.setDebug(debugging);
         Tools.setLogging(logging);
-        sglr.setCycleDetect(detectCycles);
-        sglr.setFilter(filter);
+        sglr.getDisambiguator().setFilterCycles(detectCycles);
+        sglr.getDisambiguator().setFilterAny(filter);
+        sglr.setFilter(false);
+        //sglr.setFilter(false); //mj
         
         InputStream fis = null;
         if(input == null)
@@ -82,6 +85,27 @@ public class Main {
         else
             fis = new FileInputStream(input);
         
+        //REMOVE
+        /*
+        for (int j = 0; j < 20; j++) {//MJ: just for performance testing
+            fis = new FileInputStream(input);
+            SGLR sglrNew = new SGLR(ptm.getFactory(), ptm.loadFromFile(parseTable));                     
+            SGLR.forceGC();
+            sglrNew.setCycleDetect(detectCycles);
+            sglrNew.setFilter(filter);
+            try {
+                sglrNew.parse(fis);
+            } catch (SGLRException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }            
+            sglrNew.clear();
+            SGLR.forceGC();
+            sglrNew=null;
+        }
+        
+        */
+        ///*
         OutputStream ous = null;
         if(output != null)
             ous = new FileOutputStream(output);
@@ -91,7 +115,7 @@ public class Main {
         long parsingTime = 0;
         try {
         	parsingTime = System.currentTimeMillis();
-            ATerm t = sglr.parse(fis);
+            ATerm t=sglr.parse(fis);            
             parsingTime = System.currentTimeMillis() - parsingTime;
             if(t != null)
                 ous.write(t.toString().getBytes());
@@ -107,7 +131,7 @@ public class Main {
         if(timing) {
         	System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
         	System.err.println("Parsing time             : " + parsingTime + "ms");
-        }
+        }//*/
     }
 
     private static void usage() {

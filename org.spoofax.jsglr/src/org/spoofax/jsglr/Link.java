@@ -10,13 +10,17 @@ package org.spoofax.jsglr;
 
 public class Link {
 
-    public Frame parent;
+    public static int linksCreated =0; //mj Testing
+    
+    protected Frame parent;
 
     protected IParseNode label;
 
     private boolean rejected;
     
-    private final int length;
+    public int length; //mj: private final (see sglr.reducer: replace link by link with less avoids)
+    
+    public int recoverCount;
     
 
     public Link(Frame destination, IParseNode t, int length) {
@@ -24,6 +28,8 @@ public class Link {
         label = t;
         rejected = false;
         this.length = length;
+        recoverCount =0;
+        linksCreated +=1;
     }
 
     public void reject() {

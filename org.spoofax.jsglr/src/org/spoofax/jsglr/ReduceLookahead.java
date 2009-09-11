@@ -29,7 +29,7 @@ public class ReduceLookahead extends ActionItem {
         this.status = status;
         this.charClasses = charClasses;
 
-        production = new Production(arity, label, status);
+        production = new Production(arity, label, status, false);
     }
 
     @Override

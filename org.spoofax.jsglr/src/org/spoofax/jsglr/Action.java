@@ -14,11 +14,11 @@ public class Action implements Serializable {
 
     static final long serialVersionUID = -2742456888004361679L;
 
-    private Range[] ranges;
+    protected RangeList ranges;
 
-    private ActionItem[] items;
+    protected ActionItem[] items;
 
-    public Action(Range[] ranges, ActionItem[] items) {
+    public Action(RangeList ranges, ActionItem[] items) {
         this.ranges = ranges;
         this.items = items;
     }
@@ -28,10 +28,7 @@ public class Action implements Serializable {
     }
 
     public boolean accepts(int currentToken) {
-        for (Range r : ranges)
-            if (r.within(currentToken))
-                return true;
-        return false;
+        return ranges.within(currentToken);
     }
     
     /**
@@ -40,16 +37,21 @@ public class Action implements Serializable {
      * @return  The single range character, or -1 if not applicable.
      */
     public int getSingularRange() {
-        if (ranges.length != 1 || ranges[0].low != ranges[0].high)
-            return -1;
-        return ranges[0].high;
+        return ranges.getSingularRange();
+    }
+    
+    /*
+     * Returns a char value that can be used for "brute-force" recovery
+     */
+    public int getFirstCharValue() {
+        return ranges.getFirstRangeElement();
     }
 
     public boolean rejectable() {
         for(ActionItem ai : items) {
             if(ai instanceof Reduce) {
                 Reduce r = (Reduce) ai;
-                if(r.status == Reduce.REJECT)
+                if(r.status == ProductionType.REJECT)
                     return true;
             }
                 
@@ -61,7 +63,7 @@ public class Action implements Serializable {
         for(ActionItem ai : items)
             if(ai instanceof Reduce) {
                 Reduce r = (Reduce) ai;
-                if(r.status == Reduce.PREFER)
+                if(r.status == ProductionType.PREFER)
                     return true;
             }
         return false;
@@ -71,7 +73,7 @@ public class Action implements Serializable {
         for(ActionItem ai : items)
             if(ai instanceof Reduce) {
                 Reduce r = (Reduce) ai;
-                if(r.status == Reduce.AVOID) {
+                if(r.status == ProductionType.AVOID) {
                     if(SGLR.isDebugging()) {
                         Tools.debug(this);
                     }
@@ -85,13 +87,9 @@ public class Action implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("action([");
-        for(int i=0;i<ranges.length;i++) {
-            sb.append(ranges[i]);
-            if(i < ranges.length - 1)
-                sb.append(", ");
-        }
-        sb.append("], [");
+        sb.append("action(");
+        sb.append(ranges);
+        sb.append(", [");
         for(int i=0;i<items.length;i++) {
             sb.append(items[i]);
             if(i < items.length - 1)

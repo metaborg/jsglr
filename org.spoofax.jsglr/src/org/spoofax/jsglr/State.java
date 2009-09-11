@@ -7,9 +7,9 @@
  */
 package org.spoofax.jsglr;
 
-import java.util.List;
-import java.util.Vector;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class State implements Serializable {
 
@@ -25,9 +25,13 @@ public class State implements Serializable {
         this.actions = actions;
     }
 
+    /**
+     * @deprecated Use getActions() instead. 
+     */
+    @Deprecated
     public List<ActionItem> getActionItems(int currentToken) {
         
-        List <ActionItem> ret = new Vector<ActionItem>();
+        List <ActionItem> ret = new ArrayList<ActionItem>();
         
         for(Action a : actions) {
             if(a.accepts(currentToken))
@@ -35,6 +39,10 @@ public class State implements Serializable {
                     ret.add(it);
         }
         return ret;
+    }
+    
+    public Action[] getActions() {
+        return actions;
     }
     
     /**

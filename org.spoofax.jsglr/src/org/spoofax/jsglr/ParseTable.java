@@ -7,19 +7,25 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.io.Serializable;
 
+import aterm.AFun;
 import aterm.ATerm;
 import aterm.ATermAppl;
 import aterm.ATermFactory;
 import aterm.ATermList;
-import aterm.AFun;
 
 public class ParseTable implements Serializable {
+    
+    /**
+     * Number of possible characters to expect
+     * (0x10FFFF would be all chars of UTF-8, but is not yet
+     *  supported by the parse table format.)
+     */
+    protected static final int NUM_CHARS = 256; 
 
     private static final long serialVersionUID = -3372429249660900093L;
     
@@ -34,6 +40,14 @@ public class ParseTable implements Serializable {
     private Priority[] priorities;
     
     private Associativity[] associativities;
+    
+    private boolean hasRejects;
+    
+    private boolean hasAvoids;
+    
+    private boolean hasPrefers;
+    
+    private boolean hasRecovers;
 
     transient private ATermFactory factory;
 
@@ -42,13 +56,18 @@ public class ParseTable implements Serializable {
     transient public AFun ambAFun;
 
     private Label[] injections;
+    
+    // TODO: allocate prototypes to avoid measurable GC overhead in ParseTable construction
+    //       (especially when using the CMS garbage collector, those gotos and stuff
+    //        introduce a lot of overhead)
 
-    private Map<Goto, Goto> gotoMap = new HashMap<Goto, Goto>();
+    private transient HashMap<Goto, Goto> gotoCache = new HashMap<Goto, Goto>();
 
-    private Map<Shift, Shift> shiftMap = new HashMap<Shift, Shift>();
+    private transient HashMap<Shift, Shift> shiftCache = new HashMap<Shift, Shift>();
 
-    private Map<Reduce, Reduce> reduceMap = new HashMap<Reduce, Reduce>();
+    private transient HashMap<Reduce, Reduce> reduceCache = new HashMap<Reduce, Reduce>();
 
+    private transient HashMap<RangeList, RangeList> rangesCache = new HashMap<RangeList, RangeList>();
     
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         parse(pt);
@@ -85,6 +104,10 @@ public class ParseTable implements Serializable {
         for(int i=0;i<labels.length;i++)
             if(labels[i] != null && labels[i].isInjection())
                 injections[i] = labels[i];
+        
+        gotoCache = null;
+        shiftCache = null;
+        reduceCache = null;
         
         return true;
     }
@@ -148,10 +171,11 @@ public class ParseTable implements Serializable {
 
     private Label[] parseLabels(ATermList labelsTerm) throws InvalidParseTableException {
 
-        Label[] ret = new Label[labelsTerm.getChildCount() + 256 + 1];
-
-        for (int i = 0; i < labelsTerm.getChildCount(); i++) {
-            ATermAppl a = Term.applAt(labelsTerm, i);
+        Label[] ret = new Label[labelsTerm.getChildCount() + NUM_CHARS + 1];
+        
+        while (!labelsTerm.isEmpty()) {
+            ATermAppl a = Term.applAt(labelsTerm, 0);
+            labelsTerm = labelsTerm.getNext();
             ATermAppl prod = Term.applAt(a, 0);
             int labelNumber = Term.intAt(a, 1);
             boolean injection = isInjection(prod);
@@ -183,46 +207,62 @@ public class ParseTable implements Serializable {
     private ProductionAttributes parseProductionAttributes(ATermAppl attr)
             throws InvalidParseTableException {
         if (attr.getName().equals("attrs")) {
-            ATermList ls = (ATermList) attr.getChildAt(0);
             int type = 0;
+            boolean isRecover = false;
             ATerm term = null;
-            for (ATermAppl t = (ATermAppl) ls.getFirst(); !ls.getNext().isEmpty(); ls = ls.getNext()) {
+            
+            for (ATermList ls = (ATermList) attr.getChildAt(0); !ls.isEmpty(); ls = ls.getNext()) {
+                ATermAppl t = (ATermAppl) ls.getFirst();
                 String ctor = t.getName();
                 if (ctor.equals("reject")) {
-                    type = ProductionAttributes.REJECT;
+                    type = ProductionType.REJECT;
+                    hasRejects = true;
                 } else if (ctor.equals("prefer")) {
-                    type = ProductionAttributes.PREFER;
+                    type = ProductionType.PREFER;
+                    hasPrefers = true;
                 } else if (ctor.equals("avoid")) {
-                    type = ProductionAttributes.AVOID;
+                    type = ProductionType.AVOID;
+                    hasAvoids = true;
                 } else if (ctor.equals("bracket")) {
-                    type = ProductionAttributes.BRACKET;
-                } else if (ctor.equals("assoc")) {
-                    ATermAppl a = (ATermAppl) t.getChildAt(0);
-                    if (a.getName().equals("left") || a.getName().equals("assoc")) {
-                    	// ('assoc' is identical to 'left' for the parser)
-                        type = ProductionAttributes.LEFT_ASSOCIATIVE;
-                    } else if (a.getName().equals("right")) {
-                        type = ProductionAttributes.RIGHT_ASSOCIATIVE;
-                    } else {
-                        throw new InvalidParseTableException("Unknown assocativity: " + a.getName());
-                    }
-                } else if (	ctor.equals("term") && t.getChildCount() == 1) {
-                	// Term needs to be shaped as term(cons(Constructor)) to be a constructor
-                	if(	t.getChildAt(0) instanceof ATermAppl &&
-                		((ATermAppl)t.getChildAt(0)).getName().equals("cons") && 
-                		((ATermAppl)t.getChildAt(0)).getChildCount() == 1		)
-                			term = (ATerm) t.getChildAt(0).getChildAt(0);
-                	// TODO Support other terms that are not a constructor (custom annotations)
-                } else if (ctor.equals("id")) {
-                    // FIXME not certain about this
-                    term = (ATerm) t.getChildAt(0);
+                    type = ProductionType.BRACKET;
                 } else {
-                    throw new InvalidParseTableException("Unknown attribute: " + t);
+                    if (ctor.equals("assoc")) {
+                        ATermAppl a = (ATermAppl) t.getChildAt(0);
+                        if (a.getName().equals("left") || a.getName().equals("assoc")) {
+                        	// ('assoc' is identical to 'left' for the parser)
+                            type = ProductionType.LEFT_ASSOCIATIVE;
+                        } else if (a.getName().equals("right")) {
+                            type = ProductionType.RIGHT_ASSOCIATIVE;
+                        } else if (a.getName().equals("non-assoc")) {
+                            // FIXME: complete and test the non-assoc implementation
+                            // (it currently already seems to work at least for direct cases)
+                            // the current SDF manual and some tests seem to indicate that non-assoc
+                            // has the same effects the same as having a priority P > P
+                        } else {
+                            throw new InvalidParseTableException("Unknown assocativity: " + a.getName());
+                        }
+                    } else if (	ctor.equals("term") && t.getChildCount() == 1) {
+                        // Term needs to be shaped as term(cons(Constructor)) to be a constructor
+                    	if(t.getChildAt(0) instanceof ATermAppl) {
+                    	    ATermAppl child = (ATermAppl) t.getChildAt(0);
+                            if (child.getChildCount() == 1 && child.getName().equals("cons")) {
+                    			term = (ATerm) t.getChildAt(0).getChildAt(0);
+                    		} else if (child.getChildCount() == 0 && child.getName().equals("recover")) {
+                    		    hasRecovers = isRecover = true;
+                    		}
+                    	}
+                    	// TODO Support other terms that are not a constructor (custom annotations)
+                    } else if (ctor.equals("id")) {
+                        // FIXME not certain about this
+                        term = (ATerm) t.getChildAt(0);
+                    } else {
+                        throw new InvalidParseTableException("Unknown attribute: " + t);
+                    }
                 }
             }
-            return new ProductionAttributes(type, term);
+            return new ProductionAttributes(term, type, isRecover);
         } else if (attr.getName().equals("no-attrs")) {
-            return new ProductionAttributes(ProductionAttributes.NO_TYPE, null);
+            return new ProductionAttributes(null, ProductionType.NO_TYPE, false);
         }
         throw new InvalidParseTableException("Unknown attribute type: " + attr);
     }
@@ -245,16 +285,17 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    private Goto makeGoto(int newStateNumber, Range[] ranges) {
+    private Goto makeGoto(int newStateNumber, RangeList ranges) {
         Goto g = new Goto(ranges, newStateNumber);
-        Goto cached = gotoMap.get(g);
+        Goto cached = gotoCache.get(g);
         if (cached == null) {
-            gotoMap.put(g, g);
+            gotoCache.put(g, g);
             return g;
         } else {
             return cached;
         }
     }
+    
 
     private Action[] parseActions(ATermList actionList) throws InvalidParseTableException {
         Action[] ret = new Action[actionList.getChildCount()];
@@ -262,7 +303,7 @@ public class ParseTable implements Serializable {
         for(int i = 0; i < ret.length; i++) {
             ATermAppl action = (ATermAppl) actionList.getFirst();
             actionList = actionList.getNext();
-            Range[] ranges = parseRanges(Term.listAt(action, 0));
+            RangeList ranges = parseRanges(Term.listAt(action, 0));
             ActionItem[] items = parseActionItems(Term.listAt(action, 1));
             ret[i] = new Action(ranges, items);
         }
@@ -282,7 +323,8 @@ public class ParseTable implements Serializable {
                 int productionArity = Term.intAt(a, 0);
                 int label = Term.intAt(a, 1);
                 int status = Term.intAt(a, 2);
-                item = makeReduce(productionArity, label, status);
+                boolean isRecoverAction = getLabel(label).getAttributes().isRecoverProduction();
+                item = makeReduce(productionArity, label, status, isRecoverAction);
             } else if(a.getName().equals("reduce") && a.getAFun().getArity() == 4) {
                 int productionArity = Term.intAt(a, 0);
                 int label = Term.intAt(a, 1);
@@ -334,12 +376,12 @@ public class ParseTable implements Serializable {
     private ActionItem makeReduceLookahead(int productionArity, int label, int status, Range[] charClasses) {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
-
-    private Reduce makeReduce(int arity, int label, int status) {
-        Reduce r = new Reduce(arity, label, status);
-        Reduce cached = reduceMap.get(r);
+    
+    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction) {
+        Reduce r = new Reduce(arity, label, status, isRecoverAction);
+        Reduce cached = reduceCache.get(r);
         if (cached == null) {
-            reduceMap.put(r, r);
+            reduceCache.put(r, r);
             return r;
         } else {
             return cached;
@@ -348,9 +390,9 @@ public class ParseTable implements Serializable {
 
     private Shift makeShift(int nextState) {
         Shift s = new Shift(nextState);
-        Shift cached = shiftMap.get(s);
+        Shift cached = shiftCache.get(s);
         if (cached == null) {
-            shiftMap.put(s, s);
+            shiftCache.put(s, s);
             return s;
         } else {
             return cached;
@@ -365,7 +407,7 @@ public class ParseTable implements Serializable {
 
             ATermList rangeList = Term.listAt(go, 0);
             int newStateNumber = Term.intAt(go, 1);
-            Range[] ranges = parseRanges(rangeList);
+            RangeList ranges = parseRanges(rangeList);
             //int[] productionLabels = parseProductionLabels(rangeList);
             ret[i] = makeGoto(newStateNumber, ranges);
         }
@@ -392,8 +434,7 @@ public class ParseTable implements Serializable {
 //        return ret;
 //    }
 
-    private Range[] parseRanges(ATermList ranges) throws InvalidParseTableException {
-
+    private RangeList parseRanges(ATermList ranges) throws InvalidParseTableException {
         Range[] ret = new Range[ranges.getChildCount()];
 
         for(int i = 0; i < ret.length; i++) {
@@ -407,18 +448,23 @@ public class ParseTable implements Serializable {
                 ret[i] = makeRange(low, hi);
             }
         }
-        return ret;
+        
+        return makeRangeList(ret);
     }
 
-    Map<Range, Range> rangeMap = new HashMap<Range, Range>();
+    private RangeList makeRangeList(Range[] ranges) throws InvalidParseTableException {
+        RangeList r = new RangeList(ranges);
+        RangeList cached = rangesCache.get(r);
+        if (cached == null) {
+            rangesCache.put(r, r);
+            return r;
+        } else {
+            return cached;
+        }
+    }
 
     private Range makeRange(int low, int hi) throws InvalidParseTableException {
-        Range r = new Range(low, hi);
-        if (rangeMap.containsKey(r)) {
-            return rangeMap.get(r);
-        }
-        rangeMap.put(r, r);
-        return r;
+        return new Range(low, hi);
     }
 
     private Range makeRange(int n) throws InvalidParseTableException {
@@ -446,7 +492,7 @@ public class ParseTable implements Serializable {
     }
 
     public int getProductionCount() {
-        return labels.length - 256;
+        return labels.length - NUM_CHARS;
     }
 
     public int getActionEntryCount() {
@@ -473,35 +519,28 @@ public class ParseTable implements Serializable {
         return total;
     }
 
-    public boolean hasRejects() {
-        for (State s : states) {
-            if (s.rejectable()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean hasPriorities() {
         return priorities.length > 0 || associativities.length > 0;
     }
 
+    public boolean hasRejects() {
+        return hasRejects;
+    }
+
     public boolean hasPrefers() {
-        for (State s : states) {
-            if (s.hasPrefer()) {
-                return true;
-            }
-        }
-        return false;
+        return hasPrefers;
     }
 
     public boolean hasAvoids() {
-        for (State s : states) {
-            if (s.hasAvoid()) {
-                return true;
-            }
-        }
-        return false;
+        return hasAvoids;
+    }
+    
+    public boolean hasRecovers() {
+        return hasRecovers;
+    }
+    
+    public boolean hasPrefersOrAvoids() {
+        return hasAvoids() || hasPrefers();
     }
 
     public IParseNode lookupProduction(int currentToken) {
@@ -509,13 +548,14 @@ public class ParseTable implements Serializable {
     }
 
     public ATerm getProduction(int prod) {
-        if (prod < 256) {
+        if (prod < NUM_CHARS) {
             return factory.makeInt(prod);
         }
         return labels[prod].prod;
     }
 
     public List<Priority> getPriorities(Label prodLabel) {
+        // TODO: optimize - *maybe* cache getPriorities()?
         List<Priority> ret = new ArrayList<Priority>();
         for (Priority p : priorities) {
             if (p.left == prodLabel.labelNumber && p.type == Priority.GTR) {

@@ -7,7 +7,7 @@
  */
 package org.spoofax.jsglr;
 
-public class FatalException extends RuntimeException {
+public class FatalException extends IllegalStateException {
 
     private static final long serialVersionUID = 7683640314752021983L;
 

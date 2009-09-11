@@ -13,8 +13,8 @@ package org.spoofax.jsglr;
 //import javolution.realtime.PoolContext;
 //import javolution.realtime.Context;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class Path /*todo managed extends RealtimeObject*/ {
 
@@ -27,6 +27,29 @@ public class Path /*todo managed extends RealtimeObject*/ {
     protected final int length;
     
     public static int totalCount = 0;
+    
+    public Link lnk;
+    
+    public int getRecoverCount()
+    {
+        int result = 0;
+        if(lnk!=null)
+        {
+            result+=lnk.recoverCount;           
+        }
+        if(parent!=null) //Todo: find out relation linktoparent/parent
+        {
+            result += parent.getRecoverCount();
+        }
+        return result;        
+    }
+    
+    public int getRecoverCount(int maxCharLength)
+    {
+        if(parent==null || this.length<=maxCharLength)
+            return getRecoverCount();
+        return parent.getRecoverCount(maxCharLength);
+    }
 
     //todo managed
     //public static final PathObjectFactory FACTORY = new PathObjectFactory();
@@ -37,8 +60,8 @@ public class Path /*todo managed extends RealtimeObject*/ {
         super();
     }
 */
-    public static Path valueOf(Path parent, IParseNode label, Frame frame, int length) {
-        Path _this = new Path(parent, label, frame, length);
+    public static Path valueOf(Path parent, Link ln, Frame frame, int length) {
+        Path _this = new Path(parent, ln, frame, length);
         
         //(Path)FACTORY.object(); //todo managed
 /*
@@ -49,9 +72,16 @@ public class Path /*todo managed extends RealtimeObject*/ {
         return _this;
     }
 
-    Path(Path parent, IParseNode label, Frame frame, int length) {
+    Path(Path parent, Link ln, Frame frame, int length) {
         this.parent = parent;
-        this.label = label;
+        lnk = ln;
+        if(ln!=null){
+            this.label = lnk.label;
+        }
+        else
+        {
+            this.label = null;
+        }
         this.frame = frame;
         this.length = length;
     }
@@ -61,7 +91,7 @@ public class Path /*todo managed extends RealtimeObject*/ {
     }
 
     public final List<IParseNode> getATerms() {
-        List<IParseNode> ret = new Vector<IParseNode>();
+        ArrayList<IParseNode> ret = new ArrayList<IParseNode>();
         for (Path n = parent; n != null; n = n.parent) {
             ret.add(n.label);
         }
@@ -69,7 +99,7 @@ public class Path /*todo managed extends RealtimeObject*/ {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         boolean first = true;
         sb.append("<");
         for (Path p = this; p != null; p = p.parent) {

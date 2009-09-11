@@ -25,14 +25,9 @@ public class Reduce extends ActionItem {
 	public SpecialAttribute specialAttribute;
 
 	public Arguments eTree;
-    
-    public static final int NORMAL = 0;
-    public static final int REJECT = 1;
-    public static final int PREFER = 2;
-    public static final int AVOID = 4;
 
     
-    public Reduce(int arity, int label, int status) {
+    public Reduce(int arity, int label, int status, boolean isRecoverAction) {
         
         super(REDUCE);
         
@@ -40,7 +35,7 @@ public class Reduce extends ActionItem {
         this.label = label;
         this.status = status;
       
-        production = new Production(arity, label, status);
+        production = new Production(arity, label, status, isRecoverAction);
     }
     
     

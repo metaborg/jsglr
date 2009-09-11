@@ -1,5 +1,8 @@
 package org.spoofax.jsglr;
 
+import aterm.ATerm;
+import aterm.ATermFactory;
+
 /**
  * Exception thrown when a specific token was unexpected by the parser.
  * 
@@ -35,6 +38,7 @@ public class BadTokenException extends SGLRException {
         return getShortMessage() + " at line " + lineNumber + ", column " + columnNumber;
     }
     
+    @Override
     public String getShortMessage() {
         if (isEOFToken())
             return "Unexpected end of file";
@@ -42,10 +46,26 @@ public class BadTokenException extends SGLRException {
             return "Syntax error near unexpected character '" + (char) token + "'";
     }
 
-    public BadTokenException(int token, int offset, int lineNumber, int columnNumber) {
+    public BadTokenException(SGLR parser, int token, int offset, int lineNumber, int columnNumber) {
+        super(parser);
         this.token = token;
         this.offset = offset;
         this.lineNumber = lineNumber;
         this.columnNumber = columnNumber;
+    }
+    
+
+    @Override
+    protected ATerm toLocationATerm() {
+        ATermFactory factory = getParser().getFactory();
+        return factory.makeAppl(
+            factory.makeAFun("area", 6, false),
+            factory.makeInt(getLineNumber()),
+            factory.makeInt(getColumnNumber()),
+            factory.makeInt(getLineNumber()),
+            factory.makeInt(getColumnNumber()),
+            factory.makeInt(getOffset() + 1),
+            factory.makeInt(0)
+        );
     }
 }

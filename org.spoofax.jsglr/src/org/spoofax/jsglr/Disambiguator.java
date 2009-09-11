@@ -8,14 +8,17 @@
 package org.spoofax.jsglr;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import aterm.AFun;
 import aterm.ATerm;
+import aterm.ParseError;
 
+/**
+ * @author Karl Trygve Kalleberg <karltk near strategoxt.org>
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
 public class Disambiguator {
 
     private static final int FILTER_DRAW = 1;
@@ -23,43 +26,185 @@ public class Disambiguator {
     private static final int FILTER_LEFT_WINS = 2;
 
     private static final int FILTER_RIGHT_WINS = 3;
+    
+    private boolean filterAny;
+    
+    private boolean filterCycles;
+    
+    private boolean filterDirectPreference;
+    
+    @Deprecated
+    private boolean filterIndirectPreference;
+    
+    private boolean filterPreferenceCount;
+    
+    private boolean filterInjectionCount;
+    
+    private boolean filterTopSort;
+    
+    private boolean filterReject;
+    
+    private boolean filterAssociativity;
+    
+    private boolean filterPriorities;
+    
+    // Current parser state
 
-    SGLR parser;
+    private AmbiguityManager ambiguityManager;
+    
+    private SGLR parser;
 
-    AmbiguityManager ambiguityManager;
+    private ParseTable parseTable;
 
-    ParseTable parseTable;
-
-    Map<AmbKey, IParseNode> resolvedTable;
-
-    Disambiguator(SGLR parser) {
-        this.parser = parser;
-        resolvedTable = new HashMap<AmbKey, IParseNode>();
+    // private Map<AmbKey, IParseNode> resolvedTable = new HashMap<AmbKey, IParseNode>();
+    
+    /**
+     * Sets whether any filter should be applied at all (excluding the top sort filter).
+     */
+    public final void setFilterAny(boolean filterAny) {
+        this.filterAny = filterAny;
+    }
+    
+    public final void setFilterDirectPreference(boolean filterDirectPreference) {
+        this.filterDirectPreference = filterDirectPreference;
+    }
+    
+    public boolean getFilterDirectPreference() {
+        return filterDirectPreference;
+    }
+    
+    @Deprecated
+    public final void setFilterIndirectPreference(boolean filterIndirectPreference) {
+        this.filterIndirectPreference = filterIndirectPreference;
+    }
+    
+    @Deprecated
+    public boolean getFilterIndirectPreference() {
+        return filterIndirectPreference;
+    }
+    
+    public final void setFilterInjectionCount(boolean filterInjectionCount) {
+        this.filterInjectionCount = filterInjectionCount;
+    }
+    
+    public boolean getFilterInjectionCount() {
+        return filterInjectionCount;
+    }
+    
+    public final void setFilterPreferenceCount(boolean filterPreferenceCount) {
+        this.filterPreferenceCount = filterPreferenceCount;
+    }
+    
+    public boolean getFilterPreferenceCount() {
+        return filterPreferenceCount;
+    }
+    
+    public final void setFilterTopSort(boolean filterTopSort) {
+        this.filterTopSort = filterTopSort;
+    }
+    
+    public boolean getFilterTopSort() {
+        return filterTopSort;
+    }
+    
+    public void setFilterCycles(boolean filterCycles) {
+        this.filterCycles = filterCycles;
+    }
+    
+    public boolean isFilterCycles() {
+        return filterCycles;
+    }
+    
+    public void setFilterAssociativity(boolean filterAssociativity) {
+        this.filterAssociativity = filterAssociativity;
+    }
+    
+    public boolean getFilterAssociativity() {
+        return filterAssociativity;
+    }
+    
+    public void setFilterPriorities(boolean filterPriorities) {
+        this.filterPriorities = filterPriorities;
+    }
+    
+    public boolean getFilterPriorities() {
+        return filterPriorities;
+    }
+    
+    public final void setHeuristicFilters(boolean heuristicFilters) {
+        setFilterIndirectPreference(heuristicFilters);
+        setFilterPreferenceCount(heuristicFilters);
+        setFilterInjectionCount(heuristicFilters);
+    }
+    
+    public void setFilterReject(boolean filterReject) {
+        this.filterReject = filterReject;
+    }
+    
+    public boolean getFilterReject() {
+        return filterReject;
+    }
+    
+    public final void setDefaultFilters() {
+        filterAny = true; // TODO: filter by default
+        filterCycles = false; // TODO: filterCycles; enable by default
+        filterDirectPreference = true;        
+        filterIndirectPreference = false;        
+        filterPreferenceCount = false;        
+        filterInjectionCount = false;        
+        filterTopSort = true;        
+        filterReject = true;
+        filterAssociativity = true;
+        filterPriorities = false; // XXX: filterPriorities true by default when no longer borked
+    }
+    
+    public Disambiguator() {
+        setDefaultFilters();
     }
 
-    private void initializeFromParser() {
-        parseTable = parser.getParseTable();
-        ambiguityManager = parser.getAmbiguityManager();
-    }
-
-    protected ATerm applyFilters(IParseNode root, String sort, int inputLength) throws SGLRException {
+    public ATerm applyFilters(SGLR parser, IParseNode root, String sort, int inputLength) throws SGLRException {
         
         if(SGLR.isDebugging()) {
             Tools.debug("applyFilters()");
         }
         
-        initializeFromParser();
+        initializeFromParser(parser);
 
         IParseNode t = root;
 
         t = applyTopSortFilter(sort, t);
-
-        t = applyCycleDetectFilter(t);
-
-        t = applyOtherFilters(t);
-
-        return convertToATerm(t);
         
+        if (filterAny) {
+            t = applyCycleDetectFilter(t);
+    
+            // SG_FilterTree
+            ambiguityManager.resetClustersVisitedCount();
+            t = filterTree(t, false);
+        }
+        
+        // TODO: Move convertToATerm to SGLR.java and support IStrategoTerms
+        ATerm result = convertToATerm(t);
+        assert Term.asAppl(result).getAFun().getName().equals("parsetree");
+        return result;
+    }
+
+    private void initializeFromParser(SGLR parser) {
+        this.parser = parser;
+        parseTable = parser.getParseTable();
+        ambiguityManager = parser.getAmbiguityManager();
+    }
+
+    private void logStatus() {
+        Tools.logger("Number of rejects: ", parser.getRejectCount());
+        Tools.logger("Number of reductions: ", parser.getReductionCount());
+        Tools.logger("Number of ambiguities: ", ambiguityManager.getMaxNumberOfAmbiguities());
+        Tools.logger("Number of calls to Amb: ", ambiguityManager.getAmbiguityCallsCount());
+        Tools.logger("Count Eagerness Comparisons: ", ambiguityManager.getEagernessComparisonCount(), " / ", ambiguityManager.getEagernessSucceededCount());
+        Tools.logger("Number of Injection Counts: ", ambiguityManager.getInjectionCount());
+    }
+
+    private ATerm yieldTree(IParseNode t) {
+        return t.toParseTree(parser.getParseTable());
     }
 
     private ATerm convertToATerm(IParseNode t) {
@@ -82,28 +227,16 @@ public class Disambiguator {
                                                 parseTable.getFactory().makeInt(ambCount));
     }
 
-    private IParseNode applyOtherFilters(IParseNode t) throws FilterException {
-
-        if (SGLR.isDebugging()) {
-            Tools.debug("applyOtherFilters() - ", t);
-        }
-
-        if (parser.isFilteringEnabled()) {
-            t = disambiguate(t);
-        }
-        return t;
-    }
-
     private IParseNode applyCycleDetectFilter(IParseNode t) throws FilterException {
         
         if (SGLR.isDebugging()) {
             Tools.debug("applyCycleDetectFilter() - ", t);
         }
 
-        if (parser.isDetectCyclesEnabled()) {
+        if (filterCycles) {
             if (ambiguityManager.getMaxNumberOfAmbiguities() > 0) {
                 if (isCyclicTerm(t)) {
-                    throw new FilterException("Term is cyclic");
+                    throw new FilterException(parser, "Term is cyclic");
                 }
             }
         }
@@ -111,39 +244,68 @@ public class Disambiguator {
         return t;
     }
 
+    private ATerm getProduction(IParseNode t) {
+        if (t instanceof ParseNode) {
+            return parseTable.getProduction(((ParseNode) t).getLabel());
+        } else {
+            return parseTable.getProduction(((ParseProductionNode) t).getProduction());
+        }
+    }
+    
     private IParseNode applyTopSortFilter(String sort, IParseNode t) throws SGLRException {
 
         if (SGLR.isDebugging()) {
             Tools.debug("applyTopSortFilter() - ", t);
         }
 
-        if (sort != null) {
-            t = selectOnTopSort();
-            if (t == null) {
-                throw new FilterException("Desired top sort not found");
-            }
+        if (sort != null && filterTopSort) {
+            t = selectOnTopSort(t, sort);
+            if (t == null)
+                throw new SGLRException(parser, "Desired start symbol not found");
         }
         
         return t;
     }
-
-    private void logStatus() {
-        Tools.logger("Number of rejects: ", parser.getRejectCount());
-        Tools.logger("Number of reductions: ", parser.getReductionCount());
-        Tools.logger("Number of ambiguities: ", ambiguityManager.getMaxNumberOfAmbiguities());
-        Tools.logger("Number of calls to Amb: ", ambiguityManager.getAmbiguityCallsCount());
-        Tools.logger("Count Eagerness Comparisons: ", ambiguityManager.getEagernessComparisonCount(), " / ", ambiguityManager.getEagernessSucceededCount());
-        Tools.logger("Number of Injection Counts: ", ambiguityManager.getInjectionCount());
+    
+    private boolean matchProdOnTopSort(ATerm prod, String sort) throws FilterException {
+        try {
+            sort = sort.replaceAll("\"", "");
+            return prod.match("prod([cf(opt(layout)),cf(sort(\"" + sort + "\")),cf(opt(layout))], sort(\"<START>\"),no-attrs)") != null
+                || prod.match("prod([cf(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
+                || prod.match("prod([lex(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
+                || prod.match("prod([sort(\"" + sort + "\")], sort(\"<START>\"),no-attrs)") != null;
+        } catch (ParseError e) {
+            throw new FilterException(parser, "Could not select desired top sort: " + sort, e);
+        }
     }
+    
+    private IParseNode selectOnTopSort(IParseNode t, String sort) throws FilterException {
+        List<IParseNode> results = new ArrayList<IParseNode>();
 
-    private ATerm yieldTree(IParseNode t) {
-        return t.toParseTree(parser.getParseTable());
-    }
+        if (t instanceof Amb) {
+            addTopSortAlternatives(t, sort, results);
+  
+            switch (results.size()) {
+                case 0: return null;
+                case 1: return results.get(0);
+                default: return new Amb(results);
+            }
+        } else {
+            ATerm prod = getProduction(t);
+            return matchProdOnTopSort(prod, sort) ? t : null;
+        }
+      }
 
-    private IParseNode disambiguate(IParseNode t) throws FilterException {
-        // SG_FilterTree
-        ambiguityManager.resetClustersVisitedCount();
-        return filterTree(t, false);
+    private void addTopSortAlternatives(IParseNode t, String sort, List<IParseNode> results) throws FilterException {
+        for (IParseNode amb : ((Amb) t).getAlternatives()) {
+            if (amb instanceof Amb) {
+                addTopSortAlternatives(amb, sort, results);
+            } else {
+                ATerm prod = getProduction(amb);
+                if (matchProdOnTopSort(prod, sort))
+                    results.add(amb);
+            }
+        }
     }
 
     private IParseNode filterTree(IParseNode t, boolean inAmbiguityCluster) throws FilterException {
@@ -157,16 +319,25 @@ public class Disambiguator {
                 List<IParseNode> ambs = ((Amb)t).getAlternatives();
                 t = filterAmbiguities(ambs);
             } else {
-                throw new NotImplementedException();
+            	// TODO: Test me?
+                if (filterReject && parseTable.hasRejects() && hasRejectProd(t)) {
+                    return null;
+                }
+                List<IParseNode> ambs = ((Amb) t).getAlternatives();
+                ambs = filterTree(ambs, false);
+                
+                if (ambs == null) return null;
+                
+                return new Amb(ambs);
             }
         } else if(t instanceof ParseNode) {
             ParseNode node = (ParseNode) t;
             List<IParseNode> args = node.getKids();
             List<IParseNode> newArgs = filterTree(args, false);
 
-            if (isRejectFilterEnabled() && parseTable.hasRejects()) {
-                if (hasRejectProd(t))
-                    throw new FilterException("");
+            if (filterReject && parseTable.hasRejects()) {
+                if (hasRejectProd(t)) 
+                    throw new FilterException(parser, "Unexpected reject annotation");
             }
 
             t = new ParseNode(node.label, newArgs);
@@ -177,15 +348,11 @@ public class Disambiguator {
             throw new FatalException();
         }
 
-        if (parser.isAssociativityFilterEnabled()) {
+        if (filterAssociativity) {
             return applyAssociativityPriorityFilter(t);
         } else {
             return t;
         }
-    }
-
-    private boolean isRejectFilterEnabled() {
-        return parser.isRejectFilterEnabled();
     }
 
     private List<IParseNode> filterTree(List<IParseNode> args, boolean inAmbiguityCluster) throws FilterException {
@@ -194,24 +361,23 @@ public class Disambiguator {
             Tools.debug("filterTree(<nodes>) - ", args);
         }
         
-        List<IParseNode> newArgs = new LinkedList<IParseNode>();
-        boolean changed = false;
+        List<IParseNode> newArgs = new ArrayList<IParseNode>();
+        // boolean changed = false;
 
         for (IParseNode n : args) {
             IParseNode filtered = filterTree(n, false);
             
-            changed = !filtered.equals(n) || changed;
+            // changed = !filtered.equals(n) || changed;
             newArgs.add(filtered);
         }
 
-        /*
-         * FIXME Shouldn't we do some filtering here?
-        if (!changed) {
-            Tools.debug("Dropping: ", args);
-            newArgs = getEmptyList();
-        }*/
+        // FIXME Shouldn't we do some filtering here?
+        // if (!changed) {
+        //     Tools.debug("Dropping: ", args);
+        //     newArgs = getEmptyList();
+        // }
 
-        if (parser.isFilteringEnabled()) {
+        if (filterAny) {
             List<IParseNode> filtered = new ArrayList<IParseNode>();
             for (IParseNode n : newArgs)
                 filtered.add(applyAssociativityPriorityFilter(n));
@@ -235,7 +401,7 @@ public class Disambiguator {
             Label prodLabel = getProductionLabel(t);
             ParseNode n = (ParseNode) t;
 
-            if (parser.isAssociativityFilterEnabled()) {
+            if (filterAssociativity) {
                 if (prodLabel.isLeftAssociative()) {
                     r = applyLeftAssociativeFilter(n, prodLabel);
                 } else if (prodLabel.isRightAssociative()) {
@@ -244,7 +410,7 @@ public class Disambiguator {
                 
             }
 
-            if (parser.isPriorityFilterEnabled()) {
+            if (filterPriorities && parseTable.hasPriorities()) {
                 if(Tools.debugging) { 
                     Tools.debug(" - about to look up : ",  prodLabel.labelNumber);
                 }
@@ -272,7 +438,7 @@ public class Disambiguator {
             Tools.debug("applyRightAssociativeFilter() - ", t);
         }
         
-        List<IParseNode> newAmbiguities = new LinkedList<IParseNode>();
+        List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
         List<IParseNode> kids = t.getKids();
         IParseNode firstKid = kids.get(0);
         
@@ -295,7 +461,7 @@ public class Disambiguator {
                     firstKid = newAmbiguities.get(0);
                 restKids.add(firstKid);
             } else {
-                throw new FilterException("");
+                throw new FilterException(parser);
             }
             
             // FIXME is this correct?
@@ -303,7 +469,7 @@ public class Disambiguator {
             
         } else if(firstKid instanceof ParseNode) {
             if(((ParseNode)firstKid).getLabel() == prodLabel.labelNumber)
-                throw new FilterException("");
+                throw new FilterException(parser);
         }
         return t;
     }
@@ -318,7 +484,7 @@ public class Disambiguator {
         
         List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
         List<IParseNode> kids = t.getKids();
-        List<IParseNode> newKids = new LinkedList<IParseNode>();
+        List<IParseNode> newKids = new ArrayList<IParseNode>();
         
         int l0 = prodLabel.labelNumber;
         int kidnumber = 0;
@@ -351,12 +517,12 @@ public class Disambiguator {
                     }
                     newKid = replaceUnderInjections(alt, injection, n);
                 } else {
-                    throw new FilterException("");
+                    throw new FilterException(parser);
                 }
             } else if (injection instanceof ParseNode) {
                 int l1 = ((ParseNode) injection).label;
                 if (hasGreaterPriority(l0, l1, kidnumber)) {
-                    throw new FilterException("");
+                    throw new FilterException(parser);
                 }
             }
             
@@ -372,6 +538,16 @@ public class Disambiguator {
         // - not ok
         
         throw new NotImplementedException();
+        /*
+        if (ATisEqual(t, injT)) {
+           return newTree;
+        } else {
+          ATermList sons = (ATermList)ATgetArgument((ATerm) t, 1);
+          tree newSon = SG_Replace_Under_Injections((tree)ATgetFirst(sons), 
+                                                    injT, newTree);
+          return ATsetArgument((ATermAppl)t, (ATerm)ATmakeList1((ATerm)newSon), 1);
+        }
+        */
     }
 
     private IParseNode jumpOverInjections(IParseNode t) {
@@ -456,12 +632,12 @@ public class Disambiguator {
                 rest.add(last);
                 return new Amb(rest);
             } else {
-                throw new FilterException("");
+                throw new FilterException(parser);
             }
         } else if (last instanceof ParseNode) {
             Label other = parseTable.getLabel(((ParseNode) last).getLabel());
             if (prodLabel.equals(other)) {
-                throw new FilterException("");
+                throw new FilterException(parser);
             }
         }
         
@@ -488,7 +664,7 @@ public class Disambiguator {
             Tools.debug("filterAmbiguities() - [", ambs.size(), "]");
         }
 
-        List<IParseNode> newAmbiguities = new LinkedList<IParseNode>();
+        List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
 
         for (IParseNode amb : ambs) {
             newAmbiguities.add(filterTree(amb, true));
@@ -506,7 +682,7 @@ public class Disambiguator {
         }
 
         if (newAmbiguities.isEmpty())
-            throw new FilterException("");
+            throw new FilterException(parser);
 
         if (newAmbiguities.size() == 1)
             return newAmbiguities.get(0);
@@ -518,7 +694,7 @@ public class Disambiguator {
         // SG_FilterAmbList
         
         boolean keepT = true;
-        List<IParseNode> r = new LinkedList<IParseNode>();
+        List<IParseNode> r = new ArrayList<IParseNode>();
 
         if (ambiguities.isEmpty()) {
             r.add(t);
@@ -555,20 +731,28 @@ public class Disambiguator {
             return FILTER_LEFT_WINS;
         }
 
-        // FIXME priority filter == preferences?
-        if (parser.isPriorityFilterEnabled() && parseTable.hasPriorities()) {
+        /* UNDONE: direct eagerness filter seems to be disabled in reference SGLR
+        if (filterDirectPreference && parseTable.hasPrefersOrAvoids()) {
+            int r = filterOnDirectPrefers(left, right);
+            if (r != FILTER_DRAW)
+                return r;
+        }
+        */
+        
+        // like C-SGLR, we use indirect preference filtering if the direct one is enabled
+        if (filterDirectPreference && parseTable.hasPrefersOrAvoids()) {
             int r = filterOnIndirectPrefers(left, right);
             if (r != FILTER_DRAW)
                 return r;
         }
         
-        if (parser.isPriorityFilterEnabled() && parseTable.hasPriorities()) {
+        if (filterPreferenceCount && parseTable.hasPrefersOrAvoids()) {
             int r = filterOnPreferCount(left, right);
             if (r != FILTER_DRAW)
                 return r;
         }
 
-        if (parser.isInjectionCountFilterEnabled()) {
+        if (filterInjectionCount) {
             int r = filterOnInjectionCount(left, right);
             if (r != FILTER_DRAW)
                 return r;
@@ -670,9 +854,9 @@ public class Disambiguator {
             return countPrefers(((Amb) t).getAlternatives());
         } else if (t instanceof ParseNode) {
             int type = getProductionType(t);
-            if (type == ProductionAttributes.PREFER)
+            if (type == ProductionType.PREFER)
                 return 1;
-            else if (type == ProductionAttributes.AVOID)
+            else if (type == ProductionType.AVOID)
                 return 0;
             return countPrefers(((ParseNode) t).getKids());
         }
@@ -695,9 +879,9 @@ public class Disambiguator {
             return countAvoids(((Amb) t).getAlternatives());
         } else if (t instanceof ParseNode) {
             int type = getProductionType(t);
-            if (type == ProductionAttributes.PREFER)
+            if (type == ProductionType.PREFER)
                 return 0;
-            else if (type == ProductionAttributes.AVOID)
+            else if (type == ProductionType.AVOID)
                 return 1;
             return countAvoids(((ParseNode) t).getKids());
         }
@@ -764,7 +948,7 @@ public class Disambiguator {
     }
 
     private boolean isLeftMoreEager(IParseNode left, IParseNode right) {
-
+        assert !(left instanceof Amb || right instanceof Amb); 
         if (isMoreEager(left, right))
             return true;
 
@@ -772,7 +956,7 @@ public class Disambiguator {
         IParseNode newRight = jumpOverInjectionsModuloEagerness(right);
 
         if (newLeft instanceof ParseNode && newRight instanceof ParseNode)
-            return isMoreEager(left, right);
+            return isMoreEager(newLeft, newRight);
 
         return false;
     }
@@ -785,8 +969,8 @@ public class Disambiguator {
 
         int prodType = getProductionType(t);
 
-        if (t instanceof ParseNode && prodType != ProductionAttributes.PREFER
-                && prodType != ProductionAttributes.AVOID) {
+        if (t instanceof ParseNode && prodType != ProductionType.PREFER
+                && prodType != ProductionType.AVOID) {
 
             Label prod = getLabel(t);
             ParseNode n = (ParseNode) t;
@@ -796,8 +980,8 @@ public class Disambiguator {
 
                 int prodTypeX = getProductionType(x);
 
-                if (x instanceof ParseNode && prodTypeX != ProductionAttributes.PREFER
-                        && prodTypeX != ProductionAttributes.AVOID) {
+                if (x instanceof ParseNode && prodTypeX != ProductionType.PREFER
+                        && prodTypeX != ProductionType.AVOID) {
                     prod = getLabel(x);
                 } else {
                     return n;
@@ -819,7 +1003,7 @@ public class Disambiguator {
     }
 
     private int getProductionType(IParseNode t) {
-        return getLabel(t).getAttributes().type;
+        return getLabel(t).getAttributes().getType();
     }
 
     private boolean isMoreEager(IParseNode left, IParseNode right) {
@@ -945,10 +1129,6 @@ public class Disambiguator {
                 return cycle;
         }
         return null;
-    }
-
-    private IParseNode selectOnTopSort() {
-        throw new NotImplementedException();
     }
 
 }

@@ -7,6 +7,8 @@
  */
 package org.spoofax.jsglr;
 
+import static org.spoofax.jsglr.ProductionType.*;
+
 import java.io.Serializable;
 
 import aterm.ATerm;
@@ -15,27 +17,16 @@ public class ProductionAttributes implements Serializable {
 
     private static final long serialVersionUID = 556855017447626835L;
 
-    public final static int NO_TYPE = 0;
+    private final int type;
+    
+    private final boolean isRecover;
 
-    public final static int LEFT_ASSOCIATIVE = 1;
+    private final transient ATerm abstractCtor;
 
-    public final static int RIGHT_ASSOCIATIVE = 2;
-
-    public final static int PREFER = 3;
-
-    public final static int AVOID = 4;
-
-    public final static int BRACKET = 5;
-
-    public final static int REJECT = 6;
-
-    protected final int type;
-
-    protected final transient ATerm abstractCtor;
-
-    ProductionAttributes(int type, ATerm ctor) {
+    ProductionAttributes(ATerm ctor, int type, boolean isRecover) {
         this.type = type;
         this.abstractCtor = ctor;
+        this.isRecover = isRecover;
     }
 
     public final int getType() {
@@ -44,6 +35,10 @@ public class ProductionAttributes implements Serializable {
 
     public final ATerm getTerm() {
         return abstractCtor;
+    }
+    
+    public boolean isRecoverProduction() {
+        return isRecover;
     }
 
     public boolean isMoreEager(ProductionAttributes other) {

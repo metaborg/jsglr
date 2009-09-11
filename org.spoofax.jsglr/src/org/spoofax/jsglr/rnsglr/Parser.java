@@ -12,6 +12,8 @@ import org.spoofax.jsglr.Shift;
 import org.spoofax.jsglr.State;
 
 public class Parser {
+    
+    // TODO: Use ArrayDeque in RNSGLR parsre 
 	
 	ParseInfo info;
 	Config config;

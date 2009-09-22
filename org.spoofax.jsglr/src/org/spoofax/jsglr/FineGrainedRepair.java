@@ -23,7 +23,7 @@ public class FineGrainedRepair {
     
     public FineGrainedRepair(SGLR sglr){
         myParser=sglr;  
-        myParser.setMaxNrOfRecoveries(2);
+        myParser.setMaxNrOfRecoveries(3);
         myParser.setLengthAvoidCheck(25);
         newLinePoints=new ArrayList<IndentInfo>();
         indexLineRecovery=-1;

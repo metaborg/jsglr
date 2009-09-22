@@ -348,10 +348,17 @@ public class ParseTable implements Serializable {
     private Range[] parseCharClasses(ATermList list) throws InvalidParseTableException {
         Range[] ret = new Range[list.getLength()];
         for(int i=0;i<ret.length; i++) {
-            ATerm t = list.getFirst();
+            ATermAppl t = Term.asAppl(list.getFirst());
             list = list.getNext();
-            ATermList l = Term.listAt(Term.applAt(t, 0), 0);
-            ATermList n = Term.listAt(t, 1);
+            ATermList l, n;            
+            if (t.getName().equals("look")) { // sdf2bundle 2.4
+                l = Term.listAt(Term.applAt(t, 0), 0);
+                n = Term.listAt(t, 1);
+            } else { // sdf2bundle 2.6
+                assert t.getName().equals("follow-restriction");
+                l = Term.listAt(Term.termAt(Term.listAt(t, 0), 0), 0);
+                n = Term.listAt(t, 0).getNext();
+            }
             
             if (Term.termAt(l, 1) == null) {
                 if (SGLR.WORK_AROUND_MULTIPLE_LOOKAHEAD) {

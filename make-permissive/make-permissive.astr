@@ -62,7 +62,7 @@ strategies // I/O
   options =
     SwitchOption(|
       OPEN_INSERTIONS_ON()
-    , "off"
+    , "on"
     , "Add recovery rules for opening braces"
     )
   + SwitchOption(|

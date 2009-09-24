@@ -21,12 +21,13 @@ imports
 
 overlays
 
-  WATER_ON           = "water"
-  OPEN_INSERTIONS_ON = "open-insertions"
-  ALL_INSERTIONS_ON  = "all-insertions"
-  INSERTIONS_ON      = "insertions"
-  SEPARATORS_ON      = "separators"
-  OPTIMIZE_ON        = "optimize"
+  WATER_ON          = "water"
+  OPEN_BRACKETS_ON  = "open-brackets"
+  ALL_INSERTIONS_ON = "all-insertions"
+  INSERTIONS_ON     = "insertions"
+  SEPARATORS_ON     = "separators"
+  OPTIMIZE_ON       = "optimize"
+  NONNESTABLE_ON    = "nonnestable"
 
 signature constructors
 
@@ -61,31 +62,36 @@ strategies // I/O
   
   options =
     SwitchOption(|
-      OPEN_INSERTIONS_ON()
-    , "on"
-    , "Add recovery rules for opening braces"
-    )
-  + SwitchOption(|
       INSERTIONS_ON()
     , "on"
-    , "Add insertion recovery rules"
-   )
+    , "Add any insertion recovery rules (including closing brackets)"
+    )
   + SwitchOption(|
-      WATER_ON()
+      OPEN_BRACKETS_ON()
     , "on"
-    , "Add water recovery rules"
+    , "Add insertion rules for opening brackets"
     )
   + SwitchOption(|
       SEPARATORS_ON()
     , "on"
-    , "Add separator recovery rules"
+    , "Add insertion rules for separators"
+    )
+  + SwitchOption(|
+      NONNESTABLE_ON()
+    , "on"
+    , "Add insertion rules for keywords starting non-nestable regions"
     )
   + SwitchOption(|
       ALL_INSERTIONS_ON()
     , "off"
-    , "Add insertion recovery rules for all literals (not recommended)"
+    , "Add insertion recovery rules for _all_ literals (not recommended)"
     )
   + SwitchOption(|
+      WATER_ON()
+    , "on"
+    , "Add water-based recovery rules"
+    )
+  + SwitchOption(| // TODO: Optimize by default?
       OPTIMIZE_ON()
     , "off"
     , "Optimize the inserted literals to character groups"

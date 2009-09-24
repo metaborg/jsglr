@@ -32,9 +32,9 @@ attributes
     where
       not(if-switch(|INSERTIONS_ON()))
   
-  def after(id.make-set) Set collect-bagof lexical-insert-prods
+  def after(id.make-set) Set collect-bagof before(not(id.is-reject-prod)) lexical-insert-prods
   
-  def after(id.make-set) Set collect-bagof kernel-insert-prods
+  def after(id.make-set) Set collect-bagof before(not(id.is-reject-prod)) kernel-insert-prods
   
 attributes // Simple closing literals (e.g., "}")
 
@@ -55,13 +55,13 @@ attributes // Simple closing literals (e.g., "}")
       not(closinglit.is-used-as-opening-literal)
   
   // TODO: Discard any nullable components in this test
-  // TODO: Optimize: use lookup-global?
 
-  def Test is-used-as-opening-literal:
+  def Test is-used-as-opening-literal: // TODO: Optimize: use lookup-global?
     lit(x) -> id
     where
       id.root;
       oncetd(
+        ?lit(_);
         id.eq(|lit(x));
         id.is-list-head
       )
@@ -72,6 +72,10 @@ attributes // Simple closing literals (e.g., "}")
       not(id.parent => [_ | _])
   
 attributes // Simple opening literals (e.g., "{")
+
+  // FIXME: open prods rule gives more false positives than any other rule
+  //        maybe the closing literal should be checked more strictly
+  //        (e.g., ";" is not a good closing bracket)
 
   eq lexical-insert-prods:
     prod([openinglit | pattern-and-lit], _, _) ->
@@ -87,7 +91,9 @@ attributes // Simple opening literals (e.g., "{")
     where
       not(closinglit.eq(|openinglit)) // handled by "string" insertion
     where
-      if-switch(|OPEN_INSERTIONS_ON())
+      not(closinglit.is-used-as-opening-literal)
+    where
+      if-switch(|OPEN_BRACKETS_ON())
 
 attributes // Layout closing literals (e.g., comments)
 
@@ -182,11 +188,30 @@ attributes // Separator literals (e.g., ",")
       id.in-iter-pattern;
       id.in-context-free-section
     where
-      if-switch(|OPEN_INSERTIONS_ON())
+      if-switch(|OPEN_BRACKETS_ON())
     <+
       not(lit.is-used-as-opening-literal)
     where
       if-switch(|SEPARATORS_ON())
+
+attributes // Non-nestable region keywords (e.g., "attributes" or "strategies")
+
+  eq lexical-insert-prods:
+    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
+    where
+      if-switch(|NONNESTABLE_ON())
+    where
+      id.in-context-free-section
+    where
+      id.current-prod.direct-contained-sorts => [_ | _]
+    where
+      not(id.current-prod.is-contained-by(|id.current-sort))
+    where
+      if-switch(|OPEN_BRACKETS_ON())
+    <+
+      not(lit.is-used-as-opening-literal)
+    where
+      id.all-start-symbols.one({sort: ?sort(sort); lit.current-prod.is-contained-by(|sort) })
 
 attributes // Start production literals (e.g., "module")
 
@@ -195,7 +220,7 @@ attributes // Start production literals (e.g., "module")
     where
       id.is-start-symbol(|id.current-sort)
     where
-      if-switch(|OPEN_INSERTIONS_ON())
+      if-switch(|OPEN_BRACKETS_ON())
     <+
       not(lit.is-used-as-opening-literal)
     where
@@ -204,8 +229,7 @@ attributes // Start production literals (e.g., "module")
 attributes // All-literal insertion
 
   eq lexical-insert-prods:
-    lit @ lit(_) ->
-    |[ -> ~lit {recover, cons("INSERTION")} ]|
+    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
     where
       id.in-context-free-section
     where

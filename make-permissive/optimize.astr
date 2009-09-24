@@ -4,15 +4,16 @@ strategies
 
   optimize-sdf = topdown-consnil(try(optimize))
   
-  // Convert literal rhs to char group (e.g., "{" -> [\125])
+  // Convert literal rhs to char group (e.g., "{" becomes [\125])
   optimize:
-    [ prod(pattern, lit(s), attrs) ] ->
+    [ prod(pattern, lit(s), attrs) | p* ] ->
     [ CommentLine(description)
     , prod(
         pattern
       , char-class(simple-charclass(present(numeric(chargroup))))
       , attrs
       )
+    | p*
     ]
     where
       <explode-string> s => ['"', char, '"']

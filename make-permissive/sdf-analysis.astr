@@ -6,7 +6,7 @@ imports
 strategies
 
   Prod = prod(id, id, id)
-  Sort = sort(id)
+  Sort = sort(id) + parameterized-sort(id, id)
 
 decorators 
 
@@ -19,6 +19,9 @@ decorators
     a
 
 attributes // Looking up productions
+
+  // TODO: Support parameterized sorts like parameterized-sort("Module",[sort("StrategoHost")])?
+  //       And what about sort renaming?
 
   def List lookup-all:
     sort(sort) -> id.lookup-all-sort(|sort)
@@ -36,6 +39,11 @@ attributes // Basic properties for productions and sorts
     where
       a*.one(?term(cons(cons)))
   
+  def Test is-reject-prod:
+    prod(_, _, attrs(a*)) -> id
+    where
+      a*.one(reject())
+  
   def down current-prod:
     prod(_, _, _) -> id
   
@@ -51,7 +59,7 @@ attributes // Basic properties for productions and sorts
   def Test down in-kernel-section:
     syntax(_) -> id
   
-  def direct-contained-sorts:
+  def Set(Sort) direct-contained-sorts:
     prod(pattern, _, _) -> <collect-all(?sort(_))> pattern
     
   def direct-container-prods:
@@ -60,10 +68,11 @@ attributes // Basic properties for productions and sorts
   
   /**
    * Helper attribute that creates collections,
-   * adding all productions to their 'direct-contained-sorts'.
+   * created by adding all productions to the
+   * sort-direct-container prods of their direct-contained-sorts.
    */
   def contributes-to(id.direct-contained-sorts, id.uninit) sort-direct-container-prods:
-    prod(_, _, _) -> id
+    prod(_, _, _) -> <not(id.is-reject-prod)>
   
   def Test down in-iter-pattern:
     iter(_)             -> id
@@ -73,10 +82,13 @@ attributes // Basic properties for productions and sorts
 
 attributes // Start symbols
 
-  def Test lookup-global is-start-symbol(|sort):
-    context-free-start-symbols(s*) -> sort where s*.one(sort(id.eq(|sort)))
-    lexical-start-symbols(s*)      -> sort where s*.one(sort(id.eq(|sort)))
-    kernel-start-symbols(s*)       -> sort where s*.one(sort(id.eq(|sort)))
+  def Set(Sort) collect-bagof after(concat) all-start-symbols:
+    context-free-start-symbols(s*) -> s*
+    lexical-start-symbols(s*)      -> s*
+    kernel-start-symbols(s*)       -> s*
+
+  def Test is-start-symbol(|sort) =
+    id.all-start-symbols.one(sort(id.eq(|sort)))
 
 attributes // Graph structure properties
 
@@ -97,8 +109,9 @@ attributes // Graph structure properties
    * contains a reference to the given sort.
    */
   def Type(Prod, Prod) graph-search is-container-of(|sort):
-    prod(_, _, _) -> id
+    prod(_, _, a*) -> id
     where
+      not(id.is-reject-prod);
       id.direct-contained-sorts;
       (  one(id.eq(|sort(sort)))
       <+ one(

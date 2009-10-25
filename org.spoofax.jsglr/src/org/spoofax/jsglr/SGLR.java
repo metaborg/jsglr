@@ -160,12 +160,12 @@ public class SGLR {
         basicInit(pf);        
     }
     
-    public void setRecoverHandler(RecoverAlgorithm recoverHandler) {
+    public void setRecoverHandler(RecoverAlgorithm recoverHandler) throws NoRecoveryRulesException {
         useIntegratedRecovery = false;
         this.recoverHandler = recoverHandler;
         recoverHandler.initialize(this);
         if (!parseTable.hasRecovers() && recoverHandler.getClass() != NoRecovery.class)
-            System.err.println("Warning: parse table has no recovery productions");
+            throw new NoRecoveryRulesException(this);
     }
     
     public RecoveryBase getRecoverHandler() {
@@ -181,7 +181,7 @@ public class SGLR {
      */
     @Deprecated
     public void setUseStructureRecovery(boolean useRoughRecovery, IRecoveryParser parser) {
-        useIntegratedRecovery =useRoughRecovery;
+        useIntegratedRecovery = useRoughRecovery;
         recoverIntegrator = new RecoveryConnector(this, parser);
     }
     
@@ -192,7 +192,7 @@ public class SGLR {
      *             with {@link StructureRecoveryAlgorithm}.
      */
     @Deprecated
-    public final void setUseStructureRecovery(boolean useRoughRecovery) {        
+    public final void setUseStructureRecovery(boolean useRoughRecovery) throws NoRecoveryRulesException {        
         setUseStructureRecovery(useRoughRecovery, null);
     }
     

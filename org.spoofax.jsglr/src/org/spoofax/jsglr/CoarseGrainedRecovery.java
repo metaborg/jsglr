@@ -50,7 +50,7 @@ public class CoarseGrainedRecovery extends RecoverAlgorithm {
         recoverNodes.add(rn);   
         if(recoverNodes.size()>MAX_RECOVER_NODES) //removing early inserted positions improves non-error parsing performance
         { 
-            int halfMax = MAX_RECOVER_NODES/2;
+            final int halfMax = MAX_RECOVER_NODES/2;
             ArrayList<RecoverNode> cleanedPositions = new ArrayList<RecoverNode>();
             cleanedPositions.addAll(recoverNodes.subList(halfMax, recoverNodes.size()-1));                
             recoverNodes=cleanedPositions;                

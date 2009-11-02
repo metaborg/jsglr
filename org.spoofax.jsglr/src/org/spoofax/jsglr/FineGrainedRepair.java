@@ -11,6 +11,10 @@ import aterm.ATerm;
 
 public class FineGrainedRepair {
     
+    private static final int MAX_RECOVERIES_PER_REGION = 3;
+    
+    private static final int RECOVERY_COUNT_REGION_SIZE = 25;
+
     private SGLR myParser;
     private ArrayList<IndentInfo> newLinePoints; 
     private int indexLineRecovery;
@@ -23,8 +27,8 @@ public class FineGrainedRepair {
     
     public FineGrainedRepair(SGLR sglr){
         myParser=sglr;  
-        myParser.setMaxNrOfRecoveries(3);
-        myParser.setLengthAvoidCheck(25);
+        myParser.setMaxNrOfRecoveries(MAX_RECOVERIES_PER_REGION);
+        myParser.setLengthAvoidCheck(RECOVERY_COUNT_REGION_SIZE);
         newLinePoints=new ArrayList<IndentInfo>();
         indexLineRecovery=-1;
         indentComparer=new IndentationDisambiguator();

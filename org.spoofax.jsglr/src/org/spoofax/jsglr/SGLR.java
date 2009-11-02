@@ -645,7 +645,7 @@ public class SGLR {
     private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, Path path) throws IOException {
         int length = path.getLength();        
         int numberOfRecoveries = calcRecoverCount(prod, path); 
-        if(fineGrainemode && calcRecoverCountResricted(prod, path) > maxNrOfRecoveries)
+        if(fineGrainemode && calcRecoverCountRestricted(prod, path) > maxNrOfRecoveries)
             return;
         IParseNode t = prod.apply(kids);
         Frame st1; 
@@ -787,7 +787,7 @@ public class SGLR {
         return numberOfRecoveries;
     }
     
-    private int calcRecoverCountResricted(Production prod, Path path) {
+    private int calcRecoverCountRestricted(Production prod, Path path) {
         int numberOfRecoveries = path.getRecoverCount(lengthAvoidCheck);
         if(prod.isRecoverProduction())
         {

@@ -25,15 +25,32 @@ public class StructureSkipper {
         SAME_INDENT
     }
     
-    private boolean useCurlyBraces;
+    private boolean useOpeningClosingDefaults;
+    private final static char[] closingTokens={'}', ')', ']', '>', '|'};
+    private final static char[] openingTokens={'{', '(', '[', '<', '|'};
     
+    private boolean isClosingChar(char c){
+        return contains(c, closingTokens);
+    }
+    
+    private boolean isOpeningChar(char c){
+        return contains(c, openingTokens);
+    }
+
+    private boolean contains(char c, char[] chars) {
+        for (int i = 0; i < chars.length; i++) {
+            if(chars[i]==c)
+                return true;
+        }
+        return false;
+    }
     
     public boolean isUsingCurlyBraces() {
-        return useCurlyBraces;
+        return useOpeningClosingDefaults;
     }
 
     public void setUseCurlyBraces(boolean useCurlyBraces) {
-        this.useCurlyBraces = useCurlyBraces;
+        this.useOpeningClosingDefaults = useCurlyBraces;
     }
 
     private SGLR myParser;
@@ -484,9 +501,11 @@ public class StructureSkipper {
     
 
     private boolean isClosingLine(int indexLine) {             
-        IndentInfo currLine= getHistory().getLine(indexLine);        
-        if(useCurlyBraces)
-            return getHistory().recoverTokenStream[currLine.getTokensSeen()]=='}';  
+        IndentInfo currLine= getHistory().getLine(indexLine);  
+        if (isClosingChar(getHistory().recoverTokenStream[currLine.getTokensSeen()]))
+            return true;
+        else if (useOpeningClosingDefaults)
+            return false;  
         if(indexLine==0)
             return false;
         IndentInfo prevLine=getHistory().getLine(indexLine - 1);
@@ -502,17 +521,23 @@ public class StructureSkipper {
         return true;
     }
     
-    private boolean isErrorOnClosingLine(int indexLine) {
+    private boolean isErrorOnClosingLine(int indexLine) throws IOException {
         IndentInfo line = getHistory().getLine(indexLine);
-        if(useCurlyBraces)
-            return getHistory().recoverTokenStream[line.getTokensSeen()]=='}';
+        if (isClosingChar(getHistory().recoverTokenStream[line.getTokensSeen()]))
+            return true;
+        else if (useOpeningClosingDefaults)
+            return false;
         if (indexLine==0)
             return false;
         IndentInfo prevLine=getHistory().getLine(indexLine-1);
         if(prevLine.getIndentValue()<= line.getIndentValue())
             return false;
-        int startTokLine=line.structureStartPosition();
-        if(startTokLine==0)
+        IndentInfo nextLine=viewNextLine(line);
+        if(nextLine.getIndentValue()>line.getIndentValue())
+            return false;
+        int startReduction=line.structureStartPosition();
+        int startConstruct = getHistory().getLine(findParentBegin(indexLine-1)).getTokensSeen();
+        if(startReduction==0 || startReduction > startConstruct) //construct unfinished
             return true;
         if(getHistory().getLastChar()==SGLR.EOF)
             return true;
@@ -532,8 +557,10 @@ public class StructureSkipper {
         if(indexLine==0)
             return false;
         IndentInfo line = getHistory().getLine(indexLine);
-        if(useCurlyBraces)
-            return getHistory().recoverTokenStream[line.getTokensSeen()]=='{';
+        if (isOpeningChar(getHistory().recoverTokenStream[line.getTokensSeen()]))
+            return true;
+        else if(useOpeningClosingDefaults)
+            return false;
         IndentInfo prevLine = getHistory().getLine(indexLine-1);        
         boolean sameIndent = prevLine.getIndentValue()==line.getIndentValue();
         boolean smallReduce = line.structureStartPosition() >= prevLine.getTokensSeen()-1;
@@ -541,17 +568,21 @@ public class StructureSkipper {
     }
 
     private boolean isOpeningLine(IndentInfo currLine) throws IOException {
-        if(useCurlyBraces)
-            return myParser.currentToken=='{';
+        if(isOpeningChar((char)myParser.currentToken))
+            return true;
+        else if (useOpeningClosingDefaults)
+            return false;
         IndentInfo nextLine = viewNextLine(currLine);
         if(nextLine.getIndentValue()<=currLine.getIndentValue())
             return false;
         return true;
     }
 
-    private boolean isClosingLine(IndentInfo currLine) throws IOException {        
-        if(useCurlyBraces)
-            return myParser.currentToken=='}';
+    private boolean isClosingLine(IndentInfo currLine) throws IOException {
+        if (isClosingChar((char)myParser.currentToken))
+            return true;
+        else if (useOpeningClosingDefaults)
+            return false;
         IndentInfo nextLine = viewNextLine(currLine);
         if(nextLine.getIndentValue()>currLine.getIndentValue())
             return false;

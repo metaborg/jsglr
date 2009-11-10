@@ -117,7 +117,10 @@ public class ParseTable implements Serializable {
         ATermList prods = Term.listAt(prioritiesTerm, 0);
         List<Priority> ret = new ArrayList<Priority>();
         
-        for (ATermAppl a = (ATermAppl) prods.getFirst(); !prods.getNext().isEmpty(); prods = prods.getNext()) {
+        while (!prods.isEmpty()) {
+            ATermAppl a = (ATermAppl) prods.getFirst();
+            prods = prods.getNext();
+            
             int left = Term.intAt(a, 0);
             int right = Term.intAt(a, 1);
             if (a.getName().equals("left-prio")) {

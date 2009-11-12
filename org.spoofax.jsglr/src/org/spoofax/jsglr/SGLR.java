@@ -31,6 +31,10 @@ public class SGLR {
     static final int EOF = ParseTable.NUM_CHARS;
     
     static final int TAB_SIZE = 8;
+    
+    private static final Timer abortTimer = new Timer();
+    
+    private int abortTimerJobId;
 
     protected static boolean WORK_AROUND_MULTIPLE_LOOKAHEAD;
     
@@ -44,8 +48,6 @@ public class SGLR {
     public Frame startFrame; 
     
     private long startTime;
-    
-    private Timer abortTimer;
     
     private volatile boolean asyncAborted;
     
@@ -281,18 +283,26 @@ public class SGLR {
     }
     
     private void initParseTimer() {
-        asyncAborted = false;
         if (Tools.timeout > 0) {
-            if (abortTimer != null)
-                abortTimer.cancel();
-            abortTimer = new Timer();
+            // We use a single shared timer to conserve native threads
+            // and a jobId to recognize stale abort events
+            synchronized (abortTimer) {
+                asyncAborted = false;
+                ++abortTimerJobId;
+            }
+            final int jobId = abortTimerJobId;
             abortTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    asyncAbort();
+                    synchronized (abortTimer) {
+                        if (abortTimerJobId == jobId)
+                            asyncAbort();
+                    }
                 }
             }, Tools.timeout
             );
+        } else {
+            asyncAborted = false;
         }
     }
 

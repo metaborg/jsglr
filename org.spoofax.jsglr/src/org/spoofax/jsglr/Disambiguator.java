@@ -48,6 +48,8 @@ public class Disambiguator {
     
     private boolean filterPriorities;
     
+    private boolean filterStrict;
+    
     // Current parser state
 
     private AmbiguityManager ambiguityManager;
@@ -131,6 +133,19 @@ public class Disambiguator {
         return filterPriorities;
     }
     
+    /**
+     * Sets whether to enable strict filtering, triggering a
+     * FilterException when the priorities filter encounters
+     * an unfiltered ambiguity.
+     */
+    public void setFilterStrict(boolean filterStrict) {
+        this.filterStrict = filterStrict;
+    }
+    
+    public boolean getFilterStrict() {
+        return filterStrict;
+    }
+    
     public final void setHeuristicFilters(boolean heuristicFilters) {
         setFilterIndirectPreference(heuristicFilters);
         setFilterPreferenceCount(heuristicFilters);
@@ -146,7 +161,7 @@ public class Disambiguator {
     }
     
     public final void setDefaultFilters() {
-        filterAny = true; // TODO: filter by default
+        filterAny = true;
         filterCycles = false; // TODO: filterCycles; enable by default
         filterDirectPreference = true;        
         filterIndirectPreference = false;        
@@ -155,37 +170,41 @@ public class Disambiguator {
         filterTopSort = true;        
         filterReject = true;
         filterAssociativity = true;
-        filterPriorities = false; // XXX: filterPriorities true by default when no longer borked
+        filterPriorities = true;
+        filterStrict = false; // TODO: disable filterStrict hack
     }
     
     public Disambiguator() {
         setDefaultFilters();
     }
 
-    public ATerm applyFilters(SGLR parser, IParseNode root, String sort, int inputLength) throws SGLRException {
-        
-        if(SGLR.isDebugging()) {
-            Tools.debug("applyFilters()");
-        }
-        
-        initializeFromParser(parser);
-
-        IParseNode t = root;
-
-        t = applyTopSortFilter(sort, t);
-        
-        if (filterAny) {
-            t = applyCycleDetectFilter(t);
+    public ATerm applyFilters(SGLR parser, IParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
+        try {
+            if(SGLR.isDebugging()) {
+                Tools.debug("applyFilters()");
+            }
+            
+            initializeFromParser(parser);
     
-            // SG_FilterTree
-            ambiguityManager.resetClustersVisitedCount();
-            t = filterTree(t, false);
-        }
+            IParseNode t = root;
+    
+            t = applyTopSortFilter(sort, t);
+            
+            if (filterAny) {
+                t = applyCycleDetectFilter(t);
         
-        // TODO: Move convertToATerm to SGLR.java and support IStrategoTerms
-        ATerm result = convertToATerm(t);
-        assert Term.asAppl(result).getAFun().getName().equals("parsetree");
-        return result;
+                // SG_FilterTree
+                ambiguityManager.resetClustersVisitedCount();
+                t = filterTree(t, false);
+            }
+            
+            // TODO: Move convertToATerm to SGLR.java and support IStrategoTerms
+            ATerm result = convertToATerm(t);
+            assert Term.asAppl(result).getAFun().getName().equals("parsetree");
+            return result;
+        } catch (RuntimeException e) {
+            throw new FilterException(parser, "Runtime exception when applying filters", e);
+        }
     }
 
     private void initializeFromParser(SGLR parser) {
@@ -476,7 +495,6 @@ public class Disambiguator {
 
     private IParseNode applyPriorityFilter(ParseNode t, Label prodLabel) throws FilterException {
         // SG_Priority_Filter
-        // - fishy
         
         if(SGLR.isDebugging()) {
             Tools.debug("applyPriorityFilter() - ", t);
@@ -489,9 +507,9 @@ public class Disambiguator {
         int l0 = prodLabel.labelNumber;
         int kidnumber = 0;
 
-        for (IParseNode alt : kids) {
-            IParseNode newKid = alt;
-            IParseNode injection = jumpOverInjections(alt);
+        for (IParseNode kid : kids) {
+            IParseNode newKid = kid;
+            IParseNode injection = jumpOverInjections(kid);
 
             if (injection instanceof Amb) {
                 List<IParseNode> ambs = ((Amb) injection).getAlternatives();
@@ -515,9 +533,15 @@ public class Disambiguator {
                     } else {
                         n = newAmbiguities.get(0);
                     }
-                    newKid = replaceUnderInjections(alt, injection, n);
+                    newKid = replaceUnderInjections(kid, injection, n);
                 } else {
-                    throw new FilterException(parser);
+                    // fishy: another filter might be borked
+                    if (filterStrict) {
+                        throw new FilterException(parser);
+                    } else {
+                        // TODO: log or whatever?
+                        return t;
+                    }
                 }
             } else if (injection instanceof ParseNode) {
                 int l1 = ((ParseNode) injection).label;
@@ -675,7 +699,7 @@ public class Disambiguator {
             List<IParseNode> oldAmbiguities = new LinkedList<IParseNode>();
             oldAmbiguities.addAll(newAmbiguities);
             for (IParseNode amb : oldAmbiguities) {
-                if (newAmbiguities.remove(amb)) {
+                if (newAmbiguities.remove(amb)) { // TODO: optimize - use index (avoid equals() check)
                     newAmbiguities = filterAmbiguityList(newAmbiguities, amb);
                 }
             }
@@ -907,7 +931,7 @@ public class Disambiguator {
         if (left instanceof Amb || right instanceof Amb)
             return FILTER_DRAW;
 
-        if (!left.equals(right))
+        if (!getLabel(left).equals(getLabel(right)))
             return filterOnDirectPrefers(left, right);
 
         ParseNode l = (ParseNode) left;
@@ -939,6 +963,7 @@ public class Disambiguator {
             Tools.debug("filterOnDirectPrefers()");
         }
 
+        // TODO: optimize - move up the jumpOverInjectionsModuloEagerness calls
         if (isLeftMoreEager(left, right))
             return FILTER_LEFT_WINS;
         if (isLeftMoreEager(right, left))

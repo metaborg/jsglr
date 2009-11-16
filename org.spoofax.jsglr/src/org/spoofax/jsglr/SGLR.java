@@ -32,7 +32,7 @@ public class SGLR {
     
     static final int TAB_SIZE = 8;
     
-    private static final Timer abortTimer = new Timer();
+    private static final Timer abortTimer = new Timer(true);
     
     private int abortTimerJobId;
 
@@ -273,7 +273,7 @@ public class SGLR {
     public final ATerm parse(String input) throws IOException, BadTokenException,
             TokenExpectedException, ParseException, SGLRException {
         
-        return parse(input);
+        return parse(input, null);
     }
     
     public ATerm parse(String input, String startSymbol) throws IOException, BadTokenException, TokenExpectedException, ParseException,
@@ -1036,7 +1036,7 @@ public class SGLR {
             //Tools.debug("Total Time: " + parseTime);
             m.setParseTime(parseTime);
             //Tools.debug("Total Count: " + parseCount);
-            Measures.setParseCount(parseCount);
+            Measures.setParseCount(++parseCount);
             //Tools.debug("Average Time: " + (int)parseTime / parseCount);
             m.setAverageParseTime((int)parseTime / parseCount);
             m.setRecoverTime(recoverHandler.getRecoverTime());

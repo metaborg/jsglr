@@ -68,7 +68,7 @@ strategies // I/O
     )
   + SwitchOption(|
       OPEN_BRACKETS_ON()
-    , "on"
+    , "off"
     , "Add insertion rules for opening brackets"
     )
   + SwitchOption(|

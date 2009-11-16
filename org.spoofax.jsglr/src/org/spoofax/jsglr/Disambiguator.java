@@ -782,6 +782,21 @@ public class Disambiguator {
                 return r;
         }
 
+        return filterPermissiveLiterals(left, right);
+    }
+    
+    private int filterPermissiveLiterals(IParseNode left, IParseNode right) {
+        // Work-around for http://bugs.strategoxt.org/browse/SPI-5 (Permissive grammars introduce ambiguities for literals)
+        
+        if (left instanceof ParseNode && right instanceof ParseNode) {
+            List<IParseNode> leftKids = ((ParseNode) left).kids;
+            List<IParseNode> rightKids = ((ParseNode) right).kids;
+            if (leftKids.size() > 0 && rightKids.size() == 1) {
+                if (leftKids.get(0) instanceof ParseProductionNode && rightKids.get(0).equals(left)) {
+                    return FILTER_LEFT_WINS;
+                }
+            }
+        }
         return FILTER_DRAW;
     }
 

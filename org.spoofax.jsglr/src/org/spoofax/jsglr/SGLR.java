@@ -466,9 +466,9 @@ public class SGLR {
                 fillForActorWithRecoverFrames(); //Fills foractor, clears recover actor
                 recoverTolerance-=1;
                 reduceRecoverOnly=true;
-            }
-                
+            }    
         }
+        return;
     }
 
     private void fillForActorWithDelayedFrames() {
@@ -558,10 +558,10 @@ public class SGLR {
     }    
 
     private boolean checkLookahead(ReduceLookahead red) throws IOException {
-        return doCheckLookahead(red, red.getCharClasses(), 0);
+        return doCheckLookahead(red, red.getCharRanges(), 0);
     }
     
-    private boolean doCheckLookahead(ReduceLookahead red, Range[] charClass, int pos) throws IOException {
+    private boolean doCheckLookahead(ReduceLookahead red, RangeList[] charClass, int pos) throws IOException {
         if(Tools.tracing) {
             TRACE("SG_CheckLookAhead() - ");
         }
@@ -979,6 +979,7 @@ public class SGLR {
         return rejectCount;
     }
     
+    @Deprecated
     public static void setWorkAroundMultipleLookahead(boolean value) {
         WORK_AROUND_MULTIPLE_LOOKAHEAD = value;
     }   

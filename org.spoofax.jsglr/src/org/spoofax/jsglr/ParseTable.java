@@ -332,7 +332,7 @@ public class ParseTable implements Serializable {
                 int productionArity = Term.intAt(a, 0);
                 int label = Term.intAt(a, 1);
                 int status = Term.intAt(a, 2);
-                Range[] charClasses = parseCharClasses(Term.listAt(a, 3));
+                RangeList[] charClasses = parseCharRanges(Term.listAt(a, 3));
                 item = makeReduceLookahead(productionArity, label, status, charClasses);
                 
             } else if (a.getName().equals("accept")) {
@@ -348,9 +348,9 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    private Range[] parseCharClasses(ATermList list) throws InvalidParseTableException {
-        Range[] ret = new Range[list.getLength()];
-        for(int i=0;i<ret.length; i++) {
+    private RangeList[] parseCharRanges(ATermList list) throws InvalidParseTableException {
+        RangeList[] ret = new RangeList[list.getLength()];
+        for (int i=0;i<ret.length; i++) {
             ATermAppl t = Term.asAppl(list.getFirst());
             list = list.getNext();
             ATermList l, n;            
@@ -363,27 +363,32 @@ public class ParseTable implements Serializable {
                 n = Term.listAt(t, 0).getNext();
             }
             
+            // FIXME: multiple lookahead are not fully supported or tested
+            //        (and should work for both 2.4 and 2.6 tables)
+            
             if (Term.termAt(l, 1) == null) {
-                if (SGLR.WORK_AROUND_MULTIPLE_LOOKAHEAD) {
-                    if (!printedWarning) {
-                        printedWarning = true;
-                        System.err.println("Warning: using multiple lookahead work-around");
-                    }
-                    ret[i] = new Range(Term.intAt(l, 0), Term.intAt(l, 0));
-                } else {
-                    throw new InvalidParseTableException("Multiple lookahead not supported");
-                }
-            } else if(n.getLength() > 0) {
-                // TODO: Is this a legal state?
-                throw new InvalidParseTableException("Multiple lookahead not supported");
-            } else {            
-                ret[i] = new Range(Term.intAt(l, 0), Term.intAt(l, 1));
+                // This handles restrictions like:
+                //   LAYOUT? -/- [\/].[\/]
+                // where there is no other restriction that starts with a [\/]
+                
+                ret[i] = new RangeList(new Range(Term.intAt(l, 0)));
+            } else if (n.getLength() > 0) {
+                // This handles restrictions like:
+                //   LAYOUT? -/- [\/].[\/\+].[\*]
+                throw new InvalidParseTableException("Multiple lookahead not fully supported");
+            } else {
+                // This handles restrictions like:
+                //   LAYOUT? -/- [\/].[\/]
+                //   LAYOUT? -/- [\/].[\*]
+                //   LAYOUT? -/- [\/].[\{]
+                
+                ret[i] = parseRanges(l);
             }
         }
         return ret;
     }
 
-    private ActionItem makeReduceLookahead(int productionArity, int label, int status, Range[] charClasses) {
+    private ActionItem makeReduceLookahead(int productionArity, int label, int status, RangeList[] charClasses) {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
     

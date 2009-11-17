@@ -13,7 +13,7 @@ import java.util.List;
 public class RangeList {
     private final int[] ranges;
     
-    public RangeList(Range[] ranges) {
+    public RangeList(Range... ranges) {
         // Assume unsanitized input
         List<Range> sortedRanges = toSortedList(ranges);
         List<Range> sanitizedRanges = mergeOverlap(sortedRanges);

@@ -19,15 +19,15 @@ public class ReduceLookahead extends ActionItem {
 
     public final Production production;
 
-    protected final Range[] charClasses;
+    protected final RangeList[] charRanges;
     
-    public ReduceLookahead(int arity, int label, int status, Range[] charClasses) {
+    public ReduceLookahead(int arity, int label, int status, RangeList[] charClasses) {
         super(REDUCE_LOOKAHEAD);
 
         this.arity = arity;
         this.label = label;
         this.status = status;
-        this.charClasses = charClasses;
+        this.charRanges = charClasses;
 
         production = new Production(arity, label, status, false);
     }
@@ -49,7 +49,7 @@ public class ReduceLookahead extends ActionItem {
         return "reduce(" + arity + ", " + label + ", " + status + ")";
     }
 
-    public Range[] getCharClasses() {
-        return charClasses;
+    public RangeList[] getCharRanges() {
+        return charRanges;
     }
 }

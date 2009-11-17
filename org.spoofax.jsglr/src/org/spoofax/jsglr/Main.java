@@ -76,8 +76,6 @@ public class Main {
         Tools.setLogging(logging);
         sglr.getDisambiguator().setFilterCycles(detectCycles);
         sglr.getDisambiguator().setFilterAny(filter);
-        sglr.setFilter(false);
-        //sglr.setFilter(false); //mj
         
         InputStream fis = null;
         if(input == null)

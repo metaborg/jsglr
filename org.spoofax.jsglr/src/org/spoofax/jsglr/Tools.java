@@ -76,7 +76,7 @@ public class Tools {
 
     public static void setLogging(boolean enableLogging) {
         logging = enableLogging;
-        setOutput(".jsglr-log");
+        if (enableLogging) setOutput(outfile);
     }
     
     // Measuring

@@ -335,19 +335,17 @@ public class Disambiguator {
 
         if (t instanceof Amb) {
             if (!inAmbiguityCluster) {
+                // (some cycle stuff should be done here)
                 List<IParseNode> ambs = ((Amb)t).getAlternatives();
                 t = filterAmbiguities(ambs);
             } else {
-            	// TODO: Test me?
+            	// FIXME: hasRejectProd(Amb) can never succeed?
                 if (filterReject && parseTable.hasRejects() && hasRejectProd(t)) {
                     return null;
                 }
                 List<IParseNode> ambs = ((Amb) t).getAlternatives();
-                ambs = filterTree(ambs, false);
-                
-                if (ambs == null) return null;
-                
-                return new Amb(ambs);
+                return filterAmbiguities(ambs);
+
             }
         } else if(t instanceof ParseNode) {
             ParseNode node = (ParseNode) t;
@@ -691,7 +689,8 @@ public class Disambiguator {
         List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
 
         for (IParseNode amb : ambs) {
-            newAmbiguities.add(filterTree(amb, true));
+            IParseNode newAmb = filterTree(amb, true);
+            if (newAmb != null) newAmbiguities.add(newAmb);
         }
 
         if (newAmbiguities.size() > 1) {
@@ -1063,7 +1062,7 @@ public class Disambiguator {
         // countDistinctArguments
         int r = 0;
         for (int i = 0; i < leftArgs.size(); i++) {
-            if (!leftArgs.equals(rightArgs))
+            if (!leftArgs.get(i).equals(rightArgs.get(i)))
                 r++;
         }
         return r;

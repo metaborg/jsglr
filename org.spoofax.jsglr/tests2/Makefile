@@ -1,12 +1,14 @@
 DEFS=$(wildcard *.def)
-INS=$(wildcard *.in)
+INS=$(wildcard *.in) $(wildcard *.app)
 OUTS=$(INS:.in=.out)
 TBLS=$(DEFS:.def=.tbl)
+CLASSES=$(wildcard ../bin/org/spoofax/jsglr/*.class)
 
-WDINS=$(wildcard $(WD)/test/*/*.app)
+WDINS=$(wildcard *.app) $(wildcard $(WD)/test/*/*.app)
 WDOUTS=$(WDINS:.app=.aapp)
 
-PARSE=java -client -cp ../bin:`strj-jar -p` org.spoofax.jsglr.Main
+PARSE=java -Xverify:none -client -cp ../bin:`strj-jar -p` org.spoofax.jsglr.Main
+
 
 all : $(TBLS)
 
@@ -24,42 +26,57 @@ clean :
 %.tbl : %.def
 	sdf2table -i $< -o $@
 
-%-1.out : %-1.in %.tbl
+%-1.out : %-1.in %.tbl $(CLASSES)
 	@echo Parsing $<
 	@sglri    -p $*.tbl -i $< > /dev/null  || (echo "ERROR: Standard sglr parser failed"; exit 1)
 	@$(PARSE) -p $*.tbl -i $< -o $@ || (rm $@; exit 1)
-	@cat $< | grep 'amb(' && exit 1 || exit 0
+	@if `cat $@ | grep 'amb(' >/dev/null`; then \
+	   implode-asfix -i $@ | pp-aterm; exit 1; \
+	 fi
 
-%-2.out : %-1.in %.tbl
+%-2.out : %-1.in %.tbl $(CLASSES)
 	@echo Parsing $<
 	@sglri    -p $*.tbl -i $< > /dev/null  || (echo "ERROR: Standard sglr parser failed"; exit 1)
 	@$(PARSE) -p $*.tbl -i $< -o $@ || (rm $@; exit 1)
-	@cat $< | grep 'amb(' && exit 1 || exit 0
+	@if `cat $@ | grep 'amb(' >/dev/null`; then \
+	   implode-asfix -i $@ | pp-aterm; exit 1; \
+	 fi
 
-%-3.out : %-1.in %.tbl
+%-3.out : %-1.in %.tbl $(CLASSES)
 	@echo Parsing $<
 	@sglri    -p $*.tbl -i $< > /dev/null  || (echo "ERROR: Standard sglr parser failed"; exit 1)
 	@$(PARSE) -p $*.tbl -i $< -o $@ || (rm $@; exit 1)
-	@cat $< | grep 'amb(' && exit 1 || exit 0
+	@if `cat $@ | grep 'amb(' >/dev/null`; then \
+	   implode-asfix -i $@ | pp-aterm; exit 1; \
+	 fi
 
-%-4.out : %-1.in %.tbl
+%-4.out : %-1.in %.tbl $(CLASSES)
 	@echo Parsing $<
 	@sglri    -p $*.tbl -i $< > /dev/null  || (echo "ERROR: Standard sglr parser failed"; exit 1)
 	@$(PARSE) -p $*.tbl -i $< -o $@ || (rm $@; exit 1)
-	@cat $< | grep 'amb(' && exit 1 || exit 0
+	@if `cat $@ | grep 'amb(' >/dev/null`; then \
+	   implode-asfix -i $@ | pp-aterm; exit 1; \
+	 fi
 
-%-5.out : %-1.in %.tbl
+%-5.out : %-1.in %.tbl $(CLASSES)
 	@echo Parsing $<
 	@sglri    -p $*.tbl -i $< > /dev/null || (echo "ERROR: Standard sglr parser failed"; exit 1)
 	@$(PARSE) -p $*.tbl -i $< -o $@ || (rm $@; exit 1)
-	@cat $< | grep 'amb(' && exit 1 || exit 0
+	@if `cat $@ | grep 'amb(' >/dev/null`; then \
+	   implode-asfix -i $@ | pp-aterm; exit 1; \
+	 fi
 
-WebDSL.tbl : $(WD)/src/org/webdsl/dsl/syntax/WebDSL.def
+WebDSL.tbl : WebDSL.def
 	sdf2table -i $< -o $@ -m WebDSL
 
-%.aapp : %.app WebDSL.tbl
+WebDSL.def : $(WD)/src/org/webdsl/dsl/syntax/WebDSL.def
+	cp $< $@
+
+%.aapp : %.app WebDSL.tbl $(CLASSES)
 	@echo Parsing $<
 	@sglri    -p WebDSL.tbl -s Unit -i $< > /dev/null || (echo "ERROR: Standard sglr parser failed"; exit 1)
 	@$(PARSE) -p WebDSL.tbl -s Unit -i $< -o $@ || (rm $@; exit 1)
-	@cat $< | grep 'amb(' && exit 1 || exit 0
+	@if `cat $@ | grep 'amb(' >/dev/null`; then \
+	   implode-asfix -i $@ | pp-aterm; exit 1; \
+	 fi
 

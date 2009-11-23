@@ -11,13 +11,23 @@ import java.util.List;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class RangeList {
+    
+    private static final int NONE = -1;
+    
     private final int[] ranges;
+    
+    private final int singularRange;
     
     public RangeList(Range... ranges) {
         // Assume unsanitized input
         List<Range> sortedRanges = toSortedList(ranges);
         List<Range> sanitizedRanges = mergeOverlap(sortedRanges);
         this.ranges = rangesToArray(sanitizedRanges);
+        if (ranges.length == 1 && ranges[0].low == ranges[0].high) {
+            singularRange = ranges[0].low;
+        } else {
+            singularRange = NONE;
+        }
     }
     
     private static List<Range> mergeOverlap(List<Range> ranges) {
@@ -56,6 +66,7 @@ public class RangeList {
     }
     
     public boolean within(int c) {
+        if (c == singularRange) return true;
         for (int i = 0; i < ranges.length; i += 2) {
             int low = ranges[i];
             if (low <= c) {
@@ -76,9 +87,7 @@ public class RangeList {
      * @return  The single range character, or -1 if not applicable.
      */
     public int getSingularRange() {
-        if (ranges.length != 2 || ranges[0] != ranges[1])
-            return -1;
-        return ranges[0];
+        return singularRange;
     }
     
     /*

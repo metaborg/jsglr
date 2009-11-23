@@ -450,6 +450,7 @@ public class ParseTable implements Serializable {
 //    }
 
     private RangeList parseRanges(ATermList ranges) throws InvalidParseTableException {
+        // TODO: Optimize - directly create int[] for RangeList, don't bother with intermediate Range objects
         Range[] ret = new Range[ranges.getChildCount()];
 
         for(int i = 0; i < ret.length; i++) {

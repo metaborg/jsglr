@@ -18,6 +18,14 @@ public class RegionRecovery {
     private boolean useDebugMode;
     
     /**
+     * Says whether an erroneous region is found
+     * @return
+     */
+    public boolean hasFoundErroneousRegion() {
+        return hasFoundErroneousRegion;
+    }
+    
+    /**
      * Prints information about the selected regions to the console
      */
     public void setUseDebugMode(boolean useDebugMode) {
@@ -146,7 +154,6 @@ public class RegionRecovery {
         }
     }
 
-    
     private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) throws IOException {
         StructureSkipSuggestion aSkip=new StructureSkipSuggestion();
         int indexSkips=0;
@@ -154,21 +161,7 @@ public class RegionRecovery {
         myParser.activeStacks.clear(); //undo success
         while (indexSkips < regions.size() && !successCriterion()) {
             aSkip = regions.get(indexSkips);            
-            logRecoverInfoBlock(getHistory().getFragment(aSkip.getStartSkip().getTokensSeen(), aSkip.getEndSkip().getTokensSeen()-1));           
-            IndentInfo endPos=aSkip.getEndSkip();
-            getHistory().setTokenIndex(endPos.getTokensSeen());
-            myParser.activeStacks.clear();
-            myParser.acceptingStack=null;
-            myParser.activeStacks.addAll(endPos.getStackNodes());
-            int nrOfParsedLines=0;
-            logRecoverInfo("CONTINUE PARSING: ");
-            while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS) || !getHistory().hasFinishedRecoverTokens()) {                       
-                getHistory().readRecoverToken(myParser); 
-                logRecoverInfo((char)myParser.currentToken);            
-                myParser.doParseStep();
-                if(getHistory().getTokenIndex()>errorDetectionLocation && myParser.currentToken=='\n')
-                    nrOfParsedLines++;
-            }
+            testRegion(aSkip);
             indexSkips++;            
         }
         hasFoundErroneousRegion=successCriterion();
@@ -177,6 +170,28 @@ public class RegionRecovery {
             logRecoverInfo("Erroneous region set ");
         }
         return hasFoundErroneousRegion;
+    }
+
+    private void testRegion(StructureSkipSuggestion aSkip) throws IOException {
+        logRecoverInfoBlock(getInputFragment(aSkip));           
+        IndentInfo endPos=aSkip.getEndSkip();
+        getHistory().setTokenIndex(endPos.getTokensSeen());
+        myParser.activeStacks.clear();
+        myParser.acceptingStack=null;
+        myParser.activeStacks.addAll(endPos.getStackNodes());
+        int nrOfParsedLines=0;
+        logRecoverInfo("CONTINUE PARSING: ");
+        while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS) || !getHistory().hasFinishedRecoverTokens()) {                       
+            getHistory().readRecoverToken(myParser); 
+            logRecoverInfo((char)myParser.currentToken);            
+            myParser.doParseStep();
+            if(getHistory().getTokenIndex()>errorDetectionLocation && myParser.currentToken=='\n')
+                nrOfParsedLines++;
+        }
+    }
+
+    public String getInputFragment(StructureSkipSuggestion aSkip) {
+        return getHistory().getFragment(aSkip.getStartSkip().getTokensSeen(), aSkip.getEndSkip().getTokensSeen()-1);
     }
 
     private boolean successCriterion() {

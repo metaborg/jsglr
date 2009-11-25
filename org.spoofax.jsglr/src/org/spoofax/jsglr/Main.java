@@ -77,33 +77,23 @@ public class Main {
         sglr.getDisambiguator().setFilterCycles(detectCycles);
         sglr.getDisambiguator().setFilterAny(filter);
         
+        long parsingTime = parseFile(input, output, sglr);
+        
+        if(waitForProfiler)
+            System.in.read();
+        if(timing) {
+        	System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
+        	System.err.println("Parsing time             : " + parsingTime + "ms");
+        }
+    }
+
+    public static long parseFile(String input, String output, SGLR sglr)
+            throws FileNotFoundException, IOException {
         InputStream fis = null;
         if(input == null)
             fis = System.in;
         else
             fis = new FileInputStream(input);
-        
-        //REMOVE
-        /*
-        for (int j = 0; j < 20; j++) {//MJ: just for performance testing
-            fis = new FileInputStream(input);
-            SGLR sglrNew = new SGLR(ptm.getFactory(), ptm.loadFromFile(parseTable));                     
-            SGLR.forceGC();
-            sglrNew.setCycleDetect(detectCycles);
-            sglrNew.setFilter(filter);
-            try {
-                sglrNew.parse(fis);
-            } catch (SGLRException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }            
-            sglrNew.clear();
-            SGLR.forceGC();
-            sglrNew=null;
-        }
-        
-        */
-        ///*
         OutputStream ous = null;
         if(output != null)
             ous = new FileOutputStream(output);
@@ -123,13 +113,7 @@ public class Main {
             // Detailed message for other exceptions
             System.err.println("Parsing failed : " + e);
         }
-        
-        if(waitForProfiler)
-            System.in.read();
-        if(timing) {
-        	System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
-        	System.err.println("Parsing time             : " + parsingTime + "ms");
-        }//*/
+        return parsingTime;
     }
 
     private static void usage() {

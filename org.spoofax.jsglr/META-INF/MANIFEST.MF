@@ -7,6 +7,5 @@ Export-Package: org.spoofax.jsglr
 Bundle-Vendor: Spoofax.org
 Require-Bundle: org.spoofax.aterm,
  org.junit,
- org.spoofax.interpreter.core,
- org.aspectj.runtime
+ org.spoofax.interpreter.core
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -102,8 +102,9 @@ public class RecoveryConnector {
         }
         Tools.debug("FineGrained Repair Failed");
         //WHITESPACE REPAIR
-        if (skipSucceeded) {            
-            whiteSpaceParse(errorFragment); 
+        if (skipSucceeded) {    
+            whiteSpaceParse(skipRecovery.getErrorFragmentPlusSeparator());
+            //whiteSpaceParse(errorFragment); 
             if(recoverySucceeded()){
                 Tools.debug("WhiteSpace Repair Succeeded");
                 //System.err.print("************* WS-succeeded");
@@ -114,7 +115,7 @@ public class RecoveryConnector {
             }
         }
         //FORCE PREFIX ACCEPT
-        else {            
+        /*else {            
             EofRecovery eofR = new EofRecovery(mySGLR);
             eofR.enforceAccept(getHistory().getBigReducePoint().getStackNodes());
             if(recoverySucceeded()){
@@ -125,7 +126,7 @@ public class RecoveryConnector {
                 Tools.debug("Enforcing Accepting Stack - Failed"); 
               //System.err.print("******************* AS-Failed");
             }
-        }
+        }*/
         active = false;
     }
     
@@ -199,7 +200,7 @@ public class RecoveryConnector {
         getHistory().setTokenIndex(skipRecovery.getEndSkipPosition());
         while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0){        
             getHistory().readRecoverToken(mySGLR);
-            //Tools.debug("***"+(char)mySGLR.currentToken);
+            //System.out.println("@@@@@@@@@@ "+(char)mySGLR.currentToken);
             mySGLR.doParseStep();            
         }        
     }

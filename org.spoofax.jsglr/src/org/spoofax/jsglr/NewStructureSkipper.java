@@ -58,30 +58,89 @@ public class NewStructureSkipper implements IStructureSkipper {
 
     public StructureSkipSuggestion getErroneousPrefix() throws IOException {
         // TODO Auto-generated method stub
-        return null;
-    }
-
-    public ArrayList<StructureSkipSuggestion> getParentSkipSuggestions()
-            throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        return new StructureSkipSuggestion();
     }
 
     public ArrayList<StructureSkipSuggestion> getPickErroneousChild(
             StructureSkipSuggestion prevRegion) throws IOException {
         // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<StructureSkipSuggestion>();
     }
+    
+    public ArrayList<StructureSkipSuggestion> getParentSkipSuggestions() throws IOException{
+        int errorLineIndex=failureIndex;
+        IndentInfo startLine = getHistory().getLine(errorLineIndex);
+        int startSkipIndex=findParentBegin(errorLineIndex);
+        return selectRegion(startSkipIndex);
+        /*
+        IndentInfo endSkip=findParentEnd(startLine);
+        IndentInfo startSkip = IndentInfo.cloneIndentInfo(getHistory().getLine(startSkipIndex));
+        ArrayList<StructureSkipSuggestion> skipSuggestions=new ArrayList<StructureSkipSuggestion>();
+        StructureSkipSuggestion skipConstruct=new StructureSkipSuggestion();            
+        skipConstruct.setSkipLocations(startSkip, endSkip, startSkipIndex, -1);
+        skipSuggestions.add(skipConstruct);                
+        return skipSuggestions;
+        */
+    }   
+    /*
+    private IndentInfo findParentEnd(IndentInfo startLine) throws IOException{
+        getHistory().setTokenIndex(startLine.getTokensSeen());
+        int indentStartLine=startLine.getIndentValue();
+        IndentInfo nextLine=skipLine(startLine);
+        while(myParser.currentToken!=SGLR.EOF){            
+            int indentSkipPosition=nextLine.getIndentValue();
+            indentShift shift=calculateShift(indentStartLine, indentSkipPosition);
+            if (shift==indentShift.DEDENT) {  
+                if(isScopeClosingLine(nextLine)){
+                    nextLine=skipLine(nextLine);
+                    if(nextLine==null)
+                        break;
+                }                              
+                return nextLine;                
+            
+            }
+            nextLine=skipLine(nextLine);
+        }         
+        return nextLine; //EOF
+    }*/
 
+    private int findParentBegin(int startLineIndex) throws IOException{
+        IndentInfo startLine = IndentInfo.cloneIndentInfo(getHistory().getLine(startLineIndex));
+        int indentStartLine=separatorIndent(startLine); //startLine.getIndentValue();
+        int indexHistoryLines=startLineIndex;
+        while(indexHistoryLines > 0){
+            indexHistoryLines-=1;
+            IndentInfo currentLine=getHistory().getLine(indexHistoryLines);
+            int indentSkipPosition=currentLine.getIndentValue();
+            indentShift shift=calculateShift(indentStartLine, indentSkipPosition);
+            if (shift==indentShift.DEDENT){
+                if(isScopeOpeningLine(indexHistoryLines))
+                {
+                        IndentInfo prevLine = getHistory().getLine(indexHistoryLines-1);
+                        if((!isScopeClosingLine(prevLine)) && calculateShift(currentLine.getIndentValue(), prevLine.getIndentValue())==indentShift.SAME_INDENT){                            
+                            return indexHistoryLines-1;
+                        }                        
+                }                
+                return indexHistoryLines;
+            }            
+        }        
+        return 0; //SOF
+    } 
+    
     public ArrayList<StructureSkipSuggestion> getPreviousSkipSuggestions()
             throws IOException {
-        ArrayList<StructureSkipSuggestion> prevRegions=new ArrayList<StructureSkipSuggestion>();
         int indexEnd=failureIndex;
-        if(isScopeClosingLine(indexEnd))
+        return selectPrevRegion(indexEnd);
+    }
+
+    private ArrayList<StructureSkipSuggestion> selectPrevRegion(int indexEnd)
+            throws IOException {
+        ArrayList<StructureSkipSuggestion> prevRegions=new ArrayList<StructureSkipSuggestion>();       
+        boolean onClosing=isScopeClosingLine(indexEnd);
+        int indexStart = backwardsSkip(indexEnd, onClosing);
+        if(onClosing)
             indexEnd++;         
         IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexEnd));
-        //int indexStart = indexEnd-3;
-        int indexStart = backwardsSkip(indexEnd);
         if(indexStart<0)
             return prevRegions;
         IndentInfo startSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexStart));
@@ -123,10 +182,10 @@ public class NewStructureSkipper implements IStructureSkipper {
         }
     }
     
-    private int backwardsSkip(int indexLine) throws IOException { 
+    private int backwardsSkip(int indexLine, boolean onClosing) throws IOException { 
         int indentValue = getHistory().getLine(indexLine).getIndentValue();
         boolean sawChilds=false;
-        boolean closingSeen=false;
+        boolean closingSeen=onClosing;
         boolean openingSeen=false;
         boolean ignoreSeps=!isSeparatorStartingLine(indexLine);
         int indexHistoryLines=indexLine;
@@ -243,32 +302,60 @@ public class NewStructureSkipper implements IStructureSkipper {
 
     public ArrayList<StructureSkipSuggestion> getPriorSkipSuggestions()
             throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        ArrayList<StructureSkipSuggestion> priorRegions= new ArrayList<StructureSkipSuggestion>();
+        int pos=failureIndex;
+        ArrayList<StructureSkipSuggestion> prevRegions=selectPrevRegion(pos);
+        do{
+            if(!prevRegions.isEmpty())
+                pos=prevRegions.get(0).getIndexHistoryStart();
+            prevRegions=selectPrevRegion(pos);
+            priorRegions.addAll(prevRegions);
+        }while (pos>0 && !prevRegions.isEmpty());
+            
+        return priorRegions;
     }
 
     public ArrayList<StructureSkipSuggestion> getSibblingBackwardSuggestions()
             throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        ArrayList<StructureSkipSuggestion> bwSkips=new ArrayList<StructureSkipSuggestion>();
+        ArrayList<StructureSkipSuggestion> priorSiblings=new ArrayList<StructureSkipSuggestion>();
+        priorSiblings.addAll(selectPrevRegion(failureIndex));
+        priorSiblings.addAll(getPriorSkipSuggestions());
+        ArrayList<StructureSkipSuggestion> currentRegionSuggestions=selectRegion(failureIndex);
+        for (StructureSkipSuggestion currSugestion : currentRegionSuggestions) {
+            for (int i = 0; i < priorSiblings.size(); i++) {
+                StructureSkipSuggestion priorSuggestion=priorSiblings.get(i);
+                StructureSkipSuggestion mergedSkip=mergeRegions(currSugestion, priorSuggestion);
+                bwSkips.add(mergedSkip);
+            }
+        }
+        return bwSkips;
+    }
+
+    private StructureSkipSuggestion mergeRegions(StructureSkipSuggestion fwSuggestion,
+            StructureSkipSuggestion bwSuggestion) {
+        StructureSkipSuggestion mergedSkip=new StructureSkipSuggestion();
+        mergedSkip.setSkipLocations(IndentInfo.cloneIndentInfo(bwSuggestion.getStartSkip()), IndentInfo.cloneIndentInfo(fwSuggestion.getEndSkip()), bwSuggestion.getIndexHistoryStart(), fwSuggestion.getIndexHistoryEnd());
+        mergedSkip.setAdditionalTokens(bwSuggestion.getAdditionalTokens());
+        return mergedSkip;
     }
 
     public ArrayList<StructureSkipSuggestion> getSibblingForwardSuggestions()
             throws IOException {
         // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<StructureSkipSuggestion>();
     }
 
     public ArrayList<StructureSkipSuggestion> getSibblingSurroundingSuggestions()
             throws IOException {
         // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<StructureSkipSuggestion>();
     }
 
     public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(
             StructureSkipSuggestion prevRegion) {
         // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<StructureSkipSuggestion>();
     }
 
     public void setFailureIndex(int failureIndex) {
@@ -277,7 +364,7 @@ public class NewStructureSkipper implements IStructureSkipper {
     
     private ArrayList<IndentInfo> findCurrentEnd(IndentInfo startLine) throws IOException{
         getHistory().setTokenIndex(startLine.getTokensSeen());
-        int indentStartLine=startLine.getIndentValue();        
+        int indentStartLine=separatorIndent(startLine);        
         boolean hasIndentChilds=false;
         boolean isSecondLine=true;
         ArrayList<IndentInfo> endLocations=new ArrayList<IndentInfo>();

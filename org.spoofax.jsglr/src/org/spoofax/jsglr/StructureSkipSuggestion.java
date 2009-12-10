@@ -6,6 +6,7 @@ public class StructureSkipSuggestion {
     private IndentInfo endSkip; 
     private int indexHistoryStart;
     private int indexHistoryEnd;
+    private char[] additionalTokens;
     
     public int getIndexHistoryStart() {
         return indexHistoryStart;
@@ -44,6 +45,7 @@ public class StructureSkipSuggestion {
     public StructureSkipSuggestion(){
         indexHistoryEnd=-1;
         indexHistoryStart=-1;
+        additionalTokens=new char[0];
     }   
     
     public IndentInfo getStartSkip() {
@@ -65,4 +67,12 @@ public class StructureSkipSuggestion {
         indexHistoryEnd=indexEnd;
         setSkipLocations(startSkip, endSkip);
     }
+    
+    public void setAdditionalTokens(char[] toParse) {
+        additionalTokens=toParse;
+    }
+
+    public char[] getAdditionalTokens() {
+        return additionalTokens;
+    }    
 }

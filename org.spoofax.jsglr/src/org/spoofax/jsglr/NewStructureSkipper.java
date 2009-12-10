@@ -34,16 +34,24 @@ public class NewStructureSkipper implements IStructureSkipper {
     public ArrayList<StructureSkipSuggestion> getCurrentSkipSuggestions()
             throws IOException {
         int indexLastLine=failureIndex;
-        if (isScopeClosingLine(indexLastLine))
-            return new ArrayList<StructureSkipSuggestion>();
-        if (isScopeOpeningLine(indexLastLine) && indexLastLine>0)
+        if (isScopeOpeningLine(indexLastLine) && indexLastLine>0 && getHistory().getLine(indexLastLine-1).getIndentValue()==getHistory().getLine(indexLastLine).getIndentValue())
             return selectRegion(indexLastLine-1);
         return selectRegion(indexLastLine);
     }
     
     private ArrayList<StructureSkipSuggestion> selectRegion(int indexLine)
     throws IOException {
-        IndentInfo startLine = IndentInfo.cloneIndentInfo(getHistory().getLine(indexLine));
+        if (isScopeClosingLine(indexLine))
+            return new ArrayList<StructureSkipSuggestion>();
+        IndentInfo startLine = getHistory().getLine(indexLine);
+        return selectRegion(indexLine, startLine);
+    }
+
+    private ArrayList<StructureSkipSuggestion> selectRegion(int indexLine,
+            IndentInfo line) throws IOException {
+        IndentInfo startLine = IndentInfo.cloneIndentInfo(line);
+        if (isScopeClosingLine(startLine))
+            return new ArrayList<StructureSkipSuggestion>();
         ArrayList<IndentInfo> endLocations=findCurrentEnd(startLine);
         ArrayList<StructureSkipSuggestion> skipSuggestions=new ArrayList<StructureSkipSuggestion>();
         for (IndentInfo endSkip : endLocations) {
@@ -302,31 +310,52 @@ public class NewStructureSkipper implements IStructureSkipper {
 
     public ArrayList<StructureSkipSuggestion> getPriorSkipSuggestions()
             throws IOException {
-        ArrayList<StructureSkipSuggestion> priorRegions= new ArrayList<StructureSkipSuggestion>();
         int pos=failureIndex;
+        return getPriorRegions(pos);
+    }
+
+    private ArrayList<StructureSkipSuggestion> getPriorRegions(int pos)
+            throws IOException {
+        ArrayList<StructureSkipSuggestion> priorRegions= new ArrayList<StructureSkipSuggestion>();
         ArrayList<StructureSkipSuggestion> prevRegions=selectPrevRegion(pos);
         do{
             if(!prevRegions.isEmpty())
                 pos=prevRegions.get(0).getIndexHistoryStart();
             prevRegions=selectPrevRegion(pos);
             priorRegions.addAll(prevRegions);
-        }while (pos>0 && !prevRegions.isEmpty());
-            
+        }while (pos>0 && !prevRegions.isEmpty());            
         return priorRegions;
+    }
+    
+    public ArrayList<StructureSkipSuggestion> getCurrentAndNextSkipSuggestions()
+    throws IOException {
+        ArrayList<StructureSkipSuggestion> nextRegions= new ArrayList<StructureSkipSuggestion>();
+        ArrayList<StructureSkipSuggestion> currRegions=selectRegion(failureIndex);
+        int i=0;
+        do{
+            i++;
+            for (StructureSkipSuggestion r : currRegions) {
+                if(r.getAdditionalTokens().length==0)
+                nextRegions.add(r);
+            }            
+            if(!currRegions.isEmpty())                
+                currRegions=selectRegion(currRegions.get(0).getIndexHistoryEnd(), currRegions.get(0).getEndSkip());
+        }while (i<10 && !currRegions.isEmpty());
+        return nextRegions;
     }
 
     public ArrayList<StructureSkipSuggestion> getSibblingBackwardSuggestions()
             throws IOException {
         ArrayList<StructureSkipSuggestion> bwSkips=new ArrayList<StructureSkipSuggestion>();
-        ArrayList<StructureSkipSuggestion> priorSiblings=new ArrayList<StructureSkipSuggestion>();
-        priorSiblings.addAll(selectPrevRegion(failureIndex));
-        priorSiblings.addAll(getPriorSkipSuggestions());
+        ArrayList<StructureSkipSuggestion> priorSiblings=getPriorRegions(failureIndex);
         ArrayList<StructureSkipSuggestion> currentRegionSuggestions=selectRegion(failureIndex);
         for (StructureSkipSuggestion currSugestion : currentRegionSuggestions) {
             for (int i = 0; i < priorSiblings.size(); i++) {
                 StructureSkipSuggestion priorSuggestion=priorSiblings.get(i);
-                StructureSkipSuggestion mergedSkip=mergeRegions(currSugestion, priorSuggestion);
-                bwSkips.add(mergedSkip);
+                if(currSugestion.getAdditionalTokens().length==0){//ignore suggestions based on adding the separator
+                    StructureSkipSuggestion mergedSkip=mergeRegions(currSugestion, priorSuggestion);
+                    bwSkips.add(mergedSkip);
+                }
             }
         }
         return bwSkips;
@@ -342,14 +371,52 @@ public class NewStructureSkipper implements IStructureSkipper {
 
     public ArrayList<StructureSkipSuggestion> getSibblingForwardSuggestions()
             throws IOException {
-        // TODO Auto-generated method stub
-        return new ArrayList<StructureSkipSuggestion>();
+        ArrayList<StructureSkipSuggestion> fwSkips=new ArrayList<StructureSkipSuggestion>();
+        ArrayList<StructureSkipSuggestion> nextSiblings=getCurrentAndNextSkipSuggestions();
+        ArrayList<StructureSkipSuggestion> prevRegionSuggestions=selectPrevRegion(failureIndex);
+        for (StructureSkipSuggestion priorSuggestion : prevRegionSuggestions) {
+            for (int i = 0; i < nextSiblings.size(); i++) {
+                StructureSkipSuggestion nextSuggestion=nextSiblings.get(i);
+                StructureSkipSuggestion mergedSkip=mergeRegions(nextSuggestion, priorSuggestion);
+                fwSkips.add(mergedSkip);            
+            }
+        }
+        return fwSkips;
     }
 
     public ArrayList<StructureSkipSuggestion> getSibblingSurroundingSuggestions()
             throws IOException {
-        // TODO Auto-generated method stub
-        return new ArrayList<StructureSkipSuggestion>();
+        ArrayList<StructureSkipSuggestion> surroundingSkips=new ArrayList<StructureSkipSuggestion>();
+        ArrayList<StructureSkipSuggestion> priorSiblings=getPriorRegions(failureIndex);
+        ArrayList<StructureSkipSuggestion> nextSiblings=getCurrentAndNextSkipSuggestions();
+        if(nextSiblings.size()>1 && priorSiblings.size()>0){
+            nextSiblings.remove(0);
+            StructureSkipSuggestion nextSuggestion=null;
+            StructureSkipSuggestion priorSuggestion=null;
+            int j=0;
+            int i = 0;            
+            while(i < nextSiblings.size() || j < priorSiblings.size()) {                
+                if (i<nextSiblings.size()) {
+                    nextSuggestion = nextSiblings.get(i); 
+                    i++;
+                }                         
+                if (j<priorSiblings.size()) {
+                    priorSuggestion = priorSiblings.get(j);  
+                    j++;
+                }
+                StructureSkipSuggestion mergedSkip=mergeRegions(nextSuggestion, priorSuggestion);
+                surroundingSkips.add(mergedSkip);
+                if (j<priorSiblings.size()) {
+                    priorSuggestion = priorSiblings.get(j); 
+                    if(priorSuggestion.getAdditionalTokens().length!=0){
+                        StructureSkipSuggestion mergedSkipPlus=mergeRegions(nextSuggestion, priorSuggestion);
+                        surroundingSkips.add(mergedSkipPlus);
+                        j++;
+                    }
+                }
+            }
+        }
+        return surroundingSkips;
     }
 
     public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(

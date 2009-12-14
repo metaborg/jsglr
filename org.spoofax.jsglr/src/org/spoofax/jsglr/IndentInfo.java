@@ -10,10 +10,10 @@ import org.spoofax.ArrayDeque;
 public class IndentInfo {
     
     private final int lineNumber;
-    private final int tokensSeen;
+    private int tokensSeen;
     private final int indentValue;
-    private final ArrayDeque<Frame> stackNodes;
-        
+    private final ArrayDeque<Frame> stackNodes;    
+    
     public ArrayDeque<Frame> getStackNodes() {
         return stackNodes;
     }   
@@ -31,6 +31,10 @@ public class IndentInfo {
         return tokensSeen;
     }
 
+    public void setTokensSeen(int tokenPos) {
+        tokensSeen=tokenPos;
+    }
+    
     public int getIndentValue() {
         return indentValue;
     }
@@ -89,5 +93,7 @@ public class IndentInfo {
             }
         }
         return result;
-    }    
+    }
+
+    
 }

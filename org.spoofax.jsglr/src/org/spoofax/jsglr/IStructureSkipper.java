@@ -36,7 +36,7 @@ public interface IStructureSkipper {
             throws IOException;
 
     public abstract ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(
-            StructureSkipSuggestion prevRegion);
+            StructureSkipSuggestion prevRegion) throws IOException;
 
     public abstract ArrayList<StructureSkipSuggestion> getPickErroneousChild(
             StructureSkipSuggestion prevRegion) throws IOException;

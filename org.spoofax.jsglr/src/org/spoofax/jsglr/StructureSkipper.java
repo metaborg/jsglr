@@ -3,7 +3,7 @@ package org.spoofax.jsglr;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class StructureSkipper {
+public class StructureSkipper implements IStructureSkipper {
     
     //restrictions on area searched for erroneous region
     private final static int MAX_NR_OF_LINES=30;
@@ -11,6 +11,9 @@ public class StructureSkipper {
     private int indexPrevChild;
     private int failureIndex;
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#setFailureIndex(int)
+     */
     public void setFailureIndex(int failureIndex) {
         this.failureIndex = failureIndex;
     }
@@ -56,7 +59,7 @@ public class StructureSkipper {
     private SGLR myParser;
     private IndentationHandler skipIndentHandler;
     
-    private ParserHistory getHistory() {
+    public ParserHistory getHistory() {
         return myParser.getHistory();
     }
     
@@ -66,10 +69,16 @@ public class StructureSkipper {
         clear();
     }
 
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#clear()
+     */
     public void clear() {
         indexPrevChild=-1;
     }
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getErroneousPrefix()
+     */
     public StructureSkipSuggestion getErroneousPrefix() throws IOException{
         getHistory().setTokenIndex(getFailureLine().getTokensSeen());
         IndentInfo nextLine = viewNextLine(getFailureLine());
@@ -79,6 +88,9 @@ public class StructureSkipper {
         return prefix;
     }
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getCurrentSkipSuggestions()
+     */
     public ArrayList<StructureSkipSuggestion> getCurrentSkipSuggestions() throws IOException{
         int indexLastLine=failureIndex;
         if (isErrorOnClosingLine(indexLastLine))
@@ -99,6 +111,9 @@ public class StructureSkipper {
         return skipSuggestions;
     }    
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getPreviousSkipSuggestions()
+     */
     public ArrayList<StructureSkipSuggestion> getPreviousSkipSuggestions() throws IOException{
         int indexEnd=failureIndex;
         return selectPreviousRegion(indexEnd);
@@ -143,6 +158,9 @@ public class StructureSkipper {
         return skipSuggestions;
     } 
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getPriorSkipSuggestions()
+     */
     public ArrayList<StructureSkipSuggestion> getPriorSkipSuggestions() throws IOException{
         //int indexLastLine=failureIndex;
         return selectPriorRegions(indexPrevChild);
@@ -165,6 +183,9 @@ public class StructureSkipper {
         return skipSuggestions;
     } 
 
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getParentSkipSuggestions()
+     */
     public ArrayList<StructureSkipSuggestion> getParentSkipSuggestions() throws IOException{
         int errorLineIndex=failureIndex;
         IndentInfo startLine = getHistory().getLine(errorLineIndex);
@@ -178,6 +199,9 @@ public class StructureSkipper {
         return skipSuggestions;
     }    
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getSibblingForwardSuggestions()
+     */
     public ArrayList<StructureSkipSuggestion> getSibblingForwardSuggestions() throws IOException{        
         int startSkipIndex = findPreviousBegin(failureIndex);
         if(startSkipIndex<0)
@@ -203,6 +227,9 @@ public class StructureSkipper {
         return skipSuggestions;
     }   
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getSibblingBackwardSuggestions()
+     */
     public ArrayList<StructureSkipSuggestion> getSibblingBackwardSuggestions() throws IOException {
         int indexErrorLine=failureIndex;
         ArrayList<IndentInfo> endSkipLocations=findCurrentEnd(getFailureLine());
@@ -225,6 +252,9 @@ public class StructureSkipper {
         return skipSuggestions;
     }
 
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getSibblingSurroundingSuggestions()
+     */
     public ArrayList<StructureSkipSuggestion> getSibblingSurroundingSuggestions() throws IOException {        
         ArrayList<StructureSkipSuggestion> skipSuggestions=new ArrayList<StructureSkipSuggestion>();
         int indexErrorLine=failureIndex;
@@ -288,9 +318,7 @@ public class StructureSkipper {
         return skipSuggestions;
     }
 
-    /*
-     * * 
-     */
+   
     private ArrayList<IndentInfo> findCurrentEnd(IndentInfo startLine) throws IOException{
         getHistory().setTokenIndex(startLine.getTokensSeen());
         int indentStartLine=startLine.getIndentValue();        
@@ -426,9 +454,14 @@ public class StructureSkipper {
         return nextLine; //EOF
     }
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getZoomOnPreviousSuggestions(org.spoofax.jsglr.StructureSkipSuggestion)
+     */
     public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(StructureSkipSuggestion prevRegion){
         ArrayList<StructureSkipSuggestion> result = new ArrayList<StructureSkipSuggestion>();
-        if(!prevRegion.isPreviousRegion() || (prevRegion.getIndexHistoryEnd()-prevRegion.getIndexHistoryStart() < 3)){
+        //region before failure line 
+        //region more then two lines
+        if(!prevRegion.canBeDecomposed()){
             result.add(prevRegion);
             return result;
         }
@@ -482,9 +515,12 @@ public class StructureSkipper {
         return result;
     }
     
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getPickErroneousChild(org.spoofax.jsglr.StructureSkipSuggestion)
+     */
     public ArrayList<StructureSkipSuggestion> getPickErroneousChild(StructureSkipSuggestion prevRegion) throws IOException{
         ArrayList<StructureSkipSuggestion> result=new ArrayList<StructureSkipSuggestion>();
-        if(!prevRegion.isPreviousRegion() || (prevRegion.getIndexHistoryEnd()-prevRegion.getIndexHistoryStart() < 2)){            
+        if(!prevRegion.canBeDecomposed()){            
             result.add(prevRegion);
             return result;
         }        

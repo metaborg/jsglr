@@ -12,7 +12,13 @@ public class StructureSkipSuggestion {
         return indexHistoryStart;
     }
     
-    public boolean isPreviousRegion(){
+    public boolean canBeDecomposed() {
+        if(!isPreviousRegion())
+            return false;
+        return getIndexHistoryEnd()-getIndexHistoryStart() > 3;
+    }
+    
+    private boolean isPreviousRegion(){
         return indexHistoryStart>=0 && indexHistoryEnd>=0;
     }
 

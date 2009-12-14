@@ -2,11 +2,15 @@ package org.spoofax.jsglr;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.spoofax.jsglr.StructureSkipper.indentShift;
 
 public class NewStructureSkipper implements IStructureSkipper {
 
+    private final static int MAX_NR_OF_LINES=30;
+    private final static int MAX_NR_OF_STRUCTURES=20;
+    
     enum indentShift{
         INDENT,
         DEDENT,
@@ -48,11 +52,33 @@ public class NewStructureSkipper implements IStructureSkipper {
     }
 
     private ArrayList<StructureSkipSuggestion> selectRegion(int indexLine,
-            IndentInfo line) throws IOException {
+            IndentInfo lineXX) throws IOException {           
+        if (isScopeClosingLine(indexLine))
+            return new ArrayList<StructureSkipSuggestion>();        
+        ArrayList<Integer> endLocations=findCurrentEnd(indexLine);
+        ArrayList<StructureSkipSuggestion> skipSuggestions=new ArrayList<StructureSkipSuggestion>();
+        IndentInfo startLine=IndentInfo.cloneIndentInfo(getHistory().getLine(indexLine));
+        for (Integer endSkipIndex : endLocations) {
+            IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(endSkipIndex));
+            StructureSkipSuggestion skipConstruct=new StructureSkipSuggestion();
+            skipConstruct.setSkipLocations(startLine, endSkip, indexLine, endSkipIndex);            
+            skipSuggestions.add(skipConstruct);
+            addSeparatorIncludingRegion_Forwards(skipSuggestions, skipConstruct);
+            addSeperatorIncludingRegion_Backwards(skipSuggestions, skipConstruct);
+        }        
+        return skipSuggestions;
+    }    
+    
+    /*
+    private ArrayList<StructureSkipSuggestion> selectRegion(int indexLine,
+            IndentInfo lineXX) throws IOException {
+        IndentInfo line = getHistory().getLine(indexLine);
         IndentInfo startLine = IndentInfo.cloneIndentInfo(line);
+        //IndentInfo startLine = IndentInfo.cloneIndentInfo(line);
         if (isScopeClosingLine(startLine))
             return new ArrayList<StructureSkipSuggestion>();
-        ArrayList<IndentInfo> endLocations=findCurrentEnd(startLine);
+        //ArrayList<IndentInfo> endLocations=findCurrentEnd(startLine);
+        Arr
         ArrayList<StructureSkipSuggestion> skipSuggestions=new ArrayList<StructureSkipSuggestion>();
         for (IndentInfo endSkip : endLocations) {
             StructureSkipSuggestion skipConstruct=new StructureSkipSuggestion();
@@ -62,7 +88,7 @@ public class NewStructureSkipper implements IStructureSkipper {
             addSeperatorIncludingRegion_Backwards(skipSuggestions, skipConstruct);
         }        
         return skipSuggestions;
-    }    
+    } */   
 
     public StructureSkipSuggestion getErroneousPrefix() throws IOException {
         // TODO Auto-generated method stub
@@ -146,8 +172,15 @@ public class NewStructureSkipper implements IStructureSkipper {
         ArrayList<StructureSkipSuggestion> prevRegions=new ArrayList<StructureSkipSuggestion>();       
         boolean onClosing=isScopeClosingLine(indexEnd);
         int indexStart = backwardsSkip(indexEnd, onClosing);
-        if(onClosing)
-            indexEnd++;         
+        if(onClosing){
+            if(indexEnd>0){
+               if(isScopeClosingLine(indexEnd-1))
+                   prevRegions.addAll(selectPrevRegion(indexEnd-1));
+               else
+                   prevRegions.addAll(selectRegion(indexEnd-1));
+            }
+            indexEnd++;
+        }         
         IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexEnd));
         if(indexStart<0)
             return prevRegions;
@@ -419,11 +452,55 @@ public class NewStructureSkipper implements IStructureSkipper {
         return surroundingSkips;
     }
 
-    public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(
-            StructureSkipSuggestion prevRegion) {
-        // TODO Auto-generated method stub
-        return new ArrayList<StructureSkipSuggestion>();
+    /* (non-Javadoc)
+     * @see org.spoofax.jsglr.IStructureSkipper#getZoomOnPreviousSuggestions(org.spoofax.jsglr.StructureSkipSuggestion)
+     */
+    public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(StructureSkipSuggestion prevRegion) throws IOException{
+        ArrayList<StructureSkipSuggestion> result = new ArrayList<StructureSkipSuggestion>();
+        if(!prevRegion.canBeDecomposed()){ 
+            result.add(prevRegion);
+            return result;
+        }
+        ArrayList<Integer> indentLevels=new ArrayList<Integer>();       
+        for (int i = prevRegion.getIndexHistoryStart()+1; i < prevRegion.getIndexHistoryEnd(); i++) {
+            int indentOfLine=getHistory().getLine(i).getIndentValue();
+            if(!indentLevels.contains(indentOfLine))
+                indentLevels.add(indentOfLine);
+        }
+        Collections.sort(indentLevels);
+        //indentLevels.remove(indentLevels.size()-1);       
+        System.out.println(indentLevels);
+        for (int i = prevRegion.getIndexHistoryStart(); i < prevRegion.getIndexHistoryEnd(); i++) {
+            int indentOfLine=getHistory().getLine(i).getIndentValue();
+            if(!indentLevels.contains(indentOfLine))
+                indentLevels.add(indentOfLine);
+        }
+        int indentOfLevel;
+        int lineIndex;
+        for (int level = 0; level < indentLevels.size(); level++) {
+            indentOfLevel=indentLevels.get(level);
+            lineIndex = prevRegion.getIndexHistoryStart();            
+            while (lineIndex < prevRegion.getIndexHistoryEnd()) {
+                int indentOfLine=getHistory().getLine(lineIndex).getIndentValue();
+                if(indentOfLine==indentOfLevel){                    
+                    ArrayList<StructureSkipSuggestion> regions = selectRegion(lineIndex);                     
+                    if(regions.size()>0){
+                        lineIndex=regions.get(0).getIndexHistoryEnd();
+                        Collections.reverse(regions);
+                        result.addAll(regions);
+                    }
+                    else
+                        lineIndex++;
+                }
+                else
+                    lineIndex++;
+            }
+       }    
+        Collections.reverse(result);
+        return result;
     }
+
+    
 
     public void setFailureIndex(int failureIndex) {
        this.failureIndex=failureIndex;
@@ -467,6 +544,45 @@ public class NewStructureSkipper implements IStructureSkipper {
         return endLocations;
     }
     
+    private ArrayList<Integer> findCurrentEnd(int indexStartLine) throws IOException{
+        IndentInfo startLine=getHistory().getLine(indexStartLine);
+        int indentStartLine=separatorIndent(startLine);        
+        boolean hasIndentChilds=false;
+        boolean isSecondLine=true;
+        ArrayList<Integer> endLocations=new ArrayList<Integer>();
+        int indexNextLine=skipLine(indexStartLine);        
+        while(myParser.currentToken!=SGLR.EOF){            
+            IndentInfo nextLine = getHistory().getLine(indexNextLine);
+            int indentSkipPosition=nextLine.getIndentValue();
+            indentShift shift=calculateShift(indentStartLine, indentSkipPosition);
+            switch (shift) {
+            case DEDENT:               
+                endLocations.add(indexNextLine);                
+                return endLocations;                
+            case INDENT:
+                hasIndentChilds=true;
+                break;
+            case SAME_INDENT:
+                if(hasIndentChilds && isScopeClosingLine(nextLine)){
+                    indexNextLine = skipLine(indexNextLine);
+                    endLocations.add(indexNextLine);
+                    return endLocations;
+                }
+                if((!isSecondLine || !isScopeOpeningLine(nextLine)) && !isSeparatorLine(nextLine)){
+                     endLocations.add(indexNextLine);
+                     return endLocations;
+                }
+                break;
+            default:
+                break;
+            }
+            isSecondLine=false;
+            indexNextLine=skipLine(indexNextLine);            
+        }
+        endLocations.add(indexNextLine); //EOF
+        return endLocations;
+    }
+    
     private IndentInfo skipLine(IndentInfo line) throws IOException {
         IndentationHandler skipIndentHandler=new IndentationHandler();
         getHistory().setTokenIndex(Math.max(0, line.getTokensSeen()-1));
@@ -484,6 +600,22 @@ public class NewStructureSkipper implements IStructureSkipper {
             }            
         }
         return new IndentInfo(newLineNumber+1, getHistory().getTokenIndex()-1, 0);// EOF
+    }
+    
+    private int skipLine(int indexLine) throws IOException {
+        IndentInfo line =getHistory().getLine(indexLine);
+        IndentationHandler skipIndentHandler=new IndentationHandler();
+        getHistory().setTokenIndex(Math.max(0, line.getTokensSeen()-1));        
+        skipIndentHandler.setInLeftMargin(false);
+        getHistory().readRecoverToken(myParser);
+        while(myParser.currentToken!=SGLR.EOF){
+            getHistory().readRecoverToken(myParser);            
+            skipIndentHandler.updateIndentation(myParser.currentToken);
+            if(skipIndentHandler.lineMarginEnded()){
+                return indexLine+=1;
+            }            
+        }
+        return getHistory().getIndexLastLine();// EOF
     }
 
 }

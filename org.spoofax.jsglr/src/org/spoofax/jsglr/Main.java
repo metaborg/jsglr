@@ -101,17 +101,20 @@ public class Main {
             ous = System.out;
 
         long parsingTime = 0;
+        ATerm t=null;
         try {
         	parsingTime = System.currentTimeMillis();
-            ATerm t=sglr.parse(fis);            
-            parsingTime = System.currentTimeMillis() - parsingTime;
-            if(t != null)
-                ous.write(t.toString().getBytes());
+            t=sglr.parse(fis);            
+            parsingTime = System.currentTimeMillis() - parsingTime;            
         } catch(BadTokenException e) {
             System.err.println("Parsing failed : " + e.getMessage());
         } catch(SGLRException e) {
             // Detailed message for other exceptions
             System.err.println("Parsing failed : " + e);
+        }
+        if(t != null){            
+            String outputString=t.toString();
+            ous.write(outputString.getBytes());
         }
         return parsingTime;
     }

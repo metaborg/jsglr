@@ -59,12 +59,18 @@ public class NewStructureSkipper implements IStructureSkipper {
         ArrayList<StructureSkipSuggestion> skipSuggestions=new ArrayList<StructureSkipSuggestion>();
         IndentInfo startLine=IndentInfo.cloneIndentInfo(getHistory().getLine(indexLine));
         for (Integer endSkipIndex : endLocations) {
-            IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(endSkipIndex));
-            StructureSkipSuggestion skipConstruct=new StructureSkipSuggestion();
-            skipConstruct.setSkipLocations(startLine, endSkip, indexLine, endSkipIndex);            
-            skipSuggestions.add(skipConstruct);
-            addSeparatorIncludingRegion_Forwards(skipSuggestions, skipConstruct);
-            addSeperatorIncludingRegion_Backwards(skipSuggestions, skipConstruct);
+            if (endSkipIndex>indexLine) {
+                IndentInfo endSkip = IndentInfo.cloneIndentInfo(getHistory()
+                        .getLine(endSkipIndex));
+                StructureSkipSuggestion skipConstruct = new StructureSkipSuggestion();
+                skipConstruct.setSkipLocations(startLine, endSkip, indexLine,
+                        endSkipIndex);
+                skipSuggestions.add(skipConstruct);
+                addSeparatorIncludingRegion_Forwards(skipSuggestions,
+                        skipConstruct);
+                addSeperatorIncludingRegion_Backwards(skipSuggestions,
+                        skipConstruct);
+            }
         }        
         return skipSuggestions;
     }    
@@ -102,10 +108,23 @@ public class NewStructureSkipper implements IStructureSkipper {
     }
     
     public ArrayList<StructureSkipSuggestion> getParentSkipSuggestions() throws IOException{
+        ArrayList<StructureSkipSuggestion> parentSkips = new ArrayList<StructureSkipSuggestion>();
         int errorLineIndex=failureIndex;
-        IndentInfo startLine = getHistory().getLine(errorLineIndex);
-        int startSkipIndex=findParentBegin(errorLineIndex);
-        return selectRegion(startSkipIndex);
+        for (int i = 0; i < 3; i++) {  //TODO: better control structure          
+            int startSkipIndex = findParentBegin(errorLineIndex);
+            ArrayList<StructureSkipSuggestion> skips=selectRegion(startSkipIndex);
+            if(skips.isEmpty()){
+                StructureSkipSuggestion closingSkip=new StructureSkipSuggestion();
+                closingSkip.setSkipLocations(IndentInfo.cloneIndentInfo(getHistory().getLine(startSkipIndex)), IndentInfo.cloneIndentInfo(getHistory().getLine(failureIndex)), startSkipIndex, failureIndex);
+                parentSkips.add(closingSkip);
+            }
+            parentSkips.addAll(skips);
+            if(skips.size()>0)
+                errorLineIndex=skips.get(0).getIndexHistoryStart();
+            else
+                i=50;
+        }
+        return parentSkips;
         /*
         IndentInfo endSkip=findParentEnd(startLine);
         IndentInfo startSkip = IndentInfo.cloneIndentInfo(getHistory().getLine(startSkipIndex));
@@ -145,7 +164,7 @@ public class NewStructureSkipper implements IStructureSkipper {
         while(indexHistoryLines > 0){
             indexHistoryLines-=1;
             IndentInfo currentLine=getHistory().getLine(indexHistoryLines);
-            int indentSkipPosition=currentLine.getIndentValue();
+            int indentSkipPosition=separatorIndent(currentLine); //currentLine.getIndentValue();
             indentShift shift=calculateShift(indentStartLine, indentSkipPosition);
             if (shift==indentShift.DEDENT){
                 if(isScopeOpeningLine(indexHistoryLines))
@@ -245,10 +264,13 @@ public class NewStructureSkipper implements IStructureSkipper {
                 sawChilds=true; //TODO: lastChild instead of previous struct?
                 break;
             case SAME_INDENT: 
-                if(!sawChilds && isScopeClosingLine(indexHistoryLines))
+                if(!sawChilds && isScopeClosingLine(indexHistoryLines)){
+                    if(closingSeen)
+                        return indexHistoryLines+1;
                     closingSeen=true;
+                }
                 else
-                    if(closingSeen && isScopeOpeningLine(indexHistoryLines))
+                    if(sawChilds && isScopeOpeningLine(indexHistoryLines))
                         openingSeen=true;
                     else
                         if(!(ignoreSeps && isSeparatorStartingLine(indexHistoryLines)))
@@ -329,10 +351,13 @@ public class NewStructureSkipper implements IStructureSkipper {
     }
 
     private String readLine(int index) throws IOException {
-        while(getHistory().getIndexLastLine()<=index)
+        while(getHistory().getIndexLastLine()<=index && myParser.currentToken!=SGLR.EOF)
             getHistory().readRecoverToken(myParser);
-        IndentInfo line=getHistory().getLine(index);
-        return readLine(line);
+        if(index<=getHistory().getIndexLastLine()){
+            IndentInfo line=getHistory().getLine(index);
+            return readLine(line);
+        }
+        return "";
     }
 
     private String readLine(IndentInfo line) {
@@ -371,8 +396,10 @@ public class NewStructureSkipper implements IStructureSkipper {
                 if(r.getAdditionalTokens().length==0)
                 nextRegions.add(r);
             }            
-            if(!currRegions.isEmpty())                
+            if(!currRegions.isEmpty()){
+                System.out.println(currRegions.get(0).getIndexHistoryStart()+" => "+ currRegions.get(0).getIndexHistoryEnd());
                 currRegions=selectRegion(currRegions.get(0).getIndexHistoryEnd(), currRegions.get(0).getEndSkip());
+            }
         }while (i<10 && !currRegions.isEmpty());
         return nextRegions;
     }
@@ -579,7 +606,7 @@ public class NewStructureSkipper implements IStructureSkipper {
             isSecondLine=false;
             indexNextLine=skipLine(indexNextLine);            
         }
-        endLocations.add(indexNextLine); //EOF
+        endLocations.add(getHistory().getIndexLastLine()); //EOF
         return endLocations;
     }
     

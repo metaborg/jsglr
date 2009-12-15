@@ -10,11 +10,12 @@ import java.util.ArrayList;
 public class RegionRecovery {
 
     private SGLR myParser;
-    StructureSkipper regionSelector;
+    IStructureSkipper regionSelector;
+    IStructureSkipper newRegionSelector;
     private StructureSkipSuggestion erroneousRegion;
     private boolean hasFoundErroneousRegion;
     private int errorDetectionLocation;
-    private static int NR_OF_LINES_TILL_SUCCESS=2;
+    private static int NR_OF_LINES_TILL_SUCCESS=3;
     private boolean useDebugMode;
     
     /**
@@ -45,6 +46,7 @@ public class RegionRecovery {
     public RegionRecovery(SGLR sglr){
         myParser=sglr;
         regionSelector = new StructureSkipper(sglr);
+        newRegionSelector=new NewStructureSkipper(sglr);
     }
     
     private ParserHistory getHistory() {
@@ -72,6 +74,11 @@ public class RegionRecovery {
         int tokIndexLine=getHistory().getTokensSeenStartLine(getStartSkipPosition().getTokensSeen());
         return getHistory().getFragment(tokIndexLine, getEndSkipPosition()-1);
     }
+    
+    public String getErrorFragmentPlusSeparator() {
+        int tokIndexLine=erroneousRegion.getStartSkip().getTokensSeen()+erroneousRegion.getAdditionalTokens().length; //getHistory().getTokensSeenStartLine(getStartSkipPosition().getTokensSeen());
+        return getHistory().getFragment(tokIndexLine, getEndSkipPosition()-1);
+    }
 
     /**
      * Returns location where erroneous region starts, including left margin
@@ -89,54 +96,59 @@ public class RegionRecovery {
      * Selects erroneous region based on layout 
      */
     public boolean selectErroneousFragment() throws IOException { 
+        newRegionSelector=new NewStructureSkipper(myParser);
         regionSelector.clear();
         regionSelector.setFailureIndex(getHistory().getIndexLastLine());
+        newRegionSelector.setFailureIndex(getHistory().getIndexLastLine());
         errorDetectionLocation=getHistory().getIndexLastToken();
         hasFoundErroneousRegion=false;         
-        ArrayList<StructureSkipSuggestion> prevRegions=regionSelector.getPreviousSkipSuggestions();
+        //ArrayList<StructureSkipSuggestion> prevRegions=regionSelector.getPreviousSkipSuggestions();
+        ArrayList<StructureSkipSuggestion> prevRegions=newRegionSelector.getPreviousSkipSuggestions();
         logRecoverInfo("PREVIOUS REGION");        
         if(trySetErroneousRegion(prevRegions)){
-            ArrayList<StructureSkipSuggestion> decomposedRegions=regionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
+            ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
             boolean findSmallerPart= trySetErroneousRegion(decomposedRegions);
             if(findSmallerPart){
-                ArrayList<StructureSkipSuggestion> childRegions=regionSelector.getPickErroneousChild(erroneousRegion);
-                trySetErroneousRegion(childRegions);
+               // ArrayList<StructureSkipSuggestion> childRegions=regionSelector.getPickErroneousChild(erroneousRegion);
+               // trySetErroneousRegion(childRegions);
             }
             return true;
         }
-        ArrayList<StructureSkipSuggestion> currentRegions=regionSelector.getCurrentSkipSuggestions();
+        //ArrayList<StructureSkipSuggestion> currentRegions=regionSelector.getCurrentSkipSuggestions();
+        ArrayList<StructureSkipSuggestion> currentRegions=newRegionSelector.getCurrentSkipSuggestions();
         logRecoverInfo("CURRENT REGION");
         if(trySetErroneousRegion(currentRegions)){            
             return true;
         }
         logRecoverInfo("PRIOR REGIONS");
-        ArrayList<StructureSkipSuggestion> priorRegions=regionSelector.getPriorSkipSuggestions();
+        ArrayList<StructureSkipSuggestion> priorRegions=newRegionSelector.getPriorSkipSuggestions();
         if(trySetErroneousRegion(priorRegions)){
-            ArrayList<StructureSkipSuggestion> decomposedRegions=regionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
+            ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
             boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
             if(findSmallerPart){
-                ArrayList<StructureSkipSuggestion> childRegions=regionSelector.getPickErroneousChild(erroneousRegion);
+                ArrayList<StructureSkipSuggestion> childRegions=newRegionSelector.getPickErroneousChild(erroneousRegion);
                 trySetErroneousRegion(childRegions);
             }
             return true;
         }
         logRecoverInfo("FW-SIB REGIONS");
-        ArrayList<StructureSkipSuggestion> siblingForWardRegions=regionSelector.getSibblingForwardSuggestions();
+        ArrayList<StructureSkipSuggestion> siblingForWardRegions=newRegionSelector.getSibblingForwardSuggestions();
         if(trySetErroneousRegion(siblingForWardRegions)){            
             return true;
         }
         logRecoverInfo("BW-SIB REGIONS");
-        ArrayList<StructureSkipSuggestion> siblingBackWardRegions=regionSelector.getSibblingBackwardSuggestions();
+        ArrayList<StructureSkipSuggestion> siblingBackWardRegions=newRegionSelector.getSibblingBackwardSuggestions();
         if(trySetErroneousRegion(siblingBackWardRegions)){            
             return true;
         }
         logRecoverInfo("SURROUNDING-SIB REGIONS");
-        ArrayList<StructureSkipSuggestion> siblingSurroundingRegions=regionSelector.getSibblingSurroundingSuggestions();
+        //System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        ArrayList<StructureSkipSuggestion> siblingSurroundingRegions=newRegionSelector.getSibblingSurroundingSuggestions();
         if(trySetErroneousRegion(siblingSurroundingRegions)){            
             return true;
         }
         logRecoverInfo("PARENT REGION");
-        ArrayList<StructureSkipSuggestion> parentRegion=regionSelector.getParentSkipSuggestions();
+        ArrayList<StructureSkipSuggestion> parentRegion=newRegionSelector.getParentSkipSuggestions();
         if(trySetErroneousRegion(parentRegion)){            
             return true;
         }        
@@ -173,21 +185,40 @@ public class RegionRecovery {
     }
 
     private void testRegion(StructureSkipSuggestion aSkip) throws IOException {
+       // System.out.println("MMMMMMMMMMM");
+        //System.out.println(getInputFragment(aSkip));
         logRecoverInfoBlock(getInputFragment(aSkip));           
         IndentInfo endPos=aSkip.getEndSkip();
         getHistory().setTokenIndex(endPos.getTokensSeen());
         myParser.activeStacks.clear();
         myParser.acceptingStack=null;
-        myParser.activeStacks.addAll(endPos.getStackNodes());
+        myParser.activeStacks.addAll(endPos.getStackNodes());        
+        for (char aChar : aSkip.getAdditionalTokens()) {
+            myParser.currentToken=aChar;
+           // System.out.print((char)aChar);
+            myParser.doParseStep();
+        }
+        if(aSkip.getAdditionalTokens().length>0){
+            //System.out.println("$$ skip additional characters $$");
+            aSkip.getStartSkip().fillStackNodes(myParser.activeStacks);
+            aSkip.getStartSkip().setTokensSeen(aSkip.getStartSkip().getTokensSeen() + aSkip.getAdditionalTokens().length);
+            aSkip.setAdditionalTokens(new char[0]);
+        }
         int nrOfParsedLines=0;
         logRecoverInfo("CONTINUE PARSING: ");
+        //System.out.println("CONTINUE PARSING: ");
+        IndentationHandler indentHandler = new IndentationHandler();
+        indentHandler.setInLeftMargin(false);
         while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS) || !getHistory().hasFinishedRecoverTokens()) {                       
             getHistory().readRecoverToken(myParser); 
+            indentHandler.updateIndentation(myParser.currentToken);
+           // System.out.print((char)myParser.currentToken);
             logRecoverInfo((char)myParser.currentToken);            
             myParser.doParseStep();
-            if(getHistory().getTokenIndex()>errorDetectionLocation && myParser.currentToken=='\n')
+            if(getHistory().getTokenIndex()>errorDetectionLocation && indentHandler.lineMarginEnded())
                 nrOfParsedLines++;
         }
+        return;
     }
 
     public String getInputFragment(StructureSkipSuggestion aSkip) {

@@ -183,9 +183,11 @@ public class RecoveryConnector {
     
     private void tryParsing(String fragment, boolean asLayout) throws IOException{
         // Skip any leading whitespace, since we already parsed up to that point
-        int indexFragment = findFirstNonLayoutToken(fragment);        
+        int indexFragment = findFirstNonLayoutToken(fragment);      
+        //System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
         while(indexFragment<fragment.length() && mySGLR.activeStacks.size()>0) {                        
             mySGLR.currentToken=fragment.charAt(indexFragment);
+            //System.out.print((char)mySGLR.currentToken);
             //Tools.debug((char)mySGLR.currentToken);
             indexFragment++;
             if(!asLayout)
@@ -198,9 +200,10 @@ public class RecoveryConnector {
     public void parseRemainingTokens() throws IOException{
         //Tools.debug("REMAINING: ");
         getHistory().setTokenIndex(skipRecovery.getEndSkipPosition());
-        while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0){        
+        //System.out.println("@@@@@@@@@@@@@");
+        while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
             getHistory().readRecoverToken(mySGLR);
-            //System.out.println("@@@@@@@@@@ "+(char)mySGLR.currentToken);
+            //System.out.print((char)mySGLR.currentToken);
             mySGLR.doParseStep();            
         }        
     }

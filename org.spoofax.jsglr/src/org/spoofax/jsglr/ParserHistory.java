@@ -45,7 +45,7 @@ public class ParserHistory {
      
     public void reset(){
         newLinePoints.clear();
-        recoverTokenStream = new char[200];
+        recoverTokenStream = new char[5000];
         recoverTokenCount = 0;
         indexConstruct=0;
         tokenIndex=0;
@@ -58,14 +58,17 @@ public class ParserHistory {
     /*
      * Set current token of parser based on recover tokens or read from new tokens
      */
-    public void readRecoverToken(SGLR myParser) throws IOException{        
-        if (hasFinishedRecoverTokens()) {
-            myParser.readNextToken();                
-            indentHandler.updateIndentation(myParser.currentToken);
-            keepToken((char)myParser.currentToken);
-            
-            if(indentHandler.lineMarginEnded())
-                keepNewLinePoint(myParser, true);
+    public void readRecoverToken(SGLR myParser) throws IOException{  
+        if (hasFinishedRecoverTokens()) {             
+            if(myParser.currentToken!=SGLR.EOF){                
+                if(getIndexLastToken()>0 && recoverTokenStream[getIndexLastToken()]!=SGLR.EOF){
+                    myParser.readNextToken();
+                    indentHandler.updateIndentation(myParser.currentToken);
+                    keepToken((char)myParser.currentToken);   
+                    if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
+                        keepNewLinePoint(myParser, true);
+                }
+            }
         }
         myParser.currentToken = recoverTokenStream[tokenIndex];
         tokenIndex++;
@@ -87,7 +90,7 @@ public class ParserHistory {
         indentHandler.updateIndentation(myParser.currentToken);
         keepToken((char)myParser.currentToken);
         tokenIndex++;
-        if(indentHandler.lineMarginEnded())
+        if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
             keepNewLinePoint(myParser, false);
     }
     
@@ -98,6 +101,8 @@ public class ParserHistory {
     }
 
     private void keepToken(char currentToken) {
+        if(getIndexLastToken()>0 && recoverTokenStream[getIndexLastToken()]==SGLR.EOF)
+            return;
         recoverTokenStream[recoverTokenCount++] = currentToken;         
         if (recoverTokenCount == recoverTokenStream.length) {
             char[] copy = recoverTokenStream;
@@ -188,6 +193,18 @@ public class ParserHistory {
             if(i >= recoverTokenCount)
                 break;
             fragment+= recoverTokenStream[i];
+        }        
+        return fragment;
+    }
+    
+    public String readLine(int StartTok) {
+        String fragment="";
+        int pos=StartTok;
+        char currentTok=' ';
+        while(currentTok!='\n' && currentTok!=SGLR.EOF && pos<recoverTokenCount) {            
+            currentTok=recoverTokenStream[pos];
+            fragment+= currentTok;
+            pos++;
         }        
         return fragment;
     }

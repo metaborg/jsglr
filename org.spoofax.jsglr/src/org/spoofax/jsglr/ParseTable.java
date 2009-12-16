@@ -28,8 +28,6 @@ public class ParseTable implements Serializable {
     protected static final int NUM_CHARS = 256; 
 
     private static final long serialVersionUID = -3372429249660900093L;
-    
-    private static boolean printedWarning;
 
     private State[] states;
 

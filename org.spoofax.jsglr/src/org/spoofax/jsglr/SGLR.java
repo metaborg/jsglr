@@ -30,7 +30,7 @@ public class SGLR {
     
     static final int EOF = ParseTable.NUM_CHARS;
     
-    static final int TAB_SIZE = 8;
+    static final int TAB_SIZE = 4;//8;
     
     private static final Timer abortTimer = new Timer(true);
     

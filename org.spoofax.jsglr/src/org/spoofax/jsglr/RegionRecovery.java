@@ -1,3 +1,4 @@
+//TODO: samenwerking met recovery connector eenduidiger
 package org.spoofax.jsglr;
 
 import java.io.IOException;
@@ -9,22 +10,11 @@ import java.util.ArrayList;
  */
 public class RegionRecovery {
 
-    private SGLR myParser;
-    IStructureSkipper regionSelector;
-    IStructureSkipper newRegionSelector;
-    private StructureSkipSuggestion erroneousRegion;
-    private boolean hasFoundErroneousRegion;
+    private SGLR myParser;    
+    private StructureSkipSuggestion erroneousRegion;    
     private int errorDetectionLocation;
     private static int NR_OF_LINES_TILL_SUCCESS=3;
     private boolean useDebugMode;
-    
-    /**
-     * Says whether an erroneous region is found
-     * @return
-     */
-    public boolean hasFoundErroneousRegion() {
-        return hasFoundErroneousRegion;
-    }
     
     /**
      * Prints information about the selected regions to the console
@@ -34,19 +24,10 @@ public class RegionRecovery {
     }
 
     /**
-     * Used for testing, accepts a recovery only after end of file is reached
-     */
-    public void setEndOfFileSuccessMode(){
-        NR_OF_LINES_TILL_SUCCESS=Integer.MAX_VALUE;
-    }
-    
-    /**
      * Supports error recovery by selecting the region containing the error
      */
     public RegionRecovery(SGLR sglr){
-        myParser=sglr;
-        regionSelector = new StructureSkipper(sglr);
-        newRegionSelector=new NewStructureSkipper(sglr);
+        myParser=sglr;        
     }
     
     private ParserHistory getHistory() {
@@ -56,65 +37,59 @@ public class RegionRecovery {
     /** *
      *  Returns info about the parser configuration at the start of the erroneous region 
      */
-    public IndentInfo getStartSkipPosition() {
+    public IndentInfo getStartLineErrorFragment() {
         return erroneousRegion.getStartSkip();
     }
     
     /**
      * returns the location of the first non-erroneous character
      */
-    public int getEndSkipPosition() {
+    public int getEndPositionErrorFragment() {
         return erroneousRegion.getEndSkip().getTokensSeen();
     }
 
     /**
      *  Returns error fragment including the left margin (needed for bridge-parsing)
      */
-    public String getErrorFragment() {
-        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartSkipPosition().getTokensSeen());
-        return getHistory().getFragment(tokIndexLine, getEndSkipPosition()-1);
+    public String getErrorFragmentWithLeftMargin() {
+        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartLineErrorFragment().getTokensSeen());
+        return getHistory().getFragment(tokIndexLine, getEndPositionErrorFragment()-1);
     }
     
-    public String getErrorFragmentPlusSeparator() {
-        int tokIndexLine=erroneousRegion.getStartSkip().getTokensSeen()+erroneousRegion.getAdditionalTokens().length; //getHistory().getTokensSeenStartLine(getStartSkipPosition().getTokensSeen());
-        return getHistory().getFragment(tokIndexLine, getEndSkipPosition()-1);
+    public String getErrorFragment() {
+        int tokIndexLine=erroneousRegion.getStartSkip().getTokensSeen();//+erroneousRegion.getAdditionalTokens().length; 
+        return getHistory().getFragment(tokIndexLine, getEndPositionErrorFragment()-1);
     }
 
     /**
      * Returns location where erroneous region starts, including left margin
      */
-    public int getErrorFragmentStartPosition() {
-        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartSkipPosition().getTokensSeen());
+    public int getStartPositionErrorFragment_InclLeftMargin() {
+        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartLineErrorFragment().getTokensSeen());
         return tokIndexLine;
     }
 
     public ArrayList<IndentInfo> getSkippedLines() {        
-        return getHistory().getLinesFromTo(erroneousRegion.getIndexHistoryStart(), getEndSkipPosition());
+        return getHistory().getLinesFromTo(erroneousRegion.getIndexHistoryStart(), getEndPositionErrorFragment());
     }      
 
     /**
      * Selects erroneous region based on layout 
      */
     public boolean selectErroneousFragment() throws IOException { 
-        newRegionSelector=new NewStructureSkipper(myParser);
-        regionSelector.clear();
-        regionSelector.setFailureIndex(getHistory().getIndexLastLine());
+        NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
+        //StructureSkipper regionSelector = new StructureSkipper(myParser);//TODO: use newregionSelector
+        //regionSelector.clear();
+        //regionSelector.setFailureIndex(getHistory().getIndexLastLine());
         newRegionSelector.setFailureIndex(getHistory().getIndexLastLine());
         errorDetectionLocation=getHistory().getIndexLastToken();
-        hasFoundErroneousRegion=false;         
-        //ArrayList<StructureSkipSuggestion> prevRegions=regionSelector.getPreviousSkipSuggestions();
         ArrayList<StructureSkipSuggestion> prevRegions=newRegionSelector.getPreviousSkipSuggestions();
         logRecoverInfo("PREVIOUS REGION");        
         if(trySetErroneousRegion(prevRegions)){
             ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
-            boolean findSmallerPart= trySetErroneousRegion(decomposedRegions);
-            if(findSmallerPart){
-               // ArrayList<StructureSkipSuggestion> childRegions=regionSelector.getPickErroneousChild(erroneousRegion);
-               // trySetErroneousRegion(childRegions);
-            }
+            trySetErroneousRegion(decomposedRegions);
             return true;
-        }
-        //ArrayList<StructureSkipSuggestion> currentRegions=regionSelector.getCurrentSkipSuggestions();
+        }        
         ArrayList<StructureSkipSuggestion> currentRegions=newRegionSelector.getCurrentSkipSuggestions();
         logRecoverInfo("CURRENT REGION");
         if(trySetErroneousRegion(currentRegions)){            
@@ -124,11 +99,7 @@ public class RegionRecovery {
         ArrayList<StructureSkipSuggestion> priorRegions=newRegionSelector.getPriorSkipSuggestions();
         if(trySetErroneousRegion(priorRegions)){
             ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
-            boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
-            if(findSmallerPart){
-                ArrayList<StructureSkipSuggestion> childRegions=newRegionSelector.getPickErroneousChild(erroneousRegion);
-                trySetErroneousRegion(childRegions);
-            }
+            trySetErroneousRegion(decomposedRegions);
             return true;
         }
         logRecoverInfo("FW-SIB REGIONS");
@@ -141,8 +112,7 @@ public class RegionRecovery {
         if(trySetErroneousRegion(siblingBackWardRegions)){            
             return true;
         }
-        logRecoverInfo("SURROUNDING-SIB REGIONS");
-        //System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        logRecoverInfo("SURROUNDING-SIB REGIONS");        
         ArrayList<StructureSkipSuggestion> siblingSurroundingRegions=newRegionSelector.getSibblingSurroundingSuggestions();
         if(trySetErroneousRegion(siblingSurroundingRegions)){            
             return true;
@@ -151,7 +121,8 @@ public class RegionRecovery {
         ArrayList<StructureSkipSuggestion> parentRegion=newRegionSelector.getParentSkipSuggestions();
         if(trySetErroneousRegion(parentRegion)){            
             return true;
-        }        
+        }
+        /*
         else {
             logRecoverInfo("PREFIX");
             erroneousRegion=regionSelector.getErroneousPrefix();
@@ -163,7 +134,15 @@ public class RegionRecovery {
                 trySetErroneousRegion(childRegions);
             }
             return findSmallerPart; //false;
+        }*/
+        erroneousRegion=new StructureSkipSuggestion();
+        if(getHistory().getIndexLastLine()>=0){
+            erroneousRegion.setSkipLocations(getHistory().getLine(0), getHistory().getLastLine(), 0, getHistory().getIndexLastLine());
+            ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
+            boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
+            return findSmallerPart; //false;
         }
+        return false;
     }
 
     private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) throws IOException {
@@ -171,12 +150,13 @@ public class RegionRecovery {
         int indexSkips=0;
         myParser.acceptingStack=null; 
         myParser.activeStacks.clear(); //undo success
-        while (indexSkips < regions.size() && !successCriterion()) {
+        boolean hasFoundErroneousRegion=false;
+        while (indexSkips < regions.size() && !hasFoundErroneousRegion) {
             aSkip = regions.get(indexSkips);            
             testRegion(aSkip);
+            hasFoundErroneousRegion=successCriterion();
             indexSkips++;            
-        }
-        hasFoundErroneousRegion=successCriterion();
+        }        
         if(hasFoundErroneousRegion){
             erroneousRegion=aSkip;   
             logRecoverInfo("Erroneous region set ");
@@ -185,40 +165,44 @@ public class RegionRecovery {
     }
 
     private void testRegion(StructureSkipSuggestion aSkip) throws IOException {
-       // System.out.println("MMMMMMMMMMM");
-        //System.out.println(getInputFragment(aSkip));
+        System.out.println("%%%%%%%%%%% TEST REGION %%%%%%%%%%%");
+        System.out.println(getInputFragment(aSkip));
         logRecoverInfoBlock(getInputFragment(aSkip));           
         IndentInfo endPos=aSkip.getEndSkip();
         getHistory().setTokenIndex(endPos.getTokensSeen());
         myParser.activeStacks.clear();
         myParser.acceptingStack=null;
         myParser.activeStacks.addAll(endPos.getStackNodes());        
-        for (char aChar : aSkip.getAdditionalTokens()) {
-            myParser.currentToken=aChar;
-           // System.out.print((char)aChar);
-            myParser.doParseStep();
-        }
-        if(aSkip.getAdditionalTokens().length>0){
-            //System.out.println("$$ skip additional characters $$");
-            aSkip.getStartSkip().fillStackNodes(myParser.activeStacks);
-            aSkip.getStartSkip().setTokensSeen(aSkip.getStartSkip().getTokensSeen() + aSkip.getAdditionalTokens().length);
-            aSkip.setAdditionalTokens(new char[0]);
-        }
+        parseAdditionalTokens(aSkip);
         int nrOfParsedLines=0;
-        logRecoverInfo("CONTINUE PARSING: ");
-        //System.out.println("CONTINUE PARSING: ");
+        logRecoverInfo("CONTINUE PARSING: "); 
+        System.out.println("%%%%%%%%%%% CONTINUE PARSING %%%%%%%%%%%");
         IndentationHandler indentHandler = new IndentationHandler();
         indentHandler.setInLeftMargin(false);
-        while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS) || !getHistory().hasFinishedRecoverTokens()) {                       
+        while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS)) {//|| !getHistory().hasFinishedRecoverTokens() 
             getHistory().readRecoverToken(myParser); 
-            indentHandler.updateIndentation(myParser.currentToken);
-           // System.out.print((char)myParser.currentToken);
-            logRecoverInfo((char)myParser.currentToken);            
+            indentHandler.updateIndentation(myParser.currentToken);           
+            logRecoverInfo((char)myParser.currentToken); 
+            System.out.print((char)myParser.currentToken);
             myParser.doParseStep();
             if(getHistory().getTokenIndex()>errorDetectionLocation && indentHandler.lineMarginEnded())
                 nrOfParsedLines++;
         }
         return;
+    }
+
+    private void parseAdditionalTokens(
+            StructureSkipSuggestion aSkip) throws IOException {
+        for (char aChar : aSkip.getAdditionalTokens()) {
+            myParser.currentToken=aChar;           
+            myParser.doParseStep();
+        }
+        if(aSkip.getAdditionalTokens().length>0){            
+            aSkip.getStartSkip().fillStackNodes(myParser.activeStacks);
+            aSkip.getEndSkip().fillStackNodes(myParser.activeStacks);
+            aSkip.getStartSkip().setTokensSeen(aSkip.getStartSkip().getTokensSeen() + aSkip.getAdditionalTokens().length);
+            aSkip.setAdditionalTokens(new char[0]);
+        }
     }
 
     public String getInputFragment(StructureSkipSuggestion aSkip) {

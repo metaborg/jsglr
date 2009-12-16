@@ -485,23 +485,18 @@ public class NewStructureSkipper implements IStructureSkipper {
     public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(StructureSkipSuggestion prevRegion) throws IOException{
         ArrayList<StructureSkipSuggestion> result = new ArrayList<StructureSkipSuggestion>();
         if(!prevRegion.canBeDecomposed()){ 
-            result.add(prevRegion);
+            //result.add(prevRegion);
             return result;
         }
         ArrayList<Integer> indentLevels=new ArrayList<Integer>();       
-        for (int i = prevRegion.getIndexHistoryStart()+1; i < prevRegion.getIndexHistoryEnd(); i++) {
-            int indentOfLine=getHistory().getLine(i).getIndentValue();
-            if(!indentLevels.contains(indentOfLine))
-                indentLevels.add(indentOfLine);
-        }
-        Collections.sort(indentLevels);
-        //indentLevels.remove(indentLevels.size()-1);       
-        System.out.println(indentLevels);
         for (int i = prevRegion.getIndexHistoryStart(); i < prevRegion.getIndexHistoryEnd(); i++) {
             int indentOfLine=getHistory().getLine(i).getIndentValue();
             if(!indentLevels.contains(indentOfLine))
                 indentLevels.add(indentOfLine);
         }
+        Collections.sort(indentLevels);
+        indentLevels.remove(0);       
+        System.out.println(indentLevels);        
         int indentOfLevel;
         int lineIndex;
         for (int level = 0; level < indentLevels.size(); level++) {

@@ -34,7 +34,7 @@ public class RecoveryConnector {
     
     private Map<Integer, char[]> getBPSuggestions(){
         Map<Integer, char[]> bpSuggestions = getBridges();
-        int startPos = skipRecovery.getErrorFragmentStartPosition();
+        int startPos = skipRecovery.getStartPositionErrorFragment_InclLeftMargin();
         
         Map<Integer, char[]> bpSuggestAbsolute = new HashMap<Integer, char[]>();
         for (Integer aKey : bpSuggestions.keySet()) {
@@ -71,7 +71,7 @@ public class RecoveryConnector {
         boolean skipSucceeded = skipRecovery.selectErroneousFragment(); //decides whether whitespace parse makes sense
         mySGLR.acceptingStack=null;
         long startSkip=System.currentTimeMillis();
-        String errorFragment = skipRecovery.getErrorFragment();
+        String errorFragment = skipRecovery.getErrorFragmentWithLeftMargin();
         long durationSkip=System.currentTimeMillis()-startSkip;
         Tools.debug("Skip time: "+ durationSkip);
         //System.err.print("Skip time: "+ durationSkip+ "  ");
@@ -103,7 +103,7 @@ public class RecoveryConnector {
         Tools.debug("FineGrained Repair Failed");
         //WHITESPACE REPAIR
         if (skipSucceeded) {    
-            whiteSpaceParse(skipRecovery.getErrorFragmentPlusSeparator());
+            whiteSpaceParse(skipRecovery.getErrorFragment());
             //whiteSpaceParse(errorFragment); 
             if(recoverySucceeded()){
                 Tools.debug("WhiteSpace Repair Succeeded");
@@ -144,7 +144,7 @@ public class RecoveryConnector {
     }
 
     private void whiteSpaceParse(String errorFragment) throws IOException {
-        mySGLR.activeStacks.addAll(skipRecovery.getStartSkipPosition().getStackNodes());            
+        mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());            
         tryParsing(errorFragment, true);
         parseRemainingTokens();
     }
@@ -152,12 +152,12 @@ public class RecoveryConnector {
     private void tryFineGrainedRepair() throws IOException {
         FineGrainedRepair fineGrained=new FineGrainedRepair(mySGLR);   
         fineGrained.setBpSuggestions(getBPSuggestions());
-        fineGrained.findRecoverBranch(skipRecovery.getSkippedLines(), skipRecovery.getEndSkipPosition());        
+        fineGrained.findRecoverBranch(skipRecovery.getSkippedLines(), skipRecovery.getEndPositionErrorFragment());        
     }
 
     private void tryBridgeRepair(String errorFragment) throws IOException {
         String repairedFragment = repairBridges(errorFragment);
-        mySGLR.activeStacks.addAll(skipRecovery.getStartSkipPosition().getStackNodes());   
+        mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());   
         tryParsing(repairedFragment, false);      
         parseRemainingTokens();
     }
@@ -199,7 +199,7 @@ public class RecoveryConnector {
     
     public void parseRemainingTokens() throws IOException{
         //Tools.debug("REMAINING: ");
-        getHistory().setTokenIndex(skipRecovery.getEndSkipPosition());
+        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
         //System.out.println("@@@@@@@@@@@@@");
         while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
             getHistory().readRecoverToken(mySGLR);

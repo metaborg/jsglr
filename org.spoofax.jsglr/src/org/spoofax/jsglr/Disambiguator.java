@@ -280,7 +280,7 @@ public class Disambiguator {
         if (sort != null && filterTopSort) {
             t = selectOnTopSort(t, sort);
             if (t == null)
-                throw new SGLRException(parser, "Desired start symbol not found");
+                throw new StartSymbolException(parser, "Desired start symbol not found");
         }
         
         return t;

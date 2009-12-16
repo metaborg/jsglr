@@ -14,14 +14,6 @@ public class RegionRecovery {
     private StructureSkipSuggestion erroneousRegion;    
     private int errorDetectionLocation;
     private static int NR_OF_LINES_TILL_SUCCESS=3;
-    private boolean useDebugMode;
-    
-    /**
-     * Prints information about the selected regions to the console
-     */
-    public void setUseDebugMode(boolean useDebugMode) {
-        this.useDebugMode = useDebugMode;
-    }
 
     /**
      * Supports error recovery by selecting the region containing the error
@@ -78,71 +70,51 @@ public class RegionRecovery {
      */
     public boolean selectErroneousFragment() throws IOException { 
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
-        //StructureSkipper regionSelector = new StructureSkipper(myParser);//TODO: use newregionSelector
-        //regionSelector.clear();
-        //regionSelector.setFailureIndex(getHistory().getIndexLastLine());
-        newRegionSelector.setFailureIndex(getHistory().getIndexLastLine());
+        int failureIndex=getHistory().getIndexLastLine();
         errorDetectionLocation=getHistory().getIndexLastToken();
-        ArrayList<StructureSkipSuggestion> prevRegions=newRegionSelector.getPreviousSkipSuggestions();
-        logRecoverInfo("PREVIOUS REGION");        
+        ArrayList<StructureSkipSuggestion> prevRegions=newRegionSelector.getPreviousSkipSuggestions(failureIndex);
+        //System.out.println("PREVIOUS REGION");        
         if(trySetErroneousRegion(prevRegions)){
             ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
             trySetErroneousRegion(decomposedRegions);
             return true;
         }        
-        ArrayList<StructureSkipSuggestion> currentRegions=newRegionSelector.getCurrentSkipSuggestions();
-        logRecoverInfo("CURRENT REGION");
+        ArrayList<StructureSkipSuggestion> currentRegions=newRegionSelector.getCurrentSkipSuggestions(failureIndex);
+        //System.out.println("CURRENT REGION");
         if(trySetErroneousRegion(currentRegions)){            
             return true;
         }
-        logRecoverInfo("PRIOR REGIONS");
-        ArrayList<StructureSkipSuggestion> priorRegions=newRegionSelector.getPriorSkipSuggestions();
+        //System.out.println("PRIOR REGIONS");
+        ArrayList<StructureSkipSuggestion> priorRegions=newRegionSelector.getPriorSkipSuggestions(failureIndex);
         if(trySetErroneousRegion(priorRegions)){
             ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
             trySetErroneousRegion(decomposedRegions);
             return true;
         }
-        logRecoverInfo("FW-SIB REGIONS");
-        ArrayList<StructureSkipSuggestion> siblingForWardRegions=newRegionSelector.getSibblingForwardSuggestions();
+        //System.out.println("FW-SIB REGIONS");
+        ArrayList<StructureSkipSuggestion> siblingForWardRegions=newRegionSelector.getSibblingForwardSuggestions(failureIndex);
         if(trySetErroneousRegion(siblingForWardRegions)){            
             return true;
         }
-        logRecoverInfo("BW-SIB REGIONS");
-        ArrayList<StructureSkipSuggestion> siblingBackWardRegions=newRegionSelector.getSibblingBackwardSuggestions();
+        //System.out.println("BW-SIB REGIONS");
+        ArrayList<StructureSkipSuggestion> siblingBackWardRegions=newRegionSelector.getSibblingBackwardSuggestions(failureIndex);
         if(trySetErroneousRegion(siblingBackWardRegions)){            
             return true;
         }
-        logRecoverInfo("SURROUNDING-SIB REGIONS");        
-        ArrayList<StructureSkipSuggestion> siblingSurroundingRegions=newRegionSelector.getSibblingSurroundingSuggestions();
+        //System.out.println("SURROUNDING-SIB REGIONS");        
+        ArrayList<StructureSkipSuggestion> siblingSurroundingRegions=newRegionSelector.getSibblingSurroundingSuggestions(failureIndex);
         if(trySetErroneousRegion(siblingSurroundingRegions)){            
             return true;
         }
-        logRecoverInfo("PARENT REGION");
-        ArrayList<StructureSkipSuggestion> parentRegion=newRegionSelector.getParentSkipSuggestions();
+        //System.out.println("PARENT REGION");
+        ArrayList<StructureSkipSuggestion> parentRegion=newRegionSelector.getParentSkipSuggestions(failureIndex);
         if(trySetErroneousRegion(parentRegion)){            
             return true;
         }
-        /*
-        else {
-            logRecoverInfo("PREFIX");
-            erroneousRegion=regionSelector.getErroneousPrefix();
-            logRecoverInfo(getHistory().getFragment(erroneousRegion));
-            ArrayList<StructureSkipSuggestion> decomposedRegions=regionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
-            boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
-            if(findSmallerPart){
-                ArrayList<StructureSkipSuggestion> childRegions=regionSelector.getPickErroneousChild(erroneousRegion);
-                trySetErroneousRegion(childRegions);
-            }
-            return findSmallerPart; //false;
-        }*/
-        erroneousRegion=new StructureSkipSuggestion();
-        if(getHistory().getIndexLastLine()>=0){
-            erroneousRegion.setSkipLocations(getHistory().getLine(0), getHistory().getLastLine(), 0, getHistory().getIndexLastLine());
-            ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
-            boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
-            return findSmallerPart; //false;
-        }
-        return false;
+        erroneousRegion=newRegionSelector.getErroneousPrefix();
+        ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
+        boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
+        return findSmallerPart; 
     }
 
     private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) throws IOException {
@@ -153,42 +125,40 @@ public class RegionRecovery {
         boolean hasFoundErroneousRegion=false;
         while (indexSkips < regions.size() && !hasFoundErroneousRegion) {
             aSkip = regions.get(indexSkips);            
-            testRegion(aSkip);
-            hasFoundErroneousRegion=successCriterion();
+            hasFoundErroneousRegion=testRegion(aSkip);
             indexSkips++;            
         }        
         if(hasFoundErroneousRegion){
             erroneousRegion=aSkip;   
-            logRecoverInfo("Erroneous region set ");
+            //System.out.println("Erroneous region set ");
         }
         return hasFoundErroneousRegion;
     }
 
-    private void testRegion(StructureSkipSuggestion aSkip) throws IOException {
-        System.out.println("%%%%%%%%%%% TEST REGION %%%%%%%%%%%");
-        System.out.println(getInputFragment(aSkip));
-        logRecoverInfoBlock(getInputFragment(aSkip));           
+    private boolean testRegion(StructureSkipSuggestion aSkip) throws IOException {
+        //System.out.println("%%%%%%%%%%% TEST REGION %%%%%%%%%%%");
+        //System.out.println(getInputFragment(aSkip));
+        //System.out.printlnBlock(getInputFragment(aSkip));           
         IndentInfo endPos=aSkip.getEndSkip();
         getHistory().setTokenIndex(endPos.getTokensSeen());
         myParser.activeStacks.clear();
         myParser.acceptingStack=null;
         myParser.activeStacks.addAll(endPos.getStackNodes());        
         parseAdditionalTokens(aSkip);
-        int nrOfParsedLines=0;
-        logRecoverInfo("CONTINUE PARSING: "); 
-        System.out.println("%%%%%%%%%%% CONTINUE PARSING %%%%%%%%%%%");
+        int nrOfParsedLines=0; 
+        //System.out.println("%%%%%%%%%%% CONTINUE PARSING %%%%%%%%%%%");
         IndentationHandler indentHandler = new IndentationHandler();
         indentHandler.setInLeftMargin(false);
         while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS)) {//|| !getHistory().hasFinishedRecoverTokens() 
             getHistory().readRecoverToken(myParser); 
             indentHandler.updateIndentation(myParser.currentToken);           
-            logRecoverInfo((char)myParser.currentToken); 
-            System.out.print((char)myParser.currentToken);
+            //System.out.println((char)myParser.currentToken); 
+            //System.out.print((char)myParser.currentToken);
             myParser.doParseStep();
             if(getHistory().getTokenIndex()>errorDetectionLocation && indentHandler.lineMarginEnded())
                 nrOfParsedLines++;
         }
-        return;
+        return successCriterion();
     }
 
     private void parseAdditionalTokens(
@@ -205,28 +175,12 @@ public class RegionRecovery {
         }
     }
 
-    public String getInputFragment(StructureSkipSuggestion aSkip) {
+    private String getInputFragment(StructureSkipSuggestion aSkip) {
         return getHistory().getFragment(aSkip.getStartSkip().getTokensSeen(), aSkip.getEndSkip().getTokensSeen()-1);
     }
 
     private boolean successCriterion() {
         return myParser.activeStacks.size() > 0 || myParser.acceptingStack!=null;
     }
-    
-    private void logRecoverInfo(Object s) {
-        if(useDebugMode){
-            System.err.println(s);
-        }
-    } 
-    
-    private void logRecoverInfoBlock(Object s) {
-        if(useDebugMode){
-            System.err.println("------------------------");
-            System.err.println("");
-            System.err.println(s);            
-            System.err.println("");
-            System.err.println("------------------------");
-        }
-    } 
 
 }

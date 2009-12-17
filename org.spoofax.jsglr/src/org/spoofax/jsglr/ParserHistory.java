@@ -57,7 +57,7 @@ public class ParserHistory {
                     indentHandler.updateIndentation(myParser.currentToken);
                     keepToken((char)myParser.currentToken);   
                     if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
-                        keepNewLinePoint(myParser, true, indentHandler);
+                        keepNewLinePoint(myParser, myParser.tokensSeen-1, true, indentHandler);
                 }
             }
         }
@@ -65,7 +65,7 @@ public class ParserHistory {
         if(keepRecoveredLines){
             recoveryIndentHandler.updateIndentation(myParser.currentToken);
             if(recoveryIndentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
-                keepNewLinePoint(myParser, false, recoveryIndentHandler);
+                keepNewLinePoint(myParser, tokenIndex, false, recoveryIndentHandler);
         }
         tokenIndex++;
     }
@@ -87,7 +87,7 @@ public class ParserHistory {
         keepToken((char)myParser.currentToken);
         tokenIndex++;
         if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
-            keepNewLinePoint(myParser, false, indentHandler);
+            keepNewLinePoint(myParser, myParser.tokensSeen-1, false, indentHandler);
     }
     
     public void keepInitialState(SGLR myParser) {        
@@ -107,11 +107,11 @@ public class ParserHistory {
         }
     }
     
-    private void keepNewLinePoint(SGLR myParser, boolean inRecoverMode, IndentationHandler anIndentHandler) {
+    private void keepNewLinePoint(SGLR myParser, int tokSeen ,boolean inRecoverMode, IndentationHandler anIndentHandler) {
         int indent = anIndentHandler.getIndentValue();
-        IndentInfo newLinePoint= new IndentInfo(myParser.lineNumber, myParser.tokensSeen-1, indent);
+        IndentInfo newLinePoint= new IndentInfo(myParser.lineNumber, tokSeen, indent);
         newLinePoints.add(newLinePoint);
-        System.out.println(newLinePoints.size()-1+" NEWLINE ("+newLinePoint.getIndentValue()+")");
+        //System.out.println(newLinePoints.size()-1+" NEWLINE ("+newLinePoint.getIndentValue()+")"+newLinePoint.getTokensSeen());
         if(!inRecoverMode){
             newLinePoint.fillStackNodes(myParser.activeStacks);           
             if(newLinePoints.size()> MAX_SIZE_NEW_LINE_POINTS)

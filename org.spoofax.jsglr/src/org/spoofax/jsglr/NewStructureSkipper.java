@@ -159,7 +159,7 @@ public class NewStructureSkipper {
         }
         Collections.sort(indentLevels);
         indentLevels.remove(0);       
-        System.out.println(indentLevels);        
+        //System.out.println(indentLevels);        
         int indentOfLevel;
         int lineIndex;
         for (int level = 0; level < indentLevels.size(); level++) {
@@ -168,9 +168,14 @@ public class NewStructureSkipper {
             while (lineIndex < prevRegion.getIndexHistoryEnd()) {
                 int indentOfLine=getHistory().getLine(lineIndex).getIndentValue();
                 if(indentOfLine==indentOfLevel){                    
-                    ArrayList<StructureSkipSuggestion> regions = selectRegion(lineIndex);                     
+                    ArrayList<StructureSkipSuggestion> regions = selectRegion(lineIndex);              
                     if(regions.size()>0){
+                        //System.out.println("index: "+lineIndex +" indent: "+indentOfLevel);
                         lineIndex=regions.get(0).getIndexHistoryEnd();
+                        //System.out.println();
+                        //System.out.println(getHistory().getFragment(regions.get(0)));
+                        //System.out.println();
+                        //System.out.println("new index: "+lineIndex +" end indent: "+getHistory().getLine(lineIndex).getIndentValue());
                         Collections.reverse(regions);
                         result.addAll(regions);
                     }

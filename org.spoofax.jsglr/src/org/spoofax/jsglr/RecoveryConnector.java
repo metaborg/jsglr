@@ -215,11 +215,11 @@ public class RecoveryConnector {
     }
     
     public void parseRemainingTokens() throws IOException{
-        //System.out.println("------------- REMAINING CHARACTERS --------------- ");
+        System.out.println("------------- REMAINING CHARACTERS --------------- ");
         getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());        
         while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
             getHistory().readRecoverToken(mySGLR, true);
-            //System.out.print((char)mySGLR.currentToken);
+            System.out.print((char)mySGLR.currentToken);
             mySGLR.doParseStep();            
         }        
     }

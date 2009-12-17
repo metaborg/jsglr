@@ -59,7 +59,7 @@ public class FineGrainedRepair {
         IndentInfo recoverLine = newLinePoints.get(indexLineRecovery); 
         setParserForRecovery(recoverLine);            
         myParser.setFineGrainedMode(false);
-        getHistory().readRecoverToken(myParser);            
+        getHistory().readRecoverToken(myParser, false);            
         myParser.doParseStep();            
         myParser.setFineGrainedMode(true);
         if(indexLineRecovery<newLinePoints.size()-1){
@@ -107,7 +107,7 @@ public class FineGrainedRepair {
         //Tools.debug("Enter recoverLineAndContinueParse");
         while (myParser.activeStacks.size() > 0 && !getHistory().hasFinishedRecoverTokens()){
             handleBPSuggestions();
-            getHistory().readRecoverToken(myParser);            
+            getHistory().readRecoverToken(myParser, false);            
             Tools.debug((char)myParser.currentToken + "  ("+getHistory().getTokenIndex()+")");  
             //myParser.logRecoverSituation();
             myParser.doParseStep();            

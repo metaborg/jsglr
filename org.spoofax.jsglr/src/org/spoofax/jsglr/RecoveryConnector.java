@@ -102,8 +102,12 @@ public class RecoveryConnector {
         }
         Tools.debug("FineGrained Repair Failed");
         //WHITESPACE REPAIR
-        if (skipSucceeded) {    
-            whiteSpaceParse(skipRecovery.getErrorFragment());
+        if (skipSucceeded) { 
+            getHistory().deleteLinesFrom(skipRecovery.getStartIndexErrorFragment());//TODO: integrate with FG and BP
+            getHistory().resetRecoveryIndentHandler(skipRecovery.getStartLineErrorFragment().getIndentValue());
+            parseErrorFragmentAsWhiteSpace();
+            parseRemainingTokens();
+            //whiteSpaceParse();
             //whiteSpaceParse(errorFragment); 
             if(recoverySucceeded()){
                 Tools.debug("WhiteSpace Repair Succeeded");
@@ -143,7 +147,8 @@ public class RecoveryConnector {
         return hasSucceeded;
     }
 
-    private void whiteSpaceParse(String errorFragment) throws IOException {
+    private void whiteSpaceParse() throws IOException {
+        String errorFragment=skipRecovery.getErrorFragment();
         mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());            
         tryParsing(errorFragment, true);
         parseRemainingTokens();
@@ -197,12 +202,23 @@ public class RecoveryConnector {
         }       
     }
     
+    public void parseErrorFragmentAsWhiteSpace() throws IOException{
+        //System.out.println("---------- Start WhiteSpace Parsing ----------");
+        mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());
+        getHistory().setTokenIndex(skipRecovery.getStartPositionErrorFragment());
+        while((getHistory().getTokenIndex()<skipRecovery.getEndPositionErrorFragment()) && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
+            getHistory().readRecoverToken(mySGLR, true);
+            //System.out.print((char)mySGLR.currentToken);
+            parseAsLayout();           
+        }
+        //System.out.println("----------- End WhiteSpace Parsing ---------");
+    }
+    
     public void parseRemainingTokens() throws IOException{
-        //Tools.debug("REMAINING: ");
-        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
-        //System.out.println("@@@@@@@@@@@@@");
+        //System.out.println("------------- REMAINING CHARACTERS --------------- ");
+        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());        
         while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
-            getHistory().readRecoverToken(mySGLR);
+            getHistory().readRecoverToken(mySGLR, true);
             //System.out.print((char)mySGLR.currentToken);
             mySGLR.doParseStep();            
         }        

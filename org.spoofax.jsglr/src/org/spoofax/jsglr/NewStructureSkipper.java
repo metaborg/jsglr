@@ -138,10 +138,10 @@ public class NewStructureSkipper {
         return parentSkips;
     }
 
-    public StructureSkipSuggestion getErroneousPrefix() throws IOException {
+    public StructureSkipSuggestion getErroneousPrefix(int failureIndex) throws IOException {
         StructureSkipSuggestion prefix=new StructureSkipSuggestion();
         if(getHistory().getIndexLastLine()>=0)
-            prefix.setSkipLocations(getHistory().getLine(0), getHistory().getLastLine(), 0, getHistory().getIndexLastLine());
+            prefix.setSkipLocations(getHistory().getLine(0), getHistory().getLine(failureIndex), 0, failureIndex);
         return prefix;
     }
 
@@ -427,7 +427,7 @@ public class NewStructureSkipper {
 
     private String readLine(int index) throws IOException {
         while(getHistory().getIndexLastLine()<=index && myParser.currentToken!=SGLR.EOF)
-            getHistory().readRecoverToken(myParser);
+            getHistory().readRecoverToken(myParser, false);
         if(index<=getHistory().getIndexLastLine()){
             IndentInfo line=getHistory().getLine(index);
             return readLine(line);
@@ -455,9 +455,9 @@ public class NewStructureSkipper {
         IndentationHandler skipIndentHandler=new IndentationHandler();
         getHistory().setTokenIndex(Math.max(0, line.getTokensSeen()-1));        
         skipIndentHandler.setInLeftMargin(false);
-        getHistory().readRecoverToken(myParser);
+        getHistory().readRecoverToken(myParser, false);
         while(myParser.currentToken!=SGLR.EOF){
-            getHistory().readRecoverToken(myParser);            
+            getHistory().readRecoverToken(myParser, false);            
             skipIndentHandler.updateIndentation(myParser.currentToken);
             if(skipIndentHandler.lineMarginEnded()){
                 return indexLine+=1;

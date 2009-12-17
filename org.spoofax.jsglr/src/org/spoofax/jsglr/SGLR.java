@@ -319,7 +319,7 @@ public class SGLR {
                 history.keepTokenAndState(this);
                 doParseStep(); 
                 //recoverHandler.afterParseStep();
-                //  Tools.debug("SGLR: "+(char)currentToken);             
+                //System.out.print((char)currentToken);             
             } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
             
             if(useIntegratedRecovery && acceptingStack==null){                

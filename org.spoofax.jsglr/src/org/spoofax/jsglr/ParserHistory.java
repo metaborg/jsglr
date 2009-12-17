@@ -8,7 +8,8 @@ public class ParserHistory {
     private final static int MAX_SIZE_NEW_LINE_POINTS = 150;
     private final static int MIN_SIZE_NEW_LINE_POINTS = 50;
     private IndentationHandler indentHandler;
-
+    private IndentationHandler recoveryIndentHandler;
+    
     private ArrayList<IndentInfo> newLinePoints;      
     public char[] recoverTokenStream;
     private int recoverTokenCount;
@@ -37,12 +38,18 @@ public class ParserHistory {
         recoverTokenCount = 0;
         tokenIndex=0;
         indentHandler = new IndentationHandler();
+        recoveryIndentHandler=new IndentationHandler();
     }
     
+    public void resetRecoveryIndentHandler(int indentValue){
+        recoveryIndentHandler=new IndentationHandler();
+        recoveryIndentHandler.setInLeftMargin(true);
+        recoveryIndentHandler.setIndentValue(indentValue);
+    }
     /*
      * Set current token of parser based on recover tokens or read from new tokens
      */
-    public void readRecoverToken(SGLR myParser) throws IOException{  
+    public void readRecoverToken(SGLR myParser, boolean keepRecoveredLines) throws IOException{  
         if (hasFinishedRecoverTokens()) {             
             if(myParser.currentToken!=SGLR.EOF){                
                 if(getIndexLastToken()>0 && recoverTokenStream[getIndexLastToken()]!=SGLR.EOF){
@@ -50,11 +57,16 @@ public class ParserHistory {
                     indentHandler.updateIndentation(myParser.currentToken);
                     keepToken((char)myParser.currentToken);   
                     if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
-                        keepNewLinePoint(myParser, true);
+                        keepNewLinePoint(myParser, true, indentHandler);
                 }
             }
         }
         myParser.currentToken = recoverTokenStream[tokenIndex];
+        if(keepRecoveredLines){
+            recoveryIndentHandler.updateIndentation(myParser.currentToken);
+            if(recoveryIndentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
+                keepNewLinePoint(myParser, false, recoveryIndentHandler);
+        }
         tokenIndex++;
     }
     
@@ -75,7 +87,7 @@ public class ParserHistory {
         keepToken((char)myParser.currentToken);
         tokenIndex++;
         if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
-            keepNewLinePoint(myParser, false);
+            keepNewLinePoint(myParser, false, indentHandler);
     }
     
     public void keepInitialState(SGLR myParser) {        
@@ -95,10 +107,11 @@ public class ParserHistory {
         }
     }
     
-    private void keepNewLinePoint(SGLR myParser, boolean inRecoverMode) {
-        int indent = indentHandler.getIndentValue();
+    private void keepNewLinePoint(SGLR myParser, boolean inRecoverMode, IndentationHandler anIndentHandler) {
+        int indent = anIndentHandler.getIndentValue();
         IndentInfo newLinePoint= new IndentInfo(myParser.lineNumber, myParser.tokensSeen-1, indent);
         newLinePoints.add(newLinePoint);
+        System.out.println(newLinePoints.size()-1+" NEWLINE ("+newLinePoint.getIndentValue()+")");
         if(!inRecoverMode){
             newLinePoint.fillStackNodes(myParser.activeStacks);           
             if(newLinePoints.size()> MAX_SIZE_NEW_LINE_POINTS)
@@ -180,6 +193,18 @@ public class ParserHistory {
              }
         }
         return result;
+    }
+
+    public void deleteLinesFrom(int startIndexErrorFragment) {
+        if(startIndexErrorFragment>0 && startIndexErrorFragment<newLinePoints.size()-1){
+            ArrayList<IndentInfo> shrinkedList=new ArrayList<IndentInfo>();
+            shrinkedList.addAll(newLinePoints.subList(0, startIndexErrorFragment));
+            newLinePoints=shrinkedList;
+        }
+        else{
+            System.err.println("Unexpected index of history new-line-points");
+            System.out.println("Unexpected index of history new-line-points");
+        }
     }
     
 }

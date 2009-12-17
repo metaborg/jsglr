@@ -40,6 +40,10 @@ public class RegionRecovery {
         return erroneousRegion.getEndSkip().getTokensSeen();
     }
 
+    public int getStartPositionErrorFragment() {
+        return erroneousRegion.getStartSkip().getTokensSeen();
+    }
+
     /**
      *  Returns error fragment including the left margin (needed for bridge-parsing)
      */
@@ -49,10 +53,10 @@ public class RegionRecovery {
     }
     
     public String getErrorFragment() {
-        int tokIndexLine=erroneousRegion.getStartSkip().getTokensSeen();//+erroneousRegion.getAdditionalTokens().length; 
+        int tokIndexLine=getStartPositionErrorFragment();//+erroneousRegion.getAdditionalTokens().length; 
         return getHistory().getFragment(tokIndexLine, getEndPositionErrorFragment()-1);
     }
-
+    
     /**
      * Returns location where erroneous region starts, including left margin
      */
@@ -111,7 +115,7 @@ public class RegionRecovery {
         if(trySetErroneousRegion(parentRegion)){            
             return true;
         }
-        erroneousRegion=newRegionSelector.getErroneousPrefix();
+        erroneousRegion=newRegionSelector.getErroneousPrefix(failureIndex);
         ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
         boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
         return findSmallerPart; 
@@ -150,7 +154,7 @@ public class RegionRecovery {
         IndentationHandler indentHandler = new IndentationHandler();
         indentHandler.setInLeftMargin(false);
         while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS)) {//|| !getHistory().hasFinishedRecoverTokens() 
-            getHistory().readRecoverToken(myParser); 
+            getHistory().readRecoverToken(myParser,false); 
             indentHandler.updateIndentation(myParser.currentToken);           
             //System.out.println((char)myParser.currentToken); 
             //System.out.print((char)myParser.currentToken);
@@ -181,6 +185,10 @@ public class RegionRecovery {
 
     private boolean successCriterion() {
         return myParser.activeStacks.size() > 0 || myParser.acceptingStack!=null;
+    }
+
+    public int getStartIndexErrorFragment() { //TODO: erroneous region to recovery connector
+        return erroneousRegion.getIndexHistoryStart();
     }
 
 }

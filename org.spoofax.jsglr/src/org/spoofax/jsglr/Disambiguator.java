@@ -1012,18 +1012,17 @@ public class Disambiguator {
                 && prodType != ProductionType.AVOID) {
 
             Label prod = getLabel(t);
-            ParseNode n = (ParseNode) t;
 
             while (prod.isInjection()) {
-                IParseNode x = n.getKids().get(0);
+                t = ((ParseNode) t).getKids().get(0);
 
-                int prodTypeX = getProductionType(x);
+                int prodTypeX = getProductionType(t);
 
-                if (x instanceof ParseNode && prodTypeX != ProductionType.PREFER
+                if (t instanceof ParseNode && prodTypeX != ProductionType.PREFER
                         && prodTypeX != ProductionType.AVOID) {
-                    prod = getLabel(x);
+                    prod = getLabel(t);
                 } else {
-                    return n;
+                    return t;
                 }
             }
         }

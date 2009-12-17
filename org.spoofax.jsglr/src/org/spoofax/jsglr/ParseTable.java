@@ -52,6 +52,12 @@ public class ParseTable implements Serializable {
     transient public AFun applAFun;
 
     transient public AFun ambAFun;
+    
+    transient private ATerm injection1Appl;
+    
+    transient private ATerm injection2Appl;
+    
+    transient private ATerm litStringAppl;
 
     private Label[] injections;
     
@@ -68,14 +74,17 @@ public class ParseTable implements Serializable {
     private transient HashMap<RangeList, RangeList> rangesCache = new HashMap<RangeList, RangeList>();
     
     public ParseTable(ATerm pt) throws InvalidParseTableException {
-        parse(pt);
         initAFuns(pt.getFactory());
+        parse(pt);
     }
 
     public void initAFuns(ATermFactory factory) {
         this.factory = factory;
         applAFun = factory.makeAFun("appl", 2, false);
         ambAFun = factory.makeAFun("amb", 1, false);
+        injection1Appl = factory.parse("prod([<term>],cf(sort(<term>)),<term>)");
+        injection2Appl = factory.parse("prod([<term>],lex(sort(<str>)),<term>)");
+        litStringAppl = factory.parse("lit(<str>)");
     }
 
     public ATermFactory getFactory() {
@@ -190,16 +199,16 @@ public class ParseTable implements Serializable {
     @SuppressWarnings("unchecked")
 	private boolean isInjection(ATermAppl prod) {
 
-        List r = prod.match("prod([<term>],cf(sort(<term>)),<term>)");
-        if (r != null && r.size() == 1) {
+        List r = prod.match(injection1Appl);
+        if (r != null && r.size() >= 1) {
             ATerm x = (ATerm) r.get(0);
-            return !(x.match("lit(<str>)") == null);
+            return x.match(litStringAppl) == null;
         }
 
-        r = prod.match("prod([<term>],lex(sort(<str>)),<term>)");
-        if (r != null && r.size() == 1) {
+        r = prod.match(injection2Appl);
+        if (r != null && r.size() >= 1) {
             ATerm x = (ATerm) r.get(0);
-            return !(x.match("lit(<str)") == null);
+            return x.match("lit(<str>)") == null;
         }
 
         return false;

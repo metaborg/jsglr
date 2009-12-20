@@ -2,16 +2,15 @@ package org.spoofax.interpreter.library.jsglr;
 
 import java.util.WeakHashMap;
 
-import org.spoofax.interpreter.adapter.aterm.WrappedATerm;
-import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.InvalidParseTableException;
 import org.spoofax.jsglr.ParseTable;
+
+import aterm.ATerm;
 
 public class JSGLR_open_parsetable extends JSGLRPrimitive {
     
@@ -19,13 +18,9 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
     
     private final WeakHashMap<IStrategoTerm, IStrategoInt> parseTableCache =
         new WeakHashMap<IStrategoTerm, IStrategoInt>();
-    
-    private final TermConverter wrappedFactoryConverter;
 
-	public JSGLR_open_parsetable(WrappedATermFactory factory) {
-		super("JSGLR_open_parsetable", 0, 1);
-		
-		wrappedFactoryConverter = new TermConverter(factory);
+	public JSGLR_open_parsetable() {
+		super("JSGLR_open_parsetable", 0, 1);		
 	}
 
 	@Override
@@ -40,13 +35,11 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
 	        return true;
 	    }
 	    
-	    WrappedATerm tableTerm = tvars[0] instanceof WrappedATerm
-	            ? (WrappedATerm) tvars[0]
-	            : (WrappedATerm) wrappedFactoryConverter.convert(tvars[0]);
+	    ATerm tableTerm = getATermConverter(env).convert(tvars[0]);
 		
 		JSGLRLibrary lib = getLibrary(env);
 		try {
-			ParseTable pt = lib.getParseTableManager().loadFromTerm(tableTerm.getATerm());
+			ParseTable pt = lib.getParseTableManager().loadFromTerm(tableTerm);
 			IStrategoInt result = env.getFactory().makeInt(lib.addParseTable(pt));
             
 			env.setCurrent(result);			

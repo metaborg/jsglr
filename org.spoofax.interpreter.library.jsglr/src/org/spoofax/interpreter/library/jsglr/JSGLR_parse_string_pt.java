@@ -2,13 +2,9 @@ package org.spoofax.interpreter.library.jsglr;
 
 import static org.spoofax.interpreter.core.Tools.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 
-import org.spoofax.interpreter.adapter.aterm.WrappedATerm;
-import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Tools;
@@ -16,28 +12,31 @@ import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.ParseTable;
 import org.spoofax.jsglr.SGLR;
 import org.spoofax.jsglr.SGLRException;
 
+import aterm.ATerm;
+import aterm.ATermFactory;
+
 public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 
-	private final WrappedATermFactory factory;
+	private final ATermFactory atermFactory;
 	
 	private SGLRException lastException;
 	
 	private String lastPath;
 
-	protected JSGLR_parse_string_pt(WrappedATermFactory factory) {
+	protected JSGLR_parse_string_pt(ATermFactory factory) {
 		super("JSGLR_parse_string_pt", 1, 4);
-		this.factory = factory;
+		this.atermFactory = factory;
 	}
 	
-	protected JSGLR_parse_string_pt(WrappedATermFactory factory, String name, int svars, int tvars) {
+	protected JSGLR_parse_string_pt(ATermFactory factory, String name, int svars, int tvars) {
 		super(name, svars, tvars);
-		this.factory = factory;
+		this.atermFactory = factory;
 	}
 	
 	public String getLastPath() {
@@ -82,7 +81,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			return false;
 
 		try {
-			IStrategoTerm result = call(env, asJavaString(tvars[0]), table, startSymbol, tvars[0] instanceof WrappedATerm);
+			IStrategoTerm result = call(env, (IStrategoString) tvars[0], table, startSymbol);
 			env.setCurrent(result);
 			return result != null;
 		} catch (IOException e) {
@@ -91,25 +90,22 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			return false;
 		} catch (SGLRException e) {
 			lastException = e;
-			IStrategoTerm errorTerm = factory.wrapTerm(e.toTerm(lastPath));
-			env.setCurrent(TermConverter.convert(env.getFactory(), errorTerm));
+			IStrategoTerm errorTerm = getATermConverter(env).convert(e.toTerm(lastPath));
+			env.setCurrent(errorTerm);
 			
 			// FIXME: Stratego doesn't seem to print the erroneous line in Java
 			return svars[0].evaluate(env);
 		}
 	}
 	
-	public IStrategoTerm call(IContext env, String input,
-			ParseTable table, String startSymbol, boolean outputWrappedATerm)
+	protected IStrategoTerm call(IContext env, IStrategoString input,
+			ParseTable table, String startSymbol)
 			throws InterpreterException, IOException, SGLRException {
 		
-		SGLR parser = new SGLR(factory.getFactory(), table);
+		SGLR parser = new SGLR(atermFactory, table);
 		
-		// TODO: Use SGLR.parse(String, String) instead
-		InputStream is = new ByteArrayInputStream(input.getBytes("ISO-8859-1"));
-		IStrategoTerm result = factory.wrapTerm(parser.parse(is, startSymbol));
-		if (!outputWrappedATerm)
-			result = TermConverter.convert(env.getFactory(), result);
+		ATerm resultATerm = parser.parse(input.stringValue(), startSymbol);
+		IStrategoTerm result = getATermConverter(env).convert(resultATerm);
 		
 		return result;
 	}

@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import aterm.AFun;
 import aterm.ATerm;
@@ -72,6 +73,8 @@ public class ParseTable implements Serializable {
     private transient HashMap<Reduce, Reduce> reduceCache = new HashMap<Reduce, Reduce>();
 
     private transient HashMap<RangeList, RangeList> rangesCache = new HashMap<RangeList, RangeList>();
+    
+    private transient Map<Label, List<Priority>> priorityCache;
     
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         initAFuns(pt.getFactory());
@@ -578,14 +581,20 @@ public class ParseTable implements Serializable {
     }
 
     public List<Priority> getPriorities(Label prodLabel) {
-        // TODO: optimize - *maybe* cache getPriorities()?
-        List<Priority> ret = new ArrayList<Priority>();
+        if (priorityCache == null) priorityCache = new HashMap<Label, List<Priority>>();        
+        List<Priority> results = priorityCache.get(prodLabel);
+        if (results != null) return results;
+        
+        results = new ArrayList<Priority>();
         for (Priority p : priorities) {
             if (p.left == prodLabel.labelNumber && p.type == Priority.GTR) {
-                ret.add(p);
+                results.add(p);
             }
         }
-        return ret;
+        
+        priorityCache.put(prodLabel, results);
+        
+        return results;
     }
 
     public Label lookupInjection(int prod) {

@@ -608,7 +608,8 @@ public class Disambiguator {
     private boolean hasGreaterPriority(int l0, int l1, int arg) {
         List<Priority> prios = lookupGtrPriority(parseTable.getLabel(l0));
         	
-        for (Priority p : prios) {
+        for (int i = 0, size = prios.size(); i < size; i++) {
+            Priority p = prios.get(i);
         	if (l1 == p.right)
         		if (p.arg == -1 || p.arg == arg) {
         			return true;

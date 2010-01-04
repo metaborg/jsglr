@@ -9,6 +9,7 @@ package org.spoofax.jsglr;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class ParseTable implements Serializable {
         this.factory = factory;
         applAFun = factory.makeAFun("appl", 2, false);
         ambAFun = factory.makeAFun("amb", 1, false);
-        injection1Appl = factory.parse("prod([<term>],cf(sort(<term>)),<term>)");
+        injection1Appl = factory.parse("prod([<term>],cf(<term>),<term>)");
         injection2Appl = factory.parse("prod([<term>],lex(sort(<str>)),<term>)");
         litStringAppl = factory.parse("lit(<str>)");
     }
@@ -581,7 +582,8 @@ public class ParseTable implements Serializable {
     }
 
     public List<Priority> getPriorities(Label prodLabel) {
-        if (priorityCache == null) priorityCache = new HashMap<Label, List<Priority>>();        
+        if (priorityCache == null) priorityCache =
+            Collections.synchronizedMap(new HashMap<Label, List<Priority>>());        
         List<Priority> results = priorityCache.get(prodLabel);
         if (results != null) return results;
         

@@ -353,8 +353,10 @@ public class Disambiguator {
             List<IParseNode> newArgs = filterTree(args, false);
 
             if (filterReject && parseTable.hasRejects()) {
+                // FIXME: report as normal parse error
+                //        (or allow this if recovery is enabled and report it in ParseErrorHandler)
                 if (hasRejectProd(t)) 
-                    throw new FilterException(parser, "Unexpected reject annotation");
+                    throw new FilterException(parser, "Unexpected reject annotation in " + yieldTree(t));
             }
 
             t = new ParseNode(node.label, newArgs);

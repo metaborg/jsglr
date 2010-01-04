@@ -53,4 +53,14 @@ public class Label implements Serializable {
     public boolean isInjection() {
         return injection;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Label && ((Label) obj).labelNumber == labelNumber;
+    }
+    
+    @Override
+    public int hashCode() {
+        return labelNumber;
+    }
 }

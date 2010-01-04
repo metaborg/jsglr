@@ -1,11 +1,14 @@
 package org.spoofax.jsglr;
 
+import java.util.Set;
+
 /**
  * Exception thrown when the parser times out.
  * 
  * @author Lennart Kats <L.C.L.Kats add tudelft.nl>
  */
-public class ParseTimeoutException extends BadTokenException {
+public class ParseTimeoutException extends MultiBadTokenException {
+    
     private static final long serialVersionUID = -8773024983956495431L;
 
     @Override
@@ -13,7 +16,7 @@ public class ParseTimeoutException extends BadTokenException {
         return "Parser time out";
     }
     
-    public ParseTimeoutException(SGLR parser, int token, int offset, int lineNumber, int columnNumber) {
-        super(parser, token, offset, lineNumber, columnNumber);
+    public ParseTimeoutException(SGLR parser, int token, int offset, int lineNumber, int columnNumber, Set<BadTokenException> causes) {
+        super(parser, causes, token, offset, lineNumber, columnNumber);
     }
 }

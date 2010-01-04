@@ -13,8 +13,10 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CancellationException;
@@ -110,6 +112,8 @@ public class SGLR {
 
     private boolean reduceRecoverOnly;
     
+    private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
+    
     //Keeps track of the indentation for each line
     //public IndentationHandler getIndentHandler() {
       //  return indentHandler;
@@ -170,8 +174,12 @@ public class SGLR {
             throw new NoRecoveryRulesException(this);
     }
     
-    public RecoveryBase getRecoverHandler() {
+    public RecoverAlgorithm getRecoverHandler() {
         return recoverHandler;
+    }
+    
+    public Set<BadTokenException> getCollectedErrors() {
+        return collectedErrors;
     }
 
     //TODO: Recovery choices (???): structure / structure+bridge / structure+fine-grained / structure+bridge+fine-grained / old backtrack
@@ -322,6 +330,9 @@ public class SGLR {
                 //System.out.print((char)currentToken);             
             } while (currentToken != SGLR.EOF && activeStacks.size() > 0);
             
+            if (acceptingStack == null) {
+                collectedErrors.add(createBadTokenException()); 
+            }
             if(useIntegratedRecovery && acceptingStack==null){                
                 recoverIntegrator.recover();                              
                 if(acceptingStack==null && activeStacks.size()>0)
@@ -334,7 +345,7 @@ public class SGLR {
            
         } catch (CancellationException e) {
             throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
-                    columnNumber);
+                    columnNumber, collectedErrors);
         }           
                 
         logAfterParsing();    
@@ -370,11 +381,14 @@ public class SGLR {
         lineNumber = 1;        
         currentInputStream = new PushbackInputStream(fis, 1024);
         acceptingStack = null; 
+        collectedErrors.clear();
         history.keepInitialState(this);
     }    
 
-    private void reportInvalidToken(Frame singlePreviousStack)
-            throws BadTokenException, TokenExpectedException {
+    private BadTokenException createBadTokenException() {
+        Frame singlePreviousStack = activeStacks.size() == 1
+                ? activeStacks.get(0)
+                : null;
         if (singlePreviousStack != null) {
             Action action = singlePreviousStack.peek().getSingularAction();
             
@@ -397,12 +411,12 @@ public class SGLR {
                 } while (action != null);
 
                 if (expected.length() > 0)
-                    throw new TokenExpectedException(this, expected.toString(), currentToken,
+                    return new TokenExpectedException(this, expected.toString(), currentToken,
                                                      tokensSeen - 1, lineNumber, columnNumber);
             }
         }
         
-        throw new BadTokenException(this, currentToken, tokensSeen - 1, lineNumber,
+        return new BadTokenException(this, currentToken, tokensSeen - 1, lineNumber,
                                            columnNumber);
     }
 
@@ -1058,10 +1072,6 @@ public class SGLR {
     
     private void logAfterParsing()
             throws BadTokenException, TokenExpectedException {
-        Frame singlePreviousStack;
-        singlePreviousStack = activeStacks.size() == 1
-        ? activeStacks.get(0)
-        : null;
         if (isLogging()) {
             Tools.logger("Number of lines: ", lineNumber);
             Tools.logger("Maximum ", maxBranches, " parse branches reached at token ",
@@ -1077,7 +1087,13 @@ public class SGLR {
         }
 
         if (acceptingStack == null) {
-            reportInvalidToken(singlePreviousStack);
+            BadTokenException bad = createBadTokenException();
+            if (collectedErrors.isEmpty()) {
+                throw bad;
+            } else {
+                collectedErrors.add(bad);
+                throw new MultiBadTokenException(this, collectedErrors);
+            }
         }
 
         if (isDebugging()) {

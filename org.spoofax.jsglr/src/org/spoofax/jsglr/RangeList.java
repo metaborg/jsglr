@@ -2,7 +2,6 @@ package org.spoofax.jsglr;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,10 +45,10 @@ public class RangeList {
     }
 
     private static List<Range> toSortedList(Range[] ranges) {
+        Arrays.sort(ranges);
         List<Range> results = new ArrayList<Range>(ranges.length);
         for (Range range : ranges)
             results.add(range);
-        Collections.sort(results);
         return results;
     }
     

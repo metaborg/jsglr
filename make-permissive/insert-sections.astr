@@ -6,7 +6,7 @@ imports
 attributes
 
   def insert-sections:
-    sections ->
+    modules ->
     |[ sorts
          WATEREOF
   
@@ -24,8 +24,8 @@ attributes
     where
       if-switch(|INSERTIONS_ON())
     with
-      p1* := sections.lexical-insert-prods;
-      p2* := sections.kernel-insert-prods
+      p1* := modules.lexical-insert-prods;
+      p2* := modules.kernel-insert-prods
   
   eq insert-sections:
     sections -> |[ context-free syntax ]|
@@ -60,16 +60,10 @@ attributes // Simple closing literals (e.g., "}")
     lit(x) -> id
     where
       id.root;
-      oncetd(
-        ?lit(_);
-        id.eq(|lit(x));
-        id.is-list-head
-      )
-  
-  def Test is-list-head:
-    [x | _] -> id
-    where
-      not(id.parent => [_ | _])
+      oncetd({ y, ys:
+        ?prod([y @ lit(_) | _], _, _);
+        x.eq(|y)
+      })
   
 attributes // Simple opening literals (e.g., "{")
 
@@ -197,21 +191,39 @@ attributes // Separator literals (e.g., ",")
 attributes // Non-nestable region keywords (e.g., "attributes" or "strategies")
 
   eq lexical-insert-prods:
-    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
+    prod([lit @ lit(_) | _], _, _) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
     where
       if-switch(|NONNESTABLE_ON())
     where
+      id.is-nonnestable-prod
+    where
+      id.root;
+      collect-all(
+        prod([id.eq(|lit) | id], id, id); id.in-context-free-section
+      );
+      all(id.is-nonnestable-prod)
+  
+  def Test is-nonnestable-prod:
+    prod @ prod([lit @ lit(_) | _], _, _) -> id
+    where
       id.in-context-free-section
     where
-      id.current-prod.direct-contained-sorts => [_ | _]
+      id.direct-contained-sorts => [_ | _]
     where
-      not(id.current-prod.is-contained-by(|id.current-sort))
+      not(id.is-contained-by(|id.current-sort))
+    // With expression/statement start symbols, the following is not a good idea
+    //<+
+    //  id.all-start-symbols.one(
+    //    {sort: ?sort(sort); prod.is-contained-by(|sort) }
+    //  )
+  
+  def Test is-list-head:
+    x -> id
+    with
+      not(?[_ | _])
     where
-      if-switch(|OPEN_BRACKETS_ON())
-    <+
-      not(lit.is-used-as-opening-literal)
-    where
-      id.all-start-symbols.one({sort: ?sort(sort); lit.current-prod.is-contained-by(|sort) })
+      id.parent => [_ | _];
+      not(id.parent => [_ | _])
 
 attributes // Start production literals (e.g., "module")
 

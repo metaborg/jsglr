@@ -78,7 +78,7 @@ strategies // I/O
     )
   + SwitchOption(|
       NONNESTABLE_ON()
-    , "on"
+    , "off"
     , "Add insertion rules for keywords starting non-nestable regions"
     )
   + SwitchOption(|
@@ -120,19 +120,19 @@ strategies // I/O
 strategies
 
   add-permissive-sections:
-    definition(modules) -> definition(modules')
+    d @ definition(modules) -> definition(modules')
     with
       input-length := <collect(?prod(_, _, _)); length>;
       log(|Info(), ["Number of productions to analyze: ", input-length]);
       
       // Analyze all sections, but only add results to the first
-      modules' := <one(add-permissive-sections)> modules
+      modules' := <one(add-permissive-sections(|d))> modules
 
-  add-permissive-sections:
+  add-permissive-sections(|modules):
     "module"#([name, x, sections]) ->
     "module"#([name, x, sections'])
     with
-      added         := id.all-permissive-sections;
+      added         := modules.all-permissive-sections;
       output-length := <collect(?prod(_, _, _)); length> added;
       log(|Info(), ["Number of productions generated:  ", output-length]);
       

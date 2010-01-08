@@ -113,7 +113,7 @@ public class SGLR {
     
     /* START: FINE GRAINED ON REGION */
     private boolean fineGrainedOnRegion;
-    public void setFineGrainedOnRegion(boolean fineGrainedMode) {
+    protected void setFineGrainedOnRegion(boolean fineGrainedMode) {
         fineGrainedOnRegion=fineGrainedMode;
         recoverStacks=new ArrayDeque<Frame>();
     }
@@ -127,7 +127,7 @@ public class SGLR {
         return recoverStacks;
     }
 
-    public void setUseFineGrained(boolean useFG) {
+    protected void setUseFineGrained(boolean useFG) {
         recoverIntegrator.setUseFineGrained(useFG);        
     }
     /* END: FINE GRAINED ON REGION */
@@ -160,7 +160,6 @@ public class SGLR {
      * Structure-based recovery without bridge parsing.
      * 
     */
-    @Deprecated
     public final void setUseStructureRecovery(boolean useRecovery) throws NoRecoveryRulesException {        
         setUseStructureRecovery(useRecovery, null);
     }

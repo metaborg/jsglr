@@ -13,7 +13,7 @@ public class RegionRecovery {
     private SGLR myParser;    
     private StructureSkipSuggestion erroneousRegion;    
     private int errorDetectionLocation;
-    private static int NR_OF_LINES_TILL_SUCCESS=3;
+    public static int NR_OF_LINES_TILL_SUCCESS=3;
     private int acceptPosition;
 
     public int getAcceptPosition() {        

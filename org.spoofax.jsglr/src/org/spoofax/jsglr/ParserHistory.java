@@ -61,6 +61,9 @@ public class ParserHistory {
                 }
             }
         }
+        else if(tokenIndex<0 || tokenIndex>recoverTokenCount){
+            System.err.println("Unexpected token index"+tokenIndex);
+        }
         else{
             myParser.currentToken = recoverTokenStream[tokenIndex];
             if(keepRecoveredLines){

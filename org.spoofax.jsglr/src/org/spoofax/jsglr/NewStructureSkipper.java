@@ -33,9 +33,26 @@ public class NewStructureSkipper {
     }
     
     public ArrayList<StructureSkipSuggestion> getCurrentSkipSuggestions(int failureIndex) throws IOException {
+        ArrayList<StructureSkipSuggestion> result = getCurrentRegionSkips(failureIndex);  
+        ArrayList<StructureSkipSuggestion> includeNexts=new ArrayList<StructureSkipSuggestion>();
+        for (StructureSkipSuggestion skip : result) {
+            if(skip.getEndSkip().getIndentValue() < skip.getStartSkip().getIndentValue()){
+                for (StructureSkipSuggestion skipFW : selectRegion(skip.getIndexHistoryEnd())) {
+                    includeNexts.add(mergeRegions(skipFW, skip));
+                }
+            }                
+        }        
+        result.addAll(includeNexts);
+        return result;
+    }
+
+    private ArrayList<StructureSkipSuggestion> getCurrentRegionSkips(
+            int failureIndex) throws IOException {
+        ArrayList<StructureSkipSuggestion> result=new ArrayList<StructureSkipSuggestion>();
         if (failureIndex>0 && isScopeOpeningLine(failureIndex) && getHistory().getLine(failureIndex-1).getIndentValue()==getHistory().getLine(failureIndex).getIndentValue())
-            return selectRegion(failureIndex-1);
-        return selectRegion(failureIndex);
+            result.addAll(selectRegion(failureIndex-1));
+        result.addAll(selectRegion(failureIndex));
+        return result;
     }
     
     public ArrayList<StructureSkipSuggestion> getPriorSkipSuggestions(int failureIndex) throws IOException {
@@ -67,14 +84,14 @@ public class NewStructureSkipper {
         ArrayList<StructureSkipSuggestion> nextSiblings=getCurrentAndNextSkipSuggestions(failureIndex);
         ArrayList<StructureSkipSuggestion> prevRegionSuggestions=selectPrevRegion(failureIndex);
         if(prevRegionSuggestions.isEmpty()){
-            prevRegionSuggestions=getCurrentSkipSuggestions(failureIndex);
+            prevRegionSuggestions=getCurrentRegionSkips(failureIndex);
             nextSiblings.remove(0);
         }
         for (StructureSkipSuggestion priorSuggestion : prevRegionSuggestions) {
             for (int i = 0; i < nextSiblings.size(); i++) {
                 StructureSkipSuggestion nextSuggestion=nextSiblings.get(i);
                 StructureSkipSuggestion mergedSkip=mergeRegions(nextSuggestion, priorSuggestion);
-                fwSkips.add(mergedSkip);            
+                fwSkips.add(mergedSkip);                
             }
         }
         return fwSkips;
@@ -141,7 +158,7 @@ public class NewStructureSkipper {
     public StructureSkipSuggestion getErroneousPrefix(int failureIndex) throws IOException {
         StructureSkipSuggestion prefix=new StructureSkipSuggestion();
         if(getHistory().getIndexLastLine()>=0)
-            prefix.setSkipLocations(getHistory().getLine(0), getHistory().getLine(failureIndex), 0, failureIndex);
+            prefix.setSkipLocations(IndentInfo.cloneIndentInfo(getHistory().getLine(0)), IndentInfo.cloneIndentInfo(getHistory().getLine(failureIndex)), 0, failureIndex);
         return prefix;
     }
 
@@ -168,7 +185,7 @@ public class NewStructureSkipper {
             while (lineIndex < prevRegion.getIndexHistoryEnd()) {
                 int indentOfLine=getHistory().getLine(lineIndex).getIndentValue();
                 if(indentOfLine==indentOfLevel){                    
-                    ArrayList<StructureSkipSuggestion> regions = selectRegion(lineIndex);              
+                    ArrayList<StructureSkipSuggestion> regions = selectRegion(lineIndex); 
                     if(regions.size()>0){
                         //System.out.println("index: "+lineIndex +" indent: "+indentOfLevel);
                         lineIndex=regions.get(0).getIndexHistoryEnd();
@@ -291,7 +308,10 @@ public class NewStructureSkipper {
         int fwMax=failureIndex+MAX_NR_OF_LINES;
         int lineIndex=failureIndex;
         int nrOfStructs=0;
-        do{
+        int indentValueStart=-1;
+        if(currRegions.size()>0)
+            indentValueStart=currRegions.get(0).getStartSkip().getIndentValue();
+        do{   
             nrOfStructs++;
             for (StructureSkipSuggestion r : currRegions) {
                 if(r.getAdditionalTokens().length==0)
@@ -299,8 +319,13 @@ public class NewStructureSkipper {
             }            
             if(!currRegions.isEmpty()){
                 lineIndex=currRegions.get(0).getIndexHistoryEnd();
-                System.out.println(currRegions.get(0).getIndexHistoryStart()+" => "+ currRegions.get(0).getIndexHistoryEnd());
-                currRegions=selectRegion(currRegions.get(0).getIndexHistoryEnd());
+                if (currRegions.get(0).getStartSkip().getIndentValue()>=indentValueStart) {
+                    //System.out.println(currRegions.get(0).getIndexHistoryStart()+" => "+ currRegions.get(0).getIndexHistoryEnd());
+                    currRegions = selectRegion(currRegions.get(0)
+                            .getIndexHistoryEnd());
+                }
+                else
+                    currRegions.clear(); //no dedent allowed
             }
         }while (nrOfStructs<MAX_NR_OF_STRUCTURES && lineIndex<fwMax && !currRegions.isEmpty());
         return nextRegions;

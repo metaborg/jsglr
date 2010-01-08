@@ -108,6 +108,14 @@ public class Frame implements Serializable {
         return null;
     }   
     
+    public ArrayList<Link> getAllLinks() {
+        ArrayList<Link> links=new ArrayList<Link>();
+        for (int i = 0; i < stepsCount; i++) {
+            links.add(steps[i]);
+        }        
+        return links;
+    }   
+    
 
     public Link addLink(Frame st0, IParseNode n, int length) {
         if(Tools.tracing) {

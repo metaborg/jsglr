@@ -77,7 +77,7 @@ public class Main {
         sglr.getDisambiguator().setFilterCycles(detectCycles);
         sglr.getDisambiguator().setFilterAny(filter);
         
-        long parsingTime = parseFile(input, output, sglr);
+        long parsingTime = parseFile(input, output, sglr, null);
         
         if(waitForProfiler)
             System.in.read();
@@ -87,7 +87,7 @@ public class Main {
         }
     }
 
-    public static long parseFile(String input, String output, SGLR sglr)
+    public static long parseFile(String input, String output, SGLR sglr, String startSymbol)
             throws FileNotFoundException, IOException {
         InputStream fis = null;
         if(input == null)
@@ -104,7 +104,7 @@ public class Main {
         ATerm t=null;
         try {
         	parsingTime = System.currentTimeMillis();
-            t=sglr.parse(fis);            
+            t=sglr.parse(fis, startSymbol);            
             parsingTime = System.currentTimeMillis() - parsingTime;            
         } catch(BadTokenException e) {
             System.err.println("Parsing failed : " + e.getMessage());

@@ -13,7 +13,12 @@ public class RegionRecovery {
     private SGLR myParser;    
     private StructureSkipSuggestion erroneousRegion;    
     private int errorDetectionLocation;
-    public static int NR_OF_LINES_TILL_SUCCESS=3;
+    private static int NR_OF_LINES_TILL_SUCCESS=3;
+    private int acceptPosition;
+
+    public int getAcceptPosition() {        
+        return acceptPosition;
+    }
 
     /**
      * Supports error recovery by selecting the region containing the error
@@ -73,6 +78,7 @@ public class RegionRecovery {
      * Selects erroneous region based on layout 
      */
     public boolean selectErroneousFragment() throws IOException { 
+        acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
         int failureIndex=getHistory().getIndexLastLine();
         errorDetectionLocation=getHistory().getIndexLastToken();
@@ -115,10 +121,27 @@ public class RegionRecovery {
         if(trySetErroneousRegion(parentRegion)){            
             return true;
         }
+        //System.out.println("PARENT AND SIB REGION");
+        //ArrayList<StructureSkipSuggestion> parentsibRegion=newRegionSelector.getParentSibSkipSuggestions(failureIndex);
+        //if(trySetErroneousRegion(parentRegion)){            
+          //  return true;
+        //}
         erroneousRegion=newRegionSelector.getErroneousPrefix(failureIndex);
         ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
         boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
-        return findSmallerPart; 
+        if(!findSmallerPart){
+            int indexAccept;
+            if(getHistory().getIndexLastLine()>=failureIndex+NR_OF_LINES_TILL_SUCCESS)
+                indexAccept=failureIndex+NR_OF_LINES_TILL_SUCCESS;
+            else
+                indexAccept=getHistory().getIndexLastLine();            
+            acceptPosition=getHistory().getLine(indexAccept).getTokensSeen();
+            IndentInfo openEnd=new IndentInfo();
+            openEnd.setTokensSeen(Integer.MAX_VALUE);
+            erroneousRegion.setEndSkip(openEnd, Integer.MAX_VALUE);
+            return false;
+        }
+        return true; 
     }
 
     private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) throws IOException {
@@ -162,7 +185,11 @@ public class RegionRecovery {
             if(getHistory().getTokenIndex()>errorDetectionLocation && indentHandler.lineMarginEnded())
                 nrOfParsedLines++;
         }
-        return successCriterion();
+        if(successCriterion()){
+            acceptPosition=getHistory().getTokenIndex();
+            return true;
+        }
+        return false;
     }
 
     private void parseAdditionalTokens(
@@ -189,6 +216,10 @@ public class RegionRecovery {
 
     public int getStartIndexErrorFragment() { //TODO: erroneous region to recovery connector
         return erroneousRegion.getIndexHistoryStart();
+    }
+
+    public StructureSkipSuggestion getErroneousRegion() {
+        return erroneousRegion;
     }
 
 }

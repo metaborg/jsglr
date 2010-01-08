@@ -21,7 +21,6 @@ public class Link {
     public int length; //mj: private final (see sglr.reducer: replace link by link with less avoids)
     
     public int recoverCount;
-    
 
     public Link(Frame destination, IParseNode t, int length) {
         this.parent = destination;

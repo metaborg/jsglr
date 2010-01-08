@@ -4,16 +4,26 @@ import java.util.ArrayList;
 
 import org.spoofax.ArrayDeque;
 
-public class BacktrackPosition extends ParserPosition {
+public class BacktrackPosition {
+    public final int tokensSeen;
     public final ArrayDeque<Frame> recoverStacks;
     public final ArrayList<RecoverNode> recoverNodes; 
-    public boolean isVisited;    
+    public boolean isVisited;
+    private int indexHistory;    
     
-    public BacktrackPosition( ArrayDeque<Frame> activeStacks, int tokSeen, int line, int col)
+    public int getIndexHistory() {
+        return indexHistory;
+    }
+    
+    public BacktrackPosition( ArrayDeque<Frame> activeStacks, int tokSeen)
     {
-        super(tokSeen, line, col);
+        tokensSeen=tokSeen;
         recoverStacks = new ArrayDeque<Frame>(activeStacks);        
         recoverNodes=new ArrayList<RecoverNode>();        
+    }
+
+    public void setIndexHistory(int i) {
+        indexHistory=i;
     }
 
 }

@@ -61,13 +61,16 @@ public class ParserHistory {
                 }
             }
         }
-        myParser.currentToken = recoverTokenStream[tokenIndex];
-        if(keepRecoveredLines){
-            recoveryIndentHandler.updateIndentation(myParser.currentToken);
-            if(recoveryIndentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
-                keepNewLinePoint(myParser, tokenIndex, false, recoveryIndentHandler);
+        else{
+            myParser.currentToken = recoverTokenStream[tokenIndex];
+            if(keepRecoveredLines){
+                recoveryIndentHandler.updateIndentation(myParser.currentToken);
+                if(recoveryIndentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
+                    keepNewLinePoint(myParser, tokenIndex, false, recoveryIndentHandler);
+            }    
         }
         tokenIndex++;
+        
     }
     
     public boolean hasFinishedRecoverTokens() {
@@ -138,6 +141,11 @@ public class ParserHistory {
     }
     
     public String getFragment(StructureSkipSuggestion skip) {
+        if(skip.getEndSkip().getTokensSeen() < skip.getStartSkip().getTokensSeen()){
+            System.err.println("Startskip > endskip");
+            //System.err.println(getFragment(skip.getEndSkip().getTokensSeen(), skip.getEndSkip().getTokensSeen()));
+            return "--Wrong Fragment --";
+        }
         String fragment="";
         for (int i = skip.getStartSkip().getTokensSeen(); i <= skip.getEndSkip().getTokensSeen()-1; i++) {
             if(i >= recoverTokenCount)
@@ -196,15 +204,27 @@ public class ParserHistory {
     }
 
     public void deleteLinesFrom(int startIndexErrorFragment) {
-        if(startIndexErrorFragment>0 && startIndexErrorFragment<newLinePoints.size()-1){
+        if(startIndexErrorFragment>=0 && startIndexErrorFragment<newLinePoints.size()-1){
             ArrayList<IndentInfo> shrinkedList=new ArrayList<IndentInfo>();
             shrinkedList.addAll(newLinePoints.subList(0, startIndexErrorFragment));
             newLinePoints=shrinkedList;
         }
-        else{
-            System.err.println("Unexpected index of history new-line-points");
-            System.out.println("Unexpected index of history new-line-points");
+        else if (startIndexErrorFragment > newLinePoints.size()-1){
+            System.err.println("StartIndex Error Fragment: "+startIndexErrorFragment);
+            System.err.println("Numeber Of Lines in History: : "+newLinePoints.size());
+            System.err.println("Unexpected index of history new-line-points");            
         }
+    }
+    
+    public void logHistory(){       
+       for (int i = 0; i < newLinePoints.size()-1; i++) {
+           IndentInfo currLine=newLinePoints.get(i);
+           IndentInfo nextLine=newLinePoints.get(i+1);
+           System.out.print("("+i+")"+getFragment(currLine.getTokensSeen(), nextLine.getTokensSeen()-1));
+       }
+       IndentInfo currLine=newLinePoints.get(newLinePoints.size()-1);
+       System.out.print("("+(newLinePoints.size()-1)+")"+getFragment(currLine.getTokensSeen(), getIndexLastToken()-1));
+
     }
     
 }

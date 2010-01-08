@@ -10,6 +10,8 @@ public class RecoverDisambiguator {
     }
     
     public void handleAmbiguity(int recoverCount_t, IParseNode t, Link nl){  
+        //System.out.println("RECOVERCOUNT: "+recoverCount_t);
+        //System.out.println("LNK_RECOVERCOUNT: "+nl.recoverCount);
         testCount++;
         /*
         if(nl.isRejected()){
@@ -39,20 +41,6 @@ public class RecoverDisambiguator {
             return true;
         }
         return false;
-    }
-    
-    private boolean trySelectByIndentation(int avoidCount_t, IParseNode t, Link nl) {
-        IndentationDisambiguator indentFilter=new IndentationDisambiguator();
-        indentFilter.evaluateIndentation(nl.label.toParseTree(parseTable));
-        int nlScore=indentFilter.getIndentDeviationListElements();
-        indentFilter.evaluateIndentation(t.toParseTree(parseTable));
-        int tScore=indentFilter.getIndentDeviationListElements();
-        if(tScore == nlScore)
-            return false;
-        if(tScore < nlScore){
-            setLabel(avoidCount_t, t, nl);
-        }
-        return true;
     }
     
     private void setLabel(int recoverCount_t, IParseNode t, Link nl) {

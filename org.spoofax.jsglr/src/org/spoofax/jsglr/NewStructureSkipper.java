@@ -6,8 +6,8 @@ import java.util.Collections;
 
 public class NewStructureSkipper {
 
-    private final static int MAX_NR_OF_LINES=30;
-    private static final int MAX_NR_OF_STRUCTURES = 20;
+    private final static int MAX_NR_OF_LINES=15;
+    private static final int MAX_NR_OF_STRUCTURES = 8;
 
     private SGLR myParser;    
     private StructuralTokenRecognizer structTokens;
@@ -34,16 +34,19 @@ public class NewStructureSkipper {
     
     public ArrayList<StructureSkipSuggestion> getCurrentSkipSuggestions(int failureIndex) throws IOException {
         ArrayList<StructureSkipSuggestion> result = getCurrentRegionSkips(failureIndex);  
+        addNextRegionMerges(result);
+        return result;
+    }
+
+    private void addNextRegionMerges(ArrayList<StructureSkipSuggestion> result)
+            throws IOException {
         ArrayList<StructureSkipSuggestion> includeNexts=new ArrayList<StructureSkipSuggestion>();
-        for (StructureSkipSuggestion skip : result) {
-            if(skip.getEndSkip().getIndentValue() < skip.getStartSkip().getIndentValue()){
-                for (StructureSkipSuggestion skipFW : selectRegion(skip.getIndexHistoryEnd())) {
-                    includeNexts.add(mergeRegions(skipFW, skip));
-                }
-            }                
+        for (StructureSkipSuggestion skip : result) {            
+            for (StructureSkipSuggestion skipFW : selectRegion(skip.getIndexHistoryEnd())) {
+                includeNexts.add(mergeRegions(skipFW, skip));
+            }                            
         }        
         result.addAll(includeNexts);
-        return result;
     }
 
     private ArrayList<StructureSkipSuggestion> getCurrentRegionSkips(
@@ -152,6 +155,7 @@ public class NewStructureSkipper {
             else
                 errorLineIndex=-1;
         }
+        addNextRegionMerges(parentSkips);
         return parentSkips;
     }
 

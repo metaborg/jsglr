@@ -341,7 +341,7 @@ public class NewStructureSkipper {
         boolean isSecondLine=true;
         ArrayList<Integer> endLocations=new ArrayList<Integer>();
         int indexNextLine=skipLine(indexStartLine);        
-        while(myParser.currentToken!=SGLR.EOF){            
+        while(myParser.currentToken!=SGLR.EOF && indexNextLine>=0){            
             IndentInfo nextLine = getHistory().getLine(indexNextLine);
             int indentSkipPosition=nextLine.getIndentValue();
             indentShift shift=calculateShift(indentStartLine, indentSkipPosition);
@@ -506,6 +506,20 @@ public class NewStructureSkipper {
         mergedSkip.setSkipLocations(IndentInfo.cloneIndentInfo(bwSuggestion.getStartSkip()), IndentInfo.cloneIndentInfo(fwSuggestion.getEndSkip()), bwSuggestion.getIndexHistoryStart(), fwSuggestion.getIndexHistoryEnd());
         mergedSkip.setAdditionalTokens(bwSuggestion.getAdditionalTokens());
         return mergedSkip;
+    }
+
+    public ArrayList<StructureSkipSuggestion> getBlockSuggestions(
+            int structStartIndex) throws IOException {
+        ArrayList<StructureSkipSuggestion> result=getCurrentRegionSkips(structStartIndex);
+        int endIndex=Math.min(getHistory().getIndexLastLine()+1, structStartIndex + MAX_NR_OF_LINES);
+        for (int i = structStartIndex; i < endIndex; i++) {
+            IndentInfo startSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(structStartIndex));
+            IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(i));
+            StructureSkipSuggestion block=new StructureSkipSuggestion();
+            block.setSkipLocations(startSkip, endSkip, structStartIndex, i);
+            result.add(block);
+        }        
+        return result;
     }
 
 }

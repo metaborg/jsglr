@@ -63,7 +63,7 @@ public class IndentInfo {
     public int maxReduceLength() {
         int maxPathLength = 0;
         for (Frame activeStack : stackNodes) {
-            for (Path p : activeStack.findAllPaths(3)) {//3=> shifted_LO, reduced_LO, ReducedCodeFragment
+            for (Path p : activeStack.findAllPaths(2)) {//3=> shifted_LO, reduced_LO, ReducedCodeFragment
                 int length = p.getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
                 if(length > maxPathLength){
                     maxPathLength = length;                   

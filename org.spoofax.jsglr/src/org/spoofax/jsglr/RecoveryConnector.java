@@ -143,9 +143,14 @@ public class RecoveryConnector {
         if (skipSucceeded) { 
             getHistory().deleteLinesFrom(skipRecovery.getStartIndexErrorFragment());//TODO: integrate with FG and BP
             getHistory().resetRecoveryIndentHandler(skipRecovery.getStartLineErrorFragment().getIndentValue());
-            boolean whiteSpaceRecovery=parseErrorFragmentAsWhiteSpace(true);
-            if(whiteSpaceRecovery)
+            boolean whiteSpaceRecovery=parseErrorFragmentAsWhiteSpace(false);//true
+            //System.err.println("MMM");
+            //getHistory().logHistory();
+            if(whiteSpaceRecovery){
                 parseRemainingTokens(true);
+                //System.err.println("MMM");
+                //getHistory().logHistory();
+            }
             //whiteSpaceParse();
             //whiteSpaceParse(errorFragment); 
             if(recoverySucceeded()){
@@ -154,6 +159,7 @@ public class RecoveryConnector {
             }
             else{
                 Tools.debug("WhiteSpace Repair unexpectly fails");
+                recover();
                 //System.err.print("*************** WS-Fails unexpected");
             }/*
             if(!parseRemainingTokens())

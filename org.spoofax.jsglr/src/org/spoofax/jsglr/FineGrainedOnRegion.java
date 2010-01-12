@@ -15,6 +15,7 @@ public class FineGrainedOnRegion {
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
     private SGLR mySGLR;
+    private int maxPerLine;
     
     private ParserHistory getHistory() {
         return mySGLR.getHistory();
@@ -36,7 +37,11 @@ public class FineGrainedOnRegion {
                 btPoint.setIndexHistory(i);
                 choicePoints.add(btPoint);
             }            
-        }        
+        } 
+        maxPerLine=MAX_RECOVERIES_PER_LINE;
+        if(erroneousRegion.getIndexHistoryEnd()-erroneousRegion.getIndexHistoryStart()==1){
+            maxPerLine=2;            
+        }
     }
     
     public boolean recover() throws IOException{
@@ -47,9 +52,9 @@ public class FineGrainedOnRegion {
         return succeeded;
     }
     
-    private boolean recoverFrom(int indexCP, ArrayList<RecoverNode> candidates) throws IOException {
+    private boolean recoverFrom(int indexCP, ArrayList<RecoverNode> candidates) throws IOException {        
         int loops=choicePoints.size()-1-indexCP;
-        if(indexCP<-1*MAX_RECOVERIES_PER_LINE)//first line 3 times explored
+        if(indexCP<-1*maxPerLine)//first line 3 times explored
             return false;
         if(loops>MAX_NR_OF_LINES)//max nr of lines explored in backtracking
             return false;
@@ -60,8 +65,8 @@ public class FineGrainedOnRegion {
         getHistory().deleteLinesFrom(btPosition.getIndexHistory());
         getHistory().setTokenIndex(btPosition.tokensSeen);
         int endPos=regionEndPosition;
-        if(indexChoichePoints<choicePoints.size()-MAX_RECOVERIES_PER_LINE)
-            endPos=choicePoints.get(indexChoichePoints+MAX_RECOVERIES_PER_LINE).tokensSeen;        
+        if(indexChoichePoints<choicePoints.size()-maxPerLine)
+            endPos=choicePoints.get(indexChoichePoints+maxPerLine).tokensSeen;        
         ArrayList<RecoverNode> newCandidates=recoverParse(candidates, endPos, true);
         if(mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null){
             //if (loops<=MAX_RECOVERIES_PER_LINE) {

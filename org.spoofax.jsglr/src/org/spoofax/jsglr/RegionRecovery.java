@@ -78,6 +78,7 @@ public class RegionRecovery {
      * Selects erroneous region based on layout 
      */
     public boolean selectErroneousFragment() throws IOException { 
+        boolean eofReached=myParser.currentToken==SGLR.EOF;
         acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
         int failureIndex=getHistory().getIndexLastLine();
@@ -130,6 +131,18 @@ public class RegionRecovery {
         ArrayList<StructureSkipSuggestion> decomposedRegions=newRegionSelector.getZoomOnPreviousSuggestions(erroneousRegion);
         boolean findSmallerPart=trySetErroneousRegion(decomposedRegions);
         if(!findSmallerPart){
+            if(eofReached){
+                int structStart=getHistory().getLastLine().structureStartPosition();
+                //System.out.print(getHistory().getFragment(structStart-10, structStart));
+                //System.out.print("$$");
+                //System.out.print(getHistory().getFragment(structStart, structStart+10));
+                int structStartIndex=getHistory().getLineOfTokenPosition(structStart);
+                ArrayList<StructureSkipSuggestion> structRegions=newRegionSelector.getBlockSuggestions(structStartIndex);
+                if(trySetErroneousRegion(structRegions)){            
+                    return true;
+                }
+            }
+            
             int indexAccept;
             if(getHistory().getIndexLastLine()>=failureIndex+NR_OF_LINES_TILL_SUCCESS)
                 indexAccept=failureIndex+NR_OF_LINES_TILL_SUCCESS;

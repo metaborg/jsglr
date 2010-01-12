@@ -2,7 +2,7 @@ package org.spoofax.jsglr;
 
 public class StructuralTokenRecognizer {
     
-    private final static String[] closingTokens={"}", ")", "]|", ">", "|", "]"};
+    private final static String[] closingTokens={"}", ")", "]|", ">", "|", "]", "*/"};
     private final static String[] openingTokens={"{", "(", "|[", "<", "|", "["};
     private final static String[] separatorTokens={",", ";", "<+", "+>", "+", ">", "<", "=>", "->", "&&", "&", "||", "|"};
     

@@ -331,7 +331,7 @@ public class SGLR {
         lineNumber = 1;        
         currentInputStream = new PushbackInputStream(fis, 1024);
         acceptingStack = null; 
-        history.keepInitialState(this);
+        //history.keepInitialState(this);
         collectedErrors.clear();
     }    
 

@@ -62,6 +62,7 @@ public class ParserHistory {
             }
         }
         else if(tokenIndex<0 || tokenIndex>recoverTokenCount){
+            myParser.currentToken =SGLR.EOF;
             System.err.println("Unexpected token index"+tokenIndex);
         }
         else{
@@ -223,11 +224,24 @@ public class ParserHistory {
        for (int i = 0; i < newLinePoints.size()-1; i++) {
            IndentInfo currLine=newLinePoints.get(i);
            IndentInfo nextLine=newLinePoints.get(i+1);
-           System.out.print("("+i+")"+getFragment(currLine.getTokensSeen(), nextLine.getTokensSeen()-1));
+           String stackDescription="";
+           for (Frame node : currLine.getStackNodes()) {
+               stackDescription+=node.state.stateNumber+";";
+           }
+           System.out.print("("+i+")"+"["+currLine.getIndentValue()+"]"+"{"+stackDescription+"}"+getFragment(currLine.getTokensSeen(), nextLine.getTokensSeen()-1));
        }
        IndentInfo currLine=newLinePoints.get(newLinePoints.size()-1);
-       System.out.print("("+(newLinePoints.size()-1)+")"+getFragment(currLine.getTokensSeen(), getIndexLastToken()-1));
+       System.out.print("("+(newLinePoints.size()-1)+")"+"["+currLine.getIndentValue()+"]"+getFragment(currLine.getTokensSeen(), getIndexLastToken()-1));
 
+    }
+
+    public int getLineOfTokenPosition(int tokPos) {        
+        for (int i = 1; i < newLinePoints.size(); i++) {
+            IndentInfo line=newLinePoints.get(i);
+            if(line.getTokensSeen()>tokPos)
+                return i-1;
+        }
+        return newLinePoints.size()-1;
     }
     
 }

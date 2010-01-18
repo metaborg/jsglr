@@ -52,7 +52,7 @@ public class ParserHistory {
     public void readRecoverToken(SGLR myParser, boolean keepRecoveredLines) throws IOException{  
         if (hasFinishedRecoverTokens()) {             
             if(myParser.currentToken!=SGLR.EOF){                
-                if(getIndexLastToken()>0 && recoverTokenStream[getIndexLastToken()]!=SGLR.EOF){
+                if(getIndexLastToken()>=0 && recoverTokenStream[getIndexLastToken()]!=SGLR.EOF){
                     myParser.readNextToken();
                     indentHandler.updateIndentation(myParser.currentToken);
                     keepToken((char)myParser.currentToken);   

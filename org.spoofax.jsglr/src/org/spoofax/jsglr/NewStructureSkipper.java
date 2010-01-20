@@ -343,6 +343,7 @@ public class NewStructureSkipper {
         int indexNextLine=skipLine(indexStartLine);        
         while(myParser.currentToken!=SGLR.EOF && indexNextLine>=0){            
             IndentInfo nextLine = getHistory().getLine(indexNextLine);
+            // FIXME: get nextLine may be null 
             int indentSkipPosition=nextLine.getIndentValue();
             indentShift shift=calculateShift(indentStartLine, indentSkipPosition);
             switch (shift) {

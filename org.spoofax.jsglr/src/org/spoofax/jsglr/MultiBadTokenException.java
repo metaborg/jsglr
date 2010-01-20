@@ -41,7 +41,7 @@ public class MultiBadTokenException extends BadTokenException {
     /**
      * @deprecated Use getCauses() instead.
      */
-    public BadTokenException getCause() {
+    public Throwable getCause() {
         if (causes != null && !causes.isEmpty()) return causes.iterator().next();
         return null;
     }

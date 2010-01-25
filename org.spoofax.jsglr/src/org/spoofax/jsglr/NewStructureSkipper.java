@@ -341,7 +341,7 @@ public class NewStructureSkipper {
         boolean isSecondLine=true;
         ArrayList<Integer> endLocations=new ArrayList<Integer>();
         int indexNextLine=skipLine(indexStartLine);        
-        while(myParser.currentToken!=SGLR.EOF && indexNextLine>=0){            
+        while(myParser.currentToken!=SGLR.EOF && 0<=indexNextLine && indexNextLine<=getHistory().getIndexLastLine()){            
             IndentInfo nextLine = getHistory().getLine(indexNextLine);
             // FIXME: get nextLine may be null 
             int indentSkipPosition=nextLine.getIndentValue();

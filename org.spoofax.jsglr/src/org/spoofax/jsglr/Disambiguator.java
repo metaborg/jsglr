@@ -77,7 +77,7 @@ public class Disambiguator {
      */
     @Deprecated
     public final void setFilterIndirectPreference(boolean filterIndirectPreference) {
-        // No such setting
+        throw new UnsupportedOperationException();
     }
     
     /**
@@ -85,7 +85,7 @@ public class Disambiguator {
      */
     @Deprecated
     public boolean getFilterIndirectPreference() {
-        // No such setting
+        throw new UnsupportedOperationException();
     }
     
     public final void setFilterInjectionCount(boolean filterInjectionCount) {

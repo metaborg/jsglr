@@ -33,9 +33,6 @@ public class Disambiguator {
     
     private boolean filterDirectPreference;
     
-    @Deprecated
-    private boolean filterIndirectPreference;
-    
     private boolean filterPreferenceCount;
     
     private boolean filterInjectionCount;
@@ -80,7 +77,7 @@ public class Disambiguator {
      */
     @Deprecated
     public final void setFilterIndirectPreference(boolean filterIndirectPreference) {
-        this.filterIndirectPreference = filterIndirectPreference;
+        // No such setting
     }
     
     /**
@@ -88,7 +85,7 @@ public class Disambiguator {
      */
     @Deprecated
     public boolean getFilterIndirectPreference() {
-        return filterIndirectPreference;
+        // No such setting
     }
     
     public final void setFilterInjectionCount(boolean filterInjectionCount) {
@@ -168,8 +165,7 @@ public class Disambiguator {
     public final void setDefaultFilters() {
         filterAny = true;
         filterCycles = false; // TODO: filterCycles; enable by default
-        filterDirectPreference = true;        
-        filterIndirectPreference = false;        
+        filterDirectPreference = true;  
         filterPreferenceCount = false;        
         filterInjectionCount = false;        
         filterTopSort = true;        

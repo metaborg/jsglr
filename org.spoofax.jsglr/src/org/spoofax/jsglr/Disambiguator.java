@@ -75,11 +75,17 @@ public class Disambiguator {
         return filterDirectPreference;
     }
     
+    /**
+     * For preference count filtering, see {@link #setFilterPreferenceCount(boolean)}.
+     */
     @Deprecated
     public final void setFilterIndirectPreference(boolean filterIndirectPreference) {
         this.filterIndirectPreference = filterIndirectPreference;
     }
     
+    /**
+     * For preference count filtering, see {@link #getFilterPreferenceCount()}.
+     */
     @Deprecated
     public boolean getFilterIndirectPreference() {
         return filterIndirectPreference;
@@ -147,7 +153,6 @@ public class Disambiguator {
     }
     
     public final void setHeuristicFilters(boolean heuristicFilters) {
-        setFilterIndirectPreference(heuristicFilters);
         setFilterPreferenceCount(heuristicFilters);
         setFilterInjectionCount(heuristicFilters);
     }
@@ -870,7 +875,7 @@ public class Disambiguator {
             }
 
             if ((rightPreferCount > leftPreferCount && rightAvoidCount <= leftAvoidCount)
-                    || (rightPreferCount == leftPreferCount && rightAvoidCount < leftPreferCount)) {
+                    || (rightPreferCount == leftPreferCount && rightAvoidCount < leftAvoidCount)) {
                 if (r != FILTER_DRAW) {
                     Tools.logger("Symmetric eagerness priority: ", left, " == ", right);
                     r = FILTER_DRAW;

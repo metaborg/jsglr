@@ -50,9 +50,14 @@ strategies // I/O
 
       add-permissive-sections;
       
+      /* Disabled:
+         Adding rules for separate characters may cause them to be used to
+         construct larger literals. E.g. -> [\39] and -> [\42] might together
+         reduce to "/*"; the start of a block comment 
       if-switch(!OPTIMIZE_ON(),
         optimize-sdf
       );
+      */
       
       sdf-desugar;      
       parenthesize-Sdf2;
@@ -94,7 +99,7 @@ strategies // I/O
   + SwitchOption(| // TODO: Optimize by default?
       OPTIMIZE_ON()
     , "off"
-    , "Optimize the inserted literals to character groups"
+    , "Optimize the inserted literals to character groups (disabled in this version)"
     )
   + ArgOption(
       "-m"

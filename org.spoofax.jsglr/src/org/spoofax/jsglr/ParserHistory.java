@@ -177,6 +177,7 @@ public class ParserHistory {
     }
     
     public IndentInfo getLine(int index){
+        // FIXME: throw an IndexOutOfBoundsException: this is indicates a programmer error
         if(index < 0 || index > getIndexLastLine())
             return null;
         return newLinePoints.get(index);

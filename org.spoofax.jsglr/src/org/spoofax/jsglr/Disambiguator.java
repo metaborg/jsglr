@@ -1020,14 +1020,17 @@ public class Disambiguator {
             while (prod.isInjection()) {
                 t = ((ParseNode) t).getKids().get(0);
 
-                int prodTypeX = getProductionType(t);
+                
+                if (t instanceof ParseNode) {
+                    int prodTypeX = getProductionType(t);
 
-                if (t instanceof ParseNode && prodTypeX != ProductionType.PREFER
+                    if (prodTypeX != ProductionType.PREFER
                         && prodTypeX != ProductionType.AVOID) {
-                    prod = getLabel(t);
-                } else {
-                    return t;
+                        prod = getLabel(t);
+                        continue;
+                    }
                 }
+                return t;
             }
         }
         return t;

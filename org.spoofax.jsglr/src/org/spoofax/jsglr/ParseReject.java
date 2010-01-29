@@ -19,7 +19,9 @@ public class ParseReject extends ParseNode {
 
     @Override
     public ATerm toParseTree(ParseTable pt) {
-        throw new NotImplementedException();
+        // Reject nodes shouldn't normally be outputted to a tree,
+        // but in error recovery mode they can be
+        return super.toParseTree(pt);
     }
 
     @Override

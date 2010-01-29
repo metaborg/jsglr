@@ -104,7 +104,7 @@ public class SGLR {
     
     private RecoveryConnector recoverIntegrator;
     
-    private boolean useIntegratedRecovery;
+    protected boolean useIntegratedRecovery;
     
     public ParserHistory getHistory() {
         return history;

@@ -33,20 +33,15 @@ public class Main {
         boolean filter = true;
         boolean waitForProfiler = false;
         boolean timing = false;
+        boolean heuristicFilters = false;
         
-        int skip = 0;
         for(int i=0;i<args.length;i++) {
-            if(skip > 0)
-                skip--;
             if(args[i].equals("-p")) {
-                parseTable = args[i + 1];
-                skip = 1;
+                parseTable = args[++i];
             } else if(args[i].equals("-i")) {
-                input = args[i + 1];
-                skip = 1;
+                input = args[++i];
             } else if(args[i].equals("-o")) {
-                output = args[i + 1];
-                skip = 1;
+                output = args[++i];
             } else if(args[i].equals("-d")) {
                 debugging = true;
             } else if(args[i].equals("-v")) {
@@ -55,10 +50,15 @@ public class Main {
                 filter = false;
             } else if(args[i].equals("-c")) {
                 detectCycles = false;
+            } else if(args[i].equals("--heuristic-filters")) {
+                heuristicFilters = args[++i].equals("on");
             } else if(args[i].equals("--wait-for-profiler")) {
                 waitForProfiler = true;
             } else if(args[i].equals("--timing")) {
             	timing = true;
+            } else {
+                System.err.println("Unknown option: " + args[i]);
+                System.exit(1);
             }
         }
 
@@ -76,6 +76,7 @@ public class Main {
         Tools.setLogging(logging);
         sglr.getDisambiguator().setFilterCycles(detectCycles);
         sglr.getDisambiguator().setFilterAny(filter);
+        sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
         
         long parsingTime = parseFile(input, output, sglr, null);
         

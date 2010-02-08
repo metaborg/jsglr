@@ -1,9 +1,9 @@
 package org.spoofax.interpreter.library.jsglr;
 
-import static org.spoofax.interpreter.core.Tools.*;
+import static org.spoofax.interpreter.core.Tools.asJavaInt;
+import static org.spoofax.interpreter.core.Tools.asJavaString;
 
 import java.io.IOException;
-import java.io.PrintStream;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -85,8 +85,8 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			env.setCurrent(result);
 			return result != null;
 		} catch (IOException e) {
-			PrintStream err = SSLLibrary.instance(env).getIOAgent().getOutputStream(IOAgent.CONST_STDERR);
-			err.println("JSGLR_parse_string_pt: could not parse " + getLastPath() + " - " + e.getMessage());
+			IOAgent io = SSLLibrary.instance(env).getIOAgent();
+			io.printError("JSGLR_parse_string_pt: could not parse " + getLastPath() + " - " + e.getMessage());
 			return false;
 		} catch (SGLRException e) {
 			lastException = e;

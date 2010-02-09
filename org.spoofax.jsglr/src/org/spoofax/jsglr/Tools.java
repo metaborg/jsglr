@@ -22,7 +22,6 @@ public class Tools {
     static boolean logging = false;
     static boolean tracing = false;
     static boolean measuring = false;
-    static int timeout = 0;
     
     private static Measures measures;
     
@@ -98,8 +97,11 @@ public class Tools {
      * before a {@link ParseTimeoutException} is thrown.
      * 
      * @param timeout  The maximum time to parse, in milliseconds.
+     * 
+     * @Deprecated Use SGLR.setTimeout instead
      */
+    @Deprecated
     public static void setTimeout(int timeout) {
-        Tools.timeout = timeout;
+        // noop
     }
 }

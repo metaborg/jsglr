@@ -43,6 +43,8 @@ public class SGLR {
     //Performance testing
     private static long parseTime=0;
     private static int parseCount=0;
+    
+    private int timeout;
         
     public Frame startFrame; 
     
@@ -243,7 +245,7 @@ public class SGLR {
     }
     
     private void initParseTimer() {
-        if (Tools.timeout > 0) {
+        if (timeout > 0) {
             // We use a single shared timer to conserve native threads
             // and a jobId to recognize stale abort events
             synchronized (abortTimer) {
@@ -259,11 +261,21 @@ public class SGLR {
                             asyncAbort();
                     }
                 }
-            }, Tools.timeout
+            }, timeout
             );
         } else {
             asyncAborted = false;
         }
+    }
+    
+    /**
+     * Sets the maximum amount of time to try and parse a file,
+     * before a {@link ParseTimeoutException} is thrown.
+     * 
+     * @param timeout  The maximum time to parse, in milliseconds.
+     */
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     private ATerm sglrParse(String startSymbol)

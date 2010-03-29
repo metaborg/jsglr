@@ -86,7 +86,7 @@ public class NewStructureSkipper {
         ArrayList<StructureSkipSuggestion> fwSkips=new ArrayList<StructureSkipSuggestion>();
         ArrayList<StructureSkipSuggestion> nextSiblings=getCurrentAndNextSkipSuggestions(failureIndex);
         ArrayList<StructureSkipSuggestion> prevRegionSuggestions=selectPrevRegion(failureIndex);
-        if(prevRegionSuggestions.isEmpty()){
+        if(prevRegionSuggestions.isEmpty() && nextSiblings.size()> 0){
             prevRegionSuggestions=getCurrentRegionSkips(failureIndex);
             nextSiblings.remove(0);
         }

@@ -6,20 +6,20 @@
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.jsglr;
-import java.util.LinkedHashSet;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CancellationException;
-import java.util.Set;
+
 import org.spoofax.ArrayDeque;
 
 import aterm.ATerm;

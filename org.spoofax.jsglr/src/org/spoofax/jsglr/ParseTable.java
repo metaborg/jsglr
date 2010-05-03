@@ -97,6 +97,8 @@ public class ParseTable implements Serializable {
 
     private boolean parse(ATerm pt) throws InvalidParseTableException {
         int version = Term.intAt(pt, 0);
+        if (pt.getChildCount() == 1) // Seen with ParseTable(0)
+          throw new InvalidParseTableException("Invalid parse table (possibly wrong start symbol specified)\n" + pt);
         startState = Term.intAt(pt, 1);
         ATermList labelsTerm = Term.listAt(pt, 2);
         ATermAppl statesTerm = Term.applAt(pt, 3);

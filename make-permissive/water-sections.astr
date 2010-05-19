@@ -4,7 +4,7 @@ attributes
   
   // TODO: WATER -> LAYOUT rule should be in lexical syntax?
 
-  // XXX: WATERTOKENSEPARATOR should be based on the definition of LAYOUT
+  // XXX: WATERTOKENSEPARATOR should be based on the definition of LAYOUT (also used in insert-sections!)
   
   // XXX: WATERTOKENSTAR should be based on the language's block comments
 

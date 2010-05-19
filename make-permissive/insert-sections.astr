@@ -8,18 +8,27 @@ attributes
   def insert-sections:
     modules ->
     |[ sorts
-         WATEREOF
+         WATEREOF INSERTION
   
        lexical restrictions    
          WATEREOF -/- ~[]
          
        lexical syntax
          ~%% Lexical insertion recovery rules
+         -> INSERTION {recover}
          p1*
        
        syntax
          ~%% Kernel syntax insertion recovery rules
+         -> INSERTION {recover}
          p2*
+       
+       lexical restrictions
+         INSERTION -/- [\ \t\n]
+       
+       lexical restrictions
+         INSERTION -/- [\ \t\n]
+         
     ]|
     where
       if-switch(|INSERTIONS_ON())
@@ -44,7 +53,7 @@ attributes // Simple closing literals (e.g., "}")
   eq lexical-insert-prods:
     prod([lit(_) | pattern-and-lit], _, _) ->
     |[ 
-       -> ~closinglit {recover, cons("INSERTION")}
+       INSERTION -> ~closinglit {cons("INSERTION")}
     ]|
     where
       id.in-context-free-section
@@ -74,7 +83,7 @@ attributes // Simple opening literals (e.g., "{")
   eq lexical-insert-prods:
     prod([openinglit | pattern-and-lit], _, _) ->
     |[ 
-       -> ~openinglit {recover, cons("INSERTION")}
+       INSERTION -> ~openinglit {cons("INSERTION")}
     ]|
     where
       id.in-context-free-section
@@ -177,7 +186,7 @@ attributes // Matched (e.g. string) closing literals
 attributes // Separator literals (e.g., ",")
 
   eq lexical-insert-prods:
-    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
+    lit @ lit(_) -> |[ INSERTION -> ~lit {cons("INSERTION")} ]|
     where
       id.in-iter-pattern;
       id.in-context-free-section
@@ -191,7 +200,7 @@ attributes // Separator literals (e.g., ",")
 attributes // Non-nestable region keywords (e.g., "attributes" or "strategies")
 
   eq lexical-insert-prods:
-    prod([lit @ lit(_) | _], _, _) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
+    prod([lit @ lit(_) | _], _, _) -> |[ INSERTION -> ~lit {cons("INSERTION")} ]|
     where
       if-switch(|NONNESTABLE_ON())
     where
@@ -228,7 +237,7 @@ attributes // Non-nestable region keywords (e.g., "attributes" or "strategies")
 attributes // Start production literals (e.g., "module")
 
   eq lexical-insert-prods:
-    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
+    lit @ lit(_) -> |[ INSERTION -> ~lit {cons("INSERTION")} ]|
     where
       id.is-start-symbol(|id.current-sort)
     where
@@ -241,7 +250,7 @@ attributes // Start production literals (e.g., "module")
 attributes // All-literal insertion
 
   eq lexical-insert-prods:
-    lit @ lit(_) -> |[ -> ~lit {recover, cons("INSERTION")} ]|
+    lit @ lit(_) -> |[ INSERTION -> ~lit {cons("INSERTION")} ]|
     where
       id.in-context-free-section
     where

@@ -83,7 +83,7 @@ strategies // I/O
     )
   + SwitchOption(|
       NONNESTABLE_ON()
-    , "off"
+    , "on"
     , "Add insertion rules for keywords starting non-nestable regions"
     )
   + SwitchOption(|

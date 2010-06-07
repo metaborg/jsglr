@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -94,7 +95,7 @@ public class Main {
         if(input == null)
             fis = System.in;
         else
-            fis = new FileInputStream(input);
+            fis = new BufferedInputStream(new FileInputStream(input));
         OutputStream ous = null;
         if(output != null)
             ous = new FileOutputStream(output);

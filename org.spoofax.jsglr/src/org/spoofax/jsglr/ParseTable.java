@@ -7,6 +7,8 @@
  */
 package org.spoofax.jsglr;
 
+import static java.util.Arrays.asList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -607,5 +609,9 @@ public class ParseTable implements Serializable {
 
 	public void lookupAction(int stateNumber, int peekNextToken) {
 		throw new NotImplementedException();
+	}
+	
+	public List<Label> getLabels() {
+	    return Collections.unmodifiableList(asList(labels));
 	}
 }

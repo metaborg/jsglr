@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.jsglr;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class JSGLR_parse_stratego extends JSGLRPrimitive {
 		if(StrategoSGLR == null)
 			return false;
 		try {
-			parsed = StrategoSGLR.parse(new FileInputStream(path));
+			parsed = StrategoSGLR.parse(new BufferedInputStream(new FileInputStream(path)));
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found.");
 			return false;

@@ -13,12 +13,12 @@ import java.io.Serializable;
 
 public class Label implements Serializable {
 
-    static final long serialVersionUID = -4080621639747161438L;
+    private static final long serialVersionUID = -4080621639747161438L;
     
-    public final int labelNumber;
-    public final transient ATermAppl prod;
-    public final ProductionAttributes productionAttributes;
-    public final boolean injection;
+    final int labelNumber;
+    final ATermAppl prod;
+    private final ProductionAttributes productionAttributes;
+    private final boolean injection;
     
     public Label(int labelNumber, ATermAppl prod, ProductionAttributes productionAttributes, boolean injection) {
         this.labelNumber = labelNumber;
@@ -52,6 +52,10 @@ public class Label implements Serializable {
 
     public boolean isInjection() {
         return injection;
+    }
+    
+    public ATermAppl getProduction() {
+        return prod;
     }
     
     @Override

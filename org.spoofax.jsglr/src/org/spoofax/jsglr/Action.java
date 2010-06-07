@@ -49,7 +49,7 @@ public class Action implements Serializable {
 
     public boolean rejectable() {
         for(ActionItem ai : items) {
-            if(ai instanceof Reduce) {
+            if(ai.type == ActionItem.REDUCE) {
                 Reduce r = (Reduce) ai;
                 if(r.status == ProductionType.REJECT)
                     return true;
@@ -61,7 +61,7 @@ public class Action implements Serializable {
 
     public boolean hasPrefer() {
         for(ActionItem ai : items)
-            if(ai instanceof Reduce) {
+            if(ai.type == ActionItem.REDUCE) {
                 Reduce r = (Reduce) ai;
                 if(r.status == ProductionType.PREFER)
                     return true;
@@ -71,7 +71,7 @@ public class Action implements Serializable {
 
     public boolean hasAvoid() {
         for(ActionItem ai : items)
-            if(ai instanceof Reduce) {
+            if(ai.type == ActionItem.REDUCE) {
                 Reduce r = (Reduce) ai;
                 if(r.status == ProductionType.AVOID) {
                     if(SGLR.isDebugging()) {

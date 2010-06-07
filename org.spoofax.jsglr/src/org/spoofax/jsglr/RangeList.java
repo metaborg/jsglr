@@ -18,13 +18,14 @@ public class RangeList {
     private final int singularRange;
     
     public RangeList(Range... ranges) {
-        // Assume unsanitized input
-        List<Range> sortedRanges = toSortedList(ranges);
-        List<Range> sanitizedRanges = mergeOverlap(sortedRanges);
-        this.ranges = rangesToArray(sanitizedRanges);
         if (ranges.length == 1 && ranges[0].low == ranges[0].high) {
+            this.ranges = null;
             singularRange = ranges[0].low;
         } else {
+            // Assume unsanitized input
+            List<Range> sortedRanges = toSortedList(ranges);
+            List<Range> sanitizedRanges = mergeOverlap(sortedRanges);
+            this.ranges = rangesToArray(sanitizedRanges);
             singularRange = NONE;
         }
     }
@@ -65,7 +66,7 @@ public class RangeList {
     }
     
     public boolean within(int c) {
-        if (c == singularRange) return true;
+        if (singularRange != NONE) return c == singularRange;
         for (int i = 0; i < ranges.length; i += 2) {
             int low = ranges[i];
             if (low <= c) {
@@ -93,35 +94,48 @@ public class RangeList {
      * Returns a char value that can be used for "brute-force" recovery
      */
     public int getFirstRangeElement() {
-        return ranges[0];
+        return singularRange == NONE ? ranges[0] : singularRange;
+    }
+    
+    public int getLastRangeElement() {
+        return singularRange == NONE ? ranges[ranges.length - 1] : singularRange;
     }
     
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof RangeList
-            && Arrays.equals(((RangeList) obj).ranges, ranges);
+        if (!(obj instanceof RangeList))
+            return false;
+        if (singularRange == NONE) {
+            return Arrays.equals(((RangeList) obj).ranges, ranges);
+        } else {
+            return singularRange == ((RangeList) obj).singularRange;
+        }
     }
     
     @Override
     public int hashCode() {
-        return Arrays.hashCode(ranges);
+        return singularRange == NONE ? Arrays.hashCode(ranges) : singularRange;
     }
     
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        for (int i = 0, end = ranges.length - 1; i < end; i++) {
-            int low = ranges[i];
-            int high = ranges[i + 1];
-            sb.append(low);
-            if (low != high) {
-                sb.append('-');
-                sb.append(high);
+        if (singularRange != NONE) {
+            sb.append(singularRange);
+        } else {
+            sb.append('[');
+            for (int i = 0, end = ranges.length - 1; i < end; i++) {
+                int low = ranges[i];
+                int high = ranges[i + 1];
+                sb.append(low);
+                if (low != high) {
+                    sb.append('-');
+                    sb.append(high);
+                }
+                sb.append(',');
             }
-            sb.append(',');
+            sb.replace(sb.length() - 1, sb.length(), "]");
         }
-        sb.replace(sb.length() - 1, sb.length(), "]");
         return sb.toString();
     }
 }

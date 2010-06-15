@@ -59,6 +59,8 @@ public class FineGrainedOnRegion {
         if(loops>MAX_NR_OF_LINES)//max nr of lines explored in backtracking
             return false;
         int indexChoichePoints=Math.max(0, indexCP);
+        if (indexChoichePoints >= choicePoints.size())
+            return false;
         BacktrackPosition btPosition=choicePoints.get(indexChoichePoints);
         mySGLR.activeStacks.clear();
         mySGLR.activeStacks.addAll(btPosition.recoverStacks);

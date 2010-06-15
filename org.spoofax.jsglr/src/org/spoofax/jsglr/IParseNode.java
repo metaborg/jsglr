@@ -11,8 +11,11 @@ import aterm.ATerm;
 
 public abstract class IParseNode {
 
+    protected static final int NO_HASH_CODE = 0;
+
     public abstract ATerm toParseTree(ParseTable pt);
 
+    @Deprecated
     abstract void clear();
     abstract public boolean equals(Object obj);
     abstract public int hashCode();

@@ -281,7 +281,7 @@ public class Disambiguator {
         if (sort != null && filterTopSort) {
             t = selectOnTopSort(t, sort);
             if (t == null)
-                throw new StartSymbolException(parser, "Desired start symbol not found");
+                throw new StartSymbolException(parser, "Desired start symbol not found: " + sort);
         }
         
         return t;

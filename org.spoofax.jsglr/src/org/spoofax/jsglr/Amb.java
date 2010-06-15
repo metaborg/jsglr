@@ -15,11 +15,13 @@ import aterm.ATermList;
 import aterm.ATermFactory;
 
 public class Amb extends IParseNode {
-
+    
     private final List<IParseNode> alternatives;
+    
+    private int cachedHashCode = NO_HASH_CODE;
 
     Amb(IParseNode left, IParseNode right) {
-        alternatives = new ArrayList<IParseNode>();
+        alternatives = new ArrayList<IParseNode>(2);
         alternatives.add(left);
         alternatives.add(right);
     }
@@ -31,18 +33,32 @@ public class Amb extends IParseNode {
     public ATerm toParseTree(ParseTable pt) {
 
         ATermFactory factory = pt.getFactory();
-        ATermList l1 = factory.makeList();
-        for (int i = alternatives.size() - 1; i >= 0; i--) {
-            l1 = factory.makeList(alternatives.get(i).toParseTree(pt), l1);
-        }
-        return pt.getFactory().makeAppl(pt.ambAFun, l1);
+        ATermList list = factory.makeList();
+        list = addToParseTree(pt, factory, list);
+        return pt.getFactory().makeAppl(pt.ambAFun, list);
     }
 
-    public void clear() {
+    private ATermList addToParseTree(ParseTable pt, ATermFactory factory,
+            ATermList list) {
+        
+        for (int i = alternatives.size() - 1; i >= 0; i--) {
+            IParseNode alt = alternatives.get(i);
+            if (alt instanceof Amb) {
+                list = ((Amb) alt).addToParseTree(pt, factory, list);
+            } else {
+                list = factory.makeList(alt.toParseTree(pt), list);
+            }
+        }
+        return list;
+    }
+
+    @Deprecated
+    void clear() {
         for (int i = 0; i < alternatives.size(); i++) {
             alternatives.get(i).clear();
         }
         alternatives.clear();
+        cachedHashCode = NO_HASH_CODE;
     }
 
     @Override
@@ -62,8 +78,11 @@ public class Amb extends IParseNode {
     public boolean equals(Object obj) {
         if(!(obj instanceof Amb))
             return false;
+        if (obj == this)
+            return true;
         Amb o = (Amb)obj;
-        if(o.alternatives.size() != alternatives.size())
+        if(o.alternatives.size() != alternatives.size()
+                || o.hashCode() != hashCode())
             return false;
         for(int i=0;i<alternatives.size();i++)
             if(!alternatives.get(i).equals(o.alternatives.get(i)))
@@ -73,10 +92,12 @@ public class Amb extends IParseNode {
     
     @Override
     public int hashCode() {
-        int r = 0;
-        for(IParseNode n : alternatives)
-            r += n.hashCode();
-        return r;
+        if (cachedHashCode != NO_HASH_CODE) {
+            assert cachedHashCode == alternatives.hashCode();
+            return cachedHashCode;
+        }
+        int result = cachedHashCode = alternatives.hashCode();
+        return result;
     }
 
     @Override

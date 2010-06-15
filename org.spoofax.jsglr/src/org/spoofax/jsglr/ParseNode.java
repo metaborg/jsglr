@@ -17,7 +17,10 @@ import aterm.pure.PureFactory;
 public class ParseNode extends IParseNode {
 
     public final int label;
-    protected List<IParseNode> kids;
+    
+    protected final List<IParseNode> kids;
+    
+    private int cachedHashCode;
 
     public ParseNode(int label, List<IParseNode> kids) {
         this.label = label;
@@ -55,11 +58,13 @@ public class ParseNode extends IParseNode {
     
     public List<IParseNode> getKids() { return kids; }
 
+    @Deprecated
     void clear() {
         for (int i = 0; i < kids.size(); i++) {
             kids.get(i).clear();
         }
         kids.clear();
+        cachedHashCode = NO_HASH_CODE;
     }
     
     @Override
@@ -69,9 +74,8 @@ public class ParseNode extends IParseNode {
         if (obj == this)
             return true;
         ParseNode o = (ParseNode)obj;
-        if(label != o.label)
-            return false;
-        if(kids.size() != o.kids.size())
+        if(label != o.label || kids.size() != o.kids.size()
+                || hashCode() != o.hashCode())
             return false;
         for(int i=0;i<kids.size();i++) {
             if(!kids.get(i).equals(o.kids.get(i)))
@@ -82,11 +86,14 @@ public class ParseNode extends IParseNode {
     
     @Override
     public int hashCode() {
-        // FIXME improve
-        int r = 1337 * label ;
+        if (cachedHashCode != NO_HASH_CODE)
+            return cachedHashCode;
+        final int prime = 31;
+        int result = prime * label;
         for(IParseNode n : kids)
-            r += n.hashCode();
-        return r;
+            result += (prime * n.hashCode());
+        cachedHashCode = result;
+        return result;
     }
 
     @Override

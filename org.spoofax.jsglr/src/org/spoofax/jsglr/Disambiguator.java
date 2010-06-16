@@ -700,7 +700,7 @@ public class Disambiguator {
             List<IParseNode> oldAmbiguities = new LinkedList<IParseNode>();
             oldAmbiguities.addAll(newAmbiguities);
             for (IParseNode amb : oldAmbiguities) {
-                if (newAmbiguities.remove(amb)) { // TODO: optimize - use index (avoid equals() check)
+                if (newAmbiguities.remove(amb)) {
                     newAmbiguities = filterAmbiguityList(newAmbiguities, amb);
                 }
             }

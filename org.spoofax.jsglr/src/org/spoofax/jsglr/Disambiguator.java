@@ -205,13 +205,21 @@ public class Disambiguator {
             return result;
         } catch (RuntimeException e) {
             throw new FilterException(parser, "Runtime exception when applying filters", e);
+        } finally {
+            initializeFromParser(null);
         }
     }
 
     private void initializeFromParser(SGLR parser) {
-        this.parser = parser;
-        parseTable = parser.getParseTable();
-        ambiguityManager = parser.getAmbiguityManager();
+        if (parser == null) {
+            this.parser = null;
+            parseTable = null;
+            ambiguityManager = null;
+        } else {
+            this.parser = parser;
+            parseTable = parser.getParseTable();
+            ambiguityManager = parser.getAmbiguityManager();
+        }
     }
 
     private void logStatus() {

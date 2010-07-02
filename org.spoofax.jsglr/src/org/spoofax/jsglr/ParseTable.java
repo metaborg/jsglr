@@ -123,6 +123,7 @@ public class ParseTable implements Serializable {
         gotoCache = null;
         shiftCache = null;
         reduceCache = null;
+        rangesCache = null;
         
         return true;
     }
@@ -204,8 +205,8 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
-	private boolean isInjection(ATermAppl prod) {
+    @SuppressWarnings("rawtypes")
+    private boolean isInjection(ATermAppl prod) {
 
         List r = prod.match(injection1Appl);
         if (r != null && r.size() >= 1) {
@@ -586,8 +587,8 @@ public class ParseTable implements Serializable {
     }
 
     public List<Priority> getPriorities(Label prodLabel) {
-        if (priorityCache == null) priorityCache =
-            Collections.synchronizedMap(new HashMap<Label, List<Priority>>());        
+        if (priorityCache == null)
+            priorityCache = new HashMap<Label, List<Priority>>();        
         List<Priority> results = priorityCache.get(prodLabel);
         if (results != null) return results;
         

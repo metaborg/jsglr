@@ -168,11 +168,24 @@ public class SGLR {
     }
     
     /**
-     * Aborts an asynchronously running parse job, causing it to throw an exception.     * 
+     * @deprecated Use {@link #asyncCancel()} instead.
+     */
+    @Deprecated
+    public void asyncAbort() {
+        asyncCancel();
+    }
+    
+    /**
+     * Aborts an asynchronously running parse job, causing it to throw an exception.
+     *  
      * (Provides no guarantee that the parser is actually cancelled.)
      */
-    public void asyncAbort() {
+    public void asyncCancel() {
         asyncAborted = true;
+    }
+    
+    public void asyncCancelReset() {
+        asyncAborted = false;
     }
 
     private void basicInit(ATermFactory factory) {

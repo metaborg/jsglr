@@ -60,7 +60,7 @@ public class Label implements Serializable {
     
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Label && ((Label) obj).labelNumber == labelNumber;
+        return obj == this || (obj instanceof Label && ((Label) obj).labelNumber == labelNumber);
     }
     
     @Override

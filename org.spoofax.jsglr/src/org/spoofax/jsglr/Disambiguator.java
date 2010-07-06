@@ -445,6 +445,8 @@ public class Disambiguator {
                     if(Tools.debugging) {
                         Tools.debug(" - found");
                     }
+                    if (r instanceof Amb) // FIXME is this correct?
+                        return r;
                     return applyPriorityFilter((ParseNode) r, prodLabel);
                 }
                 if(Tools.debugging) {
@@ -649,8 +651,8 @@ public class Disambiguator {
 
             List<IParseNode> ambs = ((Amb) last).getAlternatives();
             for (IParseNode amb : ambs) {
-                Label other = parseTable.getLabel(((ParseNode) amb).getLabel());
-                if (!prodLabel.equals(other)) {
+                if (amb instanceof Amb
+                        || !parseTable.getLabel(((ParseNode) amb).getLabel()).equals(prodLabel)) {
                     newAmbiguities.add(amb);
                 }
             }

@@ -97,7 +97,7 @@ public class Main {
         else
             fis = new BufferedInputStream(new FileInputStream(input));
         OutputStream ous = null;
-        if(output != null)
+        if(output != null && !"-".equals(output))
             ous = new FileOutputStream(output);
         else 
             ous = System.out;
@@ -114,7 +114,7 @@ public class Main {
             // Detailed message for other exceptions
             System.err.println("Parsing failed : " + e);
         }
-        if(t != null){            
+        if(t != null && !"-".equals(ous)){            
             String outputString=t.toString();
             ous.write(outputString.getBytes());
         }

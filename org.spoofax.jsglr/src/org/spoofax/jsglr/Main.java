@@ -28,6 +28,7 @@ public class Main {
         String parseTable = null;
         String input = null;
         String output = null;
+        String startSymbol = null;
         boolean debugging = false;
         boolean logging = false;
         boolean detectCycles = true;
@@ -51,6 +52,8 @@ public class Main {
                 filter = false;
             } else if(args[i].equals("-c")) {
                 detectCycles = false;
+            } else if(args[i].equals("-s")) {
+                startSymbol = args[++i];
             } else if(args[i].equals("--heuristic-filters")) {
                 heuristicFilters = args[++i].equals("on");
             } else if(args[i].equals("--wait-for-profiler")) {
@@ -79,7 +82,7 @@ public class Main {
         sglr.getDisambiguator().setFilterAny(filter);
         sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
         
-        long parsingTime = parseFile(input, output, sglr, null);
+        long parsingTime = parseFile(input, output, sglr, startSymbol);
         
         if(waitForProfiler)
             System.in.read();

@@ -325,7 +325,9 @@ public class Disambiguator {
       }
 
     private void addTopSortAlternatives(IParseNode t, String sort, List<IParseNode> results) throws FilterException {
-        for (IParseNode amb : ((Amb) t).getAlternatives()) {
+        List<IParseNode> alternatives = ((Amb) t).getAlternatives();
+        for (int i = 0, max = alternatives.size(); i < max; i++) {
+            IParseNode amb = alternatives.get(i);
             if (amb instanceof Amb) {
                 addTopSortAlternatives(amb, sort, results);
             } else {
@@ -390,7 +392,8 @@ public class Disambiguator {
         List<IParseNode> newArgs = new ArrayList<IParseNode>();
         // boolean changed = false;
 
-        for (IParseNode n : args) {
+        for (int i = 0, max = args.size(); i < max; i++) {
+            IParseNode n = args.get(i);
             IParseNode filtered = filterTree(n, false);
             
             // changed = !filtered.equals(n) || changed;
@@ -405,8 +408,10 @@ public class Disambiguator {
 
         if (filterAny) {
             List<IParseNode> filtered = new ArrayList<IParseNode>();
-            for (IParseNode n : newArgs)
+            for (int i = 0, max = newArgs.size(); i < max; i++) {
+                IParseNode n = newArgs.get(i);
                 filtered.add(applyAssociativityPriorityFilter(n));
+            }
             return filtered;
         } else {
             return newArgs;
@@ -475,7 +480,8 @@ public class Disambiguator {
             List<IParseNode> ambs = ((Amb)firstKid).getAlternatives();
             List<IParseNode> restKids = kids.subList(1, t.kids.size() - 1);
             
-            for(IParseNode amb : ambs) {
+            for (int i = 0, max = ambs.size(); i < max; i++) {
+                IParseNode amb = ambs.get(i);
                 if(((ParseNode)amb).getLabel() != prodLabel.labelNumber) {
                     newAmbiguities.add(amb);
                 }
@@ -516,15 +522,17 @@ public class Disambiguator {
         int l0 = prodLabel.labelNumber;
         int kidnumber = 0;
 
-        for (IParseNode kid : kids) {
+        for (int i = 0, max = kids.size(); i < max; i++) {
+            final IParseNode kid = kids.get(i);
             IParseNode newKid = kid;
-            IParseNode injection = jumpOverInjections(kid);
+            final IParseNode injection = jumpOverInjections(kid);
 
             if (injection instanceof Amb) {
                 List<IParseNode> ambs = ((Amb) injection).getAlternatives();
 
                 newAmbiguities.clear();
-                for (IParseNode amb : ambs) {
+                for (int j = 0, jmax = ambs.size(); j < jmax; j++) {
+                    IParseNode amb = ambs.get(j);
                     IParseNode injAmb = jumpOverInjections(amb);
 
                     if (injAmb instanceof ParseNode) {
@@ -650,7 +658,9 @@ public class Disambiguator {
             rest.remove(rest.size() - 1);
 
             List<IParseNode> ambs = ((Amb) last).getAlternatives();
-            for (IParseNode amb : ambs) {
+
+            for (int i = 0, max = ambs.size(); i < max; i++) {
+                IParseNode amb = ambs.get(i);
                 if (amb instanceof Amb
                         || !parseTable.getLabel(((ParseNode) amb).getLabel()).equals(prodLabel)) {
                     newAmbiguities.add(amb);
@@ -700,7 +710,8 @@ public class Disambiguator {
 
         List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
 
-        for (IParseNode amb : ambs) {
+        for (int i = 0, max = ambs.size(); i < max; i++) {
+            IParseNode amb = ambs.get(i);
             IParseNode newAmb = filterTree(amb, true);
             if (newAmb != null) newAmbiguities.add(newAmb);
         }
@@ -709,7 +720,8 @@ public class Disambiguator {
             /* Handle ambiguities inside this ambiguity cluster */
             List<IParseNode> oldAmbiguities = new LinkedList<IParseNode>();
             oldAmbiguities.addAll(newAmbiguities);
-            for (IParseNode amb : oldAmbiguities) {
+            for (int i = 0, max = oldAmbiguities.size(); i < max; i++) {
+                IParseNode amb = oldAmbiguities.get(i);
                 if (newAmbiguities.remove(amb)) {
                     newAmbiguities = filterAmbiguityList(newAmbiguities, amb);
                 }
@@ -725,19 +737,19 @@ public class Disambiguator {
         return new Amb(newAmbiguities);
     }
 
-    private List<IParseNode> filterAmbiguityList(List<IParseNode> ambiguities, IParseNode t) {
+    private List<IParseNode> filterAmbiguityList(List<IParseNode> ambs, IParseNode t) {
         // SG_FilterAmbList
         
         boolean keepT = true;
         List<IParseNode> r = new ArrayList<IParseNode>();
 
-        if (ambiguities.isEmpty()) {
+        if (ambs.isEmpty()) {
             r.add(t);
             return r;
         }
 
-        for (IParseNode amb : ambiguities) {
-
+        for (int i = 0, max = ambs.size(); i < max; i++) {
+            IParseNode amb = ambs.get(i);
             switch (filter(t, amb)) {
             case FILTER_DRAW:
                 r.add(amb);
@@ -852,8 +864,10 @@ public class Disambiguator {
         // SG_CountAllInjectionsInTree
         // - ok
         int r = 0;
-        for (IParseNode n : ls)
+        for (int i = 0, max = ls.size(); i < max; i++) {
+            IParseNode n = ls.get(i);
             r += countAllInjections(n);
+        }
         return r;
     }
 
@@ -917,8 +931,10 @@ public class Disambiguator {
         // SG_CountPrefersInTree
         // - ok
         int r = 0;
-        for (IParseNode n : ls)
+        for (int i = 0, max = ls.size(); i < max; i++) {
+            IParseNode n = ls.get(i);
             r += countPrefers(n);
+        }
         return r;
     }
 
@@ -942,8 +958,10 @@ public class Disambiguator {
         // SG_CountAvoidsInTree
         // - ok
         int r = 0;
-        for (IParseNode n : ls)
+        for (int i = 0, max = ls.size(); i < max; i++) {
+            IParseNode n = ls.get(i);
             r += countAvoids(n);
+        }
         return r;
     }
 
@@ -1165,8 +1183,11 @@ public class Disambiguator {
     private List<IParseNode> computeCyclicTermInAmbiguityCluster(Amb ambiguities,
             PositionMap visited) {
 
-        for (IParseNode n : ambiguities.getAlternatives()) {
-            List<IParseNode> cycle = computeCyclicTerm(n, true, visited);
+
+        List<IParseNode> ambs = ambiguities.getAlternatives();
+        for (int i = 0, max = ambs.size(); i < max; i++) {
+            IParseNode amb = ambs.get(i);
+            List<IParseNode> cycle = computeCyclicTerm(amb, true, visited);
             if (cycle != null)
                 return cycle;
         }
@@ -1176,7 +1197,9 @@ public class Disambiguator {
     
     private List<IParseNode> computeCyclicTerm(List<IParseNode> kids, boolean b, PositionMap visited) {
 
-        for (IParseNode kid : kids) {
+
+        for (int i = 0, max = kids.size(); i < max; i++) {
+            IParseNode kid = kids.get(i);
             List<IParseNode> cycle = computeCyclicTerm(kid, false, visited);
             if (cycle != null)
                 return cycle;

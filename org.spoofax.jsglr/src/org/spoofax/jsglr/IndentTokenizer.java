@@ -14,7 +14,7 @@ public class IndentTokenizer {
         
     private static final char INDENT_TOK = 244; //char used to represent indentation in syntax definition
     private static final char DEDENT_TOK = 245; //char used to represent 'dedentation' in syntax definition
-    private Stack<Integer> indentStack;
+    private ArrayDeque<Integer> indentStack;
     private int dedentCount;
     private boolean indentShift;
     private boolean strictMode;
@@ -25,7 +25,7 @@ public class IndentTokenizer {
      */
     public IndentTokenizer(IndentationHandler indentInfo, boolean isStrictMode)
     {
-        indentStack = new Stack<Integer>();
+        indentStack = new ArrayDeque<Integer>();
         this.strictMode=isStrictMode;
         myIndentHandler = indentInfo;
         initEvaluationVariables();
@@ -33,7 +33,7 @@ public class IndentTokenizer {
  
     private void initEvaluationVariables() {
         myIndentHandler.initEvaluationVariables();
-        indentStack.clear();
+        indentStack.clear(true);
         indentStack.push(0);
         resetForNextLine();
     }

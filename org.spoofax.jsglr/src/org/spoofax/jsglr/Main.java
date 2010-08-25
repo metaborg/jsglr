@@ -117,7 +117,7 @@ public class Main {
             // Detailed message for other exceptions
             System.err.println("Parsing failed : " + e);
         }
-        if(t != null && !"-".equals(ous)){            
+        if(t != null && !"-".equals(output)){            
             String outputString=t.toString();
             ous.write(outputString.getBytes());
         }

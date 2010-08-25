@@ -19,7 +19,7 @@ public class IndentInfo {
     }   
     
     public void fillStackNodes(ArrayDeque<Frame> nodes) {
-        stackNodes.clear();        
+        stackNodes.clear(true);        
         stackNodes.addAll(nodes);        
     } 
 

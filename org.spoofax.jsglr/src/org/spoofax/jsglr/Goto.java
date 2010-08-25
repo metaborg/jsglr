@@ -22,7 +22,7 @@ public class Goto implements Serializable {
         this.nextState = nextState;
     }
 
-    public boolean hasProd(int label) {
+    public final boolean hasProd(int label) {
         return ranges.within(label);
     }
     
@@ -51,5 +51,9 @@ public class Goto implements Serializable {
         sb.append(nextState);
         sb.append(")");
         return sb.toString(); 
+    }
+
+    public RangeList getRangeList() {
+        return ranges;
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class RangeList {
     
-    private static final int NONE = -1;
+    public static final int NONE = -1;
     
     private final int[] ranges;
     
@@ -65,7 +65,7 @@ public class RangeList {
         return results;
     }
     
-    public boolean within(int c) {
+    public final boolean within(int c) {
         if (singularRange != NONE) return c == singularRange;
         for (int i = 0; i < ranges.length; i += 2) {
             int low = ranges[i];
@@ -84,7 +84,7 @@ public class RangeList {
     /**
      * Gets the character of a single-character range.
      * 
-     * @return  The single range character, or -1 if not applicable.
+     * @return  The single range character, or {@link NONE} if not applicable.
      */
     public int getSingularRange() {
         return singularRange;

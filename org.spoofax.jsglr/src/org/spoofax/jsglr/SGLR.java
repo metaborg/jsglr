@@ -122,7 +122,7 @@ public class SGLR {
     }
 
     public void clearRecoverStacks(){
-        recoverStacks.clear();
+        recoverStacks.clear(false);
     }
     
     private ArrayDeque<Frame> recoverStacks;
@@ -749,10 +749,7 @@ public class SGLR {
             }
             int pos = activeStacks.size() - sz + i;
             Frame st2 = activeStacks.get(pos);
-            boolean b0 = st2.allLinksRejected();
-            boolean b1 = inReduceStacks(forActor, st2);
-            boolean b2 = inReduceStacks(forActorDelayed, st2);
-            if (b0 || b1 || b2)
+            if (st2.allLinksRejected() || inReduceStacks(forActor, st2) || inReduceStacks(forActorDelayed, st2))
                 continue; //stacknode will find reduction in regular process
 
             for (Action action : st2.peek().getActions()) {
@@ -918,7 +915,7 @@ public class SGLR {
                 frame.clear();
             }
         }
-        forActorDelayed.clear();
+        forActorDelayed.clear(true);
     }
 
     private void clearActiveStacks(boolean all) {
@@ -927,7 +924,7 @@ public class SGLR {
                 frame.clear();
             }
         }
-        activeStacks.clear();
+        activeStacks.clear(true);
     }
 
     ParseTable getParseTable() {

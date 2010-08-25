@@ -719,6 +719,14 @@ public class ArrayDeque<E> extends AbstractCollection<E>
             } while (i != t);
         }
     }
+    
+    public void clear(boolean skipCellNulling) {
+        if (skipCellNulling) {
+            head = tail = 0;
+        } else {
+            clear();
+        }
+    }
 
     /**
      * Returns an array containing all of the elements in this deque

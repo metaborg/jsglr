@@ -62,7 +62,7 @@ public class FineGrainedOnRegion {
         if (indexChoichePoints >= choicePoints.size())
             return false;
         BacktrackPosition btPosition=choicePoints.get(indexChoichePoints);
-        mySGLR.activeStacks.clear();
+        mySGLR.activeStacks.clear(true);
         mySGLR.activeStacks.addAll(btPosition.recoverStacks);
         getHistory().deleteLinesFrom(btPosition.getIndexHistory());
         getHistory().setTokenIndex(btPosition.tokensSeen);
@@ -77,7 +77,7 @@ public class FineGrainedOnRegion {
                 stacks.addAll(mySGLR.activeStacks);
                 mySGLR.setFineGrainedOnRegion(false);
                 //extra set of recover stacks
-                mySGLR.activeStacks.clear();
+                mySGLR.activeStacks.clear(true);
                 mySGLR.activeStacks.addAll(btPosition.recoverStacks);
                 getHistory().setTokenIndex(btPosition.tokensSeen);
                 recoverParse(newCandidates, endPos, false);

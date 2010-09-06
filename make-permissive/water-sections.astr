@@ -15,7 +15,8 @@ attributes
        
        lexical syntax
          ~%% Water-based recovery rule set-up
-         [A-Za-z0-9\_]+                 -> WATERTOKEN          {recover, avoid}
+         [A-Za-z0-9\_]                  -> WATERTOKENSTART     {recover, avoid}
+         WATERTOKENSTART [A-Za-z0-9\_]* -> WATERTOKEN
          ~[A-Za-z0-9\_\ \t\12\r\n\*]    -> WATERTOKENSEPARATOR {recover, avoid}
          "*"                            -> WATERTOKENSTAR      {recover, avoid}
          WATERTOKEN                     -> WATER

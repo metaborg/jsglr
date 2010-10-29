@@ -1,5 +1,6 @@
 package org.spoofax.jsglr;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,7 +10,9 @@ import java.util.List;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class RangeList {
+public class RangeList implements Serializable {
+    
+    private static final long serialVersionUID = 16593569;
     
     public static final int NONE = -1;
     

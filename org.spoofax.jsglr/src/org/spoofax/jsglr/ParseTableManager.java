@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,36 +25,44 @@ import aterm.pure.PureFactory;
 
 public class ParseTableManager {
     
-    private Map<String, ParseTable> knownTables;
-    private ATermFactory factory;
+    private final Map<String, CachedTable> cache =
+        new HashMap<String, CachedTable>();
     
-    private static boolean cacheTables = false;
+    private final ATermFactory factory;
+    
+    private boolean useDiskCache;
     
     public ParseTableManager() {
-        factory = new PureFactory();
-        knownTables = new HashMap<String, ParseTable>();
+        this(new PureFactory());
     }
     
     public ParseTableManager(ATermFactory factory) {
+        this(factory, false);
+    }
+    
+    public ParseTableManager(ATermFactory factory, boolean useDiskCache) {
         this.factory = factory;
-        knownTables = new HashMap<String, ParseTable>();
+        this.useDiskCache = useDiskCache;
     }
     
     public ParseTable loadFromFile(String filename) throws FileNotFoundException, IOException, InvalidParseTableException {
         
-    	if(knownTables.containsKey(filename))
-            return knownTables.get(filename);
+        ParseTable pt = null;
+        
+    	if(cache.containsKey(filename)) {
+    	    CachedTable cached = cache.get(filename);
+    	    pt = cached.get();
+            if (pt != null && cached.isUpToDate()) return pt;
+    	}
     	
-    	ParseTable pt = null;
-    	
-        if(cacheTables) {
+        if(useDiskCache) {
         	final String cachedTable = hashFilename(filename);
         	File cached = new File(cachedTable);
         	File table = new File(filename);
         	if(cached.exists() && 
         			cached.lastModified() >= table.lastModified()) {
         		try {
-					pt = loadFromCache(cachedTable);
+					pt = loadFromDiskCache(cachedTable);
 					pt.initAFuns(factory);
 				} catch (ClassNotFoundException e) {
 				}
@@ -62,16 +71,16 @@ public class ParseTableManager {
 
         if(pt == null) {
         	pt = loadFromStream(new FileInputStream(filename));
-        	if(cacheTables) {
-        		storeInCache(pt, filename);
+        	if(useDiskCache) {
+        		storeInDiskCache(pt, filename);
         	}
         }
         
-        knownTables.put(filename, pt);
+        cache.put(filename, new CachedTable(pt, filename));
         return pt;
     }
     
-    private void storeInCache(ParseTable pt, String filename) throws FileNotFoundException, IOException {
+    private void storeInDiskCache(ParseTable pt, String filename) throws FileNotFoundException, IOException {
     	String storeName = hashFilename(filename);
     	File dir = new File(System.getProperty("user.home") + "/.jsglr/cache/");
     	if(!dir.exists()) {
@@ -82,7 +91,7 @@ public class ParseTableManager {
     	ous.close();
 	}
 
-	private ParseTable loadFromCache(String cachedTable) throws FileNotFoundException, IOException, ClassNotFoundException {
+	private ParseTable loadFromDiskCache(String cachedTable) throws FileNotFoundException, IOException, ClassNotFoundException {
 		System.out.println("Loading " + cachedTable);
     	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cachedTable));
     	ParseTable pt = (ParseTable)ois.readObject();
@@ -133,6 +142,26 @@ public class ParseTableManager {
 
 	public ParseTable loadFromTerm(ATerm term) throws InvalidParseTableException {
 		return initializeParseTable(term);
+	}
+	
+	/**
+	 * A parse table cache entry.
+	 */
+	private class CachedTable extends WeakReference<ParseTable> {
+        
+        private String path;
+	    
+        private long lastModified;
+	    
+	    public CachedTable(ParseTable table, String path) {
+            super(table);
+            this.path = path;
+            this.lastModified = new File(path).lastModified();
+        }
+	    
+	    public boolean isUpToDate() {
+	        return new File(path).lastModified() == lastModified;
+	    }
 	}
 
 }

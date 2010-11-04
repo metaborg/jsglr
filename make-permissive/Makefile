@@ -1,3 +1,4 @@
+STRATEGOXT ?= $(HOME)/.nix-profile
 ASTRS=$(wildcard *.astr) \
       $(wildcard */*.astr)
 
@@ -11,7 +12,7 @@ STRCFLAGS=\
   -la stratego-xtc \
   -la stratego-sglr \
   -la stratego-gpp \
-  -la ~/.nix-profile/lib/libstratego-sdf.la \
+  -la $(STRATEGOXT)/lib/libstratego-sdf.la \
   -O 3
   
 all : make-permissive # jar
@@ -34,9 +35,9 @@ make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Commen
 
 %.def : %.sdf
 	pack-sdf -i $< -o $@ \
-	         -Idef $(HOME)/.nix-profile/share/aster/MixStratego-Attributes.def \
-	         -Idef $(HOME)/.nix-profile/share/aster/Stratego-Attributes.def \
-	         -Idef $(HOME)/.nix-profile/share/sdf/sdf-front/Stratego-Sdf2.def
+	         -Idef $(ASTER)/share/aster/MixStratego-Attributes.def \
+	         -Idef $(ASTER)/share/aster/Stratego-Attributes.def \
+	         -Idef $(STRATEGOXT)/share/sdf/sdf-front/Stratego-Sdf2.def
 
 clean :
 	rm -f $(STRS) syntax/*.tbl

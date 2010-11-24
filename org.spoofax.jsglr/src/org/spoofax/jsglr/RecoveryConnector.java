@@ -240,7 +240,7 @@ public class RecoveryConnector {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "/*" + errorFragment + "*/";
+        return  errorFragment;
     }
     
     private void tryParsing(String fragment, boolean asLayout) throws IOException{

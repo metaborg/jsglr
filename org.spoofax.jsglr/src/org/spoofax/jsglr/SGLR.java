@@ -159,6 +159,12 @@ public class SGLR {
         recoverIntegrator = new RecoveryConnector(this, parser);
     }
     
+    public void setCombinedRecovery(boolean useBP, boolean useFG, boolean useOnlyFG){
+        recoverIntegrator.setOnlyFineGrained(useOnlyFG);
+        recoverIntegrator.setUseBridgeParser(useBP);
+        recoverIntegrator.setUseFineGrained(useFG);
+    }
+    
     /**
      * Structure-based recovery without bridge parsing.
      * 
@@ -359,6 +365,7 @@ public class SGLR {
         acceptingStack = null; 
         //history.keepInitialState(this);
         collectedErrors.clear();
+        history=new ParserHistory();
     }    
 
      private BadTokenException createBadTokenException() {
@@ -400,7 +407,7 @@ public class SGLR {
         logBeforeShifter();
         clearActiveStacks(false);
 
-        IParseNode prod = parseTable.lookupProduction(currentToken);
+        IParseNode prod = parseTable.lookupProduction(currentToken); 
 
         while (forShifter.size() > 0) {
             ActionState as = forShifter.remove();

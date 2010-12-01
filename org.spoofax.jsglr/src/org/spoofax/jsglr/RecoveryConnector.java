@@ -1,8 +1,6 @@
 package org.spoofax.jsglr;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.spoofax.ArrayDeque;
 
@@ -11,9 +9,7 @@ public class RecoveryConnector {
     private SGLR mySGLR;
     private IRecoveryParser recoveryParser;
     private RegionRecovery skipRecovery;
-    private boolean active;
     private boolean useBridgeParser;
-    private IRecoveryResult bpResult;
     private boolean useFineGrained;
     
     
@@ -22,10 +18,9 @@ public class RecoveryConnector {
     }
 
     public RecoveryConnector(SGLR parser, IRecoveryParser recoveryParser){
-        useFineGrained=true;
-        active=false;
         mySGLR=parser;        
         skipRecovery = new RegionRecovery(mySGLR); 
+        useFineGrained=true;
         if(recoveryParser!=null){
             this.recoveryParser = recoveryParser;
             useBridgeParser=true;
@@ -35,198 +30,76 @@ public class RecoveryConnector {
         
     }    
     
-    
-    private Map<Integer, char[]> getBPSuggestions(){
-        Map<Integer, char[]> bpSuggestions = getBridges();
-        int startPos = skipRecovery.getStartPositionErrorFragment_InclLeftMargin();
-        
-        Map<Integer, char[]> bpSuggestAbsolute = new HashMap<Integer, char[]>();
-        for (Integer aKey : bpSuggestions.keySet()) {
-            Integer newKey=new Integer(startPos+aKey.intValue());
-            char[] newValue=bpSuggestions.get(aKey);
-            bpSuggestAbsolute.put(newKey, newValue);
-        }
-        return bpSuggestAbsolute;
-    }
-
-    private Map<Integer, char[]> getBridges() {
-        if (bpResult != null) {
-            return bpResult.getSuggestions();
-        }
-        return new HashMap<Integer, char[]>();
-    }
-    
-    
-    
     private ParserHistory getHistory() {
         return mySGLR.getHistory();
     }
-    
-    public void recover() throws IOException{
-        long startSkip=System.currentTimeMillis();
-        //System.err.print("***************** Recover");
-        doRecoverSteps();
-        long durationSkip=System.currentTimeMillis()-startSkip;
-        //System.err.print(" Recovertime: "+durationSkip);
-    }
 
-    private void doRecoverSteps() throws IOException {
-        active=true;
+    public void recover() throws IOException {
         boolean skipSucceeded = skipRecovery.selectErroneousFragment(); //decides whether whitespace parse makes sense
         mySGLR.acceptingStack=null;
-        long startSkip=System.currentTimeMillis();
-        String errorFragment = skipRecovery.getErrorFragmentWithLeftMargin();
-        long durationSkip=System.currentTimeMillis()-startSkip;
-        Tools.debug("Skip time: "+ durationSkip);
-        //System.err.print("Skip time: "+ durationSkip+ "  ");
-        Tools.debug(errorFragment);
-        //System.err.print(errorFragment);
         mySGLR.activeStacks.clear();
         //BRIDGE REPAIR
-        if(useBridgeParser){            
+        if(useBridgeParser){       
+            String errorFragment = skipRecovery.getErrorFragmentWithLeftMargin();
             boolean succeeded = tryBridgeRepair(errorFragment);
             if(succeeded){
-                Tools.debug("Bridge Repair Succeeded");
-                //System.err.print("************** BP-Succeeded");
                 return;
             }
-            Tools.debug("Bridge Repair Failed");
         }
-        //System.out.println("USE FG? "+useFineGrained);
         //FINEGRAINED REPAIR 
         if(useFineGrained){            
-            long startFineGrained=System.currentTimeMillis();        
-            tryFineGrainedRepair();       
-            long durationFG=System.currentTimeMillis()-startFineGrained;
-            Tools.debug("Fine-Grained time: "+ durationFG);
-        }
-        //System.out.println("HISTORY AFTER FINE-GRAINED");
-        //getHistory().logHistory();
-        //System.err.print("Fine-Grained time: "+ durationFG);
-        //Tools.debug("Disambiguations: " +  RecoverDisambiguator.testCount);
-        if(recoverySucceeded()){
-            Tools.debug("Fine-Grained Repair Succeeded");
-            //System.err.print("**************** FG-succeeded");
-            ArrayDeque<Frame> fgStacks=new ArrayDeque<Frame>();
-            fgStacks.addAll(mySGLR.activeStacks);
-            if (skipSucceeded) { 
-                
-                boolean whiteSpaceRecovery=parseErrorFragmentAsWhiteSpace(false);
-                if(whiteSpaceRecovery)
-                    whiteSpaceRecovery=parseRemainingTokens(false);
-                if(whiteSpaceRecovery){
-                    for (Frame frame : mySGLR.activeStacks) {
-                        for (Link l : frame.getAllLinks()) {
-                            l.recoverCount = 5;
-                        }
-                    }                    
-                }
-               // ArrayDeque<Frame> wsStacks=mySGLR.activeStacks;
-                
-                //mySGLR.activeStacks.clear();
-                //whiteSpaceParse();
-                //whiteSpaceParse(errorFragment); 
-                for (Frame frame : fgStacks) {
-                    mySGLR.addStack(frame);
-                } 
-                /*
-                for (Frame frame : wsStacks) {
-                    mySGLR.addStack(frame);
-                } */  
+            if(tryFineGrainedRepair()){ //FG succeeded  
+                addSkipOption(skipSucceeded);
+                return;
             }
-            //System.out.println("HISTORY AFTER FG + COLLECTING WS-STACKS");
-            //getHistory().logHistory();
-            return;
         }
-        Tools.debug("FineGrained Repair Failed");
         //WHITESPACE REPAIR
         if (skipSucceeded) { 
             getHistory().deleteLinesFrom(skipRecovery.getStartIndexErrorFragment());//TODO: integrate with FG and BP
             getHistory().resetRecoveryIndentHandler(skipRecovery.getStartLineErrorFragment().getIndentValue());
-            boolean whiteSpaceRecovery=parseErrorFragmentAsWhiteSpace(false);//true
-            //System.err.println("MMM");
-            //getHistory().logHistory();
-            if(whiteSpaceRecovery){
-                parseRemainingTokens(true);
-                //System.err.println("MMM");
-                //getHistory().logHistory();
-            }
-            //whiteSpaceParse();
-            //whiteSpaceParse(errorFragment); 
-            if(recoverySucceeded()){
-                Tools.debug("WhiteSpace Repair Succeeded");
-                //System.err.print("************* WS-succeeded");
-            }
-            else{
-                Tools.debug("WhiteSpace Repair unexpectly fails");
-                recover();
-                //System.err.print("*************** WS-Fails unexpected");
-            }/*
-            if(!parseRemainingTokens())
-                recover();*/
+            parseErrorFragmentAsWhiteSpace(false);
+            parseRemainingTokens(true);
         }
-        //FORCE PREFIX ACCEPT
-        /*else {            
-            EofRecovery eofR = new EofRecovery(mySGLR);
-            eofR.enforceAccept(getHistory().getBigReducePoint().getStackNodes());
-            if(recoverySucceeded()){
-                Tools.debug("Enforcing Accepting Stack - Succeeded");
-                //System.err.print("******************* AS-succeeded");
-            }
-            else{
-                Tools.debug("Enforcing Accepting Stack - Failed"); 
-              //System.err.print("******************* AS-Failed");
-            }
-        }*/
-        active = false;
+    }
+
+    private void addSkipOption(boolean skipSucceeded)
+            throws IOException {
+        ArrayDeque<Frame> fgStacks=new ArrayDeque<Frame>();
+        fgStacks.addAll(mySGLR.activeStacks);
+        if(skipSucceeded && parseErrorFragmentAsWhiteSpace(false) && parseRemainingTokens(false)){
+            for (Frame frame : mySGLR.activeStacks) {
+                for (Link l : frame.getAllLinks()) {
+                    l.recoverCount = 5;
+                }
+            }                        
+            for (Frame frame : fgStacks) {
+                mySGLR.addStack(frame);
+            } 
+        }
     }
     
     private boolean recoverySucceeded() {
-        boolean hasSucceeded = (mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null);
-        /*
-        if(hasSucceeded){           
-            ArrayList<IndentInfo> recoverNewLinePoints = new ArrayList<IndentInfo>();            
-            IndentInfo currentStatus = new IndentInfo(mySGLR.lineNumber, getHistory().getTokenIndex(), mySGLR.getIndentHandler().getIndentValue());
-            recoverNewLinePoints.add(currentStatus);
-            getHistory().addRecoverLines(recoverNewLinePoints);
-        }
-        */
-        return hasSucceeded;
+        return (mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null);
     }
 
-    private void whiteSpaceParse() throws IOException {
-        String errorFragment=skipRecovery.getErrorFragment();
-        mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());            
-        tryParsing(errorFragment, true);
-        parseRemainingTokens(true);
-    }
-
-    private void tryFineGrainedRepair() throws IOException {
+    private boolean tryFineGrainedRepair() throws IOException {
         FineGrainedOnRegion fgRepair=new FineGrainedOnRegion(mySGLR);        
         fgRepair.setRegionInfo(skipRecovery.getErroneousRegion(), skipRecovery.getAcceptPosition());
         fgRepair.recover();
         fgRepair.parseRemainingTokens();
-        /*if(!fgRepair.parseRemainingTokens())
-            recover();*/
+        return recoverySucceeded();
     }
-    /*
-    private void tryFineGrainedRepair() throws IOException {
-        FineGrainedRepair fineGrained=new FineGrainedRepair(mySGLR);   
-        fineGrained.setBpSuggestions(getBPSuggestions());
-        fineGrained.findRecoverBranch(skipRecovery.getSkippedLines(), skipRecovery.getEndPositionErrorFragment());        
-    }*/
 
     private boolean tryBridgeRepair(String errorFragment) throws IOException {
         String repairedFragment = repairBridges(errorFragment);
         mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());   
         tryParsing(repairedFragment, false);      
-        parseRemainingTokens(true);
-        return recoverySucceeded();
+        return parseRemainingTokens(true);
     }
 
-    private String repairBridges(String errorFragment) {
+    private String repairBridges(String errorFragment) {        
         try {            
-            bpResult = null;
+            IRecoveryResult bpResult = null;
             bpResult = recoveryParser.recover(errorFragment);
             return bpResult.getResult();
         } catch (TokenExpectedException e) {
@@ -245,14 +118,10 @@ public class RecoveryConnector {
     
     private void tryParsing(String fragment, boolean asLayout) throws IOException{
         // Skip any leading whitespace, since we already parsed up to that point
-        int indexFragment = findFirstNonLayoutToken(fragment);      
-        //System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        int indexFragment = findFirstNonLayoutToken(fragment);
         while(indexFragment<fragment.length() && mySGLR.activeStacks.size()>0) {                        
             mySGLR.currentToken=fragment.charAt(indexFragment);
-            //System.out.print((char)mySGLR.currentToken);
-            //Tools.debug((char)mySGLR.currentToken);
             indexFragment++;
-            
             if(!asLayout)
                 mySGLR.doParseStep();
             else
@@ -282,7 +151,7 @@ public class RecoveryConnector {
             //System.out.print((char)mySGLR.currentToken);
             mySGLR.doParseStep();            
         }  
-        return mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null;
+        return recoverySucceeded();
     }
 
     
@@ -308,12 +177,31 @@ public class RecoveryConnector {
         return indexFragment;
     }
 
-    public boolean isActive() {        
-        return active;
-    }
-
     public void setUseFineGrained(boolean useFG) {
         useFineGrained=useFG;        
     }
+    
+    /*
+    private Map<Integer, char[]> getBPSuggestions(){
+        Map<Integer, char[]> bpSuggestions = getBridges();
+        int startPos = skipRecovery.getStartPositionErrorFragment_InclLeftMargin();
+        
+        Map<Integer, char[]> bpSuggestAbsolute = new HashMap<Integer, char[]>();
+        for (Integer aKey : bpSuggestions.keySet()) {
+            Integer newKey=new Integer(startPos+aKey.intValue());
+            char[] newValue=bpSuggestions.get(aKey);
+            bpSuggestAbsolute.put(newKey, newValue);
+        }
+        return bpSuggestAbsolute;
+    }
+
+    private Map<Integer, char[]> getBridges() {
+        IRecoveryResult bpResult;
+        if (bpResult != null) {
+            return bpResult.getSuggestions();
+        }
+        return new HashMap<Integer, char[]>();
+    }
+    */
 
 }

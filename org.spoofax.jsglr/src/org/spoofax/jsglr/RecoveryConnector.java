@@ -11,7 +11,16 @@ public class RecoveryConnector {
     private RegionRecovery skipRecovery;
     private boolean useBridgeParser;
     private boolean useFineGrained;
+    private boolean onlyFineGrained;
     
+    
+    public void setOnlyFineGrained(boolean onlyFG) {
+        onlyFineGrained=onlyFG;        
+    }
+    
+    public void setUseFineGrained(boolean useFG) {
+        useFineGrained=useFG;        
+    }
     
     public void setUseBridgeParser(boolean useBridgeParser) {
         this.useBridgeParser = useBridgeParser;
@@ -21,6 +30,7 @@ public class RecoveryConnector {
         mySGLR=parser;        
         skipRecovery = new RegionRecovery(mySGLR); 
         useFineGrained=true;
+        onlyFineGrained=false;
         if(recoveryParser!=null){
             this.recoveryParser = recoveryParser;
             useBridgeParser=true;
@@ -35,20 +45,39 @@ public class RecoveryConnector {
     }
 
     public void recover() throws IOException {
+        mySGLR.getPerformanceMeasuring().startRecovery();
+        combinedRecover();
+        mySGLR.getPerformanceMeasuring().endRecovery();
+    }
+
+    private void combinedRecover() throws IOException {
+        if(onlyFineGrained){
+            mySGLR.getPerformanceMeasuring().startFG();
+            tryFineGrainedRepair();
+            mySGLR.getPerformanceMeasuring().endFG();
+            return;
+        }
+        mySGLR.getPerformanceMeasuring().startCG();
         boolean skipSucceeded = skipRecovery.selectErroneousFragment(); //decides whether whitespace parse makes sense
+        mySGLR.getPerformanceMeasuring().endCG();
         mySGLR.acceptingStack=null;
         mySGLR.activeStacks.clear();
         //BRIDGE REPAIR
-        if(useBridgeParser){       
+        if(useBridgeParser){            
             String errorFragment = skipRecovery.getErrorFragmentWithLeftMargin();
+            mySGLR.getPerformanceMeasuring().startBP();
             boolean succeeded = tryBridgeRepair(errorFragment);
+            mySGLR.getPerformanceMeasuring().endBP();
             if(succeeded){
                 return;
             }
         }
         //FINEGRAINED REPAIR 
-        if(useFineGrained){            
-            if(tryFineGrainedRepair()){ //FG succeeded  
+        if(useFineGrained){
+            mySGLR.getPerformanceMeasuring().startFG();
+            boolean FGSucceeded=tryFineGrainedRepair();
+            mySGLR.getPerformanceMeasuring().endFG();
+            if(FGSucceeded){ //FG succeeded  
                 addSkipOption(skipSucceeded);
                 return;
             }
@@ -83,8 +112,13 @@ public class RecoveryConnector {
     }
 
     private boolean tryFineGrainedRepair() throws IOException {
-        FineGrainedOnRegion fgRepair=new FineGrainedOnRegion(mySGLR);        
-        fgRepair.setRegionInfo(skipRecovery.getErroneousRegion(), skipRecovery.getAcceptPosition());
+        FineGrainedOnRegion fgRepair=new FineGrainedOnRegion(mySGLR); 
+        if(!onlyFineGrained){
+            fgRepair.setRegionInfo(skipRecovery.getErroneousRegion(), skipRecovery.getAcceptPosition());
+        }
+        else{
+            fgRepair.setInfoFGOnly();
+        }
         fgRepair.recover();
         fgRepair.parseRemainingTokens();
         return recoverySucceeded();
@@ -175,10 +209,6 @@ public class RecoveryConnector {
         while(indexFragment<repairedFragment.length()-1 && isLayoutCharacter(repairedFragment.charAt(indexFragment)))
             indexFragment++;
         return indexFragment;
-    }
-
-    public void setUseFineGrained(boolean useFG) {
-        useFineGrained=useFG;        
     }
     
     /*

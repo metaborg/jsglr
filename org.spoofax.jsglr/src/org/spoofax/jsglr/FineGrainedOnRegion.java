@@ -2,8 +2,6 @@ package org.spoofax.jsglr;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import org.spoofax.ArrayDeque;
 
@@ -11,7 +9,6 @@ public class FineGrainedOnRegion {
     private static final int MAX_RECOVERIES_PER_LINE = 3;
     private static final int MAX_NR_OF_LINES = 25;
     private int acceptRecoveryPosition;
-    private int regionStartPosition;
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
     private SGLR mySGLR;
@@ -21,8 +18,22 @@ public class FineGrainedOnRegion {
         return mySGLR.getHistory();
     }
    
+    public void setInfoFGOnly(){
+        regionEndPosition=mySGLR.tokensSeen;
+        acceptRecoveryPosition=regionEndPosition+10;
+        int lastIndex=getHistory().getIndexLastLine();       
+        for (int i = 0; i < lastIndex; i++) {
+            IndentInfo line= getHistory().getLine(i);
+            if(line.getStackNodes()!=null && line.getStackNodes().size()>0){
+                BacktrackPosition btPoint=new BacktrackPosition(line.getStackNodes(), line.getTokensSeen());
+                btPoint.setIndexHistory(i);
+                choicePoints.add(btPoint);
+            }            
+        } 
+        maxPerLine=MAX_RECOVERIES_PER_LINE;
+    }
+    
     public void setRegionInfo(StructureSkipSuggestion erroneousRegion, int acceptPosition){
-        regionStartPosition=erroneousRegion.getStartSkip().getTokensSeen();
         regionEndPosition=erroneousRegion.getEndSkip().getTokensSeen();
         acceptRecoveryPosition=acceptPosition;
         int lastIndex=Math.min(erroneousRegion.getIndexHistoryEnd(), getHistory().getIndexLastLine());
@@ -105,7 +116,7 @@ public class FineGrainedOnRegion {
             //if(logToken==SGLR.EOF){logToken='$';}
             //System.out.print(logToken);
             if(curTokIndex<=endRecoverSearchPos && !firstRound){
-                int oldSize=newCandidates.size();
+                //int oldSize=newCandidates.size();
                 newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
                 //if(newCandidates.size()>oldSize)
                   //  System.out.println("CANDIDATES: " + (newCandidates.size()-oldSize));

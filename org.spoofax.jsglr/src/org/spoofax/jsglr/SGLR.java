@@ -28,6 +28,8 @@ import aterm.pure.PureFactory;
 
 public class SGLR {             
    
+    private RecoveryPerformance performanceMeasuring;
+    
     private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
     
     static final int EOF = ParseTable.NUM_CHARS;
@@ -93,15 +95,6 @@ public class SGLR {
     private int reductionCount;
 
     private PushbackInputStream currentInputStream;
-   
-    //Creates indent- and dedent- tokens
-    //Meant for parsing of indentation based languages
-    //TODO: still under construction
-    private IndentTokenizer indentTokenHandler;
-    
-    // ------------------------------------- Integrated recovery  ------------------------
-  //Keeps track of the indentation for each line
-   // private IndentationHandler indentHandler;
     
     private ParserHistory history;
     
@@ -138,9 +131,6 @@ public class SGLR {
     public Set<BadTokenException> getCollectedErrors() {
         return collectedErrors;
     }
-    
-    //-------------------------- fine-grained recovery ----------------------------------
-    private RecoverDisambiguator recoverDisambiguator;
        
     SGLR() {
         basicInit(null);
@@ -212,7 +202,6 @@ public class SGLR {
         useIntegratedRecovery = false;
         recoverIntegrator = null;
         history=new ParserHistory();
-        recoverDisambiguator=new RecoverDisambiguator(this.parseTable);
     }
 
     public static boolean isDebugging() {
@@ -248,7 +237,10 @@ public class SGLR {
         initParseVariables(fis);        
         startTime = System.currentTimeMillis();
         initParseTimer();
-        return sglrParse(startSymbol);
+        getPerformanceMeasuring().startParse();
+        ATerm pt= sglrParse(startSymbol);
+        getPerformanceMeasuring().endParse();
+        return pt;
     }
     
     public final ATerm parse(String input) throws IOException, BadTokenException,
@@ -366,6 +358,8 @@ public class SGLR {
         //history.keepInitialState(this);
         collectedErrors.clear();
         history=new ParserHistory();
+        performanceMeasuring=new RecoveryPerformance();
+        
     }    
 
      private BadTokenException createBadTokenException() {
@@ -1283,7 +1277,7 @@ public class SGLR {
     }    
     //-------------------------------------------------- mj: debug and recovery ------------------------
         
-    //Used for debugging
+    /*Used for debugging
     private String mjInfo() {
         String result = "";
         result += "CURR TOKEN: " + (char)currentToken;
@@ -1313,8 +1307,8 @@ public class SGLR {
             result += "} ; ";
         }
         return result;        
-    } 
-    
+    } */
+    /*
     private String[] viewStackObject(boolean avoidFiltered){
         List<String> stackPaths = new ArrayList<String>();
         for (Frame actNode : activeStacks) {
@@ -1322,8 +1316,9 @@ public class SGLR {
             stackPaths.addAll(testMJ);
         }
         return stackPaths.toArray(new String[stackPaths.size()]);
-    }  
+    } */ 
     
+    /*
     private String[] viewStackObject()
     {
         return viewStackObject(false);
@@ -1336,5 +1331,13 @@ public class SGLR {
     
     private void mjTesting() {        
         Tools.debug((char)currentToken); 
+    }*/
+
+    public void setPerformanceMeasuring(RecoveryPerformance performanceMeasuring) {
+        this.performanceMeasuring = performanceMeasuring;
+    }
+
+    public RecoveryPerformance getPerformanceMeasuring() {
+        return performanceMeasuring;
     }   
 }

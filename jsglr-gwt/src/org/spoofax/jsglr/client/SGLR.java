@@ -547,7 +547,9 @@ public class SGLR {
 
         for (int i = paths.size() - 1; i >= 0; i--) {
             Path path = paths.get(i);
-            List<IParseNode> kids = path.getATerms();
+            List<IParseNode> kids = new ArrayList<IParseNode>();
+            for(IParseNode p : path.getParseNodes())
+            	kids.add(p);
             Frame st0 = path.getEnd();
             State next = parseTable.go(st0.peek(), prod.label);
             logReductionPath(prod, path, kids, st0, next);

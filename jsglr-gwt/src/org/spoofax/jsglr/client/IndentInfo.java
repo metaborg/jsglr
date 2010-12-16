@@ -87,8 +87,8 @@ public class IndentInfo {
                 int length = p.getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
                 if(length > maxPathLength){
                     maxPathLength = length;
-                    if(p.parent.label!=null)
-                        result =p.parent.link;
+                    if(p.getParent().getLabel()!=null)
+                        result =p.getParent().getLink();
                 }
             }
         }

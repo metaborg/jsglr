@@ -10,11 +10,11 @@ package org.spoofax.jsglr.tests;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.spoofax.jsglr.client.IParseNode;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
-
-import junit.framework.TestCase;
 
 public class TestIParseNode extends TestCase {
 

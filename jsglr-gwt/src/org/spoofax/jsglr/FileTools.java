@@ -7,8 +7,8 @@ import java.io.IOException;
 public class FileTools {
 
 	public static String loadFileAsString(String fn) {
-		// FIXME (KTK) static allocation of 7MB must be replaced with something dynamic  
-		char[] cbuf = new char[1024*1024*7];
+		// FIXME (KTK) static allocation of 15MB must be replaced with something dynamic  
+		char[] cbuf = new char[1024*1024*15];
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(fn));
 			int len = br.read(cbuf);

@@ -77,7 +77,7 @@ public class Frame implements Serializable {
         if (arity == 0) {
             Path n = Path.valueOf(node, null, this, length);
             if(Tools.tracing) {
-                SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + n.length);
+                SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + length);
             }
             collect.add(n);
         } else { 
@@ -259,7 +259,7 @@ public class Frame implements Serializable {
         if (arity == 0 && seen) {
             Path n = Path.valueOf(node, null, this, length);
             if(Tools.tracing) {
-                SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + n.length);
+                SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + length);
             }
             collect.add(n);
         } else if(arity > 0) {

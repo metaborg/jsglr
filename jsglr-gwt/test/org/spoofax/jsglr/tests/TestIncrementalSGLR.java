@@ -9,16 +9,28 @@ import org.spoofax.jsglr.shared.terms.ATerm;
  */
 public class TestIncrementalSGLR extends ParseTestCase {
 
+	ATerm java5;
+	
     @Override
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
         super.gwtSetUp("Java-15", "java", "MethodDec", "ClassBodyDec");
+    	java5 = doParseTest("java5");
     }
 
-    public void testJava5() throws Exception {
-    	ATerm tree1 = doParseTest("java5");
-    	doParseIncrementalTest(tree1, "java5-increment");
-    	// doParseIncrementalTest(tree1, "java5-increment2");
-    	// doParseIncrementalTest(tree1, "java5-increment3");
+    public void testJava51() throws Exception {
+    	doParseIncrementalTest(java5, "java5-increment");
+    }
+    
+    public void testJava52() throws Exception {
+    	doParseIncrementalTest(java5, "java5-increment2");
+    }
+    
+    public void testJava53() throws Exception {
+    	doParseIncrementalTest(java5, "java5-increment3");
+    }
+    
+    public void testJava54() throws Exception {
+    	doParseIncrementalTest(java5, "java5-increment4");
     }
 
     public void testJava4() throws Exception {

@@ -2,7 +2,6 @@ package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.DEBUG;
-import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
 
 import java.util.Set;
 
@@ -14,6 +13,8 @@ import org.spoofax.jsglr.client.imploder.IToken;
  */
 public class IncrementalInputBuilder {
 	
+	private static final boolean INSERT_WHITESPACE = true;
+
 	private final StringBuilder result = new StringBuilder();
 	
 	private final Set<String> incrementalSorts;
@@ -22,9 +23,10 @@ public class IncrementalInputBuilder {
 	
 	private final int damageStart;
 	
+	@SuppressWarnings("unused")
 	private final int damageEnd;
 
-	private final int afterDamageOffset;
+	private final int damageSizeChange;
 	
 	private boolean isDamagePrinted;
 
@@ -34,12 +36,12 @@ public class IncrementalInputBuilder {
 	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
 	 */
 	public IncrementalInputBuilder(Set<String> incrementalSorts, String input,
-			int damageStart, int damageEnd, int afterDamageOffset) {
+			int damageStart, int damageEnd, int damageSizeChange) {
 		this.incrementalSorts = incrementalSorts;
 		this.input = input;
 		this.damageEnd = damageEnd;
 		this.damageStart = damageStart;
-		this.afterDamageOffset = afterDamageOffset;
+		this.damageSizeChange = damageSizeChange;
 	}
 
 	public String buildPartialInput(IAstNode oldTree) throws IncrementalSGLRException {
@@ -48,17 +50,14 @@ public class IncrementalInputBuilder {
 	}
 
 	private int buildPartialInput(IAstNode oldTree, int offset) throws IncrementalSGLRException {
-		IToken left = oldTree.getLeftToken();
 		IToken right = oldTree.getRightToken();
-		int startOffset = 0;
 		int endOffset = 0;
 		
 		// Print incrementalSorts nodes
-		if (left != null && right != null) {
-			startOffset = left.getStartOffset();
+		if (right != null) {
 			endOffset = right.getEndOffset();
 			if (!oldTree.isList() && incrementalSorts.contains(oldTree.getSort())) {
-				if (isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)) {
+				if (endOffset >= damageStart /*isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)*/) {
 					printDamagedNode(offset, endOffset);
 					// possible: appendWhitespace(input, startOffset, endOffset);
 				} else {
@@ -71,7 +70,7 @@ public class IncrementalInputBuilder {
 		offset = buildPartialInputRecurse(oldTree, offset);
 
 		// Print original text
-		if (left != null && right != null) {
+		if (right != null) {
 			return appendPartialInput(oldTree, offset, endOffset);
 		} else {
 			return offset;
@@ -95,32 +94,39 @@ public class IncrementalInputBuilder {
 
 	private void printDamagedNode(int offset, int endOffset) {
 		if (!isDamagePrinted) {
+			append(input, offset, endOffset + damageSizeChange + 1);
 			isDamagePrinted = true;
-			if (DEBUG) System.out.print('|');
+			/*
+			if (DEBUG) System.err.print('|');
 			append(input, offset, damageStart);
-			if (DEBUG) System.out.print('|');
+			if (DEBUG) System.err.print('|');
 			append(input, damageStart, damageEnd + 1);
-			if (DEBUG) System.out.print('|');
+			if (DEBUG) System.err.print('|');
 			// TODO: don't use endOffset here but use the last token's end offset
-			append(input, damageEnd + 1, endOffset + afterDamageOffset + 1);
-			if (DEBUG) System.out.print('|');
+			append(input, damageEnd + 1, endOffset + damageSizeChange + 1);
+			if (DEBUG) System.err.print('|');
+			*/
 		}
 	}
 
 	private void appendWhitespace(String input, int offset, int endOffset) {
-		for (int i = offset; i <= endOffset; i++) {
-			// if (DEBUG) System.out.print(input.charAt(i) == '\n' ? "\n" : "-" + input.charAt(i));
-			result.append(input.charAt(i) == '\n' ? '\n' : ' ');
+		if (INSERT_WHITESPACE) {
+			for (int i = offset; i <= endOffset; i++) {
+				// if (DEBUG) System.err.print(input.charAt(i) == '\n' ? "\n" : "-" + input.charAt(i));
+				result.append(input.charAt(i) == '\n' ? '\n' : ' ');
+			}
 		}
 	}
 
 	private int appendPartialInput(IAstNode oldTree, int offset, int endOffset) {
 		if (offset >= damageStart) {
 			if (!isDamagePrinted) {
-				append(input, damageStart, damageEnd + 1);
+				// append(input, damageStart, damageEnd + 1);
+				append(input, damageStart, damageStart + damageSizeChange + 1);
+				// append(input, damageStart + damageSizeChange, damageEnd + damageSizeChange + 1);
 				isDamagePrinted = true;
 			}
-			append(input, offset + afterDamageOffset, endOffset + afterDamageOffset + 1);
+			append(input, offset + damageSizeChange, endOffset + damageSizeChange + 1);
 		} else {
 			append(input, offset, min(endOffset + 1, damageStart));
 		}
@@ -128,7 +134,7 @@ public class IncrementalInputBuilder {
 	}
 	
 	private void append(String input, int offset, int endOffset) {
-		if (DEBUG) System.out.print(input.substring(offset, endOffset));
+		if (DEBUG) System.err.print(input.substring(offset, endOffset));
 		result.append(input, offset, endOffset);
  	}
 }

@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.client.incremental;
 
+import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.DEBUG;
+
 /**
  * An exception thrown if some input cannot be incrementally parsed.
  * Likely, it can be parsed non-incrementally instead.
@@ -13,19 +15,20 @@ public class IncrementalSGLRException extends Exception {
 	private static final String DEFAULT_MESSAGE = "Incremental parsing failed";
 	
 	public IncrementalSGLRException() {
-		super(DEFAULT_MESSAGE);
+		this(DEFAULT_MESSAGE);
 	}
 
 	public IncrementalSGLRException(String message) {
-		super(message);
+		this(message, null);
 	}
 
 	public IncrementalSGLRException(Throwable cause) {
-		super(DEFAULT_MESSAGE, cause);
+		this(DEFAULT_MESSAGE, cause);
 	}
 
 	public IncrementalSGLRException(String message, Throwable cause) {
 		super(message, cause);
+		if (DEBUG) System.err.println(message);
 	}
 
 }

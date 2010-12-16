@@ -9,6 +9,7 @@ import java.util.Set;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.IAstNode;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 
@@ -102,7 +103,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 			int startOffset = left.getStartOffset();
 			int endOffset = right.getEndOffset();
 			
-			if (!isRangeOverlap(damageStart, damageEnd, startOffset, endOffset))
+			if (!isDamagedNonEmptyRange(startOffset, endOffset))
 				return false;
 			if (incrementalSorts.contains(tree.getSort()))
 				return true;
@@ -111,17 +112,31 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 				IToken childLeft = child.getLeftToken();
 				IToken childRight = child.getRightToken();
 				if (childLeft != null && childRight != null) {
-					if (isRangeOverlap(damageStart, damageEnd, startOffset, childLeft.getStartOffset() - 1)) {
+					if (isDamagedNonEmptyRange(startOffset, childLeft.getStartOffset() - 1)) {
 						return true;
 					}
 					startOffset = childRight.getEndOffset() + 1;
 				}
 			}
-			return isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
+			return isDamagedNonEmptyRange(startOffset, getLastNonLayoutOffset(tree));
 		} else {
 			return false;
 		}
 	}
+	
+	private static int getLastNonLayoutOffset(IAstNode tree) {
+		IToken token = tree.getRightToken();
+		ITokenizer tokens = token.getTokenizer();
+		while (token.getKind() == IToken.TK_LAYOUT && token.getIndex() > 0) {
+			token = tokens.getTokenAt(token.getIndex() - 1);
+		}
+		return token.getEndOffset();
+	}
+	
+	private boolean isDamagedNonEmptyRange(int startOffset, int endOffset) {
+		return endOffset >= startOffset && isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
+	}
+	
 	public TNode buildOutput(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes) {
 		Tokenizer tokenizer =
 			new Tokenizer(parser.getParseTable().getKeywordRecognizer(), filename, input);

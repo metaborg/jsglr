@@ -22,7 +22,7 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	
 	private static final boolean ASSUME_MINIMAL_DIFF = true;
 	
-	static final boolean DEBUG = true;
+	static final boolean DEBUG = false;
 	
 	final SGLR parser;
 
@@ -52,13 +52,13 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 		
 		String oldInput = oldTree.getLeftToken().getTokenizer().getInput();
 		int damageStart = getDamageStart(input, oldInput);
-		int afterDamageOffset = input.length() - oldInput.length();
-		int damageEnd = getDamageEnd(input, oldInput, afterDamageOffset,
-				ASSUME_MINIMAL_DIFF ? max(afterDamageOffset, 0) : damageStart);
+		int damageSizeChange = input.length() - oldInput.length();
+		int damageEnd = getDamageEnd(input, oldInput, damageSizeChange,
+				ASSUME_MINIMAL_DIFF ? max(damageSizeChange, 0) : damageStart);
 		if (damageEnd == damageStart - 1) return oldTree;
 		
 		IncrementalInputBuilder inputBuilder =
-			new IncrementalInputBuilder(incrementalSorts, input, damageStart, damageEnd, afterDamageOffset);
+			new IncrementalInputBuilder(incrementalSorts, input, damageStart, damageEnd, damageSizeChange);
 		
 		IncrementalTreeBuilder<TNode> treeBuilder =
 			new IncrementalTreeBuilder<TNode>(this, input, filename, damageStart, damageEnd);
@@ -80,9 +80,11 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 			throws IncrementalSGLRException {
 		
 		List<IAstNode> damagedNodes = builder.getDamageTreeNodes(oldTree);
+		if (DEBUG) System.err.println("Damaged: " + damagedNodes);
+		
 		for (IAstNode node : damagedNodes) {
 			if (!incrementalSorts.contains(node.getSort()))
-				throw new IncrementalSGLRException("Unsafe change to tree node of type "
+				throw new IncrementalSGLRException("Precondition failed: unsafe change to tree node of type "
 						+ node.getSort() + " at line " + node.getLeftToken().getLine());
 		}
 	}
@@ -90,17 +92,17 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	private void sanityCheckRepairedTree(List<IAstNode> repairedTreeNodes)
 			throws IncrementalSGLRException {
 		
-		if (DEBUG) System.out.println("\nRepaired: " + repairedTreeNodes);
+		if (DEBUG) System.err.println("\nRepaired: " + repairedTreeNodes);
 		
 		for (IAstNode node : repairedTreeNodes) {
 			if (!incrementalSorts.contains(node.getSort()))
-				throw new IncrementalSGLRException("Unsafe tree parsed at "
+				throw new IncrementalSGLRException("Postcondition failed: unsafe tree parsed at "
 						+ node.getSort()  + " at line " + node.getLeftToken().getLine());
 		}
 	}
 
 	protected static boolean isRangeOverlap(int start1, int end1, int start2, int end2) {
-		return start1 <= end2 && start2 <= end1;
+		return start1 < end2 && start2 < end1;
 	}
 
 

@@ -138,7 +138,10 @@ public abstract class ParseTestCase extends TestCase {
 	
 	public ATerm doParseIncrementalTest(ATerm oldTree, String newFile) throws Exception {
 		String contents = loadAsString(newFile);
+		long parseTime = System.nanoTime();
     	ATerm newTree = (ATerm) incrementalSGLR.parseIncremental(contents, newFile, null, oldTree);
+		parseTime = System.nanoTime() - parseTime;
+		System.out.println("Incremental parsing " + newFile + " took " + parseTime/1000/1000 + " millis.");
 		String extension =
 			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
 		final String x = FileTools.loadFileAsString("tests/data/" + newFile + extension);

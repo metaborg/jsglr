@@ -53,7 +53,7 @@ public class ATermString extends ATermAppl {
 	} 
 	
 	@Override
-	public void toString(int depth, StringBuilder sb) {
+	protected StringBuilder toString(StringBuilder sb, int depth) {
 		if(depth == 0) {
 			sb.append("...");
 		} else {
@@ -61,6 +61,7 @@ public class ATermString extends ATermAppl {
 			sb.append(value);
 			sb.append('\"');
 		}
+		return sb;
 	}
 
 	@Override

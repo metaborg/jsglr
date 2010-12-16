@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,9 +38,9 @@ public class ParseNode extends AbstractParseNode {
 	public Object toTreeBottomup(BottomupTreeBuilder builder) {
     	builder.visitLabel(label);
 
-        Object[] subtrees = new Object[kids.length];
+        ArrayList<Object> subtrees = new ArrayList<Object>(kids.length);
         for (int i = 0; i < kids.length; i++) {
-        	subtrees[i] = kids[i].toTreeBottomup(builder);
+        	subtrees.add(kids[i].toTreeBottomup(builder));
         }
 
         Object result = builder.buildNode(label, subtrees);

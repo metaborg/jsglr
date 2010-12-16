@@ -98,10 +98,12 @@ public abstract class ATerm implements IAstNode, Serializable {
 
 	@Override
 	public final String toString() {
-		StringBuilder sb = new StringBuilder();
-		toString(DEFAULT_PRINT_DEPTH, sb);
-		return sb.toString();
+		return toString(DEFAULT_PRINT_DEPTH);
+	}
+	
+	public final String toString(int depth) {
+		return toString(new StringBuilder(), depth).toString();
 	}
 
-	protected abstract void toString(int depth, StringBuilder sb);
+	protected abstract StringBuilder toString(StringBuilder sb, int depth);
 }

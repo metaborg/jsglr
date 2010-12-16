@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.client;
 
+import java.util.List;
+
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.shared.terms.AFun;
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -35,16 +37,16 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 		// Not used here
 	}
 
-	public ATerm buildNode(int labelNumber, Object[] subtrees) {
+	public ATerm buildNode(int labelNumber, List<Object> subtrees) {
 		ATermList ls = factory.makeList();
-		for(int i = subtrees.length - 1; i >= 0; i--) {
-			ls = ls.prepend((ATerm)subtrees[i]);
+		for(int i = subtrees.size() - 1; i >= 0; i--) {
+			ls = ls.prepend((ATerm)subtrees.get(i));
 		}
 		return factory.makeAppl(applAFun, labels[labelNumber - labelStart], ls);
 	}
 
-	public ATerm buildAmb(Object[] alternatives) {
-		return factory.makeAppl(ambAFun, (ATerm[])alternatives);
+	public ATerm buildAmb(List<Object> alternatives) {
+		return factory.makeAppl(ambAFun, alternatives.toArray(new ATerm[alternatives.size()]));
 	}
 
 	public ATerm buildProduction(int productionNumber) {

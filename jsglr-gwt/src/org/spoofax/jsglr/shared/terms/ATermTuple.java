@@ -53,7 +53,7 @@ public class ATermTuple extends ATerm {
 	}
 
 	@Override
-	protected void toString(int depth, StringBuilder sb) {
+	protected StringBuilder toString(StringBuilder sb, int depth) {
 		if(depth == 0) {
 			sb.append("...");
 		} else {
@@ -61,10 +61,11 @@ public class ATermTuple extends ATerm {
 			for(int i = 0; i < elements.length; i++) {
 				if(i > 0)
 					sb.append(",");
-				elements[i].toString(depth - 1, sb);
+				elements[i].toString(sb, depth - 1);
 			}
 			sb.append(')');
 		}
+		return sb;
 	}
 	
 	@Override

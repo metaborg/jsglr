@@ -110,7 +110,7 @@ public abstract class ParseTestCase extends TestCase {
 		} else {
 			if (parsed.getLeftToken() != null)
 				System.out.println(parsed.getLeftToken().getTokenizer());
-			System.out.println(parsed);
+			System.out.println(parsed.toString(8));
 		}
 
 		System.out.println(PathListPool.cacheMisses);
@@ -138,8 +138,8 @@ public abstract class ParseTestCase extends TestCase {
 		//			public void onSuccess(ATerm loaded) {
 		assertNotNull(x);
 
-		System.out.println(parsed);
-		System.out.println(wanted);
+		System.out.println(parsed.toString(8));
+		System.out.println(parsed.toString(8));
 		if(!parsed.simpleMatch(wanted)) {
 			fail();
 		}

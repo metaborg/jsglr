@@ -33,7 +33,7 @@ public class Amb extends AbstractParseNode {
 	public Object toTreeBottomup(BottomupTreeBuilder builder) {
     	ArrayList<Object> collect = new ArrayList<Object>();
     	addToTree(builder, collect);
-    	return builder.buildAmb(collect.toArray(new Object[collect.size()]));
+    	return builder.buildAmb(collect);
     }
     
     @Override

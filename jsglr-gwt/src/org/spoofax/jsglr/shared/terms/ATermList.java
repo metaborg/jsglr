@@ -102,14 +102,14 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	}
 
 	@Override
-	protected void toString(int depth, StringBuilder sb) {
+	protected StringBuilder toString(StringBuilder sb, int depth) {
 		if(depth == 0) {
 			sb.append("...");
 		} else {
 			sb.append('[');
 			ATermList l = this;
 			while(l.element != null) {
-				l.element.toString(depth - 1, sb);
+				l.element.toString(sb, depth - 1);
 				l = l.next;
 				if(l.element != null) {
 					sb.append(",");
@@ -117,6 +117,7 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 			}
 			sb.append(']');
 		}
+		return sb;
 	}
 
 	@Override

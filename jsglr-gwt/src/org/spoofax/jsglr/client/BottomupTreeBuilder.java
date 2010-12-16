@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.client;
 
+import java.util.List;
+
 
 /**
  * An abstract bottom-up tree builder implementation.
@@ -28,8 +30,8 @@ public abstract class BottomupTreeBuilder implements ITreeBuilder {
 		return subtree;
 	}
 
-	public abstract Object buildNode(int labelNumber, Object[] subtrees);
+	public abstract Object buildNode(int labelNumber, List<Object> subtrees);
 	public abstract Object buildProduction(int productionNumber);
-	public abstract Object buildAmb(Object[] alternatives);
+	public abstract Object buildAmb(List<Object> alternatives);
 
 }

@@ -35,13 +35,14 @@ public class ATermInt extends ATerm {
 	}
 
 	@Override
-	protected void toString(int depth, StringBuilder sb) {
+	protected StringBuilder toString(StringBuilder sb, int depth) {
 		if(depth == 0) {
 			sb.append("...");
 		}
 		else {
 			sb.append(Integer.toString(value));
 		}
+		return sb;
 	}
 
 	@Override

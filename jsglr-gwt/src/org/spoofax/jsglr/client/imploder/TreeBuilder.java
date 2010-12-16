@@ -35,6 +35,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	private static final String TUPLE_CONSTRUCTOR = new String("");
 	
+	private final boolean disableTokens;
+	
 	private ParseTable table;
 	
 	private ITokenizer tokenizer;
@@ -61,11 +63,17 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	private boolean inLexicalContext;
 	
 	public TreeBuilder() {
+		this(true);
+	}
+	
+	public TreeBuilder(boolean disableTokens) {
+		this.disableTokens = disableTokens;
 		this.initializeFactories = true;
 	}
 	
-	public TreeBuilder(ITreeFactory treeFactory) {
+	public TreeBuilder(ITreeFactory treeFactory, boolean disableTokens) {
 		this.factory = treeFactory;
+		this.disableTokens = disableTokens;
 	}
 
 	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
@@ -87,7 +95,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	public void initializeInput(String filename, String input) {
 		assert offset == 0;
-		tokenizer = new Tokenizer(table.getKeywordRecognizer(), filename, input);
+		tokenizer = disableTokens
+			? new DummyTokenizer(filename, input)
+			: new Tokenizer(table.getKeywordRecognizer(), filename, input);
 	}
 	
 	public ITokenizer getTokenizer() {

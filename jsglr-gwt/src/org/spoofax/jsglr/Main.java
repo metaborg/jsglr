@@ -105,7 +105,7 @@ public class Main {
 		sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
 		sglr.setBuildParseTree(buildParseTree);
 		if (implode)
-			sglr.setTreeBuilder(new TreeBuilder());
+			sglr.setTreeBuilder(new TreeBuilder(true));
 
 		if(waitForProfiler) {
 			System.err.println("Hit enter to start profiling...");

@@ -18,7 +18,7 @@ import org.spoofax.jsglr.shared.terms.ATermFactory;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class ImplodedTreeBuilder extends TopdownTreeBuilder {
+public class TreeBuilder extends TopdownTreeBuilder {
 	
 	public static final char SKIPPED_CHAR = (char) -1; // TODO: sync with ParseErorHandler
 	
@@ -34,7 +34,7 @@ public class ImplodedTreeBuilder extends TopdownTreeBuilder {
 	
 	private final ITokenizer tokenizer;
 	
-	private IImplodedTreeFactory factory;
+	private ITreeFactory factory;
 	
 	private boolean useDefaultFactory;
 	
@@ -55,12 +55,12 @@ public class ImplodedTreeBuilder extends TopdownTreeBuilder {
 	
 	private boolean inLexicalContext;
 	
-	public ImplodedTreeBuilder() {
+	public TreeBuilder() {
 		this(null, new Tokenizer());
 		this.useDefaultFactory = true;
 	}
 	
-	public ImplodedTreeBuilder(IImplodedTreeFactory treeFactory, ITokenizer tokenizer) {
+	public TreeBuilder(ITreeFactory treeFactory, ITokenizer tokenizer) {
 		this.factory = treeFactory;
 		this.tokenizer = tokenizer;
 	}
@@ -68,7 +68,7 @@ public class ImplodedTreeBuilder extends TopdownTreeBuilder {
 	public void initialize(ParseTable table, int productionCount, int labelStart, int labelCount) {
 		this.termFactory = table.getFactory();
 		if (useDefaultFactory)
-			factory = new ATermImplodedTreeFactory(termFactory);
+			factory = new ATermTreeFactory(termFactory);
 		this.prodReader = new ProductionAttributeReader(termFactory);
 		this.labels = new LabelInfo[labelCount - labelStart];
 		this.labelStart = labelStart;
@@ -81,20 +81,6 @@ public class ImplodedTreeBuilder extends TopdownTreeBuilder {
 	public ITokenizer getTokenizer() {
 		return tokenizer;
 	}
-	
-	/*
-	public void visitLabel(int labelNumber) {
-		LabelInfo label = labels[labelNumber - labelStart];
-		if (label.isLexical() || label.isVar())
-			lexicalContextDepth++;
-	}
-	
-	public void endVisitLabel(int labelNumber) {
-		LabelInfo label = labels[labelNumber - labelStart];
-		if (label.isLexical() || label.isVar())
-			lexicalContextDepth--;
-	}
-	*/
 	
 	@Override
 	public Object buildTreeNode(ParseNode node) {

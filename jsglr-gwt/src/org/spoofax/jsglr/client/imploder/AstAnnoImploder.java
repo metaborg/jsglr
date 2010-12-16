@@ -24,7 +24,7 @@ import static org.spoofax.jsglr.shared.Tools.*;
  */
 public class AstAnnoImploder<TNode> {
 
-	private final IImplodedTreeFactory<TNode> factory;
+	private final ITreeFactory<TNode> factory;
 	
 	private final List<TNode> placeholderValues;
 	
@@ -32,7 +32,7 @@ public class AstAnnoImploder<TNode> {
 	
 	private final ATermFactory termFactory;
 	
-	public AstAnnoImploder(IImplodedTreeFactory<TNode> factory, ATermFactory termFactory, List<TNode> placeholderValues, IToken leftToken, IToken rightToken) {
+	public AstAnnoImploder(ITreeFactory<TNode> factory, ATermFactory termFactory, List<TNode> placeholderValues, IToken leftToken, IToken rightToken) {
 		this.factory = factory;
 		this.termFactory = termFactory;
 		this.placeholderValues = placeholderValues;

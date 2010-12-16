@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface IImplodedTreeFactory<TNode> {
+public interface ITreeFactory<TNode> {
 
 	/**
 	 * Create a new non-terminal node (or a terminal with only a constructor).

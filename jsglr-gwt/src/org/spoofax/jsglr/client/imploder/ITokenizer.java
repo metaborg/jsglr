@@ -5,6 +5,7 @@ package org.spoofax.jsglr.client.imploder;
  */
 public interface ITokenizer {
 	
+	// TODO: Optimize - use String in tokenizer?
 	void initialize(char[] inputChars);
 
 	char[] getInputChars();

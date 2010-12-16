@@ -15,15 +15,15 @@ import org.spoofax.jsglr.shared.terms.ATermTuple;
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class ATermImplodedTreeFactory implements IImplodedTreeFactory<ATerm> {
+public class ATermTreeFactory implements ITreeFactory<ATerm> {
 	
 	private final ATermFactory factory;
 	
-	public ATermImplodedTreeFactory() {
+	public ATermTreeFactory() {
 		this(new ATermFactory());
 	}
 	
-	public ATermImplodedTreeFactory(ATermFactory factory) {
+	public ATermTreeFactory(ATermFactory factory) {
 		this.factory = factory;
 	}
 	

@@ -7,28 +7,23 @@
  */
 package org.spoofax.jsglr.tests;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import junit.framework.TestCase;
 
 import org.spoofax.jsglr.client.AbstractParseNode;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
 
-public class TestIParseNode extends TestCase {
+public class TestAbstractParseNode extends TestCase {
 
     private AbstractParseNode pn0; 
     private AbstractParseNode pn1;
     
     @Override
     protected void setUp() throws Exception {
-        List<AbstractParseNode> r0 = new ArrayList<AbstractParseNode>();
-        r0.add(new ParseProductionNode(123));
+        AbstractParseNode[]  r0 = { new ParseProductionNode(123) };
         pn0 = new ParseNode(233, r0);
 
-        List<AbstractParseNode> r1 = new ArrayList<AbstractParseNode>();
-        r1.add(new ParseProductionNode(123));
+        AbstractParseNode[] r1 = { new ParseProductionNode(123) };
         pn1 = new ParseNode(233, r1);
     }
 

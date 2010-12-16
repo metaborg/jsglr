@@ -27,12 +27,6 @@ public class ParseNode extends AbstractParseNode {
         this.kids = kids;
     }
 
-    @Deprecated
-    public ParseNode(int label, List<AbstractParseNode> kids) {
-        this.label = label;
-        this.kids = kids.toArray(new AbstractParseNode[kids.size()]);
-    }
-
     @Override
 	public ATerm toParseTree(ParseTable pt) {
         ATermFactory factory = pt.getFactory();

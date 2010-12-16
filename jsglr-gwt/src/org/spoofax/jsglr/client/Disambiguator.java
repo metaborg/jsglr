@@ -362,8 +362,8 @@ public class Disambiguator {
             }
         } else if(t instanceof ParseNode) {
             ParseNode node = (ParseNode) t;
-            List<AbstractParseNode> args = node.getKids();
-            List<AbstractParseNode> newArgs = filterTree(args, false);
+            AbstractParseNode[] args = node.kids;
+            AbstractParseNode[] newArgs = filterTree(args, false);
 
             if (filterReject && parseTable.hasRejects()) {
                 if (hasRejectProd(t) && !parser.useIntegratedRecovery)
@@ -385,21 +385,21 @@ public class Disambiguator {
         }
     }
 
-    private List<AbstractParseNode> filterTree(List<AbstractParseNode> args, boolean inAmbiguityCluster) throws FilterException {
+    private AbstractParseNode[] filterTree(AbstractParseNode[] args, boolean inAmbiguityCluster) throws FilterException {
 
         if(SGLR.isDebugging()) {
             Tools.debug("filterTree(<nodes>) - ", args);
         }
 
-        List<AbstractParseNode> newArgs = new ArrayList<AbstractParseNode>();
+        AbstractParseNode[] newArgs = new AbstractParseNode[args.length];
         // boolean changed = false;
 
-        for (int i = 0, max = args.size(); i < max; i++) {
-            AbstractParseNode n = args.get(i);
+        for (int i = 0, max = args.length; i < max; i++) {
+            AbstractParseNode n = args[i];
             AbstractParseNode filtered = filterTree(n, false);
 
             // changed = !filtered.equals(n) || changed;
-            newArgs.add(filtered);
+            newArgs[i] = filtered;
         }
 
         // FIXME Shouldn't we do some filtering here?
@@ -409,10 +409,9 @@ public class Disambiguator {
         // }
 
         if (filterAny) {
-            List<AbstractParseNode> filtered = new ArrayList<AbstractParseNode>();
-            for (int i = 0, max = newArgs.size(); i < max; i++) {
-                AbstractParseNode n = newArgs.get(i);
-                filtered.add(applyAssociativityPriorityFilter(n));
+            AbstractParseNode[] filtered = new AbstractParseNode[newArgs.length];
+            for (int i = 0, max = newArgs.length; i < max; i++) {
+                filtered[i] = applyAssociativityPriorityFilter(newArgs[i]);
             }
             return filtered;
         } else {
@@ -474,13 +473,12 @@ public class Disambiguator {
         }
 
         List<AbstractParseNode> newAmbiguities = new ArrayList<AbstractParseNode>();
-        List<AbstractParseNode> kids = t.getKids();
-        AbstractParseNode firstKid = kids.get(0);
+        AbstractParseNode[] kids = t.kids;
+        AbstractParseNode firstKid = kids[0];
 
         if(firstKid instanceof Amb) {
 
             List<AbstractParseNode> ambs = ((Amb)firstKid).getAlternatives();
-            List<AbstractParseNode> restKids = kids.subList(1, t.kids.length - 1);
 
             for (int i = 0, max = ambs.size(); i < max; i++) {
                 AbstractParseNode amb = ambs.get(i);
@@ -489,13 +487,19 @@ public class Disambiguator {
                 }
             }
 
+            int additionalAmbNodes = newAmbiguities.isEmpty() ? 0 : 1;
+            AbstractParseNode[] restKids = new AbstractParseNode[t.kids.length - 1 + additionalAmbNodes]; 
+            for(int i = 0; i < restKids.length; i++) 
+            	restKids[i] = kids[i + 1];
+
             // FIXME is this correct?
             if(!newAmbiguities.isEmpty()) {
+            	AbstractParseNode extraAmb;
                 if(newAmbiguities.size() > 1)
-                    firstKid = new Amb(newAmbiguities);
+                    extraAmb = new Amb(newAmbiguities);
                 else
-                    firstKid = newAmbiguities.get(0);
-                restKids.add(firstKid);
+                    extraAmb = newAmbiguities.get(0);
+                restKids[restKids.length - 1] = extraAmb;
             } else {
                 throw new FilterException(parser);
             }
@@ -573,7 +577,8 @@ public class Disambiguator {
             kidnumber++;
         }
 
-        return new ParseNode(t.label, newKids);
+        // FIXME (KTK) get rid of toArray by precomputing the necessary size of newKids earlier in the method
+        return new ParseNode(t.label, newKids.toArray(new AbstractParseNode[newKids.size()]));
     }
 
     private AbstractParseNode replaceUnderInjections(AbstractParseNode alt, AbstractParseNode injection, AbstractParseNode n) {

@@ -87,16 +87,14 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	}
 	
 	private TNode buildOutputSubtree(IAstNode oldTreeNode, int offsetChange) {
-
 		final List<IAstNode> children;
 		final IToken beforeStartToken = newTokenizer.currentToken();
 		IToken startToken = oldTreeNode.getLeftToken();
 		
 		sanityCheckOldTreeNode(oldTreeNode);
 		
-		// TODO: copy tokens before first child??
 		if (oldTreeNode.isList() && incrementalSorts.contains(oldTreeNode.getElementSort())) {
-			assert offsetChange == 0 : "Nested incrementalSorts lists?";
+			// UNDONE: assert offsetChange == 0 : "Nested incrementalSorts lists?";
 			children = new ArrayList<IAstNode>(oldTreeNode.getChildCount() + repairedNodes.size());
 
 			Iterator<IAstNode> iterator = tryGetListIterator(oldTreeNode); 

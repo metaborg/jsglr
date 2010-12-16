@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.IAstNode;
@@ -37,20 +36,21 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	private List<TNode> lastReconstructedNodes;
 
 	/**
+	 * Creates a new, reusable IncrementalSGLR instance.
+	 * 
+	 * @see SortAnalyzer#getInjectionsTo()
+	 *            Can be used to determine the injections for incrementalSorts.
+	 * 
 	 * @param incrementalSorts
 	 *            Sorts that can be incrementally parsed (e.g., MethodDec, ImportDec).
 	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
 	 */
 	public IncrementalSGLR(SGLR parser, CommentDamageExpander comments, ITreeFactory<TNode> factory,
-			Set<String> incrementalSorts, boolean includeInjections) {
+			Set<String> incrementalSorts) {
 		this.parser = parser;
 		this.comments = comments;
 		this.factory = factory;
 		this.incrementalSorts = incrementalSorts;
-		
-		// TODO: support injection sorts in incrementalSorts
-		//       (using injection prods in parse table; build some class like KeywordRecognizer)
-		if (includeInjections) throw new NotImplementedException("includeInjections"); 
 	}
 	
 	/**

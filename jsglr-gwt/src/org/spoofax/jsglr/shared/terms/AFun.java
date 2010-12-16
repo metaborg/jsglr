@@ -28,6 +28,8 @@ public class AFun implements Serializable {
 	public boolean equals(Object obj) {
 		if(!(obj instanceof AFun))
 			return false;
+		if (obj == this)
+			return true;
 		AFun o = (AFun)obj;
 		return o.arity == arity && o.name.equals(name);
 	}

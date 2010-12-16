@@ -24,6 +24,7 @@ import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.ATermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
+import org.spoofax.jsglr.client.incremental.SortAnalyzer;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -82,10 +83,11 @@ public abstract class ParseTestCase extends TestCase {
 			ATermTreeFactory factory = new ATermTreeFactory(sglr.getFactory());
 			TreeBuilder builder = new TreeBuilder(factory);
 			sglr.setTreeBuilder(builder);
+			//Set<String> sorts = new SortAnalyzer(table).getInjectionsTo(incrementalSorts);
 			Set<String> sorts = new HashSet<String>();
 	    	for (String sort : incrementalSorts)
 	    		sorts.add(sort);
-	    	incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, C_STYLE, factory, sorts, false);
+			incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, C_STYLE, factory, sorts);
 	        IncrementalSGLR.DEBUG = true;
 		}
 	}

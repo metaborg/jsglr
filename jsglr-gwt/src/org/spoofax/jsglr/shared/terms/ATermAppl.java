@@ -1,6 +1,5 @@
 package org.spoofax.jsglr.shared.terms;
 
-import java.io.IOError;
 import java.io.IOException;
 
 import org.spoofax.jsglr.client.NotImplementedException;
@@ -73,14 +72,20 @@ public class ATermAppl extends ATerm {
 		if(!(t instanceof ATermAppl))
 			return false;
 		ATermAppl o = (ATermAppl)t;
-		if(o.kids.length != kids.length)
+		if (o.kids.length != kids.length)
 			return false;
+		if (o.ctor != ctor) {
+			if (o.factory == factory || !ctor.equals(o.ctor)) {
+				assert !ctor.equals(o.ctor) : "Constructors must be maximally shared";
+				return false;
+			}
+		}
 		for(int i = 0; i < kids.length; i++)
 			if(!kids[i].simpleMatch(o.kids[i])) {
 				System.out.println(kids[i] + "\n  !=  \n"   + o.kids[i]);
 				return false;
 			}
-		return ctor.equals(o.ctor);
+		return true;
 	}
 
 }

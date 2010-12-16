@@ -8,6 +8,7 @@
 package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.spoofax.jsglr.shared.SGLRException;
@@ -375,7 +376,7 @@ public class Disambiguator {
 				}
 			}
 
-			if (newArgs != null)
+			if (newArgs != null && args != newArgs)
 				t = new ParseNode(node.label, newArgs);
 		} else if(t instanceof ParseProductionNode) {
 			// leaf node -- do thing (cannot be any ambiguities here)

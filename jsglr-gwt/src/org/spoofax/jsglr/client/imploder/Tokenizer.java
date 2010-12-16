@@ -92,7 +92,7 @@ public class Tokenizer implements ITokenizer {
 		if (!allowEmptyToken && startOffset > endOffset) // empty token
 			return null;
 		
-		assert endOffset >= startOffset || (kind == TK_RESERVED && startOffset == 0);
+		assert endOffset + 1 >= startOffset || (kind == TK_RESERVED && startOffset == 0);
 		
 		int offset;
 		IToken token = null;
@@ -119,7 +119,7 @@ public class Tokenizer implements ITokenizer {
 	}
 
 	private IToken internalMakeToken(int kind, int endOffset) {
-		IToken result = new Token(this, tokens.size() - 1, line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
+		IToken result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
 		tokens.add(result);
 		startOffset = endOffset + 1;
 		return result;
@@ -191,6 +191,70 @@ public class Tokenizer implements ITokenizer {
 				makeToken(offset, TK_ERROR, false);
 			}
 		}
+	}
+	
+	/**
+	 * Searches towards the left of the given token for the
+	 * leftmost layout token, returning the current token if
+	 * no layout token is found.
+	 */
+	public static IToken findLeftMostLayoutToken(IToken token) {
+		if (token == null) return null;
+		ITokenizer tokens = token.getTokenizer();
+		for (int i = token.getIndex() - 1; i >= 0; i++) {
+			if (token.getKind() == IToken.TK_LAYOUT)
+				break;
+			token = tokens.getTokenAt(i);
+		}
+		return token;
+	}
+	
+	/**
+	 * Searches towards the left of the given token for the
+	 * leftmost non-layout token, returning the current token if
+	 * no non-layout token is found.
+	 */
+	public static IToken findLeftMostNonLayoutToken(IToken token) {
+		if (token == null) return null;
+		ITokenizer tokens = token.getTokenizer();
+		for (int i = token.getIndex() - 1; i >= 0; i++) {
+			if (token.getKind() != IToken.TK_LAYOUT)
+				break;
+			token = tokens.getTokenAt(i);
+		}
+		return token;
+	}
+	
+	/**
+	 * Searches towards the right of the given token for the
+	 * rightmost layout token, returning the current token if
+	 * no layout token is found.
+	 */
+	public static IToken findRightMostLayoutToken(IToken token) {
+		if (token == null) return null;
+		ITokenizer tokens = token.getTokenizer();
+		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
+			if (token.getKind() == IToken.TK_LAYOUT)
+				break;
+			token = tokens.getTokenAt(i);
+		}
+		return token;
+	}
+	
+	/**
+	 * Searches towards the right of the given token for the
+	 * rightmost non-layout token, returning the current token if
+	 * no non-layout token is found.
+	 */
+	public static IToken findRightMostNonLayoutToken(IToken token) {
+		if (token == null) return null;
+		ITokenizer tokens = token.getTokenizer();
+		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
+			if (token.getKind() != IToken.TK_LAYOUT)
+				break;
+			token = tokens.getTokenAt(i);
+		}
+		return token;
 	}
 	
 	public String toString(IToken left, IToken right) {

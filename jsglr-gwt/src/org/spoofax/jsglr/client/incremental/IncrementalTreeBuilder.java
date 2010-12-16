@@ -1,15 +1,18 @@
 package org.spoofax.jsglr.client.incremental;
 
+import static org.spoofax.jsglr.client.imploder.Tokenizer.findLeftMostLayoutToken;
+import static org.spoofax.jsglr.client.imploder.Tokenizer.findRightMostLayoutToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
+import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.tryGetListIterator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.IAstNode;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 
@@ -38,6 +41,8 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	private final int damageStart;
 
 	private final int damageEnd;
+	
+	private final int damageSizeChange;
 
 	/**
 	 * @param incrementalSorts
@@ -45,7 +50,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
 	 */
 	public IncrementalTreeBuilder(IncrementalSGLR<TNode> parser, String input, String filename,
-			int damageStart, int damageEnd) {
+			int damageStart, int damageEnd, int damageSizeChange) {
 		this.parser = parser.parser;
 		this.input = input;
 		this.filename = filename;
@@ -53,40 +58,37 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		this.incrementalSorts = parser.incrementalSorts;
 		this.damageStart = damageStart;
 		this.damageEnd = damageEnd;
+		this.damageSizeChange = damageSizeChange;
 	}
 	
 	/**
-	 * Gets all non-list tree nodes that are in the damaged region
-	 * according to {@link #isDamageTreeNode}.
+	 * Gets all non-list tree nodes from the original tree
+	 * that are in the damaged region according to {@link #isDamageTreeNode}.
 	 */
-	public List<IAstNode> getDamageTreeNodes(IAstNode tree) {
-		return getDamageTreeNodes(tree, new ArrayList<IAstNode>());
+	public List<IAstNode> getDamagedTreeNodes(IAstNode tree) {
+		return getDamagedRegionTreeNodes(tree, new ArrayList<IAstNode>(), true, 0);
+	}
+	
+	/**
+	 * Gets all non-list tree nodes from the partial result tree
+	 * that are in the damaged region according to {@link #isDamageTreeNode}.
+	 */
+	public List<IAstNode> getRepairedTreeNodes(IAstNode tree, int skippedChars) {
+		return getDamagedRegionTreeNodes(tree, new ArrayList<IAstNode>(), false, skippedChars);
 	}
 
-	private List<IAstNode> getDamageTreeNodes(IAstNode tree, List<IAstNode> results) {
-		if (tree.isList()) { // ignored for getDamageTreeNodes
-			getDamageTreeNodesRecurse(tree, results);
+	private List<IAstNode> getDamagedRegionTreeNodes(IAstNode tree, List<IAstNode> results, boolean isOriginalTree, int skippedChars) {
+		if (!tree.isList() && isDamageTreeNode(tree, isOriginalTree, skippedChars)) {
+			results.add(tree);
 		} else {
-			if (isDamageTreeNode(tree)) {
-				results.add(tree);
-			} else {
-				getDamageTreeNodesRecurse(tree, results);
+			// Recurse
+			Iterator<IAstNode> iterator = tryGetListIterator(tree); 
+			for (int i = 0, max = tree.getChildCount(); i < max; i++) {
+				IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
+				getDamagedRegionTreeNodes(child, results, isOriginalTree, skippedChars);
 			}
 		}
 		return results;
-	}
-
-	private void getDamageTreeNodesRecurse(IAstNode tree, List<IAstNode> results) {
-		
-		if (tree instanceof Iterable) { // likely a linked list
-			for (Object o : (Iterable<?>) tree) {
-				getDamageTreeNodes((IAstNode) o, results);
-			}
-		} else {
-			for (int i = 0, count = tree.getChildCount(); i < count; i++) {
-				getDamageTreeNodes(tree.getChildAt(i), results);
-			}
-		}
 	}
 
 	/**
@@ -96,45 +98,48 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	 * in {@link #incrementalSorts} regardless of whether they own the tokens
 	 * or not.
 	 */
-	private boolean isDamageTreeNode(IAstNode tree) {
-		IToken left = tree.getLeftToken();
-		IToken right = tree.getRightToken();
-		if (left != null && right != null) {
-			int startOffset = left.getStartOffset();
-			int endOffset = right.getEndOffset();
-			
-			if (!isDamagedNonEmptyRange(startOffset, endOffset))
+	protected boolean isDamageTreeNode(IAstNode tree, boolean isOriginalTree, int skippedChars) {
+		IToken current = findLeftMostLayoutToken(tree.getLeftToken());
+		IToken last = findRightMostLayoutToken(tree.getRightToken());
+		if (current != null && last != null) {
+			if (!isDamagedNonEmptyRange(
+					current.getStartOffset(), last.getEndOffset(), isOriginalTree, skippedChars))
 				return false;
 			if (incrementalSorts.contains(tree.getSort()))
 				return true;
-			for (int i = 0, count = tree.getChildCount(); i < count; i++) {
-				IAstNode child = tree.getChildAt(i);
+			Iterator<IAstNode> iterator = tryGetListIterator(tree); 
+			for (int i = 0, max = tree.getChildCount(); i < max; i++) {
+				IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
 				IToken childLeft = child.getLeftToken();
-				IToken childRight = child.getRightToken();
+				IToken childRight = findRightMostLayoutToken(child.getRightToken());
 				if (childLeft != null && childRight != null) {
-					if (isDamagedNonEmptyRange(startOffset, childLeft.getStartOffset() - 1)) {
+					if (childLeft.getIndex() > current.getIndex()
+							&& isDamagedNonEmptyRange(
+									current.getStartOffset(), childLeft.getStartOffset() - 1,
+									isOriginalTree, skippedChars)) {
 						return true;
 					}
-					startOffset = childRight.getEndOffset() + 1;
+					current = childRight;
 				}
 			}
-			return isDamagedNonEmptyRange(startOffset, getLastNonLayoutOffset(tree));
+			return isDamagedNonEmptyRange(
+					current.getEndOffset() + 1, last.getEndOffset(), isOriginalTree, skippedChars);
 		} else {
 			return false;
 		}
 	}
 	
-	private static int getLastNonLayoutOffset(IAstNode tree) {
-		IToken token = tree.getRightToken();
-		ITokenizer tokens = token.getTokenizer();
-		while (token.getKind() == IToken.TK_LAYOUT && token.getIndex() > 0) {
-			token = tokens.getTokenAt(token.getIndex() - 1);
+	private boolean isDamagedNonEmptyRange(int startOffset, int endOffset,
+			boolean isOriginalTree, int skippedChars) {
+		// TODO: get rid of non-empty criterion?? at the very least for empty damage regions...
+		if (isOriginalTree) {
+			return /*endOffset >= startOffset
+				&&*/ isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
+		} else {
+			return /*endOffset >= startOffset
+				&&*/ isRangeOverlap(damageStart - skippedChars, damageEnd - skippedChars + damageSizeChange,
+						startOffset, endOffset);
 		}
-		return token.getEndOffset();
-	}
-	
-	private boolean isDamagedNonEmptyRange(int startOffset, int endOffset) {
-		return endOffset >= startOffset && isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
 	}
 	
 	public TNode buildOutput(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes) {
@@ -147,6 +152,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	private TNode buildOutput(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes,
 			Tokenizer tokenizer) {
 		// TODO: recreate tokens
+
 		IToken leftToken = null;
 		IToken rightToken = null;
 		List<IAstNode> children;
@@ -179,16 +185,12 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		children.addAll(repairedTreeNodes);
 	}
 
-	private static List<IAstNode> copyChildrenToList(IAstNode node) {
-		List<IAstNode> results = new ArrayList<IAstNode>(node.getChildCount());
-		if (node.isList() && node instanceof Iterable) { // likely a linked list
-			for (Object o : ((Iterable<?>) node)) {
-				results.add((IAstNode) o);
-			}
-		} else {
-			for (int i = 0, count = node.getChildCount(); i < count; i++) {
-				results.add(node.getChildAt(i));
-			}
+	private static List<IAstNode> copyChildrenToList(IAstNode tree) {
+		List<IAstNode> results = new ArrayList<IAstNode>(tree.getChildCount());
+		Iterator<IAstNode> iterator = tryGetListIterator(tree); 
+		for (int i = 0, max = tree.getChildCount(); i < max; i++) {
+			IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
+			results.add(child);
 		}
 		return results;
 	}

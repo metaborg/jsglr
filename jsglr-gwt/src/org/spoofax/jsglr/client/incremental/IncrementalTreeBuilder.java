@@ -22,13 +22,6 @@ import org.spoofax.jsglr.client.imploder.Tokenizer;
  */
 public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	
-	/**
-	 * Allows for one character of extra slack based on the assumption
-	 * that grammars will not have two consecutive IncrementalSort*
-	 * lists.
-	 */
-	private static final int NEXT_CHAR = 1;
-	
 	private final SGLR parser;
 
 	private final String input;

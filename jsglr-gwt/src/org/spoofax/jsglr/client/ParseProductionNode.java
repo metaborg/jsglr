@@ -17,6 +17,10 @@ public class ParseProductionNode extends AbstractParseNode {
     public ParseProductionNode(int prod) {
         this.prod = prod;
     }
+    
+    public boolean isParseProductionChain() {
+    	return true;
+    }
 
     @Override
 	public Object toTreeBottomup(BottomupTreeBuilder builder) {

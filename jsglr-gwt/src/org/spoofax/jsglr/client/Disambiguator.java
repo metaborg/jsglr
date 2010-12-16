@@ -365,7 +365,9 @@ public class Disambiguator {
 		} else if(t instanceof ParseNode) {
 			final ParseNode node = (ParseNode) t;
 			final AbstractParseNode[] args = node.kids;
-			final AbstractParseNode[] newArgs = filterTree(args, false);
+			final AbstractParseNode[] newArgs =
+				t.isParseProductionChain() ? null : filterTree(args, false);
+			// TODO: assert that parse production chains do not have reject nodes?
 
 			if (filterReject && parseTable.hasRejects()) {
 				if (hasRejectProd(t) && !parser.useIntegratedRecovery) {
@@ -399,6 +401,8 @@ public class Disambiguator {
 		if(SGLR.isDebugging()) {
 			Tools.debug("filterTree(<nodes>) - ", args);
 		}
+		
+		// TODO: Optimize - combine these two loops
 
 		AbstractParseNode[] newArgs = null;
 

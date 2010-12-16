@@ -21,13 +21,33 @@ public class ParseNode extends AbstractParseNode {
     final int label;
 
     final AbstractParseNode[] kids;
+    
+    private final boolean isParseProductionChain;
 
     private int cachedHashCode;
 
     public ParseNode(int label, AbstractParseNode[] kids) {
         this.label = label;
         this.kids = kids;
+        switch (kids.length) {
+        	case 2:
+        		isParseProductionChain =
+        			kids[0] instanceof ParseProductionNode /*kids[0].isParseProductionChain()*/
+        			&& kids[1].isParseProductionChain();
+        		break;
+        	case 1:
+        		isParseProductionChain = kids[0].isParseProductionChain();
+        		break;
+        	default:
+        		isParseProductionChain = false;
+        }
+        // TODO: Optimize - create compact representation for parse production chains
     }
+    
+    @Override
+    public boolean isParseProductionChain() {
+		return isParseProductionChain;
+	}
     
     @Override
     public Object toTreeTopdown(TopdownTreeBuilder builder) {

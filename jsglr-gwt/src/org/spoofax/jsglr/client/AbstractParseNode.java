@@ -26,4 +26,14 @@ public abstract class AbstractParseNode {
     abstract public String toStringShallow();
     @Override
 	abstract public String toString();
+    
+    /**
+     * Returns true if this is either:
+     * - a {@link ParseProductionNode}.
+     * - a ParseNode with a {@link ParseProductionNode} child
+     *   and an {@link #isParseProductionChain()} child.
+     * - a ParseNode with a single {@link #isParseProductionChain()}
+     *   child.
+     */
+    public abstract boolean isParseProductionChain();
 }

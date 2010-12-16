@@ -28,6 +28,11 @@ public class Amb extends AbstractParseNode {
 	public Amb(AbstractParseNode[] alternatives) {
 		this.alternatives = alternatives;
 	}
+	
+	@Override
+	public boolean isParseProductionChain() {
+		return false;
+	}
 
 	@Override
 	public Object toTreeBottomup(BottomupTreeBuilder builder) {

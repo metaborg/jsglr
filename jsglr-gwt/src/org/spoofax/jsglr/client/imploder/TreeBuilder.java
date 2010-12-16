@@ -152,9 +152,13 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 		// Recurse
 		for (AbstractParseNode subnode : subnodes) {
-			// TODO: Optimize stack - inline toTreeTopdown case selection?
-			Object child = subnode.toTreeTopdown(this);
-			if (child != null) children.add(isList ? child : tryBuildAutoConcatListNode(child));
+			if (inLexicalContext && subnode.isParseProductionChain()) {
+				chainToTreeTopdown(subnode);
+			} else {
+				// TODO: Optimize stack - inline toTreeTopdown case selection?
+				Object child = subnode.toTreeTopdown(this);
+				if (child != null) children.add(isList ? child : tryBuildAutoConcatListNode(child));
+			}
 		}
 		
 		if (lexicalStart) {
@@ -167,6 +171,26 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		} else {
 			return createNodeOrInjection(label, prevToken, children);
 		}
+	}
+
+	/**
+	 * Efficiently consume lexical chars in parse production chains.
+	 * @see AbstractParseNode#isParseProductionChain()
+	 */
+	private void chainToTreeTopdown(AbstractParseNode node) {
+		assert node.isParseProductionChain();
+		while (node instanceof ParseNode) {
+			AbstractParseNode[] kids = ((ParseNode) node).getChildren();
+			if (kids.length == 2) {
+				buildTreeProduction((ParseProductionNode) kids[0]);
+				node = kids[1];
+			} else if (kids.length == 1) {
+				node = kids[0];
+			} else {
+				throw new IllegalStateException("Unexpected node in parse production chain: " + node);
+			}
+		}
+		buildTreeProduction((ParseProductionNode) node);
 	}
 
 	@Override
@@ -420,7 +444,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		if (tokenizer.currentToken().getKind() != TK_ERROR_EOF_UNEXPECTED) {
 			if (tokenizer.getStartOffset() >= input.length())
 				tokenizer.setStartOffset(max(input.length() - 1, 0));
-			tokenizer.makeToken(input.length(), TK_ERROR_EOF_UNEXPECTED, true);
+			tokenizer.makeToken(input.length() - 1, TK_ERROR_EOF_UNEXPECTED, true);
 		}
 	}
 

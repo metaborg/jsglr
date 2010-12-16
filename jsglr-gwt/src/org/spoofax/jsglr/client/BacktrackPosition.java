@@ -2,7 +2,7 @@ package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
 
-import org.spoofax.ArrayDeque;
+import org.spoofax.jsglr.shared.ArrayDeque;
 
 public class BacktrackPosition {
     public final int tokensSeen;

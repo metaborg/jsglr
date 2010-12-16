@@ -7,26 +7,22 @@
  */
 package org.spoofax.jsglr.tests;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
 
 public class TestG_ambi extends ParseTestCase {
 
     @Override
-	public void gwtSetUp() throws FileNotFoundException, IOException,
-            ParserException, InvalidParseTableException {
+	public void gwtSetUp() throws ParserException, InvalidParseTableException {
         super.gwtSetUp("G-ambi", "txt");
     }
 
 
-    public void testG_ambi_1() throws FileNotFoundException, IOException {
+    public void testG_ambi_1() {
         doParseTest("g-ambi-1");
     }
 
-    public void testG_ambi_2() throws FileNotFoundException, IOException {
+    public void testG_ambi_2() {
         doParseTest("g-ambi-2");
     }
 }

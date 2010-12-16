@@ -1,39 +1,35 @@
 package org.spoofax.jsglr.shared.terms;
 
-public class ATermInt extends ATerm {
+public class ATermString extends ATerm {
 
 	private static final long serialVersionUID = 1L;
 	
-	private int value;
+	private String value;
 	
-	ATermInt() {}
-
-	ATermInt(ATermFactory factory, int value) {
+	ATermString() {}
+	
+	ATermString(ATermFactory factory, String value) {
 		super(factory);
 		this.value = value;
 	}
-
+	
 	@Override
 	public int getChildCount() {
 		return 0;
 	}
 
-	public int getInt() {
-		return value;
-	}
-
 	@Override
 	public ATerm getChildAt(int i) {
-		return null;
+		throw new ArrayIndexOutOfBoundsException();
 	}
 
 	@Override
 	public int getType() {
-		return ATerm.INT;
-	}
-
+		return ATerm.STRING;
+	} 
+	
 	@Override
 	public String toString() {
-		return Integer.toString(value);
+		return "\"" + value + "\"";
 	}
 }

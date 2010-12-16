@@ -1,17 +1,13 @@
 package org.spoofax.jsglr.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
-import org.spoofax.ArrayDeque;
+import org.spoofax.jsglr.shared.ArrayDeque;
 
 public class FineGrainedOnRegion {
     private static final int MAX_RECOVERIES_PER_LINE = 3;
     private static final int MAX_NR_OF_LINES = 25;
     private int acceptRecoveryPosition;
-    private int regionStartPosition;
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
     private SGLR mySGLR;
@@ -22,7 +18,6 @@ public class FineGrainedOnRegion {
     }
    
     public void setRegionInfo(StructureSkipSuggestion erroneousRegion, int acceptPosition){
-        regionStartPosition=erroneousRegion.getStartSkip().getTokensSeen();
         regionEndPosition=erroneousRegion.getEndSkip().getTokensSeen();
         acceptRecoveryPosition=acceptPosition;
         int lastIndex=Math.min(erroneousRegion.getIndexHistoryEnd(), getHistory().getIndexLastLine());
@@ -44,7 +39,7 @@ public class FineGrainedOnRegion {
         }
     }
     
-    public boolean recover() throws IOException{
+    public boolean recover() {
        // System.out.println("FINE GRAINED RECOVERY STARTED");
         mySGLR.setFineGrainedOnRegion(true);
         boolean succeeded=recoverFrom(choicePoints.size()-1, new ArrayList<RecoverNode>());
@@ -52,7 +47,7 @@ public class FineGrainedOnRegion {
         return succeeded;
     }
     
-    private boolean recoverFrom(int indexCP, ArrayList<RecoverNode> candidates) throws IOException {        
+    private boolean recoverFrom(int indexCP, ArrayList<RecoverNode> candidates) {        
         int loops=choicePoints.size()-1-indexCP;
         if(indexCP<-1*maxPerLine)//first line 3 times explored
             return false;
@@ -91,7 +86,7 @@ public class FineGrainedOnRegion {
         return recoverFrom(indexCP-1, newCandidates);    
     }
 
-    private ArrayList<RecoverNode> recoverParse(ArrayList<RecoverNode> candidates, int endRecoverSearchPos, boolean keepHistory) throws IOException {
+    private ArrayList<RecoverNode> recoverParse(ArrayList<RecoverNode> candidates, int endRecoverSearchPos, boolean keepHistory) {
        // System.out.println("RECOVER PARSE");
         ArrayList<RecoverNode> newCandidates=new ArrayList<RecoverNode>();
         boolean firstRound=false;//true;
@@ -105,7 +100,6 @@ public class FineGrainedOnRegion {
             //if(logToken==SGLR.EOF){logToken='$';}
             //System.out.print(logToken);
             if(curTokIndex<=endRecoverSearchPos && !firstRound){
-                int oldSize=newCandidates.size();
                 newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
                 //if(newCandidates.size()>oldSize)
                   //  System.out.println("CANDIDATES: " + (newCandidates.size()-oldSize));
@@ -144,7 +138,7 @@ public class FineGrainedOnRegion {
         choicePoints=new ArrayList<BacktrackPosition>();
     }
 
-    public boolean parseRemainingTokens() throws IOException {
+    public boolean parseRemainingTokens() {
         // TODO what if parsing fails here???
         while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
             getHistory().readRecoverToken(mySGLR, true);

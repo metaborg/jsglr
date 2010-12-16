@@ -7,22 +7,19 @@
  */
 package org.spoofax.jsglr.tests;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
 
-public class TestG_prefer_1 extends ParseTestCase {
+public class TestG_avoid_1 extends ParseTestCase {
 
     @Override
-	public void gwtSetUp() throws FileNotFoundException, IOException,
+	public void gwtSetUp() throws 
             ParserException, InvalidParseTableException {
-        super.gwtSetUp("G-prefer-1", "txt");
+        super.gwtSetUp("G-avoid-1", "txt");
     }
 
 
-    public void testG_prefer_1_1() throws FileNotFoundException, IOException {
-        doParseTest("g-prefer-1_1");
+    public void testG_avoid_1_1() {
+        doParseTest("g-avoid-1_1");
     }
 }

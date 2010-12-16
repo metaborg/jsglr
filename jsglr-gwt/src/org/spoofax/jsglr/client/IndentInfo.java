@@ -1,6 +1,6 @@
 package org.spoofax.jsglr.client;
 
-import org.spoofax.ArrayDeque;
+import org.spoofax.jsglr.shared.ArrayDeque;
 
 /*
  * Should be created before parsing the first character of a line

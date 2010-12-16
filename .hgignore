@@ -1,0 +1,8 @@
+syntax: glob
+*.class
+*.cache.*
+.metadata
+*.jar
+jsglr-gwt/war/jsglrgwt
+jsglr-gwt/war/*.tbl
+jsglr-gwt/.settings

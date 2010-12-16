@@ -4,8 +4,12 @@ import java.util.Iterator;
 
 public class ATermList extends ATerm implements Iterable<ATerm> {
 
-	private final ATerm[] elements;
+	private static final long serialVersionUID = 1L;
 
+	private ATerm[] elements;
+
+	ATermList() {}
+	
 	ATermList(ATermFactory factory) {
 		super(factory);
 		elements = new ATerm[0];
@@ -89,4 +93,16 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 		return new ATermListIterator(this);
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		for(int i = 0 ; i < elements.length; i++) {
+			if(i > 0)
+				sb.append(",");
+			sb.append(elements[i].toString());
+		}
+		sb.append(']');
+		return sb.toString();
+	}
 }

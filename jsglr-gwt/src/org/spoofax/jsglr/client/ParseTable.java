@@ -208,19 +208,35 @@ public class ParseTable implements Serializable {
     @SuppressWarnings("rawtypes")
     private boolean isInjection(ATermAppl prod) {
 
-        List r = prod.match(injection1Appl);
-        if (r != null && r.size() >= 1) {
-            ATerm x = (ATerm) r.get(0);
-            return x.match(litStringAppl) == null;
-        }
+//        injection1Appl = factory.parse("prod([<term>],cf(<term>),<term>)");
+//        injection2Appl = factory.parse("prod([<term>],lex(sort(<str>)),<term>)");
+//        litStringAppl = factory.parse("lit(<str>)");
 
-        r = prod.match(injection2Appl);
-        if (r != null && r.size() >= 1) {
-            ATerm x = (ATerm) r.get(0);
-            return x.match("lit(<str>)") == null;
-        }
+        if(!prod.getAFun().getName().equals("prod"))
+        	return false;
+        
+        
+        if(prod.getChildAt(1).getType() != ATerm.APPL)
+        	return false;
+        
+        final String nm = ((ATermAppl)prod.getChildAt(1)).getName();
+        
+        if(!(nm.equals("cf") || nm.equals("lex")))
+        	return false;
 
-        return false;
+        if(prod.getChildAt(0).getType() != ATerm.LIST)
+        	return false;
+
+        ATermList ls = ((ATermList)prod.getChildAt(0));
+
+        if(ls.getChildCount() < 1)
+        	return false;
+        
+        if(ls.getChildAt(0).getType() != ATerm.APPL)
+        	return false;
+        
+        final AFun fun = ((ATermAppl)ls.getChildAt(0)).getAFun();
+        return fun.getName().equals("lit") && fun.getArity() == 1;
     }
 
     private ProductionAttributes parseProductionAttributes(ATermAppl attr)
@@ -382,7 +398,7 @@ public class ParseTable implements Serializable {
             // FIXME: multiple lookahead are not fully supported or tested
             //        (and should work for both 2.4 and 2.6 tables)
 
-            if (Term.termAt(l, 1) == null) {
+            if (n.getChildCount() > 0 && Term.termAt(l, 1) == null) {
                 // This handles restrictions like:
                 //   LAYOUT? -/- [\/].[\/]
                 // where there is no other restriction that starts with a [\/]

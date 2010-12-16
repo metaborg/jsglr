@@ -1,15 +1,19 @@
 package org.spoofax.jsglr.shared.terms;
 
-public class AFun {
+import java.io.Serializable;
 
-	private final String name;
-	private final int arity;
-	private final boolean quoted;
+public class AFun implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
+	private String name;
+	private int arity;
+
+	AFun() {}
+	
 	public AFun(String name, int arity, boolean quoted) {
 		this.name = name;
 		this.arity = arity;
-		this.quoted = quoted;
 	}
 
 	public int getArity() {

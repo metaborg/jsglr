@@ -7,6 +7,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface RemoteParseTableServiceAsync {
 
-	void findParseTable(String resourcePath, AsyncCallback<ATerm> asyncCallback);
+	void fetchParseTable(String resourcePath, AsyncCallback<ATerm> callback);
+
+	void readTermFromFile(String string, AsyncCallback<ATerm> callback);
+
+	void fetchText(String string, AsyncCallback<String> callback);
 
 }

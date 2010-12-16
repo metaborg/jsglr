@@ -7,22 +7,19 @@
  */
 package org.spoofax.jsglr.tests;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
 
-public class TestG_right_assoc extends ParseTestCase {
+public class TestG_reject_1 extends ParseTestCase {
 
     @Override
-	public void gwtSetUp() throws FileNotFoundException, IOException,
+	public void gwtSetUp() throws
             ParserException, InvalidParseTableException {
-        super.gwtSetUp("G-right-assoc", "txt");
+        super.gwtSetUp("G-reject-1", "txt");
     }
 
 
-    public void testG_right_assoc_1() throws FileNotFoundException, IOException {
-        doParseTest("g-right-assoc-1");
+    public void testG_reject_1_1() {
+        doParseTest("g-reject-1_1");
     }
 }

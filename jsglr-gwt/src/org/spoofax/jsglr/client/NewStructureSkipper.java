@@ -1,6 +1,5 @@
 package org.spoofax.jsglr.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -28,19 +27,17 @@ public class NewStructureSkipper {
         structTokens=new StructuralTokenRecognizer();
     }
 
-    public ArrayList<StructureSkipSuggestion> getPreviousSkipSuggestions(int failureIndex)
-    throws IOException {
+    public ArrayList<StructureSkipSuggestion> getPreviousSkipSuggestions(int failureIndex) {
         return selectPrevRegion(failureIndex);
     }
     
-    public ArrayList<StructureSkipSuggestion> getCurrentSkipSuggestions(int failureIndex) throws IOException {
+    public ArrayList<StructureSkipSuggestion> getCurrentSkipSuggestions(int failureIndex) {
         ArrayList<StructureSkipSuggestion> result = getCurrentRegionSkips(failureIndex);  
         addNextRegionMerges(result);
         return result;
     }
 
-    private void addNextRegionMerges(ArrayList<StructureSkipSuggestion> result)
-            throws IOException {
+    private void addNextRegionMerges(ArrayList<StructureSkipSuggestion> result) {
         ArrayList<StructureSkipSuggestion> includeNexts=new ArrayList<StructureSkipSuggestion>();
         for (StructureSkipSuggestion skip : result) {            
             for (StructureSkipSuggestion skipFW : selectRegion(skip.getIndexHistoryEnd())) {
@@ -50,8 +47,7 @@ public class NewStructureSkipper {
         result.addAll(includeNexts);
     }
 
-    private ArrayList<StructureSkipSuggestion> getCurrentRegionSkips(
-            int failureIndex) throws IOException {
+    private ArrayList<StructureSkipSuggestion> getCurrentRegionSkips(int failureIndex) {
         ArrayList<StructureSkipSuggestion> result=new ArrayList<StructureSkipSuggestion>();
         if (failureIndex>0 && isScopeOpeningLine(failureIndex) && getHistory().getLine(failureIndex-1).getIndentValue()==getHistory().getLine(failureIndex).getIndentValue())
             result.addAll(selectRegion(failureIndex-1));
@@ -59,12 +55,11 @@ public class NewStructureSkipper {
         return result;
     }
     
-    public ArrayList<StructureSkipSuggestion> getPriorSkipSuggestions(int failureIndex) throws IOException {
+    public ArrayList<StructureSkipSuggestion> getPriorSkipSuggestions(int failureIndex) {
         return getPriorRegions(failureIndex);
     }
     
-    public ArrayList<StructureSkipSuggestion> getSibblingBackwardSuggestions(int failureIndex)
-    throws IOException {
+    public ArrayList<StructureSkipSuggestion> getSibblingBackwardSuggestions(int failureIndex) {
         ArrayList<StructureSkipSuggestion> bwSkips=new ArrayList<StructureSkipSuggestion>();
         ArrayList<StructureSkipSuggestion> priorSiblings=getPriorRegions(failureIndex);
         ArrayList<StructureSkipSuggestion> currentRegionSuggestions=selectRegion(failureIndex);
@@ -82,8 +77,7 @@ public class NewStructureSkipper {
         return bwSkips;
     }
     
-    public ArrayList<StructureSkipSuggestion> getSibblingForwardSuggestions(int failureIndex)
-    throws IOException {
+    public ArrayList<StructureSkipSuggestion> getSibblingForwardSuggestions(int failureIndex) {
         ArrayList<StructureSkipSuggestion> fwSkips=new ArrayList<StructureSkipSuggestion>();
         ArrayList<StructureSkipSuggestion> nextSiblings=getCurrentAndNextSkipSuggestions(failureIndex);
         ArrayList<StructureSkipSuggestion> prevRegionSuggestions=selectPrevRegion(failureIndex);
@@ -101,8 +95,7 @@ public class NewStructureSkipper {
         return fwSkips;
     }
     
-    public ArrayList<StructureSkipSuggestion> getSibblingSurroundingSuggestions(int failureIndex)
-    throws IOException {
+    public ArrayList<StructureSkipSuggestion> getSibblingSurroundingSuggestions(int failureIndex) {
         ArrayList<StructureSkipSuggestion> surroundingSkips=new ArrayList<StructureSkipSuggestion>();
         ArrayList<StructureSkipSuggestion> priorSiblings=getPriorRegions(failureIndex);
         ArrayList<StructureSkipSuggestion> nextSiblings=getCurrentAndNextSkipSuggestions(failureIndex);
@@ -136,7 +129,7 @@ public class NewStructureSkipper {
         return surroundingSkips;
     }
 
-    public ArrayList<StructureSkipSuggestion> getParentSkipSuggestions(int failureIndex) throws IOException{
+    public ArrayList<StructureSkipSuggestion> getParentSkipSuggestions(int failureIndex) {
         ArrayList<StructureSkipSuggestion> parentSkips = new ArrayList<StructureSkipSuggestion>();
         int errorLineIndex=failureIndex;
         int maxBW=Math.max(failureIndex-MAX_NR_OF_LINES, 0);
@@ -160,14 +153,14 @@ public class NewStructureSkipper {
         return parentSkips;
     }
 
-    public StructureSkipSuggestion getErroneousPrefix(int failureIndex) throws IOException {
+    public StructureSkipSuggestion getErroneousPrefix(int failureIndex) {
         StructureSkipSuggestion prefix=new StructureSkipSuggestion();
         if(getHistory().getIndexLastLine()>=0)
             prefix.setSkipLocations(IndentInfo.cloneIndentInfo(getHistory().getLine(0)), IndentInfo.cloneIndentInfo(getHistory().getLine(failureIndex)), 0, failureIndex);
         return prefix;
     }
 
-    public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(StructureSkipSuggestion prevRegion) throws IOException{
+    public ArrayList<StructureSkipSuggestion> getZoomOnPreviousSuggestions(StructureSkipSuggestion prevRegion) {
         ArrayList<StructureSkipSuggestion> result = new ArrayList<StructureSkipSuggestion>();
         if(!prevRegion.canBeDecomposed()){
             return result;
@@ -212,7 +205,7 @@ public class NewStructureSkipper {
         return result;
     } 
 
-    private ArrayList<StructureSkipSuggestion> selectRegion(int indexLine) throws IOException {           
+    private ArrayList<StructureSkipSuggestion> selectRegion(int indexLine) {           
         if (isScopeClosingLine(indexLine))
             return new ArrayList<StructureSkipSuggestion>();        
         ArrayList<Integer> endLocations=findCurrentEnd(indexLine);
@@ -235,8 +228,7 @@ public class NewStructureSkipper {
         return skipSuggestions;
     }
 
-    private ArrayList<StructureSkipSuggestion> selectPrevRegion(int indexEnd)
-    throws IOException {
+    private ArrayList<StructureSkipSuggestion> selectPrevRegion(int indexEnd) {
         ArrayList<StructureSkipSuggestion> prevRegions=new ArrayList<StructureSkipSuggestion>();       
         boolean onClosing=isScopeClosingLine(indexEnd);
         int indexStart = findPreviousBegin(indexEnd, onClosing);
@@ -262,8 +254,8 @@ public class NewStructureSkipper {
     }
 
     private void addSeperatorIncludingRegion_Backwards(
-            ArrayList<StructureSkipSuggestion> prevRegions, 
-            StructureSkipSuggestion previousRegion) throws IOException {
+    		ArrayList<StructureSkipSuggestion> prevRegions, 
+            StructureSkipSuggestion previousRegion) {
         int indexStart=previousRegion.getIndexHistoryStart();
         if(indexStart>0 && isSeparatorEndingLine(indexStart-1)){
             char[] toParse = structTokens.removeSeparatorAtTheEnd(readLine(indexStart-1));
@@ -278,7 +270,7 @@ public class NewStructureSkipper {
 
     private void addSeparatorIncludingRegion_Forwards(
             ArrayList<StructureSkipSuggestion> regions,
-            StructureSkipSuggestion aRegion) throws IOException {
+            StructureSkipSuggestion aRegion) {
         if(isSeparatorStartingLine(aRegion.getIndexHistoryEnd())){
             IndentInfo startSkip=IndentInfo.cloneIndentInfo(aRegion.getStartSkip());
             IndentInfo endSkip=IndentInfo.cloneIndentInfo(aRegion.getEndSkip());
@@ -290,8 +282,7 @@ public class NewStructureSkipper {
         }
     }
 
-    private ArrayList<StructureSkipSuggestion> getPriorRegions(int pos)
-    throws IOException {
+    private ArrayList<StructureSkipSuggestion> getPriorRegions(int pos) {
         ArrayList<StructureSkipSuggestion> priorRegions= new ArrayList<StructureSkipSuggestion>();
         ArrayList<StructureSkipSuggestion> prevRegions=selectPrevRegion(pos);
         int bwMax=Math.max(pos-MAX_NR_OF_LINES, 0);
@@ -306,8 +297,7 @@ public class NewStructureSkipper {
         return priorRegions;
     }
 
-    private ArrayList<StructureSkipSuggestion> getCurrentAndNextSkipSuggestions(int failureIndex)
-    throws IOException {
+    private ArrayList<StructureSkipSuggestion> getCurrentAndNextSkipSuggestions(int failureIndex) {
         ArrayList<StructureSkipSuggestion> nextRegions= new ArrayList<StructureSkipSuggestion>();
         ArrayList<StructureSkipSuggestion> currRegions=selectRegion(failureIndex);
         int fwMax=failureIndex+MAX_NR_OF_LINES;
@@ -336,7 +326,7 @@ public class NewStructureSkipper {
         return nextRegions;
     }
     
-    private ArrayList<Integer> findCurrentEnd(int indexStartLine) throws IOException{
+    private ArrayList<Integer> findCurrentEnd(int indexStartLine) {
         int indentStartLine=separatorIndent(indexStartLine);        
         boolean hasIndentChilds=false;
         boolean isSecondLine=true;
@@ -375,7 +365,7 @@ public class NewStructureSkipper {
         return endLocations;
     }
     
-    private int findPreviousBegin(int indexLine, boolean onClosing) throws IOException { 
+    private int findPreviousBegin(int indexLine, boolean onClosing) { 
         int indentValue = getHistory().getLine(indexLine).getIndentValue();
         boolean sawChilds=false;
         boolean closingSeen=onClosing;
@@ -414,7 +404,7 @@ public class NewStructureSkipper {
         return 0;
     }  
     
-    private int findParentBegin(int startLineIndex) throws IOException{
+    private int findParentBegin(int startLineIndex) {
         int indentStartLine=separatorIndent(startLineIndex); 
         int indexHistoryLines=startLineIndex;
         while(indexHistoryLines > 0){
@@ -435,33 +425,33 @@ public class NewStructureSkipper {
         return 0; //SOF
     }
 
-    private int separatorIndent(int indexLine) throws IOException {
+    private int separatorIndent(int indexLine) {
         int indentValue = getHistory().getLine(indexLine).getIndentValue();
         String lineContent = readLine(indexLine);
         return indentValue+structTokens.separatorIndent(lineContent);
     }
 
-    private boolean isScopeOpeningLine(int index) throws IOException {
+    private boolean isScopeOpeningLine(int index) {
         String lineContent = readLine(index);
         return structTokens.isScopeOpeningLine(lineContent);
     }
 
-    private boolean isScopeClosingLine(int index) throws IOException {
+    private boolean isScopeClosingLine(int index) {
         String lineContent = readLine(index);
         return structTokens.isScopeClosingLine(lineContent);
     }
 
-    private boolean isSeparatorStartingLine(int index) throws IOException {
+    private boolean isSeparatorStartingLine(int index) {
         String lineContent = readLine(index);
         return structTokens.isSeparatorStartedLine(lineContent);
     }
 
-    private boolean isSeparatorEndingLine(int index) throws IOException {
+    private boolean isSeparatorEndingLine(int index) {
         String lineContent = readLine(index);
         return structTokens.isSeparatorEndingLine(lineContent);
     }
 
-    private String readLine(int index) throws IOException {
+    private String readLine(int index) {
         while(getHistory().getIndexLastLine()<=index && myParser.currentToken!=SGLR.EOF)
             getHistory().readRecoverToken(myParser, false);
         if(index<=getHistory().getIndexLastLine()){
@@ -486,7 +476,7 @@ public class NewStructureSkipper {
         return indentShift.SAME_INDENT;
     }
 
-    private int skipLine(int indexLine) throws IOException {
+    private int skipLine(int indexLine) {
         IndentInfo line =getHistory().getLine(indexLine);
         IndentationHandler skipIndentHandler=new IndentationHandler();
         getHistory().setTokenIndex(Math.max(0, line.getTokensSeen()-1));        
@@ -510,8 +500,7 @@ public class NewStructureSkipper {
         return mergedSkip;
     }
 
-    public ArrayList<StructureSkipSuggestion> getBlockSuggestions(
-            int structStartIndex) throws IOException {
+    public ArrayList<StructureSkipSuggestion> getBlockSuggestions(int structStartIndex)  {
         ArrayList<StructureSkipSuggestion> result=getCurrentRegionSkips(structStartIndex);
         int endIndex=Math.min(getHistory().getIndexLastLine()+1, structStartIndex + MAX_NR_OF_LINES);
         for (int i = structStartIndex; i < endIndex; i++) {

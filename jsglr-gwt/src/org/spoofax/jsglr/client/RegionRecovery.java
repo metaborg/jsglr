@@ -1,7 +1,6 @@
 //TODO: samenwerking met recovery connector eenduidiger
 package org.spoofax.jsglr.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -78,7 +77,7 @@ public class RegionRecovery {
     /**
      * Selects erroneous region based on layout 
      */
-    public boolean selectErroneousFragment() throws IOException { 
+    public boolean selectErroneousFragment() { 
         boolean eofReached=myParser.currentToken==SGLR.EOF;
         acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
@@ -158,7 +157,7 @@ public class RegionRecovery {
         return true; 
     }
 
-    private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) throws IOException {
+    private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) {
         StructureSkipSuggestion aSkip=new StructureSkipSuggestion();
         int indexSkips=0;
         myParser.acceptingStack=null; 
@@ -176,7 +175,7 @@ public class RegionRecovery {
         return hasFoundErroneousRegion;
     }
 
-    private boolean testRegion(StructureSkipSuggestion aSkip) throws IOException {
+    private boolean testRegion(StructureSkipSuggestion aSkip) {
         //System.out.println("%%%%%%%%%%% TEST REGION %%%%%%%%%%%");
         //System.out.println(getInputFragment(aSkip));
         //System.out.printlnBlock(getInputFragment(aSkip));           
@@ -207,7 +206,7 @@ public class RegionRecovery {
     }
 
     private void parseAdditionalTokens(
-            StructureSkipSuggestion aSkip) throws IOException {
+            StructureSkipSuggestion aSkip) {
         for (char aChar : aSkip.getAdditionalTokens()) {
             myParser.currentToken=aChar;           
             myParser.doParseStep();

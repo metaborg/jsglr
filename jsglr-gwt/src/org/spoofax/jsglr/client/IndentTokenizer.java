@@ -1,9 +1,8 @@
 package org.spoofax.jsglr.client;
 
 import java.io.IOException;
-import java.util.Stack;
 
-import org.spoofax.ArrayDeque;
+import org.spoofax.jsglr.shared.ArrayDeque;
 
 /*
  * Creates tokens DEDENT and INDENT based on indentation.

@@ -6,9 +6,13 @@ import org.spoofax.jsglr.client.NotImplementedException;
 
 public class ATermAppl extends ATerm {
 
-	private final AFun ctor;
-	private final ATerm[] kids;
+	private static final long serialVersionUID = 1L;
+	
+	private AFun ctor;
+	private ATerm[] kids;
 
+	ATermAppl() {}
+	
 	ATermAppl(ATermFactory factory, AFun ctor, ATerm... kids) {
 		super(factory);
 		this.ctor = ctor;
@@ -34,7 +38,7 @@ public class ATermAppl extends ATerm {
 		return ATerm.APPL;
 	}
 
-	public List match(ATerm term) {
+	public boolean match(ATerm term) {
 		throw new NotImplementedException();
 	}
 
@@ -42,5 +46,18 @@ public class ATermAppl extends ATerm {
 		return ctor;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(ctor.getName());
+		sb.append('(');
+		for(int i = 0; i < kids.length; i++) {
+			if(i > 0)
+				sb.append(",");
+			sb.append(kids[i].toString());
+		}
+		sb.append(')');
+		return sb.toString();
+	}
 
 }

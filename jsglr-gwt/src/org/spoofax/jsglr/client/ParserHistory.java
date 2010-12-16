@@ -1,8 +1,6 @@
 package org.spoofax.jsglr.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
-
 
 public class ParserHistory {
     
@@ -50,7 +48,7 @@ public class ParserHistory {
     /*
      * Set current token of parser based on recover tokens or read from new tokens
      */
-    public void readRecoverToken(SGLR myParser, boolean keepRecoveredLines) throws IOException{  
+    public void readRecoverToken(SGLR myParser, boolean keepRecoveredLines) {  
         if (hasFinishedRecoverTokens()) {             
             if(myParser.currentToken!=SGLR.EOF){                
                 if(getIndexLastToken()>=0 && recoverTokenStream[getIndexLastToken()]!=SGLR.EOF){

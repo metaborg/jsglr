@@ -6,21 +6,15 @@
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.jsglr.client;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CancellationException;
 
-import org.spoofax.ArrayDeque;
+import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
@@ -36,17 +30,11 @@ public class SGLR {
 
     static final int TAB_SIZE = 4;//8;
 
-    private static final Timer abortTimer = new Timer(true);
-
-    private int abortTimerJobId;
-
     protected static boolean WORK_AROUND_MULTIPLE_LOOKAHEAD;
 
     //Performance testing
     private static long parseTime=0;
     private static int parseCount=0;
-
-    private int timeout;
 
     public Frame startFrame;
 
@@ -94,12 +82,12 @@ public class SGLR {
 
     private int reductionCount;
 
-    private PushbackInputStream currentInputStream;
+    private PushbackStringIterator currentInputStream;
 
     //Creates indent- and dedent- tokens
     //Meant for parsing of indentation based languages
     //TODO: still under construction
-    private IndentTokenizer indentTokenHandler;
+//    private IndentTokenizer indentTokenHandler;
 
     // ------------------------------------- Integrated recovery  ------------------------
   //Keeps track of the indentation for each line
@@ -142,7 +130,7 @@ public class SGLR {
     }
 
     //-------------------------- fine-grained recovery ----------------------------------
-    private RecoverDisambiguator recoverDisambiguator;
+    //private RecoverDisambiguator recoverDisambiguator;
 
     SGLR() {
         basicInit(null);
@@ -208,7 +196,7 @@ public class SGLR {
         useIntegratedRecovery = false;
         recoverIntegrator = null;
         history=new ParserHistory();
-        recoverDisambiguator=new RecoverDisambiguator(this.parseTable);
+        //recoverDisambiguator=new RecoverDisambiguator(this.parseTable);
     }
 
     public static boolean isDebugging() {
@@ -233,68 +221,22 @@ public class SGLR {
         return st0;
     }
 
-    public final ATerm parse(InputStream fis)  throws IOException, SGLRException {
-        return parse(fis, null);
-    }
-
-    public ATerm parse(InputStream fis, String startSymbol) throws IOException,
-            BadTokenException, TokenExpectedException, ParseException,
+    public ATerm parse(String fis, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
             SGLRException {
         logBeforeParsing();
         initParseVariables(fis);
         startTime = System.currentTimeMillis();
-        initParseTimer();
         return sglrParse(startSymbol);
     }
 
-    public final ATerm parse(String input) throws IOException, BadTokenException,
+    public final ATerm parse(String input) throws BadTokenException,
             TokenExpectedException, ParseException, SGLRException {
 
         return parse(input, null);
     }
 
-    public ATerm parse(String input, String startSymbol) throws IOException, BadTokenException, TokenExpectedException, ParseException,
-        SGLRException {
-
-        return parse(new ByteArrayInputStream(input.getBytes("ISO-8859-1")), startSymbol);
-    }
-
-    private void initParseTimer() {
-        if (timeout > 0) {
-            // We use a single shared timer to conserve native threads
-            // and a jobId to recognize stale abort events
-            synchronized (abortTimer) {
-                asyncAborted = false;
-                ++abortTimerJobId;
-            }
-            final int jobId = abortTimerJobId;
-            abortTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    synchronized (abortTimer) {
-                        if (abortTimerJobId == jobId)
-                            asyncAbort();
-                    }
-                }
-            }, timeout
-            );
-        } else {
-            asyncAborted = false;
-        }
-    }
-
-    /**
-     * Sets the maximum amount of time to try and parse a file,
-     * before a {@link ParseTimeoutException} is thrown.
-     *
-     * @param timeout  The maximum time to parse, in milliseconds.
-     */
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
     private ATerm sglrParse(String startSymbol)
-            throws IOException, BadTokenException, TokenExpectedException,
+            throws BadTokenException, TokenExpectedException,
             ParseException, SGLRException {
 
         try {
@@ -323,7 +265,7 @@ public class SGLR {
                     return sglrParse(startSymbol);
             }*/
 
-        } catch (CancellationException e) {
+        } catch (TaskCancellationException e) {
             throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
                     columnNumber, collectedErrors);
         }
@@ -342,22 +284,22 @@ public class SGLR {
         return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
     }
 
-    void readNextToken() throws IOException {
+    void readNextToken() {
         logCurrentToken();
         currentToken = getNextToken();
     }
 
-    public void doParseStep() throws IOException {
+    public void doParseStep() {
         parseCharacter(); //applies reductions on active stack structure and fills forshifter
         shifter(); //renewes active stacks with states in forshifter
     }
 
-    private void initParseVariables(InputStream fis) {
+    private void initParseVariables(String input) {
         startFrame = initActiveStacks();
         tokensSeen = 0;
         columnNumber = 0;
         lineNumber = 1;
-        currentInputStream = new PushbackInputStream(fis, 1024);
+        currentInputStream = new PushbackStringIterator(input);
         acceptingStack = null;
         //history.keepInitialState(this);
         collectedErrors.clear();
@@ -430,7 +372,7 @@ public class SGLR {
         activeStacks.addFirst(st1);
     }
 
-    private void parseCharacter() throws IOException {
+    private void parseCharacter() {
         logBeforeParseCharacter();
 
         ArrayDeque<Frame> actives = new ArrayDeque<Frame>(activeStacks); // FIXME avoid garbage
@@ -474,7 +416,7 @@ public class SGLR {
         return st;
     }
 
-    private void actor(Frame st) throws IOException {
+    private void actor(Frame st) {
         State s = st.peek();
         logBeforeActor(st, s);
         for (Action action : s.getActions()) {
@@ -525,11 +467,11 @@ public class SGLR {
         }
     }
 
-    private boolean checkLookahead(ReduceLookahead red) throws IOException {
+    private boolean checkLookahead(ReduceLookahead red) {
         return doCheckLookahead(red, red.getCharRanges(), 0);
     }
 
-    private boolean doCheckLookahead(ReduceLookahead red, RangeList[] charClass, int pos) throws IOException {
+    private boolean doCheckLookahead(ReduceLookahead red, RangeList[] charClass, int pos) {
         if(Tools.tracing) {
             TRACE("SG_CheckLookAhead() - ");
         }
@@ -566,7 +508,7 @@ public class SGLR {
         }
     }
 
-    private void doReductions(Frame st, Production prod) throws IOException {
+    private void doReductions(Frame st, Production prod) {
         if(recoverModeOk(st, prod)){
             List<Path> paths = st.findAllPaths(prod.arity);
             logBeforeDoReductions(st, prod, paths.size());
@@ -590,7 +532,7 @@ public class SGLR {
         return !useIntegratedRecovery || prod.isRecoverProduction() == reduceRecoverOnly;
     }*/
 
-    private void doLimitedReductions(Frame st, Production prod, Link l) throws IOException { //Todo: Look add sharing code with doReductions
+    private void doLimitedReductions(Frame st, Production prod, Link l) { //Todo: Look add sharing code with doReductions
         if(recoverModeOk(st, prod)){
             List<Path> paths = st.findLimitedPaths(prod.arity, l); //find paths containing the link
             logBeforeLimitedReductions(st, prod, l, paths);
@@ -598,8 +540,7 @@ public class SGLR {
         }
     }
 
-    private void reduceAllPaths(Production prod, List<Path> paths)
-            throws IOException {
+    private void reduceAllPaths(Production prod, List<Path> paths) {
 
         for (int i = paths.size() - 1; i >= 0; i--) {
             Path path = paths.get(i);
@@ -613,7 +554,7 @@ public class SGLR {
 
         if (asyncAborted) {
             // Rethrown as ParseTimeoutException in SGLR.sglrParse()
-            throw new CancellationException("Long-running parse job aborted");
+            throw new TaskCancellationException("Long-running parse job aborted");
         }
     }
 
@@ -625,7 +566,7 @@ public class SGLR {
         paths.clear();
     }
 
-    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, Path path) throws IOException {
+    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, Path path) {
         int length = path.getLength();
         int numberOfRecoveries = calcRecoverCount(prod, path);
         IParseNode t = prod.apply(kids);
@@ -740,7 +681,7 @@ public class SGLR {
         }
     }
 
-    private void actorOnActiveStacksOverNewLink(Link nl) throws IOException {
+    private void actorOnActiveStacksOverNewLink(Link nl) {
         // Note: ActiveStacks can be modified inside doLimitedReductions
         // new elements may be inserted at the beginning
         final int sz = activeStacks.size();
@@ -837,7 +778,7 @@ public class SGLR {
     }
 
 
-    private int getNextToken() throws IOException {
+    private int getNextToken() {
         if(Tools.tracing) {
             TRACE("SG_NextToken() - ");
         }
@@ -1275,61 +1216,5 @@ public class SGLR {
             Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/",
                         nl.getLength());
         }
-    }
-    //-------------------------------------------------- mj: debug and recovery ------------------------
-
-    //Used for debugging
-    private String mjInfo() {
-        String result = "";
-        result += "CURR TOKEN: " + (char)currentToken;
-        result += " ACTIVESTACKS: ";
-        for (Frame f : activeStacks) {
-            result += f.state.stateNumber;
-            if(f.minAvoidValue() > 0)
-                result += "$"+f.minAvoidValue() + "$";
-            result += "; ";
-        }
-        result += " FORACTOR: ";
-        for (Frame f : forActor) {
-            result += f.state.stateNumber;
-            result += "; ";
-        }
-        result += " FORACTOR_DELAYED: ";
-        for (Frame f : forActorDelayed) {
-            result += f.state.stateNumber;
-            result += "; ";
-        }
-        result += " FORSHIFTER: ";
-        for (ActionState as : forShifter) {
-            result += "{ ";
-            result += as.st.state.stateNumber;
-            result+=",";
-            result += as.s.stateNumber;
-            result += "} ; ";
-        }
-        return result;
-    }
-
-    private String[] viewStackObject(boolean avoidFiltered){
-        List<String> stackPaths = new ArrayList<String>();
-        for (Frame actNode : activeStacks) {
-            List<String> testMJ = actNode.getStackPaths("", avoidFiltered);
-            stackPaths.addAll(testMJ);
-        }
-        return stackPaths.toArray(new String[stackPaths.size()]);
-    }
-
-    private String[] viewStackObject()
-    {
-        return viewStackObject(false);
-    }
-
-    private String[] viewFilteredStackObject()
-    {
-        return viewStackObject(true);
-    }
-
-    private void mjTesting() {
-        Tools.debug((char)currentToken);
     }
 }

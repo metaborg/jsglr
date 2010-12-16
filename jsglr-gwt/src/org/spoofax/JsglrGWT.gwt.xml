@@ -2,11 +2,12 @@
 <module rename-to='jsglrgwt'>
 
   <inherits name='com.google.gwt.user.User'/>
+  <inherits name="com.google.gwt.http.HTTP"/>
+
+  <source path='jsglr/client'/>
+  <source path='jsglr/shared'/>
+  <source path='client'/>
 
   <entry-point class='org.spoofax.client.JSGLREntryPoint'/>
-
-  <source path='jsglr.client'/>
-  <source path='jsglr.shared'/>
-  <source path='client'/>
 
 </module>

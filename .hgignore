@@ -4,4 +4,4 @@ jsglr-gwt/scripts/*.jar
 jsglr-gwt/war/*
 jsglr-gwt/test-classes/*
 jsglr-gwt/tests/*/*.{tbl,itrm,trm}
-jsglr-gwt/tests/.jsglr-log
+jsglr-gwt/tests/.sglr-log

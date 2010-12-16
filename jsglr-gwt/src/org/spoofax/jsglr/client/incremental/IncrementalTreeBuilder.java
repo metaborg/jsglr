@@ -4,6 +4,7 @@ import static org.spoofax.jsglr.client.imploder.Tokenizer.findLeftMostLayoutToke
 import static org.spoofax.jsglr.client.imploder.Tokenizer.findRightMostLayoutToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.tryGetListIterator;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,6 +44,8 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	private final int damageEnd;
 	
 	private final int damageSizeChange;
+	
+	private boolean isRepairedNodesInserted;
 
 	/**
 	 * @param incrementalSorts
@@ -110,7 +113,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 			Iterator<IAstNode> iterator = tryGetListIterator(tree); 
 			for (int i = 0, max = tree.getChildCount(); i < max; i++) {
 				IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
-				IToken childLeft = child.getLeftToken();
+				IToken childLeft = findLeftMostLayoutToken(child.getLeftToken());
 				IToken childRight = findRightMostLayoutToken(child.getRightToken());
 				if (childLeft != null && childRight != null) {
 					if (childLeft.getIndex() > current.getIndex()
@@ -142,47 +145,58 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		}
 	}
 	
-	public TNode buildOutput(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes) {
+	public TNode buildOutput(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes, int skippedChars) 
+			throws IncrementalSGLRException {
+		isRepairedNodesInserted = false;
 		Tokenizer tokenizer =
 			new Tokenizer(parser.getParseTable().getKeywordRecognizer(), filename, input);
-		return buildOutput(oldTreeNode, repairedTreeNodes, tokenizer);
+		TNode result = buildOutputSubtree(oldTreeNode, repairedTreeNodes, skippedChars, tokenizer);
+		if (!isRepairedNodesInserted)
+			throw new IncrementalSGLRException("Postcondition failed: unable to insert repaired tree nodes in original tree: " + repairedTreeNodes);
+		tokenizer.makeToken(tokenizer.getStartOffset() - 1, TK_EOF, true);
+		return result;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private TNode buildOutput(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes,
-			Tokenizer tokenizer) {
+	private TNode buildOutputSubtree(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes,
+			int skippedChars, Tokenizer tokenizer) {
 		// TODO: recreate tokens
 
-		IToken leftToken = null;
-		IToken rightToken = null;
+		IToken leftToken = tokenizer.currentToken();
 		List<IAstNode> children;
 		if (oldTreeNode.isList() && incrementalSorts.contains(oldTreeNode.getElementSort())) {
 			List<IAstNode> oldChildren = copyChildrenToList(oldTreeNode);
 			children = new ArrayList<IAstNode>(oldTreeNode.getChildCount() + repairedTreeNodes.size());
-			boolean addedNewChildren = false;
 			for (IAstNode oldChild : oldChildren) {
-				if (!addedNewChildren && oldChild.getRightToken().getEndOffset() >= damageStart) {
-					addedNewChildren = true;
-					insertDamagedNodes(oldTreeNode, repairedTreeNodes, tokenizer, children);
+				if (!isRepairedNodesInserted && oldChild.getRightToken().getEndOffset() >= damageStart) {
+					insertRepairedNodes(oldTreeNode, repairedTreeNodes, tokenizer, children);
 				}
-				children.add(oldChild);
+				children.add(buildOutputSubtree(oldChild, repairedTreeNodes, skippedChars, tokenizer));
 			}
-			if (!addedNewChildren && oldTreeNode.getRightToken().getEndOffset() + NEXT_CHAR >= damageStart)
-				insertDamagedNodes(oldTreeNode, repairedTreeNodes, tokenizer, children);
+			IToken endToken = Tokenizer.findRightMostLayoutToken(oldTreeNode.getRightToken());
+			if (!isRepairedNodesInserted && endToken.getEndOffset() >= damageStart - skippedChars) {
+				insertRepairedNodes(oldTreeNode, repairedTreeNodes, tokenizer, children);
+			}
 		} else {
 			children = copyChildrenToList(oldTreeNode);
 			for (int i = 0; i < children.size(); i++) {
-				children.set(i, buildOutput(children.get(i), repairedTreeNodes, tokenizer));
+				children.set(i, buildOutputSubtree(children.get(i), repairedTreeNodes, skippedChars, tokenizer));
 			}
 		}
-		return factory.recreateNode((TNode) oldTreeNode, leftToken, rightToken, (List<TNode>) children);
+		return factory.recreateNode((TNode) oldTreeNode, null, null, /*leftToken, tokenizer.currentToken()*/ (List<TNode>) children);
 	}
 
-	private void insertDamagedNodes(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes,
+	private void insertRepairedNodes(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes,
 			Tokenizer tokenizer, List<IAstNode> children) {
 		
+		isRepairedNodesInserted = true;
+
 		// TODO: recreate tokens
-		children.addAll(repairedTreeNodes);
+		for (IAstNode node : repairedTreeNodes) {
+			// List<IAstNode> children = copy
+			// factory.recreateNode((TNode) oldTreeNode, leftToken, tokenizer.currentToken(), children)
+			children.add(node);
+		}
 	}
 
 	private static List<IAstNode> copyChildrenToList(IAstNode tree) {

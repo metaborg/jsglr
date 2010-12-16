@@ -22,6 +22,8 @@ public class AutoConcatList<E> implements List<E> {
 	private static final int INITIAL_LIST_SIZE = 10;
 	
 	private final String sort;
+
+	private IToken emptyListToken;
 	
 	/** The inner list value, if there is only one value. */
 	private E node;
@@ -31,10 +33,19 @@ public class AutoConcatList<E> implements List<E> {
 	
 	public AutoConcatList(String sort) {
 		this.sort = sort;
+		this.emptyListToken = emptyListToken;
 	}
 	
 	public String getSort() {
 		return sort;
+	}
+	
+	public IToken getEmptyListToken() {
+		return emptyListToken;
+	}
+	
+	public void setEmptyListToken(IToken emptyListToken) {
+		this.emptyListToken = emptyListToken;
 	}
 	
 	private ArrayList<E> asList() {

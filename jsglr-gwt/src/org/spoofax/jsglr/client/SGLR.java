@@ -180,9 +180,6 @@ public class SGLR {
 		forActorDelayed = new ArrayDeque<Frame>();
 		forShifter = new ArrayDeque<ActionState>();
 
-		// FIXME This is *wrong*: need to set the input string size instead
-		ambiguityManager = new AmbiguityManager(10000);
-
 		disambiguator = new Disambiguator();
 		useIntegratedRecovery = false;
 		recoverIntegrator = null;
@@ -282,6 +279,10 @@ public class SGLR {
 	}
 
 	private void initParseVariables(String filename, String input) {
+		forActor.clear();
+		forActorDelayed.clear();
+		forShifter.clear();
+		history.clear();
 		startFrame = initActiveStacks();
 		tokensSeen = 0;
 		columnNumber = 0;
@@ -292,6 +293,8 @@ public class SGLR {
 		parseTable.getTreeBuilder().initializeInput(filename, input);
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
+		ambiguityManager = new AmbiguityManager(input.length());
+		
 	}
 
 	private BadTokenException createBadTokenException() {

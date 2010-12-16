@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static java.lang.Math.max;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
 
 import java.util.ArrayList;
@@ -108,11 +109,27 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	@Override
 	public Object buildTreeTop(Object subtree, int ambiguityCount) {
 		try {
-			return tryBuildAutoConcatListNode(subtree);
+			Object tree = tryBuildAutoConcatListNode(subtree);
+			tree = recreateWithAllTokens(tree);
+			tokenizer.makeToken(tokenizer.getStartOffset() - 1, TK_EOF, true);
+			return tree;
 		} finally {
 			offset = 0;
 			inLexicalContext = false;
 		}
+	}
+
+	/**
+	 * Recreates a tree node, changing its begin and end token
+	 * to the begin and end token of the entire token stream.
+	 */
+	private Object recreateWithAllTokens(Object tree) {
+		List<Object> children = new ArrayList<Object>();
+		for (Object child : factory.getChildren(tree))
+			children.add(child);
+		tree = factory.recreateNode(tree, tokenizer.getTokenAt(0),
+				tokenizer.currentToken(), children);
+		return tree;
 	}
 	
 	/**
@@ -139,8 +156,6 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			}
 		}
 		
-		// TODO: Optimize - one particularly gnarly optimization would be to reuse the subnodes array here
-		//                  and in buildTreeAmb
 		List<Object> children = null;
 		if (!inLexicalContext) {
 			if (isList) {
@@ -159,6 +174,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				Object child = subnode.toTreeTopdown(this);
 				if (child != null) children.add(isList ? child : tryBuildAutoConcatListNode(child));
 			}
+		}
+		
+		if (!inLexicalContext && isList && children.isEmpty()) {
+			IToken token = tokenizer.makeToken(tokenizer.getStartOffset() - 1, IToken.TK_LAYOUT, true);
+			((AutoConcatList) children).setEmptyListToken(token);
 		}
 		
 		if (lexicalStart) {
@@ -229,8 +249,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	 * {@link ITreeFactory}.
 	 */
 	public Object buildAutoConcatListNode(AutoConcatList list) {
-		IToken left = list.isEmpty() ? null : factory.getLeftToken(list.get(0));
-		IToken right = list.isEmpty() ? null : factory.getRightToken(list.get(list.size() - 1));
+		IToken left = list.isEmpty() ? list.getEmptyListToken() : factory.getLeftToken(list.get(0));
+		IToken right = list.isEmpty() ? list.getEmptyListToken() : factory.getRightToken(list.get(list.size() - 1));
 		return factory.createList(list.getSort(), left, right, list);
 	}
 
@@ -328,6 +348,15 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return factory.createNonTerminal(label.getSort(), constructor, left, right, children);
 		}
 	}
+
+	/** Implode a context-free node with an {ast} annotation. */
+	private Object createAstNonTerminal(LabelInfo label, IToken prevToken, List<Object> children) {
+		IToken left = getStartToken(prevToken);
+		// IToken right = getEndToken(left, tokenizer.currentToken());
+		IToken right = tokenizer.currentToken();
+		AstAnnoImploder imploder = new AstAnnoImploder<Object>(factory, termFactory, children, left, right);
+		return imploder.implode(label.getAstAttribute(), label.getSort());
+	}
 	
 	/**
 	 * Gets the padded lexical value for {indentpadding} lexicals, or returns null.
@@ -356,14 +385,6 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return startToken.toString(); // lazily load token string value
 		}
 	}
-
-	/** Implode a context-free node with an {ast} annotation. */
-	private Object createAstNonTerminal(LabelInfo label, IToken prevToken, List<Object> children) {
-		IToken left = getStartToken(prevToken);
-		IToken right = getEndToken(left, tokenizer.currentToken());
-		AstAnnoImploder imploder = new AstAnnoImploder<Object>(factory, termFactory, children, left, right);
-		return imploder.implode(label.getAstAttribute(), label.getSort());
-	}
 	
 	/** Get the token after the previous node's ending token, or null if N/A. */
 	private IToken getStartToken(IToken prevToken) {
@@ -384,8 +405,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		}
 	}
 	
-	/** Get the last no-layout token for an AST node. */
+	/* Get the last no-layout token for an AST node.
 	private IToken getEndToken(IToken currentToken, IToken lastToken) {
+		if (lastToken.getEndOffset() == tokenizer.getInput().length() - 1)
+			return lastToken;
+
 		int begin = currentToken.getIndex();
 		
 		for (int i = lastToken.getIndex(); i > begin; i--) {
@@ -397,6 +421,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		
 		return lastToken;
 	}
+	*/
 	
 	/** Consume a character of a lexical terminal. */
 	protected final void consumeLexicalChar(int character) {

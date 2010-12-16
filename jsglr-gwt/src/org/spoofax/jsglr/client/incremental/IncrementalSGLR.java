@@ -7,12 +7,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.ITreeBuilder;
+import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.IAstNode;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
-import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
@@ -39,16 +38,15 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	 *            Sorts that can be incrementally parsed (e.g., MethodDec, ImportDec).
 	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
 	 */
-	public IncrementalSGLR(SGLR parser, ITreeBuilder builder, ITreeFactory<TNode> factory, Set<String> incrementalSorts) {
+	public IncrementalSGLR(SGLR parser, ITreeFactory<TNode> factory, Set<String> incrementalSorts,
+			boolean includeInjections) {
 		this.parser = parser;
 		this.factory = factory;
 		this.incrementalSorts = incrementalSorts;
-		parser.setTreeBuilder(builder);
-		assert !(builder instanceof TreeBuilder)
-			|| ((TreeBuilder) builder).getFactory().getClass() == factory.getClass();
 		
 		// TODO: support injection sorts in incrementalSorts
 		//       (using injection prods in parse table; build some class like KeywordRecognizer)
+		if (includeInjections) throw new NotImplementedException("includeInjections"); 
 	}
 	
 	/**
@@ -77,8 +75,6 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 			throws TokenExpectedException, BadTokenException, ParseException, SGLRException, IncrementalSGLRException {
 		
 		String oldInput = oldTree.getLeftToken().getTokenizer().getInput();
-		//oldInput = "{old}{old}";
-		//newInput = "{old}{old}{NEW}}";
 		int damageStart = getDamageStart(newInput, oldInput);
 		int damageSizeChange = newInput.length() - oldInput.length();
 		int damageEnd = getDamageEnd(newInput, oldInput, damageStart, damageSizeChange);
@@ -99,13 +95,14 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 		sanityCheckOldTree(oldTree, treeBuilder.getDamagedTreeNodes(oldTree));
 
 		String partialInput = inputBuilder.buildPartialInput(oldTree);
+		int skippedChars = inputBuilder.getLastSkippedCharsBeforeDamage();
 		IAstNode partialTree = (IAstNode) parser.parse(partialInput, startSymbol);
 		
-		List<IAstNode> repairedTreeNodes = treeBuilder.getRepairedTreeNodes(partialTree, inputBuilder.getLastSkippedChars());
+		List<IAstNode> repairedTreeNodes = treeBuilder.getRepairedTreeNodes(partialTree, skippedChars);
 		lastRepairedTreeNodesCount = repairedTreeNodes.size();
 		sanityCheckRepairedTree(repairedTreeNodes);
 
-		return treeBuilder.buildOutput(oldTree, repairedTreeNodes);
+		return treeBuilder.buildOutput(oldTree, repairedTreeNodes, skippedChars);
 	}
 	
 	/**

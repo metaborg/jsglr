@@ -48,23 +48,23 @@ public class DummyTokenizer implements ITokenizer {
 		return onlyToken;
 	}
 
-	public IToken makeToken(int offset, LabelInfo label) {
+	public IToken makeToken(int endOffset, LabelInfo label) {
 		return onlyToken;
 	}
 
-	public IToken makeToken(int offset, LabelInfo label, boolean allowEmptyToken) {
+	public IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken) {
 		return onlyToken;
 	}
 
-	public IToken makeToken(int offset, int kind, boolean allowEmptyToken) {
+	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
 		return onlyToken;
 	}
 
-	public void makeErrorToken(int offset) {
+	public void makeErrorToken(int endOffset) {
 		// Do nothing
 	}
 
-	public void makeLayoutToken(int offset, int lastOffset, LabelInfo label) {
+	public void makeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
 		// Do nothing
 	}
 	

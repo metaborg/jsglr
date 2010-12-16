@@ -29,23 +29,34 @@ public class TestTokenize extends ParseTestCase {
     	System.out.println(tokenizer);
     	
     	assertEquals(0, tokens.next().getLine());
-    	IToken packageToken = tokens.next();
+    	IToken packageToken = getNonEmptyToken(tokens);
+    	assertEquals("package", packageToken.toString());
     	assertEquals("package", packageToken.toString());
     	assertEquals(0, packageToken.getLine());
-    	assertEquals(" ", tokens.next().toString());
-    	assertEquals("java", tokens.next().toString());
-    	assertEquals(".", tokens.next().toString());
-    	assertEquals("java5", tokens.next().toString());
-    	assertEquals(";", tokens.next().toString());
-    	assertEquals("\n", tokens.next().toString());
-    	assertEquals("\n", tokens.next().toString());
-    	IToken classToken = tokens.next();
-    	IToken classToken2 = tokens.next();
+    	assertEquals(" ", getNonEmptyToken(tokens).toString());
+    	assertEquals("java", getNonEmptyToken(tokens).toString());
+    	assertEquals(".", getNonEmptyToken(tokens).toString());
+    	assertEquals("java5", getNonEmptyToken(tokens).toString());
+    	assertEquals(";", getNonEmptyToken(tokens).toString());
+    	assertEquals("\n", getNonEmptyToken(tokens).toString());
+    	assertEquals("\n", getNonEmptyToken(tokens).toString());
+    	IToken classToken = getNonEmptyToken(tokens);
+    	IToken classToken2 = getNonEmptyToken(tokens);
     	System.out.println(classToken2.getLine());
     	assertEquals("class", classToken.toString());
     	assertEquals(IToken.TK_KEYWORD, classToken.getKind());
     	assertEquals(2, classToken.getLine());
+    	assertEquals(7, tokenizer.getTokenAt(tokenizer.getTokenCount() - 1).getLine());
     }
+
+	private static IToken getNonEmptyToken(Iterator<IToken> tokens) {
+		IToken token;
+		do {
+			token = tokens.next();
+		} while (token.getEndOffset() < token.getStartOffset());
+		return token;
+		
+	}
     
     public void testJava6() throws FileNotFoundException, IOException {
     	suffix = "java.recover";
@@ -54,18 +65,18 @@ public class TestTokenize extends ParseTestCase {
     	Iterator<IToken> tokens = tokenizer.iterator();
     	System.out.println(tokenizer);
     	
-    	while (!tokens.next().toString().equals("the"));
+    	while (!getNonEmptyToken(tokens).toString().equals("the"));
     	
-    	IToken token = tokens.next();
+    	IToken token = getNonEmptyToken(tokens);
     	assertEquals(" ", token.toString());
     	assertEquals(IToken.TK_ERROR, token.getKind());
-    	token = tokens.next();
+    	token = getNonEmptyToken(tokens);
     	assertEquals("int", token.toString());
     	assertEquals(IToken.TK_ERROR_KEYWORD, token.getKind());
-    	token = tokens.next();
+    	token = getNonEmptyToken(tokens);
     	assertEquals(" ", token.toString());
     	assertEquals(IToken.TK_ERROR, token.getKind());
-    	token = tokens.next();
+    	token = getNonEmptyToken(tokens);
     	assertEquals("bar", token.toString());
     	assertEquals(IToken.TK_ERROR, token.getKind());
     }

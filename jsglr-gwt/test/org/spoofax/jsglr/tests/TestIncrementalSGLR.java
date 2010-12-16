@@ -2,6 +2,7 @@ package org.spoofax.jsglr.tests;
 
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
+import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLRException;
 import org.spoofax.jsglr.shared.terms.ATerm;
 
@@ -15,8 +16,10 @@ public class TestIncrementalSGLR extends ParseTestCase {
     @Override
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
         super.gwtSetUp("Java-15", "java", "MethodDec", "ClassBodyDec"
-        		// TODO:, "ClassMemberDec"
+        		, "ClassMemberDec", "ConstrDec", "FieldDec"
         		);
+        assertTrue("Java -ea assertions must be enabled for these tests",
+        		IncrementalSGLR.class.desiredAssertionStatus());
     }
     
     private ATerm getJava4Result() {
@@ -61,6 +64,15 @@ public class TestIncrementalSGLR extends ParseTestCase {
     public void testJava57() throws Exception {
     	doParseIncrementalTest(getJava5Result(), "java5-increment7");
     }
+    
+    public void testJava58() throws Exception {
+    	try {
+    		doParseIncrementalTest(getJava5Result(), "java5-increment8");
+    	} catch (IncrementalSGLRException e) {
+    		return;
+    	}
+    	fail("Exception expected");
+    }
 
     public void testJava4() throws Exception {
     	doParseIncrementalTest(getJava4Result(), "java4-increment");
@@ -74,6 +86,16 @@ public class TestIncrementalSGLR extends ParseTestCase {
     		return;
     	}
     	fail("Exception expected");
+    }
+    
+    public void testJava6Recovery() throws Exception {
+    	suffix = "java.recover";
+    	sglr.setUseStructureRecovery(true);
+    	doCompare = false;
+    	ATerm java6 = doParseTest("java6");
+    	ATerm java61 = doParseIncrementalTest(java6, "java6-increment");
+    	assertFalse(java6.toString().contains("baz"));
+    	assertTrue(java61.toString().contains("baz"));
     }
 
 }

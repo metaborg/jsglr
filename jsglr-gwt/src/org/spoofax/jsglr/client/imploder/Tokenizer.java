@@ -4,7 +4,7 @@ import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
+import static org.spoofax.jsglr.client.imploder.IToken.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import org.spoofax.jsglr.client.KeywordRecognizer;
  */
 public class Tokenizer implements ITokenizer {
 	
-	private static final int EXPECTED_TOKENS_DIVIDER = 5;
+	private static final double EXPECTED_TOKENS_DIVIDER = 1.3;
 	
 	private final KeywordRecognizer keywords;
 	
@@ -46,7 +46,7 @@ public class Tokenizer implements ITokenizer {
 		this.keywords = keywords;
 		this.filename = filename;
 		this.input = input;
-		this.tokens = new ArrayList<IToken>(input.length() / EXPECTED_TOKENS_DIVIDER);
+		this.tokens = new ArrayList<IToken>((int) (input.length() / EXPECTED_TOKENS_DIVIDER));
 		startOffset = 0;
 		line = 0;
 		offsetAtLineStart = 0;
@@ -107,8 +107,9 @@ public class Tokenizer implements ITokenizer {
 		}
 		
 		if (token == null || offset <= endOffset) {
+			int oldStartOffset = startOffset;
 			token = internalMakeToken(kind, offset);
-			if (input.charAt(offset) == '\n') {
+			if (offset >= oldStartOffset && input.charAt(offset) == '\n') {
 				line++;
 				offsetAtLineStart = startOffset;
 			}
@@ -177,82 +178,58 @@ public class Tokenizer implements ITokenizer {
 	 * Creates an artificial token for every water-based recovery
 	 * and for comments within layout.
 	 */
-	public void makeLayoutToken(int offset, int lastOffset, LabelInfo label) {
+	public void makeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
 		// Create separate tokens for >1 char layout lexicals (e.g., comments)
-		if (offset > lastOffset + 1 && label.isLexLayout()) {
+		if (endOffset > lastOffset + 1 && label.isLexLayout()) {
 			if (startOffset <= lastOffset)
 				makeToken(lastOffset, TK_LAYOUT, false);
-			makeToken(offset, TK_LAYOUT, false);
+			makeToken(endOffset, TK_LAYOUT, false);
 		} else {
 			String sort = label.getSort();
 			if ("WATERTOKEN".equals(sort) || "WATERTOKENSEPARATOR".equals(sort)) {
 				if (getStartOffset() <= lastOffset)
 					makeToken(lastOffset, TK_LAYOUT, false);
-				makeToken(offset, TK_ERROR, false);
+				makeToken(endOffset, TK_ERROR, false);
 			}
 		}
 	}
 	
 	/**
 	 * Searches towards the left of the given token for the
-	 * leftmost layout token, returning the current token if
+	 * leftmost layout or error token, returning the current token if
 	 * no layout token is found.
 	 */
 	public static IToken findLeftMostLayoutToken(IToken token) {
 		if (token == null) return null;
 		ITokenizer tokens = token.getTokenizer();
-		for (int i = token.getIndex() - 1; i >= 0; i++) {
-			if (token.getKind() == IToken.TK_LAYOUT)
-				break;
-			token = tokens.getTokenAt(i);
-		}
-		return token;
-	}
-	
-	/**
-	 * Searches towards the left of the given token for the
-	 * leftmost non-layout token, returning the current token if
-	 * no non-layout token is found.
-	 */
-	public static IToken findLeftMostNonLayoutToken(IToken token) {
-		if (token == null) return null;
-		ITokenizer tokens = token.getTokenizer();
-		for (int i = token.getIndex() - 1; i >= 0; i++) {
-			if (token.getKind() != IToken.TK_LAYOUT)
-				break;
-			token = tokens.getTokenAt(i);
+	loop:
+		for (int i = token.getIndex() - 1; i >= 0; i--) {
+			IToken neighbour = tokens.getTokenAt(i);
+			switch (neighbour.getKind()) {
+				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: break;
+				default: break loop;
+			}
+			token = neighbour;
 		}
 		return token;
 	}
 	
 	/**
 	 * Searches towards the right of the given token for the
-	 * rightmost layout token, returning the current token if
+	 * rightmost layout or error token, returning the current token if
 	 * no layout token is found.
 	 */
 	public static IToken findRightMostLayoutToken(IToken token) {
 		if (token == null) return null;
 		ITokenizer tokens = token.getTokenizer();
+	loop:
 		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
-			if (token.getKind() == IToken.TK_LAYOUT)
-				break;
-			token = tokens.getTokenAt(i);
-		}
-		return token;
-	}
-	
-	/**
-	 * Searches towards the right of the given token for the
-	 * rightmost non-layout token, returning the current token if
-	 * no non-layout token is found.
-	 */
-	public static IToken findRightMostNonLayoutToken(IToken token) {
-		if (token == null) return null;
-		ITokenizer tokens = token.getTokenizer();
-		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
-			if (token.getKind() != IToken.TK_LAYOUT)
-				break;
-			token = tokens.getTokenAt(i);
+			IToken neighbour = tokens.getTokenAt(i);
+			switch (neighbour.getKind()) {
+				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: break;
+				default: break loop;
+			}
+			token = neighbour;
 		}
 		return token;
 	}

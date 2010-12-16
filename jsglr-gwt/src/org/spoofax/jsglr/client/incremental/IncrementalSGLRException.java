@@ -28,7 +28,7 @@ public class IncrementalSGLRException extends Exception {
 
 	public IncrementalSGLRException(String message, Throwable cause) {
 		super(message, cause);
-		if (DEBUG) System.err.println(message);
+		if (DEBUG) System.out.println(message);
 	}
 
 }

@@ -19,9 +19,9 @@ public interface ITokenizer extends Iterable<IToken> {
 
 	IToken getTokenAt(int i);
 
-	IToken makeToken(int offset, LabelInfo label, boolean allowEmptyToken);
+	IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken);
 
-	IToken makeToken(int offset, int kind, boolean allowEmptyToken);
+	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
 
 	/**
 	 * Creates artificial token at keyword boundaries
@@ -32,13 +32,13 @@ public interface ITokenizer extends Iterable<IToken> {
 	 * @param offset
 	 *           The offset of the 
 	 */
-	void makeErrorToken(int offset);
+	void makeErrorToken(int endOffset);
 
 	/**
 	 * Creates an artificial token for every water-based recovery
 	 * and for comments within layout.
 	 */
-	void makeLayoutToken(int offset, int lastOffset, LabelInfo label);
+	void makeLayoutToken(int endOffset, int lastOffset, LabelInfo label);
 
 	String toString(IToken left, IToken right);
 

@@ -23,7 +23,7 @@ public class IncrementalInputBuilder {
 	
 	private final Set<String> incrementalSorts;
 	
-	private final String input;
+	private final String newInput;
 
 	@SuppressWarnings("unused") // for debugging
 	private final String oldInput;
@@ -41,7 +41,9 @@ public class IncrementalInputBuilder {
 	
 	private boolean isDamagePrinted;
 	
-	private int skippedChars;
+	private int skippedCharsBeforeDamage;
+	
+	private int skippedCharsAfterDamage;
 
 	/**
 	 * @param incrementalSorts
@@ -51,7 +53,7 @@ public class IncrementalInputBuilder {
 	public IncrementalInputBuilder(Set<String> incrementalSorts, String input, String oldInput,
 			int damageStart, int damageEnd, int damageSizeChange) {
 		this.incrementalSorts = incrementalSorts;
-		this.input = input;
+		this.newInput = input;
 		this.oldInput = oldInput;
 		this.damageEnd = damageEnd;
 		this.damageStart = damageStart;
@@ -60,9 +62,11 @@ public class IncrementalInputBuilder {
 
 	public String buildPartialInput(IAstNode oldTree) throws IncrementalSGLRException {
 		isSkipping = isDamagePrinted = false;
-		skippedChars = 0;
-		appendTree(oldTree);
+		skippedCharsAfterDamage = skippedCharsBeforeDamage = 0;
+		StringBuilder result = appendTree(oldTree);
 		try {
+			assert result.length() ==
+				newInput.length() - skippedCharsBeforeDamage - skippedCharsAfterDamage; 
 			return result.toString();
 		} finally {
 			if (DEBUG) System.out.println();
@@ -74,11 +78,11 @@ public class IncrementalInputBuilder {
 	 * that were in the original input string but not in 
 	 * the last incremental input string built by this instance.
 	 */
-	public int getLastSkippedChars() {
-		return skippedChars;
+	public int getLastSkippedCharsBeforeDamage() {
+		return skippedCharsBeforeDamage;
 	}
 
-	private void appendTree(IAstNode oldTree) throws IncrementalSGLRException {
+	private StringBuilder appendTree(IAstNode oldTree) throws IncrementalSGLRException {
 		IToken left = oldTree.getLeftToken();
 		IToken right = oldTree.getRightToken();
 		int startOffset = 0;
@@ -112,6 +116,7 @@ public class IncrementalInputBuilder {
 		}
 		
 		if (isSkippingStart) isSkipping = false;
+		return result;
 	}
 	
 	/**
@@ -121,6 +126,7 @@ public class IncrementalInputBuilder {
 	 * or merged with the damaged region as necessary.
 	 */
 	private void appendToken(int startOffset, int endOffset) {
+		// TODO: optimize - skip TK_LAYOUT tokens
 		if (isDamagePrinted /* startOffset >= damageStart */) {
 			assert startOffset >= damageStart;
 			if (endOffset > damageEnd) {
@@ -161,18 +167,20 @@ public class IncrementalInputBuilder {
 	private void internalAppendSubstring(int startIndex, int endIndex) {
 		if (isSkipping) {
 			for (int i = startIndex; i < endIndex; i++) {
-				// if (DEBUG) System.out.print(input.charAt(i) == '\n' ? "\n" : "-" + input.charAt(i));
-				if (input.charAt(i) == '\n') {
+				// if (DEBUG) System.out.print(newInput.charAt(i) == '\n' ? "\n" : "-" + newInput.charAt(i));
+				if (newInput.charAt(i) == '\n') {
 					result.append('\n');
 				} else if (INSERT_WHITESPACE) {
 					result.append(' ');
 				} else if (i < damageStart) {
-					skippedChars++;
+					skippedCharsBeforeDamage++;
+				} else {
+					skippedCharsAfterDamage++;
 				}
 			}
 		} else {
-			if (DEBUG) System.out.print(input.substring(startIndex, endIndex));
-			result.append(input, startIndex, endIndex);
+			if (DEBUG) System.out.print(newInput.substring(startIndex, endIndex));
+			result.append(newInput, startIndex, endIndex);
 		}
 	}
 }

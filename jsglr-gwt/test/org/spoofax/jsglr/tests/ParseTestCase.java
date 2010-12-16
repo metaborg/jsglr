@@ -13,7 +13,6 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.spoofax.jsglr.FileTools;
-import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
@@ -84,7 +83,7 @@ public abstract class ParseTestCase extends TestCase {
 			Set<String> sorts = new HashSet<String>();
 	    	for (String sort : incrementalSorts)
 	    		sorts.add(sort);
-	    	incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, builder, factory, sorts);
+	    	incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, factory, sorts, false);
 		}
 	}
 
@@ -110,7 +109,7 @@ public abstract class ParseTestCase extends TestCase {
 		//			@Override
 		//			public void onSuccess(String result) {
 		final String result = loadAsString(s);
-		assertNotNull("Data file is missing", result);
+		assertNotNull("Data file is missing: " + s, result);
 		long parseTime = System.nanoTime();
 		ATerm parsed = null;
 		try {
@@ -146,13 +145,17 @@ public abstract class ParseTestCase extends TestCase {
 		System.out.println("Incremental parsing " + newFile + " took " + parseTime/1000/1000 + " millis.");
 		String extension =
 			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
-		final String x = FileTools.loadFileAsString("tests/data/" + newFile + extension);
-		final ATerm wanted = newTree.getFactory().parse(x);
-		System.out.println(newTree.toString(8));
-		System.out.println(wanted.toString(8));
-    	if (!newTree.simpleMatch(wanted)) {
-    		fail();
-    	}
+		if (doCompare) {
+			final String x = FileTools.loadFileAsString("tests/data/" + newFile + extension);
+			assertNotNull("Data file is missing: " + newFile + extension, x);
+			final ATerm wanted = newTree.getFactory().parse(x);
+			System.out.println(newTree.toString(8));
+			System.out.println(wanted.toString(8));
+	    	if (!newTree.simpleMatch(wanted))
+	    		fail();
+		} else {
+			System.out.println(newTree.toString(8));
+		}
     	return newTree;
 	}
 

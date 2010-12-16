@@ -30,7 +30,8 @@ public class ParseTable implements Serializable {
      *  supported by the parse table format.)
      */
     protected static final int NUM_CHARS = 256;
-
+    protected static final int LABEL_BASE = NUM_CHARS + 1;
+    
     private static final long serialVersionUID = -3372429249660900093L;
 
     private State[] states;
@@ -73,7 +74,7 @@ public class ParseTable implements Serializable {
 
     private transient Map<Label, List<Priority>> priorityCache;
 
-	private transient TreeBuilder treeBuilder = new Asfix2TreeBuilder();
+	private transient TreeBuilder treeBuilder;
 
     private static final ParseProductionNode[] productionNodes = new ParseProductionNode[256 + 1];
     
@@ -86,6 +87,7 @@ public class ParseTable implements Serializable {
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         initAFuns(pt.getFactory());
         parse(pt);
+        setTreeConstructionParticipant(new Asfix2TreeBuilder());
     }
 
     public void initAFuns(ATermFactory factory) {
@@ -191,7 +193,7 @@ public class ParseTable implements Serializable {
 
     private Label[] parseLabels(ATermList labelsTerm) throws InvalidParseTableException {
 
-        final Label[] ret = new Label[labelsTerm.getChildCount() + NUM_CHARS + 1];
+        final Label[] ret = new Label[labelsTerm.getChildCount() + LABEL_BASE];
 
         while (!labelsTerm.isEmpty()) {
             
@@ -638,18 +640,12 @@ public class ParseTable implements Serializable {
 
 	public void setTreeConstructionParticipant(TreeBuilder treeBuilder) {
 		this.treeBuilder = treeBuilder;
-	}
-
-	private boolean prepared = false;
-	public void prepare() {
-		if(prepared)
-			return;
+		treeBuilder.initialize(NUM_CHARS, labels.length - LABEL_BASE);
 		for(int i = 0; i < labels.length; i++) {
 			if(labels[i] == null)
 				continue;
-			labels[i].setTree(treeBuilder.mapProduction(i, labels[i].getProduction()));
+			treeBuilder.addLabel(i - LABEL_BASE, labels[i].getProduction());
 		}
-		prepared = true;		
 	}
 
 	public TreeBuilder getTreeBuilder() {

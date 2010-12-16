@@ -12,6 +12,7 @@ public class Asfix2TreeBuilder implements TreeBuilder {
 	private final AFun applAFun;
 	private final AFun ambAFun;
 	private final AFun parseTreeAFun;
+	private ATermAppl[] labels;
 	
 	public Asfix2TreeBuilder() {
 	    applAFun = factory.makeAFun("appl", 2, false);
@@ -19,18 +20,21 @@ public class Asfix2TreeBuilder implements TreeBuilder {
 	    parseTreeAFun = factory.makeAFun("parsetree", 2, false);
 	}
 
+	public void initialize(int productionCount, int labelCount) {
+		labels = new ATermAppl[labelCount];
+	}
+	
 	@Override
-	public Object mapProduction(int labelNumber, ATermAppl parseTreeProduction) {
-		return parseTreeProduction;
+	public void addLabel(int labelNumber, ATermAppl parseTreeProduction) {
+		labels[labelNumber] = parseTreeProduction;
 	}
 
 	@Override
-	public Object buildNode(int label, Object node, Object[] subtrees) {
-		ATerm parent = (ATerm)node;
+	public Object buildNode(int labelNumber, Object[] subtrees) {
 		ATermList ls = factory.makeList();
 		for(int i = subtrees.length - 1; i >= 0; i--)
 			ls = ls.prepend((ATerm)subtrees[i]);
-		return factory.makeAppl(applAFun, parent, ls);
+		return factory.makeAppl(applAFun, labels[labelNumber], ls);
 	}
 
 	@Override
@@ -39,8 +43,8 @@ public class Asfix2TreeBuilder implements TreeBuilder {
 	}
 
 	@Override
-	public Object buildProduction(int label) {
-		return factory.makeInt(label);
+	public Object buildProduction(int productionNumber) {
+		return factory.makeInt(productionNumber);
 	}
 
 	@Override

@@ -146,7 +146,6 @@ public class SGLR {
         assert parseTable != null;
         // Init with a new factory for both serialized or BAF instances.
         this.parseTable = parseTable;
-        parseTable.prepare();
         basicInit(pf);
     }
 

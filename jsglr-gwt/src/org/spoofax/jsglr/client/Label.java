@@ -19,7 +19,6 @@ public class Label implements Serializable {
     /*package*/ final ATermAppl prod;
     private final ProductionAttributes productionAttributes;
     private final boolean injection;
-    private Object tree;
 
     public Label(int labelNumber, ATermAppl prod, ProductionAttributes productionAttributes, boolean injection) {
         this.labelNumber = labelNumber;
@@ -68,13 +67,4 @@ public class Label implements Serializable {
     public int hashCode() {
         return labelNumber;
     }
-
-	public void setTree(Object tree) {
-		this.tree = tree;
-	}
-
-	public Object getTree() {
-		return tree;
-	}
-    
 }

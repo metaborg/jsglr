@@ -35,8 +35,7 @@ public class ParseNode extends AbstractParseNode {
         	subtrees[i] = kids[i].toParseTree(pt);
         }
 
-        return tb.buildNode(label, pt.getLabel(label).getTree(), subtrees);
-        //return factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
+        return tb.buildNode(label - ParseTable.LABEL_BASE, subtrees);
     }
 
     /**

@@ -7,17 +7,12 @@
  */
 package org.spoofax.jsglr.tests;
 
-import java.util.Arrays;
-
 import junit.framework.TestCase;
 
 import org.spoofax.jsglr.FileTools;
-import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
-import org.spoofax.jsglr.client.Label;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
-import org.spoofax.jsglr.client.Path;
 import org.spoofax.jsglr.client.PathListPool;
 import org.spoofax.jsglr.client.PooledPathList;
 import org.spoofax.jsglr.client.SGLR;
@@ -45,10 +40,10 @@ public abstract class ParseTestCase extends TestCase {
 		this.suffix = suffix;
 		Tools.setDebug(false);
 		Tools.setLogging(false);
-		String fn = "tests/grammars/" + grammar + ".tbl";
+		final String fn = "tests/grammars/" + grammar + ".tbl";
 
-		ATerm result = pf.parseFromString(FileTools.loadFileAsString(fn));
-		ParseTable pt = new ParseTable(result);
+		final ATerm result = pf.parseFromString(FileTools.loadFileAsString(fn));
+		final ParseTable pt = new ParseTable(result);
 		sglr = new SGLR(pf, pt);
 		//        parseTableService.fetchParseTable("tests/grammars/" + grammar + ".tbl",
 		//        		new AsyncCallback<ATerm>() {
@@ -92,13 +87,13 @@ public abstract class ParseTestCase extends TestCase {
 		//
 		//			@Override
 		//			public void onSuccess(String result) {
-		String result = FileTools.loadFileAsString("tests/data/" + s + "." + suffix);
+		final String result = FileTools.loadFileAsString("tests/data/" + s + "." + suffix);
 		assertNotNull("Data file is missing", result);
 		long parseTime = System.nanoTime();
 		ATerm parsed = null;
 		try {
 			parsed = (ATerm) sglr.parse(result);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail(e.toString());
 		}
@@ -106,11 +101,13 @@ public abstract class ParseTestCase extends TestCase {
 		System.out.println("Parsing " + s + " took " + parseTime/1000/1000 + " millis.");
 		assertNotNull(parsed);
 		if(doCompare)
+		{
 			doCompare(s, parsed);
-		//			}
-		//
-		//		});
-		
+			//			}
+			//
+			//		});
+		}
+
 		System.out.println(PathListPool.cacheMisses);
 		System.out.println(PooledPathList.maxRemembered);
 		System.out.println(PooledPathList.maxAllocated);
@@ -118,8 +115,8 @@ public abstract class ParseTestCase extends TestCase {
 
 	private void doCompare(String s, final ATerm parsed) {
 		//parseTableService.readTermFromFile("tests/data/" + s + ".trm", new AsyncCallback<ATerm>() {
-		String x = FileTools.loadFileAsString("tests/data/" + s + ".trm");
-		ATerm wanted = parsed.getFactory().parse(x);
+		final String x = FileTools.loadFileAsString("tests/data/" + s + ".trm");
+		final ATerm wanted = parsed.getFactory().parse(x);
 		//			@Override
 		//			public void onFailure(Throwable caught) {
 		//				fail();

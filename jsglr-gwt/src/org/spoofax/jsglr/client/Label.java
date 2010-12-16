@@ -67,4 +67,5 @@ public class Label implements Serializable {
     public int hashCode() {
         return labelNumber;
     }
+    
 }

@@ -115,7 +115,7 @@ public class ParseTable implements Serializable {
         associativities = parseAssociativities(prioritiesTerm);
 
         injections = new Label[labels.length];
-        for(int i=0;i<labels.length;i++)
+        for(int i = 0; i < labels.length; i++)
             if(labels[i] != null && labels[i].isInjection())
                 injections[i] = labels[i];
 
@@ -189,16 +189,19 @@ public class ParseTable implements Serializable {
 
     private Label[] parseLabels(ATermList labelsTerm) throws InvalidParseTableException {
 
-        Label[] ret = new Label[labelsTerm.getChildCount() + NUM_CHARS + 1];
+        final Label[] ret = new Label[labelsTerm.getChildCount() + NUM_CHARS + 1];
 
         while (!labelsTerm.isEmpty()) {
-            ATermAppl a = Term.applAt(labelsTerm, 0);
-            labelsTerm = labelsTerm.getNext();
-            ATermAppl prod = Term.applAt(a, 0);
-            int labelNumber = Term.intAt(a, 1);
-            boolean injection = isInjection(prod);
-            ProductionAttributes pa = parseProductionAttributes(Term.applAt(prod, 2));
+            
+        	final ATermAppl a = Term.applAt(labelsTerm, 0);
+            final ATermAppl prod = Term.applAt(a, 0);
+            final int labelNumber = Term.intAt(a, 1);
+            final boolean injection = isInjection(prod);
+            final ProductionAttributes pa = parseProductionAttributes(Term.applAt(prod, 2));
+            
             ret[labelNumber] = new Label(labelNumber, prod, pa, injection);
+
+            labelsTerm = labelsTerm.getNext();
         }
 
         return ret;

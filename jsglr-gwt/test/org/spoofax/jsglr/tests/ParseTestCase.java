@@ -24,7 +24,6 @@ import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.ATermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
-import org.spoofax.jsglr.client.incremental.SortAnalyzer;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;

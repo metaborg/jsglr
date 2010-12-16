@@ -48,7 +48,7 @@ public class Amb extends IParseNode {
             if (alt instanceof Amb) {
                 list = ((Amb) alt).addToParseTree(pt, factory, list);
             } else {
-                list = factory.makeList(alt.toParseTree(pt), list);
+                list = list.prepend(alt.toParseTree(pt));
             }
         }
         return list;

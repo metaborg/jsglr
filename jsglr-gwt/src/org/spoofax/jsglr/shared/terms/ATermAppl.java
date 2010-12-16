@@ -7,12 +7,12 @@ import org.spoofax.jsglr.client.NotImplementedException;
 public class ATermAppl extends ATerm {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private AFun ctor;
 	private ATerm[] kids;
 
 	ATermAppl() {}
-	
+
 	ATermAppl(ATermFactory factory, AFun ctor, ATerm... kids) {
 		super(factory);
 		this.ctor = ctor;
@@ -47,29 +47,33 @@ public class ATermAppl extends ATerm {
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(ctor.getName());
-		sb.append('(');
-		for(int i = 0; i < kids.length; i++) {
-			if(i > 0)
-				sb.append(",");
-			sb.append(kids[i].toString());
+	protected void toString(int depth, StringBuilder sb) {
+		if(depth == 0) {
+			sb.append("...");
+		} else {
+			sb.append(ctor.getName());
+			sb.append('(');
+			for(int i = 0; i < kids.length; i++) {
+				if(i > 0)
+					sb.append(",");
+				kids[i].toString(depth - 1, sb);
+			}
+			sb.append(')');
 		}
-		sb.append(')');
-		return sb.toString();
 	}
 
 	@Override
-	protected boolean simpleMatch(ATerm t) {
+	public boolean simpleMatch(ATerm t) {
 		if(!(t instanceof ATermAppl))
 			return false;
 		ATermAppl o = (ATermAppl)t;
 		if(o.kids.length != kids.length)
 			return false;
 		for(int i = 0; i < kids.length; i++)
-			if(!kids[i].simpleMatch(o.kids[i]))
+			if(!kids[i].simpleMatch(o.kids[i])) {
+				System.out.println(kids[i] + "\n  !=  \n"   + o.kids[i]);
 				return false;
+			}
 		return ctor.equals(o.ctor);
 	}
 

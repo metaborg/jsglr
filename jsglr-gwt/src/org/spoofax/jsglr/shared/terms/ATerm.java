@@ -37,17 +37,25 @@ public abstract class ATerm implements Serializable {
 
 	public List match(String termAsString) throws ParseError {
 		ATerm t = factory.parse(termAsString);
-		if(t.simpleMatch(t)) {
+		if(simpleMatch(t)) {
 			return new LinkedList();
 		} else {
 			return null;
 		}
 	}
 
-	protected abstract boolean simpleMatch(ATerm t);
+	public abstract boolean simpleMatch(ATerm t);
 
 	public boolean match(ATerm litStringAppl) {
 		throw new NotImplementedException();
 	}
 
+	@Override
+	public final String toString() {
+		StringBuilder sb = new StringBuilder();
+		toString(8, sb);
+		return sb.toString();
+	}
+
+	protected abstract void toString(int depth, StringBuilder sb);
 }

@@ -236,7 +236,7 @@ public class ParseTable implements Serializable {
         	return false;
         
         final AFun fun = ((ATermAppl)ls.getChildAt(0)).getAFun();
-        return fun.getName().equals("lit") && fun.getArity() == 1;
+        return !(fun.getName().equals("lit") && fun.getArity() == 1);
     }
 
     private ProductionAttributes parseProductionAttributes(ATermAppl attr)

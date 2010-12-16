@@ -3,6 +3,11 @@ syntax: glob
 *.cache.*
 .metadata
 *.jar
+*.tbl
+*.trm
+.sglr-log
 jsglr-gwt/war/jsglrgwt
 jsglr-gwt/war/*.tbl
 jsglr-gwt/.settings
+jsglr-gwt/war/WEB-INF/classes
+jsglr-gwt/tomcat

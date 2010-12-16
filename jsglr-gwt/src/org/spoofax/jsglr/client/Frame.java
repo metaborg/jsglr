@@ -9,6 +9,7 @@ package org.spoofax.jsglr.client;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.spoofax.jsglr.shared.Tools;
@@ -63,7 +64,7 @@ public class Frame implements Serializable {
     }
 
     public List<Path> findAllPaths(int arity) {
-        ArrayList<Path> ret = new ArrayList<Path>();
+        ArrayList<Path> ret = new ArrayList<Path>(arity);
         doComputePathsToRoot(ret, null, arity, 0);
         return ret;
     }
@@ -208,7 +209,7 @@ public class Frame implements Serializable {
             SGLR.TRACE("SG_FindLimitedPaths() - " + arity + ", " + l.getLength() + ", " + l.parent.state.stateNumber);
             TRACE_DumpLinks(steps);
         }
-        List<Path> ret = new ArrayList<Path>();
+        List<Path> ret = new ArrayList<Path>(arity);
         if(findLink(arity, l)) { 
             doComputePathsToRoot(ret, null, l, false, arity, 0);
         } 

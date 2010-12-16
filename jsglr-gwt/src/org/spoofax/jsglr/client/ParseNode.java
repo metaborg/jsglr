@@ -32,7 +32,7 @@ public class ParseNode extends IParseNode {
 
         ATermList l1 = factory.makeList();
         for (int i = kids.size() - 1; i >= 0; i--) {
-            l1 = factory.makeList(kids.get(i).toParseTree(pt), l1);
+            l1 = l1.prepend(kids.get(i).toParseTree(pt));
         }
 
         return factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
@@ -44,7 +44,7 @@ public class ParseNode extends IParseNode {
     public static ATermList makeList(ATermFactory factory, List<ATerm> terms) {
         ATermList result = factory.makeList();
         for (int i = terms.size() - 1; i >= 0; i--) {
-            result = factory.makeList(terms.get(i), result);
+            result = result.prepend(terms.get(i));
         }
         return result;
     }

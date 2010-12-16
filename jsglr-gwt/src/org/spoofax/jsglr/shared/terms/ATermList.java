@@ -9,7 +9,7 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	private ATerm[] elements;
 
 	ATermList() {}
-	
+
 	ATermList(ATermFactory factory) {
 		super(factory);
 		elements = new ATerm[0];
@@ -26,13 +26,13 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 		newList[0] = t;
 		return new ATermList(factory, newList);
 	}
-
-	public ATermList append(ATerm t) {
-		ATerm[] newList = new ATerm[elements.length+1];
-		System.arraycopy(elements, 0, newList, 0, elements.length);
-		newList[elements.length] = t;
-		return new ATermList(factory, newList);
-	}
+	//
+	//	public ATermList append(ATerm t) {
+	//		ATerm[] newList = new ATerm[elements.length+1];
+	//		System.arraycopy(elements, 0, newList, 0, elements.length);
+	//		newList[elements.length] = t;
+	//		return new ATermList(factory, newList);
+	//	}
 
 	public boolean isEmpty() {
 		return elements.length == 0;
@@ -94,20 +94,22 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append('[');
-		for(int i = 0 ; i < elements.length; i++) {
-			if(i > 0)
-				sb.append(",");
-			sb.append(elements[i].toString());
+	protected void toString(int depth, StringBuilder sb) {
+		if(depth == 0) {
+			sb.append("...");
+		} else { 
+			sb.append('[');
+			for(int i = 0 ; i < elements.length; i++) {
+				if(i > 0)
+					sb.append(",");
+				elements[i].toString(depth - 1, sb);
+			}
+			sb.append(']');
 		}
-		sb.append(']');
-		return sb.toString();
 	}
 
 	@Override
-	protected boolean simpleMatch(ATerm t) {
+	public boolean simpleMatch(ATerm t) {
 		if(!(t instanceof ATermList))
 			return false;
 		ATermList o = (ATermList)t;

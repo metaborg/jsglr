@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.shared.terms;
 
+import org.spoofax.jsglr.client.NotImplementedException;
+
 public class ATermTuple extends ATerm {
 
 	private static final long serialVersionUID = 1L;
@@ -28,7 +30,7 @@ public class ATermTuple extends ATerm {
 	}
 
 	@Override
-	protected boolean simpleMatch(ATerm t) {
+	public boolean simpleMatch(ATerm t) {
 		if(!(t instanceof ATermTuple))
 			return false;
 		ATermTuple o = (ATermTuple)t;
@@ -36,8 +38,12 @@ public class ATermTuple extends ATerm {
 			return false;
 		for(int i = 0; i < elements.length; i++)
 			if(elements[i].equals(o.elements[i]))
-					return false;
+				return false;
 		return true;
 	}
 
+	@Override
+	protected void toString(int depth, StringBuilder sb) {
+		throw new NotImplementedException();
+	}
 }

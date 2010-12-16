@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.spoofax.jsglr.FileTools;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
@@ -43,7 +44,7 @@ public abstract class ParseTestCase extends TestCase {
 		Tools.setLogging(false);
 		String fn = "tests/grammars/" + grammar + ".tbl";
 
-		ATerm result = pf.parseFromString(loadFileAsString(fn));
+		ATerm result = pf.parseFromString(FileTools.loadFileAsString(fn));
 		sglr = new SGLR(pf, new ParseTable(result));
 		//        parseTableService.fetchParseTable("tests/grammars/" + grammar + ".tbl",
 		//        		new AsyncCallback<ATerm>() {
@@ -66,17 +67,6 @@ public abstract class ParseTestCase extends TestCase {
 
 	}
 
-	private String loadFileAsString(String fn) {
-		char[] cbuf = new char[1024*1024*12];
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(fn));
-			int len = br.read(cbuf);
-			return new String(cbuf, 0, len);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 
 	@Override
 	protected void tearDown() throws Exception {
@@ -98,7 +88,7 @@ public abstract class ParseTestCase extends TestCase {
 		//
 		//			@Override
 		//			public void onSuccess(String result) {
-		String result = loadFileAsString("tests/data/" + s + "." + suffix);
+		String result = FileTools.loadFileAsString("tests/data/" + s + "." + suffix);
 		assertNotNull("Data file is missing", result);
 		long parseTime = System.nanoTime();
 		ATerm parsed = null;
@@ -121,8 +111,8 @@ public abstract class ParseTestCase extends TestCase {
 
 	private void doCompare(String s, final ATerm parsed) {
 		//parseTableService.readTermFromFile("tests/data/" + s + ".trm", new AsyncCallback<ATerm>() {
-		String loaded = loadFileAsString("tests/data/" + s + ".trm");
-
+		String x = FileTools.loadFileAsString("tests/data/" + s + ".trm");
+		ATerm wanted = parsed.getFactory().parse(x);
 		//			@Override
 		//			public void onFailure(Throwable caught) {
 		//				fail();
@@ -130,9 +120,11 @@ public abstract class ParseTestCase extends TestCase {
 		//
 		//			@Override
 		//			public void onSuccess(ATerm loaded) {
-		assertNotNull(loaded);
+		assertNotNull(x);
 
-		if(parsed.match(loaded) == null) {
+		System.out.println(parsed);
+		System.out.println(wanted);
+		if(!parsed.simpleMatch(wanted)) {
 			fail();
 		}
 		//			}

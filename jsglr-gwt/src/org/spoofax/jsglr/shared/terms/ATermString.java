@@ -29,12 +29,18 @@ public class ATermString extends ATerm {
 	} 
 	
 	@Override
-	public String toString() {
-		return "\"" + value + "\"";
+	public void toString(int depth, StringBuilder sb) {
+		if(depth == 0) {
+			sb.append("...");
+		} else {
+			sb.append('"');
+			sb.append(value);
+			sb.append('\"');
+		}
 	}
 
 	@Override
-	protected boolean simpleMatch(ATerm t) {
+	public boolean simpleMatch(ATerm t) {
 		if(!(t instanceof ATermString))
 			return false;
 		ATermString o = (ATermString)t;

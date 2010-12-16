@@ -7,17 +7,11 @@
  */
 package org.spoofax.jsglr.client;
 
-//todo managed
-//import javolution.realtime.ObjectFactory;
-//import javolution.realtime.ObjectPool;
-//import javolution.realtime.PoolContext;
-//import javolution.realtime.Context;
-
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-
-public class Path /*todo managed extends RealtimeObject*/ {
+public class Path /*implements Iterable<IParseNode>*/ {
 
     public final Path parent;
 
@@ -27,19 +21,28 @@ public class Path /*todo managed extends RealtimeObject*/ {
 
     protected final int length;
     
-    public static int totalCount = 0;
-    
-    public Link lnk;
-    
+    public final Link link;
+
+    Path(Path parent, Link link, Frame frame, int length) {
+    	this.parent = parent;
+        this.link = link;
+        if(link != null){
+            this.label = link.label;
+        } else {
+            this.label = null;
+        }
+        this.frame = frame;
+        this.length = length;
+    }
+
     public int getRecoverCount()
     {
         int result = 0;
-        if(lnk!=null)
-        {
-            result+=lnk.recoverCount;           
+        if(link != null) {
+            result += link.recoverCount;           
         }
-        if(parent!=null) //Todo: find out relation linktoparent/parent
-        {
+        if(parent != null) {
+        	// TODO find out relation linktoparent/parent
             result += parent.getRecoverCount();
         }
         return result;        
@@ -47,45 +50,17 @@ public class Path /*todo managed extends RealtimeObject*/ {
     
     public int getRecoverCount(int maxCharLength)
     {
-        if(parent==null || this.length<=maxCharLength)
+        if(parent == null || this.length <= maxCharLength)
             return getRecoverCount();
         return parent.getRecoverCount(maxCharLength);
     }
 
-    //todo managed
-    //public static final PathObjectFactory FACTORY = new PathObjectFactory();
-
     public static boolean logNewInstanceCreation = false;
 
-/*    Path() {
-        super();
-    }
-*/
     public static Path valueOf(Path parent, Link ln, Frame frame, int length) {
-        Path _this = new Path(parent, ln, frame, length);
-        
-        //(Path)FACTORY.object(); //todo managed
-/*
-        _this.parent = parent;
-        _this.label = label;
-        _this.frame = frame;
-*/
-        return _this;
+        return new Path(parent, ln, frame, length);
     }
 
-    Path(Path parent, Link ln, Frame frame, int length) {
-        this.parent = parent;
-        lnk = ln;
-        if(ln!=null){
-            this.label = lnk.label;
-        }
-        else
-        {
-            this.label = null;
-        }
-        this.frame = frame;
-        this.length = length;
-    }
 
     public Frame getEnd() {
         return frame;
@@ -114,39 +89,16 @@ public class Path /*todo managed extends RealtimeObject*/ {
         return sb.toString();
     }
 
-    public int getLength() { 
-        if (parent == null) {
-            return length;
-        }
-        else {
-            return length; //+ parent.getLength();
-        }
+    public int getLength() {
+    	return length;
     }
 
-    //todo managed
-//    public static final class PathObjectFactory extends ObjectFactory {
-//        protected Path create() {
-//            return new Path();
-//        }
-//
-//        private ObjectPool _cachedPool;
-//
-//        /**
-//         * This needs to be called once per thread
-//         *
-//         * @param poolContext
-//         */
-//        public final void attach(final Context poolContext) {
-//            _cachedPool = ((PoolContext)poolContext).getPool(_index);
-//        }
-//
-//        public Object/*T*/object() {
-//            return _cachedPool.next();
-//        }
-//
-////        protected void cleanup(Object/*T*/obj) {
-////            //((Path)obj).clear(false);
-////        }
-//    }
+//    private class 
+//	@Override
+//	public Iterator<IParseNode> iterator() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
 }
 

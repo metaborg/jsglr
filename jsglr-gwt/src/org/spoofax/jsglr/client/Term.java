@@ -55,13 +55,9 @@ public class Term {
         return t.getType() == ATerm.INT;
     }
 
-    public static ATermList makeList(ATermFactory f, List<ATerm> kids) {
-        ATermList ret = f.makeList();
-        // FIXME: Slowest insertion method
-        for(ATerm t : kids)
-            ret = ret.append(t);
-        return ret;
-    }
+//    public static ATermList makeList(ATermFactory f, List<ATerm> kids) {
+//    	return f.makeList(kids);
+//    }
 
     public static boolean isAppl(ATerm t) {
         return t.getType() == ATerm.APPL;

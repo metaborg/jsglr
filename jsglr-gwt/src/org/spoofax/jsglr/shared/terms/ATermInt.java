@@ -33,12 +33,17 @@ public class ATermInt extends ATerm {
 	}
 
 	@Override
-	public String toString() {
-		return Integer.toString(value);
+	protected void toString(int depth, StringBuilder sb) {
+		if(depth == 0) {
+			sb.append("...");
+		}
+		else {
+			sb.append(Integer.toString(value));
+		}
 	}
 
 	@Override
-	protected boolean simpleMatch(ATerm t) {
+	public boolean simpleMatch(ATerm t) {
 		if(!(t instanceof ATermInt))
 			return false;
 		ATermInt a = (ATermInt)t;

@@ -88,7 +88,7 @@ public class IndentInfo {
                 if(length > maxPathLength){
                     maxPathLength = length;
                     if(p.parent.label!=null)
-                        result =p.parent.lnk;
+                        result =p.parent.link;
                 }
             }
         }

@@ -18,12 +18,16 @@ import java.io.OutputStream;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.jsglr.shared.terms.ATerm;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
 
 public class Main {
+	
+	private static final String NO_OUTPUT = "-";
 
 	public static void main(String[] args) throws FileNotFoundException, IOException, InvalidParseTableException {
 
@@ -43,6 +47,7 @@ public class Main {
 		boolean timing = false;
 		boolean heuristicFilters = false;
 		boolean buildParseTree = true;
+		boolean implode = false;
 		int profilingRuns = 0;
 
 		for(int i=0;i<args.length;i++) {
@@ -72,6 +77,8 @@ public class Main {
 				timing = true;
 			} else if(args[i].equals("--no-tree-build")) {
 				buildParseTree = false;
+			} else if(args[i].equals("--implode")) {
+				implode = true;
 			} else {
 				System.err.println("Unknown option: " + args[i]);
 				System.exit(1);
@@ -95,6 +102,8 @@ public class Main {
 		sglr.getDisambiguator().setFilterAny(filter);
 		sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
 		sglr.setBuildParseTree(buildParseTree);
+		if (implode)
+			sglr.setTreeBuilder(new TreeBuilder());
 
 		if(waitForProfiler) {
 			System.err.println("Hit enter to start profiling...");
@@ -102,7 +111,7 @@ public class Main {
 		}
 
 		for(int i = 0; i < profilingRuns - 1; i++) {
-			parseFile(input, null, sglr, startSymbol);
+			parseFile(input, NO_OUTPUT, sglr, startSymbol);
 		}
 
 		final long parsingTime = parseFile(input, output, sglr, startSymbol);
@@ -122,7 +131,7 @@ public class Main {
 			fis = new BufferedInputStream(new FileInputStream(input));
 		}
 		OutputStream ous = null;
-		if(output != null && !"-".equals(output)) {
+		if(output != null && !NO_OUTPUT.equals(output)) {
 			ous = new FileOutputStream(output);
 		} else {
 			ous = System.out;
@@ -140,7 +149,7 @@ public class Main {
 			// Detailed message for other exceptions
 			System.err.println("Parsing failed : " + e);
 		}
-		if(t != null && !"-".equals(output)){
+		if(t != null && !NO_OUTPUT.equals(output)){
 			final String outputString = t.toString();
 			ous.write(outputString.getBytes());
 		}

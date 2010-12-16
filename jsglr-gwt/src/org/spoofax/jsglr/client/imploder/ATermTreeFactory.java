@@ -82,9 +82,17 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 	}
 
 	public ATermAppl createAmb(List<ATerm> alternatives) {
-		IToken leftToken = alternatives.get(0).getLeftToken();
-		IToken rightToken = alternatives.get(alternatives.size() - 1).getRightToken();
-		return createNonTerminal(null, "amb", leftToken, rightToken, alternatives);
+		IToken leftToken = null; 
+		IToken rightToken = null;
+		if (alternatives.size() > 0) {
+			leftToken = alternatives.get(0).getLeftToken();
+			rightToken = alternatives.get(alternatives.size() - 1).getRightToken();
+		}
+		
+		List<ATerm> alternativesInList = new ArrayList<ATerm>();
+		alternativesInList.add(createList(null, leftToken, rightToken, alternatives));
+		
+		return createNonTerminal(null, "amb", leftToken, rightToken, alternativesInList);
 	}
 
 	public ATermList createList(String elementSort, IToken leftToken,

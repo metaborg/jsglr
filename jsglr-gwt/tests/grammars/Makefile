@@ -1,6 +1,8 @@
 GRAMMARS =							\
 	Booleans.tbl						\
 	Stratego.tbl						\
+	Java-15.tbl						\
+	WebDSL.tbl						\
 	$(patsubst basic/%.sdf,%.tbl,$(wildcard basic/*.sdf))
 
 all : $(GRAMMARS)
@@ -29,6 +31,13 @@ Stratego.def: Stratego.def.in
 	ln -sf $< $@
 
 Stratego.tbl:
-	cp $(HOME)/.nix-profile/share/sdf/stratego-front/Stratego.tbl Stratego.tbl
+	curl http://boblycat.org/~karltk/stuff/$@ | baffle -wt -o $@
+
+Java-15.tbl:
+	curl http://boblycat.org/~karltk/stuff/$@ | baffle -wt -o $@
+
+WebDSL.tbl:
+	curl http://boblycat.org/~karltk/stuff/$@ | baffle -wt -o $@
+
 clean:
 	rm -f *.def *.tbl

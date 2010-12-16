@@ -85,6 +85,8 @@ public class SGLR {
 
     private boolean buildParseTree = true;
     
+    PathListPool pathCache = new PathListPool();
+    
     //Creates indent- and dedent- tokens
     //Meant for parsing of indentation based languages
     //TODO: still under construction
@@ -307,6 +309,9 @@ public class SGLR {
         acceptingStack = null;
         //history.keepInitialState(this);
         collectedErrors.clear();
+        
+        PooledPathList.resetPerformanceCounters();
+        PathListPool.resetPerformanceCounters();
     }
 
      private BadTokenException createBadTokenException() {
@@ -515,16 +520,16 @@ public class SGLR {
         }
     }
 
-    private PathPool staticPathPool = new PathPool(1024);
+    private PooledPathList reductionsPathCache = new PooledPathList(512, true);
     
     private void doReductions(Frame st, Production prod) {
         if(recoverModeOk(st, prod)) {
-        	staticPathPool.start();
-            st.findAllPaths(staticPathPool, prod.arity);
-            logBeforeDoReductions(st, prod, staticPathPool.size());
-            reduceAllPaths(prod, staticPathPool);
+        	PooledPathList paths = reductionsPathCache.start();
+            st.findAllPaths(paths, prod.arity);
+            logBeforeDoReductions(st, prod, paths.size());
+            reduceAllPaths(prod, paths);
             logAfterDoReductions();
-            staticPathPool.end();
+            paths.end();
         }
     }
 
@@ -543,11 +548,11 @@ public class SGLR {
         return !useIntegratedRecovery || prod.isRecoverProduction() == reduceRecoverOnly;
     }*/
 
-    PathPool defaultPool = new PathPool(512);
+    
 	
     private void doLimitedReductions(Frame st, Production prod, Link l) { //Todo: Look add sharing code with doReductions
         if(recoverModeOk(st, prod)) {
-        	PathPool limitedPool = defaultPool.start();
+        	PooledPathList limitedPool = pathCache.create();
         	st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
             logBeforeLimitedReductions(st, prod, l, limitedPool);
             reduceAllPaths(prod, limitedPool);
@@ -555,7 +560,7 @@ public class SGLR {
         }
     }
 
-    private void reduceAllPaths(Production prod, PathPool paths) {
+    private void reduceAllPaths(Production prod, PooledPathList paths) {
 
         for(int i = 0; i < paths.size(); i++) {
         	Path path = paths.get(i);
@@ -1154,7 +1159,7 @@ public class SGLR {
     }
 
     private void logBeforeLimitedReductions(Frame st, Production prod, Link l,
-            PathPool paths) {
+            PooledPathList paths) {
         if(Tools.tracing) {
             TRACE("SG_ - back in reducer ");
             TRACE_ActiveStacks();

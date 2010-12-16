@@ -60,20 +60,21 @@ public class IndentInfo {
     /*
      * Calculates the biggest reduce belonging to this backtrack point.
      */
-    private PathPool staticPathPool = new PathPool(64);
+    private PooledPathList indentPathCache = new PooledPathList(64, true);
+    
     public int maxReduceLength() {
         int maxPathLength = 0;
         for (Frame activeStack : stackNodes) {
-        	staticPathPool.start();
-        	activeStack.findAllPaths(staticPathPool, 2);
-        	for(int i = 0; i < staticPathPool.size(); i++) {
+        	indentPathCache.start();
+        	activeStack.findAllPaths(indentPathCache, 2);
+        	for(int i = 0; i < indentPathCache.size(); i++) {
         		// 3=> shifted_LO, reduced_LO, ReducedCodeFragment
-                int length = staticPathPool.get(i).getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
+                int length = indentPathCache.get(i).getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
                 if(length > maxPathLength){
                     maxPathLength = length;                   
                 }
             }
-        	staticPathPool.end();
+        	indentPathCache.end();
         }
         return maxPathLength;
     }    
@@ -88,9 +89,9 @@ public class IndentInfo {
         int maxPathLength = -1;
         Link result=null;
         for (Frame activeStack : stackNodes) {
-        	activeStack.findAllPaths(staticPathPool, 3);
-            for(int i = 0; i < staticPathPool.size(); i++ ) {//3=> shifted_LO, reduced_LO, ReducedCodeFragment
-            	Path p = staticPathPool.get(i);
+        	activeStack.findAllPaths(indentPathCache, 3);
+            for(int i = 0; i < indentPathCache.size(); i++ ) {//3=> shifted_LO, reduced_LO, ReducedCodeFragment
+            	Path p = indentPathCache.get(i);
                 int length = p.getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
                 if(length > maxPathLength){
                     maxPathLength = length;

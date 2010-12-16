@@ -71,7 +71,7 @@ public class Main {
             	profilingRuns = Integer.parseInt(args[++i]);
             } else if(args[i].equals("--timing")) {
             	timing = true;
-            } else if(args[i].equals("--recognize")) {
+            } else if(args[i].equals("--no-tree-build")) {
             	buildParseTree = false;
             } else {
                 System.err.println("Unknown option: " + args[i]);

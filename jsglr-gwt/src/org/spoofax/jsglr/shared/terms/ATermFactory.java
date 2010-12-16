@@ -22,16 +22,19 @@ public class ATermFactory implements Serializable {
 	}
 	
 	public ATermList makeList() {
-		return new ATermList(this);
+		return new ATermList(this, null, null);
 	}
 
 	public ATermList makeList(ATerm... elements) {
-		return new ATermList(this, elements);
+		ATermList l = new ATermList(this, null, null);
+		for(int i = elements.length - 1; i >= 0; i--)
+			l = l.prepend(elements[i]);
+		return l;
 	}
 
-	public ATermList makeList(List<ATerm> elements) {
-		return new ATermList(this, elements.toArray(new ATerm[0]));
-	}
+//	public ATermList makeList(List<ATerm> elements) {
+//		return new ATermList(this, elements.toArray(new ATerm[0]));
+//	}
 
 	public ATerm parse(String text) {
 		return parseFromString(text);
@@ -78,7 +81,7 @@ public class ATermFactory implements Serializable {
         final int ch = bis.read();
         if (ch == '{') {
             List<ATerm> annos = parseTermSequence(bis, '}');
-            return annotateTerm(term, makeList(annos));
+            return annotateTerm(term, makeList(annos.toArray(new ATerm[annos.size()])));
         } else {
             bis.unread(ch);
             return term;
@@ -233,7 +236,7 @@ public class ATermFactory implements Serializable {
 
     private ATerm parseList(PushbackStringIterator bis) {
         //System.err.println("list");
-        return makeList(parseTermSequence(bis, ']'));
+        return makeList(parseTermSequence(bis, ']').toArray(new ATerm[0]));
     }
 
     private ATerm parseNumber(PushbackStringIterator bis) {

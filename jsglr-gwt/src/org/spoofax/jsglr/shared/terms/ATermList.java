@@ -6,56 +6,50 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 
 	private static final long serialVersionUID = 1L;
 
-	private ATerm[] elements;
+	private ATerm element;
+	private ATermList next;
 
 	ATermList() {}
 
-	ATermList(ATermFactory factory) {
+	ATermList(ATermFactory factory, ATerm element, ATermList next) {
 		super(factory);
-		elements = new ATerm[0];
-	}
-
-	ATermList(ATermFactory factory, ATerm... terms) {
-		super(factory);
-		elements = terms;
+		this.element = element;
+		this.next = next;
 	}
 
 	public ATermList prepend(ATerm t) {
-		ATerm[] newList = new ATerm[elements.length+1];
-		System.arraycopy(elements, 0, newList, 1, elements.length);
-		newList[0] = t;
-		return new ATermList(factory, newList);
+		return new ATermList(factory, t, this);
 	}
-	//
-	//	public ATermList append(ATerm t) {
-	//		ATerm[] newList = new ATerm[elements.length+1];
-	//		System.arraycopy(elements, 0, newList, 0, elements.length);
-	//		newList[elements.length] = t;
-	//		return new ATermList(factory, newList);
-	//	}
 
 	public boolean isEmpty() {
-		return elements.length == 0;
+		return element == null;
 	}
 
 	public ATerm getFirst() {
-		return elements[0];
+		return element;
 	}
 
 	public ATermList getNext() {
-		ATerm[] newList = new ATerm[elements.length-1];
-		System.arraycopy(elements, 1, newList, 0, elements.length-1);
-		return new ATermList(factory, newList);
+		return next;
 	}
 
 	@Override
-	public ATerm getChildAt(int i) {
-		return elements[i];
+	public ATerm getChildAt(int index) {
+		ATermList l = this;
+		for(int i = 0; i < index; i++) 
+			l = l.next;
+		return l.element;
 	}
 
 	@Override
 	public int getChildCount() {
-		return elements.length;
+		int pos = 0;
+		ATermList l = this;
+		while(l.element != null) {
+			pos++;
+			l = l.next;
+		}
+		return pos;
 	}
 
 	@Override
@@ -64,22 +58,22 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	}
 
 	private static class ATermListIterator implements Iterator<ATerm> {
-		private final ATermList underlying;
-		private int position;
+		private ATermList underlying;
 
 		ATermListIterator(ATermList underlying) {
 			this.underlying = underlying;
-			position = 0;
 		}
 
 		@Override
 		public boolean hasNext() {
-			return position < underlying.elements.length;
+			return underlying.element != null;
 		}
 
 		@Override
 		public ATerm next() {
-			return underlying.elements[position++];
+			ATerm e = underlying.element;
+			underlying = underlying.next;
+			return e;
 		}
 
 		@Override
@@ -89,7 +83,7 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	}
 
 	@Override
-	public Iterator iterator() {
+	public Iterator<ATerm> iterator() {
 		return new ATermListIterator(this);
 	}
 
@@ -99,10 +93,12 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 			sb.append("...");
 		} else { 
 			sb.append('[');
-			for(int i = 0 ; i < elements.length; i++) {
-				if(i > 0)
+			ATermList l = this;
+			while(l.element != null) {
+				l.element.toString(depth - 1, sb);
+				l = l.next;
+				if(l.element != null)
 					sb.append(",");
-				elements[i].toString(depth - 1, sb);
 			}
 			sb.append(']');
 		}
@@ -112,12 +108,17 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	public boolean simpleMatch(ATerm t) {
 		if(!(t instanceof ATermList))
 			return false;
-		ATermList o = (ATermList)t;
-		if(elements.length != o.elements.length)
-			return false;
-		for(int i = 0; i < elements.length; i++)
-			if(!o.elements[i].simpleMatch(elements[i]))
+		ATermList a = (ATermList)t;
+		ATermList b = (ATermList)t;		
+		do {
+			if(a.element == null && b.element == null)
+				return true;
+			if(a.element == null)
 				return false;
-		return true;
+			if(!a.element.equals(b.element))
+				return false;
+			a = a.next;
+			b = b.next;
+		} while(true);
 	}
 }

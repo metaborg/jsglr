@@ -19,7 +19,7 @@ public class TestG_ambi extends ParseTestCase {
 
 
     public void testG_ambi_1() {
-        doParseTest("g-ambi-1");
+    	doParseTest("g-ambi-1");
     }
 
     public void testG_ambi_2() {

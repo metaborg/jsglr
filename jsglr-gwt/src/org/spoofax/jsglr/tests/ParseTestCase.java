@@ -2,56 +2,75 @@
  * Created on 13.des.2005
  *
  * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
- * 
+ *
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.jsglr.tests;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.FileOutputStream;
 
-import junit.framework.TestCase;
+import org.spoofax.jsglr.client.InvalidParseTableException;
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.ParserException;
+import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.shared.RemoteParseTableService;
+import org.spoofax.jsglr.shared.RemoteParseTableServiceAsync;
+import org.spoofax.jsglr.shared.SGLRException;
+import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.jsglr.shared.terms.ATerm;
+import org.spoofax.jsglr.shared.terms.ATermFactory;
 
-import org.spoofax.jsglr.ParseTable;
-import org.spoofax.jsglr.ParseTableManager;
-import org.spoofax.jsglr.ParserException;
-import org.spoofax.jsglr.InvalidParseTableException;
-import org.spoofax.jsglr.SGLR;
-import org.spoofax.jsglr.SGLRException;
-import org.spoofax.jsglr.Tools;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import aterm.ATerm;
-import aterm.pure.PureFactory;
+public abstract class ParseTestCase extends GWTTestCase {
 
-public abstract class ParseTestCase extends TestCase {
+	protected SGLR sglr;
+    protected String suffix;
 
-    SGLR sglr;
-    String suffix;
     // shared by all tests
-    static final PureFactory pf = new PureFactory();
+    static final ATermFactory pf = new ATermFactory();
+    RemoteParseTableServiceAsync parseTableService = GWT.create(RemoteParseTableService.class);
 
-    public void setUp(String grammar, String suffix) throws FileNotFoundException, IOException, ParserException, InvalidParseTableException {
+    public void gwtSetUp(String grammar, String suffix) throws ParserException, InvalidParseTableException {
         this.suffix = suffix;
         Tools.setDebug(false);
         Tools.setLogging(false);
-        ParseTableManager ptm = new ParseTableManager(pf);
-        ParseTable pt = ptm.loadFromFile("tests/grammars/" + grammar + ".tbl");
-        sglr = new SGLR(pf, pt);
+        parseTableService.findParseTable("tests/grammars/" + grammar + ".tbl",
+        		new AsyncCallback<ATerm>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void onSuccess(ATerm result) {
+				        try {
+							sglr = new SGLR(pf, new ParseTable(result));
+						} catch (InvalidParseTableException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				});
+
     }
 
-    protected void tearDown()
-      throws Exception {
-        super.tearDown();
+    @Override
+	protected void gwtTearDown() throws Exception {
+        super.gwtTearDown();
 
         sglr.clear();
     }
 
     final static boolean doCompare = true;
     public void doParseTest(String s) throws FileNotFoundException, IOException {
-        Tools.setOutput("tests/jsglr-full-trace-" + s);
 
         long parseTime = System.nanoTime();
         ATerm parsed = null;
@@ -78,7 +97,7 @@ public abstract class ParseTestCase extends TestCase {
                 System.err.println("Saw    : " + parsed);
                 System.err.println("Wanted : " + loaded);
                 System.err.println("Trying to compare to the alternative file.");
-                
+
                 loaded = sglr.getFactory().readFromFile("tests/data/" + s + "-bis.trm");
 
                 assertNotNull(loaded);
@@ -93,5 +112,10 @@ public abstract class ParseTestCase extends TestCase {
                 }
             }
         }
+    }
+
+    @Override
+    public String getModuleName() {
+    	return "org.spoofax.JsglrGWT";
     }
 }

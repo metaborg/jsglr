@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='jsglrgwt'>
+
+  <inherits name='com.google.gwt.user.User'/>
+
+  <entry-point class='org.spoofax.client.JSGLREntryPoint'/>
+
+  <source path='jsglr.client'/>
+  <source path='jsglr.shared'/>
+  <source path='client'/>
+
+</module>

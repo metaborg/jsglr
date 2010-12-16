@@ -2,7 +2,7 @@
  * Created on 05.des.2005
  *
  * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
- * 
+ *
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.jsglr.tests;
@@ -13,8 +13,8 @@ import java.io.IOException;
 public class TestBooleans extends ParseTestCase {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp("Booleans", "txt");
+    protected void gwtSetUp() throws Exception {
+        super.gwtSetUp("Booleans", "txt");
     }
 
     public void testB0() throws FileNotFoundException, IOException {

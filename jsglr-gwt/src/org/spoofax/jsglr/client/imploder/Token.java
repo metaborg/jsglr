@@ -1,20 +1,22 @@
 package org.spoofax.jsglr.client.imploder;
 
-import org.spoofax.jsglr.client.NotImplementedException;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
+ * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
 public class Token implements IToken {
 
 	private final ITokenizer tokenizer;
 	
-	private final int index, startOffset, endOffset, line, kind;
+	private final int index, startOffset, endOffset, line, column;
+	private int kind;
 
-	public Token(ITokenizer tokenizer, int index, int line, int startOffset, int endOffset, int kind) {
+	public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind) {
 		this.tokenizer = tokenizer;
 		this.index = index;
 		this.line = line;
+		this.column = column;
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
 		this.kind = kind;
@@ -26,6 +28,10 @@ public class Token implements IToken {
 	
 	public int getKind() {
 		return kind;
+	}
+	
+	public void setKind(int kind) {
+		this.kind = kind;
 	}
 
 	public int getIndex() {
@@ -45,8 +51,7 @@ public class Token implements IToken {
 	}
 	
 	public int getColumn() {
-		// TODO
-		throw new NotImplementedException();
+		return column;
 	}
 	
 	@Override

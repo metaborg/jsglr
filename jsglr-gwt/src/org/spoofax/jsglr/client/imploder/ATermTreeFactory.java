@@ -27,6 +27,10 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 		this.factory = factory;
 	}
 	
+	public ATermFactory getTermFactory() {
+		return factory;
+	}
+	
 	public AFun createConstructor(String name, int childCount) {
 		return factory.makeAFun(name, childCount, false);
 	}
@@ -103,5 +107,13 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 
 	private static ATerm[] toArray(List<ATerm> children) {
 		return children.toArray(new ATerm[children.size()]);
+	}
+
+	public IToken getLeftToken(ATerm node) {
+		return node.getLeftToken();
+	}
+
+	public IToken getRightToken(ATerm node) {
+		return node.getRightToken();
 	}
 }

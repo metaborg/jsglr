@@ -23,7 +23,7 @@ public abstract class TopdownTreeBuilder implements ITreeBuilder {
 	 *   For a best balance of performance and stack consumption, directly call
 	 *   {@link ParseNode#buildTreeBottomup} instead.
 	 */
-	public final Object buildTree(AbstractParseNode node) {
+	public Object buildTree(AbstractParseNode node) {
 		if (node instanceof ParseNode) {
 			return buildTreeNode((ParseNode) node);
 		} else if (node instanceof ParseProductionNode) {

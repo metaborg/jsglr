@@ -10,8 +10,6 @@ import org.spoofax.jsglr.shared.terms.ATermList;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LabelInfo {
-	
-	private final ProductionAttributeReader reader;
 
 	private final ATermAppl production;
 	
@@ -45,7 +43,6 @@ public class LabelInfo {
 	
 	public LabelInfo(ProductionAttributeReader reader, ATermAppl production) {
 		this.production = production;
-		this.reader = reader;
 		ATermAppl rhs = getRHS();
 		ATermAppl attrs = getAttrs();
 		sort = reader.getSort(rhs);

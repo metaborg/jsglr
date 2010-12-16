@@ -1,25 +1,36 @@
 package org.spoofax.jsglr.client.imploder;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
+ * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
 public class DummyTokenizer implements ITokenizer {
 	
-	private final IToken onlyToken = new Token(this, 0, 0, 0, 0, IToken.TK_UNKNOWN);
+	private final IToken onlyToken = new Token(this, 0, 0, 0, 0, 0, IToken.TK_UNKNOWN);
+
+	private String filename;
 	
-	private char[] inputChars;
+	private String input;
 	
 	/**
 	 * @param inputChars
 	 *           The input characters (used for {indentpadding} productions
 	 *           and error recovery)
 	 */
-	public void initialize(char[] inputChars) {
-		this.inputChars = inputChars;
+	public void initialize(String filename, String input) {
+		this.filename = filename;
+		this.input = input;
+	}
+	
+	public String getFilename() {
+		return filename;
 	}
 
-	public char[] getInputChars() {
-		return inputChars;
+	public String getInput() {
+		return input;
 	}
 
 	public int getStartOffset() {
@@ -54,11 +65,11 @@ public class DummyTokenizer implements ITokenizer {
 		return onlyToken;
 	}
 
-	public IToken createSkippedToken(int offset, char inputChar, char prevChar) {
-		return onlyToken;
+	public void makeErrorToken(int offset) {
+		// Do nothing
 	}
 
-	public void createLayoutToken(int offset, int lastOffset, LabelInfo label) {
+	public void makeLayoutToken(int offset, int lastOffset, LabelInfo label) {
 		// Do nothing
 	}
 	
@@ -66,4 +77,9 @@ public class DummyTokenizer implements ITokenizer {
 		return "";
 	}
 
+	public Iterator<IToken> iterator() {
+		ArrayList<IToken> result = new ArrayList<IToken>(1);
+		result.add(onlyToken);
+		return result.iterator();
+	}
 }

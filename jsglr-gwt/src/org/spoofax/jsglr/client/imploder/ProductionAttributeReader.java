@@ -262,9 +262,7 @@ public class ProductionAttributeReader {
 		if (rhs.getAFun() == optFun)
 			return true;
 		rhs = termAt(rhs, 0);
-		if (rhs.getChildCount() == 1 && rhs.getAFun() == optFun)
-			return true;
-		return false;
+		return rhs.getChildCount() == 1 && rhs.getAFun() == optFun;
 	}
 
 }

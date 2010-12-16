@@ -16,7 +16,7 @@ import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.PathListPool;
 import org.spoofax.jsglr.client.PooledPathList;
 import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.client.imploder.Token;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -25,7 +25,10 @@ import org.spoofax.jsglr.shared.terms.ATermFactory;
 public abstract class ParseTestCase extends TestCase {
 
 	protected SGLR sglr;
+	
 	protected String suffix;
+	
+	protected ParseTable table;
 
 	// shared by all tests
 	static final ATermFactory pf = new ATermFactory();
@@ -45,8 +48,8 @@ public abstract class ParseTestCase extends TestCase {
 		final String fn = "tests/grammars/" + grammar + ".tbl";
 
 		final ATerm result = pf.parseFromString(FileTools.loadFileAsString(fn));
-		final ParseTable pt = new ParseTable(result);
-		sglr = new SGLR(pf, pt);
+		table = new ParseTable(result);
+		sglr = new SGLR(pf, table);
 		//        parseTableService.fetchParseTable("tests/grammars/" + grammar + ".tbl",
 		//        		new AsyncCallback<ATerm>() {
 		//
@@ -77,7 +80,7 @@ public abstract class ParseTestCase extends TestCase {
 	}
 
 	boolean doCompare = true;
-	public void doParseTest(final String s) {
+	public ATerm doParseTest(final String s) {
 
 		//		parseTableService.fetchText("tests/data/" + s + "." + suffix,
 		//				new AsyncCallback<String>() {
@@ -106,18 +109,21 @@ public abstract class ParseTestCase extends TestCase {
 			doCompare(s, parsed);
 		} else {
 			if (parsed.getLeftToken() != null)
-				System.out.println(((Token) parsed.getLeftToken()).getTokenizer());
+				System.out.println(parsed.getLeftToken().getTokenizer());
 			System.out.println(parsed);
 		}
 
 		System.out.println(PathListPool.cacheMisses);
 		System.out.println(PooledPathList.maxRemembered);
 		System.out.println(PooledPathList.maxAllocated);
+		return parsed;
 	}
 
 	private void doCompare(String s, final ATerm parsed) {
 		//parseTableService.readTermFromFile("tests/data/" + s + ".trm", new AsyncCallback<ATerm>() {
-		final String x = FileTools.loadFileAsString("tests/data/" + s + ".trm");
+		String extension =
+			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
+		final String x = FileTools.loadFileAsString("tests/data/" + s + extension);
 		final ATerm wanted = parsed.getFactory().parse(x);
 		//			@Override
 		//			public void onFailure(Throwable caught) {

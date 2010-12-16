@@ -71,27 +71,6 @@ public class TokenKindManager {
 		return true;
 	}
 	
-	/**
-	 * Determines whether the given string could possibly 
-	 * be a keyword (as opposed to an operator).
-	 */
-	protected static boolean isKeyword(String literal) {
-		for (int i = 0, end = literal.length(); i < end; i++) {
-			char c = literal.charAt(i);
-			if (!isKeywordChar(c))
-				return false;
-		}
-		return true;
-	}
-	
-	/**
-	 * Determines whether the given character could possibly 
-	 * be part of a keyword (as opposed to an operator).
-	 */
-	protected static boolean isKeywordChar(char c) {
-		return Character.isLetterOrDigit(c) || c == '_';
-	}
-	
 	protected static boolean isStringLiteral(LabelInfo label) {
 		return topdownHasSpaces(label.getRHS());
 	}

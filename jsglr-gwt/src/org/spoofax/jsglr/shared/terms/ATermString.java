@@ -19,6 +19,7 @@ public class ATermString extends ATermAppl {
 	ATermString(ATermFactory factory, String value) {
 		super(factory, null, ATermFactory.EMPTY);
 		this.value = value;
+		assert value != null;
 	}
 	
 	@Override

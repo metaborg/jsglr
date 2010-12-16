@@ -16,9 +16,8 @@ public class TestImplode extends ParseTestCase {
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
         super.gwtSetUp("Java-15", "java");
         sglr.setTreeBuilder(new TreeBuilder());
-        // TODO: compare results
-        doCompare = false;
     }
+    
 
     public void testJava0() throws FileNotFoundException, IOException {
     	doParseTest("java0");

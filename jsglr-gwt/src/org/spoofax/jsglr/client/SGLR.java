@@ -216,7 +216,8 @@ public class SGLR {
 	public Object parse(String fis, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
 	SGLRException {
 		logBeforeParsing();
-		initParseVariables(fis);
+		String filename = null; // TODO: get filename from some place; useful for errors
+		initParseVariables(filename, fis);
 		startTime = System.currentTimeMillis();
 		return sglrParse(startSymbol);
 	}
@@ -282,7 +283,7 @@ public class SGLR {
 		shifter(); //renewes active stacks with states in forshifter
 	}
 
-	private void initParseVariables(String input) {
+	private void initParseVariables(String filename, String input) {
 		startFrame = initActiveStacks();
 		tokensSeen = 0;
 		columnNumber = 0;
@@ -291,10 +292,8 @@ public class SGLR {
 		acceptingStack = null;
 		collectedErrors.clear();
 		ITokenizer tokenizer = parseTable.getTreeBuilder().getTokenizer();
-		// TODO: optimize?
 		if (tokenizer != null)
-			tokenizer.initialize(input.toCharArray());
-
+			tokenizer.initialize(filename, input);
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 	}
@@ -869,7 +868,7 @@ public class SGLR {
 	}
 
 	public void setTreeBuilder(TreeBuilder treeBuilder) {
-		parseTable.setTreeBuilder(new TreeBuilder());
+		parseTable.setTreeBuilder(treeBuilder);
 	}
 
 	AmbiguityManager getAmbiguityManager() {

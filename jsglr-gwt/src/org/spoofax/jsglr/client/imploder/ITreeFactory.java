@@ -46,5 +46,18 @@ public interface ITreeFactory<TNode> {
 	
 	public boolean isStringTerminal(TNode node);
 	
+	/**
+	 * Gets the children of a node.
+	 */
 	public Iterable<TNode> getChildren(TNode node);
+	
+	/**
+	 * Gets the left token of a node, or null if not supported/applicable.
+	 */
+	public IToken getLeftToken(TNode node);
+	
+	/**
+	 * Gets the right token of a node, or null if not supported/applicable.
+	 */
+	public IToken getRightToken(TNode node);
 }

@@ -1,14 +1,19 @@
 package org.spoofax.jsglr.client.imploder;
 
+import org.spoofax.jsglr.client.KeywordRecognizer;
+
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface ITokenizer {
+public interface ITokenizer extends Iterable<IToken> {
 	
-	// TODO: Optimize - use String in tokenizer?
-	void initialize(char[] inputChars);
+	/**
+	 * Initializes the tokenizer for the given
+	 * file name (if applicable) and contents.
+	 */
+	void initialize(String filename, String input);
 
-	char[] getInputChars();
+	String getInput();
 
 	int getStartOffset();
 
@@ -20,25 +25,29 @@ public interface ITokenizer {
 
 	IToken getTokenAt(int i);
 
-	IToken makeToken(int offset, LabelInfo label);
-
 	IToken makeToken(int offset, LabelInfo label, boolean allowEmptyToken);
 
 	IToken makeToken(int offset, int kind, boolean allowEmptyToken);
 
 	/**
-	 * Creates an artificial token at keyword boundaries
-	 * inside skipped regions of code.
+	 * Creates artificial token at keyword boundaries
+	 * inside skipped regions of code when
+	 * invoked for each character in a skipped/erroneous region of code.
 	 * Required for keyword highlighting with {@link KeywordRecognizer}.
+	 * 
+	 * @param offset
+	 *           The offset of the 
 	 */
-	IToken createSkippedToken(int offset, char inputChar, char prevChar);
+	void makeErrorToken(int offset);
 
 	/**
 	 * Creates an artificial token for every water-based recovery
 	 * and for comments within layout.
 	 */
-	void createLayoutToken(int offset, int lastOffset, LabelInfo label);
+	void makeLayoutToken(int offset, int lastOffset, LabelInfo label);
 
 	String toString(IToken left, IToken right);
+
+	String getFilename();
 
 }

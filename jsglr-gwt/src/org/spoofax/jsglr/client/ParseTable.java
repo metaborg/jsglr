@@ -75,6 +75,8 @@ public class ParseTable implements Serializable {
     private transient Map<Label, List<Priority>> priorityCache;
 
 	private transient ITreeBuilder treeBuilder;
+	
+	private transient KeywordRecognizer keywords;
 
     private static final ParseProductionNode[] productionNodes = new ParseProductionNode[256 + 1];
     
@@ -651,5 +653,10 @@ public class ParseTable implements Serializable {
         if (treeBuilder == null)
         	setTreeBuilder(new Asfix2TreeBuilder());
 		return treeBuilder;
+	}
+	
+	public KeywordRecognizer getKeywordRecognizer() {
+		if (keywords == null) keywords = new KeywordRecognizer(this);
+		return keywords;
 	}
 }

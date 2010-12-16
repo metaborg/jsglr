@@ -31,12 +31,20 @@ public interface IToken {
 	/** Token kind for an EOF token. */
 	public static final int TK_EOF = 8;
 	
-	/** Token kind for an erroneous token. */
+	/** Token kind for an erroneous non-keyword token. */
 	public static final int TK_ERROR = 9;
 	
-	public static final int TK_RESERVED = 10;
+	/** Token kind for an erroneous keyword token. */
+	public static final int TK_ERROR_KEYWORD = 10;
+	
+	/** Token kind for an erroneous token. */
+	public static final int TK_ERROR_EOF_UNEXPECTED = 11;
+	
+	public static final int TK_RESERVED = 12;
 	
 	int getKind();
+	
+	void setKind(int kind);
 	
 	int getIndex();
 
@@ -47,4 +55,6 @@ public interface IToken {
 	int getLine();
 	
 	int getColumn();
+	
+	ITokenizer getTokenizer();
 }

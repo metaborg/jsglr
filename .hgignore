@@ -5,6 +5,7 @@ syntax: glob
 *.jar
 *.tbl
 *.trm
+*.itrm
 .sglr-log
 jsglr-gwt/war/jsglrgwt
 jsglr-gwt/war/*.tbl

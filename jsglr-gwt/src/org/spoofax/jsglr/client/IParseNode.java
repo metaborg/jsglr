@@ -15,8 +15,6 @@ public abstract class IParseNode {
 
     public abstract ATerm toParseTree(ParseTable pt);
 
-    @Deprecated
-    abstract void clear();
     @Override
 	abstract public boolean equals(Object obj);
     @Override

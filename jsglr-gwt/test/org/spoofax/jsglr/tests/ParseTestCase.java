@@ -16,6 +16,7 @@ import org.spoofax.jsglr.client.Frame;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
+import org.spoofax.jsglr.client.PathPool;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -105,7 +106,10 @@ public abstract class ParseTestCase extends TestCase {
 		//			}
 		//
 		//		});
-
+		
+		System.out.println(PathPool.poolMisses);
+		System.out.println(PathPool.maxRemembered);
+		System.out.println(PathPool.maxAllocated);
 	}
 
 	private void doCompare(String s, final ATerm parsed) {

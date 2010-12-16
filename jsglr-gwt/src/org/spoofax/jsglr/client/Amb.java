@@ -55,16 +55,6 @@ public class Amb extends IParseNode {
     }
 
     @Override
-	@Deprecated
-    void clear() {
-        for (int i = 0; i < alternatives.size(); i++) {
-            alternatives.get(i).clear();
-        }
-        alternatives.clear();
-        cachedHashCode = NO_HASH_CODE;
-    }
-
-    @Override
     public String toString() {
         return "amb(" + alternatives + ")";
     }

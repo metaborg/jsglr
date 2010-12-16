@@ -35,8 +35,6 @@ public class ParseProductionNode extends IParseNode {
         return prod == ((ParseProductionNode)obj).prod;
     }
 
-    @Override
-    void clear() {}
 
     @Override
     public int hashCode() {

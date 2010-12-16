@@ -43,6 +43,7 @@ public class Main {
         boolean waitForProfiler = false;
         boolean timing = false;
         boolean heuristicFilters = false;
+        boolean buildParseTree = true;
         int profilingRuns = 0;
         
         for(int i=0;i<args.length;i++) {
@@ -70,6 +71,8 @@ public class Main {
             	profilingRuns = Integer.parseInt(args[++i]);
             } else if(args[i].equals("--timing")) {
             	timing = true;
+            } else if(args[i].equals("--recognize")) {
+            	buildParseTree = false;
             } else {
                 System.err.println("Unknown option: " + args[i]);
                 System.exit(1);
@@ -91,6 +94,7 @@ public class Main {
         sglr.getDisambiguator().setFilterCycles(detectCycles);
         sglr.getDisambiguator().setFilterAny(filter);
         sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
+        sglr.setBuildParseTree(buildParseTree);
         
         if(waitForProfiler) {
         	System.err.println("Hit enter to start profiling...");
@@ -125,7 +129,7 @@ public class Main {
         ATerm t=null;
         try {
         	parsingTime = System.currentTimeMillis();
-            t=sglr.parse(FileTools.loadFileAsString(input), startSymbol);            
+            t = sglr.parse(FileTools.loadFileAsString(input), startSymbol);            
             parsingTime = System.currentTimeMillis() - parsingTime;            
         } catch(BadTokenException e) {
             System.err.println("Parsing failed : " + e.getMessage());

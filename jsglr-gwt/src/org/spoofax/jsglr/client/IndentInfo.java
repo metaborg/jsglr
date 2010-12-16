@@ -60,15 +60,20 @@ public class IndentInfo {
     /*
      * Calculates the biggest reduce belonging to this backtrack point.
      */
+    private PathPool staticPathPool = new PathPool(64);
     public int maxReduceLength() {
         int maxPathLength = 0;
         for (Frame activeStack : stackNodes) {
-            for (Path p : activeStack.findAllPaths(2)) {//3=> shifted_LO, reduced_LO, ReducedCodeFragment
-                int length = p.getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
+        	staticPathPool.start();
+        	activeStack.findAllPaths(staticPathPool, 2);
+        	for(int i = 0; i < staticPathPool.size(); i++) {
+        		// 3=> shifted_LO, reduced_LO, ReducedCodeFragment
+                int length = staticPathPool.get(i).getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
                 if(length > maxPathLength){
                     maxPathLength = length;                   
                 }
             }
+        	staticPathPool.end();
         }
         return maxPathLength;
     }    
@@ -83,12 +88,14 @@ public class IndentInfo {
         int maxPathLength = -1;
         Link result=null;
         for (Frame activeStack : stackNodes) {
-            for (Path p : activeStack.findAllPaths(3)) {//3=> shifted_LO, reduced_LO, ReducedCodeFragment
+        	activeStack.findAllPaths(staticPathPool, 3);
+            for(int i = 0; i < staticPathPool.size(); i++ ) {//3=> shifted_LO, reduced_LO, ReducedCodeFragment
+            	Path p = staticPathPool.get(i);
                 int length = p.getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
                 if(length > maxPathLength){
                     maxPathLength = length;
-                    if(p.getParent().getLabel()!=null)
-                        result =p.getParent().getLink();
+                    if(p.getParent().getLabel() != null)
+                        result = p.getParent().getLink();
                 }
             }
         }

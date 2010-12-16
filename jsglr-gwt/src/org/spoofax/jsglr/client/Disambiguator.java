@@ -480,7 +480,7 @@ public class Disambiguator {
         if(firstKid instanceof Amb) {
 
             List<IParseNode> ambs = ((Amb)firstKid).getAlternatives();
-            List<IParseNode> restKids = kids.subList(1, t.kids.size() - 1);
+            List<IParseNode> restKids = kids.subList(1, t.kids.length - 1);
 
             for (int i = 0, max = ambs.size(); i < max; i++) {
                 IParseNode amb = ambs.get(i);
@@ -814,8 +814,8 @@ public class Disambiguator {
         // Work-around for http://bugs.strategoxt.org/browse/SPI-5 (Permissive grammars introduce ambiguities for literals)
 
         if (left instanceof ParseNode && right instanceof ParseNode) {
-            List<IParseNode> leftKids = ((ParseNode) left).kids;
-            List<IParseNode> rightKids = ((ParseNode) right).kids;
+            List<IParseNode> leftKids = ((ParseNode) left).getKids();
+            List<IParseNode> rightKids = ((ParseNode) right).getKids();
             if (leftKids.size() > 0 && rightKids.size() == 1) {
                 if (leftKids.get(0) instanceof ParseProductionNode && rightKids.get(0).equals(left)) {
                     return FILTER_LEFT_WINS;
@@ -1046,7 +1046,7 @@ public class Disambiguator {
             Label prod = getLabel(t);
 
             while (prod.isInjection()) {
-                t = ((ParseNode) t).getKids().get(0);
+                t = ((ParseNode) t).kids[0];
 
 
                 if (t instanceof ParseNode) {

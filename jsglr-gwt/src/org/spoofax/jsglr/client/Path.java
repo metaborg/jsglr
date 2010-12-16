@@ -62,12 +62,12 @@ public class Path {
 		return frame;
 	}
 
-	public final List<IParseNode> getParseNodes() {
-		List<IParseNode> ret = new ArrayList<IParseNode>();
+	public final IParseNode[] getParseNodes() {
+		IParseNode[] ret = new IParseNode[parentCount];
 
 		int pos = 0;
 		for (Path n = parent; n != null; n = n.parent) {
-			ret.add(n.label);
+			ret[pos++] = n.label;
 		}
 
 		return ret;
@@ -104,20 +104,20 @@ public class Path {
 		return link;
 	}
 
-	public static Path valueOf(Path parent, Link link, Frame frame, int length/*, int parentCount*/) {
-		Path r = new Path();
-		r.parent = parent;
-		r.link = link;
-		if(link != null){
-            r.label = link.label;
-        } else {
-            r.label = null;
-        }
-		r.frame = frame;
-		r.length = length;
-		r.parentCount = -1; //parentCount;
-		return r;
-	}
+//	public static Path valueOf(Path parent, Link link, Frame frame, int length/*, int parentCount*/) {
+//		Path r = new Path();
+//		r.parent = parent;
+//		r.link = link;
+//		if(link != null){
+//            r.label = link.label;
+//        } else {
+//            r.label = null;
+//        }
+//		r.frame = frame;
+//		r.length = length;
+//		r.parentCount = -1; //parentCount;
+//		return r;
+//	}
 }
 
 

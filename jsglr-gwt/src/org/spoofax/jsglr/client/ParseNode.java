@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -17,13 +18,18 @@ public class ParseNode extends IParseNode {
 
     public final int label;
 
-    protected final List<IParseNode> kids;
+    protected final IParseNode[] kids;
 
     private int cachedHashCode;
 
-    public ParseNode(int label, List<IParseNode> kids) {
+    public ParseNode(int label, IParseNode[] kids) {
         this.label = label;
         this.kids = kids;
+    }
+
+    public ParseNode(int label, List<IParseNode> kids) {
+        this.label = label;
+        this.kids = kids.toArray(new IParseNode[kids.size()]);
     }
 
     @Override
@@ -31,8 +37,8 @@ public class ParseNode extends IParseNode {
         ATermFactory factory = pt.getFactory();
 
         ATermList l1 = factory.makeList();
-        for (int i = kids.size() - 1; i >= 0; i--) {
-            l1 = l1.prepend(kids.get(i).toParseTree(pt));
+        for (int i = kids.length - 1; i >= 0; i--) {
+            l1 = l1.prepend(kids[i].toParseTree(pt));
         }
 
         return factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
@@ -56,16 +62,10 @@ public class ParseNode extends IParseNode {
 
     public int getLabel() { return label; }
 
-    public List<IParseNode> getKids() { return kids; }
-
-    @Override
-	@Deprecated
-    void clear() {
-        for (int i = 0; i < kids.size(); i++) {
-            kids.get(i).clear();
-        }
-        kids.clear();
-        cachedHashCode = NO_HASH_CODE;
+    @Deprecated
+    public List<IParseNode> getKids() {
+    	// FIXME remove this method; should return the kids directly
+    	return Arrays.asList(kids);
     }
 
     @Override
@@ -75,11 +75,11 @@ public class ParseNode extends IParseNode {
         if (obj == this)
             return true;
         ParseNode o = (ParseNode)obj;
-        if(label != o.label || kids.size() != o.kids.size()
+        if(label != o.label || kids.length != o.kids.length
                 || hashCode() != o.hashCode())
             return false;
-        for(int i=0;i<kids.size();i++) {
-            if(!kids.get(i).equals(o.kids.get(i)))
+        for(int i = 0; i < kids.length; i++) {
+            if(!kids[i].equals(o.kids[i]))
                 return false;
         }
         return true;
@@ -99,6 +99,6 @@ public class ParseNode extends IParseNode {
 
     @Override
     public String toStringShallow() {
-        return "regular*(" + label + ", {" +  kids.size() + "})";
+        return "regular*(" + label + ", {" +  kids.length + "})";
     }
 }

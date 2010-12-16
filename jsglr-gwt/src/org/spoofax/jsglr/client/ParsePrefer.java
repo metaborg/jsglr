@@ -7,13 +7,11 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.List;
-
 import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class ParsePrefer extends ParseNode {
 
-    public ParsePrefer(int label, List<IParseNode> kids) {
+    public ParsePrefer(int label, IParseNode[] kids) {
         super(label, kids);
     }
 

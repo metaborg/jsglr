@@ -9,7 +9,6 @@ package org.spoofax.jsglr.client;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.spoofax.jsglr.shared.Tools;
@@ -63,29 +62,27 @@ public class Frame implements Serializable {
         return state;
     }
 
-    public List<Path> findAllPaths(int arity) {
-        ArrayList<Path> ret = new ArrayList<Path>(arity);
-        doComputePathsToRoot(ret, null, arity, 0);
-        return ret;
+    public void findAllPaths(PathPool pool, int arity) {
+    	doComputePathsToRoot(pool, null, arity, 0, 0);
     }
 
-    private void doComputePathsToRoot(List<Path> collect, Path node, int arity, int length) {
-        if(Tools.tracing) {
+    private void doComputePathsToRoot(PathPool pool, Path node, int arity, int parentCount, int length) {
+        
+    	if(Tools.tracing) {
             SGLR.TRACE("SG_FindAllPaths() - " + arity + ", " + length);
         }
 
         if (arity == 0) {
-            Path n = Path.valueOf(node, null, this, length);
+            pool.rememberPath(node, null, this, length, parentCount);
             if(Tools.tracing) {
                 SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + length);
             }
-            collect.add(n);
         } else { 
             for (int i = 1; i <= stepsCount; i++) {
-                Link ln = steps[stepsCount - i];
+                Link link = steps[stepsCount - i];
                 
-                Path n = Path.valueOf(node, ln, this, ln.getLength());
-                ln.parent.doComputePathsToRoot(collect, n, arity - 1, length + ln.getLength());
+                Path n = pool.makePath(node, link, this, link.getLength(), parentCount);
+                link.parent.doComputePathsToRoot(pool, n, arity - 1, parentCount + 1, length + link.getLength());
             }
         }
     }
@@ -120,6 +117,8 @@ public class Frame implements Serializable {
     }   
     
 
+    static public int[] counter = new int[1000];
+    
     public Link addLink(Frame st0, IParseNode n, int length) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_AddLink() - " + state.stateNumber + ", " + st0.state.stateNumber + ", " + length);
@@ -127,7 +126,7 @@ public class Frame implements Serializable {
         if(stepsCount >= steps.length) {
             resizeSteps();
         }
-        
+        counter[stepsCount]++;
         return steps[stepsCount++] = new Link(st0, n, length); 
     }
 
@@ -204,16 +203,14 @@ public class Frame implements Serializable {
         return sb.toString();
     }
 
-    public List<Path> findLimitedPaths(int arity, Link l) {
+    public void findLimitedPaths(PathPool pool, int arity, Link l) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_FindLimitedPaths() - " + arity + ", " + l.getLength() + ", " + l.parent.state.stateNumber);
             TRACE_DumpLinks(steps);
         }
-        List<Path> ret = new ArrayList<Path>(arity);
         if(findLink(arity, l)) { 
-            doComputePathsToRoot(ret, null, l, false, arity, 0);
+            doComputePathsToRoot(pool, null, l, false, arity, 0, 0);
         } 
-        return ret;
     }
 
     private void TRACE_DumpLinks(Link[] st) {
@@ -250,24 +247,23 @@ public class Frame implements Serializable {
         return false;
     }
 
-    private void doComputePathsToRoot(List<Path> collect, Path node, Link l,
-      boolean seen, int arity, int length) {
+    private void doComputePathsToRoot(PathPool pool, Path node, Link l,
+      boolean seen, int arity, int parentCount, int length) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_FindPaths() - " + arity);
         }
 
         if (arity == 0 && seen) {
-            Path n = Path.valueOf(node, null, this, length);
+            pool.rememberPath(node, null, this, length, parentCount);
             if(Tools.tracing) {
                 SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + length);
             }
-            collect.add(n);
         } else if(arity > 0) {
             for (int i = 0; i < stepsCount; i++) {
                 Link ln = steps[stepsCount - i - 1];
                 boolean seenIt = seen || (ln == l);
-                Path n = Path.valueOf(node, ln, this, ln.getLength());
-                ln.parent.doComputePathsToRoot(collect, n, l, seenIt, arity - 1, length + ln.getLength());
+                Path n = pool.makePath(node, ln, this, ln.getLength(), arity - length);
+                ln.parent.doComputePathsToRoot(pool, n, l, seenIt, arity - 1, parentCount + 1, length + ln.getLength());
             }
         }
     }

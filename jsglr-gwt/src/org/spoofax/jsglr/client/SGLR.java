@@ -7,8 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Queue;
@@ -84,6 +83,8 @@ public class SGLR {
 
     private PushbackStringIterator currentInputStream;
 
+    private boolean buildParseTree = true;
+    
     //Creates indent- and dedent- tokens
     //Meant for parsing of indentation based languages
     //TODO: still under construction
@@ -107,8 +108,8 @@ public class SGLR {
     /* START: FINE GRAINED ON REGION */
     private boolean fineGrainedOnRegion;
     protected void setFineGrainedOnRegion(boolean fineGrainedMode) {
-        fineGrainedOnRegion=fineGrainedMode;
-        recoverStacks=new ArrayDeque<Frame>();
+        fineGrainedOnRegion = fineGrainedMode;
+        recoverStacks = new ArrayDeque<Frame>();
     }
 
     public void clearRecoverStacks(){
@@ -281,7 +282,10 @@ public class SGLR {
         Tools.debug("avoids: ", s.recoverCount);
         //Tools.debug(s.label.toParseTree(parseTable));
 
-        return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
+        if(buildParseTree)
+        	return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
+        else
+        	return null;
     }
 
     void readNextToken() {
@@ -511,12 +515,16 @@ public class SGLR {
         }
     }
 
+    private PathPool staticPathPool = new PathPool(1024);
+    
     private void doReductions(Frame st, Production prod) {
-        if(recoverModeOk(st, prod)){
-            List<Path> paths = st.findAllPaths(prod.arity);
-            logBeforeDoReductions(st, prod, paths.size());
-            reduceAllPaths(prod, paths);
+        if(recoverModeOk(st, prod)) {
+        	staticPathPool.start();
+            st.findAllPaths(staticPathPool, prod.arity);
+            logBeforeDoReductions(st, prod, staticPathPool.size());
+            reduceAllPaths(prod, staticPathPool);
             logAfterDoReductions();
+            staticPathPool.end();
         }
     }
 
@@ -535,27 +543,28 @@ public class SGLR {
         return !useIntegratedRecovery || prod.isRecoverProduction() == reduceRecoverOnly;
     }*/
 
+    PathPool defaultPool = new PathPool(512);
+	
     private void doLimitedReductions(Frame st, Production prod, Link l) { //Todo: Look add sharing code with doReductions
-        if(recoverModeOk(st, prod)){
-            List<Path> paths = st.findLimitedPaths(prod.arity, l); //find paths containing the link
-            logBeforeLimitedReductions(st, prod, l, paths);
-            reduceAllPaths(prod, paths);
+        if(recoverModeOk(st, prod)) {
+        	PathPool limitedPool = defaultPool.start();
+        	st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
+            logBeforeLimitedReductions(st, prod, l, limitedPool);
+            reduceAllPaths(prod, limitedPool);
+            limitedPool.end();
         }
     }
 
-    private void reduceAllPaths(Production prod, List<Path> paths) {
+    private void reduceAllPaths(Production prod, PathPool paths) {
 
-        for (int i = paths.size() - 1; i >= 0; i--) {
-            Path path = paths.get(i);
-            List<IParseNode> kids = new ArrayList<IParseNode>();
-            for(IParseNode p : path.getParseNodes())
-            	kids.add(p);
+        for(int i = 0; i < paths.size(); i++) {
+        	Path path = paths.get(i);
+            IParseNode[] kids = path.getParseNodes();
             Frame st0 = path.getEnd();
             State next = parseTable.go(st0.peek(), prod.label);
-            logReductionPath(prod, path, kids, st0, next);
+            logReductionPath(prod, path, st0, next);
             reducer(st0, next, prod, kids, path);
         }
-        clearPath(paths);
 
         if (asyncAborted) {
             // Rethrown as ParseTimeoutException in SGLR.sglrParse()
@@ -564,14 +573,7 @@ public class SGLR {
     }
 
 
-    private void clearPath(List<Path> paths) {
-        if(Tools.tracing) {
-            SGLR.TRACE("SG_ClearPath() - " + paths.size());
-        }
-        paths.clear();
-    }
-
-    private void reducer(Frame st0, State s, Production prod, List<IParseNode> kids, Path path) {
+    private void reducer(Frame st0, State s, Production prod, IParseNode[] kids, Path path) {
         int length = path.getLength();
         int numberOfRecoveries = calcRecoverCount(prod, path);
         IParseNode t = prod.apply(kids);
@@ -1125,11 +1127,9 @@ public class SGLR {
         }
     }
 
-    private void logReductionPath(Production prod, Path path,
-            List<IParseNode> kids, Frame st0, State next) {
+    private void logReductionPath(Production prod, Path path, Frame st0, State next) {
         if (Tools.debugging) {
             Tools.debug(" path: ", path);
-            Tools.debug(" kids: ", kids);
             Tools.debug(st0.state);
         }
 
@@ -1154,7 +1154,7 @@ public class SGLR {
     }
 
     private void logBeforeLimitedReductions(Frame st, Production prod, Link l,
-            List<Path> paths) {
+            PathPool paths) {
         if(Tools.tracing) {
             TRACE("SG_ - back in reducer ");
             TRACE_ActiveStacks();
@@ -1164,9 +1164,7 @@ public class SGLR {
         if (Tools.debugging) {
             Tools.debug("doLimitedReductions() - ", dumpActiveStacks());
             logReductionInfo(st, prod);
-            List<?> reversePaths = (List<?>) ((ArrayList<?>) paths).clone();
-            Collections.reverse(reversePaths);
-            Tools.debug(reversePaths);
+            Tools.debug(Arrays.asList(paths));
         }
     }
 
@@ -1231,4 +1229,8 @@ public class SGLR {
                         nl.getLength());
         }
     }
+
+	public void setBuildParseTree(boolean buildParseTree) {
+		this.buildParseTree = buildParseTree;
+	}
 }

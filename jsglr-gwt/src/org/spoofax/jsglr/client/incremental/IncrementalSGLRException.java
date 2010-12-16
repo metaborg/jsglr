@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.incremental;
 
 /**
  * An exception thrown if some input cannot be incrementally parsed.

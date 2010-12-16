@@ -859,7 +859,7 @@ public class SGLR {
 		activeStacks.clear(true);
 	}
 
-	ParseTable getParseTable() {
+	public ParseTable getParseTable() {
 		return parseTable;
 	}
 

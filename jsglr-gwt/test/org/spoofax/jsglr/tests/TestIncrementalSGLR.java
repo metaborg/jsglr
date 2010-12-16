@@ -3,10 +3,10 @@ package org.spoofax.jsglr.tests;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.IncrementalSGLR;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
+import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
 import org.spoofax.jsglr.shared.terms.ATerm;
 
 /**

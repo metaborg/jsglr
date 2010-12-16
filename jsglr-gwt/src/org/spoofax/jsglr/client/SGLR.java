@@ -86,6 +86,7 @@ public class SGLR {
     private boolean buildParseTree = true;
     
     PathListPool pathCache = new PathListPool();
+    ArrayDeque<Frame> activeStacksWorkQueue = new ArrayDeque<Frame>();
     
     //Creates indent- and dedent- tokens
     //Meant for parsing of indentation based languages
@@ -380,22 +381,23 @@ public class SGLR {
         }
         activeStacks.addFirst(st1);
     }
-
-    int x = 0;
+    
     private void parseCharacter() {
         logBeforeParseCharacter();
 
-        ArrayDeque<Frame> actives = new ArrayDeque<Frame>(activeStacks); // FIXME avoid garbage -- singleton 'actives', since parseCharacter isn't recursive
+        activeStacksWorkQueue.clear();
+        for(int i = 0; i < activeStacks.size(); i++)
+        	activeStacksWorkQueue.add(activeStacks.get(i));
         clearForActorDelayed();
         clearForShifter();
-        while (actives.size() > 0 || forActor.size() > 0) {
+        while (activeStacksWorkQueue.size() > 0 || forActor.size() > 0) {
             Frame st;
-            st = pickStackNodeFromActivesOrForActor(actives);
+            st = pickStackNodeFromActivesOrForActor(activeStacksWorkQueue);
             if (!st.allLinksRejected()) {
                 actor(st);
             }
 
-            if(actives.size() == 0 && forActor.size() == 0) {
+            if(activeStacksWorkQueue.size() == 0 && forActor.size() == 0) {
                 fillForActorWithDelayedFrames(); //Fills foractor, clears foractor delayed
             }
         }

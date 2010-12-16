@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
 
 import java.util.ArrayList;
 import java.util.List;

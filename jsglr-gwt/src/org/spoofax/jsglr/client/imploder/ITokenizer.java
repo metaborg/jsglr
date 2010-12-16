@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

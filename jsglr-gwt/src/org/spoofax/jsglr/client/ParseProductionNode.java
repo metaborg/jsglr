@@ -7,6 +7,8 @@
  */
 package org.spoofax.jsglr.client;
 
+import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
+
 
 public class ParseProductionNode extends AbstractParseNode {
 

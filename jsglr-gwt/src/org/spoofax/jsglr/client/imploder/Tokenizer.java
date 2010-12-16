@@ -1,6 +1,6 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.jsglr.client.IToken.*;
+import static org.spoofax.jsglr.client.imploder.IToken.*;
 
 import java.util.ArrayList;
 

@@ -9,6 +9,7 @@ package org.spoofax.jsglr.client;
 
 import java.util.List;
 
+import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 import org.spoofax.jsglr.shared.terms.ATerm;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
 import org.spoofax.jsglr.shared.terms.ATermList;

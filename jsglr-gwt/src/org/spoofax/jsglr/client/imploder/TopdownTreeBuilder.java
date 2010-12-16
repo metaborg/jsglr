@@ -1,4 +1,10 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
+
+import org.spoofax.jsglr.client.AbstractParseNode;
+import org.spoofax.jsglr.client.Amb;
+import org.spoofax.jsglr.client.ITreeBuilder;
+import org.spoofax.jsglr.client.ParseNode;
+import org.spoofax.jsglr.client.ParseProductionNode;
 
 /**
  * An abstract top-down tree builder implementation.
@@ -32,9 +38,9 @@ public abstract class TopdownTreeBuilder implements ITreeBuilder {
 		return subtree;
 	}
 
-	protected abstract Object buildTreeNode(ParseNode node);
+	public abstract Object buildTreeNode(ParseNode node);
 
-	protected abstract Object buildTreeProduction(ParseProductionNode node);
+	public abstract Object buildTreeProduction(ParseProductionNode node);
 
-	protected abstract Object buildTreeAmb(Amb node);
+	public abstract Object buildTreeAmb(Amb node);
 }

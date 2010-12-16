@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ImplodedTreeBuilder;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;

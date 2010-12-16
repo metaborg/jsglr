@@ -1,8 +1,9 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.jsglr.shared.terms.ATerm;
 import org.spoofax.jsglr.shared.terms.ATermAppl;
 import org.spoofax.jsglr.shared.terms.ATermFactory;

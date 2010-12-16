@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.spoofax.jsglr.client.IToken;
 import org.spoofax.jsglr.client.NotImplementedException;
+import org.spoofax.jsglr.client.imploder.IToken;
 
 public abstract class ATerm implements Serializable {
 

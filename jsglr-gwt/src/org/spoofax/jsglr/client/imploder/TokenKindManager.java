@@ -1,12 +1,12 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.jsglr.client.IToken.TK_IDENTIFIER;
-import static org.spoofax.jsglr.client.IToken.TK_KEYWORD;
-import static org.spoofax.jsglr.client.IToken.TK_LAYOUT;
-import static org.spoofax.jsglr.client.IToken.TK_NUMBER;
-import static org.spoofax.jsglr.client.IToken.TK_OPERATOR;
-import static org.spoofax.jsglr.client.IToken.TK_STRING;
-import static org.spoofax.jsglr.client.IToken.TK_VAR;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_IDENTIFIER;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_KEYWORD;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_NUMBER;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_OPERATOR;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_STRING;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_VAR;
 import static org.spoofax.jsglr.shared.Tools.applAt;
 import static org.spoofax.jsglr.shared.Tools.asAppl;
 import static org.spoofax.jsglr.shared.Tools.intAt;

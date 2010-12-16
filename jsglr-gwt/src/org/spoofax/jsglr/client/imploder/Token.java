@@ -1,4 +1,6 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
+
+import org.spoofax.jsglr.client.NotImplementedException;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

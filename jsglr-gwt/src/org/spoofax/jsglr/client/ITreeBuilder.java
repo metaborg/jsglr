@@ -1,5 +1,6 @@
 package org.spoofax.jsglr.client;
 
+import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.shared.terms.ATermAppl;
 
 public interface ITreeBuilder {

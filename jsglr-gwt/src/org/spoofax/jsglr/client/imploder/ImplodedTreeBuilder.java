@@ -1,10 +1,16 @@
-package org.spoofax.jsglr.client;
+package org.spoofax.jsglr.client.imploder;
 
 import static java.lang.Math.max;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.jsglr.client.AbstractParseNode;
+import org.spoofax.jsglr.client.Amb;
+import org.spoofax.jsglr.client.ParseNode;
+import org.spoofax.jsglr.client.ParseProductionNode;
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.RecoveryConnector;
 import org.spoofax.jsglr.shared.terms.ATermAppl;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
 
@@ -91,8 +97,8 @@ public class ImplodedTreeBuilder extends TopdownTreeBuilder {
 	*/
 	
 	@Override
-	protected Object buildTreeNode(ParseNode node) {
-		LabelInfo label = labels[node.label - labelStart];
+	public Object buildTreeNode(ParseNode node) {
+		LabelInfo label = labels[node.getLabel() - labelStart];
 		IToken prevToken = tokenizer.currentToken();
 		int lastOffset = offset;
 		AbstractParseNode[] subnodes = node.getChildren();

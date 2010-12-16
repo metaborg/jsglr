@@ -3,9 +3,9 @@ package org.spoofax.jsglr.tests;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.spoofax.jsglr.client.ImplodedTreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
+import org.spoofax.jsglr.client.imploder.ImplodedTreeBuilder;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

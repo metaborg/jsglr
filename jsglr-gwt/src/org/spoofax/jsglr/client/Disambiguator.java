@@ -373,7 +373,8 @@ public class Disambiguator {
 				}
 			}
 
-			t = new ParseNode(node.label, newArgs);
+			if (newArgs != null)
+				t = new ParseNode(node.label, newArgs);
 		} else if(t instanceof ParseProductionNode) {
 			// leaf node -- do thing (cannot be any ambiguities here)
 			return t;
@@ -388,21 +389,31 @@ public class Disambiguator {
 		}
 	}
 
+	/**
+	 * Filters child parse nodes.
+	 * 
+	 * @return An array of filtered child nodes, or null if no changes were made.
+	 */
 	private AbstractParseNode[] filterTree(AbstractParseNode[] args, boolean inAmbiguityCluster) throws FilterException {
 
 		if(SGLR.isDebugging()) {
 			Tools.debug("filterTree(<nodes>) - ", args);
 		}
 
-		final AbstractParseNode[] newArgs = new AbstractParseNode[args.length];
-		// boolean changed = false;
+		AbstractParseNode[] newArgs = null;
 
 		for (int i = 0, max = args.length; i < max; i++) {
 			final AbstractParseNode n = args[i];
 			final AbstractParseNode filtered = filterTree(n, false);
 
-			// changed = !filtered.equals(n) || changed;
-			newArgs[i] = filtered;
+			if (newArgs == null) {
+				if (filtered != n) {
+					newArgs = cloneArrayUpToIndex(args, i);
+					newArgs[i] = filtered;
+				}
+			} else {
+				newArgs[i] = filtered;
+			}
 		}
 
 		// FIXME Shouldn't we do some filtering here?
@@ -412,14 +423,30 @@ public class Disambiguator {
 		// }
 
 		if (filterAny) {
-			final AbstractParseNode[] filtered = new AbstractParseNode[newArgs.length];
-			for (int i = 0, max = newArgs.length; i < max; i++) {
-				filtered[i] = applyAssociativityPriorityFilter(newArgs[i]);
+			if (newArgs != null) args = newArgs;
+			newArgs = null;
+			for (int i = 0, max = args.length; i < max; i++) {
+				AbstractParseNode n = args[i];
+				AbstractParseNode filtered = applyAssociativityPriorityFilter(n);
+
+				if (newArgs == null) {
+					if (filtered != n) {
+						newArgs = cloneArrayUpToIndex(args, i);
+						newArgs[i] = filtered;
+					}
+				} else {
+					newArgs[i] = filtered;
+				}
 			}
-			return filtered;
-		} else {
-			return newArgs;
 		}
+		return newArgs;
+	}
+
+	private static AbstractParseNode[] cloneArrayUpToIndex(AbstractParseNode[] args, int index) {
+		AbstractParseNode[] newArgs;
+		newArgs = new AbstractParseNode[args.length];
+		System.arraycopy(args, 0, newArgs, 0, index);
+		return newArgs;
 	}
 
 	private AbstractParseNode applyAssociativityPriorityFilter(AbstractParseNode t) throws FilterException {

@@ -33,7 +33,6 @@ public class AutoConcatList<E> implements List<E> {
 	
 	public AutoConcatList(String sort) {
 		this.sort = sort;
-		this.emptyListToken = emptyListToken;
 	}
 	
 	public String getSort() {

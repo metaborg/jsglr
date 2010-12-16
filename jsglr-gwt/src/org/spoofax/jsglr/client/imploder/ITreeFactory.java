@@ -2,7 +2,14 @@ package org.spoofax.jsglr.client.imploder;
 
 import java.util.List;
 
+import org.spoofax.jsglr.client.ITreeBuilder;
+
 /**
+ * Constructs tree nodes for imploded parse trees.
+ * 
+ * @see TreeBuilder  An {@link ITreeBuilder} that creates imploded trees.
+ * @see IAstNode     An interface for tree nodes with tokens.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public interface ITreeFactory<TNode> {

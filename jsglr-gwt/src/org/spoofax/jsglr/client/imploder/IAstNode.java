@@ -1,7 +1,11 @@
 package org.spoofax.jsglr.client.imploder;
 
-
 /**
+ * An interface for tree nodes with tokens.
+ * 
+ * @see ITreeFactory
+ *      A factory interface that typically constructs nodes of this type.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public interface IAstNode {

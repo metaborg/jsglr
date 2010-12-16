@@ -89,19 +89,17 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		int lastOffset = offset;
 		AbstractParseNode[] subnodes = node.getChildren();
 		
-		boolean lexicalStart = !inLexicalContext && label.isLexicalLiteralOrLayout();
-		if (lexicalStart)
-			inLexicalContext = true;
+		boolean lexicalStart = false;
 		
-		if (!inLexicalContext
-				&& subnodes.length > 0 && subnodes[0] instanceof ParseProductionNode
-				&& label.isSortProduction()
-				&& label.getLHS().getChildCount() == 1) {
-			return createIntTerminal(label, subnodes);
+		if (!inLexicalContext) {
+			if (label.isNonContextFree()) {
+				inLexicalContext = lexicalStart = true;
+			} else if (subnodes.length > 0 && subnodes[0] instanceof ParseProductionNode
+					&& label.isSortProduction()
+					&& label.getLHS().getChildCount() == 1) {
+				return createIntTerminal(label, subnodes);
+			}
 		}
-		
-		boolean isVar  = !inLexicalContext && label.isVar();
-		if (isVar) inLexicalContext = true;
 		
 		// TODO: Optimize - one particularly gnarly optimization would be to reuse the subnodes array here
 		//                  and in buildTreeAmb
@@ -116,7 +114,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			if (child != null) children.add(child);
 		}
 		
-		if (lexicalStart || isVar) {
+		if (lexicalStart) {
 			return tryCreateStringTerminal(label);
 		} else if (inLexicalContext) {
 			tokenizer.createLayoutToken(offset - 1, lastOffset - 1, label);

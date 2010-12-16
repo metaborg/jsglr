@@ -105,10 +105,9 @@ public abstract class ParseTestCase extends TestCase {
 		if (doCompare) {
 			doCompare(s, parsed);
 		} else {
-			System.out.println(parsed);
-			if (parsed.getLeftToken() != null) {
+			if (parsed.getLeftToken() != null)
 				System.out.println(((Token) parsed.getLeftToken()).getTokenizer());
-			}
+			System.out.println(parsed);
 		}
 
 		System.out.println(PathListPool.cacheMisses);

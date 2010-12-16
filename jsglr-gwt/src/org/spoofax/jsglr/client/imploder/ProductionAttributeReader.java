@@ -197,9 +197,9 @@ public class ProductionAttributeReader {
 	 * 
 	 * @return true if the current node is lexical.
 	 */
-	public boolean isLexicalLiteralOrLayout(ATermAppl rhs) {
+	public boolean isNonContextFree(ATermAppl rhs) {
 		return (lexFun == rhs.getAFun() || isLiteral(rhs)
-		    || isLayout(rhs));
+		    || isLayout(rhs)) || isVariableNode(rhs);
 	}
 	
 	public boolean isLexical(ATermAppl rhs) {
@@ -259,7 +259,12 @@ public class ProductionAttributeReader {
 	}
 
 	public boolean isOptional(ATermAppl rhs) {
-		return rhs.getAFun() == optFun;
+		if (rhs.getAFun() == optFun)
+			return true;
+		rhs = termAt(rhs, 0);
+		if (rhs.getChildCount() == 1 && rhs.getAFun() == optFun)
+			return true;
+		return false;
 	}
 
 }

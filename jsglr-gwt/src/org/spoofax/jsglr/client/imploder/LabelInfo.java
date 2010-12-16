@@ -21,7 +21,7 @@ public class LabelInfo {
 	
 	private final ATerm astAttribute;
 	
-	private final boolean isLexicalLiteralOrLayout;
+	private final boolean isNonContextFree;
 	
 	private final boolean isLexical;
 
@@ -39,6 +39,8 @@ public class LabelInfo {
 	
 	private final boolean isLiteral;
 	
+	private final boolean isOptional;
+	
 	private final String metaVarConstructor;
 	
 	public LabelInfo(ProductionAttributeReader reader, ATermAppl production) {
@@ -49,7 +51,7 @@ public class LabelInfo {
 		sort = reader.getSort(rhs);
 		constructor = reader.getConsAttribute(attrs);
 		astAttribute = reader.getAstAttribute(attrs);
-		isLexicalLiteralOrLayout = reader.isLexicalLiteralOrLayout(rhs);
+		isNonContextFree = reader.isNonContextFree(rhs);
 		isList = reader.isList(rhs);
 		isVar = reader.isVariableNode(rhs);
 		isIndentPaddingLexical = reader.isIndentPaddingLexical(attrs);
@@ -57,6 +59,7 @@ public class LabelInfo {
 		isLexical = reader.isLexical(rhs);
 		isLayout = reader.isLayout(rhs);
 		isLiteral = reader.isLiteral(rhs);
+		isOptional = reader.isOptional(rhs);
 		isSortProduction = reader.sortFun == rhs.getAFun() || reader.parameterizedSortFun == rhs.getAFun();
 		metaVarConstructor = reader.getMetaVarConstructor(rhs);
 	}
@@ -85,8 +88,8 @@ public class LabelInfo {
 		return astAttribute;
 	}
 	
-	public boolean isLexicalLiteralOrLayout() {
-		return isLexicalLiteralOrLayout;
+	public boolean isNonContextFree() {
+		return isNonContextFree;
 	}
 	
 	public boolean isLexical() {
@@ -126,7 +129,7 @@ public class LabelInfo {
 	}
 
 	public boolean isOptional() {
-		return reader.isOptional(getRHS());
+		return isOptional;
 	}
 	
 	@Override

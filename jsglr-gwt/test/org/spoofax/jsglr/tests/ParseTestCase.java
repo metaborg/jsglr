@@ -146,7 +146,7 @@ public abstract class ParseTestCase extends TestCase {
 		System.out.println("Parsing " + newFile);
     	ATerm newTree = (ATerm) incrementalSGLR.parseIncremental(contents, newFile, null, oldTree);
 		parseTime = System.nanoTime() - parseTime;
-		System.out.println("Incremental parsing " + newFile + " took " + parseTime/1000/1000 + " millis.");
+		System.out.println("Incremental parsing " + newFile + " took " + parseTime/1000/1000 + " millis" + (IncrementalSGLR.DEBUG ? " including debug printing" : ""));
 		String extension =
 			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
 		if (doCompare) {

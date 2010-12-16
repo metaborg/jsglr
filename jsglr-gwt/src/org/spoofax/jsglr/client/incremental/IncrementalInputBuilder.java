@@ -66,7 +66,7 @@ public class IncrementalInputBuilder {
 	public String buildPartialInput(IAstNode oldTree) throws IncrementalSGLRException {
 		isSkipping = isDamagePrinted = false;
 		skippedCharsAfterDamage = skippedCharsBeforeDamage = 0;
-		StringBuilder result = appendTree(oldTree);
+		appendTree(oldTree);
 		try {
 			assert result.length() ==
 				newInput.length() - skippedCharsBeforeDamage - skippedCharsAfterDamage; 
@@ -85,7 +85,10 @@ public class IncrementalInputBuilder {
 		return skippedCharsBeforeDamage;
 	}
 
-	private StringBuilder appendTree(IAstNode oldTree) throws IncrementalSGLRException {
+	/**
+	 * @return true if the current node was printed to the {@link #result} string.
+	 */
+	private boolean appendTree(IAstNode oldTree) throws IncrementalSGLRException {
 		IToken left = oldTree.getLeftToken();
 		IToken right = oldTree.getRightToken();
 		int startOffset = 0;
@@ -98,10 +101,11 @@ public class IncrementalInputBuilder {
 			
 			if (!isSkipping && !oldTree.isList() && incrementalSorts.contains(oldTree.getSort())
 					&& !isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)) {
-					   // !isDamagedNodeOrLayout(left, right)) {
+					   //!isDamagedNodeOrLayout(left, right)) {
 				isSkipping = isSkippingStart = true;
 			}
 
+			boolean wasSkipped = false;
 			Iterator<IAstNode> iterator = tryGetListIterator(oldTree); 
 			for (int i = 0, max = oldTree.getChildCount(); i < max; i++) {
 				IAstNode child = iterator == null ? oldTree.getChildAt(i) : iterator.next();
@@ -109,24 +113,25 @@ public class IncrementalInputBuilder {
 				IToken childRight = child.getRightToken();
 				if (childLeft != null)
 					appendToken(startOffset, childLeft.getStartOffset() - 1);
-				appendTree(child);
+				if (wasSkipped) isSkipping = false;
+				wasSkipped = !appendTree(child);
 				if (childRight != null)
 					startOffset = childRight.getEndOffset() + 1;
 			}
 			appendToken(startOffset, endOffset);
+			if (wasSkipped) isSkipping = false;
 		} else {
 			assert oldTree.getChildCount() == 0 :
 				"No tokens for tree with children??";
 		}
 		
-		if (isSkippingStart) isSkipping = false;
-		return result;
+		return !isSkippingStart;
 	}
 
 	/*
 	private boolean isDamagedNodeOrLayout(IToken left, IToken right) {
-		int startOffset = Tokenizer.findLeftMostLayoutToken(left).getStartOffset();
-		int endOffset = Tokenizer.findRightMostLayoutToken(right).getEndOffset();
+		int startOffset = findLeftMostLayoutToken(left).getStartOffset();
+		int endOffset = findRightMostLayoutToken(right).getEndOffset();
 		return isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
 	}
 	*/

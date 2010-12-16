@@ -12,7 +12,7 @@ import org.spoofax.jsglr.shared.terms.ATerm;
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class TestIncrementalParsing extends ParseTestCase {
+public class TestIncrementalSGLR extends ParseTestCase {
 
     @Override
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
@@ -25,9 +25,13 @@ public class TestIncrementalParsing extends ParseTestCase {
     	TreeBuilder builder = (TreeBuilder) sglr.getTreeBuilder();
     	Set<String> sorts = new HashSet<String>();
     	sorts.add("MethodDec");
+    	sorts.add("ClassBodyDec");
     	IncrementalSGLR<ATerm> parser = new IncrementalSGLR<ATerm>(sglr, builder, builder.getFactory(), sorts);
     	ATerm tree2 = (ATerm) parser.parseIncremental(loadAsString("java5-increment"), null, null, tree1);
-    	assertEquals(tree1, tree2);
+    	ATerm tree3 = (ATerm) sglr.parse(loadAsString("java5-increment"));
+    	System.out.println(tree2);
+    	System.out.println(tree3);
+    	assertEquals(tree3.toString(), tree2.toString());
     }
 
     public void testJava4() throws Exception {
@@ -35,9 +39,13 @@ public class TestIncrementalParsing extends ParseTestCase {
     	TreeBuilder builder = (TreeBuilder) sglr.getTreeBuilder();
     	Set<String> sorts = new HashSet<String>();
     	sorts.add("MethodDec");
+    	sorts.add("ClassBodyDec");
     	IncrementalSGLR<ATerm> parser = new IncrementalSGLR<ATerm>(sglr, builder, builder.getFactory(), sorts);
     	ATerm tree2 = (ATerm) parser.parseIncremental(loadAsString("java4-increment"), null, null, tree1);
-    	assertEquals(tree1, tree2);
+    	ATerm tree3 = (ATerm) sglr.parse(loadAsString("java4-increment"));
+    	System.out.println(tree2);
+    	System.out.println(tree3);
+    	assertEquals(tree3.toString(), tree2.toString());
     }
 
 }

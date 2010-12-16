@@ -1,8 +1,15 @@
 package org.spoofax.jsglr.client.imploder;
 
+import static org.spoofax.jsglr.shared.terms.ATerm.APPL;
+import static org.spoofax.jsglr.shared.terms.ATerm.INT;
+import static org.spoofax.jsglr.shared.terms.ATerm.LIST;
+import static org.spoofax.jsglr.shared.terms.ATerm.STRING;
+import static org.spoofax.jsglr.shared.terms.ATerm.TUPLE;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.jsglr.shared.terms.AFun;
 import org.spoofax.jsglr.shared.terms.ATerm;
 import org.spoofax.jsglr.shared.terms.ATermAppl;
@@ -86,6 +93,22 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 		result.internalSetTokens(leftToken, rightToken);
 		result.internalSetSort(elementSort);
 		return result;
+	}
+	
+	public ATerm recreateNode(ATerm oldNode, IToken leftToken, IToken rightToken, List<ATerm> children) {
+		switch (oldNode.getType()) {
+			case INT:
+				return createIntTerminal(null, leftToken, ((ATermInt) oldNode).getInt());
+			case APPL:
+				return createNonTerminal(null, ((ATermAppl) oldNode).getName(), leftToken, rightToken, children);
+			case LIST:
+				return createList(null, leftToken, rightToken, children);
+			case STRING:
+				return createStringTerminal(null, ((ATermString) oldNode).getString(), leftToken);
+			case TUPLE:
+			default:
+				throw new NotImplementedException("Recreating term of type " + oldNode.getType() + ": " + oldNode); 
+		}
 	}
 
 	public boolean isStringTerminal(ATerm node) {

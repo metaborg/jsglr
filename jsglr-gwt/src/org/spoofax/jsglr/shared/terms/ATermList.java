@@ -28,6 +28,7 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 		return super.getSort() + "*";
 	}
 	
+	@Override
 	public String getElementSort() {
 		return super.getSort();
 	}
@@ -42,6 +43,11 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 
 	public ATermList getNext() {
 		return next;
+	}
+	
+	@Override
+	public boolean isList() {
+		return true;
 	}
 
 	@Override

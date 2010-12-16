@@ -38,6 +38,12 @@ public interface ITreeFactory<TNode> {
 	public TNode createList(String elementSort, IToken leftToken, IToken rightToken, List<TNode> children);
 
 	public TNode createAmb(List<TNode> alternatives);
+	
+	/**
+	 * Creates a new node similar to an existing node,
+	 * used for incremental tree construction.
+	 */
+	public TNode recreateNode(TNode oldNode, IToken leftToken, IToken rightToken, List<TNode> children);
 
 	/**
 	 * Create an injection node.

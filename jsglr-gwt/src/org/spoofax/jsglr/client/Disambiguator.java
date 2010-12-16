@@ -344,6 +344,9 @@ public class Disambiguator {
 		if (SGLR.isDebugging()) {
 			Tools.debug("filterTree(node)    - ", t);
 		}
+		
+		// parseTable.setTreeBuilder(new Asfix2TreeBuilder());
+		// System.out.println(yieldTree(t));
 
 		if (t instanceof Amb) {
 			if (!inAmbiguityCluster) {

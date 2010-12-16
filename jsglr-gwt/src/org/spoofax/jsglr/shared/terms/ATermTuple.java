@@ -28,6 +28,16 @@ public class ATermTuple extends ATerm {
 	public int getType() {
 		return ATerm.TUPLE;
 	}
+	
+	@Override
+	public String getSort() {
+		return super.getSort() + "*";
+	}
+	
+	@Override
+	public String getElementSort() {
+		return super.getSort();
+	}
 
 	@Override
 	public boolean simpleMatch(ATerm t) {

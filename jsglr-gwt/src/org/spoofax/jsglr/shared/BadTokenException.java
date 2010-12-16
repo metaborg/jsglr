@@ -50,7 +50,9 @@ public class BadTokenException extends SGLRException {
     private String escape(int ch) {
     	switch(ch) {
     	case 0: return "\\0";
-    	default: return ""+ch;
+    	case '\n': return "\\n";
+    	case '\r': return "\\r";
+    	default: return ""+ (char) ch;
     	}
 	}
 

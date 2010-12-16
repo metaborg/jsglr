@@ -198,7 +198,7 @@ public class ParseTable implements Serializable {
 
         while (!labelsTerm.isEmpty()) {
             
-        	final ATermAppl a = Term.applAt(labelsTerm, 0);
+        	final ATermAppl a = (ATermAppl) labelsTerm.getFirst();
             final ATermAppl prod = Term.applAt(a, 0);
             final int labelNumber = Term.intAt(a, 1);
             final boolean injection = isInjection(prod);
@@ -239,10 +239,10 @@ public class ParseTable implements Serializable {
         if(ls.getChildCount() < 1)
         	return false;
         
-        if(ls.getChildAt(0).getType() != ATerm.APPL)
+        if(ls.getFirst().getType() != ATerm.APPL)
         	return false;
         
-        final AFun fun = ((ATermAppl)ls.getChildAt(0)).getAFun();
+        final AFun fun = ((ATermAppl)ls.getFirst()).getAFun();
         return !(fun.getName().equals("lit") && fun.getArity() == 1);
     }
 

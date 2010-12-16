@@ -18,6 +18,7 @@ public abstract class ATerm implements IAstNode, Serializable {
 	public static final int STRING = 4;
 	public static final int TUPLE = 5;
 	public static final int PLACEHOLDER = 6;
+	private static final int DEFAULT_PRINT_DEPTH = Integer.MAX_VALUE;
 
 	protected ATermFactory factory;
 	
@@ -42,6 +43,7 @@ public abstract class ATerm implements IAstNode, Serializable {
 		this.rightToken = rightToken;
 		assert getChildCount() == 0
 			|| getChildAt(getChildCount() - 1).getRightToken() == null
+			|| rightToken == null
 			|| rightToken.getEndOffset() >= getChildAt(getChildCount() - 1).getRightToken().getEndOffset(); 
 	}
 	
@@ -59,6 +61,14 @@ public abstract class ATerm implements IAstNode, Serializable {
 	
 	public String getSort() {
 		return sort;
+	}
+	
+	public String getElementSort() {
+		throw new UnsupportedOperationException();
+	}
+	
+	public boolean isList() {
+		return false;
 	}
 
 	public ATermFactory getFactory() {
@@ -89,7 +99,7 @@ public abstract class ATerm implements IAstNode, Serializable {
 	@Override
 	public final String toString() {
 		StringBuilder sb = new StringBuilder();
-		toString(8, sb);
+		toString(DEFAULT_PRINT_DEPTH, sb);
 		return sb.toString();
 	}
 

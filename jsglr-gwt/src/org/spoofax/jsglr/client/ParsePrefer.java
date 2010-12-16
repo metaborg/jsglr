@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr.client;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class ParsePrefer extends ParseNode {
 
@@ -16,9 +15,8 @@ public class ParsePrefer extends ParseNode {
     }
 
     @Override
-    public ATerm toParseTree(ParseTable pt) {
+    public Object toParseTree(ParseTable pt) {
         return super.toParseTree(pt);
-        //throw new NotImplementedException();
     }
 
     @Override

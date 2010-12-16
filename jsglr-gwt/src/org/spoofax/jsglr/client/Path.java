@@ -38,8 +38,6 @@ public class Path {
 		return parent.getRecoverCount(maxCharLength);
 	}
 
-	public static int[] counter = new int[1024];
-	
 	public Path reuse(Path parent, Link link, Frame frame, int length, int parentCount) {
 		this.parent = parent;
 		this.link = link;
@@ -51,7 +49,6 @@ public class Path {
         } else {
             this.label = null;
         }
-		counter[parentCount]++;
 		assert length >= 0;
 		assert parentCount >= 0;
 		return this;

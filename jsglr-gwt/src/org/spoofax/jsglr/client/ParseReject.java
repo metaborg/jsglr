@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr.client;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class ParseReject extends ParseNode {
 
@@ -16,8 +15,8 @@ public class ParseReject extends ParseNode {
     }
 
     @Override
-    public ATerm toParseTree(ParseTable pt) {
-        // Reject nodes shouldn't normally be outputted to a tree,
+    public Object toParseTree(ParseTable pt) {
+        // Reject nodes shouldn't normally be output to a tree,
         // but in error recovery mode they can be
         return super.toParseTree(pt);
     }

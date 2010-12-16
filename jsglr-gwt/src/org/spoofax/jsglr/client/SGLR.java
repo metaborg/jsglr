@@ -146,6 +146,7 @@ public class SGLR {
         assert parseTable != null;
         // Init with a new factory for both serialized or BAF instances.
         this.parseTable = parseTable;
+        parseTable.prepare();
         basicInit(pf);
     }
 
@@ -226,7 +227,7 @@ public class SGLR {
         return st0;
     }
 
-    public ATerm parse(String fis, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+    public Object parse(String fis, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
             SGLRException {
         logBeforeParsing();
         initParseVariables(fis);
@@ -234,13 +235,13 @@ public class SGLR {
         return sglrParse(startSymbol);
     }
 
-    public final ATerm parse(String input) throws BadTokenException,
+    public final Object parse(String input) throws BadTokenException,
             TokenExpectedException, ParseException, SGLRException {
 
         return parse(input, null);
     }
 
-    private ATerm sglrParse(String startSymbol)
+    private Object sglrParse(String startSymbol)
             throws BadTokenException, TokenExpectedException,
             ParseException, SGLRException {
 

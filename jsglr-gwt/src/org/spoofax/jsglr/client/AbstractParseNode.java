@@ -7,13 +7,12 @@
  */
 package org.spoofax.jsglr.client;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
 
 public abstract class AbstractParseNode {
 
     protected static final int NO_HASH_CODE = 0;
 
-    public abstract ATerm toParseTree(ParseTable pt);
+    public abstract Object toParseTree(ParseTable pt);
 
     @Override
 	abstract public boolean equals(Object obj);

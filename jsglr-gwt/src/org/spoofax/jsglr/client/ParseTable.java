@@ -73,6 +73,8 @@ public class ParseTable implements Serializable {
 
     private transient Map<Label, List<Priority>> priorityCache;
 
+	private transient TreeBuilder treeBuilder = new Asfix2TreeBuilder();
+
     private static final ParseProductionNode[] productionNodes = new ParseProductionNode[256 + 1];
     
     static {
@@ -632,5 +634,25 @@ public class ParseTable implements Serializable {
 
 	public List<Label> getLabels() {
 	    return Collections.unmodifiableList(asList(labels));
+	}
+
+	public void setTreeConstructionParticipant(TreeBuilder treeBuilder) {
+		this.treeBuilder = treeBuilder;
+	}
+
+	private boolean prepared = false;
+	public void prepare() {
+		if(prepared)
+			return;
+		for(int i = 0; i < labels.length; i++) {
+			if(labels[i] == null)
+				continue;
+			labels[i].setTree(treeBuilder.mapProduction(i, labels[i].getProduction()));
+		}
+		prepared = true;		
+	}
+
+	public TreeBuilder getTreeBuilder() {
+		return treeBuilder;
 	}
 }

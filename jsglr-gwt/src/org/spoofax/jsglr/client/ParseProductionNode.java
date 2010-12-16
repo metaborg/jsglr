@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr.client;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class ParseProductionNode extends AbstractParseNode {
 
@@ -18,9 +17,10 @@ public class ParseProductionNode extends AbstractParseNode {
     }
 
     @Override
-	public ATerm toParseTree(ParseTable pt) {
-    	return pt.getProduction(prod);
+	public Object toParseTree(ParseTable pt) {
+    	return pt.getTreeBuilder().buildProduction(prod);
     }
+
     @Override
     public String toString() {
         return "" + prod;

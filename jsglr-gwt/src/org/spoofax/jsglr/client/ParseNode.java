@@ -27,15 +27,16 @@ public class ParseNode extends AbstractParseNode {
     }
 
     @Override
-	public ATerm toParseTree(ParseTable pt) {
-        ATermFactory factory = pt.getFactory();
+	public Object toParseTree(ParseTable pt) {
+        TreeBuilder tb = pt.getTreeBuilder();
 
-        ATermList l1 = factory.makeList();
-        for (int i = kids.length - 1; i >= 0; i--) {
-        	l1 = l1.prepend(kids[i].toParseTree(pt));
+        Object[] subtrees = new Object[kids.length];
+        for (int i = 0; i < kids.length; i++) {
+        	subtrees[i] = kids[i].toParseTree(pt);
         }
 
-        return factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
+        return tb.buildNode(label, pt.getLabel(label).getTree(), subtrees);
+        //return factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
     }
 
     /**

@@ -126,7 +126,7 @@ public class Main {
             ous = System.out;
 
         long parsingTime = 0;
-        ATerm t=null;
+        Object t = null;
         try {
         	parsingTime = System.currentTimeMillis();
             t = sglr.parse(FileTools.loadFileAsString(input), startSymbol);            
@@ -138,7 +138,7 @@ public class Main {
             System.err.println("Parsing failed : " + e);
         }
         if(t != null && !"-".equals(output)){            
-            String outputString=t.toString();
+            String outputString = t.toString();
             ous.write(outputString.getBytes());
         }
         return parsingTime;

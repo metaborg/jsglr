@@ -180,7 +180,7 @@ public class Disambiguator {
         setDefaultFilters();
     }
 
-    public ATerm applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
+    public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
         try {
             if(SGLR.isDebugging()) {
                 Tools.debug("applyFilters()");
@@ -200,7 +200,7 @@ public class Disambiguator {
                 t = filterTree(t, false);
             }
 
-            // TODO: Move convertToATerm to SGLR.java and support IStrategoTerms
+//            // TODO: Move convertToATerm to SGLR.java and support IStrategoTerms
             ATerm result = convertToATerm(t);
             assert Term.asAppl(result).getAFun().getName().equals("parsetree");
             return result;
@@ -232,7 +232,7 @@ public class Disambiguator {
         Tools.logger("Number of Injection Counts: ", ambiguityManager.getInjectionCount());
     }
 
-    private ATerm yieldTree(AbstractParseNode t) {
+    private Object yieldTree(AbstractParseNode t) {
         return t.toParseTree(parser.getParseTable());
     }
 
@@ -243,7 +243,7 @@ public class Disambiguator {
         }
 
         ambiguityManager.resetAmbiguityCount();
-        ATerm r = yieldTree(t);
+        Object r = yieldTree(t);
 
         logStatus();
 
@@ -251,9 +251,8 @@ public class Disambiguator {
         if (SGLR.isDebugging()) {
             Tools.debug("yield: ", r);
         }
-        final AFun parseTreeAfun = parseTable.getFactory().makeAFun("parsetree", 2, false);
-        return parseTable.getFactory().makeAppl(parseTreeAfun, r,
-                                                parseTable.getFactory().makeInt(ambCount));
+        
+        return (ATerm)parser.getParseTable().getTreeBuilder().buildToplevel(r, ambCount);
     }
 
     private AbstractParseNode applyCycleDetectFilter(AbstractParseNode t) throws FilterException {

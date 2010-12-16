@@ -12,7 +12,9 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.spoofax.jsglr.FileTools;
+import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
+import org.spoofax.jsglr.client.Label;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.Path;
@@ -46,7 +48,8 @@ public abstract class ParseTestCase extends TestCase {
 		String fn = "tests/grammars/" + grammar + ".tbl";
 
 		ATerm result = pf.parseFromString(FileTools.loadFileAsString(fn));
-		sglr = new SGLR(pf, new ParseTable(result));
+		ParseTable pt = new ParseTable(result);
+		sglr = new SGLR(pf, pt);
 		//        parseTableService.fetchParseTable("tests/grammars/" + grammar + ".tbl",
 		//        		new AsyncCallback<ATerm>() {
 		//
@@ -94,7 +97,7 @@ public abstract class ParseTestCase extends TestCase {
 		long parseTime = System.nanoTime();
 		ATerm parsed = null;
 		try {
-			parsed = sglr.parse(result);
+			parsed = (ATerm) sglr.parse(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.toString());
@@ -111,7 +114,6 @@ public abstract class ParseTestCase extends TestCase {
 		System.out.println(PathListPool.cacheMisses);
 		System.out.println(PooledPathList.maxRemembered);
 		System.out.println(PooledPathList.maxAllocated);
-		System.out.println(Arrays.toString(Path.counter));
 	}
 
 	private void doCompare(String s, final ATerm parsed) {

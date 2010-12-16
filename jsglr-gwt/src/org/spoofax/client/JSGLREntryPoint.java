@@ -66,7 +66,7 @@ public class JSGLREntryPoint implements EntryPoint {
 			System.out.println(pt.toString().length());
 			SGLR sglr = new SGLR(af, new ParseTable(pt));
 			long now = System.currentTimeMillis();
-			ATerm r = sglr.parse(strategoSampleCode());
+			ATerm r = (ATerm) sglr.parse(strategoSampleCode());
 			now = System.currentTimeMillis() - now;
 			if(r != null) {
 				RootPanel.get().add(new Label(r.toString()));

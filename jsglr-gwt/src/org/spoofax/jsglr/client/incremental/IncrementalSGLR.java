@@ -66,6 +66,9 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	 */
 	public TNode parseIncremental(String newInput, String filename, String startSymbol, TNode oldTree)
 			throws TokenExpectedException, BadTokenException, ParseException, SGLRException, IncrementalSGLRException {
+		
+		if (oldTree == null)
+			throw new IncrementalSGLRException("Precondition failed: oldTree is null");
 
 		// Determine damage size
 		lastReconstructedNodes = Collections.emptyList();
@@ -114,6 +117,10 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	 */
 	public List<TNode> getLastReconstructedNodes() {
 		return lastReconstructedNodes;
+	}
+	
+	public SGLR getParser() {
+		return parser;
 	}
 
 	private void sanityCheckDiff(String oldInput, String newInput,

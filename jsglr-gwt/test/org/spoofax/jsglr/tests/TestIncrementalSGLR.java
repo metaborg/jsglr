@@ -164,6 +164,35 @@ public class TestIncrementalSGLR extends ParseTestCase {
     	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
     	assertFalse(isReparsed("qux"));
     }
+    
+    public void testJava912Recovery() throws Exception {
+    	suffix = "java.recover";
+    	sglr.setUseStructureRecovery(true);
+    	doCompare = false;
+    	ATerm java9 = doParseTest("java9");
+    	ATerm java91 = doParseIncrementalTest(java9,  "java9-increment");
+    	try {
+    		doParseIncrementalTest(java91, "java9-increment2");
+    	} catch (IncrementalSGLRException e) {
+    		System.out.println(e.getMessage());
+    		return; // expected
+    	}
+    	fail("Exception expected");
+    }
+    
+    public void testJava93Recovery() throws Exception {
+    	suffix = "java.recover";
+    	sglr.setUseStructureRecovery(true);
+    	doCompare = false;
+    	ATerm java9 = doParseTest("java9");
+    	try {
+    		doParseIncrementalTest(java9, "java9-increment3");
+    	} catch (IncrementalSGLRException e) {
+    		System.out.println(e.getMessage());
+    		return; // expected
+    	}
+    	fail("Exception expected");
+    }
 
     public void testJava4() throws Exception {
     	doParseIncrementalTest(getJava4Result(), "java4-increment");

@@ -1,14 +1,7 @@
 syntax: glob
-*.class
-*.cache.*
-.metadata
-*.jar
-*.tbl
-*.trm
-*.itrm
-.sglr-log
-jsglr-gwt/war/jsglrgwt
-jsglr-gwt/war/*.tbl
-jsglr-gwt/.settings
-jsglr-gwt/war/WEB-INF/classes
-jsglr-gwt/tomcat
+jsglr-gwt/scripts/staging/*
+jsglr-gwt/scripts/*.jar
+jsglr-gwt/war/*
+jsglr-gwt/test-classes/*
+jsglr-gwt/tests/*/*.{tbl,itrm,trm}
+jsglr-gwt/tests/.jsglr-log

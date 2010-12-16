@@ -45,6 +45,8 @@ public abstract class ATerm implements IAstNode, Serializable {
 			|| getChildAt(getChildCount() - 1).getRightToken() == null
 			|| rightToken == null
 			|| rightToken.getEndOffset() >= getChildAt(getChildCount() - 1).getRightToken().getEndOffset(); 
+		assert leftToken == null || rightToken == null
+			|| leftToken.getTokenizer() == rightToken.getTokenizer();
 	}
 	
 	public IToken getLeftToken() {

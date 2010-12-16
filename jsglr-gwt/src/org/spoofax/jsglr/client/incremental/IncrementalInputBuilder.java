@@ -13,6 +13,8 @@ import org.spoofax.jsglr.client.imploder.IAstNode;
 import org.spoofax.jsglr.client.imploder.IToken;
 
 /**
+ * Constructs an input string for incremental parsing.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class IncrementalInputBuilder {
@@ -46,18 +48,19 @@ public class IncrementalInputBuilder {
 	private int skippedCharsAfterDamage;
 
 	/**
+	 * Constructs an input string for incremental parsing.
+	 * 
 	 * @param incrementalSorts
 	 *            Sorts that can be incrementally parsed (e.g., MethodDec, ImportDec).
 	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
 	 */
-	public IncrementalInputBuilder(Set<String> incrementalSorts, String input, String oldInput,
-			int damageStart, int damageEnd, int damageSizeChange) {
-		this.incrementalSorts = incrementalSorts;
+	public IncrementalInputBuilder(DamageRegionAnalyzer damageAnalyzer, String input, String oldInput) {
+		this.incrementalSorts = damageAnalyzer.incrementalSorts;
 		this.newInput = input;
 		this.oldInput = oldInput;
-		this.damageEnd = damageEnd;
-		this.damageStart = damageStart;
-		this.damageSizeChange = damageSizeChange;
+		this.damageEnd = damageAnalyzer.damageEnd;
+		this.damageStart = damageAnalyzer.damageStart;
+		this.damageSizeChange = damageAnalyzer.damageSizeChange;
 	}
 
 	public String buildPartialInput(IAstNode oldTree) throws IncrementalSGLRException {

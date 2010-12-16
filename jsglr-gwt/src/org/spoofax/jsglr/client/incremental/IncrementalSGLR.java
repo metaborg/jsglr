@@ -50,28 +50,13 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	}
 	
 	/**
-	 * Attempts to incrementally parse an input,
-	 * or falls back to normal parsing if incremental parsing fails.
-	 */
-	public IAstNode tryParseIncremental(String input, String filename, String startSymbol, TNode oldTree)
-			throws TokenExpectedException, BadTokenException, ParseException, SGLRException {
-		
-		try {
-			return parseIncremental(input, filename, startSymbol, oldTree);
-		} catch (IncrementalSGLRException e) {
-			lastRepairedTreeNodesCount = -1;
-			return (IAstNode) parser.parse(input, startSymbol);
-		}
-	}
-	
-	/**
 	 * Incrementally parse an input.
 	 * 
 	 * @throws IncrementalSGLRException
 	 *             If the input could not be incrementally parsed.
 	 *             It may still be possible to parse it non-incrementally.
 	 */
-	public IAstNode parseIncremental(String newInput, String filename, String startSymbol, TNode oldTree)
+	public TNode parseIncremental(String newInput, String filename, String startSymbol, TNode oldTree)
 			throws TokenExpectedException, BadTokenException, ParseException, SGLRException, IncrementalSGLRException {
 		
 		String oldInput = oldTree.getLeftToken().getTokenizer().getInput();
@@ -86,23 +71,26 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 			return oldTree;
 		}
 		
+		DamageRegionAnalyzer damageAnalyzer =
+			new DamageRegionAnalyzer(this, damageStart, damageEnd, damageSizeChange);
+		
 		IncrementalInputBuilder inputBuilder =
-			new IncrementalInputBuilder(incrementalSorts, newInput, oldInput, damageStart, damageEnd, damageSizeChange);
+			new IncrementalInputBuilder(damageAnalyzer, newInput, oldInput);
 		
-		IncrementalTreeBuilder<TNode> treeBuilder =
-			new IncrementalTreeBuilder<TNode>(this, newInput, filename, damageStart, damageEnd, damageSizeChange);
-		
-		sanityCheckOldTree(oldTree, treeBuilder.getDamagedTreeNodes(oldTree));
+		sanityCheckOldTree(oldTree, damageAnalyzer.getDamageTreeNodes(oldTree));
 
 		String partialInput = inputBuilder.buildPartialInput(oldTree);
 		int skippedChars = inputBuilder.getLastSkippedCharsBeforeDamage();
 		IAstNode partialTree = (IAstNode) parser.parse(partialInput, startSymbol);
 		
-		List<IAstNode> repairedTreeNodes = treeBuilder.getRepairedTreeNodes(partialTree, skippedChars);
+		List<IAstNode> repairedTreeNodes = damageAnalyzer.getRepairedTreeNodes(partialTree, skippedChars);
 		lastRepairedTreeNodesCount = repairedTreeNodes.size();
 		sanityCheckRepairedTree(repairedTreeNodes);
+		
+		IncrementalTreeBuilder<TNode> treeBuilder =
+			new IncrementalTreeBuilder<TNode>(this, damageAnalyzer, newInput, filename, repairedTreeNodes, skippedChars);
 
-		return treeBuilder.buildOutput(oldTree, repairedTreeNodes, skippedChars);
+		return treeBuilder.buildOutput(oldTree);
 	}
 	
 	/**
@@ -149,7 +137,7 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	}
 
 	protected static boolean isRangeOverlap(int start1, int end1, int start2, int end2) {
-		return start1 < end2 && start2 < end1;
+		return start1 <= end2 && start2 <= end1; // e.g. testJava55
 	}
 
 	@SuppressWarnings("unchecked")

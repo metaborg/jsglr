@@ -89,10 +89,12 @@ public class Tokenizer implements ITokenizer {
 	}
 	
 	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
+		assert endOffset <= input.length();
 		if (!allowEmptyToken && startOffset > endOffset) // empty token
 			return null;
 		
-		assert endOffset + 1 >= startOffset || (kind == TK_RESERVED && startOffset == 0);
+		assert endOffset + 1 >= startOffset || (kind == TK_RESERVED && startOffset == 0)
+			: "Creating token ending before current start offset";
 		
 		int offset;
 		IToken token = null;
@@ -234,6 +236,20 @@ public class Tokenizer implements ITokenizer {
 		return token;
 	}
 	
+	public static IToken getTokenAfter(IToken token) {
+		if (token == null) return null;
+		return token.getTokenizer().getTokenAt(token.getIndex() + 1);
+	}
+	
+	public static IToken getTokenBefore(IToken token) {
+		if (token == null) return null;
+		return token.getTokenizer().getTokenAt(token.getIndex() - 1);
+	}
+	
+	public static int getLength(IToken token) {
+		return token.getEndOffset() - token.getStartOffset() + 1;
+	}
+	
 	public String toString(IToken left, IToken right) {
 		int startOffset = left.getStartOffset();
 		int endOffset = right.getEndOffset();
@@ -241,7 +257,7 @@ public class Tokenizer implements ITokenizer {
 	}
 
 	private String toString(int startOffset, int endOffset) {
-		return new StringBuilder(endOffset - startOffset + 1).append(input, startOffset, endOffset + 1).toString();
+		return input.substring(startOffset, endOffset + 1);
 	}
 	
 	@Override

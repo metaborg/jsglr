@@ -153,10 +153,15 @@ public abstract class ParseTestCase extends TestCase {
 			System.out.println(wanted.toString(8));
 	    	if (!newTree.simpleMatch(wanted))
 	    		fail();
+	    	doTokenStreamEqualityTest(oldTree, newTree);
 		} else {
 			System.out.println(newTree.toString(8));
 		}
     	return newTree;
+	}
+	
+	private void doTokenStreamEqualityTest(ATerm oldTree, ATerm newTree) {
+		System.out.println(newTree.getLeftToken().getTokenizer());
 	}
 
 	protected String loadAsString(final String testFile) {

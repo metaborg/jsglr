@@ -11,7 +11,7 @@ import org.spoofax.jsglr.shared.terms.ATerm;
  */
 public class TestIncrementalSGLR extends ParseTestCase {
 
-	private static ATerm java4Result, java5Result;
+	private static ATerm java4Result, java5Result, java8Result;
 	
     @Override
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
@@ -31,6 +31,11 @@ public class TestIncrementalSGLR extends ParseTestCase {
     	if (java5Result == null) java5Result = doParseTest("java5");
     	return java5Result;
     }
+    
+    private ATerm getJava8Result() {
+    	if (java8Result == null) java8Result = doParseTest("java8");
+    	return java8Result;
+    }
 
     public void testJava51() throws Exception {
     	doParseIncrementalTest(getJava5Result(), "java5-increment");
@@ -49,7 +54,10 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
     
     public void testJava55() throws Exception {
-    	doParseIncrementalTest(getJava5Result(), "java5-increment5");
+    	ATerm result = doParseIncrementalTest(getJava5Result(), "java5-increment5");
+    	assertFalse("There is no foo", result.toString().contains("\"foo\""));
+    	assertFalse("There is no baz", result.toString().contains("\"bar\""));
+    	assertTrue("There is only foobaz", result.toString().contains("\"foobaz\""));
     }
     
     public void testJava56() throws Exception {
@@ -73,6 +81,52 @@ public class TestIncrementalSGLR extends ParseTestCase {
     	}
     	fail("Exception expected");
     }
+    
+    public void testJava6Recovery() throws Exception {
+    	suffix = "java.recover";
+    	sglr.setUseStructureRecovery(true);
+    	doCompare = false;
+    	ATerm java6 = doParseTest("java6");
+    	ATerm java61 = doParseIncrementalTest(java6, "java6-increment");
+    	assertFalse(java6.toString().contains("baz"));
+    	assertTrue(java61.toString().contains("baz"));
+    	assertTrue(java61.getLeftToken().getTokenizer().toString().toString().contains("sense"));
+    }
+    
+    public void testJava7() throws Exception {
+    	ATerm java7 = doParseTest("java7");
+    	ATerm java7Increment = doParseIncrementalTest(java7, "java7-increment");
+    	assertTrue("Method bar should be outside of a comment", java7.toString().contains("\"bar\""));
+    	assertFalse("Method bar should be in a comment", java7Increment.toString().contains("\"bar\""));
+    }
+    
+    public void testJava8() throws Exception {
+    	ATerm java8 = getJava8Result();
+    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment");
+    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    }
+    
+    public void testJava82() throws Exception {
+    	ATerm java8 = getJava8Result();
+    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment2");
+    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    }
+    
+    public void testJava83() throws Exception {
+    	ATerm java8 = getJava8Result();
+    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment3");
+    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    }
+    
+    public void testJava84() throws Exception {
+    	ATerm java8 = getJava8Result();
+    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment4");
+    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    }
 
     public void testJava4() throws Exception {
     	doParseIncrementalTest(getJava4Result(), "java4-increment");
@@ -86,16 +140,6 @@ public class TestIncrementalSGLR extends ParseTestCase {
     		return;
     	}
     	fail("Exception expected");
-    }
-    
-    public void testJava6Recovery() throws Exception {
-    	suffix = "java.recover";
-    	sglr.setUseStructureRecovery(true);
-    	doCompare = false;
-    	ATerm java6 = doParseTest("java6");
-    	ATerm java61 = doParseIncrementalTest(java6, "java6-increment");
-    	assertFalse(java6.toString().contains("baz"));
-    	assertTrue(java61.toString().contains("baz"));
     }
 
 }

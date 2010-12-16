@@ -1,32 +1,36 @@
 package org.spoofax.jsglr.client.incremental;
 
+import static java.lang.Math.min;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
 import static org.spoofax.jsglr.client.imploder.Tokenizer.findLeftMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.Tokenizer.findRightMostLayoutToken;
-import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
+import static org.spoofax.jsglr.client.imploder.Tokenizer.getTokenAfter;
+import static org.spoofax.jsglr.client.imploder.Tokenizer.getTokenBefore;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.tryGetListIterator;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.IAstNode;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 
 /**
+ * Constructs the output tree based on the old tree and the list of repaired tree nodes.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	
-	private final SGLR parser;
-
-	private final String input;
-
-	private final String filename;
+	private static final int NO_STOP_OFFSET = Integer.MAX_VALUE;
 
 	private final ITreeFactory<TNode> factory;
 	
@@ -35,160 +39,158 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	private final int damageStart;
 
 	private final int damageEnd;
+
+	private final int skippedChars;
 	
 	private final int damageSizeChange;
+
+	private final List<IAstNode> repairedTreeNodes;
+
+	private final Tokenizer newTokenizer;
+
+	private final DamageRegionAnalyzer damageAnalyzer;
 	
 	private boolean isRepairedNodesInserted;
 
 	/**
-	 * @param incrementalSorts
-	 *            Sorts that can be incrementally parsed (e.g., MethodDec, ImportDec).
-	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
+	 * @param skippedChars @see {@link IncrementalInputBuilder#getLastSkippedCharsBeforeDamage()}
 	 */
-	public IncrementalTreeBuilder(IncrementalSGLR<TNode> parser, String input, String filename,
-			int damageStart, int damageEnd, int damageSizeChange) {
-		this.parser = parser.parser;
-		this.input = input;
-		this.filename = filename;
+	public IncrementalTreeBuilder(IncrementalSGLR<TNode> parser, DamageRegionAnalyzer damageAnalyzer,
+			String input, String filename, List<IAstNode> repairedTreeNodes, int skippedChars) {
+		this.damageAnalyzer = damageAnalyzer;
 		this.factory = parser.factory;
-		this.incrementalSorts = parser.incrementalSorts;
-		this.damageStart = damageStart;
-		this.damageEnd = damageEnd;
-		this.damageSizeChange = damageSizeChange;
+		this.incrementalSorts = damageAnalyzer.incrementalSorts;
+		this.damageStart = damageAnalyzer.damageStart;
+		this.damageEnd = damageAnalyzer.damageEnd;
+		this.skippedChars = skippedChars;
+		this.damageSizeChange = damageAnalyzer.damageSizeChange;
+		this.repairedTreeNodes = repairedTreeNodes;
+		this.newTokenizer = new Tokenizer(parser.parser.getParseTable().getKeywordRecognizer(), filename, input);
 	}
 	
 	/**
-	 * Gets all non-list tree nodes from the original tree
-	 * that are in the damaged region according to {@link #isDamageTreeNode}.
+	 * Builds the output tree based on the old tree and the list of repaired tree nodes.
 	 */
-	public List<IAstNode> getDamagedTreeNodes(IAstNode tree) {
-		return getDamagedRegionTreeNodes(tree, new ArrayList<IAstNode>(), true, 0);
-	}
-	
-	/**
-	 * Gets all non-list tree nodes from the partial result tree
-	 * that are in the damaged region according to {@link #isDamageTreeNode}.
-	 */
-	public List<IAstNode> getRepairedTreeNodes(IAstNode tree, int skippedChars) {
-		return getDamagedRegionTreeNodes(tree, new ArrayList<IAstNode>(), false, skippedChars);
-	}
-
-	private List<IAstNode> getDamagedRegionTreeNodes(IAstNode tree, List<IAstNode> results, boolean isOriginalTree, int skippedChars) {
-		if (!tree.isList() && isDamageTreeNode(tree, isOriginalTree, skippedChars)) {
-			results.add(tree);
-		} else {
-			// Recurse
-			Iterator<IAstNode> iterator = tryGetListIterator(tree); 
-			for (int i = 0, max = tree.getChildCount(); i < max; i++) {
-				IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
-				getDamagedRegionTreeNodes(child, results, isOriginalTree, skippedChars);
-			}
-		}
-		return results;
-	}
-
-	/**
-	 * Determines if the damaged region affects a particular tree node,
-	 * looking only at those tokens that actually belong to the node
-	 * and not to its children. Also returns true for nodes with a sort 
-	 * in {@link #incrementalSorts} regardless of whether they own the tokens
-	 * or not.
-	 */
-	protected boolean isDamageTreeNode(IAstNode tree, boolean isOriginalTree, int skippedChars) {
-		IToken current = findLeftMostLayoutToken(tree.getLeftToken());
-		IToken last = findRightMostLayoutToken(tree.getRightToken());
-		if (current != null && last != null) {
-			if (!isDamagedNonEmptyRange(
-					current.getStartOffset(), last.getEndOffset(), isOriginalTree, skippedChars))
-				return false;
-			if (incrementalSorts.contains(tree.getSort()))
-				return true;
-			Iterator<IAstNode> iterator = tryGetListIterator(tree); 
-			for (int i = 0, max = tree.getChildCount(); i < max; i++) {
-				IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
-				IToken childLeft = findLeftMostLayoutToken(child.getLeftToken());
-				IToken childRight = findRightMostLayoutToken(child.getRightToken());
-				if (childLeft != null && childRight != null) {
-					if (childLeft.getIndex() > current.getIndex()
-							&& isDamagedNonEmptyRange(
-									current.getStartOffset(), childLeft.getStartOffset() - 1,
-									isOriginalTree, skippedChars)) {
-						return true;
-					}
-					current = childRight;
-				}
-			}
-			return isDamagedNonEmptyRange(
-					current.getEndOffset() + 1, last.getEndOffset(), isOriginalTree, skippedChars);
-		} else {
-			return false;
-		}
-	}
-	
-	private boolean isDamagedNonEmptyRange(int startOffset, int endOffset,
-			boolean isOriginalTree, int skippedChars) {
-		// TODO: get rid of non-empty criterion?? at the very least for empty damage regions...
-		if (isOriginalTree) {
-			return /*endOffset >= startOffset
-				&&*/ isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
-		} else {
-			return /*endOffset >= startOffset
-				&&*/ isRangeOverlap(damageStart - skippedChars, damageEnd - skippedChars + damageSizeChange,
-						startOffset, endOffset);
-		}
-	}
-	
-	public TNode buildOutput(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes, int skippedChars) 
-			throws IncrementalSGLRException {
+	public TNode buildOutput(IAstNode oldTreeNode) throws IncrementalSGLRException {
 		isRepairedNodesInserted = false;
-		Tokenizer tokenizer =
-			new Tokenizer(parser.getParseTable().getKeywordRecognizer(), filename, input);
-		TNode result = buildOutputSubtree(oldTreeNode, repairedTreeNodes, skippedChars, tokenizer);
+		TNode result = buildOutputSubtree(oldTreeNode, 0);
 		if (!isRepairedNodesInserted)
 			throw new IncrementalSGLRException("Postcondition failed: unable to insert repaired tree nodes in original tree: " + repairedTreeNodes);
-		tokenizer.makeToken(tokenizer.getStartOffset() - 1, TK_EOF, true);
+		newTokenizer.makeToken(newTokenizer.getStartOffset() - 1, TK_EOF, true);
 		return result;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private TNode buildOutputSubtree(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes,
-			int skippedChars, Tokenizer tokenizer) {
-		// TODO: recreate tokens
+	private TNode buildOutputSubtree(IAstNode oldTreeNode, int offsetChange) {
 
-		IToken leftToken = tokenizer.currentToken();
-		List<IAstNode> children;
+		final List<IAstNode> children;
+		final IToken beforeStartToken = newTokenizer.currentToken();
+		IToken startToken = oldTreeNode.getLeftToken();
+		
+		// TODO: copy tokens before first child??
 		if (oldTreeNode.isList() && incrementalSorts.contains(oldTreeNode.getElementSort())) {
-			List<IAstNode> oldChildren = copyChildrenToList(oldTreeNode);
+			assert offsetChange == 0 : "Nested incrementalSorts lists?";
 			children = new ArrayList<IAstNode>(oldTreeNode.getChildCount() + repairedTreeNodes.size());
-			for (IAstNode oldChild : oldChildren) {
-				if (!isRepairedNodesInserted && oldChild.getRightToken().getEndOffset() >= damageStart) {
-					insertRepairedNodes(oldTreeNode, repairedTreeNodes, tokenizer, children);
+
+			Iterator<IAstNode> iterator = tryGetListIterator(oldTreeNode); 
+			for (int i = 0, max = oldTreeNode.getChildCount(); i < max; i++) {
+				IAstNode child = iterator == null ? oldTreeNode.getChildAt(i) : iterator.next();
+
+				copyTokensAndTryAddRepairedNodes(oldTreeNode, children, startToken, child.getLeftToken(), child.getRightToken());
+
+				if (!damageAnalyzer.isDamageTreeNode(child, true, skippedChars)) {
+					startToken = getTokenAfter(child.getRightToken());
+					children.add(buildOutputSubtree(child, offsetChange));
 				}
-				children.add(buildOutputSubtree(oldChild, repairedTreeNodes, skippedChars, tokenizer));
 			}
-			IToken endToken = Tokenizer.findRightMostLayoutToken(oldTreeNode.getRightToken());
-			if (!isRepairedNodesInserted && endToken.getEndOffset() >= damageStart - skippedChars) {
-				insertRepairedNodes(oldTreeNode, repairedTreeNodes, tokenizer, children);
-			}
+			IToken stopToken = getTokenAfter(findRightMostLayoutToken(oldTreeNode.getRightToken()));
+			copyTokensAndTryAddRepairedNodes(oldTreeNode, children, startToken, stopToken, stopToken);
 		} else {
 			children = copyChildrenToList(oldTreeNode);
 			for (int i = 0; i < children.size(); i++) {
-				children.set(i, buildOutputSubtree(children.get(i), repairedTreeNodes, skippedChars, tokenizer));
+				IAstNode child = children.get(i);
+				
+				int myOffsetChange = offsetChange + (isRepairedNodesInserted ? damageSizeChange : 0);
+				copyTokens(startToken, findLeftMostLayoutToken(child.getLeftToken()), NO_STOP_OFFSET/*child.getLeftToken().getEndOffset() + 1*/, myOffsetChange);
+				startToken = getTokenAfter(child.getRightToken());
+
+				children.set(i, buildOutputSubtree(child, offsetChange));
 			}
 		}
-		return factory.recreateNode((TNode) oldTreeNode, null, null, /*leftToken, tokenizer.currentToken()*/ (List<TNode>) children);
+		int myOffsetChange = offsetChange + (isRepairedNodesInserted ? damageSizeChange : 0);
+		IToken stopToken = getTokenAfter(oldTreeNode.getRightToken());
+		copyTokens(startToken, stopToken, NO_STOP_OFFSET/*stopToken.getEndOffset() + 1*/, myOffsetChange);
+		return buildOutputNode(oldTreeNode, children, beforeStartToken);
 	}
 
-	private void insertRepairedNodes(IAstNode oldTreeNode, List<IAstNode> repairedTreeNodes,
-			Tokenizer tokenizer, List<IAstNode> children) {
-		
-		isRepairedNodesInserted = true;
+	@SuppressWarnings("unchecked")
+	private TNode buildOutputNode(IAstNode oldTreeNode, List<IAstNode> children, IToken beforeStartToken) {
+		IToken startToken;
+		if (newTokenizer.currentToken() == beforeStartToken) {
+			startToken = newTokenizer.makeToken(newTokenizer.getStartOffset() - 1, TK_UNKNOWN, true);
+		} else {
+			startToken = getTokenAfter(beforeStartToken);
+		}
+		return factory.recreateNode((TNode) oldTreeNode, startToken, newTokenizer.currentToken(), (List<TNode>) children);
+	}
 
-		// TODO: recreate tokens
-		for (IAstNode node : repairedTreeNodes) {
-			// List<IAstNode> children = copy
-			// factory.recreateNode((TNode) oldTreeNode, leftToken, tokenizer.currentToken(), children)
-			children.add(node);
+	private void copyTokensAndTryAddRepairedNodes(IAstNode oldTreeNode, List<IAstNode> children,
+			IToken firstToken, IToken stopToken, IToken childEndToken) {
+		
+		if (!isRepairedNodesInserted && childEndToken.getEndOffset() >= damageStart) {
+			//copyTokens(firstToken, stopToken, damageStart, -skippedChars);
+			copyTokens(firstToken, stopToken, damageStart, 0);
+			insertRepairedNodes(oldTreeNode, children);
+			copyTokens(firstToken, stopToken, damageEnd - skippedChars /*+ 1*/, damageSizeChange);
+		} else {
+			copyTokens(firstToken, stopToken, damageStart, 0);
+		}
+	}
+
+	private void insertRepairedNodes(IAstNode oldTreeNode, List<IAstNode> children) {
+		if (repairedTreeNodes.size() > 0) {
+			IToken firstToken = getTokenBefore(repairedTreeNodes.get(0).getLeftToken());
+	
+			for (IAstNode node : repairedTreeNodes) {
+				copyTokens(firstToken, node.getLeftToken(), NO_STOP_OFFSET/*node.getLeftToken().getEndOffset() + 1*/, skippedChars);
+				firstToken = getTokenAfter(node.getRightToken());
+				
+				children.add(buildOutputSubtree(node, skippedChars));
+			}
+		}
+		isRepairedNodesInserted = true;
+	}
+	
+	/**
+	 * Copies tokens to {@link #newTokenizer}.
+	 * 
+	 * @param startToken
+	 *           Start copying at this token.
+	 * @param stopToken
+	 *           Stop copying just before this token.
+	 * @param stopOffset
+	 *           Stop copying just before this offset in the original token stream.
+	 * @param offsetChange
+	 *           The change in offset between the given tokens and the copied tokens in the new tokenizer.
+	 */
+	private void copyTokens(IToken startToken, IToken stopToken, int stopOffset, int offsetChange) {
+		ITokenizer fromTokenizer = startToken.getTokenizer();
+		assert fromTokenizer == stopToken.getTokenizer();
+		for (int i = findLeftMostLayoutToken(startToken).getIndex(), last = stopToken.getIndex(); i < last; i++) {
+			IToken fromToken = fromTokenizer.getTokenAt(i);
+			int myEndOffset = min(stopOffset, fromToken.getEndOffset()) + offsetChange;
+			IToken toToken = newTokenizer.makeToken(myEndOffset, fromToken.getKind(), isEssentialToken(fromToken));
+			assert toToken == null || myEndOffset < fromToken.getEndOffset() + offsetChange
+				|| toToken.toString().equals(fromToken.toString())
+				: "Expected '" + fromToken + "' in copied tokenstream, not '" + toToken + "'";
+		}
+	}
+	
+	private static boolean isEssentialToken(IToken token) {
+		switch (token.getKind()) {
+			case TK_ERROR: case TK_ERROR_EOF_UNEXPECTED: case TK_ERROR_KEYWORD:
+				return true;
+			default:
+				return false;
 		}
 	}
 

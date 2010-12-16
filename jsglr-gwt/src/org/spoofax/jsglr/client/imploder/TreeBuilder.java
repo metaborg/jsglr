@@ -90,7 +90,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		AbstractParseNode[] subnodes = node.getChildren();
 		
 		boolean lexicalStart = !inLexicalContext && label.isLexicalLiteralOrLayout();
-		if (lexicalStart) inLexicalContext = true;
+		if (lexicalStart)
+			inLexicalContext = true;
 		
 		if (!inLexicalContext
 				&& subnodes.length > 0 && subnodes[0] instanceof ParseProductionNode
@@ -110,14 +111,15 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 		// Recurse
 		for (AbstractParseNode subnode : subnodes) {
+			// TODO: Optimize stack - inline toTreeTopdown case selection?
 			Object child = subnode.toTreeTopdown(this);
 			if (child != null) children.add(child);
 		}
 		
 		if (lexicalStart || isVar) {
-			return createStringTerminal(label);
+			return tryCreateStringTerminal(label);
 		} else if (inLexicalContext) {
-			tokenizer.createLayoutToken(offset, lastOffset, label);
+			tokenizer.createLayoutToken(offset - 1, lastOffset - 1, label);
 			return null; // don't create tokens inside lexical context; just create one big token at the top
 		} else {
 			return createNodeOrInjection(label, prevToken, children);
@@ -152,10 +154,10 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 
 
-	private Object createStringTerminal(LabelInfo label) {
+	private Object tryCreateStringTerminal(LabelInfo label) {
 		inLexicalContext = false;
 		String sort = label.getSort();
-		IToken token = tokenizer.makeToken(offset, label, sort != null);
+		IToken token = tokenizer.makeToken(offset - 1, label, sort != null);
 		
 		if (sort == null) return null;
 		
@@ -172,7 +174,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 	
 	private Object createIntTerminal(LabelInfo label, AbstractParseNode[] contents) {
-		IToken token = tokenizer.makeToken(offset, label, true);
+		IToken token = tokenizer.makeToken(offset - 1, label, true);
 		int value = contents.length == 1 && contents[0] instanceof ParseProductionNode
 			? ((ParseProductionNode) contents[0]).prod : -1;
 		assert value != -1;
@@ -186,7 +188,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		if (label.isList()) {
 			return createNode(label, LIST_CONSTRUCTOR, prevToken, children);
 		} else if (constructor != null) {
-			tokenizer.makeToken(offset, label); // TODO: why makeToken here??
+			// UNDONE: tokenizer.makeToken(offset, label); // TODO: why makeToken here??
 			return createNode(label, constructor, prevToken, children);
 		} else if (label.getAstAttribute() != null) {
 			return createAstNonTerminal(label, prevToken, children);
@@ -285,7 +287,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			if (tokenizer.getTokenCount() - index <= 1) {
 				// Create new empty token
 				// HACK: Assume TK_LAYOUT kind for empty tokens in AST nodes
-				return tokenizer.makeToken(offset, IToken.TK_LAYOUT, true);
+				return tokenizer.makeToken(offset - 1, IToken.TK_LAYOUT, true);
 			} else {
 				return tokenizer.getTokenAt(index + 1); 
 			}
@@ -333,7 +335,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				// for later error reporting. (Cannot modify the immutable
 				// parse tree here; changing the original stream instead.)
 				inputChars[offset] = SKIPPED_CHAR;
-				tokenizer.createSkippedToken(offset, inputChar, prevChar);
+				tokenizer.createSkippedToken(offset - 1, inputChar, prevChar);
 				offset++;
 			} else {
 				// UNDONE: Strict lexical stream checking

@@ -16,6 +16,7 @@ import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.PathListPool;
 import org.spoofax.jsglr.client.PooledPathList;
 import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -105,6 +106,9 @@ public abstract class ParseTestCase extends TestCase {
 			doCompare(s, parsed);
 		} else {
 			System.out.println(parsed);
+			if (parsed.getLeftToken() != null) {
+				System.out.println(((Token) parsed.getLeftToken()).getTokenizer());
+			}
 		}
 
 		System.out.println(PathListPool.cacheMisses);

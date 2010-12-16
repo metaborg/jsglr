@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
@@ -59,7 +60,7 @@ public class ParseNode extends AbstractParseNode {
 
     @Override
     public String toString() {
-        return "regular(aprod(" + label + ")," + kids + ")";
+        return "regular(aprod(" + label + ")," + Arrays.toString(kids) + ")";
     }
 
     public int getLabel() {

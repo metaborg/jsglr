@@ -5,7 +5,7 @@ package org.spoofax.jsglr.client.imploder;
  */
 public class DummyTokenizer implements ITokenizer {
 	
-	private final IToken onlyToken = new Token(this, 0, 0, 0, IToken.TK_UNKNOWN);
+	private final IToken onlyToken = new Token(this, 0, 0, 0, 0, IToken.TK_UNKNOWN);
 	
 	private char[] inputChars;
 	
@@ -60,6 +60,10 @@ public class DummyTokenizer implements ITokenizer {
 
 	public void createLayoutToken(int offset, int lastOffset, LabelInfo label) {
 		// Do nothing
+	}
+	
+	public String toString(IToken left, IToken right) {
+		return "";
 	}
 
 }

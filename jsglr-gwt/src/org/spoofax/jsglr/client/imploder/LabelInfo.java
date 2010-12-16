@@ -128,4 +128,9 @@ public class LabelInfo {
 	public boolean isOptional() {
 		return reader.isOptional(getRHS());
 	}
+	
+	@Override
+	public String toString() {
+		return production.toString();
+	}
 }

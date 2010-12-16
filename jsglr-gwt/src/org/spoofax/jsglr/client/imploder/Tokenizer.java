@@ -1,5 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
+import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.IToken.*;
 
 import java.util.ArrayList;
@@ -15,16 +16,21 @@ public class Tokenizer implements ITokenizer {
 		new TokenKindManager();
 	
 	private char[] inputChars;
+
+	private ArrayList<IToken> tokens;
 	
 	/** Start of the next token. */
 	private int startOffset;
-
-	private ArrayList<IToken> tokens;
+	
+	/** Line number of the next token. */
+	private int line; // TODO: first line zero or one??
 	
 	public void initialize(char[] inputChars) {
 		this.inputChars = inputChars;
 		this.tokens = new ArrayList<IToken>(inputChars.length / EXPECTED_TOKENS_DIVIDER);
 		startOffset = 0;
+		// Ensure there's at least one token
+		tokens.add(new Token(this, 0, line, 0, -1, TK_RESERVED));
 	}
 	
 	public final char[] getInputChars() {
@@ -42,7 +48,7 @@ public class Tokenizer implements ITokenizer {
 	public IToken currentToken() {
 		return tokens.size() == 0
 			? null
-			:tokens.get(tokens.size() - 1);
+			: tokens.get(tokens.size() - 1);
 	}
 	
 	public int getTokenCount() {
@@ -53,8 +59,8 @@ public class Tokenizer implements ITokenizer {
 		return tokens.get(i);
 	}
 
-	public IToken makeToken(int offset, LabelInfo label) {
-		return makeToken(offset, label, false);
+	public IToken makeToken(int endOffset, LabelInfo label) {
+		return makeToken(endOffset, label, false);
 	}
 
 	public IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken) {
@@ -62,12 +68,34 @@ public class Tokenizer implements ITokenizer {
 	}
 	
 	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
-		if (!allowEmptyToken && startOffset >= endOffset) // empty token
+		if (!allowEmptyToken && startOffset > endOffset) // empty token
 			return null;
 		
 		assert endOffset >= startOffset || (kind == TK_RESERVED && startOffset == 0);
-		IToken result = new Token(this, tokens.size() - 1, endOffset, endOffset, kind);
+		
+		char[] chars = inputChars;
+		int offset;
+		IToken token = null;
+		for (offset = min(startOffset, endOffset); offset < endOffset; offset++) {
+			if (chars[offset] == '\n') {
+				if (offset - 1 > startOffset)
+					token = internalMakeToken(kind, offset - 1);
+				internalMakeToken(kind, offset); // newline
+			}
+		}
+		
+		if (token == null || offset <= endOffset) {
+			return internalMakeToken(kind, offset);
+		} else {
+			return token;
+		}
+	}
+
+	private IToken internalMakeToken(int kind, int offset) {
+		IToken result = new Token(this, tokens.size() - 1, line, startOffset, offset, kind);
 		tokens.add(result);
+		startOffset = offset + 1;
+		line++;
 		return result;
 	}
 
@@ -77,18 +105,19 @@ public class Tokenizer implements ITokenizer {
 	 * Required for keyword highlighting with {@link KeywordRecognizer}.
 	 */
 	public IToken createSkippedToken(int offset, char inputChar, char prevChar) {
+		// FIXME: off-by-one errors?? offset passed is now offset - 1 c.f. old SGLRTokenizer
 		boolean isInputKeywordChar = isKeywordChar(inputChar);
-		if (offset > 0 && offset - 1 > getStartOffset()) {
+		if (offset > 0 && offset > getStartOffset()) {
 			if ((isInputKeywordChar && !isKeywordChar(prevChar))
 					|| (!isInputKeywordChar && isKeywordChar(prevChar))) {
-				return makeToken(offset - 1, TK_ERROR, false);
+				return makeToken(offset, TK_ERROR, false);
 			}
 		}
-		if (offset + 1 < inputChars.length) {
-			char nextChar = inputChars[offset + 1];
+		if (offset + 2 < inputChars.length) {
+			char nextChar = inputChars[offset + 2];
 			if ((isInputKeywordChar && !isKeywordChar(nextChar))
 					|| (!isInputKeywordChar && isKeywordChar(nextChar))) {
-				return makeToken(offset + 1, TK_ERROR, false);
+				return makeToken(offset + 2, TK_ERROR, false);
 			}
 		}
 		return null;
@@ -120,6 +149,26 @@ public class Tokenizer implements ITokenizer {
 				makeToken(offset, TK_ERROR, false);
 			}
 		}
+	}
+	
+	public String toString(IToken left, IToken right) {
+		int offset = left.getStartOffset();
+		return new String(inputChars, offset, right.getEndOffset() - offset + 1);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		result.append('[');
+		for (IToken token : tokens) {
+			int offset = token.getStartOffset();
+			result.append(inputChars, offset, token.getEndOffset() - offset + 1);
+			result.append(',');
+		}
+		if (tokens.size() > 0)
+			result.deleteCharAt(result.length() - 1);
+		result.append(']');
+		return result.toString();
 	}
 
 }

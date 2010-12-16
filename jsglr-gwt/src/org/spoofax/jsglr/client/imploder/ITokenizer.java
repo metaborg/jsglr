@@ -39,4 +39,6 @@ public interface ITokenizer {
 	 */
 	void createLayoutToken(int offset, int lastOffset, LabelInfo label);
 
+	String toString(IToken left, IToken right);
+
 }

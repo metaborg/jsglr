@@ -105,4 +105,17 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 		sb.append(']');
 		return sb.toString();
 	}
+
+	@Override
+	protected boolean simpleMatch(ATerm t) {
+		if(!(t instanceof ATermList))
+			return false;
+		ATermList o = (ATermList)t;
+		if(elements.length != o.elements.length)
+			return false;
+		for(int i = 0; i < elements.length; i++)
+			if(!o.elements[i].simpleMatch(elements[i]))
+				return false;
+		return true;
+	}
 }

@@ -60,4 +60,17 @@ public class ATermAppl extends ATerm {
 		return sb.toString();
 	}
 
+	@Override
+	protected boolean simpleMatch(ATerm t) {
+		if(!(t instanceof ATermAppl))
+			return false;
+		ATermAppl o = (ATermAppl)t;
+		if(o.kids.length != kids.length)
+			return false;
+		for(int i = 0; i < kids.length; i++)
+			if(!kids[i].simpleMatch(o.kids[i]))
+				return false;
+		return ctor.equals(o.ctor);
+	}
+
 }

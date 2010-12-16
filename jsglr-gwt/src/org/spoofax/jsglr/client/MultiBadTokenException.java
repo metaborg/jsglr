@@ -47,4 +47,5 @@ public class MultiBadTokenException extends BadTokenException {
         if (causes != null && !causes.isEmpty()) return causes.iterator().next();
         return null;
     }
+    
 }

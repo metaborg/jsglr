@@ -36,4 +36,12 @@ public class ATermInt extends ATerm {
 	public String toString() {
 		return Integer.toString(value);
 	}
+
+	@Override
+	protected boolean simpleMatch(ATerm t) {
+		if(!(t instanceof ATermInt))
+			return false;
+		ATermInt a = (ATermInt)t;
+		return a.value == value;
+	}
 }

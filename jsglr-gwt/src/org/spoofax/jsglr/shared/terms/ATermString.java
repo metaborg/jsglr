@@ -32,4 +32,12 @@ public class ATermString extends ATerm {
 	public String toString() {
 		return "\"" + value + "\"";
 	}
+
+	@Override
+	protected boolean simpleMatch(ATerm t) {
+		if(!(t instanceof ATermString))
+			return false;
+		ATermString o = (ATermString)t;
+		return o.value.equals(value);
+	}
 }

@@ -24,4 +24,11 @@ public class AFun implements Serializable {
 		return name;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof AFun))
+			return false;
+		AFun o = (AFun)obj;
+		return o.arity == arity && o.name.equals(name);
+	}
 }

@@ -27,4 +27,17 @@ public class ATermTuple extends ATerm {
 		return ATerm.TUPLE;
 	}
 
+	@Override
+	protected boolean simpleMatch(ATerm t) {
+		if(!(t instanceof ATermTuple))
+			return false;
+		ATermTuple o = (ATermTuple)t;
+		if(elements.length != o.elements.length)
+			return false;
+		for(int i = 0; i < elements.length; i++)
+			if(elements[i].equals(o.elements[i]))
+					return false;
+		return true;
+	}
+
 }

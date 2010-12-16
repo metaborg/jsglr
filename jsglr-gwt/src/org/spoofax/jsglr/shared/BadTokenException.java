@@ -44,10 +44,17 @@ public class BadTokenException extends SGLRException {
         if (isEOFToken())
             return "Unexpected end of file";
         else
-            return "Syntax error near unexpected character '" + (char) token + "'";
+            return "Syntax error near unexpected character '" + escape(token) + "'";
     }
 
-    public BadTokenException(SGLR parser, int token, int offset, int lineNumber, int columnNumber) {
+    private String escape(int ch) {
+    	switch(ch) {
+    	case 0: return "\\0";
+    	default: return ""+ch;
+    	}
+	}
+
+	public BadTokenException(SGLR parser, int token, int offset, int lineNumber, int columnNumber) {
         super(parser);
         this.token = token;
         this.offset = offset;
@@ -68,5 +75,10 @@ public class BadTokenException extends SGLRException {
             factory.makeInt(getOffset() + 1),
             factory.makeInt(0)
         );
+    }
+    
+    @Override
+    public String toString() {
+    	return getMessage();
     }
 }

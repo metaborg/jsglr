@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.shared.terms;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.spoofax.jsglr.client.NotImplementedException;
@@ -35,8 +36,15 @@ public abstract class ATerm implements Serializable {
 	}
 
 	public List match(String termAsString) throws ParseError {
-		throw new NotImplementedException();
+		ATerm t = factory.parse(termAsString);
+		if(t.simpleMatch(t)) {
+			return new LinkedList();
+		} else {
+			return null;
+		}
 	}
+
+	protected abstract boolean simpleMatch(ATerm t);
 
 	public boolean match(ATerm litStringAppl) {
 		throw new NotImplementedException();

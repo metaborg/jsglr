@@ -8,7 +8,6 @@ public class PushbackStringIterator {
 	public PushbackStringIterator(String data) {
 		this.data = data;
 		position = 0;
-		
 	}
 	
 	public int read() {

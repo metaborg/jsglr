@@ -3,6 +3,7 @@ package org.spoofax.jsglr.client.incremental;
 import static org.spoofax.jsglr.shared.Tools.termAt;
 import static org.spoofax.jsglr.shared.terms.ATerm.APPL;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.spoofax.jsglr.client.Label;
@@ -13,8 +14,6 @@ import org.spoofax.jsglr.shared.terms.ATermAppl;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
 import org.spoofax.jsglr.shared.terms.ATermList;
 import org.spoofax.jsglr.shared.terms.ATermString;
-
-import com.google.gwt.dev.util.collect.HashSet;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

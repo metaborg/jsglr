@@ -2,8 +2,6 @@ package org.spoofax.jsglr.shared.terms;
 
 import java.io.IOException;
 
-import org.spoofax.jsglr.client.NotImplementedException;
-
 public class ATermInt extends ATerm {
 
 	private static final long serialVersionUID = 1L;

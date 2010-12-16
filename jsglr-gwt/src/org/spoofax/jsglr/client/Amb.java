@@ -17,17 +17,17 @@ import org.spoofax.jsglr.shared.terms.ATermList;
 
 public class Amb extends AbstractParseNode {
 
-    private final List<AbstractParseNode> alternatives;
+    private final AbstractParseNode[] alternatives;
 
     private int cachedHashCode = NO_HASH_CODE;
 
     Amb(AbstractParseNode left, AbstractParseNode right) {
-        alternatives = new ArrayList<AbstractParseNode>(2);
-        alternatives.add(left);
-        alternatives.add(right);
+        alternatives = new AbstractParseNode[2];
+        alternatives[0] = left;
+        alternatives[1] = right;
     }
 
-    public Amb(List<AbstractParseNode> alternatives) {
+    public Amb(AbstractParseNode[] alternatives) {
         this.alternatives = alternatives;
     }
 
@@ -43,8 +43,8 @@ public class Amb extends AbstractParseNode {
     private ATermList addToParseTree(ParseTable pt, ATermFactory factory,
             ATermList list) {
 
-        for (int i = alternatives.size() - 1; i >= 0; i--) {
-            AbstractParseNode alt = alternatives.get(i);
+        for (int i = alternatives.length - 1; i >= 0; i--) {
+            AbstractParseNode alt = alternatives[i];
             if (alt instanceof Amb) {
                 list = ((Amb) alt).addToParseTree(pt, factory, list);
             } else {
@@ -63,7 +63,7 @@ public class Amb extends AbstractParseNode {
         throw new NotImplementedException();
     }
 
-    public List<AbstractParseNode> getAlternatives() {
+    public AbstractParseNode[] getAlternatives() {
         return alternatives;
     }
 
@@ -74,11 +74,11 @@ public class Amb extends AbstractParseNode {
         if (obj == this)
             return true;
         Amb o = (Amb)obj;
-        if(o.alternatives.size() != alternatives.size()
+        if(o.alternatives.length != alternatives.length
                 || o.hashCode() != hashCode())
             return false;
-        for(int i=0;i<alternatives.size();i++)
-            if(!alternatives.get(i).equals(o.alternatives.get(i)))
+        for(int i = 0; i < alternatives.length; i++)
+            if(!alternatives[i].equals(o.alternatives[i]))
                 return false;
         return true;
     }

@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -56,12 +55,6 @@ public class ParseNode extends AbstractParseNode {
     }
 
     public int getLabel() { return label; }
-
-    @Deprecated
-    public List<AbstractParseNode> getKids() {
-    	// FIXME remove this method; should return the kids directly
-    	return Arrays.asList(kids);
-    }
 
     @Override
     public boolean equals(Object obj) {

@@ -443,7 +443,7 @@ public class Disambiguator {
 				}
 			}
 		}
-		return newArgs;
+		return newArgs == null ? args : newArgs;
 	}
 
 	private static AbstractParseNode[] cloneArrayUpToIndex(AbstractParseNode[] args, int index) {

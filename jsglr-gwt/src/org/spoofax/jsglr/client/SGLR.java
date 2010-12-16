@@ -385,7 +385,7 @@ public class SGLR {
     private void parseCharacter() {
         logBeforeParseCharacter();
 
-        ArrayDeque<Frame> actives = new ArrayDeque<Frame>(activeStacks); // FIXME avoid garbage
+        ArrayDeque<Frame> actives = new ArrayDeque<Frame>(activeStacks); // FIXME avoid garbage -- singleton 'actives', since parseCharacter isn't recursive
         clearForActorDelayed();
         clearForShifter();
         while (actives.size() > 0 || forActor.size() > 0) {

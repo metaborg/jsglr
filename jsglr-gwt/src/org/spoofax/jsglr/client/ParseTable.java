@@ -73,6 +73,14 @@ public class ParseTable implements Serializable {
 
     private transient Map<Label, List<Priority>> priorityCache;
 
+    private static final ParseProductionNode[] productionNodes = new ParseProductionNode[256 + 1];
+    
+    static {
+    	for(int i = 0; i < productionNodes.length; i++) {
+    		productionNodes[i] = new ParseProductionNode(i);
+    	}
+    }
+                                             
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         initAFuns(pt.getFactory());
         parse(pt);
@@ -583,7 +591,7 @@ public class ParseTable implements Serializable {
     }
 
     public AbstractParseNode lookupProduction(int currentToken) {
-        return new ParseProductionNode(currentToken);
+    	return productionNodes[currentToken];
     }
 
     public ATerm getProduction(int prod) {

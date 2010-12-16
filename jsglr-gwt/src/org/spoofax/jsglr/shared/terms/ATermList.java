@@ -36,8 +36,9 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	@Override
 	public ATerm getChildAt(int index) {
 		ATermList l = this;
-		for(int i = 0; i < index; i++) 
+		for(int i = 0; i < index; i++) {
 			l = l.next;
+		}
 		return l.element;
 	}
 
@@ -64,25 +65,21 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 			this.underlying = underlying;
 		}
 
-		@Override
 		public boolean hasNext() {
 			return underlying.element != null;
 		}
 
-		@Override
 		public ATerm next() {
-			ATerm e = underlying.element;
+			final ATerm e = underlying.element;
 			underlying = underlying.next;
 			return e;
 		}
 
-		@Override
 		public void remove() {
 			throw new RuntimeException("Not supported");
 		}
 	}
 
-	@Override
 	public Iterator<ATerm> iterator() {
 		return new ATermListIterator(this);
 	}
@@ -91,14 +88,15 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	protected void toString(int depth, StringBuilder sb) {
 		if(depth == 0) {
 			sb.append("...");
-		} else { 
+		} else {
 			sb.append('[');
 			ATermList l = this;
 			while(l.element != null) {
 				l.element.toString(depth - 1, sb);
 				l = l.next;
-				if(l.element != null)
+				if(l.element != null) {
 					sb.append(",");
+				}
 			}
 			sb.append(']');
 		}
@@ -106,17 +104,21 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 
 	@Override
 	public boolean simpleMatch(ATerm t) {
-		if(!(t instanceof ATermList))
+		if(!(t instanceof ATermList)) {
 			return false;
+		}
 		ATermList a = (ATermList)t;
-		ATermList b = (ATermList)t;		
+		ATermList b = (ATermList)t;
 		do {
-			if(a.element == null && b.element == null)
+			if(a.element == null && b.element == null) {
 				return true;
-			if(a.element == null)
+			}
+			if(a.element == null) {
 				return false;
-			if(!a.element.equals(b.element))
+			}
+			if(!a.element.equals(b.element)) {
 				return false;
+			}
 			a = a.next;
 			b = b.next;
 		} while(true);

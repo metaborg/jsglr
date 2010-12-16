@@ -23,50 +23,49 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class JSGLREntryPoint implements EntryPoint {
 
 	private void fetchParseTable(String parseTable) {
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, parseTable);
+		final RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, parseTable);
 		try {
 			builder.sendRequest( null,  new RequestCallback() {
 				public void onError(Request request, Throwable exception)
-				{ 
-					GWT.log( "error", exception ); 
+				{
+					GWT.log( "error", exception );
 				}
-				@Override
 				public void onResponseReceived(Request request, Response response) {
 					parseAndGo(response.getText());
 				}
 			});
-		} catch (RequestException e) { 
-			GWT.log( "error", e); 
+		} catch (final RequestException e) {
+			GWT.log( "error", e);
 		}
 	}
-	@Override
+
 	public void onModuleLoad() {
 		RootPanel.get().add(new Label("Loading parse table from server"));
 		fetchParseTable("/Stratego.tbl");
-//		RemoteParseTableServiceAsync rpts = GWT.create(RemoteParseTableService.class);
-//		rpts.fetchParseTable("Stratego2.tbl", new AsyncCallback<ATerm>() {
-//
-//			@Override
-//			public void onSuccess(ATerm result) {
-//				parseAndGo(result);
-//			}
-//
-//			@Override
-//			public void onFailure(Throwable caught) {
-//				RootPanel.get().add(new Label("Failed to fetch parse table"));
-//			}
-//		});
+		//		RemoteParseTableServiceAsync rpts = GWT.create(RemoteParseTableService.class);
+		//		rpts.fetchParseTable("Stratego2.tbl", new AsyncCallback<ATerm>() {
+		//
+		//			@Override
+		//			public void onSuccess(ATerm result) {
+		//				parseAndGo(result);
+		//			}
+		//
+		//			@Override
+		//			public void onFailure(Throwable caught) {
+		//				RootPanel.get().add(new Label("Failed to fetch parse table"));
+		//			}
+		//		});
 	}
 
 	private void parseAndGo(String table) {
 		try {
 			System.out.println(table.length());
-			ATermFactory af = new ATermFactory();
-			ATerm pt = af.parse(table);
+			final ATermFactory af = new ATermFactory();
+			final ATerm pt = af.parse(table);
 			System.out.println(pt.toString().length());
-			SGLR sglr = new SGLR(af, new ParseTable(pt));
+			final SGLR sglr = new SGLR(af, new ParseTable(pt));
 			long now = System.currentTimeMillis();
-			ATerm r = (ATerm) sglr.parse(strategoSampleCode());
+			final ATerm r = (ATerm) sglr.parse(strategoSampleCode());
 			now = System.currentTimeMillis() - now;
 			if(r != null) {
 				RootPanel.get().add(new Label(r.toString()));
@@ -74,15 +73,15 @@ public class JSGLREntryPoint implements EntryPoint {
 			} else {
 				RootPanel.get().add(new Label("Parsing failed"));
 			}
-		} catch (InvalidParseTableException e) {
+		} catch (final InvalidParseTableException e) {
 			wrap(e);
-		} catch (TokenExpectedException e) {
+		} catch (final TokenExpectedException e) {
 			wrap(e);
-		} catch (BadTokenException e) {
+		} catch (final BadTokenException e) {
 			wrap(e);
-		} catch (ParseException e) {
+		} catch (final ParseException e) {
 			wrap(e);
-		} catch (SGLRException e) {
+		} catch (final SGLRException e) {
 			wrap(e);
 		}
 
@@ -97,16 +96,16 @@ public class JSGLREntryPoint implements EntryPoint {
 		"imports\n" +
 		"  include/Stratify\n" +
 		"strategies\n" +
-		"collect-meta-prop =\n" + 
-		"         ?Prop(n, v)\n" + 
-		"       ; rules(meta-prop : n -> v)\n" + 
-		"       ; <debug> (\"registered\", n, \"->\", v)\n" + 
+		"collect-meta-prop =\n" +
+		"         ?Prop(n, v)\n" +
+		"       ; rules(meta-prop : n -> v)\n" +
+		"       ; <debug> (\"registered\", n, \"->\", v)\n" +
 		"       ; <meta-prop> n\n" +
-		"       ; <debug> (\"looked up\", n, \"->\", <id>)\n" + 
-		" apply-with-props(s | props) =\n" + 
+		"       ; <debug> (\"looked up\", n, \"->\", <id>)\n" +
+		" apply-with-props(s | props) =\n" +
 		"        {meta-props:\n" +
-		"              where(<map(collect-meta-prop)> props)\n" + 
-		"          ; s\n" + 
+		"              where(<map(collect-meta-prop)> props)\n" +
+		"          ; s\n" +
 		"        }\n" +
 		" string-join(|c) =\n" +
 		"          <foldl(\\(x,y) -> <concat-strings> [y, c, x]\\)> (<id>, \"\")\n" +

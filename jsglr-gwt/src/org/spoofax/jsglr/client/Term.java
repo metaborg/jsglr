@@ -7,11 +7,8 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.List;
-
 import org.spoofax.jsglr.shared.terms.ATerm;
 import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
 import org.spoofax.jsglr.shared.terms.ATermInt;
 import org.spoofax.jsglr.shared.terms.ATermList;
 

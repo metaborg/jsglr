@@ -204,12 +204,12 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    @SuppressWarnings("rawtypes")
     private boolean isInjection(ATermAppl prod) {
 
-//        injection1Appl = factory.parse("prod([<term>],cf(<term>),<term>)");
-//        injection2Appl = factory.parse("prod([<term>],lex(sort(<str>)),<term>)");
-//        litStringAppl = factory.parse("lit(<str>)");
+    	// Injections are terms on the following form:
+    	//  . prod([<term>],cf(<term>),<term>)
+    	//  . prod([<term>],lex(sort(<str>)),<term>)
+    	//  . lit(<str>)
 
         if(!prod.getAFun().getName().equals("prod"))
         	return false;

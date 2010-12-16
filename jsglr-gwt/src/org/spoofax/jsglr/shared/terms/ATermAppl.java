@@ -1,7 +1,5 @@
 package org.spoofax.jsglr.shared.terms;
 
-import java.util.List;
-
 import org.spoofax.jsglr.client.NotImplementedException;
 
 public class ATermAppl extends ATerm {

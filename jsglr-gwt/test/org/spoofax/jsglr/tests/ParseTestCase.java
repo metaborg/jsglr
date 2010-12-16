@@ -12,10 +12,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.spoofax.jsglr.FileTools;
-import org.spoofax.jsglr.client.Frame;
 import org.spoofax.jsglr.client.InvalidParseTableException;
-import org.spoofax.jsglr.client.ParsePrefer;
-import org.spoofax.jsglr.client.ParseProductionNode;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.Path;

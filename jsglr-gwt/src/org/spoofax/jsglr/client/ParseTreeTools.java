@@ -17,13 +17,12 @@ public class ParseTreeTools {
 	private final static int TERM_CONS = 0;
 	private final static int CONS_NAME = 0;
 
-	private AFun parsetreeFun;
-	private AFun applFun;
-	private AFun termFun;
-	private AFun prodFun;
-	private AFun noattrsFun;
-	private AFun attrsFun;
-	private AFun consFun;
+	private final AFun parsetreeFun;
+	private final AFun applFun;
+	private final AFun termFun;
+	private final AFun prodFun;
+	private final AFun noattrsFun;
+	private final AFun consFun;
 
 	public ParseTreeTools(ATermFactory factory) {
 		super();
@@ -31,7 +30,6 @@ public class ParseTreeTools {
 		applFun = factory.makeAFun("appl", 2, false);
 		prodFun = factory.makeAFun("prod", 3, false);
 		noattrsFun = factory.makeAFun("no-attrs", 0, false);
-		attrsFun = factory.makeAFun("attrs", 1, false);
 		termFun = factory.makeAFun("term", 1, false);
 		consFun = factory.makeAFun("cons", 1, false);
 	}

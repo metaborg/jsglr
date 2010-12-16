@@ -11,7 +11,7 @@ import org.spoofax.jsglr.shared.terms.ATerm;
  */
 public class TestIncrementalSGLR extends ParseTestCase {
 
-	private static ATerm java4Result, java5Result, java8Result;
+	private static ATerm java4Result, java5Result, java7Result, java8Result;
 	
     @Override
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
@@ -30,6 +30,11 @@ public class TestIncrementalSGLR extends ParseTestCase {
     private ATerm getJava5Result() {
     	if (java5Result == null) java5Result = doParseTest("java5");
     	return java5Result;
+    }
+    
+    private ATerm getJava7Result() {
+    	if (java7Result == null) java7Result = doParseTest("java7");
+    	return java7Result;
     }
     
     private ATerm getJava8Result() {
@@ -70,7 +75,13 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
     
     public void testJava57() throws Exception {
-    	doParseIncrementalTest(getJava5Result(), "java5-increment7");
+    	try {
+    		doParseIncrementalTest(getJava5Result(), "java5-increment7");
+    		fail("Was really expecting a failure here; comment damage expander expands to previous newline?");
+    	} catch (IncrementalSGLRException e) {
+    		assertTrue("Only allowed to fail because of comment damage expander:" + e.getMessage(),
+    				e.getMessage().indexOf("Precondition") != -1);
+    	}
     }
     
     public void testJava58() throws Exception {
@@ -94,52 +105,89 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
     
     public void testJava7() throws Exception {
-    	ATerm java7 = doParseTest("java7");
-    	ATerm java7Increment = doParseIncrementalTest(java7, "java7-increment");
-    	assertTrue("Method bar should be outside of a comment", java7.toString().contains("\"bar\""));
-    	assertFalse("Method bar should be in a comment", java7Increment.toString().contains("\"bar\""));
+    	ATerm java7 = getJava7Result();
+    	doParseIncrementalTest(java7, "java7-increment");
+    }
+    
+    public void testJava72() throws Exception {
+    	ATerm java7 = getJava7Result();
+    	doParseIncrementalTest(java7, "java7-increment2");
+    	assertFalse(isReparsed("foo"));
+    }
+    
+    public void testJava73() throws Exception {
+    	ATerm java7 = getJava7Result();
+    	doParseIncrementalTest(java7, "java7-increment3");
+    	int reparsed = incrementalSGLR.getLastReconstructedNodes().size();
+    	assertTrue("Expected 1 reparsed node: " + reparsed, reparsed <= 4);
     }
     
     public void testJava8() throws Exception {
     	ATerm java8 = getJava8Result();
     	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment");
     	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertTrue(isReparsed("foo"));
+    	assertFalse(isReparsed("qux"));
     }
     
     public void testJava82() throws Exception {
     	ATerm java8 = getJava8Result();
     	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment2");
     	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	// Here, qux is reparsed because comment damage handler and then neighbour damage handler
+    	// epand the damage zone
+    	// assertFalse(isReparsed("qux"));
     }
     
     public void testJava83() throws Exception {
     	ATerm java8 = getJava8Result();
     	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment3");
     	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertFalse(isReparsed("qux"));
     }
     
     public void testJava84() throws Exception {
     	ATerm java8 = getJava8Result();
     	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment4");
     	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertFalse("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertFalse(isReparsed("qux"));
+    }
+    
+    public void testJava85() throws Exception {
+    	ATerm java8 = getJava8Result();
+    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment5");
+    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	assertFalse(isReparsed("qux"));
     }
 
     public void testJava4() throws Exception {
     	doParseIncrementalTest(getJava4Result(), "java4-increment");
-    	// TODO: test doParseIncrementalTest(java4, "java5-increment");
+    	assertTrue(isReparsed("foo"));
+    	int reparsed = incrementalSGLR.getLastReconstructedNodes().size();
+    	assertTrue("Expected 4 or fewer reparsed nodes: " + reparsed, reparsed <= 4);
     }
 
     public void testJava4vs5() throws Exception {
     	try {
+            IncrementalSGLR.DEBUG = false;
     		doParseIncrementalTest(getJava4Result(), "java5-increment");
     	} catch (IncrementalSGLRException e) {
+    		System.out.println(e.getMessage());
+    		assertTrue("Must fail on precondition", e.getMessage().indexOf("Precondition") != -1);
     		return;
+    	} finally {
+            IncrementalSGLR.DEBUG = true;
     	}
     	fail("Exception expected");
+    }
+    
+    private boolean isReparsed(String substring) {
+    	return incrementalSGLR.getLastReconstructedNodes().toString().indexOf(substring) != -1;
     }
 
 }

@@ -120,7 +120,7 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 		}
 	}
 
-	public String getStringTerminalValue(ATerm node) {
+	public String tryGetStringValue(ATerm node) {
 		return node.getType() == ATerm.STRING ? ((ATermString) node).getString() : null;
 	}
 
@@ -154,5 +154,13 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 
 	public IToken getRightToken(ATerm node) {
 		return node.getRightToken();
+	}
+	
+	public Iterable<ATerm> tryGetAmbChildren(ATerm node) {
+		if (node.getType() == APPL && "amb".equals(((ATermAppl) node).getName())) {
+			return (ATermList) node.getChildAt(0);
+		} else {
+			return null;
+		}
 	}
 }

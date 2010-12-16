@@ -9,15 +9,18 @@ import java.util.Iterator;
  */
 public class DummyTokenizer implements ITokenizer {
 	
-	private final IToken onlyToken = new Token(this, 0, 0, 0, 0, 0, IToken.TK_UNKNOWN);
+	private final IToken onlyToken;
 
 	private final String filename;
 	
 	private final String input;
 	
+	private boolean isAmbiguous;
+	
 	public DummyTokenizer(String filename, String input) {
 		this.filename = filename;
 		this.input = input;
+		onlyToken = new Token(this, 0, 0, 0, 0, input.length() - 1, IToken.TK_UNKNOWN);
 	}
 	
 	public String getFilename() {
@@ -45,6 +48,10 @@ public class DummyTokenizer implements ITokenizer {
 	}
 
 	public IToken getTokenAt(int i) {
+		return onlyToken;
+	}
+	
+	public IToken getTokenAtOffset(int o) {
 		return onlyToken;
 	}
 
@@ -76,5 +83,13 @@ public class DummyTokenizer implements ITokenizer {
 		ArrayList<IToken> result = new ArrayList<IToken>(1);
 		result.add(onlyToken);
 		return result.iterator();
+	}
+
+	public boolean isAmbigous() {
+		return isAmbiguous;
+	}
+
+	public void setAmbiguous(boolean isAmbiguous) {
+		this.isAmbiguous = isAmbiguous;
 	}
 }

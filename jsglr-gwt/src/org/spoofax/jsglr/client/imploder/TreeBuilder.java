@@ -235,6 +235,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		final AbstractParseNode[] subnodes = a.getAlternatives();
 		final ArrayList<Object> children =
 			new ArrayList<Object>(max(EXPECTED_NODE_CHILDREN, subnodes.length));
+		tokenizer.setAmbiguous(true);
 
 		// Recurse
 		for (AbstractParseNode subnode : subnodes) {
@@ -354,7 +355,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return factory.createList(label.getSort(), left, right, children);
 		} else if (constructor == TUPLE_CONSTRUCTOR) {
 			return factory.createTuple(label.getSort(), left, right, children);
-		} else if (constructor == null && children.size() == 1 && factory.getStringTerminalValue(children.get(0)) != null) {
+		} else if (constructor == null && children.size() == 1 && factory.tryGetStringValue(children.get(0)) != null) {
 			// Child node was a <string> node (rare case); unpack it and create a new terminal
 			assert left == right;
 			return factory.createStringTerminal(label.getSort(), getPaddedLexicalValue(label, left), left);

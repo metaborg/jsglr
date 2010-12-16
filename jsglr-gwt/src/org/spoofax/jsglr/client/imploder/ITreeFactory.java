@@ -12,7 +12,7 @@ import org.spoofax.jsglr.client.ITreeBuilder;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface ITreeFactory<TNode> {
+public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 
 	/**
 	 * Create a new non-terminal node (or a terminal with only a constructor).
@@ -54,24 +54,4 @@ public interface ITreeFactory<TNode> {
 	 * Create an injection node.
 	 */
 	TNode createInjection(String sort, List<TNode> children);
-	
-	/**
-	 * Gets the string value of a string terminal, or returns null.
-	 */
-	String getStringTerminalValue(TNode node);
-	
-	/**
-	 * Gets the children of a node.
-	 */
-	Iterable<TNode> getChildren(TNode node);
-	
-	/**
-	 * Gets the left token of a node, or null if not supported/applicable.
-	 */
-	IToken getLeftToken(TNode node);
-	
-	/**
-	 * Gets the right token of a node, or null if not supported/applicable.
-	 */
-	IToken getRightToken(TNode node);
 }

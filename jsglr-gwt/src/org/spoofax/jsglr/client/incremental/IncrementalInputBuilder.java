@@ -97,7 +97,8 @@ public class IncrementalInputBuilder {
 			endOffset = right.getEndOffset();
 			
 			if (!isSkipping && !oldTree.isList() && incrementalSorts.contains(oldTree.getSort())
-					&& !isRangeOverlap(damageStart, damageEnd /*- damageSizeChange*/, startOffset, endOffset)) {
+					&& !isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)) {
+					   // !isDamagedNodeOrLayout(left, right)) {
 				isSkipping = isSkippingStart = true;
 			}
 
@@ -121,6 +122,14 @@ public class IncrementalInputBuilder {
 		if (isSkippingStart) isSkipping = false;
 		return result;
 	}
+
+	/*
+	private boolean isDamagedNodeOrLayout(IToken left, IToken right) {
+		int startOffset = Tokenizer.findLeftMostLayoutToken(left).getStartOffset();
+		int endOffset = Tokenizer.findRightMostLayoutToken(right).getEndOffset();
+		return isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
+	}
+	*/
 	
 	/**
 	 * Appends a token with the given startOffset

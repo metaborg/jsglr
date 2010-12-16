@@ -44,11 +44,13 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	
 	private final int damageSizeChange;
 
-	private final List<IAstNode> repairedTreeNodes;
+	private final List<IAstNode> repairedNodes;
 
 	private final Tokenizer newTokenizer;
 
 	private final DamageRegionAnalyzer damageAnalyzer;
+	
+	private final List<TNode> reconstructedNodes = new ArrayList<TNode>();
 	
 	private boolean isRepairedNodesInserted;
 
@@ -64,7 +66,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		this.damageEnd = damageAnalyzer.damageEnd;
 		this.skippedChars = skippedChars;
 		this.damageSizeChange = damageAnalyzer.damageSizeChange;
-		this.repairedTreeNodes = repairedTreeNodes;
+		this.repairedNodes = repairedTreeNodes;
 		this.newTokenizer = new Tokenizer(parser.parser.getParseTable().getKeywordRecognizer(), filename, input);
 	}
 	
@@ -75,9 +77,13 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		isRepairedNodesInserted = false;
 		TNode result = buildOutputSubtree(oldTreeNode, 0);
 		if (!isRepairedNodesInserted)
-			throw new IncrementalSGLRException("Postcondition failed: unable to insert repaired tree nodes in original tree: " + repairedTreeNodes);
+			throw new IncrementalSGLRException("Postcondition failed: unable to insert repaired tree nodes in original tree: " + repairedNodes);
 		newTokenizer.makeToken(newTokenizer.getStartOffset() - 1, TK_EOF, true);
 		return result;
+	}
+	
+	public List<TNode> getLastReconstructedNodes() {
+		return reconstructedNodes;
 	}
 	
 	private TNode buildOutputSubtree(IAstNode oldTreeNode, int offsetChange) {
@@ -86,10 +92,12 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		final IToken beforeStartToken = newTokenizer.currentToken();
 		IToken startToken = oldTreeNode.getLeftToken();
 		
+		sanityCheckOldTreeNode(oldTreeNode);
+		
 		// TODO: copy tokens before first child??
 		if (oldTreeNode.isList() && incrementalSorts.contains(oldTreeNode.getElementSort())) {
 			assert offsetChange == 0 : "Nested incrementalSorts lists?";
-			children = new ArrayList<IAstNode>(oldTreeNode.getChildCount() + repairedTreeNodes.size());
+			children = new ArrayList<IAstNode>(oldTreeNode.getChildCount() + repairedNodes.size());
 
 			Iterator<IAstNode> iterator = tryGetListIterator(oldTreeNode); 
 			for (int i = 0, max = oldTreeNode.getChildCount(); i < max; i++) {
@@ -122,6 +130,15 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		return buildOutputNode(oldTreeNode, children, beforeStartToken);
 	}
 
+	private void sanityCheckOldTreeNode(IAstNode oldTreeNode) {
+		// (Also checked in IncrementalSGLR precondition.)
+		// TODO: incremental parsing with ambiguous trees
+		@SuppressWarnings("unchecked")
+		TNode tOldTreeNode = (TNode) oldTreeNode;
+		assert factory.tryGetAmbChildren(tOldTreeNode) == null :
+			"Incremental tree building with ambiguities not implemented";
+	}
+
 	@SuppressWarnings("unchecked")
 	private TNode buildOutputNode(IAstNode oldTreeNode, List<IAstNode> children, IToken beforeStartToken) {
 		IToken startToken;
@@ -140,21 +157,23 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 			//copyTokens(firstToken, stopToken, damageStart, -skippedChars);
 			copyTokens(firstToken, stopToken, damageStart, 0);
 			insertRepairedNodes(oldTreeNode, children);
-			copyTokens(firstToken, stopToken, damageEnd - skippedChars + 1, damageSizeChange);
+			copyTokens(firstToken, stopToken, damageEnd + damageSizeChange - skippedChars + 1, damageSizeChange);
 		} else {
 			copyTokens(firstToken, stopToken, damageStart, 0);
 		}
 	}
 
 	private void insertRepairedNodes(IAstNode oldTreeNode, List<IAstNode> children) {
-		if (repairedTreeNodes.size() > 0) {
-			IToken firstToken = getTokenBefore(repairedTreeNodes.get(0).getLeftToken());
+		if (repairedNodes.size() > 0) {
+			IToken firstToken = getTokenBefore(repairedNodes.get(0).getLeftToken());
 	
-			for (IAstNode node : repairedTreeNodes) {
+			for (IAstNode node : repairedNodes) {
 				copyTokens(firstToken, node.getLeftToken(), NO_STOP_OFFSET/*node.getLeftToken().getEndOffset() + 1*/, skippedChars);
 				firstToken = getTokenAfter(node.getRightToken());
 				
-				children.add(buildOutputSubtree(node, skippedChars));
+				TNode reconstructed = buildOutputSubtree(node, skippedChars);
+				reconstructedNodes.add(reconstructed);
+				children.add(reconstructed);
 			}
 		}
 		isRepairedNodesInserted = true;
@@ -175,12 +194,17 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	private void copyTokens(IToken startToken, IToken stopToken, int stopOffset, int offsetChange) {
 		ITokenizer fromTokenizer = startToken.getTokenizer();
 		assert fromTokenizer == stopToken.getTokenizer();
+		int oldStartOffset = newTokenizer.getStartOffset();
 		for (int i = findLeftMostLayoutToken(startToken).getIndex(), last = stopToken.getIndex(); i < last; i++) {
 			IToken fromToken = fromTokenizer.getTokenAt(i);
 			int myEndOffset = min(stopOffset, fromToken.getEndOffset()) + offsetChange;
+			if (myEndOffset < oldStartOffset)
+				continue;
 			IToken toToken = newTokenizer.makeToken(myEndOffset, fromToken.getKind(), isEssentialToken(fromToken));
 			assert toToken == null || myEndOffset < fromToken.getEndOffset() + offsetChange
-				|| toToken.toString().equals(fromToken.toString())
+				|| // toToken.toString().equals(fromToken.toString())
+				fromToken.toString().equals(newTokenizer.getInput().substring(
+						fromToken.getStartOffset() + offsetChange, fromToken.getEndOffset() + offsetChange + 1))
 				: "Expected '" + fromToken + "' in copied tokenstream, not '" + toToken + "'";
 		}
 	}

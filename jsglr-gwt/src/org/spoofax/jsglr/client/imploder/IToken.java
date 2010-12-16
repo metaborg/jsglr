@@ -3,7 +3,7 @@ package org.spoofax.jsglr.client.imploder;
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface IToken {
+public interface IToken extends Comparable<IToken> {
 	/** Unknown token kind. */
 	public static final int TK_UNKNOWN = 0;
 	

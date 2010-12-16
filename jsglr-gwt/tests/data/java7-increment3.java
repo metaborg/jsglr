@@ -5,6 +5,7 @@ class Foo {
   int bar();
   int baz() {
     /* */
+	quz();
   }
   int quz() {
     /* */

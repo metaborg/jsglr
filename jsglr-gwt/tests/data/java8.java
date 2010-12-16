@@ -4,4 +4,5 @@ class Foo {
   int bar();
   /*comment*/
   int baz();
+  int qux();
 }

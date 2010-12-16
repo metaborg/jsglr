@@ -7,4 +7,7 @@ class Foo {
   int baz() {
     /* */
   }
+  int quz() {
+    /* */
+  }
 }

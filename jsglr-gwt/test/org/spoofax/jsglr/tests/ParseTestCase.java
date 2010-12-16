@@ -7,7 +7,7 @@
  */
 package org.spoofax.jsglr.tests;
 
-import static org.spoofax.jsglr.client.incremental.CommentDamageHandler.C_STYLE;
+import static org.spoofax.jsglr.client.incremental.CommentDamageExpander.C_STYLE;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +37,7 @@ public abstract class ParseTestCase extends TestCase {
 	
 	protected ParseTable table;
 
-	private IncrementalSGLR<ATerm> incrementalSGLR;
+	protected IncrementalSGLR<ATerm> incrementalSGLR;
 
 	// shared by all tests
 	static final ATermFactory pf = new ATermFactory();
@@ -86,6 +86,7 @@ public abstract class ParseTestCase extends TestCase {
 	    	for (String sort : incrementalSorts)
 	    		sorts.add(sort);
 	    	incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, C_STYLE, factory, sorts, false);
+	        IncrementalSGLR.DEBUG = true;
 		}
 	}
 
@@ -139,6 +140,7 @@ public abstract class ParseTestCase extends TestCase {
 	
 	public ATerm doParseIncrementalTest(ATerm oldTree, String newFile) throws Exception {
 		String contents = loadAsString(newFile);
+		assertNotNull(contents);
 		long parseTime = System.nanoTime();
 		System.out.println("------------------------");
 		System.out.println("Parsing " + newFile);
@@ -163,7 +165,12 @@ public abstract class ParseTestCase extends TestCase {
 	}
 	
 	private void doTokenStreamEqualityTest(ATerm oldTree, ATerm newTree) {
-		System.out.println(newTree.getLeftToken().getTokenizer());
+		// Actual token equality test is now performed
+		// using assertions in IncrementalTreeBuilder
+		String tokens = newTree.getLeftToken().getTokenizer().toString();
+		if (tokens.length() > 300)
+			tokens = tokens.substring(0, 300) + "...";
+		System.out.println(tokens);
 	}
 
 	protected String loadAsString(final String testFile) {

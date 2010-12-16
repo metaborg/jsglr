@@ -19,6 +19,8 @@ public interface ITokenizer extends Iterable<IToken> {
 
 	IToken getTokenAt(int i);
 
+	IToken getTokenAtOffset(int o);
+
 	IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken);
 
 	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
@@ -43,5 +45,17 @@ public interface ITokenizer extends Iterable<IToken> {
 	String toString(IToken left, IToken right);
 
 	String getFilename();
+	
+	/**
+	 * Determines if the tokenizer is ambiguous.
+	 * If it is, tokens with subsequent indices may not
+	 * always have matching start/end offsets.
+	 * 
+	 * @see Tokenizer#getTokenAfter(IToken)   Gets the next token with a matching offset.
+	 * @see Tokenizer#getTokenBefore(IToken)  Gets the previous token with a matching offset.
+	 */
+	boolean isAmbigous();
+	
+	void setAmbiguous(boolean isAmbiguous);
 
 }

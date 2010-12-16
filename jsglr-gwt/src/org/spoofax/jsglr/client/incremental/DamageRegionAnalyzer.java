@@ -40,7 +40,7 @@ public class DamageRegionAnalyzer {
 	 * Gets all non-list tree nodes from the original tree
 	 * that are in the damage region according to {@link #isDamageTreeNode}.
 	 */
-	public List<IAstNode> getDamageTreeNodes(IAstNode tree) {
+	public List<IAstNode> getDamageNodes(IAstNode tree) {
 		return getDamageRegionTreeNodes(tree, new ArrayList<IAstNode>(), true, 0);
 	}
 	
@@ -48,7 +48,7 @@ public class DamageRegionAnalyzer {
 	 * Gets all non-list tree nodes from the partial result tree
 	 * that are in the damage region according to {@link #isDamageTreeNode}.
 	 */
-	public List<IAstNode> getRepairedTreeNodes(IAstNode tree, int skippedChars) {
+	public List<IAstNode> getDamageNodesForPartialTree(IAstNode tree, int skippedChars) {
 		return getDamageRegionTreeNodes(tree, new ArrayList<IAstNode>(), false, skippedChars);
 	}
 
@@ -77,7 +77,7 @@ public class DamageRegionAnalyzer {
 		IToken current = findLeftMostLayoutToken(tree.getLeftToken());
 		IToken last = findRightMostLayoutToken(tree.getRightToken());
 		if (current != null && last != null) {
-			if (!isDamagedNonEmptyRange(
+			if (!isDamagedRange(
 					current.getStartOffset(), last.getEndOffset(), isOriginalTree, skippedChars))
 				return false;
 			if (incrementalSorts.contains(tree.getSort()))
@@ -89,7 +89,7 @@ public class DamageRegionAnalyzer {
 				IToken childRight = findRightMostLayoutToken(child.getRightToken());
 				if (childLeft != null && childRight != null) {
 					if (childLeft.getIndex() > current.getIndex()
-							&& isDamagedNonEmptyRange(
+							&& isDamagedRange(
 									current.getStartOffset(), childLeft.getStartOffset() - 1,
 									isOriginalTree, skippedChars)) {
 						return true;
@@ -97,16 +97,15 @@ public class DamageRegionAnalyzer {
 					current = childRight;
 				}
 			}
-			return isDamagedNonEmptyRange(
+			return isDamagedRange(
 					current.getEndOffset() + 1, last.getEndOffset(), isOriginalTree, skippedChars);
 		} else {
 			return false;
 		}
 	}
 	
-	private boolean isDamagedNonEmptyRange(int startOffset, int endOffset,
+	private boolean isDamagedRange(int startOffset, int endOffset,
 			boolean isOriginalTree, int skippedChars) {
-		// TODO: get rid of non-empty criterion?? at the very least for empty damage regions...
 		if (isOriginalTree) {
 			return /*endOffset >= startOffset
 				&&*/ isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);

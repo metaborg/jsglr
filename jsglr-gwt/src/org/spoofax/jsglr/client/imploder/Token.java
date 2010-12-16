@@ -59,4 +59,9 @@ public class Token implements IToken {
 		return tokenizer.toString(this, this);
 	}
 
+	public int compareTo(IToken arg0) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

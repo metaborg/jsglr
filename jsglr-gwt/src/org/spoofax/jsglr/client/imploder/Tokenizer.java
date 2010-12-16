@@ -7,6 +7,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
 import static org.spoofax.jsglr.client.imploder.IToken.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.spoofax.jsglr.client.KeywordRecognizer;
@@ -28,7 +29,7 @@ public class Tokenizer implements ITokenizer {
 	
 	private final String input;
 
-	private final ArrayList<IToken> tokens;
+	private final ArrayList<Token> tokens;
 	
 	/** Start of the next token. */
 	private int startOffset;
@@ -38,6 +39,8 @@ public class Tokenizer implements ITokenizer {
 
 	private int offsetAtLineStart;
 	
+	private boolean isAmbiguous;
+	
 	/**
 	 * Creates a new tokenizer for the given
 	 * file name (if applicable) and contents.
@@ -46,7 +49,7 @@ public class Tokenizer implements ITokenizer {
 		this.keywords = keywords;
 		this.filename = filename;
 		this.input = input;
-		this.tokens = new ArrayList<IToken>((int) (input.length() / EXPECTED_TOKENS_DIVIDER));
+		this.tokens = new ArrayList<Token>((int) (input.length() / EXPECTED_TOKENS_DIVIDER));
 		startOffset = 0;
 		line = 0;
 		offsetAtLineStart = 0;
@@ -67,6 +70,7 @@ public class Tokenizer implements ITokenizer {
 	}
 
 	public void setStartOffset(int startOffset) {
+		assert isAmbiguous;
 		this.startOffset = startOffset;
 	}
 
@@ -82,6 +86,12 @@ public class Tokenizer implements ITokenizer {
 	
 	public IToken getTokenAt(int i) {
 		return tokens.get(i);
+	}
+	
+	public IToken getTokenAtOffset(int offset) {
+		Token key = new Token(this, -1, -1, -1, offset, offset, TK_RESERVED);
+		int resultIndex = Collections.binarySearch(tokens, key);
+		return resultIndex == -1 ? null : getTokenAt(resultIndex);
 	}
 
 	public IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken) {
@@ -122,7 +132,7 @@ public class Tokenizer implements ITokenizer {
 	}
 
 	private IToken internalMakeToken(int kind, int endOffset) {
-		IToken result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
+		Token result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
 		tokens.add(result);
 		startOffset = endOffset + 1;
 		return result;
@@ -236,14 +246,38 @@ public class Tokenizer implements ITokenizer {
 		return token;
 	}
 	
+	/**
+	 * Gets the token with an offset following the given token,
+	 * even in an ambiguous token stream.
+	 * 
+	 * @see #isAmbiguous()
+	 */
 	public static IToken getTokenAfter(IToken token) {
 		if (token == null) return null;
-		return token.getTokenizer().getTokenAt(token.getIndex() + 1);
+		int nextOffset = token.getEndOffset();
+		ITokenizer tokens = token.getTokenizer();
+		for (int i = token.getIndex() + 1, max = tokens.getTokenCount(); i < max; i++) {
+			IToken result = tokens.getTokenAt(i);
+			if (result.getStartOffset() >= nextOffset) return result;
+		}
+		return null;
 	}
 	
+	/**
+	 * Gets the token with an offset preceding the given token,
+	 * even in an ambiguous token stream.
+	 * 
+	 * @see #isAmbiguous()
+	 */
 	public static IToken getTokenBefore(IToken token) {
 		if (token == null) return null;
-		return token.getTokenizer().getTokenAt(token.getIndex() - 1);
+		int prevOffset = token.getStartOffset();
+		ITokenizer tokens = token.getTokenizer();
+		for (int i = token.getIndex() - 1; i >= 0; i--) {
+			IToken result = tokens.getTokenAt(i);
+			if (result.getEndOffset() <= prevOffset) return result;
+		}
+		return null;
 	}
 	
 	public static int getLength(IToken token) {
@@ -280,7 +314,17 @@ public class Tokenizer implements ITokenizer {
 	}
 
 	public Iterator<IToken> iterator() {
-		return tokens.iterator();
+		@SuppressWarnings("unchecked") // covariance
+		Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
+		return result;
+	}
+
+	public boolean isAmbigous() {
+		return isAmbiguous;
+	}
+
+	public void setAmbiguous(boolean isAmbiguous) {
+		this.isAmbiguous = isAmbiguous;
 	}
 
 }

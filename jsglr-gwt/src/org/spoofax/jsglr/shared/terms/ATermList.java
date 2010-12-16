@@ -1,5 +1,6 @@
 package org.spoofax.jsglr.shared.terms;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.spoofax.jsglr.client.NotImplementedException;
@@ -102,14 +103,14 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	}
 
 	@Override
-	protected StringBuilder toString(StringBuilder sb, int depth) {
+	public void writeTo(Appendable sb, int depth) throws IOException {
 		if(depth == 0) {
 			sb.append("...");
 		} else {
 			sb.append('[');
 			ATermList l = this;
 			while(l.element != null) {
-				l.element.toString(sb, depth - 1);
+				l.element.writeTo(sb, depth - 1);
 				l = l.next;
 				if(l.element != null) {
 					sb.append(",");
@@ -117,7 +118,6 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 			}
 			sb.append(']');
 		}
-		return sb;
 	}
 
 	@Override

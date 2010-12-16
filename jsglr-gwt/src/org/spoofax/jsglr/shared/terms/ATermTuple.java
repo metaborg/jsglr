@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.shared.terms;
 
+import java.io.IOException;
+
 import org.spoofax.jsglr.client.NotImplementedException;
 
 public class ATermTuple extends ATerm {
@@ -53,7 +55,7 @@ public class ATermTuple extends ATerm {
 	}
 
 	@Override
-	protected StringBuilder toString(StringBuilder sb, int depth) {
+	public void writeTo(Appendable sb, int depth) throws IOException {
 		if(depth == 0) {
 			sb.append("...");
 		} else {
@@ -61,11 +63,10 @@ public class ATermTuple extends ATerm {
 			for(int i = 0; i < elements.length; i++) {
 				if(i > 0)
 					sb.append(",");
-				elements[i].toString(sb, depth - 1);
+				elements[i].writeTo(sb, depth - 1);
 			}
 			sb.append(')');
 		}
-		return sb;
 	}
 	
 	@Override

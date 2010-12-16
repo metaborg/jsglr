@@ -20,9 +20,7 @@ public class Amb extends AbstractParseNode {
 	private int cachedHashCode = NO_HASH_CODE;
 
 	Amb(AbstractParseNode left, AbstractParseNode right) {
-		alternatives = new AbstractParseNode[2];
-		alternatives[0] = left;
-		alternatives[1] = right;
+		alternatives = new AbstractParseNode[] { left, right };
 	}
 
 	public Amb(AbstractParseNode[] alternatives) {

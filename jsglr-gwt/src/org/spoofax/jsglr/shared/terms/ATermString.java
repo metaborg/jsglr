@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.shared.terms;
 
+import java.io.IOException;
+
 /**
  * A String term.
  * 
@@ -53,7 +55,7 @@ public class ATermString extends ATermAppl {
 	} 
 	
 	@Override
-	protected StringBuilder toString(StringBuilder sb, int depth) {
+	public void writeTo(Appendable sb, int depth) throws IOException {
 		if(depth == 0) {
 			sb.append("...");
 		} else {
@@ -61,7 +63,6 @@ public class ATermString extends ATermAppl {
 			sb.append(value);
 			sb.append('\"');
 		}
-		return sb;
 	}
 
 	@Override

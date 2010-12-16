@@ -1,5 +1,6 @@
 package org.spoofax.jsglr.shared.terms;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -104,8 +105,18 @@ public abstract class ATerm implements IAstNode, Serializable {
 	}
 	
 	public final String toString(int depth) {
-		return toString(new StringBuilder(), depth).toString();
+		try {
+			StringBuilder result = new StringBuilder();
+			writeTo(result, depth);
+			return result.toString();
+		} catch (IOException e) {
+			throw new RuntimeException(e); // shouldn't happen for stringbuilder
+		}
 	}
 
-	protected abstract StringBuilder toString(StringBuilder sb, int depth);
+	public final void writeTo(Appendable a) throws IOException {
+		writeTo(a, DEFAULT_PRINT_DEPTH);
+	}
+
+	public abstract void writeTo(Appendable a, int depth) throws IOException;
 }

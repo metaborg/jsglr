@@ -8,12 +8,14 @@
 package org.spoofax.jsglr;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
@@ -124,17 +126,19 @@ public class Main {
 
 	public static long parseFile(String input, String output, SGLR sglr, String startSymbol)
 	throws FileNotFoundException, IOException {
+		/* TODO: support stdin input
 		InputStream fis = null;
 		if(input == null) {
-			fis = System.in;
+			fis = new BufferedInputStream(System.in);
 		} else {
 			fis = new BufferedInputStream(new FileInputStream(input));
 		}
-		OutputStream ous = null;
+		*/
+		Writer out = null;
 		if(output != null && !NO_OUTPUT.equals(output)) {
-			ous = new FileOutputStream(output);
+			out = new BufferedWriter(new FileWriter(output));
 		} else {
-			ous = System.out;
+			out = new BufferedWriter(new OutputStreamWriter(System.out));
 		}
 
 		long parsingTime = 0;
@@ -150,8 +154,8 @@ public class Main {
 			System.err.println("Parsing failed : " + e);
 		}
 		if(t != null && !NO_OUTPUT.equals(output)){
-			final String outputString = t.toString();
-			ous.write(outputString.getBytes());
+			((ATerm) t).writeTo(out);
+			out.close();
 		}
 		return parsingTime;
 	}

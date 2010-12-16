@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.shared.terms;
 
+import java.io.IOException;
+
 import org.spoofax.jsglr.client.NotImplementedException;
 
 public class ATermInt extends ATerm {
@@ -35,14 +37,13 @@ public class ATermInt extends ATerm {
 	}
 
 	@Override
-	protected StringBuilder toString(StringBuilder sb, int depth) {
+	public void writeTo(Appendable sb, int depth) throws IOException {
 		if(depth == 0) {
 			sb.append("...");
 		}
 		else {
 			sb.append(Integer.toString(value));
 		}
-		return sb;
 	}
 
 	@Override

@@ -140,7 +140,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 			//copyTokens(firstToken, stopToken, damageStart, -skippedChars);
 			copyTokens(firstToken, stopToken, damageStart, 0);
 			insertRepairedNodes(oldTreeNode, children);
-			copyTokens(firstToken, stopToken, damageEnd - skippedChars /*+ 1*/, damageSizeChange);
+			copyTokens(firstToken, stopToken, damageEnd - skippedChars + 1, damageSizeChange);
 		} else {
 			copyTokens(firstToken, stopToken, damageStart, 0);
 		}

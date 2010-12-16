@@ -7,6 +7,7 @@ import static org.spoofax.jsglr.shared.terms.ATerm.STRING;
 import static org.spoofax.jsglr.shared.terms.ATerm.TUPLE;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.jsglr.client.NotImplementedException;
@@ -111,8 +112,8 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 		}
 	}
 
-	public boolean isStringTerminal(ATerm node) {
-		return node.getType() == ATerm.STRING;
+	public String getStringTerminalValue(ATerm node) {
+		return node.getType() == ATerm.STRING ? ((ATermString) node).getString() : null;
 	}
 
 	public ATerm createInjection(String sort, List<ATerm> children) {
@@ -125,6 +126,8 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 			Iterable<ATerm> result = (Iterable<ATerm>) node;
 			return result;
 		} else {
+			if (node.getChildCount() == 0)
+				return Collections.emptyList();
 			ArrayList<ATerm> children = new ArrayList<ATerm>(node.getChildCount());
 			for (int i = 0, max = node.getChildCount(); i < max; i++) {
 				children.add(node.getChildAt(i));

@@ -340,7 +340,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return factory.createList(label.getSort(), left, right, children);
 		} else if (constructor == TUPLE_CONSTRUCTOR) {
 			return factory.createTuple(label.getSort(), left, right, children);
-		} else if (constructor == null && children.size() == 1 && factory.isStringTerminal(children.get(0))) {
+		} else if (constructor == null && children.size() == 1 && factory.getStringTerminalValue(children.get(0)) != null) {
 			// Child node was a <string> node (rare case); unpack it and create a new terminal
 			assert left == right;
 			return factory.createStringTerminal(label.getSort(), getPaddedLexicalValue(label, left), left);

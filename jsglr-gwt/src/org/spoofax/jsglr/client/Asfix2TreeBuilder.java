@@ -6,13 +6,14 @@ import org.spoofax.jsglr.shared.terms.ATermAppl;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
 import org.spoofax.jsglr.shared.terms.ATermList;
 
-public class Asfix2TreeBuilder implements TreeBuilder {
+public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 
 	private final ATermFactory factory = new ATermFactory();
 	private final AFun applAFun;
 	private final AFun ambAFun;
 	private final AFun parseTreeAFun;
 	private ATermAppl[] labels;
+	private int labelStart;
 
 	public Asfix2TreeBuilder() {
 		applAFun = factory.makeAFun("appl", 2, false);
@@ -20,31 +21,36 @@ public class Asfix2TreeBuilder implements TreeBuilder {
 		parseTreeAFun = factory.makeAFun("parsetree", 2, false);
 	}
 
-	public void initialize(int productionCount, int labelCount) {
-		labels = new ATermAppl[labelCount];
+	public void initialize(ParseTable table, int productionCount, int labelStart, int labelCount) {
+		labels = new ATermAppl[labelCount - labelStart];
+		this.labelStart = labelStart;
 	}
 
-	public void addLabel(int labelNumber, ATermAppl parseTreeProduction) {
-		labels[labelNumber] = parseTreeProduction;
+	public void initializeLabel(int labelNumber, ATermAppl parseTreeProduction) {
+		labels[labelNumber - labelStart] = parseTreeProduction;
 	}
 
-	public Object buildNode(int labelNumber, Object[] subtrees) {
+	public ATerm buildNode(int labelNumber, Object[] subtrees) {
 		ATermList ls = factory.makeList();
 		for(int i = subtrees.length - 1; i >= 0; i--) {
 			ls = ls.prepend((ATerm)subtrees[i]);
 		}
-		return factory.makeAppl(applAFun, labels[labelNumber], ls);
+		return factory.makeAppl(applAFun, labels[labelNumber - labelStart], ls);
 	}
 
-	public Object buildAmb(Object[] alternatives) {
+	public ATerm buildAmb(Object[] alternatives) {
 		return factory.makeAppl(ambAFun, (ATerm[])alternatives);
 	}
 
-	public Object buildProduction(int productionNumber) {
+	public ATerm buildProduction(int productionNumber) {
 		return factory.makeInt(productionNumber);
 	}
 
-	public Object buildToplevel(Object node, int ambCount) {
-		return factory.makeAppl(parseTreeAFun, (ATerm)node, factory.makeInt(ambCount));	}
+	public ATerm buildTreeTop(Object node, int ambCount) {
+		return factory.makeAppl(parseTreeAFun, (ATerm)node, factory.makeInt(ambCount));
+	}
 
+	public ITokenizer getTokenizer() {
+		return null;
+	}
 }

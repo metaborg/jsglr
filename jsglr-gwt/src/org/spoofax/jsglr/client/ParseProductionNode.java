@@ -17,8 +17,13 @@ public class ParseProductionNode extends AbstractParseNode {
     }
 
     @Override
-	public Object toParseTree(ParseTable pt) {
-    	return pt.getTreeBuilder().buildProduction(prod);
+	public Object toTreeBottomup(BottomupTreeBuilder builder) {
+    	return builder.buildProduction(prod);
+    }
+    
+    @Override
+    public Object toTreeTopdown(TopdownTreeBuilder builder) {
+    	return builder.buildTreeProduction(this);
     }
 
     @Override

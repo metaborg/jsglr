@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.spoofax.jsglr.client.IToken;
 import org.spoofax.jsglr.client.NotImplementedException;
 
 public abstract class ATerm implements Serializable {
@@ -18,6 +19,8 @@ public abstract class ATerm implements Serializable {
 	public static final int PLACEHOLDER = 6;
 
 	protected ATermFactory factory;
+	
+	private IToken leftToken, rightToken;
 
 	ATerm() {}
 	
@@ -30,6 +33,19 @@ public abstract class ATerm implements Serializable {
 	public abstract ATerm getChildAt(int i);
 
 	public abstract int getType();
+	
+	public void internalSetTokens(IToken leftToken, IToken rightToken) {
+		this.leftToken = leftToken;
+		this.rightToken = rightToken;
+	}
+	
+	public IToken getLeftToken() {
+		return leftToken;
+	}
+	
+	public IToken getRightToken() {
+		return rightToken;
+	}
 
 	public ATermFactory getFactory() {
 		return factory;
@@ -43,8 +59,14 @@ public abstract class ATerm implements Serializable {
 			return null;
 		}
 	}
+	
+	public boolean equals(Object o) {
+		return simpleMatch((ATerm) o);
+	}
 
 	public abstract boolean simpleMatch(ATerm t);
+	
+	public abstract int hashCode();
 
 	public boolean match(ATerm litStringAppl) {
 		throw new NotImplementedException();

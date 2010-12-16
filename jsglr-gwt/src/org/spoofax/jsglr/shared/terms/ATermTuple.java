@@ -44,6 +44,21 @@ public class ATermTuple extends ATerm {
 
 	@Override
 	protected void toString(int depth, StringBuilder sb) {
+		if(depth == 0) {
+			sb.append("...");
+		} else {
+			sb.append('(');
+			for(int i = 0; i < elements.length; i++) {
+				if(i > 0)
+					sb.append(",");
+				elements[i].toString(depth - 1, sb);
+			}
+			sb.append(')');
+		}
+	}
+	
+	@Override
+	public int hashCode() {
 		throw new NotImplementedException();
 	}
 }

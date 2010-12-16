@@ -39,6 +39,11 @@ public class ATermAppl extends ATerm {
 	public boolean match(ATerm term) {
 		throw new NotImplementedException();
 	}
+	
+	@Override
+	public int hashCode() {
+		throw new NotImplementedException();
+	}
 
 	public AFun getAFun() {
 		return ctor;

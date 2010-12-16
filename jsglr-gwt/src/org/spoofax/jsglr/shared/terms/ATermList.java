@@ -2,6 +2,8 @@ package org.spoofax.jsglr.shared.terms;
 
 import java.util.Iterator;
 
+import org.spoofax.jsglr.client.NotImplementedException;
+
 public class ATermList extends ATerm implements Iterable<ATerm> {
 
 	private static final long serialVersionUID = 1L;
@@ -122,5 +124,19 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 			a = a.next;
 			b = b.next;
 		} while(true);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (o instanceof ATermAppl)
+			throw new NotImplementedException();
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		throw new NotImplementedException();
 	}
 }

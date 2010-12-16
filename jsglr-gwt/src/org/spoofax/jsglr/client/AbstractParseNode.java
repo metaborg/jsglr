@@ -12,7 +12,9 @@ public abstract class AbstractParseNode {
 
     protected static final int NO_HASH_CODE = 0;
 
-    public abstract Object toParseTree(ParseTable pt);
+    public abstract Object toTreeBottomup(BottomupTreeBuilder builder);
+    
+    public abstract Object toTreeTopdown(TopdownTreeBuilder builder);
 
     @Override
 	abstract public boolean equals(Object obj);

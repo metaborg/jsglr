@@ -74,7 +74,7 @@ public class ParseTable implements Serializable {
 
     private transient Map<Label, List<Priority>> priorityCache;
 
-	private transient TreeBuilder treeBuilder;
+	private transient ITreeBuilder treeBuilder;
 
     private static final ParseProductionNode[] productionNodes = new ParseProductionNode[256 + 1];
     
@@ -87,7 +87,6 @@ public class ParseTable implements Serializable {
     public ParseTable(ATerm pt) throws InvalidParseTableException {
         initAFuns(pt.getFactory());
         parse(pt);
-        setTreeConstructionParticipant(new Asfix2TreeBuilder());
     }
 
     public void initAFuns(ATermFactory factory) {
@@ -638,17 +637,19 @@ public class ParseTable implements Serializable {
 	    return Collections.unmodifiableList(asList(labels));
 	}
 
-	public void setTreeConstructionParticipant(TreeBuilder treeBuilder) {
+	public void setTreeBuilder(ITreeBuilder treeBuilder) {
 		this.treeBuilder = treeBuilder;
-		treeBuilder.initialize(NUM_CHARS, labels.length - LABEL_BASE);
+		treeBuilder.initialize(this, NUM_CHARS, LABEL_BASE, labels.length);
 		for(int i = 0; i < labels.length; i++) {
 			if(labels[i] == null)
 				continue;
-			treeBuilder.addLabel(i - LABEL_BASE, labels[i].getProduction());
+			treeBuilder.initializeLabel(i, labels[i].getProduction());
 		}
 	}
 
-	public TreeBuilder getTreeBuilder() {
+	public ITreeBuilder getTreeBuilder() {
+        if (treeBuilder == null)
+        	setTreeBuilder(new Asfix2TreeBuilder());
 		return treeBuilder;
 	}
 }

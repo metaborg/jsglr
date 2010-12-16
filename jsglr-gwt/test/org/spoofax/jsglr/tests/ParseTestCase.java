@@ -16,6 +16,7 @@ import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.PathListPool;
 import org.spoofax.jsglr.client.PooledPathList;
 import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
@@ -74,7 +75,7 @@ public abstract class ParseTestCase extends TestCase {
 		sglr.clear();
 	}
 
-	final static boolean doCompare = true;
+	boolean doCompare = true;
 	public void doParseTest(final String s) {
 
 		//		parseTableService.fetchText("tests/data/" + s + "." + suffix,
@@ -93,19 +94,17 @@ public abstract class ParseTestCase extends TestCase {
 		ATerm parsed = null;
 		try {
 			parsed = (ATerm) sglr.parse(result);
-		} catch (final Exception e) {
+		} catch (SGLRException e) {
 			e.printStackTrace();
-			fail(e.toString());
+			throw new RuntimeException(e);
 		}
 		parseTime = System.nanoTime() - parseTime;
 		System.out.println("Parsing " + s + " took " + parseTime/1000/1000 + " millis.");
 		assertNotNull(parsed);
-		if(doCompare)
-		{
+		if (doCompare) {
 			doCompare(s, parsed);
-			//			}
-			//
-			//		});
+		} else {
+			System.out.println(parsed);
 		}
 
 		System.out.println(PathListPool.cacheMisses);

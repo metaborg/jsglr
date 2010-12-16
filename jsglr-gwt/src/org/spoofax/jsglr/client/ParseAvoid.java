@@ -15,11 +15,6 @@ public class ParseAvoid extends ParseNode {
     }
 
     @Override
-    public Object toParseTree(ParseTable pt) {
-        return super.toParseTree(pt);
-    }
-
-    @Override
     public String toString() {
         return "avoid(aprod(" + label + "), " + kids + ")";
     }

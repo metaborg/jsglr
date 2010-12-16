@@ -15,11 +15,6 @@ public class ParsePrefer extends ParseNode {
     }
 
     @Override
-    public Object toParseTree(ParseTable pt) {
-        return super.toParseTree(pt);
-    }
-
-    @Override
     public String toString() {
         return "prefer(aprod(" + label + "), " + kids + ")";
     }

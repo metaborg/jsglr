@@ -15,9 +15,9 @@ import org.spoofax.jsglr.shared.terms.ATermList;
 
 public class ParseNode extends AbstractParseNode {
 
-    public final int label;
+    final int label;
 
-    protected final AbstractParseNode[] kids;
+    final AbstractParseNode[] kids;
 
     private int cachedHashCode;
 
@@ -25,17 +25,24 @@ public class ParseNode extends AbstractParseNode {
         this.label = label;
         this.kids = kids;
     }
+    
+    @Override
+    public Object toTreeTopdown(TopdownTreeBuilder builder) {
+    	return builder.buildTreeNode(this);
+    }
 
     @Override
-	public Object toParseTree(ParseTable pt) {
-        TreeBuilder tb = pt.getTreeBuilder();
+	public Object toTreeBottomup(BottomupTreeBuilder builder) {
+    	builder.visitLabel(label);
 
         Object[] subtrees = new Object[kids.length];
         for (int i = 0; i < kids.length; i++) {
-        	subtrees[i] = kids[i].toParseTree(pt);
+        	subtrees[i] = kids[i].toTreeBottomup(builder);
         }
 
-        return tb.buildNode(label - ParseTable.LABEL_BASE, subtrees);
+        Object result = builder.buildNode(label, subtrees);
+        builder.endVisitLabel(label);
+		return result;
     }
 
     /**
@@ -54,7 +61,13 @@ public class ParseNode extends AbstractParseNode {
         return "regular(aprod(" + label + ")," + kids + ")";
     }
 
-    public int getLabel() { return label; }
+    public int getLabel() {
+    	return label;
+    }
+    
+    public AbstractParseNode[] getChildren() {
+		return kids;
+	}
 
     @Override
     public boolean equals(Object obj) {

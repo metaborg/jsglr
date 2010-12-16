@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.jsglr.client.PushbackStringIterator;
@@ -11,14 +12,25 @@ import org.spoofax.jsglr.client.PushbackStringIterator;
 public class ATermFactory implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final ATerm[] EMPTY = new ATerm[0];
+	
+	protected static final ATerm[] EMPTY = new ATerm[0];
+
+    private final ConcurrentHashMap<AFun, AFun> afunCache =
+        new ConcurrentHashMap<AFun, AFun>();
 
 	public AFun makeAFun(String ctorName, int arity, boolean quoted) {
-		return new AFun(ctorName, arity, quoted);
+		AFun candidate = new AFun(ctorName, arity, quoted);
+		AFun cached = afunCache.get(candidate);
+		if (cached == null) {
+			cached = afunCache.putIfAbsent(candidate, candidate);
+			return cached == null ? candidate : cached;
+		} else {
+			return cached;
+		}
 	}
 
 	public ATermPlaceholder makePlaceholder(ATerm template) {
-		return new ATermPlaceholder(this, makeConstructor("<>", 1), template);
+		return new ATermPlaceholder(this, makeAFun("<>", 1), template);
 	}
 	
 	public ATermList makeList() {
@@ -40,19 +52,20 @@ public class ATermFactory implements Serializable {
 		return parseFromString(text);
 	}
 
-	public ATerm makeAppl(AFun afun, ATermList kids) {
+	public ATermAppl makeAppl(AFun afun, ATermList kids) {
 		return new ATermAppl(this, afun, kids);
 	}
 
-	public ATerm makeAppl(AFun afun, ATerm... kids) {
+	public ATermAppl makeAppl(AFun afun, ATerm... kids) {
 		return new ATermAppl(this, afun, kids);
 	}
 
-	public ATerm makeAppl(AFun afun, ATerm[] kids, boolean m) {
+	public ATermAppl makeAppl(AFun afun, ATerm[] kids, boolean m) {
+		if (m) throw new UnsupportedOperationException("Use makeString() to make strings");
 		return new ATermAppl(this, afun, kids);
 	}
 
-	public ATerm makeInt(int i) {
+	public ATermInt makeInt(int i) {
 		return new ATermInt(this, i);
 	}
 
@@ -151,7 +164,7 @@ public class ATermFactory implements Serializable {
         return makeString(sb.toString());
     }
 
-    private ATermString makeString(String string) {
+    public ATermString makeString(String string) {
     	return new ATermString(this, string);
 	}
 
@@ -175,17 +188,17 @@ public class ATermFactory implements Serializable {
 
         if(ch == '(') {
             List<ATerm> l = parseTermSequence(bis, ')');
-            AFun c = makeConstructor(sb.toString(), l.size());
+            AFun c = makeAFun(sb.toString(), l.size());
             return makeAppl(c, l.toArray(EMPTY));
         } else {
             bis.unread(ch);
-            AFun c = makeConstructor(sb.toString(), 0);
+            AFun c = makeAFun(sb.toString(), 0);
             return makeAppl(c, EMPTY);
         }
     }
 
 	
-	private AFun makeConstructor(String ctorName, int arity) {
+	private AFun makeAFun(String ctorName, int arity) {
 		return makeAFun(ctorName, arity, false);
 	}
 
@@ -202,7 +215,7 @@ public class ATermFactory implements Serializable {
         return makeTuple(parseTermSequence(bis, ')').toArray(EMPTY));
     }
 
-    private ATermTuple makeTuple(ATerm[] elements) {
+    public ATermTuple makeTuple(ATerm[] elements) {
     	return new ATermTuple(this, elements);
 	}
 

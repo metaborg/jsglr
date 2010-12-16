@@ -14,5 +14,9 @@ public class ATermPlaceholder extends ATermAppl {
 	public int getType() {
 		return ATerm.PLACEHOLDER;
 	}
+	
+	public ATerm getPlaceholder() {
+		return getChildAt(0);
+	}
 
 }

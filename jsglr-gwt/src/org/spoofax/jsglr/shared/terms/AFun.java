@@ -11,7 +11,7 @@ public class AFun implements Serializable {
 
 	AFun() {}
 	
-	public AFun(String name, int arity, boolean quoted) {
+	AFun(String name, int arity, boolean quoted) {
 		this.name = name;
 		this.arity = arity;
 	}
@@ -30,5 +30,14 @@ public class AFun implements Serializable {
 			return false;
 		AFun o = (AFun)obj;
 		return o.arity == arity && o.name.equals(name);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + arity;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
 	}
 }

@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.shared.terms;
 
+import org.spoofax.jsglr.client.NotImplementedException;
+
 public class ATermInt extends ATerm {
 
 	private static final long serialVersionUID = 1L;
@@ -48,5 +50,10 @@ public class ATermInt extends ATerm {
 			return false;
 		ATermInt a = (ATermInt)t;
 		return a.value == value;
+	}
+
+	@Override
+	public int hashCode() {
+		return value;
 	}
 }

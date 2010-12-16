@@ -11,4 +11,11 @@ public class NotImplementedException extends RuntimeException {
 
     private static final long serialVersionUID = 1758191718483879246L;
 
+    public NotImplementedException(String message) {
+		super(message);
+	}
+    
+    public NotImplementedException() {
+		// Default constructor
+	}
 }

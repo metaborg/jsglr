@@ -288,6 +288,10 @@ public class SGLR {
 		currentInputStream = new PushbackStringIterator(input);
 		acceptingStack = null;
 		collectedErrors.clear();
+		ITokenizer tokenizer = parseTable.getTreeBuilder().getTokenizer();
+		// TODO: optimize?
+		if (tokenizer != null)
+			tokenizer.initialize(input.toCharArray());
 
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
@@ -860,6 +864,10 @@ public class SGLR {
 
 	ParseTable getParseTable() {
 		return parseTable;
+	}
+
+	public void setTreeBuilder(ImplodedTreeBuilder implodedTreeBuilder) {
+		parseTable.setTreeBuilder(new ImplodedTreeBuilder());
 	}
 
 	AmbiguityManager getAmbiguityManager() {

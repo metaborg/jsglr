@@ -1,6 +1,14 @@
 package org.spoofax.jsglr.shared.terms;
 
-public class ATermString extends ATerm {
+/**
+ * A String term.
+ * 
+ * For compatibility with the traditional ATerm library,
+ * this class extends ATermAppl.
+ * 
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+public class ATermString extends ATermAppl {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -9,13 +17,28 @@ public class ATermString extends ATerm {
 	ATermString() {}
 	
 	ATermString(ATermFactory factory, String value) {
-		super(factory);
+		super(factory, null, ATermFactory.EMPTY);
 		this.value = value;
 	}
 	
 	@Override
 	public int getChildCount() {
 		return 0;
+	}
+	
+	public String getString() {
+		return value;
+	}
+	
+	@Deprecated
+	@Override
+	public String getName() {
+		return value;
+	}
+	
+	@Override
+	public AFun getAFun() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -45,5 +68,10 @@ public class ATermString extends ATerm {
 			return false;
 		ATermString o = (ATermString)t;
 		return o.value.equals(value);
+	}
+	
+	@Override
+	public int hashCode() {
+		return value.hashCode();
 	}
 }

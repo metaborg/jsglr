@@ -15,10 +15,10 @@ public class ParseReject extends ParseNode {
     }
 
     @Override
-    public Object toParseTree(ParseTable pt) {
+    public Object toTreeBottomup(BottomupTreeBuilder builder) {
         // Reject nodes shouldn't normally be output to a tree,
         // but in error recovery mode they can be
-        return super.toParseTree(pt);
+        return super.toTreeBottomup(builder);
     }
 
     @Override

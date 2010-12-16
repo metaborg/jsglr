@@ -8,7 +8,7 @@
   <source path='jsglr/shared'/>
   <source path='client'/>
   <source path='jsglr/tests'/>
-
+<!-- 
   <entry-point class='org.spoofax.client.JSGLREntryPoint'/>
-
+ -->
 </module>

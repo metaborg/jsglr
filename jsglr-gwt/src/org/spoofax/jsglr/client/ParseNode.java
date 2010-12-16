@@ -14,22 +14,22 @@ import org.spoofax.jsglr.shared.terms.ATerm;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
 import org.spoofax.jsglr.shared.terms.ATermList;
 
-public class ParseNode extends IParseNode {
+public class ParseNode extends AbstractParseNode {
 
     public final int label;
 
-    protected final IParseNode[] kids;
+    protected final AbstractParseNode[] kids;
 
     private int cachedHashCode;
 
-    public ParseNode(int label, IParseNode[] kids) {
+    public ParseNode(int label, AbstractParseNode[] kids) {
         this.label = label;
         this.kids = kids;
     }
 
-    public ParseNode(int label, List<IParseNode> kids) {
+    public ParseNode(int label, List<AbstractParseNode> kids) {
         this.label = label;
-        this.kids = kids.toArray(new IParseNode[kids.size()]);
+        this.kids = kids.toArray(new AbstractParseNode[kids.size()]);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ParseNode extends IParseNode {
 
         ATermList l1 = factory.makeList();
         for (int i = kids.length - 1; i >= 0; i--) {
-            l1 = l1.prepend(kids[i].toParseTree(pt));
+        	l1 = l1.prepend(kids[i].toParseTree(pt));
         }
 
         return factory.makeAppl(pt.applAFun, pt.getProduction(label), l1);
@@ -63,7 +63,7 @@ public class ParseNode extends IParseNode {
     public int getLabel() { return label; }
 
     @Deprecated
-    public List<IParseNode> getKids() {
+    public List<AbstractParseNode> getKids() {
     	// FIXME remove this method; should return the kids directly
     	return Arrays.asList(kids);
     }
@@ -91,7 +91,7 @@ public class ParseNode extends IParseNode {
             return cachedHashCode;
         final int prime = 31;
         int result = prime * label;
-        for(IParseNode n : kids)
+        for(AbstractParseNode n : kids)
             result += (prime * n.hashCode());
         cachedHashCode = result;
         return result;

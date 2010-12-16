@@ -45,6 +45,10 @@ public class ATermFactory implements Serializable {
 		return new ATermAppl(this, afun, kids);
 	}
 
+	public ATerm makeAppl(AFun afun, ATerm[] kids, boolean m) {
+		return new ATermAppl(this, afun, kids);
+	}
+
 	public ATerm makeInt(int i) {
 		return new ATermInt(this, i);
 	}

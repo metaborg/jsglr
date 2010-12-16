@@ -15,19 +15,19 @@ import org.spoofax.jsglr.shared.terms.ATermFactory;
 import org.spoofax.jsglr.shared.terms.ATermList;
 
 
-public class Amb extends IParseNode {
+public class Amb extends AbstractParseNode {
 
-    private final List<IParseNode> alternatives;
+    private final List<AbstractParseNode> alternatives;
 
     private int cachedHashCode = NO_HASH_CODE;
 
-    Amb(IParseNode left, IParseNode right) {
-        alternatives = new ArrayList<IParseNode>(2);
+    Amb(AbstractParseNode left, AbstractParseNode right) {
+        alternatives = new ArrayList<AbstractParseNode>(2);
         alternatives.add(left);
         alternatives.add(right);
     }
 
-    public Amb(List<IParseNode> alternatives) {
+    public Amb(List<AbstractParseNode> alternatives) {
         this.alternatives = alternatives;
     }
 
@@ -44,7 +44,7 @@ public class Amb extends IParseNode {
             ATermList list) {
 
         for (int i = alternatives.size() - 1; i >= 0; i--) {
-            IParseNode alt = alternatives.get(i);
+            AbstractParseNode alt = alternatives.get(i);
             if (alt instanceof Amb) {
                 list = ((Amb) alt).addToParseTree(pt, factory, list);
             } else {
@@ -59,11 +59,11 @@ public class Amb extends IParseNode {
         return "amb(" + alternatives + ")";
     }
 
-    public boolean hasAmbiguity(IParseNode newNode) {
+    public boolean hasAmbiguity(AbstractParseNode newNode) {
         throw new NotImplementedException();
     }
 
-    public List<IParseNode> getAlternatives() {
+    public List<AbstractParseNode> getAlternatives() {
         return alternatives;
     }
 

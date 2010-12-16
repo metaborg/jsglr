@@ -7,14 +7,12 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class Path {
 
 	private Path parent;
-	private IParseNode label;
+	private AbstractParseNode label;
 	private Frame frame;
 	private int length;
 	private int parentCount;
@@ -40,19 +38,20 @@ public class Path {
 		return parent.getRecoverCount(maxCharLength);
 	}
 
-	public static boolean logNewInstanceCreation = false;
-
+	public static int[] counter = new int[1024];
+	
 	public Path reuse(Path parent, Link link, Frame frame, int length, int parentCount) {
 		this.parent = parent;
 		this.link = link;
 		this.frame = frame;
 		this.length = length;
 		this.parentCount = parentCount;
-		if(link != null){
+		if(link != null) {
 			this.label = link.label;
         } else {
             this.label = null;
         }
+		counter[parentCount]++;
 		assert length >= 0;
 		assert parentCount >= 0;
 		return this;
@@ -62,8 +61,8 @@ public class Path {
 		return frame;
 	}
 
-	public final IParseNode[] getParseNodes() {
-		IParseNode[] ret = new IParseNode[parentCount];
+	public final AbstractParseNode[] getParseNodes() {
+		AbstractParseNode[] ret = new AbstractParseNode[parentCount];
 
 		int pos = 0;
 		for (Path n = parent; n != null; n = n.parent) {
@@ -96,7 +95,7 @@ public class Path {
 		return parent;
 	}
 
-	public IParseNode getLabel() {
+	public AbstractParseNode getLabel() {
 		return label;
 	}
 

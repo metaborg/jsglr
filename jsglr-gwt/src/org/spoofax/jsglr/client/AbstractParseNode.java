@@ -9,7 +9,7 @@ package org.spoofax.jsglr.client;
 
 import org.spoofax.jsglr.shared.terms.ATerm;
 
-public abstract class IParseNode {
+public abstract class AbstractParseNode {
 
     protected static final int NO_HASH_CODE = 0;
 

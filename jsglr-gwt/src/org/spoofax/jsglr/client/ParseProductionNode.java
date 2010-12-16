@@ -9,7 +9,7 @@ package org.spoofax.jsglr.client;
 
 import org.spoofax.jsglr.shared.terms.ATerm;
 
-public class ParseProductionNode extends IParseNode {
+public class ParseProductionNode extends AbstractParseNode {
 
     public final int prod;
 

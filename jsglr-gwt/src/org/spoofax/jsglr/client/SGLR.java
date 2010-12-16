@@ -353,7 +353,7 @@ public class SGLR {
         logBeforeShifter();
         clearActiveStacks();
 
-        IParseNode prod = parseTable.lookupProduction(currentToken);
+        AbstractParseNode prod = parseTable.lookupProduction(currentToken);
 
         while (forShifter.size() > 0) {
             ActionState as = forShifter.remove();
@@ -564,7 +564,7 @@ public class SGLR {
 
         for(int i = 0; i < paths.size(); i++) {
         	Path path = paths.get(i);
-            IParseNode[] kids = path.getParseNodes();
+            AbstractParseNode[] kids = path.getParseNodes();
             Frame st0 = path.getEnd();
             State next = parseTable.go(st0.peek(), prod.label);
             logReductionPath(prod, path, st0, next);
@@ -578,10 +578,10 @@ public class SGLR {
     }
 
 
-    private void reducer(Frame st0, State s, Production prod, IParseNode[] kids, Path path) {
+    private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
         int length = path.getLength();
         int numberOfRecoveries = calcRecoverCount(prod, path);
-        IParseNode t = prod.apply(kids);
+        AbstractParseNode t = prod.apply(kids);
         Frame st1;
         Link nl;
         logBeforeReducer(s, prod, length);
@@ -653,13 +653,13 @@ public class SGLR {
 
     }*/
 
-    void createAmbNode(IParseNode t, Link nl) {
+    void createAmbNode(AbstractParseNode t, Link nl) {
         nl.addAmbiguity(t, tokensSeen);
         ambiguityManager.increaseAmbiguityCalls();
     }
 
     private void addNewStack(Frame st0, State s, Production prod, int length,
-            int numberOfRecoveries, IParseNode t) {
+            int numberOfRecoveries, AbstractParseNode t) {
         Frame st1;
         Link nl;
         /* Found no existing stack with for state s; make new stack */
@@ -681,7 +681,7 @@ public class SGLR {
     }
 
     private void addNewRecoverStack(Frame st0, State s, Production prod, int length,
-            int numberOfRecoveries, IParseNode t) {
+            int numberOfRecoveries, AbstractParseNode t) {
         if (fineGrainedOnRegion && !prod.isRejectProduction()) {
             Frame st1;
             Link nl;

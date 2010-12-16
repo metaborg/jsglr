@@ -33,7 +33,7 @@ public class Production implements Serializable {
         this.isRecover = isRecover;
     }
 
-    public IParseNode apply(IParseNode[] kids) {
+    public AbstractParseNode apply(AbstractParseNode[] kids) {
         switch(status) {
         case REJECT:
             return new ParseReject(label, kids);

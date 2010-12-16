@@ -57,12 +57,6 @@ public class ParseTable implements Serializable {
 
     transient public AFun ambAFun;
 
-    transient private ATerm injection1Appl;
-
-    transient private ATerm injection2Appl;
-
-    transient private ATerm litStringAppl;
-
     private Label[] injections;
 
     // TODO: allocate prototypes to avoid measurable GC overhead in ParseTable construction
@@ -88,9 +82,6 @@ public class ParseTable implements Serializable {
         this.factory = factory;
         applAFun = factory.makeAFun("appl", 2, false);
         ambAFun = factory.makeAFun("amb", 1, false);
-        injection1Appl = factory.parse("prod([<term>],cf(<term>),<term>)");
-        injection2Appl = factory.parse("prod([<term>],lex(sort(<str>)),<term>)");
-        litStringAppl = factory.parse("lit(<str>)");
     }
 
     public ATermFactory getFactory() {
@@ -591,7 +582,7 @@ public class ParseTable implements Serializable {
         return hasAvoids() || hasPrefers();
     }
 
-    public IParseNode lookupProduction(int currentToken) {
+    public AbstractParseNode lookupProduction(int currentToken) {
         return new ParseProductionNode(currentToken);
     }
 

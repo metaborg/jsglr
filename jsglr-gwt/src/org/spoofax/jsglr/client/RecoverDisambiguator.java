@@ -10,7 +10,7 @@ public class RecoverDisambiguator {
         parseTable=pt;        
     }
     
-    public void handleAmbiguity(int recoverCount_t, IParseNode t, Link nl){  
+    public void handleAmbiguity(int recoverCount_t, AbstractParseNode t, Link nl){  
         //System.out.println("RECOVERCOUNT: "+recoverCount_t);
         //System.out.println("LNK_RECOVERCOUNT: "+nl.recoverCount);
         testCount++;
@@ -24,7 +24,7 @@ public class RecoverDisambiguator {
           //  trySelectByIndentation(recoverCount_t, t, nl);
     }
     
-    private boolean trySelectOnRecoverCount(int recoverCount_t, IParseNode t, Link nl) {
+    private boolean trySelectOnRecoverCount(int recoverCount_t, AbstractParseNode t, Link nl) {
         if(recoverCount_t == nl.recoverCount){
             setLabel(recoverCount_t, t, nl);
             return false;
@@ -34,7 +34,7 @@ public class RecoverDisambiguator {
         return true;
     }
     
-    private boolean trySelectNoRecoveries(int avoidCount_t, IParseNode t, Link nl){     
+    private boolean trySelectNoRecoveries(int avoidCount_t, AbstractParseNode t, Link nl){     
         if(nl.recoverCount==0)
             return true;
         if(avoidCount_t==0){
@@ -44,7 +44,7 @@ public class RecoverDisambiguator {
         return false;
     }
     
-    private void setLabel(int recoverCount_t, IParseNode t, Link nl) {
+    private void setLabel(int recoverCount_t, AbstractParseNode t, Link nl) {
         nl.label=t;
         nl.recoverCount=recoverCount_t;
     }

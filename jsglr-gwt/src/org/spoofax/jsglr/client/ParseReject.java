@@ -11,7 +11,7 @@ import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class ParseReject extends ParseNode {
 
-    public ParseReject(int label, IParseNode[] kids) {
+    public ParseReject(int label, AbstractParseNode[] kids) {
         super(label, kids);
     }
 

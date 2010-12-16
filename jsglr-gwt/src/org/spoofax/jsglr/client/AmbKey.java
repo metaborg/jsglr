@@ -10,10 +10,10 @@ package org.spoofax.jsglr.client;
 
 public class AmbKey {
 
-    private IParseNode key;
+    private AbstractParseNode key;
     private int pos;
     
-    AmbKey(IParseNode key, int pos) {
+    AmbKey(AbstractParseNode key, int pos) {
         this.key = key;
         this.pos = pos;
     }

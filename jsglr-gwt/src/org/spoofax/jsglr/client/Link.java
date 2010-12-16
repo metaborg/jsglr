@@ -16,7 +16,7 @@ public class Link {
     
     protected Frame parent;
 
-    protected IParseNode label;
+    protected AbstractParseNode label;
 
     private boolean rejected;
     
@@ -24,7 +24,7 @@ public class Link {
     
     public int recoverCount;
 
-    public Link(Frame destination, IParseNode t, int length) {
+    public Link(Frame destination, AbstractParseNode t, int length) {
         this.parent = destination;
         label = t;
         rejected = false;
@@ -59,7 +59,7 @@ public class Link {
         this.label = null;
     }
 
-    public void addAmbiguity(IParseNode t, int tokensSeen) {
+    public void addAmbiguity(AbstractParseNode t, int tokensSeen) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
         }

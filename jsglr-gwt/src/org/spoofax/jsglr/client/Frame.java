@@ -119,7 +119,7 @@ public class Frame implements Serializable {
 
     static public int[] counter = new int[1000];
     
-    public Link addLink(Frame st0, IParseNode n, int length) {
+    public Link addLink(Frame st0, AbstractParseNode n, int length) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_AddLink() - " + state.stateNumber + ", " + st0.state.stateNumber + ", " + length);
         }
@@ -262,7 +262,7 @@ public class Frame implements Serializable {
             for (int i = 0; i < stepsCount; i++) {
                 Link ln = steps[stepsCount - i - 1];
                 boolean seenIt = seen || (ln == l);
-                Path n = pool.makePath(node, ln, this, ln.getLength(), arity - length);
+                Path n = pool.makePath(node, ln, this, ln.getLength(), parentCount);
                 ln.parent.doComputePathsToRoot(pool, n, l, seenIt, arity - 1, parentCount + 1, length + ln.getLength());
             }
         }

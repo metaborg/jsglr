@@ -12,22 +12,22 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.spoofax.jsglr.client.IParseNode;
+import org.spoofax.jsglr.client.AbstractParseNode;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
 
 public class TestIParseNode extends TestCase {
 
-    private IParseNode pn0; 
-    private IParseNode pn1;
+    private AbstractParseNode pn0; 
+    private AbstractParseNode pn1;
     
     @Override
     protected void setUp() throws Exception {
-        List<IParseNode> r0 = new ArrayList<IParseNode>();
+        List<AbstractParseNode> r0 = new ArrayList<AbstractParseNode>();
         r0.add(new ParseProductionNode(123));
         pn0 = new ParseNode(233, r0);
 
-        List<IParseNode> r1 = new ArrayList<IParseNode>();
+        List<AbstractParseNode> r1 = new ArrayList<AbstractParseNode>();
         r1.add(new ParseProductionNode(123));
         pn1 = new ParseNode(233, r1);
     }

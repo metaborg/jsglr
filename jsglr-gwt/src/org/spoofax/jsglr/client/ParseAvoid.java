@@ -11,7 +11,7 @@ import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class ParseAvoid extends ParseNode {
 
-    public ParseAvoid(int label, IParseNode[] kids) {
+    public ParseAvoid(int label, AbstractParseNode[] kids) {
         super(label, kids);
     }
 

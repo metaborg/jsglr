@@ -11,7 +11,7 @@ import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class ParsePrefer extends ParseNode {
 
-    public ParsePrefer(int label, IParseNode[] kids) {
+    public ParsePrefer(int label, AbstractParseNode[] kids) {
         super(label, kids);
     }
 

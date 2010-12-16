@@ -181,7 +181,7 @@ public class Disambiguator {
         setDefaultFilters();
     }
 
-    public ATerm applyFilters(SGLR parser, IParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
+    public ATerm applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
         try {
             if(SGLR.isDebugging()) {
                 Tools.debug("applyFilters()");
@@ -189,7 +189,7 @@ public class Disambiguator {
 
             initializeFromParser(parser);
 
-            IParseNode t = root;
+            AbstractParseNode t = root;
 
             t = applyTopSortFilter(sort, t);
 
@@ -233,11 +233,11 @@ public class Disambiguator {
         Tools.logger("Number of Injection Counts: ", ambiguityManager.getInjectionCount());
     }
 
-    private ATerm yieldTree(IParseNode t) {
+    private ATerm yieldTree(AbstractParseNode t) {
         return t.toParseTree(parser.getParseTable());
     }
 
-    private ATerm convertToATerm(IParseNode t) {
+    private ATerm convertToATerm(AbstractParseNode t) {
 
         if (SGLR.isDebugging()) {
             Tools.debug("convertToATerm: ", t);
@@ -257,7 +257,7 @@ public class Disambiguator {
                                                 parseTable.getFactory().makeInt(ambCount));
     }
 
-    private IParseNode applyCycleDetectFilter(IParseNode t) throws FilterException {
+    private AbstractParseNode applyCycleDetectFilter(AbstractParseNode t) throws FilterException {
 
         if (SGLR.isDebugging()) {
             Tools.debug("applyCycleDetectFilter() - ", t);
@@ -274,7 +274,7 @@ public class Disambiguator {
         return t;
     }
 
-    private ATerm getProduction(IParseNode t) {
+    private ATerm getProduction(AbstractParseNode t) {
         if (t instanceof ParseNode) {
             return parseTable.getProduction(((ParseNode) t).getLabel());
         } else {
@@ -282,7 +282,7 @@ public class Disambiguator {
         }
     }
 
-    private IParseNode applyTopSortFilter(String sort, IParseNode t) throws SGLRException {
+    private AbstractParseNode applyTopSortFilter(String sort, AbstractParseNode t) throws SGLRException {
 
         if (SGLR.isDebugging()) {
             Tools.debug("applyTopSortFilter() - ", t);
@@ -309,8 +309,8 @@ public class Disambiguator {
         }
     }
 
-    private IParseNode selectOnTopSort(IParseNode t, String sort) throws FilterException {
-        List<IParseNode> results = new ArrayList<IParseNode>();
+    private AbstractParseNode selectOnTopSort(AbstractParseNode t, String sort) throws FilterException {
+        List<AbstractParseNode> results = new ArrayList<AbstractParseNode>();
 
         if (t instanceof Amb) {
             addTopSortAlternatives(t, sort, results);
@@ -326,10 +326,10 @@ public class Disambiguator {
         }
       }
 
-    private void addTopSortAlternatives(IParseNode t, String sort, List<IParseNode> results) throws FilterException {
-        List<IParseNode> alternatives = ((Amb) t).getAlternatives();
+    private void addTopSortAlternatives(AbstractParseNode t, String sort, List<AbstractParseNode> results) throws FilterException {
+        List<AbstractParseNode> alternatives = ((Amb) t).getAlternatives();
         for (int i = 0, max = alternatives.size(); i < max; i++) {
-            IParseNode amb = alternatives.get(i);
+            AbstractParseNode amb = alternatives.get(i);
             if (amb instanceof Amb) {
                 addTopSortAlternatives(amb, sort, results);
             } else {
@@ -340,7 +340,7 @@ public class Disambiguator {
         }
     }
 
-    private IParseNode filterTree(IParseNode t, boolean inAmbiguityCluster) throws FilterException {
+    private AbstractParseNode filterTree(AbstractParseNode t, boolean inAmbiguityCluster) throws FilterException {
         // SG_FilterTreeRecursive
         if (SGLR.isDebugging()) {
             Tools.debug("filterTree(node)    - ", t);
@@ -349,21 +349,21 @@ public class Disambiguator {
         if (t instanceof Amb) {
             if (!inAmbiguityCluster) {
                 // (some cycle stuff should be done here)
-                List<IParseNode> ambs = ((Amb)t).getAlternatives();
+                List<AbstractParseNode> ambs = ((Amb)t).getAlternatives();
                 t = filterAmbiguities(ambs);
             } else {
             	// FIXME: hasRejectProd(Amb) can never succeed?
                 if (filterReject && parseTable.hasRejects() && hasRejectProd(t)) {
                     return null;
                 }
-                List<IParseNode> ambs = ((Amb) t).getAlternatives();
+                List<AbstractParseNode> ambs = ((Amb) t).getAlternatives();
                 return filterAmbiguities(ambs);
 
             }
         } else if(t instanceof ParseNode) {
             ParseNode node = (ParseNode) t;
-            List<IParseNode> args = node.getKids();
-            List<IParseNode> newArgs = filterTree(args, false);
+            List<AbstractParseNode> args = node.getKids();
+            List<AbstractParseNode> newArgs = filterTree(args, false);
 
             if (filterReject && parseTable.hasRejects()) {
                 if (hasRejectProd(t) && !parser.useIntegratedRecovery)
@@ -385,18 +385,18 @@ public class Disambiguator {
         }
     }
 
-    private List<IParseNode> filterTree(List<IParseNode> args, boolean inAmbiguityCluster) throws FilterException {
+    private List<AbstractParseNode> filterTree(List<AbstractParseNode> args, boolean inAmbiguityCluster) throws FilterException {
 
         if(SGLR.isDebugging()) {
             Tools.debug("filterTree(<nodes>) - ", args);
         }
 
-        List<IParseNode> newArgs = new ArrayList<IParseNode>();
+        List<AbstractParseNode> newArgs = new ArrayList<AbstractParseNode>();
         // boolean changed = false;
 
         for (int i = 0, max = args.size(); i < max; i++) {
-            IParseNode n = args.get(i);
-            IParseNode filtered = filterTree(n, false);
+            AbstractParseNode n = args.get(i);
+            AbstractParseNode filtered = filterTree(n, false);
 
             // changed = !filtered.equals(n) || changed;
             newArgs.add(filtered);
@@ -409,9 +409,9 @@ public class Disambiguator {
         // }
 
         if (filterAny) {
-            List<IParseNode> filtered = new ArrayList<IParseNode>();
+            List<AbstractParseNode> filtered = new ArrayList<AbstractParseNode>();
             for (int i = 0, max = newArgs.size(); i < max; i++) {
-                IParseNode n = newArgs.get(i);
+                AbstractParseNode n = newArgs.get(i);
                 filtered.add(applyAssociativityPriorityFilter(n));
             }
             return filtered;
@@ -420,7 +420,7 @@ public class Disambiguator {
         }
     }
 
-    private IParseNode applyAssociativityPriorityFilter(IParseNode t) throws FilterException {
+    private AbstractParseNode applyAssociativityPriorityFilter(AbstractParseNode t) throws FilterException {
         // SG_Associativity_Priority_Filter(pt, t)
         // - ok
 
@@ -428,7 +428,7 @@ public class Disambiguator {
             Tools.debug("applyAssociativityPriorityFilter() - ", t);
         }
 
-        IParseNode r = t;
+        AbstractParseNode r = t;
 
         if (t instanceof ParseNode) {
             Label prodLabel = getProductionLabel(t);
@@ -465,7 +465,7 @@ public class Disambiguator {
         return r;
     }
 
-    private IParseNode applyRightAssociativeFilter(ParseNode t, Label prodLabel) throws FilterException {
+    private AbstractParseNode applyRightAssociativeFilter(ParseNode t, Label prodLabel) throws FilterException {
         // SG_Right_Associativity_Filter(t, prodl)
         // - almost ok
 
@@ -473,17 +473,17 @@ public class Disambiguator {
             Tools.debug("applyRightAssociativeFilter() - ", t);
         }
 
-        List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
-        List<IParseNode> kids = t.getKids();
-        IParseNode firstKid = kids.get(0);
+        List<AbstractParseNode> newAmbiguities = new ArrayList<AbstractParseNode>();
+        List<AbstractParseNode> kids = t.getKids();
+        AbstractParseNode firstKid = kids.get(0);
 
         if(firstKid instanceof Amb) {
 
-            List<IParseNode> ambs = ((Amb)firstKid).getAlternatives();
-            List<IParseNode> restKids = kids.subList(1, t.kids.length - 1);
+            List<AbstractParseNode> ambs = ((Amb)firstKid).getAlternatives();
+            List<AbstractParseNode> restKids = kids.subList(1, t.kids.length - 1);
 
             for (int i = 0, max = ambs.size(); i < max; i++) {
-                IParseNode amb = ambs.get(i);
+                AbstractParseNode amb = ambs.get(i);
                 if(((ParseNode)amb).getLabel() != prodLabel.labelNumber) {
                     newAmbiguities.add(amb);
                 }
@@ -510,32 +510,32 @@ public class Disambiguator {
         return t;
     }
 
-    private IParseNode applyPriorityFilter(ParseNode t, Label prodLabel) throws FilterException {
+    private AbstractParseNode applyPriorityFilter(ParseNode t, Label prodLabel) throws FilterException {
         // SG_Priority_Filter
 
         if(SGLR.isDebugging()) {
             Tools.debug("applyPriorityFilter() - ", t);
         }
 
-        List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
-        List<IParseNode> kids = t.getKids();
-        List<IParseNode> newKids = new ArrayList<IParseNode>();
+        List<AbstractParseNode> newAmbiguities = new ArrayList<AbstractParseNode>();
+        List<AbstractParseNode> kids = t.getKids();
+        List<AbstractParseNode> newKids = new ArrayList<AbstractParseNode>();
 
         int l0 = prodLabel.labelNumber;
         int kidnumber = 0;
 
         for (int i = 0, max = kids.size(); i < max; i++) {
-            final IParseNode kid = kids.get(i);
-            IParseNode newKid = kid;
-            final IParseNode injection = jumpOverInjections(kid);
+            final AbstractParseNode kid = kids.get(i);
+            AbstractParseNode newKid = kid;
+            final AbstractParseNode injection = jumpOverInjections(kid);
 
             if (injection instanceof Amb) {
-                List<IParseNode> ambs = ((Amb) injection).getAlternatives();
+                List<AbstractParseNode> ambs = ((Amb) injection).getAlternatives();
 
                 newAmbiguities.clear();
                 for (int j = 0, jmax = ambs.size(); j < jmax; j++) {
-                    IParseNode amb = ambs.get(j);
-                    IParseNode injAmb = jumpOverInjections(amb);
+                    AbstractParseNode amb = ambs.get(j);
+                    AbstractParseNode injAmb = jumpOverInjections(amb);
 
                     if (injAmb instanceof ParseNode) {
                         Label label = getProductionLabel(t);
@@ -546,7 +546,7 @@ public class Disambiguator {
                 }
 
                 if(!newAmbiguities.isEmpty()) {
-                    IParseNode n = null;
+                    AbstractParseNode n = null;
                     if(newAmbiguities.size() > 1) {
                         n = new Amb(newAmbiguities);
                     } else {
@@ -576,7 +576,7 @@ public class Disambiguator {
         return new ParseNode(t.label, newKids);
     }
 
-    private IParseNode replaceUnderInjections(IParseNode alt, IParseNode injection, IParseNode n) {
+    private AbstractParseNode replaceUnderInjections(AbstractParseNode alt, AbstractParseNode injection, AbstractParseNode n) {
         // SG_Replace_Under_Injections
         // - not ok
 
@@ -593,7 +593,7 @@ public class Disambiguator {
         */
     }
 
-    private IParseNode jumpOverInjections(IParseNode t) {
+    private AbstractParseNode jumpOverInjections(AbstractParseNode t) {
 
         if(SGLR.isDebugging()) {
             Tools.debug("jumpOverInjections() - ", t);
@@ -603,8 +603,8 @@ public class Disambiguator {
             int prod = ((ParseNode) t).label;
             ParseNode n = (ParseNode)t;
             while (isUserDefinedLabel(prod)) {
-                List<IParseNode> kids = n.getKids();
-                IParseNode x = kids.get(0);
+                List<AbstractParseNode> kids = n.getKids();
+                AbstractParseNode x = kids.get(0);
                 if(x instanceof ParseNode) {
                     n = (ParseNode)x;
                     prod = n.label;
@@ -643,26 +643,26 @@ public class Disambiguator {
         return parseTable.getPriorities(prodLabel);
     }
 
-    private IParseNode applyLeftAssociativeFilter(ParseNode t, Label prodLabel) throws FilterException {
+    private AbstractParseNode applyLeftAssociativeFilter(ParseNode t, Label prodLabel) throws FilterException {
         // SG_Right_Associativity_Filter()
 
         if(SGLR.isDebugging()) {
             Tools.debug("applyLeftAssociativeFilter() - ", t);
         }
 
-        List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
-        List<IParseNode> kids = t.getKids();
-        IParseNode last = kids.get(kids.size() - 1);
+        List<AbstractParseNode> newAmbiguities = new ArrayList<AbstractParseNode>();
+        List<AbstractParseNode> kids = t.getKids();
+        AbstractParseNode last = kids.get(kids.size() - 1);
 
         if (last instanceof Amb) {
-            List<IParseNode> rest = new ArrayList<IParseNode>();
+            List<AbstractParseNode> rest = new ArrayList<AbstractParseNode>();
             rest.addAll(kids);
             rest.remove(rest.size() - 1);
 
-            List<IParseNode> ambs = ((Amb) last).getAlternatives();
+            List<AbstractParseNode> ambs = ((Amb) last).getAlternatives();
 
             for (int i = 0, max = ambs.size(); i < max; i++) {
-                IParseNode amb = ambs.get(i);
+                AbstractParseNode amb = ambs.get(i);
                 if (amb instanceof Amb
                         || !parseTable.getLabel(((ParseNode) amb).getLabel()).equals(prodLabel)) {
                     newAmbiguities.add(amb);
@@ -690,7 +690,7 @@ public class Disambiguator {
         return t;
     }
 
-    private Label getProductionLabel(IParseNode t) {
+    private Label getProductionLabel(AbstractParseNode t) {
         if (t instanceof ParseNode) {
             return parseTable.getLabel(((ParseNode) t).getLabel());
         } else if (t instanceof ParseProductionNode) {
@@ -699,31 +699,31 @@ public class Disambiguator {
         return null;
     }
 
-    private boolean hasRejectProd(IParseNode t) {
+    private boolean hasRejectProd(AbstractParseNode t) {
         return t instanceof ParseReject;
     }
 
-    private IParseNode filterAmbiguities(List<IParseNode> ambs) throws FilterException {
+    private AbstractParseNode filterAmbiguities(List<AbstractParseNode> ambs) throws FilterException {
         // SG_FilterAmb
 
         if(SGLR.isDebugging()) {
             Tools.debug("filterAmbiguities() - [", ambs.size(), "]");
         }
 
-        List<IParseNode> newAmbiguities = new ArrayList<IParseNode>();
+        List<AbstractParseNode> newAmbiguities = new ArrayList<AbstractParseNode>();
 
         for (int i = 0, max = ambs.size(); i < max; i++) {
-            IParseNode amb = ambs.get(i);
-            IParseNode newAmb = filterTree(amb, true);
+            AbstractParseNode amb = ambs.get(i);
+            AbstractParseNode newAmb = filterTree(amb, true);
             if (newAmb != null) newAmbiguities.add(newAmb);
         }
 
         if (newAmbiguities.size() > 1) {
             /* Handle ambiguities inside this ambiguity cluster */
-            List<IParseNode> oldAmbiguities = new LinkedList<IParseNode>();
+            List<AbstractParseNode> oldAmbiguities = new LinkedList<AbstractParseNode>();
             oldAmbiguities.addAll(newAmbiguities);
             for (int i = 0, max = oldAmbiguities.size(); i < max; i++) {
-                IParseNode amb = oldAmbiguities.get(i);
+                AbstractParseNode amb = oldAmbiguities.get(i);
                 if (newAmbiguities.remove(amb)) {
                     newAmbiguities = filterAmbiguityList(newAmbiguities, amb);
                 }
@@ -739,11 +739,11 @@ public class Disambiguator {
         return new Amb(newAmbiguities);
     }
 
-    private List<IParseNode> filterAmbiguityList(List<IParseNode> ambs, IParseNode t) {
+    private List<AbstractParseNode> filterAmbiguityList(List<AbstractParseNode> ambs, AbstractParseNode t) {
         // SG_FilterAmbList
 
         boolean keepT = true;
-        List<IParseNode> r = new ArrayList<IParseNode>();
+        List<AbstractParseNode> r = new ArrayList<AbstractParseNode>();
 
         if (ambs.isEmpty()) {
             r.add(t);
@@ -751,7 +751,7 @@ public class Disambiguator {
         }
 
         for (int i = 0, max = ambs.size(); i < max; i++) {
-            IParseNode amb = ambs.get(i);
+            AbstractParseNode amb = ambs.get(i);
             switch (filter(t, amb)) {
             case FILTER_DRAW:
                 r.add(amb);
@@ -769,7 +769,7 @@ public class Disambiguator {
         return r;
     }
 
-    private int filter(IParseNode left, IParseNode right) {
+    private int filter(AbstractParseNode left, AbstractParseNode right) {
         // SG_Filter(t0, t1)
 
         if(SGLR.isDebugging()) {
@@ -810,12 +810,12 @@ public class Disambiguator {
         return filterPermissiveLiterals(left, right);
     }
 
-    private int filterPermissiveLiterals(IParseNode left, IParseNode right) {
+    private int filterPermissiveLiterals(AbstractParseNode left, AbstractParseNode right) {
         // Work-around for http://bugs.strategoxt.org/browse/SPI-5 (Permissive grammars introduce ambiguities for literals)
 
         if (left instanceof ParseNode && right instanceof ParseNode) {
-            List<IParseNode> leftKids = ((ParseNode) left).getKids();
-            List<IParseNode> rightKids = ((ParseNode) right).getKids();
+            List<AbstractParseNode> leftKids = ((ParseNode) left).getKids();
+            List<AbstractParseNode> rightKids = ((ParseNode) right).getKids();
             if (leftKids.size() > 0 && rightKids.size() == 1) {
                 if (leftKids.get(0) instanceof ParseProductionNode && rightKids.get(0).equals(left)) {
                     return FILTER_LEFT_WINS;
@@ -825,7 +825,7 @@ public class Disambiguator {
         return FILTER_DRAW;
     }
 
-    private int filterOnInjectionCount(IParseNode left, IParseNode right) {
+    private int filterOnInjectionCount(AbstractParseNode left, AbstractParseNode right) {
 
         if(SGLR.isDebugging()) {
             Tools.debug("filterOnInjectionCount()");
@@ -849,7 +849,7 @@ public class Disambiguator {
         return FILTER_DRAW;
     }
 
-    private int countAllInjections(IParseNode t) {
+    private int countAllInjections(AbstractParseNode t) {
         // SG_CountAllInjectionsInTree
         // - ok
         if (t instanceof Amb) {
@@ -862,18 +862,18 @@ public class Disambiguator {
         return 0;
     }
 
-    private int countAllInjections(List<IParseNode> ls) {
+    private int countAllInjections(List<AbstractParseNode> ls) {
         // SG_CountAllInjectionsInTree
         // - ok
         int r = 0;
         for (int i = 0, max = ls.size(); i < max; i++) {
-            IParseNode n = ls.get(i);
+            AbstractParseNode n = ls.get(i);
             r += countAllInjections(n);
         }
         return r;
     }
 
-    private int filterOnPreferCount(IParseNode left, IParseNode right) {
+    private int filterOnPreferCount(AbstractParseNode left, AbstractParseNode right) {
 
         if(SGLR.isDebugging()) {
             Tools.debug("filterOnPreferCount()");
@@ -913,7 +913,7 @@ public class Disambiguator {
         return r;
     }
 
-    private int countPrefers(IParseNode t) {
+    private int countPrefers(AbstractParseNode t) {
         // SG_CountPrefersInTree
         // - ok
         if (t instanceof Amb) {
@@ -929,18 +929,18 @@ public class Disambiguator {
         return 0;
     }
 
-    private int countPrefers(List<IParseNode> ls) {
+    private int countPrefers(List<AbstractParseNode> ls) {
         // SG_CountPrefersInTree
         // - ok
         int r = 0;
         for (int i = 0, max = ls.size(); i < max; i++) {
-            IParseNode n = ls.get(i);
+            AbstractParseNode n = ls.get(i);
             r += countPrefers(n);
         }
         return r;
     }
 
-    private int countAvoids(IParseNode t) {
+    private int countAvoids(AbstractParseNode t) {
         // SG_CountAvoidsInTree
         // - ok
         if (t instanceof Amb) {
@@ -956,18 +956,18 @@ public class Disambiguator {
         return 0;
     }
 
-    private int countAvoids(List<IParseNode> ls) {
+    private int countAvoids(List<AbstractParseNode> ls) {
         // SG_CountAvoidsInTree
         // - ok
         int r = 0;
         for (int i = 0, max = ls.size(); i < max; i++) {
-            IParseNode n = ls.get(i);
+            AbstractParseNode n = ls.get(i);
             r += countAvoids(n);
         }
         return r;
     }
 
-    private int filterOnIndirectPrefers(IParseNode left, IParseNode right) {
+    private int filterOnIndirectPrefers(AbstractParseNode left, AbstractParseNode right) {
         // SG_Indirect_Eagerness_Filter
 
         if(SGLR.isDebugging()) {
@@ -983,15 +983,15 @@ public class Disambiguator {
         ParseNode l = (ParseNode) left;
         ParseNode r = (ParseNode) right;
 
-        List<IParseNode> leftArgs = l.getKids();
-        List<IParseNode> rightArgs = r.getKids();
+        List<AbstractParseNode> leftArgs = l.getKids();
+        List<AbstractParseNode> rightArgs = r.getKids();
 
         int diffs = computeDistinctArguments(leftArgs, rightArgs);
 
         if (diffs == 1) {
             for (int i = 0; i < leftArgs.size(); i++) {
-                IParseNode leftArg = leftArgs.get(i);
-                IParseNode rightArg = rightArgs.get(i);
+                AbstractParseNode leftArg = leftArgs.get(i);
+                AbstractParseNode rightArg = rightArgs.get(i);
 
                 if (!leftArg.equals(rightArg)) {
                     return filterOnIndirectPrefers(leftArg, rightArg);
@@ -1002,7 +1002,7 @@ public class Disambiguator {
         return FILTER_DRAW;
     }
 
-    private int filterOnDirectPrefers(IParseNode left, IParseNode right) {
+    private int filterOnDirectPrefers(AbstractParseNode left, AbstractParseNode right) {
         // SG_Direct_Eagerness_Filter
 
         if(SGLR.isDebugging()) {
@@ -1018,13 +1018,13 @@ public class Disambiguator {
         return FILTER_DRAW;
     }
 
-    private boolean isLeftMoreEager(IParseNode left, IParseNode right) {
+    private boolean isLeftMoreEager(AbstractParseNode left, AbstractParseNode right) {
         assert !(left instanceof Amb || right instanceof Amb);
         if (isMoreEager(left, right))
             return true;
 
-        IParseNode newLeft = jumpOverInjectionsModuloEagerness(left);
-        IParseNode newRight = jumpOverInjectionsModuloEagerness(right);
+        AbstractParseNode newLeft = jumpOverInjectionsModuloEagerness(left);
+        AbstractParseNode newRight = jumpOverInjectionsModuloEagerness(right);
 
         if (newLeft instanceof ParseNode && newRight instanceof ParseNode)
             return isMoreEager(newLeft, newRight);
@@ -1032,7 +1032,7 @@ public class Disambiguator {
         return false;
     }
 
-    private IParseNode jumpOverInjectionsModuloEagerness(IParseNode t) {
+    private AbstractParseNode jumpOverInjectionsModuloEagerness(AbstractParseNode t) {
 
         if(SGLR.isDebugging()) {
             Tools.debug("jumpOverInjectionsModuloEagerness()");
@@ -1064,7 +1064,7 @@ public class Disambiguator {
         return t;
     }
 
-    private Label getLabel(IParseNode t) {
+    private Label getLabel(AbstractParseNode t) {
         if (t instanceof ParseNode) {
             ParseNode n = (ParseNode) t;
             return parseTable.getLabel(n.label);
@@ -1075,11 +1075,11 @@ public class Disambiguator {
         return null;
     }
 
-    private int getProductionType(IParseNode t) {
+    private int getProductionType(AbstractParseNode t) {
         return getLabel(t).getAttributes().getType();
     }
 
-    private boolean isMoreEager(IParseNode left, IParseNode right) {
+    private boolean isMoreEager(AbstractParseNode left, AbstractParseNode right) {
         int leftLabel = ((ParseNode) left).getLabel();
         int rightLabel = ((ParseNode) right).getLabel();
 
@@ -1092,7 +1092,7 @@ public class Disambiguator {
         return false;
     }
 
-    private int computeDistinctArguments(List<IParseNode> leftArgs, List<IParseNode> rightArgs) {
+    private int computeDistinctArguments(List<AbstractParseNode> leftArgs, List<AbstractParseNode> rightArgs) {
         // countDistinctArguments
         int r = 0;
         for (int i = 0; i < leftArgs.size(); i++) {
@@ -1102,16 +1102,16 @@ public class Disambiguator {
         return r;
     }
 
-    private boolean isCyclicTerm(IParseNode t) {
+    private boolean isCyclicTerm(AbstractParseNode t) {
 
         ambiguityManager.dumpIndexTable();
 
-        List<IParseNode> cycles = computeCyclicTerm(t);
+        List<AbstractParseNode> cycles = computeCyclicTerm(t);
 
         return cycles != null && cycles.size() > 0;
     }
 
-    private List<IParseNode> computeCyclicTerm(IParseNode t) {
+    private List<AbstractParseNode> computeCyclicTerm(AbstractParseNode t) {
         // FIXME rewrite to use HashMap and object id
         PositionMap visited = new PositionMap(ambiguityManager.getMaxNumberOfAmbiguities());
 
@@ -1120,7 +1120,7 @@ public class Disambiguator {
         return computeCyclicTerm(t, false, visited);
     }
 
-    private List<IParseNode> computeCyclicTerm(IParseNode t, boolean inAmbiguityCluster,
+    private List<AbstractParseNode> computeCyclicTerm(AbstractParseNode t, boolean inAmbiguityCluster,
             PositionMap visited) {
 
         if (SGLR.isDebugging()) {
@@ -1134,7 +1134,7 @@ public class Disambiguator {
             return null;
         } else if (t instanceof ParseNode) {
             //Amb ambiguities = null;
-            List<IParseNode> cycle = null;
+            List<AbstractParseNode> cycle = null;
             //int clusterIndex;
             ParseNode n = (ParseNode) t;
 
@@ -1197,12 +1197,12 @@ public class Disambiguator {
     }
      */
 
-    private List<IParseNode> computeCyclicTerm(List<IParseNode> kids, boolean b, PositionMap visited) {
+    private List<AbstractParseNode> computeCyclicTerm(List<AbstractParseNode> kids, boolean b, PositionMap visited) {
 
 
         for (int i = 0, max = kids.size(); i < max; i++) {
-            IParseNode kid = kids.get(i);
-            List<IParseNode> cycle = computeCyclicTerm(kid, false, visited);
+            AbstractParseNode kid = kids.get(i);
+            List<AbstractParseNode> cycle = computeCyclicTerm(kid, false, visited);
             if (cycle != null)
                 return cycle;
         }

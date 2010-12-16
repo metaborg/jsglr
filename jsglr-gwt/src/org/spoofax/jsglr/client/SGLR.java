@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -291,9 +289,7 @@ public class SGLR {
 		currentInputStream = new PushbackStringIterator(input);
 		acceptingStack = null;
 		collectedErrors.clear();
-		ITokenizer tokenizer = parseTable.getTreeBuilder().getTokenizer();
-		if (tokenizer != null)
-			tokenizer.initialize(filename, input);
+		parseTable.getTreeBuilder().initializeInput(filename, input);
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 	}
@@ -867,8 +863,12 @@ public class SGLR {
 		return parseTable;
 	}
 
-	public void setTreeBuilder(TreeBuilder treeBuilder) {
+	public void setTreeBuilder(ITreeBuilder treeBuilder) {
 		parseTable.setTreeBuilder(treeBuilder);
+	}
+
+	public ITreeBuilder getTreeBuilder() {
+		return parseTable.getTreeBuilder();
 	}
 
 	AmbiguityManager getAmbiguityManager() {

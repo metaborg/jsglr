@@ -6,12 +6,6 @@ import org.spoofax.jsglr.client.KeywordRecognizer;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public interface ITokenizer extends Iterable<IToken> {
-	
-	/**
-	 * Initializes the tokenizer for the given
-	 * file name (if applicable) and contents.
-	 */
-	void initialize(String filename, String input);
 
 	String getInput();
 

@@ -34,6 +34,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	private static final String TUPLE_CONSTRUCTOR = new String("");
 	
+	private ParseTable table;
+	
 	private ITokenizer tokenizer;
 	
 	private ITreeFactory factory;
@@ -61,19 +63,18 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		this.initializeFactories = true;
 	}
 	
-	public TreeBuilder(ITreeFactory treeFactory, ITokenizer tokenizer) {
+	public TreeBuilder(ITreeFactory treeFactory) {
 		this.factory = treeFactory;
-		this.tokenizer = tokenizer;
 	}
 
-	public void initialize(ParseTable table, int productionCount, int labelStart, int labelCount) {
+	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
+		this.table = table;
 		this.termFactory = table.getFactory();
 		if (initializeFactories) {
 			factory = new ATermTreeFactory(termFactory);
-			tokenizer = new Tokenizer(table.getKeywordRecognizer());
 		}
 		assert !(factory instanceof ATermTreeFactory) || ((ATermTreeFactory) factory).getTermFactory() == table.getFactory(); 
-		assert !(tokenizer instanceof Tokenizer) || ((Tokenizer) factory).getKeywordRecognizer() == table.getKeywordRecognizer(); 
+		assert !(tokenizer instanceof Tokenizer) || ((Tokenizer) tokenizer).getKeywordRecognizer() == table.getKeywordRecognizer(); 
 		this.prodReader = new ProductionAttributeReader(termFactory);
 		this.labels = new LabelInfo[labelCount - labelStart];
 		this.labelStart = labelStart;
@@ -83,8 +84,19 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		labels[labelNumber - labelStart] = new LabelInfo(prodReader, parseTreeProduction);
 	}
 	
+	public void initializeInput(String filename, String input) {
+		assert offset == 0;
+		tokenizer = new Tokenizer(table.getKeywordRecognizer(), filename, input);
+	}
+	
 	public ITokenizer getTokenizer() {
 		return tokenizer;
+	}
+
+	public ITreeFactory getFactory() {
+		if (factory == null && initializeFactories)
+			throw new IllegalStateException("Not initialized yet");
+		return factory;
 	}
 	
 	@Override
@@ -277,7 +289,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			List<Object> children) {
 		
 		IToken left = getStartToken(prevToken);
-		IToken right = getEndToken(left, tokenizer.currentToken());
+		// IToken right = getEndToken(left, tokenizer.currentToken());
+		IToken right = tokenizer.currentToken();
 		
 		if (constructor == LIST_CONSTRUCTOR) {
 			return factory.createList(label.getSort(), left, right, children);
@@ -348,8 +361,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 	
 	/** Get the last no-layout token for an AST node. */
-	private IToken getEndToken(IToken startToken, IToken lastToken) {
-		int begin = startToken.getIndex();
+	private IToken getEndToken(IToken currentToken, IToken lastToken) {
+		int begin = currentToken.getIndex();
 		
 		for (int i = lastToken.getIndex(); i > begin; i--) {
 			lastToken = tokenizer.getTokenAt(i);

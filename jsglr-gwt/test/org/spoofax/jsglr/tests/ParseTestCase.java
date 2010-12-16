@@ -92,7 +92,7 @@ public abstract class ParseTestCase extends TestCase {
 		//
 		//			@Override
 		//			public void onSuccess(String result) {
-		final String result = FileTools.loadFileAsString("tests/data/" + s + "." + suffix);
+		final String result = loadAsString(s);
 		assertNotNull("Data file is missing", result);
 		long parseTime = System.nanoTime();
 		ATerm parsed = null;
@@ -117,6 +117,10 @@ public abstract class ParseTestCase extends TestCase {
 		System.out.println(PooledPathList.maxRemembered);
 		System.out.println(PooledPathList.maxAllocated);
 		return parsed;
+	}
+
+	protected String loadAsString(final String testFile) {
+		return FileTools.loadFileAsString("tests/data/" + testFile + "." + suffix);
 	}
 
 	private void doCompare(String s, final ATerm parsed) {

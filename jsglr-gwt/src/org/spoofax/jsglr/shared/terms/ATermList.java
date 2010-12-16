@@ -22,6 +22,15 @@ public class ATermList extends ATerm implements Iterable<ATerm> {
 	public ATermList prepend(ATerm t) {
 		return new ATermList(factory, t, this);
 	}
+	
+	@Override
+	public String getSort() {
+		return super.getSort() + "*";
+	}
+	
+	public String getElementSort() {
+		return super.getSort();
+	}
 
 	public boolean isEmpty() {
 		return element == null;

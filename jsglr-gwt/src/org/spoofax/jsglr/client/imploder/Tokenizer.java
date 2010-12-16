@@ -2,6 +2,7 @@ package org.spoofax.jsglr.client.imploder;
 
 import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
 
@@ -23,11 +24,11 @@ public class Tokenizer implements ITokenizer {
 	private final TokenKindManager manager =
 		new TokenKindManager();
 	
-	private String filename;
+	private final String filename;
 	
-	private String input;
+	private final String input;
 
-	private ArrayList<IToken> tokens;
+	private final ArrayList<IToken> tokens;
 	
 	/** Start of the next token. */
 	private int startOffset;
@@ -37,11 +38,12 @@ public class Tokenizer implements ITokenizer {
 
 	private int offsetAtLineStart;
 	
-	public Tokenizer(KeywordRecognizer keywords) {
+	/**
+	 * Creates a new tokenizer for the given
+	 * file name (if applicable) and contents.
+	 */
+	public Tokenizer(KeywordRecognizer keywords, String filename, String input) {
 		this.keywords = keywords;
-	}
-	
-	public void initialize(String filename, String input) {
 		this.filename = filename;
 		this.input = input;
 		this.tokens = new ArrayList<IToken>(input.length() / EXPECTED_TOKENS_DIVIDER);

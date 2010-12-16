@@ -42,12 +42,14 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 		AFun afun = factory.makeAFun(constructor, children.size(), false);
 		ATermAppl result = factory.makeAppl(afun, toArray(children));
 		result.internalSetTokens(leftToken, rightToken);
+		result.internalSetSort(sort);
 		return result;
 	}
 
 	public ATermInt createIntTerminal(String sort, IToken token, int value) {
 		ATermInt result = factory.makeInt(value);
 		result.internalSetTokens(token, token);
+		result.internalSetSort(sort);
 		return result;
 	}
 
@@ -58,6 +60,7 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 	public ATermString createStringTerminal(String sort, String value, IToken token) {
 		ATermString result = factory.makeString(value);
 		result.internalSetTokens(token, token);
+		result.internalSetSort(sort);
 		return result;
 	}
 
@@ -66,6 +69,7 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 		
 		ATermTuple result = factory.makeTuple(toArray(children));
 		result.internalSetTokens(leftToken, rightToken);
+		result.internalSetSort(elementSort);
 		return result;
 	}
 
@@ -80,6 +84,7 @@ public class ATermTreeFactory implements ITreeFactory<ATerm> {
 		
 		ATermList result = factory.makeList(toArray(children));
 		result.internalSetTokens(leftToken, rightToken);
+		result.internalSetSort(elementSort);
 		return result;
 	}
 

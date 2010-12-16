@@ -11,16 +11,11 @@ public class DummyTokenizer implements ITokenizer {
 	
 	private final IToken onlyToken = new Token(this, 0, 0, 0, 0, 0, IToken.TK_UNKNOWN);
 
-	private String filename;
+	private final String filename;
 	
-	private String input;
+	private final String input;
 	
-	/**
-	 * @param inputChars
-	 *           The input characters (used for {indentpadding} productions
-	 *           and error recovery)
-	 */
-	public void initialize(String filename, String input) {
+	public DummyTokenizer(String filename, String input) {
 		this.filename = filename;
 		this.input = input;
 	}

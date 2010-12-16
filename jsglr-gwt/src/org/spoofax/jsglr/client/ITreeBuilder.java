@@ -5,8 +5,9 @@ import org.spoofax.jsglr.shared.terms.ATermAppl;
 
 public interface ITreeBuilder {
 
-	void initialize(ParseTable table, int productionCount, int labelStart, int labelCount);
+	void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount);
 	void initializeLabel(int labelNumber, ATermAppl parseTreeProduction);
+	void initializeInput(String filename, String input);
 	
 	Object buildTree(AbstractParseNode node);
 	Object buildTreeTop(Object subtree, int ambiguityCount);

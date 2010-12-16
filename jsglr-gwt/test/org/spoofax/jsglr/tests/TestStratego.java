@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
 
 public class TestStratego extends ParseTestCase {
 
@@ -47,6 +48,14 @@ public class TestStratego extends ParseTestCase {
 
     public void testS6() throws FileNotFoundException, IOException {
         doParseTest("s6");
+    }
+
+    public void testS7() throws Exception {
+        sglr.setUseStructureRecovery(true);
+        sglr.setTreeBuilder(new TreeBuilder());
+        doCompare = false;
+    	suffix = "str.recover";
+        doParseTest("s7");
     }
 
 }

@@ -22,13 +22,17 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 		parseTreeAFun = factory.makeAFun("parsetree", 2, false);
 	}
 
-	public void initialize(ParseTable table, int productionCount, int labelStart, int labelCount) {
+	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
 		labels = new ATermAppl[labelCount - labelStart];
 		this.labelStart = labelStart;
 	}
 
 	public void initializeLabel(int labelNumber, ATermAppl parseTreeProduction) {
 		labels[labelNumber - labelStart] = parseTreeProduction;
+	}
+
+	public void initializeInput(String filename, String input) {
+		// Not used here
 	}
 
 	public ATerm buildNode(int labelNumber, Object[] subtrees) {

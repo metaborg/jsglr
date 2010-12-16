@@ -6,8 +6,9 @@ import java.util.List;
 
 import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.IAstNode;
 
-public abstract class ATerm implements Serializable {
+public abstract class ATerm implements IAstNode, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -21,6 +22,8 @@ public abstract class ATerm implements Serializable {
 	protected ATermFactory factory;
 	
 	private IToken leftToken, rightToken;
+
+	private String sort;
 
 	ATerm() {}
 	
@@ -37,6 +40,9 @@ public abstract class ATerm implements Serializable {
 	public void internalSetTokens(IToken leftToken, IToken rightToken) {
 		this.leftToken = leftToken;
 		this.rightToken = rightToken;
+		assert getChildCount() == 0
+			|| getChildAt(getChildCount() - 1).getRightToken() == null
+			|| rightToken.getEndOffset() >= getChildAt(getChildCount() - 1).getRightToken().getEndOffset(); 
 	}
 	
 	public IToken getLeftToken() {
@@ -45,6 +51,14 @@ public abstract class ATerm implements Serializable {
 	
 	public IToken getRightToken() {
 		return rightToken;
+	}
+	
+	public void internalSetSort(String sort) {
+		this.sort = sort;
+	}
+	
+	public String getSort() {
+		return sort;
 	}
 
 	public ATermFactory getFactory() {

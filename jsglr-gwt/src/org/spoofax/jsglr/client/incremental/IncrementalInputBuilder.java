@@ -59,22 +59,7 @@ public class IncrementalInputBuilder {
 			endOffset = right.getEndOffset();
 			if (!oldTree.isList() && incrementalSorts.contains(oldTree.getSort())) {
 				if (isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)) {
-					if (!isDamagePrinted) {
-						isDamagePrinted = true;
-						// append(input, offset, offset + afterDamageOffset + 1);
-						if (DEBUG) System.out.print('|');
-						append(input, offset, damageStart);
-						if (DEBUG) System.out.print('|');
-						append(input, damageStart, damageEnd + 1);
-						// if (DEBUG) System.out.print('|');
-						// append(input, damageEnd + 1, offset + afterDamageOffset + 1);
-						// so maybe: offset + afterDamageOffset + 1 - (offset + afterDamageOffset - damageEnd)
-						//         = damageEnd + 1
-						if (DEBUG) System.out.print('|');
-						// append(input, offset + afterDamageOffset + 1, endOffset + afterDamageOffset + 1);
-						append(input, damageEnd + 1, endOffset + afterDamageOffset + 1);
-						if (DEBUG) System.out.print('|');
-					}
+					printDamagedNode(offset, endOffset);
 					// possible: appendWhitespace(input, startOffset, endOffset);
 				} else {
 					appendWhitespace(input, offset, endOffset);
@@ -83,7 +68,17 @@ public class IncrementalInputBuilder {
 			}
 		}
 		
-		// Recurse
+		offset = buildPartialInputRecurse(oldTree, offset);
+
+		// Print original text
+		if (left != null && right != null) {
+			return appendPartialInput(oldTree, offset, endOffset);
+		} else {
+			return offset;
+		}
+	}
+
+	private int buildPartialInputRecurse(IAstNode oldTree, int offset) throws IncrementalSGLRException {
 		if (oldTree.isList() && oldTree instanceof Iterable) { // likely a linked list
 			for (Object o : (Iterable<?>) oldTree) {
 				IAstNode child = (IAstNode) o;
@@ -95,12 +90,20 @@ public class IncrementalInputBuilder {
 				offset = buildPartialInput(child, offset);
 			}
 		}
+		return offset;
+	}
 
-		// Print original text
-		if (left != null && right != null) {
-			return appendPartialInput(oldTree, offset, endOffset);
-		} else {
-			return offset;
+	private void printDamagedNode(int offset, int endOffset) {
+		if (!isDamagePrinted) {
+			isDamagePrinted = true;
+			if (DEBUG) System.out.print('|');
+			append(input, offset, damageStart);
+			if (DEBUG) System.out.print('|');
+			append(input, damageStart, damageEnd + 1);
+			if (DEBUG) System.out.print('|');
+			// TODO: don't use endOffset here but use the last token's end offset
+			append(input, damageEnd + 1, endOffset + afterDamageOffset + 1);
+			if (DEBUG) System.out.print('|');
 		}
 	}
 

@@ -7,16 +7,22 @@
  */
 package org.spoofax.jsglr.tests;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 import org.spoofax.jsglr.FileTools;
+import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.PathListPool;
 import org.spoofax.jsglr.client.PooledPathList;
 import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.ATermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
+import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;
@@ -30,6 +36,8 @@ public abstract class ParseTestCase extends TestCase {
 	
 	protected ParseTable table;
 
+	private IncrementalSGLR<ATerm> incrementalSGLR;
+
 	// shared by all tests
 	static final ATermFactory pf = new ATermFactory();
 	//RemoteParseTableServiceAsync parseTableService = GWT.create(RemoteParseTableService.class);
@@ -40,8 +48,8 @@ public abstract class ParseTestCase extends TestCase {
 	}
 
 	protected abstract void gwtSetUp() throws Exception;
-
-	public void gwtSetUp(String grammar, String suffix) throws ParserException, InvalidParseTableException {
+	
+	public void gwtSetUp(String grammar, String suffix, String... incrementalSorts) throws ParserException, InvalidParseTableException {
 		this.suffix = suffix;
 		Tools.setDebug(false);
 		Tools.setLogging(false);
@@ -69,6 +77,15 @@ public abstract class ParseTestCase extends TestCase {
 		//					}
 		//				});
 
+		if (incrementalSorts.length > 0) {
+			ATermTreeFactory factory = new ATermTreeFactory(sglr.getFactory());
+			TreeBuilder builder = new TreeBuilder(factory);
+			sglr.setTreeBuilder(builder);
+			Set<String> sorts = new HashSet<String>();
+	    	for (String sort : incrementalSorts)
+	    		sorts.add(sort);
+	    	incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, builder, factory, sorts);
+		}
 	}
 
 
@@ -118,6 +135,21 @@ public abstract class ParseTestCase extends TestCase {
 		System.out.println(PooledPathList.maxAllocated);
 		return parsed;
 	}
+	
+	public ATerm doParseIncrementalTest(ATerm oldTree, String newFile) throws Exception {
+		String contents = loadAsString(newFile);
+    	ATerm newTree = (ATerm) incrementalSGLR.parseIncremental(contents, newFile, null, oldTree);
+		String extension =
+			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
+		final String x = FileTools.loadFileAsString("tests/data/" + newFile + extension);
+		final ATerm wanted = newTree.getFactory().parse(x);
+		System.out.println(newTree.toString(8));
+		System.out.println(wanted.toString(8));
+    	if (!newTree.simpleMatch(wanted)) {
+    		fail();
+    	}
+    	return newTree;
+	}
 
 	protected String loadAsString(final String testFile) {
 		return FileTools.loadFileAsString("tests/data/" + testFile + "." + suffix);
@@ -139,7 +171,7 @@ public abstract class ParseTestCase extends TestCase {
 		assertNotNull(x);
 
 		System.out.println(parsed.toString(8));
-		System.out.println(parsed.toString(8));
+		System.out.println(wanted.toString(8));
 		if(!parsed.simpleMatch(wanted)) {
 			fail();
 		}

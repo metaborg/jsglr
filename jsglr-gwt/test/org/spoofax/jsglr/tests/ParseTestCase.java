@@ -7,6 +7,8 @@
  */
 package org.spoofax.jsglr.tests;
 
+import static org.spoofax.jsglr.client.incremental.CommentDamageHandler.C_STYLE;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -83,7 +85,7 @@ public abstract class ParseTestCase extends TestCase {
 			Set<String> sorts = new HashSet<String>();
 	    	for (String sort : incrementalSorts)
 	    		sorts.add(sort);
-	    	incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, factory, sorts, false);
+	    	incrementalSGLR = new IncrementalSGLR<ATerm>(sglr, C_STYLE, factory, sorts, false);
 		}
 	}
 

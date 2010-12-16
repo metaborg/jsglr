@@ -63,12 +63,16 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	private boolean inLexicalContext;
 	
 	public TreeBuilder() {
-		this(true);
+		this(false);
 	}
 	
 	public TreeBuilder(boolean disableTokens) {
 		this.disableTokens = disableTokens;
 		this.initializeFactories = true;
+	}
+	
+	public TreeBuilder(ITreeFactory treeFactory) {
+		this(treeFactory, false);
 	}
 	
 	public TreeBuilder(ITreeFactory treeFactory, boolean disableTokens) {

@@ -31,16 +31,19 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	
 	final Set<String> incrementalSorts;
 	
-	int lastRepairedTreeNodesCount;
+	private final CommentDamageHandler comments;
+	
+	private int lastRepairedTreeNodesCount;
 
 	/**
 	 * @param incrementalSorts
 	 *            Sorts that can be incrementally parsed (e.g., MethodDec, ImportDec).
 	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
 	 */
-	public IncrementalSGLR(SGLR parser, ITreeFactory<TNode> factory, Set<String> incrementalSorts,
-			boolean includeInjections) {
+	public IncrementalSGLR(SGLR parser, CommentDamageHandler comments, ITreeFactory<TNode> factory,
+			Set<String> incrementalSorts, boolean includeInjections) {
 		this.parser = parser;
+		this.comments = comments;
 		this.factory = factory;
 		this.incrementalSorts = incrementalSorts;
 		
@@ -64,6 +67,7 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 		int damageSizeChange = newInput.length() - oldInput.length();
 		int damageEnd = getDamageEnd(newInput, oldInput, damageStart, damageSizeChange);
 		sanityCheckDiff(oldInput, newInput, damageStart, damageEnd, damageSizeChange);
+		damageEnd = comments.getExpandedDamageRegionEnd(newInput, damageStart, damageEnd);
 		
 		if (damageSizeChange == 0 && damageEnd == damageStart - 1) {
 			assert newInput.equals(oldInput);
@@ -141,7 +145,7 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected static Iterator<IAstNode> tryGetListIterator(IAstNode oldTree) {
+	static Iterator<IAstNode> tryGetListIterator(IAstNode oldTree) {
 		if (oldTree.isList() && oldTree instanceof Iterable)
 			return ((Iterable<IAstNode>) oldTree).iterator();
 		else

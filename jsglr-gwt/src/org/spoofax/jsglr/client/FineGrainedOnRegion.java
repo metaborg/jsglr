@@ -17,6 +17,21 @@ public class FineGrainedOnRegion {
         return mySGLR.getHistory();
     }
    
+    public void setInfoFGOnly(){
+        regionEndPosition=mySGLR.tokensSeen;
+        acceptRecoveryPosition=regionEndPosition+10;
+        int lastIndex=getHistory().getIndexLastLine();       
+        for (int i = 0; i < lastIndex; i++) {
+            IndentInfo line= getHistory().getLine(i);
+            if(line.getStackNodes()!=null && line.getStackNodes().size()>0){
+                BacktrackPosition btPoint=new BacktrackPosition(line.getStackNodes(), line.getTokensSeen());
+                btPoint.setIndexHistory(i);
+                choicePoints.add(btPoint);
+            }            
+        } 
+        maxPerLine=MAX_RECOVERIES_PER_LINE;
+    }
+    
     public void setRegionInfo(StructureSkipSuggestion erroneousRegion, int acceptPosition){
         regionEndPosition=erroneousRegion.getEndSkip().getTokensSeen();
         acceptRecoveryPosition=acceptPosition;
@@ -100,6 +115,7 @@ public class FineGrainedOnRegion {
             //if(logToken==SGLR.EOF){logToken='$';}
             //System.out.print(logToken);
             if(curTokIndex<=endRecoverSearchPos && !firstRound){
+                //int oldSize=newCandidates.size();
                 newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
                 //if(newCandidates.size()>oldSize)
                   //  System.out.println("CANDIDATES: " + (newCandidates.size()-oldSize));

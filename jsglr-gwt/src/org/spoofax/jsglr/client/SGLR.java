@@ -22,6 +22,8 @@ import org.spoofax.jsglr.shared.terms.ATermFactory;
 
 public class SGLR {
 
+    private RecoveryPerformance performanceMeasuring;
+
 	private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
 
 	public static final int EOF = ParseTable.NUM_CHARS;
@@ -38,7 +40,7 @@ public class SGLR {
 
 	private long startTime;
 
-	private volatile boolean asyncAborted;
+	protected volatile boolean asyncAborted;
 
 	private ATermFactory factory;
 
@@ -79,6 +81,8 @@ public class SGLR {
 	private int rejectCount;
 
 	private int reductionCount;
+	
+	protected int timeout;
 
 	private PushbackStringIterator currentInputStream;
 
@@ -99,12 +103,7 @@ public class SGLR {
 		return history;
 	}
 
-	/* START: FINE GRAINED ON REGION */
 	private boolean fineGrainedOnRegion;
-	protected void setFineGrainedOnRegion(boolean fineGrainedMode) {
-		fineGrainedOnRegion = fineGrainedMode;
-		recoverStacks = new ArrayDeque<Frame>();
-	}
 
 	public void clearRecoverStacks(){
 		recoverStacks.clear(false);
@@ -115,20 +114,29 @@ public class SGLR {
 		return recoverStacks;
 	}
 
-	protected void setUseFineGrained(boolean useFG) {
-		recoverIntegrator.setUseFineGrained(useFG);
-	}
-	/* END: FINE GRAINED ON REGION */
-
 	public Set<BadTokenException> getCollectedErrors() {
 		return collectedErrors;
 	}
+    
+    /**
+     * Attempts to set a timeout for parsing.
+     * Default implementation is a no-op.
+     * 
+     * @see org.spoofax.jsglr.SGLR#setTimeout(int)
+     */
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+    
+    protected void initParseTimer() {
+        // Default does nothing (not supported by GWT)
+    }
 
 	SGLR() {
 		basicInit(null);
 	}
 
-	public SGLR(final ATermFactory pf, ParseTable parseTable) {
+	public SGLR(ATermFactory pf, ParseTable parseTable) {
 		assert pf != null;
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
@@ -148,6 +156,36 @@ public class SGLR {
 	public final void setUseStructureRecovery(boolean useRecovery) throws NoRecoveryRulesException {
 		setUseStructureRecovery(useRecovery, null);
 	}
+	
+    protected void setFineGrainedOnRegion(boolean fineGrainedMode) {
+        fineGrainedOnRegion = fineGrainedMode;
+        recoverStacks = new ArrayDeque<Frame>();
+    }
+
+    @Deprecated
+    protected void setUseFineGrained(boolean useFG) {
+        recoverIntegrator.setUseFineGrained(useFG);
+    }
+
+    // FIXME: we have way to many of these accessors; does this have to be public?
+    //        if not for normal use, it should at least be 'internalSet....'
+    @Deprecated
+    public void setCombinedRecovery(boolean useBP, boolean useFG,
+            boolean useOnlyFG) {
+        recoverIntegrator.setOnlyFineGrained(useOnlyFG);
+        recoverIntegrator.setUseBridgeParser(useBP);
+        recoverIntegrator.setUseFineGrained(useFG);
+    }
+
+    // LK: this thing gets reset every time; why a setter?
+    @Deprecated
+    public void setPerformanceMeasuring(RecoveryPerformance performanceMeasuring) {
+        this.performanceMeasuring = performanceMeasuring;
+    }
+
+    public RecoveryPerformance getPerformanceMeasuring() {
+        return performanceMeasuring;
+    }
 
 	/**
 	 * @deprecated Use {@link #asyncCancel()} instead.
@@ -214,7 +252,11 @@ public class SGLR {
 		String filename = null; // TODO: get filename from some place; useful for errors
 		initParseVariables(filename, fis);
 		startTime = System.currentTimeMillis();
-		return sglrParse(startSymbol);
+		initParseTimer();
+        getPerformanceMeasuring().startParse();
+        Object result = sglrParse(startSymbol);
+        getPerformanceMeasuring().endParse();
+        return result;
 	}
 
 	public final Object parse(String input) throws BadTokenException,
@@ -290,6 +332,8 @@ public class SGLR {
 		currentInputStream = new PushbackStringIterator(input);
 		acceptingStack = null;
 		collectedErrors.clear();
+		history=new ParserHistory();
+		performanceMeasuring=new RecoveryPerformance();
 		parseTable.getTreeBuilder().initializeInput(filename, input);
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();

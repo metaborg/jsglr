@@ -74,7 +74,7 @@ public class ParseNode extends AbstractParseNode {
     public static ATermList makeList(ATermFactory factory, List<ATerm> terms) {
         ATermList result = factory.makeList();
         for (int i = terms.size() - 1; i >= 0; i--) {
-            result = result.prepend(terms.get(i));
+        	result = factory.makeList(terms.get(i), result);
         }
         return result;
     }

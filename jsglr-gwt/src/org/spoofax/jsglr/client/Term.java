@@ -32,7 +32,7 @@ public class Term {
     }
 
     public static int intAt(ATerm pt, int i) {
-        return asInt(pt.getChildAt(i)).getInt();
+        return asInt((ATerm) pt.getChildAt(i)).getInt();
     }
 
     public static ATermList listAt(ATerm pt, int i) {

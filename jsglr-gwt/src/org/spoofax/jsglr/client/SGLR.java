@@ -122,7 +122,7 @@ public class SGLR {
      * Attempts to set a timeout for parsing.
      * Default implementation is a no-op.
      * 
-     * @see org.spoofax.jsglr.SGLR#setTimeout(int)
+     * @see org.spoofax.jsglr.io.SGLR#setTimeout(int)
      */
     public void setTimeout(int timeout) {
         this.timeout = timeout;

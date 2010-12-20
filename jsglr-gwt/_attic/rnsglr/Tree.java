@@ -2,7 +2,7 @@ package org.spoofax.jsglr.rnsglr;
 
 import org.spoofax.jsglr.NotImplementedException;
 
-import aterm.ATerm;
+import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class Tree {
 

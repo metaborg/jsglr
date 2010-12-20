@@ -20,13 +20,13 @@ public class IndentationFilter {
                 contents = termAt(node, 1);
             }
             for (int i = 0; i < contents.getChildCount(); i++) {
-                resolveAmbiguitiesByIndentation(contents.getChildAt(i));
+                resolveAmbiguitiesByIndentation((ATerm) contents.getChildAt(i));
             }
         }
 
         if ("amb".equals(((ATermAppl) node).getName())){
             ATermList ambs = termAt(node, 0);
-            node = ambs.getChildAt(0);
+            node = (ATerm) ambs.getChildAt(0);
         }
     }
 

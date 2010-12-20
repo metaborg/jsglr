@@ -14,7 +14,6 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.spoofax.jsglr.FileTools;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
@@ -24,6 +23,7 @@ import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.ATermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
+import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.shared.terms.ATerm;

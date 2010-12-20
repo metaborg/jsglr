@@ -40,7 +40,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	public ATerm buildNode(int labelNumber, List<Object> subtrees) {
 		ATermList ls = factory.makeList();
 		for(int i = subtrees.size() - 1; i >= 0; i--) {
-			ls = ls.prepend((ATerm)subtrees.get(i));
+        	ls = factory.makeList((ATerm)subtrees.get(i), ls);
 		}
 		return factory.makeAppl(applAFun, labels[labelNumber - labelStart], ls);
 	}

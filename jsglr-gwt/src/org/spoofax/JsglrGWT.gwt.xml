@@ -8,6 +8,44 @@
   <source path='jsglr/shared'/>
   <source path='client'/>
   <source path='jsglr/tests'/>
+  
+  <!--
+  <replace-with class="org.spoofax.jsglr.shared.terms.PureFactory">
+    <when-type-is class="aterm.ATermFactory"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.ATermFactory">
+    <when-type-is class="aterm.ATermFactory"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.Visitable">
+    <when-type-is class="aterm.Visitable"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.ATerm">
+    <when-type-is class="aterm.ATerm"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.AFun">
+    <when-type-is class="aterm.AFun"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.ATermAppl">
+    <when-type-is class="aterm.ATermAppl"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.ATermInt">
+    <when-type-is class="aterm.ATermInt"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.ATermList">
+    <when-type-is class="aterm.ATermList"/>
+  </replace-with>
+  
+  <replace-with class="org.spoofax.jsglr.shared.terms.ATermTuple">
+    <when-type-is class="aterm.ATermTuple"/>
+  </replace-with>
+  -->
 <!-- 
   <entry-point class='org.spoofax.client.JSGLREntryPoint'/>
  -->

@@ -67,13 +67,13 @@ public class ParseTreeTools {
 			prod = appl;
 		}
 		else if(appl.getAFun() == applFun) {
-			prod = assertAppl(appl.getChildAt(APPL_PROD), prodFun);
+			prod = assertAppl((ATerm) appl.getChildAt(APPL_PROD), prodFun);
 		}
 		else {
 			throw new IllegalArgumentException("Expected prod or appl: " + arg);
 		}
 
-		ATermAppl attrs = assertAppl(prod.getChildAt(PROD_ATTRS));
+		ATermAppl attrs = assertAppl((ATerm) prod.getChildAt(PROD_ATTRS));
 		if(attrs.getAFun() == noattrsFun) {
 			return null;
 		}
@@ -114,7 +114,7 @@ public class ParseTreeTools {
 	public void yield(ATerm parsetree, StringBuilder builder) {
 		ATermAppl appl = assertAppl(parsetree);
 		if(appl.getAFun() == parsetreeFun) {
-			appl = assertAppl(appl.getChildAt(PARSE_TREE));
+			appl = assertAppl((ATerm) appl.getChildAt(PARSE_TREE));
 		}
 
 		yieldAppl(appl, builder);

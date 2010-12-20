@@ -1,4 +1,4 @@
-package org.spoofax.jsglr;
+package org.spoofax.jsglr.io;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -5,7 +5,7 @@
  * 
  * Licensed under the GNU General Public License, v2
  */
-package org.spoofax.jsglr;
+package org.spoofax.jsglr.io;
 
 import java.io.File;
 import java.io.FileInputStream;

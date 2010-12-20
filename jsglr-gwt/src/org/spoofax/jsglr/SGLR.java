@@ -1,11 +1,19 @@
 package org.spoofax.jsglr;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParseTimeoutException;
+import org.spoofax.jsglr.shared.BadTokenException;
+import org.spoofax.jsglr.shared.SGLRException;
+import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.terms.ATermFactory;
+
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -55,4 +63,25 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
     public SGLR(ATermFactory pf, ParseTable parseTable) {
         super(pf, parseTable);
     }
+    
+    /**
+     * @deprecated Call {@link #parse(InputStream, String)} instead.
+     */
+    public final Object parse(InputStream fis) {
+        return parse(fis);
+    }
+
+    public final Object parse(InputStream fis, String filename)
+            throws BadTokenException, TokenExpectedException, ParseException,
+            SGLRException, SGLRException {
+        return parse(fis, null);
+    }
+
+    public Object parse(InputStream fis, String filename, String startSymbol)
+            throws BadTokenException, TokenExpectedException, ParseException,
+            SGLRException, IOException {
+        String input = FileTools.loadFileAsString(new InputStreamReader(fis));
+        return parse(input, filename, startSymbol);
+    }
+
 }

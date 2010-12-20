@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
@@ -114,7 +115,9 @@ public class ParseTableManager {
             throw new InvalidParseTableException("stream is null");
         }
 
-        return initializeParseTable(factory.readFromFile(stream));
+        // TODO: optimize - load table directly from stream
+        String tableString = FileTools.loadFileAsString(new InputStreamReader(stream));
+        return initializeParseTable(factory.parseFromString(tableString));
     }
 
 	private ParseTable initializeParseTable(ATerm pt) throws InvalidParseTableException {

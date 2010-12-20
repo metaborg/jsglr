@@ -3,20 +3,36 @@ package org.spoofax.jsglr;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 public class FileTools {
 
-	public static String loadFileAsString(String fn) {
-		// FIXME (KTK) static allocation of 15MB must be replaced with something dynamic  
-		char[] cbuf = new char[1024*1024*15];
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(fn));
-			int len = br.read(cbuf);
-			return new String(cbuf, 0, len);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+    private static char[] asyncBuffer = new char[4096];
+
+    @Deprecated
+    public static String loadFileAsString(String fn) {
+        return tryLoadFileAsString(fn);
+    }
+
+    public static String tryLoadFileAsString(String fn) {
+        try {
+            return loadFileAsString(new FileReader(fn));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public static String loadFileAsString(Reader reader) throws IOException {
+        StringBuilder result = new StringBuilder();
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        synchronized (asyncBuffer) {
+            int read;
+            while ((read = bufferedReader.read(asyncBuffer)) > 0) {
+                result.append(asyncBuffer, 0, read);
+            }
+            return result.toString();
+        }
+    }
 
 }

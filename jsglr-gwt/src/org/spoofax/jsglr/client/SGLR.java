@@ -245,11 +245,22 @@ public class SGLR {
 		addStack(st0);
 		return st0;
 	}
+	
+	@Deprecated
+	public Object parse(String fis) throws BadTokenException,
+    TokenExpectedException, ParseException, SGLRException {
+	    return parse(fis, null);
+	}
 
-	public Object parse(String fis, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+    public final Object parse(String input, String filename) throws BadTokenException,
+    TokenExpectedException, ParseException, SGLRException {
+
+        return parse(input, filename, null);
+    }
+
+	public Object parse(String fis, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
 	SGLRException {
 		logBeforeParsing();
-		String filename = null; // TODO: get filename from some place; useful for errors
 		initParseVariables(filename, fis);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
@@ -257,12 +268,6 @@ public class SGLR {
         Object result = sglrParse(startSymbol);
         getPerformanceMeasuring().endParse();
         return result;
-	}
-
-	public final Object parse(String input) throws BadTokenException,
-	TokenExpectedException, ParseException, SGLRException {
-
-		return parse(input, null);
 	}
 
 	private Object sglrParse(String startSymbol)

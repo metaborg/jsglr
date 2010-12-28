@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.spoofax.PushbackStringIterator;
 import org.spoofax.jsglr.client.NotImplementedException;
-import org.spoofax.jsglr.client.PushbackStringIterator;
 
 public class ATermFactory implements Serializable {
 

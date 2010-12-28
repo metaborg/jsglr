@@ -15,8 +15,8 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.ParseTable;
-import org.spoofax.jsglr.SGLR;
-import org.spoofax.jsglr.SGLRException;
+import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.shared.SGLRException;
 
 import aterm.ATerm;
 import aterm.ATermFactory;
@@ -104,7 +104,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		
 		SGLR parser = new SGLR(atermFactory, table);
 		
-		ATerm resultATerm = parser.parse(input.stringValue(), startSymbol);
+		ATerm resultATerm = (ATerm) parser.parse(input.stringValue(), startSymbol);
 		IStrategoTerm result = getATermConverter(env).convert(resultATerm);
 		
 		return result;

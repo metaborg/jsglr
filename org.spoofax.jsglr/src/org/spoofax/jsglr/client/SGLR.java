@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import org.spoofax.PushbackStringIterator;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;

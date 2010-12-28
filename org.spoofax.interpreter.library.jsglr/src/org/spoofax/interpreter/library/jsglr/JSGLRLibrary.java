@@ -7,8 +7,8 @@ import org.spoofax.interpreter.adapter.aterm.ATermConverter;
 import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.ParseTable;
-import org.spoofax.jsglr.ParseTableManager;
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.ParseTableManager;
 
 import aterm.ATermFactory;
 

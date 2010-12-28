@@ -11,11 +11,11 @@ import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.InvalidParseTableException;
-import org.spoofax.jsglr.ParseTable;
-import org.spoofax.jsglr.ParseTableManager;
-import org.spoofax.jsglr.SGLR;
-import org.spoofax.jsglr.SGLRException;
+import org.spoofax.jsglr.client.InvalidParseTableException;
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.io.ParseTableManager;
+import org.spoofax.jsglr.shared.SGLRException;
 
 import aterm.ATerm;
 import aterm.ATermFactory;

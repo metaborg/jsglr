@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.spoofax.jsglr.ActionItem;
 import org.spoofax.jsglr.NotImplementedException;
-import org.spoofax.jsglr.ParseTable;
+import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.Reduce;
 import org.spoofax.jsglr.ReduceLookahead;
 import org.spoofax.jsglr.Shift;

@@ -8,7 +8,7 @@ Bundle-Vendor: Spoofax.org
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.spoofax.interpreter.core,
- org.spoofax.jsglr,
+ org.spoofax.jsglr;bundle-version="0.3.0",
  org.spoofax.interpreter.adapter.aterm,
  org.spoofax.aterm
 Bundle-ActivationPolicy: lazy

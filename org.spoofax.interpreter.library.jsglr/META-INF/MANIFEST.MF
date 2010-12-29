@@ -9,8 +9,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.spoofax.interpreter.core,
  org.spoofax.jsglr;bundle-version="0.3.0",
- org.spoofax.interpreter.adapter.aterm,
- org.spoofax.aterm
+ org.spoofax.interpreter.adapter.aterm
 Bundle-ActivationPolicy: lazy
 Export-Package: org.spoofax.interpreter.library.jsglr
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

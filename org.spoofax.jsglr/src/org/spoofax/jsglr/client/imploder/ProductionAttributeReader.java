@@ -1,16 +1,17 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.jsglr.shared.Tools.applAt;
-import static org.spoofax.jsglr.shared.Tools.asAppl;
-import static org.spoofax.jsglr.shared.Tools.asJavaString;
-import static org.spoofax.jsglr.shared.Tools.isAppl;
-import static org.spoofax.jsglr.shared.Tools.termAt;
+import static org.spoofax.terms.StrategoListIterator.iterable;
+import static org.spoofax.terms.Term.isTermAppl;
+import static org.spoofax.terms.Term.isTermNamed;
+import static org.spoofax.terms.Term.javaString;
+import static org.spoofax.terms.Term.termAt;
 
-import org.spoofax.jsglr.shared.terms.AFun;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
-import org.spoofax.jsglr.shared.terms.ATermList;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 
 /**
@@ -28,117 +29,117 @@ public class ProductionAttributeReader {
 	
 	private final int ALT_SORT_RIGHT = 1;
 	
-	protected final AFun sortFun;
+	protected final IStrategoConstructor sortFun;
 	
-	protected final AFun parameterizedSortFun;
+	protected final IStrategoConstructor parameterizedSortFun;
 	
-	protected final AFun attrsFun;
+	protected final IStrategoConstructor attrsFun;
 	
-	protected final AFun noAttrsFun;
+	protected final IStrategoConstructor noAttrsFun;
 	
-	protected final AFun preferFun;
+	protected final IStrategoConstructor preferFun;
 	
-	protected final AFun avoidFun;
+	protected final IStrategoConstructor avoidFun;
 	
-	private final AFun varSymFun;
+	private final IStrategoConstructor varSymFun;
 	
-	private final AFun altFun;
+	private final IStrategoConstructor altFun;
 	
-	private final AFun charClassFun;
+	private final IStrategoConstructor charClassFun;
 	
-	private final AFun litFun;
+	private final IStrategoConstructor litFun;
 	
-	private final AFun cilitFun;
+	private final IStrategoConstructor cilitFun;
 	
-	private final AFun lexFun;
+	private final IStrategoConstructor lexFun;
 	
-	private final AFun optFun;
+	private final IStrategoConstructor optFun;
 	
-	private final AFun layoutFun;
+	private final IStrategoConstructor layoutFun;
 	
-	private final AFun cfFun;
+	private final IStrategoConstructor cfFun;
 	
-	private final AFun varsymFun;
+	private final IStrategoConstructor varsymFun;
 	
-	private final AFun seqFun;
+	private final IStrategoConstructor seqFun;
 	
-	private final AFun iterFun;
+	private final IStrategoConstructor iterFun;
 	
-	private final AFun iterStarFun;
+	private final IStrategoConstructor iterStarFun;
 	
-	private final AFun iterPlusFun;
+	private final IStrategoConstructor iterPlusFun;
 	
-	private final AFun iterSepFun;
+	private final IStrategoConstructor iterSepFun;
 	
-	private final AFun iterStarSepFun;
+	private final IStrategoConstructor iterStarSepFun;
 	
-	private final AFun iterPlusSepFun;
+	private final IStrategoConstructor iterPlusSepFun;
 	
-	public ProductionAttributeReader(ATermFactory factory) {
-		sortFun = factory.makeAFun("sort", 1, false);
+	public ProductionAttributeReader(ITermFactory factory) {
+		sortFun = factory.makeConstructor("sort", 1);
 		parameterizedSortFun =
-			factory.makeAFun("parameterized-sort", 2, false);
-		attrsFun = factory.makeAFun("attrs", 1, false);
-		noAttrsFun = factory.makeAFun("no-attrs", 0, false);
-		preferFun = factory.makeAFun("prefer", 0, false);
-		avoidFun = factory.makeAFun("avoid", 0, false);
-		varSymFun = factory.makeAFun("varsym", 1, false);
-		altFun = factory.makeAFun("alt", 2, false);
-		charClassFun = factory.makeAFun("char-class", 1, false);
-		litFun = factory.makeAFun("lit", 1, false);
-		cilitFun = factory.makeAFun("cilit", 1, false);
-		lexFun = factory.makeAFun("lex", 1, false);
-		optFun = factory.makeAFun("opt", 1, false);
-		layoutFun = factory.makeAFun("layout", 0, false);
-		cfFun = factory.makeAFun("cf", 1, false);
-		varsymFun = factory.makeAFun("varsym", 1, false);
-		seqFun = factory.makeAFun("seq", 2, false);
-		iterFun = factory.makeAFun("iter", 1, false);
-		iterStarFun = factory.makeAFun("iter-star", 1, false);
-		iterPlusFun = factory.makeAFun("iter-plus", 1, false);
-		iterSepFun = factory.makeAFun("iter-sep", 2, false);
-		iterStarSepFun = factory.makeAFun("iter-star-sep", 2, false);
-		iterPlusSepFun = factory.makeAFun("iter-plus-sep", 2, false);
+			factory.makeConstructor("parameterized-sort", 2);
+		attrsFun = factory.makeConstructor("attrs", 1);
+		noAttrsFun = factory.makeConstructor("no-attrs", 0);
+		preferFun = factory.makeConstructor("prefer", 0);
+		avoidFun = factory.makeConstructor("avoid", 0);
+		varSymFun = factory.makeConstructor("varsym", 1);
+		altFun = factory.makeConstructor("alt", 2);
+		charClassFun = factory.makeConstructor("char-class", 1);
+		litFun = factory.makeConstructor("lit", 1);
+		cilitFun = factory.makeConstructor("cilit", 1);
+		lexFun = factory.makeConstructor("lex", 1);
+		optFun = factory.makeConstructor("opt", 1);
+		layoutFun = factory.makeConstructor("layout", 0);
+		cfFun = factory.makeConstructor("cf", 1);
+		varsymFun = factory.makeConstructor("varsym", 1);
+		seqFun = factory.makeConstructor("seq", 2);
+		iterFun = factory.makeConstructor("iter", 1);
+		iterStarFun = factory.makeConstructor("iter-star", 1);
+		iterPlusFun = factory.makeConstructor("iter-plus", 1);
+		iterSepFun = factory.makeConstructor("iter-sep", 2);
+		iterStarSepFun = factory.makeConstructor("iter-star-sep", 2);
+		iterPlusSepFun = factory.makeConstructor("iter-plus-sep", 2);
 	}
 
-	public String getConsAttribute(ATermAppl attrs) {
-		ATerm consAttr = getAttribute(attrs, "cons");
-		return consAttr == null ? null : ((ATermAppl) consAttr).getName();
+	public String getConsAttribute(IStrategoAppl attrs) {
+		IStrategoTerm consAttr = getAttribute(attrs, "cons");
+		return consAttr == null ? null : ((IStrategoNamed) consAttr).getName();
 	}
 	
 	// FIXME: support meta-var constructors
-	public String getMetaVarConstructor(ATermAppl rhs) {
-		if (rhs.getChildCount() == 1 && varSymFun == rhs.getAFun()) {
-			return isIterFun(((ATermAppl) rhs.getChildAt(0)).getAFun())
+	public String getMetaVarConstructor(IStrategoAppl rhs) {
+		if (rhs.getSubtermCount() == 1 && varSymFun == rhs.getConstructor()) {
+			return isIterFun(((IStrategoAppl) termAt(rhs, 0)).getConstructor())
 					? "meta-listvar"
 					: "meta-var";
 		}
 		return null;
 	}
 	
-	public ATerm getAstAttribute(ATermAppl attrs) {
+	public IStrategoTerm getAstAttribute(IStrategoAppl attrs) {
 		return getAttribute(attrs, "ast");
 	}
 	
-	public boolean isIndentPaddingLexical(ATermAppl attrs) {
+	public boolean isIndentPaddingLexical(IStrategoAppl attrs) {
 		return getAttribute(attrs, "indentpadding") != null;
 	}
 
 	/** Return the contents of a term attribute (e.g., "cons"), or null if not found. */
-	public ATerm getAttribute(ATermAppl attrs, String attrName) {
-		if (attrs.getAFun() == noAttrsFun)
+	public IStrategoTerm getAttribute(IStrategoAppl attrs, String attrName) {
+		if (attrs.getConstructor() == noAttrsFun)
 			return null;
 		
-		ATermList list = termAt(attrs, 0);
+		IStrategoList list = termAt(attrs, 0);
 		
-		for (ATerm attr : list) {			
-			if (attr instanceof ATermAppl) {
-				ATermAppl namedAttr = (ATermAppl) attr;
+		for (IStrategoTerm attr : iterable(list)) {			
+			if (isTermNamed(attr)) {
+				IStrategoNamed namedAttr = (IStrategoNamed) attr;
 				if (namedAttr.getName().equals("term")) {
 					namedAttr = termAt(namedAttr, 0);
 					
 					if (namedAttr.getName().equals(attrName))
-						return namedAttr.getChildCount() == 1 ? termAt(namedAttr, 0) : namedAttr;
+						return namedAttr.getSubtermCount() == 1 ? termAt(namedAttr, 0) : namedAttr;
 				}				
 			}
 		}
@@ -149,40 +150,41 @@ public class ProductionAttributeReader {
 	/** 
 	 * Get the RTG sort name of a production RHS, or for lists, the RTG element sort name.
 	 */
-    public String getSort(ATermAppl rhs) {
-    	for (ATerm current = rhs; current.getChildCount() > 0 && isAppl(current); current = termAt(current, 0)) {
-    		AFun cons = asAppl(current).getAFun();
+    public String getSort(IStrategoAppl rhs) {
+    	for (IStrategoTerm current = rhs; current.getSubtermCount() > 0 && isTermAppl(current); current = termAt(current, 0)) {
+    		IStrategoAppl currentAppl = (IStrategoAppl) current;
+			IStrategoConstructor cons = currentAppl.getConstructor();
 			if (cons == sortFun)
-    			return asJavaString(termAt(current, 0));
+    			return javaString(termAt(current, 0));
     		if (cons == parameterizedSortFun)
-    			return getParameterizedSortName(current);
+    			return getParameterizedSortName(currentAppl);
     		if (cons == charClassFun)
     			return null;
     		if (cons == altFun)
-    			return getAltSortName(current);
+    			return getAltSortName(currentAppl);
     	}
     	
     	return null;
     }
     
-    private String getParameterizedSortName(ATerm node) {
+    private String getParameterizedSortName(IStrategoAppl parameterizedSort) {
     	StringBuilder result = new StringBuilder();
     	
-    	result.append(applAt(node, PARAMETRIZED_SORT_NAME).getName());
+    	result.append(((IStrategoNamed)termAt(parameterizedSort, PARAMETRIZED_SORT_NAME)).getName());
     	result.append('_');
     	
-		ATermList args = termAt(node, PARAMETRIZED_SORT_ARGS);
+		IStrategoList args = termAt(parameterizedSort, PARAMETRIZED_SORT_ARGS);
 		
-        for (ATermAppl arg = (ATermAppl) args.getFirst(); !args.getNext().isEmpty(); args = args.getNext()) {
-			result.append(arg.getName());
+        for (IStrategoTerm arg : iterable(args)) {
+			result.append(((IStrategoNamed) arg).getName());
 		}
 		
 		return result.toString();
     }
     
-    private String getAltSortName(ATerm node) {
-		String left = getSort(applAt(node, ALT_SORT_LEFT));
-		String right = getSort(applAt(node, ALT_SORT_RIGHT));
+    private String getAltSortName(IStrategoAppl node) {
+		String left = getSort((IStrategoAppl) termAt(node, ALT_SORT_LEFT));
+		String right = getSort((IStrategoAppl) termAt(node, ALT_SORT_RIGHT));
 		
 		// HACK: In the RTG, alt sorts appear with a number at the end
 		return left + "_" + right + "0";
@@ -197,46 +199,47 @@ public class ProductionAttributeReader {
 	 * 
 	 * @return true if the current node is lexical.
 	 */
-	public boolean isNonContextFree(ATermAppl rhs) {
-		return (lexFun == rhs.getAFun() || isLiteral(rhs)
+	public boolean isNonContextFree(IStrategoAppl rhs) {
+		return (lexFun == rhs.getConstructor() || isLiteral(rhs)
 		    || isLayout(rhs)) || isVariableNode(rhs);
 	}
 	
-	public boolean isLexical(ATermAppl rhs) {
-		return lexFun == rhs.getAFun();
+	public boolean isLexical(IStrategoAppl rhs) {
+		return lexFun == rhs.getConstructor();
 	}
 
-	public boolean isLayout(ATermAppl rhs) {
-		ATerm details = termAt(rhs, 0);
-		if (!isAppl(details))
+	public boolean isLayout(IStrategoAppl rhs) {
+		IStrategoTerm details = termAt(rhs, 0);
+		if (!isTermAppl(details))
 			return false;
 		
-		if (optFun == asAppl(details).getAFun())
-			details = applAt(details, 0);
+		if (optFun == ((IStrategoAppl) details).getConstructor())
+			details = termAt(details, 0);
 		
-		return layoutFun == asAppl(details).getAFun();
+		return layoutFun == ((IStrategoAppl) details).getConstructor();
 	}
 
-	public boolean isLiteral(ATermAppl rhs) {
-		AFun fun = rhs.getAFun();
+	public boolean isLiteral(IStrategoAppl rhs) {
+		IStrategoConstructor fun = rhs.getConstructor();
 		return litFun == fun || cilitFun == fun;
 	}
 	
-	public boolean isList(ATermAppl rhs) {
-		ATermAppl details = cfFun == rhs.getAFun()
-		                  ? applAt(rhs, 0)
-		                  : rhs;
+	public boolean isList(IStrategoAppl rhs) {
+		IStrategoAppl details = rhs;
+		
+		if (rhs.getConstructor() == cfFun)
+			details = termAt(details, 0);
 		              	
-	  	if (details.getAFun() == optFun)
-	  		details = applAt(details, 0);
+	  	if (details.getConstructor() == optFun)
+	  		details = termAt(details, 0);
 	  	
-		AFun fun = details.getAFun();
+		IStrategoConstructor fun = details.getConstructor();
 		
 		 // FIXME: Spoofax/159: AsfixImploder creates tuples instead of lists for seqs
 		return isIterFun(fun) || seqFun == fun;
 	}
 
-	public boolean isIterFun(AFun fun) {
+	public boolean isIterFun(IStrategoConstructor fun) {
 		return iterFun == fun || iterStarFun == fun || iterPlusFun == fun
 				|| iterSepFun == fun || iterStarSepFun == fun || iterPlusSepFun == fun;
 	}
@@ -247,22 +250,24 @@ public class ProductionAttributeReader {
 	 * @see #isVariableNode(ATermAppl) 
 	 * @return true if the current node is lexical.
 	 */
-	public boolean isVariableNode(ATermAppl rhs) {
-		return varsymFun == rhs.getAFun();
+	public boolean isVariableNode(IStrategoAppl rhs) {
+		return varsymFun == rhs.getConstructor();
 	}
 
-	public boolean isLexLayout(ATermAppl rhs) {
-		if (rhs.getChildCount() != 1) return false;
-		ATerm child = rhs.getChildAt(0);
-		return isAppl(child) && layoutFun == ((ATermAppl) child).getAFun()
-			&& lexFun == rhs.getAFun();
+	public boolean isLexLayout(IStrategoAppl rhs) {
+		if (rhs.getSubtermCount() != 1) return false;
+		IStrategoTerm child = rhs.getSubterm(0);
+		return isTermAppl(child) && layoutFun == ((IStrategoAppl) child).getConstructor()
+			&& lexFun == rhs.getConstructor();
 	}
 
-	public boolean isOptional(ATermAppl rhs) {
-		if (rhs.getAFun() == optFun)
+	public boolean isOptional(IStrategoAppl rhs) {
+		if (rhs.getConstructor() == optFun)
 			return true;
-		rhs = termAt(rhs, 0);
-		return rhs.getChildCount() == 1 && rhs.getAFun() == optFun;
+		IStrategoTerm contents = termAt(rhs, 0);
+		return contents.getSubtermCount() == 1
+			&& isTermAppl(contents)
+			&& ((IStrategoAppl) contents).getConstructor() == optFun;
 	}
 
 }

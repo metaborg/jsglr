@@ -6,13 +6,13 @@ import java.io.InputStreamReader;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParseTimeoutException;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -59,7 +59,7 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 		}
 	}
 
-	public SGLR(ATermFactory pf, ParseTable parseTable) {
+	public SGLR(ITermFactory pf, ParseTable parseTable) {
 		super(pf, parseTable);
 	}
 

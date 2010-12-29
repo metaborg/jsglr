@@ -14,16 +14,17 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
-import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
+import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.io.baf.BAFTermReader;
 
 public class Main {
 	
@@ -89,9 +90,10 @@ public class Main {
 			usage();
 		}
 
-		final ATermFactory factory = new ATermFactory();
+		final TermFactory factory = new TermFactory();
 		long tableLoadingTime = System.currentTimeMillis();
-		final ParseTable pt = new ParseTable(factory.parseFromString(FileTools.loadFileAsString(parseTableFile)));
+		final IStrategoTerm tableTerm = new BAFTermReader(factory).parseFromFile(parseTableFile);
+		final ParseTable pt = new ParseTable(tableTerm, factory);
 		final SGLR sglr = new SGLR(factory, pt);
 
 		tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
@@ -143,7 +145,7 @@ public class Main {
 		Object t = null;
 		try {
 			parsingTime = System.currentTimeMillis();
-			t = sglr.parse(FileTools.loadFileAsString(input), startSymbol);
+			t = sglr.parse(input, startSymbol);
 			parsingTime = System.currentTimeMillis() - parsingTime;
 		} catch(final BadTokenException e) {
 			System.err.println("Parsing failed : " + e.getMessage());
@@ -151,8 +153,9 @@ public class Main {
 			// Detailed message for other exceptions
 			System.err.println("Parsing failed : " + e);
 		}
-		if(t != null && !NO_OUTPUT.equals(output)){
-			((ATerm) t).writeTo(out);
+		if(t != null && !NO_OUTPUT.equals(output)) {
+			BAFTermReader termIO = new BAFTermReader(sglr.getParseTable().getFactory());
+			termIO.unparseToFile((IStrategoTerm) t, out);
 			out.close();
 		}
 		return parsingTime;

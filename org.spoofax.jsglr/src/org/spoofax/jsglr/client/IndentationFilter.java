@@ -1,32 +1,32 @@
 package org.spoofax.jsglr.client;
 
-import static org.spoofax.jsglr.client.Term.termAt;
+import static org.spoofax.terms.Term.termAt;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermList;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class IndentationFilter {
 
-    public static void resolveAmbiguitiesByIndentation(ATerm node)
+    public static void resolveAmbiguitiesByIndentation(IStrategoTerm node)
     {
-        if (node.getChildCount()>1)
+        if (node.getSubtermCount()>1)
         {
-            ATermList contents;
-            if ("amb".equals(((ATermAppl) node).getName())){
+            IStrategoList contents;
+            if ("amb".equals(((IStrategoNamed) node).getName())){
                 contents = termAt(node, 0);
             }
             else{
                 contents = termAt(node, 1);
             }
-            for (int i = 0; i < contents.getChildCount(); i++) {
-                resolveAmbiguitiesByIndentation((ATerm) contents.getChildAt(i));
+            for (int i = 0; i < contents.getSubtermCount(); i++) {
+                resolveAmbiguitiesByIndentation(contents.getSubterm(i));
             }
         }
 
-        if ("amb".equals(((ATermAppl) node).getName())){
-            ATermList ambs = termAt(node, 0);
-            node = (ATerm) ambs.getChildAt(0);
+        if ("amb".equals(((IStrategoNamed) node).getName())){
+            IStrategoList ambs = termAt(node, 0);
+            node = ambs.getSubterm(0);
         }
     }
 

@@ -1,5 +1,8 @@
 package org.spoofax.jsglr.client.incremental;
 
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static org.spoofax.jsglr.client.imploder.Tokenizer.findLeftMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.Tokenizer.findRightMostLayoutToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
@@ -10,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.imploder.IAstNode;
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 
 /**
@@ -40,26 +43,26 @@ public class DamageRegionAnalyzer {
 	 * Gets all non-list tree nodes from the original tree
 	 * that are in the damage region according to {@link #isDamageTreeNode}.
 	 */
-	public List<IAstNode> getDamageNodes(IAstNode tree) {
-		return getDamageRegionTreeNodes(tree, new ArrayList<IAstNode>(), true, 0);
+	public List<ISimpleTerm> getDamageNodes(ISimpleTerm tree) {
+		return getDamageRegionTreeNodes(tree, new ArrayList<ISimpleTerm>(), true, 0);
 	}
 	
 	/**
 	 * Gets all non-list tree nodes from the partial result tree
 	 * that are in the damage region according to {@link #isDamageTreeNode}.
 	 */
-	public List<IAstNode> getDamageNodesForPartialTree(IAstNode tree, int skippedChars) {
-		return getDamageRegionTreeNodes(tree, new ArrayList<IAstNode>(), false, skippedChars);
+	public List<ISimpleTerm> getDamageNodesForPartialTree(ISimpleTerm tree, int skippedChars) {
+		return getDamageRegionTreeNodes(tree, new ArrayList<ISimpleTerm>(), false, skippedChars);
 	}
 
-	private List<IAstNode> getDamageRegionTreeNodes(IAstNode tree, List<IAstNode> results, boolean isOriginalTree, int skippedChars) {
+	private List<ISimpleTerm> getDamageRegionTreeNodes(ISimpleTerm tree, List<ISimpleTerm> results, boolean isOriginalTree, int skippedChars) {
 		if (!tree.isList() && isDamageTreeNode(tree, isOriginalTree, skippedChars)) {
 			results.add(tree);
 		} else {
 			// Recurse
-			Iterator<IAstNode> iterator = tryGetListIterator(tree); 
-			for (int i = 0, max = tree.getChildCount(); i < max; i++) {
-				IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
+			Iterator<ISimpleTerm> iterator = tryGetListIterator(tree); 
+			for (int i = 0, max = tree.getSubtermCount(); i < max; i++) {
+				ISimpleTerm child = iterator == null ? tree.getSubterm(i) : iterator.next();
 				getDamageRegionTreeNodes(child, results, isOriginalTree, skippedChars);
 			}
 		}
@@ -73,20 +76,20 @@ public class DamageRegionAnalyzer {
 	 * with a sort in {@link #incrementalSorts} regardless of whether they own the tokens
 	 * or not.
 	 */
-	protected boolean isDamageTreeNode(IAstNode tree, boolean isOriginalTree, int skippedChars) {
-		IToken current = findLeftMostLayoutToken(tree.getLeftToken());
-		IToken last = findRightMostLayoutToken(tree.getRightToken());
+	protected boolean isDamageTreeNode(ISimpleTerm tree, boolean isOriginalTree, int skippedChars) {
+		IToken current = findLeftMostLayoutToken(getLeftToken(tree));
+		IToken last = findRightMostLayoutToken(getRightToken(tree));
 		if (current != null && last != null) {
 			if (!isDamagedRange(
 					current.getStartOffset(), last.getEndOffset(), isOriginalTree, skippedChars))
 				return false;
-			if (incrementalSorts.contains(tree.getSort()))
+			if (incrementalSorts.contains(getSort(tree)))
 				return true;
-			Iterator<IAstNode> iterator = tryGetListIterator(tree); 
-			for (int i = 0, max = tree.getChildCount(); i < max; i++) {
-				IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
-				IToken childLeft = findLeftMostLayoutToken(child.getLeftToken());
-				IToken childRight = findRightMostLayoutToken(child.getRightToken());
+			Iterator<ISimpleTerm> iterator = tryGetListIterator(tree); 
+			for (int i = 0, max = tree.getSubtermCount(); i < max; i++) {
+				ISimpleTerm child = iterator == null ? tree.getSubterm(i) : iterator.next();
+				IToken childLeft = findLeftMostLayoutToken(getLeftToken(child));
+				IToken childRight = findRightMostLayoutToken(getRightToken(child));
 				if (childLeft != null && childRight != null) {
 					if (childLeft.getIndex() > current.getIndex()
 							&& isDamagedRange(

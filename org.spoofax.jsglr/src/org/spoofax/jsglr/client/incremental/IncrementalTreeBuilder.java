@@ -6,6 +6,9 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.Tokenizer.findLeftMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.Tokenizer.findRightMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.Tokenizer.getTokenAfter;
@@ -17,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.imploder.IAstNode;
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
@@ -28,7 +31,7 @@ import org.spoofax.jsglr.client.imploder.Tokenizer;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class IncrementalTreeBuilder<TNode extends IAstNode> {
+public class IncrementalTreeBuilder<TNode extends ISimpleTerm> {
 	
 	private static final int NO_STOP_OFFSET = Integer.MAX_VALUE;
 
@@ -44,7 +47,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	
 	private final int damageSizeChange;
 
-	private final List<IAstNode> repairedNodes;
+	private final List<ISimpleTerm> repairedNodes;
 
 	private final Tokenizer newTokenizer;
 
@@ -58,7 +61,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	 * @param skippedChars @see {@link IncrementalInputBuilder#getLastSkippedCharsBeforeDamage()}
 	 */
 	public IncrementalTreeBuilder(IncrementalSGLR<TNode> parser, DamageRegionAnalyzer damageAnalyzer,
-			String input, String filename, List<IAstNode> repairedTreeNodes, int skippedChars) {
+			String input, String filename, List<ISimpleTerm> repairedTreeNodes, int skippedChars) {
 		this.damageAnalyzer = damageAnalyzer;
 		this.factory = parser.factory;
 		this.incrementalSorts = damageAnalyzer.incrementalSorts;
@@ -73,7 +76,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	/**
 	 * Builds the output tree based on the old tree and the list of repaired tree nodes.
 	 */
-	public TNode buildOutput(IAstNode oldTreeNode) throws IncrementalSGLRException {
+	public TNode buildOutput(ISimpleTerm oldTreeNode) throws IncrementalSGLRException {
 		isRepairedNodesInserted = false;
 		TNode result = buildOutputSubtree(oldTreeNode, 0);
 		if (!isRepairedNodesInserted)
@@ -86,49 +89,49 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		return reconstructedNodes;
 	}
 	
-	private TNode buildOutputSubtree(IAstNode oldTreeNode, int offsetChange) {
-		final List<IAstNode> children;
+	private TNode buildOutputSubtree(ISimpleTerm oldTreeNode, int offsetChange) {
+		final List<ISimpleTerm> children;
 		final IToken beforeStartToken = newTokenizer.currentToken();
-		IToken startToken = oldTreeNode.getLeftToken();
+		IToken startToken = getLeftToken(oldTreeNode);
 		
 		sanityCheckOldTreeNode(oldTreeNode);
 		
-		if (oldTreeNode.isList() && incrementalSorts.contains(oldTreeNode.getElementSort())) {
+		if (oldTreeNode.isList() && incrementalSorts.contains(getElementSort(oldTreeNode))) {
 			// UNDONE: assert offsetChange == 0 : "Nested incrementalSorts lists?";
-			children = new ArrayList<IAstNode>(oldTreeNode.getChildCount() + repairedNodes.size());
+			children = new ArrayList<ISimpleTerm>(oldTreeNode.getSubtermCount() + repairedNodes.size());
 
-			Iterator<IAstNode> iterator = tryGetListIterator(oldTreeNode); 
-			for (int i = 0, max = oldTreeNode.getChildCount(); i < max; i++) {
-				IAstNode child = iterator == null ? oldTreeNode.getChildAt(i) : iterator.next();
+			Iterator<ISimpleTerm> iterator = tryGetListIterator(oldTreeNode); 
+			for (int i = 0, max = oldTreeNode.getSubtermCount(); i < max; i++) {
+				ISimpleTerm child = iterator == null ? oldTreeNode.getSubterm(i) : iterator.next();
 
-				copyTokensAndTryAddRepairedNodes(oldTreeNode, children, startToken, child.getLeftToken(), child.getRightToken());
+				copyTokensAndTryAddRepairedNodes(oldTreeNode, children, startToken, getLeftToken(child), getRightToken(child));
 
 				if (!damageAnalyzer.isDamageTreeNode(child, true, skippedChars)) {
-					startToken = getTokenAfter(child.getRightToken());
+					startToken = getTokenAfter(getRightToken(child));
 					children.add(buildOutputSubtree(child, offsetChange));
 				}
 			}
-			IToken stopToken = getTokenAfter(findRightMostLayoutToken(oldTreeNode.getRightToken()));
+			IToken stopToken = getTokenAfter(findRightMostLayoutToken(getRightToken(oldTreeNode)));
 			copyTokensAndTryAddRepairedNodes(oldTreeNode, children, startToken, stopToken, stopToken);
 		} else {
 			children = copyChildrenToList(oldTreeNode);
 			for (int i = 0; i < children.size(); i++) {
-				IAstNode child = children.get(i);
+				ISimpleTerm child = children.get(i);
 				
 				int myOffsetChange = offsetChange + (isRepairedNodesInserted ? damageSizeChange : 0);
-				copyTokens(startToken, findLeftMostLayoutToken(child.getLeftToken()), NO_STOP_OFFSET/*child.getLeftToken().getEndOffset() + 1*/, myOffsetChange);
-				startToken = getTokenAfter(child.getRightToken());
+				copyTokens(startToken, findLeftMostLayoutToken(getLeftToken(child)), NO_STOP_OFFSET/*getLeftToken(child).getEndOffset() + 1*/, myOffsetChange);
+				startToken = getTokenAfter(getRightToken(child));
 
 				children.set(i, buildOutputSubtree(child, offsetChange));
 			}
 		}
 		int myOffsetChange = offsetChange + (isRepairedNodesInserted ? damageSizeChange : 0);
-		IToken stopToken = getTokenAfter(oldTreeNode.getRightToken());
+		IToken stopToken = getTokenAfter(getRightToken(oldTreeNode));
 		copyTokens(startToken, stopToken, NO_STOP_OFFSET/*stopToken.getEndOffset() + 1*/, myOffsetChange);
 		return buildOutputNode(oldTreeNode, children, beforeStartToken);
 	}
 
-	private void sanityCheckOldTreeNode(IAstNode oldTreeNode) {
+	private void sanityCheckOldTreeNode(ISimpleTerm oldTreeNode) {
 		// (Also checked in IncrementalSGLR precondition.)
 		// TODO: incremental parsing with ambiguous trees
 		@SuppressWarnings("unchecked")
@@ -138,7 +141,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private TNode buildOutputNode(IAstNode oldTreeNode, List<IAstNode> children, IToken beforeStartToken) {
+	private TNode buildOutputNode(ISimpleTerm oldTreeNode, List<ISimpleTerm> children, IToken beforeStartToken) {
 		IToken startToken;
 		if (newTokenizer.currentToken() == beforeStartToken) {
 			startToken = newTokenizer.makeToken(newTokenizer.getStartOffset() - 1, TK_UNKNOWN, true);
@@ -148,7 +151,7 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		return factory.recreateNode((TNode) oldTreeNode, startToken, newTokenizer.currentToken(), (List<TNode>) children);
 	}
 
-	private void copyTokensAndTryAddRepairedNodes(IAstNode oldTreeNode, List<IAstNode> children,
+	private void copyTokensAndTryAddRepairedNodes(ISimpleTerm oldTreeNode, List<ISimpleTerm> children,
 			IToken firstToken, IToken stopToken, IToken childEndToken) {
 		
 		if (!isRepairedNodesInserted && childEndToken.getEndOffset() >= damageStart) {
@@ -161,13 +164,13 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		}
 	}
 
-	private void insertRepairedNodes(IAstNode oldTreeNode, List<IAstNode> children) {
+	private void insertRepairedNodes(ISimpleTerm oldTreeNode, List<ISimpleTerm> children) {
 		if (repairedNodes.size() > 0) {
-			IToken firstToken = getTokenBefore(repairedNodes.get(0).getLeftToken());
+			IToken firstToken = getTokenBefore(getLeftToken(repairedNodes.get(0)));
 	
-			for (IAstNode node : repairedNodes) {
-				copyTokens(firstToken, node.getLeftToken(), NO_STOP_OFFSET/*node.getLeftToken().getEndOffset() + 1*/, skippedChars);
-				firstToken = getTokenAfter(node.getRightToken());
+			for (ISimpleTerm node : repairedNodes) {
+				copyTokens(firstToken, getLeftToken(node), NO_STOP_OFFSET/*getLeftToken(node).getEndOffset() + 1*/, skippedChars);
+				firstToken = getTokenAfter(getRightToken(node));
 				
 				TNode reconstructed = buildOutputSubtree(node, skippedChars);
 				reconstructedNodes.add(reconstructed);
@@ -216,11 +219,11 @@ public class IncrementalTreeBuilder<TNode extends IAstNode> {
 		}
 	}
 
-	private static List<IAstNode> copyChildrenToList(IAstNode tree) {
-		List<IAstNode> results = new ArrayList<IAstNode>(tree.getChildCount());
-		Iterator<IAstNode> iterator = tryGetListIterator(tree); 
-		for (int i = 0, max = tree.getChildCount(); i < max; i++) {
-			IAstNode child = iterator == null ? tree.getChildAt(i) : iterator.next();
+	private static List<ISimpleTerm> copyChildrenToList(ISimpleTerm tree) {
+		List<ISimpleTerm> results = new ArrayList<ISimpleTerm>(tree.getSubtermCount());
+		Iterator<ISimpleTerm> iterator = tryGetListIterator(tree); 
+		for (int i = 0, max = tree.getSubtermCount(); i < max; i++) {
+			ISimpleTerm child = iterator == null ? tree.getSubterm(i) : iterator.next();
 			results.add(child);
 		}
 		return results;

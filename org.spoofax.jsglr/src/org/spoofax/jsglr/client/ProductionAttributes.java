@@ -12,7 +12,7 @@ import static org.spoofax.jsglr.client.ProductionType.PREFER;
 
 import java.io.Serializable;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class ProductionAttributes implements Serializable {
 
@@ -22,9 +22,9 @@ public class ProductionAttributes implements Serializable {
 
     private final boolean isRecover;
 
-    private final transient ATerm abstractCtor;
+    private final transient IStrategoTerm abstractCtor;
 
-    ProductionAttributes(ATerm ctor, int type, boolean isRecover) {
+    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover) {
         this.type = type;
         this.abstractCtor = ctor;
         this.isRecover = isRecover;
@@ -34,7 +34,7 @@ public class ProductionAttributes implements Serializable {
         return type;
     }
 
-    public final ATerm getTerm() {
+    public final IStrategoTerm getTerm() {
         return abstractCtor;
     }
 

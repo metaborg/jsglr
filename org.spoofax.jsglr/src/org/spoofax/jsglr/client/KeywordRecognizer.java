@@ -1,13 +1,15 @@
 package org.spoofax.jsglr.client;
 
-import static org.spoofax.jsglr.shared.Tools.termAt;
+import static org.spoofax.terms.Term.isTermAppl;
+import static org.spoofax.terms.Term.termAt;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spoofax.jsglr.shared.terms.AFun;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Recognizes keywords in a language without considering their context.
@@ -18,18 +20,16 @@ import org.spoofax.jsglr.shared.terms.ATermAppl;
  */
 public class KeywordRecognizer {
 	
-	private final AFun litFun;
-	
 	private final Set<String> keywords = new HashSet<String>();
 	
 	protected KeywordRecognizer(ParseTable table) {
-		litFun = table.getFactory().makeAFun("lit", 1, false);
 		if (table != null) {
+			IStrategoConstructor litFun = table.getFactory().makeConstructor("lit", 1);
 			for (Label l : table.getLabels()) {
 				if (l != null) {
-					ATerm rhs = termAt(l.getProduction(), 1);
-					if (rhs instanceof ATermAppl && ((ATermAppl) rhs).getAFun() == litFun) {
-						ATermAppl lit = termAt(rhs, 0);
+					IStrategoTerm rhs = termAt(l.getProduction(), 1);
+					if (isTermAppl(rhs) && ((IStrategoAppl) rhs).getConstructor() == litFun) {
+						IStrategoNamed lit = termAt(rhs, 0);
 						String litString = lit.getName();
 						if (isPotentialKeyword(litString))
 							keywords.add(litString);

@@ -7,9 +7,9 @@
  */
 package org.spoofax.jsglr.shared;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
 
 public class SGLRException extends Exception {
 
@@ -34,7 +34,7 @@ public class SGLRException extends Exception {
         return parser;
     }
 
-    public final ATerm toTerm() {
+    public final IStrategoTerm toTerm() {
         return toTerm("-");
     }
 
@@ -42,21 +42,21 @@ public class SGLRException extends Exception {
         return getMessage();
     }
 
-    public ATerm toTerm(String filename) {
+    public IStrategoTerm toTerm(String filename) {
         if (parser == null)
             throw new UnsupportedOperationException();
 
-        ATermFactory factory = parser.getFactory();
+        ITermFactory factory = parser.getFactory();
         return factory.makeAppl(
-            factory.makeAFun("error", 2, false),
-            factory.makeAppl(factory.makeAFun("Parse error", 0, true)),
+            factory.makeConstructor("error", 2),
+            factory.makeString("Parse error"),
             factory.makeList(
                 factory.makeAppl(
-                    factory.makeAFun("localized", 2, false),
-                    factory.makeAppl(factory.makeAFun(getShortMessage(), 0, true)),
+                    factory.makeConstructor("localized", 2),
+                    factory.makeString(getShortMessage()),
                     factory.makeAppl(
-                        factory.makeAFun("area-in-file", 2, false),
-                        factory.makeAppl(factory.makeAFun(filename, 0, true)),
+                        factory.makeConstructor("area-in-file", 2),
+                        factory.makeString(filename),
                         toLocationATerm()
                     )
                 )
@@ -64,10 +64,10 @@ public class SGLRException extends Exception {
         );
     }
 
-    protected ATerm toLocationATerm() {
-        ATermFactory factory = parser.getFactory();
+    protected IStrategoTerm toLocationATerm() {
+        ITermFactory factory = parser.getFactory();
         return factory.makeAppl(
-            factory.makeAFun("area", 6, false),
+            factory.makeConstructor("area", 6),
             factory.makeInt(0),
             factory.makeInt(0),
             factory.makeInt(0),

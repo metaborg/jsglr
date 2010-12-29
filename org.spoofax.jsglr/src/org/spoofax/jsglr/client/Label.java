@@ -9,18 +9,18 @@ package org.spoofax.jsglr.client;
 
 import java.io.Serializable;
 
-import org.spoofax.jsglr.shared.terms.ATermAppl;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 
 public class Label implements Serializable {
 
     private static final long serialVersionUID = -4080621639747161438L;
 
     /*package*/ final int labelNumber;
-    /*package*/ final ATermAppl prod;
+    /*package*/ final IStrategoAppl prod;
     private final ProductionAttributes productionAttributes;
     private final boolean injection;
 
-    public Label(int labelNumber, ATermAppl prod, ProductionAttributes productionAttributes, boolean injection) {
+    public Label(int labelNumber, IStrategoAppl prod, ProductionAttributes productionAttributes, boolean injection) {
         this.labelNumber = labelNumber;
         this.prod = prod;
         this.productionAttributes = productionAttributes;
@@ -54,7 +54,7 @@ public class Label implements Serializable {
         return injection;
     }
 
-    public ATermAppl getProduction() {
+    public IStrategoAppl getProduction() {
         return prod;
     }
 

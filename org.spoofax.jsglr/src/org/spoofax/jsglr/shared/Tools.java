@@ -8,10 +8,6 @@
 package org.spoofax.jsglr.shared;
 
 import org.spoofax.jsglr.client.Measures;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermInt;
-import org.spoofax.jsglr.shared.terms.ATermString;
 
 
 public class Tools {
@@ -57,33 +53,6 @@ public class Tools {
 
     public static Measures getMeasures() {
         return measures;
-    }
-    
-    // Terms
-
-    public static ATermAppl applAt(ATerm pt, int i) {
-        return termAt(pt, i);
-    }
-    
-    public static String asJavaString(ATerm s) {
-    	return ((ATermString) s).getString();
-    }
-
-    @SuppressWarnings("unchecked") // casting is inherently unsafe, but doesn't warrant a warning here
-    public static<T extends ATerm> T termAt(ATerm t, int i) {
-        return (T) t.getChildAt(i);
-    }
-    
-    public static ATermAppl asAppl(ATerm t) {
-        return (ATermAppl) t;
-    }
-
-    public static boolean isAppl(ATerm t) {
-        return t.getType() == ATerm.APPL;
-    }
-    
-    public static int intAt(ATerm pt, int i) {
-        return ((ATermInt) pt.getChildAt(i)).getInt();
     }
 
 

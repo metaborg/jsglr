@@ -8,6 +8,12 @@
 package org.spoofax.jsglr.client;
 
 import static java.util.Arrays.asList;
+import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
+import static org.spoofax.terms.Term.intAt;
+import static org.spoofax.terms.Term.isTermInt;
+import static org.spoofax.terms.Term.javaInt;
+import static org.spoofax.terms.Term.termAt;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,11 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.spoofax.jsglr.shared.terms.AFun;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
-import org.spoofax.jsglr.shared.terms.ATermList;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.Term;
+import org.spoofax.terms.TermFactory;
 
 public class ParseTable implements Serializable {
 
@@ -52,11 +61,11 @@ public class ParseTable implements Serializable {
 
     private boolean hasRecovers;
 
-    transient private ATermFactory factory;
+    transient private ITermFactory factory;
 
-    transient public AFun applAFun;
+    transient public IStrategoConstructor applIStrategoConstructor;
 
-    transient public AFun ambAFun;
+    transient public IStrategoConstructor ambIStrategoConstructor;
 
     private Label[] injections;
 
@@ -86,29 +95,34 @@ public class ParseTable implements Serializable {
     	}
     }
                                              
-    public ParseTable(ATerm pt) throws InvalidParseTableException {
-        initAFuns(pt.getFactory());
+    public ParseTable(IStrategoTerm pt, ITermFactory factory) throws InvalidParseTableException {
+        initIStrategoConstructors(factory);
         parse(pt);
     }
-
-    public void initAFuns(ATermFactory factory) {
-        this.factory = factory;
-        applAFun = factory.makeAFun("appl", 2, false);
-        ambAFun = factory.makeAFun("amb", 1, false);
+    
+    @Deprecated
+    public ParseTable(IStrategoTerm pt) throws InvalidParseTableException {
+    	this(pt, new TermFactory());
     }
 
-    public ATermFactory getFactory() {
+    public void initIStrategoConstructors(ITermFactory factory) {
+        this.factory = factory;
+        applIStrategoConstructor = factory.makeConstructor("appl", 2);
+        ambIStrategoConstructor = factory.makeConstructor("amb", 1);
+    }
+
+    public ITermFactory getFactory() {
         return factory;
     }
 
-    private boolean parse(ATerm pt) throws InvalidParseTableException {
-        int version = Term.intAt(pt, 0);
-        if (pt.getChildCount() == 1) // Seen with ParseTable(0)
+    private boolean parse(IStrategoTerm pt) throws InvalidParseTableException {
+        int version = intAt(pt, 0);
+        if (pt.getSubtermCount() == 1) // Seen with ParseTable(0)
           throw new InvalidParseTableException("Invalid parse table (possibly wrong start symbol specified)\n" + pt);
-        startState = Term.intAt(pt, 1);
-        ATermList labelsTerm = Term.listAt(pt, 2);
-        ATermAppl statesTerm = Term.applAt(pt, 3);
-        ATermAppl prioritiesTerm = Term.applAt(pt, 4);
+        startState = intAt(pt, 1);
+        IStrategoList labelsTerm = termAt(pt, 2);
+        IStrategoNamed statesTerm = termAt(pt, 3);
+        IStrategoNamed prioritiesTerm = termAt(pt, 4);
 
         if (version != 4 && version !=6) {
             throw new InvalidParseTableException("Only supports version 4 and 6 tables.");
@@ -132,17 +146,17 @@ public class ParseTable implements Serializable {
         return true;
     }
 
-    private Priority[] parsePriorities(ATermAppl prioritiesTerm) throws InvalidParseTableException {
+    private Priority[] parsePriorities(IStrategoNamed prioritiesTerm) throws InvalidParseTableException {
 
-        ATermList prods = Term.listAt(prioritiesTerm, 0);
+        IStrategoList prods = termAt(prioritiesTerm, 0);
         List<Priority> ret = new ArrayList<Priority>();
 
         while (!prods.isEmpty()) {
-            ATermAppl a = (ATermAppl) prods.getFirst();
-            prods = prods.getNext();
+            IStrategoNamed a = (IStrategoNamed) prods.head();
+            prods = prods.tail();
 
-            int left = Term.intAt(a, 0);
-            int right = Term.intAt(a, 1);
+            int left = intAt(a, 0);
+            int right = intAt(a, 1);
             if (a.getName().equals("left-prio")) {
                 // handled by parseAssociativities
             } else if (a.getName().equals("right-prio")) {
@@ -154,7 +168,7 @@ public class ParseTable implements Serializable {
                     ret.add(new Priority(Priority.GTR, left, right));
             } else if (a.getName().equals("arg-gtr-prio")) {
             	int arg = right;
-            	right = Term.intAt(a, 1);
+            	right = intAt(a, 1);
                 if(left != right)
                     ret.add(new Priority(Priority.GTR, left, right, arg));
             } else {
@@ -164,14 +178,14 @@ public class ParseTable implements Serializable {
         return ret.toArray(new Priority[0]);
     }
 
-    private Associativity[] parseAssociativities(ATermAppl prioritiesTerm) throws InvalidParseTableException {
+    private Associativity[] parseAssociativities(IStrategoNamed prioritiesTerm) throws InvalidParseTableException {
 
-        ATermList prods = Term.listAt(prioritiesTerm, 0);
+        IStrategoList prods = termAt(prioritiesTerm, 0);
         List<Associativity> ret = new ArrayList<Associativity>();
 
-        for (ATermAppl a = (ATermAppl) prods.getFirst(); !prods.getNext().isEmpty(); prods = prods.getNext()) {
-            int left = Term.intAt(a, 0);
-            int right = Term.intAt(a, 1);
+        for (IStrategoNamed a = (IStrategoNamed) prods.head(); !prods.tail().isEmpty(); prods = prods.tail()) {
+            int left = intAt(a, 0);
+            int right = intAt(a, 1);
             if (a.getName().equals("left-prio")) {
                 if(left == right)
                     ret.add(new Associativity(Priority.LEFT, left));
@@ -192,69 +206,70 @@ public class ParseTable implements Serializable {
         return ret.toArray(new Associativity[0]);
     }
 
-    private Label[] parseLabels(ATermList labelsTerm) throws InvalidParseTableException {
+    private Label[] parseLabels(IStrategoList labelsTerm) throws InvalidParseTableException {
 
-        final Label[] ret = new Label[labelsTerm.getChildCount() + LABEL_BASE];
+        final Label[] ret = new Label[labelsTerm.getSubtermCount() + LABEL_BASE];
 
         while (!labelsTerm.isEmpty()) {
             
-        	final ATermAppl a = (ATermAppl) labelsTerm.getFirst();
-            final ATermAppl prod = Term.applAt(a, 0);
-            final int labelNumber = Term.intAt(a, 1);
+        	final IStrategoNamed a = (IStrategoNamed) labelsTerm.head();
+            final IStrategoAppl prod = termAt(a, 0);
+            final int labelNumber = intAt(a, 1);
             final boolean injection = isInjection(prod);
-            final ProductionAttributes pa = parseProductionAttributes(Term.applAt(prod, 2));
+            IStrategoAppl attrs = termAt(prod, 2);
+			final ProductionAttributes pa = parseProductionAttributes(attrs);
             
             ret[labelNumber] = new Label(labelNumber, prod, pa, injection);
 
-            labelsTerm = labelsTerm.getNext();
+            labelsTerm = labelsTerm.tail();
         }
 
         return ret;
     }
 
-    private boolean isInjection(ATermAppl prod) {
+    private boolean isInjection(IStrategoNamed prod) {
 
     	// Injections are terms on the following form:
     	//  . prod([<term>],cf(<term>),<term>)
     	//  . prod([<term>],lex(sort(<str>)),<term>)
     	//  . lit(<str>)
 
-        if(!prod.getAFun().getName().equals("prod"))
+        if(!prod.getName().equals("prod"))
         	return false;
         
         
-        if(prod.getChildAt(1).getType() != ATerm.APPL)
+        if(prod.getSubterm(1).getTermType() != APPL)
         	return false;
         
-        final String nm = ((ATermAppl)prod.getChildAt(1)).getName();
+        final String nm = ((IStrategoNamed)prod.getSubterm(1)).getName();
         
         if(!(nm.equals("cf") || nm.equals("lex")))
         	return false;
 
-        if(prod.getChildAt(0).getType() != ATerm.LIST)
+        if(prod.getSubterm(0).getTermType() != LIST)
         	return false;
 
-        ATermList ls = ((ATermList)prod.getChildAt(0));
+        IStrategoList ls = ((IStrategoList)prod.getSubterm(0));
 
-        if(ls.getChildCount() < 1)
+        if(ls.getSubtermCount() < 1)
         	return false;
         
-        if(ls.getFirst().getType() != ATerm.APPL)
+        if(ls.head().getTermType() != APPL)
         	return false;
         
-        final AFun fun = ((ATermAppl)ls.getFirst()).getAFun();
+        final IStrategoConstructor fun = ((IStrategoAppl)ls.head()).getConstructor();
         return !(fun.getName().equals("lit") && fun.getArity() == 1);
     }
 
-    private ProductionAttributes parseProductionAttributes(ATermAppl attr)
+    private ProductionAttributes parseProductionAttributes(IStrategoAppl attr)
             throws InvalidParseTableException {
         if (attr.getName().equals("attrs")) {
             int type = 0;
             boolean isRecover = false;
-            ATerm term = null;
+            IStrategoTerm term = null;
 
-            for (ATermList ls = (ATermList) attr.getChildAt(0); !ls.isEmpty(); ls = ls.getNext()) {
-                ATermAppl t = (ATermAppl) ls.getFirst();
+            for (IStrategoList ls = (IStrategoList) attr.getSubterm(0); !ls.isEmpty(); ls = ls.tail()) {
+                IStrategoNamed t = (IStrategoNamed) ls.head();
                 String ctor = t.getName();
                 if (ctor.equals("reject")) {
                     type = ProductionType.REJECT;
@@ -269,7 +284,7 @@ public class ParseTable implements Serializable {
                     type = ProductionType.BRACKET;
                 } else {
                     if (ctor.equals("assoc")) {
-                        ATermAppl a = (ATermAppl) t.getChildAt(0);
+                        IStrategoNamed a = (IStrategoNamed) t.getSubterm(0);
                         if (a.getName().equals("left") || a.getName().equals("assoc")) {
                         	// ('assoc' is identical to 'left' for the parser)
                             type = ProductionType.LEFT_ASSOCIATIVE;
@@ -283,20 +298,20 @@ public class ParseTable implements Serializable {
                         } else {
                             throw new InvalidParseTableException("Unknown assocativity: " + a.getName());
                         }
-                    } else if (	ctor.equals("term") && t.getChildCount() == 1) {
+                    } else if (	ctor.equals("term") && t.getSubtermCount() == 1) {
                         // Term needs to be shaped as term(cons(Constructor)) to be a constructor
-                    	if(t.getChildAt(0) instanceof ATermAppl) {
-                    	    ATermAppl child = (ATermAppl) t.getChildAt(0);
-                            if (child.getChildCount() == 1 && child.getName().equals("cons")) {
-                    			term = t.getChildAt(0).getChildAt(0);
-                    		} else if (child.getChildCount() == 0 && child.getName().equals("recover")) {
+                    	if(t.getSubterm(0) instanceof IStrategoNamed) {
+                    	    IStrategoNamed child = (IStrategoNamed) t.getSubterm(0);
+                            if (child.getSubtermCount() == 1 && child.getName().equals("cons")) {
+                    			term = t.getSubterm(0).getSubterm(0);
+                    		} else if (child.getSubtermCount() == 0 && child.getName().equals("recover")) {
                     		    hasRecovers = isRecover = true;
                     		}
                     	}
                     	// TODO Support other terms that are not a constructor (custom annotations)
                     } else if (ctor.equals("id")) {
                         // FIXME not certain about this
-                        term = t.getChildAt(0);
+                        term = t.getSubterm(0);
                     } else {
                         throw new InvalidParseTableException("Unknown attribute: " + t);
                     }
@@ -309,17 +324,17 @@ public class ParseTable implements Serializable {
         throw new InvalidParseTableException("Unknown attribute type: " + attr);
     }
 
-    private State[] parseStates(ATermAppl statesTerm) throws InvalidParseTableException {
+    private State[] parseStates(IStrategoNamed statesTerm) throws InvalidParseTableException {
 
-        ATermList states = Term.listAt(statesTerm, 0);
-        State[] ret = new State[states.getChildCount()];
+        IStrategoList states = termAt(statesTerm, 0);
+        State[] ret = new State[states.getSubtermCount()];
         for(int i = 0; i < ret.length; i++) {
-            ATermAppl stateRec = (ATermAppl) states.getFirst();
-            states = states.getNext();
+            IStrategoNamed stateRec = (IStrategoNamed) states.head();
+            states = states.tail();
 
-            int stateNumber = Term.intAt(stateRec, 0);
-            Goto[] gotos = parseGotos(Term.listAt(stateRec, 1));
-            Action[] actions = parseActions(Term.listAt(stateRec, 2));
+            int stateNumber = intAt(stateRec, 0);
+            Goto[] gotos = parseGotos((IStrategoList) termAt(stateRec, 1));
+            Action[] actions = parseActions((IStrategoList) termAt(stateRec, 2));
 
             ret[i] = new State(stateNumber, gotos, actions);
         }
@@ -339,45 +354,45 @@ public class ParseTable implements Serializable {
     }
 
 
-    private Action[] parseActions(ATermList actionList) throws InvalidParseTableException {
-        Action[] ret = new Action[actionList.getChildCount()];
+    private Action[] parseActions(IStrategoList actionList) throws InvalidParseTableException {
+        Action[] ret = new Action[actionList.getSubtermCount()];
 
         for(int i = 0; i < ret.length; i++) {
-            ATermAppl action = (ATermAppl) actionList.getFirst();
-            actionList = actionList.getNext();
-            RangeList ranges = parseRanges(Term.listAt(action, 0));
-            ActionItem[] items = parseActionItems(Term.listAt(action, 1));
+            IStrategoNamed action = (IStrategoNamed) actionList.head();
+            actionList = actionList.tail();
+            RangeList ranges = parseRanges((IStrategoList) termAt(action, 0));
+            ActionItem[] items = parseActionItems((IStrategoList) termAt(action, 1));
             ret[i] = new Action(ranges, items);
         }
         return ret;
     }
 
-    private ActionItem[] parseActionItems(ATermList items) throws InvalidParseTableException {
+    private ActionItem[] parseActionItems(IStrategoList items) throws InvalidParseTableException {
 
-        ActionItem[] ret = new ActionItem[items.getChildCount()];
+        ActionItem[] ret = new ActionItem[items.getSubtermCount()];
 
         for(int i = 0; i < ret.length; i++) {
             ActionItem item = null;
-            ATermAppl a = (ATermAppl) items.getFirst();
-            items = items.getNext();
+            IStrategoAppl a = (IStrategoAppl) items.head();
+            items = items.tail();
 
-            if (a.getName().equals("reduce") && a.getAFun().getArity() == 3) {
-                int productionArity = Term.intAt(a, 0);
-                int label = Term.intAt(a, 1);
-                int status = Term.intAt(a, 2);
+            if (a.getName().equals("reduce") && a.getConstructor().getArity() == 3) {
+                int productionArity = intAt(a, 0);
+                int label = intAt(a, 1);
+                int status = intAt(a, 2);
                 boolean isRecoverAction = getLabel(label).getAttributes().isRecoverProduction();
                 item = makeReduce(productionArity, label, status, isRecoverAction);
-            } else if(a.getName().equals("reduce") && a.getAFun().getArity() == 4) {
-                int productionArity = Term.intAt(a, 0);
-                int label = Term.intAt(a, 1);
-                int status = Term.intAt(a, 2);
-                RangeList[] charClasses = parseCharRanges(Term.listAt(a, 3));
+            } else if(a.getName().equals("reduce") && a.getConstructor().getArity() == 4) {
+                int productionArity = intAt(a, 0);
+                int label = intAt(a, 1);
+                int status = intAt(a, 2);
+                RangeList[] charClasses = parseCharRanges((IStrategoList) termAt(a, 3));
                 item = makeReduceLookahead(productionArity, label, status, charClasses);
 
             } else if (a.getName().equals("accept")) {
                 item = new Accept();
             } else if (a.getName().equals("shift")) {
-                int nextState = Term.intAt(a, 0);
+                int nextState = intAt(a, 0);
                 item = makeShift(nextState);
             } else {
                 throw new InvalidParseTableException("Unknown action " + a.getName());
@@ -387,31 +402,31 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    private RangeList[] parseCharRanges(ATermList list) throws InvalidParseTableException {
-        RangeList[] ret = new RangeList[list.getChildCount()];
+    private RangeList[] parseCharRanges(IStrategoList list) throws InvalidParseTableException {
+        RangeList[] ret = new RangeList[list.getSubtermCount()];
         for (int i=0;i<ret.length; i++) {
-            ATermAppl t = Term.asAppl(list.getFirst());
-            list = list.getNext();
-            ATermList l, n;
+            IStrategoNamed t = (IStrategoNamed) list.head();
+            list = list.tail();
+            IStrategoList l, n;
             if (t.getName().equals("look")) { // sdf2bundle 2.4
-                l = Term.listAt(Term.applAt(t, 0), 0);
-                n = Term.listAt(t, 1);
+                l = termAt(termAt(t, 0), 0);
+                n = termAt(t, 1);
             } else { // sdf2bundle 2.6
                 assert t.getName().equals("follow-restriction");
-                l = Term.listAt(Term.termAt(Term.listAt(t, 0), 0), 0);
-                n = Term.listAt(t, 0).getNext();
+                l = termAt(Term.termAt(termAt(t, 0), 0), 0);
+                n = ((IStrategoList) termAt(t, 0)).tail();
             }
 
             // FIXME: multiple lookahead are not fully supported or tested
             //        (and should work for both 2.4 and 2.6 tables)
 
-            if (n.getChildCount() > 0 && Term.termAt(l, 1) == null) {
+            if (n.getSubtermCount() > 0 && Term.termAt(l, 1) == null) {
                 // This handles restrictions like:
                 //   LAYOUT? -/- [\/].[\/]
                 // where there is no other restriction that starts with a [\/]
 
-                ret[i] = new RangeList(new Range(Term.intAt(l, 0)));
-            } else if (n.getChildCount() > 0) {
+                ret[i] = new RangeList(new Range(intAt(l, 0)));
+            } else if (n.getSubtermCount() > 0) {
                 // This handles restrictions like:
                 //   LAYOUT? -/- [\/].[\/\+].[\*]
                 throw new InvalidParseTableException("Multiple lookahead not fully supported");
@@ -453,14 +468,14 @@ public class ParseTable implements Serializable {
         }
     }
 
-    private Goto[] parseGotos(ATermList gotos) throws InvalidParseTableException {
-        Goto[] ret = new Goto[gotos.getChildCount()];
+    private Goto[] parseGotos(IStrategoList gotos) throws InvalidParseTableException {
+        Goto[] ret = new Goto[gotos.getSubtermCount()];
         for(int i = 0; i < ret.length; i++) {
-            ATermAppl go = (ATermAppl) gotos.getFirst();
-            gotos = gotos.getNext();
+            IStrategoNamed go = (IStrategoNamed) gotos.head();
+            gotos = gotos.tail();
 
-            ATermList rangeList = Term.listAt(go, 0);
-            int newStateNumber = Term.intAt(go, 1);
+            IStrategoList rangeList = termAt(go, 0);
+            int newStateNumber = intAt(go, 1);
             RangeList ranges = parseRanges(rangeList);
             //int[] productionLabels = parseProductionLabels(rangeList);
             ret[i] = makeGoto(newStateNumber, ranges);
@@ -469,18 +484,18 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-//    private int[] parseProductionLabels(ATermList ranges) throws InvalidParseTableException {
+//    private int[] parseProductionLabels(IStrategoList ranges) throws InvalidParseTableException {
 //
 //        int[] ret = new int[ranges.getChildCount()];
 //
 //        for (int i = 0; i < ranges.getChildCount(); i++) {
-//            ATerm t = Term.termAt(ranges, i);
-//            if (Term.isInt(t)) {
-//                ret[i] = Term.toInt(t);
+//            IStrategoTerm t = Term.termAt(ranges, i);
+//            if (isTermInt(t)) {
+//                ret[i] = javaInt(t);
 //            } else {
-////                else if(Term.isAppl(t) && ((ATermAppl)t).getName().equals("range")) {
-////                int s = Term.intAt(t, 0);
-////                int e = Term.intAt(t, 1);
+////                else if(Term.isAppl(t) && ((IStrategoNamed)t).getName().equals("range")) {
+////                int s = intAt(t, 0);
+////                int e = intAt(t, 1);
 //                Tools.debug(t);
 //                throw new InvalidParseTableException("");
 //            }
@@ -488,18 +503,18 @@ public class ParseTable implements Serializable {
 //        return ret;
 //    }
 
-    private RangeList parseRanges(ATermList ranges) throws InvalidParseTableException {
+    private RangeList parseRanges(IStrategoList ranges) throws InvalidParseTableException {
         // TODO: Optimize - directly create int[] for RangeList, don't bother with intermediate Range objects
-        Range[] ret = new Range[ranges.getChildCount()];
+        Range[] ret = new Range[ranges.getSubtermCount()];
 
         for(int i = 0; i < ret.length; i++) {
-            ATerm t = ranges.getFirst();
-            ranges = ranges.getNext();
-            if (Term.isInt(t)) {
-                ret[i] = makeRange(Term.toInt(t));
+            IStrategoTerm t = ranges.head();
+            ranges = ranges.tail();
+            if (isTermInt(t)) {
+                ret[i] = makeRange(javaInt(t));
             } else {
-                int low = Term.intAt(t, 0);
-                int hi = Term.intAt(t, 1);
+                int low = intAt(t, 0);
+                int hi = intAt(t, 1);
                 ret[i] = makeRange(low, hi);
             }
         }
@@ -602,7 +617,7 @@ public class ParseTable implements Serializable {
     	return productionNodes[currentToken];
     }
 
-    public ATerm getProduction(int prod) {
+    public IStrategoTerm getProduction(int prod) {
         if (prod < NUM_CHARS) {
             return factory.makeInt(prod);
         }

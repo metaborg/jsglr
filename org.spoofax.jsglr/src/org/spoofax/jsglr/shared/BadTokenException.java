@@ -1,8 +1,8 @@
 package org.spoofax.jsglr.shared;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
 
 /**
  * Exception thrown when a specific token was unexpected by the parser.
@@ -66,10 +66,10 @@ public class BadTokenException extends SGLRException {
 
 
     @Override
-    protected ATerm toLocationATerm() {
-        ATermFactory factory = getParser().getFactory();
+    protected IStrategoTerm toLocationATerm() {
+        ITermFactory factory = getParser().getFactory();
         return factory.makeAppl(
-            factory.makeAFun("area", 6, false),
+            factory.makeConstructor("area", 6),
             factory.makeInt(getLineNumber()),
             factory.makeInt(getColumnNumber()),
             factory.makeInt(getLineNumber()),

@@ -7,20 +7,20 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.AbstractParseNode;
 import org.spoofax.jsglr.client.Amb;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.RecoveryConnector;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"}) // FIXME: class-wide {"rawtypes", "unchecked"}?!
 public class TreeBuilder extends TopdownTreeBuilder {
 	
 	public static final char SKIPPED_CHAR = (char) -1; // TODO: sync with ParseErorHandler
@@ -47,7 +47,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	private ProductionAttributeReader prodReader;
 
-	private ATermFactory termFactory;
+	private ITermFactory termFactory;
 	
 	private LabelInfo[] labels;
 	
@@ -78,22 +78,23 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	public TreeBuilder(ITreeFactory treeFactory, boolean disableTokens) {
 		this.factory = treeFactory;
 		this.disableTokens = disableTokens;
+		treeFactory.setEnableTokens(!disableTokens);
 	}
 
 	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
 		this.table = table;
 		this.termFactory = table.getFactory();
 		if (initializeFactories) {
-			factory = new ATermTreeFactory(termFactory);
+			factory = new TermTreeFactory(termFactory);
 		}
-		assert !(factory instanceof ATermTreeFactory) || ((ATermTreeFactory) factory).getTermFactory() == table.getFactory(); 
+		assert !(factory instanceof TermTreeFactory) || ((TermTreeFactory) factory).getOriginalTermFactory() == table.getFactory(); 
 		assert !(tokenizer instanceof Tokenizer) || ((Tokenizer) tokenizer).getKeywordRecognizer() == table.getKeywordRecognizer(); 
 		this.prodReader = new ProductionAttributeReader(termFactory);
 		this.labels = new LabelInfo[labelCount - labelStart];
 		this.labelStart = labelStart;
 	}
 
-	public void initializeLabel(int labelNumber, ATermAppl parseTreeProduction) {
+	public void initializeLabel(int labelNumber, IStrategoAppl parseTreeProduction) {
 		labels[labelNumber - labelStart] = new LabelInfo(prodReader, parseTreeProduction);
 	}
 	
@@ -165,7 +166,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				inLexicalContext = lexicalStart = true;
 			} else if (subnodes.length > 0 && subnodes[0] instanceof ParseProductionNode
 					&& label.isSortProduction()
-					&& label.getLHS().getChildCount() == 1) {
+					&& label.getLHS().getSubtermCount() == 1) {
 				return createIntTerminal(label, subnodes);
 			}
 		}

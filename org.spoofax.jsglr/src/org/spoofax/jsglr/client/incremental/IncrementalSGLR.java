@@ -2,15 +2,17 @@ package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.client.imploder.IAstNode;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -21,7 +23,7 @@ import org.spoofax.jsglr.shared.TokenExpectedException;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class IncrementalSGLR<TNode extends IAstNode> {
+public class IncrementalSGLR<TNode extends ISimpleTerm> {
 	
 	public static boolean DEBUG = false;
 	
@@ -72,7 +74,7 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 
 		// Determine damage size
 		lastReconstructedNodes = Collections.emptyList();
-		String oldInput = oldTree.getLeftToken().getTokenizer().getInput();
+		String oldInput = getLeftToken(oldTree).getTokenizer().getInput();
 		int damageStart = getDamageStart(newInput, oldInput);
 		int damageSizeChange = newInput.length() - oldInput.length();
 		int damageEnd = getDamageEnd(newInput, oldInput, damageStart, damageSizeChange);
@@ -99,8 +101,8 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 		// Construct and parse partial input
 		String partialInput = inputBuilder.buildPartialInput(oldTree);
 		int skippedChars = inputBuilder.getLastSkippedCharsBeforeDamage();
-		IAstNode partialTree = (IAstNode) parser.parse(partialInput, startSymbol);
-		List<IAstNode> repairedNodes = damageAnalyzer.getDamageNodesForPartialTree(partialTree, skippedChars);
+		ISimpleTerm partialTree = (ISimpleTerm) parser.parse(partialInput, startSymbol);
+		List<ISimpleTerm> repairedNodes = damageAnalyzer.getDamageNodesForPartialTree(partialTree, skippedChars);
 		sanityCheckRepairedTree(repairedNodes);
 		
 		// Combine old tree with new partial tree
@@ -134,7 +136,7 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 			+ oldInput.substring(damageEnd + 1)).equals(newInput);
 	}
 
-	private void sanityCheckOldTree(IAstNode oldTree, List<IAstNode> damagedNodes)
+	private void sanityCheckOldTree(ISimpleTerm oldTree, List<ISimpleTerm> damagedNodes)
 			throws IncrementalSGLRException {
 		
 		if (DEBUG) System.out.println("Damaged: " + damagedNodes);
@@ -144,22 +146,22 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 			throw new IncrementalSGLRException("Postcondition failed: old tree is ambiguous");
 		}
 		
-		for (IAstNode node : damagedNodes) {
-			if (!incrementalSorts.contains(node.getSort()))
+		for (ISimpleTerm node : damagedNodes) {
+			if (!incrementalSorts.contains(getSort(node)))
 				throw new IncrementalSGLRException("Precondition failed: unsafe change to tree node of type "
-						+ node.getSort() + " at line " + node.getLeftToken().getLine());
+						+ getSort(node) + " at line " + getLeftToken(node).getLine());
 		}
 	}
 	
-	private void sanityCheckRepairedTree(List<IAstNode> repairedTreeNodes)
+	private void sanityCheckRepairedTree(List<ISimpleTerm> repairedTreeNodes)
 			throws IncrementalSGLRException {
 		
 		if (DEBUG) System.out.println("\nRepaired: " + repairedTreeNodes);
 		
-		for (IAstNode node : repairedTreeNodes) {
-			if (!incrementalSorts.contains(node.getSort())) {
+		for (ISimpleTerm node : repairedTreeNodes) {
+			if (!incrementalSorts.contains(getSort(node))) {
 				throw new IncrementalSGLRException("Postcondition failed: unsafe tree parsed of type "
-						+ node.getSort()  + " at line " + node.getLeftToken().getLine());
+						+ getSort(node)  + " at line " + getLeftToken(node).getLine());
 			} else if (isAmbiguous(node)) {
 				// Not yet supported by IncrementalTreeBuilder
 				throw new IncrementalSGLRException("Postcondition failed: updated tree is ambiguous");
@@ -167,8 +169,8 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 		}
 	}
 	
-	private static boolean isAmbiguous(IAstNode tree) {
-		return tree.getLeftToken().getTokenizer().isAmbigous();
+	private static boolean isAmbiguous(ISimpleTerm tree) {
+		return getLeftToken(tree).getTokenizer().isAmbigous();
 	}
 
 	protected static boolean isRangeOverlap(int start1, int end1, int start2, int end2) {
@@ -176,9 +178,9 @@ public class IncrementalSGLR<TNode extends IAstNode> {
 	}
 
 	@SuppressWarnings("unchecked")
-	static Iterator<IAstNode> tryGetListIterator(IAstNode oldTree) {
+	static Iterator<ISimpleTerm> tryGetListIterator(ISimpleTerm oldTree) {
 		if (oldTree.isList() && oldTree instanceof Iterable)
-			return ((Iterable<IAstNode>) oldTree).iterator();
+			return ((Iterable<ISimpleTerm>) oldTree).iterator();
 		else
 			return null;
 	}

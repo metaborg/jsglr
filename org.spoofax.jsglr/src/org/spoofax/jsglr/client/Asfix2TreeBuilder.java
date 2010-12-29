@@ -2,34 +2,34 @@ package org.spoofax.jsglr.client;
 
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.shared.terms.AFun;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
-import org.spoofax.jsglr.shared.terms.ATermList;
+import org.spoofax.terms.TermFactory;
 
 public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 
-	private final ATermFactory factory = new ATermFactory();
-	private final AFun applAFun;
-	private final AFun ambAFun;
-	private final AFun parseTreeAFun;
-	private ATermAppl[] labels;
+	private final TermFactory factory = new TermFactory();
+	private final IStrategoConstructor applIStrategoConstructor;
+	private final IStrategoConstructor ambIStrategoConstructor;
+	private final IStrategoConstructor parseTreeIStrategoConstructor;
+	private IStrategoAppl[] labels;
 	private int labelStart;
 
 	public Asfix2TreeBuilder() {
-		applAFun = factory.makeAFun("appl", 2, false);
-		ambAFun = factory.makeAFun("amb", 1, false);
-		parseTreeAFun = factory.makeAFun("parsetree", 2, false);
+		applIStrategoConstructor = factory.makeConstructor("appl", 2);
+		ambIStrategoConstructor = factory.makeConstructor("amb", 1);
+		parseTreeIStrategoConstructor = factory.makeConstructor("parsetree", 2);
 	}
 
 	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
-		labels = new ATermAppl[labelCount - labelStart];
+		labels = new IStrategoAppl[labelCount - labelStart];
 		this.labelStart = labelStart;
 	}
 
-	public void initializeLabel(int labelNumber, ATermAppl parseTreeProduction) {
+	public void initializeLabel(int labelNumber, IStrategoAppl parseTreeProduction) {
 		labels[labelNumber - labelStart] = parseTreeProduction;
 	}
 
@@ -37,24 +37,25 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 		// Not used here
 	}
 
-	public ATerm buildNode(int labelNumber, List<Object> subtrees) {
-		ATermList ls = factory.makeList();
+	public IStrategoTerm buildNode(int labelNumber, List<Object> subtrees) {
+		IStrategoList ls = factory.makeList();
 		for(int i = subtrees.size() - 1; i >= 0; i--) {
-        	ls = factory.makeList((ATerm)subtrees.get(i), ls);
+        	ls = factory.makeListCons((IStrategoTerm) subtrees.get(i), ls);
 		}
-		return factory.makeAppl(applAFun, labels[labelNumber - labelStart], ls);
+		return factory.makeAppl(applIStrategoConstructor, labels[labelNumber - labelStart], ls);
 	}
 
-	public ATerm buildAmb(List<Object> alternatives) {
-		return factory.makeAppl(ambAFun, alternatives.toArray(new ATerm[alternatives.size()]));
+	public IStrategoTerm buildAmb(List<Object> alternatives) {
+		IStrategoTerm[] alternatives2 = alternatives.toArray(new IStrategoTerm[alternatives.size()]);
+		return factory.makeAppl(ambIStrategoConstructor, alternatives2);
 	}
 
-	public ATerm buildProduction(int productionNumber) {
+	public IStrategoTerm buildProduction(int productionNumber) {
 		return factory.makeInt(productionNumber);
 	}
 
-	public ATerm buildTreeTop(Object node, int ambCount) {
-		return factory.makeAppl(parseTreeAFun, (ATerm)node, factory.makeInt(ambCount));
+	public IStrategoTerm buildTreeTop(Object node, int ambCount) {
+		return factory.makeAppl(parseTreeIStrategoConstructor, (IStrategoAppl) node, factory.makeInt(ambCount));
 	}
 
 	public ITokenizer getTokenizer() {

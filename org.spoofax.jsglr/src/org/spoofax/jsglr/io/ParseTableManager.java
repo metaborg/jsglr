@@ -20,30 +20,31 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.shared.Tools;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
+import org.spoofax.terms.TermFactory;
 
 public class ParseTableManager {
     
     private final Map<String, CachedTable> cache =
         new HashMap<String, CachedTable>();
     
-    private final ATermFactory factory;
+    private final ITermFactory factory;
     
     private boolean useDiskCache;
     
     public ParseTableManager() {
-        this(new ATermFactory());
+        this(new TermFactory());
     }
     
-    public ParseTableManager(ATermFactory factory) {
+    public ParseTableManager(ITermFactory factory) {
         this(factory, false);
     }
     
-    public ParseTableManager(ATermFactory factory, boolean useDiskCache) {
+    public ParseTableManager(ITermFactory factory, boolean useDiskCache) {
         this.factory = factory;
         this.useDiskCache = useDiskCache;
     }
@@ -66,7 +67,7 @@ public class ParseTableManager {
         			cached.lastModified() >= table.lastModified()) {
         		try {
 					pt = loadFromDiskCache(cachedTable);
-					pt.initAFuns(factory);
+					pt.initIStrategoConstructors(factory);
 				} catch (ClassNotFoundException e) {
 				}
         	}
@@ -117,12 +118,12 @@ public class ParseTableManager {
 
         // TODO: optimize - load table directly from stream
         String tableString = FileTools.loadFileAsString(new InputStreamReader(stream));
-        return initializeParseTable(factory.parseFromString(tableString));
+        return initializeParseTable(factory, factory.parseFromString(tableString));
     }
 
-	private ParseTable initializeParseTable(ATerm pt) throws InvalidParseTableException {
+	private ParseTable initializeParseTable(ITermFactory factory, IStrategoTerm pt) throws InvalidParseTableException {
         long start = System.currentTimeMillis();
-		ParseTable parseTable = new ParseTable(pt);
+		ParseTable parseTable = new ParseTable(pt, factory);
         long elapsed = System.currentTimeMillis() - start;
 
         if (SGLR.isLogging()) {
@@ -141,12 +142,12 @@ public class ParseTableManager {
         return parseTable;
 	}
 
-    public ATermFactory getFactory() {
+    public ITermFactory getFactory() {
         return factory;
     }
 
-	public ParseTable loadFromTerm(ATerm term) throws InvalidParseTableException {
-		return initializeParseTable(term);
+	public ParseTable loadFromTerm(ITermFactory factory, IStrategoTerm term) throws InvalidParseTableException {
+		return initializeParseTable(factory, term);
 	}
 	
 	/**

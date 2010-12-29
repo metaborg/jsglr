@@ -8,10 +8,8 @@ Export-Package: org.spoofax,
  org.spoofax.jsglr.client,
  org.spoofax.jsglr.client.imploder,
  org.spoofax.jsglr.client.incremental,
- org.spoofax.jsglr.shared,
- org.spoofax.jsglr.shared.terms
+ org.spoofax.jsglr.shared
 Bundle-Vendor: Spoofax.org
 Require-Bundle: org.junit,
- org.spoofax.interpreter.core,
  org.spoofax.terms
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

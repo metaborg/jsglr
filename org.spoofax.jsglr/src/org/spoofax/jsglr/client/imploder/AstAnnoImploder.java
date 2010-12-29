@@ -1,18 +1,27 @@
 package org.spoofax.jsglr.client.imploder;
 
+import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
+import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
+import static org.spoofax.interpreter.terms.IStrategoTerm.PLACEHOLDER;
+import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
+import static org.spoofax.terms.Term.isTermInt;
+import static org.spoofax.terms.Term.isTermNamed;
+import static org.spoofax.terms.Term.javaInt;
+import static org.spoofax.terms.Term.termAt;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoInt;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
+import org.spoofax.interpreter.terms.IStrategoReal;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.NotImplementedException;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
-import org.spoofax.jsglr.shared.terms.ATermInt;
-import org.spoofax.jsglr.shared.terms.ATermList;
-import org.spoofax.jsglr.shared.terms.ATermPlaceholder;
-
-import static org.spoofax.jsglr.shared.Tools.*;
-
 
 /**
  * Implodes {ast} annotations in asfix trees.
@@ -30,9 +39,9 @@ public class AstAnnoImploder<TNode> {
 	
 	private final IToken leftToken, rightToken;
 	
-	private final ATermFactory termFactory;
+	private final ITermFactory termFactory;
 	
-	public AstAnnoImploder(ITreeFactory<TNode> factory, ATermFactory termFactory, List<TNode> placeholderValues, IToken leftToken, IToken rightToken) {
+	public AstAnnoImploder(ITreeFactory<TNode> factory, ITermFactory termFactory, List<TNode> placeholderValues, IToken leftToken, IToken rightToken) {
 		this.factory = factory;
 		this.termFactory = termFactory;
 		this.placeholderValues = placeholderValues;
@@ -40,54 +49,52 @@ public class AstAnnoImploder<TNode> {
 		this.rightToken = rightToken;
 	}
 	
-	public TNode implode(ATerm ast, String sort) {
+	public TNode implode(IStrategoTerm ast, String sort) {
 		// Placeholder terms are represented as strings; must parse them and fill in their arguments
 		String astString = ast.toString();
 		if (astString.startsWith("\"") && astString.endsWith("\"")) {
 			astString = astString.substring(1, astString.length() - 1);
 			astString = astString.replace("\\\\", "\\").replace("\\\"", "\"");
-			ast = termFactory.parse(astString);
+			ast = termFactory.parseFromString(astString);
 		}
 		
 		return toNode(ast, sort);
 	}
 	
-	private TNode toNode(ATerm term, String sort) {
-		switch (term.getType()) {
-			case ATerm.PLACEHOLDER:
+	private TNode toNode(IStrategoTerm term, String sort) {
+		switch (term.getTermType()) {
+			case PLACEHOLDER:
 				return placeholderToNode(term, sort);
 				
-			case ATerm.APPL:
-				return applToNode(term, sort);
+			case APPL: case STRING:
+				return namedToNode(term, sort);
 				
-			case ATerm.LIST:
+			case LIST:
 				return listToNode(term, sort);
 				
-			case ATerm.INT:
-				ATermInt i = (ATermInt) term;
-				return factory.createIntTerminal(sort, leftToken, i.getInt());
+			case INT:
+				IStrategoInt i = (IStrategoInt) term;
+				return factory.createIntTerminal(sort, leftToken, i.intValue());
 				
-			/*
-			case ATerm.REAL:
-				ATermInt i = (ATermReal) term;
-				return factory.createRealTerminal(sort, leftToken, i.getReal());
-			*/
+			case REAL:
+				IStrategoReal r = (IStrategoReal) term;
+				return factory.createRealTerminal(sort, leftToken, r.realValue());
 				
 			default:
 				throw new IllegalStateException("Unexpected term type encountered in {ast} attribute");
 		}
 	}
 	
-	private TNode placeholderToNode(ATerm placeholder, String sort) {
-		ATerm term = ((ATermPlaceholder) placeholder).getPlaceholder();
-		if (term.getType() == ATerm.INT) {
-			int id = ((ATermInt) term).getInt();
+	private TNode placeholderToNode(IStrategoTerm placeholder, String sort) {
+		IStrategoTerm term = ((IStrategoPlaceholder) placeholder).getTemplate();
+		if (isTermInt(term)) {
+			int id = javaInt(term);
 			if (1 <= id && id <= placeholderValues.size()) {
 				return placeholderValues.get(id - 1);
 			}
-		} else if (term.getType() == ATerm.APPL) {
-			String type = ((ATermAppl) term).getName();
-			if ("conc".equals(type) && term.getChildCount() == 2) {
+		} else if (isTermNamed(term)) {
+			String type = ((IStrategoNamed) term).getName();
+			if ("conc".equals(type) && term.getSubtermCount() == 2) {
 				TNode left = toNode(termAt(term, 0), null);
 				TNode right = toNode(termAt(term, 1), null);
 				List<TNode> children = new ArrayList<TNode>();
@@ -96,7 +103,7 @@ public class AstAnnoImploder<TNode> {
 				for (TNode node : factory.getChildren(right))
 					children.add(node);
 				return factory.createList(sort, leftToken, rightToken, children);
-			} else if ("yield".equals(type) && term.getChildCount() == 1) {
+			} else if ("yield".equals(type) && term.getSubtermCount() == 1) {
 				throw new NotImplementedException("not implemented: yield in {ast} attribute");
 			}
 		}
@@ -104,24 +111,24 @@ public class AstAnnoImploder<TNode> {
 		throw new IllegalStateException("Error in syntax definition: illegal placeholder in {ast} attribute: " + placeholder);
 	}
 	
-	private TNode applToNode(ATerm term, String sort) {
-		ATermAppl appl = (ATermAppl) term;
-		ArrayList<TNode> children = new ArrayList<TNode>(appl.getChildCount());
-		for (int i = 0; i < appl.getChildCount(); i++) {
+	private TNode namedToNode(IStrategoTerm term, String sort) {
+		IStrategoNamed appl = (IStrategoNamed) term;
+		ArrayList<TNode> children = new ArrayList<TNode>(appl.getSubtermCount());
+		for (int i = 0; i < appl.getSubtermCount(); i++) {
 			children.add(toNode(termAt(appl, i), null));
 		}
-		if (appl.getType() == ATerm.STRING) {
+		if (appl.getTermType() == STRING) {
 			return factory.createStringTerminal(sort, appl.getName(), leftToken);
 		} else {
 			return factory.createNonTerminal(sort, appl.getName(), leftToken, rightToken, children);
 		}
 	}
 	
-	private TNode listToNode(ATerm term, String sort) {
+	private TNode listToNode(IStrategoTerm term, String sort) {
 		// TODO: Fishy (Spoofax/49)
-		ATermList list = (ATermList) term;
-		ArrayList<TNode> children = new ArrayList<TNode>(list.getChildCount());
-		for (int i = 0; i < term.getChildCount(); i++) {
+		IStrategoList list = (IStrategoList) term;
+		ArrayList<TNode> children = new ArrayList<TNode>(list.getSubtermCount());
+		for (int i = 0; i < term.getSubtermCount(); i++) {
 			children.add(toNode(termAt(term, i), null));
 		}
 		return factory.createList(sort, leftToken, rightToken, children);

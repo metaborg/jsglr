@@ -10,10 +10,10 @@ package org.spoofax.jsglr.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ParseError;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ParseError;
 
 /**
  * @author Karl Trygve Kalleberg <karltk near strategoxt.org>
@@ -273,7 +273,7 @@ public class Disambiguator {
 		return t;
 	}
 
-	private ATerm getProduction(AbstractParseNode t) {
+	private IStrategoTerm getProduction(AbstractParseNode t) {
 		if (t instanceof ParseNode) {
 			return parseTable.getProduction(((ParseNode) t).getLabel());
 		} else {
@@ -297,13 +297,16 @@ public class Disambiguator {
 		return t;
 	}
 
-	private boolean matchProdOnTopSort(ATerm prod, String sort) throws FilterException {
+	private boolean matchProdOnTopSort(IStrategoTerm prod, String sort) throws FilterException {
 		try {
+			throw new org.spoofax.NotImplementedException("Top sort selection needs to be reimplemented now we're no longer using ATerms!!");
+			/* FIXME: Top sort selection needs to be reimplemented now we're no longer using ATerms!!
 			sort = sort.replaceAll("\"", "");
 			return prod.match("prod([cf(opt(layout)),cf(sort(\"" + sort + "\")),cf(opt(layout))], sort(\"<START>\"),no-attrs)") != null
 			|| prod.match("prod([cf(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
 			|| prod.match("prod([lex(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
 			|| prod.match("prod([sort(\"" + sort + "\")], sort(\"<START>\"),no-attrs)") != null;
+			*/
 		} catch (final ParseError e) {
 			throw new FilterException(parser, "Could not select desired top sort: " + sort, e);
 		}
@@ -321,7 +324,7 @@ public class Disambiguator {
 			default: return new Amb(results.toArray(new AbstractParseNode[results.size()]));
 			}
 		} else {
-			final ATerm prod = getProduction(t);
+			final IStrategoTerm prod = getProduction(t);
 			return matchProdOnTopSort(prod, sort) ? t : null;
 		}
 	}
@@ -331,7 +334,7 @@ public class Disambiguator {
 			if (amb instanceof Amb) {
 				addTopSortAlternatives(amb, sort, results);
 			} else {
-				final ATerm prod = getProduction(amb);
+				final IStrategoTerm prod = getProduction(amb);
 				if (matchProdOnTopSort(prod, sort)) {
 					results.add(amb);
 				}
@@ -620,7 +623,7 @@ public class Disambiguator {
         if (ATisEqual(t, injT)) {
            return newTree;
         } else {
-          ATermList sons = (ATermList)ATgetArgument((ATerm) t, 1);
+          IStrategoList sons = (IStrategoList)ATgetArgument((ATerm) t, 1);
           tree newSon = SG_Replace_Under_Injections((tree)ATgetFirst(sons),
                                                     injT, newTree);
           return ATsetArgument((ATermAppl)t, (ATerm)ATmakeList1((ATerm)newSon), 1);

@@ -1,19 +1,19 @@
 package org.spoofax.jsglr.client.incremental;
 
-import static org.spoofax.jsglr.shared.Tools.termAt;
-import static org.spoofax.jsglr.shared.terms.ATerm.APPL;
+import static org.spoofax.terms.Term.isTermAppl;
+import static org.spoofax.terms.Term.termAt;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoString;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.Label;
 import org.spoofax.jsglr.client.ParseTable;
-import org.spoofax.jsglr.shared.terms.AFun;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
-import org.spoofax.jsglr.shared.terms.ATermList;
-import org.spoofax.jsglr.shared.terms.ATermString;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -22,17 +22,17 @@ public class SortAnalyzer {
 
 	private final ParseTable table;
 	
-	private final AFun sortFun;
+	private final IStrategoConstructor sortFun;
 	
-	private final AFun cfFun;
+	private final IStrategoConstructor cfFun;
 	
-	private final AFun lexFun;
+	private final IStrategoConstructor lexFun;
 
 	public SortAnalyzer(ParseTable table) {
 		this.table = table;
-		sortFun = table.getFactory().makeAFun("sort", 1, false);
-		cfFun = table.getFactory().makeAFun("cf", 1, false);
-		lexFun = table.getFactory().makeAFun("lex", 1, false);
+		sortFun = table.getFactory().makeConstructor("sort", 1);
+		cfFun = table.getFactory().makeConstructor("cf", 1);
+		lexFun = table.getFactory().makeConstructor("lex", 1);
 	}
 	
 	public Set<String> getInjectionsTo(String... sorts) {
@@ -44,33 +44,33 @@ public class SortAnalyzer {
 	}
 	
 	private void addInjectionsTo(String sort, Set<String> results) {
-		ATermFactory factory = table.getFactory();
-		ATerm sortTerm = factory.makeAppl(sortFun, factory.makeString(sort));
+		ITermFactory factory = table.getFactory();
+		IStrategoTerm sortTerm = factory.makeAppl(sortFun, factory.makeString(sort));
 		for (Label l : table.getLabels()) {
 			if (l != null) {
-				ATermAppl production = l.getProduction();
-				ATermAppl toSort = termAt(production, 1);
+				IStrategoAppl production = l.getProduction();
+				IStrategoTerm toSort = termAt(production, 1);
 				toSort = stripFun(toSort, cfFun);
 				toSort = stripFun(toSort, lexFun);
 				if (toSort.equals(sortTerm)) {
-					ATermList lhs = termAt(production, 0);
-					if (lhs.getChildCount() != 1) continue;
-					if (lhs.getFirst().getType() != APPL) continue;
-					ATermAppl lhsFirst = (ATermAppl) lhs.getFirst();
+					IStrategoList lhs = termAt(production, 0);
+					if (lhs.getSubtermCount() != 1) continue;
+					if (!isTermAppl(lhs.head())) continue;
+					IStrategoTerm lhsFirst = lhs.head();
 					lhsFirst = stripFun(lhsFirst, cfFun);
 					lhsFirst = stripFun(lhsFirst, lexFun);
-					if (lhsFirst.getAFun() != sortFun) continue;
-					ATermString fromSort = termAt(lhsFirst, 0);
-					results.add(fromSort.getString());
+					if (((IStrategoAppl) lhsFirst).getConstructor() != sortFun) continue;
+					IStrategoString fromSort = termAt(lhsFirst, 0);
+					results.add(fromSort.stringValue());
 				}
 			}
 		}
 		results.add(sort);
 	}
 	
-	public ATermAppl stripFun(ATermAppl appl, AFun fun) {
-		if (appl.getAFun() == fun) {
-			return (ATermAppl) termAt(appl, 0);
+	public IStrategoTerm stripFun(IStrategoTerm appl, IStrategoConstructor fun) {
+		if (isTermAppl(appl) && ((IStrategoAppl) appl).getConstructor() == fun) {
+			return termAt(appl, 0);
 		} else {
 			return appl;
 		}

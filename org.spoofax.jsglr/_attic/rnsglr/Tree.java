@@ -6,7 +6,7 @@ import org.spoofax.jsglr.shared.terms.ATerm;
 
 public class Tree {
 
-	static Tree makeTreeAppl(ATerm production, Arguments children) {
+	static Tree makeTreeAppl(IStrategoTerm production, Arguments children) {
 		throw new NotImplementedException();
 	}
 

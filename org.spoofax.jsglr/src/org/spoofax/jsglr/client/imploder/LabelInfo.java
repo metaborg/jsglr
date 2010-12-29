@@ -1,23 +1,23 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.jsglr.shared.Tools.termAt;
+import static org.spoofax.terms.Term.termAt;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermList;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LabelInfo {
 
-	private final ATermAppl production;
+	private final IStrategoAppl production;
 	
 	private final String sort;
 	
 	private final String constructor;
 	
-	private final ATerm astAttribute;
+	private final IStrategoTerm astAttribute;
 	
 	private final boolean isNonContextFree;
 	
@@ -41,10 +41,10 @@ public class LabelInfo {
 	
 	private final String metaVarConstructor;
 	
-	public LabelInfo(ProductionAttributeReader reader, ATermAppl production) {
+	public LabelInfo(ProductionAttributeReader reader, IStrategoAppl production) {
 		this.production = production;
-		ATermAppl rhs = getRHS();
-		ATermAppl attrs = getAttrs();
+		IStrategoAppl rhs = getRHS();
+		IStrategoAppl attrs = getAttrs();
 		sort = reader.getSort(rhs);
 		constructor = reader.getConsAttribute(attrs);
 		astAttribute = reader.getAstAttribute(attrs);
@@ -57,19 +57,19 @@ public class LabelInfo {
 		isLayout = reader.isLayout(rhs);
 		isLiteral = reader.isLiteral(rhs);
 		isOptional = reader.isOptional(rhs);
-		isSortProduction = reader.sortFun == rhs.getAFun() || reader.parameterizedSortFun == rhs.getAFun();
+		isSortProduction = reader.sortFun == rhs.getConstructor() || reader.parameterizedSortFun == rhs.getConstructor();
 		metaVarConstructor = reader.getMetaVarConstructor(rhs);
 	}
     
-	protected ATermList getLHS() {
+	protected IStrategoList getLHS() {
     	return termAt(production, 0);
     }
     
-	protected ATermAppl getRHS() {
+	protected IStrategoAppl getRHS() {
     	return termAt(production, 1);
     }
     
-	protected ATermAppl getAttrs() {
+	protected IStrategoAppl getAttrs() {
     	return termAt(production, 2);
     }
 	
@@ -81,7 +81,7 @@ public class LabelInfo {
 		return constructor;
 	}
 	
-	public ATerm getAstAttribute() {
+	public IStrategoTerm getAstAttribute() {
 		return astAttribute;
 	}
 	

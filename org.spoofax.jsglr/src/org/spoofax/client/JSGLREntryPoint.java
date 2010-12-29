@@ -1,5 +1,6 @@
 package org.spoofax.client;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.ParseTable;
@@ -7,8 +8,7 @@ import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
+import org.spoofax.terms.TermFactory;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -46,7 +46,7 @@ public class JSGLREntryPoint implements EntryPoint {
 		//		rpts.fetchParseTable("Stratego2.tbl", new AsyncCallback<ATerm>() {
 		//
 		//			@Override
-		//			public void onSuccess(ATerm result) {
+		//			public void onSuccess(IStrategoTerm result) {
 		//				parseAndGo(result);
 		//			}
 		//
@@ -60,12 +60,12 @@ public class JSGLREntryPoint implements EntryPoint {
 	private void parseAndGo(String table) {
 		try {
 			System.out.println(table.length());
-			final ATermFactory af = new ATermFactory();
-			final ATerm pt = af.parse(table);
+			final TermFactory af = new TermFactory();
+			final IStrategoTerm pt = af.parseFromString(table);
 			System.out.println(pt.toString().length());
-			final SGLR sglr = new SGLR(af, new ParseTable(pt));
+			final SGLR sglr = new SGLR(af, new ParseTable(pt, af));
 			long now = System.currentTimeMillis();
-			final ATerm r = (ATerm) sglr.parse(strategoSampleCode());
+			final IStrategoTerm r = (IStrategoTerm) sglr.parse(strategoSampleCode(), null);
 			now = System.currentTimeMillis() - now;
 			if(r != null) {
 				RootPanel.get().add(new Label(r.toString()));

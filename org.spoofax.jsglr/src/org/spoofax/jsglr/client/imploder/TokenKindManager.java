@@ -7,14 +7,13 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_NUMBER;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_OPERATOR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_STRING;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_VAR;
-import static org.spoofax.jsglr.shared.Tools.applAt;
-import static org.spoofax.jsglr.shared.Tools.asAppl;
-import static org.spoofax.jsglr.shared.Tools.intAt;
-import static org.spoofax.jsglr.shared.Tools.isAppl;
-import static org.spoofax.jsglr.shared.Tools.termAt;
+import static org.spoofax.terms.Term.intAt;
+import static org.spoofax.terms.Term.isTermAppl;
+import static org.spoofax.terms.Term.termAt;
 
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoString;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Class that handles producing and printing token kinds.
@@ -60,8 +59,8 @@ public class TokenKindManager {
 	protected static boolean isOperator(LabelInfo label) {
 		if (!label.isLiteral()) return false;
 		
-		ATermAppl lit = applAt(label.getRHS(), 0);
-		String contents = lit.getName();
+		IStrategoString lit = termAt(label.getRHS(), 0);
+		String contents = lit.stringValue();
 		
 		for (int i = 0; i < contents.length(); i++) {
 			char c = contents.charAt(i);
@@ -75,11 +74,11 @@ public class TokenKindManager {
 		return topdownHasSpaces(label.getRHS());
 	}
 	
-	private static boolean topdownHasSpaces(ATerm term) {
+	private static boolean topdownHasSpaces(IStrategoTerm term) {
 		// Return true if any character range of this contains spaces
-		for (int i = 0; i < term.getChildCount(); i++) {
-			ATerm child = termAt(term, i);
-			if (isAppl(child) && asAppl(child).getName().equals("range")) {
+		for (int i = 0; i < term.getSubtermCount(); i++) {
+			IStrategoTerm child = termAt(term, i);
+			if (isRangeAppl(child)) {
 				int start = intAt(child, RANGE_START);
 				int end = intAt(child, RANGE_END);
 				if (start <= ' ' && ' ' <= end) return true;
@@ -90,18 +89,23 @@ public class TokenKindManager {
 		
 		return false;
 	}
+
+	private static boolean isRangeAppl(IStrategoTerm child) {
+		// TODO: Optimize - use getConstructor() instead and make a "range" field
+		return isTermAppl(child) && ((IStrategoAppl) child).getName().equals("range");
+	}
 	
 	protected static boolean isNumberLiteral(LabelInfo label) {
-		ATerm range = getFirstRange(label.getLHS());
+		IStrategoTerm range = getFirstRange(label.getLHS());
 		
 		return range != null && intAt(range, RANGE_START) == '0' && intAt(range, RANGE_END) == '9';
 	}
 	
-	private static ATerm getFirstRange(ATerm term) {
+	private static IStrategoTerm getFirstRange(IStrategoTerm term) {
 		// Get very first character range in this term
-		for (int i = 0; i < term.getChildCount(); i++) {
-			ATerm child = termAt(term, i);
-			if (isAppl(child) && asAppl(child).getName().equals("range")) {
+		for (int i = 0; i < term.getSubtermCount(); i++) {
+			IStrategoTerm child = termAt(term, i);
+			if (isRangeAppl(child)) {
 				return child;
 			} else {
 				child = getFirstRange(child);

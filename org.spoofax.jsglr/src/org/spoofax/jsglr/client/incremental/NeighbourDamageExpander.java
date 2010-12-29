@@ -2,14 +2,17 @@ package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
 
 import java.util.Iterator;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.imploder.AstNodeVisitor;
-import org.spoofax.jsglr.client.imploder.IAstNode;
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.SimpleTermVisitor;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 
 /**
@@ -21,7 +24,7 @@ import org.spoofax.jsglr.client.imploder.Tokenizer;
  */
 public class NeighbourDamageExpander {
 
-	private final IAstNode oldTree;
+	private final ISimpleTerm oldTree;
 
 	private final Set<String> incrementalSorts;
 	
@@ -29,11 +32,11 @@ public class NeighbourDamageExpander {
 
 	private final int damageEnd;
 	
-	private IAstNode leftNeighbour;
+	private ISimpleTerm leftNeighbour;
 	
-	private IAstNode rightNeighbour;
+	private ISimpleTerm rightNeighbour;
 
-	public NeighbourDamageExpander(IAstNode oldTree, Set<String> incrementalSorts,
+	public NeighbourDamageExpander(ISimpleTerm oldTree, Set<String> incrementalSorts,
 			int damageStart, int damageEnd) {
 		this.oldTree = oldTree;
 		this.incrementalSorts = incrementalSorts;
@@ -46,7 +49,7 @@ public class NeighbourDamageExpander {
 		if (leftNeighbour == null) {
 			return damageStart;
 		} else {
-			return min(damageStart, leftNeighbour.getLeftToken().getStartOffset());
+			return min(damageStart, getLeftToken(leftNeighbour).getStartOffset());
 		}
 	}
 	
@@ -54,28 +57,28 @@ public class NeighbourDamageExpander {
 		if (rightNeighbour == null) {
 			return damageEnd;
 		} else {
-			return max(damageEnd, rightNeighbour.getRightToken().getEndOffset());
+			return max(damageEnd, getRightToken(rightNeighbour).getEndOffset());
 		}
 	}
 	
 	private void initNeighbours() {
-		new AstNodeVisitor() {
+		new SimpleTermVisitor() {
 			boolean done;
 			
-			public void preVisit(IAstNode node) {
-				if (node.isList() && incrementalSorts.contains(node.getElementSort())
+			public void preVisit(ISimpleTerm node) {
+				if (node.isList() && incrementalSorts.contains(getElementSort(node))
 						&& isDamagedNode(node, true, true)) {
 					visitIncrementalSortsList(node);
 				}
 			}
 			
-			private void visitIncrementalSortsList(IAstNode list) {
+			private void visitIncrementalSortsList(ISimpleTerm list) {
 				boolean foundDamagedNode = false;
 				
-				Iterator<IAstNode> iterator = tryGetListIterator(list);
-				IAstNode lastChild = null;
-				for (int i = 0, max = list.getChildCount(); i < max; i++) {
-					IAstNode child = iterator == null ? list.getChildAt(i) : iterator.next();
+				Iterator<ISimpleTerm> iterator = tryGetListIterator(list);
+				ISimpleTerm lastChild = null;
+				for (int i = 0, max = list.getSubtermCount(); i < max; i++) {
+					ISimpleTerm child = iterator == null ? list.getSubterm(i) : iterator.next();
 					if (!foundDamagedNode) {
 						if (isDamagedNode(child, true, true)) {
 							if (leftNeighbour == null || isLeftCollateralDamage(child))
@@ -103,9 +106,9 @@ public class NeighbourDamageExpander {
 		}.visit(oldTree);
 	}
 
-	private boolean isDamagedNode(IAstNode node, boolean considerLeftLayout, boolean considerRightLayout) {
-		IToken left = node.getLeftToken();
-		IToken right = node.getRightToken();
+	private boolean isDamagedNode(ISimpleTerm node, boolean considerLeftLayout, boolean considerRightLayout) {
+		IToken left = getLeftToken(node);
+		IToken right = getRightToken(node);
 		if (left == null || right == null) return false;
 		if (considerLeftLayout)
 			left = Tokenizer.findLeftMostLayoutToken(left);
@@ -116,12 +119,12 @@ public class NeighbourDamageExpander {
 		return isRangeOverlap(damageStart, damageEnd, startOffset, endOffset);
 	}
 
-	private boolean isLeftCollateralDamage(IAstNode child) {
+	private boolean isLeftCollateralDamage(ISimpleTerm child) {
 		assert isDamagedNode(child, true, true);
 		return !isDamagedNode(child, true, false);
 	}
 
-	private boolean isRightCollateralDamage(IAstNode child) {
+	private boolean isRightCollateralDamage(ISimpleTerm child) {
 		assert isDamagedNode(child, true, true);
 		return !isDamagedNode(child, false, true);
 	}

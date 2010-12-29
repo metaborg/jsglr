@@ -1,17 +1,19 @@
 package org.spoofax.jsglr.tests;
 
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParserException;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLRException;
-import org.spoofax.jsglr.shared.terms.ATerm;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class TestIncrementalSGLR extends ParseTestCase {
 
-	private static ATerm java4Result, java5Result, java7Result, java8Result;
+	private static IStrategoTerm java4Result, java5Result, java7Result, java8Result;
 	
     @Override
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
@@ -22,22 +24,22 @@ public class TestIncrementalSGLR extends ParseTestCase {
         		IncrementalSGLR.class.desiredAssertionStatus());
     }
     
-    private ATerm getJava4Result() {
+    private IStrategoTerm getJava4Result() {
     	if (java4Result == null) java4Result = doParseTest("java4");
     	return java4Result;
     }
     
-    private ATerm getJava5Result() {
+    private IStrategoTerm getJava5Result() {
     	if (java5Result == null) java5Result = doParseTest("java5");
     	return java5Result;
     }
     
-    private ATerm getJava7Result() {
+    private IStrategoTerm getJava7Result() {
     	if (java7Result == null) java7Result = doParseTest("java7");
     	return java7Result;
     }
     
-    private ATerm getJava8Result() {
+    private IStrategoTerm getJava8Result() {
     	if (java8Result == null) java8Result = doParseTest("java8");
     	return java8Result;
     }
@@ -59,7 +61,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
     
     public void testJava55() throws Exception {
-    	ATerm result = doParseIncrementalTest(getJava5Result(), "java5-increment5");
+    	IStrategoTerm result = doParseIncrementalTest(getJava5Result(), "java5-increment5");
     	assertFalse("There is no foo", result.toString().contains("\"foo\""));
     	assertFalse("There is no baz", result.toString().contains("\"bar\""));
     	assertTrue("There is only foobaz", result.toString().contains("\"foobaz\""));
@@ -97,71 +99,71 @@ public class TestIncrementalSGLR extends ParseTestCase {
     	suffix = "java.recover";
     	sglr.setUseStructureRecovery(true);
     	doCompare = false;
-    	ATerm java6 = doParseTest("java6");
-    	ATerm java61 = doParseIncrementalTest(java6, "java6-increment");
+    	IStrategoTerm java6 = doParseTest("java6");
+    	IStrategoTerm java61 = doParseIncrementalTest(java6, "java6-increment");
     	assertFalse(java6.toString().contains("baz"));
     	assertTrue(java61.toString().contains("baz"));
-    	assertTrue(java61.getLeftToken().getTokenizer().toString().toString().contains("sense"));
+    	assertTrue(getLeftToken(java61).getTokenizer().toString().toString().contains("sense"));
     }
     
     public void testJava7() throws Exception {
-    	ATerm java7 = getJava7Result();
+    	IStrategoTerm java7 = getJava7Result();
     	doParseIncrementalTest(java7, "java7-increment");
     }
     
     public void testJava72() throws Exception {
-    	ATerm java7 = getJava7Result();
+    	IStrategoTerm java7 = getJava7Result();
     	doParseIncrementalTest(java7, "java7-increment2");
     	assertFalse(isReparsed("foo"));
     }
     
     public void testJava73() throws Exception {
-    	ATerm java7 = getJava7Result();
+    	IStrategoTerm java7 = getJava7Result();
     	doParseIncrementalTest(java7, "java7-increment3");
     	int reparsed = incrementalSGLR.getLastReconstructedNodes().size();
     	assertTrue("Expected 1 reparsed node: " + reparsed, reparsed <= 4);
     }
     
     public void testJava8() throws Exception {
-    	ATerm java8 = getJava8Result();
-    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment");
-    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	IStrategoTerm java8 = getJava8Result();
+    	IStrategoTerm java8Increment = doParseIncrementalTest(java8, "java8-increment");
+    	assertTrue("Comment should be in input tokens", getLeftToken(java8).getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", getLeftToken(java8Increment).getTokenizer().toString().contains("comment"));
     	assertTrue(isReparsed("foo"));
     	assertFalse(isReparsed("qux"));
     }
     
     public void testJava82() throws Exception {
-    	ATerm java8 = getJava8Result();
-    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment2");
-    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	IStrategoTerm java8 = getJava8Result();
+    	IStrategoTerm java8Increment = doParseIncrementalTest(java8, "java8-increment2");
+    	assertTrue("Comment should be in input tokens", getLeftToken(java8).getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", getLeftToken(java8Increment).getTokenizer().toString().contains("comment"));
     	// Here, qux is reparsed because comment damage handler and then neighbour damage handler
     	// epand the damage zone
     	// assertFalse(isReparsed("qux"));
     }
     
     public void testJava83() throws Exception {
-    	ATerm java8 = getJava8Result();
-    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment3");
-    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	IStrategoTerm java8 = getJava8Result();
+    	IStrategoTerm java8Increment = doParseIncrementalTest(java8, "java8-increment3");
+    	assertTrue("Comment should be in input tokens", getLeftToken(java8).getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", getLeftToken(java8Increment).getTokenizer().toString().contains("comment"));
     	assertFalse(isReparsed("qux"));
     }
     
     public void testJava84() throws Exception {
-    	ATerm java8 = getJava8Result();
-    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment4");
-    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	IStrategoTerm java8 = getJava8Result();
+    	IStrategoTerm java8Increment = doParseIncrementalTest(java8, "java8-increment4");
+    	assertTrue("Comment should be in input tokens", getLeftToken(java8).getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", getLeftToken(java8Increment).getTokenizer().toString().contains("comment"));
     	assertFalse(isReparsed("qux"));
     }
     
     public void testJava85() throws Exception {
-    	ATerm java8 = getJava8Result();
-    	ATerm java8Increment = doParseIncrementalTest(java8, "java8-increment5");
-    	assertTrue("Comment should be in input tokens", java8.getLeftToken().getTokenizer().toString().contains("comment"));
-    	assertTrue("Comment should be in output tokens", java8Increment.getLeftToken().getTokenizer().toString().contains("comment"));
+    	IStrategoTerm java8 = getJava8Result();
+    	IStrategoTerm java8Increment = doParseIncrementalTest(java8, "java8-increment5");
+    	assertTrue("Comment should be in input tokens", getLeftToken(java8).getTokenizer().toString().contains("comment"));
+    	assertTrue("Comment should be in output tokens", getLeftToken(java8Increment).getTokenizer().toString().contains("comment"));
     	assertFalse(isReparsed("qux"));
     }
     
@@ -169,8 +171,8 @@ public class TestIncrementalSGLR extends ParseTestCase {
     	suffix = "java.recover";
     	sglr.setUseStructureRecovery(true);
     	doCompare = false;
-    	ATerm java9 = doParseTest("java9");
-    	ATerm java91 = doParseIncrementalTest(java9,  "java9-increment");
+    	IStrategoTerm java9 = doParseTest("java9");
+    	IStrategoTerm java91 = doParseIncrementalTest(java9,  "java9-increment");
     	try {
     		doParseIncrementalTest(java91, "java9-increment2");
     	} catch (IncrementalSGLRException e) {
@@ -184,7 +186,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     	suffix = "java.recover";
     	sglr.setUseStructureRecovery(true);
     	doCompare = false;
-    	ATerm java9 = doParseTest("java9");
+    	IStrategoTerm java9 = doParseTest("java9");
     	try {
     		doParseIncrementalTest(java9, "java9-increment3");
     	} catch (IncrementalSGLRException e) {
@@ -195,6 +197,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
 
     public void testJava4() throws Exception {
+    	fail("Known faiure: regression with the long lexical chain optimization causing Case(Lit(Char(NamedEscape(116)))) to be imploded as Case(Lit(Char(NamedEscape()))); needs to be looked into again");
     	doParseIncrementalTest(getJava4Result(), "java4-increment");
     	assertTrue(isReparsed("foo"));
     	int reparsed = incrementalSGLR.getLastReconstructedNodes().size();

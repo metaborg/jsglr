@@ -1,12 +1,12 @@
 package org.spoofax.jsglr.client;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
 
 public interface ITreeBuilder {
 
 	void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount);
-	void initializeLabel(int labelNumber, ATermAppl parseTreeProduction);
+	void initializeLabel(int labelNumber, IStrategoAppl parseTreeProduction);
 	void initializeInput(String filename, String input);
 	
 	Object buildTree(AbstractParseNode node);

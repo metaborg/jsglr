@@ -14,12 +14,13 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.spoofax.PushbackStringIterator;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.Tools;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
+import org.spoofax.terms.TermFactory;
 
 public class SGLR {
 
@@ -43,7 +44,7 @@ public class SGLR {
 
 	protected volatile boolean asyncAborted;
 
-	private ATermFactory factory;
+	private ITermFactory factory;
 
 	public Frame acceptingStack;
 
@@ -137,7 +138,7 @@ public class SGLR {
 		basicInit(null);
 	}
 
-	public SGLR(ATermFactory pf, ParseTable parseTable) {
+	public SGLR(ITermFactory pf, ParseTable parseTable) {
 		assert pf != null;
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
@@ -209,10 +210,10 @@ public class SGLR {
 		asyncAborted = false;
 	}
 
-	private void basicInit(ATermFactory factory) {
+	private void basicInit(ITermFactory factory) {
 		this.factory = factory;
 		if (factory == null) {
-			factory = new ATermFactory();
+			factory = new TermFactory();
 		}
 		activeStacks = new ArrayDeque<Frame>();
 		forActor = new ArrayDeque<Frame>();
@@ -936,7 +937,7 @@ public class SGLR {
 		this.disambiguator = disambiguator;
 	}
 
-	public ATermFactory getFactory() {
+	public ITermFactory getFactory() {
 		return factory;
 	}
 

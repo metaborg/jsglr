@@ -1,5 +1,8 @@
 package org.spoofax.jsglr.client.incremental;
 
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.DEBUG;
@@ -9,7 +12,7 @@ import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.tryGetListIte
 import java.util.Iterator;
 import java.util.Set;
 
-import org.spoofax.jsglr.client.imploder.IAstNode;
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 
 /**
@@ -63,7 +66,7 @@ public class IncrementalInputBuilder {
 		this.damageSizeChange = damageAnalyzer.damageSizeChange;
 	}
 
-	public String buildPartialInput(IAstNode oldTree) throws IncrementalSGLRException {
+	public String buildPartialInput(ISimpleTerm oldTree) throws IncrementalSGLRException {
 		isSkipping = isDamagePrinted = false;
 		skippedCharsAfterDamage = skippedCharsBeforeDamage = 0;
 		appendTree(oldTree);
@@ -88,9 +91,9 @@ public class IncrementalInputBuilder {
 	/**
 	 * @return true if the current node was printed to the {@link #result} string.
 	 */
-	private boolean appendTree(IAstNode oldTree) throws IncrementalSGLRException {
-		IToken left = oldTree.getLeftToken();
-		IToken right = oldTree.getRightToken();
+	private boolean appendTree(ISimpleTerm oldTree) throws IncrementalSGLRException {
+		IToken left = getLeftToken(oldTree);
+		IToken right = getRightToken(oldTree);
 		int startOffset = 0;
 		int endOffset = 0;
 		boolean isSkippingStart = false;
@@ -99,18 +102,18 @@ public class IncrementalInputBuilder {
 			startOffset = left.getStartOffset();
 			endOffset = right.getEndOffset();
 			
-			if (!isSkipping && !oldTree.isList() && incrementalSorts.contains(oldTree.getSort())
+			if (!isSkipping && !oldTree.isList() && incrementalSorts.contains(getSort(oldTree))
 					&& !isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)) {
 					   //!isDamagedNodeOrLayout(left, right)) {
 				isSkipping = isSkippingStart = true;
 			}
 
 			boolean wasSkipped = false;
-			Iterator<IAstNode> iterator = tryGetListIterator(oldTree); 
-			for (int i = 0, max = oldTree.getChildCount(); i < max; i++) {
-				IAstNode child = iterator == null ? oldTree.getChildAt(i) : iterator.next();
-				IToken childLeft = child.getLeftToken();
-				IToken childRight = child.getRightToken();
+			Iterator<ISimpleTerm> iterator = tryGetListIterator(oldTree); 
+			for (int i = 0, max = oldTree.getSubtermCount(); i < max; i++) {
+				ISimpleTerm child = iterator == null ? oldTree.getSubterm(i) : iterator.next();
+				IToken childLeft = getLeftToken(child);
+				IToken childRight = getRightToken(child);
 				if (childLeft != null)
 					appendToken(startOffset, childLeft.getStartOffset() - 1);
 				if (wasSkipped) isSkipping = false;
@@ -121,7 +124,7 @@ public class IncrementalInputBuilder {
 			appendToken(startOffset, endOffset);
 			if (wasSkipped) isSkipping = false;
 		} else {
-			assert oldTree.getChildCount() == 0 :
+			assert oldTree.getSubtermCount() == 0 :
 				"No tokens for tree with children??";
 		}
 		

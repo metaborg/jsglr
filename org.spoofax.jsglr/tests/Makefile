@@ -34,9 +34,14 @@ IMPLODE=$(HOME)/.nix-profile/bin/implode-asfix
 SGLROPTS=-2 -t #-fd -fe -fi -fp -fr -t -lvd
 #../../../sglr/sglr-2.1M1/sglr/sglr/sglr
 
-all: $(TRM_FILES) $(ITRM_FILES)
+all: grammars $(TRM_FILES) $(ITRM_FILES)
 	cd grammars && make 
 	echo .$(TRM_FILES).
+
+grammars: .PHONY
+	$(MAKE) -C grammars
+
+.PHONY:
 
 _all: $(TESTS) $(SGLR_TRACES) $(JSGLR_TRACES)
 

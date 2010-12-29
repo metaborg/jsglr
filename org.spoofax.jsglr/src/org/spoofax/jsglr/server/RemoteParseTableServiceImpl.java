@@ -5,41 +5,35 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.shared.RemoteParseTableService;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
+import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.io.baf.BAFTermReader;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 @SuppressWarnings("serial")
 public class RemoteParseTableServiceImpl extends RemoteServiceServlet implements RemoteParseTableService {
 
-	public ATerm fetchParseTable(String resourceName) {
-		final ATermFactory f = new ATermFactory();
+	public IStrategoTerm fetchParseTable(String resourceName) {
+		final TermFactory f = new TermFactory();
 		try {
 			final InputStream is = new FileInputStream(resourceName);
-			System.out.println("Loading into buffer");
-			final char[] buffer = new char[12*1024*1024]; // FIXME 12 MBs should be enough for everyone
-			for(int i = 0; i < buffer.length; i++) {
-				final int ch = is.read();
-				if(ch == -1) {
-					break;
-				}
-				buffer[i] = (char)ch;
-			}
-			System.out.println("Loading from buffer");
-			final ATerm e = f.parse(new String(buffer));
+			final IStrategoTerm e = new BAFTermReader(f).parseFromStream(is);
+			is.close();
 			System.out.println("Loaded term, serializing");
 			return e;
 		} catch(final FileNotFoundException e) {
+			e.printStackTrace();
 		} catch(final IOException e) {
+			e.printStackTrace();
 		}
 		System.err.println("Failed to load parse table " + resourceName);
 		return null;
 	}
 
-	public ATerm readTermFromFile(String string) {
-		return new ATermFactory().makeInt(0);
+	public IStrategoTerm readTermFromFile(String string) {
+		return new TermFactory().makeInt(0);
 	}
 
 	public String fetchText(String string) {

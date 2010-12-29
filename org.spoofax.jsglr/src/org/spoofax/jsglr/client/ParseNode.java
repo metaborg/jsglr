@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
-import org.spoofax.jsglr.shared.terms.ATermList;
+import org.spoofax.terms.TermFactory;
 
 public class ParseNode extends AbstractParseNode {
 
@@ -71,10 +71,10 @@ public class ParseNode extends AbstractParseNode {
     /**
      * todo: stolen from TAFReader; move elsewhere
      */
-    public static ATermList makeList(ATermFactory factory, List<ATerm> terms) {
-        ATermList result = factory.makeList();
+    public static IStrategoList makeList(TermFactory factory, List<IStrategoTerm> terms) {
+        IStrategoList result = factory.makeList();
         for (int i = terms.size() - 1; i >= 0; i--) {
-        	result = factory.makeList(terms.get(i), result);
+        	result = factory.makeListCons(terms.get(i), result);
         }
         return result;
     }

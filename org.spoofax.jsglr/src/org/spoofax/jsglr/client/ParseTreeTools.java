@@ -1,14 +1,13 @@
 package org.spoofax.jsglr.client;
 
-import org.spoofax.jsglr.shared.terms.AFun;
-import org.spoofax.jsglr.shared.terms.ATerm;
-import org.spoofax.jsglr.shared.terms.ATermAppl;
-import org.spoofax.jsglr.shared.terms.ATermFactory;
-import org.spoofax.jsglr.shared.terms.ATermInt;
-import org.spoofax.jsglr.shared.terms.ATermList;
+import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 
+/**
+ * @deprecated Use {@link ProductionAttributeReader} instead.
+ */
 public class ParseTreeTools {
 
+	/* UNDONE: no longer maintained - use ProductionAttributeReader instead!!
 	private final static int PARSE_TREE = 0;
 	private final static int APPL_PROD = 0;
 	private final static int APPL_ARGS = 1;
@@ -17,36 +16,36 @@ public class ParseTreeTools {
 	private final static int TERM_CONS = 0;
 	private final static int CONS_NAME = 0;
 
-	private final AFun parsetreeFun;
-	private final AFun applFun;
-	private final AFun termFun;
-	private final AFun prodFun;
-	private final AFun noattrsFun;
-	private final AFun consFun;
+	private final IStrategoConstructor parsetreeFun;
+	private final IStrategoConstructor applFun;
+	private final IStrategoConstructor termFun;
+	private final IStrategoConstructor prodFun;
+	private final IStrategoConstructor noattrsFun;
+	private final IStrategoConstructor consFun;
 
-	public ParseTreeTools(ATermFactory factory) {
+	public ParseTreeTools(TermFactory factory) {
 		super();
-		parsetreeFun = factory.makeAFun("parsetree", 2, false);
-		applFun = factory.makeAFun("appl", 2, false);
-		prodFun = factory.makeAFun("prod", 3, false);
-		noattrsFun = factory.makeAFun("no-attrs", 0, false);
-		termFun = factory.makeAFun("term", 1, false);
-		consFun = factory.makeAFun("cons", 1, false);
+		parsetreeFun = factory.makeConstructor("parsetree", 2);
+		applFun = factory.makeConstructor("appl", 2);
+		prodFun = factory.makeConstructor("prod", 3);
+		noattrsFun = factory.makeConstructor("no-attrs", 0);
+		termFun = factory.makeConstructor("term", 1);
+		consFun = factory.makeConstructor("cons", 1);
 	}
 
-	private static ATermAppl assertAppl(ATerm t) {
-		if(t instanceof ATermAppl) {
-			return (ATermAppl) t;
+	private static IStrategoAppl assertAppl(IStrategoTerm t) {
+		if(isTermAppl(t)) {
+			return (IStrategoAppl) t;
 		}
 		else {
-			throw new IllegalArgumentException("Expected aterm application: " + t);
+			throw new IllegalArgumentException("Expected IStrategoTerm application: " + t);
 		}
 	}
 
-	private static ATermAppl assertAppl(ATerm t, AFun fun) {
-		ATermAppl result = assertAppl(t);
-		if(result.getAFun() != fun) {
-			throw new IllegalArgumentException("Expected application of function " + fun + ": " + result.getAFun());
+	private static IStrategoAppl assertAppl(IStrategoTerm t, IStrategoConstructor fun) {
+		IStrategoAppl result = assertAppl(t);
+		if(result.getConstructor() != fun) {
+			throw new IllegalArgumentException("Expected application of function " + fun + ": " + result.getConstructor());
 		}
 
 		return result;
@@ -56,35 +55,37 @@ public class ParseTreeTools {
 	 * Given a production or application returns the constructor name
 	 * attached to the production, or null if there is no constructor.
 	 *
+	 * @deprecated Use {@link ProductionAttributeReader#getConsAttribute()} instead.
+	 *
 	 * @author Martin Bravenboer
 	 * @author Lennart Kats
-	 */
-	public String getConstructor(ATerm arg) {
-		ATermAppl appl = assertAppl(arg, applFun);
+	 *
+	public String getConstructor(IStrategoTerm arg) {
+		IStrategoAppl appl = assertAppl(arg, applFun);
 
-		ATermAppl prod;
-		if(appl.getAFun() == prodFun) {
+		IStrategoAppl prod;
+		if(appl.getConstructor() == prodFun) {
 			prod = appl;
 		}
-		else if(appl.getAFun() == applFun) {
-			prod = assertAppl((ATerm) appl.getChildAt(APPL_PROD), prodFun);
+		else if(appl.getConstructor() == applFun) {
+			prod = assertAppl(appl.getSubterm(APPL_PROD), prodFun);
 		}
 		else {
 			throw new IllegalArgumentException("Expected prod or appl: " + arg);
 		}
 
-		ATermAppl attrs = assertAppl((ATerm) prod.getChildAt(PROD_ATTRS));
-		if(attrs.getAFun() == noattrsFun) {
+		IStrategoAppl attrs = assertAppl(prod.getSubterm(PROD_ATTRS));
+		if(attrs.getConstructor() == noattrsFun) {
 			return null;
 		}
 		else {
-			for(ATerm attr: (ATermList) attrs.getChildAt(ATTRS_LIST)) {
+			for(IStrategoTerm attr: (IStrategoList) attrs.getSubterm(ATTRS_LIST)) {
 				if (attr instanceof ATermAppl) {
 					ATermAppl namedAttr = (ATermAppl) attr;
-					if (namedAttr.getAFun() == termFun) {
-						namedAttr = (ATermAppl) namedAttr.getChildAt(TERM_CONS);
-						if (namedAttr.getAFun() == consFun) {
-							namedAttr = (ATermAppl) namedAttr.getChildAt(CONS_NAME);
+					if (namedAttr.getConstructor() == termFun) {
+						namedAttr = (ATermAppl) namedAttr.getSubterm(TERM_CONS);
+						if (namedAttr.getConstructor() == consFun) {
+							namedAttr = (ATermAppl) namedAttr.getSubterm(CONS_NAME);
 							return namedAttr.getName();
 						}
 					}
@@ -99,8 +100,8 @@ public class ParseTreeTools {
 	 * Yields a parse tree (parsetree or appl) to a String.
 	 *
 	 * @author Martin Bravenboer
-	 */
-	public String yield(ATerm parsetree) {
+	 *
+	public String yield(IStrategoTerm parsetree) {
 		StringBuilder builder = new StringBuilder();
 		yield(parsetree, builder);
 		return builder.toString();
@@ -110,11 +111,11 @@ public class ParseTreeTools {
 	 * Yields a parse tree (parsetree or appl) to a string builder.
 	 *
 	 * @author Martin Bravenboer
-	 */
-	public void yield(ATerm parsetree, StringBuilder builder) {
+	 *
+	public void yield(IStrategoTerm parsetree, StringBuilder builder) {
 		ATermAppl appl = assertAppl(parsetree);
-		if(appl.getAFun() == parsetreeFun) {
-			appl = assertAppl((ATerm) appl.getChildAt(PARSE_TREE));
+		if(appl.getConstructor() == parsetreeFun) {
+			appl = assertAppl((ATerm) appl.getSubterm(PARSE_TREE));
 		}
 
 		yieldAppl(appl, builder);
@@ -122,12 +123,12 @@ public class ParseTreeTools {
 
 	/**
 	 * Private helper for the yield method.
-	 */
+	 *
 	private void yieldAppl(ATermAppl appl, StringBuilder builder) {
-		for(ATerm t : (ATermList) appl.getChildAt(APPL_ARGS)) {
+		for(IStrategoTerm t : (IStrategoList) appl.getSubterm(APPL_ARGS)) {
 			if(t instanceof ATermAppl) {
 				ATermAppl arg = (ATermAppl) t;
-				if(arg.getAFun() == applFun) {
+				if(arg.getConstructor() == applFun) {
 					yieldAppl(arg, builder);
 				}
 				else {
@@ -143,4 +144,5 @@ public class ParseTreeTools {
 			}
 		}
 	}
+    */
 }

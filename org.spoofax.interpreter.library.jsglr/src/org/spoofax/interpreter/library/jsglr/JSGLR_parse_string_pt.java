@@ -18,25 +18,18 @@ import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.shared.SGLRException;
 
-import aterm.ATerm;
-import aterm.ATermFactory;
-
 public class JSGLR_parse_string_pt extends JSGLRPrimitive {
-
-	private final ATermFactory atermFactory;
 	
 	private SGLRException lastException;
 	
 	private String lastPath;
-
-	protected JSGLR_parse_string_pt(ATermFactory factory) {
+	
+	protected JSGLR_parse_string_pt() {
 		super("JSGLR_parse_string_pt", 1, 4);
-		this.atermFactory = factory;
 	}
 	
-	protected JSGLR_parse_string_pt(ATermFactory factory, String name, int svars, int tvars) {
+	protected JSGLR_parse_string_pt(String name, int svars, int tvars) {
 		super(name, svars, tvars);
-		this.atermFactory = factory;
 	}
 	
 	public String getLastPath() {
@@ -90,7 +83,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			return false;
 		} catch (SGLRException e) {
 			lastException = e;
-			IStrategoTerm errorTerm = getATermConverter(env).convert(e.toTerm(lastPath));
+			IStrategoTerm errorTerm = e.toTerm(lastPath);
 			env.setCurrent(errorTerm);
 			
 			// FIXME: Stratego doesn't seem to print the erroneous line in Java
@@ -102,10 +95,9 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			ParseTable table, String startSymbol)
 			throws InterpreterException, IOException, SGLRException {
 		
-		SGLR parser = new SGLR(atermFactory, table);
+		SGLR parser = new SGLR(table);
 		
-		ATerm resultATerm = (ATerm) parser.parse(input.stringValue(), startSymbol);
-		IStrategoTerm result = getATermConverter(env).convert(resultATerm);
+		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), startSymbol);
 		
 		return result;
 	}

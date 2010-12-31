@@ -20,7 +20,6 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.Tools;
-import org.spoofax.terms.TermFactory;
 
 public class SGLR {
 
@@ -38,29 +37,27 @@ public class SGLR {
 	private static long parseTime=0;
 	private static int parseCount=0;
 
-	public Frame startFrame;
+	protected Frame startFrame;
 
 	private long startTime;
 
 	protected volatile boolean asyncAborted;
 
-	private ITermFactory factory;
+	protected Frame acceptingStack;
 
-	public Frame acceptingStack;
-
-	public ArrayDeque<Frame> activeStacks;
+	protected final ArrayDeque<Frame> activeStacks;
 
 	private ParseTable parseTable;
 
-	public int currentToken;
+	protected int currentToken;
 
-	public int tokensSeen;
+	protected int tokensSeen;
 
 	protected int lineNumber;
 
 	protected int columnNumber;
 
-	private ArrayDeque<ActionState> forShifter;
+	private final ArrayDeque<ActionState> forShifter;
 
 	private ArrayDeque<Frame> forActor;
 
@@ -78,7 +75,7 @@ public class SGLR {
 
 	private AmbiguityManager ambiguityManager;
 
-	public Disambiguator disambiguator;
+	protected Disambiguator disambiguator;
 
 	private int rejectCount;
 
@@ -134,16 +131,25 @@ public class SGLR {
         // Default does nothing (not supported by GWT)
     }
 
-	SGLR() {
-		basicInit(null);
-	}
-
+	@Deprecated
 	public SGLR(ITermFactory pf, ParseTable parseTable) {
-		assert pf != null;
+		this(parseTable);
+	}
+	
+	public SGLR(ParseTable parseTable) {
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
 		this.parseTable = parseTable;
-		basicInit(pf);
+
+		activeStacks = new ArrayDeque<Frame>();
+		forActor = new ArrayDeque<Frame>();
+		forActorDelayed = new ArrayDeque<Frame>();
+		forShifter = new ArrayDeque<ActionState>();
+
+		disambiguator = new Disambiguator();
+		useIntegratedRecovery = false;
+		recoverIntegrator = null;
+		history = new ParserHistory();
 	}
 
 	public void setUseStructureRecovery(boolean useRecovery, IRecoveryParser parser) {
@@ -208,22 +214,6 @@ public class SGLR {
 
 	public void asyncCancelReset() {
 		asyncAborted = false;
-	}
-
-	private void basicInit(ITermFactory factory) {
-		this.factory = factory;
-		if (factory == null) {
-			factory = new TermFactory();
-		}
-		activeStacks = new ArrayDeque<Frame>();
-		forActor = new ArrayDeque<Frame>();
-		forActorDelayed = new ArrayDeque<Frame>();
-		forShifter = new ArrayDeque<ActionState>();
-
-		disambiguator = new Disambiguator();
-		useIntegratedRecovery = false;
-		recoverIntegrator = null;
-		history = new ParserHistory();
 	}
 
 	public static boolean isDebugging() {
@@ -864,7 +854,6 @@ public class SGLR {
 		clearForShifterDeep();
 
 		this.parseTable = null;
-		this.factory = null;
 		this.ambiguityManager = null;
 	}
 
@@ -937,8 +926,9 @@ public class SGLR {
 		this.disambiguator = disambiguator;
 	}
 
+	@Deprecated
 	public ITermFactory getFactory() {
-		return factory;
+		return parseTable.getFactory();
 	}
 
 	public int getReductionCount() {

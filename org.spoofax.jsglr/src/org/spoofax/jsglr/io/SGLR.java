@@ -62,6 +62,10 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 	public SGLR(ITermFactory pf, ParseTable parseTable) {
 		super(pf, parseTable);
 	}
+	
+	public SGLR(ParseTable parseTable) {
+		super(parseTable);
+	}
 
 	/**
 	 * @deprecated Call {@link #parse(InputStream, String)} instead.

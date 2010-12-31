@@ -146,7 +146,7 @@ public class ParseTableManager {
         return factory;
     }
 
-	public ParseTable loadFromTerm(ITermFactory factory, IStrategoTerm term) throws InvalidParseTableException {
+	public ParseTable loadFromTerm(IStrategoTerm term) throws InvalidParseTableException {
 		return initializeParseTable(factory, term);
 	}
 	

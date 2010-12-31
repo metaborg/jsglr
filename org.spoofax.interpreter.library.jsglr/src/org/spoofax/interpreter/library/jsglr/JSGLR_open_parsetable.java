@@ -10,8 +10,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 
-import aterm.ATerm;
-
 public class JSGLR_open_parsetable extends JSGLRPrimitive {
     
     // TODO: Do (non-static) caching at the IContext level
@@ -35,7 +33,7 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
 	        return true;
 	    }
 	    
-	    ATerm tableTerm = getATermConverter(env).convert(tvars[0]);
+	    IStrategoTerm tableTerm = tvars[0];
 		
 		JSGLRLibrary lib = getLibrary(env);
 		try {

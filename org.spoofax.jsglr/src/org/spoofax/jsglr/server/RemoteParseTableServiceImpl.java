@@ -8,7 +8,7 @@ import java.io.InputStream;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.shared.RemoteParseTableService;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.io.baf.BAFTermReader;
+import org.spoofax.terms.io.baf.TermReader;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -19,7 +19,7 @@ public class RemoteParseTableServiceImpl extends RemoteServiceServlet implements
 		final TermFactory f = new TermFactory();
 		try {
 			final InputStream is = new FileInputStream(resourceName);
-			final IStrategoTerm e = new BAFTermReader(f).parseFromStream(is);
+			final IStrategoTerm e = new TermReader(f).parseFromStream(is);
 			is.close();
 			System.out.println("Loaded term, serializing");
 			return e;

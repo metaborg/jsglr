@@ -66,8 +66,8 @@ public class BadTokenException extends SGLRException {
 
 
     @Override
-    protected IStrategoTerm toLocationATerm() {
-        ITermFactory factory = getParser().getFactory();
+    protected IStrategoTerm toLocationTerm() {
+        ITermFactory factory = getParser().getParseTable().getFactory();
         return factory.makeAppl(
             factory.makeConstructor("area", 6),
             factory.makeInt(getLineNumber()),

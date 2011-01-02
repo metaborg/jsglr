@@ -43,6 +43,8 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	 */
 	TNode createList(String elementSort, IToken leftToken, IToken rightToken, List<TNode> children);
 
+	TNode createTop(TNode tree, String filename, int ambiguityCount);
+
 	TNode createAmb(List<TNode> alternatives);
 	
 	/**

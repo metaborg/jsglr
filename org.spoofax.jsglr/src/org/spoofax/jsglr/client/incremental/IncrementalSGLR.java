@@ -17,6 +17,7 @@ import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
+import org.spoofax.terms.SimpleTermVisitor;
 
 /**
  * An incremental parsing extension of SGLR.
@@ -177,12 +178,8 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		return start1 <= end2 && start2 <= end1; // e.g. testJava55
 	}
 
-	@SuppressWarnings("unchecked")
-	static Iterator<ISimpleTerm> tryGetListIterator(ISimpleTerm oldTree) {
-		if (oldTree.isList() && oldTree instanceof Iterable)
-			return ((Iterable<ISimpleTerm>) oldTree).iterator();
-		else
-			return null;
+	static Iterator<ISimpleTerm> tryGetListIterator(ISimpleTerm tree) {
+		return SimpleTermVisitor.tryGetListIterator(tree);
 	}
 
 

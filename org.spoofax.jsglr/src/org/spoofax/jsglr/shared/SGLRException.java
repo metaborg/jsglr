@@ -46,7 +46,7 @@ public class SGLRException extends Exception {
         if (parser == null)
             throw new UnsupportedOperationException();
 
-        ITermFactory factory = parser.getFactory();
+        ITermFactory factory = parser.getParseTable().getFactory();
         return factory.makeAppl(
             factory.makeConstructor("error", 2),
             factory.makeString("Parse error"),
@@ -57,15 +57,15 @@ public class SGLRException extends Exception {
                     factory.makeAppl(
                         factory.makeConstructor("area-in-file", 2),
                         factory.makeString(filename),
-                        toLocationATerm()
+                        toLocationTerm()
                     )
                 )
             )
         );
     }
 
-    protected IStrategoTerm toLocationATerm() {
-        ITermFactory factory = parser.getFactory();
+    protected IStrategoTerm toLocationTerm() {
+        ITermFactory factory = parser.getParseTable().getFactory();
         return factory.makeAppl(
             factory.makeConstructor("area", 6),
             factory.makeInt(0),

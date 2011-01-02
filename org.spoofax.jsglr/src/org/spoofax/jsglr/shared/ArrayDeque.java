@@ -395,7 +395,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * @return <tt>true</tt> (as specified by {@link Collection#add})
      * @throws NullPointerException if the specified element is null
      */
-    public boolean add(E e) {
+    @Override
+	public boolean add(E e) {
         addLast(e);
         return true;
     }
@@ -562,7 +563,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      *
      * @return the number of elements in this deque
      */
-    public int size() {
+    @Override
+	public int size() {
         return (tail - head) & (elements.length - 1);
     }
 
@@ -571,7 +573,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      *
      * @return <tt>true</tt> if this deque contains no elements
      */
-    public boolean isEmpty() {
+    @Override
+	public boolean isEmpty() {
         return head == tail;
     }
 
@@ -583,7 +586,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      *
      * @return an iterator over the elements in this deque
      */
-    public Iterator<E> iterator() {
+    @Override
+	public Iterator<E> iterator() {
         return new DeqIterator();
     }
 
@@ -681,7 +685,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * @param o object to be checked for containment in this deque
      * @return <tt>true</tt> if this deque contains the specified element
      */
-    public boolean contains(Object o) {
+    @Override
+	public boolean contains(Object o) {
         if (o == null)
             return false;
         int mask = elements.length - 1;
@@ -708,7 +713,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * @param o element to be removed from this deque, if present
      * @return <tt>true</tt> if this deque contained the specified element
      */
-    public boolean remove(Object o) {
+    @Override
+	public boolean remove(Object o) {
         return removeFirstOccurrence(o);
     }
 
@@ -716,7 +722,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Removes all of the elements from this deque.
      * The deque will be empty after this call returns.
      */
-    public void clear() {
+    @Override
+	public void clear() {
         int h = head;
         int t = tail;
         if (h != t) { // clear all cells
@@ -751,7 +758,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      *
      * @return an array containing all of the elements in this deque
      */
-    public Object[] toArray() {
+    @Override
+	public Object[] toArray() {
         return copyElements(new Object[size()]);
     }
 
@@ -792,7 +800,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      *         this deque
      * @throws NullPointerException if the specified array is null
      */
-    public <T> T[] toArray(T[] a) {
+    @Override
+	public <T> T[] toArray(T[] a) {
         int size = size();
         if (a.length < size)
         	a = new ArrayList<T>(size).toArray(a);

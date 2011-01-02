@@ -30,7 +30,7 @@ import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.io.baf.BAFTermReader;
+import org.spoofax.terms.io.baf.TermReader;
 
 public abstract class ParseTestCase extends TestCase {
 
@@ -96,7 +96,7 @@ public abstract class ParseTestCase extends TestCase {
 
 	private IStrategoTerm tryReadTermFromFile(String fn) {
 		try {
-			return new BAFTermReader(pf).parseFromFile(fn);
+			return new TermReader(pf).parseFromFile(fn);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

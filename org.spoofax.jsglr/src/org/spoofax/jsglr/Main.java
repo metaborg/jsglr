@@ -24,7 +24,7 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.io.baf.BAFTermReader;
+import org.spoofax.terms.io.baf.TermReader;
 
 public class Main {
 	
@@ -92,7 +92,7 @@ public class Main {
 
 		final TermFactory factory = new TermFactory();
 		long tableLoadingTime = System.currentTimeMillis();
-		final IStrategoTerm tableTerm = new BAFTermReader(factory).parseFromFile(parseTableFile);
+		final IStrategoTerm tableTerm = new TermReader(factory).parseFromFile(parseTableFile);
 		final ParseTable pt = new ParseTable(tableTerm, factory);
 		final SGLR sglr = new SGLR(factory, pt);
 
@@ -154,7 +154,7 @@ public class Main {
 			System.err.println("Parsing failed : " + e);
 		}
 		if(t != null && !NO_OUTPUT.equals(output)) {
-			BAFTermReader termIO = new BAFTermReader(sglr.getParseTable().getFactory());
+			TermReader termIO = new TermReader(sglr.getParseTable().getFactory());
 			termIO.unparseToFile((IStrategoTerm) t, out);
 			out.close();
 		}

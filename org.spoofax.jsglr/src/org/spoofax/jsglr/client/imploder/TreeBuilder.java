@@ -127,7 +127,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			Object tree = tryBuildAutoConcatListNode(subtree);
 			tree = recreateWithAllTokens(tree);
 			tokenizer.makeToken(tokenizer.getStartOffset() - 1, TK_EOF, true);
-			return tree;
+			return factory.createTop(tree, tokenizer.getFilename(), ambiguityCount);
 		} finally {
 			offset = 0;
 			inLexicalContext = false;

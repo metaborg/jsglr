@@ -12,8 +12,8 @@ import java.util.Set;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.SimpleTermVisitor;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
+import org.spoofax.terms.SimpleTermVisitor;
 
 /**
  * Expands the damage region to the two
@@ -100,6 +100,7 @@ public class NeighbourDamageExpander {
 				if (rightNeighbour == null) rightNeighbour = lastChild;
 			}
 			
+			@Override
 			public boolean isDone() {
 				return done;
 			}

@@ -1,13 +1,16 @@
 package org.spoofax.jsglr.client.imploder;
 
-import org.spoofax.interpreter.terms.AbstractTermAttachment;
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.interpreter.terms.ITermAttachment;
+import org.spoofax.terms.attachments.AbstractTermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class ImploderAttachment extends AbstractTermAttachment {
+	
+	public static final TermAttachmentType<ImploderAttachment> TYPE =
+		TermAttachmentType.create(ImploderAttachment.class);
 	
 	private final IToken leftToken, rightToken;
 	
@@ -19,8 +22,12 @@ public class ImploderAttachment extends AbstractTermAttachment {
 		this.rightToken = rightToken;
 	}
 	
-	public Class<? extends ITermAttachment> getAttachmentType() {
-		return ImploderAttachment.class;
+	public TermAttachmentType<ImploderAttachment> getAttachmentType() {
+		return TYPE;
+	}
+	
+	public static ImploderAttachment get(ISimpleTerm term) {
+		return term.getAttachment(TYPE);
 	}
 	
 	public IToken getLeftToken() {
@@ -46,30 +53,18 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	}
 
 	public static IToken getLeftToken(ISimpleTerm term) {
-		ImploderAttachment attachment = term.getAttachment(ImploderAttachment.class);
-		if (attachment == null) {
-			return null;
-		} else {
-			return attachment.getLeftToken();
-		}
+		ImploderAttachment attachment = term.getAttachment(TYPE);
+		return attachment == null ? null : attachment.getLeftToken();
 	}
 
 	public static IToken getRightToken(ISimpleTerm term) {
-		ImploderAttachment attachment = term.getAttachment(ImploderAttachment.class);
-		if (attachment == null) {
-			return null;
-		} else {
-			return attachment.getRightToken();
-		}
+		ImploderAttachment attachment = term.getAttachment(TYPE);
+		return attachment == null ? null : attachment.getRightToken();
 	}
 
 	public static String getSort(ISimpleTerm term) {
-		ImploderAttachment attachment = term.getAttachment(ImploderAttachment.class);
-		if (attachment == null) {
-			return null;
-		} else {
-			return attachment.getSort();
-		}
+		ImploderAttachment attachment = term.getAttachment(TYPE);
+		return attachment == null ? null : attachment.getSort();
 	}
 	
 	/**
@@ -79,12 +74,13 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	 *             If the node is not a list or tuple.
 	 */
 	public static String getElementSort(ISimpleTerm term) {
-		ImploderAttachment attachment = term.getAttachment(ImploderAttachment.class);
-		if (attachment == null) {
-			return null;
-		} else {
-			return attachment.getElementSort();
-		}
+		ImploderAttachment attachment = term.getAttachment(TYPE);
+		return attachment == null ? null : attachment.getElementSort();
+	}
+	
+	public static String getFilename(ISimpleTerm term) {
+		IToken token = getLeftToken(term);
+		return token == null ? null : token.getTokenizer().getFilename();
 	}
 	
 	@Override

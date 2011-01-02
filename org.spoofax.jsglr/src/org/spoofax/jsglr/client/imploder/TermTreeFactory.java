@@ -202,14 +202,18 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 			return null;
 		}
 	}
+
+	public IStrategoTerm createTop(IStrategoTerm tree, String filename, int ambiguityCount) {
+		return tree;
+	}
 	
 	protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken, boolean isListOrTuple) {
 		assert isListOrTuple
 			== (term.getTermType() == TUPLE || term.getTermType() == LIST);
 		if (enableTokens) {
 			term.putAttachment(isListOrTuple ?
-				  new ElementImploderAttachment(sort, leftToken, rightToken)
-				: new ImploderAttachment(sort, leftToken, rightToken));
+			  new ListImploderAttachment(sort, leftToken, rightToken)
+			: new ImploderAttachment(sort, leftToken, rightToken));
 		}
 	}
 }

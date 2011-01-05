@@ -67,7 +67,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 	
 	public TreeBuilder(boolean disableTokens) {
-		this.disableTokens = disableTokens;
+		// TODO: respect disableTokens once lexical strings work correctly without it
+		this.disableTokens = false;
 		this.initializeFactories = true;
 	}
 	

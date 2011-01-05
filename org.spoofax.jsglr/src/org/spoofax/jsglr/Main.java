@@ -7,8 +7,10 @@
  */
 package org.spoofax.jsglr;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -19,6 +21,7 @@ import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.NullTreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
+import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -112,12 +115,14 @@ public class Main {
 			System.err.println("Hit enter to start profiling...");
 			System.in.read();
 		}
+		
+		String inputFile = FileTools.loadFileAsString(new BufferedReader(new FileReader(input)));
 
 		for(int i = 0; i < profilingRuns - 1; i++) {
-			parseFile(input, NO_OUTPUT, sglr, startSymbol);
+			parseFile(inputFile, NO_OUTPUT, sglr, startSymbol);
 		}
 
-		final long parsingTime = parseFile(input, output, sglr, startSymbol);
+		final long parsingTime = parseFile(inputFile, output, sglr, startSymbol);
 
 		if(timing) {
 			System.err.println("Parse table loading time : " + tableLoadingTime + "ms");

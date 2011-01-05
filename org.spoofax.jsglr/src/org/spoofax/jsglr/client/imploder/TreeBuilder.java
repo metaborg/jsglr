@@ -101,7 +101,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	public void initializeInput(String filename, String input) {
 		assert offset == 0;
 		tokenizer = disableTokens
-			? new DummyTokenizer(filename, input)
+			? new NullTokenizer(filename, input)
 			: new Tokenizer(table.getKeywordRecognizer(), filename, input);
 	}
 	

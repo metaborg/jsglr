@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static org.spoofax.terms.StrategoListIterator.iterable;
+import static org.spoofax.terms.Term.applAt;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.isTermNamed;
 import static org.spoofax.terms.Term.javaString;
@@ -110,7 +111,7 @@ public class ProductionAttributeReader {
 	// FIXME: support meta-var constructors
 	public String getMetaVarConstructor(IStrategoAppl rhs) {
 		if (rhs.getSubtermCount() == 1 && varSymFun == rhs.getConstructor()) {
-			return isIterFun(((IStrategoAppl) termAt(rhs, 0)).getConstructor())
+			return isIterFun(applAt(rhs, 0).getConstructor())
 					? "meta-listvar"
 					: "meta-var";
 		}
@@ -183,8 +184,8 @@ public class ProductionAttributeReader {
     }
     
     private String getAltSortName(IStrategoAppl node) {
-		String left = getSort((IStrategoAppl) termAt(node, ALT_SORT_LEFT));
-		String right = getSort((IStrategoAppl) termAt(node, ALT_SORT_RIGHT));
+		String left = getSort(applAt(node, ALT_SORT_LEFT));
+		String right = getSort(applAt(node, ALT_SORT_RIGHT));
 		
 		// HACK: In the RTG, alt sorts appear with a number at the end
 		return left + "_" + right + "0";

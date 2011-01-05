@@ -1,0 +1,39 @@
+package org.spoofax.jsglr.client;
+
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
+
+/** 
+ * A tree builder that always builds a <code>null</code> tree.
+ * 
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+public class NullTreeBuilder implements ITreeBuilder {
+
+	public void initializeTable(ParseTable table, int productionCount,
+			int labelStart, int labelCount) {
+		// Do nothing
+	}
+
+	public void initializeLabel(int labelNumber,
+			IStrategoAppl parseTreeProduction) {
+		// Do nothing
+	}
+
+	public void initializeInput(String filename, String input) {
+		// Do nothing
+	}
+
+	public Object buildTree(AbstractParseNode node) {
+		return null;
+	}
+
+	public Object buildTreeTop(Object subtree, int ambiguityCount) {
+		return null;
+	}
+
+	public ITokenizer getTokenizer() {
+		return null;
+	}
+
+}

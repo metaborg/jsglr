@@ -7,6 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParseTimeoutException;
@@ -20,6 +21,8 @@ import org.spoofax.jsglr.shared.TokenExpectedException;
 public class SGLR extends org.spoofax.jsglr.client.SGLR {
 
 	private static final Timer abortTimer = new Timer(true);
+	
+	private int timeout;
 
 	private int abortTimerJobId;
 
@@ -64,8 +67,13 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 		super(pf, parseTable);
 	}
 	
+	@Deprecated
 	public SGLR(ParseTable parseTable) {
 		super(parseTable);
+	}
+	
+	public SGLR(ITreeBuilder treeBuilder, ParseTable parseTable) {
+		super(treeBuilder, parseTable);
 	}
 
 	/**

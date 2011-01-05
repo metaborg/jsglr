@@ -7,7 +7,7 @@ import java.util.Iterator;
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
-public class DummyTokenizer implements ITokenizer {
+public class NullTokenizer implements ITokenizer {
 	
 	private final IToken onlyToken;
 
@@ -17,7 +17,7 @@ public class DummyTokenizer implements ITokenizer {
 	
 	private boolean isAmbiguous;
 	
-	public DummyTokenizer(String filename, String input) {
+	public NullTokenizer(String filename, String input) {
 		this.filename = filename;
 		this.input = input;
 		onlyToken = new Token(this, 0, 0, 0, 0, input.length() - 1, IToken.TK_UNKNOWN);

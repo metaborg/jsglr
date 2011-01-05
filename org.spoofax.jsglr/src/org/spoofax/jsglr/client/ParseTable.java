@@ -656,6 +656,10 @@ public class ParseTable implements Serializable {
 
 	public void setTreeBuilder(ITreeBuilder treeBuilder) {
 		this.treeBuilder = treeBuilder;
+		initializeTreeBuilder(treeBuilder);
+	}
+
+	protected void initializeTreeBuilder(ITreeBuilder treeBuilder) {
 		treeBuilder.initializeTable(this, NUM_CHARS, LABEL_BASE, labels.length);
 		for(int i = 0; i < labels.length; i++) {
 			if(labels[i] == null)

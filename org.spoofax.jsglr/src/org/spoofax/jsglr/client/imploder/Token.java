@@ -1,6 +1,5 @@
 package org.spoofax.jsglr.client.imploder;
 
-
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
@@ -9,7 +8,9 @@ public class Token implements IToken {
 
 	private final ITokenizer tokenizer;
 	
+	// TODO: Optimize - line and column should be determined on demand, not stored everywhere!
 	private final int index, startOffset, endOffset, line, column;
+	
 	private int kind;
 
 	public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind) {
@@ -60,8 +61,37 @@ public class Token implements IToken {
 	}
 
 	public int compareTo(IToken arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+		int otherIndex = arg0.getIndex();
+		if (index < otherIndex) {
+			return -1;
+		} else if (index == otherIndex) {
+			return 0;
+		} else {
+			return 1;
+		}
+	}
+	
+	public static int indexOf(IToken token, char c) {
+		String stream = token.getTokenizer().getInput();
+		for (int i = token.getStartOffset(), last = token.getEndOffset(); i <= last; i++) { 
+			if (stream.charAt(i) == c)
+				return i;
+		}
+		return -1;
+	}
+	
+	public static boolean isWhiteSpace(IToken token) {
+		String input = token.getTokenizer().getInput();
+		for (int i = token.getStartOffset(), last = token.getEndOffset(); i <= last; i++) { 
+			if (!Character.isWhitespace(input.charAt(i)))
+				return false;
+		}
+		return true;
+	}
+
+	public static String tokenKindToString(int kind) {
+		// TODO: proper token kind to string?
+		return "tokenKind#" + kind;
 	}
 
 }

@@ -16,10 +16,10 @@ import java.io.Writer;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
+import org.spoofax.jsglr.client.NullTreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
-import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
-import org.spoofax.jsglr.io.FileTools;
+import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
@@ -94,7 +94,7 @@ public class Main {
 		long tableLoadingTime = System.currentTimeMillis();
 		final IStrategoTerm tableTerm = new TermReader(factory).parseFromFile(parseTableFile);
 		final ParseTable pt = new ParseTable(tableTerm, factory);
-		final SGLR sglr = new SGLR(factory, pt);
+		final SGLR sglr = new SGLR(pt);
 
 		tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
 
@@ -103,8 +103,9 @@ public class Main {
 		sglr.getDisambiguator().setFilterCycles(detectCycles);
 		sglr.getDisambiguator().setFilterAny(filter);
 		sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
-		sglr.setBuildParseTree(buildParseTree);
-		if (implode)
+		if (!buildParseTree)
+			sglr.setTreeBuilder(new NullTreeBuilder());
+		else if (implode)
 			sglr.setTreeBuilder(new TreeBuilder(true));
 
 		if(waitForProfiler) {

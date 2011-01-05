@@ -15,6 +15,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	private final IStrategoConstructor applIStrategoConstructor;
 	private final IStrategoConstructor ambIStrategoConstructor;
 	private final IStrategoConstructor parseTreeIStrategoConstructor;
+	private ParseTable table;
 	private IStrategoAppl[] labels;
 	private int labelStart;
 
@@ -25,6 +26,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	}
 
 	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
+		this.table = table;
 		labels = new IStrategoAppl[labelCount - labelStart];
 		this.labelStart = labelStart;
 	}
@@ -32,11 +34,16 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	public void initializeLabel(int labelNumber, IStrategoAppl parseTreeProduction) {
 		labels[labelNumber - labelStart] = parseTreeProduction;
 	}
+	
+	public ParseTable getTable() {
+		return table;
+	}
 
 	public void initializeInput(String filename, String input) {
 		// Not used here
 	}
 
+	@Override
 	public IStrategoTerm buildNode(int labelNumber, List<Object> subtrees) {
 		IStrategoList ls = factory.makeList();
 		for(int i = subtrees.size() - 1; i >= 0; i--) {
@@ -45,15 +52,18 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 		return factory.makeAppl(applIStrategoConstructor, labels[labelNumber - labelStart], ls);
 	}
 
+	@Override
 	public IStrategoTerm buildAmb(List<Object> alternatives) {
 		IStrategoTerm[] alternatives2 = alternatives.toArray(new IStrategoTerm[alternatives.size()]);
 		return factory.makeAppl(ambIStrategoConstructor, alternatives2);
 	}
 
+	@Override
 	public IStrategoTerm buildProduction(int productionNumber) {
 		return factory.makeInt(productionNumber);
 	}
 
+	@Override
 	public IStrategoTerm buildTreeTop(Object node, int ambCount) {
 		return factory.makeAppl(parseTreeIStrategoConstructor, (IStrategoAppl) node, factory.makeInt(ambCount));
 	}

@@ -80,12 +80,8 @@ public class SGLR {
 	private int rejectCount;
 
 	private int reductionCount;
-	
-	protected int timeout;
 
 	private PushbackStringIterator currentInputStream;
-
-	private boolean buildParseTree = true;
 
 	private PooledPathList reductionsPathCache = new PooledPathList(512, true);
 	private PathListPool pathCache = new PathListPool();
@@ -119,12 +115,13 @@ public class SGLR {
     
     /**
      * Attempts to set a timeout for parsing.
-     * Default implementation is a no-op.
+     * Default implementation throws an
+     * {@link UnsupportedOperationException}.
      * 
      * @see org.spoofax.jsglr.io.SGLR#setTimeout(int)
      */
     public void setTimeout(int timeout) {
-        this.timeout = timeout;
+        throw new UnsupportedOperationException("Use org.spoofax.jsglr.io.SGLR for setting a timeout");
     }
     
     protected void initParseTimer() {
@@ -136,7 +133,12 @@ public class SGLR {
 		this(parseTable);
 	}
 	
+	@Deprecated
 	public SGLR(ParseTable parseTable) {
+		this(new Asfix2TreeBuilder(), parseTable);
+	}
+	
+	public SGLR(ITreeBuilder treeBuilder, ParseTable parseTable) {
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
 		this.parseTable = parseTable;
@@ -150,6 +152,7 @@ public class SGLR {
 		useIntegratedRecovery = false;
 		recoverIntegrator = null;
 		history = new ParserHistory();
+		setTreeBuilder(treeBuilder);
 	}
 
 	public void setUseStructureRecovery(boolean useRecovery, IRecoveryParser parser) {
@@ -300,10 +303,10 @@ public class SGLR {
 		Tools.debug("avoids: ", s.recoverCount);
 		//Tools.debug(s.label.toParseTree(parseTable));
 
-		if(buildParseTree) {
-			return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
-		} else {
+		if (parseTable.getTreeBuilder() instanceof NullTreeBuilder) {
 			return null;
+		} else {
+			return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
 		}
 	}
 
@@ -1256,9 +1259,5 @@ public class SGLR {
 			Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/",
 					nl.getLength());
 		}
-	}
-
-	public void setBuildParseTree(boolean buildParseTree) {
-		this.buildParseTree = buildParseTree;
 	}
 }

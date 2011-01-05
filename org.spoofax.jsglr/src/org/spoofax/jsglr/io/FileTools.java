@@ -24,15 +24,19 @@ public class FileTools {
     }
     
     public static String loadFileAsString(Reader reader) throws IOException {
-        StringBuilder result = new StringBuilder();
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        synchronized (asyncBuffer) {
-            int read;
-            while ((read = bufferedReader.read(asyncBuffer)) > 0) {
-                result.append(asyncBuffer, 0, read);
-            }
-            return result.toString();
-        }
+    	try {
+	        StringBuilder result = new StringBuilder();
+	        BufferedReader bufferedReader = new BufferedReader(reader);
+	        synchronized (asyncBuffer) {
+	            int read;
+	            while ((read = bufferedReader.read(asyncBuffer)) > 0) {
+	                result.append(asyncBuffer, 0, read);
+	            }
+	            return result.toString();
+	        }
+    	} finally {
+    		if (reader != null) reader.close();
+    	}
     }
 
 }

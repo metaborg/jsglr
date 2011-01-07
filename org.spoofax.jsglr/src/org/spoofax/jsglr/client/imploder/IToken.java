@@ -56,5 +56,7 @@ public interface IToken extends Comparable<IToken> {
 	
 	int getColumn();
 	
+	String getError();
+	
 	ITokenizer getTokenizer();
 }

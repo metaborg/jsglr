@@ -55,6 +55,15 @@ public class Token implements IToken {
 		return column;
 	}
 	
+	public String getError() {
+		// Overridden with a specific message in ErrorToken
+		switch (getKind()) {
+			case TK_ERROR_EOF_UNEXPECTED: return "Unexpected end of file";
+			case TK_ERROR: case TK_ERROR_KEYWORD: return "Syntax error";
+			default: return null;
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return tokenizer.toString(this, this);

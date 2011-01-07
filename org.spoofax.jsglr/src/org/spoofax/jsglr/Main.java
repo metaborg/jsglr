@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.NullTreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
@@ -97,7 +98,7 @@ public class Main {
 		long tableLoadingTime = System.currentTimeMillis();
 		final IStrategoTerm tableTerm = new TermReader(factory).parseFromFile(parseTableFile);
 		final ParseTable pt = new ParseTable(tableTerm, factory);
-		final SGLR sglr = new SGLR(pt);
+		final SGLR sglr = new SGLR(new Asfix2TreeBuilder(), pt);
 
 		tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
 
@@ -168,7 +169,7 @@ public class Main {
 	}
 
 	private static void usage() {
-		System.out.println("Usage: org.spoofax.jsglr.Main [-f -d -v] -p <parsetable.tbl> -i <inputfile>");
+		System.out.println("Usage: org.spoofax.jsglr.Main [-f -d -v --no-tree-build --implode] -p <parsetable.tbl> -i <inputfile>");
 		System.exit(-1);
 	}
 }

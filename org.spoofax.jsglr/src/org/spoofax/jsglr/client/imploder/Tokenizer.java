@@ -4,7 +4,7 @@ import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
-import static org.spoofax.jsglr.client.imploder.IToken.*;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,14 +16,11 @@ import org.spoofax.jsglr.client.KeywordRecognizer;
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
-public class Tokenizer implements ITokenizer {
+public class Tokenizer extends AbstractTokenizer {
 	
 	private static final double EXPECTED_TOKENS_DIVIDER = 1.3;
 	
 	private final KeywordRecognizer keywords;
-	
-	private final TokenKindManager manager =
-		new TokenKindManager();
 	
 	private final String filename;
 	
@@ -38,8 +35,6 @@ public class Tokenizer implements ITokenizer {
 	private int line;
 
 	private int offsetAtLineStart;
-	
-	private boolean isAmbiguous;
 	
 	/**
 	 * Creates a new tokenizer for the given
@@ -70,7 +65,7 @@ public class Tokenizer implements ITokenizer {
 	}
 
 	public void setStartOffset(int startOffset) {
-		assert isAmbiguous;
+		assert isAmbigous();
 		this.startOffset = startOffset;
 	}
 
@@ -93,12 +88,12 @@ public class Tokenizer implements ITokenizer {
 		int resultIndex = Collections.binarySearch(tokens, key);
 		return resultIndex == -1 ? null : getTokenAt(resultIndex);
 	}
-
-	public IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken) {
-		return makeToken(endOffset, manager.getTokenKind(label), allowEmptyToken);
-	}
 	
-	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
+	public final IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
+		return makeToken(endOffset, kind, allowEmptyToken, null);
+	}
+		
+	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken, String errorMessage) {
 		assert endOffset <= input.length();
 		if (!allowEmptyToken && startOffset > endOffset) // empty token
 			return null;
@@ -111,8 +106,8 @@ public class Tokenizer implements ITokenizer {
 		for (offset = min(startOffset, endOffset); offset < endOffset; offset++) {
 			if (input.charAt(offset) == '\n') {
 				if (offset - 1 > startOffset)
-					token = internalMakeToken(kind, offset - 1);
-				internalMakeToken(TK_LAYOUT, offset); // newline
+					token = internalMakeToken(kind, offset - 1, errorMessage);
+				internalMakeToken(TK_LAYOUT, offset, errorMessage); // newline
 				line++;
 				offsetAtLineStart = startOffset;
 			}
@@ -120,7 +115,7 @@ public class Tokenizer implements ITokenizer {
 		
 		if (token == null || offset <= endOffset) {
 			int oldStartOffset = startOffset;
-			token = internalMakeToken(kind, offset);
+			token = internalMakeToken(kind, offset, errorMessage);
 			if (offset >= oldStartOffset && input.charAt(offset) == '\n') {
 				line++;
 				offsetAtLineStart = startOffset;
@@ -131,29 +126,37 @@ public class Tokenizer implements ITokenizer {
 		}
 	}
 
-	private IToken internalMakeToken(int kind, int endOffset) {
+	protected Token internalMakeToken(int kind, int endOffset, String errorMessage) {
 		Token result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
+		if (errorMessage != null) result.setError(errorMessage);
 		tokens.add(result);
 		startOffset = endOffset + 1;
 		return result;
 	}
+	
+	public void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
+		assert leftToken.getTokenizer() == this && rightToken.getTokenizer() == this;
+		for (int i = leftToken.getIndex(), max = rightToken.getIndex(); i <= max; i++) {
+			tokens.get(i).setError(message);
+		}
+	}
 
-	public void makeErrorToken(int offset) {
+	public void tryMakeSkippedRegionToken(int offset) {
 		char inputChar = input.charAt(offset);
 		
 		boolean isInputKeywordChar = KeywordRecognizer.isPotentialKeywordChar(inputChar);
 		if (isAtPotentialKeywordEnd(offset, isInputKeywordChar)) {
 			if (keywords.isKeyword(toString(startOffset, offset - 1))) {
-				makeToken(offset - 1, TK_ERROR_KEYWORD, false);
+				makeToken(offset - 1, TK_ERROR_KEYWORD, false, ERROR_SKIPPED_REGION);
 			} else {
-				makeToken(offset - 1, TK_ERROR, false);
+				makeToken(offset - 1, TK_ERROR, false, ERROR_SKIPPED_REGION);
 			}
 		}
 		if (isAtPotentialKeywordStart(offset, isInputKeywordChar)) {
 			if (keywords.isKeyword(toString(startOffset, offset))) {
-				makeToken(offset, TK_ERROR_KEYWORD, false);
+				makeToken(offset, TK_ERROR_KEYWORD, false, ERROR_SKIPPED_REGION);
 			} else {
-				makeToken(offset, TK_ERROR, false);
+				makeToken(offset, TK_ERROR, false, ERROR_SKIPPED_REGION);
 			}
 		}
 	}
@@ -186,11 +189,7 @@ public class Tokenizer implements ITokenizer {
 		return Character.isLetterOrDigit(c) || c == '_';
 	}
 
-	/**
-	 * Creates an artificial token for every water-based recovery
-	 * and for comments within layout.
-	 */
-	public void makeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
+	public void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
 		// Create separate tokens for >1 char layout lexicals (e.g., comments)
 		if (endOffset > lastOffset + 1 && label.isLexLayout()) {
 			if (startOffset <= lastOffset)
@@ -317,14 +316,6 @@ public class Tokenizer implements ITokenizer {
 		@SuppressWarnings("unchecked") // covariance
 		Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
 		return result;
-	}
-
-	public boolean isAmbigous() {
-		return isAmbiguous;
-	}
-
-	public void setAmbiguous(boolean isAmbiguous) {
-		this.isAmbiguous = isAmbiguous;
 	}
 
 }

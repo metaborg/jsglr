@@ -2,6 +2,7 @@ package org.spoofax.jsglr.client.imploder;
 
 import static org.spoofax.terms.StrategoListIterator.iterable;
 import static org.spoofax.terms.Term.applAt;
+import static org.spoofax.terms.Term.asJavaString;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.isTermNamed;
 import static org.spoofax.terms.Term.javaString;
@@ -9,6 +10,7 @@ import static org.spoofax.terms.Term.termAt;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -22,6 +24,21 @@ import org.spoofax.interpreter.terms.ITermFactory;
  */
 public class ProductionAttributeReader {
 	
+	/**
+	 * The constructor used for "water" recovery rules.
+	 */
+	private static final String WATER = "WATER";
+	
+	/**
+	 * The constructor used for "insertion" recovery rules.
+	 */
+	private static final String INSERT = "INSERTION";
+	
+	/**
+	 * The constructor used for "end insertion" recovery rules.
+	 */
+	private static final String INSERT_END = "INSERTEND";
+	
 	private final int PARAMETRIZED_SORT_NAME = 0;
 	
 	private final int PARAMETRIZED_SORT_ARGS = 1;
@@ -34,13 +51,7 @@ public class ProductionAttributeReader {
 	
 	protected final IStrategoConstructor parameterizedSortFun;
 	
-	protected final IStrategoConstructor attrsFun;
-	
-	protected final IStrategoConstructor noAttrsFun;
-	
-	protected final IStrategoConstructor preferFun;
-	
-	protected final IStrategoConstructor avoidFun;
+	private final IStrategoConstructor noAttrsFun;
 	
 	private final IStrategoConstructor varSymFun;
 	
@@ -80,10 +91,7 @@ public class ProductionAttributeReader {
 		sortFun = factory.makeConstructor("sort", 1);
 		parameterizedSortFun =
 			factory.makeConstructor("parameterized-sort", 2);
-		attrsFun = factory.makeConstructor("attrs", 1);
 		noAttrsFun = factory.makeConstructor("no-attrs", 0);
-		preferFun = factory.makeConstructor("prefer", 0);
-		avoidFun = factory.makeConstructor("avoid", 0);
 		varSymFun = factory.makeConstructor("varsym", 1);
 		altFun = factory.makeConstructor("alt", 2);
 		charClassFun = factory.makeConstructor("char-class", 1);
@@ -107,6 +115,71 @@ public class ProductionAttributeReader {
 		IStrategoTerm consAttr = getAttribute(attrs, "cons");
 		return consAttr == null ? null : ((IStrategoNamed) consAttr).getName();
 	}
+	
+	public boolean isWaterConstructor(String constructor) {
+		return WATER.equals(constructor);
+	}
+	
+	/**
+	 * Tests if a production sort is one of the special
+	 * sorts that should be ignored if no constructor is specified.
+	 */
+	public boolean isIgnoredUnspecifiedRecoverySort(String sort) {
+		return sort.startsWith("WATER");
+	}
+	
+	public boolean isInsertEndConstructor(String constructor) {
+		return INSERT_END.equals(constructor);
+	}
+	
+	public boolean isInsertConstructor(String constructor) {
+		return INSERT.equals(constructor);
+	}
+	
+	public boolean isRecoverProduction(IStrategoAppl attrs) {
+		return getAttribute(attrs, "recover") != null;
+	}
+	
+	public boolean isRejectProduction(IStrategoAppl attrs) {
+		return getAttribute(attrs, "reject") != null;
+	}
+	
+	public String getDeprecationMessage(IStrategoAppl attrs) {
+		IStrategoTerm deprecated = getAttribute(attrs, "deprecated");
+		if (deprecated == null) {
+			return null;
+		} else if (deprecated.getSubtermCount() == 1) {
+			return asJavaString(termAt(deprecated, 0));
+		} else {
+			return "Deprecated construct";
+		}
+	}
+	
+	public String getSyntaxErrorExpectedInsertion(IStrategoAppl rhs) {
+		String inserted;
+		if (rhs.getName().equals("lit")) {
+			inserted = "'" + applAt(rhs, 0).getName() + "'";
+		} else if (rhs.getName().equals("char-class")) {
+			inserted = "'" + toString((IStrategoList) termAt(rhs, 0)) + "'";
+		} else {
+			inserted = getSort(rhs);
+			if (inserted == null)
+				inserted = "token";
+		}
+		return inserted;
+	}
+	
+	private static String toString(IStrategoList chars) {
+        StringBuilder result = new StringBuilder(chars.getSubtermCount());
+
+        while (chars.head() != null) {
+        	IStrategoInt v = (IStrategoInt) chars.head();
+            result.append((char) v.intValue());
+            chars = chars.tail();
+        }
+        
+        return result.toString();
+    }
 	
 	// FIXME: support meta-var constructors
 	public String getMetaVarConstructor(IStrategoAppl rhs) {

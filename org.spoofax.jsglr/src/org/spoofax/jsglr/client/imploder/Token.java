@@ -12,6 +12,8 @@ public class Token implements IToken {
 	private final int index, startOffset, endOffset, line, column;
 	
 	private int kind;
+	
+	private String errorMessage;
 
 	public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind) {
 		this.tokenizer = tokenizer;
@@ -56,12 +58,19 @@ public class Token implements IToken {
 	}
 	
 	public String getError() {
-		// Overridden with a specific message in ErrorToken
-		switch (getKind()) {
-			case TK_ERROR_EOF_UNEXPECTED: return "Unexpected end of file";
-			case TK_ERROR: case TK_ERROR_KEYWORD: return "Syntax error";
-			default: return null;
+		if (errorMessage == null) {
+			switch (getKind()) {
+				case TK_ERROR_EOF_UNEXPECTED: return "Unexpected end of file";
+				case TK_ERROR: case TK_ERROR_KEYWORD: return "Syntax error";
+				default: return null;
+			}
+		} else {
+			return errorMessage;
 		}
+	}
+	
+	public void setError(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 	
 	@Override

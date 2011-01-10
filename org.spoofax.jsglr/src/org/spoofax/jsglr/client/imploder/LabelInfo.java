@@ -17,6 +17,8 @@ public class LabelInfo {
 	
 	private final String constructor;
 	
+	private final String deprecationMessage;
+	
 	private final IStrategoTerm astAttribute;
 	
 	private final boolean isNonContextFree;
@@ -39,6 +41,10 @@ public class LabelInfo {
 	
 	private final boolean isOptional;
 	
+	private final boolean isRecover;
+	
+	private final boolean isReject;
+	
 	private final String metaVarConstructor;
 	
 	public LabelInfo(ProductionAttributeReader reader, IStrategoAppl production) {
@@ -57,6 +63,9 @@ public class LabelInfo {
 		isLayout = reader.isLayout(rhs);
 		isLiteral = reader.isLiteral(rhs);
 		isOptional = reader.isOptional(rhs);
+		isRecover = reader.isRecoverProduction(attrs);
+		isReject = reader.isRejectProduction(attrs);
+		deprecationMessage = reader.getDeprecationMessage(attrs);
 		isSortProduction = reader.sortFun == rhs.getConstructor() || reader.parameterizedSortFun == rhs.getConstructor();
 		metaVarConstructor = reader.getMetaVarConstructor(rhs);
 	}
@@ -115,6 +124,18 @@ public class LabelInfo {
 	
 	public boolean isLiteral() {
 		return isLiteral;
+	}
+	
+	public boolean isRecover() {
+		return isRecover;
+	}
+	
+	public boolean isReject() {
+		return isReject;
+	}
+	
+	public String getDeprecationMessage() {
+		return deprecationMessage;
 	}
 	
 	public boolean isSortProduction() {

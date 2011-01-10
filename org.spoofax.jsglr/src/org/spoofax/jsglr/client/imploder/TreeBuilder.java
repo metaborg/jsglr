@@ -183,13 +183,15 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 		// Recurse
 		for (AbstractParseNode subnode : subnodes) {
+			Object child;
 			if (inLexicalContext && subnode.isParseProductionChain()) {
-				chainToTreeTopdown(subnode);
+				child = chainToTreeTopdown(subnode);
 			} else {
 				// TODO: Optimize stack - inline toTreeTopdown case selection?
-				Object child = subnode.toTreeTopdown(this);
-				if (child != null) children.add(isList ? child : tryBuildAutoConcatListNode(child));
+				child = subnode.toTreeTopdown(this);
 			}
+			if (child != null)
+				children.add(isList ? child : tryBuildAutoConcatListNode(child));
 		}
 		
 		if (!inLexicalContext && isList && children.isEmpty()) {
@@ -197,23 +199,26 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			((AutoConcatList) children).setEmptyListToken(token);
 		}
 		
+		Object result;
 		if (lexicalStart) {
-			return tryCreateStringTerminal(label);
+			result = tryCreateStringTerminal(label);
 		} else if (inLexicalContext) {
-			tokenizer.makeLayoutToken(offset - 1, lastOffset - 1, label);
-			return null; // don't create tokens inside lexical context; just create one big token at the top
+			tokenizer.tryMakeLayoutToken(offset - 1, lastOffset - 1, label);
+			result = null; // don't create tokens inside lexical context; just create one big token at the top
 		} else if (isList) {
-			return children;
+			result = children;
 		} else {
-			return createNodeOrInjection(label, prevToken, children);
+			result = createNodeOrInjection(label, prevToken, children);
 		}
+		tokenizer.tryMarkSyntaxError(label, prevToken, offset, prodReader);
+		return result;
 	}
 
 	/**
 	 * Efficiently consume lexical chars in parse production chains.
 	 * @see AbstractParseNode#isParseProductionChain()
 	 */
-	private void chainToTreeTopdown(AbstractParseNode node) {
+	private Object chainToTreeTopdown(AbstractParseNode node) {
 		assert node.isParseProductionChain();
 		while (node instanceof ParseNode) {
 			AbstractParseNode[] kids = ((ParseNode) node).getChildren();
@@ -221,12 +226,14 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				buildTreeProduction((ParseProductionNode) kids[0]);
 				node = kids[1];
 			} else if (kids.length == 1) {
-				node = kids[0];
+				// UNDONE: node = kids[0];
+				return buildTreeNode((ParseNode) node);
 			} else {
 				throw new IllegalStateException("Unexpected node in parse production chain: " + node);
 			}
 		}
 		buildTreeProduction((ParseProductionNode) node);
+		return null;
 	}
 
 	@Override
@@ -451,7 +458,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			
 			if (parsedChar != inputChar) {
 				if (RecoveryConnector.isLayoutCharacter(parsedChar)) {
-					tokenizer.makeErrorToken(offset);
+					tokenizer.tryMakeSkippedRegionToken(offset);
 					offset++;
 				} else {
 					// UNDONE: Strict lexical stream checking

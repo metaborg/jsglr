@@ -164,7 +164,7 @@ public class SGLR {
 	 * Structure-based recovery without bridge parsing.
 	 *
 	 */
-	public final void setUseStructureRecovery(boolean useRecovery) throws NoRecoveryRulesException {
+	public final void setUseStructureRecovery(boolean useRecovery) {
 		setUseStructureRecovery(useRecovery, null);
 	}
 	

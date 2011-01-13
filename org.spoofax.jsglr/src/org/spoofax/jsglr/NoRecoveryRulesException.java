@@ -6,7 +6,8 @@ package org.spoofax.jsglr;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class NoRecoveryRulesException extends InvalidParseTableException {
+@Deprecated
+public class NoRecoveryRulesException extends RuntimeException {
 
     private static final long serialVersionUID = 442099735579027095L;
 

@@ -8,7 +8,7 @@ import java.io.InputStream;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.shared.RemoteParseTableService;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.io.baf.TermReader;
+import org.spoofax.terms.io.binary.TermReader;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 

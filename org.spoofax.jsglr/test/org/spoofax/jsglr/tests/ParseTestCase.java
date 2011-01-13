@@ -30,7 +30,7 @@ import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.io.baf.TermReader;
+import org.spoofax.terms.io.binary.TermReader;
 
 public abstract class ParseTestCase extends TestCase {
 

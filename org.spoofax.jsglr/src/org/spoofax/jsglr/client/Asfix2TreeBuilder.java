@@ -6,12 +6,13 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.terms.TermFactory;
 
 public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 
-	private final TermFactory factory = new TermFactory();
+	private final ITermFactory factory;
 	private final IStrategoConstructor applIStrategoConstructor;
 	private final IStrategoConstructor ambIStrategoConstructor;
 	private final IStrategoConstructor parseTreeIStrategoConstructor;
@@ -20,6 +21,11 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	private int labelStart;
 
 	public Asfix2TreeBuilder() {
+		this(new TermFactory());
+	}
+	
+	public Asfix2TreeBuilder(ITermFactory factory) {
+		this.factory = factory;
 		applIStrategoConstructor = factory.makeConstructor("appl", 2);
 		ambIStrategoConstructor = factory.makeConstructor("amb", 1);
 		parseTreeIStrategoConstructor = factory.makeConstructor("parsetree", 2);

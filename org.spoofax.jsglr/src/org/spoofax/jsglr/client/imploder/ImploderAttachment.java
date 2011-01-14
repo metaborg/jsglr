@@ -43,10 +43,10 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	}
 	
 	/**
-	 * The element sort for lists and tuples.
+	 * The element sort for list terms.
 	 * 
 	 * @throws UnsupportedOperationException
-	 *             If the node is not a list or tuple.
+	 *             If the node is not a list.
 	 */
 	public String getElementSort() {
 		throw new UnsupportedOperationException();
@@ -81,6 +81,11 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	public static String getFilename(ISimpleTerm term) {
 		IToken token = getLeftToken(term);
 		return token == null ? null : token.getTokenizer().getFilename();
+	}
+	
+	public static ITokenizer getTokenizer(ISimpleTerm term) {
+		IToken token = getLeftToken(term);
+		return token == null ? null : token.getTokenizer();
 	}
 	
 	@Override

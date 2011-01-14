@@ -18,7 +18,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	public NullTokenizer(String filename, String input) {
 		this.filename = filename;
 		this.input = input;
-		onlyToken = new Token(this, 0, 0, 0, 0, input.length() - 1, IToken.TK_UNKNOWN);
+		onlyToken = new Token(this, 0, 0, 0, 0, input == null ? 0 : input.length() - 1, IToken.TK_UNKNOWN);
 	}
 	
 	public String getFilename() {

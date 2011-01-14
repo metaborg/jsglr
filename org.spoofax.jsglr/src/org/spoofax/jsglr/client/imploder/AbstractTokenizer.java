@@ -53,4 +53,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		}
 	}
 
+	public final int getEndLine() {
+		return getTokenAt(getTokenCount() - 1).getLine();
+	}
 }

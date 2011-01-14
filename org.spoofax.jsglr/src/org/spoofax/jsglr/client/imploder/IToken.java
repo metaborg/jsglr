@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
+
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
@@ -57,6 +59,8 @@ public interface IToken extends Comparable<IToken> {
 	int getColumn();
 	
 	String getError();
+	
+	ISimpleTerm getAstNode();
 	
 	ITokenizer getTokenizer();
 }

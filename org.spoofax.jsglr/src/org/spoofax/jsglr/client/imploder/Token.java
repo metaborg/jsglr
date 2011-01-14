@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
+
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
@@ -14,6 +16,8 @@ public class Token implements IToken {
 	private int kind;
 	
 	private String errorMessage;
+	
+	private ISimpleTerm astNode;
 
 	public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind) {
 		this.tokenizer = tokenizer;
@@ -71,6 +75,14 @@ public class Token implements IToken {
 	
 	public void setError(String errorMessage) {
 		this.errorMessage = errorMessage;
+	}
+	
+	public void setAstNode(ISimpleTerm astNode) {
+		this.astNode = astNode;
+	}
+	
+	public ISimpleTerm getAstNode() {
+		return astNode;
 	}
 	
 	@Override

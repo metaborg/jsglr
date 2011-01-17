@@ -18,7 +18,7 @@ public class FineGrainedOnRegion {
     }
    
     public void setInfoFGOnly(){
-        regionEndPosition=mySGLR.tokensSeen;
+        regionEndPosition=mySGLR.tokensSeen+5;
         acceptRecoveryPosition=regionEndPosition+10;
         int lastIndex=getHistory().getIndexLastLine();       
         for (int i = 0; i < lastIndex; i++) {

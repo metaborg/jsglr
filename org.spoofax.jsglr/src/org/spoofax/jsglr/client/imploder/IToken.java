@@ -58,6 +58,8 @@ public interface IToken extends Comparable<IToken> {
 	
 	int getColumn();
 	
+	int getLength();
+	
 	String getError();
 	
 	ISimpleTerm getAstNode();

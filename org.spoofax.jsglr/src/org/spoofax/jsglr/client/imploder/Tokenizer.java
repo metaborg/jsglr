@@ -84,6 +84,9 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 	
 	public IToken getTokenAtOffset(int offset) {
+		assert getTokenCount() < 2 || getTokenAt(getTokenCount() - 1).getEndOffset()
+			== getTokenAt(getTokenCount() - 2).getEndOffset()
+			: "Unordered tokens at end of tokenizer";
 		Token key = new Token(this, -1, -1, -1, offset, offset, TK_RESERVED);
 		int resultIndex = Collections.binarySearch(tokens, key);
 		return resultIndex == -1 ? null : getTokenAt(resultIndex);
@@ -203,94 +206,6 @@ public class Tokenizer extends AbstractTokenizer {
 				makeToken(endOffset, TK_ERROR, false);
 			}
 		}
-	}
-	
-	/**
-	 * Searches towards the left of the given token for the
-	 * leftmost layout or error token, returning the current token if
-	 * no layout token is found.
-	 */
-	public static IToken findLeftMostLayoutToken(IToken token) {
-		if (token == null) return null;
-		ITokenizer tokens = token.getTokenizer();
-	loop:
-		for (int i = token.getIndex() - 1; i >= 0; i--) {
-			IToken neighbour = tokens.getTokenAt(i);
-			switch (neighbour.getKind()) {
-				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: break;
-				default: break loop;
-			}
-			token = neighbour;
-		}
-		return token;
-	}
-	
-	/**
-	 * Searches towards the right of the given token for the
-	 * rightmost layout or error token, returning the current token if
-	 * no layout token is found.
-	 */
-	public static IToken findRightMostLayoutToken(IToken token) {
-		if (token == null) return null;
-		ITokenizer tokens = token.getTokenizer();
-	loop:
-		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
-			IToken neighbour = tokens.getTokenAt(i);
-			switch (neighbour.getKind()) {
-				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: break;
-				default: break loop;
-			}
-			token = neighbour;
-		}
-		return token;
-	}
-	
-	/**
-	 * Gets the token with an offset following the given token,
-	 * even in an ambiguous token stream.
-	 * 
-	 * @see #isAmbiguous()
-	 */
-	public static IToken getTokenAfter(IToken token) {
-		if (token == null) return null;
-		int nextOffset = token.getEndOffset();
-		ITokenizer tokens = token.getTokenizer();
-		for (int i = token.getIndex() + 1, max = tokens.getTokenCount(); i < max; i++) {
-			IToken result = tokens.getTokenAt(i);
-			if (result.getStartOffset() >= nextOffset) return result;
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the token with an offset preceding the given token,
-	 * even in an ambiguous token stream.
-	 * 
-	 * @see #isAmbiguous()
-	 */
-	public static IToken getTokenBefore(IToken token) {
-		if (token == null) return null;
-		int prevOffset = token.getStartOffset();
-		ITokenizer tokens = token.getTokenizer();
-		for (int i = token.getIndex() - 1; i >= 0; i--) {
-			IToken result = tokens.getTokenAt(i);
-			if (result.getEndOffset() <= prevOffset) return result;
-		}
-		return null;
-	}
-	
-	public static int getLength(IToken token) {
-		return token.getEndOffset() - token.getStartOffset() + 1;
-	}
-	
-	public String toString(IToken left, IToken right) {
-		int startOffset = left.getStartOffset();
-		int endOffset = right.getEndOffset();
-		return toString(startOffset, endOffset);
-	}
-
-	private String toString(int startOffset, int endOffset) {
-		return input.substring(startOffset, endOffset + 1);
 	}
 	
 	@Override

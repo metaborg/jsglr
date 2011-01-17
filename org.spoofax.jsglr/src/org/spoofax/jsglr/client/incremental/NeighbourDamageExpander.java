@@ -101,7 +101,7 @@ public class NeighbourDamageExpander {
 			}
 			
 			@Override
-			public boolean isDone() {
+			public boolean isDone(ISimpleTerm term) {
 				return done;
 			}
 		}.visit(oldTree);

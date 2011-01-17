@@ -10,6 +10,9 @@ public interface ITokenizer extends Iterable<IToken> {
 	public static final String ERROR_SKIPPED_REGION =
 		"Syntax error, unexpected construct(s)";
 	
+	public static final String ERROR_UNEXPECTED_EOF =
+		"Syntax error, unexpected end of input";
+	
 	public static final String ERROR_WATER_PREFIX =
 		"Syntax error, not expected here";
 	

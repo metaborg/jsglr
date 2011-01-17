@@ -61,6 +61,10 @@ public class Token implements IToken {
 		return column;
 	}
 	
+	public int getLength() {
+		return getEndOffset() - getStartOffset() + 1;
+	}
+	
 	public String getError() {
 		if (errorMessage == null) {
 			switch (getKind()) {
@@ -91,13 +95,13 @@ public class Token implements IToken {
 	}
 
 	public int compareTo(IToken arg0) {
-		int otherIndex = arg0.getIndex();
-		if (index < otherIndex) {
+		int otherOffset = arg0.getStartOffset();
+		if (endOffset < otherOffset) {
 			return -1;
-		} else if (index == otherIndex) {
-			return 0;
-		} else {
+		} else if (startOffset > otherOffset) {
 			return 1;
+		} else {
+			return 0;
 		}
 	}
 	

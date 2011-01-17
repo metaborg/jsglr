@@ -81,10 +81,6 @@ public class NullTokenizer extends AbstractTokenizer {
 			int endOffset, ProductionAttributeReader prodReader) {
 		// Do nothing
 	}
-	
-	public String toString(IToken left, IToken right) {
-		return "";
-	}
 
 	public Iterator<IToken> iterator() {
 		ArrayList<IToken> result = new ArrayList<IToken>(1);

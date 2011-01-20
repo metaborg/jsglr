@@ -53,20 +53,20 @@ public class RegionRecovery {
      *  Returns error fragment including the left margin (needed for bridge-parsing)
      */
     public String getErrorFragmentWithLeftMargin() {
-        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartLineErrorFragment().getTokensSeen());
-        return getHistory().getFragment(tokIndexLine, getEndPositionErrorFragment()-1);
+        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartLineErrorFragment().getTokensSeen(), myParser.currentInputStream);
+        return getHistory().getFragment(tokIndexLine, getEndPositionErrorFragment()-1, myParser.currentInputStream);
     }
     
     public String getErrorFragment() {
         int tokIndexLine=getStartPositionErrorFragment();//+erroneousRegion.getAdditionalTokens().length; 
-        return getHistory().getFragment(tokIndexLine, getEndPositionErrorFragment()-1);
+        return getHistory().getFragment(tokIndexLine, getEndPositionErrorFragment()-1, myParser.currentInputStream);
     }
     
     /**
      * Returns location where erroneous region starts, including left margin
      */
     public int getStartPositionErrorFragment_InclLeftMargin() {
-        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartLineErrorFragment().getTokensSeen());
+        int tokIndexLine=getHistory().getTokensSeenStartLine(getStartLineErrorFragment().getTokensSeen(), myParser.currentInputStream);
         return tokIndexLine;
     }
 
@@ -189,10 +189,11 @@ public class RegionRecovery {
         //System.out.println("%%%%%%%%%%% CONTINUE PARSING %%%%%%%%%%%");
         IndentationHandler indentHandler = new IndentationHandler();
         indentHandler.setInLeftMargin(false);
+        //System.out.println();
+        //System.out.println("-------------------------");
         while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS)) {//|| !getHistory().hasFinishedRecoverTokens() 
             getHistory().readRecoverToken(myParser,false); 
             indentHandler.updateIndentation(myParser.currentToken);           
-            //System.out.println((char)myParser.currentToken); 
             //System.out.print((char)myParser.currentToken);
             myParser.doParseStep();
             if(getHistory().getTokenIndex()>errorDetectionLocation && indentHandler.lineMarginEnded())
@@ -220,7 +221,7 @@ public class RegionRecovery {
     }
 
     private String getInputFragment(StructureSkipSuggestion aSkip) {
-        return getHistory().getFragment(aSkip.getStartSkip().getTokensSeen(), aSkip.getEndSkip().getTokensSeen()-1);
+        return getHistory().getFragment(aSkip.getStartSkip().getTokensSeen(), aSkip.getEndSkip().getTokensSeen()-1, myParser.currentInputStream);
     }
 
     private boolean successCriterion() {

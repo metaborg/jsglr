@@ -81,7 +81,7 @@ public class SGLR {
 
 	private int reductionCount;
 
-	private PushbackStringIterator currentInputStream;
+	protected PushbackStringIterator currentInputStream;
 
 	private PooledPathList reductionsPathCache = new PooledPathList(512, true);
 	private PathListPool pathCache = new PathListPool();
@@ -568,7 +568,9 @@ public class SGLR {
 		}
 
 		final PooledPathList paths = reductionsPathCache.start();
+		//System.out.println(paths.size());
 		st.findAllPaths(paths, prod.arity);
+		//System.out.println(paths.size());
 		logBeforeDoReductions(st, prod, paths.size());
 		reduceAllPaths(prod, paths);
 		logAfterDoReductions();

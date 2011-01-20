@@ -463,7 +463,7 @@ public class NewStructureSkipper {
 
     private String readLine(IndentInfo line) {
         int startTok = line.getTokensSeen();
-        String lineContent=getHistory().readLine(startTok);
+        String lineContent=getHistory().readLine(startTok, myParser.currentInputStream);
         return lineContent;
     }
 

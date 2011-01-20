@@ -53,12 +53,22 @@ public class RecoveryConnector {
     private void combinedRecover() {
         if(onlyFineGrained){
             mySGLR.getPerformanceMeasuring().startFG();
-            tryFineGrainedRepair();
+            if(tryFineGrainedRepair()){
+            	//System.out.println("FG-only Succeeded");
+            }
             mySGLR.getPerformanceMeasuring().endFG();
             return;
         }
         mySGLR.getPerformanceMeasuring().startCG();
         boolean skipSucceeded = skipRecovery.selectErroneousFragment(); //decides whether whitespace parse makes sense
+        /*
+        System.out.println();
+        System.out.println("------------------------------");
+        //System.out.print("SKIP-RESULT: "+skipSucceeded);
+        System.out.print(skipRecovery.getErrorFragment());
+        System.out.println();
+        System.out.println("------------------------------");
+        */
         mySGLR.getPerformanceMeasuring().endCG();
         mySGLR.acceptingStack=null;
         mySGLR.activeStacks.clear();
@@ -69,6 +79,7 @@ public class RecoveryConnector {
             boolean succeeded = tryBridgeRepair(errorFragment);
             mySGLR.getPerformanceMeasuring().endBP();
             if(succeeded){
+            	//System.out.println("BP-Succeeded");
                 return;
             }
         }
@@ -79,6 +90,7 @@ public class RecoveryConnector {
             mySGLR.getPerformanceMeasuring().endFG();
             if(FGSucceeded){ //FG succeeded  
                 addSkipOption(skipSucceeded);
+                //System.out.println("FG-Succeeded");
                 return;
             }
         }
@@ -87,7 +99,13 @@ public class RecoveryConnector {
             getHistory().deleteLinesFrom(skipRecovery.getStartIndexErrorFragment());//TODO: integrate with FG and BP
             getHistory().resetRecoveryIndentHandler(skipRecovery.getStartLineErrorFragment().getIndentValue());
             parseErrorFragmentAsWhiteSpace(false);
-            parseRemainingTokens(true);
+            boolean rsSucceeded=parseRemainingTokens(true);
+            /*
+            if(rsSucceeded)
+            	System.out.println("RS-Succeeded");
+            else
+            	System.err.println("RS failed unexpectedly");
+            */
         }
     }
 
@@ -176,24 +194,27 @@ public class RecoveryConnector {
     
     public boolean parseRemainingTokens(boolean keepHistory) {
         //System.out.println("------------- REMAINING CHARACTERS --------------- ");
-        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());        
-        while(!getHistory().hasFinishedRecoverTokens() && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
+        //System.out.println();
+        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
+        while(
+        		(!getHistory().hasFinishedRecoverTokens()) 
+        		&& mySGLR.activeStacks.size()>0 
+        		&& mySGLR.acceptingStack==null
+        )
+        {        
             getHistory().readRecoverToken(mySGLR, keepHistory);
             //System.out.print((char)mySGLR.currentToken);
+            //System.out.print("("+mySGLR.currentToken+")");
             mySGLR.doParseStep();            
         }  
         return recoverySucceeded();
     }
-
-    
     
     private void parseAsLayout() {
-        if(isLayoutCharacter((char)mySGLR.currentToken) || mySGLR.currentToken==SGLR.EOF)
-            mySGLR.doParseStep();
-        else{
+        if(!isLayoutCharacter((char)mySGLR.currentToken) && mySGLR.currentToken!=SGLR.EOF){
             mySGLR.currentToken=' ';
-            mySGLR.doParseStep();            
         }
+        mySGLR.doParseStep();
     }
     
     public static boolean isLayoutCharacter(char aChar) {

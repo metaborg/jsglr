@@ -2,6 +2,8 @@ package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
 
+import org.spoofax.PushbackStringIterator;
+
 public class ParserHistory {
     
     private final static int MAX_SIZE_NEW_LINE_POINTS = 150;
@@ -9,8 +11,7 @@ public class ParserHistory {
     private IndentationHandler indentHandler;
     private IndentationHandler recoveryIndentHandler;
     
-    private ArrayList<IndentInfo> newLinePoints;      
-    public char[] recoverTokenStream;
+    private ArrayList<IndentInfo> newLinePoints;
     private int recoverTokenCount;
     private int tokenIndex;
     
@@ -33,7 +34,6 @@ public class ParserHistory {
      
     public void clear(){
         newLinePoints.clear();
-        recoverTokenStream = new char[5000];
         recoverTokenCount = 0;
         tokenIndex=0;
         indentHandler = new IndentationHandler();
@@ -51,21 +51,20 @@ public class ParserHistory {
     public void readRecoverToken(SGLR myParser, boolean keepRecoveredLines) {  
         if (hasFinishedRecoverTokens()) {             
             if(myParser.currentToken!=SGLR.EOF){                
-                if(getIndexLastToken()>=0 && recoverTokenStream[getIndexLastToken()]!=SGLR.EOF){
+                if(getIndexLastToken()>=0){
                     myParser.readNextToken();
                     indentHandler.updateIndentation(myParser.currentToken);
-                    keepToken((char)myParser.currentToken);   
+                    recoverTokenCount++;   
                     if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
                         keepNewLinePoint(myParser, myParser.tokensSeen-1, true, indentHandler);
                 }
             }
         }
-        else if(tokenIndex<0 || tokenIndex>recoverTokenCount){
-            myParser.currentToken =SGLR.EOF;
-            System.err.println("Unexpected token index"+tokenIndex);
-        }
         else{
-            myParser.currentToken = recoverTokenStream[tokenIndex];
+            myParser.currentToken = readCharAt(tokenIndex, myParser.currentInputStream);
+            if(myParser.currentToken == -1) {
+            	myParser.currentToken=SGLR.EOF;
+    		}
             if(keepRecoveredLines){
                 recoveryIndentHandler.updateIndentation(myParser.currentToken);
                 if(recoveryIndentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
@@ -80,17 +79,22 @@ public class ParserHistory {
         return tokenIndex >= recoverTokenCount;
     }
     
-    public int getTokensSeenStartLine(int tokPosition){
+    public int getTokensSeenStartLine(int tokPosition, PushbackStringIterator chars){
         int tokIndexLine=tokPosition;
-        while (recoverTokenStream[tokIndexLine] != '\n' && tokIndexLine>0) {
+        while (readCharAt(tokIndexLine, chars) != '\n' && tokIndexLine>0) {
             tokIndexLine-=1;
         }
         return tokIndexLine;
     }
+    
+    private int readCharAt(int offset, PushbackStringIterator chars){
+    	chars.setOffset(offset);
+        return chars.read();
+    }
 
     public void keepTokenAndState(SGLR myParser) {
         indentHandler.updateIndentation(myParser.currentToken);
-        keepToken((char)myParser.currentToken);
+        recoverTokenCount++;
         tokenIndex++;
         if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
             keepNewLinePoint(myParser, myParser.tokensSeen-1, false, indentHandler);
@@ -100,17 +104,6 @@ public class ParserHistory {
         IndentInfo newLinePoint= new IndentInfo(0, 0, 0);
         newLinePoint.fillStackNodes(myParser.activeStacks);
         newLinePoints.add(newLinePoint);
-    }
-
-    private void keepToken(char currentToken) {
-        if(getIndexLastToken()>0 && recoverTokenStream[getIndexLastToken()]==SGLR.EOF)
-            return;
-        recoverTokenStream[recoverTokenCount++] = currentToken;         
-        if (recoverTokenCount == recoverTokenStream.length) {
-            char[] copy = recoverTokenStream;
-            recoverTokenStream = new char[recoverTokenStream.length * 2];
-            System.arraycopy(copy, 0, recoverTokenStream, 0, copy.length);
-        }
     }
     
     private void keepNewLinePoint(SGLR myParser, int tokSeen ,boolean inRecoverMode, IndentationHandler anIndentHandler) {
@@ -133,39 +126,23 @@ public class ParserHistory {
         newLinePoints = shrinkedList;
     }
 
-    public String getFragment(int startTok, int endTok) {
+    public String getFragment(int startTok, int endTok, PushbackStringIterator chars) {
         String fragment="";
         for (int i = startTok; i <= endTok; i++) {
             if(i >= recoverTokenCount)
                 break;
-            fragment+= recoverTokenStream[i];
+            fragment+= (char)readCharAt(i, chars);
         }        
         return fragment;
     }
     
-    public String getFragment(StructureSkipSuggestion skip) {
-        if(skip.getEndSkip().getTokensSeen() < skip.getStartSkip().getTokensSeen()){
-            System.err.println("Startskip > endskip");
-            //System.err.println(getFragment(skip.getEndSkip().getTokensSeen(), skip.getEndSkip().getTokensSeen()));
-            return "--Wrong Fragment --";
-        }
-        String fragment="";
-        for (int i = skip.getStartSkip().getTokensSeen(); i <= skip.getEndSkip().getTokensSeen()-1; i++) {
-            if(i >= recoverTokenCount)
-                break;
-            fragment+= recoverTokenStream[i];
-        }  
-        String correctedFragment=fragment.substring(skip.getAdditionalTokens().length);
-        return correctedFragment;
-    }
-    
-    public String readLine(int StartTok) {
+    public String readLine(int StartTok, PushbackStringIterator chars) {
         String fragment="";
         int pos=StartTok;
-        char currentTok=' ';
+        int currentTok=' ';
         while(currentTok!='\n' && currentTok!=SGLR.EOF && pos<recoverTokenCount) {            
-            currentTok=recoverTokenStream[pos];
-            fragment+= currentTok;
+            currentTok=readCharAt(pos, chars);
+            fragment+= (char)currentTok;
             pos++;
         }        
         return fragment;
@@ -220,6 +197,7 @@ public class ParserHistory {
         }
     }
     
+    /*
     public void logHistory(){       
        for (int i = 0; i < newLinePoints.size()-1; i++) {
            IndentInfo currLine=newLinePoints.get(i);
@@ -233,7 +211,7 @@ public class ParserHistory {
        IndentInfo currLine=newLinePoints.get(newLinePoints.size()-1);
        System.out.print("("+(newLinePoints.size()-1)+")"+"["+currLine.getIndentValue()+"]"+getFragment(currLine.getTokensSeen(), getIndexLastToken()-1));
 
-    }
+    }*/
 
     public int getLineOfTokenPosition(int tokPos) {        
         for (int i = 1; i < newLinePoints.size(); i++) {

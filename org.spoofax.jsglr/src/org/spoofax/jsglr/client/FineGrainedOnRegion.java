@@ -102,13 +102,14 @@ public class FineGrainedOnRegion {
     }
 
     private ArrayList<RecoverNode> recoverParse(ArrayList<RecoverNode> candidates, int endRecoverSearchPos, boolean keepHistory) {
-       // System.out.println("RECOVER PARSE");
+        //System.out.println("RECOVER PARSE");
         ArrayList<RecoverNode> newCandidates=new ArrayList<RecoverNode>();
         boolean firstRound=false;//true;
         while(getHistory().getTokenIndex()<=acceptRecoveryPosition && mySGLR.acceptingStack==null){
             int curTokIndex=getHistory().getTokenIndex();
             addCurrentCandidates(candidates, curTokIndex);
             getHistory().readRecoverToken(mySGLR, keepHistory);
+            //System.out.print((char)mySGLR.currentToken);
             mySGLR.doParseStep();
             //char logToken=(char)mySGLR.currentToken;
             //if(logToken==' '){logToken='^';}

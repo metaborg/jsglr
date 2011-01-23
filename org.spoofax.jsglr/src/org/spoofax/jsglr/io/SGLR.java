@@ -82,13 +82,13 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 	public final Object parse(InputStream fis)
 			throws BadTokenException, TokenExpectedException, ParseException,
 			SGLRException, SGLRException, IOException {
-		return parse(fis, null);
+		return parse(fis, null, null);
 	}
 
 	public final Object parse(InputStream fis, String filename)
 			throws BadTokenException, TokenExpectedException, ParseException,
 			SGLRException, SGLRException, IOException {
-		return parse(fis, null);
+		return parse(fis, null, null);
 	}
 
 	public Object parse(InputStream fis, String filename, String startSymbol)

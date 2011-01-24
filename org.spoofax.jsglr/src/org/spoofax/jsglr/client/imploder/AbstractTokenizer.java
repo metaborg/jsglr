@@ -37,6 +37,8 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				return;
 			}
 			
+			// TODO: make TK_ERROR_LAYOUT token from ye first whitespaces
+			
 			IToken token = currentToken() != prevToken
 				? currentToken()
 				: makeToken(endOffset, TK_ERROR, false);

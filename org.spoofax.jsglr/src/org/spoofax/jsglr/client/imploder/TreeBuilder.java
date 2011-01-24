@@ -88,7 +88,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		if (initializeFactories) {
 			factory = new TermTreeFactory(termFactory);
 		}
-		assert !(factory instanceof TermTreeFactory) || ((TermTreeFactory) factory).getOriginalTermFactory() == table.getFactory(); 
+		// assert !(factory instanceof TermTreeFactory) || ((TermTreeFactory) factory).getOriginalTermFactory() == table.getFactory()
+		// 	: "ITermFactory of ITreeFactory does not correspond to ITermFactory of ParseTable"; 
 		assert !(tokenizer instanceof Tokenizer) || ((Tokenizer) tokenizer).getKeywordRecognizer() == table.getKeywordRecognizer(); 
 		this.prodReader = new ProductionAttributeReader(termFactory);
 		this.labels = new LabelInfo[labelCount - labelStart];

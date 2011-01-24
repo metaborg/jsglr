@@ -40,9 +40,11 @@ public interface ITokenizer extends Iterable<IToken> {
 	
 	int getEndLine();
 
-	IToken getTokenAt(int i);
+	IToken getTokenAt(int index);
 
-	IToken getTokenAtOffset(int o);
+	IToken getTokenAtOffset(int offset);
+	
+	int getLineAtOffset(int offset);
 
 	IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken);
 
@@ -70,6 +72,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	void tryMarkSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader);
 
 	String toString(IToken left, IToken right);
+
+	String toString(int startOffset, int endOffset);
 
 	String getFilename();
 	

@@ -1,5 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
@@ -7,6 +10,8 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
 public class Token implements IToken {
+	
+	private static Map<String, Integer> asyncAllTokenKinds;
 
 	private final ITokenizer tokenizer;
 	
@@ -57,8 +62,16 @@ public class Token implements IToken {
 		return line;
 	}
 	
+	public int getEndLine() {
+		return line; // our tokens span only one line
+	}
+	
 	public int getColumn() {
 		return column;
+	}
+	
+	public int getEndColumn() {
+		return column + getEndOffset() - getStartOffset();
 	}
 	
 	public int getLength() {
@@ -68,8 +81,8 @@ public class Token implements IToken {
 	public String getError() {
 		if (errorMessage == null) {
 			switch (getKind()) {
-				case TK_ERROR_EOF_UNEXPECTED: return "Unexpected end of file";
-				case TK_ERROR: case TK_ERROR_KEYWORD: return "Syntax error";
+				case TK_ERROR_EOF_UNEXPECTED: return ITokenizer.ERROR_UNEXPECTED_EOF;
+				case TK_ERROR: case TK_ERROR_KEYWORD: return ITokenizer.ERROR_GENERIC_PREFIX;
 				default: return null;
 			}
 		} else {
@@ -124,8 +137,36 @@ public class Token implements IToken {
 	}
 
 	public static String tokenKindToString(int kind) {
-		// TODO: proper token kind to string?
 		return "tokenKind#" + kind;
+	}
+
+	public static int valueOf(String tokenKind) {
+		Integer result = getTokenKindMap().get(tokenKind);
+		return result == null ? TK_NO_TOKEN_KIND : result;
+	}
+	
+	private static Map<String, Integer> getTokenKindMap() {
+		synchronized (Token.class) {
+			if (asyncAllTokenKinds != null)
+				return asyncAllTokenKinds;
+			asyncAllTokenKinds = new HashMap<String, Integer>();
+			asyncAllTokenKinds.put("TK_UNKNOWN", TK_UNKNOWN);
+			asyncAllTokenKinds.put("TK_IDENTIFIER", TK_IDENTIFIER);
+			asyncAllTokenKinds.put("TK_NUMBER", TK_NUMBER);
+			asyncAllTokenKinds.put("TK_STRING", TK_STRING);
+			asyncAllTokenKinds.put("TK_KEYWORD", TK_KEYWORD);
+			asyncAllTokenKinds.put("TK_OPERATOR", TK_OPERATOR);
+			asyncAllTokenKinds.put("TK_VAR", TK_VAR);
+			asyncAllTokenKinds.put("TK_LAYOUT", TK_LAYOUT);
+			asyncAllTokenKinds.put("TK_EOF", TK_EOF);
+			asyncAllTokenKinds.put("TK_ERROR", TK_ERROR);
+			asyncAllTokenKinds.put("TK_ERROR_KEYWORD", TK_ERROR_KEYWORD);
+			asyncAllTokenKinds.put("TK_ERROR_EOF_UNEXPECTED", TK_ERROR_EOF_UNEXPECTED);
+			asyncAllTokenKinds.put("TK_ERROR_LAYOUT", TK_ERROR_LAYOUT);
+			asyncAllTokenKinds.put("TK_RESERVED", TK_RESERVED);
+			asyncAllTokenKinds.put("TK_NO_TOKEN_KIND", TK_NO_TOKEN_KIND);
+			return asyncAllTokenKinds;
+		}
 	}
 
 }

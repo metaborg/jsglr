@@ -9,6 +9,7 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
 import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
 import static org.spoofax.terms.AbstractTermFactory.EMPTY;
 import static org.spoofax.terms.StrategoListIterator.iterable;
 import static org.spoofax.terms.Term.isTermAppl;
@@ -210,10 +211,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 	protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken, boolean isListOrTuple) {
 		assert isListOrTuple
 			== (term.getTermType() == TUPLE || term.getTermType() == LIST);
-		if (enableTokens) {
-			term.putAttachment(isListOrTuple ?
-			  new ListImploderAttachment(sort, leftToken, rightToken)
-			: new ImploderAttachment(sort, leftToken, rightToken));
-		}
+		if (enableTokens)
+			putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken);
 	}
 }

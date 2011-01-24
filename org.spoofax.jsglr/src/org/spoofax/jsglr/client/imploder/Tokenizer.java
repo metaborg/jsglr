@@ -67,6 +67,9 @@ public class Tokenizer extends AbstractTokenizer {
 	public void setStartOffset(int startOffset) {
 		assert isAmbigous();
 		this.startOffset = startOffset;
+		IToken lastToken = getTokenAtOffset(startOffset);
+		this.offsetAtLineStart = lastToken.getStartOffset() - lastToken.getColumn();
+		this.line = lastToken.getLine();
 	}
 
 	public IToken currentToken() {

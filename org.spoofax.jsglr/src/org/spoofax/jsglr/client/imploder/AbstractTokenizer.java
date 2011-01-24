@@ -25,31 +25,41 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public void setAmbiguous(boolean isAmbiguous) {
 		this.isAmbiguous = isAmbiguous;
 	}
+	
+	public int getLineAtOffset(int offset) {
+		return getTokenAtOffset(offset).getLine();
+	}
 
-	public void tryMarkSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader) {
+	public void tryMarkSyntaxError(LabelInfo label, IToken prevToken, int endOffset, ProductionAttributeReader prodReader) {
 		if (label.isRecover() || label.isReject() || label.getDeprecationMessage() != null) {
-			if (firstToken == currentToken())
-				firstToken = makeToken(endOffset, TK_ERROR, false);
+			if (prodReader.isIgnoredUnspecifiedRecoverySort(label.getSort())) {
+				// Special case: don't report here, but further up the tree
+				return;
+			}
+			
+			IToken token = currentToken() != prevToken
+				? currentToken()
+				: makeToken(endOffset, TK_ERROR, false);
 			IToken lastToken = currentToken();
-			String tokenText = toString(firstToken, lastToken);
+			String tokenText = toString(token, lastToken);
 			if (tokenText.length() > 40)
 				tokenText = tokenText.substring(0, 40) + "...";
 			
 			if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
-				setErrorMessage(firstToken, lastToken, ERROR_WATER_PREFIX
+				setErrorMessage(token, lastToken, ERROR_WATER_PREFIX
 						+ ": '" + tokenText + "'");
 			} else if (prodReader.isInsertEndConstructor(label.getConstructor())) {
-				setErrorMessage(firstToken, lastToken, ERROR_INSERT_END_PREFIX
-						+ ": '" + tokenText + "'");
+				setErrorMessage(token, lastToken, ERROR_INSERT_END_PREFIX
+						/*+ ": '" + tokenText + "'"*/);
 			} else if (prodReader.isInsertConstructor(label.getConstructor())) {
-				firstToken = Tokenizer.findLeftMostLayoutToken(firstToken);
-				setErrorMessage(firstToken, lastToken, ERROR_INSERT_PREFIX
+				token = Tokenizer.findLeftMostLayoutToken(token);
+				setErrorMessage(token, lastToken, ERROR_INSERT_PREFIX
 						+ ": " + prodReader.getSyntaxErrorExpectedInsertion(label.getRHS()));
 			} else if (label.getDeprecationMessage() != null) {
-				setErrorMessage(firstToken, lastToken, ERROR_WARNING_PREFIX
+				setErrorMessage(token, lastToken, ERROR_WARNING_PREFIX
 						+ ": '" + label.getDeprecationMessage());
-			} else if (!prodReader.isIgnoredUnspecifiedRecoverySort(label.getSort())) {
-				setErrorMessage(firstToken, lastToken, ERROR_GENERIC_PREFIX
+			} else {
+				setErrorMessage(token, lastToken, ERROR_GENERIC_PREFIX
 						+ ": '" + tokenText + "'");
 			}
 		}
@@ -65,7 +75,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		return toString(startOffset, endOffset);
 	}
 
-	protected String toString(int startOffset, int endOffset) {
+	public String toString(int startOffset, int endOffset) {
 		return getInput().substring(startOffset, endOffset + 1);
 	}
 	

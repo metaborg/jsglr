@@ -63,7 +63,7 @@ public class LabelInfo {
 		isLayout = reader.isLayout(rhs);
 		isLiteral = reader.isLiteral(rhs);
 		isOptional = reader.isOptional(rhs);
-		isRecover = reader.isRecoverProduction(attrs);
+		isRecover = reader.isRecoverProduction(attrs, constructor);
 		isReject = reader.isRejectProduction(attrs);
 		deprecationMessage = reader.getDeprecationMessage(attrs);
 		isSortProduction = reader.sortFun == rhs.getConstructor() || reader.parameterizedSortFun == rhs.getConstructor();

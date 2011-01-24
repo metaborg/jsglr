@@ -123,9 +123,11 @@ public class ProductionAttributeReader {
 	/**
 	 * Tests if a production sort is one of the special
 	 * sorts that should be ignored if no constructor is specified.
+	 * (These recoveries are reported higher up in the tree.)
 	 */
 	public boolean isIgnoredUnspecifiedRecoverySort(String sort) {
-		return sort.startsWith("WATER");
+		// TODO: be more specific: WATERSTART, ...?
+		return sort != null && sort.startsWith("WATER");
 	}
 	
 	public boolean isInsertEndConstructor(String constructor) {
@@ -136,8 +138,8 @@ public class ProductionAttributeReader {
 		return INSERT.equals(constructor);
 	}
 	
-	public boolean isRecoverProduction(IStrategoAppl attrs) {
-		return getAttribute(attrs, "recover") != null;
+	public boolean isRecoverProduction(IStrategoAppl attrs, String constructor) {
+		return getAttribute(attrs, "recover") != null || isWaterConstructor(constructor);
 	}
 	
 	public boolean isRejectProduction(IStrategoAppl attrs) {

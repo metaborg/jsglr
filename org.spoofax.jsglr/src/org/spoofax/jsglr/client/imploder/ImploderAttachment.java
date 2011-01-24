@@ -2,13 +2,19 @@ package org.spoofax.jsglr.client.imploder;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
+import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
 /** 
+ * A term attachment for an imploded term,
+ * with some information from the parser.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class ImploderAttachment extends AbstractTermAttachment {
 	
+	private static final long serialVersionUID = -578795745164445689L;
+
 	public static final TermAttachmentType<ImploderAttachment> TYPE =
 		TermAttachmentType.create(ImploderAttachment.class);
 	
@@ -16,7 +22,12 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	private final String sort;
 	
-	public ImploderAttachment(String sort, IToken leftToken, IToken rightToken) {
+	/**
+	 * Creates a new imploder attachment.
+	 * 
+	 * Note that attachment instances should not be shared.
+	 */
+	protected ImploderAttachment(String sort, IToken leftToken, IToken rightToken) {
 		this.sort = sort;
 		this.leftToken = leftToken;
 		this.rightToken = rightToken;
@@ -54,12 +65,24 @@ public class ImploderAttachment extends AbstractTermAttachment {
 
 	public static IToken getLeftToken(ISimpleTerm term) {
 		ImploderAttachment attachment = term.getAttachment(TYPE);
-		return attachment == null ? null : attachment.getLeftToken();
+		if (attachment == null) {
+			assert !hasImploderOrigin(term)
+				: "Likely error: called getLeftToken() on term with imploder origin, instead of the origin itself";
+			return null;
+		} else {
+			return attachment.getLeftToken();
+		}
 	}
 
 	public static IToken getRightToken(ISimpleTerm term) {
 		ImploderAttachment attachment = term.getAttachment(TYPE);
-		return attachment == null ? null : attachment.getRightToken();
+		if (attachment == null) {
+			assert !hasImploderOrigin(term)
+				: "Likely error: called getRightToken() on term with imploder origin, instead of the origin itself";
+			return null;
+		} else {
+			return attachment.getRightToken();
+		}
 	}
 
 	public static String getSort(ISimpleTerm term) {
@@ -86,6 +109,18 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	public static ITokenizer getTokenizer(ISimpleTerm term) {
 		IToken token = getLeftToken(term);
 		return token == null ? null : token.getTokenizer();
+	}
+	
+	public static boolean hasImploderOrigin(ISimpleTerm term) {
+		ISimpleTerm origin = OriginAttachment.getOrigin(term);
+		if (origin != null) term = origin;
+		return term.getAttachment(TYPE) != null;
+	}
+	
+	public static void putImploderAttachment(ISimpleTerm term, boolean isAnonymousSequence, String sort, IToken leftToken, IToken rightToken) {
+		term.putAttachment(isAnonymousSequence ?
+				  new ListImploderAttachment(sort, leftToken, rightToken)
+				: new ImploderAttachment(sort, leftToken, rightToken));
 	}
 	
 	@Override

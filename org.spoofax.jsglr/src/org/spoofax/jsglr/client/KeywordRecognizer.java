@@ -40,7 +40,7 @@ public class KeywordRecognizer {
 	}
 	
 	public boolean isKeyword(String literal) {
-		return keywords.contains(literal);
+		return keywords.contains(literal.trim());
 	}
 	
 	/**

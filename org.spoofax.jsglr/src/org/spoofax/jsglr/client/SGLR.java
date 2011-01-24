@@ -161,8 +161,10 @@ public class SGLR {
 	}
 
 	/**
-	 * Structure-based recovery without bridge parsing.
+	 * Enables errorr recovery based on region recovery and, if available, recovery rules.
+	 * Does not enable bridge parsing.
 	 *
+	 * @see ParseTable#hasRecovers()   Determines if the parse table supports recovery rules
 	 */
 	public final void setUseStructureRecovery(boolean useRecovery) {
 		setUseStructureRecovery(useRecovery, null);

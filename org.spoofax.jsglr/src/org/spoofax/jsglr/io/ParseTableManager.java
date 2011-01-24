@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
@@ -26,6 +25,7 @@ import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.io.binary.TermReader;
 
 public class ParseTableManager {
     
@@ -117,8 +117,7 @@ public class ParseTableManager {
         }
 
         // TODO: optimize - load table directly from stream
-        String tableString = FileTools.loadFileAsString(new InputStreamReader(stream));
-        return initializeParseTable(factory, factory.parseFromString(tableString));
+        return initializeParseTable(factory, new TermReader(factory).parseFromStream(stream));
     }
 
 	private ParseTable initializeParseTable(ITermFactory factory, IStrategoTerm pt) throws InvalidParseTableException {

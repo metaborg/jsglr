@@ -39,10 +39,17 @@ public interface IToken extends Comparable<IToken> {
 	/** Token kind for an erroneous keyword token. */
 	public static final int TK_ERROR_KEYWORD = 10;
 	
-	/** Token kind for an erroneous token. */
-	public static final int TK_ERROR_EOF_UNEXPECTED = 11;
+	/** Token kind for an whitespace near an erroneous token. */
+	public static final int TK_ERROR_LAYOUT = 11;
 	
-	public static final int TK_RESERVED = 12;
+	/** Token kind for an erroneous token. */
+	public static final int TK_ERROR_EOF_UNEXPECTED = 12;
+	
+	/** A reserved token kind for internal use only. */
+	public static final int TK_RESERVED = 13;
+	
+	/** A special value indicating no token kind is specified or desired. */
+	public static final int TK_NO_TOKEN_KIND = 14;
 	
 	int getKind();
 	
@@ -56,7 +63,11 @@ public interface IToken extends Comparable<IToken> {
 
 	int getLine();
 	
+	int getEndLine();
+	
 	int getColumn();
+
+	int getEndColumn();
 	
 	int getLength();
 	

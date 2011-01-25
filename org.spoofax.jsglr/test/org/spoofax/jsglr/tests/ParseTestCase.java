@@ -29,6 +29,7 @@ import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
 import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -94,7 +95,7 @@ public abstract class ParseTestCase extends TestCase {
 		}
 	}
 
-	private IStrategoTerm tryReadTermFromFile(String fn) {
+	private IStrategoTerm tryReadTermFromFile(String fn) throws ParseError {
 		try {
 			return new TermReader(pf).parseFromFile(fn);
 		} catch (IOException e) {

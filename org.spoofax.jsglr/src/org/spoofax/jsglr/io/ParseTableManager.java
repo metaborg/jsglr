@@ -24,6 +24,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -107,7 +108,7 @@ public class ParseTableManager {
     	return System.getProperty("user.home") + "/.jsglr/cache/" + String.format("%x", filename.hashCode());
 	}
 
-	public ParseTable loadFromStream(InputStream stream) throws IOException, InvalidParseTableException {
+	public ParseTable loadFromStream(InputStream stream) throws IOException, InvalidParseTableException, ParseError {
         if(SGLR.isDebugging()) {
             Tools.debug("loadFromStream()");
         }

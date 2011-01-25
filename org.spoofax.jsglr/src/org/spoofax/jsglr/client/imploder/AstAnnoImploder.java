@@ -22,6 +22,7 @@ import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.NotImplementedException;
+import org.spoofax.terms.ParseError;
 
 /**
  * Implodes {ast} annotations in asfix trees.
@@ -49,7 +50,7 @@ public class AstAnnoImploder<TNode> {
 		this.rightToken = rightToken;
 	}
 	
-	public TNode implode(IStrategoTerm ast, String sort) {
+	public TNode implode(IStrategoTerm ast, String sort) throws ParseError {
 		// Placeholder terms are represented as strings; must parse them and fill in their arguments
 		String astString = ast.toString();
 		if (astString.startsWith("\"") && astString.endsWith("\"")) {

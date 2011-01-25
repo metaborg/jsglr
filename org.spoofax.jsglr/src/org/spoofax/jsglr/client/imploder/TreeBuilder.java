@@ -205,7 +205,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			result = tryCreateStringTerminal(label);
 		} else if (inLexicalContext) {
 			tokenizer.tryMakeLayoutToken(offset - 1, lastOffset - 1, label);
-			result = null; // don't create tokens inside lexical context; just create one big token at the top
+			result = null; // don't create nodes inside lexical context; just create one big token at the top
 		} else if (isList) {
 			result = children;
 		} else {

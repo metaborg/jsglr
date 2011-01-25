@@ -10,23 +10,10 @@ import java.util.Iterator;
 public class NullTokenizer extends AbstractTokenizer {
 	
 	private final IToken onlyToken;
-
-	private final String filename;
-	
-	private final String input;
 	
 	public NullTokenizer(String filename, String input) {
-		this.filename = filename;
-		this.input = input;
+		super(filename, input);
 		onlyToken = new Token(this, 0, 0, 0, 0, input == null ? 0 : input.length() - 1, IToken.TK_UNKNOWN);
-	}
-	
-	public String getFilename() {
-		return filename;
-	}
-
-	public String getInput() {
-		return input;
 	}
 
 	public int getStartOffset() {

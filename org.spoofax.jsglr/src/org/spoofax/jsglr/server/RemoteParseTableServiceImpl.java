@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.shared.RemoteParseTableService;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -15,7 +16,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 @SuppressWarnings("serial")
 public class RemoteParseTableServiceImpl extends RemoteServiceServlet implements RemoteParseTableService {
 
-	public IStrategoTerm fetchParseTable(String resourceName) {
+	public IStrategoTerm fetchParseTable(String resourceName) throws ParseError {
 		final TermFactory f = new TermFactory();
 		try {
 			final InputStream is = new FileInputStream(resourceName);

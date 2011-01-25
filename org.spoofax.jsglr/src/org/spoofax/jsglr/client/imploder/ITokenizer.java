@@ -49,6 +49,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken);
 
 	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
+	
+	IToken getOrMakeErrorToken(int offset);
 
 	void setErrorMessage(IToken leftToken, IToken rightToken, String message);
 	

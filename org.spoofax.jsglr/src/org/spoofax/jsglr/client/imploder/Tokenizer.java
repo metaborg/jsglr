@@ -21,10 +21,6 @@ public class Tokenizer extends AbstractTokenizer {
 	private static final double EXPECTED_TOKENS_DIVIDER = 1.3;
 	
 	private final KeywordRecognizer keywords;
-	
-	private final String filename;
-	
-	private final String input;
 
 	private final ArrayList<Token> tokens;
 	
@@ -41,23 +37,14 @@ public class Tokenizer extends AbstractTokenizer {
 	 * file name (if applicable) and contents.
 	 */
 	public Tokenizer(KeywordRecognizer keywords, String filename, String input) {
+		super(filename, input);
 		this.keywords = keywords;
-		this.filename = filename;
-		this.input = input;
 		this.tokens = new ArrayList<Token>((int) (input.length() / EXPECTED_TOKENS_DIVIDER));
 		startOffset = 0;
 		line = 0;
 		offsetAtLineStart = 0;
 		// Ensure there's at least one token
 		tokens.add(new Token(this, 0, line, 0, 0, -1, TK_RESERVED));
-	}
-	
-	public final String getInput() {
-		return input;
-	}
-	
-	public String getFilename() {
-		return filename;
 	}
 	
 	public final int getStartOffset() {
@@ -100,6 +87,7 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 		
 	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken, String errorMessage) {
+		String input = getInput();
 		assert endOffset <= input.length();
 		if (!allowEmptyToken && startOffset > endOffset) // empty token
 			return null;
@@ -148,7 +136,7 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	public void tryMakeSkippedRegionToken(int offset) {
-		char inputChar = input.charAt(offset);
+		char inputChar = getInput().charAt(offset);
 		
 		boolean isInputKeywordChar = KeywordRecognizer.isPotentialKeywordChar(inputChar);
 		if (isAtPotentialKeywordEnd(offset, isInputKeywordChar)) {
@@ -169,7 +157,7 @@ public class Tokenizer extends AbstractTokenizer {
 
 	private boolean isAtPotentialKeywordEnd(int offset, boolean isInputKeywordChar) {
 		if (offset >= 1 && offset > startOffset) {
-			char prevChar = input.charAt(offset - 1);
+			char prevChar = getInput().charAt(offset - 1);
 			return 	(isInputKeywordChar && !isKeywordChar(prevChar))
 					|| (!isInputKeywordChar && isKeywordChar(prevChar));
 		}
@@ -177,8 +165,8 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	private boolean isAtPotentialKeywordStart(int offset, boolean isInputKeywordChar) {
-		if (offset + 1 < input.length()) {
-			char nextChar = input.charAt(offset + 1);
+		if (offset + 1 < getInput().length()) {
+			char nextChar = getInput().charAt(offset + 1);
 			if ((isInputKeywordChar && !isKeywordChar(nextChar))
 					|| (!isInputKeywordChar && isKeywordChar(nextChar))) {
 				return true;
@@ -213,6 +201,7 @@ public class Tokenizer extends AbstractTokenizer {
 	
 	@Override
 	public String toString() {
+		String input = getInput();
 		StringBuilder result = new StringBuilder();
 		result.append('[');
 		for (IToken token : tokens) {

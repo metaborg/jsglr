@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ParseError;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.terms.ParseError;
 
 /**
  * @author Karl Trygve Kalleberg <karltk near strategoxt.org>

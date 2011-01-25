@@ -1,8 +1,11 @@
 package org.spoofax.jsglr.client.imploder;
 
+import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
+
+import org.spoofax.NotImplementedException;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -14,6 +17,25 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	
 	private boolean isAmbiguous;
 
+	private final String filename;
+	
+	private final String input;
+	
+	private int[] lineStartOffsets;
+
+	public AbstractTokenizer(String filename, String input) {
+		this.input = input;
+		this.filename = filename;
+	}
+	
+	public String getFilename() {
+		return filename;
+	}
+
+	public String getInput() {
+		return input;
+	}
+ 	
 	public IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken) {
 		return makeToken(endOffset, manager.getTokenKind(label), allowEmptyToken);
 	}
@@ -177,5 +199,84 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			if (result.getEndOffset() <= prevOffset) return result;
 		}
 		return null;
+	}
+	
+	public IToken getOrMakeErrorToken(int offset) {
+		if (offset < getStartOffset()) {
+			return findReportableErrorToken(getTokenAt(offset));
+		} else {
+			return makeErrorAdjunct(offset);
+		}
+	}
+	
+	private IToken makeErrorAdjunct(int offset) {
+		if (offset == getInput().length())
+		    return makeErrorAdjunctBackwards(offset - 1);
+		if (offset > getInput().length())
+			return makeErrorAdjunctBackwards(getInput().length() - 1);
+
+		int endOffset = offset;
+		String input = getInput();
+		boolean onlySeenWhitespace = Character.isWhitespace(input.charAt(endOffset));
+		
+		while (endOffset + 1 < getInput().length()) {
+			char next = input.charAt(endOffset+1);
+			
+			if (onlySeenWhitespace) {
+				onlySeenWhitespace = Character.isWhitespace(next);
+				offset++;
+			} else if (!Character.isLetterOrDigit(next)) {
+				break;
+			}
+			
+			endOffset++;
+		}
+		
+		return makeAdjunct(offset, endOffset, TK_ERROR);
+	}
+	
+	private IToken makeErrorAdjunctBackwards(int offset) {
+		int beginOffset = offset;
+		boolean onlySeenWhitespace = true;
+		
+		while (offset >= getInput().length())
+			offset--;
+		
+		String input = getInput();
+		while (beginOffset > 0) {
+			char c = input.charAt(beginOffset - 1);
+			boolean isWhitespace = Character.isWhitespace(c);
+			
+			if (onlySeenWhitespace) {
+				onlySeenWhitespace = isWhitespace;
+			} else if (isWhitespace) {
+				break;
+			}
+			
+			beginOffset--;
+		}
+		
+		return makeAdjunct(beginOffset, offset, TK_ERROR);
+	}
+
+	private IToken makeAdjunct(int beginOffset, int endOffset, int tokenKind) {
+		throw new NotImplementedException();
+	}
+
+	private static IToken findReportableErrorToken(IToken token) {
+		ITokenizer tokenizer = token.getTokenizer();
+		// Search right
+		for (int i = token.getIndex(), max = tokenizer.getTokenCount(); i < max; i++) {
+			token = tokenizer.getTokenAt(i);
+			if (token.getKind() == TK_EOF) break;
+			if (token.getLength() != 0 && token.getKind() != TK_LAYOUT) return token;
+		}
+		// Search left
+		for (int i = token.getIndex(); i > 0; i--) {
+			token = tokenizer.getTokenAt(i);
+			if (token.getLength() != 0 && token.getKind() != TK_LAYOUT) return token;
+		}
+		// Give up
+		return token;
 	}
 }

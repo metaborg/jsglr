@@ -3,7 +3,7 @@ package org.spoofax.jsglr.client.imploder;
 import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
+import static org.spoofax.jsglr.client.imploder.IToken.*;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
 
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ public class Tokenizer extends AbstractTokenizer {
 	 * Creates a new tokenizer for the given
 	 * file name (if applicable) and contents.
 	 */
-	public Tokenizer(KeywordRecognizer keywords, String filename, String input) {
-		super(filename, input);
+	public Tokenizer(String input, String filename, KeywordRecognizer keywords) {
+		super(input, filename);
 		this.keywords = keywords;
 		this.tokens = new ArrayList<Token>((int) (input.length() / EXPECTED_TOKENS_DIVIDER));
 		startOffset = 0;
@@ -181,22 +181,6 @@ public class Tokenizer extends AbstractTokenizer {
 	 */
 	private boolean isKeywordChar(char c) {
 		return Character.isLetterOrDigit(c) || c == '_';
-	}
-
-	public void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
-		// Create separate tokens for >1 char layout lexicals (e.g., comments)
-		if (endOffset > lastOffset + 1 && label.isLexLayout()) {
-			if (startOffset <= lastOffset)
-				makeToken(lastOffset, TK_LAYOUT, false);
-			makeToken(endOffset, TK_LAYOUT, false);
-		} else {
-			String sort = label.getSort();
-			if ("WATERTOKEN".equals(sort) || "WATERTOKENSEPARATOR".equals(sort)) {
-				if (getStartOffset() <= lastOffset)
-					makeToken(lastOffset, TK_LAYOUT, false);
-				makeToken(endOffset, TK_ERROR, false);
-			}
-		}
 	}
 	
 	@Override

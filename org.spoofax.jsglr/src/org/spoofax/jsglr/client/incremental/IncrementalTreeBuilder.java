@@ -70,7 +70,7 @@ public class IncrementalTreeBuilder<TNode extends ISimpleTerm> {
 		this.skippedChars = skippedChars;
 		this.damageSizeChange = damageAnalyzer.damageSizeChange;
 		this.repairedNodes = repairedTreeNodes;
-		this.newTokenizer = new Tokenizer(parser.parser.getParseTable().getKeywordRecognizer(), filename, input);
+		this.newTokenizer = new Tokenizer(input, filename, parser.parser.getParseTable().getKeywordRecognizer());
 	}
 	
 	/**

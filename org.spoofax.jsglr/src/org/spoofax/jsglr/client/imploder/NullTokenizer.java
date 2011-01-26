@@ -11,8 +11,8 @@ public class NullTokenizer extends AbstractTokenizer {
 	
 	private final IToken onlyToken;
 	
-	public NullTokenizer(String filename, String input) {
-		super(filename, input);
+	public NullTokenizer(String input, String filename) {
+		super(input, filename);
 		onlyToken = new Token(this, 0, 0, 0, 0, input == null ? 0 : input.length() - 1, IToken.TK_UNKNOWN);
 	}
 
@@ -29,7 +29,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	}
 
 	public int getTokenCount() {
-		return 0;
+		return 1;
 	}
 
 	public IToken getTokenAt(int i) {
@@ -59,12 +59,13 @@ public class NullTokenizer extends AbstractTokenizer {
 		// Do nothing
 	}
 
+	@Override
 	public void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
 		// Do nothing
 	}
 	
 	@Override
-	public void tryMarkSyntaxError(LabelInfo label, IToken firstToken,
+	public void markPossibleSyntaxError(LabelInfo label, IToken firstToken,
 			int endOffset, ProductionAttributeReader prodReader) {
 		// Do nothing
 	}

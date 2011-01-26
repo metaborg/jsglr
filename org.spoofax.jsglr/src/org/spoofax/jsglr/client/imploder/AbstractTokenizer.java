@@ -3,9 +3,8 @@ package org.spoofax.jsglr.client.imploder;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_LAYOUT;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
-
-import org.spoofax.NotImplementedException;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -20,10 +19,10 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	private final String filename;
 	
 	private final String input;
-	
-	private int[] lineStartOffsets;
 
-	public AbstractTokenizer(String filename, String input) {
+	private LineStartOffsetList lineStartOffsets;
+
+	public AbstractTokenizer(String input, String filename) {
 		this.input = input;
 		this.filename = filename;
 	}
@@ -35,7 +34,13 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public String getInput() {
 		return input;
 	}
- 	
+
+	private LineStartOffsetList getLineStartOffsets() {
+		if (lineStartOffsets == null)
+			lineStartOffsets = new LineStartOffsetList(getInput());
+		return lineStartOffsets;
+	}
+
 	public IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken) {
 		return makeToken(endOffset, manager.getTokenKind(label), allowEmptyToken);
 	}
@@ -52,14 +57,14 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		return getTokenAtOffset(offset).getLine();
 	}
 
-	public void tryMarkSyntaxError(LabelInfo label, IToken prevToken, int endOffset, ProductionAttributeReader prodReader) {
+	public void markPossibleSyntaxError(LabelInfo label, IToken prevToken, int endOffset, ProductionAttributeReader prodReader) {
 		if (label.isRecover() || label.isReject() || label.getDeprecationMessage() != null) {
 			if (prodReader.isIgnoredUnspecifiedRecoverySort(label.getSort())) {
 				// Special case: don't report here, but further up the tree
 				return;
 			}
 			
-			// TODO: make TK_ERROR_LAYOUT token from ye first whitespaces
+			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
 			
 			IToken token = currentToken() != prevToken
 				? currentToken()
@@ -201,9 +206,9 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		return null;
 	}
 	
-	public IToken getOrMakeErrorToken(int offset) {
-		if (offset < getStartOffset()) {
-			return findReportableErrorToken(getTokenAt(offset));
+	public IToken getErrorTokenOrAdjunct(int offset) {
+		if (offset < getStartOffset()) { // before the start of the next to be made token
+			return findReportableErrorToken(getTokenAtOffset(offset));
 		} else {
 			return makeErrorAdjunct(offset);
 		}
@@ -259,8 +264,25 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		return makeAdjunct(beginOffset, offset, TK_ERROR);
 	}
 
-	private IToken makeAdjunct(int beginOffset, int endOffset, int tokenKind) {
-		throw new NotImplementedException();
+	/**
+	 * Creates a helper token that is not really part of the token stream.
+	 */
+	protected final IToken makeAdjunct(int startOffset, int endOffset, int tokenKind) {
+		LineStartOffsetList lineStarts = getLineStartOffsets();
+		int index = lineStarts.getIndex(startOffset);
+		int line = lineStarts.getLine(index);
+		int column = lineStarts.getColumn(index);
+		return makeAdjunct(startOffset, endOffset, tokenKind, line, column);
+	}
+
+	/**
+	 * Creates a helper token that is not really part of the token stream.
+	 */
+	protected IToken makeAdjunct(int startOffset, int endOffset, int tokenKind,
+			int line, int column) {
+		IToken nearbyToken = getTokenAtOffset(startOffset);
+		int fakeIndex = nearbyToken == null ? 0 : nearbyToken.getIndex();
+		return new Token(this, fakeIndex, line, column, startOffset, endOffset, tokenKind);
 	}
 
 	private static IToken findReportableErrorToken(IToken token) {
@@ -278,5 +300,34 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		}
 		// Give up
 		return token;
+	}
+
+	public void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
+		// Create separate tokens for >1 char layout lexicals (e.g., comments)
+		if (endOffset > lastOffset + 1 && label.isLexLayout()) {
+			if (getStartOffset() <= lastOffset)
+				makeToken(lastOffset, TK_LAYOUT, false);
+			makeToken(endOffset, TK_LAYOUT, false);
+		} else {
+			String sort = label.getSort();
+			if ("WATERTOKEN".equals(sort) || "WATERTOKENSEPARATOR".equals(sort)) {
+				makeWaterToken(endOffset, lastOffset);
+			}
+		}
+	}
+
+	private void makeWaterToken(int endOffset, int lastOffset) {
+		if (getStartOffset() <= lastOffset)
+			makeToken(lastOffset, TK_LAYOUT, false);
+		
+		// Make an extra token for any whitespace preceding our error
+		String input = getInput();
+		int whitespaceEnd = getStartOffset();
+		while (whitespaceEnd <= endOffset && Character.isWhitespace(input.charAt(whitespaceEnd + 1)))
+			whitespaceEnd++;
+		if (whitespaceEnd < endOffset)
+			makeToken(whitespaceEnd, TK_ERROR_LAYOUT, false);
+		
+		makeToken(endOffset, TK_ERROR, false);
 	}
 }

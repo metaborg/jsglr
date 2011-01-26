@@ -103,8 +103,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	public void initializeInput(String filename, String input) {
 		assert offset == 0;
 		tokenizer = disableTokens
-			? new NullTokenizer(filename, input)
-			: new Tokenizer(table.getKeywordRecognizer(), filename, input);
+			? new NullTokenizer(input, filename)
+			: new Tokenizer(input, filename, table.getKeywordRecognizer());
 	}
 	
 	public ITokenizer getTokenizer() {
@@ -211,7 +211,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		} else {
 			result = createNodeOrInjection(label, prevToken, children);
 		}
-		tokenizer.tryMarkSyntaxError(label, prevToken, offset, prodReader);
+		tokenizer.markPossibleSyntaxError(label, prevToken, offset, prodReader);
 		return result;
 	}
 

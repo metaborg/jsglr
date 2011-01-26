@@ -15,7 +15,7 @@ public class Token implements IToken {
 
 	private final ITokenizer tokenizer;
 	
-	// TODO: Optimize - line and column should be determined on demand, not stored everywhere!
+	// TODO: Optimize - line and column should be determined on demand, not stored everywhere?
 	private final int index, startOffset, endOffset, line, column;
 	
 	private int kind;
@@ -81,9 +81,14 @@ public class Token implements IToken {
 	public String getError() {
 		if (errorMessage == null) {
 			switch (getKind()) {
-				case TK_ERROR_EOF_UNEXPECTED: return ITokenizer.ERROR_UNEXPECTED_EOF;
-				case TK_ERROR: case TK_ERROR_KEYWORD: return ITokenizer.ERROR_GENERIC_PREFIX;
-				default: return null;
+				case TK_ERROR_EOF_UNEXPECTED:
+					return ITokenizer.ERROR_UNEXPECTED_EOF;
+				case TK_ERROR:
+				case TK_ERROR_KEYWORD:
+					return ITokenizer.ERROR_GENERIC_PREFIX;
+				case TK_ERROR_LAYOUT:
+				default:
+					return null;
 			}
 		} else {
 			return errorMessage;

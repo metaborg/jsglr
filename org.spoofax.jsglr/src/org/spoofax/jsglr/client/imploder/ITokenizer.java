@@ -50,7 +50,7 @@ public interface ITokenizer extends Iterable<IToken> {
 
 	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
 	
-	IToken getOrMakeErrorToken(int offset);
+	IToken getErrorTokenOrAdjunct(int offset);
 
 	void setErrorMessage(IToken leftToken, IToken rightToken, String message);
 	
@@ -71,7 +71,10 @@ public interface ITokenizer extends Iterable<IToken> {
 	 */
 	void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label);
 	
-	void tryMarkSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader);
+	/**
+	 * Marks a possible syntax error (if indicated by the given label).
+	 */
+	void markPossibleSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader);
 
 	String toString(IToken left, IToken right);
 

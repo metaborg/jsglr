@@ -387,7 +387,7 @@ public class ParseTable implements Serializable {
                 //   LAYOUT? -/- [\/].[\/]
                 // where there is no other restriction that starts with a [\/]
                 
-                ret[i] = new RangeList(new Range(Term.intAt(l, 0)));
+                ret[i] = parseRanges(l);
             } else if (n.getLength() > 0) {
                 // This handles restrictions like:
                 //   LAYOUT? -/- [\/].[\/\+].[\*]

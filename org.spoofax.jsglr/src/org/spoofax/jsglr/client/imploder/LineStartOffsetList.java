@@ -33,8 +33,9 @@ public class LineStartOffsetList {
 		return index + 1;
 	}
 	
-	public int getColumn(int index) {
-		return lineStarts[index];
+	public int getColumn(int index, int offset) {
+		assert offset >= lineStarts[index];
+		return offset - lineStarts[index];
 	}
 	
 	public int getIndex(int offset) {

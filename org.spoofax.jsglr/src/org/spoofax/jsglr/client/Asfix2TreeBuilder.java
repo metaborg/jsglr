@@ -45,7 +45,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 		return table;
 	}
 
-	public void initializeInput(String filename, String input) {
+	public void initializeInput(String input, String filename) {
 		// Not used here
 	}
 

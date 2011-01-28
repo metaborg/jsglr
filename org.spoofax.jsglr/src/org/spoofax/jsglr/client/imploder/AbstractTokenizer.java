@@ -271,7 +271,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		LineStartOffsetList lineStarts = getLineStartOffsets();
 		int index = lineStarts.getIndex(startOffset);
 		int line = lineStarts.getLine(index);
-		int column = lineStarts.getColumn(index);
+		int column = lineStarts.getColumn(index, startOffset);
 		return makeAdjunct(startOffset, endOffset, tokenKind, line, column);
 	}
 
@@ -322,11 +322,11 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		
 		// Make an extra token for any whitespace preceding our error
 		String input = getInput();
-		int whitespaceEnd = getStartOffset();
-		while (whitespaceEnd <= endOffset && Character.isWhitespace(input.charAt(whitespaceEnd + 1)))
-			whitespaceEnd++;
-		if (whitespaceEnd < endOffset)
-			makeToken(whitespaceEnd, TK_ERROR_LAYOUT, false);
+		int wordStart = getStartOffset();
+		while (wordStart <= endOffset && Character.isWhitespace(input.charAt(wordStart)))
+			wordStart++;
+		if (wordStart < endOffset) // only do this if it doesn't consume the whole token
+			makeToken(wordStart - 1, TK_ERROR_LAYOUT, false);
 		
 		makeToken(endOffset, TK_ERROR, false);
 	}

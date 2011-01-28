@@ -20,7 +20,7 @@ public class NullTreeBuilder implements ITreeBuilder {
 		// Do nothing
 	}
 
-	public void initializeInput(String filename, String input) {
+	public void initializeInput(String input, String filename) {
 		// Do nothing
 	}
 

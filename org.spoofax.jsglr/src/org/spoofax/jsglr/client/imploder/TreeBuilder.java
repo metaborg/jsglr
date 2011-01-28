@@ -100,8 +100,10 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		labels[labelNumber - labelStart] = new LabelInfo(prodReader, parseTreeProduction);
 	}
 	
-	public void initializeInput(String filename, String input) {
-		assert offset == 0;
+	public void initializeInput(String input, String filename) {
+		assert offset == 0 : "Tree builder offset was not reset, race condition?";
+		offset = 0;
+		inLexicalContext = false;
 		tokenizer = disableTokens
 			? new NullTokenizer(input, filename)
 			: new Tokenizer(input, filename, table.getKeywordRecognizer());

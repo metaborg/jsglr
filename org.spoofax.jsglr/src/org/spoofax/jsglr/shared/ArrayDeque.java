@@ -64,7 +64,7 @@ import java.util.Stack;
  * @since   1.6
  * @param <E> the type of elements held in this collection
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("all")
 public class ArrayDeque<E> extends AbstractCollection<E>
                            implements /*Deque<E>,*/ Queue<E>, Serializable
 {

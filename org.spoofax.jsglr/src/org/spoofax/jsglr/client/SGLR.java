@@ -130,7 +130,7 @@ public class SGLR {
 
 	@Deprecated
 	public SGLR(ITermFactory pf, ParseTable parseTable) {
-		this(parseTable);
+		this(new Asfix2TreeBuilder(pf), parseTable);
 	}
 	
 	@Deprecated
@@ -255,10 +255,10 @@ public class SGLR {
         return parse(input, filename, null);
     }
 
-	public Object parse(String fis, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+	public Object parse(String input, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
 	SGLRException {
 		logBeforeParsing();
-		initParseVariables(filename, fis);
+		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
         getPerformanceMeasuring().startParse();
@@ -322,7 +322,7 @@ public class SGLR {
 		shifter(); //renewes active stacks with states in forshifter
 	}
 
-	private void initParseVariables(String filename, String input) {
+	private void initParseVariables(String input, String filename) {
 		forActor.clear();
 		forActorDelayed.clear();
 		forShifter.clear();
@@ -336,7 +336,7 @@ public class SGLR {
 		collectedErrors.clear();
 		history=new ParserHistory();
 		performanceMeasuring=new RecoveryPerformance();
-		parseTable.getTreeBuilder().initializeInput(filename, input);
+		parseTable.getTreeBuilder().initializeInput(input, filename);
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 		ambiguityManager = new AmbiguityManager(input.length());

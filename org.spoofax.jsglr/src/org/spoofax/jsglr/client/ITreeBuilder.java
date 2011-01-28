@@ -7,7 +7,7 @@ public interface ITreeBuilder {
 
 	void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount);
 	void initializeLabel(int labelNumber, IStrategoAppl parseTreeProduction);
-	void initializeInput(String filename, String input);
+	void initializeInput(String input, String filename);
 	
 	Object buildTree(AbstractParseNode node);
 	Object buildTreeTop(Object subtree, int ambiguityCount);

@@ -57,7 +57,7 @@ public class JSGLREntryPoint implements EntryPoint {
 		//		});
 	}
 
-	private void parseAndGo(String table) {
+	void parseAndGo(String table) {
 		try {
 			System.out.println(table.length());
 			final TermFactory af = new TermFactory();

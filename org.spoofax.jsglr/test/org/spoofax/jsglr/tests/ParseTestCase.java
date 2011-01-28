@@ -83,7 +83,7 @@ public abstract class ParseTestCase extends TestCase {
 		//				});
 
 		if (incrementalSorts.length > 0) {
-			TermTreeFactory factory = new TermTreeFactory(sglr.getFactory());
+			TermTreeFactory factory = new TermTreeFactory(sglr.getParseTable().getFactory());
 			TreeBuilder builder = new TreeBuilder(factory);
 			sglr.setTreeBuilder(builder);
 			//Set<String> sorts = new SortAnalyzer(table).getInjectionsTo(incrementalSorts);

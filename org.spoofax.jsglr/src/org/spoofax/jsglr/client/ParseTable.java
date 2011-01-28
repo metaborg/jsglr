@@ -424,8 +424,8 @@ public class ParseTable implements Serializable {
                 // This handles restrictions like:
                 //   LAYOUT? -/- [\/].[\/]
                 // where there is no other restriction that starts with a [\/]
-
-                ret[i] = new RangeList(new Range(intAt(l, 0))); // TODO: parseRanges(l)??
+                
+                ret[i] = parseRanges(l);
             } else if (n.getSubtermCount() > 0) {
                 // This handles restrictions like:
                 //   LAYOUT? -/- [\/].[\/\+].[\*]

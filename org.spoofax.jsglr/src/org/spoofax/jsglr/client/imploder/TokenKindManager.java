@@ -37,7 +37,9 @@ public class TokenKindManager {
 	public int getTokenKind(LabelInfo label) {
 		// TODO: Optimization - cache token kind info in LabelInfo
 		
-		if (label.isLayout()) {
+		if (label == null) {
+			return TK_STRING; // usually indicates a character/int terminal, e.g. 'x'
+		} else if (label.isLayout()) {
 			return TK_LAYOUT;
 		} else if (label.isLexical()) {
 			if (isStringLiteral(label)) {

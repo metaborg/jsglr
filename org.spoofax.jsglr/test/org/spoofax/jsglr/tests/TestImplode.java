@@ -30,5 +30,9 @@ public class TestImplode extends ParseTestCase {
     public void testJava4() throws FileNotFoundException, IOException {
     	doParseTest("java4");
     }
+
+    public void testJava10() throws FileNotFoundException, IOException {
+    	doParseTest("java10");
+    }
     
 }

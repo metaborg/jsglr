@@ -79,7 +79,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	public TreeBuilder(ITreeFactory treeFactory, boolean disableTokens) {
 		this.factory = treeFactory;
 		this.disableTokens = disableTokens;
-		treeFactory.setEnableTokens(!disableTokens);
+		factory.setEnableTokens(!disableTokens);
 	}
 
 	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
@@ -87,6 +87,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		this.termFactory = table.getFactory();
 		if (initializeFactories) {
 			factory = new TermTreeFactory(termFactory);
+			factory.setEnableTokens(!disableTokens);
 		}
 		// assert !(factory instanceof TermTreeFactory) || ((TermTreeFactory) factory).getOriginalTermFactory() == table.getFactory()
 		// 	: "ITermFactory of ITreeFactory does not correspond to ITermFactory of ParseTable"; 
@@ -165,15 +166,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		boolean isList = label.isList();
 		boolean lexicalStart = false;
 		
-		if (!inLexicalContext) {
-			if (label.isNonContextFree()) {
-				inLexicalContext = lexicalStart = true;
-			} else if (subnodes.length > 0 && subnodes[0] instanceof ParseProductionNode
-					&& label.isSortProduction()
-					&& label.getLHS().getSubtermCount() == 1) {
-				return createIntTerminal(label, subnodes);
-			}
-		}
+		if (!inLexicalContext && label.isNonContextFree())
+			inLexicalContext = lexicalStart = true;
 		
 		List<Object> children = null;
 		if (!inLexicalContext) {
@@ -204,7 +198,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		
 		Object result;
 		if (lexicalStart) {
-			result = tryCreateStringTerminal(label);
+			result = tryCreateStringTerminal(label, lastOffset);
+			inLexicalContext = false;
 		} else if (inLexicalContext) {
 			tokenizer.tryMakeLayoutToken(offset - 1, lastOffset - 1, label);
 			result = null; // don't create nodes inside lexical context; just create one big token at the top
@@ -285,12 +280,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	public Object buildTreeProduction(ParseProductionNode node) {
 		int character = node.prod;
 		consumeLexicalChar(character);
-		return null;
+		return inLexicalContext ? null : createIntTerminal(node, null);
 	}
 
 
-	private Object tryCreateStringTerminal(LabelInfo label) {
-		inLexicalContext = false;
+	private Object tryCreateStringTerminal(LabelInfo label, int lastOffset) {
 		String sort = label.getSort();
 		IToken token = tokenizer.makeToken(offset - 1, label, sort != null);
 		
@@ -298,6 +292,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		
 		// Debug.log("Creating node ", sort, " from ", SGLRTokenizer.dumpToString(token));
 		
+		// TODO: don't use token here, just use the string from lastOffset...offset, in case the tokenizer is disabled
 		Object result = factory.createStringTerminal(sort, getPaddedLexicalValue(label, token), token);
 		String constructor = label.getMetaVarConstructor();
 		if (constructor != null) {
@@ -308,12 +303,10 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		return result;
 	}
 	
-	private Object createIntTerminal(LabelInfo label, AbstractParseNode[] contents) {
+	private Object createIntTerminal(ParseProductionNode node, LabelInfo label) {
 		IToken token = tokenizer.makeToken(offset - 1, label, true);
-		int value = contents.length == 1 && contents[0] instanceof ParseProductionNode
-			? ((ParseProductionNode) contents[0]).prod : -1;
-		assert value != -1;
-		return factory.createIntTerminal(label.getSort(), token, value);
+		int value = node.prod;
+		return factory.createIntTerminal(label == null ? null : label.getSort(), token, value);
 	}
 
 	private Object createNodeOrInjection(LabelInfo label, IToken prevToken, List<Object> children) {

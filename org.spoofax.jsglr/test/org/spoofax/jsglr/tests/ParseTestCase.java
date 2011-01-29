@@ -48,11 +48,13 @@ public abstract class ParseTestCase extends TestCase {
 	//RemoteParseTableServiceAsync parseTableService = GWT.create(RemoteParseTableService.class);
 
 	@Override
-	protected void setUp() throws Exception {
+	protected final void setUp() throws Exception {
 		gwtSetUp();
 	}
 
-	protected abstract void gwtSetUp() throws Exception;
+	protected void gwtSetUp() throws Exception {
+		// no default setup
+	}
 	
 	public void gwtSetUp(String grammar, String suffix, String... incrementalSorts) throws ParserException, InvalidParseTableException {
 		this.suffix = suffix;

@@ -17,7 +17,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
 	
     @Override
 	public void gwtSetUp() throws ParserException, InvalidParseTableException {
-        super.gwtSetUp("Java-15", "java", "MethodDec", "ClassBodyDec"
+    	super.gwtSetUp("Java-15", "java", "MethodDec", "ClassBodyDec"
         		, "ClassMemberDec", "ConstrDec", "FieldDec"
         		);
         assertTrue("Java -ea assertions must be enabled for these tests",
@@ -197,7 +197,6 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
 
     public void testJava4() throws Exception {
-    	fail("Known faiure: regression with the long lexical chain optimization causing Case(Lit(Char(NamedEscape(116)))) to be imploded as Case(Lit(Char(NamedEscape()))); needs to be looked into again");
     	doParseIncrementalTest(getJava4Result(), "java4-increment");
     	assertTrue(isReparsed("foo"));
     	int reparsed = incrementalSGLR.getLastReconstructedNodes().size();

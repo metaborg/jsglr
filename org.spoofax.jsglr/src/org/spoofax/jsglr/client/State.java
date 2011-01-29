@@ -31,8 +31,7 @@ public class State implements Serializable {
      */
     @Deprecated
     public List<ActionItem> getActionItems(int currentToken) {
-        
-        List <ActionItem> ret = new ArrayList<ActionItem>();
+        List <ActionItem> ret = new ArrayList<ActionItem>(actions.length);
         
         for(Action a : actions) {
             if(a.accepts(currentToken))

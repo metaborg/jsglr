@@ -161,7 +161,7 @@ public class SGLR {
 	}
 
 	/**
-	 * Enables errorr recovery based on region recovery and, if available, recovery rules.
+	 * Enables error recovery based on region recovery and, if available, recovery rules.
 	 * Does not enable bridge parsing.
 	 *
 	 * @see ParseTable#hasRecovers()   Determines if the parse table supports recovery rules
@@ -325,7 +325,7 @@ public class SGLR {
 		currentToken = getNextToken();
 	}
 
-	public void doParseStep() {
+	protected void doParseStep() {
 		parseCharacter(); //applies reductions on active stack structure and fills forshifter
 		shifter(); //renewes active stacks with states in forshifter
 	}
@@ -417,7 +417,7 @@ public class SGLR {
 		logAfterShifter();
 	}
 
-	public void addStack(Frame st1) {
+	protected void addStack(Frame st1) {
 		if(Tools.tracing) {
 			TRACE("SG_AddStack() - " + st1.state.stateNumber);
 		}
@@ -857,60 +857,13 @@ public class SGLR {
 	public void setFilter(boolean filter) {
 		getDisambiguator().setFilterAny(filter);
 	}
-
-	public void clear() {
-		if (this.acceptingStack != null) {
-			this.acceptingStack.clear();
-		}
-
-		clearActiveStacksDeep();
-		clearForActorDelayedDeep();
-		clearForActorDeep();
-		clearForShifterDeep();
-
-		this.parseTable = null;
-		this.ambiguityManager = null;
-	}
-
-	private void clearForShifterDeep() {
-		for (final ActionState as : forShifter) {
-			as.clear(true);
-		}
-		clearForShifter();
-	}
-
+	
 	private void clearForShifter() {
 		forShifter.clear();
 	}
 
-	private void clearForActor() {
-		forActor.clear();
-	}
-
-	private void clearForActorDeep() {
-		for (final Frame frame : forActor) {
-			frame.clear();
-		}
-		clearForActor();
-	}
-
-	private void clearForActorDelayedDeep() {
-		for (final Frame frame : forActorDelayed) {
-			frame.clear();
-
-		}
-		clearForActorDelayed();
-	}
-
 	private void clearForActorDelayed() {
 		forActorDelayed.clear(true);
-	}
-
-	private void clearActiveStacksDeep() {
-		for (final Frame frame : activeStacks) {
-			frame.clear();
-		}
-		clearActiveStacks();
 	}
 
 	private void clearActiveStacks() {
@@ -946,11 +899,11 @@ public class SGLR {
 		return parseTable.getFactory();
 	}
 
-	public int getReductionCount() {
+	protected int getReductionCount() {
 		return reductionCount;
 	}
 
-	public int getRejectionCount() {
+	protected int getRejectionCount() {
 		return rejectCount;
 	}
 
@@ -1130,6 +1083,7 @@ public class SGLR {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void logBeforeActor(Frame st, State s) {
 		List<ActionItem> actionItems = null;
 

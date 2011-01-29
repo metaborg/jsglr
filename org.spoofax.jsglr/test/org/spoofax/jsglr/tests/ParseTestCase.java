@@ -108,7 +108,7 @@ public abstract class ParseTestCase extends TestCase {
 	protected void tearDown() throws Exception {
 		//super.gwtTearDown();
 
-		sglr.clear();
+		//sglr.clear();
 	}
 
 	boolean doCompare = true;

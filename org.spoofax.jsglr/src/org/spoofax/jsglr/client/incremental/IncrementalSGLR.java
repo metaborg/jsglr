@@ -102,7 +102,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		// Construct and parse partial input
 		String partialInput = inputBuilder.buildPartialInput(oldTree);
 		int skippedChars = inputBuilder.getLastSkippedCharsBeforeDamage();
-		ISimpleTerm partialTree = (ISimpleTerm) parser.parse(partialInput, startSymbol);
+		ISimpleTerm partialTree = (ISimpleTerm) parser.parse(partialInput, filename, startSymbol);
 		List<ISimpleTerm> repairedNodes = damageAnalyzer.getDamageNodesForPartialTree(partialTree, skippedChars);
 		sanityCheckRepairedTree(repairedNodes);
 		

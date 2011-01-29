@@ -246,16 +246,24 @@ public class SGLR {
 	@Deprecated
 	public Object parse(String fis) throws BadTokenException,
     TokenExpectedException, ParseException, SGLRException {
-	    return parse(fis, null);
+	    return parse(fis, null, null);
 	}
 
-    public final Object parse(String input, String filename) throws BadTokenException,
+    @Deprecated
+	public final Object parse(String input, String filename) throws BadTokenException,
     TokenExpectedException, ParseException, SGLRException {
 
         return parse(input, filename, null);
     }
 
-	public Object parse(String input, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+	/**
+	 * Parses a string and constructs a new tree using the tree builder.
+	 * 
+	 * @param input        The input string.
+	 * @param filename     The source filename of the string, or null if not available.
+	 * @param startSymbol  The start symbol to use, or null if any applicable.
+	 */
+    public Object parse(String input, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
 	SGLRException {
 		logBeforeParsing();
 		initParseVariables(input, filename);

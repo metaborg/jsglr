@@ -53,6 +53,7 @@ public class Tokenizer extends AbstractTokenizer {
 
 	public void setStartOffset(int startOffset) {
 		assert isAmbigous();
+		if (this.startOffset == startOffset) return;
 		this.startOffset = startOffset;
 		IToken lastToken = getTokenAtOffset(startOffset);
 		this.offsetAtLineStart = lastToken.getStartOffset() - lastToken.getColumn();
@@ -74,12 +75,15 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 	
 	public IToken getTokenAtOffset(int offset) {
-		assert getTokenCount() < 2 || getTokenAt(getTokenCount() - 1).getEndOffset()
+		assert isAmbigous() || 
+			getTokenCount() < 2 || getTokenAt(getTokenCount() - 1).getEndOffset()
 			== getTokenAt(getTokenCount() - 2).getEndOffset()
 			: "Unordered tokens at end of tokenizer";
 		Token key = new Token(this, -1, -1, -1, offset, offset, TK_RESERVED);
 		int resultIndex = Collections.binarySearch(tokens, key);
-		return resultIndex == -1 ? null : getTokenAt(resultIndex);
+		if (resultIndex < 0)
+			throw new IndexOutOfBoundsException("No token at offset " + offset + " (binary search returned " + resultIndex + ")");
+		return /*resultIndex == -1 ? null :*/ getTokenAt(resultIndex);
 	}
 	
 	public final IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {

@@ -229,19 +229,43 @@ public class ProductionAttributeReader {
     public String getSort(IStrategoAppl rhs) {
     	for (IStrategoTerm current = rhs; current.getSubtermCount() > 0 && isTermAppl(current); current = termAt(current, 0)) {
     		IStrategoAppl currentAppl = (IStrategoAppl) current;
-			IStrategoConstructor cons = currentAppl.getConstructor();
-			if (cons == sortFun)
-    			return javaString(termAt(current, 0));
-    		if (cons == parameterizedSortFun)
-    			return getParameterizedSortName(currentAppl);
-    		if (cons == charClassFun)
-    			return null;
-    		if (cons == altFun)
-    			return getAltSortName(currentAppl);
+			String sort = tryGetSort(currentAppl);
+			if (sort != null) return sort;
     	}
     	
     	return null;
     }
+	
+	/** 
+	 * Get the first occurring RTG sort name of a production LHS.
+	 */
+	public String tryGetFirstSort(IStrategoList lhs) {
+		for (IStrategoTerm lhsPart : lhs.getAllSubterms()) {
+			String sort = tryGetSort((IStrategoAppl) lhsPart);
+			if (sort != null) return sort;
+		}
+		return null;
+	}
+
+	/** 
+	 * Get the RTG sort name of a pattern.
+	 */
+	public String tryGetSort(IStrategoAppl currentAppl) {
+		IStrategoConstructor cons = currentAppl.getConstructor();
+		if (cons == cfFun)
+			return tryGetSort(applAt(currentAppl, 0));
+		if (cons == lexFun)
+			return tryGetSort(applAt(currentAppl, 0));
+		if (cons == sortFun)
+			return javaString(termAt(currentAppl, 0));
+		if (cons == parameterizedSortFun)
+			return getParameterizedSortName(currentAppl);
+		if (cons == charClassFun)
+			return null;
+		if (cons == altFun)
+			return getAltSortName(currentAppl);
+		return null;
+	}
     
     private String getParameterizedSortName(IStrategoAppl parameterizedSort) {
     	StringBuilder result = new StringBuilder();

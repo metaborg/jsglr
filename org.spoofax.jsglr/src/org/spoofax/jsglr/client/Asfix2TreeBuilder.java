@@ -59,9 +59,11 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public IStrategoTerm buildAmb(List<Object> alternatives) {
-		IStrategoTerm[] alternatives2 = alternatives.toArray(new IStrategoTerm[alternatives.size()]);
-		return factory.makeAppl(ambIStrategoConstructor, alternatives2);
+		List<IStrategoTerm> alternativesCasted = (List<IStrategoTerm>) (List<?>) alternatives;
+		IStrategoList alternativesList = factory.makeList(alternativesCasted);
+		return factory.makeAppl(ambIStrategoConstructor, alternativesList);
 	}
 
 	@Override

@@ -97,7 +97,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		
 		SGLR parser = new SGLR(table);
 		
-		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), startSymbol);
+		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol);
 		
 		return result;
 	}

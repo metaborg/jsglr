@@ -41,7 +41,7 @@ public class Main {
 		}
 
 		String parseTableFile = null;
-		String input = null;
+		String inputFile = null;
 		String output = null;
 		String startSymbol = null;
 		boolean debugging = false;
@@ -59,7 +59,7 @@ public class Main {
 			if(args[i].equals("-p")) {
 				parseTableFile = args[++i];
 			} else if(args[i].equals("-i")) {
-				input = args[++i];
+				inputFile = args[++i];
 			} else if(args[i].equals("-o")) {
 				output = args[++i];
 			} else if(args[i].equals("-d")) {
@@ -117,13 +117,13 @@ public class Main {
 			System.in.read();
 		}
 		
-		String inputFile = FileTools.loadFileAsString(new BufferedReader(new FileReader(input)));
+		String input = FileTools.loadFileAsString(new BufferedReader(new FileReader(inputFile)));
 
 		for(int i = 0; i < profilingRuns - 1; i++) {
-			parseFile(inputFile, NO_OUTPUT, sglr, startSymbol);
+			parseFile(input, inputFile, NO_OUTPUT, sglr, startSymbol);
 		}
 
-		final long parsingTime = parseFile(inputFile, output, sglr, startSymbol);
+		final long parsingTime = parseFile(input, inputFile, output, sglr, startSymbol);
 
 		if(timing) {
 			System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
@@ -131,7 +131,7 @@ public class Main {
 		}
 	}
 
-	public static long parseFile(String input, String output, SGLR sglr, String startSymbol)
+	public static long parseFile(String input, String inputFile, String output, SGLR sglr, String startSymbol)
 	throws FileNotFoundException, IOException {
 		/* TODO: support stdin input
 		InputStream fis = null;
@@ -152,7 +152,7 @@ public class Main {
 		Object t = null;
 		try {
 			parsingTime = System.currentTimeMillis();
-			t = sglr.parse(input, startSymbol);
+			t = sglr.parse(input, inputFile, startSymbol);
 			parsingTime = System.currentTimeMillis() - parsingTime;
 		} catch(final BadTokenException e) {
 			System.err.println("Parsing failed : " + e.getMessage());

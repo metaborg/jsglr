@@ -7,13 +7,17 @@
  */
 package org.spoofax.jsglr.client;
 
+import static org.spoofax.terms.Term.termAt;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
-import org.spoofax.terms.ParseError;
 
 /**
  * @author Karl Trygve Kalleberg <karltk near strategoxt.org>
@@ -54,6 +58,8 @@ public class Disambiguator {
 	private SGLR parser;
 
 	private ParseTable parseTable;
+
+	private ProductionAttributeReader prodReader;
 
 	// private Map<AmbKey, IParseNode> resolvedTable = new HashMap<AmbKey, IParseNode>();
 
@@ -220,6 +226,7 @@ public class Disambiguator {
 		} else {
 			this.parser = parser;
 			parseTable = parser.getParseTable();
+			prodReader = new ProductionAttributeReader(parseTable.getFactory());
 			ambiguityManager = parser.getAmbiguityManager();
 		}
 	}
@@ -298,18 +305,20 @@ public class Disambiguator {
 	}
 
 	private boolean matchProdOnTopSort(IStrategoTerm prod, String sort) throws FilterException {
-		try {
-			throw new org.spoofax.NotImplementedException("Top sort selection needs to be reimplemented now we're no longer using ATerms!!");
-			/* FIXME: Top sort selection needs to be reimplemented now we're no longer using ATerms!!
-			sort = sort.replaceAll("\"", "");
-			return prod.match("prod([cf(opt(layout)),cf(sort(\"" + sort + "\")),cf(opt(layout))], sort(\"<START>\"),no-attrs)") != null
-			|| prod.match("prod([cf(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
-			|| prod.match("prod([lex(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
-			|| prod.match("prod([sort(\"" + sort + "\")], sort(\"<START>\"),no-attrs)") != null;
-			*/
-		} catch (final ParseError e) {
-			throw new FilterException(parser, "Could not select desired top sort: " + sort, e);
-		}
+		assert sort != null;
+		/* FIXME: Top sort selection needs to be reimplemented now we're no longer using ATerms!!
+		sort = sort.replaceAll("\"", "");
+		return prod.match("prod([cf(opt(layout)),cf(sort(\"" + sort + "\")),cf(opt(layout))], sort(\"<START>\"),no-attrs)") != null
+		|| prod.match("prod([cf(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
+		|| prod.match("prod([lex(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null
+		|| prod.match("prod([sort(\"" + sort + "\")], sort(\"<START>\"),no-attrs)") != null;
+		*/
+		IStrategoList lhs = termAt(prod, 0);
+		IStrategoAppl rhs = termAt(prod, 1);
+		String foundSort = prodReader.tryGetFirstSort(lhs);
+		assert foundSort != null;
+		assert "<START>".equals(prodReader.tryGetSort(rhs));
+		return sort.equals(foundSort);
 	}
 
 	private AbstractParseNode selectOnTopSort(AbstractParseNode t, String sort) throws FilterException {

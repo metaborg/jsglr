@@ -2,16 +2,13 @@ package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
 
-import org.spoofax.jsglr.shared.ArrayDeque;
-
 public class FineGrainedOnRegion {
-    private static final int MAX_RECOVERIES_PER_LINE = 3;
-    private static final int MAX_NR_OF_LINES = 25;
+
     private int acceptRecoveryPosition;
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
+    private static int MAX_BACK_JUMPS=5;
     private SGLR mySGLR;
-    private int maxPerLine;
     
     private ParserHistory getHistory() {
         return mySGLR.getHistory();
@@ -28,18 +25,18 @@ public class FineGrainedOnRegion {
                 btPoint.setIndexHistory(i);
                 choicePoints.add(btPoint);
             }            
-        } 
-        maxPerLine=MAX_RECOVERIES_PER_LINE;
+        }
     }
     
     public void setRegionInfo(StructureSkipSuggestion erroneousRegion, int acceptPosition){
         regionEndPosition=erroneousRegion.getEndSkip().getTokensSeen();
         acceptRecoveryPosition=acceptPosition;
         int lastIndex=Math.min(erroneousRegion.getIndexHistoryEnd(), getHistory().getIndexLastLine());
-        if(lastIndex<0 || erroneousRegion.getIndexHistoryStart()<0 || erroneousRegion.getIndexHistoryStart()>erroneousRegion.getIndexHistoryEnd()){
-            System.err.println("Something went wrong with the region index");
-            return;
-        }            
+        assert(
+        	lastIndex>0 && 
+        	erroneousRegion.getIndexHistoryStart()>=0 && 
+        	erroneousRegion.getIndexHistoryStart()<=erroneousRegion.getIndexHistoryEnd()
+        );           
         for (int i = erroneousRegion.getIndexHistoryStart(); i < lastIndex; i++) {
             IndentInfo line= getHistory().getLine(i);
             if(line.getStackNodes()!=null && line.getStackNodes().size()>0){
@@ -47,87 +44,96 @@ public class FineGrainedOnRegion {
                 btPoint.setIndexHistory(i);
                 choicePoints.add(btPoint);
             }            
-        } 
-        maxPerLine=MAX_RECOVERIES_PER_LINE;
-        if(erroneousRegion.getIndexHistoryEnd()-erroneousRegion.getIndexHistoryStart()==1){
-            maxPerLine=2;            
         }
     }
     
     public boolean recover() {
-       // System.out.println("FINE GRAINED RECOVERY STARTED");
-        mySGLR.setFineGrainedOnRegion(true);
-        boolean succeeded=recoverFrom(choicePoints.size()-1, new ArrayList<RecoverNode>());
-        mySGLR.setFineGrainedOnRegion(false);
-        return succeeded;
-    }
-    
-    private boolean recoverFrom(int indexCP, ArrayList<RecoverNode> candidates) {        
-        int loops=choicePoints.size()-1-indexCP;
-        if(indexCP<-1*maxPerLine)//first line 3 times explored
-            return false;
-        if(loops>MAX_NR_OF_LINES)//max nr of lines explored in backtracking
-            return false;
-        int indexChoichePoints=Math.max(0, indexCP);
-        if (indexChoichePoints >= choicePoints.size())
-            return false;
-        BacktrackPosition btPosition=choicePoints.get(indexChoichePoints);
-        mySGLR.activeStacks.clear(true);
-        mySGLR.activeStacks.addAll(btPosition.recoverStacks);
-        getHistory().deleteLinesFrom(btPosition.getIndexHistory());
-        getHistory().setTokenIndex(btPosition.tokensSeen);
-        int endPos=regionEndPosition;
-        if(indexChoichePoints<choicePoints.size()-maxPerLine)
-            endPos=choicePoints.get(indexChoichePoints+maxPerLine).tokensSeen;        
-        ArrayList<RecoverNode> newCandidates=recoverParse(candidates, endPos, true);
-        if(mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null){
-            //if (loops<=MAX_RECOVERIES_PER_LINE) {
-                ///*
-                ArrayDeque<Frame> stacks = new ArrayDeque<Frame>();
-                stacks.addAll(mySGLR.activeStacks);
-                mySGLR.setFineGrainedOnRegion(false);
-                //extra set of recover stacks
-                mySGLR.activeStacks.clear(true);
-                mySGLR.activeStacks.addAll(btPosition.recoverStacks);
-                getHistory().setTokenIndex(btPosition.tokensSeen);
-                recoverParse(newCandidates, endPos, false);
-                for (Frame frame : stacks) {
-                    mySGLR.addStack(frame);
-                }
-            //}
-            //*/
-            return true;
-        }
-        return recoverFrom(indexCP-1, newCandidates);    
+        int btIndex=choicePoints.size()-1;
+        if(btIndex>=0)
+        	return recoverFrom(btIndex, new ArrayList<RecoverNode>());
+        return false;
     }
 
-    private ArrayList<RecoverNode> recoverParse(ArrayList<RecoverNode> candidates, int endRecoverSearchPos, boolean keepHistory) {
-        //System.out.println("RECOVER PARSE");
+	private boolean recoverFrom(int btIndex, ArrayList<RecoverNode> unexplored_branches) {
+        ArrayList<RecoverNode> rec_Branches=new ArrayList<RecoverNode>();
+        if(btIndex>=0){
+        	rec_Branches=collectRecoverBranches(btIndex); //collect permissive branches at btIndex line
+        	resetSGLR(btIndex);
+        }
+        else
+        	resetSGLR(0);
+        rec_Branches.addAll(unexplored_branches);
+    	
+        ArrayList<RecoverNode> newbranches=recoverParse(rec_Branches, regionEndPosition); //explore and collect
+
+    	if(acceptParse())
+        	return true;
+        if(choicePoints.size()-1-btIndex > MAX_BACK_JUMPS){
+        	if(btIndex>0){
+        		//Permissive branches constructed by one recovery are always explored
+	        	ArrayList<RecoverNode> rec_Branches_prefix=new ArrayList<RecoverNode>();
+	        	rec_Branches_prefix=collectRecoverBranches(0, btIndex);
+	        	resetSGLR(0);
+	        	recoverParse(rec_Branches_prefix, regionEndPosition);
+	        	return acceptParse();
+        	}
+        	return false;
+        }
+        return recoverFrom(btIndex-1, newbranches);
+	}
+
+	private void resetSGLR(int btIndex) {
+		BacktrackPosition btrPosition=choicePoints.get(btIndex);    
+    	mySGLR.activeStacks.clear(true); //only permissive branches are explored
+        getHistory().setTokenIndex(btrPosition.tokensSeen);
+	}
+
+	private ArrayList<RecoverNode> collectRecoverBranches(int btIndex) {
+		resetSGLR(btIndex);
+        mySGLR.activeStacks.addAll(choicePoints.get(btIndex).recoverStacks);
+        int endPos=btIndex<choicePoints.size()-1 ? choicePoints.get(btIndex+1).tokensSeen-1 : regionEndPosition;
+    	ArrayList<RecoverNode> rec1_Branches=recoverParse(new ArrayList<RecoverNode>(), endPos);
+		return rec1_Branches;
+	}
+	
+	private ArrayList<RecoverNode> collectRecoverBranches(int btIndex, int btIndex_end) {
+		resetSGLR(btIndex);
+        mySGLR.activeStacks.addAll(choicePoints.get(btIndex).recoverStacks);
+        int endPos=btIndex_end < choicePoints.size() ? choicePoints.get(btIndex_end).tokensSeen-1 : regionEndPosition;
+    	ArrayList<RecoverNode> rec1_Branches=recoverParse(new ArrayList<RecoverNode>(), endPos);
+		return rec1_Branches;
+	}
+    
+    /** 
+     * Explores permissive branches, and collects derived branches with higher recover count
+     */
+    private ArrayList<RecoverNode> recoverParse(ArrayList<RecoverNode> candidates, int endRecoverSearchPos) {
+    	mySGLR.setFineGrainedOnRegion(true);
         ArrayList<RecoverNode> newCandidates=new ArrayList<RecoverNode>();
-        boolean firstRound=false;//true;
-        while(getHistory().getTokenIndex()<=acceptRecoveryPosition && mySGLR.acceptingStack==null){
-            int curTokIndex=getHistory().getTokenIndex();
+        int curTokIndex;
+        do {
+            curTokIndex=getHistory().getTokenIndex();
             addCurrentCandidates(candidates, curTokIndex);
-            getHistory().readRecoverToken(mySGLR, keepHistory);
+            getHistory().readRecoverToken(mySGLR, false);
             //System.out.print((char)mySGLR.currentToken);
             mySGLR.doParseStep();
-            //char logToken=(char)mySGLR.currentToken;
-            //if(logToken==' '){logToken='^';}
-            //if(logToken==SGLR.EOF){logToken='$';}
-            //System.out.print(logToken);
-            if(curTokIndex<=endRecoverSearchPos && !firstRound){
-                //int oldSize=newCandidates.size();
-                newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
-                //if(newCandidates.size()>oldSize)
-                  //  System.out.println("CANDIDATES: " + (newCandidates.size()-oldSize));
-            }
-            firstRound=false;
-            //if(getHistory().getTokenIndex()==endRecoverSearchPos)
-              //  System.out.print("@End Search@");
+            newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
             mySGLR.clearRecoverStacks();
-        }
-        //System.out.println("Nr. of candidates found: "+newCandidates.size());
+        } while(getHistory().getTokenIndex()<= endRecoverSearchPos && mySGLR.acceptingStack==null && mySGLR.currentToken!=SGLR.EOF);
+    	mySGLR.setFineGrainedOnRegion(false);
         return newCandidates;
+    }
+    
+    /**
+     * Permissive branches are accepted if they are still alive at the accepting position
+     */
+    private boolean acceptParse(){
+        while(getHistory().getTokenIndex()<= acceptRecoveryPosition && mySGLR.acceptingStack==null && mySGLR.activeStacks.size()>0){
+            getHistory().readRecoverToken(mySGLR, false);
+            //System.out.print((char)mySGLR.currentToken);
+            mySGLR.doParseStep();
+        }
+    	return mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null;
     }
 
     private ArrayList<RecoverNode> collectNewRecoverCandidates(int tokenIndex) {
@@ -138,16 +144,20 @@ public class FineGrainedOnRegion {
         }
         return results;
     }
-
+    
     private void addCurrentCandidates(ArrayList<RecoverNode> candidates, int tokenPosition) {
-        for (RecoverNode recoverNode : candidates) {//TODO: improve efficiency by using a sorted list
+        for (RecoverNode recoverNode : candidates) {
             if(tokenPosition==recoverNode.tokensSeen){
-                //mySGLR.activeStacks.add(recoverNode.recoverStack);
-                mySGLR.addStack(recoverNode.recoverStack);
-                //System.out.println("Stack added, new count: "+ mySGLR.activeStacks.size());
+            	Frame st =mySGLR.findStack(mySGLR.activeStacks, recoverNode.recoverStack.state);
+                if(st!=null) {
+                	for (Link ln : recoverNode.recoverStack.getAllLinks()) {
+                		st.addLink(ln);
+					}                	
+                }
+                else
+                	mySGLR.addStack(recoverNode.recoverStack);
             }
         }
-        
     }
 
     public FineGrainedOnRegion(SGLR parser){
@@ -162,8 +172,6 @@ public class FineGrainedOnRegion {
             //System.out.print((char)mySGLR.currentToken);
             mySGLR.doParseStep();            
         }  
-        return mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null;
-        
+        return mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null;        
     }
-
 }

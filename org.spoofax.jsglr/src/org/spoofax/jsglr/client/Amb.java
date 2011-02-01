@@ -8,8 +8,10 @@
 package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 
 
@@ -57,9 +59,10 @@ public class Amb extends AbstractParseNode {
 
 	@Override
 	public String toString() {
-		return "amb(" + alternatives + ")";
+		return "amb(" + Arrays.toString(alternatives) + ")";
 	}
 
+	@Deprecated
 	public boolean hasAmbiguity(AbstractParseNode newNode) {
 		throw new NotImplementedException();
 	}

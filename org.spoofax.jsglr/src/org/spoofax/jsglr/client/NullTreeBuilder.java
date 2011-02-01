@@ -36,4 +36,8 @@ public class NullTreeBuilder implements ITreeBuilder {
 		return null;
 	}
 
+	public void reset() {
+		// Do ... nothing
+	}
+
 }

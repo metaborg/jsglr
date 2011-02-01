@@ -72,7 +72,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label);
 	
 	/**
-	 * Marks a possible syntax error (if indicated by the given label).
+	 * Marks a possible syntax error (if indicated by the given label),
+	 * starting *after* the given token, ending at the given offset.
 	 */
 	void markPossibleSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader);
 

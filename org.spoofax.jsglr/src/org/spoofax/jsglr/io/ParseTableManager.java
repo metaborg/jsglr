@@ -68,8 +68,9 @@ public class ParseTableManager {
         			cached.lastModified() >= table.lastModified()) {
         		try {
 					pt = loadFromDiskCache(cachedTable);
-					pt.initIStrategoConstructors(factory);
+					pt.initTransientData(factory);
 				} catch (ClassNotFoundException e) {
+					// Fine, don't load from disk then
 				}
         	}
         }

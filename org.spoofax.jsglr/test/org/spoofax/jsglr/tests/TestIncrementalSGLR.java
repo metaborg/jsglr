@@ -197,6 +197,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
 
     public void testJava4() throws Exception {
+        IncrementalSGLR.DEBUG = false; // too much output
     	doParseIncrementalTest(getJava4Result(), "java4-increment");
     	assertTrue(isReparsed("foo"));
     	int reparsed = incrementalSGLR.getLastReconstructedNodes().size();
@@ -204,15 +205,13 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
 
     public void testJava4vs5() throws Exception {
-    	try {
-            IncrementalSGLR.DEBUG = false;
+		try {
+            IncrementalSGLR.DEBUG = false; // too much output
     		doParseIncrementalTest(getJava4Result(), "java5-increment");
     	} catch (IncrementalSGLRException e) {
     		System.out.println(e.getMessage());
     		assertTrue("Must fail on precondition", e.getMessage().indexOf("Precondition") != -1);
     		return;
-    	} finally {
-            IncrementalSGLR.DEBUG = true;
     	}
     	fail("Exception expected");
     }

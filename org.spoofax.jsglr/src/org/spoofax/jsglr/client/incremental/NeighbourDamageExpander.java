@@ -5,7 +5,7 @@ import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
+import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.*;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -26,7 +26,7 @@ public class NeighbourDamageExpander {
 
 	private final ISimpleTerm oldTree;
 
-	private final Set<String> incrementalSorts;
+	final Set<String> incrementalSorts;
 	
 	private final int damageStart;
 
@@ -68,36 +68,8 @@ public class NeighbourDamageExpander {
 			public void preVisit(ISimpleTerm node) {
 				if (node.isList() && incrementalSorts.contains(getElementSort(node))
 						&& isDamagedNode(node, true, true)) {
-					visitIncrementalSortsList(node);
+					done = tryInitNeighbour(node);
 				}
-			}
-			
-			private void visitIncrementalSortsList(ISimpleTerm list) {
-				boolean foundDamagedNode = false;
-				
-				Iterator<ISimpleTerm> iterator = tryGetListIterator(list);
-				ISimpleTerm lastChild = null;
-				for (int i = 0, max = list.getSubtermCount(); i < max; i++) {
-					ISimpleTerm child = iterator == null ? list.getSubterm(i) : iterator.next();
-					if (!foundDamagedNode) {
-						if (isDamagedNode(child, true, true)) {
-							if (leftNeighbour == null || isLeftCollateralDamage(child))
-								leftNeighbour = child;
-							foundDamagedNode = true;
-							rightNeighbour = child; // next node, if any, replaces this value
-						} else {
-							leftNeighbour = child;
-						}
-					} else if (isDamagedNode(child, true, true)) {
-						rightNeighbour = child;
-					} else {
-						rightNeighbour = isRightCollateralDamage(rightNeighbour) ? rightNeighbour : child;
-						done = true;
-						return;
-					}
-					lastChild = child;
-				}
-				if (rightNeighbour == null) rightNeighbour = lastChild;
 			}
 			
 			@Override
@@ -106,8 +78,36 @@ public class NeighbourDamageExpander {
 			}
 		}.visit(oldTree);
 	}
+	
+	boolean tryInitNeighbour(ISimpleTerm list) {
+		boolean foundDamagedNode = false;
+		
+		Iterator<ISimpleTerm> iterator = tryGetListIterator(list);
+		ISimpleTerm lastChild = null;
+		for (int i = 0, max = list.getSubtermCount(); i < max; i++) {
+			ISimpleTerm child = iterator == null ? list.getSubterm(i) : iterator.next();
+			if (!foundDamagedNode) {
+				if (isDamagedNode(child, true, true)) {
+					if (leftNeighbour == null || isLeftCollateralDamage(child))
+						leftNeighbour = child;
+					foundDamagedNode = true;
+					rightNeighbour = child; // next node, if any, replaces this value
+				} else {
+					leftNeighbour = child;
+				}
+			} else if (isDamagedNode(child, true, true)) {
+				rightNeighbour = child;
+			} else {
+				rightNeighbour = isRightCollateralDamage(rightNeighbour) ? rightNeighbour : child;
+				return true;
+			}
+			lastChild = child;
+		}
+		if (rightNeighbour == null) rightNeighbour = lastChild;
+		return false;
+	}
 
-	private boolean isDamagedNode(ISimpleTerm node, boolean considerLeftLayout, boolean considerRightLayout) {
+	boolean isDamagedNode(ISimpleTerm node, boolean considerLeftLayout, boolean considerRightLayout) {
 		IToken left = getLeftToken(node);
 		IToken right = getRightToken(node);
 		if (left == null || right == null) return false;

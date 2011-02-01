@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
 import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
@@ -111,10 +112,24 @@ public class ImploderAttachment extends AbstractTermAttachment {
 		return token == null ? null : token.getTokenizer();
 	}
 	
+	/**
+	 * Determines if the current term has an imploder attachment,
+	 * or if it has an origin with one.
+	 */
 	public static boolean hasImploderOrigin(ISimpleTerm term) {
 		ISimpleTerm origin = OriginAttachment.getOrigin(term);
 		if (origin != null) term = origin;
 		return term.getAttachment(TYPE) != null;
+	}
+	
+	/**
+	 * Returns the current term if it has an imploder attachment,
+	 * or returns the origin term if it has one.
+	 */
+	public static IStrategoTerm getImploderOrigin(IStrategoTerm term) {
+		IStrategoTerm origin = OriginAttachment.getOrigin(term);
+		if (origin != null) term = origin;
+		return term.getAttachment(TYPE) != null ? term : null;
 	}
 	
 	public static void putImploderAttachment(ISimpleTerm term, boolean isAnonymousSequence, String sort, IToken leftToken, IToken rightToken) {

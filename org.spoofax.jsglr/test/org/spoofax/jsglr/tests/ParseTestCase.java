@@ -17,6 +17,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
@@ -27,6 +28,7 @@ import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
 import org.spoofax.jsglr.io.FileTools;
+import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.ParseError;
@@ -34,6 +36,8 @@ import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
 public abstract class ParseTestCase extends TestCase {
+	
+	private static final ParseTableManager parseTables = new ParseTableManager();
 
 	protected SGLR sglr;
 	
@@ -62,9 +66,12 @@ public abstract class ParseTestCase extends TestCase {
 		Tools.setLogging(false);
 		final String fn = "tests/grammars/" + grammar + ".tbl";
 
-		final IStrategoTerm result = tryReadTermFromFile(fn);
-		table = new ParseTable(result, pf);
-		sglr = new SGLR(pf, table);
+		try {
+			table = parseTables.loadFromFile(fn);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		sglr = new SGLR(new Asfix2TreeBuilder(table.getFactory()), table);
 		//        parseTableService.fetchParseTable("tests/grammars/" + grammar + ".tbl",
 		//        		new AsyncCallback<IStrategoTerm>() {
 		//
@@ -194,8 +201,12 @@ public abstract class ParseTestCase extends TestCase {
 		//parseTableService.readTermFromFile("tests/data/" + s + ".trm", new AsyncCallback<IStrategoTerm>() {
 		String extension =
 			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
-		final String x = FileTools.tryLoadFileAsString("tests/data/" + s + extension);
-		final IStrategoTerm wanted = pf.parseFromString(x);
+		IStrategoTerm wanted;
+		try {
+			wanted = new TermReader(pf).parseFromFile("tests/data/" + s + extension);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		//			@Override
 		//			public void onFailure(Throwable caught) {
 		//				fail();
@@ -203,7 +214,7 @@ public abstract class ParseTestCase extends TestCase {
 		//
 		//			@Override
 		//			public void onSuccess(IStrategoTerm loaded) {
-		assertNotNull(x);
+		assertNotNull(wanted);
 
 		System.out.println(toCompactString(parsed));
 		System.out.println(toCompactString(wanted));

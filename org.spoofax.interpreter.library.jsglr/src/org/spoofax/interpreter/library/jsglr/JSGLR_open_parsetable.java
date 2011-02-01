@@ -37,7 +37,7 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
 		
 		JSGLRLibrary lib = getLibrary(env);
 		try {
-			ParseTable pt = lib.getParseTableManager().loadFromTerm(tableTerm);
+			ParseTable pt = lib.getParseTableManager(env.getFactory()).loadFromTerm(tableTerm);
 			IStrategoInt result = env.getFactory().makeInt(lib.addParseTable(pt));
             
 			env.setCurrent(result);			

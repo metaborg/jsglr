@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.spoofax.jsglr.client.NotImplementedException;
+import org.spoofax.NotImplementedException;
 
 /**
  * A list implementation that will automatically 

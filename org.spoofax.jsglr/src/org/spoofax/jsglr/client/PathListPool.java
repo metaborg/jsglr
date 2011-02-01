@@ -31,4 +31,11 @@ public class PathListPool {
 	public static void resetPerformanceCounters() {
 		cacheMisses = 0;
 	}
+
+	public void reset() {
+		p0.reset();
+		p1.reset();
+		p2.reset();
+		p3.reset();
+	}
 }

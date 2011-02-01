@@ -67,8 +67,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 	
 	public TreeBuilder(boolean disableTokens) {
-		// TODO: respect disableTokens once lexical strings work correctly without it
-		this.disableTokens = false;
+		this.disableTokens = disableTokens;
 		this.initializeFactories = true;
 	}
 	
@@ -88,6 +87,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		if (initializeFactories) {
 			factory = new TermTreeFactory(termFactory);
 			factory.setEnableTokens(!disableTokens);
+			initializeFactories = false;
 		}
 		// assert !(factory instanceof TermTreeFactory) || ((TermTreeFactory) factory).getOriginalTermFactory() == table.getFactory()
 		// 	: "ITermFactory of ITreeFactory does not correspond to ITermFactory of ParseTable"; 
@@ -103,11 +103,10 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	public void initializeInput(String input, String filename) {
 		assert offset == 0 : "Tree builder offset was not reset, race condition?";
-		offset = 0;
-		inLexicalContext = false;
 		tokenizer = disableTokens
 			? new NullTokenizer(input, filename)
 			: new Tokenizer(input, filename, table.getKeywordRecognizer());
+		reset();
 	}
 	
 	public ITokenizer getTokenizer() {
@@ -123,7 +122,19 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	@Override
 	@Deprecated
 	public Object buildTree(AbstractParseNode node) {
+		assert tokenizer != null : "Tokenizer not initialized; initializeInput() not called?";
 		return tryBuildAutoConcatListNode(super.buildTree(node));
+	}
+	
+	@Override
+	public void reset() {
+		offset = 0;
+		inLexicalContext = false;
+		if (tokenizer != null && tokenizer.getStartOffset() > 0) {
+			tokenizer = disableTokens
+				? new NullTokenizer(tokenizer.getInput(), tokenizer.getFilename())
+				: new Tokenizer(tokenizer.getInput(), tokenizer.getFilename(), table.getKeywordRecognizer());
+		}
 	}
 	
 	@Override
@@ -134,8 +145,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			tokenizer.makeToken(tokenizer.getStartOffset() - 1, TK_EOF, true);
 			return factory.createTop(tree, tokenizer.getFilename(), ambiguityCount);
 		} finally {
-			offset = 0;
-			inLexicalContext = false;
+			reset();
 		}
 	}
 
@@ -187,6 +197,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				// TODO: Optimize stack - inline toTreeTopdown case selection?
 				child = subnode.toTreeTopdown(this);
 			}
+			// TODO: handle ambiguities in lexicals better (ignored now)
+			if (inLexicalContext)
+				child = null;
 			if (child != null)
 				children.add(isList ? child : tryBuildAutoConcatListNode(child));
 		}
@@ -286,19 +299,21 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 	private Object tryCreateStringTerminal(LabelInfo label, int lastOffset) {
 		String sort = label.getSort();
-		IToken token = tokenizer.makeToken(offset - 1, label, sort != null);
+		IToken rightToken = tokenizer.makeToken(offset - 1, label, sort != null);
 		
 		if (sort == null) return null;
 		
-		// Debug.log("Creating node ", sort, " from ", SGLRTokenizer.dumpToString(token));
+		// Don't use tokens here in case tokenizer is disabled
+		IToken leftToken = rightToken.getStartOffset() == lastOffset ? rightToken : tokenizer.getTokenAtOffset(lastOffset);
+		String contents = tokenizer.toString(lastOffset, offset - 1);
+		assert disableTokens || (contents.equals(tokenizer.toString(leftToken, rightToken)) && lastOffset == leftToken.getStartOffset());
 		
-		// TODO: don't use token here, just use the string from lastOffset...offset, in case the tokenizer is disabled
-		Object result = factory.createStringTerminal(sort, getPaddedLexicalValue(label, token), token);
+		Object result = factory.createStringTerminal(sort, leftToken, rightToken, getPaddedLexicalValue(label, contents, lastOffset));
 		String constructor = label.getMetaVarConstructor();
 		if (constructor != null) {
 			ArrayList<Object> children = new ArrayList<Object>(1);
 			children.add(result);
-			result = factory.createNonTerminal(sort, constructor, token, token, children);
+			result = factory.createNonTerminal(sort, constructor, leftToken, rightToken, children);
 		}
 		return result;
 	}
@@ -362,8 +377,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return factory.createTuple(label.getSort(), left, right, children);
 		} else if (constructor == null && children.size() == 1 && factory.tryGetStringValue(children.get(0)) != null) {
 			// Child node was a <string> node (rare case); unpack it and create a new terminal
-			assert left == right;
-			return factory.createStringTerminal(label.getSort(), getPaddedLexicalValue(label, left), left);
+			return factory.createStringTerminal(label.getSort(), left, right, factory.tryGetStringValue(children.get(0)));
 		} else {
 			return factory.createNonTerminal(label.getSort(), constructor, left, right, children);
 		}
@@ -381,28 +395,21 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	/**
 	 * Gets the padded lexical value for {indentpadding} lexicals, or returns null.
 	 */
-	private String getPaddedLexicalValue(LabelInfo label, IToken startToken) {
+	private String getPaddedLexicalValue(LabelInfo label, String contents, int startOffset) {
 		if (label.isIndentPaddingLexical()) {
 			String input = tokenizer.getInput();
-			int lineStart = startToken.getStartOffset() - 1;
-			if (lineStart < 0) return null;
-			while (lineStart >= 0) {
-				char c = input.charAt(lineStart--);
-				if (c == '\n' || c == '\r') {
-					lineStart++;
-					break;
-				}
-			}
+			if (startOffset == 0) return contents;
+			int lineStart = input.lastIndexOf('\n', startOffset - 1) + 1;
 			StringBuilder result = new StringBuilder();
-			result.append(input, lineStart, startToken.getStartOffset() - lineStart - 1);
+			result.append(input, lineStart, startOffset);
 			for (int i = 0; i < result.length(); i++) {
 				char c = result.charAt(i);
 				if (c != ' ' && c != '\t') result.setCharAt(i, ' ');
 			}
-			result.append(startToken.toString());
+			result.append(contents);
 			return result.toString();
 		} else {
-			return startToken.toString(); // lazily load token string value
+			return contents; // lazily load token string value
 		}
 	}
 	
@@ -478,11 +485,13 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 	private void markUnexpectedEOF(int character) {
 		String input = tokenizer.getInput();
+		/*
 		assert nonMatchingOffset == NONE :
 				"Character in parse tree after end of input stream: " + (char) character
 				+ " - may be caused by unexpected character in parse tree at position "
 				+ nonMatchingChar 	+ ": " + nonMatchingChar + " instead of "
 				+ nonMatchingCharExpected;
+		*/
 		// UNDONE: Strict lexical stream checking
 		// throw new ImploderException("Character in parse tree after end of input stream: " + (char) character.getInt());
 		// a forced reduction may have added some extra characters to the tree;

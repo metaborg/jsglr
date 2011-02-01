@@ -14,6 +14,7 @@ import static org.spoofax.terms.Term.termAt;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
@@ -21,7 +22,6 @@ import org.spoofax.interpreter.terms.IStrategoPlaceholder;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.terms.ParseError;
 
 /**
@@ -119,7 +119,7 @@ public class AstAnnoImploder<TNode> {
 			children.add(toNode(termAt(appl, i), null));
 		}
 		if (appl.getTermType() == STRING) {
-			return factory.createStringTerminal(sort, appl.getName(), leftToken);
+			return factory.createStringTerminal(sort, leftToken, rightToken, appl.getName());
 		} else {
 			return factory.createNonTerminal(sort, appl.getName(), leftToken, rightToken, children);
 		}

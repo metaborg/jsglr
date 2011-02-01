@@ -14,8 +14,6 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 	
 	private ParseTableManager parseTableManager;
 	
-	private ITermFactory ITermFactory;
-	
 	private int parseTableCounter;
 	
 	private Map<Integer, ParseTable> parseTables;
@@ -36,9 +34,9 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		
 	}
 
-	public ParseTableManager getParseTableManager() {
+	public ParseTableManager getParseTableManager(ITermFactory factory) {
 		if(parseTableManager == null)
-			parseTableManager = new ParseTableManager(ITermFactory);
+			parseTableManager = new ParseTableManager(factory);
 		return parseTableManager;
 	}
 

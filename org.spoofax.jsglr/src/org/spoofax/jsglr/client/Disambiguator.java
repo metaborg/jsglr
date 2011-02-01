@@ -12,6 +12,7 @@ import static org.spoofax.terms.Term.termAt;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -241,7 +242,8 @@ public class Disambiguator {
 	}
 
     private Object yieldTree(AbstractParseNode t) {
-        return parseTable.getTreeBuilder().buildTree(t);
+		parseTable.getTreeBuilder().reset(); // in case yieldTree is used for debugging
+		return parseTable.getTreeBuilder().buildTree(t);
     }
 
     private Object yieldTreeTop(AbstractParseNode t) {
@@ -250,17 +252,21 @@ public class Disambiguator {
 			Tools.debug("convertToATerm: ", t);
 		}
 
-		ambiguityManager.resetAmbiguityCount();
-		final Object r = yieldTree(t);
-
-		logStatus();
-
-        int ambCount = ambiguityManager.getAmbiguitiesCount();
-        if (SGLR.isDebugging()) {
-            Tools.debug("yield: ", r);
-        }
-        
-        return parser.getParseTable().getTreeBuilder().buildTreeTop(r, ambCount);
+		try {
+			ambiguityManager.resetAmbiguityCount();
+			final Object r = yieldTree(t);
+	
+			logStatus();
+	
+	        int ambCount = ambiguityManager.getAmbiguitiesCount();
+	        if (SGLR.isDebugging()) {
+	            Tools.debug("yield: ", r);
+	        }
+	        
+	        return parser.getParseTable().getTreeBuilder().buildTreeTop(r, ambCount);
+		} finally {
+			parseTable.getTreeBuilder().reset();
+		}
     }
 
 	private AbstractParseNode applyCycleDetectFilter(AbstractParseNode t) throws FilterException {
@@ -623,11 +629,12 @@ public class Disambiguator {
 		return new ParseNode(t.label, newKids.toArray(new AbstractParseNode[newKids.size()]));
 	}
 
-	private AbstractParseNode replaceUnderInjections(AbstractParseNode alt, AbstractParseNode injection, AbstractParseNode n) {
+	private AbstractParseNode replaceUnderInjections(AbstractParseNode alt, AbstractParseNode injection, AbstractParseNode n)
+			throws FilterException {
 		// SG_Replace_Under_Injections
 		// - not ok
 
-		throw new NotImplementedException();
+		throw new FilterException(parser, "replaceUnderInjections is not implemented", new NotImplementedException());
 		/*
         if (ATisEqual(t, injT)) {
            return newTree;

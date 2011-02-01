@@ -12,6 +12,8 @@ public interface ITreeBuilder {
 	Object buildTree(AbstractParseNode node);
 	Object buildTreeTop(Object subtree, int ambiguityCount);
 	
+	void reset();
+	
 	/**
 	 * Gets the tokenizer, if applicable, or null.
 	 */

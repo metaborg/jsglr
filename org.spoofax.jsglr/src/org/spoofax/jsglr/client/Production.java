@@ -62,4 +62,14 @@ public class Production implements Serializable {
         Production o = (Production)obj;
         return arity == o.arity && label == o.label && status == o.status;
     }
+
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + arity;
+		result = prime * result + label;
+		result = prime * result + status;
+		return result;
+	}
 }

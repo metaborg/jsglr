@@ -39,7 +39,7 @@ public class Tokenizer extends AbstractTokenizer {
 	public Tokenizer(String input, String filename, KeywordRecognizer keywords) {
 		super(input, filename);
 		this.keywords = keywords;
-		this.tokens = new ArrayList<Token>((int) (input.length() / EXPECTED_TOKENS_DIVIDER));
+		this.tokens = new ArrayList<Token>(); // capacity set in internalMakeToken()
 		startOffset = 0;
 		line = 0;
 		offsetAtLineStart = 0;
@@ -76,10 +76,10 @@ public class Tokenizer extends AbstractTokenizer {
 	
 	public IToken getTokenAtOffset(int offset) {
 		assert isAmbigous() || 
-			getTokenCount() < 2 || getTokenAt(getTokenCount() - 1).getEndOffset()
-			== getTokenAt(getTokenCount() - 2).getEndOffset()
+			getTokenCount() < 2 || getTokenAt(getTokenCount() - 1).getStartOffset()
+			== getTokenAt(getTokenCount() - 2).getEndOffset() + 1
 			: "Unordered tokens at end of tokenizer";
-		Token key = new Token(this, -1, -1, -1, offset, offset, TK_RESERVED);
+		Token key = new Token(this, -1, -1, -1, offset, offset - 1, TK_RESERVED);
 		int resultIndex = Collections.binarySearch(tokens, key);
 		if (resultIndex < 0)
 			throw new IndexOutOfBoundsException("No token at offset " + offset + " (binary search returned " + resultIndex + ")");
@@ -127,6 +127,8 @@ public class Tokenizer extends AbstractTokenizer {
 	protected Token internalMakeToken(int kind, int endOffset, String errorMessage) {
 		Token result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
 		if (errorMessage != null) result.setError(errorMessage);
+		if (tokens.size() == 5)
+			tokens.ensureCapacity((int) (getInput().length() / EXPECTED_TOKENS_DIVIDER));
 		tokens.add(result);
 		startOffset = endOffset + 1;
 		return result;

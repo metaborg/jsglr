@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -96,7 +97,7 @@ public class ParseTable implements Serializable {
     }
                                              
     public ParseTable(IStrategoTerm pt, ITermFactory factory) throws InvalidParseTableException {
-        initIStrategoConstructors(factory);
+        initTransientData(factory);
         parse(pt);
     }
     
@@ -105,7 +106,7 @@ public class ParseTable implements Serializable {
     	this(pt, new TermFactory());
     }
 
-    public void initIStrategoConstructors(ITermFactory factory) {
+    public void initTransientData(ITermFactory factory) {
         this.factory = factory;
         applIStrategoConstructor = factory.makeConstructor("appl", 2);
         ambIStrategoConstructor = factory.makeConstructor("amb", 1);

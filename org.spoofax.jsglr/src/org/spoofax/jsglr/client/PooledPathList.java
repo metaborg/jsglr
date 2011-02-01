@@ -69,12 +69,17 @@ public class PooledPathList {
 			rememberIndex = 0;
 			allocIndex = 1;
 			return this;
-		} 
-		throw new IllegalStateException("PooledPathList may not be used recursively");
+		}
+		// FIXME: return unpooled pathlist?
+		throw new IllegalStateException("PooledPathList may not be used recursively -- TODO: if this happens, and it shouldn't, just return an unpooled pathlist?");
 	}
 	
 	public static void resetPerformanceCounters() {
 		maxRemembered = 0;
 		maxAllocated = 0;
+	}
+
+	public void reset() {
+		usage = 0;
 	}
 }

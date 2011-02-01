@@ -112,11 +112,10 @@ public class Token implements IToken {
 		return tokenizer.toString(this, this);
 	}
 
-	public int compareTo(IToken arg0) {
-		int otherOffset = arg0.getStartOffset();
-		if (endOffset < otherOffset) {
+	public int compareTo(IToken other) {
+		if (endOffset <= other.getEndOffset()) {
 			return -1;
-		} else if (startOffset > otherOffset) {
+		} else if (startOffset > other.getStartOffset()) {
 			return 1;
 		} else {
 			return 0;

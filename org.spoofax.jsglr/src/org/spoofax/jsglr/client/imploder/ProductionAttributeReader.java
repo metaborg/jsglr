@@ -160,7 +160,7 @@ public class ProductionAttributeReader {
 	public String getSyntaxErrorExpectedInsertion(IStrategoAppl rhs) {
 		String inserted;
 		if (rhs.getName().equals("lit")) {
-			inserted = "'" + applAt(rhs, 0).getName() + "'";
+			inserted = "'" + ((IStrategoNamed) termAt(rhs, 0)).getName() + "'";
 		} else if (rhs.getName().equals("char-class")) {
 			inserted = "'" + toString((IStrategoList) termAt(rhs, 0)) + "'";
 		} else {

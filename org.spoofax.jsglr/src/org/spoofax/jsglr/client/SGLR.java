@@ -342,6 +342,7 @@ public class SGLR {
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 		ambiguityManager = new AmbiguityManager(input.length());
+		pathCache.reset();
 		
 	}
 
@@ -509,7 +510,7 @@ public class SGLR {
 						break;
 					}
 					default:
-						throw new NotImplementedException();
+						throw new IllegalStateException("Unknown action type: " + ai.type);
 					}
 				}
 			}

@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.jsglr.shared.Tools;
 
 
@@ -44,7 +45,8 @@ public class Link {
         return rejected;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return "" + parent.state.stateNumber;
     }
 
@@ -77,5 +79,10 @@ public class Link {
         o.label == label &&
         o.rejected == rejected &&
         o.length == length;
+    }
+    
+    @Override
+    public int hashCode() {
+    	throw new NotImplementedException();
     }
 }

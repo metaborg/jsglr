@@ -10,7 +10,6 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
-import static org.spoofax.terms.AbstractTermFactory.EMPTY;
 import static org.spoofax.terms.StrategoListIterator.iterable;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.isTermString;
@@ -19,14 +18,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.NotImplementedException;
 import org.spoofax.terms.TermFactory;
 
 /**
@@ -58,11 +58,8 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 		this.enableTokens = enableTokens;
 		if (enableTokens) {
 			factory = originalFactory.getFactoryWithStorageType(MUTABLE);
-			if (factory.getDefaultStorageType() != MUTABLE
-					|| factory.makeList(EMPTY).getStorageType() != MUTABLE
-					|| factory.makeString("Sanity").getStorageType() != MUTABLE) {
+			if (!TermFactory.checkStorageType(factory, MUTABLE))
 				throw new IllegalStateException("Term factory does not support MUTABLE terms, required for creating terms with (token) attachments");
-			}
 		} else {
 			factory = originalFactory;
 		}
@@ -105,9 +102,9 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 		return result;
 	}
 
-	public IStrategoTerm createStringTerminal(String sort, String value, IToken token) {
+	public IStrategoTerm createStringTerminal(String sort, IToken leftToken, IToken rightToken, String value) {
 		IStrategoTerm result = factory.makeString(value);
-		configure(result, sort, token, token, false);
+		configure(result, sort, leftToken, rightToken, false);
 		return result;
 	}
 
@@ -150,10 +147,11 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 			case LIST:
 				return createList(getElementSort(oldNode), leftToken, rightToken, children);
 			case STRING:
-				return createStringTerminal(getSort(oldNode), ((IStrategoString) oldNode).stringValue(), leftToken);
+				return createStringTerminal(getSort(oldNode), leftToken, rightToken, ((IStrategoString) oldNode).stringValue());
 			case TUPLE:
 				return createTuple(getElementSort(oldNode), leftToken, rightToken, children);
 			case REAL:
+				return createRealTerminal(getElementSort(oldNode), leftToken, ((IStrategoReal) oldNode).realValue());
 			default:
 				throw new NotImplementedException("Recreating term of type " + oldNode.getTermType() + " (" + oldNode + ") not supported"); 
 		}

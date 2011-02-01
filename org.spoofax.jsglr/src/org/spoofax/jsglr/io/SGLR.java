@@ -50,6 +50,7 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 			final int jobId = abortTimerJobId;
 			abortTimer.schedule(new TimerTask() {
 				@Override
+				@SuppressWarnings("synthetic-access")
 				public void run() {
 					synchronized (abortTimer) {
 						if (abortTimerJobId == jobId)

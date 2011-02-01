@@ -15,7 +15,7 @@ import org.spoofax.jsglr.client.ParseProductionNode;
 public abstract class TopdownTreeBuilder implements ITreeBuilder {
 
 	public void initialize(int productionCount, int labelCount) {
-		
+		// No initialization
 	}
 
 	/**
@@ -32,6 +32,10 @@ public abstract class TopdownTreeBuilder implements ITreeBuilder {
 			assert node instanceof Amb;
 			return buildTreeAmb((Amb) node);
 		}
+	}
+	
+	public void reset() {
+		// Do nothing by default
 	}
 
 	public Object buildTreeTop(Object subtree, int ambiguityCount) {

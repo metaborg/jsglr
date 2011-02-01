@@ -66,29 +66,38 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			
 			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
 			
-			IToken token = currentToken() != prevToken
-				? currentToken()
-				: makeToken(endOffset, TK_ERROR, false);
-			IToken lastToken = currentToken();
-			String tokenText = toString(token, lastToken);
+			IToken first, last;
+			
+			if (prevToken == currentToken()) {
+				first = last = makeToken(endOffset, TK_ERROR, true);
+			} else {
+				first = getTokenAfter(prevToken);
+				last = currentToken();
+			}
+			if (first.getStartOffset() + 1 == last.getEndOffset()) {
+				// bah, we need some characters to mark, to the left then...
+				first = findLeftMostLayoutToken(first);
+			}
+			
+			String tokenText = toString(first, last);
 			if (tokenText.length() > 40)
 				tokenText = tokenText.substring(0, 40) + "...";
 			
 			if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
-				setErrorMessage(token, lastToken, ERROR_WATER_PREFIX
+				setErrorMessage(first, last, ERROR_WATER_PREFIX
 						+ ": '" + tokenText + "'");
 			} else if (prodReader.isInsertEndConstructor(label.getConstructor())) {
-				setErrorMessage(token, lastToken, ERROR_INSERT_END_PREFIX
+				setErrorMessage(first, last, ERROR_INSERT_END_PREFIX
 						/*+ ": '" + tokenText + "'"*/);
 			} else if (prodReader.isInsertConstructor(label.getConstructor())) {
-				token = Tokenizer.findLeftMostLayoutToken(token);
-				setErrorMessage(token, lastToken, ERROR_INSERT_PREFIX
+				// token = findLeftMostLayoutToken(token);
+				setErrorMessage(first, last, ERROR_INSERT_PREFIX
 						+ ": " + prodReader.getSyntaxErrorExpectedInsertion(label.getRHS()));
 			} else if (label.getDeprecationMessage() != null) {
-				setErrorMessage(token, lastToken, ERROR_WARNING_PREFIX
+				setErrorMessage(first, last, ERROR_WARNING_PREFIX
 						+ ": '" + label.getDeprecationMessage());
 			} else {
-				setErrorMessage(token, lastToken, ERROR_GENERIC_PREFIX
+				setErrorMessage(first, last, ERROR_GENERIC_PREFIX
 						+ ": '" + tokenText + "'");
 			}
 		}

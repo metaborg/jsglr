@@ -11,7 +11,7 @@ import java.util.List;
 public abstract class BottomupTreeBuilder implements ITreeBuilder {
 
 	public void initialize(int productionCount, int labelCount) {
-		
+		// Do nothing by default
 	}
 	
 	public Object buildTree(AbstractParseNode node) {
@@ -19,11 +19,15 @@ public abstract class BottomupTreeBuilder implements ITreeBuilder {
 	}
 	
 	public void visitLabel(int labelNumber) {
-		
+		// Do nothing by default
 	}
 	
 	public void endVisitLabel(int labelNumber) {
-		
+		// Do nothing by default
+	}
+	
+	public void reset() {
+		// Do nothing by default
 	}
 
 	public Object buildTreeTop(Object subtree, int ambiguityCount) {

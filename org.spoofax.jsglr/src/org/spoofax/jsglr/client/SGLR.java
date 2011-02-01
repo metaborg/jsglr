@@ -81,7 +81,7 @@ public class SGLR {
 
 	private int reductionCount;
 
-	PushbackStringIterator currentInputStream;
+	protected PushbackStringIterator currentInputStream;
 
 	private PooledPathList reductionsPathCache = new PooledPathList(512, true);
 	private PathListPool pathCache = new PathListPool();
@@ -130,7 +130,7 @@ public class SGLR {
 
 	@Deprecated
 	public SGLR(ITermFactory pf, ParseTable parseTable) {
-		this(parseTable);
+		this(new Asfix2TreeBuilder(pf), parseTable);
 	}
 	
 	@Deprecated
@@ -161,8 +161,10 @@ public class SGLR {
 	}
 
 	/**
-	 * Structure-based recovery without bridge parsing.
+	 * Enables error recovery based on region recovery and, if available, recovery rules.
+	 * Does not enable bridge parsing.
 	 *
+	 * @see ParseTable#hasRecovers()   Determines if the parse table supports recovery rules
 	 */
 	public final void setUseStructureRecovery(boolean useRecovery) {
 		setUseStructureRecovery(useRecovery, null);
@@ -238,19 +240,27 @@ public class SGLR {
 	@Deprecated
 	public Object parse(String fis) throws BadTokenException,
     TokenExpectedException, ParseException, SGLRException {
-	    return parse(fis, null);
+	    return parse(fis, null, null);
 	}
 
-    public final Object parse(String input, String filename) throws BadTokenException,
+    @Deprecated
+	public final Object parse(String input, String filename) throws BadTokenException,
     TokenExpectedException, ParseException, SGLRException {
 
         return parse(input, filename, null);
     }
 
-	public Object parse(String fis, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+	/**
+	 * Parses a string and constructs a new tree using the tree builder.
+	 * 
+	 * @param input        The input string.
+	 * @param filename     The source filename of the string, or null if not available.
+	 * @param startSymbol  The start symbol to use, or null if any applicable.
+	 */
+    public Object parse(String input, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
 	SGLRException {
 		logBeforeParsing();
-		initParseVariables(filename, fis);
+		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
         getPerformanceMeasuring().startParse();
@@ -266,9 +276,7 @@ public class SGLR {
 		try {
 			do {
 				readNextToken();
-				if(useIntegratedRecovery){
-					history.keepTokenAndState(this);
-				}
+				history.keepTokenAndState(this);
 				doParseStep();
 			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
 
@@ -311,12 +319,12 @@ public class SGLR {
 		currentToken = getNextToken();
 	}
 
-	public void doParseStep() {
+	protected void doParseStep() {
 		parseCharacter(); //applies reductions on active stack structure and fills forshifter
 		shifter(); //renewes active stacks with states in forshifter
 	}
 
-	private void initParseVariables(String filename, String input) {
+	private void initParseVariables(String input, String filename) {
 		forActor.clear();
 		forActorDelayed.clear();
 		forShifter.clear();
@@ -330,7 +338,7 @@ public class SGLR {
 		collectedErrors.clear();
 		history=new ParserHistory();
 		performanceMeasuring=new RecoveryPerformance();
-		parseTable.getTreeBuilder().initializeInput(filename, input);
+		parseTable.getTreeBuilder().initializeInput(input, filename);
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 		ambiguityManager = new AmbiguityManager(input.length());
@@ -403,7 +411,7 @@ public class SGLR {
 		logAfterShifter();
 	}
 
-	public void addStack(Frame st1) {
+	protected void addStack(Frame st1) {
 		if(Tools.tracing) {
 			TRACE("SG_AddStack() - " + st1.state.stateNumber);
 		}
@@ -564,14 +572,11 @@ public class SGLR {
 		}
 
 		final PooledPathList paths = reductionsPathCache.start();
-		try {
-			st.findAllPaths(paths, prod.arity);
-			logBeforeDoReductions(st, prod, paths.size());
-			reduceAllPaths(prod, paths);
-		} catch (Exception e) {
-			// FIXME: Unexpected failures incidentally occur during FineGrained Recovery
-			//See: yellowgrass
-		}
+		//System.out.println(paths.size());
+		st.findAllPaths(paths, prod.arity);
+		//System.out.println(paths.size());
+		logBeforeDoReductions(st, prod, paths.size());
+		reduceAllPaths(prod, paths);
 		logAfterDoReductions();
 		paths.end();
 	}
@@ -586,25 +591,21 @@ public class SGLR {
 		}
 
 		final PooledPathList limitedPool = pathCache.create();
-		try {
-			st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
-			logBeforeLimitedReductions(st, prod, l, limitedPool);
-			reduceAllPaths(prod, limitedPool);
-		} catch (Exception e) {
-			// FIXME: Problems may occur. See doReductions
-		}
+		st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
+		logBeforeLimitedReductions(st, prod, l, limitedPool);
+		reduceAllPaths(prod, limitedPool);
 		limitedPool.end();
 	}
 
 	private void reduceAllPaths(Production prod, PooledPathList paths) {
 
 		for(int i = 0; i < paths.size(); i++) {
-				final Path path = paths.get(i);
-				final Frame st0 = path.getEnd();								
-				final AbstractParseNode[] kids = path.getParseNodes();
-				final State next = parseTable.go(st0.peek(), prod.label);
-				logReductionPath(prod, path, st0, next);
-				reducer(st0, next, prod, kids, path);			
+			final Path path = paths.get(i);
+			final AbstractParseNode[] kids = path.getParseNodes();
+			final Frame st0 = path.getEnd();
+			final State next = parseTable.go(st0.peek(), prod.label);
+			logReductionPath(prod, path, st0, next);
+			reducer(st0, next, prod, kids, path);
 		}
 
 		if (asyncAborted) {
@@ -612,7 +613,8 @@ public class SGLR {
 			throw new TaskCancellationException("Long-running parse job aborted");
 		}
 	}
-	
+
+
 	private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
 
 		logBeforeReducer(s, prod, path.getLength());
@@ -624,20 +626,8 @@ public class SGLR {
 		final Frame st1 = findStack(activeStacks, s);
 
 		if (st1 == null) {
-			if(prod.isRecoverProduction()){ //TODO refactor into addNewRecoverStack
-				final Frame st1Recover = findStack(recoverStacks, s);
-				if(st1Recover==null){
-					addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
-				} else{
-					Link nlRecover = st1Recover.findDirectLink(st0);
-					if (nlRecover != null) {
-						return; //TODO: create ambiguity or take preferred one at runtime
-					}
-					else{
-						nlRecover = st1Recover.addLink(st0, t, length);
-						nlRecover.recoverCount = numberOfRecoveries;
-					}
-				}
+			if(prod.isRecoverProduction()){
+				addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
 				return;
 			}
 			addNewStack(st0, s, prod, length, numberOfRecoveries, t);
@@ -727,7 +717,7 @@ public class SGLR {
 		nl.recoverCount = numberOfRecoveries;
 		recoverStacks.addFirst(st1);
 	}
-	
+
 	private void actorOnActiveStacksOverNewLink(Link nl) {
 		// Note: ActiveStacks can be modified inside doLimitedReductions
 		// new elements may be inserted at the beginning
@@ -861,60 +851,13 @@ public class SGLR {
 	public void setFilter(boolean filter) {
 		getDisambiguator().setFilterAny(filter);
 	}
-
-	public void clear() {
-		if (this.acceptingStack != null) {
-			this.acceptingStack.clear();
-		}
-
-		clearActiveStacksDeep();
-		clearForActorDelayedDeep();
-		clearForActorDeep();
-		clearForShifterDeep();
-
-		this.parseTable = null;
-		this.ambiguityManager = null;
-	}
-
-	private void clearForShifterDeep() {
-		for (final ActionState as : forShifter) {
-			as.clear(true);
-		}
-		clearForShifter();
-	}
-
+	
 	private void clearForShifter() {
 		forShifter.clear();
 	}
 
-	private void clearForActor() {
-		forActor.clear();
-	}
-
-	private void clearForActorDeep() {
-		for (final Frame frame : forActor) {
-			frame.clear();
-		}
-		clearForActor();
-	}
-
-	private void clearForActorDelayedDeep() {
-		for (final Frame frame : forActorDelayed) {
-			frame.clear();
-
-		}
-		clearForActorDelayed();
-	}
-
 	private void clearForActorDelayed() {
 		forActorDelayed.clear(true);
-	}
-
-	private void clearActiveStacksDeep() {
-		for (final Frame frame : activeStacks) {
-			frame.clear();
-		}
-		clearActiveStacks();
 	}
 
 	private void clearActiveStacks() {
@@ -950,11 +893,11 @@ public class SGLR {
 		return parseTable.getFactory();
 	}
 
-	public int getReductionCount() {
+	protected int getReductionCount() {
 		return reductionCount;
 	}
 
-	public int getRejectionCount() {
+	protected int getRejectionCount() {
 		return rejectCount;
 	}
 
@@ -1134,6 +1077,7 @@ public class SGLR {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void logBeforeActor(Frame st, State s) {
 		List<ActionItem> actionItems = null;
 

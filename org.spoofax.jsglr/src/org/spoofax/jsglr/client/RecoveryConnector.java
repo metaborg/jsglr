@@ -5,7 +5,6 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 
-//TODO: keep recovered lines (Testcase: two separated errors)
 public class RecoveryConnector {
     private SGLR mySGLR;
     private IRecoveryParser recoveryParser;
@@ -47,16 +46,17 @@ public class RecoveryConnector {
     public void recover() {
         mySGLR.getPerformanceMeasuring().startRecovery();
         combinedRecover();
-        mySGLR.getPerformanceMeasuring().endRecovery();
+        mySGLR.getPerformanceMeasuring().endRecovery(recoverySucceeded());
     }
 
     private void combinedRecover() {
         if(onlyFineGrained){
             mySGLR.getPerformanceMeasuring().startFG();
-            if(tryFineGrainedRepair()){
-            	//System.out.println("FG-only Succeeded");
+            boolean fg=tryFineGrainedRepair();
+            if(fg){
+            	System.out.println("FG-only Succeeded");
             }
-            mySGLR.getPerformanceMeasuring().endFG();
+            mySGLR.getPerformanceMeasuring().endFG(fg);
             return;
         }
         mySGLR.getPerformanceMeasuring().startCG();
@@ -64,12 +64,12 @@ public class RecoveryConnector {
         /*
         System.out.println();
         System.out.println("------------------------------");
-        //System.out.print("SKIP-RESULT: "+skipSucceeded);
+        System.out.println("SKIP-RESULT: "+skipSucceeded);
         System.out.print(skipRecovery.getErrorFragment());
         System.out.println();
         System.out.println("------------------------------");
         */
-        mySGLR.getPerformanceMeasuring().endCG();
+        mySGLR.getPerformanceMeasuring().endCG(skipSucceeded);
         mySGLR.acceptingStack=null;
         mySGLR.activeStacks.clear();
         //BRIDGE REPAIR
@@ -77,7 +77,7 @@ public class RecoveryConnector {
             String errorFragment = skipRecovery.getErrorFragmentWithLeftMargin();
             mySGLR.getPerformanceMeasuring().startBP();
             boolean succeeded = tryBridgeRepair(errorFragment);
-            mySGLR.getPerformanceMeasuring().endBP();
+            mySGLR.getPerformanceMeasuring().endBP(succeeded);
             if(succeeded){
             	//System.out.println("BP-Succeeded");
                 return;
@@ -87,7 +87,7 @@ public class RecoveryConnector {
         if(useFineGrained){
             mySGLR.getPerformanceMeasuring().startFG();
             boolean FGSucceeded=tryFineGrainedRepair();
-            mySGLR.getPerformanceMeasuring().endFG();
+            mySGLR.getPerformanceMeasuring().endFG(FGSucceeded);
             if(FGSucceeded){ //FG succeeded  
                 addSkipOption(skipSucceeded);
                 //System.out.println("FG-Succeeded");
@@ -104,8 +104,9 @@ public class RecoveryConnector {
             if(rsSucceeded)
             	System.out.println("RS-Succeeded");
             else
-            	System.err.println("RS failed unexpectedly");
+            	System.err.println("RS failed");
             */
+            
         }
     }
 
@@ -228,28 +229,5 @@ public class RecoveryConnector {
             indexFragment++;
         return indexFragment;
     }
-    
-    /*
-    private Map<Integer, char[]> getBPSuggestions(){
-        Map<Integer, char[]> bpSuggestions = getBridges();
-        int startPos = skipRecovery.getStartPositionErrorFragment_InclLeftMargin();
-        
-        Map<Integer, char[]> bpSuggestAbsolute = new HashMap<Integer, char[]>();
-        for (Integer aKey : bpSuggestions.keySet()) {
-            Integer newKey=new Integer(startPos+aKey.intValue());
-            char[] newValue=bpSuggestions.get(aKey);
-            bpSuggestAbsolute.put(newKey, newValue);
-        }
-        return bpSuggestAbsolute;
-    }
-
-    private Map<Integer, char[]> getBridges() {
-        IRecoveryResult bpResult;
-        if (bpResult != null) {
-            return bpResult.getSuggestions();
-        }
-        return new HashMap<Integer, char[]>();
-    }
-    */
 
 }

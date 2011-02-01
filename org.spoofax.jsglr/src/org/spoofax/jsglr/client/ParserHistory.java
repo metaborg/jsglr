@@ -6,8 +6,6 @@ import org.spoofax.PushbackStringIterator;
 
 public class ParserHistory {
     
-    private final static int MAX_SIZE_NEW_LINE_POINTS = 150;
-    private final static int MIN_SIZE_NEW_LINE_POINTS = 50;
     private IndentationHandler indentHandler;
     private IndentationHandler recoveryIndentHandler;
     
@@ -113,17 +111,7 @@ public class ParserHistory {
         //System.out.println(newLinePoints.size()-1+" NEWLINE ("+newLinePoint.getIndentValue()+")"+newLinePoint.getTokensSeen());
         if(!inRecoverMode){
             newLinePoint.fillStackNodes(myParser.activeStacks);           
-            if(newLinePoints.size()> MAX_SIZE_NEW_LINE_POINTS)
-                removeOldPoints();
         }
-    }
-    
-    private void removeOldPoints() {        
-        int firstPointIndex = nrOfLines()-MIN_SIZE_NEW_LINE_POINTS;
-        ArrayList<IndentInfo> shrinkedList = new ArrayList<IndentInfo>();
-        shrinkedList.ensureCapacity(newLinePoints.size());
-        shrinkedList.addAll(newLinePoints.subList(firstPointIndex, newLinePoints.size()-1));
-        newLinePoints = shrinkedList;
     }
 
     public String getFragment(int startTok, int endTok, PushbackStringIterator chars) {
@@ -146,10 +134,6 @@ public class ParserHistory {
             pos++;
         }        
         return fragment;
-    }
-    
-    private int nrOfLines(){
-        return newLinePoints.size();
     }
     
     public IndentInfo getLine(int index){

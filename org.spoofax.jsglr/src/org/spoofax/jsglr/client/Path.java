@@ -7,8 +7,6 @@
  */
 package org.spoofax.jsglr.client;
 
-
-
 public class Path {
 
 	private Path parent;
@@ -25,7 +23,6 @@ public class Path {
 			result += link.recoverCount;           
 		}
 		if(parent != null) {
-			// TODO find out relation linktoparent/parent
 			result += parent.getRecoverCount();
 		}
 		return result;        

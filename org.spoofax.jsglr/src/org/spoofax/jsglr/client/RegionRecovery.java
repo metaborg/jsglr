@@ -13,7 +13,7 @@ public class RegionRecovery {
     private SGLR myParser;    
     private StructureSkipSuggestion erroneousRegion;    
     private int errorDetectionLocation;
-    public static int NR_OF_LINES_TILL_SUCCESS=3;
+    public static int NR_OF_LINES_TILL_SUCCESS=6;
     private int acceptPosition;
 
     public int getAcceptPosition() {        
@@ -176,9 +176,8 @@ public class RegionRecovery {
     }
 
     private boolean testRegion(StructureSkipSuggestion aSkip) {
-        //System.out.println("%%%%%%%%%%% TEST REGION %%%%%%%%%%%");
+       // System.out.println("%%%%%%%%%%% TEST REGION %%%%%%%%%%%");
         //System.out.println(getInputFragment(aSkip));
-        //System.out.printlnBlock(getInputFragment(aSkip));           
         IndentInfo endPos=aSkip.getEndSkip();
         getHistory().setTokenIndex(endPos.getTokensSeen());
         myParser.activeStacks.clear();

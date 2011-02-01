@@ -129,6 +129,17 @@ public class Frame implements Serializable {
         counter[stepsCount]++;
         return steps[stepsCount++] = new Link(st0, n, length); 
     }
+    
+    public Link addLink(Link ln) {
+        if(Tools.tracing) {
+            SGLR.TRACE("SG_AddLink() - " + state.stateNumber + " (recover node) ");
+        }
+        if(stepsCount >= steps.length) {
+            resizeSteps();
+        }
+        counter[stepsCount]++;
+        return steps[stepsCount++] = ln; 
+    }
 
     private void resizeSteps() {
         // Resize the steps array (not necessary for most grammars).

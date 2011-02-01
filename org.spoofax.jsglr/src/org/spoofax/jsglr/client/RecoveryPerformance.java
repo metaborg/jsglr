@@ -15,14 +15,40 @@ public class RecoveryPerformance {
     private long startRecovery;
     private ArrayList<Integer> recoveryTimes;
     
+    private ArrayList<Boolean> CGResults;
+    private ArrayList<Boolean> FGResults;
+    private ArrayList<Boolean> BPResults;
+    private ArrayList<Boolean> recoveryResults;
+    
     public RecoveryPerformance(){
         CGTimes=new ArrayList<Integer>();
         FGTimes=new ArrayList<Integer>();
         BPTimes=new ArrayList<Integer>();
         recoveryTimes=new ArrayList<Integer>();
+        
+        CGResults=new ArrayList<Boolean>();
+        FGResults=new ArrayList<Boolean>();
+        BPResults=new ArrayList<Boolean>();
+        recoveryResults=new ArrayList<Boolean>();
     }
     
-    public long getParseTime() {
+    public ArrayList<Boolean> getCGResults() {
+		return CGResults;
+	}
+
+	public ArrayList<Boolean> getFGResults() {
+		return FGResults;
+	}
+
+	public ArrayList<Boolean> getBPResults() {
+		return BPResults;
+	}
+
+	public ArrayList<Boolean> getRecoveryResults() {
+		return recoveryResults;
+	}
+
+	public long getParseTime() {
         return parseTime;
     }
 
@@ -54,35 +80,39 @@ public class RecoveryPerformance {
         startCG=System.currentTimeMillis();
     }
 
-    void endCG(){
+    void endCG(boolean succeeded){
         long CGTime=System.currentTimeMillis()-startCG;
         CGTimes.add((int) CGTime);
+        CGResults.add(succeeded);
     }
     
     void startFG(){
         startFG=System.currentTimeMillis();
     }
 
-    void endFG(){
+    void endFG(boolean succeeded){
         long FGTime=System.currentTimeMillis()-startFG;
         FGTimes.add((int)FGTime);
+        FGResults.add(succeeded);
     }
     
     void startBP(){
         startBP=System.currentTimeMillis();
     }
 
-    void endBP(){
+    void endBP(boolean succeeded){
         long BPTime=System.currentTimeMillis()-startBP;
         BPTimes.add((int)BPTime);
+        BPResults.add(succeeded);
     }
     
     void startRecovery(){
         startRecovery=System.currentTimeMillis();
     }
 
-    void endRecovery(){
+    void endRecovery(boolean succeeded){
         long recoveryTime=System.currentTimeMillis()-startRecovery;
         recoveryTimes.add((int)recoveryTime);
+        recoveryResults.add(succeeded);
     }
 }

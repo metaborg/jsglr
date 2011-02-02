@@ -1,5 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.KeywordRecognizer;
 
 /**
@@ -95,4 +96,11 @@ public interface ITokenizer extends Iterable<IToken> {
 	
 	void setAmbiguous(boolean isAmbiguous);
 
+	void setAst(ISimpleTerm ast);
+
+	/**
+	 * Initializes the {@link IToken#getAstNode()} method of each
+	 * token in this token stream.
+	 */
+	void initAstNodeBinding();
 }

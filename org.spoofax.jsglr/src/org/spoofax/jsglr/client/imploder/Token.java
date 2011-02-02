@@ -13,10 +13,11 @@ public class Token implements IToken {
 	
 	private static Map<String, Integer> asyncAllTokenKinds;
 
-	private final ITokenizer tokenizer;
+	private ITokenizer tokenizer;
 	
-	// TODO: Optimize - line and column should be determined on demand, not stored everywhere?
-	private final int index, startOffset, endOffset, line, column;
+	private final int startOffset, endOffset, line, column;
+	
+	private int index;
 	
 	private int kind;
 	
@@ -25,6 +26,10 @@ public class Token implements IToken {
 	private ISimpleTerm astNode;
 
 	public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind) {
+		this(tokenizer, index, line, column, startOffset, endOffset, kind, null, null);
+	}
+
+	public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind, String errorMessage, ISimpleTerm astNode) {
 		this.tokenizer = tokenizer;
 		this.index = index;
 		this.line = line;
@@ -38,6 +43,10 @@ public class Token implements IToken {
 		return tokenizer;
 	}
 	
+	protected void setTokenizer(ITokenizer tokenizer) {
+		this.tokenizer = tokenizer;
+	}
+	
 	public int getKind() {
 		return kind;
 	}
@@ -48,6 +57,10 @@ public class Token implements IToken {
 
 	public int getIndex() {
 		return index;
+	}
+	
+	protected void setIndex(int index) {
+		this.index = index;
 	}
 
 	public int getStartOffset() {
@@ -104,6 +117,7 @@ public class Token implements IToken {
 	}
 	
 	public ISimpleTerm getAstNode() {
+		if (astNode == null) getTokenizer().initAstNodeBinding();
 		return astNode;
 	}
 	

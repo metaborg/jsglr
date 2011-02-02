@@ -7,6 +7,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.AbstractParseNode;
@@ -143,7 +144,10 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			Object tree = tryBuildAutoConcatListNode(subtree);
 			tree = recreateWithAllTokens(tree);
 			tokenizer.makeToken(tokenizer.getStartOffset() - 1, TK_EOF, true);
-			return factory.createTop(tree, tokenizer.getFilename(), ambiguityCount);
+			Object result = factory.createTop(tree, tokenizer.getFilename(), ambiguityCount);
+			if (result instanceof ISimpleTerm)
+				tokenizer.setAst((ISimpleTerm) result);
+			return result;
 		} finally {
 			reset();
 		}
@@ -338,7 +342,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return createAstNonTerminal(label, prevToken, children);
 		} else if (label.isOptional()) {
 			// TODO: Spoofax/295: JSGLR does not output correct AST for optional literals
-			if (children.size() == 0) {
+			if (children == null || children.size() == 0) {
 				return createNode(label, "None", prevToken, children);
 			} else {
 				assert children.size() == 1;
@@ -485,13 +489,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 	private void markUnexpectedEOF(int character) {
 		String input = tokenizer.getInput();
-		/*
 		assert nonMatchingOffset == NONE :
 				"Character in parse tree after end of input stream: " + (char) character
 				+ " - may be caused by unexpected character in parse tree at position "
 				+ nonMatchingChar 	+ ": " + nonMatchingChar + " instead of "
 				+ nonMatchingCharExpected;
-		*/
 		// UNDONE: Strict lexical stream checking
 		// throw new ImploderException("Character in parse tree after end of input stream: " + (char) character.getInt());
 		// a forced reduction may have added some extra characters to the tree;

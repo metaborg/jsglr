@@ -3,6 +3,8 @@ package org.spoofax.jsglr.client.imploder;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
+
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
@@ -74,5 +76,13 @@ public class NullTokenizer extends AbstractTokenizer {
 		ArrayList<IToken> result = new ArrayList<IToken>(1);
 		result.add(onlyToken);
 		return result.iterator();
+	}
+
+	public void setAst(ISimpleTerm ast) {
+		// no tokens, no ast-token binding
+	}
+
+	public void initAstNodeBinding() {
+		// no tokens, no ast-token binding
 	}
 }

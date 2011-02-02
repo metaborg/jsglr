@@ -3,14 +3,18 @@ package org.spoofax.jsglr.client.imploder;
 import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
-import static org.spoofax.jsglr.client.imploder.IToken.*;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.KeywordRecognizer;
+import org.spoofax.terms.SimpleTermVisitor;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -23,6 +27,8 @@ public class Tokenizer extends AbstractTokenizer {
 	private final KeywordRecognizer keywords;
 
 	private final ArrayList<Token> tokens;
+	
+	private ISimpleTerm ast;
 	
 	/** Start of the next token. */
 	private int startOffset;
@@ -70,7 +76,7 @@ public class Tokenizer extends AbstractTokenizer {
 		return tokens.size();
 	}
 	
-	public IToken getTokenAt(int i) {
+	public Token getTokenAt(int i) {
 		return tokens.get(i);
 	}
 	
@@ -81,16 +87,20 @@ public class Tokenizer extends AbstractTokenizer {
 			: "Unordered tokens at end of tokenizer";
 		Token key = new Token(this, -1, -1, -1, offset, offset - 1, TK_RESERVED);
 		int resultIndex = Collections.binarySearch(tokens, key);
-		if (resultIndex < 0)
+		if (resultIndex == -1)
 			throw new IndexOutOfBoundsException("No token at offset " + offset + " (binary search returned " + resultIndex + ")");
+		if (resultIndex < -1)
+			resultIndex = (-resultIndex) - 1;
+		if (resultIndex >= getTokenCount())
+			throw new IndexOutOfBoundsException("No token at offset " + offset);
 		return /*resultIndex == -1 ? null :*/ getTokenAt(resultIndex);
 	}
 	
-	public final IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
+	public final Token makeToken(int endOffset, int kind, boolean allowEmptyToken) {
 		return makeToken(endOffset, kind, allowEmptyToken, null);
 	}
 		
-	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken, String errorMessage) {
+	public Token makeToken(int endOffset, int kind, boolean allowEmptyToken, String errorMessage) {
 		String input = getInput();
 		assert endOffset <= input.length();
 		if (!allowEmptyToken && startOffset > endOffset) // empty token
@@ -100,7 +110,7 @@ public class Tokenizer extends AbstractTokenizer {
 			: "Creating token ending before current start offset";
 		
 		int offset;
-		IToken token = null;
+		Token token = null;
 		for (offset = min(startOffset, endOffset); offset < endOffset; offset++) {
 			if (input.charAt(offset) == '\n') {
 				if (offset - 1 > startOffset)
@@ -132,6 +142,17 @@ public class Tokenizer extends AbstractTokenizer {
 		tokens.add(result);
 		startOffset = endOffset + 1;
 		return result;
+	}
+	
+	/**
+	 * Reassigns (i.e., steals) an existing tokenizer to this tokenizer.
+	 */
+	public void reassignToken(Token token) {
+		assert token.getTokenizer() != this;
+		token.setTokenizer(this);
+		token.setIndex(tokens.size());
+		tokens.add(token);
+		startOffset = token.getEndOffset() + 1;
 	}
 	
 	public void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
@@ -213,6 +234,43 @@ public class Tokenizer extends AbstractTokenizer {
 		@SuppressWarnings("unchecked") // covariance
 		Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
 		return result;
+	}
+	
+	public void setAst(ISimpleTerm ast) {
+		this.ast = ast;
+	}
+	
+	public void initAstNodeBinding() {
+		if (ast == null)
+			return;
+		int tokenIndex = getLeftToken(ast).getIndex();
+		int endTokenIndex = getRightToken(ast).getIndex();
+		bindAstNode(ast, tokenIndex, endTokenIndex);
+	}
+
+	private void bindAstNode(ISimpleTerm node, int tokenIndex, int endTokenIndex) {
+		// Set ast node for spaces between children and recursively for children
+		Iterator<ISimpleTerm> iterator = SimpleTermVisitor.tryGetListIterator(node); 
+		for (int i = 0, max = node.getSubtermCount(); i < max; i++) {
+			ISimpleTerm child = iterator == null ? node.getSubterm(i) : iterator.next();
+			
+			int childStart = getLeftToken(child).getIndex();
+			int childEnd = getRightToken(child).getIndex();
+			
+			while (tokenIndex < childStart) {
+				Token token = getTokenAt(tokenIndex++);
+				token.setAstNode(node);
+			}
+			
+			bindAstNode(child, childStart, childEnd);
+			tokenIndex = childEnd + 1; 
+		}
+		
+		// Set ast node for tokens after children
+		while (tokenIndex <= endTokenIndex) {
+			Token token = getTokenAt(tokenIndex++);
+			token.setAstNode(node);
+		}
 	}
 
 }

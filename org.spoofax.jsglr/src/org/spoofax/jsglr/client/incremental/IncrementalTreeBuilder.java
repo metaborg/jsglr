@@ -1,6 +1,10 @@
 package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.min;
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findLeftMostLayoutToken;
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostLayoutToken;
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenAfter;
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenBefore;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
@@ -9,10 +13,6 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.Tokenizer.findLeftMostLayoutToken;
-import static org.spoofax.jsglr.client.imploder.Tokenizer.findRightMostLayoutToken;
-import static org.spoofax.jsglr.client.imploder.Tokenizer.getTokenAfter;
-import static org.spoofax.jsglr.client.imploder.Tokenizer.getTokenBefore;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.tryGetListIterator;
 
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
@@ -193,6 +194,11 @@ public class IncrementalTreeBuilder<TNode extends ISimpleTerm> {
 	 *           The change in offset between the given tokens and the copied tokens in the new tokenizer.
 	 */
 	private void copyTokens(IToken startToken, IToken stopToken, int stopOffset, int offsetChange) {
+		// TODO: call setAstNode(), setError() for tokens
+		// TODO: actually call ImploderAttachment.putImploderAttachment()
+		//       maybe use Tokenizer.reassignToken() for this?
+		if ("true".equals("true"))
+			throw new NotImplementedException("incremental tokenization");
 		ITokenizer fromTokenizer = startToken.getTokenizer();
 		assert fromTokenizer == stopToken.getTokenizer();
 		int oldStartOffset = newTokenizer.getStartOffset();

@@ -57,7 +57,7 @@ public class State implements Serializable {
             if(g.hasProd(labelNumber))
                 return g.nextState;
         }
-        return -1;
+        throw new IllegalStateException("Cannot go to label #" + labelNumber);
     }
 
     public boolean rejectable() {

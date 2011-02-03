@@ -5,7 +5,8 @@ public class PooledPathList {
 
 	int rememberIndex;
 	int allocIndex;
-	Path[] pool;
+	Path[] rememberPool;
+	Path[] makePool;
 	int usage;
 	
 	public static int maxRemembered;
@@ -15,49 +16,67 @@ public class PooledPathList {
 		allocIndex = 1;
 		rememberIndex = 0;
 		usage = 0;
-		pool = new Path[capacity];
-		for(int i = 0; i < capacity; i++) {
-			pool[i] = new Path();
+		rememberPool = new Path[capacity];
+		makePool = new Path[capacity];
+		if (deepInit) {
+			for(int i = 0; i < capacity; i++) {
+				rememberPool[i] = new Path();
+			}
+			for(int i = 0; i < capacity; i++) {
+				makePool[i] = new Path();
+			}			
 		}
 	}
 	
 	/**
 	 * Store a path for later retrieval.
 	 * 
-	 * @see #
-	 * 
+	 * @see #get(int)
+	 * @see #size()
 	 */
 	public Path rememberPath(Path parent, Link link, Frame frame, int length, int parentCount) {
 		Path p;
-		if(pool[rememberIndex] == null) {
+		if (rememberIndex == rememberPool.length)
+			rememberPool = resizeArray(rememberPool);
+		if(rememberPool[rememberIndex] == null) {
 			p = new Path();
-			pool[rememberIndex] = p;
+			rememberPool[rememberIndex] = p;
 		} else {
-			p = pool[rememberIndex];
+			p = rememberPool[rememberIndex];
 		}
 		rememberIndex++;
 		return p.reuse(parent, link, frame, length, parentCount);
     }
 	
+	/**
+	 * Create a path, either reusing one from this pool, or creating a fresh instance.
+	 */
 	public Path makePath(Path parent, Link link, Frame frame, int length, int parentCount) {
 		Path p;
-		int index = pool.length - allocIndex; 
-		if(pool[index] == null) {
+		if (allocIndex == makePool.length)
+			makePool = resizeArray(makePool);
+		if(makePool[allocIndex] == null) {
 			p = new Path();
-			pool[index] = p;
+			makePool[allocIndex] = p;
 		} else {
-			p = pool[index];
+			p = makePool[allocIndex];
 		}
 		allocIndex++;
 		return p.reuse(parent, link, frame, length, parentCount);
     }
+
+	private Path[] resizeArray(Path[] array) {
+		Path[] result = new Path[array.length * 2];
+		System.arraycopy(array, 0, result, 0, array.length);
+		return result;
+	}
 
 	public int size() {
 		return rememberIndex;
 	}
 	
 	public Path get(int index) {
-		return pool[index];
+		return rememberPool[index];
 	}
 
 	public void end() {
@@ -66,6 +85,7 @@ public class PooledPathList {
 			throw new IllegalStateException("Must always end() the PooledPathList after use");
 		maxRemembered = Math.max(maxRemembered, rememberIndex);
 		maxAllocated = Math.max(maxAllocated, allocIndex);
+		reset();
 	}
 	
 	
@@ -87,5 +107,7 @@ public class PooledPathList {
 
 	public void reset() {
 		usage = 0;
+		rememberIndex = 0;
+		allocIndex = 0;
 	}
 }

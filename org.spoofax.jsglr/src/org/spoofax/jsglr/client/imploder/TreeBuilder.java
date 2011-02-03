@@ -7,6 +7,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -41,6 +42,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	private ParseTable table;
 	
 	private ITokenizer tokenizer;
+	
+	private PushbackStringIterator stringIterator;
 	
 	private ITreeFactory factory;
 	
@@ -107,6 +110,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		tokenizer = disableTokens
 			? new NullTokenizer(input, filename)
 			: new Tokenizer(input, filename, table.getKeywordRecognizer());
+		stringIterator = new PushbackStringIterator(input);
 		reset();
 	}
 	
@@ -461,7 +465,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			markUnexpectedEOF(character);
 		} else {
 			char parsedChar = (char) character;
-			char inputChar = input.charAt(offset);
+			char inputChar = stringIterator.truncateUnicodeChar(input.charAt(offset));
 			
 			if (parsedChar != inputChar) {
 				if (RecoveryConnector.isLayoutCharacter(parsedChar)) {

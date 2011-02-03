@@ -7,6 +7,7 @@ import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.isTermNamed;
 import static org.spoofax.terms.Term.javaString;
 import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.Term.tryGetConstructor;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -38,6 +39,8 @@ public class ProductionAttributeReader {
 	 * The constructor used for "end insertion" recovery rules.
 	 */
 	private static final String INSERT_END = "INSERTEND";
+	
+	private static final String INSERT_OPEN_QUOTE = "INSERTOPENQUOTE";
 	
 	private final int PARAMETRIZED_SORT_NAME = 0;
 	
@@ -134,6 +137,10 @@ public class ProductionAttributeReader {
 		return INSERT_END.equals(constructor);
 	}
 	
+	public boolean isInsertOpenQuoteSort(String sort) {
+		return sort != null && sort.startsWith(INSERT_OPEN_QUOTE);
+	}
+	
 	public boolean isInsertConstructor(String constructor) {
 		return INSERT.equals(constructor);
 	}
@@ -157,10 +164,14 @@ public class ProductionAttributeReader {
 		}
 	}
 	
-	public String getSyntaxErrorExpectedInsertion(IStrategoAppl rhs) {
+	public String getSyntaxErrorExpectedInsertion(LabelInfo label) {
 		String inserted;
+		IStrategoList lhs = label.getLHS();
+		IStrategoAppl rhs = label.getRHS();
 		if (rhs.getName().equals("lit")) {
 			inserted = "'" + ((IStrategoNamed) termAt(rhs, 0)).getName() + "'";
+		} else if (lhs.getSubtermCount() == 1 && tryGetConstructor(termAt(lhs, 0)) == litFun) {
+			inserted = "'" + asJavaString(termAt(termAt(lhs, 0), 0)) + "'";
 		} else if (rhs.getName().equals("char-class")) {
 			inserted = "'" + toString((IStrategoList) termAt(rhs, 0)) + "'";
 		} else {

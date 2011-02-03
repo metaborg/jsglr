@@ -99,10 +99,11 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			} else if (prodReader.isInsertEndConstructor(label.getConstructor())) {
 				setErrorMessage(first, last, ERROR_INSERT_END_PREFIX
 						/*+ ": '" + tokenText + "'"*/);
-			} else if (prodReader.isInsertConstructor(label.getConstructor())) {
+			} else if (prodReader.isInsertConstructor(label.getConstructor())
+					|| prodReader.isInsertOpenQuoteSort(label.getSort())) {
 				// token = findLeftMostLayoutToken(token);
 				setErrorMessage(first, last, ERROR_INSERT_PREFIX
-						+ ": " + prodReader.getSyntaxErrorExpectedInsertion(label.getRHS()));
+						+ ": " + prodReader.getSyntaxErrorExpectedInsertion(label));
 			} else if (label.getDeprecationMessage() != null) {
 				setErrorMessage(first, last, ERROR_WARNING_PREFIX
 						+ ": " + label.getDeprecationMessage());

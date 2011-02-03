@@ -7,6 +7,7 @@ public class PathListPool {
 	private PooledPathList p1 = new PooledPathList(512, false);
 	private PooledPathList p2 = new PooledPathList(512, false);
 	private PooledPathList p3 = new PooledPathList(512, false);
+	private PooledPathList p4 = new PooledPathList(512, false);
 	
 	public static int cacheMisses = 0;
 	
@@ -19,8 +20,11 @@ public class PathListPool {
 			return p2.start();
 		if(p3.usage == 0)
 			return p3.start();
+		if(p4.usage == 0)
+			return p4.start();
 	
 		cacheMisses++;
+		p4 = p3;
 		p3 = p2;
 		p2 = p1;
 		p1 = p0;
@@ -37,5 +41,6 @@ public class PathListPool {
 		p1.reset();
 		p2.reset();
 		p3.reset();
+		p4.reset();
 	}
 }

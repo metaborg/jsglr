@@ -60,7 +60,7 @@ public class IndentInfo {
     /*
      * Calculates the biggest reduce belonging to this backtrack point.
      */
-    private PooledPathList indentPathCache = new PooledPathList(64, true);
+    private PooledPathList indentPathCache = new PooledPathList(512, false);
     
     public int maxReduceLength() {
         int maxPathLength = 0;

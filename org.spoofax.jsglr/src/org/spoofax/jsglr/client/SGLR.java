@@ -83,7 +83,6 @@ public class SGLR {
 
 	protected PushbackStringIterator currentInputStream;
 
-	private PooledPathList reductionsPathCache = new PooledPathList(512, true);
 	private PathListPool pathCache = new PathListPool();
 	private ArrayDeque<Frame> activeStacksWorkQueue = new ArrayDeque<Frame>();
 	private ArrayDeque<Frame> recoverStacks;
@@ -293,6 +292,8 @@ public class SGLR {
 		} catch (final TaskCancellationException e) {
 			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
 					columnNumber, collectedErrors);
+		} finally {
+			pathCache.reset();
 		}
 
 		logAfterParsing();
@@ -343,7 +344,6 @@ public class SGLR {
 		PathListPool.resetPerformanceCounters();
 		ambiguityManager = new AmbiguityManager(input.length());
 		pathCache.reset();
-		
 	}
 
 	private BadTokenException createBadTokenException() {
@@ -572,7 +572,7 @@ public class SGLR {
 			return;
 		}
 
-		final PooledPathList paths = reductionsPathCache.start();
+		final PooledPathList paths = pathCache.create();
 		//System.out.println(paths.size());
 		st.findAllPaths(paths, prod.arity);
 		//System.out.println(paths.size());

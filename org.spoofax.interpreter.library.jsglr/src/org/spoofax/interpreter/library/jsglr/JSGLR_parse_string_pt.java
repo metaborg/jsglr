@@ -14,6 +14,7 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -95,7 +96,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			ParseTable table, String startSymbol)
 			throws InterpreterException, IOException, SGLRException {
 		
-		SGLR parser = new SGLR(table);
+		SGLR parser = new SGLR(new Asfix2TreeBuilder(env.getFactory()), table);
 		
 		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol);
 		

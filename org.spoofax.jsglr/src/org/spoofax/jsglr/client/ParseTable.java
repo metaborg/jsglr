@@ -421,7 +421,7 @@ public class ParseTable implements Serializable {
             // FIXME: multiple lookahead are not fully supported or tested
             //        (and should work for both 2.4 and 2.6 tables)
 
-            if (n.getSubtermCount() > 0 && Term.termAt(l, 1) == null) {
+            if (n.getSubtermCount() > 0 && l.getSubtermCount() == 1) {
                 // This handles restrictions like:
                 //   LAYOUT? -/- [\/].[\/]
                 // where there is no other restriction that starts with a [\/]

@@ -11,7 +11,5 @@ Export-Package: org.spoofax,
  org.spoofax.jsglr.shared
 Bundle-Vendor: Spoofax.org
 Require-Bundle: org.junit,
- org.spoofax.terms,
- com.google.gwt.eclipse.core,
- com.google.gwt.eclipse.sdkbundle.2.1.1
+ org.spoofax.terms
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

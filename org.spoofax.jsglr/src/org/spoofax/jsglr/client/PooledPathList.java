@@ -21,6 +21,12 @@ public class PooledPathList {
 		}
 	}
 	
+	/**
+	 * Store a path for later retrieval.
+	 * 
+	 * @see #
+	 * 
+	 */
 	public Path rememberPath(Path parent, Link link, Frame frame, int length, int parentCount) {
 		Path p;
 		if(pool[rememberIndex] == null) {

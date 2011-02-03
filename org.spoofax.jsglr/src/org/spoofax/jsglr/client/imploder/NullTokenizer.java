@@ -51,7 +51,8 @@ public class NullTokenizer extends AbstractTokenizer {
 		return onlyToken;
 	}
 	
-	public void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
+	@Override
+	protected void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
 		if (leftToken != onlyToken || rightToken != onlyToken)
 			throw new IllegalArgumentException("Argument tokens do not belong to this NullTokenizer");
 		// Do nothing

@@ -52,8 +52,6 @@ public interface ITokenizer extends Iterable<IToken> {
 	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
 	
 	IToken getErrorTokenOrAdjunct(int offset);
-
-	void setErrorMessage(IToken leftToken, IToken rightToken, String message);
 	
 	/**
 	 * Creates artificial token at keyword boundaries
@@ -77,6 +75,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	 * starting *after* the given token, ending at the given offset.
 	 */
 	void markPossibleSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader);
+	
+	boolean isSyntaxCorrect();
 
 	String toString(IToken left, IToken right);
 

@@ -7,6 +7,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,6 +136,7 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	protected Token internalMakeToken(int kind, int endOffset, String errorMessage) {
+		assert endOffset < getInput().length();
 		Token result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
 		if (errorMessage != null) result.setError(errorMessage);
 		if (tokens.size() == 5)
@@ -149,13 +151,15 @@ public class Tokenizer extends AbstractTokenizer {
 	 */
 	public void reassignToken(Token token) {
 		assert token.getTokenizer() != this;
+		assert token.getEndOffset() < getInput().length();
 		token.setTokenizer(this);
 		token.setIndex(tokens.size());
 		tokens.add(token);
 		startOffset = token.getEndOffset() + 1;
 	}
 	
-	public void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
+	@Override
+	protected void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
 		assert leftToken.getTokenizer() == this && rightToken.getTokenizer() == this;
 		for (int i = leftToken.getIndex(), max = rightToken.getIndex(); i <= max; i++) {
 			tokens.get(i).setError(message);
@@ -249,6 +253,8 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	private void bindAstNode(ISimpleTerm node, int tokenIndex, int endTokenIndex) {
+		assert getTokenizer(node) == this;
+		
 		// Set ast node for spaces between children and recursively for children
 		Iterator<ISimpleTerm> iterator = SimpleTermVisitor.tryGetListIterator(node); 
 		for (int i = 0, max = node.getSubtermCount(); i < max; i++) {

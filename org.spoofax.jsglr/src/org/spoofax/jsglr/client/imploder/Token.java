@@ -9,8 +9,10 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
-public class Token implements IToken {
+public class Token implements IToken, Cloneable {
 	
+	private static final long serialVersionUID = -6972938219235720902L;
+
 	private static Map<String, Integer> asyncAllTokenKinds;
 
 	private ITokenizer tokenizer;
@@ -91,23 +93,21 @@ public class Token implements IToken {
 		return getEndOffset() - getStartOffset() + 1;
 	}
 	
+	/**
+	 * Gets the error message associated with this token,
+	 * if any.
+	 * 
+	 * Note that this message is independent from the token kind,
+	 * which may also indicate an error.
+	 */
 	public String getError() {
-		if (errorMessage == null) {
-			switch (getKind()) {
-				case TK_ERROR_EOF_UNEXPECTED:
-					return ITokenizer.ERROR_UNEXPECTED_EOF;
-				case TK_ERROR:
-				case TK_ERROR_KEYWORD:
-					return ITokenizer.ERROR_GENERIC_PREFIX;
-				case TK_ERROR_LAYOUT:
-				default:
-					return null;
-			}
-		} else {
-			return errorMessage;
-		}
+		return errorMessage;
 	}
 	
+	/**
+	 * Sets a syntax error for this token.
+	 * (Setting any other kind of error would break cacheability.)
+	 */
 	public void setError(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
@@ -184,6 +184,16 @@ public class Token implements IToken {
 			asyncAllTokenKinds.put("TK_RESERVED", TK_RESERVED);
 			asyncAllTokenKinds.put("TK_NO_TOKEN_KIND", TK_NO_TOKEN_KIND);
 			return asyncAllTokenKinds;
+		}
+	}
+	
+	@Override
+	public Token clone() {
+		try {
+			return (Token) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Must be supported for IToken
+			throw new RuntimeException(e);
 		}
 	}
 

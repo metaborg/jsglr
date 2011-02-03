@@ -1,11 +1,13 @@
 package org.spoofax.jsglr.client.imploder;
 
+import java.io.Serializable;
+
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface IToken extends Comparable<IToken> {
+public interface IToken extends Comparable<IToken>, Serializable {
 	/** Unknown token kind. */
 	public static final int TK_UNKNOWN = 0;
 	
@@ -76,4 +78,6 @@ public interface IToken extends Comparable<IToken> {
 	ISimpleTerm getAstNode();
 	
 	ITokenizer getTokenizer();
+	
+	IToken clone();
 }

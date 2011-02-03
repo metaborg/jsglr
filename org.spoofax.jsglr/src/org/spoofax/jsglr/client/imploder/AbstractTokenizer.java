@@ -21,6 +21,8 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	private final String input;
 
 	private LineStartOffsetList lineStartOffsets;
+	
+	private boolean isSyntaxCorrect;
 
 	public AbstractTokenizer(String input, String filename) {
 		this.input = input;
@@ -33,6 +35,10 @@ public abstract class AbstractTokenizer implements ITokenizer {
 
 	public String getInput() {
 		return input;
+	}
+	
+	public boolean isSyntaxCorrect() {
+		return isSyntaxCorrect;
 	}
 
 	private LineStartOffsetList getLineStartOffsets() {
@@ -64,6 +70,8 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				return;
 			}
 			
+			isSyntaxCorrect = false;
+			
 			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
 			
 			IToken first, last;
@@ -71,7 +79,9 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			if (prevToken == currentToken()) {
 				first = last = makeToken(endOffset, TK_ERROR, true);
 			} else {
-				first = getTokenAfter(prevToken);
+				first = findRightMostLayoutToken(getTokenAfter(prevToken));
+				if (first != currentToken() && first.getKind() == TK_LAYOUT)
+					first = getTokenAfter(first);
 				last = currentToken();
 			}
 			if (first.getStartOffset() + 1 == last.getEndOffset()) {
@@ -95,13 +105,19 @@ public abstract class AbstractTokenizer implements ITokenizer {
 						+ ": " + prodReader.getSyntaxErrorExpectedInsertion(label.getRHS()));
 			} else if (label.getDeprecationMessage() != null) {
 				setErrorMessage(first, last, ERROR_WARNING_PREFIX
-						+ ": '" + label.getDeprecationMessage());
+						+ ": " + label.getDeprecationMessage());
 			} else {
 				setErrorMessage(first, last, ERROR_GENERIC_PREFIX
 						+ ": '" + tokenText + "'");
 			}
 		}
 	}
+
+	/**
+	 * Sets a syntax error for the specified token range.
+	 * (Setting any other kind of error would break cacheability.)
+	 */
+	protected abstract void setErrorMessage(IToken leftToken, IToken rightToken, String message);
 
 	public final int getEndLine() {
 		return getTokenAt(getTokenCount() - 1).getLine();
@@ -125,12 +141,13 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public static IToken findLeftMostLayoutToken(IToken token) {
 		if (token == null) return null;
 		ITokenizer tokens = token.getTokenizer();
-	loop:
 		for (int i = token.getIndex() - 1; i >= 0; i--) {
 			IToken neighbour = tokens.getTokenAt(i);
 			switch (neighbour.getKind()) {
-				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: break;
-				default: break loop;
+				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: case TK_ERROR_LAYOUT:
+					break;
+				default:
+					return token;
 			}
 			token = neighbour;
 		}
@@ -145,12 +162,13 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public static IToken findRightMostLayoutToken(IToken token) {
 		if (token == null) return null;
 		ITokenizer tokens = token.getTokenizer();
-	loop:
 		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
 			IToken neighbour = tokens.getTokenAt(i);
 			switch (neighbour.getKind()) {
-				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: break;
-				default: break loop;
+				case TK_LAYOUT: case TK_ERROR: case TK_ERROR_KEYWORD: case TK_ERROR_LAYOUT:
+					break;
+				default:
+					return token;
 			}
 			token = neighbour;
 		}

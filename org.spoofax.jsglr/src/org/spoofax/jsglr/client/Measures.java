@@ -117,7 +117,8 @@ public class Measures {
 
     
     
-    public String toString() {
+    @Override
+	public String toString() {
         String res = "Time: " + time + " ms, " +
             "Total parse time: " + parseTime + " ms, " +
             "Avg parse time: " + averageParseTime + ", " +
@@ -198,7 +199,8 @@ public class Measures {
             return proLinksCreated;
         }
         
-        public String toString() {
+        @Override
+		public String toString() {
             String res = "Time: " + proTime + "%, " + 
                 "Parse time: " + proParseTime + "%, " + 
                 "Recover time: " + proRecoverTime + "%, " + 

@@ -109,7 +109,8 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	public static ITokenizer getTokenizer(ISimpleTerm term) {
 		IToken token = getLeftToken(term);
-		assert token == null || token.getTokenizer() == getRightToken(term).getTokenizer();
+		assert token == null || token.getTokenizer() == getRightToken(term).getTokenizer()
+			: "Tokenizer of left and right token inconsistent";
 		return token == null ? null : token.getTokenizer();
 	}
 	

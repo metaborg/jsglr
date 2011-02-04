@@ -18,7 +18,8 @@ public class ParseProductionNode extends AbstractParseNode {
         this.prod = prod;
     }
     
-    public boolean isParseProductionChain() {
+    @Override
+	public boolean isParseProductionChain() {
     	return true;
     }
 

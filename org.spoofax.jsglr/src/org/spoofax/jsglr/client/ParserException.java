@@ -17,7 +17,8 @@ public class ParserException extends Exception {
         this.reason = reason;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return reason;
     }
 }

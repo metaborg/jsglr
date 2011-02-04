@@ -16,7 +16,8 @@ public class Accept extends ActionItem {
         super(ACCEPT);
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return "accept";
     }
 }

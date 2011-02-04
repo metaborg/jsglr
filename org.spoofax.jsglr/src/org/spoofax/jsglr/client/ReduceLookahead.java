@@ -46,7 +46,8 @@ public class ReduceLookahead extends ActionItem {
         return arity + status * 10 + label * 100;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return "reduce(" + arity + ", " + label + ", " + status + ")";
     }
 

@@ -31,7 +31,8 @@ public class Shift extends ActionItem {
         return nextState;
     }
     
-    public String toString() {
+    @Override
+	public String toString() {
         return "shift(" + nextState + ")";
     }
 }

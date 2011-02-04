@@ -22,7 +22,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 
 	private LineStartOffsetList lineStartOffsets;
 	
-	private boolean isSyntaxCorrect;
+	private boolean isSyntaxCorrect = true;
 
 	public AbstractTokenizer(String input, String filename) {
 		this.input = input;
@@ -70,7 +70,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				return;
 			}
 			
-			isSyntaxCorrect = false;
+			isSyntaxCorrect = isSyntaxCorrect || label.getDeprecationMessage() == null;
 			
 			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
 			

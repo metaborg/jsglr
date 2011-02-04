@@ -229,7 +229,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		} else {
 			result = createNodeOrInjection(label, prevToken, children);
 		}
-		tokenizer.markPossibleSyntaxError(label, prevToken, offset, prodReader);
+		tokenizer.markPossibleSyntaxError(label, prevToken, offset - 1, prodReader);
 		return result;
 	}
 

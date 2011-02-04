@@ -33,13 +33,13 @@ public class FineGrainedOnRegion {
         acceptRecoveryPosition=acceptPosition;
         int lastIndex=Math.min(erroneousRegion.getIndexHistoryEnd(), getHistory().getIndexLastLine());
         assert(
-        	lastIndex>0 && 
+        	lastIndex >= 0 &&
         	erroneousRegion.getIndexHistoryStart()>=0 && 
         	erroneousRegion.getIndexHistoryStart()<=erroneousRegion.getIndexHistoryEnd()
         );           
         for (int i = erroneousRegion.getIndexHistoryStart(); i < lastIndex; i++) {
             IndentInfo line= getHistory().getLine(i);
-            if(line.getStackNodes()!=null && line.getStackNodes().size()>0){
+            if (line.getStackNodes() != null && line.getStackNodes().size()>0){
                 BacktrackPosition btPoint=new BacktrackPosition(line.getStackNodes(), line.getTokensSeen());
                 btPoint.setIndexHistory(i);
                 choicePoints.add(btPoint);

@@ -92,6 +92,8 @@ public class Tokenizer extends AbstractTokenizer {
 			throw new IndexOutOfBoundsException("No token at offset " + offset + " (binary search returned " + resultIndex + ")");
 		if (resultIndex < -1)
 			resultIndex = (-resultIndex) - 1;
+		if (offset == getInput().length() && tokens.size() > 0)
+			return currentToken();
 		if (resultIndex >= getTokenCount())
 			throw new IndexOutOfBoundsException("No token at offset " + offset);
 		return /*resultIndex == -1 ? null :*/ getTokenAt(resultIndex);
@@ -136,7 +138,10 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	protected Token internalMakeToken(int kind, int endOffset, String errorMessage) {
-		assert endOffset < getInput().length();
+		if (endOffset >= getInput().length()) { // somebody set up us the bomb
+			assert false;
+			endOffset = getInput().length() - 1; // move 'zig'
+		}
 		Token result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
 		if (errorMessage != null) result.setError(errorMessage);
 		if (tokens.size() == 5)

@@ -21,7 +21,8 @@ public class ListImploderAttachment extends ImploderAttachment {
 
 	@Override
 	public String getSort() {
-		return super.getSort() + "*";
+		String sort = super.getSort();
+		return sort == null ? sort : sort + "*";
 	}
 	
 	@Override

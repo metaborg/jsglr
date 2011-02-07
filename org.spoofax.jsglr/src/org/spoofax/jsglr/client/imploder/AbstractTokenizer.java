@@ -134,6 +134,16 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		return getInput().substring(startOffset, endOffset + 1);
 	}
 	
+	public static boolean isErrorInRange(IToken start, IToken end) {
+		ITokenizer tokens = start.getTokenizer();
+		for (int i = start.getIndex(), max = end.getIndex(); i <= max; i++) {
+			IToken token = tokens.getTokenAt(i);
+			if (token.getError() != null)
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Searches towards the left of the given token for the
 	 * leftmost layout or error token, returning the current token if

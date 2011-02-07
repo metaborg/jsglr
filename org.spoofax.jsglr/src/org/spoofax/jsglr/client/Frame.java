@@ -108,6 +108,9 @@ public class Frame implements Serializable {
         return null;
     }   
     
+    /**
+     * @deprecated Use the primitive types (or an iterator) to just iterate over the links.
+     */
     public ArrayList<Link> getAllLinks() {
         ArrayList<Link> links=new ArrayList<Link>();
         for (int i = 0; i < stepsCount; i++) {

@@ -26,6 +26,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
 
@@ -116,14 +117,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 		return result;
 	}
 
-	public IStrategoTerm createAmb(List<IStrategoTerm> alternatives) {
-		IToken leftToken = null; 
-		IToken rightToken = null;
-		if (alternatives.size() > 0) {
-			leftToken = getLeftToken(alternatives.get(0));
-			rightToken = getRightToken(alternatives.get(alternatives.size() - 1));
-		}
-		
+	public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
 		List<IStrategoTerm> alternativesInList = new ArrayList<IStrategoTerm>();
 		alternativesInList.add(createList(null, leftToken, rightToken, alternatives));
 		
@@ -162,7 +156,15 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 	}
 
 	public IStrategoTerm createInjection(String sort, List<IStrategoTerm> children) {
-		return children.get(0);
+		if (children.size() == 1) {
+			return children.get(0);
+		} else {
+			IStrategoTuple result = factory.makeTuple(toArray(children));
+			IToken left = getLeftToken(children.get(0));
+			IToken right = getRightToken(children.get(children.size() - 1));
+			configure(result, null, left, right, true);
+			return result;
+		}
 	}
 
 	public Iterable<IStrategoTerm> getChildren(IStrategoTerm node) {

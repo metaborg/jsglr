@@ -3,6 +3,7 @@ package org.spoofax.jsglr.client.imploder;
 import static java.lang.Math.max;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -272,10 +273,19 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			tokenizer.setStartOffset(oldBeginOffset);
 			inLexicalContext = oldLexicalContext;
 			
-			Object child = subnode.toTreeTopdown(this);
+			Object child = tryBuildAutoConcatListNode(subnode.toTreeTopdown(this));
 			if (child != null) children.add(child);
 		}
-		return factory.createAmb(children);
+		IToken leftToken = null; 
+		IToken rightToken = null;
+		if (children.size() > 0) {
+			leftToken = factory.getLeftToken(children.get(0));
+			rightToken = factory.getRightToken(children.get(children.size() - 1));
+		} else {
+			leftToken = rightToken = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true); 
+		}
+		
+		return factory.createAmb(children, leftToken, rightToken);
 	}
 
 	private Object tryBuildAutoConcatListNode(Object node) {
@@ -309,7 +319,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		String sort = label.getSort();
 		IToken rightToken = tokenizer.makeToken(offset - 1, label, sort != null);
 		
-		if (sort == null) return null;
+		if (sort == null) return null; // just a literal
 		
 		// Don't use tokens here in case tokenizer is disabled
 		IToken leftToken = rightToken.getStartOffset() == lastOffset ? rightToken : tokenizer.getTokenAtOffset(lastOffset);
@@ -493,11 +503,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 	private void markUnexpectedEOF(int character) {
 		String input = tokenizer.getInput();
-		assert nonMatchingOffset == NONE :
+		/*assert nonMatchingOffset == NONE :
 				"Character in parse tree after end of input stream: " + (char) character
 				+ " - may be caused by unexpected character in parse tree at position "
 				+ nonMatchingChar 	+ ": " + nonMatchingChar + " instead of "
-				+ nonMatchingCharExpected;
+				+ nonMatchingCharExpected;*/
 		// UNDONE: Strict lexical stream checking
 		// throw new ImploderException("Character in parse tree after end of input stream: " + (char) character.getInt());
 		// a forced reduction may have added some extra characters to the tree;

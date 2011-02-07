@@ -312,7 +312,7 @@ public class Disambiguator {
 
 	private boolean matchProdOnTopSort(IStrategoTerm prod, String sort) throws FilterException {
 		assert sort != null;
-		/* FIXME: Top sort selection needs to be reimplemented now we're no longer using ATerms!!
+		/*
 		sort = sort.replaceAll("\"", "");
 		return prod.match("prod([cf(opt(layout)),cf(sort(\"" + sort + "\")),cf(opt(layout))], sort(\"<START>\"),no-attrs)") != null
 		|| prod.match("prod([cf(sort(\"" + sort + "\"))], sort(\"<START>\"),no-attrs)") != null

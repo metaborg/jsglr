@@ -54,6 +54,7 @@ public class Main {
 		boolean buildParseTree = true;
 		boolean implode = false;
 		int profilingRuns = 0;
+		int warmup = 0;
 
 		for(int i=0;i<args.length;i++) {
 			if(args[i].equals("-p")) {
@@ -80,6 +81,8 @@ public class Main {
 				profilingRuns = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--timing")) {
 				timing = true;
+			} else if(args[i].equals("--warmup")) {
+				warmup = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--no-tree-build")) {
 				buildParseTree = false;
 			} else if(args[i].equals("--implode")) {
@@ -111,17 +114,22 @@ public class Main {
 			sglr.setTreeBuilder(new NullTreeBuilder());
 		else if (implode)
 			sglr.setTreeBuilder(new TreeBuilder(true));
+		
+		String input = FileTools.loadFileAsString(new BufferedReader(new FileReader(inputFile)));
 
+		if (warmup > 0)
+			warmup(sglr, inputFile, input, startSymbol, warmup);
+		
 		if(waitForProfiler) {
 			System.err.println("Hit enter to start profiling...");
 			System.in.read();
 		}
 		
-		String input = FileTools.loadFileAsString(new BufferedReader(new FileReader(inputFile)));
-
 		for(int i = 0; i < profilingRuns - 1; i++) {
 			parseFile(input, inputFile, NO_OUTPUT, sglr, startSymbol);
 		}
+		
+		System.gc();
 
 		final long parsingTime = parseFile(input, inputFile, output, sglr, startSymbol);
 
@@ -129,6 +137,16 @@ public class Main {
 			System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
 			System.err.println("Parsing time             : " + parsingTime + "ms");
 		}
+	}
+
+	private static void warmup(final SGLR sglr, String inputFile, String input,
+			String startSymbol, int warmup) throws FileNotFoundException,
+			IOException {
+		long time = System.currentTimeMillis();
+		while (System.currentTimeMillis() < time + warmup * 1000) {
+			parseFile(input, inputFile, NO_OUTPUT, sglr, startSymbol);
+		}
+		System.gc();
 	}
 
 	public static long parseFile(String input, String inputFile, String output, SGLR sglr, String startSymbol)

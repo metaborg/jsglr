@@ -1,13 +1,13 @@
 package org.spoofax.jsglr.client.incremental;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.isErrorInRange;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.DEBUG;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
-import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.tryGetListIterator;
+import static org.spoofax.terms.SimpleTermVisitor.tryGetListIterator;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -26,7 +26,9 @@ public class IncrementalInputBuilder {
 
 	private final StringBuilder result = new StringBuilder();
 	
-	private final Set<String> incrementalSorts;
+	private final Set<ISimpleTerm> damageNodes;
+	
+	private final IncrementalSortSet incrementalSorts;
 	
 	private final String newInput;
 
@@ -57,7 +59,10 @@ public class IncrementalInputBuilder {
 	 *            Sorts that can be incrementally parsed (e.g., MethodDec, ImportDec).
 	 *            *Must* be sorts that only occur in lists (such as MethodDec*).
 	 */
-	public IncrementalInputBuilder(DamageRegionAnalyzer damageAnalyzer, String input, String oldInput) {
+	public IncrementalInputBuilder(DamageRegionAnalyzer damageAnalyzer, Set<ISimpleTerm> damageNodes,
+			String input, String oldInput) {
+		
+		this.damageNodes = damageNodes;
 		this.incrementalSorts = damageAnalyzer.incrementalSorts;
 		this.newInput = input;
 		this.oldInput = oldInput;
@@ -67,9 +72,10 @@ public class IncrementalInputBuilder {
 	}
 
 	public String buildPartialInput(ISimpleTerm oldTree) throws IncrementalSGLRException {
+		result.setLength(0);
 		isSkipping = isDamagePrinted = false;
 		skippedCharsAfterDamage = skippedCharsBeforeDamage = 0;
-		appendTree(oldTree);
+		appendTree(oldTree, false);
 		try {
 			assert result.length() ==
 				newInput.length() - skippedCharsBeforeDamage - skippedCharsAfterDamage; 
@@ -91,20 +97,23 @@ public class IncrementalInputBuilder {
 	/**
 	 * @return true if the current node was printed to the {@link #result} string.
 	 */
-	private boolean appendTree(ISimpleTerm oldTree) throws IncrementalSGLRException {
+	private boolean appendTree(ISimpleTerm oldTree, boolean disallowSkipping) throws IncrementalSGLRException {
 		IToken left = getLeftToken(oldTree);
 		IToken right = getRightToken(oldTree);
 		int startOffset = 0;
 		int endOffset = 0;
 		boolean isSkippingStart = false;
+		boolean disallowSkippingStart = false;
 		
 		if (left != null && right != null) {
 			startOffset = left.getStartOffset();
 			endOffset = right.getEndOffset();
 			
-			if (!isSkipping && !oldTree.isList() && incrementalSorts.contains(getSort(oldTree))
-					&& !isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)) {
-					   //!isDamagedNodeOrLayout(left, right)) {
+			
+			if (damageNodes.contains(oldTree)) {
+				disallowSkipping = disallowSkippingStart = true;
+			} else if (!disallowSkipping && !isSkipping
+					&& isSkippableNode(oldTree, startOffset, endOffset)) {
 				isSkipping = isSkippingStart = true;
 			}
 
@@ -116,8 +125,9 @@ public class IncrementalInputBuilder {
 				IToken childRight = getRightToken(child);
 				if (childLeft != null)
 					appendToken(startOffset, childLeft.getStartOffset() - 1);
-				if (wasSkipped) isSkipping = false;
-				wasSkipped = !appendTree(child);
+				if (wasSkipped)
+					isSkipping = false;
+				wasSkipped = !appendTree(child, disallowSkipping);
 				if (childRight != null)
 					startOffset = childRight.getEndOffset() + 1;
 			}
@@ -128,7 +138,17 @@ public class IncrementalInputBuilder {
 				"No tokens for tree with children??";
 		}
 		
+		if (disallowSkippingStart) disallowSkipping = false;
 		return !isSkippingStart;
+	}
+
+	private boolean isSkippableNode(ISimpleTerm oldTree, int startOffset,
+			int endOffset) {
+		return !oldTree.isList()
+				&& incrementalSorts.isIncrementalNode(oldTree)
+				&& !isRangeOverlap(damageStart, damageEnd, startOffset, endOffset)
+				&& !isErrorInRange(getLeftToken(oldTree), getRightToken(oldTree));
+				// && !isDamagedNodeOrLayout(left, right)) {
 	}
 
 	/*
@@ -146,7 +166,7 @@ public class IncrementalInputBuilder {
 	 * or merged with the damaged region as necessary.
 	 */
 	private void appendToken(int startOffset, int endOffset) {
-		// TODO: optimize - skip TK_LAYOUT tokens
+		// TODO: optimize - skip TK_LAYOUT tokens?
 		if (isDamagePrinted /* startOffset >= damageStart */) {
 			assert startOffset >= damageStart;
 			if (endOffset > damageEnd) {

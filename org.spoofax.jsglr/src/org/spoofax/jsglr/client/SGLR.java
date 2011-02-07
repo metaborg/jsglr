@@ -294,6 +294,10 @@ public class SGLR {
 					columnNumber, collectedErrors);
 		} finally {
 			pathCache.reset();
+			activeStacks.clear(false);
+			activeStacksWorkQueue.clear(false);
+			forShifter.clear(false);
+			if (recoverStacks != null) recoverStacks.clear(false);
 		}
 
 		logAfterParsing();
@@ -422,10 +426,8 @@ public class SGLR {
 	private void parseCharacter() {
 		logBeforeParseCharacter();
 
-		activeStacksWorkQueue.clear();
-		for(int i = 0; i < activeStacks.size(); i++) {
-			activeStacksWorkQueue.add(activeStacks.get(i));
-		}
+		activeStacksWorkQueue.clear(true);
+		activeStacksWorkQueue.addAll(activeStacks);
 
 		clearForActorDelayed();
 		clearForShifter();
@@ -446,10 +448,10 @@ public class SGLR {
 		if(Tools.tracing) {
 			TRACE("SG_ - both empty");
 		}
-		final ArrayDeque<Frame> tmp = forActor;
+		final ArrayDeque<Frame> empty = forActor;
 		forActor = forActorDelayed;
-		tmp.clear();
-		forActorDelayed = tmp;
+		empty.clear(true);
+		forActorDelayed = empty;
 	}
 
 	private Frame pickStackNodeFromActivesOrForActor(ArrayDeque<Frame> actives) {
@@ -615,7 +617,7 @@ public class SGLR {
 		}
 	}
 
-
+	
 	private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
 
 		logBeforeReducer(s, prod, path.getLength());
@@ -627,6 +629,7 @@ public class SGLR {
 		final Frame st1 = findStack(activeStacks, s);
 
 		if (st1 == null) {
+			// Found no existing stack with for state s; make new stack
 			if(prod.isRecoverProduction()){
 				addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
 				return;
@@ -799,11 +802,12 @@ public class SGLR {
 
 		final int size = stacks.size();
 		for (int i = 0; i < size; i++) {
-			if (stacks.get(i).state.stateNumber == s.stateNumber) {
+			Frame stack = stacks.get(i);
+			if (stack.state.stateNumber == s.stateNumber) {
 				if(Tools.tracing) {
 					TRACE("SG_ - found stack");
 				}
-				return stacks.get(i);
+				return stack;
 			}
 		}
 		if(Tools.tracing) {
@@ -854,7 +858,7 @@ public class SGLR {
 	}
 	
 	private void clearForShifter() {
-		forShifter.clear();
+		forShifter.clear(true);
 	}
 
 	private void clearForActorDelayed() {

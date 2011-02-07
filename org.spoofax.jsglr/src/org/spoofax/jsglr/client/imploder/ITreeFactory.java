@@ -45,7 +45,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 
 	TNode createTop(TNode tree, String filename, int ambiguityCount);
 
-	TNode createAmb(List<TNode> alternatives);
+	TNode createAmb(List<TNode> alternatives, IToken leftToken, IToken rightToken);
 	
 	/**
 	 * Creates a new node similar to an existing node,

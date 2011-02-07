@@ -96,8 +96,8 @@ public class PooledPathList {
 			allocIndex = 1;
 			return this;
 		}
-		// FIXME: return unpooled pathlist?
-		throw new IllegalStateException("PooledPathList may not be used recursively -- TODO: if this happens, and it shouldn't, just return an unpooled pathlist?");
+		// TODO: return unpooled pathlist?
+		throw new IllegalStateException("PooledPathList may not be used recursively");
 	}
 	
 	public static void resetPerformanceCounters() {

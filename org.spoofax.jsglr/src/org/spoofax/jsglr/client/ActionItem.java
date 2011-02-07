@@ -15,7 +15,6 @@ public abstract class ActionItem implements Serializable {
 
     public final int type;
 
-    // FIXME do we need these? instanceof is too slow?
     public static final int REDUCE = 1;
 
     public static final int SHIFT = 2;

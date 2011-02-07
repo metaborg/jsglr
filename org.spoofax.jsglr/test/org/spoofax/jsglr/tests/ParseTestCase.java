@@ -8,15 +8,17 @@
 package org.spoofax.jsglr.tests;
 
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static org.spoofax.jsglr.client.incremental.CommentDamageExpander.C_STYLE;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
@@ -27,12 +29,14 @@ import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.client.incremental.IncrementalSGLR;
+import org.spoofax.jsglr.client.incremental.IncrementalSortSet;
 import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.attachments.ParentTermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
 public abstract class ParseTestCase extends TestCase {
@@ -92,13 +96,11 @@ public abstract class ParseTestCase extends TestCase {
 		//				});
 
 		if (incrementalSorts.length > 0) {
-			TermTreeFactory factory = new TermTreeFactory(sglr.getParseTable().getFactory());
+			ITermFactory termFactory = new ParentTermFactory(sglr.getParseTable().getFactory());
+			TermTreeFactory factory = new TermTreeFactory(termFactory);
 			TreeBuilder builder = new TreeBuilder(factory);
 			sglr.setTreeBuilder(builder);
-			//Set<String> sorts = new SortAnalyzer(table).getInjectionsTo(incrementalSorts);
-			Set<String> sorts = new HashSet<String>();
-	    	for (String sort : incrementalSorts)
-	    		sorts.add(sort);
+			IncrementalSortSet sorts = new IncrementalSortSet(table, true, incrementalSorts);
 			incrementalSGLR = new IncrementalSGLR<IStrategoTerm>(sglr, C_STYLE, factory, sorts);
 	        IncrementalSGLR.DEBUG = true;
 		}
@@ -160,7 +162,7 @@ public abstract class ParseTestCase extends TestCase {
 		return parsed;
 	}
 	
-	public IStrategoTerm doParseIncrementalTest(IStrategoTerm oldTree, String newFile) throws Exception {
+	public IStrategoTerm doParseIncrementalTest(IStrategoTerm oldTree, String newFile, String... repairTypes) throws Exception {
 		String contents = loadAsString(newFile);
 		assertNotNull(contents);
 		long parseTime = System.nanoTime();
@@ -176,10 +178,16 @@ public abstract class ParseTestCase extends TestCase {
 			System.out.println(toCompactString(newTree));
 			System.out.println(toCompactString(wanted));
 	    	if (!newTree.match(wanted))
-	    		fail();
+	    		fail("Incremental result not same as non-incremental result");
 	    	doTokenStreamEqualityTest(oldTree, newTree);
 		} else {
 			System.out.println(toCompactString(newTree));
+		}
+		if (repairTypes.length > 0) {
+			for (ISimpleTerm repaired : incrementalSGLR.getLastReconstructedNodes()) {
+				if (!Arrays.asList(repairTypes).contains(getSort(repaired)))
+					fail("Unexpected repaired tree node of type " + getSort(repaired) + ": " + repaired);
+			}
 		}
     	return newTree;
 	}

@@ -14,8 +14,7 @@ import org.spoofax.jsglr.client.incremental.IncrementalSortSet;
  */
 public class TestIncrementalSGLR extends ParseTestCase {
 	
-	private static String[] CLASSBODY_SORTS = {"MethodDec", "ClassBodyDec",
-		"ClassMemberDec", "ConstrDec", "FieldDec" };
+	private static String[] CLASSBODY_SORTS = { "ClassBodyDec" };
 	
 	private static String[] MOST_SORTS = {"MethodDec", "ClassBodyDec",
 		"ClassMemberDec", "ConstrDec", "FieldDec", "ImportDec", "PackageDec",
@@ -222,7 +221,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
 	    	fail("Exception expected");
     	} catch (IncrementalSGLRException e) {
     		System.out.println(e.getMessage());
-    		assertTrue("Must fail on precondition", e.getMessage().indexOf("at multiple levels") != -1);
+    		assertTrue("Must fail on precondition", e.getMessage().indexOf("Precondition") != -1);
     	}
     }
 

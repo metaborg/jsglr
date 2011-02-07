@@ -112,6 +112,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		// Analyze current damage
 		DamageRegionAnalyzer neighborAnalyzer = new DamageRegionAnalyzer(this, damageStart, damageEnd, damageSizeChange);
 		List<ISimpleTerm> neighborDamageNodes = neighborAnalyzer.getDamageNodes(oldTree);
+		if (DEBUG) System.out.println("Damaged excluding neighbours: " + neighborDamageNodes);
 		sanityCheckDamageNodes(neighborDamageNodes);
 		
 		// Expand damage size for neighbors
@@ -121,7 +122,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		damageEnd = neighbors.getExpandedDamageEnd();
 		
 		// Pre-conditions
-		if (DEBUG) System.out.println("Damaged: " + damageNodes);
+		if (DEBUG) System.out.println("Damaged including neighbours: " + damageNodes);
 		sanityCheckDiff(oldInput, newInput, damageStart, damageEnd, damageSizeChange);
 		sanityCheckOldTree(oldTree);
 		sanityCheckDamageNodes(damageNodes);

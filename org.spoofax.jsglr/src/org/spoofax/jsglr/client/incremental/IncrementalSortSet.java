@@ -5,8 +5,10 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static org.spoofax.terms.Term.asJavaString;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -58,7 +60,8 @@ public class IncrementalSortSet {
 	}
 	
 	public boolean isIncrementalNode(ISimpleTerm term) {
-		return incrementalSorts.contains(getSort(term));
+		IStrategoTerm parent = getParent(term);
+		return parent != null && parent.isList() && incrementalSorts.contains(getSort(term));
 	}
 	
 	public boolean isIncrementalContainerNode(ISimpleTerm list) {
@@ -73,12 +76,19 @@ public class IncrementalSortSet {
 		return results;
 	}
 	
-	private Set<String> getInjectionsTo(ParseTable table, Iterable<String> sorts, boolean reverse) {
-		Set<String> results = new HashSet<String>();
-		for (String sort : sorts) {
-			addInjectionsTo(table, sort, reverse, results);
+	private Set<String> getInjectionsTo(ParseTable table, Collection<String> sorts, boolean reverse) {
+		// TODO: optimize - store injections first instead of looping over all productions many times
+		for (;;) {
+			int oldSize = sorts.size();
+			Set<String> results = new HashSet<String>();
+			for (String sort : sorts) {
+				addInjectionsTo(table, sort, reverse, results);
+			}
+			
+			if (oldSize == results.size()) // fixpoint
+				return results;
+			sorts = results;
 		}
-		return results;
 	}
 	
 	private void addInjectionsTo(ParseTable table, String sort, boolean reverse, Set<String> results) {

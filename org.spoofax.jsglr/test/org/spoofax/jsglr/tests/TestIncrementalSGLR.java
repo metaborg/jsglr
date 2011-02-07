@@ -14,7 +14,8 @@ import org.spoofax.jsglr.client.incremental.IncrementalSortSet;
  */
 public class TestIncrementalSGLR extends ParseTestCase {
 	
-	private static String[] CLASSBODY_SORTS = { "ClassBodyDec" };
+	private static String[] CLASSBODY_SORTS = {"MethodDec", "ClassBodyDec",
+		"ClassMemberDec", "ConstrDec", "FieldDec" };
 	
 	private static String[] MOST_SORTS = {"MethodDec", "ClassBodyDec",
 		"ClassMemberDec", "ConstrDec", "FieldDec", "ImportDec", "PackageDec",

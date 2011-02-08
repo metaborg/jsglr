@@ -7,10 +7,8 @@ import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.InvalidParseTableException;
-import org.spoofax.jsglr.ParseTable;
-
-import aterm.ATerm;
+import org.spoofax.jsglr.client.InvalidParseTableException;
+import org.spoofax.jsglr.client.ParseTable;
 
 public class JSGLR_open_parsetable extends JSGLRPrimitive {
     
@@ -35,11 +33,11 @@ public class JSGLR_open_parsetable extends JSGLRPrimitive {
 	        return true;
 	    }
 	    
-	    ATerm tableTerm = getATermConverter(env).convert(tvars[0]);
+	    IStrategoTerm tableTerm = tvars[0];
 		
 		JSGLRLibrary lib = getLibrary(env);
 		try {
-			ParseTable pt = lib.getParseTableManager().loadFromTerm(tableTerm);
+			ParseTable pt = lib.getParseTableManager(env.getFactory()).loadFromTerm(tableTerm);
 			IStrategoInt result = env.getFactory().makeInt(lib.addParseTable(pt));
             
 			env.setCurrent(result);			

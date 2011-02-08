@@ -3,14 +3,10 @@ package org.spoofax.interpreter.library.jsglr;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spoofax.interpreter.adapter.aterm.ATermConverter;
-import org.spoofax.interpreter.adapter.aterm.WrappedATermFactory;
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.ParseTable;
-import org.spoofax.jsglr.ParseTableManager;
-
-import aterm.ATermFactory;
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.io.ParseTableManager;
 
 public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
     
@@ -18,27 +14,15 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 	
 	private ParseTableManager parseTableManager;
 	
-	private ATermFactory atermFactory;
-	
 	private int parseTableCounter;
 	
 	private Map<Integer, ParseTable> parseTables;
 	
-	private ATermConverter atermConverter;
-	
-	private ITermFactory lastFactory;
-
-	@Deprecated
-	public JSGLRLibrary(WrappedATermFactory termFactory) {
-		this(termFactory.getFactory());
-    }
-	
-	public JSGLRLibrary(ATermFactory atermFactory) {
-		this.atermFactory = atermFactory;
+	public JSGLRLibrary() {
 		init();
-        add(new JSGLR_parse_stratego(atermFactory));
+        add(new JSGLR_parse_stratego());
         add(new JSGLR_open_parsetable());
-        add(new JSGLR_parse_string_pt(atermFactory));
+        add(new JSGLR_parse_string_pt());
 	}
 
 	public String getOperatorRegistryName() {
@@ -50,9 +34,9 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		
 	}
 
-	public ParseTableManager getParseTableManager() {
+	public ParseTableManager getParseTableManager(ITermFactory factory) {
 		if(parseTableManager == null)
-			parseTableManager = new ParseTableManager(atermFactory);
+			parseTableManager = new ParseTableManager(factory);
 		return parseTableManager;
 	}
 
@@ -65,11 +49,5 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 
 	public ParseTable getParseTable(int idx) {
 		return parseTables.get(idx);
-	}
-	
-	public ATermConverter getATermConverter(ITermFactory factory) {
-		if (lastFactory != factory)
-			atermConverter = new ATermConverter(atermFactory, factory, true);
-		return atermConverter;
 	}
 }

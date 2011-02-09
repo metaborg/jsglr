@@ -19,6 +19,7 @@ public class RecoveryPerformance {
     private ArrayList<Boolean> FGResults;
     private ArrayList<Boolean> BPResults;
     private ArrayList<Boolean> recoveryResults;
+    private boolean parseResult;
     
     public RecoveryPerformance(){
         CGTimes=new ArrayList<Integer>();
@@ -32,7 +33,11 @@ public class RecoveryPerformance {
         recoveryResults=new ArrayList<Boolean>();
     }
     
-    public ArrayList<Boolean> getCGResults() {
+    public boolean isParseSucceeded() {
+		return parseResult;
+	}
+
+	public ArrayList<Boolean> getCGResults() {
 		return CGResults;
 	}
 
@@ -72,8 +77,9 @@ public class RecoveryPerformance {
         startParse=System.currentTimeMillis();
     }
 
-    void endParse(){
+    void endParse(boolean succeeded){
         parseTime=System.currentTimeMillis()-startParse;
+        parseResult=succeeded;
     }
     
     void startCG(){

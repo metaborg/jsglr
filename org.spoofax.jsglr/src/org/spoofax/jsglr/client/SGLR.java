@@ -262,16 +262,14 @@ public class SGLR {
 		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
-        getPerformanceMeasuring().startParse();
         Object result = sglrParse(startSymbol);
-        getPerformanceMeasuring().endParse();
         return result;
 	}
 
 	private Object sglrParse(String startSymbol)
 	throws BadTokenException, TokenExpectedException,
 	ParseException, SGLRException {
-
+		getPerformanceMeasuring().startParse();
 		try {
 			do {
 				readNextToken();
@@ -289,6 +287,7 @@ public class SGLR {
 					return sglrParse(startSymbol);
 				}
 			}
+			getPerformanceMeasuring().endParse(acceptingStack!=null);
 		} catch (final TaskCancellationException e) {
 			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
 					columnNumber, collectedErrors);
@@ -630,8 +629,20 @@ public class SGLR {
 
 		if (st1 == null) {
 			// Found no existing stack with for state s; make new stack
-			if(prod.isRecoverProduction()){
-				addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
+			if(prod.isRecoverProduction()){ //TODO refactor into addNewRecoverStack
+				final Frame st1Recover = findStack(recoverStacks, s);
+				if(st1Recover==null){
+					addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
+				} else{
+					Link nlRecover = st1Recover.findDirectLink(st0);
+					if (nlRecover != null) {
+						return; //TODO: create ambiguity or take preferred one at runtime
+					}
+					else{
+						nlRecover = st1Recover.addLink(st0, t, length);
+						nlRecover.recoverCount = numberOfRecoveries;
+					}
+				}
 				return;
 			}
 			addNewStack(st0, s, prod, length, numberOfRecoveries, t);

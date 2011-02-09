@@ -1,10 +1,12 @@
 package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FineGrainedOnRegion {
 
-    private int acceptRecoveryPosition;
+    private static final int MAX_NR_OF_EXPLORED_LINES = 75;
+	private int acceptRecoveryPosition;
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
     private static int MAX_BACK_JUMPS=5;
@@ -16,9 +18,9 @@ public class FineGrainedOnRegion {
    
     public void setInfoFGOnly(){
         regionEndPosition=mySGLR.tokensSeen+5;
-        acceptRecoveryPosition=regionEndPosition+10;
+        acceptRecoveryPosition=regionEndPosition+15;
         int lastIndex=getHistory().getIndexLastLine();       
-        for (int i = 0; i < lastIndex; i++) {
+        for (int i = Math.max(0, lastIndex-MAX_NR_OF_EXPLORED_LINES); i < lastIndex; i++) {
             IndentInfo line= getHistory().getLine(i);
             if(line.getStackNodes()!=null && line.getStackNodes().size()>0){
                 BacktrackPosition btPoint=new BacktrackPosition(line.getStackNodes(), line.getTokensSeen());
@@ -36,8 +38,9 @@ public class FineGrainedOnRegion {
         	lastIndex >= 0 &&
         	erroneousRegion.getIndexHistoryStart()>=0 && 
         	erroneousRegion.getIndexHistoryStart()<=erroneousRegion.getIndexHistoryEnd()
-        );           
-        for (int i = erroneousRegion.getIndexHistoryStart(); i < lastIndex; i++) {
+        );
+        int btStartIndex=Math.max(erroneousRegion.getIndexHistoryStart(), lastIndex-MAX_NR_OF_EXPLORED_LINES);
+        for (int i = btStartIndex; i < lastIndex; i++) {
             IndentInfo line= getHistory().getLine(i);
             if (line.getStackNodes() != null && line.getStackNodes().size()>0){
                 BacktrackPosition btPoint=new BacktrackPosition(line.getStackNodes(), line.getTokensSeen());
@@ -74,7 +77,11 @@ public class FineGrainedOnRegion {
 	        	ArrayList<RecoverNode> rec_Branches_prefix=new ArrayList<RecoverNode>();
 	        	rec_Branches_prefix=collectRecoverBranches(0, btIndex);
 	        	resetSGLR(0);
-	        	recoverParse(rec_Branches_prefix, regionEndPosition);
+	        	ArrayList<RecoverNode> oneRecoverBranches = recoverParse(rec_Branches_prefix, regionEndPosition);
+	        	if(!acceptParse()){
+	        		resetSGLR(0);
+	        		recoverParse(oneRecoverBranches, regionEndPosition);
+	        	}
 	        	return acceptParse();
         	}
         	return false;

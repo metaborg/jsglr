@@ -607,7 +607,10 @@ public class SGLR {
 			final Frame st0 = path.getEnd();
 			final State next = parseTable.go(st0.peek(), prod.label);
 			logReductionPath(prod, path, st0, next);
-			reducer(st0, next, prod, kids, path);
+			if(!prod.isRecoverProduction())
+				reducer(st0, next, prod, kids, path);
+			else
+				reducerRecoverProduction(st0, next, prod, kids, path);				
 		}
 
 		if (asyncAborted) {
@@ -618,7 +621,7 @@ public class SGLR {
 
 	
 	private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
-
+		assert(!prod.isRecoverProduction());
 		logBeforeReducer(s, prod, path.getLength());
 		increaseReductionCount();
 
@@ -629,31 +632,12 @@ public class SGLR {
 
 		if (st1 == null) {
 			// Found no existing stack with for state s; make new stack
-			if(prod.isRecoverProduction()){ //TODO refactor into addNewRecoverStack
-				final Frame st1Recover = findStack(recoverStacks, s);
-				if(st1Recover==null){
-					addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
-				} else{
-					Link nlRecover = st1Recover.findDirectLink(st0);
-					if (nlRecover != null) {
-						return; //TODO: create ambiguity or take preferred one at runtime
-					}
-					else{
-						nlRecover = st1Recover.addLink(st0, t, length);
-						nlRecover.recoverCount = numberOfRecoveries;
-					}
-				}
-				return;
-			}
 			addNewStack(st0, s, prod, length, numberOfRecoveries, t);
 		} else {
 			/* A stack with state s exists; check for ambiguities */
 			Link nl = st1.findDirectLink(st0);
 
 			if (nl != null) {
-				if(prod.isRecoverProduction()){
-					return;
-				}
 				logAmbiguity(st0, prod, st1, nl);
 				if (prod.isRejectProduction()) {
 					nl.reject();
@@ -668,10 +652,6 @@ public class SGLR {
 					nl.label = t;
 				}
 			} else {
-				if(prod.isRecoverProduction()) {
-					addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
-					return;
-				}
 				nl = st1.addLink(st0, t, length);
 				nl.recoverCount = numberOfRecoveries;
 				if (prod.isRejectProduction()) {
@@ -686,6 +666,31 @@ public class SGLR {
 			TRACE_ActiveStacks();
 			TRACE("SG_ - reducer done");
 		}
+	}
+	
+	private void reducerRecoverProduction(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
+		assert(prod.isRecoverProduction());
+		final int length = path.getLength();
+		final int numberOfRecoveries = calcRecoverCount(prod, path);
+		final AbstractParseNode t = prod.apply(kids);
+		final Frame stActive = findStack(activeStacks, s);
+		if(stActive!=null){
+			Link lnActive=stActive.findDirectLink(st0);
+			if(lnActive!=null){
+				return; //TODO: ambiguity
+			}
+		}
+		final Frame stRecover = findStack(recoverStacks, s);
+		if(stRecover!=null){
+			Link nlRecover = stRecover.findDirectLink(st0);
+			if(nlRecover!=null){
+				return; //TODO: ambiguity
+			}
+			nlRecover = stRecover.addLink(st0, t, length);
+			nlRecover.recoverCount = numberOfRecoveries;
+			return;
+		}
+		addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
 	}
 
 	private void createAmbNode(AbstractParseNode t, Link nl) {

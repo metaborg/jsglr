@@ -324,6 +324,7 @@ public class SGLR {
 	}
 
 	protected void doParseStep() {
+		logBeforeParseCharacter();
 		parseCharacter(); //applies reductions on active stack structure and fills forshifter
 		shifter(); //renewes active stacks with states in forshifter
 	}
@@ -644,6 +645,7 @@ public class SGLR {
 				}
 				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
 					createAmbNode(t, nl);
+					actorOnActiveStacksOverNewLink(nl); //reductions on st1 should have used the Amb link, so they must be redone
 				} else if (numberOfRecoveries < nl.recoverCount) {
 					nl.label = t;
 					nl.recoverCount = numberOfRecoveries;

@@ -120,7 +120,7 @@ public class Frame implements Serializable {
     }   
     
 
-    static public int[] counter = new int[1000];
+//    static public int[] counter = new int[1000];
     
     public Link addLink(Frame st0, AbstractParseNode n, int length) {
         if(Tools.tracing) {
@@ -129,7 +129,7 @@ public class Frame implements Serializable {
         if(stepsCount >= steps.length) {
             resizeSteps();
         }
-        counter[stepsCount]++;
+//        counter[stepsCount]++;
         return steps[stepsCount++] = new Link(st0, n, length); 
     }
     
@@ -140,7 +140,7 @@ public class Frame implements Serializable {
         if(stepsCount >= steps.length) {
             resizeSteps();
         }
-        counter[stepsCount]++;
+//        counter[stepsCount]++;
         return steps[stepsCount++] = ln; 
     }
 

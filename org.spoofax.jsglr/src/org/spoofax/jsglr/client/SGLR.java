@@ -592,7 +592,6 @@ public class SGLR {
 		if(!recoverModeOk(st, prod)) {
 			return;
 		}
-
 		final PooledPathList limitedPool = pathCache.create();
 		st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
 		logBeforeLimitedReductions(st, prod, l, limitedPool);
@@ -644,8 +643,11 @@ public class SGLR {
 					nl.reject();
 				}
 				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
-					createAmbNode(t, nl);
-					actorOnActiveStacksOverNewLink(nl); //reductions on st1 should have used the Amb link, so they must be redone
+					boolean createdByRecursion=kids.length==1 && kids[0]==nl.label && nl.label instanceof Amb;
+					if(!createdByRecursion){
+						createAmbNode(t, nl);
+						actorOnActiveStacksOverNewLink(nl);//reductions on st1 should have used the Amb link, so they must be redone
+					} 
 				} else if (numberOfRecoveries < nl.recoverCount) {
 					nl.label = t;
 					nl.recoverCount = numberOfRecoveries;

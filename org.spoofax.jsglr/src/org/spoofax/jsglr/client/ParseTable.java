@@ -39,8 +39,8 @@ public class ParseTable implements Serializable {
      * (0x10FFFF would be all chars of UTF-8, but is not yet
      *  supported by the parse table format.)
      */
-    protected static final int NUM_CHARS = 256;
-    protected static final int LABEL_BASE = NUM_CHARS + 1;
+    public static final int NUM_CHARS = 256;
+    public static final int LABEL_BASE = NUM_CHARS + 1;
     
     private static final long serialVersionUID = -3372429249660900093L;
 
@@ -234,6 +234,8 @@ public class ParseTable implements Serializable {
     	//  . prod([<term>],cf(<term>),<term>)
     	//  . prod([<term>],lex(sort(<str>)),<term>)
     	//  . lit(<str>)
+    	
+    	// TODO: optimize - use constants for these constructors (a la parseproductionreader)
 
         if(!prod.getName().equals("prod"))
         	return false;
@@ -252,7 +254,7 @@ public class ParseTable implements Serializable {
 
         IStrategoList ls = ((IStrategoList)prod.getSubterm(0));
 
-        if(ls.getSubtermCount() < 1)
+        if(ls.getSubtermCount() != 1)
         	return false;
         
         if(ls.head().getTermType() != APPL)

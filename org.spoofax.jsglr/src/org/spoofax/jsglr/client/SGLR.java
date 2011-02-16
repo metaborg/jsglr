@@ -643,11 +643,12 @@ public class SGLR {
 					nl.reject();
 				}
 				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
-					boolean createdByRecursion=kids.length==1 && kids[0]==nl.label && nl.label instanceof Amb;
-					if(!createdByRecursion){
+					// UNDONE: this doesn't quite work yet
+					//boolean createdByRecursion=kids.length==1 && kids[0]==nl.label && nl.label instanceof Amb;
+					//if(!createdByRecursion){
 						createAmbNode(t, nl);
-						actorOnActiveStacksOverNewLink(nl);//reductions on st1 should have used the Amb link, so they must be redone
-					} 
+						//actorOnActiveStacksOverNewLink(nl);//reductions on st1 should have used the Amb link, so they must be redone
+					//} 
 				} else if (numberOfRecoveries < nl.recoverCount) {
 					nl.label = t;
 					nl.recoverCount = numberOfRecoveries;

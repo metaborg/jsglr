@@ -44,6 +44,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	private ITokenizer tokenizer;
 	
+	private String input;
+	
 	private PushbackStringIterator stringIterator;
 	
 	private ITreeFactory factory;
@@ -108,15 +110,24 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	public void initializeInput(String input, String filename) {
 		assert offset == 0 : "Tree builder offset was not reset, race condition?";
-		tokenizer = disableTokens
+		setTokenizer(disableTokens
 			? new NullTokenizer(input, filename)
-			: new Tokenizer(input, filename, table.getKeywordRecognizer());
+			: new Tokenizer(input, filename, table.getKeywordRecognizer()));
+		setInput(input);
 		stringIterator = new PushbackStringIterator(input);
 		reset();
 	}
 	
-	public ITokenizer getTokenizer() {
+	public final ITokenizer getTokenizer() {
 		return tokenizer;
+	}
+	
+	protected void setTokenizer(ITokenizer tokenizer) {
+		this.tokenizer = tokenizer;
+	}
+	
+	protected void setInput(String input) {
+		this.input = input;
 	}
 
 	public ITreeFactory getFactory() {
@@ -137,9 +148,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		offset = 0;
 		inLexicalContext = false;
 		if (tokenizer != null && tokenizer.getStartOffset() > 0) {
-			tokenizer = disableTokens
+			setTokenizer(disableTokens
 				? new NullTokenizer(tokenizer.getInput(), tokenizer.getFilename())
-				: new Tokenizer(tokenizer.getInput(), tokenizer.getFilename(), table.getKeywordRecognizer());
+				: new Tokenizer(tokenizer.getInput(), tokenizer.getFilename(), table.getKeywordRecognizer()));
 		}
 	}
 	
@@ -415,7 +426,6 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	 */
 	private String getPaddedLexicalValue(LabelInfo label, String contents, int startOffset) {
 		if (label.isIndentPaddingLexical()) {
-			String input = tokenizer.getInput();
 			if (startOffset == 0) return contents;
 			int lineStart = input.lastIndexOf('\n', startOffset - 1) + 1;
 			StringBuilder result = new StringBuilder();
@@ -452,7 +462,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	/* Get the last no-layout token for an AST node.
 	private IToken getEndToken(IToken currentToken, IToken lastToken) {
-		if (lastToken.getEndOffset() == tokenizer.getInput().length() - 1)
+		if (lastToken.getEndOffset() == input.length() - 1)
 			return lastToken;
 
 		int begin = currentToken.getIndex();
@@ -470,7 +480,6 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	/** Consume a character of a lexical terminal. */
 	protected final void consumeLexicalChar(int character) {
-		String input = tokenizer.getInput();
 		if (offset >= input.length()) {
 			markUnexpectedEOF(character);
 		} else {
@@ -502,7 +511,6 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 
 	private void markUnexpectedEOF(int character) {
-		String input = tokenizer.getInput();
 		/*assert nonMatchingOffset == NONE :
 				"Character in parse tree after end of input stream: " + (char) character
 				+ " - may be caused by unexpected character in parse tree at position "

@@ -106,4 +106,18 @@ public class Amb extends AbstractParseNode {
 	public String toStringShallow() {
 		return "Amb";
 	}
+
+	@Override
+	public void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+		if(this!=label){
+			for (int i = 0; i < alternatives.length; i++) {
+				if(alternatives[i] == oldLabel){
+					alternatives[i]=label;
+				}
+				else
+					alternatives[i].updateLabels(oldLabel, label);
+			}
+		}
+		
+	}
 }

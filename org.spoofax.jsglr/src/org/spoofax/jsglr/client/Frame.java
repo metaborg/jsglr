@@ -294,6 +294,13 @@ public class Frame implements Serializable {
         }
     }
     
+	public void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+		for (int i=0; i<stepsCount; i++) {
+			Link ln = steps[i];
+			ln.label.updateLabels(oldLabel, label);			
+		}
+	}
+    
     //mj debug info function
     public int minAvoidValue()
     {

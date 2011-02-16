@@ -22,7 +22,7 @@ public class ParseNode extends AbstractParseNode {
 
     final AbstractParseNode[] kids;
     
-    private final boolean isParseProductionChain;
+    private boolean isParseProductionChain;
 
     private int cachedHashCode;
 
@@ -90,6 +90,18 @@ public class ParseNode extends AbstractParseNode {
     
     public AbstractParseNode[] getChildren() {
 		return kids;
+	}
+    
+    @Override
+	public void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+			for (int i=0; i<kids.length; i++){
+				if(kids[i] == oldLabel){
+					kids[i]=label;
+					isParseProductionChain=false;
+				}
+				else
+					kids[i].updateLabels(oldLabel, label);
+			} 
 	}
 
     @Override

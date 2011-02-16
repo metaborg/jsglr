@@ -643,12 +643,9 @@ public class SGLR {
 					nl.reject();
 				}
 				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
-					// UNDONE: this doesn't quite work yet
-					//boolean createdByRecursion=kids.length==1 && kids[0]==nl.label && nl.label instanceof Amb;
-					//if(!createdByRecursion){
-						createAmbNode(t, nl);
-						//actorOnActiveStacksOverNewLink(nl);//reductions on st1 should have used the Amb link, so they must be redone
-					//} 
+					AbstractParseNode oldLabel=nl.label;
+					createAmbNode(t, nl);
+					updateLabels(oldLabel, nl.label);
 				} else if (numberOfRecoveries < nl.recoverCount) {
 					nl.label = t;
 					nl.recoverCount = numberOfRecoveries;
@@ -671,6 +668,14 @@ public class SGLR {
 			TRACE_ActiveStacks();
 			TRACE("SG_ - reducer done");
 		}
+	}
+	
+	//TODO: alleen na de reduce phase voor acceptingstack + stacks in forshifter
+	private void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+		for (int i=0; i<this.activeStacks.size(); i++) {
+			Frame f=activeStacks.get(i);
+			f.updateLabels(oldLabel, label);			
+		}		
 	}
 	
 	private void reducerRecoverProduction(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {

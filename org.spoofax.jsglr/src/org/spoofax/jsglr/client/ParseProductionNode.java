@@ -57,4 +57,9 @@ public class ParseProductionNode extends AbstractParseNode {
     public String toStringShallow() {
         return "prod*(" + prod + ")";
     }
+
+	@Override
+	public void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+		return;
+	}
 }

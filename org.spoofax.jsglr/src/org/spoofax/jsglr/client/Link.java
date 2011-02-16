@@ -65,8 +65,8 @@ public class Link {
         if(Tools.tracing) {
             SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
         }
-        
         label = new Amb(label, t);
+       
     }
     
     @Override

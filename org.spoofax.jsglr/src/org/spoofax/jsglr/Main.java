@@ -44,7 +44,6 @@ public class Main {
 		String inputFile = null;
 		String output = null;
 		String startSymbol = null;
-		boolean debugging = false;
 		boolean logging = false;
 		boolean detectCycles = true;
 		boolean filter = true;
@@ -53,7 +52,7 @@ public class Main {
 		boolean heuristicFilters = false;
 		boolean buildParseTree = true;
 		boolean implode = false;
-		int profilingRuns = 0;
+		int profilingRuns = 1;
 		int warmup = 0;
 
 		for(int i=0;i<args.length;i++) {
@@ -64,7 +63,7 @@ public class Main {
 			} else if(args[i].equals("-o")) {
 				output = args[++i];
 			} else if(args[i].equals("-d")) {
-				debugging = true;
+				throw new IllegalArgumentException("-d not supported in this build");
 			} else if(args[i].equals("-v")) {
 				logging = true;
 			} else if(args[i].equals("-f")) {
@@ -105,7 +104,7 @@ public class Main {
 
 		tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
 
-		Tools.setDebug(debugging);
+		// Tools.setDebug(debugging);
 		Tools.setLogging(logging);
 		sglr.getDisambiguator().setFilterCycles(detectCycles);
 		sglr.getDisambiguator().setFilterAny(filter);
@@ -116,6 +115,8 @@ public class Main {
 			sglr.setTreeBuilder(new TreeBuilder(true));
 		
 		String input = FileTools.loadFileAsString(new BufferedReader(new FileReader(inputFile)));
+		
+		if (timing) System.gc();
 
 		if (warmup > 0)
 			warmup(sglr, inputFile, input, startSymbol, warmup);
@@ -125,17 +126,17 @@ public class Main {
 			System.in.read();
 		}
 		
+		long parsingTime = 0;
 		for(int i = 0; i < profilingRuns - 1; i++) {
-			parseFile(input, inputFile, NO_OUTPUT, sglr, startSymbol);
+			parsingTime += parseFile(input, inputFile, NO_OUTPUT, sglr, startSymbol);
+			System.gc();
 		}
-		
-		System.gc();
 
-		final long parsingTime = parseFile(input, inputFile, output, sglr, startSymbol);
+		parsingTime += parseFile(input, inputFile, output, sglr, startSymbol);
 
 		if(timing) {
 			System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
-			System.err.println("Parsing time             : " + parsingTime + "ms");
+			System.err.println("Parsing time             : " + (parsingTime / profilingRuns) + "ms");
 		}
 	}
 
@@ -173,10 +174,12 @@ public class Main {
 			t = sglr.parse(input, inputFile, startSymbol);
 			parsingTime = System.currentTimeMillis() - parsingTime;
 		} catch(final BadTokenException e) {
-			System.err.println("Parsing failed : " + e.getMessage());
+			System.err.println("Parsing failed: " + e.getMessage());
+			System.exit(1);
 		} catch(final SGLRException e) {
 			// Detailed message for other exceptions
-			System.err.println("Parsing failed : " + e);
+			System.err.println("Parsing failed: " + e);
+			System.exit(1);
 		}
 		if(t != null && !NO_OUTPUT.equals(output)) {
 			TermReader termIO = new TermReader(sglr.getParseTable().getFactory());

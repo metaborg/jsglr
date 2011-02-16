@@ -59,7 +59,7 @@ public class AmbiguityManager {
     }
 
     public int getClusterIndex(AbstractParseNode t, int pos) {
-        if(SGLR.isDebugging()) {
+        if(Tools.debugging) {
             Tools.debug("getClusterIndex()");
             Tools.debug(" t - " + t);
             Tools.debug(" pos - " + pos);

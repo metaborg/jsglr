@@ -110,7 +110,7 @@ public class ParseTableManager {
 	}
 
 	public ParseTable loadFromStream(InputStream stream) throws IOException, InvalidParseTableException, ParseError {
-        if(SGLR.isDebugging()) {
+        if(Tools.debugging) {
             Tools.debug("loadFromStream()");
         }
         

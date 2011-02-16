@@ -12,9 +12,9 @@ import org.spoofax.jsglr.client.Measures;
 
 public class Tools {
 
-    public static boolean debugging = false;
+    public static final boolean tracing = false;
+    public static final boolean debugging = false;
     public static boolean logging = false;
-    public static boolean tracing = false;
     public static boolean measuring = false;
 
     private static Measures measures;
@@ -27,14 +27,6 @@ public class Tools {
     public static void logger(Object ...s) {
     	if(logging)
     		System.out.println(s);
-    }
-
-    public static void setTracing(boolean enableTracing) {
-        tracing = enableTracing;
-    }
-
-    public static void setDebug(boolean enableDebug) {
-        debugging = enableDebug;
     }
 
     public static void setLogging(boolean enableLogging) {

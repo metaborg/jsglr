@@ -76,7 +76,7 @@ public class Action implements Serializable {
             if(ai.type == ActionItem.REDUCE) {
                 Reduce r = (Reduce) ai;
                 if(r.status == ProductionType.AVOID) {
-                    if(SGLR.isDebugging()) {
+                    if(Tools.debugging) {
                         Tools.debug(this);
                     }
                     return true;

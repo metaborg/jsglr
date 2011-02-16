@@ -66,15 +66,18 @@ public class IndentInfo {
         int maxPathLength = 0;
         for (Frame activeStack : stackNodes) {
         	indentPathCache.start();
-        	activeStack.findAllPaths(indentPathCache, 2);
-        	for(int i = 0; i < indentPathCache.size(); i++) {
-        		// 3=> shifted_LO, reduced_LO, ReducedCodeFragment
-                int length = indentPathCache.get(i).getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
-                if(length > maxPathLength){
-                    maxPathLength = length;                   
-                }
-            }
-        	indentPathCache.end();
+        	try {
+	        	activeStack.findAllPaths(indentPathCache, 2);
+	        	for(int i = 0; i < indentPathCache.size(); i++) {
+	        		// 3=> shifted_LO, reduced_LO, ReducedCodeFragment
+	                int length = indentPathCache.get(i).getLength(); //length => total_length, p => reduce_length, p.p => layout_length (-shift), p.p.p => shift_length (=1)                 
+	                if(length > maxPathLength){
+	                    maxPathLength = length;                   
+	                }
+	            }
+        	} finally {
+        		indentPathCache.end();
+        	}
         }
         return maxPathLength;
     }    

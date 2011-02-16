@@ -188,13 +188,13 @@ public class Disambiguator {
 
     public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
     	AbstractParseNode t = root;
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("applyFilters()");
 		}
 
     	try {
     		try {
-	            if(SGLR.isDebugging()) {
+	            if(Tools.debugging) {
 	                Tools.debug("applyFilters()");
 	            }
 	
@@ -248,7 +248,7 @@ public class Disambiguator {
 
     private Object yieldTreeTop(AbstractParseNode t) {
 
-		if (SGLR.isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("convertToATerm: ", t);
 		}
 
@@ -259,7 +259,7 @@ public class Disambiguator {
 			logStatus();
 	
 	        int ambCount = ambiguityManager.getAmbiguitiesCount();
-	        if (SGLR.isDebugging()) {
+	        if (Tools.debugging) {
 	            Tools.debug("yield: ", r);
 	        }
 	        
@@ -271,7 +271,7 @@ public class Disambiguator {
 
 	private AbstractParseNode applyCycleDetectFilter(AbstractParseNode t) throws FilterException {
 
-		if (SGLR.isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("applyCycleDetectFilter() - ", t);
 		}
 
@@ -296,7 +296,7 @@ public class Disambiguator {
 
 	private AbstractParseNode applyTopSortFilter(String sort, AbstractParseNode t) throws SGLRException {
 
-		if (SGLR.isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("applyTopSortFilter() - ", t);
 		}
 
@@ -359,7 +359,7 @@ public class Disambiguator {
 
 	private AbstractParseNode filterTree(AbstractParseNode t, boolean inAmbiguityCluster) throws FilterException {
 		// SG_FilterTreeRecursive
-		if (SGLR.isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("filterTree(node)    - ", t);
 		}
 		
@@ -416,7 +416,7 @@ public class Disambiguator {
 	 */
 	private AbstractParseNode[] filterTree(AbstractParseNode[] args, boolean inAmbiguityCluster) throws FilterException {
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("filterTree(<nodes>) - ", args);
 		}
 		
@@ -475,7 +475,7 @@ public class Disambiguator {
 		// SG_Associativity_Priority_Filter(pt, t)
 		// - ok
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("applyAssociativityPriorityFilter() - ", t);
 		}
 
@@ -521,7 +521,7 @@ public class Disambiguator {
 		// SG_Right_Associativity_Filter(t, prodl)
 		// - almost ok
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("applyRightAssociativeFilter() - ", t);
 		}
 
@@ -570,7 +570,7 @@ public class Disambiguator {
 	private AbstractParseNode applyPriorityFilter(ParseNode t, Label prodLabel) throws FilterException {
 		// SG_Priority_Filter
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("applyPriorityFilter() - ", t);
 		}
 
@@ -649,7 +649,7 @@ public class Disambiguator {
 
 	private AbstractParseNode jumpOverInjections(AbstractParseNode t) {
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("jumpOverInjections() - ", t);
 		}
 
@@ -701,7 +701,7 @@ public class Disambiguator {
 	private AbstractParseNode applyLeftAssociativeFilter(ParseNode t, Label prodLabel) throws FilterException {
 		// SG_Right_Associativity_Filter()
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("applyLeftAssociativeFilter() - ", t);
 		}
 
@@ -760,7 +760,7 @@ public class Disambiguator {
 	private AbstractParseNode filterAmbiguities(AbstractParseNode[] ambs) throws FilterException {
 		// SG_FilterAmb
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("filterAmbiguities() - [", ambs.length, "]");
 		}
 
@@ -827,7 +827,7 @@ public class Disambiguator {
 	private int filter(AbstractParseNode left, AbstractParseNode right) {
 		// SG_Filter(t0, t1)
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("filter()");
 		}
 
@@ -885,7 +885,7 @@ public class Disambiguator {
 
 	private int filterOnInjectionCount(AbstractParseNode left, AbstractParseNode right) {
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("filterOnInjectionCount()");
 		}
 
@@ -932,7 +932,7 @@ public class Disambiguator {
 
 	private int filterOnPreferCount(AbstractParseNode left, AbstractParseNode right) {
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("filterOnPreferCount()");
 		}
 
@@ -1027,7 +1027,7 @@ public class Disambiguator {
 	private int filterOnIndirectPrefers(AbstractParseNode left, AbstractParseNode right) {
 		// SG_Indirect_Eagerness_Filter
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("filterOnIndirectPrefers()");
 		}
 
@@ -1064,7 +1064,7 @@ public class Disambiguator {
 	private int filterOnDirectPrefers(AbstractParseNode left, AbstractParseNode right) {
 		// SG_Direct_Eagerness_Filter
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("filterOnDirectPrefers()");
 		}
 
@@ -1097,7 +1097,7 @@ public class Disambiguator {
 
 	private AbstractParseNode jumpOverInjectionsModuloEagerness(AbstractParseNode t) {
 
-		if(SGLR.isDebugging()) {
+		if(Tools.debugging) {
 			Tools.debug("jumpOverInjectionsModuloEagerness()");
 		}
 
@@ -1188,12 +1188,12 @@ public class Disambiguator {
 	private List<AbstractParseNode> computeCyclicTerm(AbstractParseNode t, boolean inAmbiguityCluster,
 			PositionMap visited) {
 
-		if (SGLR.isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("computeCyclicTerm() - ", t);
 		}
 
 		if (t instanceof ParseProductionNode) {
-			if (SGLR.isDebugging()) {
+			if (Tools.debugging) {
 				Tools.debug(" bumping");
 			}
 			return null;

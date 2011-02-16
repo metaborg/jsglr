@@ -83,7 +83,7 @@ public class SGLR {
 
 	protected PushbackStringIterator currentInputStream;
 
-	private PathListPool pathCache = new PathListPool();
+	private PathListPool pathCache = PathListPool.getInstance();
 	private ArrayDeque<Frame> activeStacksWorkQueue = new ArrayDeque<Frame>();
 	private ArrayDeque<Frame> recoverStacks;
 
@@ -214,6 +214,7 @@ public class SGLR {
 		asyncAborted = false;
 	}
 
+	@Deprecated
 	public static boolean isDebugging() {
 		return Tools.debugging;
 	}
@@ -237,9 +238,9 @@ public class SGLR {
 	}
 	
 	@Deprecated
-	public Object parse(String fis) throws BadTokenException,
+	public Object parse(String input) throws BadTokenException,
     TokenExpectedException, ParseException, SGLRException {
-	    return parse(fis, null, null);
+	    return parse(input, null, null);
 	}
 
     @Deprecated
@@ -292,7 +293,6 @@ public class SGLR {
 			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
 					columnNumber, collectedErrors);
 		} finally {
-			pathCache.reset();
 			activeStacks.clear(false);
 			activeStacksWorkQueue.clear(false);
 			forShifter.clear(false);
@@ -347,7 +347,6 @@ public class SGLR {
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 		ambiguityManager = new AmbiguityManager(input.length());
-		pathCache.reset();
 	}
 
 	private BadTokenException createBadTokenException() {
@@ -574,14 +573,17 @@ public class SGLR {
 			return;
 		}
 
-		final PooledPathList paths = pathCache.create();
-		//System.out.println(paths.size());
-		st.findAllPaths(paths, prod.arity);
-		//System.out.println(paths.size());
-		logBeforeDoReductions(st, prod, paths.size());
-		reduceAllPaths(prod, paths);
-		logAfterDoReductions();
-		paths.end();
+		PooledPathList paths = pathCache.create();
+		try {
+			//System.out.println(paths.size());
+			st.findAllPaths(paths, prod.arity);
+			//System.out.println(paths.size());
+			logBeforeDoReductions(st, prod, paths.size());
+			reduceAllPaths(prod, paths);
+			logAfterDoReductions();
+		} finally {
+			pathCache.endCreate(paths);
+		}
 	}
 
 	private boolean recoverModeOk(Frame st, Production prod) {
@@ -592,11 +594,14 @@ public class SGLR {
 		if(!recoverModeOk(st, prod)) {
 			return;
 		}
-		final PooledPathList limitedPool = pathCache.create();
-		st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
-		logBeforeLimitedReductions(st, prod, l, limitedPool);
-		reduceAllPaths(prod, limitedPool);
-		limitedPool.end();
+		PooledPathList limitedPool = pathCache.create();
+		try {
+			st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
+			logBeforeLimitedReductions(st, prod, l, limitedPool);
+			reduceAllPaths(prod, limitedPool);
+		} finally {
+			pathCache.endCreate(limitedPool);
+		}
 	}
 
 	private void reduceAllPaths(Production prod, PooledPathList paths) {
@@ -605,7 +610,7 @@ public class SGLR {
 			final Path path = paths.get(i);
 			final AbstractParseNode[] kids = path.getParseNodes();
 			final Frame st0 = path.getEnd();
-			final State next = parseTable.go(st0.peek(), prod.label);
+			final State next = parseTable.go(st0.state, prod.label);
 			logReductionPath(prod, path, st0, next);
 			if(!prod.isRecoverProduction())
 				reducer(st0, next, prod, kids, path);
@@ -816,20 +821,21 @@ public class SGLR {
 	}
 
 	Frame findStack(ArrayDeque<Frame> stacks, State s) {
+		int desiredState = s.stateNumber;
 		if(Tools.tracing) {
-			TRACE("SG_FindStack() - " + s.stateNumber);
+			TRACE("SG_FindStack() - " + desiredState);
 		}
 
 		// We need only check the top frames of the active stacks.
 		if (Tools.debugging) {
 			Tools.debug("findStack() - ", dumpActiveStacks());
-			Tools.debug(" looking for ", s.stateNumber);
+			Tools.debug(" looking for ", desiredState);
 		}
 
 		final int size = stacks.size();
 		for (int i = 0; i < size; i++) {
 			Frame stack = stacks.get(i);
-			if (stack.state.stateNumber == s.stateNumber) {
+			if (stack.state.stateNumber == desiredState) {
 				if(Tools.tracing) {
 					TRACE("SG_ - found stack");
 				}
@@ -970,7 +976,7 @@ public class SGLR {
 
 
 	private void logParseResult(Link s) {
-		if (isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("internal parse tree:\n", s.label);
 		}
 
@@ -1024,7 +1030,7 @@ public class SGLR {
 			Tools.logger("Parse time: " + elapsed / 1000.0f + "s");
 		}
 
-		if (isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("Parsing complete: all tokens read");
 		}
 
@@ -1039,7 +1045,7 @@ public class SGLR {
 		}
 
 
-		if (isDebugging()) {
+		if (Tools.debugging) {
 			Tools.debug("Accepting stack exists");
 		}
 	}

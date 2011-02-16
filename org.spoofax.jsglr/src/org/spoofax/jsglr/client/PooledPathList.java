@@ -83,8 +83,6 @@ public class PooledPathList {
 		usage--;
 		if(usage != 0)
 			throw new IllegalStateException("Must always end() the PooledPathList after use");
-		maxRemembered = Math.max(maxRemembered, rememberIndex);
-		maxAllocated = Math.max(maxAllocated, allocIndex);
 		reset();
 	}
 	
@@ -106,6 +104,8 @@ public class PooledPathList {
 	}
 
 	public void reset() {
+		maxRemembered = Math.max(maxRemembered, rememberIndex);
+		maxAllocated = Math.max(maxAllocated, allocIndex);
 		usage = 0;
 		rememberIndex = 0;
 		allocIndex = 0;

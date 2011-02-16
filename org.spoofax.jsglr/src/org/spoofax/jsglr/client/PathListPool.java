@@ -1,46 +1,77 @@
 package org.spoofax.jsglr.client;
 
+import java.lang.ref.WeakReference;
+
 
 public class PathListPool {
 
-	private PooledPathList p0 = new PooledPathList(512, false);
-	private PooledPathList p1 = new PooledPathList(512, false);
-	private PooledPathList p2 = new PooledPathList(512, false);
-	private PooledPathList p3 = new PooledPathList(512, false);
-	private PooledPathList p4 = new PooledPathList(512, false);
+	// Poor man's queue (?)
+	private PooledPathList asyncP0 = new PooledPathList(512, false);
+	private PooledPathList asyncP1 = new PooledPathList(512, false);
+	private PooledPathList asyncP2 = new PooledPathList(512, false);
+	private PooledPathList asyncP3 = new PooledPathList(512, false);
+	private PooledPathList asyncP4 = new PooledPathList(512, false);
 	
-	public static int cacheMisses = 0;
+	public static int asyncCacheMisses = 0;
+	
+	private static WeakReference<PathListPool> asyncInstance;
+	
+	private PathListPool() {
+		// weak singleton
+	}
+	
+	private static Object getSyncRoot() {
+		return PathListPool.class;
+	}
+	
+	public static PathListPool getInstance() {
+		synchronized (getSyncRoot()) {
+			PathListPool result = asyncInstance == null ? null : asyncInstance.get();
+			if (result == null) {
+				result = new PathListPool();
+				asyncInstance = new WeakReference<PathListPool>(result);
+			}
+			return result;
+		}
+	}
 	
 	public PooledPathList create() {
-		if(p0.usage == 0)
-			return p0.start();
-		if(p1.usage == 0)
-			return p1.start();
-		if(p2.usage == 0)
-			return p2.start();
-		if(p3.usage == 0)
-			return p3.start();
-		if(p4.usage == 0)
-			return p4.start();
-	
-		cacheMisses++;
-		p4 = p3;
-		p3 = p2;
-		p2 = p1;
-		p1 = p0;
-		p0 = new PooledPathList(512, false);
-		return p0.start();
+		synchronized (getSyncRoot()) {
+			if(asyncP0.usage == 0)
+				return asyncP0.start();
+			if(asyncP1.usage == 0)
+				return asyncP1.start();
+			if(asyncP2.usage == 0)
+				return asyncP2.start();
+			if(asyncP3.usage == 0)
+				return asyncP3.start();
+			if(asyncP4.usage == 0)
+				return asyncP4.start();
+		
+			asyncCacheMisses++;
+			PooledPathList paths = new PooledPathList(512, false);
+			endCreate(paths);
+			return asyncP0.start();
+		}
 	}
 	
 	public static void resetPerformanceCounters() {
-		cacheMisses = 0;
+		synchronized (getSyncRoot()) {
+			asyncCacheMisses = 0;
+		}
 	}
 
-	public void reset() {
-		p0.reset();
-		p1.reset();
-		p2.reset();
-		p3.reset();
-		p4.reset();
+	public void endCreate(PooledPathList paths) {
+		synchronized (getSyncRoot()) {
+			paths.reset();
+			if (asyncP0 == paths || asyncP1 == paths || asyncP2 == paths
+					|| asyncP3 == paths || asyncP4 == paths)
+				return;
+			asyncP4 = asyncP3;
+			asyncP3 = asyncP2;
+			asyncP2 = asyncP1;
+			asyncP1 = asyncP0;
+			asyncP0 = paths;
+		}
 	}
 }

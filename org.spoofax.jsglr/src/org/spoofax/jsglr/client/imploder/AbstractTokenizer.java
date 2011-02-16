@@ -70,7 +70,8 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				return;
 			}
 			
-			isSyntaxCorrect = isSyntaxCorrect || label.getDeprecationMessage() == null;
+			if (isSyntaxCorrect)
+				isSyntaxCorrect = label.getDeprecationMessage() != null;
 			
 			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
 			
@@ -211,7 +212,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	}
 	
 	/**
-	 * Gets the token with an offset following the given token,
+	 * Gets the token with a start offset following the given token,
 	 * even in an ambiguous token stream.
 	 * 
 	 * @see #isAmbiguous()
@@ -228,7 +229,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	}
 	
 	/**
-	 * Gets the token with an offset preceding the given token,
+	 * Gets the token with an end offset preceding the given token,
 	 * even in an ambiguous token stream.
 	 * 
 	 * @see #isAmbiguous()
@@ -242,6 +243,26 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			if (result.getEndOffset() <= prevOffset) return result;
 		}
 		return null;
+	}
+	
+	public static IToken getFirstTokenWithSameOffset(IToken token) {
+		IToken before = token;
+		do {
+			token = before;
+			before = getTokenBefore(token);
+			if (before == null || before == token) return token;
+		} while (before.getStartOffset() == token.getStartOffset());
+		return token.getTokenizer().getTokenAt(before.getIndex() + 1);
+	}
+	
+	public static IToken getLastTokenWithSameEndOffset(IToken token) {
+		IToken after = token;
+		do {
+			token = after;
+			after = getTokenAfter(token);
+			if (after == null || after == token) return token;
+		} while (after.getEndOffset() == token.getEndOffset());
+		return token.getTokenizer().getTokenAt(after.getIndex() - 1);
 	}
 	
 	public IToken getErrorTokenOrAdjunct(int offset) {

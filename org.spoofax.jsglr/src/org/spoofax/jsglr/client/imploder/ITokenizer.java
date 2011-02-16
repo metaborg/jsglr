@@ -51,6 +51,10 @@ public interface ITokenizer extends Iterable<IToken> {
 
 	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
 	
+	/**
+	 * Gets a token at the given offset, or creates an adjunct
+	 * token with that offset, used for error reporting.
+	 */
 	IToken getErrorTokenOrAdjunct(int offset);
 	
 	/**

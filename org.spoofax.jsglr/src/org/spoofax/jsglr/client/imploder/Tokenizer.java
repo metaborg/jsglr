@@ -78,7 +78,9 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 	
 	public Token getTokenAt(int i) {
-		return tokens.get(i);
+		Token result = tokens.get(i);
+		assert i == 0 || result.getIndex() == i;
+		return result;
 	}
 	
 	public IToken getTokenAtOffset(int offset) {
@@ -156,7 +158,7 @@ public class Tokenizer extends AbstractTokenizer {
 	 */
 	public void reassignToken(Token token) {
 		assert token.getTokenizer() != this;
-		assert token.getEndOffset() < getInput().length();
+		assert token.getEndOffset() <= getInput().length();
 		token.setTokenizer(this);
 		token.setIndex(tokens.size());
 		tokens.add(token);

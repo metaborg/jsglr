@@ -2,14 +2,18 @@ package org.spoofax.jsglr.client.incremental;
 
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
+import static org.spoofax.terms.Term.applAt;
 import static org.spoofax.terms.Term.asJavaString;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.Term.tryGetConstructor;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
@@ -20,6 +24,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.Label;
 import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 
 /**
  * A collection of incremental sorts for a particular language
@@ -47,12 +52,41 @@ public class IncrementalSortSet {
 	 *            Whether to expand the set of sorts with injections to those
 	 *            sorts (e.g., add MethodDec if ClassBodyDec was specified.)
 	 */
-	public IncrementalSortSet(ParseTable table, boolean expand, String... sorts) {
+	private IncrementalSortSet(ParseTable table, boolean expand, String... sorts) {
 		sortFun = table.getFactory().makeConstructor("sort", 1);
 		cfFun = table.getFactory().makeConstructor("cf", 1);
 		lexFun = table.getFactory().makeConstructor("lex", 1);
 		incrementalSorts = expand ? getInjectionsTo(table, Arrays.asList(sorts), false) : asSet(sorts);
 		incrementalContainerSorts = getInjectionsTo(table, incrementalSorts, true);
+	}
+	
+	public static IncrementalSortSet create(ParseTable table, boolean expand, String... sorts) {
+		return new IncrementalSortSet(table, expand, sorts);
+	}
+	
+	public static IncrementalSortSet read(ParseTable table) {
+		IStrategoConstructor incrementalFun = table.getFactory().makeConstructor("incremental", 0);
+		ProductionAttributeReader reader = new ProductionAttributeReader(table.getFactory());
+		List<String> sorts = new ArrayList<String>();
+		
+		for (int i = ParseTable.LABEL_BASE, max = table.getProductionCount(); i < max; i++) {
+			IStrategoTerm prod = table.getProduction(i);
+			if (isIncrementalProduction(prod, incrementalFun))
+				sorts.add(reader.getSort(applAt(prod, 1)));
+		}
+		return create(table, true, sorts.toArray(new String[sorts.size()]));
+	}
+	
+	private static boolean isIncrementalProduction(IStrategoTerm prod, IStrategoConstructor incrementalFun) {
+		IStrategoTerm attrsContainer = termAt(prod, 2);
+		if (attrsContainer.getSubtermCount() > 0) {
+			IStrategoList attrs = termAt(attrsContainer, 0);
+			while (attrs.isEmpty()) {
+				if (tryGetConstructor(attrs.head()) == incrementalFun)
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	public boolean isEmpty() {

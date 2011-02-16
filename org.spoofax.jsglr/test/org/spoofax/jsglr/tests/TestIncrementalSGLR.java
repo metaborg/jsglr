@@ -178,7 +178,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
     
     public void testJava912RecoveryFail() throws Exception {
-    	incrementalSGLR.setIncrementalSorts(new IncrementalSortSet(table, false, CLASSBODY_SORTS));
+    	incrementalSGLR.setIncrementalSorts(IncrementalSortSet.create(table, false, CLASSBODY_SORTS));
     	try {
     		testJava912Recovery();
         	fail("Exception expected");
@@ -196,7 +196,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     }
     
     public void testJava93RecoveryFail() throws Exception {
-    	incrementalSGLR.setIncrementalSorts(new IncrementalSortSet(table, false, CLASSBODY_SORTS));
+    	incrementalSGLR.setIncrementalSorts(IncrementalSortSet.create(table, false, CLASSBODY_SORTS));
     	try {
     		testJava93Recovery();
         	fail("Exception expected");
@@ -216,7 +216,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     public void testJava4vs5Fail1() throws Exception {
     	try {
 	        IncrementalSGLR.DEBUG = false; // too much output
-	    	incrementalSGLR.setIncrementalSorts(new IncrementalSortSet(table, true, MOST_SORTS));
+	    	incrementalSGLR.setIncrementalSorts(IncrementalSortSet.create(table, true, MOST_SORTS));
 			doParseIncrementalTest(getJava4Result(), "java5-increment");
 	    	fail("Exception expected");
     	} catch (IncrementalSGLRException e) {
@@ -228,7 +228,7 @@ public class TestIncrementalSGLR extends ParseTestCase {
     public void testJava4vs5Fail2() throws Exception {
 		try {
 	        IncrementalSGLR.DEBUG = false; // too much output
-	    	incrementalSGLR.setIncrementalSorts(new IncrementalSortSet(table, false, CLASSBODY_SORTS));
+	    	incrementalSGLR.setIncrementalSorts(IncrementalSortSet.create(table, false, CLASSBODY_SORTS));
 			doParseIncrementalTest(getJava4Result(), "java5-increment");
         	fail("Exception expected");
     	} catch (IncrementalSGLRException e) {

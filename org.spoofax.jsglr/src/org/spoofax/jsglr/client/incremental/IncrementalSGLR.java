@@ -60,7 +60,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 	public IncrementalSGLR(SGLR parser, CommentDamageExpander comments, ITreeFactory<TNode> factory,
 			IncrementalSortSet incrementalSorts) {
 		this.parser = parser;
-		this.comments = comments;
+		this.comments = comments == null ? CommentDamageExpander.ONLY_LINE_COMMENTS : comments;
 		this.factory = factory;
 		this.incrementalSorts = incrementalSorts;
 		if (factory instanceof TermTreeFactory) {

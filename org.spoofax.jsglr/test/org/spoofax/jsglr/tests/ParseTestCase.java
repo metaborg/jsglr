@@ -66,8 +66,6 @@ public abstract class ParseTestCase extends TestCase {
 	
 	public void gwtSetUp(String grammar, String suffix, String... incrementalSorts) throws ParserException, InvalidParseTableException {
 		this.suffix = suffix;
-		Tools.setDebug(false);
-		Tools.setLogging(false);
 		final String fn = "tests/grammars/" + grammar + ".tbl";
 
 		try {
@@ -100,7 +98,7 @@ public abstract class ParseTestCase extends TestCase {
 			TermTreeFactory factory = new TermTreeFactory(termFactory);
 			TreeBuilder builder = new TreeBuilder(factory);
 			sglr.setTreeBuilder(builder);
-			IncrementalSortSet sorts = new IncrementalSortSet(table, true, incrementalSorts);
+			IncrementalSortSet sorts = IncrementalSortSet.create(table, true, incrementalSorts);
 			incrementalSGLR = new IncrementalSGLR<IStrategoTerm>(sglr, C_STYLE, factory, sorts);
 	        IncrementalSGLR.DEBUG = true;
 		}
@@ -156,7 +154,7 @@ public abstract class ParseTestCase extends TestCase {
 			System.out.println(toCompactString(parsed));
 		}
 
-		System.out.println(PathListPool.cacheMisses);
+		System.out.println(PathListPool.asyncCacheMisses);
 		System.out.println(PooledPathList.maxRemembered);
 		System.out.println(PooledPathList.maxAllocated);
 		return parsed;
@@ -211,7 +209,10 @@ public abstract class ParseTestCase extends TestCase {
 			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
 		IStrategoTerm wanted;
 		try {
+			long parseTime = System.nanoTime();
 			wanted = new TermReader(pf).parseFromFile("tests/data/" + s + extension);
+			parseTime = System.nanoTime() - parseTime;
+			System.out.println("reading term " + s + extension + " took " + parseTime/1000/1000 + " millis");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

@@ -29,7 +29,12 @@ public class ParseNode extends AbstractParseNode {
     public ParseNode(int label, AbstractParseNode[] kids) {
         this.label = label;
         this.kids = kids;
-        switch (kids.length) {
+        setIsParseProdChain(kids);
+        // TODO: Optimize - create compact representation for parse production chains
+    }
+
+	private void setIsParseProdChain(AbstractParseNode[] kids) {
+		switch (kids.length) {
         	case 2:
         		isParseProductionChain =
         			kids[0] instanceof ParseProductionNode /*kids[0].isParseProductionChain()*/
@@ -41,8 +46,7 @@ public class ParseNode extends AbstractParseNode {
         	default:
         		isParseProductionChain = false;
         }
-        // TODO: Optimize - create compact representation for parse production chains
-    }
+	}
     
     @Override
     public boolean isParseProductionChain() {
@@ -93,15 +97,21 @@ public class ParseNode extends AbstractParseNode {
 	}
     
     @Override
-	public void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
-			for (int i=0; i<kids.length; i++){
-				if(kids[i] == oldLabel){
-					kids[i]=label;
-					isParseProductionChain=false;
-				}
-				else
-					kids[i].updateLabels(oldLabel, label);
-			} 
+	public boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+    	boolean isUpdated=false;
+		for (int i=0; i<kids.length; i++){
+			if(kids[i] == oldLabel){
+				kids[i]=label;
+				isUpdated=true;
+			}
+			else
+				isUpdated=isUpdated || kids[i].updateLabels(oldLabel, label);
+		} 
+		if(isUpdated){
+			this.cachedHashCode=NO_HASH_CODE; 
+			setIsParseProdChain(kids);
+		}
+		return isUpdated;
 	}
 
     @Override

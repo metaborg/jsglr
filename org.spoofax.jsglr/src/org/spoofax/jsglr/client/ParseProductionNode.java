@@ -59,7 +59,7 @@ public class ParseProductionNode extends AbstractParseNode {
     }
 
 	@Override
-	public void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
-		return;
+	public boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+		return false;
 	}
 }

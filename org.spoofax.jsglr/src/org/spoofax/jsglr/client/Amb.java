@@ -95,10 +95,14 @@ public class Amb extends AbstractParseNode {
 	@Override
 	public int hashCode() {
 		if (cachedHashCode != NO_HASH_CODE) {
-			assert cachedHashCode == alternatives.hashCode();
+			//assert cachedHashCode == alternatives.hashCode();
 			return cachedHashCode;
 		}
-		final int result = cachedHashCode = alternatives.hashCode();
+		final int prime = 31;
+        int result = prime;
+        for(AbstractParseNode n : alternatives)
+            result += (prime * n.hashCode());
+        cachedHashCode = result;
 		return result;
 	}
 
@@ -108,16 +112,22 @@ public class Amb extends AbstractParseNode {
 	}
 
 	@Override
-	public void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+	public boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
+		boolean updated=false;
 		if(this!=label){
 			for (int i = 0; i < alternatives.length; i++) {
 				if(alternatives[i] == oldLabel){
 					alternatives[i]=label;
+					updated=true;
 				}
-				else
-					alternatives[i].updateLabels(oldLabel, label);
+				else{
+					updated = updated || alternatives[i].updateLabels(oldLabel, label);
+				}
 			}
 		}
-		
+		if(updated){
+			this.cachedHashCode=NO_HASH_CODE; 
+		}
+		return updated;
 	}
 }

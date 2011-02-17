@@ -179,7 +179,8 @@ public class Frame implements Serializable {
                     break;
                 }
                 sb.append(" <").append(s.label).append("> ").append(s.parent.state.stateNumber).append("\n");
-                sb.append(s.parent.doDumpStack(indent));
+                if(indent<=5)//mj
+                	sb.append(s.parent.doDumpStack(indent+1));
             }
         }
         return sb.toString();

@@ -8,8 +8,10 @@
 package org.spoofax.jsglr.client;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -92,6 +94,8 @@ public class SGLR {
 	private RecoveryConnector recoverIntegrator;
 
 	protected boolean useIntegratedRecovery;
+	
+	private HashMap<AbstractParseNode, AbstractParseNode> postponedAmbiguities;
 
 	public ParserHistory getHistory() {
 		return history;
@@ -146,6 +150,7 @@ public class SGLR {
 		forActor = new ArrayDeque<Frame>();
 		forActorDelayed = new ArrayDeque<Frame>();
 		forShifter = new ArrayDeque<ActionState>();
+		postponedAmbiguities=new HashMap<AbstractParseNode, AbstractParseNode>();
 
 		disambiguator = new Disambiguator();
 		useIntegratedRecovery = false;
@@ -274,6 +279,7 @@ public class SGLR {
 		try {
 			do {
 				readNextToken();
+				System.out.print((char)currentToken);
 				history.keepTokenAndState(this);
 				doParseStep();
 			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
@@ -288,6 +294,7 @@ public class SGLR {
 					return sglrParse(startSymbol);
 				}
 			}
+			updateLabels(acceptingStack);
 			getPerformanceMeasuring().endParse(acceptingStack!=null);
 		} catch (final TaskCancellationException e) {
 			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
@@ -296,6 +303,7 @@ public class SGLR {
 			activeStacks.clear(false);
 			activeStacksWorkQueue.clear(false);
 			forShifter.clear(false);
+			postponedAmbiguities.clear();
 			if (recoverStacks != null) recoverStacks.clear(false);
 		}
 
@@ -334,6 +342,7 @@ public class SGLR {
 		forActorDelayed.clear();
 		forShifter.clear();
 		history.clear();
+		postponedAmbiguities.clear();
 		startFrame = initActiveStacks();
 		tokensSeen = 0;
 		columnNumber = 0;
@@ -391,16 +400,15 @@ public class SGLR {
 	private void shifter() {
 		logBeforeShifter();
 		clearActiveStacks();
-
 		final AbstractParseNode prod = parseTable.lookupProduction(currentToken);
 
 		while (forShifter.size() > 0) {
 
 			final ActionState as = forShifter.remove();
-
-			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {
-				Frame st1 = findStack(activeStacks, as.s);
-				if (st1 == null) {
+			updateLabels(as.st);
+			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {				
+				Frame	st1=findStack(activeStacks, as.s);
+				if(st1==null){				
 					st1 = newStack(as.s);
 					addStack(st1);
 				}
@@ -425,6 +433,7 @@ public class SGLR {
 	private void parseCharacter() {
 		logBeforeParseCharacter();
 
+		postponedAmbiguities.clear();
 		activeStacksWorkQueue.clear(true);
 		activeStacksWorkQueue.addAll(activeStacks);
 
@@ -650,7 +659,7 @@ public class SGLR {
 				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
 					AbstractParseNode oldLabel=nl.label;
 					createAmbNode(t, nl);
-					updateLabels(oldLabel, nl.label);
+					postponedAmbiguities.put(oldLabel, nl.label);
 				} else if (numberOfRecoveries < nl.recoverCount) {
 					nl.label = t;
 					nl.recoverCount = numberOfRecoveries;
@@ -673,14 +682,6 @@ public class SGLR {
 			TRACE_ActiveStacks();
 			TRACE("SG_ - reducer done");
 		}
-	}
-	
-	//TODO: alleen na de reduce phase voor acceptingstack + stacks in forshifter
-	private void updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
-		for (int i=0; i<this.activeStacks.size(); i++) {
-			Frame f=activeStacks.get(i);
-			f.updateLabels(oldLabel, label);			
-		}		
 	}
 	
 	private void reducerRecoverProduction(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
@@ -711,6 +712,14 @@ public class SGLR {
 	private void createAmbNode(AbstractParseNode t, Link nl) {
 		nl.addAmbiguity(t, tokensSeen);
 		ambiguityManager.increaseAmbiguityCalls();
+	}
+	
+	private void updateLabels(Frame f) {
+		if (f != null) {
+			for (Map.Entry<AbstractParseNode, AbstractParseNode> entry : postponedAmbiguities.entrySet()) {
+				f.updateLabels(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	/**

@@ -269,6 +269,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 	@Override
 	public Object buildTreeAmb(Amb a) {
+		if (inLexicalContext) {
+			// Ignore ambiguities in lexicals; can't show them in AST
+			return a.getAlternatives()[0].toTreeTopdown(this);
+		}
+		
 		final int oldOffset = offset;
 		final int oldBeginOffset = tokenizer.getStartOffset();
 		final boolean oldLexicalContext = inLexicalContext;

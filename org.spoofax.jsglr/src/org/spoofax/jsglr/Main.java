@@ -49,6 +49,7 @@ public class Main {
 		boolean filter = true;
 		boolean waitForProfiler = false;
 		boolean timing = false;
+		boolean recover = false;
 		boolean heuristicFilters = false;
 		boolean buildParseTree = true;
 		boolean implode = false;
@@ -72,6 +73,8 @@ public class Main {
 				detectCycles = false;
 			} else if(args[i].equals("-s")) {
 				startSymbol = args[++i];
+			} else if(args[i].equals("--recover")) {
+				recover = true;
 			} else if(args[i].equals("--heuristic-filters")) {
 				heuristicFilters = args[++i].equals("on");
 			} else if(args[i].equals("--wait-for-profiler")) {
@@ -101,6 +104,7 @@ public class Main {
 		final IStrategoTerm tableTerm = new TermReader(factory).parseFromFile(parseTableFile);
 		final ParseTable pt = new ParseTable(tableTerm, factory);
 		final SGLR sglr = new SGLR(new Asfix2TreeBuilder(), pt);
+		sglr.setUseStructureRecovery(recover);
 
 		tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
 

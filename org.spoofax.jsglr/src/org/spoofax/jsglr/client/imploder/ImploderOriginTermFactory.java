@@ -2,7 +2,6 @@ package org.spoofax.jsglr.client.imploder;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.OriginTermFactory;
 
 /** 
@@ -16,7 +15,7 @@ public class ImploderOriginTermFactory extends OriginTermFactory {
 
 	@Override
 	public boolean isOriginRoot(IStrategoTerm term) {
-		return term.getAttachment(OriginAttachment.TYPE) != null;
+		return term.getAttachment(ImploderAttachment.TYPE) != null;
 	}
 
 }

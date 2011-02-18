@@ -95,15 +95,10 @@ public class Amb extends AbstractParseNode {
 	@Override
 	public int hashCode() {
 		if (cachedHashCode != NO_HASH_CODE) {
-			//assert cachedHashCode == alternatives.hashCode();
+			assert cachedHashCode == Arrays.hashCode(alternatives);
 			return cachedHashCode;
 		}
-		final int prime = 31;
-        int result = prime;
-        for(AbstractParseNode n : alternatives)
-            result += (prime * n.hashCode());
-        cachedHashCode = result;
-		return result;
+		return Arrays.hashCode(alternatives);
 	}
 
 	@Override

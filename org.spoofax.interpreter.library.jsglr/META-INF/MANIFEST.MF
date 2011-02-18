@@ -7,8 +7,10 @@ Bundle-Activator: org.spoofax.interpreter.library.jsglr.Activator
 Bundle-Vendor: Spoofax.org
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ org.spoofax.terms,
  org.spoofax.interpreter.core,
  org.spoofax.jsglr;bundle-version="0.3.0"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.spoofax.interpreter.library.jsglr
+Export-Package: org.spoofax.interpreter.jsglr.origin,
+ org.spoofax.interpreter.library.jsglr
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

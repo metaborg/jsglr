@@ -13,6 +13,7 @@ PARSE=java -Xverify:none -client -cp ../bin:`strj-jar -p` org.spoofax.jsglr.Main
 all : $(TBLS)
 
 check : $(TBLS) $(OUTS) check-webdsl
+	echo done
 
 check-webdsl : $(WDOUTS)
 	if [ "$(WD)" = "" ]; then \

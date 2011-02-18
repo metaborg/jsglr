@@ -279,7 +279,7 @@ public class SGLR {
 		try {
 			do {
 				readNextToken();
-				System.out.print((char)currentToken);
+				//System.out.print((char)currentToken);
 				history.keepTokenAndState(this);
 				doParseStep();
 			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
@@ -584,9 +584,7 @@ public class SGLR {
 
 		PooledPathList paths = pathCache.create();
 		try {
-			//System.out.println(paths.size());
 			st.findAllPaths(paths, prod.arity);
-			//System.out.println(paths.size());
 			logBeforeDoReductions(st, prod, paths.size());
 			reduceAllPaths(prod, paths);
 			logAfterDoReductions();

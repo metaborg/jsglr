@@ -1,9 +1,12 @@
-
+JSQL_FILES = $(wildcard data/jsql*.txt)
+AMB_FILES = $(wildcard data/amb*.txt)
 B_FILES = $(wildcard data/b*.txt)
 STR_FILES = $(wildcard data/*.str)
 JAVA_FILES = $(wildcard data/*.java)
 WEBDSL_FILES = $(wildcard data/*.app)
 TRM_FILES= \
+	$(patsubst %txt,%trm, $(JSQL_FILES)) \
+	$(patsubst %txt,%trm, $(AMB_FILES)) \
 	$(patsubst %txt,%trm, $(B_FILES)) \
 	$(patsubst %str,%trm, $(STR_FILES)) \
 	$(patsubst %java,%trm, $(JAVA_FILES)) \
@@ -90,6 +93,11 @@ data/g1_1.trm : data/g1_1.txt
 data/g2_1.trm : data/g2_1.txt
 	$(SGLR) $(SGLROPTS) -p grammars/G2.tbl -i $< -o $@
 
+data/jsql%.trm : data/jsql%.txt
+	$(SGLR) $(SGLROPTS) -p grammars/Java-SQL.tbl -i $< -o $@
+
+data/amb%.trm : data/amb%.txt
+	$(SGLR) $(SGLROPTS) -p grammars/SmallAmbLang.tbl -i $< -o $@
 
 data/b%.trm : data/b%.txt
 	$(SGLR) $(SGLROPTS) -p grammars/Booleans.tbl -i $< -o $@

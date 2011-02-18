@@ -1,5 +1,6 @@
 GRAMMARS =							\
 	Booleans.tbl						\
+#	Java-SQL.tbl						\
 	Stratego.tbl						\
 	Java-15.tbl						\
 	WebDSL.tbl						\
@@ -29,6 +30,9 @@ all : $(GRAMMARS)
 
 Stratego.def: Stratego.def.in
 	ln -sf $< $@
+
+#Java-SQL.def: Java-SQL.def.in
+#	ln -sf $< $@
 
 Stratego.tbl:
 	curl http://boblycat.org/~karltk/stuff/$@ | baffle -wt -o $@

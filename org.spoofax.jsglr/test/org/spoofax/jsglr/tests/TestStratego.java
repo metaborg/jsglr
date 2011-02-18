@@ -49,6 +49,11 @@ public class TestStratego extends ParseTestCase {
     public void testS6() throws FileNotFoundException, IOException {
         doParseTest("s6");
     }
+    
+    /*Test if an ambiguity correctly filtered*/
+    public void testS8() throws FileNotFoundException, IOException {
+        doParseTest("s8");
+    }
 
     public void testS7() throws Exception {
         sglr.setUseStructureRecovery(true);

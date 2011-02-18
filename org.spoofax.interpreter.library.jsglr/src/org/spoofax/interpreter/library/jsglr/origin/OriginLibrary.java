@@ -1,4 +1,4 @@
-package org.spoofax.interpreter.jsglr.origin;
+package org.spoofax.interpreter.library.jsglr.origin;
 
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 

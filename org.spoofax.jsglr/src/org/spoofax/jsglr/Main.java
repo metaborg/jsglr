@@ -21,6 +21,7 @@ import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.NullTreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.io.SGLR;
@@ -116,7 +117,7 @@ public class Main {
 		if (!buildParseTree)
 			sglr.setTreeBuilder(new NullTreeBuilder());
 		else if (implode)
-			sglr.setTreeBuilder(new TreeBuilder(true));
+			sglr.setTreeBuilder(new TreeBuilder(new TermTreeFactory(new TermFactory()), true));
 		
 		String input = FileTools.loadFileAsString(new BufferedReader(new FileReader(inputFile)));
 		

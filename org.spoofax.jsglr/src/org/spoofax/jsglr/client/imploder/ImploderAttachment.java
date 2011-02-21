@@ -29,6 +29,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	 * Note that attachment instances should not be shared.
 	 */
 	protected ImploderAttachment(String sort, IToken leftToken, IToken rightToken) {
+		assert leftToken != null && rightToken != null;
 		this.sort = sort;
 		this.leftToken = leftToken;
 		this.rightToken = rightToken;

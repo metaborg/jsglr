@@ -1,10 +1,12 @@
 GRAMMARS =							\
 	Booleans.tbl						\
-#	Java-SQL.tbl						\
 	Stratego.tbl						\
 	Java-15.tbl						\
 	WebDSL.tbl						\
+	SmallAmbLang.tbl                \
 	$(patsubst basic/%.sdf,%.tbl,$(wildcard basic/*.sdf))
+
+#	Java-SQL.tbl						
 
 all : $(GRAMMARS)
 

@@ -170,7 +170,7 @@ public abstract class ParseTestCase extends TestCase {
 		parseTime = System.nanoTime() - parseTime;
 		System.out.println("Incremental parsing " + newFile + " took " + parseTime/1000/1000 + " millis" + (IncrementalSGLR.DEBUG ? " including debug printing" : ""));
 		String extension =
-			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
+			sglr.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
 		if (doCompare) {
 			final IStrategoTerm wanted = tryReadTermFromFile("tests/data/" + newFile + extension);
 			System.out.println(toCompactString(newTree));
@@ -206,7 +206,7 @@ public abstract class ParseTestCase extends TestCase {
 	private void doCompare(String s, final IStrategoTerm parsed) {
 		//parseTableService.readTermFromFile("tests/data/" + s + ".trm", new AsyncCallback<IStrategoTerm>() {
 		String extension =
-			table.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
+			sglr.getTreeBuilder() instanceof TreeBuilder ? ".itrm" : ".trm";
 		IStrategoTerm wanted;
 		try {
 			long parseTime = System.nanoTime();

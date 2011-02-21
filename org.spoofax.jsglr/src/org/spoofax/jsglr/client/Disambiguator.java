@@ -242,8 +242,8 @@ public class Disambiguator {
 	}
 
     private Object yieldTree(AbstractParseNode t) {
-		parseTable.getTreeBuilder().reset(); // in case yieldTree is used for debugging
-		return parseTable.getTreeBuilder().buildTree(t);
+		parser.getTreeBuilder().reset(); // in case yieldTree is used for debugging
+		return parser.getTreeBuilder().buildTree(t);
     }
 
     private Object yieldTreeTop(AbstractParseNode t) {
@@ -263,9 +263,9 @@ public class Disambiguator {
 	            Tools.debug("yield: ", r);
 	        }
 	        
-	        return parser.getParseTable().getTreeBuilder().buildTreeTop(r, ambCount);
+	        return parser.getTreeBuilder().buildTreeTop(r, ambCount);
 		} finally {
-			parseTable.getTreeBuilder().reset();
+			parser.getTreeBuilder().reset();
 		}
     }
 

@@ -92,6 +92,8 @@ public class SGLR {
 	private ParserHistory history;
 
 	private RecoveryConnector recoverIntegrator;
+	
+	private ITreeBuilder treeBuilder;
 
 	protected boolean useIntegratedRecovery;
 	
@@ -319,7 +321,7 @@ public class SGLR {
 		Tools.debug("avoids: ", s.recoverCount);
 		//Tools.debug(s.label.toParseTree(parseTable));
 
-		if (parseTable.getTreeBuilder() instanceof NullTreeBuilder) {
+		if (getTreeBuilder() instanceof NullTreeBuilder) {
 			return null;
 		} else {
 			return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
@@ -352,7 +354,7 @@ public class SGLR {
 		collectedErrors.clear();
 		history=new ParserHistory();
 		performanceMeasuring=new RecoveryPerformance();
-		parseTable.getTreeBuilder().initializeInput(input, filename);
+		getTreeBuilder().initializeInput(input, filename);
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 		ambiguityManager = new AmbiguityManager(input.length());
@@ -913,11 +915,12 @@ public class SGLR {
 	}
 
 	public void setTreeBuilder(ITreeBuilder treeBuilder) {
-		parseTable.setTreeBuilder(treeBuilder);
+		this.treeBuilder = treeBuilder;
+		parseTable.initializeTreeBuilder(treeBuilder);
 	}
 
 	public ITreeBuilder getTreeBuilder() {
-		return parseTable.getTreeBuilder();
+		return treeBuilder;
 	}
 
 	AmbiguityManager getAmbiguityManager() {

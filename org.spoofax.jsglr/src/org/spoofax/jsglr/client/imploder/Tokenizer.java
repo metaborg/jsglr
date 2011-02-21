@@ -59,7 +59,7 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	public void setStartOffset(int startOffset) {
-		assert isAmbigous() || this.startOffset > getInput().length();
+		assert isAmbigous() || this.startOffset >= getInput().length();
 		if (this.startOffset == startOffset) return;
 		this.startOffset = startOffset;
 		IToken lastToken = getTokenAtOffset(startOffset);

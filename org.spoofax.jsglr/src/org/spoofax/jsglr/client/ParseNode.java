@@ -29,27 +29,26 @@ public class ParseNode extends AbstractParseNode {
     public ParseNode(int label, AbstractParseNode[] kids) {
         this.label = label;
         this.kids = kids;
-        setIsParseProdChain(kids);
+        isParseProductionChain = calculateIsParseProdChain(kids);
         // TODO: Optimize - create compact representation for parse production chains
     }
 
-	private void setIsParseProdChain(AbstractParseNode[] kids) {
+	private static boolean calculateIsParseProdChain(AbstractParseNode[] kids) {
 		switch (kids.length) {
         	case 2:
-        		isParseProductionChain =
+        		return
         			kids[0] instanceof ParseProductionNode /*kids[0].isParseProductionChain()*/
         			&& kids[1].isParseProductionChain();
-        		break;
         	case 1:
-        		isParseProductionChain = kids[0].isParseProductionChain();
-        		break;
+        		return kids[0].isParseProductionChain();
         	default:
-        		isParseProductionChain = false;
+        		return false;
         }
 	}
     
     @Override
-    public boolean isParseProductionChain() {
+	public boolean isParseProductionChain() {
+		// assert isParseProductionChain == calculateIsParseProdChain(kids);
 		return isParseProductionChain;
 	}
     
@@ -109,7 +108,7 @@ public class ParseNode extends AbstractParseNode {
 		} 
 		if(isUpdated){
 			this.cachedHashCode=NO_HASH_CODE; 
-			setIsParseProdChain(kids);
+			isParseProductionChain = calculateIsParseProdChain(kids);
 		}
 		return isUpdated;
 	}

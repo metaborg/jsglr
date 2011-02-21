@@ -32,6 +32,11 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 
+/**
+ * A parse table.
+ * 
+ * Can (should!) be shared by multiple parser instances. 
+ */
 public class ParseTable implements Serializable {
 
     /**
@@ -83,8 +88,6 @@ public class ParseTable implements Serializable {
     private transient HashMap<RangeList, RangeList> rangesCache = new HashMap<RangeList, RangeList>();
 
     private transient Map<Label, List<Priority>> priorityCache;
-
-	private transient ITreeBuilder treeBuilder;
 	
 	private transient KeywordRecognizer keywords;
 
@@ -657,24 +660,13 @@ public class ParseTable implements Serializable {
 	    return Collections.unmodifiableList(asList(labels));
 	}
 
-	public void setTreeBuilder(ITreeBuilder treeBuilder) {
-		this.treeBuilder = treeBuilder;
-		initializeTreeBuilder(treeBuilder);
-	}
-
-	protected void initializeTreeBuilder(ITreeBuilder treeBuilder) {
+	public void initializeTreeBuilder(ITreeBuilder treeBuilder) {
 		treeBuilder.initializeTable(this, NUM_CHARS, LABEL_BASE, labels.length);
 		for(int i = 0; i < labels.length; i++) {
 			if(labels[i] == null)
 				continue;
 			treeBuilder.initializeLabel(i, labels[i].getProduction());
 		}
-	}
-
-	public ITreeBuilder getTreeBuilder() {
-        if (treeBuilder == null)
-        	setTreeBuilder(new Asfix2TreeBuilder());
-		return treeBuilder;
 	}
 	
 	public KeywordRecognizer getKeywordRecognizer() {

@@ -11,6 +11,7 @@ public class OriginLibrary extends AbstractStrategoOperatorRegistry {
 
     public OriginLibrary() {
         add(new SSL_EXT_enable_origins());
+        add(new SSL_EXT_get_parent());
     }
 
     public String getOperatorRegistryName() {

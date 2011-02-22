@@ -657,9 +657,10 @@ public class SGLR {
 					nl.reject();
 				}
 				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
-					AbstractParseNode oldLabel=nl.label;
+					// UNDONE: this doesn't quite work yet
+					// AbstractParseNode oldLabel=nl.label;
 					createAmbNode(t, nl);
-					postponedAmbiguities.put(oldLabel, nl.label);
+					// postponedAmbiguities.put(oldLabel, nl.label);
 				} else if (numberOfRecoveries < nl.recoverCount) {
 					nl.label = t;
 					nl.recoverCount = numberOfRecoveries;

@@ -98,17 +98,19 @@ public class ParseNode extends AbstractParseNode {
     @Override
 	public boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
     	boolean isUpdated=false;
-		for (int i=0; i<kids.length; i++){
-			if(kids[i] == oldLabel){
-				kids[i]=label;
+    	if(kids.length>0){
+    		// Updating the labels of the rightmost child should be sufficient, 
+    		// since the Ambiguities are created in the last reduction step
+			if(kids[kids.length-1] == oldLabel){
+				kids[kids.length-1] = label;
 				isUpdated=true;
 			}
 			else
-				isUpdated=isUpdated || kids[i].updateLabels(oldLabel, label);
-		} 
-		if(isUpdated){
-			this.cachedHashCode=NO_HASH_CODE; 
-			isParseProductionChain = calculateIsParseProdChain(kids);
+				isUpdated =  kids[kids.length-1].updateLabels(oldLabel, label);
+			if(isUpdated){
+				this.cachedHashCode=NO_HASH_CODE; 
+				isParseProductionChain = calculateIsParseProdChain(kids);
+			}
 		}
 		return isUpdated;
 	}

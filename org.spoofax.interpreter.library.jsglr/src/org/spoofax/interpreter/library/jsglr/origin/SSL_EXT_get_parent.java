@@ -12,12 +12,12 @@ import org.spoofax.terms.attachments.ParentAttachment;
 public class SSL_EXT_get_parent extends AbstractPrimitive {
     
     public SSL_EXT_get_parent() {
-        super("SSL_EXT_get_parent", 0, 0);
+        super("SSL_EXT_get_parent", 0, 1);
     }
 
     @Override
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-    	IStrategoTerm parent = ParentAttachment.getParent(env.current());
+    	IStrategoTerm parent = ParentAttachment.getParent(tvars[0]);
     	if (parent == null) return false;
 		env.setCurrent(parent);
     	return true;

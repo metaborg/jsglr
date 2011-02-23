@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -58,6 +59,8 @@ public class SGLR {
 	protected int lineNumber;
 
 	protected int columnNumber;
+
+	private int startOffset;
 
 	private final ArrayDeque<ActionState> forShifter;
 
@@ -347,8 +350,6 @@ public class SGLR {
 		postponedAmbiguities.clear();
 		startFrame = initActiveStacks();
 		tokensSeen = 0;
-		columnNumber = 0;
-		lineNumber = 1;
 		currentInputStream = new PushbackStringIterator(input);
 		acceptingStack = null;
 		collectedErrors.clear();
@@ -358,6 +359,16 @@ public class SGLR {
 		PooledPathList.resetPerformanceCounters();
 		PathListPool.resetPerformanceCounters();
 		ambiguityManager = new AmbiguityManager(input.length());
+		if (getTreeBuilder().getTokenizer() != null) {
+			// Make sure we use the same starting offsets as the tokenizer, if any
+			// (crucial for parsing fragments at a time)
+			lineNumber = getTreeBuilder().getTokenizer().getEndLine();
+			columnNumber = getTreeBuilder().getTokenizer().getEndColumn();
+			startOffset = getTreeBuilder().getTokenizer().getStartOffset();
+		} else {
+			lineNumber = 1;
+			columnNumber = 0;
+		}
 	}
 
 	private BadTokenException createBadTokenException() {
@@ -390,12 +401,12 @@ public class SGLR {
 
 				if (expected.length() > 0) {
 					return new TokenExpectedException(this, expected.toString(), currentToken,
-							tokensSeen - 1, lineNumber, columnNumber);
+							tokensSeen + startOffset - 1, lineNumber, columnNumber);
 				}
 			}
 		}
 
-		return new BadTokenException(this, currentToken, tokensSeen - 1, lineNumber,
+		return new BadTokenException(this, currentToken, tokensSeen + startOffset - 1, lineNumber,
 				columnNumber);
 	}
 

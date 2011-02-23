@@ -15,7 +15,7 @@ public interface ITreeBuilder {
 	void reset();
 	
 	/**
-	 * Gets the tokenizer, if applicable, or null.
+	 * Gets the tokenizer, if applicable and initialized, or null.
 	 */
 	ITokenizer getTokenizer();
 }

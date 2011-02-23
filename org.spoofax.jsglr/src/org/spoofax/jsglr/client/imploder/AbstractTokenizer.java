@@ -122,7 +122,11 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	protected abstract void setErrorMessage(IToken leftToken, IToken rightToken, String message);
 
 	public final int getEndLine() {
-		return getTokenAt(getTokenCount() - 1).getLine();
+		return getTokenCount() == 0 ? 1 : getTokenAt(getTokenCount() - 1).getLine();
+	}
+	
+	public final int getEndColumn() {
+		return getTokenCount() == 0 ? 1 : getTokenAt(getTokenCount() - 1).getColumn();
 	}
 	
 	public String toString(IToken left, IToken right) {

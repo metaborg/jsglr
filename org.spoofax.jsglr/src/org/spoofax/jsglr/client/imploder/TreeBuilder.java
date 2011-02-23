@@ -118,8 +118,6 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 	
 	public final ITokenizer getTokenizer() {
-		if (tokenizer == null)
-			throw new IllegalStateException("Not initialized yet");
 		return tokenizer;
 	}
 	

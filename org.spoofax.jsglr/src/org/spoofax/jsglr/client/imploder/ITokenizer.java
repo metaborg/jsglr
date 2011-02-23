@@ -40,6 +40,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	int getTokenCount();
 	
 	int getEndLine();
+	
+	int getEndColumn();
 
 	IToken getTokenAt(int index);
 

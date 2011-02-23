@@ -24,10 +24,10 @@ import org.spoofax.terms.SimpleTermVisitor;
 public class Tokenizer extends AbstractTokenizer {
 	
 	private static final double EXPECTED_TOKENS_DIVIDER = 1.3;
-	
-	private final KeywordRecognizer keywords;
 
 	private final ArrayList<Token> tokens;
+	
+	private KeywordRecognizer keywords;
 	
 	private ISimpleTerm ast;
 	
@@ -81,6 +81,20 @@ public class Tokenizer extends AbstractTokenizer {
 		Token result = tokens.get(i);
 		assert i == 0 || result.getIndex() == i;
 		return result;
+	}
+
+	protected void removeTokenAt(int i) {
+		tokens.remove(i);
+	}
+
+	protected void setPositions(int line, int startOffset, int offsetAtLineStart) {
+		this.line = line;
+		this.offsetAtLineStart = offsetAtLineStart;
+		this.startOffset = startOffset;
+	}
+	
+	protected void setKeywordRecognizer(KeywordRecognizer keywords) {
+		this.keywords = keywords;
 	}
 	
 	public IToken getTokenAtOffset(int offset) {

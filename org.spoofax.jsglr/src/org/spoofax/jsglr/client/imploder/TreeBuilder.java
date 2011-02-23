@@ -114,7 +114,6 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			? new NullTokenizer(input, filename)
 			: new Tokenizer(input, filename, table.getKeywordRecognizer()));
 		setInput(input);
-		stringIterator = new PushbackStringIterator(input);
 		reset();
 	}
 	
@@ -130,6 +129,23 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	protected void setInput(String input) {
 		this.input = input;
+		stringIterator = new PushbackStringIterator(input);
+	}
+	
+	protected final int getOffset() {
+		return offset;
+	}
+	
+	protected final String getInput() {
+		return input;
+	}
+	
+	protected void setOffset(int offset) {
+		this.offset = offset;
+	}
+	
+	protected ParseTable getParseTable() {
+		return table;
 	}
 
 	public ITreeFactory getFactory() {

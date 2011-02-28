@@ -17,7 +17,13 @@ public class Token implements IToken, Cloneable {
 
 	private ITokenizer tokenizer;
 	
-	private final int startOffset, endOffset, line, column;
+	private final int line;
+	
+	private final int column;
+	
+	private final int startOffset;
+	
+	private int endOffset;
 	
 	private int index;
 	
@@ -65,12 +71,16 @@ public class Token implements IToken, Cloneable {
 		this.index = index;
 	}
 
-	public int getStartOffset() {
+	public final int getStartOffset() {
 		return startOffset;
 	}
 
-	public int getEndOffset() {
+	public final int getEndOffset() {
 		return endOffset;
+	}
+	
+	public void setEndOffset(int endOffset) {
+		this.endOffset = endOffset;
 	}
 
 	public int getLine() {
@@ -124,6 +134,10 @@ public class Token implements IToken, Cloneable {
 	@Override
 	public String toString() {
 		return tokenizer.toString(this, this);
+	}
+	
+	public char charAt(int index) {
+		return tokenizer.getInput().charAt(index + startOffset);
 	}
 
 	public int compareTo(IToken other) {

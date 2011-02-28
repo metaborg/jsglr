@@ -82,6 +82,11 @@ public class Tokenizer extends AbstractTokenizer {
 		assert i == 0 || result.getIndex() == i;
 		return result;
 	}
+	
+	public Token internalGetTokenAt(int i) {
+		Token result = tokens.get(i);
+		return result;
+	}
 
 	protected void removeTokenAt(int i) {
 		tokens.remove(i);

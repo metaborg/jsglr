@@ -11,9 +11,12 @@ import static org.spoofax.terms.Term.intAt;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
 
+import java.util.Iterator;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.TermVisitor;
 
 /**
  * Class that handles producing and printing token kinds.
@@ -73,13 +76,14 @@ public class TokenKindManager {
 	}
 	
 	protected static boolean isStringLiteral(LabelInfo label) {
-		return topdownHasSpaces(label.getRHS());
+		return topdownHasSpaces(label.getLHS());
 	}
 	
 	private static boolean topdownHasSpaces(IStrategoTerm term) {
 		// Return true if any character range of this contains spaces
-		for (int i = 0; i < term.getSubtermCount(); i++) {
-			IStrategoTerm child = termAt(term, i);
+		Iterator<IStrategoTerm> iterator = TermVisitor.tryGetListIterator(term); 
+		for (int i = 0, max = term.getSubtermCount(); i < max; i++) {
+			IStrategoTerm child = iterator == null ? term.getSubterm(i) : iterator.next();
 			if (isRangeAppl(child)) {
 				int start = intAt(child, RANGE_START);
 				int end = intAt(child, RANGE_END);

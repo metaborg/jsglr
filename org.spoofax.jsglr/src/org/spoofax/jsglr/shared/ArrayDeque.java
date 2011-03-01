@@ -737,6 +737,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         }
     }
     
+    @Deprecated
     public void clear(boolean skipCellNulling) {
         if (skipCellNulling) {
             head = tail = 0;

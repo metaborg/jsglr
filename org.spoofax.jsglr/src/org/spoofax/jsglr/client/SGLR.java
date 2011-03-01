@@ -17,7 +17,6 @@ import java.util.Set;
 
 import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -108,12 +107,8 @@ public class SGLR {
 
 	private boolean fineGrainedOnRegion;
 
-	public void clearRecoverStacks(){
-		recoverStacks.clear(false);
-	}
 
-
-	public ArrayDeque<Frame> getRecoverStacks() {
+	protected ArrayDeque<Frame> getRecoverStacks() {
 		return recoverStacks;
 	}
 
@@ -305,11 +300,12 @@ public class SGLR {
 			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
 					columnNumber, collectedErrors);
 		} finally {
-			activeStacks.clear(false);
-			activeStacksWorkQueue.clear(false);
-			forShifter.clear(false);
+			activeStacks.clear();
+			activeStacksWorkQueue.clear();
+			forShifter.clear();
 			postponedAmbiguities.clear();
-			if (recoverStacks != null) recoverStacks.clear(false);
+			history.clear();
+			if (recoverStacks != null) recoverStacks.clear();
 		}
 
 		logAfterParsing();
@@ -412,7 +408,7 @@ public class SGLR {
 
 	private void shifter() {
 		logBeforeShifter();
-		clearActiveStacks();
+		activeStacks.clear();
 		final AbstractParseNode prod = parseTable.lookupProduction(currentToken);
 
 		while (forShifter.size() > 0) {
@@ -447,11 +443,11 @@ public class SGLR {
 		logBeforeParseCharacter();
 
 		postponedAmbiguities.clear();
-		activeStacksWorkQueue.clear(true);
+		activeStacksWorkQueue.clear();
 		activeStacksWorkQueue.addAll(activeStacks);
 
-		clearForActorDelayed();
-		clearForShifter();
+		forActorDelayed.clear();
+		forShifter.clear();
 
 		while (activeStacksWorkQueue.size() > 0 || forActor.size() > 0) {
 			final Frame st = pickStackNodeFromActivesOrForActor(activeStacksWorkQueue);
@@ -471,7 +467,7 @@ public class SGLR {
 		}
 		final ArrayDeque<Frame> empty = forActor;
 		forActor = forActorDelayed;
-		empty.clear(true);
+		empty.clear();
 		forActorDelayed = empty;
 	}
 
@@ -904,24 +900,7 @@ public class SGLR {
 			columnNumber++;
 		}
 	}
-
-	@Deprecated
-	public void setFilter(boolean filter) {
-		getDisambiguator().setFilterAny(filter);
-	}
 	
-	private void clearForShifter() {
-		forShifter.clear(true);
-	}
-
-	private void clearForActorDelayed() {
-		forActorDelayed.clear(true);
-	}
-
-	private void clearActiveStacks() {
-		activeStacks.clear(true);
-	}
-
 	public ParseTable getParseTable() {
 		return parseTable;
 	}
@@ -960,16 +939,13 @@ public class SGLR {
 		return rejectCount;
 	}
 
-	@Deprecated
-	public static void setWorkAroundMultipleLookahead(boolean value) {
-		WORK_AROUND_MULTIPLE_LOOKAHEAD = value;
-	}
-
 
 
 
 
 	////////////////////////////////////////////////////// Log functions ///////////////////////////////////////////////////////////////////////////////
+	
+	// TODO: cleanup, this doesn't belong here!
 
 	private static int traceCallCount = 0;
 

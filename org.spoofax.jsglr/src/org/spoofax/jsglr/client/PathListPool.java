@@ -1,6 +1,5 @@
 package org.spoofax.jsglr.client;
 
-import java.lang.ref.WeakReference;
 
 
 public class PathListPool {
@@ -14,10 +13,10 @@ public class PathListPool {
 	
 	public static int asyncCacheMisses = 0;
 	
-	private static WeakReference<PathListPool> asyncInstance;
+	private static PathListPool asyncInstance = new PathListPool();
 	
 	private PathListPool() {
-		// weak singleton
+		// singleton
 	}
 	
 	private static Object getSyncRoot() {
@@ -25,14 +24,7 @@ public class PathListPool {
 	}
 	
 	public static PathListPool getInstance() {
-		synchronized (getSyncRoot()) {
-			PathListPool result = asyncInstance == null ? null : asyncInstance.get();
-			if (result == null) {
-				result = new PathListPool();
-				asyncInstance = new WeakReference<PathListPool>(result);
-			}
-			return result;
-		}
+		return asyncInstance;
 	}
 	
 	public PooledPathList create() {

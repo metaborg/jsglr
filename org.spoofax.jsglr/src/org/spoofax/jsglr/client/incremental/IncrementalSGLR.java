@@ -44,8 +44,10 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 	IncrementalSortSet incrementalSorts;
 	
 	private final CommentDamageExpander comments;
+
+	private TNode lastAst;
 	
-	private List<TNode> lastReconstructedNodes;
+	private List<TNode> lastReconstructedNodes = Collections.emptyList();
 
 	/**
 	 * Creates a new, reusable IncrementalSGLR instance.
@@ -74,6 +76,9 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 	/**
 	 * Incrementally parse an input.
 	 * 
+	 * Uses the last parsed abstract syntax tree as a template,
+	 * or the tree set using {@link #setLastAst()}
+	 * 
 	 * @see #getLastReconstructedNodes()
 	 *             Gets the list of tree nodes that were reconstructed
 	 *             after running {@link #parseIncremental}.
@@ -83,18 +88,18 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 	 *             It may still be possible to parse it non-incrementally.
 	 */
 	@SuppressWarnings("unchecked")
-	public TNode parseIncremental(String newInput, String filename, String startSymbol, TNode oldTree)
+	public TNode parseIncremental(String newInput, String filename, String startSymbol)
 			throws TokenExpectedException, BadTokenException, ParseException, SGLRException, IncrementalSGLRException {
 		
-		if (oldTree == null)
-			throw new IncrementalSGLRException("Precondition failed: oldTree is null");
-		
-		if (incrementalSorts.isEmpty())
-			return (TNode) parser.parse(newInput, filename, startSymbol);
+		lastReconstructedNodes = Collections.emptyList();
+
+		if (lastAst == null || incrementalSorts.isEmpty()) {
+			lastAst = (TNode) parser.parse(newInput, filename, startSymbol);
+			return lastAst;
+		}
 
 		// Determine damage size
-		lastReconstructedNodes = Collections.emptyList();
-		String oldInput = getLeftToken(oldTree).getTokenizer().getInput();
+		String oldInput = getLeftToken(lastAst).getTokenizer().getInput();
 		int damageStart = getDamageStart(newInput, oldInput);
 		int damageSizeChange = newInput.length() - oldInput.length();
 		int damageEnd = getDamageEnd(newInput, oldInput, damageStart, damageSizeChange);
@@ -102,7 +107,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		
 		if (damageSizeChange == 0 && damageEnd == damageStart - 1) {
 			assert newInput.equals(oldInput);
-			return oldTree;
+			return lastAst;
 		}
 
 		// Expand damage size for comments
@@ -111,12 +116,12 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		
 		// Analyze current damage
 		DamageRegionAnalyzer neighborAnalyzer = new DamageRegionAnalyzer(this, damageStart, damageEnd, damageSizeChange);
-		List<ISimpleTerm> neighborDamageNodes = neighborAnalyzer.getDamageNodes(oldTree);
+		List<ISimpleTerm> neighborDamageNodes = neighborAnalyzer.getDamageNodes(lastAst);
 		if (DEBUG) System.out.println("Damaged excluding neighbours: " + neighborDamageNodes);
 		sanityCheckDamageNodes(neighborDamageNodes);
 		
 		// Expand damage size for neighbors
-		NeighborDamageExpander neighbors = new NeighborDamageExpander(neighborAnalyzer, neighborDamageNodes, oldTree);
+		NeighborDamageExpander neighbors = new NeighborDamageExpander(neighborAnalyzer, neighborDamageNodes, lastAst);
 		List<ISimpleTerm> damageNodes = neighbors.getExpandedDamageNodes();
 		damageStart = neighbors.getExpandedDamageStart();
 		damageEnd = neighbors.getExpandedDamageEnd();
@@ -124,7 +129,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		// Pre-conditions
 		if (DEBUG) System.out.println("Damaged including neighbours: " + damageNodes);
 		sanityCheckDiff(oldInput, newInput, damageStart, damageEnd, damageSizeChange);
-		sanityCheckOldTree(oldTree);
+		sanityCheckOldTree(lastAst);
 		sanityCheckDamageNodes(damageNodes);
 
 		// Construct and parse partial input
@@ -132,7 +137,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		DamageRegionAnalyzer damageAnalyzer = new DamageRegionAnalyzer(this, damageStart, damageEnd, damageSizeChange);
 		IncrementalInputBuilder inputBuilder =
 			new IncrementalInputBuilder(damageAnalyzer, damageNodesSet, newInput, oldInput);
-		String partialInput = inputBuilder.buildPartialInput(oldTree);
+		String partialInput = inputBuilder.buildPartialInput(lastAst);
 		int skippedChars = inputBuilder.getLastSkippedCharsBeforeDamage();
 		ISimpleTerm partialTree = (ISimpleTerm) parser.parse(partialInput, filename, startSymbol);
 		List<ISimpleTerm> repairedNodes = damageAnalyzer.getDamageNodesForPartialTree(partialTree, skippedChars);
@@ -143,17 +148,27 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		// Combine old tree with new partial tree
 		IncrementalTreeBuilder<TNode> treeBuilder = 
 			new IncrementalTreeBuilder<TNode>(this, damageAnalyzer, newInput, filename, damageNodesSet, repairedNodes, skippedChars);
-		TNode result = treeBuilder.buildOutput(oldTree);
+		TNode result = treeBuilder.buildOutput(lastAst);
 		lastReconstructedNodes = treeBuilder.getLastReconstructedNodes();
 		return result;
 	}
 	
 	/**
 	 * Returns the list of tree nodes that was reconstructed
-	 * for the last incremental parse.
+	 * for the last incremental parse, or an empty list
+	 * if it was not reconstructed incrementally.
 	 */
 	public List<TNode> getLastReconstructedNodes() {
 		return lastReconstructedNodes;
+	}
+	
+	public final TNode getLastAst() {
+		return lastAst;
+	}
+	
+	public void setLastAst(TNode ast) {
+		lastReconstructedNodes = Collections.emptyList();
+		this.lastAst = ast;
 	}
 	
 	public final SGLR getParser() {

@@ -166,7 +166,8 @@ public abstract class ParseTestCase extends TestCase {
 		long parseTime = System.nanoTime();
 		System.out.println("------------------------");
 		System.out.println("Parsing " + newFile);
-    	IStrategoTerm newTree = incrementalSGLR.parseIncremental(contents, newFile, null, oldTree);
+		incrementalSGLR.setLastAst(oldTree);
+    	IStrategoTerm newTree = incrementalSGLR.parseIncremental(contents, newFile, null);
 		parseTime = System.nanoTime() - parseTime;
 		System.out.println("Incremental parsing " + newFile + " took " + parseTime/1000/1000 + " millis" + (IncrementalSGLR.DEBUG ? " including debug printing" : ""));
 		String extension =

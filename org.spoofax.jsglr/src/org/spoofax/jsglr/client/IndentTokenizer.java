@@ -13,11 +13,11 @@ public class IndentTokenizer {
         
     private static final char INDENT_TOK = 244; //char used to represent indentation in syntax definition
     private static final char DEDENT_TOK = 245; //char used to represent 'dedentation' in syntax definition
-    private ArrayDeque<Integer> indentStack;
+    private final ArrayDeque<Integer> indentStack;
+    private final boolean strictMode;
+    private final IndentationHandler myIndentHandler;
     private int dedentCount;
     private boolean indentShift;
-    private boolean strictMode;
-    private IndentationHandler myIndentHandler;
     
     /*
      * Creates indent and dedent tokens during parsing
@@ -32,7 +32,7 @@ public class IndentTokenizer {
  
     private void initEvaluationVariables() {
         myIndentHandler.initEvaluationVariables();
-        indentStack.clear(true);
+        indentStack.clear();
         indentStack.push(0);
         resetForNextLine();
     }

@@ -36,7 +36,7 @@ public class CommentDamageExpander {
 	 */
 	public int getExpandedDamageEnd(String newInput, int damageStart, int damageEnd, int damageSizeChange) {
 		// Move back to '/' if user just entered '*'
-		damageStart = max(0, damageStart - commentStart.length() + 1);
+		damageStart = commentStart == null ? damageStart : max(0, damageStart - commentStart.length() + 1);
 		// Move to following newline, in case line comments are involved
 		damageEnd = max(damageEnd, newInput.indexOf('\n', damageEnd + damageSizeChange) - damageSizeChange);
 		

@@ -13,6 +13,7 @@ public class PathListPool {
 	
 	public static int asyncCacheMisses = 0;
 	
+	// this would be a weak reference, if GWT had one
 	private static PathListPool asyncInstance = new PathListPool();
 	
 	private PathListPool() {

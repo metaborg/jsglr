@@ -51,6 +51,8 @@ public class Disambiguator {
 	private boolean filterPriorities;
 
 	private boolean filterStrict;
+	
+	private boolean logStatistics;
 
 	// Current parser state
 
@@ -169,6 +171,14 @@ public class Disambiguator {
 		return filterReject;
 	}
 
+	public void setLogStatistics(boolean logStatistics) {
+		this.logStatistics = logStatistics;
+	}
+
+	public boolean getLogStatistics() {
+		return logStatistics;
+	}
+
 	public final void setDefaultFilters() {
 		filterAny = true;
 		filterCycles = false; // TODO: filterCycles; enable by default
@@ -180,6 +190,7 @@ public class Disambiguator {
 		filterAssociativity = true;
 		filterPriorities = true;
 		filterStrict = false; // TODO: disable filterStrict hack
+		logStatistics = true;
 	}
 
 	public Disambiguator() {
@@ -256,7 +267,8 @@ public class Disambiguator {
 			ambiguityManager.resetAmbiguityCount();
 			final Object r = yieldTree(t);
 	
-			logStatus();
+			if(logStatistics) 
+				logStatus();
 	
 	        int ambCount = ambiguityManager.getAmbiguitiesCount();
 	        if (Tools.debugging) {

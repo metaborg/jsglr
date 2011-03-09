@@ -150,6 +150,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 			new IncrementalTreeBuilder<TNode>(this, damageAnalyzer, newInput, filename, damageNodesSet, repairedNodes, skippedChars);
 		TNode result = treeBuilder.buildOutput(lastAst);
 		lastReconstructedNodes = treeBuilder.getLastReconstructedNodes();
+		lastAst = result;
 		return result;
 	}
 	

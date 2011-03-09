@@ -65,7 +65,7 @@ public class AutoConcatList<E> implements List<E> {
 		} else if (node == null && nodes == null) {
 			if (e instanceof AutoConcatList) {
 				AutoConcatList<E> eList = (AutoConcatList<E>) e;
-				if (eList.getSort().equals(sort)) {
+				if (eList.getSort() == null || eList.getSort().equals(sort)) {
 					node = eList.node;
 					nodes = eList.nodes;
 					return true;
@@ -76,7 +76,7 @@ public class AutoConcatList<E> implements List<E> {
 			asList();
 			if (e instanceof AutoConcatList) {
 				AutoConcatList<E> eList = (AutoConcatList<E>) e;
-				if (eList.getSort().equals(sort)) {
+				if (eList.getSort() == null || eList.getSort().equals(sort)) {
 					if (eList.node != null) {
 						nodes.add(eList.node);
 					} else if (eList.nodes != null) {

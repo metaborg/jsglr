@@ -51,8 +51,10 @@ public class Disambiguator {
 	private boolean filterPriorities;
 
 	private boolean filterStrict;
-	
+
 	private boolean logStatistics;
+
+	private boolean ambiguityIsError;
 
 	// Current parser state
 
@@ -179,6 +181,14 @@ public class Disambiguator {
 		return logStatistics;
 	}
 
+	public void setAmbiguityIsError(boolean ambiguityIsError) {
+		this.ambiguityIsError = ambiguityIsError;
+	}
+
+	public boolean getAmbiguityIsError() {
+		return ambiguityIsError;
+	}
+
 	public final void setDefaultFilters() {
 		filterAny = true;
 		filterCycles = false; // TODO: filterCycles; enable by default
@@ -191,6 +201,7 @@ public class Disambiguator {
 		filterPriorities = true;
 		filterStrict = false; // TODO: disable filterStrict hack
 		logStatistics = true;
+		ambiguityIsError = false;
 	}
 
 	public Disambiguator() {
@@ -208,13 +219,13 @@ public class Disambiguator {
 	            if(Tools.debugging) {
 	                Tools.debug("applyFilters()");
 	            }
-	
+
 	            initializeFromParser(parser);
 	            t = applyTopSortFilter(sort, t);
-	
+
 	            if (filterAny) {
 	                t = applyCycleDetectFilter(t);
-	
+
 	                // SG_FilterTree
 	                ambiguityManager.resetClustersVisitedCount();
 	                t = filterTree(t, false);
@@ -224,7 +235,7 @@ public class Disambiguator {
 	        }
 
 	        return yieldTreeTop(t);
-        
+
         } finally {
             initializeFromParser(null);
         }
@@ -266,16 +277,21 @@ public class Disambiguator {
 		try {
 			ambiguityManager.resetAmbiguityCount();
 			final Object r = yieldTree(t);
-	
-			if(logStatistics) 
+
+			if(logStatistics)
 				logStatus();
-	
+
 	        int ambCount = ambiguityManager.getAmbiguitiesCount();
 	        if (Tools.debugging) {
 	            Tools.debug("yield: ", r);
 	        }
-	        
-	        return parser.getTreeBuilder().buildTreeTop(r, ambCount);
+
+	        if(ambiguityIsError && ambCount > 0) {
+	        	return null;
+	        }
+	        else {
+	        	return parser.getTreeBuilder().buildTreeTop(r, ambCount);
+	        }
 		} finally {
 			parser.getTreeBuilder().reset();
 		}
@@ -374,7 +390,7 @@ public class Disambiguator {
 		if (Tools.debugging) {
 			Tools.debug("filterTree(node)    - ", t);
 		}
-		
+
 		// parseTable.setTreeBuilder(new Asfix2TreeBuilder());
 		// System.out.println(yieldTree(t));
 
@@ -423,7 +439,7 @@ public class Disambiguator {
 
 	/**
 	 * Filters child parse nodes.
-	 * 
+	 *
 	 * @return An array of filtered child nodes, or null if no changes were made.
 	 */
 	private AbstractParseNode[] filterTree(AbstractParseNode[] args, boolean inAmbiguityCluster) throws FilterException {
@@ -431,7 +447,7 @@ public class Disambiguator {
 		if(Tools.debugging) {
 			Tools.debug("filterTree(<nodes>) - ", args);
 		}
-		
+
 		// TODO: Optimize - combine these two loops
 
 		AbstractParseNode[] newArgs = null;

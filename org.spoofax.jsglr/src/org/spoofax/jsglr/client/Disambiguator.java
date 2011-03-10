@@ -364,7 +364,9 @@ public class Disambiguator {
 			switch (results.size()) {
 			case 0: return null;
 			case 1: return results.get(0);
-			default: return new Amb(results.toArray(new AbstractParseNode[results.size()]));
+			default:
+				ambiguityManager.increaseAmbiguityCount();
+				return new Amb(results.toArray(new AbstractParseNode[results.size()]));
 			}
 		} else {
 			final IStrategoTerm prod = getProduction(t);
@@ -576,6 +578,7 @@ public class Disambiguator {
 						AbstractParseNode extraAmb;
 						if(newAmbiguities.size() > 1) {
 							extraAmb = new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
+							ambiguityManager.increaseAmbiguityCount();
 						} else {
 							extraAmb = newAmbiguities.get(0);
 						}
@@ -629,6 +632,7 @@ public class Disambiguator {
 					AbstractParseNode n = null;
 					if(newAmbiguities.size() > 1) {
 						n = new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
+						ambiguityManager.increaseAmbiguityCount();
 					} else {
 						n = newAmbiguities.get(0);
 					}
@@ -752,12 +756,15 @@ public class Disambiguator {
 					rest[i] = kids[i];
 				}
 
+				
 				if (newAmbiguities.size() > 1) {
 					last = new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
+					ambiguityManager.increaseAmbiguityCount();
 				} else {
 					last = newAmbiguities.get(0);
 				}
 				rest[rest.length - 1] = last;
+				ambiguityManager.increaseAmbiguityCount();
 				return new Amb(rest);
 			} else {
 				throw new FilterException(parser);
@@ -819,6 +826,7 @@ public class Disambiguator {
 			return newAmbiguities.get(0);
 		}
 
+		ambiguityManager.increaseAmbiguityCount();
 		return new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
 	}
 

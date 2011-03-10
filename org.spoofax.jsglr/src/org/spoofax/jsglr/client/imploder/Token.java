@@ -158,12 +158,22 @@ public class Token implements IToken, Cloneable {
 		}
 		return -1;
 	}
+
+
 	
 	public static boolean isWhiteSpace(IToken token) {
 		String input = token.getTokenizer().getInput();
 		for (int i = token.getStartOffset(), last = token.getEndOffset(); i <= last; i++) { 
-			if (!Character.isWhitespace(input.charAt(i)))
-				return false;
+			switch(input.charAt(i)) {
+				case ' ':
+				case '\n':
+				case '\t':
+				case '\f':
+				case '\r':
+					continue;
+				default:
+					return false;
+			}
 		}
 		return true;
 	}

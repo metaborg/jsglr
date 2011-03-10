@@ -285,13 +285,13 @@ public abstract class AbstractTokenizer implements ITokenizer {
 
 		int endOffset = offset;
 		String input = getInput();
-		boolean onlySeenWhitespace = Character.isWhitespace(input.charAt(endOffset));
+		boolean onlySeenWhitespace = isSpace(input.charAt(endOffset));
 		
 		while (endOffset + 1 < getInput().length()) {
 			char next = input.charAt(endOffset+1);
 			
 			if (onlySeenWhitespace) {
-				onlySeenWhitespace = Character.isWhitespace(next);
+				onlySeenWhitespace = isSpace(next);
 				offset++;
 			} else if (!Character.isLetterOrDigit(next)) {
 				break;
@@ -313,7 +313,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		String input = getInput();
 		while (beginOffset > 0) {
 			char c = input.charAt(beginOffset - 1);
-			boolean isWhitespace = Character.isWhitespace(c);
+			boolean isWhitespace = isSpace(c);
 			
 			if (onlySeenWhitespace) {
 				onlySeenWhitespace = isWhitespace;
@@ -386,11 +386,28 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		// Make an extra token for any whitespace preceding our error
 		String input = getInput();
 		int wordStart = getStartOffset();
-		while (wordStart <= endOffset && Character.isWhitespace(input.charAt(wordStart)))
+		while (wordStart <= endOffset && isSpace(input.charAt(wordStart)))
 			wordStart++;
 		if (wordStart < endOffset) // only do this if it doesn't consume the whole token
 			makeToken(wordStart - 1, TK_ERROR_LAYOUT, false);
 		
 		makeToken(endOffset, TK_ERROR, false);
+	}
+
+	private static boolean isSpace(char c) {
+		switch (c) {
+			case ' ':
+				return true;
+			case '\n':
+				return true;
+			case '\t':
+				return true;
+			case '\f':
+				return true;
+			case '\r':
+				return true;
+			default:
+				return false;
+		}
 	}
 }

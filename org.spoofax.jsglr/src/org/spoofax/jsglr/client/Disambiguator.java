@@ -268,7 +268,8 @@ public class Disambiguator {
 		return parser.getTreeBuilder().buildTree(t);
     }
 
-    private Object yieldTreeTop(AbstractParseNode t) {
+    private Object yieldTreeTop(AbstractParseNode t) throws SGLRException {
+        int ambCount = ambiguityManager.getAmbiguitiesCount();
 
 		if (Tools.debugging) {
 			Tools.debug("convertToATerm: ", t);
@@ -281,13 +282,12 @@ public class Disambiguator {
 			if(logStatistics)
 				logStatus();
 
-	        int ambCount = ambiguityManager.getAmbiguitiesCount();
 	        if (Tools.debugging) {
 	            Tools.debug("yield: ", r);
 	        }
 
 	        if(ambiguityIsError && ambCount > 0) {
-	        	return null;
+	        	throw new SGLRException(parser, "Ambiguities found") ;
 	        }
 	        else {
 	        	return parser.getTreeBuilder().buildTreeTop(r, ambCount);

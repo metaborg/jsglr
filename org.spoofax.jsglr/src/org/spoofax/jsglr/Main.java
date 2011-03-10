@@ -54,7 +54,9 @@ public class Main {
 		boolean heuristicFilters = false;
 		boolean buildParseTree = true;
 		boolean implode = false;
+		boolean ambiguityIsError = false;
 		int profilingRuns = 1;
+		
 		int warmup = 0;
 
 		for(int i=0;i<args.length;i++) {
@@ -90,6 +92,8 @@ public class Main {
 				buildParseTree = false;
 			} else if(args[i].equals("--implode")) {
 				implode = true;
+			} else if(args[i].equals("-A")) {
+				ambiguityIsError = true;
 			} else {
 				System.err.println("Unknown option: " + args[i]);
 				System.exit(1);
@@ -114,6 +118,7 @@ public class Main {
 		sglr.getDisambiguator().setFilterCycles(detectCycles);
 		sglr.getDisambiguator().setFilterAny(filter);
 		sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
+		sglr.getDisambiguator().setAmbiguityIsError(ambiguityIsError);
 		if (!buildParseTree)
 			sglr.setTreeBuilder(new NullTreeBuilder());
 		else if (implode)
@@ -195,7 +200,7 @@ public class Main {
 	}
 
 	private static void usage() {
-		System.out.println("Usage: org.spoofax.jsglr.Main [-f -d -v --no-tree-build --implode] -p <parsetable.tbl> -i <inputfile>");
+		System.out.println("Usage: org.spoofax.jsglr.Main [-f -d -v --no-tree-build --implode -A] -p <parsetable.tbl> -i <inputfile>");
 		System.exit(-1);
 	}
 }

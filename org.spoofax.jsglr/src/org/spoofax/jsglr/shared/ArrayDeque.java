@@ -812,6 +812,14 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         return a;
     }
 
+    @Override
+    public boolean addAll(Collection<? extends E> c) {
+        for(E o : c) {
+            this.add(o);
+        }
+        return true;
+    }
+
     // *** Object methods ***
 
     /**

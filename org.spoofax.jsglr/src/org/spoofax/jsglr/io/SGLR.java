@@ -3,6 +3,7 @@ package org.spoofax.jsglr.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -78,7 +79,7 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 	}
 
 	/**
-	 * @deprecated Call {@link #parse(InputStream, String)} instead.
+	 * @deprecated Call {@link #parse(Reader, String)} instead.
 	 */
 	public final Object parse(InputStream fis)
 			throws BadTokenException, TokenExpectedException, ParseException,
@@ -86,16 +87,40 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 		return parse(fis, null, null);
 	}
 
+	/**
+	 * @deprecated Call {@link #parse(Reader, String)} instead.
+	 */
 	public final Object parse(InputStream fis, String filename)
 			throws BadTokenException, TokenExpectedException, ParseException,
 			SGLRException, SGLRException, IOException {
 		return parse(fis, null, null);
 	}
 
-	public Object parse(InputStream fis, String filename, String startSymbol)
+	/**
+	 * @deprecated Call {@link #parse(Reader, String, String)} instead.
+	 */
+	public final Object parse(InputStream fis, String filename, String startSymbol)
 			throws BadTokenException, TokenExpectedException, ParseException,
 			SGLRException, IOException {
-		String input = FileTools.loadFileAsString(new InputStreamReader(fis));
+		return parse(new InputStreamReader(fis), filename, startSymbol);
+	}
+
+	public final Object parse(Reader in) throws BadTokenException,
+			TokenExpectedException, ParseException, SGLRException,
+			SGLRException, IOException {
+		return parse(in, null, null);
+	}
+
+	public final Object parse(Reader in, String filename)
+			throws BadTokenException, TokenExpectedException, ParseException,
+			SGLRException, SGLRException, IOException {
+		return parse(in, null, null);
+	}
+
+	public Object parse(Reader in, String filename, String startSymbol)
+			throws BadTokenException, TokenExpectedException, ParseException,
+			SGLRException, IOException {
+		String input = FileTools.loadFileAsString(in);
 		return parse(input, filename, startSymbol);
 	}
 

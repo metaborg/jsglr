@@ -356,7 +356,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		// Don't use tokens here in case tokenizer is disabled
 		IToken leftToken = rightToken.getStartOffset() == lastOffset ? rightToken : tokenizer.getTokenAtOffset(lastOffset);
 		String contents = tokenizer.toString(lastOffset, offset - 1);
-		assert disableTokens || (contents.equals(tokenizer.toString(leftToken, rightToken)) && lastOffset == leftToken.getStartOffset());
+		assert disableTokens || tokenizer.isAmbigous()
+			|| (contents.equals(tokenizer.toString(leftToken, rightToken)) && lastOffset == leftToken.getStartOffset());
 		
 		Object result = factory.createStringTerminal(sort, leftToken, rightToken, getPaddedLexicalValue(label, contents, lastOffset));
 		String constructor = label.getMetaVarConstructor();

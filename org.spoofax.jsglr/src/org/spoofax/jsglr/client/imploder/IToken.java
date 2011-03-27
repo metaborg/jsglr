@@ -23,7 +23,7 @@ public interface IToken extends Comparable<IToken>, Serializable {
 	/** Token kind for a generic keyword token. */
 	public static final int TK_KEYWORD = 4;
 	
-	/** Token kind for a generic keyword token. */
+	/** Token kind for a generic operator token. */
 	public static final int TK_OPERATOR = 5;
 	
 	/** Token kind for a meta-variable. */
@@ -47,11 +47,14 @@ public interface IToken extends Comparable<IToken>, Serializable {
 	/** Token kind for an erroneous token. */
 	public static final int TK_ERROR_EOF_UNEXPECTED = 12;
 	
+	/** Token kind for a meta-esape operator. */
+	public static final int TK_ESCAPE_OPERATOR = 13;
+	
 	/** A reserved token kind for internal use only. */
-	public static final int TK_RESERVED = 13;
+	public static final int TK_RESERVED = 63;
 	
 	/** A special value indicating no token kind is specified or desired. */
-	public static final int TK_NO_TOKEN_KIND = 14;
+	public static final int TK_NO_TOKEN_KIND = 64;
 	
 	int getKind();
 	

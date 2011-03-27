@@ -104,8 +104,8 @@ public class Tokenizer extends AbstractTokenizer {
 	
 	public IToken getTokenAtOffset(int offset) {
 		assert isAmbigous() || 
-			getTokenCount() < 2 || getTokenAt(getTokenCount() - 1).getStartOffset()
-			== getTokenAt(getTokenCount() - 2).getEndOffset() + 1
+			getTokenCount() < 2 || internalGetTokenAt(getTokenCount() - 1).getStartOffset()
+			== internalGetTokenAt(getTokenCount() - 2).getEndOffset() + 1
 			: "Unordered tokens at end of tokenizer";
 		Token key = new Token(this, -1, -1, -1, offset, offset - 1, TK_RESERVED);
 		int resultIndex = Collections.binarySearch(tokens, key);
@@ -117,7 +117,7 @@ public class Tokenizer extends AbstractTokenizer {
 			return currentToken();
 		if (resultIndex >= getTokenCount())
 			throw new IndexOutOfBoundsException("No token at offset " + offset);
-		return /*resultIndex == -1 ? null :*/ getTokenAt(resultIndex);
+		return /*resultIndex == -1 ? null :*/ internalGetTokenAt(resultIndex);
 	}
 	
 	public final Token makeToken(int endOffset, int kind, boolean allowEmptyToken) {

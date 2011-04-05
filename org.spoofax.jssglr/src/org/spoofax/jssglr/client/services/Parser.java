@@ -1,7 +1,12 @@
 package org.spoofax.jssglr.client.services;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findLeftMostTokenOnSameLine;
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostTokenOnSameLine;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -9,7 +14,9 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.RegionRecovery;
 import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
@@ -38,6 +45,11 @@ public class Parser {
 	private final String[] HACK_DEFAULT_INCREMENTAL_SORTS =
 		{ "RuleDec", "SDec",
 		  "MethodDec", "ClassBodyDec", "ClassMemberDec", "ConstrDec", "FieldDec" };
+
+	private static final int LARGE_REGION_SIZE = 8;
+
+	private static final String LARGE_REGION_START =
+		"Region could not be parsed because of subsequent syntax error(s) indicated below";
 
 	private final ITermFactory af;
 	private ParseTable parseTable;
@@ -111,6 +123,90 @@ public class Parser {
 		return parser;
 	}-*/;
 
+	private int findRightMostWithSameError(IToken token, String prefix) {
+		String expectedError = token.getError();
+		ITokenizer tokenizer = token.getTokenizer();
+		int i = token.getIndex();
+		for (int max = tokenizer.getTokenCount(); i + 1 < max; i++) {
+			String error = tokenizer.getTokenAt(i + 1).getError();
+			if (error != expectedError
+					&& (error == null || prefix == null || !error.startsWith(prefix)))
+				break;
+		}
+		return i;
+	}
+
+	private void reportErrorNearOffset(JsArray<JavaScriptObject> jserrors, ITokenizer tokenizer, int offset, String message) {
+		IToken errorToken = tokenizer.getErrorTokenOrAdjunct(offset);
+		reportErrorAtTokens(jserrors, errorToken, errorToken, message);
+	}
+
+	private void reportErrorAtTokens(JsArray<JavaScriptObject> jserrors, final IToken left, final IToken right, String message) {
+		if (left.getStartOffset() > right.getEndOffset()) {
+			reportErrorNearOffset(jserrors, left.getTokenizer(), left.getStartOffset(), message);
+		} else {
+			jserrors.push(createWarningToken(left.getLine() - 1, left.getColumn(), message, false));
+		}
+	}
+
+	private void reportWarningAtTokens(JsArray<JavaScriptObject> jserrors, final IToken left, final IToken right, final String message) {
+		jserrors.push(createWarningToken(left.getLine() - 1, left.getColumn(), message, true));
+	}
+
+	private static List<BadTokenException> getCollectedErrorsInRegion(SGLR parser, IToken left, IToken right, boolean alsoOutside) {
+		List<BadTokenException> results = new ArrayList<BadTokenException>();
+		int line = left.getLine();
+		int endLine = right.getLine() + (alsoOutside ? RegionRecovery.NR_OF_LINES_TILL_SUCCESS : 0);
+		for (BadTokenException e : parser.getCollectedErrors()) {
+			if (e.getLineNumber() >= line && e.getLineNumber() <= endLine)
+				results.add(e);
+		}
+		return results;
+	}
+
+	private static IToken findNextNonEmptyToken(IToken token) {
+		ITokenizer tokenizer = token.getTokenizer();
+		IToken result = null;
+		for (int i = token.getIndex(), max = tokenizer.getTokenCount(); i < max; i++) {
+			result = tokenizer.getTokenAt(i);
+			if (result.getLength() != 0 && !Token.isWhiteSpace(result)) break;
+		}
+		return result;
+	}
+
+	private void reportBadToken(JsArray<JavaScriptObject> jserrors, ITokenizer tokenizer, BadTokenException exception) {
+		String message;
+		if (exception.isEOFToken() || tokenizer.getTokenCount() <= 1) {
+			message = exception.getShortMessage();
+		} else {
+			IToken token = tokenizer.getTokenAtOffset(exception.getOffset());
+			token = findNextNonEmptyToken(token);
+			message = ITokenizer.ERROR_WATER_PREFIX + ": " + token.toString().trim();
+		}
+		reportErrorNearOffset(jserrors, tokenizer, exception.getOffset(), message);
+	}
+
+
+	private void reportSkippedRegion(JsArray<JavaScriptObject> jserrors, SGLR parser, IToken left, IToken right) {
+		// Find a parse failure(s) in the given token range
+		int line = left.getLine();
+		int reportedLine = -1;
+		for (BadTokenException e : getCollectedErrorsInRegion(parser, left, right, true)) {
+			reportBadToken(jserrors, left.getTokenizer(), e);
+			if (reportedLine == -1)
+				reportedLine = e.getLineNumber();
+		}
+
+		if (reportedLine == -1) {
+			// Report entire region
+			reportErrorAtTokens(jserrors, left, right, ITokenizer.ERROR_SKIPPED_REGION);
+		} else if (reportedLine - line >= LARGE_REGION_SIZE) {
+			// Warn at start of region
+			reportErrorAtTokens(jserrors, findLeftMostTokenOnSameLine(left),
+					findRightMostTokenOnSameLine(left), LARGE_REGION_START);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public JavaScriptObject parseAndTokenize(int lines, String text) {
 		final JsArray<JavaScriptObject>[] attrs = new JsArray[lines];
@@ -118,25 +214,64 @@ public class Parser {
 			attrs[i] = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
 		}
 		final ISimpleTerm o = parse(text);
+		JsArray<JavaScriptObject> jserrors = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
 		if(o == null) {
-			return makeJsArray(attrs);
+			return makeParseResult(makeJsArray(attrs), jserrors);
 		}
 		final IToken t = ImploderAttachment.get(o).getLeftToken();
 		if(t == null) {
-			return makeJsArray(attrs);
+			return makeParseResult(makeJsArray(attrs), jserrors);
 		}
 		final ITokenizer tok = t.getTokenizer();
+
 		for(int i = 0; i < tok.getTokenCount(); i++) {
 			final IToken x = tok.getTokenAt(i);
+			int line = x.getLine() - 1;
 			//debugToken(x);
 
 			final int start = x.getColumn();
 			final int end = x.getEndOffset() - x.getStartOffset() + start + 1;
 			final String tokentype = convertTokenType(x.getKind());
-			attrs[x.getLine()-1].push(createBespinToken(x.toString(), tokentype, start, end, x.getLine()));
+			attrs[line].push(createBespinToken(x.toString(), tokentype, start, end, x.getLine()));
 		}
-		return makeJsArray(attrs);
+
+		// https://svn.strategoxt.org/repos/StrategoXT/spoofax-imp/trunk/org.strategoxt.imp.runtime/src/org/strategoxt/imp/runtime/parser/ParseErrorHandler.java
+		for(int i = 0; i < tok.getTokenCount(); i++) {
+			final IToken x = tok.getTokenAt(i);
+			final String error = x.getError();
+			if (error != null) {
+				if (error == ITokenizer.ERROR_SKIPPED_REGION) {
+					i = findRightMostWithSameError(x, null);
+					reportSkippedRegion(jserrors, sglr, x, tok.getTokenAt(i));
+				} else if (error.startsWith(ITokenizer.ERROR_WARNING_PREFIX)) {
+					i = findRightMostWithSameError(x, null);
+					reportWarningAtTokens(jserrors, x, tok.getTokenAt(i), error);
+				} else if (error.startsWith(ITokenizer.ERROR_WATER_PREFIX)) {
+					i = findRightMostWithSameError(x, ITokenizer.ERROR_WATER_PREFIX);
+					reportErrorAtTokens(jserrors, x, tok.getTokenAt(i), error);
+				} else {
+					i = findRightMostWithSameError(x, null);
+					// UNDONE: won't work for multi-token errors (as seen in SugarJ)
+					reportErrorAtTokens(jserrors, x, tok.getTokenAt(i), error);
+				}
+			}
+		}
+
+		return makeParseResult(makeJsArray(attrs), jserrors);
 	}
+
+	public native static void debug(String message) /*-{
+		$self.sender.emit("log", message);
+	}-*/;
+
+	public native static JavaScriptObject createWarningToken(int row, int column, String text, boolean isWarning) /*-{
+		return {
+			row: row,
+			column: column,
+			text: text,
+			type: isWarning ? "warning" : "error"
+		};
+	}-*/;
 
 	public native static JavaScriptObject createBespinToken(String value, String tokentype, int startColumn, int endColumn, int lineNumber) /*-{
 		return {
@@ -155,6 +290,14 @@ public class Parser {
 			r.push(o);
 		return r;
 	}
+
+	private native static JavaScriptObject makeParseResult(
+			JsArray<JavaScriptObject> tokens, JsArray<JavaScriptObject> errors) /*-{
+		return {
+			tokens: tokens,
+			errors: errors
+		};
+	}-*/;
 
 	private void debugToken(final IToken x) {
 		System.out.println("line  = " + x.getLine());

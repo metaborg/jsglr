@@ -55,57 +55,90 @@ public class Parser {
 	private ParseTable parseTable;
 	private TreeBuilder treeBuilder;
 	private SGLR sglr;
+	private boolean tableLoaded = false;
 	private Set<String> incrementalSorts;
 	private IStrategoTerm lastResult;
 
-	public Parser() {
-		af = new TermFactory();
+	public Parser(ITermFactory termFactory) {
+		af = termFactory;
 
 		incrementalSorts = new HashSet<String>();
 		for (String s : HACK_DEFAULT_INCREMENTAL_SORTS)
 			incrementalSorts.add(s);
 	}
 
-	public JavaScriptObject asyncInitializeFromURL(String parseTableURL) {
+	public JavaScriptObject asyncInitializeFromURL(final String parseTableURL) {
 		final RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, parseTableURL);
 		try {
 			builder.sendRequest( null,  new RequestCallback() {
 				@Override
 				public void onError(Request request, Throwable exception)
 				{
+					tableLoaded = true;
 					GWT.log( "error", exception );
+					logToConsole("Could not load parse table at: '" + parseTableURL + "' due to: " + exception.getMessage());
 				}
 				@Override
 				public void onResponseReceived(Request request, Response response) {
+					tableLoaded = true;
 					if(response.getStatusCode() == 200 || response.getStatusCode() == 304) {
-						initialize(response.getText());
+						initializeFromString(response.getText());
+						parseTableLoaded();
+					} else {
+						logToConsole("Could not load parse table at: " + parseTableURL);
 					}
 				}
 			});
 		} catch (final RequestException e) {
 			GWT.log( "error", e);
+			tableLoaded = true;
+			logToConsole("Could not build parsetable request for: '" + parseTableURL + "' due to: " + e.getMessage());
 		}
 
 		return exposeParser(this);
 	}
 
-	private void initialize(String tableContents) {
+	public JavaScriptObject initializeFromTable(IStrategoTerm tableTerm) {
+		initialize(tableTerm);
+		return exposeParser(this);
+	}
+
+	private void initializeFromString(String tableContents) {
 		// TODO: share table across multiple Parser instances
+		long before = System.currentTimeMillis();
 		IStrategoTerm tableTerm = af.parseFromString(tableContents);
+		long after = System.currentTimeMillis();
+		logToConsole("break here: " + (after-before));
+		initialize(tableTerm);
+	}
+
+	private void initialize(IStrategoTerm tableTerm) {
+
 		try {
 			parseTable = new ParseTable(tableTerm, af);
-			TermTreeFactory factory = new TermTreeFactory(af);
-			treeBuilder = new TreeBuilder(factory);
-			sglr = new SGLR(treeBuilder, parseTable);
-			sglr.setUseStructureRecovery(true);
-//			sglr = new IncrementalSGLR<IStrategoTerm>(parser, C_STYLE, factory, incrementalSorts);
 		} catch (InvalidParseTableException e) {
 			GWT.log("error", e);
+			logToConsole("Could not load parsetable due to: " + e.getMessage());
+			return;
 		}
+		TermTreeFactory factory = new TermTreeFactory(af);
+		treeBuilder = new TreeBuilder(factory);
+		sglr = new SGLR(treeBuilder, parseTable);
+		sglr.setUseStructureRecovery(true);
+//			sglr = new IncrementalSGLR<IStrategoTerm>(parser, C_STYLE, factory, incrementalSorts);
+
 	}
 
 	public boolean isReady() {
 		return sglr != null;
+	}
+
+	public boolean isTableLoaded() {
+		return tableLoaded;
+	}
+
+	public boolean loadFailed() {
+		return tableLoaded && sglr == null;
 	}
 
 	private native JavaScriptObject exposeParser (Parser parser) /*-{
@@ -117,6 +150,12 @@ public class Parser {
 		parser.parseAndTokenize = function (lineCount, text) {
 			return self.@org.spoofax.jssglr.client.services.Parser::parseAndTokenize(ILjava/lang/String;)(lineCount, text);
 		};
+		parser.loadFailed = function() {
+			return self.@org.spoofax.jssglr.client.services.Parser::loadFailed()();
+		}
+		parser.isTableLoaded = function() {
+			return self.@org.spoofax.jssglr.client.services.Parser::isTableLoaded()();
+		}
 		parser.isReady = function() {
 			return self.@org.spoofax.jssglr.client.services.Parser::isReady()();
 		};
@@ -260,8 +299,12 @@ public class Parser {
 		return makeParseResult(makeJsArray(attrs), jserrors);
 	}
 
-	public native static void debug(String message) /*-{
+	public native static void logToConsole(String message) /*-{
 		$self.sender.emit("log", message);
+	}-*/;
+
+	public native static void parseTableLoaded() /*-{
+		$self.sender.emit("loaded", "");
 	}-*/;
 
 	public native static JavaScriptObject createWarningToken(int row, int column, String text, boolean isWarning) /*-{

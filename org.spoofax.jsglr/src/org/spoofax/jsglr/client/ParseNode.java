@@ -96,26 +96,6 @@ public class ParseNode extends AbstractParseNode {
 	}
     
     @Override
-	public boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
-    	boolean isUpdated=false;
-    	if(kids.length>0){
-    		// Updating the labels of the rightmost child should be sufficient, 
-    		// since the Ambiguities are created in the last reduction step
-			if(kids[kids.length-1] == oldLabel){
-				kids[kids.length-1] = label;
-				isUpdated=true;
-			}
-			else
-				isUpdated =  kids[kids.length-1].updateLabels(oldLabel, label);
-			if(isUpdated){
-				this.cachedHashCode=NO_HASH_CODE; 
-				isParseProductionChain = calculateIsParseProdChain(kids);
-			}
-		}
-		return isUpdated;
-	}
-
-    @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof ParseNode))
             return false;

@@ -47,7 +47,6 @@ public class ParseProductionNode extends AbstractParseNode {
         return prod == ((ParseProductionNode)obj).prod;
     }
 
-
     @Override
     public int hashCode() {
         return 6359 * prod;
@@ -57,9 +56,4 @@ public class ParseProductionNode extends AbstractParseNode {
     public String toStringShallow() {
         return "prod*(" + prod + ")";
     }
-
-	@Override
-	public boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
-		return false;
-	}
 }

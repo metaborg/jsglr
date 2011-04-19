@@ -105,24 +105,4 @@ public class Amb extends AbstractParseNode {
 	public String toStringShallow() {
 		return "Amb";
 	}
-
-	@Override
-	public boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label) {
-		boolean updated=false;
-		if(this!=label){
-			for (int i = 0; i < alternatives.length; i++) {
-				if(alternatives[i] == oldLabel){
-					alternatives[i]=label;
-					updated=true;
-				}
-				else{
-					updated = updated || alternatives[i].updateLabels(oldLabel, label);
-				}
-			}
-		}
-		if(updated){
-			this.cachedHashCode=NO_HASH_CODE; 
-		}
-		return updated;
-	}
 }

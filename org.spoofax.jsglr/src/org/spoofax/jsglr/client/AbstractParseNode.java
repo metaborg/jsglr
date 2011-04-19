@@ -17,8 +17,6 @@ public abstract class AbstractParseNode {
     public abstract Object toTreeBottomup(BottomupTreeBuilder builder);
     
     public abstract Object toTreeTopdown(TopdownTreeBuilder builder);
-
-    public abstract boolean updateLabels(AbstractParseNode oldLabel, AbstractParseNode label);
     
     @Override
 	abstract public boolean equals(Object obj);

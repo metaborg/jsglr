@@ -135,6 +135,9 @@ public class ImploderAttachment extends AbstractTermAttachment {
 		return term.getAttachment(TYPE) != null ? term : null;
 	}
 	
+	/**
+	 * @param isAnonymousSequence  True if the term is an unnamed sequence like a list or tuple.
+	 */
 	public static void putImploderAttachment(ISimpleTerm term, boolean isAnonymousSequence, String sort, IToken leftToken, IToken rightToken) {
 		term.putAttachment(isAnonymousSequence ?
 				  new ListImploderAttachment(sort, leftToken, rightToken)

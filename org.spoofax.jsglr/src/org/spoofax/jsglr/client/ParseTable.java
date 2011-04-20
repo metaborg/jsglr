@@ -331,14 +331,15 @@ public class ParseTable implements Serializable {
     }
 
     private State[] parseStates(IStrategoNamed statesTerm) throws InvalidParseTableException {
-
         IStrategoList states = termAt(statesTerm, 0);
         State[] ret = new State[states.getSubtermCount()];
+
         for(int i = 0; i < ret.length; i++) {
             IStrategoNamed stateRec = (IStrategoNamed) states.head();
             states = states.tail();
 
             int stateNumber = intAt(stateRec, 0);
+
             Goto[] gotos = parseGotos((IStrategoList) termAt(stateRec, 1));
             Action[] actions = parseActions((IStrategoList) termAt(stateRec, 2));
 
@@ -358,7 +359,6 @@ public class ParseTable implements Serializable {
             return cached;
         }
     }
-
 
     private Action[] parseActions(IStrategoList actionList) throws InvalidParseTableException {
         Action[] ret = new Action[actionList.getSubtermCount()];
@@ -510,25 +510,28 @@ public class ParseTable implements Serializable {
 //    }
 
     private RangeList parseRanges(IStrategoList ranges) throws InvalidParseTableException {
-        // TODO: Optimize - directly create int[] for RangeList, don't bother with intermediate Range objects
-        Range[] ret = new Range[ranges.getSubtermCount()];
+        int size = ranges.getSubtermCount();
+        int[] ret = new int[size * 2];
 
-        for(int i = 0; i < ret.length; i++) {
+        int idx = 0;
+
+        for(int i = 0; i < size; i++) {
             IStrategoTerm t = ranges.head();
             ranges = ranges.tail();
             if (isTermInt(t)) {
-                ret[i] = makeRange(javaInt(t));
+                int value = javaInt(t);
+                ret[idx++] = value;
+                ret[idx++] = value;
             } else {
-                int low = intAt(t, 0);
-                int hi = intAt(t, 1);
-                ret[i] = makeRange(low, hi);
+                ret[idx++] = intAt(t, 0);
+                ret[idx++] = intAt(t, 1);
             }
         }
 
         return makeRangeList(ret);
     }
 
-    private RangeList makeRangeList(Range[] ranges) throws InvalidParseTableException {
+    private RangeList makeRangeList(int[] ranges) throws InvalidParseTableException {
         RangeList r = new RangeList(ranges);
         RangeList cached = rangesCache.get(r);
         if (cached == null) {
@@ -537,14 +540,6 @@ public class ParseTable implements Serializable {
         } else {
             return cached;
         }
-    }
-
-    private Range makeRange(int low, int hi) throws InvalidParseTableException {
-        return new Range(low, hi);
-    }
-
-    private Range makeRange(int n) throws InvalidParseTableException {
-        return makeRange(n, n);
     }
 
     public State getInitialState() {

@@ -20,52 +20,14 @@ public class RangeList implements Serializable {
     
     private final int singularRange;
     
-    public RangeList(Range... ranges) {
-        if (ranges.length == 1 && ranges[0].low == ranges[0].high) {
+    public RangeList(int[] ranges) {
+        if (ranges.length == 1) {
             this.ranges = null;
-            singularRange = ranges[0].low;
+            singularRange = ranges[0];
         } else {
-            // Assume unsanitized input
-            List<Range> sortedRanges = toSortedList(ranges);
-            List<Range> sanitizedRanges = mergeOverlap(sortedRanges);
-            this.ranges = rangesToArray(sanitizedRanges);
+            this.ranges = ranges;
             singularRange = NONE;
         }
-    }
-    
-    private static List<Range> mergeOverlap(List<Range> ranges) {
-        for (int i = 0; i < ranges.size(); i++) {
-            final Range range = ranges.get(i);            
-            final int j = i + 1;
-            
-            while (j < ranges.size() && ranges.get(j).low <= range.high) {
-                if (ranges.get(j).high > range.high)
-                   range.high = ranges.get(j).high;
-                ranges.remove(j);
-            }
-        }
-        
-        return ranges;
-    }
-
-    private static List<Range> toSortedList(Range[] ranges) {
-        Arrays.sort(ranges);
-        List<Range> results = new ArrayList<Range>(ranges.length);
-        for (Range range : ranges)
-            results.add(range);
-        return results;
-    }
-    
-    private static int[] rangesToArray(List<Range> ranges) {
-        int[] results = new int[ranges.size() * 2];
-        int i = 0;
-        
-        for (Range range : ranges) {
-            results[i++] = range.low;
-            results[i++] = range.high;
-        }
-        
-        return results;
     }
     
     public final boolean within(int c) {

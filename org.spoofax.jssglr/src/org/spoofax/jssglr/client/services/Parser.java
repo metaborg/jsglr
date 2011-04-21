@@ -105,10 +105,7 @@ public class Parser {
 
 	private void initializeFromString(String tableContents) {
 		// TODO: share table across multiple Parser instances
-		long before = System.currentTimeMillis();
 		IStrategoTerm tableTerm = af.parseFromString(tableContents);
-		long after = System.currentTimeMillis();
-		logToConsole("break here: " + (after-before));
 		initialize(tableTerm);
 	}
 

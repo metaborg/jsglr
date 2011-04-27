@@ -1,7 +1,10 @@
 package org.spoofax.jsglr.client.imploder;
 
+import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
+
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.TermVisitor;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
 import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
@@ -53,6 +56,10 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	public String getSort() {
 		return sort;
+	}
+	
+	public boolean isSequenceAttachment() {
+		return false;
 	}
 	
 	/**
@@ -136,6 +143,40 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	}
 	
 	/**
+	 * Creates a compact position information attachment for a term.
+	 */
+	public static ImploderAttachment getCompactPositionAttachment(IStrategoTerm term, boolean useOnlyFirstAttach) {
+		if (useOnlyFirstAttach) {
+			FirstAttachFetcher fetcher = new FirstAttachFetcher();
+			fetcher.visit(term);
+			return getCompactPositionAttachment(fetcher.result, fetcher.result);
+		} else {
+			FirstLastAttachFetcher fetcher = new FirstLastAttachFetcher();
+			fetcher.visit(term);
+			return getCompactPositionAttachment(fetcher.first, fetcher.last);
+		}
+	}
+	
+	public static ImploderAttachment getCompactPositionAttachment(
+			ImploderAttachment first, ImploderAttachment last) {
+		if (first == null || last == null) return null;
+		
+		IToken left = first.getLeftToken();
+		IToken right = last.getRightToken();
+		String filename = left.getTokenizer().getFilename();
+		
+		return createCompactPositionAttachment(filename, left.getLine(), left.getColumn(), left.getStartOffset(), right.getEndOffset());
+	}
+	
+	public static ImploderAttachment createCompactPositionAttachment(
+			String filename, int line, int column, int startOffset, int endOffset) {
+		Token token = new Token(null, 0, line, column, startOffset, endOffset, TK_UNKNOWN);
+		NullTokenizer newTokenizer = new NullTokenizer(null, filename, token);
+		token.setTokenizer(newTokenizer);
+		return new ImploderAttachment(null, token, token);
+	}
+
+	/**
 	 * @param isAnonymousSequence  True if the term is an unnamed sequence like a list or tuple.
 	 */
 	public static void putImploderAttachment(ISimpleTerm term, boolean isAnonymousSequence, String sort, IToken leftToken, IToken rightToken) {
@@ -150,6 +191,42 @@ public class ImploderAttachment extends AbstractTermAttachment {
 			return "(" + sort + ",\"" + getLeftToken().getTokenizer().toString(getLeftToken(), getRightToken()) + "\")";
 		} else {
 			return "(" + sort + ",null)";
+		}
+	}
+	
+	/**
+	 * An inner class that fetches the first imploder atachment
+	 * in a tree.
+	 * 
+	 * @author Lennart Kats <lennart add lclnet.nl>
+	 */
+	static class FirstAttachFetcher extends TermVisitor {
+		ImploderAttachment result;
+		public void preVisit(IStrategoTerm term) {
+			term = OriginAttachment.tryGetOrigin(term);
+			ImploderAttachment attach = ImploderAttachment.get(term);
+			result = attach;
+		}
+		@Override
+		public boolean isDone(IStrategoTerm term) {
+			return result != null;
+		}
+	}
+	
+	/**
+	 * An inner class that fetches the first and last imploder atachment
+	 * in a tree.
+	 * 
+	 * @author Lennart Kats <lennart add lclnet.nl>
+	 */
+	static class FirstLastAttachFetcher extends TermVisitor {
+		ImploderAttachment first, last;
+		public void preVisit(IStrategoTerm term) {
+			term = OriginAttachment.tryGetOrigin(term);
+			ImploderAttachment attach = term.getAttachment(TYPE);
+			if (attach == null) return;
+			if (first == null) first = attach;
+			last = attach;
 		}
 	}
 }

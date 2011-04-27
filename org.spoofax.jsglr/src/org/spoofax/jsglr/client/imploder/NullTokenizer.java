@@ -6,6 +6,8 @@ import java.util.Iterator;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
+ * A special tokenizer that has only one token.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
@@ -13,9 +15,17 @@ public class NullTokenizer extends AbstractTokenizer {
 	
 	private final IToken onlyToken;
 	
+	public NullTokenizer(String input, String filename, Token onlyToken) {
+		super(input, filename);
+		this.onlyToken = onlyToken;
+		assert onlyToken.getTokenizer() == null || onlyToken.getTokenizer() == this;
+		onlyToken.setTokenizer(this);
+	}
+		
 	public NullTokenizer(String input, String filename) {
 		super(input, filename);
-		onlyToken = new Token(this, 0, 0, 0, 0, input == null ? 0 : input.length() - 1, IToken.TK_UNKNOWN);
+		onlyToken = new Token(this, 0, 0, 0, 0,
+				input == null ? 0 : input.length() - 1, IToken.TK_UNKNOWN);
 	}
 
 	public int getStartOffset() {

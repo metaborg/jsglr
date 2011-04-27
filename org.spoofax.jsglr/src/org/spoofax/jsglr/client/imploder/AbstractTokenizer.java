@@ -136,7 +136,9 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	}
 
 	public String toString(int startOffset, int endOffset) {
-		return getInput().substring(startOffset, endOffset + 1);
+		return getInput() == null
+			? null
+			: getInput().substring(startOffset, endOffset + 1);
 	}
 	
 	public static boolean isErrorInRange(IToken start, IToken end) {

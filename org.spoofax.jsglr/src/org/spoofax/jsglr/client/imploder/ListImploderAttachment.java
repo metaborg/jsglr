@@ -29,4 +29,9 @@ public class ListImploderAttachment extends ImploderAttachment {
 	public String getElementSort() {
 		return super.getSort();
 	}
+	
+	@Override
+	public boolean isSequenceAttachment() {
+		return true;
+	}
 }

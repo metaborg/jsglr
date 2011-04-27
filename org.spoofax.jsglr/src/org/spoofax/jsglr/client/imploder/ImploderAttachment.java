@@ -1,9 +1,12 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
+import static org.spoofax.terms.Term.asJavaInt;
+import static org.spoofax.terms.Term.asJavaString;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermVisitor;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
 import org.spoofax.terms.attachments.OriginAttachment;
@@ -20,7 +23,28 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	private static final long serialVersionUID = -578795745164445689L;
 
 	public static final TermAttachmentType<ImploderAttachment> TYPE =
-		TermAttachmentType.create(ImploderAttachment.class);
+		new TermAttachmentType<ImploderAttachment>(ImploderAttachment.class, "ImploderAttachment", 5) {
+
+			@Override
+			protected IStrategoTerm[] toSubterms(ITermFactory f, ImploderAttachment attachment) {
+				IToken left = attachment.getLeftToken();
+				IToken right = attachment.getRightToken();
+				return new IStrategoTerm[] {
+					f.makeString(left.getTokenizer().getFilename()),
+					f.makeInt(left.getLine()),
+					f.makeInt(left.getColumn()),
+					f.makeInt(left.getStartOffset()),
+					f.makeInt(right.getEndOffset())
+				};
+			}
+
+			@Override
+			protected ImploderAttachment fromSubterms(IStrategoTerm[] subterms) {
+				return createCompactPositionAttachment(asJavaString(subterms[0]), asJavaInt(subterms[1]),
+						asJavaInt(subterms[2]), asJavaInt(subterms[3]), asJavaInt(subterms[4]));
+			}
+		
+		};
 	
 	private final IToken leftToken, rightToken;
 	

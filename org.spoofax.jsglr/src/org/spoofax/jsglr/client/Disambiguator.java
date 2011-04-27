@@ -315,7 +315,7 @@ public class Disambiguator {
 	}
 
 	private IStrategoTerm getProduction(AbstractParseNode t) {
-		if (t instanceof ParseNode) {
+		if (t.isParseNode()) {
 			return parseTable.getProduction(((ParseNode) t).getLabel());
 		} else {
 			return parseTable.getProduction(((ParseProductionNode) t).getProduction());
@@ -358,7 +358,7 @@ public class Disambiguator {
 	private AbstractParseNode selectOnTopSort(AbstractParseNode t, String sort) throws FilterException {
 		final List<AbstractParseNode> results = new ArrayList<AbstractParseNode>();
 
-		if (t instanceof Amb) {
+		if (t.isAmbNode()) {
 			addTopSortAlternatives(t, sort, results);
 
 			switch (results.size()) {
@@ -366,7 +366,7 @@ public class Disambiguator {
 			case 1: return results.get(0);
 			default:
 				ambiguityManager.increaseAmbiguityCount();
-				return new Amb(results.toArray(new AbstractParseNode[results.size()]));
+				return ParseNode.createAmbNode(results.toArray(new AbstractParseNode[results.size()]));
 			}
 		} else {
 			final IStrategoTerm prod = getProduction(t);
@@ -375,8 +375,8 @@ public class Disambiguator {
 	}
 
 	private void addTopSortAlternatives(AbstractParseNode t, String sort, List<AbstractParseNode> results) throws FilterException {
-		for(final AbstractParseNode amb : ((Amb) t).getAlternatives()) {
-			if (amb instanceof Amb) {
+		for(final AbstractParseNode amb : t.getChildren()) {
+			if (amb.isAmbNode()) {
 				addTopSortAlternatives(amb, sort, results);
 			} else {
 				final IStrategoTerm prod = getProduction(amb);
@@ -394,25 +394,23 @@ public class Disambiguator {
 		}
 
 		// parseTable.setTreeBuilder(new Asfix2TreeBuilder());
-		// System.out.println(yieldTree(t));
-
-		if (t instanceof Amb) {
+		if (t.isAmbNode()) {
 			if (!inAmbiguityCluster) {
 				// (some cycle stuff should be done here)
-				final AbstractParseNode[] ambs = ((Amb)t).getAlternatives();
+				final AbstractParseNode[] ambs = t.getChildren();
 				t = filterAmbiguities(ambs);
 			} else {
 				// FIXME: hasRejectProd(Amb) can never succeed?
 				if (filterReject && parseTable.hasRejects() && hasRejectProd(t)) {
 					return null;
 				}
-				final AbstractParseNode[] ambs = ((Amb) t).getAlternatives();
+				final AbstractParseNode[] ambs = t.getChildren();
 				return filterAmbiguities(ambs);
 
 			}
-		} else if(t instanceof ParseNode) {
+		} else if(t.isParseNode()) {
 			final ParseNode node = (ParseNode) t;
-			final AbstractParseNode[] args = node.kids;
+			final AbstractParseNode[] args = node.getChildren();
 			final AbstractParseNode[] newArgs =
 				t.isParseProductionChain() ? null : filterTree(args, false);
 			// TODO: assert that parse production chains do not have reject nodes?
@@ -424,7 +422,7 @@ public class Disambiguator {
 			}
 
 			if (newArgs != null && args != newArgs)
-				t = new ParseNode(node.label, newArgs);
+				t = new ParseNode(node.getLabel(), newArgs, AbstractParseNode.PARSENODE);
 		} else if(t instanceof ParseProductionNode) {
 			// leaf node -- do thing (cannot be any ambiguities here)
 			return t;
@@ -511,7 +509,7 @@ public class Disambiguator {
 
 		AbstractParseNode r = t;
 
-		if (t instanceof ParseNode) {
+		if (t.isParseNode()) {
 			final Label prodLabel = getProductionLabel(t);
 			final ParseNode n = (ParseNode) t;
 
@@ -533,7 +531,7 @@ public class Disambiguator {
 					if(Tools.debugging) {
 						Tools.debug(" - found");
 					}
-					if (r instanceof Amb) {
+					if (r.isAmbNode()) {
 						return r;
 					}
 					return applyPriorityFilter((ParseNode) r, prodLabel);
@@ -556,19 +554,19 @@ public class Disambiguator {
 		}
 
 		final List<AbstractParseNode> newAmbiguities = new ArrayList<AbstractParseNode>();
-		final AbstractParseNode[] kids = t.kids;
+		final AbstractParseNode[] kids = t.getChildren();
 		final AbstractParseNode firstKid = kids[0];
 
-		if(firstKid instanceof Amb) {
+		if(firstKid.isAmbNode()) {
 
-			for (final AbstractParseNode amb : ((Amb)firstKid).getAlternatives()) {
+			for (final AbstractParseNode amb : firstKid.getChildren()) {
 				if(((ParseNode)amb).getLabel() != prodLabel.labelNumber) {
 					newAmbiguities.add(amb);
 				}
 			}
 
 			final int additionalAmbNodes = newAmbiguities.isEmpty() ? 0 : 1;
-			final AbstractParseNode[] restKids = new AbstractParseNode[t.kids.length - 1 + additionalAmbNodes];
+			final AbstractParseNode[] restKids = new AbstractParseNode[t.getChildren().length - 1 + additionalAmbNodes];
 			for(int i = 0; i < restKids.length; i++) {
 				restKids[i] = kids[i + 1];
 			}
@@ -577,7 +575,7 @@ public class Disambiguator {
 					if(!newAmbiguities.isEmpty()) {
 						AbstractParseNode extraAmb;
 						if(newAmbiguities.size() > 1) {
-							extraAmb = new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
+							extraAmb = ParseNode.createAmbNode(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
 							ambiguityManager.increaseAmbiguityCount();
 						} else {
 							extraAmb = newAmbiguities.get(0);
@@ -588,9 +586,9 @@ public class Disambiguator {
 					}
 
 					// FIXME is this correct?
-					return new ParseNode(t.label, restKids);
+					return new ParseNode(t.getLabel(), restKids, AbstractParseNode.PARSENODE);
 
-		} else if(firstKid instanceof ParseNode) {
+		} else if(firstKid.isParseNode()) {
 			if(((ParseNode)firstKid).getLabel() == prodLabel.labelNumber) {
 				throw new FilterException(parser);
 			}
@@ -611,16 +609,16 @@ public class Disambiguator {
 		final int l0 = prodLabel.labelNumber;
 		int kidnumber = 0;
 
-		for (final AbstractParseNode kid : t.kids) {
+		for (final AbstractParseNode kid : t.getChildren()) {
 			AbstractParseNode newKid = kid;
 			final AbstractParseNode injection = jumpOverInjections(kid);
 
-			if (injection instanceof Amb) {
+			if (injection.isAmbNode()) {
 				newAmbiguities.clear();
-				for (final AbstractParseNode amb : ((Amb) injection).getAlternatives()) {
+				for (final AbstractParseNode amb : injection.getChildren()) {
 					final AbstractParseNode injAmb = jumpOverInjections(amb);
 
-					if (injAmb instanceof ParseNode) {
+					if (injAmb.isParseNode()) {
 						final Label label = getProductionLabel(t);
 						if(hasGreaterPriority(l0, label.labelNumber, kidnumber)) {
 							newAmbiguities.add(amb);
@@ -631,7 +629,7 @@ public class Disambiguator {
 				if(!newAmbiguities.isEmpty()) {
 					AbstractParseNode n = null;
 					if(newAmbiguities.size() > 1) {
-						n = new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
+						n = ParseNode.createAmbNode(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
 						ambiguityManager.increaseAmbiguityCount();
 					} else {
 						n = newAmbiguities.get(0);
@@ -646,8 +644,8 @@ public class Disambiguator {
 								return t;
 					}
 				}
-			} else if (injection instanceof ParseNode) {
-				final int l1 = ((ParseNode) injection).label;
+			} else if (injection.isParseNode()) {
+				final int l1 = ((ParseNode) injection).getLabel();
 				if (hasGreaterPriority(l0, l1, kidnumber)) {
 					throw new FilterException(parser);
 				}
@@ -658,7 +656,7 @@ public class Disambiguator {
 		}
 
 		// FIXME (KTK) get rid of toArray by precomputing the necessary size of newKids earlier in the method
-		return new ParseNode(t.label, newKids.toArray(new AbstractParseNode[newKids.size()]));
+		return new ParseNode(t.getLabel(), newKids.toArray(new AbstractParseNode[newKids.size()]), AbstractParseNode.PARSENODE);
 	}
 
 	private AbstractParseNode replaceUnderInjections(AbstractParseNode alt, AbstractParseNode injection, AbstractParseNode n)
@@ -685,14 +683,14 @@ public class Disambiguator {
 			Tools.debug("jumpOverInjections() - ", t);
 		}
 
-		if (t instanceof ParseNode) {
-			int prod = ((ParseNode) t).label;
+		if (t.isParseNode()) {
+			int prod = ((ParseNode) t).getLabel();
 			ParseNode n = (ParseNode)t;
 			while (isUserDefinedLabel(prod)) {
 				final AbstractParseNode x = n.kids[0];
-				if(x instanceof ParseNode) {
+				if(x.isParseNode()) {
 					n = (ParseNode)x;
-					prod = n.label;
+					prod = n.getLabel();
 				} else {
 					return x;
 				}
@@ -741,10 +739,10 @@ public class Disambiguator {
 		final AbstractParseNode[] kids = t.kids;
 		AbstractParseNode last = kids[kids.length - 1];
 
-		if (last instanceof Amb) {
+		if (last.isAmbNode()) {
 
-			for (final AbstractParseNode amb : ((Amb) last).getAlternatives()) {
-				if (amb instanceof Amb
+			for (final AbstractParseNode amb : last.getChildren()) {
+				if (amb.isAmbNode()
 						|| !parseTable.getLabel(((ParseNode) amb).getLabel()).equals(prodLabel)) {
 					newAmbiguities.add(amb);
 				}
@@ -758,18 +756,18 @@ public class Disambiguator {
 
 				
 				if (newAmbiguities.size() > 1) {
-					last = new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
+					last = ParseNode.createAmbNode(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
 					ambiguityManager.increaseAmbiguityCount();
 				} else {
 					last = newAmbiguities.get(0);
 				}
 				rest[rest.length - 1] = last;
 				ambiguityManager.increaseAmbiguityCount();
-				return new Amb(rest);
+				return ParseNode.createAmbNode(rest);
 			} else {
 				throw new FilterException(parser);
 			}
-		} else if (last instanceof ParseNode) {
+		} else if (last.isParseNode()) {
 			final Label other = parseTable.getLabel(((ParseNode) last).getLabel());
 			if (prodLabel.equals(other)) {
 				throw new FilterException(parser);
@@ -780,7 +778,7 @@ public class Disambiguator {
 	}
 
 	private Label getProductionLabel(AbstractParseNode t) {
-		if (t instanceof ParseNode) {
+		if (t.isParseNode()) {
 			return parseTable.getLabel(((ParseNode) t).getLabel());
 		} else if (t instanceof ParseProductionNode) {
 			return parseTable.getLabel(((ParseProductionNode) t).getProduction());
@@ -789,7 +787,7 @@ public class Disambiguator {
 	}
 
 	private boolean hasRejectProd(AbstractParseNode t) {
-		return t instanceof ParseReject;
+		return t.isParseRejectNode();
 	}
 
 	private AbstractParseNode filterAmbiguities(AbstractParseNode[] ambs) throws FilterException {
@@ -827,7 +825,7 @@ public class Disambiguator {
 		}
 
 		ambiguityManager.increaseAmbiguityCount();
-		return new Amb(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
+		return ParseNode.createAmbNode(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
 	}
 
 	private List<AbstractParseNode> filterAmbiguityList(List<AbstractParseNode> ambs, AbstractParseNode t) {
@@ -907,7 +905,7 @@ public class Disambiguator {
 	private int filterPermissiveLiterals(AbstractParseNode left, AbstractParseNode right) {
 		// Work-around for http://bugs.strategoxt.org/browse/SPI-5 (Permissive grammars introduce ambiguities for literals)
 
-		if (left instanceof ParseNode && right instanceof ParseNode) {
+		if (left.isParseNode() && right.isParseNode()) {
 			final AbstractParseNode[] leftKids = ((ParseNode) left).kids;
 			final AbstractParseNode[] rightKids = ((ParseNode) right).kids;
 			if (leftKids.length > 0 && rightKids.length == 1) {
@@ -946,10 +944,10 @@ public class Disambiguator {
 	private int countAllInjections(AbstractParseNode t) {
 		// SG_CountAllInjectionsInTree
 		// - ok
-		if (t instanceof Amb) {
+		if (t.isAmbNode()) {
 			// Trick from forest.c
-			return countAllInjections(((Amb) t).getAlternatives()[0]);
-		} else if (t instanceof ParseNode) {
+			return countAllInjections(t.getChildren()[0]);
+		} else if (t.isParseNode()) {
 			final int c = getProductionLabel(t).isInjection() ? 1 : 0;
 			return c + countAllInjections(((ParseNode) t).kids);
 		}
@@ -1009,9 +1007,9 @@ public class Disambiguator {
 	private int countPrefers(AbstractParseNode t) {
 		// SG_CountPrefersInTree
 		// - ok
-		if (t instanceof Amb) {
-			return countPrefers(((Amb) t).getAlternatives());
-		} else if (t instanceof ParseNode) {
+		if (t.isAmbNode()) {
+			return countPrefers(t.getChildren());
+		} else if (t.isParseNode()) {
 			final int type = getProductionType(t);
 			if (type == ProductionType.PREFER) {
 				return 1;
@@ -1036,9 +1034,9 @@ public class Disambiguator {
 	private int countAvoids(AbstractParseNode t) {
 		// SG_CountAvoidsInTree
 		// - ok
-		if (t instanceof Amb) {
-			return countAvoids(((Amb) t).getAlternatives());
-		} else if (t instanceof ParseNode) {
+		if (t.isAmbNode()) {
+			return countAvoids(t.getChildren());
+		} else if (t.isParseNode()) {
 			final int type = getProductionType(t);
 			if (type == ProductionType.PREFER) {
 				return 0;
@@ -1067,7 +1065,7 @@ public class Disambiguator {
 			Tools.debug("filterOnIndirectPrefers()");
 		}
 
-		if (left instanceof Amb || right instanceof Amb) {
+		if (left.isAmbNode() || right.isAmbNode()) {
 			return FILTER_DRAW;
 		}
 
@@ -1116,7 +1114,7 @@ public class Disambiguator {
 	}
 
 	private boolean isLeftMoreEager(AbstractParseNode left, AbstractParseNode right) {
-		assert !(left instanceof Amb || right instanceof Amb);
+		assert !(left.isAmbNode() || right.isAmbNode());
 		if (isMoreEager(left, right)) {
 			return true;
 		}
@@ -1124,7 +1122,7 @@ public class Disambiguator {
 		final AbstractParseNode newLeft = jumpOverInjectionsModuloEagerness(left);
 		final AbstractParseNode newRight = jumpOverInjectionsModuloEagerness(right);
 
-		if (newLeft instanceof ParseNode && newRight instanceof ParseNode) {
+		if (newLeft.isParseNode() && newRight.isParseNode()) {
 			return isMoreEager(newLeft, newRight);
 		}
 
@@ -1139,7 +1137,7 @@ public class Disambiguator {
 
 		final int prodType = getProductionType(t);
 
-		if (t instanceof ParseNode && prodType != ProductionType.PREFER
+		if (t.isParseNode() && prodType != ProductionType.PREFER
 				&& prodType != ProductionType.AVOID) {
 
 			Label prod = getLabel(t);
@@ -1148,7 +1146,7 @@ public class Disambiguator {
 				t = ((ParseNode) t).kids[0];
 
 
-				if (t instanceof ParseNode) {
+				if (t.isParseNode()) {
 					final int prodTypeX = getProductionType(t);
 
 					if (prodTypeX != ProductionType.PREFER
@@ -1164,9 +1162,9 @@ public class Disambiguator {
 	}
 
 	private Label getLabel(AbstractParseNode t) {
-		if (t instanceof ParseNode) {
+		if (t.isParseNode()) {
 			final ParseNode n = (ParseNode) t;
-			return parseTable.getLabel(n.label);
+			return parseTable.getLabel(n.getLabel());
 		} else if (t instanceof ParseProductionNode) {
 			final ParseProductionNode n = (ParseProductionNode) t;
 			return parseTable.getLabel(n.prod);
@@ -1233,7 +1231,7 @@ public class Disambiguator {
 				Tools.debug(" bumping");
 			}
 			return null;
-		} else if (t instanceof ParseNode) {
+		} else if (t.isParseNode()) {
 			//Amb ambiguities = null;
 			List<AbstractParseNode> cycle = null;
 			//int clusterIndex;

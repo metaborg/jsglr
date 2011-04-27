@@ -13,7 +13,6 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.AbstractParseNode;
-import org.spoofax.jsglr.client.Amb;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
 import org.spoofax.jsglr.client.ParseTable;
@@ -284,16 +283,16 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 
 	@Override
-	public Object buildTreeAmb(Amb a) {
+	public Object buildTreeAmb(ParseNode a) {
 		if (inLexicalContext) {
 			// Ignore ambiguities in lexicals; can't show them in AST
-			return a.getAlternatives()[0].toTreeTopdown(this);
+			return a.getChildren()[0].toTreeTopdown(this);
 		}
 		
 		final int oldOffset = offset;
 		final int oldBeginOffset = tokenizer.getStartOffset();
 		final boolean oldLexicalContext = inLexicalContext;
-		final AbstractParseNode[] subnodes = a.getAlternatives();
+		final AbstractParseNode[] subnodes = a.getChildren();
 		final ArrayList<Object> children =
 			new ArrayList<Object>(max(EXPECTED_NODE_CHILDREN, subnodes.length));
 		tokenizer.setAmbiguous(true);

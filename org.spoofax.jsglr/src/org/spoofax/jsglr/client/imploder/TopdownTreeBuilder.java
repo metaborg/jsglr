@@ -1,7 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
 import org.spoofax.jsglr.client.AbstractParseNode;
-import org.spoofax.jsglr.client.Amb;
 import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
@@ -29,8 +28,8 @@ public abstract class TopdownTreeBuilder implements ITreeBuilder {
 		} else if (node instanceof ParseProductionNode) {
 			return buildTreeProduction((ParseProductionNode) node);
 		} else {
-			assert node instanceof Amb;
-			return buildTreeAmb((Amb) node);
+			assert node.isAmbNode();
+			return buildTreeAmb((ParseNode)node);
 		}
 	}
 	
@@ -46,5 +45,5 @@ public abstract class TopdownTreeBuilder implements ITreeBuilder {
 
 	public abstract Object buildTreeProduction(ParseProductionNode node);
 
-	public abstract Object buildTreeAmb(Amb node);
+	public abstract Object buildTreeAmb(ParseNode node);
 }

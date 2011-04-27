@@ -36,13 +36,13 @@ public class Production implements Serializable {
     public AbstractParseNode apply(AbstractParseNode[] kids) {
         switch(status) {
         case REJECT:
-            return new ParseReject(label, kids);
+            return new ParseNode(label, kids, AbstractParseNode.REJECT);
         case AVOID:
-            return new ParseAvoid(label, kids);
+            return new ParseNode(label, kids, AbstractParseNode.AVOID);
         case PREFER:
-            return new ParsePrefer(label, kids);
+            return new ParseNode(label, kids, AbstractParseNode.PREFER);
         case NO_TYPE:
-            return new ParseNode(label, kids);
+            return new ParseNode(label, kids, AbstractParseNode.PARSENODE);
         }
         throw new IllegalStateException();
     }

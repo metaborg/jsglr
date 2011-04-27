@@ -12,6 +12,36 @@ import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 
 public abstract class AbstractParseNode {
 
+    public static final int PARSE_PRODUCTION_NODE = 1;
+    public static final int PARSENODE = 2;
+    public static final int AMBIGUITY = 3;
+    public static final int PREFER = 4;
+    public static final int AVOID = 5;
+    public static final int REJECT = 6;
+    
+    public boolean isAmbNode(){
+    	return getNodeType()==AbstractParseNode.AMBIGUITY;
+    }
+
+    public boolean isParseNode(){
+    	return (getNodeType()==AbstractParseNode.PARSENODE
+    		|| getNodeType()==AbstractParseNode.REJECT
+    		|| getNodeType()== AbstractParseNode.PREFER
+    		|| getNodeType()==AbstractParseNode.AVOID
+    	);
+    }
+
+    public boolean isParseRejectNode(){
+    	return getNodeType()==AbstractParseNode.REJECT;
+    }
+
+    public boolean isParseProductionNode(){
+    	return getNodeType()==AbstractParseNode.PARSE_PRODUCTION_NODE;
+    }
+
+    abstract public int getNodeType();
+    abstract public AbstractParseNode[] getChildren();
+    
     protected static final int NO_HASH_CODE = 0;
 
     public abstract Object toTreeBottomup(BottomupTreeBuilder builder);
@@ -20,10 +50,16 @@ public abstract class AbstractParseNode {
     
     @Override
 	abstract public boolean equals(Object obj);
+    
     @Override
 	abstract public int hashCode();
+    
+    public void setCachedHashCode(){
+    	//Hashcode is cached for ParseNodes (not for PPNs)
+    }
 
     abstract public String toStringShallow();
+    
     @Override
 	abstract public String toString();
     

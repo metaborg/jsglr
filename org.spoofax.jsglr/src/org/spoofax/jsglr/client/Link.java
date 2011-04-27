@@ -62,11 +62,12 @@ public class Link {
     }
 
     public void addAmbiguity(AbstractParseNode t, int tokensSeen) {
+    	assert(label instanceof ParseNode);
         if(Tools.tracing) {
             SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
         }
-        label = new Amb(label, t);
-       
+        ((ParseNode)label).toAmbiguity(t);
+        //label = new Amb(label, t);
     }
     
     @Override

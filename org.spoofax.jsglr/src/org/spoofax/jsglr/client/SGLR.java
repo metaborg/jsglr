@@ -403,8 +403,8 @@ public class SGLR {
 		final AbstractParseNode prod = parseTable.lookupProduction(currentToken);
 
 		while (forShifter.size() > 0) {
-
 			final ActionState as = forShifter.remove();
+			as.st.cacheHashCodeLabels(); //labels will not change
 			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {				
 				Frame	st1=findStack(activeStacks, as.s);
 				if(st1==null){				
@@ -1224,7 +1224,7 @@ public class SGLR {
 					st1.state.stateNumber, " ", (prod.isRejectProduction() ? "{reject}" : ""));
 			if (nl.label instanceof ParseNode) {
 				Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ",
-						((ParseNode) nl.label).label);
+						((ParseNode) nl.label).getLabel());
 			}
 		}
 

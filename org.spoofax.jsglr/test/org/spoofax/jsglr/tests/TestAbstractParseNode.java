@@ -21,10 +21,10 @@ public class TestAbstractParseNode extends TestCase {
     @Override
     protected void setUp() throws Exception {
         AbstractParseNode[]  r0 = { new ParseProductionNode(123) };
-        pn0 = new ParseNode(233, r0);
+        pn0 = new ParseNode(233, r0, AbstractParseNode.PARSENODE);
 
         AbstractParseNode[] r1 = { new ParseProductionNode(123) };
-        pn1 = new ParseNode(233, r1);
+        pn1 = new ParseNode(233, r1, AbstractParseNode.PARSENODE);
     }
 
     public void testHashCode() {

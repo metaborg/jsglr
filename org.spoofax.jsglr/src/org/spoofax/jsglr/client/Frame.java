@@ -332,12 +332,17 @@ public class Frame implements Serializable {
         }            
         return stackStrings;
     }
-   
+
+	public void cacheHashCodeLabels() {
+		for (int i = 0; i < stepsCount; i++) {
+			Link ln = steps[i];
+			ln.label.setCachedHashCode();
+		}
+	}
+
     //mj debug
     public String[] getStackRepresentation(boolean avoidFree){
         List<String> stackStrings=this.getStackPaths("", avoidFree);
         return stackStrings.toArray(new String[stackStrings.size()]);
-    }
-    
-  
+    }      
 }

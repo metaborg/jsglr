@@ -404,7 +404,6 @@ public class SGLR {
 
 		while (forShifter.size() > 0) {
 			final ActionState as = forShifter.remove();
-			as.st.cacheHashCodeLabels(); //labels will not change
 			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {				
 				Frame	st1=findStack(activeStacks, as.s);
 				if(st1==null){				

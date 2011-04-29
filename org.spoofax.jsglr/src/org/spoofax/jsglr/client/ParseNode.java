@@ -23,13 +23,13 @@ public class ParseNode extends AbstractParseNode {
 
     AbstractParseNode[] kids;
     
-    private boolean isParseProductionChain;
+    private boolean isParseProductionChain; //should be set only after parsing 
 
     private boolean isSetPPC;
     
     private int nodeType;
 
-    private int cachedHashCode; 
+    private int cachedHashCode; //should be set only after parsing 
 
     public int getLabel() {
     	if(isAmbNode())
@@ -61,11 +61,11 @@ public class ParseNode extends AbstractParseNode {
  	}
 	
 	public void toAmbiguity(AbstractParseNode pn){
-		if(this.equals(pn))
+		if(this == pn)
 			return;
 		ParseNode left = new ParseNode(this.label, this.kids, this.nodeType); 
-		left.cachedHashCode = this.cachedHashCode;
-		this.cachedHashCode = NO_HASH_CODE;
+		assert(this.cachedHashCode == NO_HASH_CODE) : "Hashcode should not be cached during parsing because descendant nodes may change";
+		assert(!this.isParseProductionChain) : "PPC is not set to true during parsing because descendents may change";
 		if(pn instanceof ParseNode)
 			((ParseNode) pn).replaceDescendant(this, left); //prevent cycles
 		setFields(-1, new AbstractParseNode[] { left, pn }, AbstractParseNode.AMBIGUITY);
@@ -227,15 +227,8 @@ public class ParseNode extends AbstractParseNode {
         int result = prime * label;
         for(AbstractParseNode n : kids)
             result += (prime * n.hashCode());
-        //cachedHashCode = result; //Does not work if descendant nodes change (toAmbiguity) during parsing
+        cachedHashCode = result; //Assumption is that hashcode is not set during parsing
         return result;
-    }
-    
-    @Override    
-    public void setCachedHashCode(){
-        for(AbstractParseNode n : kids)
-            n.setCachedHashCode();
-        cachedHashCode = hashCode();
     }
 
     @Override

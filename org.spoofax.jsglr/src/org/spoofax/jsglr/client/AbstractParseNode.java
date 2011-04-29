@@ -24,11 +24,14 @@ public abstract class AbstractParseNode {
     }
 
     public boolean isParseNode(){
-    	return (getNodeType()==AbstractParseNode.PARSENODE
-    		|| getNodeType()==AbstractParseNode.REJECT
-    		|| getNodeType()== AbstractParseNode.PREFER
-    		|| getNodeType()==AbstractParseNode.AVOID
-    	);
+    	switch(getNodeType()) {
+    	case AbstractParseNode.PARSENODE:
+    		case AbstractParseNode.REJECT:
+    		case  AbstractParseNode.PREFER:
+    		case AbstractParseNode.AVOID: return true;
+    	default:
+    		return false;
+    	}
     }
 
     public boolean isParseRejectNode(){
@@ -53,10 +56,6 @@ public abstract class AbstractParseNode {
     
     @Override
 	abstract public int hashCode();
-    
-    public void setCachedHashCode(){
-    	//Hashcode is cached for ParseNodes (not for PPNs)
-    }
 
     abstract public String toStringShallow();
     

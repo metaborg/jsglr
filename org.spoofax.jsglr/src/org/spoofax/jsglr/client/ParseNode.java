@@ -238,7 +238,7 @@ public class ParseNode extends AbstractParseNode {
         return "regular*(" + label + ", {" +  kids.length + "})";
     }
 	
-	/*
+    /*
 	private void log(){
 		System.out.println(this.toStringShallow());
 		for (int i = 0; i < kids.length; i++) {

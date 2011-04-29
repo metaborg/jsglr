@@ -94,7 +94,7 @@ public class ParserHistory {
         indentHandler.updateIndentation(myParser.currentToken);
         recoverTokenCount++;
         tokenIndex++;
-        if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
+        if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF || tokenIndex == 1)
             keepNewLinePoint(myParser, myParser.tokensSeen-1, false, indentHandler);
     }
     

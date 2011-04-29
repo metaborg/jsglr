@@ -1221,7 +1221,7 @@ public class SGLR {
 		if (Tools.logging) {
 			Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
 					st1.state.stateNumber, " ", (prod.isRejectProduction() ? "{reject}" : ""));
-			if (nl.label instanceof ParseNode) {
+			if (nl.label.isParseNode()) {
 				Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ",
 						((ParseNode) nl.label).getLabel());
 			}

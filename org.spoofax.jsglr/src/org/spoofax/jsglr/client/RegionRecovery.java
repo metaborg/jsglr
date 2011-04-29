@@ -82,6 +82,7 @@ public class RegionRecovery {
         acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
         int failureIndex=getHistory().getIndexLastLine();
+        assert(failureIndex >= 0);
         errorDetectionLocation=getHistory().getIndexLastToken();
         ArrayList<StructureSkipSuggestion> prevRegions=newRegionSelector.getPreviousSkipSuggestions(failureIndex);
         //System.out.println("PREVIOUS REGION");        

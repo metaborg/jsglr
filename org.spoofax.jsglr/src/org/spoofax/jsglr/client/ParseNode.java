@@ -60,34 +60,61 @@ public class ParseNode extends AbstractParseNode {
         this.isSetPPC=false;
  	}
 	
-	public void toAmbiguity(AbstractParseNode pn){
-		if(this == pn)
-			return;
-		ParseNode left = new ParseNode(this.label, this.kids, this.nodeType); 
+	public void makeAmbiguity(AbstractParseNode pn){
+		//if (isAmbNode()) {
+		//	if (isInAmbiguityCluster(pn)) return;
+		//	AbstractParseNode[] newKids = new AbstractParseNode[kids.length + 1];
+		//	System.arraycopy(kids, 0, newKids, 0, kids.length);
+		//	newKids[newKids.length - 1] = pn;
+		//	kids = newKids;
+		//
+		//	if(pn instanceof ParseNode)
+		//		((ParseNode) pn).replaceCycle(this, null);
+		//} else {
+			if (this == pn || (isAmbNode() && isInAmbiguityCluster(pn)))
+				return;
+			ParseNode left = new ParseNode(this.label, this.kids, this.nodeType); 
+			setFields(-1, new AbstractParseNode[] { left, pn }, AbstractParseNode.AMBIGUITY);
+
+			if(pn instanceof ParseNode)
+				((ParseNode) pn).replaceCycle(this, left);
+		//}
+		
 		assert(this.cachedHashCode == NO_HASH_CODE) : "Hashcode should not be cached during parsing because descendant nodes may change";
 		assert(!this.isParseProductionChain) : "PPC is not set to true during parsing because descendents may change";
-		if(pn instanceof ParseNode)
-			((ParseNode) pn).replaceDescendant(this, left); //prevent cycles
-		setFields(-1, new AbstractParseNode[] { left, pn }, AbstractParseNode.AMBIGUITY);
+	}
+
+	private boolean isInAmbiguityCluster(AbstractParseNode pn) {
+		for (AbstractParseNode existing : kids) {
+			if (pn == existing) {
+				return true;
+			} else if (existing.isAmbNode()) {
+				if (((ParseNode) existing).isInAmbiguityCluster(pn))
+					return true;
+			}
+		}
+		return false;
 	}
 	
-	private void replaceDescendant(ParseNode before, ParseNode after){ //only reductions for current char (right chain) are inspected
-		if(kids.length > 0 ){ 
+	private void replaceCycle(ParseNode before, ParseNode after) {
+		//only reductions for current char (right chain) are inspected
+		// XXX: is that assumption correct? what about epsylon productions that consume no chars?
+		if(isAmbNode()) { // all kids relate to current char
+			for (int i = 0; i < kids.length; i++)
+				replaceDescendantAt(before, after, i);			
+		} else if(kids.length > 0 ){ 
 			replaceDescendantAt(before, after, kids.length-1);			
-		}
-		if(isAmbNode() && kids.length >1){
-			replaceDescendantAt(before, after, kids.length-2);			
 		}
 	}
 
 	private void replaceDescendantAt(ParseNode before, ParseNode after, int index) {
 		AbstractParseNode kid = kids[index];
 		if(kid==before){
-			kids[index]=after; 
+			kids[index] = after == null ? new CycleParseNode(before) : after; 
 			return; //no further inspection needed since cycles should not occur
 		}
 		else if(kid instanceof ParseNode){
-			((ParseNode)kid).replaceDescendant(before, after);
+			((ParseNode)kid).replaceCycle(before, after);
 		}
 	}
 	    
@@ -96,27 +123,83 @@ public class ParseNode extends AbstractParseNode {
     	//REMARK: works because PPC property is not set during parsing, so descendants will not change
 		// assert isParseProductionChain == calculateIsParseProdChain(kids);
     	if(!isSetPPC)
-    		deepSetIsParseProdChain();
+    		initParseProductionChain();
 		return isParseProductionChain;
 	}
     
-	private void deepSetIsParseProdChain(){
-		if(!isSetPPC){
-			for (int i = 0; i < kids.length; i++) {
-				if(kids[i].isParseNode() || kids[i].isAmbNode())
-					((ParseNode)kids[i]).deepSetIsParseProdChain();
+    /**
+     * Initialize the {@link #isParseProductionChain} method
+     * for this node and any candidate chain nodes below it,
+     * without using recursion (which would potentially
+     * lead to a stack overflow).
+     */
+    private void initParseProductionChain() {
+    	AbstractParseNode deepest = getDeepestNonChainNode();
+    	if (deepest == this) { // fast path
+    		isSetPPC = true;
+    		isParseProductionChain = false;
+    	} else {
+    		setParseProductionChainUpTo(deepest == null, deepest);
+    	}
+    }
+	
+	/**
+	 * Find the deepest parse node that is clearly not a 
+	 * parse production chain node.
+	 *
+	 * @see #isParseProductionChain
+	 */
+    private AbstractParseNode getDeepestNonChainNode() {
+		AbstractParseNode current = this;
+		for (;;) {
+			AbstractParseNode[] kids = current.getChildren();
+			switch (kids.length) {
+				case 2:
+					if (current instanceof ParseNode) {
+						if (((ParseNode) current).isSetPPC)
+							return current.isParseProductionChain() ? null : current;
+					}
+					if (!kids[0].isParseProductionNode())
+						return kids[0];
+					current = kids[1]; 
+					break;
+				case 1:
+					current = kids[0];
+					break;
+				case 0:
+					return current.isParseProductionNode() ? null : current;
+				default:
+					return current;
 			}
-			this.isParseProductionChain=false;
-			if (kids.length == 2 && !isAmbNode()) {
-	    		this.isParseProductionChain =
-	    			kids[0] instanceof ParseProductionNode /*kids[0].isParseProductionChain()*/
-	    			&& kids[1].isParseProductionChain();
-	        }
-			else if (kids.length == 1) {
-	    		this.isParseProductionChain = kids[0].isParseProductionChain();
-	        } 
-			isSetPPC=true;
 		}
+	}
+	
+	private void setParseProductionChainUpTo(boolean value, AbstractParseNode end) {
+		AbstractParseNode current = this;
+		AbstractParseNode next = this;
+		do {
+			current = next;
+			ParseNode parseCurrent = null;
+			if (current instanceof ParseNode)
+				parseCurrent = (ParseNode) current;
+			if (parseCurrent == null) {
+				assert current.isCycle() || current.isParseProductionNode();
+				return;
+			}
+			parseCurrent.isParseProductionChain = value;
+			parseCurrent.isSetPPC = true;
+			AbstractParseNode[] kids = parseCurrent.kids;
+			switch (kids.length) {
+				case 2:
+					next = kids[1];
+					break;
+				case 1:
+					next = kids[0];
+					break;
+				default:
+					return;
+			}
+		} while (current != end);
 	}
 
 	@Override 

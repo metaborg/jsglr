@@ -16,6 +16,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	private final IStrategoConstructor applIStrategoConstructor;
 	private final IStrategoConstructor ambIStrategoConstructor;
 	private final IStrategoConstructor parseTreeIStrategoConstructor;
+	private final IStrategoConstructor cycleConstructor;
 	private ParseTable table;
 	private IStrategoAppl[] labels;
 	private int labelStart;
@@ -29,6 +30,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 		applIStrategoConstructor = factory.makeConstructor("appl", 2);
 		ambIStrategoConstructor = factory.makeConstructor("amb", 1);
 		parseTreeIStrategoConstructor = factory.makeConstructor("parsetree", 2);
+		cycleConstructor = factory.makeConstructor("cycle", 1);
 	}
 
 	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
@@ -78,5 +80,12 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 
 	public ITokenizer getTokenizer() {
 		return null;
+	}
+
+	@Override
+	public Object buildCycle(int labelNumber) {
+		IStrategoTerm label =
+			labelNumber == -1 ? factory.makeString("?") : labels[labelNumber - labelStart];
+		return factory.makeAppl(cycleConstructor, label);
 	}
 }

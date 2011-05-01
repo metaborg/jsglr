@@ -18,12 +18,13 @@ public abstract class AbstractParseNode {
     public static final int PREFER = 4;
     public static final int AVOID = 5;
     public static final int REJECT = 6;
+    public static final int CYCLE = 7;
     
-    public boolean isAmbNode(){
+    public final boolean isAmbNode(){
     	return getNodeType()==AbstractParseNode.AMBIGUITY;
     }
 
-    public boolean isParseNode(){
+    public final boolean isParseNode(){
     	switch(getNodeType()) {
     	case AbstractParseNode.PARSENODE:
     		case AbstractParseNode.REJECT:
@@ -34,12 +35,16 @@ public abstract class AbstractParseNode {
     	}
     }
 
-    public boolean isParseRejectNode(){
+    public final boolean isParseRejectNode(){
     	return getNodeType()==AbstractParseNode.REJECT;
     }
 
-    public boolean isParseProductionNode(){
+    public final boolean isParseProductionNode(){
     	return getNodeType()==AbstractParseNode.PARSE_PRODUCTION_NODE;
+    }
+    
+    public final boolean isCycle() {
+    	return getNodeType() == CYCLE;
     }
 
     abstract public int getNodeType();
@@ -63,12 +68,16 @@ public abstract class AbstractParseNode {
 	abstract public String toString();
     
     /**
-     * Returns true if this is either:
+     * Returns true if this node is in a parse production chain,
+     * i.e. it is either:
      * - a {@link ParseProductionNode}.
      * - a ParseNode with a {@link ParseProductionNode} child
      *   and an {@link #isParseProductionChain()} child.
      * - a ParseNode with a single {@link #isParseProductionChain()}
      *   child.
+     *   
+     * Implementations may also return true only for the topmost
+     * node of a parse production chain.
      */
     public abstract boolean isParseProductionChain();
 }

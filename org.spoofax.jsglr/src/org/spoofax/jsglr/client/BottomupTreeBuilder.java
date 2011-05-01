@@ -37,5 +37,6 @@ public abstract class BottomupTreeBuilder implements ITreeBuilder {
 	public abstract Object buildNode(int labelNumber, List<Object> subtrees);
 	public abstract Object buildProduction(int productionNumber);
 	public abstract Object buildAmb(List<Object> alternatives);
+	public abstract Object buildCycle(int labelNumber);
 
 }

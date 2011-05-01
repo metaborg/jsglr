@@ -30,11 +30,11 @@ public class TestTokenize extends ParseTestCase {
     	Iterator<IToken> tokens = tokenizer.iterator();
     	System.out.println(tokenizer);
     	
-    	assertEquals(0, tokens.next().getLine());
+    	assertEquals(1, tokens.next().getLine());
     	IToken packageToken = getNonEmptyToken(tokens);
     	assertEquals("package", packageToken.toString());
     	assertEquals("package", packageToken.toString());
-    	assertEquals(0, packageToken.getLine());
+    	assertEquals(1, packageToken.getLine());
     	assertEquals(" ", getNonEmptyToken(tokens).toString());
     	assertEquals("java", getNonEmptyToken(tokens).toString());
     	assertEquals(".", getNonEmptyToken(tokens).toString());
@@ -47,8 +47,8 @@ public class TestTokenize extends ParseTestCase {
     	System.out.println(classToken2.getLine());
     	assertEquals("class", classToken.toString());
     	assertEquals(IToken.TK_KEYWORD, classToken.getKind());
-    	assertEquals(2, classToken.getLine());
-    	assertEquals(7, tokenizer.getTokenAt(tokenizer.getTokenCount() - 1).getLine());
+    	assertEquals(3, classToken.getLine());
+    	assertEquals(8, tokenizer.getTokenAt(tokenizer.getTokenCount() - 1).getLine());
     }
 
 	private static IToken getNonEmptyToken(Iterator<IToken> tokens) {

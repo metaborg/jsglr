@@ -66,7 +66,7 @@ public class Link {
         if(Tools.tracing) {
             SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
         }
-        ((ParseNode)label).toAmbiguity(t);
+        ((ParseNode)label).makeAmbiguity(t);
         //label = new Amb(label, t);
     }
     

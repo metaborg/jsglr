@@ -13,6 +13,7 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.AbstractParseNode;
+import org.spoofax.jsglr.client.CycleParseNode;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
 import org.spoofax.jsglr.client.ParseTable;
@@ -313,10 +314,30 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			leftToken = factory.getLeftToken(children.get(0));
 			rightToken = factory.getRightToken(children.get(children.size() - 1));
 		} else {
-			leftToken = rightToken = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true); 
+			// No kids? Non-cf amb
+			return null;
+			// leftToken = rightToken = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true); 
 		}
 		
 		return factory.createAmb(children, leftToken, rightToken);
+	}
+
+	@Override
+	public Object buildTreeCycle(CycleParseNode node) {
+		if (inLexicalContext)
+			return null;
+		IToken token = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true);
+		if (node.getTargetLabel() == -1) {
+			return factory.createNonTerminal("cycle", "cycle", token, token, new ArrayList<Object>());
+		} else {
+			LabelInfo label = labels[node.getTargetLabel() - labelStart];
+			String cons = label.getSort();
+			if (cons == null) cons = "cycle";
+			Object child = factory.createNonTerminal(label.getSort(), cons, token, token, new ArrayList<Object>());
+			List<Object> children = new ArrayList<Object>();
+			children.add(child);
+			return factory.createNonTerminal("cycle", "cycle", token, token, children);
+		}
 	}
 
 	private Object tryBuildAutoConcatListNode(Object node) {

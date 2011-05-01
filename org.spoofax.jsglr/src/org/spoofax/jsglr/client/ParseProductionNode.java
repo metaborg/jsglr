@@ -7,13 +7,15 @@
  */
 package org.spoofax.jsglr.client;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 
 
 public class ParseProductionNode extends AbstractParseNode {
 
-    public final int prod;
+	private static final AbstractParseNode[] NO_CHILDREN =
+		new AbstractParseNode[0];
+
+	public final int prod;
 
     public ParseProductionNode(int prod) {
         this.prod = prod;
@@ -65,6 +67,6 @@ public class ParseProductionNode extends AbstractParseNode {
 
 	@Override
 	public AbstractParseNode[] getChildren() {
-		throw new NotImplementedException();
+		return NO_CHILDREN;
 	}
 }

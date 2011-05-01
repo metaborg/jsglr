@@ -8,6 +8,7 @@
 package org.spoofax.jsglr.client;
 
 import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.jsglr.client.AbstractParseNode.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -394,7 +395,8 @@ public class Disambiguator {
 		}
 
 		// parseTable.setTreeBuilder(new Asfix2TreeBuilder());
-		if (t.isAmbNode()) {
+		switch (t.getNodeType()) {
+		case AMBIGUITY:
 			if (!inAmbiguityCluster) {
 				// (some cycle stuff should be done here)
 				final AbstractParseNode[] ambs = t.getChildren();
@@ -408,7 +410,8 @@ public class Disambiguator {
 				return filterAmbiguities(ambs);
 
 			}
-		} else if(t.isParseNode()) {
+			break;
+		case PARSENODE: case AVOID: case PREFER: case REJECT:
 			final ParseNode node = (ParseNode) t;
 			final AbstractParseNode[] args = node.getChildren();
 			final AbstractParseNode[] newArgs =
@@ -423,11 +426,14 @@ public class Disambiguator {
 
 			if (newArgs != null && args != newArgs)
 				t = new ParseNode(node.getLabel(), newArgs, AbstractParseNode.PARSENODE);
-		} else if(t instanceof ParseProductionNode) {
+			break;
+		case PARSE_PRODUCTION_NODE:
 			// leaf node -- do thing (cannot be any ambiguities here)
 			return t;
-		} else {
-			throw new FatalException();
+		case CYCLE:
+			return t;
+		default:
+			throw new IllegalStateException("Unknown node type: " + t);
 		}
 
 		if (filterAssociativity) {

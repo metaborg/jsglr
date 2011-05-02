@@ -15,6 +15,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.Asfix2TreeBuilder;
+import org.spoofax.jsglr.client.FilterException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -85,6 +86,10 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		} catch (SGLRException e) {
 			lastException = e;
 			IStrategoTerm errorTerm = e.toTerm(lastPath);
+			if (e instanceof FilterException) {
+				// HACK: print stack trace for this internal error
+				e.printStackTrace();
+			}
 			env.setCurrent(errorTerm);
 			
 			// FIXME: Stratego doesn't seem to print the erroneous line in Java

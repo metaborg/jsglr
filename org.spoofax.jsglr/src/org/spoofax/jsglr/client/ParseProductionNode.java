@@ -22,6 +22,11 @@ public class ParseProductionNode extends AbstractParseNode {
     }
     
     @Override
+    public void reject() {
+    	throw new UnsupportedOperationException();
+    }
+    
+    @Override
 	public boolean isParseProductionChain() {
     	return true;
     }

@@ -650,8 +650,7 @@ public class SGLR {
 				logAmbiguity(st0, prod, st1, nl);
 				if (prod.isRejectProduction()) {
 					nl.reject();
-				}
-				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
+				} else if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
 					createAmbNode(t, nl);
 				} else if (numberOfRecoveries < nl.recoverCount) {
 					nl.label = t;

@@ -56,6 +56,12 @@ public class Disambiguator {
 	private boolean logStatistics;
 
 	private boolean ambiguityIsError;
+	
+	/**
+	 * A parse node that was rejected in the current subtree,
+	 * or null if no parse node was rejected.
+	 */
+	private AbstractParseNode rejectedBranch;
 
 	// Current parser state
 
@@ -231,8 +237,13 @@ public class Disambiguator {
 	                ambiguityManager.resetClustersVisitedCount();
 	                t = filterTree(t, false);
 	            }
+
+				if (filterReject && rejectedBranch != null && !parser.useIntegratedRecovery)
+					throw new FilterException(parser, "Unexpected reject annotation in " + yieldTree(rejectedBranch));
 	        } catch (RuntimeException e) {
 	            throw new FilterException(parser, "Runtime exception when applying filters", e);
+	        } finally {
+	        	rejectedBranch = null;
 	        }
 
 	        return yieldTreeTop(t);
@@ -388,6 +399,9 @@ public class Disambiguator {
 		}
 	}
 
+	/**
+	 * @param inAmbiguityCluster  We're inside an amb and can return null to reject this branch.
+	 */
 	private AbstractParseNode filterTree(AbstractParseNode t, boolean inAmbiguityCluster) throws FilterException {
 		// SG_FilterTreeRecursive
 		if (Tools.debugging) {
@@ -418,9 +432,11 @@ public class Disambiguator {
 				t.isParseProductionChain() ? null : filterTree(args, false);
 			// TODO: assert that parse production chains do not have reject nodes?
 
-			if (filterReject && parseTable.hasRejects()) {
-				if (hasRejectProd(t) && !parser.useIntegratedRecovery) {
-					throw new FilterException(parser, "Unexpected reject annotation in " + yieldTree(t));
+			if (filterReject && parseTable.hasRejects() && hasRejectProd(t)) {
+				if (inAmbiguityCluster) {
+					return null;
+				} else {
+					rejectedBranch = t;
 				}
 			}
 
@@ -807,9 +823,10 @@ public class Disambiguator {
 
 		for (final AbstractParseNode amb : ambs) {
 			final AbstractParseNode newAmb = filterTree(amb, true);
-			if (newAmb != null) {
+			if (newAmb != null && rejectedBranch == null) {
 				newAmbiguities.add(newAmb);
 			}
+			rejectedBranch = null;
 		}
 
 		if (newAmbiguities.size() > 1) {
@@ -823,7 +840,7 @@ public class Disambiguator {
 		}
 
 		if (newAmbiguities.isEmpty()) {
-			throw new FilterException(parser);
+			rejectedBranch = ParseNode.createAmbNode(ambs);
 		}
 
 		if (newAmbiguities.size() == 1) {

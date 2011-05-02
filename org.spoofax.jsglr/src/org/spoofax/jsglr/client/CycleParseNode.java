@@ -45,6 +45,11 @@ public class CycleParseNode extends AbstractParseNode {
 	public Object toTreeTopdown(TopdownTreeBuilder builder) {
 		return builder.buildTreeCycle(this);
 	}
+	
+	@Override
+	public void reject() {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public String toStringShallow() {

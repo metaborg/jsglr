@@ -39,6 +39,7 @@ public class Link {
             SGLR.TRACE("SG_MarkLinkRejected() - " + parent.state.stateNumber + ", " + length);
         }
         rejected = true;
+        label.reject();
     }
 
     public boolean isRejected() {
@@ -67,7 +68,7 @@ public class Link {
             SGLR.TRACE("SG_CreateAmbCluster() - " + tokensSeen);
         }
         ((ParseNode)label).makeAmbiguity(t);
-        //label = new Amb(label, t);
+        //label = ParseNode.createAmbNode(label, t);
     }
     
     @Override

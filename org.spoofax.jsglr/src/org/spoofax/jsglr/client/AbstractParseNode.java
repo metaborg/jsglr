@@ -26,9 +26,9 @@ public abstract class AbstractParseNode {
 
     public final boolean isParseNode(){
     	switch(getNodeType()) {
-    	case AbstractParseNode.PARSENODE:
+    		case AbstractParseNode.PARSENODE:
     		case AbstractParseNode.REJECT:
-    		case  AbstractParseNode.PREFER:
+    		case AbstractParseNode.PREFER:
     		case AbstractParseNode.AVOID: return true;
     	default:
     		return false;
@@ -46,6 +46,8 @@ public abstract class AbstractParseNode {
     public final boolean isCycle() {
     	return getNodeType() == CYCLE;
     }
+    
+    public abstract void reject();
 
     abstract public int getNodeType();
     abstract public AbstractParseNode[] getChildren();

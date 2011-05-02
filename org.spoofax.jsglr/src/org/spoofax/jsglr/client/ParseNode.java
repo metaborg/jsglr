@@ -18,6 +18,8 @@ import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 import org.spoofax.terms.TermFactory;
 
 public class ParseNode extends AbstractParseNode {
+	
+	private static final int AMB_LABEL = -1;
 
     private int label;
 
@@ -32,8 +34,8 @@ public class ParseNode extends AbstractParseNode {
     private int cachedHashCode; //should be set only after parsing 
 
     public int getLabel() {
-    	if(isAmbNode())
-    		throw new NotImplementedException();
+    	if(isAmbNode() || label == AMB_LABEL)
+    		throw new UnsupportedOperationException();
     	return label;
     }
 
@@ -42,23 +44,29 @@ public class ParseNode extends AbstractParseNode {
     	if(type == AbstractParseNode.AMBIGUITY){
         	this.isParseProductionChain=false;
         	this.isSetPPC=true;
-        	this.label = -1;
+        	assert this.label == AMB_LABEL;
     	}
     }
     
-    public static ParseNode createAmbNode(AbstractParseNode[] kids){
-    	ParseNode amb = new ParseNode(-1, kids, AbstractParseNode.AMBIGUITY);
+    public static ParseNode createAmbNode(AbstractParseNode... kids){
+    	ParseNode amb = new ParseNode(AMB_LABEL, kids, AbstractParseNode.AMBIGUITY);
     	return amb;
     }
 
 	private void setFields(int label, AbstractParseNode[] kids, int type) {
-		assert (type!=AbstractParseNode.AMBIGUITY || (label==-1));
+		assert (type!=AbstractParseNode.AMBIGUITY || (label==AMB_LABEL));
 		this.nodeType = type;
         this.label = label;
         this.kids = kids;
         this.isParseProductionChain = false;
         this.isSetPPC=false;
  	}
+	
+	@Override
+	public void reject() {
+		// FIXME: this might not work if the current node is an AMB
+		nodeType = REJECT;
+	}
 	
 	public void makeAmbiguity(AbstractParseNode pn){
 		//if (isAmbNode()) {
@@ -74,7 +82,7 @@ public class ParseNode extends AbstractParseNode {
 			if (this == pn || (isAmbNode() && isInAmbiguityCluster(pn)))
 				return;
 			ParseNode left = new ParseNode(this.label, this.kids, this.nodeType); 
-			setFields(-1, new AbstractParseNode[] { left, pn }, AbstractParseNode.AMBIGUITY);
+			setFields(AMB_LABEL, new AbstractParseNode[] { left, pn }, AbstractParseNode.AMBIGUITY);
 
 			if(pn instanceof ParseNode)
 				((ParseNode) pn).replaceCycle(this, left);

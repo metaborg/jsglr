@@ -971,7 +971,7 @@ public class Disambiguator {
 		// - ok
 		if (t.isAmbNode()) {
 			// Trick from forest.c
-			return countAllInjections(t.getChildren()[0]);
+			return t.getChildren().length == 0 ? 0 : countAllInjections(t.getChildren()[0]);
 		} else if (t.isParseNode()) {
 			final int c = getProductionLabel(t).isInjection() ? 1 : 0;
 			return c + countAllInjections(((ParseNode) t).kids);

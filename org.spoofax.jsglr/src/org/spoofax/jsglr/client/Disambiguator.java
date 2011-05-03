@@ -840,7 +840,9 @@ public class Disambiguator {
 		}
 
 		if (newAmbiguities.isEmpty()) {
-			rejectedBranch = ParseNode.createAmbNode(ambs);
+			// All alternatives were rejected;
+			// the outer context should be rejected as well
+			return rejectedBranch = ParseNode.createAmbNode(ambs);
 		}
 
 		if (newAmbiguities.size() == 1) {

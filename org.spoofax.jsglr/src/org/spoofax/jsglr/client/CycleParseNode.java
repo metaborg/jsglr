@@ -36,7 +36,7 @@ public class CycleParseNode extends AbstractParseNode {
 		while (target.isAmbNode()) {
 			target = target.getChildren()[0];
 		}
-		if (target instanceof ParseNode)
+		if (target.isParseNode())
 			return ((ParseNode) target).getLabel();
 		return -1;
 	}

@@ -24,9 +24,9 @@ public abstract class TopdownTreeBuilder implements ITreeBuilder {
 	 *   {@link ParseNode#buildTreeBottomup} instead.
 	 */
 	public Object buildTree(AbstractParseNode node) {
-		if (node instanceof ParseNode) {
+		if (node.isParseNode()) {
 			return buildTreeNode((ParseNode) node);
-		} else if (node instanceof ParseProductionNode) {
+		} else if (node.isParseProductionNode()) {
 			return buildTreeProduction((ParseProductionNode) node);
 		} else {
 			assert node.isAmbNode();

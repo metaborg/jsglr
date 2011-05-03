@@ -267,7 +267,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	 */
 	private Object chainToTreeTopdown(AbstractParseNode node) {
 		assert node.isParseProductionChain();
-		while (node instanceof ParseNode) {
+		while (node.isParseNode()) {
 			AbstractParseNode[] kids = ((ParseNode) node).getChildren();
 			if (kids.length == 2) {
 				buildTreeProduction((ParseProductionNode) kids[0]);

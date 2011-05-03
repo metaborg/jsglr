@@ -13,6 +13,12 @@ public class OriginLibrary extends AbstractStrategoOperatorRegistry {
         add(new SSL_EXT_enable_origins());
         add(new SSL_EXT_clone_and_set_parents());
         add(new SSL_EXT_get_parent());
+		add(new OriginLocationPrimitive());
+		add(new OriginOffsetPrimitive());
+		add(new OriginStripPrimitive());
+		add(new OriginTermPrimitive());
+		add(new OriginTextPrimitive());
+		add(new OriginEqualPrimitive());
     }
 
     public String getOperatorRegistryName() {

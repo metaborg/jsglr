@@ -28,7 +28,15 @@ public class TestStrategoStratego extends ParseTestCase {
     public void testSS1() throws FileNotFoundException, IOException {
         doParseTest("ss1");
     }
-    
+ 
+    public void testSS2() throws FileNotFoundException, IOException {
+        doParseTest("ss2");
+    }
+
+    public void testSS3() throws FileNotFoundException, IOException {
+        doParseTest("ss3");
+    }
+
     public void testSS0_Implode() throws FileNotFoundException, IOException {
         sglr.setTreeBuilder(new TreeBuilder());
         doParseTest("ss0");
@@ -37,6 +45,16 @@ public class TestStrategoStratego extends ParseTestCase {
     public void testSS1_Implode() throws FileNotFoundException, IOException {
         sglr.setTreeBuilder(new TreeBuilder());
         doParseTest("ss1");
+    }
+
+    public void testSS2_Implode() throws FileNotFoundException, IOException {
+        sglr.setTreeBuilder(new TreeBuilder());
+        doParseTest("ss2");
+    }
+
+    public void testSS3_Implode() throws FileNotFoundException, IOException {
+        sglr.setTreeBuilder(new TreeBuilder());
+        doParseTest("ss3");
     }
 
 }

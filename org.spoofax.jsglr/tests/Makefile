@@ -1,5 +1,6 @@
 JSQL_FILES = $(wildcard data/jsql*.txt)
 AMB_FILES = $(wildcard data/amb*.txt)
+SPOO_FILES = $(wildcard data/*.config)
 B_FILES = $(wildcard data/b*.txt)
 STR_FILES = $(wildcard data/*.str)
 STRSTR_FILES = $(wildcard data/*.strstr)
@@ -8,6 +9,7 @@ WEBDSL_FILES = $(wildcard data/*.app)
 TRM_FILES= \
 	$(patsubst %txt,%trm, $(JSQL_FILES)) \
 	$(patsubst %txt,%trm, $(AMB_FILES)) \
+	$(patsubst %config,%trm, $(SPOO_FILES)) \
 	$(patsubst %txt,%trm, $(B_FILES)) \
 	$(patsubst %str,%trm, $(STR_FILES)) \
 	$(patsubst %strstr,%trm, $(STRSTR_FILES)) \
@@ -100,6 +102,9 @@ data/jsql%.trm : data/jsql%.txt
 
 data/amb%.trm : data/amb%.txt
 	$(SGLR) $(SGLROPTS) -p grammars/SmallAmbLang.tbl -i $< -o $@
+
+data/%.trm : data/%.config
+	$(SGLR) $(SGLROPTS) -p grammars/SpoofaxConfiguration.tbl -i $< -o $@
 
 data/b%.trm : data/b%.txt
 	$(SGLR) $(SGLROPTS) -p grammars/Booleans.tbl -i $< -o $@

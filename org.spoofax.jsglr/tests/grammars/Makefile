@@ -1,9 +1,11 @@
 GRAMMARS =							\
 	Booleans.tbl						\
 	Stratego.tbl						\
+	StrategoStratego.tbl						\
 	Java-15.tbl						\
 	WebDSL.tbl						\
 	SmallAmbLang.tbl                \
+	SpoofaxConfiguration.tbl                \
 	$(patsubst basic/%.sdf,%.tbl,$(wildcard basic/*.sdf))
 
 #	Java-SQL.tbl						

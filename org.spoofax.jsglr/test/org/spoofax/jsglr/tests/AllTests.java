@@ -28,6 +28,7 @@ public class AllTests {
         suite.addTestSuite(TestG1.class);
         suite.addTestSuite(TestG2.class);
         suite.addTestSuite(TestStratego.class);
+        suite.addTestSuite(TestStrategoStratego.class);
         suite.addTestSuite(TestJava.class);
         suite.addTestSuite(TestWebDSL.class);
         suite.addTestSuite(TestBooleans.class);

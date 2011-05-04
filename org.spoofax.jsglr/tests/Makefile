@@ -2,6 +2,7 @@ JSQL_FILES = $(wildcard data/jsql*.txt)
 AMB_FILES = $(wildcard data/amb*.txt)
 B_FILES = $(wildcard data/b*.txt)
 STR_FILES = $(wildcard data/*.str)
+STRSTR_FILES = $(wildcard data/*.strstr)
 JAVA_FILES = $(wildcard data/*.java)
 WEBDSL_FILES = $(wildcard data/*.app)
 TRM_FILES= \
@@ -9,6 +10,7 @@ TRM_FILES= \
 	$(patsubst %txt,%trm, $(AMB_FILES)) \
 	$(patsubst %txt,%trm, $(B_FILES)) \
 	$(patsubst %str,%trm, $(STR_FILES)) \
+	$(patsubst %strstr,%trm, $(STRSTR_FILES)) \
 	$(patsubst %java,%trm, $(JAVA_FILES)) \
 	$(patsubst %app,%trm, $(WEBDSL_FILES)) \
 	data/g-ambi-1.trm \
@@ -108,6 +110,9 @@ data/%.trm : data/%.java
 data/%.trm : data/%.str
 	$(SGLR) $(SGLROPTS) -p grammars/Stratego.tbl -i $< -o $@
 
+data/%.trm : data/%.strstr
+	$(SGLR) $(SGLROPTS) -p grammars/StrategoStratego.tbl -i $< -o $@
+
 data/%.trm : data/%.app
 	$(SGLR) $(SGLROPTS) -p grammars/WebDSL.tbl -i $< -o $@
 
@@ -126,6 +131,10 @@ trace-diff-%.txt : sglr-trace-%.txt jsglr-trace-%.txt
 
 grammars/Stratego.tbl:
 	cp $(HOME)/.nix-profile/share/sdf/stratego-front/Stratego.tbl grammars/Stratego.tbl
+
+grammars/StrategoStratego.tbl:
+	cp $(HOME)/.nix-profile/share/sdf/stratego-front/StrategoStratego.tbl grammars/StrategoStratego.tbl
+
 clean:
 	rm -f sglr-trace-* jsglr-trace-* trace-diff-*
 

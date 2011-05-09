@@ -197,6 +197,9 @@ public class ProductionAttributeReader {
 	// FIXME: support meta-var constructors
 	public String getMetaVarConstructor(IStrategoAppl rhs) {
 		if (rhs.getSubtermCount() == 1 && varSymFun == rhs.getConstructor()) {
+			if(applAt(rhs, 0).getConstructor() == cfFun) { //FIXME: adhoc fix, correct/complete?
+				rhs=applAt(rhs, 0);
+			}
 			return isIterFun(applAt(rhs, 0).getConstructor())
 					? "meta-listvar"
 					: "meta-var";

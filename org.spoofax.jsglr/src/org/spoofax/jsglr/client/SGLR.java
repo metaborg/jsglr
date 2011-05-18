@@ -785,7 +785,13 @@ public class SGLR {
 	}
 
 	private int calcRecoverCount(Production prod, Path path) {
-		return path.getRecoverCount() + (prod.isRecoverProduction() ? 1 : 0);
+		int result = path.getRecoverCount();
+		if (prod.isRecoverProduction()){
+			result += 1;
+			if (path.getLength() > 0)
+				result += 1; //Hack: insertion rules (length 0) should be preferred above water rules.
+		}
+		return result;
 	}
 
 	private boolean inReduceStacks(Queue<Frame> q, Frame frame) {

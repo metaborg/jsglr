@@ -785,7 +785,7 @@ public class Disambiguator {
 				}
 				rest[rest.length - 1] = last;
 				ambiguityManager.increaseAmbiguityCount();
-				return ParseNode.createAmbNode(rest);
+				return new ParseNode(t.getLabel(), rest, AbstractParseNode.PARSENODE);
 			} else {
 				throw new FilterException(parser);
 			}

@@ -14,13 +14,10 @@ all : $(GRAMMARS)
 
 %.tbl : gen-%.def
 	@echo "Building table $@"
-	echo sdf2table -i $< -o $@ -t -m basic/$(basename $<)
 	sdf2table -i $< -o $@ -t -m basic/$(echo $(basename $<) | sed "s/gen-//")
 
-%.tbl : %.def
-	@echo "Building table $@"
-	echo sdf2table -i $< -o $@ -t -m basic/$(basename $<)
-	sdf2table -i $< -o $@ -t -m basic/$(basename $<)
+StrategoStratego.tbl : StrategoStratego.def
+	sdf2table -i $< -o $@ -m StrategoStratego
 
 %.def : basic/%.sdf Makefile
 	@echo "Packing $< to $@"

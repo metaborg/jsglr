@@ -24,6 +24,9 @@ all : $(GRAMMARS)
 StrategoStratego.tbl : StrategoStratego.def
 	sdf2table -i $< -o $@ -m StrategoStratego
 
+SpoofaxConfiguration.tbl : SpoofaxConfiguration.def
+	sdf2table -i $< -o $@ -m SpoofaxConfiguration
+
 %.def : basic/%.sdf Makefile
 	@echo "Packing $< to $@"
 	pack-sdf -I . -i $< -o $@

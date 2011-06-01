@@ -32,7 +32,7 @@ all : $(GRAMMARS)
 #	   echo;		\
 #	 done) >$@
 
-Stratego.def: Stratego.def.in
+%.def: %.def.in
 	ln -sf $< $@
 
 #Java-SQL.def: Java-SQL.def.in

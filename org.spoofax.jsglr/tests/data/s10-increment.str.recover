@@ -1,0 +1,224 @@
+module analysis
+
+imports
+  include/NamingExperiment
+  libstratego-lib
+  types
+  lib/editor-common.generated
+
+signature constructors
+
+  Scope : String * List(Namespace) * List(Summary) -> Summary
+  Def : String * Namespace * Term -> Summary
+  Def : String * Namespace -> Summary
+  Use : String * Namespace -> Summary
+  Use : Namespace -> Annotation
+    
+  Entity : Namespace
+  Module : Namespace
+  Property : Namespace
+  Function : Namespace
+  Var : Namespace
+
+rules
+  
+  scope-override:
+    PropAccess(e, p) -> p*
+    with
+      ENTITY(e-type) := <type-of> e;
+      p*             := <index-lookup-all(|Entity())> e-type 
+
+  type-of = fail
+
+rules // "hardcoded"
+    
+  analyze:
+    ast -> (ast', summary)
+    with
+      base-uri :=
+      ast'    := <analyze(|[], "<root>")>;
+      summary := <to-summary> ast';
+      <index-summary> summary
+  
+  analyze(|path, outer-scope-name):
+    ast -> (ast', summary')
+    with
+      if summary-part := <get-definition> ast then
+        Def(outer-scope-name', _) := summary-part
+      else
+        outer-scope-name' := outer-scope-name
+      end;
+      if scope-types := <get-scope-types> ast then
+        (ast', summary) := <analyze-recurse-scoped(|path, outer-scope-name', scope-types)> ast
+      else
+        (ast', summary) := <analyze-recurse(|path, outer-scope-name')> ast
+      end;
+      if !summary-part then
+        summary-part-annotated := <get-definition> ast';
+        if type := <local-type-of> ast' then
+          Def(x, ns)              := summary-part-annotated;
+          summary-part-annotated' := Def(x, ns, type)
+        else
+          summary-part-annotated' := summary-part-annotated
+        end;
+        summary' := [summary-part-annotated' | summary]
+      else
+        summary' := summary
+      end
+  
+  analyze-recurse-scoped(|path, outer-scope-name, scope-types):
+    ast -> (ast', [Scope(outer-scope-name, scope-types, summary)])
+    with
+      path'               := [outer-scope-name | path];
+      (ast', summary) := <analyze-recurse(|path', "<anon>")> ast
+  
+  analyze-recurse(|path, outer-scope-name):
+    ast -> (ast'', summary)
+    where
+      analyzed      := <all(analyze(|path, outer-scope-name))> ast;
+      ast'          := <all(\(a, _) -> a\)> analyzed;
+      summary-parts := <get-appl-arguments(\(_, n) -> n\) <+ map(\(_, n) -> n\) <+ ![]> analyzed;
+      ast''         := <try(annotate-names(|path))> ast';
+      summary       := <concat> summary-parts
+
+  make-def(|name, scope) =
+    !Def(name, scope, <local-type-of>) <+ !Def(name, scope)
+
+rules // "hardcoded"
+    
+  index-summary =
+    index-summary(|[])
+
+  index-summary(|path) =
+    ?Def(x, ns); rules(GetName :+ (ns, path) -> x)
+  <+
+    ?Def(x, ns, t); rules(GetName :+ (ns, path) -> x  GetType: (ns, path, x) -> t)
+  <+
+    // TODO: don't ignore ns
+    ?Scope(x, ns, def*); <list-loop(index-summary(|[x | path]))> def*
+  <+
+    list-loop(index-summary(|path))
+
+  index-lookup =
+    ?var{a*};
+    index-lookup;
+    getfirst(SRTS-EXT-eq-ignore-annos(|var))
+
+  index-lookup-all =
+    if ?var{^[Use(namespace) | path]} then
+      index-lookup-all(|namespace, path)
+    else
+      ?var{^path}
+    end
+
+  index-lookup-all(|namespace) =
+    if ?var{^[Use(ns) | path]} then
+      index-lookup-all(|namespace, path)
+    else
+      ?var{^path};
+      index-lookup-all(|namespace, path)
+    end
+  
+  index-lookup-all(|namespace, path) =
+    do-manual-lookup-all(|namespace, path)
+  <+
+    <bagof-GetName> (namespace, path)
+  
+  do-manual-lookup-all(|namespace, path) =
+    try(origin-term)
+  
+  external SRTS-EXT-eq-ignore-annos(|t)
+
+rules // "generated"
+    
+  get-definition:
+    Module(x, _) -> Def(x, Module())
+  
+  get-definition:
+    Entity(x, _) -> Def(x, Entity())
+  
+  get-definition:
+    Property(x, _) -> Def(x, Property())
+  
+  get-definition:
+    Function(x, _, _) -> Def(x, Function())
+  
+  get-definition:
+    VarDecl(x, _) -> Def(x, Var())
+  
+  get-definition:
+    VarDeclInit(x, _, _) -> Def(x, Var())
+  
+  get-definition:
+    Param(x, _) -> Def(x, Var())
+
+rules // "generated"
+      
+  get-scope-types:
+    Module(_, _) -> [Entity(), Module()]
+  
+  get-scope-types:
+    Entity(_, _) -> [Property()]
+  
+  get-scope-types:
+    Function(_, _, _) -> [Var()]
+  
+  get-scope-types:
+    Block(_) -> [Var()]
+
+rules // "generated"
+    
+  annotate-names(|path):
+    Module(t1, t2) -> Module(t1{^path}, t2)
+    
+  annotate-names(|path):
+    Entity(t1, t2) -> Entity(t1{^path}, t2)
+    
+  annotate-names(|path):
+    Property(t1, t2) -> Property(t1{^path}, t2{^[Use(Entity()) | path]})
+    
+  annotate-names(|path):
+    Function(t1, t2, t3) -> Function(t1{^path}, t2, t3)
+    
+  annotate-names(|path):
+    Param(t1, t2) -> Param(t1{^path}, t2{^[Use(Entity()) | path]})
+    
+  annotate-names(|path):
+    VarDecl(t1, t2) -> VarDecl(t1{^path}, t2{^[Use(Entity()) | path]})
+    
+  annotate-names(|path):
+    VarDeclInit(t1, t2, t3) -> VarDeclInit(t1{^path}, t2{^[Use(Entity()) | path]}, t3)
+    
+  annotate-names(|path):
+    Assign(t1, t2) -> Assign(t1{^[Use(Var()) | path]}, t2)
+    
+  annotate-names(|path):
+    Var(t1) -> Var(t1{^[Use(Var()) | path]})
+    
+  annotate-names(|path):
+    PropAccess(t1, t2) -> PropAccess(t1, t2{^[Use(Entity()) | path]})
+
+  /*
+  get-uses:
+    Import(x) -> [(Module(), x)]
+  
+  get-uses:
+    Property(_, x) -> [(Entity(), x)]
+  
+  get-uses:
+    Param(_, x) -> [(Entity(), x)]
+  
+  get-uses:
+    VarDecl(_, x) -> [(Var(), x)]
+  
+  get-uses:
+    VarDeclInit(_, x, _) -> [(Var(), x)]
+  
+  get-uses:
+    Assign(x, _) -> [(Var(), x)]
+  
+  get-uses:
+    Var(x) -> [(Var(), x)]
+  
+  get-uses:
+    PropAccess(_, x) -> [(Var(), x)]

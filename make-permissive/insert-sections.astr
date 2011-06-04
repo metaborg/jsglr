@@ -104,7 +104,7 @@ attributes // Layout closing literals (e.g., comments)
     where
       (pattern, closinglit) := <split-last> pattern-and-lit
     with
-      openingsort := <newname> "INSERTSTART"
+      openingsort := "INSERTSTART"
 
   def Test is-comment-prod:
     prod([lit(_) | pattern-and-lit], target, _) -> id
@@ -149,7 +149,7 @@ attributes // Matched (e.g. string) closing literals
       openingquote.eq(|closingquote);
       openingquote.is-quote-lit
     with
-      openingquotesort := <newname> "INSERTOPENQUOTE"
+      openingquotesort := "INSERTOPENQUOTE"
       
   def id.pattern-allows-newlines =
     fail // TODO: Check if string pattern does not allow newlines?

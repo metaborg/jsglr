@@ -280,6 +280,7 @@ public class Tokenizer extends AbstractTokenizer {
 
 	private void bindAstNode(ISimpleTerm node, int tokenIndex, int endTokenIndex) {
 		assert getTokenizer(node) == this;
+		int tokenCount = getTokenCount(); 
 		
 		// Set ast node for spaces between children and recursively for children
 		Iterator<ISimpleTerm> iterator = SimpleTermVisitor.tryGetListIterator(node); 
@@ -289,7 +290,7 @@ public class Tokenizer extends AbstractTokenizer {
 			int childStart = getLeftToken(child).getIndex();
 			int childEnd = getRightToken(child).getIndex();
 			
-			while (tokenIndex < childStart) {
+			while (tokenIndex < childStart && tokenIndex < tokenCount) {
 				Token token = getTokenAt(tokenIndex++);
 				token.setAstNode(node);
 			}
@@ -299,7 +300,7 @@ public class Tokenizer extends AbstractTokenizer {
 		}
 		
 		// Set ast node for tokens after children
-		while (tokenIndex <= endTokenIndex) {
+		while (tokenIndex <= endTokenIndex && tokenIndex < tokenCount) {
 			Token token = getTokenAt(tokenIndex++);
 			token.setAstNode(node);
 		}

@@ -332,7 +332,7 @@ public class NewStructureSkipper {
         boolean isSecondLine=true;
         ArrayList<Integer> endLocations=new ArrayList<Integer>();
         int indexNextLine=skipLine(indexStartLine);        
-        while(myParser.currentToken!=SGLR.EOF && 0<=indexNextLine && indexNextLine<=getHistory().getIndexLastLine()){            
+        while(myParser.getCurrentToken()!=SGLR.EOF && 0<=indexNextLine && indexNextLine<=getHistory().getIndexLastLine()){            
             IndentInfo nextLine = getHistory().getLine(indexNextLine);
             // FIXME: get nextLine may be null 
             int indentSkipPosition=nextLine.getIndentValue();
@@ -452,7 +452,7 @@ public class NewStructureSkipper {
     }
 
     private String readLine(int index) {
-        while(getHistory().getIndexLastLine()<=index && myParser.currentToken!=SGLR.EOF)
+        while(getHistory().getIndexLastLine()<=index && myParser.getCurrentToken()!=SGLR.EOF)
             getHistory().readRecoverToken(myParser, false);
         if(index<=getHistory().getIndexLastLine()){
             IndentInfo line=getHistory().getLine(index);
@@ -482,9 +482,9 @@ public class NewStructureSkipper {
         getHistory().setTokenIndex(Math.max(0, line.getTokensSeen()-1));        
         skipIndentHandler.setInLeftMargin(false);
         getHistory().readRecoverToken(myParser, false);
-        while(myParser.currentToken!=SGLR.EOF){
+        while(myParser.getCurrentToken()!=SGLR.EOF){
             getHistory().readRecoverToken(myParser, false);            
-            skipIndentHandler.updateIndentation(myParser.currentToken);
+            skipIndentHandler.updateIndentation(myParser.getCurrentToken());
             if(skipIndentHandler.lineMarginEnded()){
                 return indexLine+=1;
             }            

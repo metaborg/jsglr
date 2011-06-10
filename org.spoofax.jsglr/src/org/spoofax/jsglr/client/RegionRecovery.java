@@ -78,7 +78,7 @@ public class RegionRecovery {
      * Selects erroneous region based on layout 
      */
     public boolean selectErroneousFragment() { 
-        boolean eofReached=myParser.currentToken==SGLR.EOF;
+        boolean eofReached=myParser.getCurrentToken()==SGLR.EOF;
         acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
         int failureIndex=getHistory().getIndexLastLine();
@@ -193,7 +193,7 @@ public class RegionRecovery {
         //System.out.println("-------------------------");
         while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS)) {//|| !getHistory().hasFinishedRecoverTokens() 
             getHistory().readRecoverToken(myParser,false); 
-            indentHandler.updateIndentation(myParser.currentToken);           
+            indentHandler.updateIndentation(myParser.getCurrentToken());           
             //System.out.print((char)myParser.currentToken);
             myParser.doParseStep();
             if(getHistory().getTokenIndex()>errorDetectionLocation && indentHandler.lineMarginEnded())
@@ -209,7 +209,7 @@ public class RegionRecovery {
     private void parseAdditionalTokens(
             StructureSkipSuggestion aSkip) {
         for (char aChar : aSkip.getAdditionalTokens()) {
-            myParser.currentToken=aChar;           
+            myParser.setCurrentToken(aChar);           
             myParser.doParseStep();
         }
         if(aSkip.getAdditionalTokens().length>0){            

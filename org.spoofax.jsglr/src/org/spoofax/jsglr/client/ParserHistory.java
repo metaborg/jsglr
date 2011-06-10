@@ -48,24 +48,24 @@ public class ParserHistory {
      */
     public void readRecoverToken(SGLR myParser, boolean keepRecoveredLines) {  
         if (hasFinishedRecoverTokens()) {             
-            if(myParser.currentToken!=SGLR.EOF){                
+            if(myParser.getCurrentToken()!=SGLR.EOF){                
                 if(getIndexLastToken()>=0){
                     myParser.readNextToken();
-                    indentHandler.updateIndentation(myParser.currentToken);
+                    indentHandler.updateIndentation(myParser.getCurrentToken());
                     recoverTokenCount++;   
-                    if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
+                    if(indentHandler.lineMarginEnded() || myParser.getCurrentToken()==SGLR.EOF)
                         keepNewLinePoint(myParser, myParser.tokensSeen-1, true, indentHandler);
                 }
             }
         }
         else{
-            myParser.currentToken = readCharAt(tokenIndex, myParser.currentInputStream);
-            if(myParser.currentToken == -1) {
-            	myParser.currentToken=SGLR.EOF;
+            myParser.setCurrentToken(readCharAt(tokenIndex, myParser.currentInputStream));
+            if(myParser.getCurrentToken() == -1) {
+            	myParser.setCurrentToken(SGLR.EOF);
     		}
             if(keepRecoveredLines){
-                recoveryIndentHandler.updateIndentation(myParser.currentToken);
-                if(recoveryIndentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF)
+                recoveryIndentHandler.updateIndentation(myParser.getCurrentToken());
+                if(recoveryIndentHandler.lineMarginEnded() || myParser.getCurrentToken()==SGLR.EOF)
                     keepNewLinePoint(myParser, tokenIndex, false, recoveryIndentHandler);
             }    
         }
@@ -91,10 +91,10 @@ public class ParserHistory {
     }
 
     public void keepTokenAndState(SGLR myParser) {
-        indentHandler.updateIndentation(myParser.currentToken);
+        indentHandler.updateIndentation(myParser.getCurrentToken());
         recoverTokenCount++;
         tokenIndex++;
-        if(indentHandler.lineMarginEnded() || myParser.currentToken==SGLR.EOF || tokenIndex == 1)
+        if(indentHandler.lineMarginEnded() || myParser.getCurrentToken()==SGLR.EOF || tokenIndex == 1)
             keepNewLinePoint(myParser, myParser.tokensSeen-1, false, indentHandler);
     }
     

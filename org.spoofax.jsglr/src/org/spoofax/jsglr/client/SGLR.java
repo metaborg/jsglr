@@ -49,7 +49,7 @@ public class SGLR {
 
 	private ParseTable parseTable;
 
-	protected int currentToken;
+	private int currentToken;
 
 	protected int tokensSeen;
 
@@ -276,7 +276,7 @@ public class SGLR {
 				//System.out.print((char)currentToken);
 				history.keepTokenAndState(this);
 				doParseStep();
-			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
+			} while (getCurrentToken() != SGLR.EOF && activeStacks.size() > 0);
 
 			if (acceptingStack == null) {
 				collectedErrors.add(createBadTokenException());
@@ -290,7 +290,7 @@ public class SGLR {
 			}
 			getPerformanceMeasuring().endParse(acceptingStack!=null);
 		} catch (final TaskCancellationException e) {
-			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
+			throw new ParseTimeoutException(this, getCurrentToken(), tokensSeen - 1, lineNumber,
 					columnNumber, collectedErrors);
 		} finally {
 			activeStacks.clear();
@@ -321,7 +321,7 @@ public class SGLR {
 
 	void readNextToken() {
 		logCurrentToken();
-		currentToken = getNextToken();
+		setCurrentToken(getNextToken());
 	}
 
 	protected void doParseStep() {
@@ -387,20 +387,20 @@ public class SGLR {
 				} while (action != null);
 
 				if (expected.length() > 0) {
-					return new TokenExpectedException(this, expected.toString(), currentToken,
+					return new TokenExpectedException(this, expected.toString(), getCurrentToken(),
 							tokensSeen + startOffset - 1, lineNumber, columnNumber);
 				}
 			}
 		}
 
-		return new BadTokenException(this, currentToken, tokensSeen + startOffset - 1, lineNumber,
+		return new BadTokenException(this, getCurrentToken(), tokensSeen + startOffset - 1, lineNumber,
 				columnNumber);
 	}
 
 	private void shifter() {
 		logBeforeShifter();
 		activeStacks.clear();
-		final AbstractParseNode prod = parseTable.lookupProduction(currentToken);
+		final AbstractParseNode prod = parseTable.lookupProduction(getCurrentToken());
 
 		while (forShifter.size() > 0) {
 			final ActionState as = forShifter.remove();
@@ -481,13 +481,13 @@ public class SGLR {
 		logBeforeActor(st, s);
 
 		for (final Action action : s.getActions()) {
-			if (action.accepts(currentToken)) {
+			if (action.accepts(getCurrentToken())) {
 				for (final ActionItem ai : action.getActionItems()) {
 					switch (ai.type) {
 					case ActionItem.SHIFT: {
 						final Shift sh = (Shift) ai;
 						final ActionState actState = new ActionState(st, parseTable.getState(sh.nextState));
-						actState.currentToken = currentToken;
+						actState.currentToken = getCurrentToken();
 						addShiftPair(actState); //Adds StackNode to forshifter
 						statsRecordParsers(); //sets some values un current parse state
 						break;
@@ -565,7 +565,7 @@ public class SGLR {
 	private void statsRecordParsers() {
 		if (forShifter.size() > maxBranches) {
 			maxBranches = forShifter.size();
-			maxToken = currentToken;
+			maxToken = getCurrentToken();
 			maxColumn = columnNumber;
 			maxLine = lineNumber;
 			maxTokenNumber = tokensSeen;
@@ -764,7 +764,7 @@ public class SGLR {
 			}
 
 			for (final Action action : st2.peek().getActions()) {
-				if (action.accepts(currentToken)) {
+				if (action.accepts(getCurrentToken())) {
 					for (final ActionItem ai : action.getActionItems()) {
 						switch(ai.type) {
 						case ActionItem.REDUCE:
@@ -1033,7 +1033,7 @@ public class SGLR {
 
 	private void logCurrentToken() {
 		if (isLogging()) {
-			Tools.logger("Current token (#", tokensSeen, "): ", logCharify(currentToken));
+			Tools.logger("Current token (#", tokensSeen, "): ", logCharify(getCurrentToken()));
 		}
 	}
 
@@ -1052,13 +1052,13 @@ public class SGLR {
 
 		if (Tools.logging) {
 			Tools.logger("#", tokensSeen, ": shifting ", forShifter.size(), " parser(s) -- token ",
-					logCharify(currentToken), ", line ", lineNumber, ", column ", columnNumber);
+					logCharify(getCurrentToken()), ", line ", lineNumber, ", column ", columnNumber);
 		}
 
 		if (Tools.debugging) {
 			Tools.debug("shifter() - " + dumpActiveStacks());
 
-			Tools.debug(" token   : " + currentToken);
+			Tools.debug(" token   : " + getCurrentToken());
 			Tools.debug(" parsers : " + forShifter.size());
 		}
 	}
@@ -1100,7 +1100,7 @@ public class SGLR {
 		List<ActionItem> actionItems = null;
 
 		if (Tools.debugging || Tools.tracing) {
-			actionItems = s.getActionItems(currentToken);
+			actionItems = s.getActionItems(getCurrentToken());
 		}
 
 		if(Tools.tracing) {
@@ -1114,7 +1114,7 @@ public class SGLR {
 
 		if (Tools.debugging) {
 			Tools.debug(" state   : ", s.stateNumber);
-			Tools.debug(" token   : ", currentToken);
+			Tools.debug(" token   : ", getCurrentToken());
 		}
 
 		if (Tools.debugging) {
@@ -1179,7 +1179,7 @@ public class SGLR {
 
 	private void logReductionInfo(Frame st, Production prod) {
 		Tools.debug(" state : ", st.peek().stateNumber);
-		Tools.debug(" token : ", currentToken);
+		Tools.debug(" token : ", getCurrentToken());
 		Tools.debug(" label : ", prod.label);
 		Tools.debug(" arity : ", prod.arity);
 		Tools.debug(" stack : ", st.dumpStack());
@@ -1203,7 +1203,7 @@ public class SGLR {
 		}
 
 		if (Tools.logging) {
-			Tools.logger("Reducing; state ", s.stateNumber, ", token: ", logCharify(currentToken),
+			Tools.logger("Reducing; state ", s.stateNumber, ", token: ", logCharify(getCurrentToken()),
 					", production: ", prod.label);
 		}
 
@@ -1211,7 +1211,7 @@ public class SGLR {
 			Tools.debug("reducer() - ", dumpActiveStacks());
 
 			Tools.debug(" state      : ", s.stateNumber);
-			Tools.debug(" token      : ", logCharify(currentToken) + " (" + currentToken + ")");
+			Tools.debug(" token      : ", logCharify(getCurrentToken()) + " (" + getCurrentToken() + ")");
 			Tools.debug(" production : ", prod.label);
 		}
 	}
@@ -1237,5 +1237,14 @@ public class SGLR {
 			Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/",
 					nl.getLength());
 		}
+	}
+
+	protected void setCurrentToken(int currentToken) {
+		this.currentToken = currentToken;
+	}
+
+	protected int getCurrentToken() {
+		assert(currentToken >= 0);
+		return currentToken;
 	}
 }

@@ -126,7 +126,7 @@ public class FineGrainedOnRegion {
             mySGLR.doParseStep();
             newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
             mySGLR.getRecoverStacks().clear();
-        } while(getHistory().getTokenIndex()<= endRecoverSearchPos && mySGLR.acceptingStack==null && mySGLR.currentToken!=SGLR.EOF);
+        } while(getHistory().getTokenIndex()<= endRecoverSearchPos && mySGLR.acceptingStack==null && mySGLR.getCurrentToken()!=SGLR.EOF);
     	mySGLR.setFineGrainedOnRegion(false);
         return newCandidates;
     }

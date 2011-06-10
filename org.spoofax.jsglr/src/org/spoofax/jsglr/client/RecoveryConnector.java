@@ -170,7 +170,7 @@ public class RecoveryConnector {
         // Skip any leading whitespace, since we already parsed up to that point
         int indexFragment = findFirstNonLayoutToken(fragment);
         while(indexFragment<fragment.length() && mySGLR.activeStacks.size()>0) {                        
-            mySGLR.currentToken=fragment.charAt(indexFragment);
+            mySGLR.setCurrentToken(fragment.charAt(indexFragment));
             indexFragment++;
             if(!asLayout)
                 mySGLR.doParseStep();
@@ -212,8 +212,8 @@ public class RecoveryConnector {
     }
     
     private void parseAsLayout() {
-        if(!isLayoutCharacter((char)mySGLR.currentToken) && mySGLR.currentToken!=SGLR.EOF){
-            mySGLR.currentToken=' ';
+        if(!isLayoutCharacter((char)mySGLR.getCurrentToken()) && mySGLR.getCurrentToken()!=SGLR.EOF){
+            mySGLR.setCurrentToken(' ');
         }
         mySGLR.doParseStep();
     }

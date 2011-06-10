@@ -1241,6 +1241,8 @@ public class SGLR {
 
 	protected void setCurrentToken(int currentToken) {
 		this.currentToken = currentToken;
+		if(currentToken == -1)
+			this.currentToken=SGLR.EOF;
 	}
 
 	protected int getCurrentToken() {

@@ -172,7 +172,7 @@ public class ParseTable implements Serializable {
                     ret.add(new Priority(Priority.GTR, left, right));
             } else if (a.getName().equals("arg-gtr-prio")) {
             	int arg = right;
-            	right = intAt(a, 1);
+            	right = intAt(a, 2);
                 if(left != right)
                     ret.add(new Priority(Priority.GTR, left, right, arg));
             } else {

@@ -7,11 +7,18 @@
  */
 package org.spoofax.jsglr.client;
 
+import static org.spoofax.jsglr.client.AbstractParseNode.AMBIGUITY;
+import static org.spoofax.jsglr.client.AbstractParseNode.AVOID;
+import static org.spoofax.jsglr.client.AbstractParseNode.CYCLE;
+import static org.spoofax.jsglr.client.AbstractParseNode.PARSENODE;
+import static org.spoofax.jsglr.client.AbstractParseNode.PARSE_PRODUCTION_NODE;
+import static org.spoofax.jsglr.client.AbstractParseNode.PREFER;
+import static org.spoofax.jsglr.client.AbstractParseNode.REJECT;
 import static org.spoofax.terms.Term.termAt;
-import static org.spoofax.jsglr.client.AbstractParseNode.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -399,126 +406,115 @@ public class Disambiguator {
 		}
 	}
 
+	
 	/**
-	 * @param inAmbiguityCluster  We're inside an amb and can return null to reject this branch.
+	 * Performs a depth-first traversal of the parse tree to
+	 * filter ambiguities. 
 	 */
-	private AbstractParseNode filterTree(AbstractParseNode t, boolean inAmbiguityCluster) throws FilterException {
+	public AbstractParseNode filterTree(AbstractParseNode node,
+			boolean inAmbiguityCluster) throws FilterException {
 		// SG_FilterTreeRecursive
 		if (Tools.debugging) {
-			Tools.debug("filterTree(node)    - ", t);
+			Tools.debug("filterTree(node)    - ", node);
 		}
 
-		// parseTable.setTreeBuilder(new Asfix2TreeBuilder());
-		switch (t.getNodeType()) {
-		case AMBIGUITY:
-			if (!inAmbiguityCluster) {
-				// (some cycle stuff should be done here)
-				final AbstractParseNode[] ambs = t.getChildren();
-				t = filterAmbiguities(ambs);
+		// nodes to be processed
+		Stack<AbstractParseNode> input = new Stack<AbstractParseNode>();
+		// nodes already processed
+		Stack<AbstractParseNode> output = new Stack<AbstractParseNode>();
+		// already processed nodes that have not yet been reinitialized
+		// with their (possibly changed) children
+		Stack<AbstractParseNode> pending = new Stack<AbstractParseNode>();
+
+		input.add(node);
+
+		while (!input.isEmpty() || !pending.isEmpty()) {
+			int pendingPeekPos = pending.isEmpty() ? -1 : output.size()
+					- pending.peek().getChildren().length - 1;
+			
+			if (!pending.isEmpty() && pendingPeekPos >= 0
+					&& output.get(pendingPeekPos) == pending.peek()) {
+				// collapse pending.peek() with its possibly changed children
+				
+				AbstractParseNode t = pending.pop();
+
+				AbstractParseNode[] args = new AbstractParseNode[t
+						.getChildren().length];
+				boolean changed = false;
+
+				for (int i = t.getChildren().length - 1; i >= 0; i--) {
+					args[i] = output.pop();
+					changed = changed || args[i] != t.getChildren()[i];
+				}
+
+				output.pop();
+
+				if (changed)
+					t = new ParseNode(t.getLabel(), args,
+							AbstractParseNode.PARSENODE);
+
+				if (filterAssociativity)
+					t = applyAssociativityPriorityFilter(t);
+
+				output.push(t);
 			} else {
-				// FIXME: hasRejectProd(Amb) can never succeed?
-				if (filterReject && parseTable.hasRejects() && hasRejectProd(t)) {
-					return null;
-				}
-				final AbstractParseNode[] ambs = t.getChildren();
-				return filterAmbiguities(ambs);
+				// examine input.peek() and traverse its children
+				
+				AbstractParseNode t = input.pop();
 
-			}
-			break;
-		case PARSENODE: case AVOID: case PREFER: case REJECT:
-			final ParseNode node = (ParseNode) t;
-			final AbstractParseNode[] args = node.getChildren();
-			final AbstractParseNode[] newArgs =
-				t.isParseProductionChain() ? null : filterTree(args, false);
-			// TODO: assert that parse production chains do not have reject nodes?
+				switch (t.getNodeType()) {
+				case AMBIGUITY:
+					if (!(inAmbiguityCluster && output.isEmpty())) {
+						// (some cycle stuff should be done here)
+						final AbstractParseNode[] ambs = t.getChildren();
+						t = filterAmbiguities(ambs);
+						output.push(t);
+					} else {
+						// FIXME: hasRejectProd(Amb) can never succeed?
+						if (filterReject && parseTable.hasRejects()
+								&& hasRejectProd(t)) {
+							output.push(t);
+						} else {
+							final AbstractParseNode[] ambs = t.getChildren();
+							output.push(filterAmbiguities(ambs));
+						}
 
-			if (filterReject && parseTable.hasRejects() && hasRejectProd(t)) {
-				if (inAmbiguityCluster) {
-					return null;
-				} else {
-					rejectedBranch = t;
-				}
-			}
-
-			if (newArgs != null && args != newArgs)
-				t = new ParseNode(node.getLabel(), newArgs, AbstractParseNode.PARSENODE);
-			break;
-		case PARSE_PRODUCTION_NODE:
-			// leaf node -- do thing (cannot be any ambiguities here)
-			return t;
-		case CYCLE:
-			return t;
-		default:
-			throw new IllegalStateException("Unknown node type: " + t);
-		}
-
-		if (filterAssociativity) {
-			return applyAssociativityPriorityFilter(t);
-		} else {
-			return t;
-		}
-	}
-
-	/**
-	 * Filters child parse nodes.
-	 *
-	 * @return An array of filtered child nodes, or null if no changes were made.
-	 */
-	private AbstractParseNode[] filterTree(AbstractParseNode[] args, boolean inAmbiguityCluster) throws FilterException {
-
-		if(Tools.debugging) {
-			Tools.debug("filterTree(<nodes>) - ", args);
-		}
-
-		// TODO: Optimize - combine these two loops
-
-		AbstractParseNode[] newArgs = null;
-
-		for (int i = 0, max = args.length; i < max; i++) {
-			final AbstractParseNode n = args[i];
-			final AbstractParseNode filtered = filterTree(n, false);
-
-			if (newArgs == null) {
-				if (filtered != n) {
-					newArgs = cloneArrayUpToIndex(args, i);
-					newArgs[i] = filtered;
-				}
-			} else {
-				newArgs[i] = filtered;
-			}
-		}
-
-		// FIXME Shouldn't we do some filtering here?
-		// if (!changed) {
-		//     Tools.debug("Dropping: ", args);
-		//     newArgs = getEmptyList();
-		// }
-
-		if (filterAny) {
-			if (newArgs != null) args = newArgs;
-			newArgs = null;
-			for (int i = 0, max = args.length; i < max; i++) {
-				AbstractParseNode n = args[i];
-				AbstractParseNode filtered = applyAssociativityPriorityFilter(n);
-
-				if (newArgs == null) {
-					if (filtered != n) {
-						newArgs = cloneArrayUpToIndex(args, i);
-						newArgs[i] = filtered;
 					}
-				} else {
-					newArgs[i] = filtered;
+					break;
+				case PARSENODE:
+				case AVOID:
+				case PREFER:
+				case REJECT:
+
+					if (filterReject && parseTable.hasRejects()
+							&& hasRejectProd(t)) {
+						output.push(t);
+						rejectedBranch = t;
+					} else if (t.getChildren().length > 0
+							&& !t.isParseProductionChain()) {
+						output.push(t);
+						pending.push(t);
+						for (int i = t.getChildren().length - 1; i >= 0; i--)
+							input.push(t.getChildren()[i]);
+					} else {
+						output.push(t);
+					}
+					break;
+				case PARSE_PRODUCTION_NODE:
+					// leaf node -- do thing (cannot be any ambiguities here)
+					output.push(t);
+					break;
+				case CYCLE:
+					output.push(t);
+					break;
+				default:
+					throw new IllegalStateException("Unknown node type: " + t);
 				}
 			}
 		}
-		return newArgs == null ? args : newArgs;
-	}
 
-	private static AbstractParseNode[] cloneArrayUpToIndex(AbstractParseNode[] args, int index) {
-		AbstractParseNode[] newArgs;
-		newArgs = new AbstractParseNode[args.length];
-		System.arraycopy(args, 0, newArgs, 0, index);
-		return newArgs;
+		assert output.size() == 1;
+		return output.peek();
 	}
 
 	private AbstractParseNode applyAssociativityPriorityFilter(AbstractParseNode t) throws FilterException {

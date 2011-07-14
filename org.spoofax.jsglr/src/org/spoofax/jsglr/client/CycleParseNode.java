@@ -90,5 +90,11 @@ public class CycleParseNode extends AbstractParseNode {
 			return false;
 		return true;
 	}
+	
+	@Override
+    public int getLabel() {
+		return target.getLabel();
+	}
+
 
 }

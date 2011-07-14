@@ -74,4 +74,9 @@ public class ParseProductionNode extends AbstractParseNode {
 	public AbstractParseNode[] getChildren() {
 		return NO_CHILDREN;
 	}
+	
+    @Override
+	public int getLabel() {
+    	return prod;
+    }
 }

@@ -51,6 +51,7 @@ public abstract class AbstractParseNode {
 
     abstract public int getNodeType();
     abstract public AbstractParseNode[] getChildren();
+    abstract public int getLabel();
     
     protected static final int NO_HASH_CODE = 0;
 

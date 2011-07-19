@@ -450,8 +450,7 @@ public class Disambiguator {
 				output.pop();
 
 				if (changed)
-					t = new ParseNode(t.getLabel(), args,
-							AbstractParseNode.PARSENODE);
+					t = new ParseNode(t.getLabel(), args, t.getNodeType());
 
 				if (filterAssociativity)
 					t = applyAssociativityPriorityFilter(t);

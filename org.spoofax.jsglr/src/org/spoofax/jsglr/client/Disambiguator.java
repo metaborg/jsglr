@@ -577,7 +577,8 @@ public class Disambiguator {
 		if(firstKid.isAmbNode()) {
 
 			for (final AbstractParseNode amb : firstKid.getChildren()) {
-				if(((ParseNode)amb).getLabel() != prodLabel.labelNumber) {
+				if(amb.isAmbNode()
+						|| ((ParseNode)amb).getLabel() != prodLabel.labelNumber) {
 					newAmbiguities.add(amb);
 				}
 			}

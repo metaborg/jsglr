@@ -53,9 +53,6 @@ public class RecoveryConnector {
         if(onlyFineGrained){
             mySGLR.getPerformanceMeasuring().startFG();
             boolean fg=tryFineGrainedRepair();
-            if(fg){
-            	System.out.println("FG-only Succeeded");
-            }
             mySGLR.getPerformanceMeasuring().endFG(fg);
             return;
         }
@@ -89,7 +86,7 @@ public class RecoveryConnector {
             boolean FGSucceeded=tryFineGrainedRepair();
             mySGLR.getPerformanceMeasuring().endFG(FGSucceeded);
             if(FGSucceeded){ //FG succeeded  
-                addSkipOption(skipSucceeded);
+                //addSkipOption(skipSucceeded);
                 //System.out.println("FG-Succeeded");
                 return;
             }

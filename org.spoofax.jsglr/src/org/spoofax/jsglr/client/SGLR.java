@@ -262,6 +262,7 @@ public class SGLR {
 		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
+		getPerformanceMeasuring().startParse();
         Object result = sglrParse(startSymbol);
         return result;
 	}
@@ -269,7 +270,6 @@ public class SGLR {
 	private Object sglrParse(String startSymbol)
 	throws BadTokenException, TokenExpectedException,
 	ParseException, SGLRException {
-		getPerformanceMeasuring().startParse();
 		try {
 			do {
 				readNextToken();

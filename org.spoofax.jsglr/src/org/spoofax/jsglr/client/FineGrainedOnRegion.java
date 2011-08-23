@@ -5,7 +5,8 @@ import java.util.List;
 
 public class FineGrainedOnRegion {
 
-    private static final int MAX_NR_OF_EXPLORED_LINES = 75;
+    private static final int MAX_NUMBER_OF_RECOVER_BRANCHES = 1000;
+	private static final int MAX_NR_OF_EXPLORED_LINES = 75;
 	private int acceptRecoveryPosition;
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
@@ -115,6 +116,8 @@ public class FineGrainedOnRegion {
      * Explores permissive branches, and collects derived branches with higher recover count
      */
     private ArrayList<RecoverNode> recoverParse(ArrayList<RecoverNode> candidates, int endRecoverSearchPos) {
+    	if(candidates.size() > MAX_NUMBER_OF_RECOVER_BRANCHES)
+    		candidates = new ArrayList<RecoverNode>(candidates.subList(0, MAX_NUMBER_OF_RECOVER_BRANCHES/2)); //too much stacks causes problems for performance while they probably contain multiple solutions
     	mySGLR.setFineGrainedOnRegion(true);
         ArrayList<RecoverNode> newCandidates=new ArrayList<RecoverNode>();
         int curTokIndex;

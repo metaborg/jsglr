@@ -26,11 +26,14 @@ public class Production implements Serializable {
     
     private final boolean isRecover;
 
-    public Production(int arity, int label, int status, boolean isRecover) {
+    private final boolean isCompletion;
+
+    public Production(int arity, int label, int status, boolean isRecover, boolean isCompletion) {
         this.arity = arity;
         this.label = label;
         this.status = status;
         this.isRecover = isRecover;
+        this.isCompletion = isCompletion;
     }
 
     public AbstractParseNode apply(AbstractParseNode[] kids) {
@@ -53,6 +56,17 @@ public class Production implements Serializable {
     
     public boolean isRecoverProduction() {
         return isRecover;
+    }
+
+    public boolean isCompletionProduction() {
+        return isCompletion;
+    }
+
+    /**
+     * -> "@#$"{completion} (added for performance reasons)
+     */
+    public boolean isCompletionStartProduction() {
+        return isCompletion && this.arity == 0; 
     }
 
     @Override

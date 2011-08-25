@@ -23,7 +23,9 @@ import org.spoofax.jsglr.shared.Tools;
 
 public class SGLR {
 
-    private RecoveryPerformance performanceMeasuring;
+    private static final int COMPLETION_REGION_SIZE = 1000;
+
+	private RecoveryPerformance performanceMeasuring;
 
 	private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
 
@@ -103,6 +105,14 @@ public class SGLR {
 
 	private boolean fineGrainedOnRegion;
 
+	private int cursorLocation;
+
+	private boolean isCompletionMode;
+	
+	private void setCompletionParse(boolean isCompletionMode, int cursorLocation){
+		this.isCompletionMode = isCompletionMode;
+		this.cursorLocation = cursorLocation;
+	}
 
 	protected ArrayDeque<Frame> getRecoverStacks() {
 		return recoverStacks;
@@ -252,6 +262,23 @@ public class SGLR {
 	/**
 	 * Parses a string and constructs a new tree using the tree builder.
 	 * 
+	 * @param input           The input string.
+	 * @param filename        The source filename of the string, or null if not available.
+	 * @param startSymbol     The start symbol to use, or null if any applicable.
+	 * @param completionMode  True in case the parser result is used for content completion.
+	 * @param cursorLocation  The location of the cursor used to find completion recoveries.
+	 */
+    public Object parse(String input, String filename, String startSymbol, boolean completionMode, int cursorLocation) 
+    	throws BadTokenException, TokenExpectedException, ParseException, SGLRException {
+    	setCompletionParse(completionMode, cursorLocation);
+    	Object parseResult = parse(input, filename, startSymbol);
+    	setCompletionParse(false, Integer.MAX_VALUE);
+    	return parseResult;
+    }
+
+    /**
+	 * Parses a string and constructs a new tree using the tree builder.
+	 * 
 	 * @param input        The input string.
 	 * @param filename     The source filename of the string, or null if not available.
 	 * @param startSymbol  The start symbol to use, or null if any applicable.
@@ -273,7 +300,6 @@ public class SGLR {
 		try {
 			do {
 				readNextToken();
-				//System.out.print((char)currentToken);
 				history.keepTokenAndState(this);
 				doParseStep();
 			} while (getCurrentToken() != SGLR.EOF && activeStacks.size() > 0);
@@ -591,7 +617,16 @@ public class SGLR {
 	}
 
 	private boolean recoverModeOk(Frame st, Production prod) {
-		return !prod.isRecoverProduction() || fineGrainedOnRegion;
+		if(!prod.isCompletionProduction()){
+			return !prod.isRecoverProduction() || fineGrainedOnRegion;
+		}
+		return inCompletionMode(prod);
+	}
+
+	private boolean inCompletionMode(Production prod) {
+		if(!prod.isCompletionStartProduction()) //Performance trick: -> "@#$" {completion} starts the completion
+			return isCompletionMode && cursorLocation <= this.tokensSeen && this.tokensSeen <= cursorLocation + COMPLETION_REGION_SIZE;
+		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= this.tokensSeen && this.tokensSeen <= cursorLocation;
 	}
 
 	private void doLimitedReductions(Frame st, Production prod, Link l) { //Todo: Look add sharing code with doReductions
@@ -616,16 +651,22 @@ public class SGLR {
 			final Frame st0 = path.getEnd();
 			final State next = parseTable.go(st0.state, prod.label);
 			logReductionPath(prod, path, st0, next);
-			if(!prod.isRecoverProduction())
-				reducer(st0, next, prod, kids, path);
-			else
-				reducerRecoverProduction(st0, next, prod, kids, path);				
+			if(!prod.isCompletionProduction() || isReductionOverCursorLocation(path)){
+				if(!prod.isRecoverProduction())
+					reducer(st0, next, prod, kids, path);
+				else
+					reducerRecoverProduction(st0, next, prod, kids, path);
+			}
 		}
 
 		if (asyncAborted) {
 			// Rethrown as ParseTimeoutException in SGLR.sglrParse()
 			throw new TaskCancellationException("Long-running parse job aborted");
 		}
+	}
+
+	private boolean isReductionOverCursorLocation(final Path path) {
+		return tokensSeen - path.getLength() < cursorLocation;
 	}
 
 	
@@ -786,9 +827,9 @@ public class SGLR {
 
 	private int calcRecoverCount(Production prod, Path path) {
 		int result = path.getRecoverCount();
-		if (prod.isRecoverProduction()){
+		if (prod.isRecoverProduction() || prod.isCompletionProduction()){
 			result += 1;
-			if (path.getLength() > 0)
+			if (path.getLength() > 0 && !prod.isCompletionProduction())
 				result += 1; //Hack: insertion rules (length 0) should be preferred above water rules.
 		}
 		return result;

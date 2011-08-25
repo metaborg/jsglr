@@ -272,6 +272,7 @@ public class ParseTable implements Serializable {
         if (attr.getName().equals("attrs")) {
             int type = 0;
             boolean isRecover = false;
+            boolean isCompletion = false;
             IStrategoTerm term = null;
 
             for (IStrategoList ls = (IStrategoList) attr.getSubterm(0); !ls.isEmpty(); ls = ls.tail()) {
@@ -312,8 +313,10 @@ public class ParseTable implements Serializable {
                     			term = t.getSubterm(0).getSubterm(0);
                     		} else if (child.getSubtermCount() == 0 && child.getName().equals("recover")) {
                     		    hasRecovers = isRecover = true;
+                       		} else if (child.getSubtermCount() == 0 && child.getName().equals("completion")) {
+                    		    isCompletion = true;
                     		}
-                    	}
+                        }
                     	// TODO Support other terms that are not a constructor (custom annotations)
                     } else if (ctor.equals("id")) {
                         // FIXME not certain about this
@@ -323,9 +326,9 @@ public class ParseTable implements Serializable {
                     }
                 }
             }
-            return new ProductionAttributes(term, type, isRecover);
+            return new ProductionAttributes(term, type, isRecover, isCompletion);
         } else if (attr.getName().equals("no-attrs")) {
-            return new ProductionAttributes(null, ProductionType.NO_TYPE, false);
+            return new ProductionAttributes(null, ProductionType.NO_TYPE, false, false);
         }
         throw new InvalidParseTableException("Unknown attribute type: " + attr);
     }
@@ -387,7 +390,8 @@ public class ParseTable implements Serializable {
                 int label = intAt(a, 1);
                 int status = intAt(a, 2);
                 boolean isRecoverAction = getLabel(label).getAttributes().isRecoverProduction();
-                item = makeReduce(productionArity, label, status, isRecoverAction);
+                boolean isCompletionAction = getLabel(label).getAttributes().isCompletionProduction();
+                item = makeReduce(productionArity, label, status, isRecoverAction, isCompletionAction);
             } else if(a.getName().equals("reduce") && a.getConstructor().getArity() == 4) {
                 int productionArity = intAt(a, 0);
                 int label = intAt(a, 1);
@@ -452,8 +456,8 @@ public class ParseTable implements Serializable {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
 
-    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction) {
-        Reduce r = new Reduce(arity, label, status, isRecoverAction);
+    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction, boolean isCompletionAction) {
+        Reduce r = new Reduce(arity, label, status, isRecoverAction, isCompletionAction);
         Reduce cached = reduceCache.get(r);
         if (cached == null) {
             reduceCache.put(r, r);

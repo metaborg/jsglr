@@ -22,12 +22,15 @@ public class ProductionAttributes implements Serializable {
 
     private final boolean isRecover;
 
+    private final boolean isCompletion;
+
     private final transient IStrategoTerm abstractCtor;
 
-    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover) {
+    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover, boolean isCompletion) {
         this.type = type;
         this.abstractCtor = ctor;
         this.isRecover = isRecover;
+        this.isCompletion = isCompletion;
     }
 
     public final int getType() {
@@ -40,6 +43,10 @@ public class ProductionAttributes implements Serializable {
 
     public boolean isRecoverProduction() {
         return isRecover;
+    }
+
+    public boolean isCompletionProduction() {
+        return isCompletion;
     }
 
     public boolean isMoreEager(ProductionAttributes other) {

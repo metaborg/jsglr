@@ -64,7 +64,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	}
 
 	public void markPossibleSyntaxError(LabelInfo label, IToken prevToken, int endOffset, ProductionAttributeReader prodReader) {
-		if (label.isRecover() || label.isReject() || label.getDeprecationMessage() != null) {
+		if (label.isRecover() || label.isReject() || label.getDeprecationMessage() != null || label.isCompletion()) {
 			if (prodReader.isIgnoredUnspecifiedRecoverySort(label.getSort())) {
 				// Special case: don't report here, but further up the tree
 				return;
@@ -94,7 +94,16 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			if (tokenText.length() > 40)
 				tokenText = tokenText.substring(0, 40) + "...";
 			
-			if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
+			if (label.isCompletion()) {
+				if(last.getKind() == IToken.TK_LAYOUT){
+					last = findLeftMostLayoutToken(last);
+					if (last.getKind() == TK_LAYOUT)
+						last = getTokenBefore(last);
+				}
+				String completionText = toString(first, last);
+				setErrorMessage(first, last, "Syntax error, incomplete construct"
+						+ ": '" + completionText + "'");
+			} else if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
 				setErrorMessage(first, last, ERROR_WATER_PREFIX
 						+ ": '" + tokenText + "'");
 			} else if (prodReader.isInsertEndConstructor(label.getConstructor())) {

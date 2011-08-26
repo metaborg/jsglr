@@ -22,12 +22,16 @@ public interface ITokenizer extends Iterable<IToken> {
 	
 	public static final String ERROR_INSERT_END_PREFIX =
 		"Syntax error, unterminated construct";
-	
+
+	public static final String ERROR_INCOMPLETE_PREFIX =
+		"Syntax error, incomplete construct";
+
 	public static final String ERROR_GENERIC_PREFIX =
 		"Syntax error";
 
 	public static final String ERROR_WARNING_PREFIX =
 		"Warning";
+
 
 	String getInput();
 

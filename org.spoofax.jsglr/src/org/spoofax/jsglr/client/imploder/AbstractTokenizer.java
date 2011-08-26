@@ -101,7 +101,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 						last = getTokenBefore(last);
 				}
 				String completionText = toString(first, last);
-				setErrorMessage(first, last, "Syntax error, incomplete construct"
+				setErrorMessage(first, last, ERROR_INCOMPLETE_PREFIX
 						+ ": '" + completionText + "'");
 			} else if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
 				setErrorMessage(first, last, ERROR_WATER_PREFIX

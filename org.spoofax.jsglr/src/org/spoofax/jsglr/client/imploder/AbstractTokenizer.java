@@ -74,25 +74,27 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				isSyntaxCorrect = label.getDeprecationMessage() != null;
 			
 			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
-			
+			//TODO: refactor
 			IToken first, last;
 			
 			if (prevToken == currentToken()) {
 				first = last = makeToken(endOffset, TK_ERROR, true);
 			} else {
-				first = findRightMostLayoutToken(getTokenAfter(prevToken));
+				first = getTokenAfter(prevToken);
+				if (first != currentToken() && first.getKind() == TK_LAYOUT)
+					first = findRightMostLayoutToken(first);
 				if (first != currentToken() && first.getKind() == TK_LAYOUT)
 					first = getTokenAfter(first);
 				last = currentToken();
 			}
-			if (first.getStartOffset() + 1 == last.getEndOffset()) {
+			if (first.getStartOffset() - 1 == last.getEndOffset()) {
 				// bah, we need some characters to mark, to the left then...
-				first = findLeftMostLayoutToken(first);
+				first = last = findLeftMostLayoutToken(first);//mark insertion errors at the end of previous token (before layout)
+				if (first.getKind() == TK_LAYOUT)
+					first = last = getTokenBefore(last);
 			}
 			
-			String tokenText = toString(first, last);
-			if (tokenText.length() > 40)
-				tokenText = tokenText.substring(0, 40) + "...";
+			String tokenText = makeTokenText(first, last);
 			
 			if (label.isCompletion()) {
 				if(last.getKind() == IToken.TK_LAYOUT){
@@ -100,7 +102,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 					if (last.getKind() == TK_LAYOUT)
 						last = getTokenBefore(last);
 				}
-				String completionText = toString(first, last);
+				String completionText = makeTokenText(first, last);
 				setErrorMessage(first, last, ERROR_INCOMPLETE_PREFIX
 						+ ": '" + completionText + "'");
 			} else if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
@@ -122,6 +124,13 @@ public abstract class AbstractTokenizer implements ITokenizer {
 						+ ": '" + tokenText + "'");
 			}
 		}
+	}
+
+	private String makeTokenText(IToken first, IToken last) {
+		String tokenText = toString(first, last);
+		if (tokenText.length() > 40)
+			tokenText = tokenText.substring(0, 40) + "...";
+		return tokenText;
 	}
 
 	/**

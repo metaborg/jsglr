@@ -134,7 +134,7 @@ public class LabelInfo {
 	}
 
 	public boolean isCompletion() {
-		return isCompletion;
+		return isCompletion && !isLiteral; //exclude artificial completion start: -> "@#$"{completion}
 	}
 
 	public boolean isReject() {

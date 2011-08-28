@@ -94,6 +94,7 @@ public class ParserHistory {
         indentHandler.updateIndentation(myParser.getCurrentToken());
         recoverTokenCount++;
         tokenIndex++;
+        assert myParser.tokensSeen == this.getTokenIndex(): "inconsistentcy in token index";
         if(indentHandler.lineMarginEnded() || myParser.getCurrentToken()==SGLR.EOF || tokenIndex == 1)
             keepNewLinePoint(myParser, myParser.tokensSeen-1, false, indentHandler);
     }

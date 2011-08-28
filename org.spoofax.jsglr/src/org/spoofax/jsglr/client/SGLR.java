@@ -102,6 +102,10 @@ public class SGLR {
 	public ParserHistory getHistory() {
 		return history;
 	}
+	
+	public int getParserLocation(){
+		return this.getHistory().getTokenIndex(); //should also work in recover mode
+	}
 
 	private boolean fineGrainedOnRegion;
 
@@ -625,8 +629,8 @@ public class SGLR {
 
 	private boolean inCompletionMode(Production prod) {
 		if(!prod.isCompletionStartProduction()) //Performance trick: -> "@#$" {completion} starts the completion
-			return isCompletionMode && cursorLocation <= this.tokensSeen && this.tokensSeen <= cursorLocation + COMPLETION_REGION_SIZE;
-		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= this.tokensSeen && this.tokensSeen <= cursorLocation;
+			return isCompletionMode && cursorLocation <= getParserLocation() && getParserLocation() <= cursorLocation + COMPLETION_REGION_SIZE;
+		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= getParserLocation() && getParserLocation() <= cursorLocation;
 	}
 
 	private void doLimitedReductions(Frame st, Production prod, Link l) { //Todo: Look add sharing code with doReductions
@@ -666,7 +670,7 @@ public class SGLR {
 	}
 
 	private boolean isReductionOverCursorLocation(final Path path) {
-		return tokensSeen - path.getLength() < cursorLocation;
+		return getParserLocation() - path.getLength() < cursorLocation;
 	}
 
 	

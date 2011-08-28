@@ -141,6 +141,8 @@ public class RecoveryConnector {
 
     private boolean tryBridgeRepair(String errorFragment) {
         String repairedFragment = repairBridges(errorFragment);
+        if(repairedFragment.trim().equals(errorFragment.trim()))
+        	return false;
         mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());   
         tryParsing(repairedFragment, false);      
         return parseRemainingTokens(true);

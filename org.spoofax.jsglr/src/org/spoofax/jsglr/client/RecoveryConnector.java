@@ -50,9 +50,11 @@ public class RecoveryConnector {
     }
 
     private void combinedRecover() {
+        int tokensSeen = mySGLR.tokensSeen; 
+        int lastIndex = getHistory().getIndexLastLine();
         if(onlyFineGrained){
             mySGLR.getPerformanceMeasuring().startFG();
-            boolean fg=tryFineGrainedRepair();
+            boolean fg=tryFineGrainedRepair(tokensSeen, lastIndex, false);
             mySGLR.getPerformanceMeasuring().endFG(fg);
             return;
         }
@@ -83,7 +85,7 @@ public class RecoveryConnector {
         //FINEGRAINED REPAIR 
         if(useFineGrained){
             mySGLR.getPerformanceMeasuring().startFG();
-            boolean FGSucceeded=tryFineGrainedRepair();
+            boolean FGSucceeded=tryFineGrainedRepair(tokensSeen, lastIndex, skipSucceeded);
             mySGLR.getPerformanceMeasuring().endFG(FGSucceeded);
             if(FGSucceeded){ //FG succeeded  
                 //addSkipOption(skipSucceeded);
@@ -126,13 +128,13 @@ public class RecoveryConnector {
         return (mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null);
     }
 
-    private boolean tryFineGrainedRepair() {
+    private boolean tryFineGrainedRepair(int tokensSeen, int lastIndex, boolean useRegion) {
         FineGrainedOnRegion fgRepair=new FineGrainedOnRegion(mySGLR); 
-        if(!onlyFineGrained){
+        if(useRegion){
             fgRepair.setRegionInfo(skipRecovery.getErroneousRegion(), skipRecovery.getAcceptPosition());
         }
         else{
-            fgRepair.setInfoFGOnly();
+            fgRepair.setInfoFGOnly(tokensSeen, lastIndex);
         }
         fgRepair.recover();
         fgRepair.parseRemainingTokens();

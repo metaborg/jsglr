@@ -18,6 +18,7 @@ imports
   insert-sections
   optimize
   pp-commented-sdf
+  completion-sections
 
 overlays
 
@@ -49,6 +50,7 @@ strategies // I/O
       id.init;
 
       add-permissive-sections;
+      generate-completion-grammar-top;
       
       /* Disabled:
          Adding rules for separate characters may cause them to be used to

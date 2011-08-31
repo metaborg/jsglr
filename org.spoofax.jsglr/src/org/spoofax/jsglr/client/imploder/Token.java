@@ -11,9 +11,9 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
  */
 public class Token implements IToken, Cloneable {
 	
-	private transient  static final long serialVersionUID = -6972938219235720902L;
+	private static final long serialVersionUID = -6972938219235720902L;
 
-	private transient  static Map<String, Integer> asyncAllTokenKinds;
+	private transient static Map<String, Integer> asyncAllTokenKinds;
 
 	private transient ITokenizer tokenizer;
 	

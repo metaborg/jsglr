@@ -81,9 +81,9 @@ public class RegionRecovery {
         boolean eofReached=myParser.getCurrentToken()==SGLR.EOF;
         acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
-        int failureIndex=getHistory().getIndexLastLine();
+        errorDetectionLocation = myParser.getParserLocation()-1;
+        int failureIndex=getHistory().getLineOfTokenPosition(errorDetectionLocation);
         assert(failureIndex >= 0);
-        errorDetectionLocation=getHistory().getIndexLastToken();
         ArrayList<StructureSkipSuggestion> prevRegions=newRegionSelector.getPreviousSkipSuggestions(failureIndex);
         //System.out.println("PREVIOUS REGION");        
         if(trySetErroneousRegion(prevRegions)){

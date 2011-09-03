@@ -53,7 +53,7 @@ public class SGLR {
 
 	private int currentToken;
 
-	protected int tokensSeen;
+	private int tokensSeen;
 
 	protected int lineNumber;
 

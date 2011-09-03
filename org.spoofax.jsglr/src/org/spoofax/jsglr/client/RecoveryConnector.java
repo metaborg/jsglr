@@ -50,8 +50,8 @@ public class RecoveryConnector {
     }
 
     private void combinedRecover() {
-        int tokensSeen = mySGLR.tokensSeen; 
-        int lastIndex = getHistory().getIndexLastLine();
+        int tokensSeen = mySGLR.getParserLocation(); 
+        int lastIndex = getHistory().getLineOfTokenPosition(tokensSeen -1);
         if(onlyFineGrained){
             mySGLR.getPerformanceMeasuring().startFG();
             boolean fg=tryFineGrainedRepair(tokensSeen, lastIndex, false);
@@ -95,10 +95,11 @@ public class RecoveryConnector {
         }
         //WHITESPACE REPAIR
         if (skipSucceeded) { 
-            getHistory().deleteLinesFrom(skipRecovery.getStartIndexErrorFragment());//TODO: integrate with FG and BP
             getHistory().resetRecoveryIndentHandler(skipRecovery.getStartLineErrorFragment().getIndentValue());
             parseErrorFragmentAsWhiteSpace(false);
             boolean rsSucceeded=parseRemainingTokens(true);
+            if(!rsSucceeded)
+            	combinedRecover();
             /*
             if(rsSucceeded)
             	System.out.println("RS-Succeeded");

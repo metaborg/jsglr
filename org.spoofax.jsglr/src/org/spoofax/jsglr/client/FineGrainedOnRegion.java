@@ -5,13 +5,16 @@ import java.util.List;
 
 public class FineGrainedOnRegion {
 
-    private static final int MAX_NUMBER_OF_RECOVER_BRANCHES = 1000;
+    private static final int TIME_LIMIT = 500;
+	private static final int MAX_NUMBER_OF_RECOVER_BRANCHES = 1000;
 	private static final int MAX_NR_OF_EXPLORED_LINES = 75;
 	private int acceptRecoveryPosition;
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
     private static int MAX_BACK_JUMPS=5;
     private SGLR mySGLR;
+    private long recoveryStartTime;
+    private boolean hasRegionFallBack;
     
     private ParserHistory getHistory() {
         return mySGLR.getHistory();
@@ -28,6 +31,7 @@ public class FineGrainedOnRegion {
                 choicePoints.add(btPoint);
             }            
         }
+        hasRegionFallBack = false;
     }
     
     public void setRegionInfo(StructureSkipSuggestion erroneousRegion, int acceptPosition){
@@ -48,16 +52,21 @@ public class FineGrainedOnRegion {
                 choicePoints.add(btPoint);
             }            
         }
+        hasRegionFallBack = true;
     }
     
     public boolean recover() {
         int btIndex=choicePoints.size()-1;
-        if(btIndex>=0)
+        if(btIndex>=0){
+        	recoveryStartTime = System.currentTimeMillis();
         	return recoverFrom(btIndex, new ArrayList<RecoverNode>());
+        }
         return false;
     }
 
 	private boolean recoverFrom(int btIndex, ArrayList<RecoverNode> unexplored_branches) {
+		if(hasRegionFallBack && System.currentTimeMillis()-recoveryStartTime > TIME_LIMIT)
+			return false;
         ArrayList<RecoverNode> rec_Branches=new ArrayList<RecoverNode>();
         if(btIndex>=0){
         	rec_Branches=collectRecoverBranches(btIndex); //collect permissive branches at btIndex line

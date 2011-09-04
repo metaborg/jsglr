@@ -11,7 +11,7 @@ public class FineGrainedOnRegion {
 	private int acceptRecoveryPosition;
     private int regionEndPosition;
     private ArrayList<BacktrackPosition> choicePoints;
-    private static int MAX_BACK_JUMPS=5;
+    private static int MAX_BACK_JUMPS=6;
     private SGLR mySGLR;
     private long recoveryStartTime;
     private boolean hasRegionFallBack;

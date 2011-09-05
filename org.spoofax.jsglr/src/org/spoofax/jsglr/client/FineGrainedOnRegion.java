@@ -6,7 +6,7 @@ import java.util.List;
 public class FineGrainedOnRegion {
 
     private static final int TIME_LIMIT = 500;
-	private static final int MAX_NUMBER_OF_RECOVER_BRANCHES = 1000;
+	private static final int MAX_NUMBER_OF_RECOVER_BRANCHES = 500;
 	private static final int MAX_NR_OF_EXPLORED_LINES = 75;
 	private int acceptRecoveryPosition;
     private int regionEndPosition;
@@ -125,7 +125,7 @@ public class FineGrainedOnRegion {
      */
     private ArrayList<RecoverNode> recoverParse(ArrayList<RecoverNode> candidates, int endRecoverSearchPos) {
     	if(candidates.size() > MAX_NUMBER_OF_RECOVER_BRANCHES)
-    		candidates = new ArrayList<RecoverNode>(candidates.subList(0, MAX_NUMBER_OF_RECOVER_BRANCHES/2)); //too much stacks causes problems for performance while they probably contain multiple solutions
+    		candidates = new ArrayList<RecoverNode>(); //too much stacks causes problems for performance
     	mySGLR.setFineGrainedOnRegion(true);
         ArrayList<RecoverNode> newCandidates=new ArrayList<RecoverNode>();
         int curTokIndex;

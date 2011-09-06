@@ -29,6 +29,7 @@ overlays
   SEPARATORS_ON     = "separators"
   OPTIMIZE_ON       = "optimize"
   NONNESTABLE_ON    = "nonnestable"
+  COMPLETIONS_ON    = "completions"
 
 signature constructors
 
@@ -50,8 +51,11 @@ strategies // I/O
       id.init;
 
       add-permissive-sections;
-      generate-completion-grammar-top;
       
+      if-switch(!COMPLETIONS_ON(),
+        generate-completion-grammar-top
+      );
+            
       /* Disabled:
          Adding rules for separate characters may cause them to be used to
          construct larger literals. E.g. -> [\39] and -> [\42] might together
@@ -103,6 +107,11 @@ strategies // I/O
       OPTIMIZE_ON()
     , "off"
     , "Optimize the inserted literals to character groups (disabled in this version)"
+    )
+  + SwitchOption(|
+      COMPLETIONS_ON()
+    , "on"
+    , "Add completion recovery rules"
     )
   + ArgOption(
       "-m"

@@ -211,7 +211,7 @@ lookup-placeholder:
 lookup-placeholder:
 	iter-sep(srt, _) -> [<lookup-placeholder> srt]
 
-get-lexical-default-placeholder = !"MISSING_TOKEN"
+get-lexical-default-placeholder = !NULL() //"MISSING_TOKEN"
 
 get-cf-default-placeholder = !NULL()
 

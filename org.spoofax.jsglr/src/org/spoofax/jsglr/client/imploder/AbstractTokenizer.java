@@ -40,6 +40,10 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public boolean isSyntaxCorrect() {
 		return isSyntaxCorrect;
 	}
+	
+	protected void setSyntaxCorrect(boolean isSyntaxCorrect)  {
+		this.isSyntaxCorrect = isSyntaxCorrect;
+	}
 
 	private LineStartOffsetList getLineStartOffsets() {
 		if (lineStartOffsets == null)

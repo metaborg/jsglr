@@ -210,6 +210,8 @@ public class Tokenizer extends AbstractTokenizer {
 				makeToken(offset, TK_ERROR, false, ERROR_SKIPPED_REGION);
 			}
 		}
+		
+		setSyntaxCorrect(false);
 	}
 
 	private boolean isAtPotentialKeywordEnd(int offset, boolean isInputKeywordChar) {

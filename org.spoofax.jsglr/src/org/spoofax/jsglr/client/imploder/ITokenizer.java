@@ -69,6 +69,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	 * invoked for each character in a skipped/erroneous region of code.
 	 * Required for keyword highlighting with {@link KeywordRecognizer}.
 	 * 
+	 * Additionally, ensures that {@link #isSyntaxCorrect()} returns false.
+	 * 
 	 * @param offset
 	 *           The offset of the 
 	 */

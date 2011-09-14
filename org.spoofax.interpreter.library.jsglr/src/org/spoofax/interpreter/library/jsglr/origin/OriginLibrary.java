@@ -20,6 +20,26 @@ public class OriginLibrary extends AbstractStrategoOperatorRegistry {
 		add(new OriginTermPrimitive());
 		add(new OriginTextPrimitive());
 		add(new OriginEqualPrimitive());
+		
+		add(new OriginNonLayoutTokensPrimitive());
+		add(new OriginTokensPrimitive());
+
+		//origin term strategies
+		add(new OriginSublistTermPrimitive());
+		add(new OriginDesugaredTermPrimitive());
+		add(new OriginTermFuzzyPrimitive());
+		
+		//layout strategies
+		add(new OriginLayoutPrefixPrimitive());
+		add(new OriginCommentsAfterPrimitive());
+		add(new OriginCommentsBeforePrimitive());
+		add(new OriginIndentationPrimitive());
+		add(new OriginSeparationPrimitive());
+		add(new OriginDeletionOffsetPrimitive());
+		add(new OriginInsertBeforeOffsetPrimitive());
+		add(new OriginInsertAtEndOffsetPrimitive());
+		add(new OriginTextWithLayoutPrimitive());
+
     }
 
     public String getOperatorRegistryName() {

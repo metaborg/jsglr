@@ -13,6 +13,7 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAt
 import static org.spoofax.terms.StrategoListIterator.iterable;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.isTermString;
+import static org.spoofax.terms.attachments.ParentAttachment.putParent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +29,10 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoListIterator;
+import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.attachments.ParentAttachment;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -131,6 +135,51 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 		configure(result, elementSort, leftToken, rightToken, true);
 		return result;
 	}
+	
+	public IStrategoTerm createSublist(IStrategoList list, IStrategoTerm firstChild, IStrategoTerm lastChild) {
+		ArrayList<IStrategoTerm> children = new ArrayList<IStrategoTerm>();
+		boolean isStartChildFound = false;
+		int indexStart = -1;
+		int indexEnd = -1;
+
+		int i = 0;
+		for (IStrategoTerm child : StrategoListIterator.iterable(list)) {
+			if (child == firstChild) {
+				indexStart = i;
+				isStartChildFound = true;
+			}
+			if (isStartChildFound) {
+				children.add(child);
+				if (child == lastChild) {
+					indexEnd = i;
+					break;
+				}
+			}
+			i++;
+		}
+		assert(0 <= indexStart && indexStart <= indexEnd);
+		IStrategoList wrapped = factory.makeList(children);
+		StrategoSubList result = new StrategoSubList(list, wrapped, indexStart, indexEnd);
+		
+		/* XXX: support updateParents again??
+		if (cloneFirst) result = result.cloneIgnoreTokens();
+		list.overrideReferences(getLeftToken(list), getRightToken(list), children, result);
+		setParent(result, list);
+		*/
+		putParent(result, ParentAttachment.get(list));
+		
+		if(ImploderAttachment.get(firstChild) != null && ImploderAttachment.get(lastChild) != null)
+			putImploderAttachment(
+				result, 
+				true,
+				getElementSort(list), 
+				getLeftToken(firstChild), 
+				getRightToken(lastChild)
+			);
+		return result;
+	}
+
+	
 	
 	public IStrategoTerm recreateNode(IStrategoTerm oldNode, IToken leftToken, IToken rightToken, List<IStrategoTerm> children) {
 		switch (oldNode.getTermType()) {

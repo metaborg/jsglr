@@ -100,7 +100,6 @@ public class LayoutStructure {
 
 	/**
 	 * Indentation of the start line of the node, consist of spaces and tabs.
-	 * In case other tokens precede the node, an extra TAB is added
 	 */
 	public String getIndentation() {
 		String indent = getIndentString();
@@ -448,7 +447,7 @@ public class LayoutStructure {
 			else if(character == ' ' || character == '\t')
 				indentation = character + indentation;
 			else
-				indentation = "\t"; //node does not start on line, next line has more indent
+				indentation = ""; //node does not start on line
 		}
 		return indentation;
 	}

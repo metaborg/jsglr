@@ -20,6 +20,8 @@ public class OriginSeparationPrimitive extends AbstractOriginPrimitive {
 	protected IStrategoTerm call(IContext env, IStrategoTerm origin) {
 		LayoutStructure docStructure = new LayoutStructure(origin);
 		String separation = docStructure.getSeparation();
+		if(separation == null)
+			return null; //not a list element
 		ITermFactory factory = env.getFactory();		
 		return factory.makeString(separation);
 	}

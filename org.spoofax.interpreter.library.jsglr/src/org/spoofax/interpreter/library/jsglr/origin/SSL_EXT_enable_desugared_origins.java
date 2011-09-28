@@ -20,7 +20,7 @@ public class SSL_EXT_enable_desugared_origins extends AbstractPrimitive {
     @Override
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
     	ITermFactory factory = env.getFactory();
-    	if (!(factory instanceof OriginTermFactory)){
+    	if (factory instanceof OriginTermFactory){
        		((OriginTermFactory)env.getFactory()).setAssignDesugaredOrigins(true);    		
     	}
     	else{

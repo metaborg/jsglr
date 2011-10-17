@@ -88,12 +88,10 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	/**
 	 * The element sort for list terms.
-	 * 
-	 * @throws UnsupportedOperationException
-	 *             If the node is not a list.
+	 * Same as {@link #getSort()} for non-list terms.
 	 */
 	public String getElementSort() {
-		throw new UnsupportedOperationException();
+		return getSort();
 	}
 
 	public static IToken getLeftToken(ISimpleTerm term) {
@@ -212,9 +210,9 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	@Override
 	public String toString() {
 		if (getLeftToken() != null) {
-			return "(" + sort + ",\"" + getLeftToken().getTokenizer().toString(getLeftToken(), getRightToken()) + "\")";
+			return "(" + getSort() + ",\"" + getLeftToken().getTokenizer().toString(getLeftToken(), getRightToken()) + "\")";
 		} else {
-			return "(" + sort + ",null)";
+			return "(" + getSort() + ",null)";
 		}
 	}
 	

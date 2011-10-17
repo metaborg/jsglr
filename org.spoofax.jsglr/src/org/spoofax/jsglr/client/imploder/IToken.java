@@ -64,6 +64,9 @@ public interface IToken extends Comparable<IToken>, Serializable {
 
 	int getStartOffset();
 
+	/**
+	 * Gets the end offset (inclusive).
+	 */
 	int getEndOffset();
 
 	int getLine();

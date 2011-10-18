@@ -89,6 +89,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	void markPossibleSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader);
 	
 	boolean isSyntaxCorrect();
+	
+	void setSyntaxCorrect(boolean syntaxCorrect);
 
 	String toString(IToken left, IToken right);
 

@@ -41,7 +41,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 		return isSyntaxCorrect;
 	}
 	
-	protected void setSyntaxCorrect(boolean isSyntaxCorrect)  {
+	public void setSyntaxCorrect(boolean isSyntaxCorrect)  {
 		this.isSyntaxCorrect = isSyntaxCorrect;
 	}
 

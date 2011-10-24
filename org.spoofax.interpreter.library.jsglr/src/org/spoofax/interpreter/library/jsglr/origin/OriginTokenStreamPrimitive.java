@@ -14,10 +14,10 @@ import org.spoofax.jsglr.client.imploder.ITokenizer;
 /**
  * Tokens, ignoring layout
  */
-public class OriginTokensPrimitive extends AbstractOriginPrimitive {
+public class OriginTokenStreamPrimitive extends AbstractOriginPrimitive {
 	
-	public OriginTokensPrimitive() {
-		super("SSL_EXT_origin_tokens");
+	public OriginTokenStreamPrimitive() {
+		super("SSL_EXT_origin_token_stream");
 	}
 
 	@Override
@@ -25,11 +25,14 @@ public class OriginTokensPrimitive extends AbstractOriginPrimitive {
 		ITokenizer tokenizer=getTokenizer(origin);
 		int startIndex=getLeftToken(origin).getIndex();
 		int endIndex = getRightToken(origin).getIndex();
-		ArrayList<IStrategoTerm> tokenStrings=new ArrayList<IStrategoTerm>();
+		ArrayList<IStrategoTerm> tokenTuples=new ArrayList<IStrategoTerm>();
 		for (int i = startIndex; i <= endIndex; i++) {
-			if(tokenizer.getTokenAt(i).getKind() != IToken.TK_EOF)
-				tokenStrings.add(env.getFactory().makeString(tokenizer.getTokenAt(i).toString()));
+			if(tokenizer.getTokenAt(i).getKind() != IToken.TK_EOF){
+				IStrategoTerm tokenText = env.getFactory().makeString(tokenizer.getTokenAt(i).toString());
+				IStrategoTerm tokenSort = env.getFactory().makeInt(tokenizer.getTokenAt(i).getKind());
+				tokenTuples.add(env.getFactory().makeTuple(tokenText, tokenSort));
+			}
 		}		
-		return env.getFactory().makeList(tokenStrings);
+		return env.getFactory().makeList(tokenTuples);
 	}
 }

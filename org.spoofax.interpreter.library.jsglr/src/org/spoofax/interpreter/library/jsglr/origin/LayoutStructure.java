@@ -110,7 +110,7 @@ public class LayoutStructure {
 	/**
 	 * Separation between first and second (TODO: average) list element:
 	 * - consists of newlines, spaces, tabs and separator (if any)
-	 * - null in case (parent) element is not a list, or is a list with 0 or 1 element
+	 * - null in case (parent) element is not an origin list, or is a list with 0 or 1 element
 	 */
 	public String getSeparation() {
 		return getSeparationString();

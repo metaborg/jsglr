@@ -12,7 +12,7 @@ import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 
 /**
- * Tokens, ignoring layout
+ * Tokens + TokenKind
  */
 public class OriginTokenStreamPrimitive extends AbstractOriginPrimitive {
 	

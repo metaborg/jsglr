@@ -30,7 +30,8 @@ public class OriginTokenStreamPrimitive extends AbstractOriginPrimitive {
 			if(tokenizer.getTokenAt(i).getKind() != IToken.TK_EOF){
 				IStrategoTerm tokenText = env.getFactory().makeString(tokenizer.getTokenAt(i).toString());
 				IStrategoTerm tokenSort = env.getFactory().makeInt(tokenizer.getTokenAt(i).getKind());
-				tokenTuples.add(env.getFactory().makeTuple(tokenText, tokenSort));
+				IStrategoTerm tokenIndex = env.getFactory().makeInt(i);
+				tokenTuples.add(env.getFactory().makeTuple(tokenIndex, tokenText, tokenSort));
 			}
 		}		
 		return env.getFactory().makeList(tokenTuples);

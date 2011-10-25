@@ -24,6 +24,7 @@ public class OriginLibrary extends AbstractStrategoOperatorRegistry {
 		add(new OriginNonLayoutTokensPrimitive());
 		add(new OriginTokensPrimitive());
 		add(new OriginTokenStreamPrimitive());
+		add(new OriginTokenExpandPrimitive());
 
 		//origin term strategies
 		add(new OriginSublistTermPrimitive());

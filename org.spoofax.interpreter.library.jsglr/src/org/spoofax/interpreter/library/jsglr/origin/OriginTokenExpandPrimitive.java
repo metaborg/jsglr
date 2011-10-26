@@ -7,9 +7,11 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.core.IContext;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.terms.attachments.OriginAttachment;
 
 /**
  * Tokens
@@ -36,7 +38,9 @@ public class OriginTokenExpandPrimitive extends AbstractOriginPrimitive {
 					i = getRightToken(containingSubTerm).getIndex();
 				}
 				else {
-					resultTerms.add(env.getFactory().makeString(tokenizer.getTokenAt(i).toString()));
+					IStrategoString tokenTerm = env.getFactory().makeString(tokenizer.getTokenAt(i).toString());
+					OriginAttachment.setOrigin(tokenTerm, origin);
+					resultTerms.add(tokenTerm);
 				}
 			}
 			i += 1;

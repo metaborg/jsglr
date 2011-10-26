@@ -8,8 +8,10 @@ import java.util.ArrayList;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.terms.attachments.OriginAttachment;
 
 /**
  * Tokens + TokenKind
@@ -31,7 +33,11 @@ public class OriginTokenStreamPrimitive extends AbstractOriginPrimitive {
 				IStrategoTerm tokenText = env.getFactory().makeString(tokenizer.getTokenAt(i).toString());
 				IStrategoTerm tokenSort = env.getFactory().makeInt(tokenizer.getTokenAt(i).getKind());
 				IStrategoTerm tokenIndex = env.getFactory().makeInt(i);
-				tokenTuples.add(env.getFactory().makeTuple(tokenIndex, tokenText, tokenSort));
+				IStrategoTuple tokenInfo = env.getFactory().makeTuple(tokenIndex, tokenText, tokenSort);
+				IStrategoTerm nodeOfToken = OriginAttachment.getOrigin(tokenizer.getTokenAt(i).getAstNode());
+				if(nodeOfToken != null)
+					OriginAttachment.setOrigin(tokenInfo, nodeOfToken);
+				tokenTuples.add(tokenInfo);
 			}
 		}		
 		return env.getFactory().makeList(tokenTuples);

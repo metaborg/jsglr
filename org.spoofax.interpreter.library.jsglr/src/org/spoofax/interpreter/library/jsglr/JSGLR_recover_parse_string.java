@@ -1,6 +1,5 @@
 package org.spoofax.interpreter.library.jsglr;
 
-import static org.spoofax.interpreter.core.Tools.asJavaInt;
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
 import java.io.IOException;

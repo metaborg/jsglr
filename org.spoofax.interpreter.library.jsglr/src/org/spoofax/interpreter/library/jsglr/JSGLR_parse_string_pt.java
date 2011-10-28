@@ -46,6 +46,9 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		lastException = null;
 	}
 
+	/**
+	 * tvars: 0 => input string, 1 => table, 2 => startsymbol, 3 => path
+	 */
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
@@ -70,8 +73,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 
 		lastPath = asJavaString(tvars[3]);
 		
-		JSGLRLibrary lib = getLibrary(env);
-		ParseTable table = lib.getParseTable(asJavaInt(tvars[1]));
+		ParseTable table = getParseTable(env, tvars);
 		if (table == null)
 			return false;
 
@@ -96,13 +98,18 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 			return svars[0].evaluate(env);
 		}
 	}
+
+	protected ParseTable getParseTable(IContext env, IStrategoTerm[] tvars) {
+		JSGLRLibrary lib = getLibrary(env);
+		ParseTable table = lib.getParseTable(asJavaInt(tvars[1]));
+		return table;
+	}
 	
 	protected IStrategoTerm call(IContext env, IStrategoString input,
 			ParseTable table, String startSymbol)
 			throws InterpreterException, IOException, SGLRException {
 		
 		SGLR parser = new SGLR(new Asfix2TreeBuilder(env.getFactory()), table);
-		
 		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol);
 		
 		return result;

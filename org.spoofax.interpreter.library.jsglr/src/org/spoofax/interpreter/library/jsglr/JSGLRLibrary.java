@@ -23,6 +23,7 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
         add(new JSGLR_parse_stratego());
         add(new JSGLR_open_parsetable());
         add(new JSGLR_parse_string_pt());
+        add(new JSGLR_recover_parse_string());
 	}
 
 	public String getOperatorRegistryName() {

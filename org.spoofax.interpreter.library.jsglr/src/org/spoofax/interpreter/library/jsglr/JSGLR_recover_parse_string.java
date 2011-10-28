@@ -13,16 +13,16 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.Asfix2TreeBuilder;
+import org.spoofax.jsglr.client.FilterException;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.TermTreeFactory;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.io.binary.TermReader;
 
-public class JSGLR_recover_parse_string extends JSGLR_parse_string_pt {
+public class JSGLR_recover_parse_string extends JSGLRPrimitive {
 	
 	private int cursorLocation;
 
@@ -30,6 +30,9 @@ public class JSGLR_recover_parse_string extends JSGLR_parse_string_pt {
 		super("JSGLR_recover_parse_string", 1, 5);
 	}
 
+	/**
+	 * tvars: 0 => input string, 1 => parse table term, 2 => startsymbol, 3 => path
+	 */
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
@@ -40,39 +43,69 @@ public class JSGLR_recover_parse_string extends JSGLR_parse_string_pt {
 		} else {
 			return false;
 		}
-		return super.call(env, svars, tvars);
-	}
+		if (!Tools.isTermString(tvars[0]))
+			return false;
+		if (!isParseTableTerm(tvars[1]))
+			return false;
+		if(!Tools.isTermString(tvars[3]))
+			return false;
 
-	@Override
-	protected ParseTable getParseTable(IContext env, IStrategoTerm[] tvars) {
-		String parseTableFile = asJavaString(tvars[1]);
-		final TermFactory factory = new TermFactory();
-		IStrategoTerm tableTerm;
+		String startSymbol;
+		if (Tools.isTermString(tvars[2])) {
+			startSymbol = Tools.asJavaString(tvars[2]);
+		} else if (tvars[2].getSubtermCount() == 0 && tvars[2].getTermType() == IStrategoTerm.APPL && ((IStrategoAppl) tvars[2]).getConstructor().getName().equals("None")) {
+			startSymbol = null;
+		} else {
+			return false;
+		}
+
+		String lastPath = asJavaString(tvars[3]);
+		
+		ParseTable table = getParseTable(env, tvars);
+		if (table == null)
+			return false;
 		try {
-			tableTerm = new TermReader(factory).parseFromFile(parseTableFile);
-			return new ParseTable(tableTerm, factory);
-		} catch (ParseError e) {
-			IOAgent io = SSLLibrary.instance(env).getIOAgent();
-			io.printError("JSGLR_recover_parse_string: could not parse " + parseTableFile + " - " + e.getMessage());
-			e.printStackTrace();
+			IStrategoTerm result = call(env, (IStrategoString) tvars[0], table, startSymbol);
+			env.setCurrent(result);
+			return result != null;
 		} catch (IOException e) {
 			IOAgent io = SSLLibrary.instance(env).getIOAgent();
-			io.printError("JSGLR_recover_parse_string: could not open " + parseTableFile + " - " + e.getMessage());
-			e.printStackTrace();
-		} catch (InvalidParseTableException e) {
-			IOAgent io = SSLLibrary.instance(env).getIOAgent();
-			io.printError("JSGLR_recover_parse_string: " + parseTableFile + " - " + e.getMessage());
-			e.printStackTrace();
+			io.printError("JSGLR_recover_parse_string: could not parse " + lastPath + " - " + e.getMessage());
+			return false;
+		} catch (SGLRException e) {
+			IStrategoTerm errorTerm = e.toTerm(lastPath);
+			if (e instanceof FilterException) {
+				// HACK: print stack trace for this internal error
+				e.printStackTrace();
+			}
+			env.setCurrent(errorTerm);
+			
+			// FIXME: Stratego doesn't seem to print the erroneous line in Java
+			return svars[0].evaluate(env);
 		}
-		return null;
 	}
 
-	@Override
+	private boolean isParseTableTerm(IStrategoTerm pt) {
+		return pt.getTermType() == IStrategoTerm.APPL && ((IStrategoAppl) pt).getConstructor().getName().equals("parse-table");
+	}
+
+	protected ParseTable getParseTable(IContext env, IStrategoTerm[] tvars) {
+		final TermFactory factory = new TermFactory();
+		IStrategoTerm tableTerm = tvars[1];		
+		try {
+			return new ParseTable(tableTerm, factory);
+		} catch (InvalidParseTableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} 
+		 
+	}
+
 	protected IStrategoTerm call(IContext env, IStrategoString input,
 			ParseTable table, String startSymbol)
 			throws InterpreterException, IOException, SGLRException {
-		
-		SGLR parser = new SGLR(new Asfix2TreeBuilder(env.getFactory()), table);
+		SGLR parser = new SGLR(new TreeBuilder(new TermTreeFactory(env.getFactory())), table);
 		parser.setUseStructureRecovery(true);
 		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol, true, cursorLocation);
 		return result;

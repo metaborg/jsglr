@@ -319,6 +319,8 @@ public class LayoutStructure {
 					indexPreceedingSib = i-1;
 			}
 		}
+		if(indexPreceedingSib == -1)
+			return -1;
 		assert(indexPreceedingSib >= 0 && indexPreceedingSib < listParent.getSubtermCount());
 		ISimpleTerm preceedingNode = listParent.getSubterm(indexPreceedingSib);
 		if(!ImploderAttachment.hasImploderOrigin(preceedingNode))

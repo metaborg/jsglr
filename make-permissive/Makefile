@@ -2,7 +2,7 @@ STRATEGOXT ?= $(HOME)/.nix-profile
 ASTRS=$(wildcard *.astr) \
       $(wildcard */*.astr)
 
-STRS=$(ASTRS:.astr=.str)
+RTREES=$(ASTRS:.astr=.rtree)
 
 STRCFLAGS=\
   -I . \
@@ -17,17 +17,17 @@ STRCFLAGS=\
   
 all : make-permissive # jar
 
-make-permissive : make-permissive.str $(STRS)
+make-permissive : make-permissive.rtree $(RTREES)
 	strc -i $< -m main-make-permissive $(STRCFLAGS)
 
-java bin/org/strategoxt/permissivegrammars/make_permissive.java : make-permissive.str $(STRS)
+java bin/org/strategoxt/permissivegrammars/make_permissive.java : make-permissive.rtree $(RTREES)
 	[ -e bin/org/strategoxt/permissivegrammars ] || mkdir -p bin/org/strategoxt/permissivegrammars
 	strj -clean -i $< -o bin/org/strategoxt/permissivegrammars/make_permissive.java -m main-make-permissive -p org.strategoxt.permissivegrammars -la stratego-sdf $(STRCFLAGS)
 
 jar bin/make_permissive.jar : bin/org/strategoxt/permissivegrammars/make_permissive.java
 	strj-jar -i $< -o bin/make_permissive.jar -cp bin
 	     
-make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Comments.pp.af
+make-permissive.rtree : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Comments.pp.af
 	aster --verbose 2 -i $(ASTRS) -I syntax
 
 %.tbl : %.def
@@ -40,7 +40,7 @@ make-permissive.str : $(ASTRS) syntax/Stratego-Attributes-Sdf2.tbl syntax/Commen
 	         -Idef $(STRATEGOXT)/share/sdf/sdf-front/Stratego-Sdf2.def
 
 clean :
-	rm -f $(STRS) syntax/*.tbl
+	rm -f $(RTREES) syntax/*.tbl
 
 %.pp.af : %.pp
 	parse-pp-table -i $< -o $@

@@ -1,7 +1,6 @@
 package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class FineGrainedOnRegion {
 

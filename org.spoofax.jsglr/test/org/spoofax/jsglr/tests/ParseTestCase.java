@@ -33,7 +33,6 @@ import org.spoofax.jsglr.client.incremental.IncrementalSortSet;
 import org.spoofax.jsglr.io.FileTools;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ParentTermFactory;

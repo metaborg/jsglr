@@ -220,10 +220,6 @@ public class RegionRecovery {
         }
     }
 
-    private String getInputFragment(StructureSkipSuggestion aSkip) {
-        return getHistory().getFragment(aSkip.getStartSkip().getTokensSeen(), aSkip.getEndSkip().getTokensSeen()-1, myParser.currentInputStream);
-    }
-
     private boolean successCriterion() {
         return myParser.activeStacks.size() > 0 || myParser.acceptingStack!=null;
     }

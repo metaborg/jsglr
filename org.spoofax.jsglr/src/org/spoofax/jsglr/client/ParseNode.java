@@ -33,7 +33,8 @@ public class ParseNode extends AbstractParseNode {
 
     private int cachedHashCode; //should be set only after parsing 
 
-    public int getLabel() {
+    @Override
+	public int getLabel() {
     	if(isAmbNode() || label == AMB_LABEL)
     		throw new UnsupportedOperationException();
     	return label;

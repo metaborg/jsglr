@@ -97,6 +97,7 @@ public class RecoveryConnector {
         if (skipSucceeded) { 
             getHistory().resetRecoveryIndentHandler(skipRecovery.getStartLineErrorFragment().getIndentValue());
             parseErrorFragmentAsWhiteSpace(false);
+            getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
             boolean rsSucceeded=parseRemainingTokens(true);
             if(!rsSucceeded)
             	combinedRecover();
@@ -113,15 +114,18 @@ public class RecoveryConnector {
     private void addSkipOption(boolean skipSucceeded) {
         ArrayDeque<Frame> fgStacks=new ArrayDeque<Frame>();
         fgStacks.addAll(mySGLR.activeStacks);
-        if(skipSucceeded && parseErrorFragmentAsWhiteSpace(false) && parseRemainingTokens(false)){
-            for (Frame frame : mySGLR.activeStacks) {
-                for (Link l : frame.getAllLinks()) {
-                    l.recoverCount = 5;
-                }
-            }                        
-            for (Frame frame : fgStacks) {
-                mySGLR.addStack(frame);
-            } 
+        if(skipSucceeded && parseErrorFragmentAsWhiteSpace(false)){
+        	getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
+        	if(parseRemainingTokens(false)){
+	            for (Frame frame : mySGLR.activeStacks) {
+	                for (Link l : frame.getAllLinks()) {
+	                    l.recoverCount = 5;
+	                }
+	            }                        
+	            for (Frame frame : fgStacks) {
+	                mySGLR.addStack(frame);
+	            } 
+            }
         }
     }
     
@@ -130,7 +134,23 @@ public class RecoveryConnector {
     }
 
     private boolean tryFineGrainedRepair(int tokensSeen, int lastIndex, boolean useRegion) {
-        FineGrainedOnRegion fgRepair=new FineGrainedOnRegion(mySGLR); 
+    	FineGrainedRecovery fgRecovery = new FineGrainedRecovery(mySGLR);
+    	if(useRegion){
+    		StructureSkipSuggestion erroneousRegion = skipRecovery.getErroneousRegion();
+    		fgRecovery.recover(
+    			tokensSeen, 
+    			Math.min(erroneousRegion.getIndexHistoryEnd(), lastIndex), 
+    			erroneousRegion.getStartSkip().getTokensSeen(),
+    			erroneousRegion.getEndSkip().getTokensSeen()
+    		);
+    	}
+    	else{
+    		fgRecovery.recover(tokensSeen, lastIndex); //TODO: cursor location (if near but close to failure) as recover mid? 
+    	}
+    	return parseRemainingTokens(true);
+
+    	/*
+    	FineGrainedOnRegion fgRepair=new FineGrainedOnRegion(mySGLR); 
         if(useRegion){
             fgRepair.setRegionInfo(skipRecovery.getErroneousRegion(), skipRecovery.getAcceptPosition());
         }
@@ -140,6 +160,7 @@ public class RecoveryConnector {
         fgRepair.recover();
         fgRepair.parseRemainingTokens();
         return recoverySucceeded();
+        */
     }
 
     private boolean tryBridgeRepair(String errorFragment) {
@@ -147,6 +168,7 @@ public class RecoveryConnector {
         if(repairedFragment.trim().equals(errorFragment.trim()))
         	return false;
         mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());   
+        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
         tryParsing(repairedFragment, false);      
         return parseRemainingTokens(true);
     }
@@ -198,7 +220,6 @@ public class RecoveryConnector {
     public boolean parseRemainingTokens(boolean keepHistory) {
         //System.out.println("------------- REMAINING CHARACTERS --------------- ");
         //System.out.println();
-        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
         while(
         		(!getHistory().hasFinishedRecoverTokens()) 
         		&& mySGLR.activeStacks.size()>0 

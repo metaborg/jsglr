@@ -110,7 +110,7 @@ public class FineGrainedSetting {
 	 * @return Standard setting for fine grained recovery in an interactive environment
 	 */
 	public static FineGrainedSetting createDefaultSetting(){
-		return new FineGrainedSetting()
+		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(1000)
 			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(8)
@@ -119,6 +119,8 @@ public class FineGrainedSetting {
 			.setForwardFactor(0.5)
 			.setMaxNumberOfRecoverApplicationsLocal(6)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
+		fgSetting.checkAssertionsForSettings();
+		return fgSetting;
 	}
 
 	/**
@@ -128,7 +130,7 @@ public class FineGrainedSetting {
 	 * @return Setting that globally searches for a single token recovery
 	 */
 	public static FineGrainedSetting createSingleTokenSetting(){
-		return new FineGrainedSetting()
+		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(2500)
 			.setAcceptDistanceLines(15)
 			.setBacktrackDistanceLines(0)
@@ -137,6 +139,8 @@ public class FineGrainedSetting {
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(1)
 			.setMaxNumberOfRecoverApplicationsGlobal(1);
+		fgSetting.checkAssertionsForSettings();
+		return fgSetting;
 	}
 
 	/**
@@ -148,7 +152,7 @@ public class FineGrainedSetting {
 	 * by modifying the left and right context
 	 */
 	public static FineGrainedSetting createMultipleTokensSetting(){
-		return new FineGrainedSetting()
+		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(4000)
 			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(20)
@@ -157,6 +161,8 @@ public class FineGrainedSetting {
 			.setForwardFactor(20)
 			.setMaxNumberOfRecoverApplicationsLocal(10)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
+		fgSetting.checkAssertionsForSettings();
+		return fgSetting;
 	}
 
 	/**
@@ -166,7 +172,7 @@ public class FineGrainedSetting {
 	 * @return Setting that locally searches for a recover branch
 	 */
 	public static FineGrainedSetting createLocalContextSetting(){
-		return new FineGrainedSetting()
+		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(2500)
 			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(0)
@@ -175,6 +181,8 @@ public class FineGrainedSetting {
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(10)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
+		fgSetting.checkAssertionsForSettings();
+		return fgSetting;
 	}
 
 	/**
@@ -185,7 +193,7 @@ public class FineGrainedSetting {
 	 * @return Setting that searches for a recover branch by modifying the left context
 	 */
 	public static FineGrainedSetting createLeftContextSetting(){
-		return new FineGrainedSetting()
+		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(2500)
 			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(20)
@@ -194,6 +202,8 @@ public class FineGrainedSetting {
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(6)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
+		fgSetting.checkAssertionsForSettings();
+		return fgSetting;
 	}
 
 	/**
@@ -204,7 +214,7 @@ public class FineGrainedSetting {
 	 * @return Setting that searches for a recover branch by modifying the right context
 	 */
 	public static FineGrainedSetting createRightContextSetting(){
-		return new FineGrainedSetting()
+		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(2500)
 			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(0)
@@ -213,5 +223,19 @@ public class FineGrainedSetting {
 			.setForwardFactor(1)
 			.setMaxNumberOfRecoverApplicationsLocal(6)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
+		fgSetting.checkAssertionsForSettings();
+		return fgSetting;
 	}
+	
+	private void checkAssertionsForSettings() {
+    	assert(timeLimit > 0);
+    	assert(acceptDistanceLines > 0);
+    	assert(backtrackDistanceLines < backtrackDistanceLinesSingleToken);
+    	assert(backwardFactor >= 0);
+    	assert(forwardFactor >= 0);
+    	assert(maxNumberOfRecoverApplicationsGlobal >= 1);
+    	assert(maxNumberOfRecoverApplicationsLocal >= 1);
+    	assert(maxNumberOfRecoverApplicationsGlobal >= maxNumberOfRecoverApplicationsLocal);
+	}
+
 }

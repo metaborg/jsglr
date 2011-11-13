@@ -19,15 +19,7 @@ public class FineGrainedRecovery {
 	/*
 	 * Settings that control the heuristics applied to find a recover branch
 	 */
-	private final int timeLimit; //fine-grained recovery is stopped in case time limit expired
-	private final int acceptDistanceLines; //number of lines that must be parsed error-free before recovery is accepted
-	private final int backtrackDistanceLines; //maximum number of (non-empty) lines that is fully backtracked
-	private final int backtrackDistanceLinesSingleToken; //maximum number of (non-empty) lines that is explored for single token recoveries
-	private final double backwardFactor; //increase explored left context with x lines at each loop 
-	private final double forwardFactor; //increase explored right context with x lines at each loop (for example: 0.5 then extend one line after two loops)
-	//TODO: cut off branches that exceeds these maximums
-	private final int maxNumberOfRecoverApplicationsLocal; //branches with more then x recoveries after backtrack offset are cut off in FG mode
-	private final int maxNumberOfRecoverApplicationsGlobal; //branches with more then x recoveries are cut off (IS USED FOR ANALYSIS)
+	private final FineGrainedSetting settings;
 	
 	/*
 	 * Properties of the current error
@@ -37,17 +29,6 @@ public class FineGrainedRecovery {
 	private int lineIndexRecovery; //line index where recovery search starts (parse failure line, region end line, cursor line(?!))
 	private int failureOffset; //location where parser failed
 	private long recoverStartTime; //start time
-
-	private void checkAssertionsForSettings() {
-    	assert(timeLimit > 0);
-    	assert(acceptDistanceLines > 0);
-    	assert(backtrackDistanceLines < backtrackDistanceLinesSingleToken);
-    	assert(backwardFactor >= 0);
-    	assert(forwardFactor >= 0);
-    	assert(maxNumberOfRecoverApplicationsGlobal >= 1);
-    	assert(maxNumberOfRecoverApplicationsLocal >= 1);
-    	assert(maxNumberOfRecoverApplicationsGlobal >= maxNumberOfRecoverApplicationsLocal);
-	}
 
 	private void checkAssertionsForErrorProperties() {
     	assert(exploredRegionStartOffset < exploredRegionEndOffset);
@@ -90,19 +71,10 @@ public class FineGrainedRecovery {
 	 * @param SGLR parser
 	 * @param Setting that determines the expanding search space heuristics applied to find a suitable recovery
 	 */
-	public FineGrainedRecovery(SGLR parser, FineGrainedSetting fgSetting) {
-		this.acceptDistanceLines = fgSetting.getAcceptDistanceLines();
-		this.backtrackDistanceLines = fgSetting.getBacktrackDistanceLines();
-		this.backtrackDistanceLinesSingleToken = fgSetting.getBacktrackDistanceLinesSingleToken();
-		this.backwardFactor = fgSetting.getBackwardFactor();
-		this.forwardFactor = fgSetting.getForwardFactor();
-		this.maxNumberOfRecoverApplicationsGlobal = fgSetting.getMaxNumberOfRecoverApplicationsGlobal();
-		this.maxNumberOfRecoverApplicationsLocal = fgSetting.getMaxNumberOfRecoverApplicationsLocal();
-		this.timeLimit = fgSetting.getTimeLimit();
-		checkAssertionsForSettings();
+	public FineGrainedRecovery(SGLR parser, FineGrainedSetting fgSettings) {
+		this.settings = fgSettings;		
 		this.mySGLR = parser;
 	}
-	
 	
     /**
      * Constructs a recover branch for SGLR
@@ -141,9 +113,9 @@ public class FineGrainedRecovery {
 	}
 
 	private boolean recoverFrom(int loopIndex, ArrayList<RecoverNode> unexplored_branches) {
-		int backwardIndexPrev = Math.max(0,lineIndexRecovery - (int)(backwardFactor * (loopIndex - 1)));
-		int backwardIndex = Math.max(0,lineIndexRecovery - (int)(backwardFactor * loopIndex));
-		int forwardLinesMax = (int)(forwardFactor * loopIndex);
+		int backwardIndexPrev = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * (loopIndex - 1)));
+		int backwardIndex = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * loopIndex));
+		int forwardLinesMax = (int)(settings.getForwardFactor() * loopIndex);
 		assert(0 <= backwardIndex);
 		assert(backwardIndex <= lineIndexRecovery);
 		assert(backwardIndex <= backwardIndexPrev);
@@ -246,7 +218,7 @@ public class FineGrainedRecovery {
     }
 
 	private boolean timelimitExpired() {
-		return System.currentTimeMillis() - this.recoverStartTime > timeLimit;
+		return System.currentTimeMillis() - this.recoverStartTime > settings.getTimeLimit();
 	}
 
 	private ArrayList<RecoverNode> getBackwardRecoverCandidates(int bwIndex, int bwIndexPrev) {
@@ -275,11 +247,11 @@ public class FineGrainedRecovery {
 
 	private boolean continueBacktracking(int backwardIndex) {
 		assert(backwardIndex <= lineIndexRecovery);
-		return lineIndexRecovery - backwardIndex < backtrackDistanceLines;
+		return lineIndexRecovery - backwardIndex < settings.getBacktrackDistanceLines();
 	}
 
 	private boolean continueSingleTokenBacktracking(int backwardIndex) {
-		return lineIndexRecovery - backwardIndex < backtrackDistanceLinesSingleToken;
+		return lineIndexRecovery - backwardIndex < settings.getBacktrackDistanceLinesSingleToken();
 	}
 	
 	/**
@@ -311,7 +283,7 @@ public class FineGrainedRecovery {
 			return true;
 		return 
 			mySGLR.activeStacks.size() > 0
-		&&	parsedFragmentSinceLastRecovery.split("\n").length > acceptDistanceLines
+		&&	parsedFragmentSinceLastRecovery.split("\n").length > settings.getAcceptDistanceLines()
 		&&	parsedFragmentSinceLastRecovery.length() > ACCEPT_DISTANCE_CHARACTERS
 		&&  getHistory().getTokenIndex() > exploredRegionEndOffset;
 	}

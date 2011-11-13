@@ -4,6 +4,7 @@ public class FineGrainedSetting {
 
 	private int acceptDistanceLines; //number of lines that must be parsed error-free before recovery is accepted
 	private int backtrackDistanceLines; //maximum number of (non-empty) lines that is fully backtracked
+	private int forwardDistanceLines; //maximum number of (non-empty) lines that is explored at the right context
 	private int backtrackDistanceLinesSingleToken; //maximum number of (non-empty) lines that is explored for single token recoveries
 	private double backwardFactor; //increase explored left context with x lines at each loop 
 	private double forwardFactor; //increase explored right context with x lines at each loop (for example: 0.5 then extend one line after two loops)
@@ -33,6 +34,14 @@ public class FineGrainedSetting {
 		return this;
 	}
 
+	public int getForwardDistanceLines() {
+		return forwardDistanceLines;
+	}
+
+	public FineGrainedSetting setForwardDistanceLines(int forwardDistanceLines) {
+		this.forwardDistanceLines = forwardDistanceLines;
+		return this;
+	}
 	public int getBacktrackDistanceLines() {
 		return backtrackDistanceLines;
 	}
@@ -96,6 +105,7 @@ public class FineGrainedSetting {
 		this.setBacktrackDistanceLines(8);
 		this.setBacktrackDistanceLinesSingleToken(80);
 		this.setBackwardFactor(1);
+		this.setForwardDistanceLines(Integer.MAX_VALUE);
 		this.setForwardFactor(0.5);
 		this.setMaxNumberOfRecoverApplicationsLocal(6);
 		this.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
@@ -116,8 +126,30 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(8)
 			.setBacktrackDistanceLinesSingleToken(80)
 			.setBackwardFactor(1)
+			.setForwardDistanceLines(Integer.MAX_VALUE)
 			.setForwardFactor(0.5)
 			.setMaxNumberOfRecoverApplicationsLocal(6)
+			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
+		fgSetting.checkAssertionsForSettings();
+		return fgSetting;
+	}
+
+	/**
+	 * Setting is used for error analysis to find out how well
+	 * a local approach performs, only modifications on a single line are explored. 
+	 * Search heuristic: try all recover-count = 1, 2, 3, ... branches on the failure (or other) line,
+	 * @return Setting that locally searches for a recover branch
+	 */
+	public static FineGrainedSetting createCursorLineSetting(){
+		FineGrainedSetting fgSetting = new FineGrainedSetting()
+			.setTimeLimit(250)
+			.setAcceptDistanceLines(5)
+			.setBacktrackDistanceLines(1)
+			.setBacktrackDistanceLinesSingleToken(0)
+			.setBackwardFactor(1)
+			.setForwardDistanceLines(1)
+			.setForwardFactor(1)
+			.setMaxNumberOfRecoverApplicationsLocal(5)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
 		fgSetting.checkAssertionsForSettings();
 		return fgSetting;
@@ -136,6 +168,7 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(0)
 			.setBacktrackDistanceLinesSingleToken(500)
 			.setBackwardFactor(1)
+			.setForwardDistanceLines(Integer.MAX_VALUE)
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(1)
 			.setMaxNumberOfRecoverApplicationsGlobal(1);
@@ -158,6 +191,7 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(20)
 			.setBacktrackDistanceLinesSingleToken(0)
 			.setBackwardFactor(20)
+			.setForwardDistanceLines(Integer.MAX_VALUE)
 			.setForwardFactor(20)
 			.setMaxNumberOfRecoverApplicationsLocal(10)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
@@ -178,6 +212,7 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(0)
 			.setBacktrackDistanceLinesSingleToken(0)
 			.setBackwardFactor(0)
+			.setForwardDistanceLines(Integer.MAX_VALUE)
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(10)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
@@ -199,6 +234,7 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(20)
 			.setBacktrackDistanceLinesSingleToken(80)
 			.setBackwardFactor(1)
+			.setForwardDistanceLines(Integer.MAX_VALUE)
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(6)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
@@ -220,6 +256,7 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(0)
 			.setBacktrackDistanceLinesSingleToken(0)
 			.setBackwardFactor(0)
+			.setForwardDistanceLines(Integer.MAX_VALUE)
 			.setForwardFactor(1)
 			.setMaxNumberOfRecoverApplicationsLocal(6)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);

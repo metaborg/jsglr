@@ -115,11 +115,12 @@ public class FineGrainedRecovery {
 	private boolean recoverFrom(int loopIndex, ArrayList<RecoverNode> unexplored_branches) {
 		int backwardIndexPrev = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * (loopIndex - 1)));
 		int backwardIndex = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * loopIndex));
-		int forwardLinesMax = (int)(settings.getForwardFactor() * loopIndex);
+		int forwardLinesMax = Math.min(settings.getForwardDistanceLines(), (int)(settings.getForwardFactor() * loopIndex));
 		assert(0 <= backwardIndex);
 		assert(backwardIndex <= lineIndexRecovery);
 		assert(backwardIndex <= backwardIndexPrev);
 		assert(forwardLinesMax >= 0);		
+		assert(forwardLinesMax <= settings.getForwardDistanceLines());		
 		unexplored_branches.addAll(getBackwardRecoverCandidates(backwardIndex, backwardIndexPrev));
 		checkAssertionsUnexploredBranches(unexplored_branches, backwardIndex);
 		resetSGLR(backwardIndex, false);
@@ -174,7 +175,8 @@ public class FineGrainedRecovery {
 			newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
 			mySGLR.getRecoverStacks().clear();
 		} while (
-				exploredLinesForward <= fwLineMax
+				   exploredLinesForward <= fwLineMax
+				&& exploredLinesForward <= settings.getForwardDistanceLines()
 				&& getHistory().getTokenIndex() <= exploredRegionEndOffset
 				&& getHistory().getTokenIndex() <= fwTokensSeenMax
 				&& mySGLR.acceptingStack == null

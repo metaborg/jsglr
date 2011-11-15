@@ -16,6 +16,18 @@ public class Path {
 	private int parentCount;
 	private Link link;
 
+	public int getRecoverWeight()
+	{
+		int result = 0;
+		if(link != null) {
+			result += link.recoverWeight;           
+		}
+		if(parent != null) {
+			result += parent.getRecoverWeight();
+		}
+		return result;        
+	}
+
 	public int getRecoverCount()
 	{
 		int result = 0;
@@ -27,14 +39,7 @@ public class Path {
 		}
 		return result;        
 	}
-
-	public int getRecoverCount(int maxCharLength)
-	{
-		if(parent == null || this.length <= maxCharLength)
-			return getRecoverCount();
-		return parent.getRecoverCount(maxCharLength);
-	}
-
+	
 	public Path reuse(Path parent, Link link, Frame frame, int length, int parentCount) {
 		this.parent = parent;
 		this.link = link;

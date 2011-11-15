@@ -5,6 +5,7 @@ public class IntegratedRecoverySettings {
 	private boolean useRegionSelection;
 	private boolean useRegionRecovery;
 	private boolean useCursorLocation;
+	private int maxNumberOfRecoverApplicationsGlobal; //branches with more then x recoveries are cut off (IS USED FOR ANALYSIS)
 	
 	public boolean useFineGrained() {
 		return useFineGrained;
@@ -31,11 +32,22 @@ public class IntegratedRecoverySettings {
 		this.useRegionRecovery = useRegionRecovery;
 	}
 	
+	public int getMaxNumberOfRecoverApplicationsGlobal() {
+		return maxNumberOfRecoverApplicationsGlobal;
+	}
+
+	public void setMaxNumberOfRecoverApplicationsGlobal(
+			int maxNumberOfRecoverApplicationsGlobal) {
+		this.maxNumberOfRecoverApplicationsGlobal = maxNumberOfRecoverApplicationsGlobal;
+	}
+
+	
 	private IntegratedRecoverySettings(){
 		useFineGrained = true;
 		useRegionSelection = true;
 		useRegionRecovery = true;
 		useCursorLocation = true;
+		this.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);		
 	}
 	
 	public static IntegratedRecoverySettings createDefaultSettings(){

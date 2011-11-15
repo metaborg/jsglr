@@ -109,6 +109,7 @@ public class FineGrainedRecovery {
     	this.lineIndexRecovery = recoverIndex; 
     	this.recoverStartTime = System.currentTimeMillis();
     	checkAssertionsForErrorProperties();
+    	mySGLR.setFineGrainedRecoverMax(settings.getMaxNumberOfRecoverApplicationsLocal());
     	return recoverFrom(0, new ArrayList<RecoverNode>());
 	}
 
@@ -169,6 +170,7 @@ public class FineGrainedRecovery {
 		ArrayList<RecoverNode> newCandidates = new ArrayList<RecoverNode>();
 		int curTokIndex;
 		int exploredLinesForward = 0;
+		mySGLR.setFineGrainedStartLocation(getHistory().getTokenIndex());
 		do {
 			curTokIndex = getHistory().getTokenIndex();
 			addCurrentCandidates(candidates, curTokIndex);

@@ -23,6 +23,10 @@ public class RecoveryConnector {
 		this(parser, settings, FineGrainedSetting.createDefaultSetting());
 	}
 
+	public int getMaxNumberOfRecoverApplicationsGlobal(){
+		return this.settings.getMaxNumberOfRecoverApplicationsGlobal();
+	}
+	
 	public RecoveryConnector(SGLR parser, IntegratedRecoverySettings settings, FineGrainedSetting fgSettings) {
 		this.mySGLR = parser;
 		this.regionSelector = new RegionRecovery(mySGLR);
@@ -44,7 +48,7 @@ public class RecoveryConnector {
 				
 		if (settings.useFineGrained() && settings.useCursorLocation()) {
 			if(tryFineGrainedOnCursorLine(failureOffset, failureLineIndex, cursorLineIndex)){
-				System.out.println("FG on cursor line succeeded!");
+				//System.out.println("FG on cursor line succeeded!");
 				return true;
 			}
 		}
@@ -72,11 +76,12 @@ public class RecoveryConnector {
 
 	private boolean tryFineGrainedOnCursorLine(int failureOffset, int failureLineIndex, int cursorLineIndex) {
 		if(isLikelyErrorLocation(failureLineIndex, cursorLineIndex)){
-						
+			/*			
 			int startTok = getHistory().getLine(Math.max(0, cursorLineIndex - 1)).getTokensSeen();		
 			int endTok = failureOffset;
 			System.out.println(getHistory().getFragment(startTok, endTok, mySGLR.currentInputStream));
-
+			*/
+			
 			mySGLR.getPerformanceMeasuring().startFGOnCursor();
 			boolean fgSucceededOnCursor = fgCursorLineRecovery.recover(failureOffset, cursorLineIndex);
 			mySGLR.getPerformanceMeasuring().endFGOnCursor(fgSucceededOnCursor);
@@ -84,7 +89,7 @@ public class RecoveryConnector {
 				return true;
 			}
 		}
-		System.out.println("FG on cursor line failed!");
+		//System.out.println("FG on cursor line failed!");
 		return false;
 	}
 

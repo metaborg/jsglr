@@ -120,6 +120,10 @@ public class SGLR {
 	}
 
 	private boolean isFineGrainedMode;
+	
+	private int fineGrainedStartLocation;
+	
+	private int fineGrainedRecoverMax;
 
 	private int cursorLocation;
 
@@ -189,6 +193,14 @@ public class SGLR {
         this.isFineGrainedMode = fineGrainedMode;
         recoverStacks = new ArrayDeque<Frame>();
     }
+    
+	public void setFineGrainedStartLocation(int fineGrainedStartLocation) {
+		this.fineGrainedStartLocation = fineGrainedStartLocation;
+	}
+
+	public void setFineGrainedRecoverMax(int fineGrainedRecoverMax) {
+		this.fineGrainedRecoverMax = fineGrainedRecoverMax;
+	}
 
     public RecoveryPerformance getPerformanceMeasuring() {
         return performanceMeasuring;
@@ -327,7 +339,8 @@ public class SGLR {
 		}
 
 		logParseResult(s);
-		Tools.debug("avoids: ", s.recoverCount);
+		//System.out.println("recoveries: " + s.recoverCount);
+		Tools.debug("recoveries: ", s.recoverCount);
 		//Tools.debug(s.label.toParseTree(parseTable));
 
 		if (getTreeBuilder() instanceof NullTreeBuilder) {
@@ -644,10 +657,12 @@ public class SGLR {
 			final State next = parseTable.go(st0.state, prod.label);
 			logReductionPath(prod, path, st0, next);
 			if(!prod.isCompletionProduction() || isReductionOverCursorLocation(path)){
-				if(!prod.isRecoverProduction())
-					reducer(st0, next, prod, kids, path);
-				else
-					reducerRecoverProduction(st0, next, prod, kids, path);
+				if(checkMaxRecoverCount(prod, path)){
+					if(!prod.isRecoverProduction())
+						reducer(st0, next, prod, kids, path);
+					else
+						reducerRecoverProduction(st0, next, prod, kids, path);
+				}
 			}
 		}
 
@@ -655,6 +670,20 @@ public class SGLR {
 			// Rethrown as ParseTimeoutException in SGLR.sglrParse()
 			throw new TaskCancellationException("Long-running parse job aborted");
 		}
+	}
+
+	private boolean checkMaxRecoverCount(Production prod, final Path path) {
+		return checkRecoverCountLocal(prod, path) && checkRecoverCountGlobal(prod, path);
+	}
+
+	private boolean checkRecoverCountLocal(Production prod, final Path path) {
+		return !isFineGrainedMode || 
+			calcRecoverCount(prod, path) <= fineGrainedRecoverMax || 
+			getHistory().getTokenIndex() - path.getLength() < fineGrainedStartLocation; //large reduction
+	}
+
+	private boolean checkRecoverCountGlobal(Production prod, final Path path) {
+		return calcRecoverCount(prod, path) <= this.recoverIntegrator.getMaxNumberOfRecoverApplicationsGlobal();
 	}
 
 	private boolean isReductionOverCursorLocation(final Path path) {
@@ -668,12 +697,13 @@ public class SGLR {
 
 		final int length = path.getLength();
 		final int numberOfRecoveries = calcRecoverCount(prod, path);
+		final int recoverWeight = calcRecoverWeight(prod, path);
 		final AbstractParseNode t = prod.apply(kids);
 		final Frame st1 = findStack(activeStacks, s);
 
 		if (st1 == null) {
 			// Found no existing stack with for state s; make new stack
-			addNewStack(st0, s, prod, length, numberOfRecoveries, t);
+			addNewStack(st0, s, prod, length, numberOfRecoveries, recoverWeight, t);
 		} else {
 			/* A stack with state s exists; check for ambiguities */
 			Link nl = st1.findDirectLink(st0);
@@ -683,17 +713,19 @@ public class SGLR {
 				if (prod.isRejectProduction()) {
 					nl.reject();
 				} 
-				if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
+				if(recoverWeight == 0 && nl.recoverWeight == 0 || nl.isRejected()) {
 					createAmbNode(t, nl);
-				} else if (numberOfRecoveries < nl.recoverCount) {
+				} else if (recoverWeight < nl.recoverWeight) {
 					nl.label = t;
 					nl.recoverCount = numberOfRecoveries;
+					nl.recoverWeight = recoverWeight;
 					actorOnActiveStacksOverNewLink(nl);
-				} else if (numberOfRecoveries == nl.recoverCount) {
+				} else if (recoverWeight == nl.recoverWeight) {
 					nl.label = t;
 				}
 			} else {
 				nl = st1.addLink(st0, t, length);
+				nl.recoverWeight = recoverWeight;
 				nl.recoverCount = numberOfRecoveries;
 				if (prod.isRejectProduction()) {
 					nl.reject();
@@ -713,6 +745,7 @@ public class SGLR {
 		assert(prod.isRecoverProduction());
 		final int length = path.getLength();
 		final int numberOfRecoveries = calcRecoverCount(prod, path);
+		final int recoverWeight = calcRecoverWeight(prod, path);
 		final AbstractParseNode t = prod.apply(kids);
 		final Frame stActive = findStack(activeStacks, s);
 		if(stActive!=null){
@@ -724,14 +757,15 @@ public class SGLR {
 		final Frame stRecover = findStack(recoverStacks, s);
 		if(stRecover!=null){
 			Link nlRecover = stRecover.findDirectLink(st0);
-			if(nlRecover!=null){
+			if(nlRecover != null){
 				return; //TODO: ambiguity
 			}
 			nlRecover = stRecover.addLink(st0, t, length);
 			nlRecover.recoverCount = numberOfRecoveries;
+			nlRecover.recoverWeight = recoverWeight;
 			return;
 		}
-		addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
+		addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, recoverWeight, t);
 	}
 
 	private void createAmbNode(AbstractParseNode t, Link nl) {
@@ -743,12 +777,13 @@ public class SGLR {
 	 * Found no existing stack with for state s; make new stack
 	 */
 	private void addNewStack(Frame st0, State s, Production prod, int length,
-			int numberOfRecoveries, AbstractParseNode t) {
+			int numberOfRecoveries, int recoverWeight, AbstractParseNode t) {
 
 		final Frame st1 = newStack(s);
 		final Link nl = st1.addLink(st0, t, length);
 
 		nl.recoverCount = numberOfRecoveries;
+		nl.recoverWeight = recoverWeight;
 		addStack(st1);
 		forActorDelayed.addFirst(st1);
 
@@ -769,13 +804,14 @@ public class SGLR {
 	 *  Found no existing stack with for state s; make new stack
 	 */
 	private void addNewRecoverStack(Frame st0, State s, Production prod, int length,
-			int numberOfRecoveries, AbstractParseNode t) {
+			int numberOfRecoveries, int recoverWeight, AbstractParseNode t) {
 		if (!(isFineGrainedMode && !prod.isRejectProduction())) {
 			return;
 		}
 		final Frame st1 = newStack(s);
 		final Link nl = st1.addLink(st0, t, length);
 		nl.recoverCount = numberOfRecoveries;
+		nl.recoverWeight = recoverWeight;
 		recoverStacks.addFirst(st1);
 	}
 
@@ -818,6 +854,14 @@ public class SGLR {
 
 	private int calcRecoverCount(Production prod, Path path) {
 		int result = path.getRecoverCount();
+		if (prod.isRecoverProduction() || prod.isCompletionProduction()){
+			result += 1;
+		}
+		return result;
+	}
+
+	private int calcRecoverWeight(Production prod, Path path) {
+		int result = path.getRecoverWeight();
 		if (prod.isRecoverProduction() || prod.isCompletionProduction()){
 			result += 1;
 			if (path.getLength() > 0 && !prod.isCompletionProduction())

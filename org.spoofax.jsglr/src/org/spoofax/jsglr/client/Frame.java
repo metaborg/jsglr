@@ -295,20 +295,20 @@ public class Frame implements Serializable {
         }
     }
     
-    //mj debug info function
+    /*mj debug info function
     public int minAvoidValue()
     {
         int result = 0;
         for (int i = 0; i < stepsCount; i++) {
             if(i==0){
-                result = steps[i].recoverCount;
-            result = Math.min(result, steps[i].recoverCount);
+                result = steps[i].recoverWeight;
+            result = Math.min(result, steps[i].recoverWeight);
             }            
         }
         return result;
     }
     
-  //mj debug info function
+    //mj debug info function
     public List<String> getStackPaths(String frontEnd, boolean avoidFree)
     {
         String front = this.state.stateNumber + frontEnd;
@@ -320,11 +320,11 @@ public class Frame implements Serializable {
         for (int i = 0; i < stepsCount; i++) {
             Link ln = steps[i];
             List<String> childColl;
-            if(ln.recoverCount ==0 || (avoidFree==false)) {
-                if(ln.recoverCount ==0)
+            if(ln.recoverWeight ==0 || (avoidFree==false)) {
+                if(ln.recoverWeight ==0)
                     childColl= ln.parent.getStackPaths(" - "+front, avoidFree); 
                 else {
-                    String frnt = "-$"+ ln.recoverCount +"$-" + front;
+                    String frnt = "-$"+ ln.recoverWeight +"$-" + front;
                     childColl=ln.parent.getStackPaths(frnt, avoidFree);
                 }
                 stackStrings.addAll(childColl);
@@ -337,5 +337,5 @@ public class Frame implements Serializable {
     public String[] getStackRepresentation(boolean avoidFree){
         List<String> stackStrings=this.getStackPaths("", avoidFree);
         return stackStrings.toArray(new String[stackStrings.size()]);
-    }      
+    }*/      
 }

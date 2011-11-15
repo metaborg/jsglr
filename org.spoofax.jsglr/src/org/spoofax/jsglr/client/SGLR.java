@@ -98,6 +98,18 @@ public class SGLR {
 	private ITreeBuilder treeBuilder;
 
 	protected boolean useIntegratedRecovery;
+
+	public void setUseStructureRecovery(boolean useRecovery) {
+		this.useIntegratedRecovery = useRecovery;
+		this.recoverIntegrator = new RecoveryConnector(this);
+	}
+
+	public void setUseStructureRecovery(boolean useRecovery, IntegratedRecoverySettings settings, FineGrainedSetting fgSettings) {
+		this.useIntegratedRecovery = useRecovery;
+		this.recoverIntegrator = new RecoveryConnector(this, settings, fgSettings);
+	}
+
+	private boolean isCompletionMode;
 	
 	public ParserHistory getHistory() {
 		return history;
@@ -107,11 +119,17 @@ public class SGLR {
 		return this.getHistory().getTokenIndex(); //should also work in recover mode
 	}
 
-	private boolean fineGrainedOnRegion;
+	private boolean isFineGrainedMode;
 
 	private int cursorLocation;
 
-	private boolean isCompletionMode;
+	public int getCursorLocation() {
+		return cursorLocation;
+	}
+	
+	public boolean isSetCursorLocation() {
+		return 0 < cursorLocation && cursorLocation != Integer.MAX_VALUE;
+	}
 	
 	private void setCompletionParse(boolean isCompletionMode, int cursorLocation){
 		this.isCompletionMode = isCompletionMode;
@@ -155,7 +173,6 @@ public class SGLR {
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
 		this.parseTable = parseTable;
-
 		activeStacks = new ArrayDeque<Frame>();
 		forActor = new ArrayDeque<Frame>();
 		forActorDelayed = new ArrayDeque<Frame>();
@@ -164,42 +181,13 @@ public class SGLR {
 		useIntegratedRecovery = false;
 		recoverIntegrator = null;
 		history = new ParserHistory();
+    	setCompletionParse(false, Integer.MAX_VALUE);
 		setTreeBuilder(treeBuilder);
 	}
-
-	public void setUseStructureRecovery(boolean useRecovery, IRecoveryParser parser) {
-		useIntegratedRecovery = useRecovery;
-		recoverIntegrator = new RecoveryConnector(this, parser);
-	}
-
-	/**
-	 * Enables error recovery based on region recovery and, if available, recovery rules.
-	 * Does not enable bridge parsing.
-	 *
-	 * @see ParseTable#hasRecovers()   Determines if the parse table supports recovery rules
-	 */
-	public final void setUseStructureRecovery(boolean useRecovery) {
-		setUseStructureRecovery(useRecovery, null);
-	}
 	
-    protected void setFineGrainedOnRegion(boolean fineGrainedMode) {
-        fineGrainedOnRegion = fineGrainedMode;
+    protected void setFinegrainedRecoverMode(boolean fineGrainedMode) {
+        this.isFineGrainedMode = fineGrainedMode;
         recoverStacks = new ArrayDeque<Frame>();
-    }
-
-    @Deprecated
-    protected void setUseFineGrained(boolean useFG) {
-        recoverIntegrator.setUseFineGrained(useFG);
-    }
-
-    // FIXME: we have way to many of these accessors; does this have to be public?
-    //        if not for normal use, it should at least be 'internalSet....'
-    @Deprecated
-    public void setCombinedRecovery(boolean useBP, boolean useFG,
-            boolean useOnlyFG) {
-        recoverIntegrator.setOnlyFineGrained(useOnlyFG);
-        recoverIntegrator.setUseBridgeParser(useBP);
-        recoverIntegrator.setUseFineGrained(useFG);
     }
 
     public RecoveryPerformance getPerformanceMeasuring() {
@@ -622,7 +610,7 @@ public class SGLR {
 
 	private boolean recoverModeOk(Frame st, Production prod) {
 		if(!prod.isCompletionProduction()){
-			return !prod.isRecoverProduction() || fineGrainedOnRegion;
+			return !prod.isRecoverProduction() || isFineGrainedMode;
 		}
 		return inCompletionMode(prod);
 	}
@@ -672,7 +660,6 @@ public class SGLR {
 	private boolean isReductionOverCursorLocation(final Path path) {
 		return getParserLocation() - path.getLength() < cursorLocation;
 	}
-
 	
 	private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
 		assert(!prod.isRecoverProduction());
@@ -783,7 +770,7 @@ public class SGLR {
 	 */
 	private void addNewRecoverStack(Frame st0, State s, Production prod, int length,
 			int numberOfRecoveries, AbstractParseNode t) {
-		if (!(fineGrainedOnRegion && !prod.isRejectProduction())) {
+		if (!(isFineGrainedMode && !prod.isRejectProduction())) {
 			return;
 		}
 		final Frame st1 = newStack(s);
@@ -1294,4 +1281,5 @@ public class SGLR {
 		assert(currentToken >= 0);
 		return currentToken;
 	}
+
 }

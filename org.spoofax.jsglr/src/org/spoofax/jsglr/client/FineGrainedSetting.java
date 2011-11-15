@@ -107,7 +107,7 @@ public class FineGrainedSetting {
 		this.setBackwardFactor(1);
 		this.setForwardDistanceLines(Integer.MAX_VALUE);
 		this.setForwardFactor(0.5);
-		this.setMaxNumberOfRecoverApplicationsLocal(6);
+		this.setMaxNumberOfRecoverApplicationsLocal(5);
 		this.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
 		
 	}
@@ -123,12 +123,12 @@ public class FineGrainedSetting {
 		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(1000)
 			.setAcceptDistanceLines(5)
-			.setBacktrackDistanceLines(8)
+			.setBacktrackDistanceLines(10)
 			.setBacktrackDistanceLinesSingleToken(80)
 			.setBackwardFactor(1)
 			.setForwardDistanceLines(Integer.MAX_VALUE)
 			.setForwardFactor(0.5)
-			.setMaxNumberOfRecoverApplicationsLocal(6)
+			.setMaxNumberOfRecoverApplicationsLocal(5)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
 		fgSetting.checkAssertionsForSettings();
 		return fgSetting;
@@ -144,12 +144,12 @@ public class FineGrainedSetting {
 		FineGrainedSetting fgSetting = new FineGrainedSetting()
 			.setTimeLimit(250)
 			.setAcceptDistanceLines(5)
-			.setBacktrackDistanceLines(1)
+			.setBacktrackDistanceLines(0)
 			.setBacktrackDistanceLinesSingleToken(0)
-			.setBackwardFactor(1)
-			.setForwardDistanceLines(1)
-			.setForwardFactor(1)
-			.setMaxNumberOfRecoverApplicationsLocal(5)
+			.setBackwardFactor(0)
+			.setForwardDistanceLines(0)
+			.setForwardFactor(0)
+			.setMaxNumberOfRecoverApplicationsLocal(2)
 			.setMaxNumberOfRecoverApplicationsGlobal(Integer.MAX_VALUE);
 		fgSetting.checkAssertionsForSettings();
 		return fgSetting;
@@ -267,11 +267,12 @@ public class FineGrainedSetting {
 	private void checkAssertionsForSettings() {
     	assert(timeLimit > 0);
     	assert(acceptDistanceLines > 0);
-    	assert(backtrackDistanceLines < backtrackDistanceLinesSingleToken);
+    	assert(backtrackDistanceLines <= backtrackDistanceLinesSingleToken);
     	assert(backwardFactor >= 0);
     	assert(forwardFactor >= 0);
     	assert(maxNumberOfRecoverApplicationsGlobal >= 1);
     	assert(maxNumberOfRecoverApplicationsLocal >= 1);
+    	assert(maxNumberOfRecoverApplicationsLocal <= 10);
     	assert(maxNumberOfRecoverApplicationsGlobal >= maxNumberOfRecoverApplicationsLocal);
 	}
 

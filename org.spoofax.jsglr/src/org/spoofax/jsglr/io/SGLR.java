@@ -123,5 +123,4 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 		String input = FileTools.loadFileAsString(in);
 		return parse(input, filename, startSymbol);
 	}
-
 }

@@ -9,6 +9,8 @@ public class RecoveryPerformance {
     private long startCG;
     private ArrayList<Integer> CGTimes;
     private long startFG;
+    private ArrayList<Integer> FGOnCursorTimes;
+    private long startFGOnCursor;
     private ArrayList<Integer> FGTimes;
     private long startBP;
     private ArrayList<Integer> BPTimes;
@@ -17,6 +19,7 @@ public class RecoveryPerformance {
     
     private ArrayList<Boolean> CGResults;
     private ArrayList<Boolean> FGResults;
+    private ArrayList<Boolean> FGOnCursorResults;
     private ArrayList<Boolean> BPResults;
     private ArrayList<Boolean> recoveryResults;
     private boolean parseResult;
@@ -24,11 +27,13 @@ public class RecoveryPerformance {
     public RecoveryPerformance(){
         CGTimes=new ArrayList<Integer>();
         FGTimes=new ArrayList<Integer>();
+        FGOnCursorTimes=new ArrayList<Integer>();
         BPTimes=new ArrayList<Integer>();
         recoveryTimes=new ArrayList<Integer>();
         
         CGResults=new ArrayList<Boolean>();
         FGResults=new ArrayList<Boolean>();
+        FGOnCursorResults=new ArrayList<Boolean>();
         BPResults=new ArrayList<Boolean>();
         recoveryResults=new ArrayList<Boolean>();
     }
@@ -101,7 +106,17 @@ public class RecoveryPerformance {
         FGTimes.add((int)FGTime);
         FGResults.add(succeeded);
     }
-    
+
+	public void startFGOnCursor() {
+        startFGOnCursor = System.currentTimeMillis();
+	}
+
+	public void endFGOnCursor(boolean succeeded) {
+        long FGTime=System.currentTimeMillis()-startFGOnCursor;
+        FGOnCursorTimes.add((int)FGTime);
+        FGOnCursorResults.add(succeeded);
+	}
+
     void startBP(){
         startBP=System.currentTimeMillis();
     }

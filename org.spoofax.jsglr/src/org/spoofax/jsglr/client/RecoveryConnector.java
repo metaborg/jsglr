@@ -1,256 +1,170 @@
 package org.spoofax.jsglr.client;
 
-import org.spoofax.jsglr.shared.ArrayDeque;
-import org.spoofax.jsglr.shared.BadTokenException;
-import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.jsglr.shared.TokenExpectedException;
-
 public class RecoveryConnector {
-    private SGLR mySGLR;
-    private IRecoveryParser recoveryParser;
-    private RegionRecovery skipRecovery;
-    private boolean useBridgeParser;
-    private boolean useFineGrained;
-    private boolean onlyFineGrained;
-    
-    
-    public void setOnlyFineGrained(boolean onlyFG) {
-        onlyFineGrained=onlyFG;        
-    }
-    
-    public void setUseFineGrained(boolean useFG) {
-        useFineGrained=useFG;        
-    }
-    
-    public void setUseBridgeParser(boolean useBridgeParser) {
-        this.useBridgeParser = useBridgeParser;
-    }
+	private SGLR mySGLR;
+	private IntegratedRecoverySettings settings;
+	private RegionRecovery regionSelector;
+	private FineGrainedRecovery fgRegionalRecovery; // used on errorneous region (or on region near failure line)
+	private FineGrainedRecovery fgCursorLineRecovery; // intended for recovery near cursor
 
-    public RecoveryConnector(SGLR parser, IRecoveryParser recoveryParser){
-        mySGLR=parser;        
-        skipRecovery = new RegionRecovery(mySGLR); 
-        useFineGrained=true;
-        onlyFineGrained=false;
-        if(recoveryParser!=null){
-            this.recoveryParser = recoveryParser;
-            useBridgeParser=true;
-        }
-        else
-            useBridgeParser=false;
-        
-    }    
+	public void setFgRegionalRecovery(FineGrainedRecovery fgRegionalRecovery) {
+		this.fgRegionalRecovery = fgRegionalRecovery;
+	}
 
-    private ParserHistory getHistory() {
-        return mySGLR.getHistory();
-    }
-    public void recover() {
-        mySGLR.getPerformanceMeasuring().startRecovery();
-        combinedRecover();
-        mySGLR.getPerformanceMeasuring().endRecovery(recoverySucceeded());
-    }
+	private ParserHistory getHistory() {
+		return mySGLR.getHistory();
+	}
 
-    private void combinedRecover() {
-        int tokensSeen = mySGLR.getParserLocation(); 
-        int lastIndex = getHistory().getLineOfTokenPosition(tokensSeen -1);
-        if(onlyFineGrained){
-            mySGLR.getPerformanceMeasuring().startFG();
-            boolean fg=tryFineGrainedRepair(tokensSeen, lastIndex, false);
-            mySGLR.getPerformanceMeasuring().endFG(fg);
-            return;
-        }
-        mySGLR.getPerformanceMeasuring().startCG();
-        boolean skipSucceeded = skipRecovery.selectErroneousFragment(); //decides whether whitespace parse makes sense
-        /*
-        System.out.println();
-        System.out.println("------------------------------");
-        System.out.println("SKIP-RESULT: "+skipSucceeded);
-        System.out.print(skipRecovery.getErrorFragment());
-        System.out.println();
-        System.out.println("------------------------------");
-        */
-        mySGLR.getPerformanceMeasuring().endCG(skipSucceeded);
-        mySGLR.acceptingStack=null;
-        mySGLR.activeStacks.clear();
-        //BRIDGE REPAIR
-        if(useBridgeParser){            
-            String errorFragment = skipRecovery.getErrorFragmentWithLeftMargin();
-            mySGLR.getPerformanceMeasuring().startBP();
-            boolean succeeded = tryBridgeRepair(errorFragment);
-            mySGLR.getPerformanceMeasuring().endBP(succeeded);
-            if(succeeded){
-            	//System.out.println("BP-Succeeded");
-                return;
-            }
-        }
-        //FINEGRAINED REPAIR 
-        if(useFineGrained){
-            mySGLR.getPerformanceMeasuring().startFG();
-            boolean FGSucceeded=tryFineGrainedRepair(tokensSeen, lastIndex, skipSucceeded);
-            mySGLR.getPerformanceMeasuring().endFG(FGSucceeded);
-            if(FGSucceeded){ //FG succeeded  
-                //addSkipOption(skipSucceeded);
-                //System.out.println("FG-Succeeded");
-                return;
-            }
-        }
-        //WHITESPACE REPAIR
-        if (skipSucceeded) { 
-            getHistory().resetRecoveryIndentHandler(skipRecovery.getStartLineErrorFragment().getIndentValue());
-            parseErrorFragmentAsWhiteSpace(false);
-            getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
-            boolean rsSucceeded=parseRemainingTokens(true);
-            if(!rsSucceeded)
-            	combinedRecover();
-            /*
-            if(rsSucceeded)
-            	System.out.println("RS-Succeeded");
-            else
-            	System.err.println("RS failed");
-            */
-            
-        }
-    }
+	public RecoveryConnector(SGLR parser){
+		this(parser, IntegratedRecoverySettings.createDefaultSettings(), FineGrainedSetting.createDefaultSetting());
+	}
+	
+	public RecoveryConnector(SGLR parser, IntegratedRecoverySettings settings) {
+		this(parser, settings, FineGrainedSetting.createDefaultSetting());
+	}
 
-    private void addSkipOption(boolean skipSucceeded) {
-        ArrayDeque<Frame> fgStacks=new ArrayDeque<Frame>();
-        fgStacks.addAll(mySGLR.activeStacks);
-        if(skipSucceeded && parseErrorFragmentAsWhiteSpace(false)){
-        	getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
-        	if(parseRemainingTokens(false)){
-	            for (Frame frame : mySGLR.activeStacks) {
-	                for (Link l : frame.getAllLinks()) {
-	                    l.recoverCount = 5;
-	                }
-	            }                        
-	            for (Frame frame : fgStacks) {
-	                mySGLR.addStack(frame);
-	            } 
-            }
-        }
-    }
-    
-    private boolean recoverySucceeded() {
-        return (mySGLR.activeStacks.size()>0 || mySGLR.acceptingStack!=null);
-    }
+	public RecoveryConnector(SGLR parser, IntegratedRecoverySettings settings, FineGrainedSetting fgSettings) {
+		this.mySGLR = parser;
+		this.regionSelector = new RegionRecovery(mySGLR);
+		this.settings = settings;
+		this.fgCursorLineRecovery = new FineGrainedRecovery(mySGLR, FineGrainedSetting.createCursorLineSetting());		
+		this.fgRegionalRecovery = new FineGrainedRecovery(mySGLR, fgSettings);
+	}
+	
+	public void recover() {
+		mySGLR.getPerformanceMeasuring().startRecovery();
+		boolean recoverySucceeded = combinedRecover();
+		mySGLR.getPerformanceMeasuring().endRecovery(recoverySucceeded);
+	}
 
-    private boolean tryFineGrainedRepair(int tokensSeen, int lastIndex, boolean useRegion) {
-    	FineGrainedRecovery fgRecovery = new FineGrainedRecovery(mySGLR);
-    	if(useRegion){
-    		StructureSkipSuggestion erroneousRegion = skipRecovery.getErroneousRegion();
-    		fgRecovery.recover(
-    			tokensSeen, 
-    			Math.min(erroneousRegion.getIndexHistoryEnd(), lastIndex), 
-    			erroneousRegion.getStartSkip().getTokensSeen(),
-    			erroneousRegion.getEndSkip().getTokensSeen()
-    		);
-    	}
-    	else{
-    		fgRecovery.recover(tokensSeen, lastIndex); //TODO: cursor location (if near but close to failure) as recover mid? 
-    	}
-    	return parseRemainingTokens(true);
+	private boolean combinedRecover() {
+		int failureOffset = mySGLR.getParserLocation();
+		int failureLineIndex = getHistory().getLineOfTokenPosition(failureOffset - 1);
+		int cursorLineIndex = getHistory().getLineOfTokenPosition(mySGLR.getCursorLocation());
+				
+		if (settings.useFineGrained() && settings.useCursorLocation()) {
+			if(tryFineGrainedOnCursorLine(failureOffset, failureLineIndex, cursorLineIndex)){
+				System.out.println("FG on cursor line succeeded!");
+				return true;
+			}
+		}
+		boolean skipSucceeded = false;
+		if (settings.useRegionSelection() || settings.useRegionRecovery()) {
+			skipSucceeded = trySelectErroneousRegion(failureOffset, failureLineIndex, cursorLineIndex);
+		}
+		if (settings.useFineGrained()) {
+			boolean fgSucceeded = tryFineGrainedRecovery(failureOffset, failureLineIndex, skipSucceeded);
+			if (parseRemainingTokens(true)) {
+				return true;
+			} else if (fgSucceeded) {
+				return combinedRecover();
+			}
+		}
+		if (settings.useRegionRecovery() && skipSucceeded) {
+			parseErrorFragmentAsWhiteSpace();
+			if (parseRemainingTokens(true))
+				return true;
+			else
+				return combinedRecover();
+		}
+		return false;
+	}
 
-    	/*
-    	FineGrainedOnRegion fgRepair=new FineGrainedOnRegion(mySGLR); 
-        if(useRegion){
-            fgRepair.setRegionInfo(skipRecovery.getErroneousRegion(), skipRecovery.getAcceptPosition());
-        }
-        else{
-            fgRepair.setInfoFGOnly(tokensSeen, lastIndex);
-        }
-        fgRepair.recover();
-        fgRepair.parseRemainingTokens();
-        return recoverySucceeded();
-        */
-    }
+	private boolean tryFineGrainedOnCursorLine(int failureOffset, int failureLineIndex, int cursorLineIndex) {
+		if(isLikelyErrorLocation(failureLineIndex, cursorLineIndex)){
+						
+			int startTok = getHistory().getLine(Math.max(0, cursorLineIndex - 1)).getTokensSeen();		
+			int endTok = failureOffset;
+			System.out.println(getHistory().getFragment(startTok, endTok, mySGLR.currentInputStream));
 
-    private boolean tryBridgeRepair(String errorFragment) {
-        String repairedFragment = repairBridges(errorFragment);
-        if(repairedFragment.trim().equals(errorFragment.trim()))
-        	return false;
-        mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());   
-        getHistory().setTokenIndex(skipRecovery.getEndPositionErrorFragment());
-        tryParsing(repairedFragment, false);      
-        return parseRemainingTokens(true);
-    }
+			mySGLR.getPerformanceMeasuring().startFGOnCursor();
+			boolean fgSucceededOnCursor = fgCursorLineRecovery.recover(failureOffset, cursorLineIndex);
+			mySGLR.getPerformanceMeasuring().endFGOnCursor(fgSucceededOnCursor);
+			if (fgSucceededOnCursor && parseRemainingTokens(true)) {
+				return true;
+			}
+		}
+		System.out.println("FG on cursor line failed!");
+		return false;
+	}
 
-    private String repairBridges(String errorFragment) {        
-        try {            
-            IRecoveryResult bpResult = null;
-            bpResult = recoveryParser.recover(errorFragment);
-            return bpResult.getResult();
-        } catch (TokenExpectedException e) {
-            e.printStackTrace();
-        } catch (BadTokenException e) {
-            e.printStackTrace();
-        } catch (SGLRException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return  errorFragment;
-    }
-    
-    private void tryParsing(String fragment, boolean asLayout) {
-        // Skip any leading whitespace, since we already parsed up to that point
-        int indexFragment = findFirstNonLayoutToken(fragment);
-        while(indexFragment<fragment.length() && mySGLR.activeStacks.size()>0) {                        
-            mySGLR.setCurrentToken(fragment.charAt(indexFragment));
-            indexFragment++;
-            if(!asLayout)
-                mySGLR.doParseStep();
-            else
-                parseAsLayout();
-        }       
-    }
-    
-    public boolean parseErrorFragmentAsWhiteSpace(boolean keepLines) {
-        //System.out.println("---------- Start WhiteSpace Parsing ----------");
-        mySGLR.activeStacks.clear();
-        mySGLR.activeStacks.addAll(skipRecovery.getStartLineErrorFragment().getStackNodes());
-        getHistory().setTokenIndex(skipRecovery.getStartPositionErrorFragment());
-        while((getHistory().getTokenIndex()<skipRecovery.getEndPositionErrorFragment()) && mySGLR.activeStacks.size()>0 && mySGLR.acceptingStack==null){        
-            getHistory().readRecoverToken(mySGLR, keepLines);
-            //System.out.print((char)mySGLR.currentToken);
-            parseAsLayout();           
-        }
-        //System.out.println("----------- End WhiteSpace Parsing ---------");
-        return recoverySucceeded();
-    }
-    
-    public boolean parseRemainingTokens(boolean keepHistory) {
-        //System.out.println("------------- REMAINING CHARACTERS --------------- ");
-        //System.out.println();
-        while(
-        		(!getHistory().hasFinishedRecoverTokens()) 
-        		&& mySGLR.activeStacks.size()>0 
-        		&& mySGLR.acceptingStack==null
-        )
-        {        
-            getHistory().readRecoverToken(mySGLR, keepHistory);
-            //System.out.print((char)mySGLR.currentToken);
-            //System.out.print("("+mySGLR.currentToken+")");
-            mySGLR.doParseStep();            
-        }  
-        return recoverySucceeded();
-    }
-    
-    private void parseAsLayout() {
-        if(!isLayoutCharacter((char)mySGLR.getCurrentToken()) && mySGLR.getCurrentToken()!=SGLR.EOF){
-            mySGLR.setCurrentToken(' ');
-        }
-        mySGLR.doParseStep();
-    }
-    
-    public static boolean isLayoutCharacter(char aChar) {
-        // TODO: Move this to the parse table class; only it truly can now layout characters
-        return aChar==' ' || aChar == '\t' || aChar=='\n';
-    }
+	private boolean trySelectErroneousRegion(int failureOffset, int failureLineIndex, int cursorLineIndex) {
+		boolean skipSucceeded;
+		mySGLR.getPerformanceMeasuring().startCG();
+		if(settings.useCursorLocation() && isPossibleErrorLocation(failureLineIndex, cursorLineIndex))
+			skipSucceeded = regionSelector.selectErroneousFragment(failureOffset, failureLineIndex, cursorLineIndex); 
+		else
+			skipSucceeded = regionSelector.selectErroneousFragment(failureOffset, failureLineIndex);
+		mySGLR.getPerformanceMeasuring().endCG(skipSucceeded);
+		return skipSucceeded;
+	}
 
-    private int findFirstNonLayoutToken(String repairedFragment) {
-        int indexFragment=0;
-        while(indexFragment<repairedFragment.length()-1 && isLayoutCharacter(repairedFragment.charAt(indexFragment)))
-            indexFragment++;
-        return indexFragment;
-    }
+	private boolean tryFineGrainedRecovery(int failureOffset, int failureLineIndex, boolean skipSucceeded) {
+		mySGLR.getPerformanceMeasuring().startFG();
+		boolean fgSucceeded = false;
+		if (skipSucceeded && settings.useRegionSelection()) {
+			StructureSkipSuggestion erroneousRegion = regionSelector.getErroneousRegion();
+			fgSucceeded = fgRegionalRecovery.recover(
+				failureOffset, 
+				Math.min(erroneousRegion.getIndexHistoryEnd(), failureLineIndex), 
+				erroneousRegion.getStartSkip().getTokensSeen(), 
+				erroneousRegion.getEndSkip().getTokensSeen()
+			);
+		} else {
+			fgSucceeded = fgRegionalRecovery.recover(failureOffset, failureLineIndex);
+		}
+		mySGLR.getPerformanceMeasuring().endFG(fgSucceeded);
+		return fgSucceeded;
+	}
 
+	private boolean isLikelyErrorLocation(int failureLineIndex, int cursorLineIndex) {
+		return 
+			isPossibleErrorLocation(failureLineIndex, cursorLineIndex) && 
+			failureLineIndex - cursorLineIndex <= 10;
+	}
+
+	private boolean isPossibleErrorLocation(int failureLineIndex, int cursorLineIndex) {
+		return mySGLR.isSetCursorLocation() && failureLineIndex >= cursorLineIndex;
+	}
+
+	public boolean parseRemainingTokens(boolean keepHistory) {
+		while ((!getHistory().hasFinishedRecoverTokens())
+				&& mySGLR.activeStacks.size() > 0
+				&& mySGLR.acceptingStack == null) {
+			getHistory().readRecoverToken(mySGLR, keepHistory);
+			mySGLR.doParseStep();
+		}
+		return recoverySucceeded();
+	}
+
+	private boolean recoverySucceeded() {
+		return (mySGLR.activeStacks.size() > 0 || mySGLR.acceptingStack != null);
+	}
+
+	public boolean parseErrorFragmentAsWhiteSpace() {
+		mySGLR.activeStacks.clear();
+		mySGLR.activeStacks.addAll(regionSelector.getStartLineErrorFragment().getStackNodes());
+		getHistory().setTokenIndex(regionSelector.getStartPositionErrorFragment());
+		getHistory().resetRecoveryIndentHandler(regionSelector.getStartLineErrorFragment().getIndentValue());
+		while ((getHistory().getTokenIndex() < regionSelector.getEndPositionErrorFragment())
+				&& mySGLR.activeStacks.size() > 0
+				&& mySGLR.acceptingStack == null) {
+			getHistory().readRecoverToken(mySGLR, false);
+			parseAsLayout();
+		}
+		return recoverySucceeded();
+	}
+
+	private void parseAsLayout() {
+		if (!isLayoutCharacter((char) mySGLR.getCurrentToken()) && mySGLR.getCurrentToken() != SGLR.EOF) {
+			mySGLR.setCurrentToken(' ');
+		}
+		mySGLR.doParseStep();
+	}
+
+	public static boolean isLayoutCharacter(char aChar) {
+		// TODO: Move this to the parse table class; only it truly can know
+		// layout characters
+		return aChar == ' ' || aChar == '\t' || aChar == '\n';
+	}
 }

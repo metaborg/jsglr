@@ -34,7 +34,7 @@ public class FineGrainedRecovery {
     	assert(exploredRegionStartOffset < exploredRegionEndOffset);
     	assert(exploredRegionStartOffset < failureOffset);
 		assert(lineIndexRecovery <= getHistory().getIndexLastLine());
-		assert(getHistory().getLine(lineIndexRecovery).getStackNodes().size() > 0);
+		//assert(getHistory().getLine(lineIndexRecovery).getStackNodes().size() > 0);
 		assert(getTokensSeenAtLine(lineIndexRecovery) <= failureOffset);
 		assert(failureOffset >= getTokensSeenAtLine(lineIndexRecovery));
 	}
@@ -113,15 +113,13 @@ public class FineGrainedRecovery {
 	}
 
 	private boolean recoverFrom(int loopIndex, ArrayList<RecoverNode> unexplored_branches) {
-		int backwardIndexPrev = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * (loopIndex - 1)));
-		int backwardIndex = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * loopIndex));
+		int bwLoopIndex = lineIndexRecovery - (int)(settings.getBackwardFactor() * loopIndex);
+		int backwardIndex = Math.max(0, bwLoopIndex);
 		int forwardLinesMax = Math.min(settings.getForwardDistanceLines(), (int)(settings.getForwardFactor() * loopIndex));
-		assert(0 <= backwardIndex);
-		assert(backwardIndex <= lineIndexRecovery);
-		assert(backwardIndex <= backwardIndexPrev);
 		assert(forwardLinesMax >= 0);		
 		assert(forwardLinesMax <= settings.getForwardDistanceLines());		
-		unexplored_branches.addAll(getBackwardRecoverCandidates(backwardIndex, backwardIndexPrev));
+				
+		unexplored_branches.addAll(getBackwardRecoverCandidates(loopIndex));
 		checkAssertionsUnexploredBranches(unexplored_branches, backwardIndex);
 		resetSGLR(backwardIndex, false);
 		ArrayList<RecoverNode> newCandidates = recoverParse(forwardLinesMax, this.exploredRegionEndOffset, unexplored_branches);
@@ -129,17 +127,26 @@ public class FineGrainedRecovery {
 			if(timelimitExpired()){
 				return false;
 			}			
-			if(continueBacktracking(backwardIndex)){
+			if(continueBacktracking(bwLoopIndex)){
 				if(newCandidates.size() > MAX_NUMBER_OF_RECOVER_BRANCHES)
 					newCandidates = new ArrayList<RecoverNode>(); //too much branches causes performance problems
-				recoverFrom(loopIndex + 1, newCandidates);
+				return recoverFrom(loopIndex + 1, newCandidates);
 			}
-			else if (continueSingleTokenBacktracking(backwardIndex)){
-				recoverFrom(loopIndex + 1, new ArrayList<RecoverNode>());
+			int exploreDepth = 1;
+			do {
+				resetSGLR(backwardIndex, false);
+				newCandidates = recoverParse(forwardLinesMax, this.exploredRegionEndOffset, newCandidates);
+				exploreDepth ++;
+				if(acceptParse())
+					return true;
+			} while(exploreDepth < settings.getMaxNumberOfRecoverApplicationsLocal() && 
+					!timelimitExpired() && 
+					newCandidates.size() < MAX_NUMBER_OF_RECOVER_BRANCHES &&
+					newCandidates.size() > 0);
+			if (continueSingleTokenBacktracking(bwLoopIndex)){
+				return recoverFrom(loopIndex + 1, new ArrayList<RecoverNode>());
 			}
-			else{
-				return false;
-			}
+			return false;
 		}
 		return true;
 	}
@@ -170,18 +177,18 @@ public class FineGrainedRecovery {
 				exploredLinesForward++;
 			}
 			// System.out.print((char)mySGLR.currentToken);
-			mySGLR.setFineGrainedOnRegion(exploredRegionStartOffset <= curTokIndex);
+			mySGLR.setFinegrainedRecoverMode(exploredRegionStartOffset <= curTokIndex);
 			mySGLR.doParseStep();
 			newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
 			mySGLR.getRecoverStacks().clear();
 		} while (
-				   exploredLinesForward <= fwLineMax
-				&& exploredLinesForward <= settings.getForwardDistanceLines()
+				   (exploredLinesForward <= fwLineMax || RecoveryConnector.isLayoutCharacter((char)mySGLR.getCurrentToken()))
+				&& (exploredLinesForward <= settings.getForwardDistanceLines() || RecoveryConnector.isLayoutCharacter((char)mySGLR.getCurrentToken()))
 				&& getHistory().getTokenIndex() <= exploredRegionEndOffset
 				&& getHistory().getTokenIndex() <= fwTokensSeenMax
 				&& mySGLR.acceptingStack == null
 				&& mySGLR.getCurrentToken() != SGLR.EOF);
-		mySGLR.setFineGrainedOnRegion(false);
+		mySGLR.setFinegrainedRecoverMode(false);
 		return newCandidates;
 	}
 
@@ -223,9 +230,15 @@ public class FineGrainedRecovery {
 		return System.currentTimeMillis() - this.recoverStartTime > settings.getTimeLimit();
 	}
 
-	private ArrayList<RecoverNode> getBackwardRecoverCandidates(int bwIndex, int bwIndexPrev) {
+	private ArrayList<RecoverNode> getBackwardRecoverCandidates(int loopIndex) {
+
+		int bwIndexPrev = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * (loopIndex - 1)));
+		int bwIndex = Math.max(0, lineIndexRecovery - (int)(settings.getBackwardFactor() * loopIndex));
+
+		assert(0 <= bwIndex);
+		assert(bwIndex <= lineIndexRecovery);
 		assert(bwIndex <= bwIndexPrev);
-		if (bwIndex == bwIndexPrev || preceedsErroneousRegion(bwIndexPrev)){
+		if (loopIndex > 0 && bwIndex == bwIndexPrev || preceedsErroneousRegion(bwIndexPrev)){
 			return new ArrayList<RecoverNode>();
 		}
 		resetSGLR(bwIndex, true);

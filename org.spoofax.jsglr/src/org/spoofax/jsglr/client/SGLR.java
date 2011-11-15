@@ -194,11 +194,11 @@ public class SGLR {
         recoverStacks = new ArrayDeque<Frame>();
     }
     
-	public void setFineGrainedStartLocation(int fineGrainedStartLocation) {
+    protected void setFineGrainedStartLocation(int fineGrainedStartLocation) {
 		this.fineGrainedStartLocation = fineGrainedStartLocation;
 	}
 
-	public void setFineGrainedRecoverMax(int fineGrainedRecoverMax) {
+    protected void setFineGrainedRecoverMax(int fineGrainedRecoverMax) {
 		this.fineGrainedRecoverMax = fineGrainedRecoverMax;
 	}
 

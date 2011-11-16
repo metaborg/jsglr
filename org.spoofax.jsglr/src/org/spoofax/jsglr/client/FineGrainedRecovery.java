@@ -200,6 +200,7 @@ public class FineGrainedRecovery {
             	Frame st =mySGLR.findStack(mySGLR.activeStacks, recoverNode.recoverStack.state);
                 if(st != null) {
                 	for (Link ln : recoverNode.recoverStack.getAllLinks()) {
+                		assert(ln.recoverCount > 0 && ln.recoverWeight > 0);
                 		st.addLink(ln);
 					}                	
                 }
@@ -211,6 +212,7 @@ public class FineGrainedRecovery {
 
 	private void resetSGLR(int btIndex, boolean keepStacks) {
     	mySGLR.activeStacks.clear();
+    	mySGLR.acceptingStack = null;
 		if(keepStacks){
 	        mySGLR.activeStacks.addAll(getHistory().getLine(btIndex).getStackNodes());
 		}

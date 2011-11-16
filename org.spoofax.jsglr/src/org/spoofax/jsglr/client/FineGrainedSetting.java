@@ -94,7 +94,7 @@ public class FineGrainedSetting {
 		this.setBacktrackDistanceLines(8);
 		this.setBacktrackDistanceLinesSingleToken(80);
 		this.setBackwardFactor(1);
-		this.setForwardDistanceLines(Integer.MAX_VALUE);
+		this.setForwardDistanceLines(8);
 		this.setForwardFactor(0.5);
 		this.setMaxNumberOfRecoverApplicationsLocal(5);		
 	}
@@ -111,10 +111,10 @@ public class FineGrainedSetting {
 			.setTimeLimit(1000)
 			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(10)
-			.setBacktrackDistanceLinesSingleToken(80)
+			.setBacktrackDistanceLinesSingleToken(15)
 			.setBackwardFactor(1)
-			.setForwardDistanceLines(Integer.MAX_VALUE)
-			.setForwardFactor(0.5)
+			.setForwardDistanceLines(5)
+			.setForwardFactor(0.4)
 			.setMaxNumberOfRecoverApplicationsLocal(5);		
 		fgSetting.checkAssertionsForSettings();
 		return fgSetting;
@@ -148,12 +148,12 @@ public class FineGrainedSetting {
 	 */
 	public static FineGrainedSetting createSingleTokenSetting(){
 		FineGrainedSetting fgSetting = new FineGrainedSetting()
-			.setTimeLimit(2500)
-			.setAcceptDistanceLines(15)
+			.setTimeLimit(2000)
+			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(0)
-			.setBacktrackDistanceLinesSingleToken(500)
-			.setBackwardFactor(1)
-			.setForwardDistanceLines(Integer.MAX_VALUE)
+			.setBacktrackDistanceLinesSingleToken(25)
+			.setBackwardFactor(2)
+			.setForwardDistanceLines(0)
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(1);
 		fgSetting.checkAssertionsForSettings();
@@ -170,14 +170,14 @@ public class FineGrainedSetting {
 	 */
 	public static FineGrainedSetting createMultipleTokensSetting(){
 		FineGrainedSetting fgSetting = new FineGrainedSetting()
-			.setTimeLimit(4000)
+			.setTimeLimit(2000)
 			.setAcceptDistanceLines(5)
 			.setBacktrackDistanceLines(20)
-			.setBacktrackDistanceLinesSingleToken(0)
-			.setBackwardFactor(20)
-			.setForwardDistanceLines(Integer.MAX_VALUE)
-			.setForwardFactor(20)
-			.setMaxNumberOfRecoverApplicationsLocal(10);
+			.setBacktrackDistanceLinesSingleToken(20)
+			.setBackwardFactor(4)
+			.setForwardDistanceLines(20)
+			.setForwardFactor(4)
+			.setMaxNumberOfRecoverApplicationsLocal(8);
 		fgSetting.checkAssertionsForSettings();
 		return fgSetting;
 	}
@@ -195,7 +195,7 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(0)
 			.setBacktrackDistanceLinesSingleToken(0)
 			.setBackwardFactor(0)
-			.setForwardDistanceLines(Integer.MAX_VALUE)
+			.setForwardDistanceLines(0)
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(10);
 		fgSetting.checkAssertionsForSettings();
@@ -216,7 +216,7 @@ public class FineGrainedSetting {
 			.setBacktrackDistanceLines(20)
 			.setBacktrackDistanceLinesSingleToken(80)
 			.setBackwardFactor(1)
-			.setForwardDistanceLines(Integer.MAX_VALUE)
+			.setForwardDistanceLines(0)
 			.setForwardFactor(0)
 			.setMaxNumberOfRecoverApplicationsLocal(6);
 		fgSetting.checkAssertionsForSettings();

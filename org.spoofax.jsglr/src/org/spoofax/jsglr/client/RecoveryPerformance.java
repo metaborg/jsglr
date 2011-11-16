@@ -23,6 +23,13 @@ public class RecoveryPerformance {
     private ArrayList<Boolean> BPResults;
     private ArrayList<Boolean> recoveryResults;
     private boolean parseResult;
+    private int recoverCount; 
+
+    private ArrayList<Integer> failureLocations;
+    
+    public ArrayList<Integer> getFailureLocations() {
+		return failureLocations;
+	}
     
     public RecoveryPerformance(){
         CGTimes=new ArrayList<Integer>();
@@ -36,6 +43,7 @@ public class RecoveryPerformance {
         FGOnCursorResults=new ArrayList<Boolean>();
         BPResults=new ArrayList<Boolean>();
         recoveryResults=new ArrayList<Boolean>();
+        failureLocations = new ArrayList<Integer>();
     }
     
     public boolean isParseSucceeded() {
@@ -136,4 +144,16 @@ public class RecoveryPerformance {
         recoveryTimes.add((int)recoveryTime);
         recoveryResults.add(succeeded);
     }
+
+    public void addFailureLocation(int tokensSeen) {
+		failureLocations.add(tokensSeen);		
+	}
+    
+	public void setRecoverCount(int recoverCount) {
+		this.recoverCount = recoverCount;
+	}
+    
+	public int getRecoverCount() {
+		return recoverCount;
+	}
 }

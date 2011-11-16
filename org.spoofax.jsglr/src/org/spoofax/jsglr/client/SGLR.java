@@ -337,6 +337,10 @@ public class SGLR {
 		if (s == null) {
 			throw new ParseException(this, "Accepting stack has no link");
 		}
+		//System.out.println(s.recoverCount);
+		assert(s.recoverCount <= s.recoverWeight);
+
+		performanceMeasuring.setRecoverCount(s.recoverCount);
 
 		logParseResult(s);
 		//System.out.println("recoveries: " + s.recoverCount);
@@ -748,14 +752,14 @@ public class SGLR {
 		final int recoverWeight = calcRecoverWeight(prod, path);
 		final AbstractParseNode t = prod.apply(kids);
 		final Frame stActive = findStack(activeStacks, s);
-		if(stActive!=null){
+		if(stActive != null){
 			Link lnActive=stActive.findDirectLink(st0);
 			if(lnActive!=null){
 				return; //TODO: ambiguity
 			}
 		}
 		final Frame stRecover = findStack(recoverStacks, s);
-		if(stRecover!=null){
+		if(stRecover != null){
 			Link nlRecover = stRecover.findDirectLink(st0);
 			if(nlRecover != null){
 				return; //TODO: ambiguity

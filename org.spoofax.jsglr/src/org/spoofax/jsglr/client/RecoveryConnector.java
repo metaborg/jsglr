@@ -45,7 +45,9 @@ public class RecoveryConnector {
 		int failureOffset = mySGLR.getParserLocation();
 		int failureLineIndex = getHistory().getLineOfTokenPosition(failureOffset - 1);
 		int cursorLineIndex = getHistory().getLineOfTokenPosition(mySGLR.getCursorLocation());
-				
+
+		mySGLR.getPerformanceMeasuring().addFailureLocation(failureOffset);
+
 		if (settings.useFineGrained() && settings.useCursorLocation()) {
 			if(tryFineGrainedOnCursorLine(failureOffset, failureLineIndex, cursorLineIndex)){
 				//System.out.println("FG on cursor line succeeded!");
@@ -101,6 +103,8 @@ public class RecoveryConnector {
 		else
 			skipSucceeded = regionSelector.selectErroneousFragment(failureOffset, failureLineIndex);
 		mySGLR.getPerformanceMeasuring().endCG(skipSucceeded);
+		mySGLR.acceptingStack = null;
+		mySGLR.activeStacks.clear();
 		return skipSucceeded;
 	}
 

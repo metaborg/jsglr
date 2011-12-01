@@ -1,0 +1,596 @@
+module to-js
+
+imports
+	libstratego-lib
+	libstratego-xtc
+
+strategies
+
+  main-to-js =
+    xtc-io-wrap(
+      read-from;
+      to-js;
+      print-to
+    )
+
+  debug-elem:
+  	t -> t
+  	with t' := <ElementName>
+  	with c := <Count>
+  	with <debug(!"element: ")>(t, t', c)
+
+  to-js:
+  	t -> result
+	with bottomup(try(analyze-ctors))
+	with bottomup(try(analyze-trees))
+	with all-keys-Count; filter(reused-element); sort-elements; map(name-element)
+	with ctors := <all-keys-CtorPos; filter(reused-element); map(output-ctor); separate; concat-strings>
+	with trees := <all-keys-TreePos; filter(reused-element); map(output-tree); separate; concat-strings>
+	// with all-keys-ElementName; map(debug-elem)
+	with escaped := <escape-lookup-js>t
+	with result := $<
+  		define(function(require, exports, module) {
+
+		var jssglr = require("ace/jssglr_pretty");
+		
+		var WebDSL = exports.WebDSL = function() {
+		    jssglr.load();
+		    this.factory = spoofax.factory;
+		};
+		
+		(function() {
+		
+			this.parse = function() {
+			
+				var _f = this.factory;
+
+				var parseArg = function(arg) {
+				    var type = Object.prototype.toString.call(arg);
+				    if(type === '[object Array]') {
+				        return _f.makeList(parseArgs(arg), null);
+				    }
+				    if(type === '[object Number]') {
+				        return _f.makeInt(arg);
+				    }
+				    if(type === '[object String]') {
+				        return _f.makeString(arg);
+				    }
+				    return arg;
+				}
+				
+				var parseArgs = function(args) {
+				    var length = args.length;
+				    var result = [];
+				    for(var i = 0; i $<$ length; i++) {
+				        var arg = args[i];
+				        var parsed = parseArg(arg);
+				        result.push(parsed);
+				    }
+				    return result;
+				}
+
+				var accept = _f.makeAppl(_f.makeConstructor('accept', arguments.length), parseArgs(arguments), null);
+				var action = function() { return _f.makeAppl(_f.makeConstructor('action', arguments.length), parseArgs(arguments), null); };
+				var alt = function() { return _f.makeAppl(_f.makeConstructor('alt', arguments.length), parseArgs(arguments), null); };
+				var ass0c = _f.makeAppl(_f.makeConstructor('assoc', arguments.length), parseArgs(arguments), null);
+				var assoc = function() { return _f.makeAppl(_f.makeConstructor('assoc', arguments.length), parseArgs(arguments), null); };
+				var arg_gtr_prio = function() { return _f.makeAppl(_f.makeConstructor('arg-gtr-prio', arguments.length), parseArgs(arguments), null); };
+				var attrs = function() { return _f.makeAppl(_f.makeConstructor('attrs', arguments.length), parseArgs(arguments), null); };
+				var avoid = _f.makeAppl(_f.makeConstructor('avoid', arguments.length), parseArgs(arguments), null);
+				var bracket = _f.makeAppl(_f.makeConstructor('bracket', arguments.length), parseArgs(arguments), null);
+				var cf = function() { return _f.makeAppl(_f.makeConstructor('cf', arguments.length), parseArgs(arguments), null); };
+				var _class = function() { return _f.makeAppl(_f.makeConstructor('class', arguments.length), parseArgs(arguments), null); };
+				var char_class = function() { return _f.makeAppl(_f.makeConstructor('char-class', arguments.length), parseArgs(arguments), null); };
+				var cons = function() { return _f.makeAppl(_f.makeConstructor('cons', arguments.length), parseArgs(arguments), null); };
+				var deprecated = function() { return _f.makeAppl(_f.makeConstructor('deprecated', arguments.length), parseArgs(arguments), null); };
+				var follow_restriction = function() { return _f.makeAppl(_f.makeConstructor('follow-restriction', arguments.length), parseArgs(arguments), null); };
+				var _goto = function() { return _f.makeAppl(_f.makeConstructor('goto', arguments.length), parseArgs(arguments), null); };
+				var gtr_prio = function() { return _f.makeAppl(_f.makeConstructor('gtr-prio', arguments.length), parseArgs(arguments), null); };
+				var indentpadding = _f.makeAppl(_f.makeConstructor('indentpadding', arguments.length), parseArgs(arguments), null);
+				var iter = function() { return _f.makeAppl(_f.makeConstructor('iter', arguments.length), parseArgs(arguments), null); };
+				var iter_sep = function() { return _f.makeAppl(_f.makeConstructor('iter-sep', arguments.length), parseArgs(arguments), null); };
+				var iter_star = function() { return _f.makeAppl(_f.makeConstructor('iter-star', arguments.length), parseArgs(arguments), null); };
+				var iter_star_sep = function() { return _f.makeAppl(_f.makeConstructor('iter-star-sep', arguments.length), parseArgs(arguments), null); };
+				var label = function() { return _f.makeAppl(_f.makeConstructor('label', arguments.length), parseArgs(arguments), null); };
+				var layout = _f.makeAppl(_f.makeConstructor('layout', arguments.length), parseArgs(arguments), null);
+				var left = _f.makeAppl(_f.makeConstructor('left', arguments.length), parseArgs(arguments), null);
+				var lex = function() { return _f.makeAppl(_f.makeConstructor('lex', arguments.length), parseArgs(arguments), null); };
+				var lit = function() { return _f.makeAppl(_f.makeConstructor('lit', arguments.length), parseArgs(arguments), null); };
+				var look = function() { return _f.makeAppl(_f.makeConstructor('look', arguments.length), parseArgs(arguments), null); };
+				var no_attrs = _f.makeAppl(_f.makeConstructor('no-attrs', arguments.length), parseArgs(arguments), null);
+				var non_assoc = _f.makeAppl(_f.makeConstructor('non-assoc', arguments.length), parseArgs(arguments), null);
+				var opt = function() { return _f.makeAppl(_f.makeConstructor('opt', arguments.length), parseArgs(arguments), null); };
+				var parameterized_sort = function() { return _f.makeAppl(_f.makeConstructor('parameterized-sort', arguments.length), parseArgs(arguments), null); };
+				var parse_table = function() { return _f.makeAppl(_f.makeConstructor('parse-table', arguments.length), parseArgs(arguments), null);};
+				var prefer = _f.makeAppl(_f.makeConstructor('prefer', arguments.length), parseArgs(arguments), null);
+				var prio = function() { return _f.makeAppl(_f.makeConstructor('prio', arguments.length), parseArgs(arguments), null); };
+				var priorities = function() { return _f.makeAppl(_f.makeConstructor('priorities', arguments.length), parseArgs(arguments), null); };
+				var prod = function() { return _f.makeAppl(_f.makeConstructor('prod', arguments.length), parseArgs(arguments), null); };
+				var range = function() { return _f.makeAppl(_f.makeConstructor('range', arguments.length), parseArgs(arguments), null); };
+				var recover = _f.makeAppl(_f.makeConstructor('recover', arguments.length), parseArgs(arguments), null);
+				var rec = function() { return _f.makeAppl(_f.makeConstructor('rec', arguments.length), parseArgs(arguments), null); };
+				var reduce = function() { return _f.makeAppl(_f.makeConstructor('reduce', arguments.length), parseArgs(arguments), null); };
+				var reject = _f.makeAppl(_f.makeConstructor('reject', arguments.length), parseArgs(arguments), null);
+				var restriction = function() { return _f.makeAppl(_f.makeConstructor('restriction', arguments.length), parseArgs(arguments), null); };
+				var right = _f.makeAppl(_f.makeConstructor('right', arguments.length), parseArgs(arguments), null);
+				var sep = function() { return _f.makeAppl(_f.makeConstructor('sep', arguments.length), parseArgs(arguments), null); };
+				var seq = function() { return _f.makeAppl(_f.makeConstructor('seq', arguments.length), parseArgs(arguments), null); };
+				var shift = function() { return _f.makeAppl(_f.makeConstructor('shift', arguments.length), parseArgs(arguments), null); };
+				var sort = function() { return _f.makeAppl(_f.makeConstructor('sort', arguments.length), parseArgs(arguments), null); };
+				var star = function() { return _f.makeAppl(_f.makeConstructor('star', arguments.length), parseArgs(arguments), null); };
+				var state_rec = function() { return _f.makeAppl(_f.makeConstructor('state-rec', arguments.length), parseArgs(arguments), null); };
+				var states = function() { return _f.makeAppl(_f.makeConstructor('states', arguments.length), parseArgs(arguments), null); };
+				var table = function() { return _f.makeAppl(_f.makeConstructor('table', arguments.length), parseArgs(arguments), null); };
+				var term = function() { return _f.makeAppl(_f.makeConstructor('term', arguments.length), parseArgs(arguments), null); };
+				
+				var <ctors>;
+				var <trees>;
+				
+				return <escaped>;
+			};
+
+		}).call(WebDSL.prototype);
+		
+		});
+  	>
+  	
+  	compare-element = ?(a,b); <gt>(<Count>a, <Count>b)
+  	
+  	sort-elements = qsort(compare-element)
+
+	// separate = separate-by(|",\n")
+	separate = separate-by(|",")
+
+	output-ctor:
+		// t@Constructor(name) -> $[[v] = [name] // [count]]
+		t@Constructor(name) -> $[[v]=[name]]
+		with v := <ElementName>t
+		with count := <Count>t
+	
+	output-tree:
+		// t -> $[[v] = [t'] // [count]]
+		t -> $[[v]=[t']]
+		with t' := <escape-js>t
+		with v := <ElementName>t
+		with count := <Count>t
+		
+	reused-element:
+		t -> t
+		where count := <Count>t
+		where <gt>(count, 3)
+
+	analyze-trees:
+		t -> t
+		where not(<is-string>t)
+		where not(<is-int>t)
+		where not(<Count>t)
+		with rules(
+				Count: t -> 1
+				TreePos: t -> t
+			)
+
+	analyze-trees:
+		t -> t
+		where not(<is-string>t)
+		where not(<is-int>t)
+		with new := <Count; inc>t
+		with rules(
+			Count: t -> new
+			TreePos: t -> t
+		)
+
+	escape-lookup-js:
+		t -> t'
+		where reused-element
+		with t' := <ElementName>t
+	
+	escape-lookup-js:
+		t -> $["[t']"]
+		where is-string
+		with t' := <escape>t
+		
+	escape-lookup-js:
+		t -> <escape-js>t
+
+	count-name(|t):
+		rawname -> t
+		with name := Constructor(rawname)
+		where not(<Count>name)
+		with rules(
+			Count: name -> 1 
+			CtorPos: name -> name
+		)
+		
+	count-name(|t):
+		rawname -> t
+		with name := Constructor(rawname)
+		with new := <Count; inc>name
+		with rules(
+			Count: name -> new
+		)
+
+	lookup-name:
+		t -> t'
+		where t' := <ElementName>Constructor(t)
+		
+	lookup-name:
+		t -> t
+
+	inc-secondary-counter:
+		t -> 0
+		where not(SecondaryCounter)
+		with rules (
+			SecondaryCounter := 0
+		)
+
+	inc-secondary-counter:
+		t -> result
+		with result := <SecondaryCounter; inc>
+		with rules (
+			SecondaryCounter := result
+		)
+	
+	secondary-counter-as-ints:
+		_ -> result
+		where counter := <SecondaryCounter>
+		with result := <counter-as-ints>counter
+
+	secondary-counter-as-ints:
+		_ -> []
+	
+	counter-as-ints:
+		counter -> []
+		where <lt>(counter, 0)
+	
+	counter-as-ints:
+		counter -> [result]
+		where <lt>(counter, 10)
+		with result := <add>(48, counter)
+		
+	counter-as-ints:
+		counter -> [result]
+		where <lt>(counter, 36)
+		with result := <add>(55, counter)
+	
+	counter-as-ints:
+		counter -> [result]
+		where <lt>(counter, 62)
+		with result := <add>(61, counter)
+	
+	head:
+		[x|xs] -> x
+		
+	head:
+		[x] -> x
+	
+	counter-as-ints:
+		counter -> [x | xs]
+		with total := 62
+		with modded := <mod>(counter, total)
+		with x := <counter-as-ints; head>modded
+		with divided := <div; dec>(counter, total)
+		with xs := <counter-as-ints>divided
+
+	blacklist:
+		_ -> <bagof-BlackList>
+		where not(BlackList)
+		with rules (
+			BlackList :+= <explode-string>"break"
+			BlackList :+= <explode-string>"case"
+			BlackList :+= <explode-string>"catch"
+			BlackList :+= <explode-string>"class"
+			BlackList :+= <explode-string>"const"
+			BlackList :+= <explode-string>"continue"
+			BlackList :+= <explode-string>"debugger"
+			BlackList :+= <explode-string>"default"
+			BlackList :+= <explode-string>"delete"
+			BlackList :+= <explode-string>"do"
+			BlackList :+= <explode-string>"else"
+			BlackList :+= <explode-string>"export"
+			BlackList :+= <explode-string>"extends"
+			BlackList :+= <explode-string>"false"
+			BlackList :+= <explode-string>"finally"
+			BlackList :+= <explode-string>"for"
+			BlackList :+= <explode-string>"function"
+			BlackList :+= <explode-string>"if"
+			BlackList :+= <explode-string>"import"
+			BlackList :+= <explode-string>"in"
+			BlackList :+= <explode-string>"instanceof"
+			BlackList :+= <explode-string>"new"
+			BlackList :+= <explode-string>"null"
+			BlackList :+= <explode-string>"protected"
+			BlackList :+= <explode-string>"return"
+			BlackList :+= <explode-string>"super"
+			BlackList :+= <explode-string>"switch"
+			BlackList :+= <explode-string>"this"
+			BlackList :+= <explode-string>"throw"
+			BlackList :+= <explode-string>"true"
+			BlackList :+= <explode-string>"try"
+			BlackList :+= <explode-string>"typeof"
+			BlackList :+= <explode-string>"var"
+			BlackList :+= <explode-string>"while"
+			BlackList :+= <explode-string>"with"
+			
+			BlackList :+= <explode-string>"parseArg"
+			BlackList :+= <explode-string>"parseArgs"
+		)
+	
+	blacklist = bagof-BlackList
+
+	starts-with-int:
+		t -> t
+		with first := <head>
+		where not(<lt>(first, 48))
+		where not(<gt>(first, 57))
+
+	in-blacklist:
+		t -> t 
+		where blacklist; fetch(?t)
+
+	valid-result:
+		ints -> ints
+		where not(starts-with-int)
+		where not(in-blacklist)
+
+	valid-result:
+		t -> <try-name>
+		// with <debug(!"reject: ")>(t, <implode-string>t)
+
+	try-name:
+		_ -> ints
+		with inc-secondary-counter
+		with ints := <secondary-counter-as-ints; valid-result>
+
+	new-name:
+		_ -> result
+		with result := <try-name; implode-string> 
+		// with <debug(!"result: ")>result
+
+	name-element:
+		t -> y
+		with y:= <new-name>;
+			rules(
+				ElementName: t -> y
+			)
+
+	ctor:
+		name -> <lookup-name>name
+
+	ctor(|a):
+		name -> $[[name']([a'])]
+		with name' := <lookup-name>name
+		with a' := <escape-lookup-js>a
+		
+	ctor(|a, b):
+		name -> $[[name']([a'],[b'])]
+		with name' := <lookup-name>name
+		with a' := <escape-lookup-js>a
+		with b' := <escape-lookup-js>b
+
+	ctor(|a, b, c):
+		name -> $[[name']([a'],[b'],[c'])]
+		with name' := <lookup-name>name
+		with a' := <escape-lookup-js>a
+		with b' := <escape-lookup-js>b
+		with c' := <escape-lookup-js>c
+
+	ctor(|a, b, c, d):
+		name -> $[[name']([a'],[b'],[c'],[d'])]
+		with name' := <lookup-name>name
+		with a' := <escape-lookup-js>a
+		with b' := <escape-lookup-js>b
+		with c' := <escape-lookup-js>c
+		with d' := <escape-lookup-js>d
+
+	ctor(|a, b, c, d, e):
+		name -> $[[name']([a'],[b'],[c'],[d'],[e'])]
+		with name' := <lookup-name>name
+		with a' := <escape-lookup-js>a
+		with b' := <escape-lookup-js>b
+		with c' := <escape-lookup-js>c
+		with d' := <escape-lookup-js>d
+		with e' := <escape-lookup-js>e
+
+	analyze-ctors: t@accept() -> <count-name(|t)>"accept"
+	analyze-ctors: t@action() -> <count-name(|t)>"acti0n"
+	analyze-ctors: t@action(a, b) -> <count-name(|t)>"action"
+	analyze-ctors: t@alt(a, b) -> <count-name(|t)>"alt"
+	analyze-ctors: t@arg-gtr-prio(a, b, c) -> <count-name(|t)>"arg_gtr_prio"
+	analyze-ctors: t@assoc() -> <count-name(|t)>"ass0c"
+	analyze-ctors: t@assoc(a) -> <count-name(|t)>"assoc"
+	analyze-ctors: t@attrs(a) -> <count-name(|t)>"attrs"
+	analyze-ctors: t@avoid() -> <count-name(|t)>"avoid"
+	analyze-ctors: t@cf(a) -> <count-name(|t)>"cf"
+	analyze-ctors: t@char-class(a) -> <count-name(|t)>"char_class"
+	analyze-ctors: t@cons(a) -> <count-name(|t)>"cons"
+	analyze-ctors: t@deprecated(a) -> <count-name(|t)>"deprecated"
+	analyze-ctors: t@follow-restriction(a) -> <count-name(|t)>"follow_restriction"
+	analyze-ctors: t@goto(a, b) -> <count-name(|t)>"_goto"
+	analyze-ctors: t@gtr-prio(a, b) -> <count-name(|t)>"gtr_prio"
+	analyze-ctors: t@indentpadding() -> <count-name(|t)>"indentpadding"
+	analyze-ctors: t@iter(a) -> <count-name(|t)>"iter"
+	analyze-ctors: t@iter(a) -> <count-name(|t)>"iter"
+	analyze-ctors: t@iter-star(a) -> <count-name(|t)>"iter_star"
+	analyze-ctors: t@iter-star-sep(a, b) -> <count-name(|t)>"iter_star_sep"
+	analyze-ctors: t@iter-sep(a, b) -> <count-name(|t)>"iter_sep"
+	analyze-ctors: t@label(a, b) -> <count-name(|t)>"label"
+	analyze-ctors: t@layout() -> <count-name(|t)>"layout"
+	analyze-ctors: t@left() -> <count-name(|t)>"left"
+	analyze-ctors: t@lex(a) -> <count-name(|t)>"lex"
+	analyze-ctors: t@lit(a) -> <count-name(|t)>"lit"
+	analyze-ctors: t@look(a, b) -> <count-name(|t)>"look"
+	analyze-ctors: t@no-attrs() -> <count-name(|t)>"no_attrs"
+	analyze-ctors: t@opt(a) -> <count-name(|t)>"opt"
+	analyze-ctors: t@parameterized-sort(a, b) -> <count-name(|t)>"parameterized_sort"
+	analyze-ctors: t@parse-table(a, b, c, d, e) -> <count-name(|t)>"parse_table"
+	analyze-ctors: t@prefer() -> <count-name(|t)>"prefer"
+	
+	analyze-ctors: t@non-assoc() -> <count-name(|t)>"non_assoc"
+	analyze-ctors: t@assoc() -> <count-name(|t)>"assoc"
+	analyze-ctors: t@bracket() -> <count-name(|t)>"bracket"
+	analyze-ctors: t@right() -> <count-name(|t)>"right"
+	
+	analyze-ctors: t@priorities(a) -> <count-name(|t)>"priorities"
+	analyze-ctors: t@prod(a, b, c) -> <count-name(|t)>"prod"
+	analyze-ctors: t@range(a, b) -> <count-name(|t)>"range"
+	analyze-ctors: t@recover() -> <count-name(|t)>"recover"
+	analyze-ctors: t@reject() -> <count-name(|t)>"reject"
+	analyze-ctors: t@reduce(a, b, c) -> <count-name(|t)>"reduce"
+	analyze-ctors: t@reduce(a, b, c, d) -> <count-name(|t)>"reduce"
+	analyze-ctors: t@seq(a) -> <count-name(|t)>"seq"
+	analyze-ctors: t@shift(a) -> <count-name(|t)>"shift"
+	analyze-ctors: t@sort(a) -> <count-name(|t)>"sort"
+	analyze-ctors: t@state-rec(a, b, c) ->  <count-name(|t)>"state_rec"
+	analyze-ctors: t@states(a) -> <count-name(|t)>"states"
+	analyze-ctors: t@term(a) -> <count-name(|t)>"term"
+
+	escape-js: accept() -> <ctor>"accept"
+	escape-js: action() -> <ctor>"acti0n"
+	escape-js: action(a, b) -> <ctor(|a,b)>"action"
+	escape-js: alt(a, b) -> <ctor(|a,b)>"alt"
+	escape-js: arg-gtr-prio(a, b, c) -> <ctor(|a,b,c)>"arg_gtr_prio"
+	escape-js: assoc() -> <ctor>"ass0c"
+	escape-js: assoc(a) -> <ctor(|a)>"assoc"
+	escape-js: attrs(a) -> <ctor(|a)>"attrs"
+	escape-js: avoid() -> <ctor>"avoid"
+	escape-js: cf(a) -> <ctor(|a)>"cf"
+	escape-js: char-class(a) -> <ctor(|a)>"char_class"
+	escape-js: cons(a) -> <ctor(|a)>"cons"
+	escape-js: deprecated(a) -> <ctor(|a)>"deprecated"
+	escape-js: follow-restriction(a) -> <ctor(|a)>"follow_restriction"
+	escape-js: goto(a, b) -> <ctor(|a,b)>"_goto"
+	escape-js: gtr-prio(a, b) -> <ctor(|a,b)>"gtr_prio"
+	escape-js: iter(a) -> <ctor(|a)>"iter"
+	escape-js: iter(a) -> <ctor(|a)>"iter"
+	escape-js: iter-star(a) -> <ctor(|a)>"iter_star"
+	escape-js: iter-star-sep(a, b) -> <ctor(|a,b)>"iter_star_sep"
+	escape-js: iter-sep(a, b) -> <ctor(|a,b)>"iter_sep"
+	escape-js: indentpadding() -> <ctor>"indentpadding"
+	escape-js: label(a, b) -> <ctor(|a,b)>"label"
+	escape-js: layout() -> <ctor>"layout"
+	escape-js: left() -> <ctor>"left"
+	escape-js: lex(a) -> <ctor(|a)>"lex"
+	escape-js: lit(a) -> <ctor(|a)>"lit"
+	escape-js: look(a, b) -> <ctor(|a,b)>"look"
+	escape-js: no-attrs() -> <ctor>"no_attrs"
+	escape-js: opt(a) -> <ctor(|a)>"opt"
+	escape-js: parameterized-sort(a, b) -> <ctor(|a,b)>"parameterized_sort"
+	escape-js: parse-table(a, b, c, d, e) -> <ctor(|a,b,c,d,e)>"parse_table"
+	escape-js: prefer() -> <ctor>"prefer"
+	escape-js: priorities(a) -> <ctor(|a)>"priorities"
+	escape-js: prod(a, b, c) -> <ctor(|a,b,c)>"prod"
+	escape-js: range(a, b) -> <ctor(|a,b)>"range"
+	escape-js: recover() -> <ctor>"recover"
+	
+	escape-js: non-assoc() -> <ctor>"non_assoc"
+	escape-js: assoc() -> <ctor>"assoc"
+	escape-js: bracket() -> <ctor>"bracket"
+	escape-js: right() -> <ctor>"right"
+	
+	escape-js: reject() -> <ctor>"reject"
+	escape-js: reduce(a, b, c) -> <ctor(|a,b,c)>"reduce"
+	escape-js: reduce(a, b, c, d) -> <ctor(|a,b,c,d)>"reduce"
+	escape-js: seq(a) -> <ctor(|a)>"seq"
+	escape-js: shift(a) -> <ctor(|a)>"shift"
+	escape-js: sort(a) -> <ctor(|a)>"sort"
+	escape-js: state-rec(a, b, c) ->  <ctor(|a,b,c)>"state_rec"
+	escape-js: states(a) -> <ctor(|a)>"states"
+	escape-js: term(a) -> <ctor(|a)>"term"
+
+	escape-js:
+		[] -> ${[]}
+		
+	escape-js:
+		[x] -> ${[{x'}]}
+		with x' := <escape-lookup-js>x 
+	
+	escape-js:
+		t@[_|_] -> ${[{t'}]}
+		with t' := <map(escape-js); separate; concat-strings>
+
+	unknown:
+		_ -> $[unknown]
+		with debug(!"term: ")
+
+	wrap-string:
+		t -> t
+		
+	wrap-int:
+		t -> $[[t']]
+		with t' := <int-to-string>t
+
+	escape-unknown-js = 
+		if is-string then
+			wrap-string
+		else
+			if is-int then
+				wrap-int
+			else
+				unknown
+			end
+		end
+
+	escape-js:
+		t -> result
+		with result := <escape-unknown-js>t
+
+signature constructors
+	Constructor : Term -> Term
+	
+	Name : Term -> Term
+	
+	parse-table : Term * Term * Term * Term * Term -> Term
+	label : Term * Term -> Term
+	states : Term -> Term
+	priorities : Term -> Term
+
+	accept: Term
+	action: Term
+	action: Term * Term -> Term
+	alt: Term * Term -> Term
+	arg-gtr-prio: Term * Term * Term -> Term
+	assoc: Term
+	assoc: Term -> Term
+	attrs: Term -> Term
+	avoid: Term
+	cf: Term -> Term
+	char-class: Term -> Term
+	cons: Term -> Term
+	deprecated: Term -> Term
+	goto: Term * Term -> Term
+	follow-restriction: Term -> Term
+	gtr-prio: Term * Term -> Term
+	iter: Term -> Term
+	iter-star: Term -> Term
+	iter-sep: Term * Term -> Term
+	iter-star-sep: Term * Term -> Term
+	label: Term * Term -> Term
+	layout: Term 
+	left: Term
+	
+	non-assoc: Term
+	assoc: Term
+	bracket: Term
+	right: Term
+	
+	look: Term * Term -> Term
+	indentpadding: Term
+	lex: Term -> Term
+	lit: Term -> Term
+	no-attrs: Term
+	opt: Term -> Term
+	parameterized-sort: Term * Term -> Term
+	prefer: Term
+	priorities: Term -> Term
+	prod: Term * Term * Term -> Term
+	range: Term * Term -> Term
+	recover: Term
+	reduce: Term * Term * Term -> Term
+	reduce: Term * Term * Term * Term -> Term
+	reject: Term
+	seq: Term -> Term
+	shift: Term -> Term
+	sort: Term -> Term
+	state-rec: Term * Term * Term -> Term
+	states: Term -> Term
+	term: Term -> Term

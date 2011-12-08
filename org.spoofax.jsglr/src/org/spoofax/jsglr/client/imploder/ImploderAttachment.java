@@ -29,8 +29,11 @@ public class ImploderAttachment extends AbstractTermAttachment {
 			protected IStrategoTerm[] toSubterms(ITermFactory f, ImploderAttachment attachment) {
 				IToken left = attachment.getLeftToken();
 				IToken right = attachment.getRightToken();
+				
+				String fileName = left.getTokenizer().getFilename()  == null ? "" :left.getTokenizer().getFilename();
+				
 				return new IStrategoTerm[] {
-					f.makeString(left.getTokenizer().getFilename()),
+					f.makeString(fileName),
 					f.makeInt(left.getLine()),
 					f.makeInt(left.getColumn()),
 					f.makeInt(left.getStartOffset()),
@@ -40,8 +43,11 @@ public class ImploderAttachment extends AbstractTermAttachment {
 
 			@Override
 			protected ImploderAttachment fromSubterms(IStrategoTerm[] subterms) {
-				return createCompactPositionAttachment(asJavaString(subterms[0]), asJavaInt(subterms[1]),
+				String fileName = asJavaString(subterms[0]).equals("") ? null :asJavaString(subterms[0]);
+				
+				return createCompactPositionAttachment(fileName, asJavaInt(subterms[1]),
 						asJavaInt(subterms[2]), asJavaInt(subterms[3]), asJavaInt(subterms[4]));
+				
 			}
 		
 		};

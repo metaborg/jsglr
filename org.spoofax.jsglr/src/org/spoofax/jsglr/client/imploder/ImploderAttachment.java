@@ -23,30 +23,34 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	private static final long serialVersionUID = -578795745164445689L;
 
 	public static final TermAttachmentType<ImploderAttachment> TYPE =
-		new TermAttachmentType<ImploderAttachment>(ImploderAttachment.class, "ImploderAttachment", 5) {
+		new TermAttachmentType<ImploderAttachment>(ImploderAttachment.class, "ImploderAttachment", 6) {
 
 			@Override
 			protected IStrategoTerm[] toSubterms(ITermFactory f, ImploderAttachment attachment) {
 				IToken left = attachment.getLeftToken();
 				IToken right = attachment.getRightToken();
 				
+				String sortType = attachment.getSort() == null ? "" : attachment.getSort() ;
 				String fileName = left.getTokenizer().getFilename()  == null ? "" :left.getTokenizer().getFilename();
+				
 				
 				return new IStrategoTerm[] {
 					f.makeString(fileName),
 					f.makeInt(left.getLine()),
 					f.makeInt(left.getColumn()),
 					f.makeInt(left.getStartOffset()),
-					f.makeInt(right.getEndOffset())
+					f.makeInt(right.getEndOffset()),
+					f.makeString( sortType )
 				};
 			}
 
 			@Override
 			protected ImploderAttachment fromSubterms(IStrategoTerm[] subterms) {
-				String fileName = asJavaString(subterms[0]).equals("") ? null :asJavaString(subterms[0]);
+				String fileName =  asJavaString(subterms[0]).equals("") ? null :asJavaString(subterms[0]);
+				String sortType =  asJavaString(subterms[0]).equals("") ? null :asJavaString(subterms[5]);
 				
 				return createCompactPositionAttachment(fileName, asJavaInt(subterms[1]),
-						asJavaInt(subterms[2]), asJavaInt(subterms[3]), asJavaInt(subterms[4]));
+						asJavaInt(subterms[2]), asJavaInt(subterms[3]), asJavaInt(subterms[4]) , sortType);
 				
 			}
 		
@@ -196,13 +200,22 @@ public class ImploderAttachment extends AbstractTermAttachment {
 		return createCompactPositionAttachment(filename, left.getLine(), left.getColumn(), left.getStartOffset(), right.getEndOffset());
 	}
 	
+	
+	
 	public static ImploderAttachment createCompactPositionAttachment(
 			String filename, int line, int column, int startOffset, int endOffset) {
+		return createCompactPositionAttachment(filename, line, column, startOffset, endOffset, null);
+	}
+	
+	
+	public static ImploderAttachment createCompactPositionAttachment(
+			String filename, int line, int column, int startOffset, int endOffset, String sortType) {
 		Token token = new Token(null, 0, line, column, startOffset, endOffset, TK_UNKNOWN);
-		NullTokenizer newTokenizer = new NullTokenizer(null, filename, token);
+		NullTokenizer newTokenizer = new NullTokenizer(sortType, filename, token);
 		token.setTokenizer(newTokenizer);
 		return new ImploderAttachment(null, token, token);
 	}
+	
 
 	/**
 	 * @param isAnonymousSequence  True if the term is an unnamed sequence like a list or tuple.

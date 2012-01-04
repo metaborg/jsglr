@@ -1,6 +1,7 @@
 package org.spoofax.jssglr.client.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostT
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.ParseTable;
@@ -19,13 +21,11 @@ import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
-import org.spoofax.terms.TermFactory;
+import org.spoofax.jssglr.client.STRJSNativeTermFactory;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -53,11 +53,13 @@ public class Parser {
 
 	private final ITermFactory af;
 	private ParseTable parseTable;
-	private TreeBuilder treeBuilder;
+	private ITreeBuilder treeBuilder;
 	private SGLR sglr;
 	private boolean tableLoaded = false;
 	private Set<String> incrementalSorts;
 	private IStrategoTerm lastResult;
+	
+	private HashMap<String, SemanticError> _tokenTable = new HashMap<String, SemanticError>(); 
 
 	public Parser(ITermFactory termFactory) {
 		af = termFactory;
@@ -118,8 +120,10 @@ public class Parser {
 			logToConsole("Could not load parsetable due to: " + e.getMessage());
 			return;
 		}
-		TermTreeFactory factory = new TermTreeFactory(af);
-		treeBuilder = new TreeBuilder(factory);
+		//TermTreeFactory factory = new TermTreeFactory(af);
+		treeBuilder = new TreeBuilder(new STRJSNativeTermFactory(), false);
+		//treeBuilder = new Asfix2TreeBuilder();//
+		//treeBuilder = new TestSTRJSTreeBuilder();
 		sglr = new SGLR(treeBuilder, parseTable);
 		sglr.setUseStructureRecovery(true);
 //			sglr = new IncrementalSGLR<IStrategoTerm>(parser, C_STYLE, factory, incrementalSorts);
@@ -144,9 +148,12 @@ public class Parser {
 		parser.parse = function (text) {
 			return self.@org.spoofax.jssglr.client.services.Parser::parse(Ljava/lang/String;)(text);
 		};
-		parser.parseAndTokenize = function (lineCount, text) {
-			return self.@org.spoofax.jssglr.client.services.Parser::parseAndTokenize(ILjava/lang/String;)(lineCount, text);
-		};
+		parser.Tokenize = function (ast, lines)  {
+			return self.@org.spoofax.jssglr.client.services.Parser::Tokenize(Ljava/lang/Object;I) (ast, lines);
+		};		
+		//parser.parseAndTokenize = function (lineCount, text) {
+		//	return self.@org.spoofax.jssglr.client.services.Parser::parseAndTokenize(ILjava/lang/String;)(lineCount, text);
+		//};
 		parser.loadFailed = function() {
 			return self.@org.spoofax.jssglr.client.services.Parser::loadFailed()();
 		}
@@ -156,8 +163,35 @@ public class Parser {
 		parser.isReady = function() {
 			return self.@org.spoofax.jssglr.client.services.Parser::isReady()();
 		};
+		parser.initTokenTable = function()
+		{
+			self.@org.spoofax.jssglr.client.services.Parser::initTokenTable();
+		}
+		parser.addTokenToTable = function(token, type, text, value)
+		{
+			self.@org.spoofax.jssglr.client.services.Parser::storeErrorToken(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;) (token, type, text, value);
+		}
 		return parser;
 	}-*/;
+	
+	public void initTokenTable()
+	{
+		_tokenTable = new HashMap<String, SemanticError>();
+	}
+	
+	public void storeErrorToken(Object token, String type, String text, String value)
+	{
+		String key = getTokenCompareString((IToken) token);
+		_tokenTable.put(key, new SemanticError(type, text, value ));
+	}
+	
+	private String getTokenCompareString(IToken token)
+	{
+		String key = "TI."+token.getLine()+"."+token.getColumn(); 
+		return key;
+	}	
+	
+	
 
 	private int findRightMostWithSameError(IToken token, String prefix) {
 		String expectedError = token.getError();
@@ -242,6 +276,115 @@ public class Parser {
 					findRightMostTokenOnSameLine(left), LARGE_REGION_START);
 		}
 	}
+	
+	private native void log(String o) /*-{
+		console.log(o); 
+	}-*/;
+	
+	
+	private native void debug(Object o) /*-{
+		var x = o;
+		//Parser Debugger
+		debugger; 
+	}-*/;
+	
+	private native IToken getTopLeftToken(Object o)  /*-{
+		return o.getSubterm(0).editortoken.tokenLeft;
+	}-*/;
+	
+
+	
+	/*
+	 * This method is created to couple ACE with the JSSGLR parser and Stratego-JS-Backend programs.
+	 * Since The Stratego-JS-Backend requires a SJSB ast in order to perform the transformations a suitable AST (generated with STRJSNativeTermFactory) is applied to a required strategy.
+	 * 
+	 * The strategy which must be implemented should be called main, and take as parameter a list of two items. 
+	 * 
+	 * 
+	Function returns a {tokens, errors}
+	*/
+	
+	
+		
+
+
+	@SuppressWarnings("unchecked")
+	public JavaScriptObject Tokenize(Object ast, int lines) {
+//		int ttsize = _tokenTable.size();
+		//debug(ttsize);
+		
+		
+		final JsArray<JavaScriptObject>[] attrs = new JsArray[lines];
+		for(int i = 0; i < lines; i++) {
+			attrs[i] = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
+		}
+		//final ISimpleTerm o = parse(text);
+		final ISimpleTerm o = (ISimpleTerm)ast; 
+		
+		JsArray<JavaScriptObject> jserrors = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
+		if(o == null) {
+			return makeParseResult(makeJsArray(attrs), jserrors);
+		}
+		final IToken t = getTopLeftToken(o);
+		
+		if(t == null) {
+			return makeParseResult(makeJsArray(attrs), jserrors);
+		}
+		final ITokenizer tok = t.getTokenizer();
+
+		//log("Tokencount: "  + tok.getTokenCount());
+		for(int i = 0; i < tok.getTokenCount(); i++) {
+			final IToken x = tok.getTokenAt(i);
+			int line = x.getLine() - 1;
+			
+			String tokentype = convertTokenType(x.getKind());
+			String tokenKey = getTokenCompareString(x);
+			//log("Looking for tokenkey B: " + tokenKey);
+			if (_tokenTable.containsKey(tokenKey))
+			{
+				tokentype = _tokenTable.get(tokenKey).type;
+				log("Marking error at: " + _tokenTable.get(tokenKey).text);
+				
+				//_tokenTable.get(tokenKey).text
+				jserrors.push(createWarningToken(line, x.getColumn(), _tokenTable.get(tokenKey).text, false));
+			}
+			//debugToken(x);
+			final int start = x.getColumn();
+			final int end = x.getEndOffset() - x.getStartOffset() + start + 1;
+			
+			attrs[line].push(createBespinToken(x.toString(), tokentype, start, end, x.getLine()));
+		}
+		
+		// https://svn.strategoxt.org/repos/StrategoXT/spoofax-imp/trunk/org.strategoxt.imp.runtime/src/org/strategoxt/imp/runtime/parser/ParseErrorHandler.java
+		for(int i = 0; i < tok.getTokenCount(); i++) {
+			final IToken x = tok.getTokenAt(i);
+			String error = x.getError();
+
+			if (error != null) {
+				if (error == ITokenizer.ERROR_SKIPPED_REGION) {
+					i = findRightMostWithSameError(x, null);
+					reportSkippedRegion(jserrors, sglr, x, tok.getTokenAt(i));
+				} else if (error.startsWith(ITokenizer.ERROR_WARNING_PREFIX)) {
+					i = findRightMostWithSameError(x, null);
+					reportWarningAtTokens(jserrors, x, tok.getTokenAt(i), error);
+				} else if (error.startsWith(ITokenizer.ERROR_WATER_PREFIX)) {
+					i = findRightMostWithSameError(x, ITokenizer.ERROR_WATER_PREFIX);
+					reportErrorAtTokens(jserrors, x, tok.getTokenAt(i), error);
+				} else {
+					i = findRightMostWithSameError(x, null);
+					// UNDONE: won't work for multi-token errors (as seen in SugarJ)
+					reportErrorAtTokens(jserrors, x, tok.getTokenAt(i), error);
+				}
+			}
+			
+		}
+		
+
+		return makeParseResult(makeJsArray(attrs), jserrors);
+	}	
+	
+	
+	/*
 
 	@SuppressWarnings("unchecked")
 	public JavaScriptObject parseAndTokenize(int lines, String text) {
@@ -250,16 +393,25 @@ public class Parser {
 			attrs[i] = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
 		}
 		final ISimpleTerm o = parse(text);
+		//Now we have the ast;
+		
+		
+		debug("W00t");
+		
+		
 		JsArray<JavaScriptObject> jserrors = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
 		if(o == null) {
 			return makeParseResult(makeJsArray(attrs), jserrors);
 		}
-		final IToken t = ImploderAttachment.get(o).getLeftToken();
+		//final IToken t = ImploderAttachment.get(o).getLeftToken();
+		final IToken t = getTopLeftToken(o);
+		
 		if(t == null) {
 			return makeParseResult(makeJsArray(attrs), jserrors);
 		}
 		final ITokenizer tok = t.getTokenizer();
 
+		
 		for(int i = 0; i < tok.getTokenCount(); i++) {
 			final IToken x = tok.getTokenAt(i);
 			int line = x.getLine() - 1;
@@ -270,11 +422,11 @@ public class Parser {
 			final String tokentype = convertTokenType(x.getKind());
 			attrs[line].push(createBespinToken(x.toString(), tokentype, start, end, x.getLine()));
 		}
-
 		// https://svn.strategoxt.org/repos/StrategoXT/spoofax-imp/trunk/org.strategoxt.imp.runtime/src/org/strategoxt/imp/runtime/parser/ParseErrorHandler.java
 		for(int i = 0; i < tok.getTokenCount(); i++) {
 			final IToken x = tok.getTokenAt(i);
 			final String error = x.getError();
+			
 			if (error != null) {
 				if (error == ITokenizer.ERROR_SKIPPED_REGION) {
 					i = findRightMostWithSameError(x, null);
@@ -292,9 +444,11 @@ public class Parser {
 				}
 			}
 		}
+		
 
-		return makeParseResult(makeJsArray(attrs), jserrors);
+		return makeParseResult(makeJsArray(attrs), jserrors, o);
 	}
+	*/
 
 	public native static void logToConsole(String message) /*-{
 		$self.sender.emit("log", message);
@@ -379,5 +533,19 @@ public class Parser {
 			e.printStackTrace();
 		}
 		return null;
+	}
+}
+
+class SemanticError
+{
+	public final String type;
+	public final String text;
+	public final String value;
+	
+	public SemanticError(String pType, String pText, String pValue)
+	{
+		type = pType;
+		text = pText;
+		value = pValue;
 	}
 }

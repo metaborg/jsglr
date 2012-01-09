@@ -29,6 +29,8 @@ import org.spoofax.terms.TermFactory;
 
 public class JSGLR_recover_parse_string extends JSGLRPrimitive {
 	
+	// TODO: remove me -- this is redundant and way to complex; there's also a jsglr-enable-recovery
+	
 	private int cursorLocation;
 
 	protected JSGLR_recover_parse_string() {

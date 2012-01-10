@@ -165,7 +165,7 @@ public class Parser {
 		};
 		parser.initTokenTable = function()
 		{
-			self.@org.spoofax.jssglr.client.services.Parser::initTokenTable();
+			self.@org.spoofax.jssglr.client.services.Parser::initTokenTable()();
 		}
 		parser.addTokenToTable = function(token, type, text, value)
 		{
@@ -177,12 +177,14 @@ public class Parser {
 	public void initTokenTable()
 	{
 		_tokenTable = new HashMap<String, SemanticError>();
+		//log("Initialized token table. Count=" + _tokenTable.size());
 	}
 	
 	public void storeErrorToken(Object token, String type, String text, String value)
 	{
 		String key = getTokenCompareString((IToken) token);
 		_tokenTable.put(key, new SemanticError(type, text, value ));
+		//log("added token to table. Size=" + _tokenTable.size());
 	}
 	
 	private String getTokenCompareString(IToken token)
@@ -278,7 +280,7 @@ public class Parser {
 	}
 	
 	private native void log(String o) /*-{
-		console.log(o); 
+		StrategoJS.trace("JSGLR PARSER LOG: " + o);
 	}-*/;
 	
 	

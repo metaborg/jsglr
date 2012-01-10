@@ -38,10 +38,6 @@ public class STRJSNativeTermFactory implements ITreeFactory
 	private native JavaScriptObject makeAppl(Object ctor, Object args) /*-{
 		return StrategoJS.Term.makeAppl(ctor, args); 
 	}-*/;
-
-	private native JavaScriptObject makeAppl(Object ctor, Object lbl, Object args) /*-{
-		return StrategoJS.Term.makeAppl(ctor, args); 
-	}-*/;
 	
 	private native JavaScriptObject makeInt(int i) /*-{
 		return StrategoJS.Term.makeInt(i); 
@@ -207,15 +203,15 @@ public class STRJSNativeTermFactory implements ITreeFactory
 
 	@Override
 	public Object createIntTerminal(String sort, IToken token, int value) {
-		JavaScriptObject result = makeInt(value);
-		result = addToken(result, token, token);
+		Object result = makeInt(value);
+		result = addTokens(result, token, token);
 		return result;
 	}
 
 	@Override
 	public Object createRealTerminal(String sort, IToken token, double value) {
-		JavaScriptObject result = makeReal(value);
-		result = addToken(result, token, token);
+		Object result = makeReal(value);
+		result = addTokens(result, token, token);
 		return result;
 	}
 

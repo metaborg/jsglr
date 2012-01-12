@@ -22,9 +22,13 @@
 			   <pathelement location="${org.spoofax.terms.src.dir}" />
                            <path refid="compile.classpath" />
                    </classpath>
-                   <jvmarg value="-Xmx256M" />
+                   <jvmarg value="-Xmx512M" />
 	           <arg value="-style" />
 			<arg value="PRETTY" />
+		   <arg value="-XdisableClassMetadata" />
+		   <arg value="-XdisableCastChecking" />
+		   <arg value="-optimize" />
+			<arg value="9" />
                    <arg value="org.spoofax.jssglr.Worker" />
            </java>
 </target>

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2005-2011, Karl Trygve Kalleberg <karltk near strategoxt dot org>
- * 
+ *
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.interpreter.library.jsglr;
@@ -27,14 +27,14 @@ import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.terms.TermFactory;
 
-public class JSGLR_recover_parse_string extends JSGLRPrimitive {
-	
+public class STRSGLR_recover_parse_string extends JSGLRPrimitive {
+
 	// TODO: remove me -- this is redundant and way to complex; there's also a jsglr-enable-recovery
-	
+
 	private int cursorLocation;
 
-	protected JSGLR_recover_parse_string() {
-		super("JSGLR_recover_parse_string", 1, 5);
+	protected STRSGLR_recover_parse_string() {
+		super("STRSGLR_recover_parse_string", 1, 5);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class JSGLR_recover_parse_string extends JSGLRPrimitive {
 		}
 
 		String lastPath = asJavaString(tvars[3]);
-		
+
 		ParseTable table = getParseTable(env, tvars);
 		if (table == null)
 			return false;
@@ -86,7 +86,7 @@ public class JSGLR_recover_parse_string extends JSGLRPrimitive {
 				e.printStackTrace();
 			}
 			env.setCurrent(errorTerm);
-			
+
 			// FIXME: Stratego doesn't seem to print the erroneous line in Java
 			return svars[0].evaluate(env);
 		}
@@ -98,15 +98,15 @@ public class JSGLR_recover_parse_string extends JSGLRPrimitive {
 
 	protected ParseTable getParseTable(IContext env, IStrategoTerm[] tvars) {
 		final TermFactory factory = new TermFactory();
-		IStrategoTerm tableTerm = tvars[1];		
+		IStrategoTerm tableTerm = tvars[1];
 		try {
 			return new ParseTable(tableTerm, factory);
 		} catch (InvalidParseTableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
-		} 
-		 
+		}
+
 	}
 
 	protected IStrategoTerm call(IContext env, IStrategoString input,

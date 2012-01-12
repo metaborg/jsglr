@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2005-2011, Karl Trygve Kalleberg <karltk near strategoxt dot org>
- * 
+ *
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.interpreter.library.jsglr;
@@ -25,28 +25,28 @@ import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.shared.SGLRException;
 
-public class JSGLR_parse_string_pt extends JSGLRPrimitive {
-	
+public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
+
 	private SGLRException lastException;
-	
+
 	private String lastPath;
-	
-	protected JSGLR_parse_string_pt() {
-		super("JSGLR_parse_string_pt", 1, 4);
+
+	protected STRSGLR_parse_string_pt() {
+		super("STRSGLR_parse_string_pt", 1, 4);
 	}
-	
-	protected JSGLR_parse_string_pt(String name, int svars, int tvars) {
+
+	protected STRSGLR_parse_string_pt(String name, int svars, int tvars) {
 		super(name, svars, tvars);
 	}
-	
+
 	public String getLastPath() {
 		return lastPath;
 	}
-	
+
 	public SGLRException getLastException() {
 		return lastException;
 	}
-	
+
 	public void clearLastException() {
 		lastException = null;
 	}
@@ -57,9 +57,9 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
-		
+
 		clearLastException();
-		
+
 		if (!Tools.isTermString(tvars[0]))
 			return false;
 		if (!Tools.isTermInt(tvars[1]))
@@ -77,7 +77,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		}
 
 		lastPath = asJavaString(tvars[3]);
-		
+
 		ParseTable table = getParseTable(env, tvars);
 		if (table == null)
 			return false;
@@ -98,7 +98,7 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 				e.printStackTrace();
 			}
 			env.setCurrent(errorTerm);
-			
+
 			// FIXME: Stratego doesn't seem to print the erroneous line in Java
 			return svars[0].evaluate(env);
 		}
@@ -109,14 +109,14 @@ public class JSGLR_parse_string_pt extends JSGLRPrimitive {
 		ParseTable table = lib.getParseTable(asJavaInt(tvars[1]));
 		return table;
 	}
-	
+
 	protected IStrategoTerm call(IContext env, IStrategoString input,
 			ParseTable table, String startSymbol)
 			throws InterpreterException, IOException, SGLRException {
-		
+
 		SGLR parser = new SGLR(new Asfix2TreeBuilder(env.getFactory()), table);
 		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol);
-		
+
 		return result;
 	}
 }

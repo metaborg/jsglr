@@ -5,9 +5,6 @@
  */
 package org.spoofax.interpreter.library.jsglr;
 
-import static org.spoofax.interpreter.core.Tools.asJavaInt;
-import static org.spoofax.interpreter.core.Tools.asJavaString;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -17,52 +14,25 @@ import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.Asfix2TreeBuilder;
-import org.spoofax.jsglr.client.FilterException;
-import org.spoofax.jsglr.client.ParseTable;
-import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.shared.SGLRException;
+import org.spoofax.jsglr.client.ITreeBuilder;
 
 public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
-
-	private SGLRException lastException;
-
-	private String lastPath;
 
 	protected STRSGLR_parse_stream_pt() {
 		super("STRSGLR_parse_stream_pt", 1, 4);
 	}
 
-	protected STRSGLR_parse_stream_pt(String name, int svars, int tvars) {
-		super(name, svars, tvars);
-	}
-
-	@Deprecated
-	public String getLastPath() {
-		return lastPath;
-	}
-
-	@Deprecated
-	public SGLRException getLastException() {
-		return lastException;
-	}
-
-	public void clearLastException() {
-		lastException = null;
-	}
-
 	/**
 	 * svars: 0 => on parse error
-	 * tvars: 0 => input string, 1 => table, 2 => startsymbol, 3 => path
+	 * tvars: 0 => stream fd, 1 => table, 2 => startsymbol, 3 => path
 	 */
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 
 		System.out.println("XXZ");
-		clearLastException();
 
 		if (!Tools.isTermInt(tvars[0]))
 			return false;
@@ -71,45 +41,32 @@ public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 		if(!Tools.isTermString(tvars[3]))
 			return false;
 
-		String startSymbol;
-		if (Tools.isTermString(tvars[2])) {
-			startSymbol = Tools.asJavaString(tvars[2]);
-		} else if (tvars[2].getSubtermCount() == 0 && tvars[2].getTermType() == IStrategoTerm.APPL && ((IStrategoAppl) tvars[2]).getConstructor().getName().equals("None")) {
-			startSymbol = null;
-		} else {
-			return false;
-		}
+		String startSymbol = STRSGLR_parse_string_pt.computeStartSymbol(tvars[2]);
 
-		lastPath = asJavaString(tvars[3]);
+		STRSGLR_parse_string_pt parser = (STRSGLR_parse_string_pt) getLibrary(env).get(STRSGLR_parse_string_pt.NAME);
 
-		ParseTable table = getParseTable(env, tvars);
-		if (table == null)
-			return false;
-
-		IOAgent io = SSLLibrary.instance(env).getIOAgent();
-
+		String text;
 		try {
-			SGLR parser = new SGLR(new Asfix2TreeBuilder(env.getFactory()), table);
-			parser.setUseStructureRecovery(false);
-			String wholeFile = readFile(io, Tools.asJavaInt(tvars[0]));
-			IStrategoTerm result = (IStrategoTerm) parser.parse(wholeFile, Tools.asJavaString(tvars[3]), startSymbol);
-			env.setCurrent(result);
-			return result != null;
+			text = readFile(SSLLibrary.instance(env).getIOAgent(), Tools.asJavaInt(tvars[0]));
 		} catch (IOException e) {
-			io.printError("JSGLR_parse_stream_pt: could not parse " + getLastPath() + " - " + e.getMessage());
-			return false;
-		} catch (SGLRException e) {
-			lastException = e;
-			IStrategoTerm errorTerm = e.toTerm(lastPath);
-			if (e instanceof FilterException) {
-				// HACK: print stack trace for this internal error
-				e.printStackTrace();
-			}
+			// FIXME add more structure;
+			IStrategoTerm errorTerm = env.getFactory().makeString(e.getMessage());
 			env.setCurrent(errorTerm);
-
-			// FIXME: Stratego doesn't seem to print the erroneous line in Java
 			return svars[0].evaluate(env);
 		}
+
+		System.out.println(text);
+		return parser.doParse(
+				env,
+				text,
+				Tools.asJavaInt(tvars[1]),
+				startSymbol,
+				Tools.asJavaString(tvars[3]),
+				svars[0]);
+	}
+
+	protected ITreeBuilder createTreeBuilder(IContext env) {
+		return new Asfix2TreeBuilder(env.getFactory());
 	}
 
 	private String readFile(IOAgent io, int fd) throws IOException {
@@ -117,13 +74,8 @@ public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 		StringBuilder sb = new StringBuilder();
 		do {
 			sb.append(br.readLine());
+			sb.append('\n');
 		} while(br.ready());
 		return sb.toString();
-	}
-
-	protected ParseTable getParseTable(IContext env, IStrategoTerm[] tvars) {
-		JSGLRLibrary lib = getLibrary(env);
-		ParseTable table = lib.getParseTable(asJavaInt(tvars[1]));
-		return table;
 	}
 }

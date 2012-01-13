@@ -5,7 +5,7 @@
  */
 package org.spoofax.interpreter.library.jsglr;
 
-import java.util.WeakHashMap;
+import java.util.Map;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -25,7 +25,7 @@ public class STRSGLR_open_parse_table extends JSGLRPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 
-		WeakHashMap<IStrategoTerm, IStrategoInt> cache = getLibrary(env).getParseTableCache();
+		Map<IStrategoTerm, IStrategoInt> cache = getLibrary(env).getParseTableCache();
 
 		IStrategoInt cached = cache.get(tvars[0]);
 	    if (cached != null) {

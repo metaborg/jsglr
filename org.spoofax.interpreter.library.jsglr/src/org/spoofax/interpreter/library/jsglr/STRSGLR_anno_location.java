@@ -1,7 +1,9 @@
-package org.strategoxt.lang.compat.sglr;
+package org.spoofax.interpreter.library.jsglr;
 
-import static org.spoofax.interpreter.core.Tools.*;
-import static org.spoofax.interpreter.terms.IStrategoTerm.*;
+import static org.spoofax.interpreter.core.Tools.asJavaInt;
+import static org.spoofax.interpreter.core.Tools.termAt;
+import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
 
 import java.util.LinkedList;
 

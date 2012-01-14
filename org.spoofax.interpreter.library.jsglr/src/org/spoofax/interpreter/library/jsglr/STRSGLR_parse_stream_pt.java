@@ -32,8 +32,6 @@ public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 
-		System.out.println("XXZ");
-
 		if (!Tools.isTermInt(tvars[0]))
 			return false;
 		if (!Tools.isTermInt(tvars[1]))
@@ -55,7 +53,6 @@ public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 			return svars[0].evaluate(env);
 		}
 
-		System.out.println(text);
 		return parser.doParse(
 				env,
 				text,

@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Stratego/J SGLR library
 Bundle-SymbolicName: org.spoofax.interpreter.library.jsglr
 Bundle-Version: 0.3.9.qualifier
-Bundle-Activator: org.spoofax.interpreter.library.jsglr.Activator
 Bundle-Vendor: Spoofax.org
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

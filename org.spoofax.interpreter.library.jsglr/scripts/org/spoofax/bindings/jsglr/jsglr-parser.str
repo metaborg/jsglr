@@ -1,5 +1,9 @@
 module org/spoofax/bindings/jsglr/jsglr-parser
 
+imports
+  libstratego-lib
+  libstratego-sglr
+
 signature
   sorts ParseTable
   constructors
@@ -7,25 +11,33 @@ signature
     
 strategies
 
+  jsglr-enable-recovery = prim("STRSGLR_set_recovery_on")
+  
+  jsglr-disable-recovery = prim("STRSGLR_set_recovery_off")
+
   /**
    * @type SerializedParseTable -> ParseTable
    */
   jsglr-open-parsetable = 
       ?tbl
-    ; prim("JSGLR_open_parsetable", tbl) => internal
-    ; !ParseTable(internal)
+    ; ?"parse-table"#(_)
+    ; prim("STRSGLR_open_parse_table", tbl) => int
+    ; !ParseTable(int)
+  
+  jsglr-close-parsetable =
+    id // no such thing
     
   jsglr-parse-string(|tbl) =
-    jsglr-parse-string(id | tbl, None(), "string")
+    jsglr-parse-string(fail | tbl, None(), "string")
   
   jsglr-parse-string(on-parse-error | tbl, start-symbol, path) =
-      jsglr-parse-string-pt(on-parse-error | tbl, start-symbol, path)
-    ; implode-asfix
+      where(<try(not(?ParseTable(_)); memo-open-parse-table)> tbl => ParseTable(internal-tbl))
+    ; ?string
+    ; prim("STRSGLR_parse_string", on-parse-error | string, internal-tbl, start-symbol, path)
     
 strategies
 
   jsglr-parse-string-pt(on-parse-error | tbl, start-symbol, path) =
-      where(!tbl => ParseTable(internal-tbl))
+      where(<try(not(?ParseTable(_)); memo-open-parse-table)> tbl => ParseTable(internal-tbl))
     ; ?string
-    ; prim("JSGLR_parse_string_pt", on-parse-error | string, internal-tbl, start-symbol, path)
-    
+    ; prim("STRSGLR_parse_string_pt", on-parse-error | string, internal-tbl, start-symbol, path)

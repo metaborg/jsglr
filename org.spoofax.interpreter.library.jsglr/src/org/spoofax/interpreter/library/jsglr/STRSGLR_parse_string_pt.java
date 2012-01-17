@@ -45,18 +45,22 @@ public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
 		this(NAME, filterSettings, recoveryEnabled);
 	}
 
-	public String getLastPath() {
+	public final String getLastPath() {
 		return lastPath;
 	}
 
-	public SGLRException getLastException() {
+	public final SGLRException getLastException() {
 		return lastException;
 	}
 
-	public void clearLastException() {
+	public final void clearLastException() {
 		lastException = null;
 	}
 
+	public final boolean isRecoveryEnabled() {
+		return recoveryEnabled.get();
+	}
+	
 	/**
 	 * tvars: 0 => input string, 1 => table, 2 => startsymbol, 3 => path
 	 */
@@ -77,9 +81,13 @@ public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
 		if(startSymbol == INVALID)
 			return false;
 
+		ParseTable table = getLibrary(env).getParseTable(Tools.asJavaInt(tvars[1]));
+		if (table == null)
+			return false;
+
 		return doParse(env,
 				Tools.asJavaString(tvars[0]),
-				Tools.asJavaInt(tvars[1]),
+				table,
 				startSymbol,
 				Tools.asJavaString(tvars[3]),
 				svars[0]);
@@ -97,23 +105,20 @@ public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
 		}
 
 	}
-	protected boolean doParse(IContext env, String text, int parseTableIndex, String startSymbol, String filePath, Strategy errorCallback) throws InterpreterException {
-		lastPath = filePath;
 
-		ParseTable table = getLibrary(env).getParseTable(parseTableIndex);
-		if (table == null)
-			return false;
+	protected boolean doParse(IContext env, String text, ParseTable table, String startSymbol, String filePath, Strategy errorCallback) throws InterpreterException {
+		lastPath = filePath;
 
 		try {
 			SGLR parser = new SGLR(createTreeBuilder(env), table);
 			parser.setDisambiguator(filterSettings);
-			parser.setUseStructureRecovery(recoveryEnabled.get());
+			parser.setUseStructureRecovery(isRecoveryEnabled());
 			IStrategoTerm result = (IStrategoTerm) parser.parse(text, null, startSymbol);
 			env.setCurrent(result);
 			return result != null;
 		} catch (SGLRException e) {
 			lastException = e;
-			IStrategoTerm errorTerm = e.toTerm(lastPath);
+			IStrategoTerm errorTerm = e.toTerm(getLastPath());
 			if (e instanceof FilterException) {
 				// HACK: print stack trace for this internal error
 				e.printStackTrace();

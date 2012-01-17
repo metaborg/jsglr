@@ -17,7 +17,6 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.attachments.ParentAttachment;
-import org.spoofax.terms.attachments.ParentTermFactory;
 
 
 /**

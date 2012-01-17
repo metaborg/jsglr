@@ -15,6 +15,7 @@ import org.spoofax.jsglr.client.ITreeBuilder;
  *
  * @author Lennart Kats <lennart add lclnet.nl>
  */
+@Deprecated
 public class JSGLR_parse_string_pt_compat extends STRSGLR_parse_string_pt {
 
 	public static final String NAME = "JSGLR_parse_string_pt_compat";

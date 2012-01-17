@@ -52,6 +52,7 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		add(new STRSGLR_get_parse_error());
 		add(new STRSGLR_clear_parse_error());
 		add(new STRSGLR_anno_location());
+		add(new STRSGLR_close_parse_table());
 		initFilterSettings();
 	}
 

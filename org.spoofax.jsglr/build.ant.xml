@@ -28,7 +28,7 @@
             <fileset dir="${lib.dir}/" />
         </copy>
 
-        <copy file="build/${jarname}-${version}.jar" todir="${prefix}/share/java" />
+        <copy file="${build.dir}/${jarname}-${version}.jar" todir="${prefix}/share/java" />
 
         <copy file="jsglr" todir="${prefix}/bin" />
         <chmod perm="a+x" file="${prefix}/bin/jsglr" />

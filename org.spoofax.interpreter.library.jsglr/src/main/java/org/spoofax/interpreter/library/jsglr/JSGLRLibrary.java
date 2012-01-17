@@ -274,4 +274,8 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 	public static void attach(Interpreter intp) throws IOException, InterpreterException {
 		attach(intp, new JSGLRLibrary(), "share/libstratego-jsglr.ctree");
 	}
+
+	public void removeParseTable(int index) {
+		parseTables.remove(index);
+	}
 }

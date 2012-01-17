@@ -5,7 +5,6 @@
  */
 package org.spoofax.interpreter.library.jsglr;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.spoofax.interpreter.core.IContext;

@@ -5,11 +5,14 @@
  */
 package org.spoofax.interpreter.library.jsglr;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.spoofax.interpreter.core.Interpreter;
+import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -268,5 +271,9 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 
 	Map<IStrategoTerm, IStrategoInt> getParseTableCache() {
 		return parseTableCache;
+	}
+
+	public static void attach(Interpreter intp) throws IOException, InterpreterException {
+		attach(intp, new JSGLRLibrary(), "share/libstratego-jsglr.ctree");
 	}
 }

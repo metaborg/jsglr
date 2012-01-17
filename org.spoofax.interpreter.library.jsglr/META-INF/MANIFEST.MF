@@ -8,7 +8,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.spoofax.terms,
  org.spoofax.interpreter.core,
- org.spoofax.jsglr;bundle-version="0.3.0"
+ org.spoofax.jsglr;bundle-version="0.3.0",
+ org.junit
 Bundle-ActivationPolicy: lazy
 Export-Package: org.spoofax.interpreter.library.jsglr,
  org.spoofax.interpreter.library.jsglr.origin

@@ -1,8 +1,9 @@
 <project name="spoofax-jsglr" default="jar">
 	
     <property name="lib.dir" value="lib" />
-    <property name="build.dir" value="target" />
+    <property name="build.dir" value="bin" />
     <property name="src.dir" value="src" />
+	<property name="strategoxt.dir" value="${user.home}/.nix-profile" />
 
     <property file="version.properties" />
 
@@ -15,7 +16,28 @@
         <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id">
         </javac>
     </target>
+	
+	<target name="download" description="--> download all dependencies">
+		<get src="http://spoofax.org/updates/spoofax-interpreter-core-latest.jar" dest="lib/" usetimestamp="true"/>
+		<get src="http://spoofax.org/updates/spoofax-jsglr-latest.jar" dest="lib/" usetimestamp="true"/>
+		<get src="http://spoofax.org/updates/spoofax-terms-latest.jar" dest="lib/" usetimestamp="true"/>
+	</target>
 
+   <target name="compile-str" description="--> compile Stratego code">
+		<mkdir dir="${build.dir}/share" />
+		<exec executable="${strategoxt.dir}/bin/strc" failonerror="true">
+			<arg value="-i" />
+			<arg value="src/main/stratego/spoofax/bindings/jsglr.str" />
+			<arg value="-I" />
+			<arg value="src/main/stratego" />
+			<arg value="-F" />
+			<arg value="-c" />
+			<arg value="--library" />
+			<arg value="-o" />
+			<arg value="${build.dir}/share/libstratego-jsglr.ctree" />
+		</exec>
+   </target>
+	
    <target name="install" depends="jar" description="--> install the project into prefix">
         <mkdir dir="${prefix}/bin" />
         <mkdir dir="${prefix}/share/java" />
@@ -49,7 +71,7 @@
        <gzip zipfile="${build.dir}/${jarname}-${version}.tar.gz" src="${build.dir}/${jarname}-${version}.tar"/>
    </target>
 
-   <target name="jar" depends="compile">
+   <target name="jar" depends="compile,compile-str">
         <jar destfile="${build.dir}/${jarname}-${version}.jar" basedir="${build.dir}/classes" />
     </target>
 

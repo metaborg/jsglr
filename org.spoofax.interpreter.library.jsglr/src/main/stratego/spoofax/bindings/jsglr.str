@@ -1,4 +1,7 @@
-module org/spoofax/bindings/jsglr/jsglr-parser
+/*
+ * Licensed under the GNU Lesser General Public License, v2.1
+ */
+module spoofax/bindings/jsglr
 
 imports
   libstratego-lib

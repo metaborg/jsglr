@@ -17,6 +17,8 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.ITreeBuilder;
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.shared.SGLRException;
 
 public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 
@@ -52,14 +54,23 @@ public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 			env.setCurrent(errorTerm);
 			return svars[0].evaluate(env);
 		}
+		
+		ParseTable table = getLibrary(env).getParseTable(Tools.asJavaInt(tvars[1]));
+		if (table == null)
+			return false;
 
-		return parser.doParse(
-				env,
-				text,
-				Tools.asJavaInt(tvars[1]),
-				startSymbol,
-				Tools.asJavaString(tvars[3]),
-				svars[0]);
+		try { 
+			IStrategoTerm result = parser.doParse(
+					env,
+					env.getFactory().makeString(text),
+					table,
+					startSymbol,
+					Tools.asJavaString(tvars[3]));
+			env.setCurrent(result);
+			return result != null;
+		} catch(SGLRException e) {
+			return STRSGLR_parse_string_pt.handleException(env, svars[0], e, Tools.asJavaString(tvars[3]));
+		} 
 	}
 
 	protected ITreeBuilder createTreeBuilder(IContext env) {

@@ -10,6 +10,10 @@
         <fileset dir="${lib.dir}" />
     </path>
 
+	<target name="download" description="--> download external dependencies">
+		<get src="http://search.maven.org/remotecontent?filepath=junit/junit/4.10/junit-4.10.jar" dest="lib/" usetimestamp="true" />
+	</target>
+		
     <target name="compile" description="--> compile the project">
         <mkdir dir="${build.dir}/classes" />
         <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id">

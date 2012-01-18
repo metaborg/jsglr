@@ -14,10 +14,6 @@ signature
     
 strategies
 
-  jsglr-enable-recovery = prim("STRSGLR_set_recovery_on")
-  
-  jsglr-disable-recovery = prim("STRSGLR_set_recovery_off")
-
   /**
    * @type SerializedParseTable -> ParseTable
    */

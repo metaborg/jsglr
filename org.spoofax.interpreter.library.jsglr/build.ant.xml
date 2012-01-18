@@ -1,9 +1,11 @@
-<project name="spoofax-jsglr" default="jar">
+<project name="spoofax-interpreter-library-jsglr" default="jar">
 
 	<property name="lib.dir" value="lib" />
 	<property name="build.dir" value="target" />
 	<property name="src.dir" value="src/main/java" />
 	<property name="strategoxt.dir" value="${user.home}/.nix-profile" />
+	
+	<property name="ctree.target" value="${build.dir}/resources/share/libstratego-jsglr.ctree" />
 
 	<property file="version.properties" />
 
@@ -17,7 +19,11 @@
 		</javac>
 	</target>
 
-	<target name="compile-str" description="--> compile Stratego code">
+	<uptodate property="compile-str.notRequired" targetfile="${ctree.target}" >
+	    <srcfiles dir= "src/main/stratego/spoofax/bindings" includes="**/*.str"/>
+	</uptodate>
+
+	<target name="compile-str" unless="compile-str.notRequired" description="--> compile Stratego code">
 		<mkdir dir="${build.dir}/resources/share" />
 		<exec executable="${strategoxt.dir}/bin/strc" failonerror="true">
 			<arg value="-i" />
@@ -28,7 +34,7 @@
 			<arg value="-c" />
 			<arg value="--library" />
 			<arg value="-o" />
-			<arg value="${build.dir}/resources/share/libstratego-jsglr.ctree" />
+			<arg value="${ctree.target}" />
 		</exec>
 	</target>
 

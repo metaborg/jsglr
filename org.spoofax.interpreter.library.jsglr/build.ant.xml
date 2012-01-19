@@ -78,6 +78,11 @@
 		</jar>
 	</target>
 
+	<target name="bundle-ctree" depends="compile-str">
+		<mkdir dir="bin/share/" />
+		<copy todir="bin/share/" file="${ctree.target}" />
+	</target>
+	
 	<target name="check" depends="jar">
 	</target>
 

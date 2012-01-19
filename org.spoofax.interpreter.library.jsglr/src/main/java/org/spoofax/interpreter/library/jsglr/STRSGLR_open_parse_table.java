@@ -30,7 +30,7 @@ public class STRSGLR_open_parse_table extends JSGLRPrimitive {
 		IStrategoInt cached = cache.get(tvars[0]);
 	    if (cached != null) {
 	        env.setCurrent(cached);
-	        if(!cache.containsKey(cached.intValue()))
+	        if(!cache.containsValue(cached.intValue()))
 	        	throw new IllegalStateException("Inconsistent context: wrong JSGLR library instance");
 	        return true;
 	    }

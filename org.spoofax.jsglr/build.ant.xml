@@ -61,7 +61,7 @@
         <jar destfile="${build.dir}/${jarname}-${version}.jar" basedir="${build.dir}/classes" />
     </target>
 
-   <target name="check" depends="jar">
-   </target>
+   <target name="check" depends="jar"/>
+   <target name="bundle-ctree" />
 
 </project>

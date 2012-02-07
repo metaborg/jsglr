@@ -16,8 +16,7 @@
            <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
                    <classpath>
 			   <pathelement location="${src.dir}" />
-			   <pathelement location="${gwtworker.dir}/src/" />
-			   <pathelement location="${gwtworker.dir}/bin/" />
+			   <pathelement location="${gwtworker}" />
 			   <pathelement location="${org.spoofax.jsglr.src.dir}" />
 			   <pathelement location="${org.spoofax.terms.src.dir}" />
                            <path refid="compile.classpath" />

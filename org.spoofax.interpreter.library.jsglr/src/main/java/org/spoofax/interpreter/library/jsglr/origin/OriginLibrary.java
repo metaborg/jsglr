@@ -20,6 +20,7 @@ public class OriginLibrary extends AbstractStrategoOperatorRegistry {
 		add(new OriginTermPrimitive());
 		add(new OriginTextPrimitive());
 		add(new OriginEqualPrimitive());
+		add(new OriginFilePrimitive());
 		
 		//token access primitives
 		add(new OriginNonLayoutTokensPrimitive());

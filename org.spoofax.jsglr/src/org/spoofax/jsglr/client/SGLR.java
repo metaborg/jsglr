@@ -183,7 +183,7 @@ public class SGLR {
 		forShifter = new ArrayDeque<ActionState>();
 		disambiguator = new Disambiguator();
 		useIntegratedRecovery = false;
-		recoverIntegrator = null;
+		setUseStructureRecovery(false);
 		history = new ParserHistory();
     	setCompletionParse(false, Integer.MAX_VALUE);
 		setTreeBuilder(treeBuilder);

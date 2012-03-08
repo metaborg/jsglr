@@ -131,26 +131,26 @@ public class ParserHistory {
 
 
     public String getFragment(int startTok, int endTok, PushbackStringIterator chars) {
-        String fragment="";
+        StringBuilder fragment = new StringBuilder();
         for (int i = startTok; i <= endTok; i++) {
         	int nextChar = readCharAt(i, chars);
             if(i >= recoverTokenCount || nextChar == -1)
                 break;
-            fragment+= (char)nextChar;
+            fragment.append((char)nextChar);
         }        
-        return fragment;
+        return fragment.toString();
     }
     
     public String readLine(int StartTok, PushbackStringIterator chars) {
-        String fragment="";
+        StringBuilder fragment = new StringBuilder();
         int pos=StartTok;
         int currentTok=' ';
         while(currentTok!='\n' && currentTok!=SGLR.EOF && pos<recoverTokenCount) {            
             currentTok=readCharAt(pos, chars);
-            fragment+= (char)currentTok;
+            fragment.append((char)currentTok);
             pos++;
         }        
-        return fragment;
+        return fragment.toString();
     }
     
     public IndentInfo getLine(int index){

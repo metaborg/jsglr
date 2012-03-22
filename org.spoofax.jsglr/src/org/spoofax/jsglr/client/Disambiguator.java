@@ -583,14 +583,14 @@ public class Disambiguator {
 				}
 			}
 
-			final int additionalAmbNodes = newAmbiguities.isEmpty() ? 0 : 1;
-			final AbstractParseNode[] restKids = new AbstractParseNode[t.getChildren().length - 1 + additionalAmbNodes];
-			for(int i = 0; i < restKids.length; i++) {
-				restKids[i] = kids[i + 1];
-			}
-
 			// FIXME is this correct?
 					if(!newAmbiguities.isEmpty()) {
+
+						final AbstractParseNode[] restKids = new AbstractParseNode[kids.length];
+						for(int i = 1; i < restKids.length; i++) {
+							restKids[i] = kids[i];
+						}
+						
 						AbstractParseNode extraAmb;
 						if(newAmbiguities.size() > 1) {
 							extraAmb = ParseNode.createAmbNode(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
@@ -598,13 +598,12 @@ public class Disambiguator {
 						} else {
 							extraAmb = newAmbiguities.get(0);
 						}
-						restKids[restKids.length - 1] = extraAmb;
+						restKids[0] = extraAmb;
+
+						return new ParseNode(t.getLabel(), restKids, AbstractParseNode.PARSENODE);
 					} else {
 						throw new FilterException(parser);
 					}
-
-					// FIXME is this correct?
-					return new ParseNode(t.getLabel(), restKids, AbstractParseNode.PARSENODE);
 
 		} else if(firstKid.isParseNode()) {
 			if(((ParseNode)firstKid).getLabel() == prodLabel.labelNumber) {

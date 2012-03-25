@@ -18,9 +18,11 @@ import java.io.Writer;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.Asfix2TreeBuilder;
+import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.NullTreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.imploder.MemoryRecordingTreeBuilder;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.FileTools;
@@ -55,6 +57,7 @@ public class Main {
 		boolean buildParseTree = true;
 		boolean implode = false;
 		boolean ambiguityIsError = false;
+		boolean measureMemory = false;
 		int profilingRuns = 1;
 		
 		int warmup = 0;
@@ -86,6 +89,8 @@ public class Main {
 				profilingRuns = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--timing")) {
 				timing = true;
+			} else if(args[i].equals("--measure-memory")) {
+				measureMemory = true;
 			} else if(args[i].equals("--warmup")) {
 				warmup = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--no-tree-build")) {
@@ -104,11 +109,12 @@ public class Main {
 			usage();
 		}
 
+		ITreeBuilder treeBuilder = new Asfix2TreeBuilder(); 
 		final TermFactory factory = new TermFactory();
 		long tableLoadingTime = System.currentTimeMillis();
 		final IStrategoTerm tableTerm = new TermReader(factory).parseFromFile(parseTableFile);
 		final ParseTable pt = new ParseTable(tableTerm, factory);
-		final SGLR sglr = new SGLR(new Asfix2TreeBuilder(), pt);
+		final SGLR sglr = new SGLR(treeBuilder, pt);
 		sglr.setUseStructureRecovery(recover);
 
 		tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
@@ -120,9 +126,17 @@ public class Main {
 		sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
 		sglr.getDisambiguator().setAmbiguityIsError(ambiguityIsError);
 		if (!buildParseTree)
-			sglr.setTreeBuilder(new NullTreeBuilder());
+			treeBuilder = new NullTreeBuilder();
 		else if (implode)
-			sglr.setTreeBuilder(new TreeBuilder(new TermTreeFactory(new TermFactory()), true));
+			treeBuilder = new TreeBuilder(new TermTreeFactory(new TermFactory()), true);
+		
+		MemoryRecordingTreeBuilder memory = null;
+		if(measureMemory) {
+			memory = new MemoryRecordingTreeBuilder(treeBuilder);
+			sglr.setTreeBuilder(memory);
+		} else {
+			sglr.setTreeBuilder(treeBuilder);
+		}
 		
 		String input = FileTools.loadFileAsString(new BufferedReader(new FileReader(inputFile)));
 		
@@ -147,6 +161,12 @@ public class Main {
 		if(timing) {
 			System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
 			System.err.println("Parsing time             : " + (parsingTime / profilingRuns) + "ms");
+		}
+		
+		if(measureMemory) {
+			System.err.println("Total memory (min/max)   : " + memory.getMinTotal() + " / " + memory.getMaxTotal());
+			System.err.println("Used memory (min/max)    : " + memory.getMinUsed() + " / " + memory.getMaxUsed());
+			System.err.println("# of memory measurements : " + memory.getMeasureCount());
 		}
 	}
 

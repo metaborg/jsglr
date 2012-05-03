@@ -1,19 +1,12 @@
 package org.spoofax.jssglr.client;
 
-//import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
-//import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
-import org.spoofax.jsglr.client.NullTreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.MemoryRecordingTreeBuilder;
@@ -75,9 +68,12 @@ public class JSMain {
 				warmup = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("-s")) {
 				startSymbol = args[++i];
+			} else if(args[i].equals("-o")) {
+				output = args[++i];				
 			} else if(args[i].equals("--implode")) {
 				implode = true;
 			}
+			
 		}
 		
 		
@@ -155,11 +151,11 @@ public static long parseFile(String input, String inputFile, String output, SGLR
 				JsPrintErr("Parsing failed: " + e.getMessage());
 				//System.exit(1);
 			} catch(final SGLRException e) {
-				// Detailed message for other exceptions
+				// Detailed message for other exceptions dfef``
 				JsPrintErr("Parsing failed: " + e);
 				//System.exit(1);
 			}
-			if (!NO_OUTPUT.equals(output))
+			if (!NO_OUTPUT.equals(output) && !output.equals("/dev/null"))
 				JsPrintln(t.toString());
 			return parsingTime;
 		}

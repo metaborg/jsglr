@@ -14,7 +14,7 @@ public class File2String
 			int ch;
 			while ((ch = fis.read()) != -1) 
 				strContent.append((char)ch);
-			
+			 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

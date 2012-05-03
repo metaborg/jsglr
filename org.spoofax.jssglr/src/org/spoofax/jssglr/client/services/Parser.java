@@ -12,14 +12,14 @@ import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostT
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.Asfix2TreeBuilder;
+//import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.RegionRecovery;
 import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.client.imploder.MemoryRecordingTreeBuilder;
+//import org.spoofax.jsglr.client.imploder.MemoryRecordingTreeBuilder;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
@@ -133,10 +133,12 @@ public class Parser {
 			sglr.setUseStructureRecovery(true);
 		}
 		//Measure mode:
+		/*
 		{
 			treeBuilder = new MemoryRecordingTreeBuilder(new Asfix2TreeBuilder());
 			sglr = new SGLR(treeBuilder, parseTable);
 		}
+		*/
 	}
 
 	public boolean isReady() {

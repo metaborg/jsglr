@@ -23,10 +23,8 @@ public class TermReader extends TAFTermReader {
     
     @Override
 	public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
-    	System.err.println("public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {");
     	try {
         	return SAFReader.readTermFromSAFStream(factory, inputStream);
-        	
     	} finally {
     	}
     }

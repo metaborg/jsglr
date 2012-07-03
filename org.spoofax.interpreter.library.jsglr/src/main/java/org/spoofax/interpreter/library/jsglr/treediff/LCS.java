@@ -1,37 +1,78 @@
 package org.spoofax.interpreter.library.jsglr.treediff;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
+/**
+ * Implements a Longest Common Subsequence algorithm
+ * @author maartje
+ *
+ * @param <T>
+ */
 public class LCS<T> {
 	
+	private List<T> elems1;
+	private List<T> elems2;
 	private ArrayList<T> resultLCS1;
 	private ArrayList<T> resultLCS2;
 	private ArrayList<T> resultUnmatched1;
 	private ArrayList<T> resultUnmatched2;
 	private LCSCommand<T> lcsCommand;
 	
+	/**
+	 * LCS result for input 1
+	 * (empty before algorithm is applied)
+	 * @return LCS elements for input 1
+	 */
 	public ArrayList<T> getResultLCS1() {
 		return resultLCS1;
 	}
 
+	/**
+	 * LCS result for input 2
+	 * (empty before algorithm is applied)
+	 * @return LCS elements for input 2
+	 */
 	public ArrayList<T> getResultLCS2() {
 		return resultLCS2;
 	}
 
+	/**
+	 * Elements of input 1 that are not part of the LCS
+	 * (empty before algorithm is applied)
+	 * @return non-LCS elements for input 1
+	 */
 	public ArrayList<T> getResultUnmatched1() {
 		return resultUnmatched1;
 	}
 
+	/**
+	 * Elements of input 2 that are not part of the LCS
+	 * (empty before algorithm is applied)
+	 * @return non-LCS elements for input 2
+	 */
 	public ArrayList<T> getResultUnmatched2() {
 		return resultUnmatched2;
 	}
 
+	/**
+	 * LCS command implements the function that says wether or not two elements can be matched
+	 * @param lcsCommand Implements the matching criterion
+	 */
 	public void setLcsCommand(LCSCommand<T> lcsCommand) {
 		this.lcsCommand = lcsCommand;
 	}
 
+	/**
+	 * Finds the Longest Common Subsequence of two lists with elements
+	 * @param lcsCommand Implements the matching criterion
+	 */
 	public LCS(LCSCommand<T> lcsCommand){
+		elems1 = new ArrayList<T>();
+		elems2 = new ArrayList<T>();
 		resultLCS1 = new ArrayList<T>();
 		resultLCS2 = new ArrayList<T>();
 		resultUnmatched1 = new ArrayList<T>();
@@ -39,6 +80,10 @@ public class LCS<T> {
 		this.lcsCommand = lcsCommand;
 	}
 	
+	/**
+	 * Size of the LCS
+	 * @return Size of the LCS
+	 */
 	public int getLCSSize(){
 		return resultLCS1.size();
 	}
@@ -56,8 +101,10 @@ public class LCS<T> {
 	 * @param elems1
 	 * @param elems2
 	 */
-	public void createLCSResultsOptimized(List<T> elems1, List<T> elems2) {
+	public LCS<T> createLCSResultsOptimized(List<T> elems1, List<T> elems2) {
 		clearResults();
+		this.elems1 = elems1;
+		this.elems2 = elems2;
 		int minLength = Math.min(elems1.size(), elems2.size()); 
 		int commonPrefixLength = 0;
 		while (commonPrefixLength < minLength) {
@@ -86,17 +133,21 @@ public class LCS<T> {
 			elems2.subList(commonPrefixLength, elems2.size() - commonSuffixLength)
 		);
 		checkAssertions(elems1, elems2);
+		return this;
 	}
 
 	/**
-	 * 
+	 * Fills the LCS results: LCS (longest common subsequence), unmatched elems1, unmatched elems2.
 	 * @param elems1
 	 * @param elems2
 	 */
-	public void createLCSResults(List<T> elems1, List<T> elems2) {
+	public LCS<T> createLCSResults(List<T> elems1, List<T> elems2) {
 		clearResults();
+		this.elems1 = elems1;
+		this.elems2 = elems2;
 		lcs(elems1, elems2);
 		checkAssertions(elems1, elems2);
+		return this;
 	}
 
 	private void lcs(List<T> elems1, List<T> elems2) {
@@ -155,4 +206,5 @@ public class LCS<T> {
 		assert resultLCS1.size() + resultUnmatched1.size() == elems1.size();
 		assert resultLCS2.size() + resultUnmatched2.size() == elems2.size();
 	}
+
 }

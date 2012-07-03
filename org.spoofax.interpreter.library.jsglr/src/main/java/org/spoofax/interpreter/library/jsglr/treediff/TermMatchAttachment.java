@@ -7,7 +7,8 @@ import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.attachments.VolatileTermAttachmentType;
 
 /**
- * A term match attachment that stores the matching of the attached term in AST1 with a term in AST2. 
+ * A term match attachment that stores the matching of the attached term in AST1 
+ * with a term in a different tree (AST2).
  * Matching is a symmetric 1-1 relation between terms in one AST with the terms in another AST.
  * @author maartje
  *
@@ -65,7 +66,8 @@ public class TermMatchAttachment extends AbstractTermAttachment {
 	}
 
 	/**
-	 * Breaks the original matchings of term1 and term2, and matches them.
+	 * Accomplishes a match between term1 in AST1 and term2 in AST2. 
+	 * Breaks the original matchings of term1 and term2.
 	 * @param term1 Term in AST1
 	 * @param term2 Term in AST2
 	 */

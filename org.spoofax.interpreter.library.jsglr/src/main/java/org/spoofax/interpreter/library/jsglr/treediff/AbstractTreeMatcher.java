@@ -12,30 +12,24 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public abstract class AbstractTreeMatcher {
 	
 	private LCS<IStrategoTerm> lcs;
+	private boolean tryMatchingMovedTerms;
+	
+	public AbstractTreeMatcher(LCSCommand<IStrategoTerm> lcsCommand, boolean tryMatchingMovedTerms) {
+		lcs = new LCS<IStrategoTerm>(lcsCommand);
+		this.tryMatchingMovedTerms = tryMatchingMovedTerms;
+	}
 	
 	/**
-	 * Constructs a (symmetric) matching relation between terms in AST1 and AST2.
-	 * The matching is stored as attachments to matched terms.
-	 */
-	public AbstractTreeMatcher(){
-		LCSCommand<IStrategoTerm> lcsCommand = new LCSEqualTermsCommand<IStrategoTerm>(); 
-		lcs = new LCS<IStrategoTerm>(lcsCommand); //IDEA: createTreeMatcher For Origin ...
-	}
-
-	/**
-	 * Constructs a symmetric matching between terms in term1 with terms in trm2
+	 * Constructs a symmetric (partial) matching between terms in term1 with terms in trm2
 	 * @param trm1 AST1
 	 * @param trm2 AST2
-	 * @param tryMatchingMovedTerms Set this argument to true if the construction of AST2 from AST1
-	 * may involved moving code constructs to another location
-	 * @param requireSameSignature Set this to true if terms are only matched if they have the same signature
-	 * @param requireSameValue Set this to true if String/Int/Real terms are only matched if they have the same value
+	 * @param tryMatchingMovedTerms Set this argument to true if the diff between AST1 and AST2
+	 * may contain code fragments that are moved to another location
 	 */
-	public void constructMatching(IStrategoTerm root1, IStrategoTerm root2, 
-			boolean tryMatchingMovedTerms, boolean requireSameSignature, boolean requireSameValue) {
+	public void constructMatching(IStrategoTerm root1, IStrategoTerm root2) {
 		HelperFunctions.setParentAttachments(root1);
 		HelperFunctions.setParentAttachments(root2);
-		matchLeafnodesUsingLCS(root1, root2, tryMatchingMovedTerms);
+		matchLeafnodesUsingLCS(root1, root2);
 		matchTerminalsBottomUp(root1, root2);
 		matchTermsTopdown(root1, root2);
 	}
@@ -47,7 +41,7 @@ public abstract class AbstractTreeMatcher {
 	 * @param trm2
 	 * @param tryMatchingMovedTerms True means that a new LCS procedure tries to match unmatched terms
 	 */
-	private void matchLeafnodesUsingLCS(IStrategoTerm trm1, IStrategoTerm trm2, boolean tryMatchingMovedTerms) {
+	private void matchLeafnodesUsingLCS(IStrategoTerm trm1, IStrategoTerm trm2) {
 		ArrayList<IStrategoTerm> leafNodes1 = HelperFunctions.collectLeafnodes(trm1);
 		ArrayList<IStrategoTerm> leafNodes2 = HelperFunctions.collectLeafnodes(trm2);
 		lcs.createLCSResultsOptimized(leafNodes1, leafNodes2);
@@ -181,8 +175,14 @@ public abstract class AbstractTreeMatcher {
 				IStrategoTerm trm2Child = trm2.getSubterm(i);
 				IStrategoTerm trm1Child = trm1.getSubterm(i);
 				IStrategoTerm trm2ChildPartner = TermMatchAttachment.getMatchedTerm(trm2Child);
-				if(trm1Child != trm2ChildPartner && !isBetterCandidate(trm1Child, trm2ChildPartner, trm2Child)){ 
-					//trm1child is the preferred candidate, unless trm2ChildPartner is better
+				if(
+					trm1Child != trm2ChildPartner && 
+					!isBetterCandidate(trm1Child, trm2ChildPartner, trm2Child) &&
+					matchingScore(trm1Child, trm2Child) > 0
+				){
+					//trm1Child has the same child index as trm2Child, and matched parents M(trm1,trm2)
+					//Therefore, trm1child is the preferred candidate for trm2Child, 
+					//unless trm2ChildPartner is better
 					matchTerminalNode(root1, trm1Child, trm2Child);
 				}
 			}

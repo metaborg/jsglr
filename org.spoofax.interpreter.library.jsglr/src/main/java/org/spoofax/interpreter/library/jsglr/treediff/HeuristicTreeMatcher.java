@@ -1,6 +1,9 @@
 package org.spoofax.interpreter.library.jsglr.treediff;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.attachments.ParentAttachment;
 
@@ -101,6 +104,7 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 			2.0 /*equal signatures*/ 
 		  + 2.0 /*equal terms*/ 
 		  + 2.0 /*matched parents*/ 
+		  + 2.0 /*matched child index*/ 
 		  + leafnodes1.size() + leafnodes2.size();		
 		double value = 0.0;
 		
@@ -129,9 +133,21 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 			value += 1.0; //+1 for no violation in parent matches
 		else if (partnerParent2 == parent1){
 			value += 2.0; //+2 for matched parents
+			int childIndex1 = getChildIndex(parent1, t1);
+			int childIndex2 = getChildIndex(parent2, t2);
+			assert childIndex1 != -1 && childIndex2 != -1;
+			if(Tools.isTermAppl(parent1) && HelperFunctions.haveSameSignature(parent1, parent2)){
+				if(childIndex1 == childIndex2){
+					value +=2.0; //+2 for matched child index
+				}
+			}
 		}
 		
 		return 1.0 * value/maxValue;
+	}
+
+	private int getChildIndex(IStrategoTerm parent, IStrategoTerm trm) {
+		return Arrays.asList(parent.getAllSubterms()).indexOf(trm);
 	}
 
 	private boolean meetsMatchingCriteria(IStrategoTerm t1, IStrategoTerm t2) {

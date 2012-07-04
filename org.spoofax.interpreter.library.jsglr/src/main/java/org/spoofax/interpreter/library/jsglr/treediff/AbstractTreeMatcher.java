@@ -1,6 +1,8 @@
 package org.spoofax.interpreter.library.jsglr.treediff;
 
 import java.util.ArrayList;
+
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -194,21 +196,28 @@ public abstract class AbstractTreeMatcher {
 				IStrategoTerm trm2Child = trm2.getSubterm(i);
 				IStrategoTerm trm1Child = trm1.getSubterm(i);
 				IStrategoTerm trm2ChildPartner = TermMatchAttachment.getMatchedTerm(trm2Child);
-				if(
-					trm1Child != trm2ChildPartner && 
-					!isBetterCandidate(trm1Child, trm2ChildPartner, trm2Child) &&
-					matchingScore(trm1Child, trm2Child) > 0
-				){
-					//trm1Child has the same child index as trm2Child, and matched parents M(trm1,trm2)
-					//Therefore, trm1child is the preferred candidate for trm2Child, 
-					//unless trm2ChildPartner is better
-					matchTerminalNode(root1, trm1Child, trm2Child);
+				if(trm1Child != trm2ChildPartner){ 
+					if(hasBetterOrEqualMatchingScore(trm2ChildPartner, trm1Child, trm2Child) || haveTupleOrListType(trm1Child, trm2Child)){
+						//trm1Child has the same child index as trm2Child, and matched parents M(trm1,trm2)
+						//Therefore, trm1child is the preferred candidate for trm2Child, 
+						//unless trm2ChildPartner is better
+						matchTerminalNode(root1, trm1Child, trm2Child);
+					}
 				}
 			}
 		}
 		for (int i = 0; i < trm2.getSubtermCount(); i++) {
 			matchTermsTopdown(root1, trm2.getSubterm(i));
 		}
+	}
+
+	private boolean haveTupleOrListType(IStrategoTerm trm1, IStrategoTerm trm2) {
+		return (Tools.isTermList(trm1) && Tools.isTermList(trm2)) || (Tools.isTermTuple(trm1) && Tools.isTermTuple(trm2));
+	}
+
+	private boolean hasBetterOrEqualMatchingScore(IStrategoTerm oldCandidate,
+			IStrategoTerm newCandidate, IStrategoTerm trm) {
+		return !isBetterCandidate(newCandidate, oldCandidate, trm) && matchingScore(newCandidate, trm) > 0;
 	}
 
 }

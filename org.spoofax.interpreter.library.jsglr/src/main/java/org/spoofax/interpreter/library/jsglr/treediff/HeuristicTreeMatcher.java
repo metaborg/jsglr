@@ -42,22 +42,28 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 			IStrategoTerm subTermMatch1 = TermMatchAttachment.getMatchedTerm(t2.getSubterm(i));
 			if(subTermMatch1 != null){
 				IStrategoTerm parent1 = ParentAttachment.getParent(subTermMatch1);
-				if(parent1 != null && !contains(candidateMatches, parent1))
-					candidateMatches.add(parent1);
+				if(parent1 != null)
+					addCandidate(candidateMatches, parent1);
 			}
 		}
 		if(candidateMatches.size() > 1){
 			IStrategoTerm commonAncestor = commonAncestor(candidateMatches);
-			candidateMatches.add(commonAncestor);
+			addCandidate(candidateMatches, commonAncestor);
 			for (int i = 0; i < candidateMatches.size(); i++) {
-				IStrategoTerm ancestorCandidate = ParentAttachment.getParent(candidateMatches.get(i));
+				IStrategoTerm ancestorCandidate = candidateMatches.get(i);
 				while(ancestorCandidate != commonAncestor){
-					candidateMatches.add(ancestorCandidate);
+					assert ancestorCandidate != null;
+					addCandidate(candidateMatches, ancestorCandidate);
 					ancestorCandidate = ParentAttachment.getParent(ancestorCandidate);
 				}
 			}
 		}
 		return candidateMatches;
+	}
+
+	private void addCandidate(ArrayList<IStrategoTerm> candidateMatches, IStrategoTerm candidate) {
+		if(!contains(candidateMatches, candidate)) 
+			candidateMatches.add(candidate);
 	}
 
 	private IStrategoTerm commonAncestor(ArrayList<IStrategoTerm> terms) {

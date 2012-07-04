@@ -28,7 +28,7 @@ public class LCS<T> {
 	 * @return LCS elements for input 1
 	 */
 	public ArrayList<T> getResultLCS1() {
-		return resultLCS1;
+		return new ArrayList<T>(resultLCS1);
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class LCS<T> {
 	 * @return LCS elements for input 2
 	 */
 	public ArrayList<T> getResultLCS2() {
-		return resultLCS2;
+		return new ArrayList<T>(resultLCS2);
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class LCS<T> {
 	 * @return non-LCS elements for input 1
 	 */
 	public ArrayList<T> getResultUnmatched1() {
-		return resultUnmatched1;
+		return new ArrayList<T>(resultUnmatched1);
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class LCS<T> {
 	 * @return non-LCS elements for input 2
 	 */
 	public ArrayList<T> getResultUnmatched2() {
-		return resultUnmatched2;
+		return new ArrayList<T>(resultUnmatched2);
 	}
 
 	/**

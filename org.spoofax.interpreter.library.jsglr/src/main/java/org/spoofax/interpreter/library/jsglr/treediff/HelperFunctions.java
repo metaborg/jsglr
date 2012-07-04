@@ -126,4 +126,19 @@ public class HelperFunctions {
 		boolean sameConstructorName = cons1.equals(cons2);
 		return sameConstructorName;
 	}
+
+	static boolean isPrimitiveWithDifferentValues(IStrategoTerm ln,
+			IStrategoTerm lnPartner) {
+		return isPrimitiveType(ln) && isPrimitiveType(lnPartner) && isPrimitiveWithSameValue(ln, lnPartner);
+	}
+
+	public static boolean isSameTermType(IStrategoTerm t1, IStrategoTerm t2) {
+		return
+			(Tools.isTermAppl(t1) && Tools.isTermAppl(t2)) 
+		||  (Tools.isTermInt(t1) && Tools.isTermInt(t2))
+		||  (Tools.isTermList(t1) && Tools.isTermList(t2))
+		||  (Tools.isTermReal(t1) && Tools.isTermReal(t2))
+		||  (Tools.isTermString(t1) && Tools.isTermString(t2))
+		||  (Tools.isTermTuple(t1) && Tools.isTermTuple(t2));
+	}
 }

@@ -130,6 +130,7 @@ public abstract class AbstractTreeMatcher {
 	 */
 	private IStrategoTerm findBestMatch(IStrategoTerm root1, IStrategoTerm t2) {
 		ArrayList<IStrategoTerm> candidates = getCandidateMatchTerms(root1, t2);
+		candidates = removeDuplicates(candidates);
 		IStrategoTerm t1 = null;
 		for (int i = 0; i < candidates.size(); i++) {
 			IStrategoTerm t1_candidate = candidates.get(i);
@@ -140,6 +141,24 @@ public abstract class AbstractTreeMatcher {
 		return t1;
 	}
 	
+	private ArrayList<IStrategoTerm> removeDuplicates(ArrayList<IStrategoTerm> candidates) {
+		ArrayList<IStrategoTerm> candidateSet = new ArrayList<IStrategoTerm>();
+		for (IStrategoTerm c : candidates) {
+			if(!contains(candidateSet, c)){
+				candidateSet.add(c); 
+			}
+		}
+		return candidateSet;
+	}
+
+	boolean contains(ArrayList<IStrategoTerm> terms, IStrategoTerm t) {
+		for (IStrategoTerm trm : terms) {
+			if(t==trm)
+				return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Returns true if c1 is a better candidate than prevc1, 
 	 * taking into account the matching relations that are possible broken by rematching

@@ -57,6 +57,8 @@ public class HelperFunctions {
 	 * @return
 	 */
 	public static boolean isPrimitiveType(IStrategoTerm trm) {
+		if(trm == null)
+			return false;
 		return trm.getTermType() == StrategoTerm.INT ||
 		trm.getTermType() == StrategoTerm.REAL ||
 		trm.getTermType() == StrategoTerm.STRING;
@@ -86,7 +88,7 @@ public class HelperFunctions {
 		return 
 			t1.getTermType() == StrategoTerm.STRING && 
 			t2.getTermType() == StrategoTerm.STRING && 
-			((StrategoString)t1).stringValue() == ((StrategoString)t2).stringValue();
+			((StrategoString)t1).stringValue().equals(((StrategoString)t2).stringValue());
 	}
 
 	public static boolean isRealWithSameValue(IStrategoTerm t1, IStrategoTerm t2) {
@@ -127,9 +129,8 @@ public class HelperFunctions {
 		return sameConstructorName;
 	}
 
-	static boolean isPrimitiveWithDifferentValues(IStrategoTerm ln,
-			IStrategoTerm lnPartner) {
-		return isPrimitiveType(ln) && isPrimitiveType(lnPartner) && isPrimitiveWithSameValue(ln, lnPartner);
+	static boolean isPrimitiveWithDifferentValues(IStrategoTerm ln, IStrategoTerm lnPartner) {
+		return lnPartner != null && ln != null && isPrimitiveType(ln) && isPrimitiveType(lnPartner) && !isPrimitiveWithSameValue(ln, lnPartner);
 	}
 
 	public static boolean isSameTermType(IStrategoTerm t1, IStrategoTerm t2) {

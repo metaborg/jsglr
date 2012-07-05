@@ -125,25 +125,29 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 		}
 		
 		//whether or not the parent nodes are matched
-		IStrategoTerm parent1 = ParentAttachment.getParent(t1);
-		IStrategoTerm parent2 = ParentAttachment.getParent(t2);
-		IStrategoTerm partnerParent1 = TermMatchAttachment.getMatchedTerm(parent1);
-		IStrategoTerm partnerParent2 = TermMatchAttachment.getMatchedTerm(parent2);
-		if(partnerParent1 == null && partnerParent2 == null)
-			value += 1.0; //+1 for no violation in parent matches
-		else if (partnerParent2 == parent1){
+		if (hasMatchedParents(t1, t2)){
 			value += 2.0; //+2 for matched parents
-			int childIndex1 = getChildIndex(parent1, t1);
-			int childIndex2 = getChildIndex(parent2, t2);
-			assert childIndex1 != -1 && childIndex2 != -1;
-			if(Tools.isTermAppl(parent1) && HelperFunctions.haveSameSignature(parent1, parent2)){
-				if(childIndex1 == childIndex2){
-					value +=2.0; //+2 for matched child index
-				}
+			boolean hasMatchingChildIndex = hasMatchingChildIndex(t1, t2);
+			if(hasMatchingChildIndex){
+				value +=2.0; //+2 for matched child index
 			}
 		}
 		
 		return 1.0 * value/maxValue;
+	}
+
+	private boolean hasMatchingChildIndex(IStrategoTerm t1, IStrategoTerm t2) {
+		if(!hasMatchedParents(t1, t2))
+			return false;
+		IStrategoTerm parent1 = ParentAttachment.getParent(t1);
+		IStrategoTerm parent2 = ParentAttachment.getParent(t2);
+		int childIndex1 = getChildIndex(parent1, t1);
+		int childIndex2 = getChildIndex(parent2, t2);
+		assert childIndex1 != -1 && childIndex2 != -1;
+		return 
+			Tools.isTermAppl(parent1) && 
+			HelperFunctions.haveSameSignature(parent1, parent2) && 
+			childIndex1 == childIndex2;
 	}
 
 	private int getChildIndex(IStrategoTerm parent, IStrategoTerm trm) {
@@ -156,12 +160,21 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 		if(!HelperFunctions.isSameTermType(t1, t2)){
 			return false;
 		}
-		if(requireSameSignature && !HelperFunctions.haveSameSignature(t1, t2)){
-			return false;
+		if(!HelperFunctions.haveSameSignature(t1, t2) && Tools.isTermAppl(t1)){
+			assert Tools.isTermAppl(t2): "Same term type required";
+			return !requireSameSignature && hasMatchedParents(t1, t2); //only match terms with the same signature in case they are not moved 
 		}
-		if(requireSameValue && !HelperFunctions.isPrimitiveWithSameValue(t1, t2)){
-			return false;
+		if(HelperFunctions.isPrimitiveWithDifferentValues(t1, t2)){
+			return !requireSameValue;
 		}
 		return true;
+	}
+
+	private boolean hasMatchedParents(IStrategoTerm t1, IStrategoTerm t2) {
+		IStrategoTerm parent1 = ParentAttachment.getParent(t1);
+		IStrategoTerm parent2 = ParentAttachment.getParent(t2);
+		IStrategoTerm partnerParent1 = TermMatchAttachment.getMatchedTerm(parent1);
+		boolean hasMatchingParents = (partnerParent1 == parent2 && partnerParent1 != null);
+		return hasMatchingParents;
 	}
 }

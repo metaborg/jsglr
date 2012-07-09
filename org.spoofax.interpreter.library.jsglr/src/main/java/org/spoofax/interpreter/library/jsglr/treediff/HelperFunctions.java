@@ -142,4 +142,9 @@ public class HelperFunctions {
 		||  (Tools.isTermString(t1) && Tools.isTermString(t2))
 		||  (Tools.isTermTuple(t1) && Tools.isTermTuple(t2));
 	}
+	
+	public static boolean haveTupleOrListType(IStrategoTerm trm1, IStrategoTerm trm2) {
+		return (Tools.isTermList(trm1) && Tools.isTermList(trm2)) || (Tools.isTermTuple(trm1) && Tools.isTermTuple(trm2));
+	}
+
 }

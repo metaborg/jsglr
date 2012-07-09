@@ -97,7 +97,10 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 	 */
 	double matchingScore(IStrategoTerm t1, IStrategoTerm t2){
 		if(!meetsMatchingCriteria(t1, t2))
-			return -1;
+			return -1.0;
+		if(HelperFunctions.haveTupleOrListType(t1, t2) && hasMatchedParents(t1, t2) && hasMatchingChildIndex(t1, t2)){
+			return 1.0;
+		}
 		ArrayList<IStrategoTerm> leafnodes1 = HelperFunctions.collectLeafnodes(t1);
 		ArrayList<IStrategoTerm> leafnodes2 = HelperFunctions.collectLeafnodes(t2);
 		double maxValue = 
@@ -127,8 +130,7 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 		//whether or not the parent nodes are matched
 		if (hasMatchedParents(t1, t2)){
 			value += 2.0; //+2 for matched parents
-			boolean hasMatchingChildIndex = hasMatchingChildIndex(t1, t2);
-			if(hasMatchingChildIndex){
+			if(hasMatchingChildIndex(t1, t2)){
 				value +=2.0; //+2 for matched child index
 			}
 		}
@@ -145,8 +147,8 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 		int childIndex2 = getChildIndex(parent2, t2);
 		assert childIndex1 != -1 && childIndex2 != -1;
 		return 
-			Tools.isTermAppl(parent1) && 
-			HelperFunctions.haveSameSignature(parent1, parent2) && 
+			HelperFunctions.haveSameSignature(parent1, parent2) &&
+			Tools.isTermAppl(parent1) &&
 			childIndex1 == childIndex2;
 	}
 
@@ -162,7 +164,12 @@ public class HeuristicTreeMatcher extends AbstractTreeMatcher {
 		}
 		if(!HelperFunctions.haveSameSignature(t1, t2) && Tools.isTermAppl(t1)){
 			assert Tools.isTermAppl(t2): "Same term type required";
-			return !requireSameSignature && hasMatchedParents(t1, t2); //only match terms with the same signature in case they are not moved 
+			return 
+				!requireSameSignature && 
+				hasMatchedParents(t1, t2) && 
+				hasMatchingChildIndex(t1, t2); 
+			//only match appl terms with different signatures in case they are not moved 
+			//(but they can be mis-aligned list or tuple elements) 
 		}
 		if(HelperFunctions.isPrimitiveWithDifferentValues(t1, t2)){
 			return !requireSameValue;

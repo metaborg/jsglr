@@ -118,7 +118,6 @@ public abstract class AbstractTreeMatcher {
 		TermMatchAttachment.forceMatchTerms(t1, t2);
 		if(prev_t2 != null){
 			assert TermMatchAttachment.getMatchedTerm(prev_t2) == null;
-			assert matchingScore(t1, t2) > matchingScore(t1, prev_t2) : "matching structure must be improved after rematching"; //ensures termination
 			tryMatchTerminalNode(root1, prev_t2);
 		}
 	}
@@ -197,7 +196,7 @@ public abstract class AbstractTreeMatcher {
 				IStrategoTerm trm1Child = trm1.getSubterm(i);
 				IStrategoTerm trm2ChildPartner = TermMatchAttachment.getMatchedTerm(trm2Child);
 				if(trm1Child != trm2ChildPartner){ 
-					if(hasBetterOrEqualMatchingScore(trm2ChildPartner, trm1Child, trm2Child) || haveTupleOrListType(trm1Child, trm2Child)){
+					if(hasBetterOrEqualMatchingScore(trm2ChildPartner, trm1Child, trm2Child)){
 						//trm1Child has the same child index as trm2Child, and matched parents M(trm1,trm2)
 						//Therefore, trm1child is the preferred candidate for trm2Child, 
 						//unless trm2ChildPartner is better
@@ -206,17 +205,12 @@ public abstract class AbstractTreeMatcher {
 				}
 			}
 		}
-		for (int i = 0; i < trm2.getSubtermCount(); i++) {
+		for (int i = trm2.getSubtermCount()-1; i >=0; i--) {
 			matchTermsTopdown(root1, trm2.getSubterm(i));
 		}
 	}
 
-	private boolean haveTupleOrListType(IStrategoTerm trm1, IStrategoTerm trm2) {
-		return (Tools.isTermList(trm1) && Tools.isTermList(trm2)) || (Tools.isTermTuple(trm1) && Tools.isTermTuple(trm2));
-	}
-
-	private boolean hasBetterOrEqualMatchingScore(IStrategoTerm oldCandidate,
-			IStrategoTerm newCandidate, IStrategoTerm trm) {
+	private boolean hasBetterOrEqualMatchingScore(IStrategoTerm oldCandidate,IStrategoTerm newCandidate, IStrategoTerm trm) {
 		return !isBetterCandidate(newCandidate, oldCandidate, trm) && matchingScore(newCandidate, trm) > 0;
 	}
 

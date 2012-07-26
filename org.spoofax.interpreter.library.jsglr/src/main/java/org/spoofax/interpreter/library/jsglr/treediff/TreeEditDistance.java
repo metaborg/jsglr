@@ -7,16 +7,16 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.StrategoAppl;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ParentAttachment;
-import org.spoofax.terms.attachments.ParentTermFactory;
 
 /**
- * Simple AST comparison module that counts the number of primitive edit operations
+ * Simple AST comparison module that collects primitive edit operations
  * required to transform AST1 into AST2.
  * @author maartje
  *

@@ -1,6 +1,6 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 
 import java.util.List;
 
@@ -31,10 +31,10 @@ public class HelperFunctions {
 	}
 
 	public static String getGeneralSort(IStrategoTerm term, IStrategoTerm parent) {
-		String termSort = getElementSort(term);
+		String termSort = getSort(term);
 		if(parent != null){
 			if(parent.isList())
-				termSort = getElementSort(parent);
+				termSort = getSort(parent);
 			assert (term.isList() || parent.isList())? termSort.endsWith("*") : !termSort.endsWith("*");
 		}
 		return termSort;

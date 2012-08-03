@@ -1,6 +1,5 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
@@ -9,6 +8,7 @@ import java.util.ArrayList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
 
 public class RecoverInterpretation {
@@ -47,12 +47,12 @@ public class RecoverInterpretation {
 	}
 
 	public String getSort(){
-		return getElementSort(term);
+		return ImploderAttachment.getSort(term);
 	}
 	
 	public boolean hasSameSort(IStrategoTerm term, IStrategoTerm parent) {
 		String generalSort = HelperFunctions.getGeneralSort(term, parent);
-		String sort = getElementSort(term);
+		String sort = ImploderAttachment.getSort(term);
 		String generalTermSort = this.getGeneralSort();
 		String termSort = this.getSort();		
 		return generalSort == generalTermSort && sort == termSort;
@@ -60,7 +60,7 @@ public class RecoverInterpretation {
 
 	public boolean hasCompatibleSort(IStrategoTerm term, IStrategoTerm parent) {
 		String generalSort = HelperFunctions.getGeneralSort(term, parent);
-		String sort = getElementSort(term);
+		String sort = ImploderAttachment.getSort(term);
 		String generalTermSort = this.getGeneralSort();
 		String termSort = this.getSort();
 		boolean hasCompatibleSort = 
@@ -117,13 +117,29 @@ public class RecoverInterpretation {
 		this.parentTerm = parentTerm;
 		this.isRecovered = isRecovered;
 		this.subtermRecoveries = recoveredSubterms;
-		this.recoveryCosts = calculateRecoveryCosts(); 
+		this.recoveryCosts = calculateRecoveryCosts();
+		checkAssertions();
+	}
+
+	private void checkAssertions() {
+		assert subtermRecoveries == null? (isRecovered && this.recoveryCosts == 0) : recoveryCosts > 0;
+		int subtermCosts = 0;
+		if(this.subtermRecoveries != null){
+			for (RecoverInterpretation subtermRecovery : this.subtermRecoveries) {
+				assert subtermRecovery != null;	
+				subtermCosts += subtermRecovery.getRecoveryCosts();
+			}
+		}
+		assert isRecovered? recoveryCosts == subtermCosts : recoveryCosts > subtermCosts;
 	}
 	
 //private functions
 	
 	private int calculateRecoveryCosts(){
 		int costs = 0;
+		if(subtermRecoveries == null){
+			return 0;			
+		}
 		if(!isRecovered){
 			int nrOfNonLayoutInSubterms = 0;
 			for (RecoverInterpretation subtermRecovery : this.subtermRecoveries) {

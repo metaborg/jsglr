@@ -178,8 +178,12 @@ public class EditRegionDetector {
 		terminalAnalyzer.addDamagedTokensStartOffsets(offsetsDeletedChars);
 
 		//detects discardable regions that correspond to edited terms.
-		NonTerminalEditsAnalyzer brokenConstructDetector = new NonTerminalEditsAnalyzer(correctAST, offsetsDeletedChars);
-		this.discardableRegions = brokenConstructDetector.getDamagedTermRegions();
+		//NonTerminalEditsAnalyzer brokenConstructDetector = new NonTerminalEditsAnalyzer(correctAST, offsetsDeletedChars);
+		//this.discardableRegions = brokenConstructDetector.getDamagedTermRegions();
+		
+		//detects discardable regions that correspond to edited terms.
+		TermEditsAnalyzer brokenConstructDetector = new TermEditsAnalyzer(offsetsDeletedChars, correctAST);
+		this.discardableRegions = brokenConstructDetector.getDamagedTermRegions();		
 	}
 	
 

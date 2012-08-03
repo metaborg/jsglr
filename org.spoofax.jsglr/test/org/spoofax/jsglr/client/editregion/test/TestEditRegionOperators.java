@@ -89,8 +89,8 @@ public class TestEditRegionOperators extends AbstractTestRegionDetection {
 		String pathToErroneousFile = pathToJavaTestInputs + "/delete-multiple-operands.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = getDiscardOffsets(lastErr0AST, erroneousInput);
-		Assert.assertTrue(discardOffsets.size() < 20);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertTrue(discardOffsets.size() < 20);
 	}
 
 }

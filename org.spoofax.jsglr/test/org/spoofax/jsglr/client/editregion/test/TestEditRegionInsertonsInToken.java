@@ -24,8 +24,8 @@ public class TestEditRegionInsertonsInToken extends AbstractTestRegionDetection 
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals("\n\t\tSys tem.out.println(v);", concatenated); 
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals("\n\t\tSys tem.out.println(v);", concatenated); 
 	}
 
 	@Test
@@ -34,8 +34,8 @@ public class TestEditRegionInsertonsInToken extends AbstractTestRegionDetection 
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals("\n\t\tSysttem.out.println(v);", concatenated); 
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals("\n\t\tSysttem.out.println(v);", concatenated); 
 	}
 
 	@Test
@@ -44,8 +44,8 @@ public class TestEditRegionInsertonsInToken extends AbstractTestRegionDetection 
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals("x", concatenated); 
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals("x", concatenated); 
 	}
 
 	@Test
@@ -54,8 +54,8 @@ public class TestEditRegionInsertonsInToken extends AbstractTestRegionDetection 
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals("\n\t\tSys-tem.out.println(v);", concatenated); 
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals("\n\t\tSys-tem.out.println(v);", concatenated); 
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class TestEditRegionInsertonsInToken extends AbstractTestRegionDetection 
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals("/ *mmmm*/", concatenated); 
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals("/ *mmmm*/", concatenated); 
 	}
 }

@@ -22,31 +22,31 @@ public class TestEditRegionNestedListElems extends AbstractTestRegionDetection {
 	public void testDeletionInParentElem1() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
 		String expectedConcatenatedDiscards = "@@";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem1.java";
-		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 	}
 
 	@Ignore @Test
 	public void testDeletionInParentElem2() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
 		String expectedConcatenatedDiscards = "@@";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem2.java";
-		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 	}
 
 	@Ignore @Test
 	public void testDeletionInParentElem3() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
 		String expectedConcatenatedDiscards = "@@";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem3.java";
-		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 	}
 
 	@Ignore @Test
 	public void testDeletionInParentElem4() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
 		String expectedConcatenatedDiscards = "@@";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem4.java";
-		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
 	}
 }

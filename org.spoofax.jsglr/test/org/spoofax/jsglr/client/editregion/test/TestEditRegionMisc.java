@@ -25,8 +25,8 @@ public class TestEditRegionMisc extends AbstractTestRegionDetection {
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals(88, concatenated.length());
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals(88, concatenated.length());
 	}
 
 	@Test

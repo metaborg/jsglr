@@ -24,8 +24,8 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals("int y ", concatenated);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals("int y ", concatenated);
 	}
 	
 	@Test
@@ -34,8 +34,8 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals(", ", concatenated);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals(", ", concatenated);
 	}
 	
 	@Test
@@ -44,8 +44,8 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals(", ", concatenated);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals(", ", concatenated);
 	}
 
 	@Test
@@ -54,8 +54,8 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
-		Assert.assertEquals(", z", concatenated);
 		super.parseString(editRegionRecovery.getRecoveredInput());
+		Assert.assertEquals(", z", concatenated);
 	}
 
 	@Test
@@ -64,9 +64,9 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
+		super.parseString(editRegionRecovery.getRecoveredInput());
 		Assert.assertEquals(" z", concatenated); //TODO: not needed to remove 'int y' if ', int z' is affected.
 		System.out.println(editRegionRecovery.getRecoveredInput());
-		super.parseString(editRegionRecovery.getRecoveredInput());
 	}
 
 }

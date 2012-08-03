@@ -1,11 +1,11 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
@@ -16,74 +16,127 @@ public class RecoverInterpretation {
 //private fields
 
 	private final IStrategoTerm term;
+	private final IStrategoTerm parentTerm;
 	private final boolean isRecovered;
-	private final ArrayList<RecoverInterpretation> recoveredSubterms;
-	
+	private final ArrayList<RecoverInterpretation> subtermRecoveries;
 
-	private final ArrayList<Integer> coveredDeletionOffsets;
 	private final int recoveryCosts;
 
-//public fields
+//public field accessors 
 
 	public IStrategoTerm getTerm() {
 		return term;
 	}
-
-	public ArrayList<Integer> getCoveredDeletionOffsets() {
-		return coveredDeletionOffsets;
+	
+	public ArrayList<RecoverInterpretation> getSubtermRecoveries() {
+		return subtermRecoveries;
 	}
 
 	public int getRecoveryCosts() {
 		return recoveryCosts;
 	}
 
-// constructor
+//public methods
+		
+	//	public boolean isListSort(String sort) {
+	//		return sort.endsWith("*");
+	//	}
 	
-	public RecoverInterpretation(
+	public String getGeneralSort(){
+		return HelperFunctions.getGeneralSort(term, parentTerm);
+	}
+
+	public String getSort(){
+		return getElementSort(term);
+	}
+	
+	public boolean hasSameSort(IStrategoTerm term, IStrategoTerm parent) {
+		String generalSort = HelperFunctions.getGeneralSort(term, parent);
+		String sort = getElementSort(term);
+		String generalTermSort = this.getGeneralSort();
+		String termSort = this.getSort();		
+		return generalSort == generalTermSort && sort == termSort;
+	}
+
+	public boolean hasCompatibleSort(IStrategoTerm term, IStrategoTerm parent) {
+		String generalSort = HelperFunctions.getGeneralSort(term, parent);
+		String sort = getElementSort(term);
+		String generalTermSort = this.getGeneralSort();
+		String termSort = this.getSort();
+		boolean hasCompatibleSort = 
+				generalSort.equals(termSort) ||
+				generalSort.equals(generalTermSort.replace("*", "")) ||
+				generalSort.equals(generalTermSort) ||
+				sort.equals(termSort) ||
+				sort.equals(generalTermSort.replace("*", "")) ||
+				sort.equals(generalTermSort) ||
+				generalSort.replace("*", "").equals(termSort) ||
+				generalSort.replace("*", "").equals(generalTermSort.replace("*", "")) ||
+				generalSort.replace("*", "").equals(generalTermSort);
+				
+		return hasCompatibleSort;
+	}
+
+	
+// constructors
+	
+	public static RecoverInterpretation createOriginalTermInterpretation(IStrategoTerm term, IStrategoTerm parentTerm){
+		return new RecoverInterpretation(term, parentTerm, true, null);
+		//Remark: recursively constructing original term recoveries for subterms seems not needed. 
+	}
+
+	public static RecoverInterpretation createDiscardInterpretation(IStrategoTerm term, IStrategoTerm parentTerm){
+		assert parentTerm.isList() || HelperFunctions.isSomeNode(term);
+		return new RecoverInterpretation(term, parentTerm, false, new ArrayList<RecoverInterpretation>());
+	}
+
+	public static RecoverInterpretation createRepairSubtermsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, ArrayList<RecoverInterpretation> recoveredSubterms){
+		assert recoveredSubterms.size() == term.getSubtermCount() && !recoveredSubterms.contains(null);
+		return new RecoverInterpretation(term, parentTerm, true, recoveredSubterms);
+	}
+
+	public static RecoverInterpretation createReplaceBySubtermsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, RecoverInterpretation recoveredSubterm){
+		assert recoveredSubterm.hasCompatibleSort(term, parentTerm);
+		ArrayList<RecoverInterpretation> subRecoveries = new ArrayList<RecoverInterpretation>();
+		subRecoveries.add(recoveredSubterm);
+		return createReplaceBySubtermsInterpretation(term, parentTerm, subRecoveries);
+	}
+
+	public static RecoverInterpretation createReplaceBySubtermsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, ArrayList<RecoverInterpretation> recoveredSubterms){
+		assert parentTerm.isList() || recoveredSubterms.size() == 1;
+		return new RecoverInterpretation(term, parentTerm, false, recoveredSubterms);
+	}
+
+	private RecoverInterpretation(
 			IStrategoTerm term, 
-			ArrayList<RecoverInterpretation> recoveredSubterms, 
-			ArrayList<Integer> deletionOffsets
+			IStrategoTerm parentTerm,
+			boolean isRecovered,
+			ArrayList<RecoverInterpretation> recoveredSubterms
 	) {
 		this.term = term;
-		this.coveredDeletionOffsets = getCoveredOffsets(term, deletionOffsets);
-		this.recoveredSubterms = recoveredSubterms;
+		this.parentTerm = parentTerm;
+		this.isRecovered = isRecovered;
+		this.subtermRecoveries = recoveredSubterms;
 		this.recoveryCosts = calculateRecoveryCosts(); 
 	}
 	
 //private functions
-
-	private static ArrayList<Integer> getCoveredOffsets(IStrategoTerm term, ArrayList<Integer> offsets) {
-		ArrayList<Integer> coveredOffsets = new ArrayList<Integer>();
-		int startOffset = getLeftToken(term).getStartOffset();
-		int endOffset = getRightToken(term).getEndOffset();
-		for (int i = 0; i < offsets.size(); i++) {
-			int offset = offsets.get(i); 
-			if(startOffset <= offset && offset <= endOffset){
-				//covered
-				coveredOffsets.add(offset);
-			}
-		}
-		return coveredOffsets;
-	}
 	
 	private int calculateRecoveryCosts(){
-		ArrayList<ArrayList<IStrategoTerm>>
-		int costs = numberOfNonLayoutTokens(this.getTerm()) - numberOfNonLayoutTokens(this.recoveredSubterms);
-		for (RecoverInterpretation subtermRecovery : recoveredSubterms) {
+		int costs = 0;
+		if(!isRecovered){
+			int nrOfNonLayoutInSubterms = 0;
+			for (RecoverInterpretation subtermRecovery : this.subtermRecoveries) {
+				nrOfNonLayoutInSubterms += numberOfNonLayoutTokens(subtermRecovery.getTerm());
+			}
+			costs = numberOfNonLayoutTokens(this.getTerm()) - nrOfNonLayoutInSubterms;
+		}
+		for (RecoverInterpretation subtermRecovery : subtermRecoveries) {
 			costs += subtermRecovery.getRecoveryCosts();
 		}
 		return costs;
 	}
 	
-	private int numberOfNonLayoutTokens(ArrayList<IStrategoTerm> terms) {
-		int result = 0;
-		for (IStrategoTerm recoveredTerm : terms) {
-			int nrOfNonLayoutTokens = numberOfNonLayoutTokens(recoveredTerm);
-			result += nrOfNonLayoutTokens;
-		}
-		return result;
-	}
-
 	private int numberOfNonLayoutTokens(IStrategoTerm term) {
 		ITokenizer tokens = getTokenizer(term);
 		int leftIndex =  getLeftToken(term).getIndex();

@@ -1,116 +1,155 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.client.imploder.Token;
-
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
-import sun.security.action.GetLongAction;
 
 public class TermEditsAnalyzer {
 	private ArrayList<Integer> offsetsDeletedChars;
 	private HashMap<IStrategoTerm, RecoverInterpretation> recoveryLookup;
 
-	public TermEditsAnalyzer(){
-		offsetsDeletedChars = new ArrayList<Integer>(); //TODO
+	public TermEditsAnalyzer(ArrayList<Integer> offsetsDeletedChars, IStrategoTerm correctAST){
+		this.offsetsDeletedChars = offsetsDeletedChars;
 		recoveryLookup = new HashMap<IStrategoTerm, RecoverInterpretation>();
+		collectRecoveries(correctAST, null);
+		RecoverInterpretation discardRecovery = recoveryLookup.get(correctAST); //TODO: if null, alltd look for regions in subterms
 	}
 	
-	private ArrayList<IStrategoTerm> findRecoveryTerms(IStrategoTerm term, IStrategoTerm parent){
-		if(isSomeNode(term)){
-			return new ArrayList<IStrategoTerm>();	//discarding whole term			
+	private void collectRecoveries(IStrategoTerm term, IStrategoTerm parent){
+		if(!hasDeletions(term)){
+			RecoverInterpretation originalTermRecovery = RecoverInterpretation.createOriginalTermInterpretation(term, parent);
+			recoveryLookup.put(term, originalTermRecovery); //we do not discard in unaffected terms.
+			return;
 		}
-		String generalSort = getGeneralSort(term, parent); //more universal sort, example: Blockstm vs Exprstm
-		String sort = getSort(term);
-		if(parent.isList()){
-			ArrayList<IStrategoTerm> replacementCandidates = getRecoveryFromSubterms(term, parent, sort, generalSort); 
-			//TODO: separators??
+		for (int i = 0; i < term.getSubtermCount(); i++) {
+			collectRecoveries(term.getSubterm(i), term);
 		}
-
-		
-		return null;
+		RecoverInterpretation recovery = constructMinimalCostRecovery(term, parent);		
+		recoveryLookup.put(term, recovery);
 	}
 	
-	private ArrayList<IStrategoTerm> getRecoveryFromSubterms(IStrategoTerm term, IStrategoTerm parent, String sort, String generalSort) {
-		ArrayList<IStrategoTerm> result = new ArrayList<IStrategoTerm>();
-
-		//determines if the term has a compatible sort, which is a required to be a recover candidate,
-		//and determines if it has the same sort, which means that the already found recovery (if any) 
-		//is optimal, e.g., no need to traverse the subterms.
-		String generalTermSort = getGeneralSort(term, parent);
-		String termSort = getElementSort(term);
-		boolean hasCompatibleSort = 
-				generalSort.equals(generalTermSort) ||
-				generalSort.replace("*", "").equals(generalTermSort) ||
-				sort.equals(termSort);
-		boolean hasSameSort = generalSort == generalTermSort && sort == termSort; 
-		
-		//terms of a compatible sort with a recover interpretation are candidates for recovery.
-		IStrategoTerm termCandidate = null;
-		if(hasCompatibleSort && hasRecoverInterpretation(term)){
-			termCandidate = term;
-		}
-		
-		//terms with the same sort (1), or terms that are not affected by editing (2) are not further inspected.
-		//1) already constructed recover interpretation is also the best interpretation for the current search, or
-		//2. we do not break interpretations that are not affected, e.g., outside the edit region. 
-		//thus, the candidate is the best recovery, or no recovery is found in this region.
-		if(hasSameSort || !hasDeletions(term)){
-			if(termCandidate != null){
-				result.add(termCandidate);
-				return result;
-			}
-			if(isSomeNode(term) || parent.isList()){
-				return new ArrayList<IStrategoTerm>(); //represents a full skip recovery, e.g., no sub-terms are preserved 
-			}
-			return null; //region of term does not provide a recovery 
-		}
-
-		//recursively look for recover interpretations in subterms
-		ArrayList<IStrategoTerm> subtermCandidate = new ArrayList<IStrategoTerm>();
+	private RecoverInterpretation constructMinimalCostRecovery(IStrategoTerm term, IStrategoTerm parent) {
+		//candidates can be null
+		RecoverInterpretation candidate1 = constructRepairSubtermsRecovery(term, parent);
+		RecoverInterpretation candidate2 = constructReplaceBySubtermsRecovery(term, parent);
+		RecoverInterpretation candidate3 = constructDiscardRecovery(term, parent);
+		ArrayList<RecoverInterpretation> candidates = new ArrayList<RecoverInterpretation>();
+		candidates.add(candidate1);
+		candidates.add(candidate2);
+		candidates.add(candidate3);
+		return getMinimumCostRecovery(candidates);
+	}
+	
+	private RecoverInterpretation constructRepairSubtermsRecovery(IStrategoTerm term, IStrategoTerm parent) {
+		if(hasAssociatedDeletions(term))
+			return null; //term itself is broken thus it can not be recovered by repairing subterms
+		ArrayList<RecoverInterpretation> subtermRecoveries = new ArrayList<RecoverInterpretation>();
 		for (int i = 0; i < term.getSubtermCount(); i++) {
 			IStrategoTerm subterm = term.getSubterm(i);
-			ArrayList<IStrategoTerm> subtermRecovery = getRecoveryFromSubterms(subterm, term, sort, generalSort);
-			if(isListSort(generalSort)){// pick all compatible sub terms for elements in a list (which can be recovered by multiple elements)
-				subtermCandidate.addAll(subtermRecovery);
-			}
-			else { //pick the best recovery for non list terms
-				subtermCandidate = getMinimumCostRecovery(subtermCandidate, subtermRecovery);
+			RecoverInterpretation subtermRecovery = recoveryLookup.get(subterm);
+			if(subtermRecovery == null){
+				return null; //subterm can not be recovered, thus term can not be recovered from its subterms
 			}
 		}
-		
-		
+		return RecoverInterpretation.createRepairSubtermsInterpretation(term, parent, subtermRecoveries);
 	}
-
-	private ArrayList<IStrategoTerm> getMinimumCostRecovery(RecoverInterpretation recovery1, RecoverInterpretation recovery2) {
-		//TODO
-		int recoverCost1 = 0;
-		for (IStrategoTerm term : recovery1) {
-			ArrayList<IStrategoTerm> recoveredTerms = this.recoveryLookup.get(term);
-			int recoverCostTerm = getRecoverCost(recoveredTerms);
+	
+	private RecoverInterpretation constructDiscardRecovery(IStrategoTerm term, IStrategoTerm parent) {
+		if(HelperFunctions.isSomeNode(term) || (parent != null && parent.isList())){
+			return RecoverInterpretation.createDiscardInterpretation(term, parent);
 		}
 		return null;
 	}
 
-
-	public boolean isListSort(String sort) {
-		return sort.endsWith("*");
+	private RecoverInterpretation constructReplaceBySubtermsRecovery(IStrategoTerm term, IStrategoTerm parent) {
+		return getRecoveryFromSubterms(term, term, parent);
 	}
 
-	public String getGeneralSort(IStrategoTerm term, IStrategoTerm parent) {
-		String termSort = ImploderAttachment.getElementSort(term);
-		if(parent.isList())
-			termSort = ImploderAttachment.getElementSort(parent);
-		assert (term.isList() || parent.isList())? termSort.endsWith("*") : !termSort.endsWith("*");
-		return termSort;
+	private RecoverInterpretation getRecoveryFromSubterms(IStrategoTerm visitedTerm, IStrategoTerm term, IStrategoTerm parent) {
+
+		//visited term may provide a candidate recovery
+		RecoverInterpretation candidateFromVisited = recoveryLookup.get(visitedTerm);
+		if(candidateFromVisited != null && candidateFromVisited.hasSameSort(term, parent)){
+			//optimal interpretation for the fragment already found, no need to further traverse subterms 
+			return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
+		}
+		
+		//traverse subterms of subterm
+		ArrayList<RecoverInterpretation> candidatesFromSubterms = new ArrayList<RecoverInterpretation> ();
+		for (int i = 0; i < visitedTerm.getSubtermCount(); i++) {
+			IStrategoTerm subterm = term.getSubterm(i);
+			RecoverInterpretation subtermRecovery = getRecoveryFromSubterms(subterm, term, parent);
+			if(subtermRecovery != null){
+				candidatesFromSubterms.add(subtermRecovery);
+				assert subtermRecovery.hasCompatibleSort(term, parent);
+			}
+		}
+		
+		//non-list elements: pick best
+		//TODO: what if term is list, what about separators
+		if(!parent.isList()){
+			ArrayList<RecoverInterpretation> candidates = new ArrayList<RecoverInterpretation>();
+			if(candidateFromVisited != null && candidateFromVisited.hasCompatibleSort(term, parent)){
+				candidates.add(RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited));
+			}
+			for (RecoverInterpretation subRecovery : candidatesFromSubterms) {
+				candidates.add(RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, subRecovery));
+			}
+			RecoverInterpretation minimumCostRecovery = getMinimumCostRecovery(candidates);
+			return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, minimumCostRecovery);
+		}
+		else { //parent is list
+			RecoverInterpretation fromSubtermsRecovery = RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidatesFromSubterms);
+			if(candidateFromVisited != null && candidateFromVisited.hasCompatibleSort(term, parent)){
+				RecoverInterpretation fromVisistedRecovery = RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
+				return this.getMinimumCostRecovery(fromSubtermsRecovery, fromVisistedRecovery);				
+			}
+			return fromSubtermsRecovery;
+		}
 	}
+
+	private RecoverInterpretation getMinimumCostRecovery(ArrayList<RecoverInterpretation> recoveries) {
+		RecoverInterpretation minimumCostInterpretation = null;
+		for (RecoverInterpretation recovery : recoveries) {
+			minimumCostInterpretation = getMinimumCostRecovery(minimumCostInterpretation, recovery);
+		}
+		return minimumCostInterpretation;
+	}
+
+	private RecoverInterpretation getMinimumCostRecovery(RecoverInterpretation recovery1, RecoverInterpretation recovery2) {
+		if(recovery2 == null)
+			return recovery1;
+		if(recovery1 == null)
+			return recovery2;
+		if(recovery2.getRecoveryCosts() < recovery1.getRecoveryCosts()){
+			return recovery2;
+		}
+		return recovery1;
+	}
+
+
 
 	private boolean hasDeletions(IStrategoTerm term) {
 		return !getCoveredOffsets(term, this.offsetsDeletedChars).isEmpty();
+	}
+
+	private boolean hasAssociatedDeletions(IStrategoTerm term) {
+		return !getAssociatedCoveredOffsets(term, this.offsetsDeletedChars).isEmpty();
+	}
+
+
+	private static ArrayList<Integer> getAssociatedCoveredOffsets(IStrategoTerm term, ArrayList<Integer> offsets) {
+		ArrayList<Integer> associatedCoveredOffsets = getCoveredOffsets(term, offsets);
+		for (int i = 0; i < term.getSubtermCount(); i++) {
+			IStrategoTerm subterm = term.getSubterm(i);
+			ArrayList<Integer> subtermOffsets = getCoveredOffsets(subterm, offsets);
+			associatedCoveredOffsets.removeAll(subtermOffsets);
+		}
+		return associatedCoveredOffsets;
 	}
 
 	private static ArrayList<Integer> getCoveredOffsets(IStrategoTerm term, ArrayList<Integer> offsets) {
@@ -126,18 +165,4 @@ public class TermEditsAnalyzer {
 		}
 		return coveredOffsets;
 	}
-
-
-	public boolean hasRecoverInterpretation(IStrategoTerm term) {
-		return recoveryLookup.containsKey(term);
-	}
-
-	private boolean isSomeNode(IStrategoTerm trm) {
-		if(trm.getTermType() == IStrategoTerm.APPL){
-			return trm.getSubtermCount() == 1 && ((IStrategoAppl)trm).getConstructor().getName().equals("Some");
-		}
-		return false;
-	}
-
-
 }

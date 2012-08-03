@@ -149,5 +149,49 @@ public class RecoverInterpretation {
 		}
 		return nrOfNonLayoutTokens;
 	}
+	
+	public ArrayList<DiscardableRegion> getDamagedRegions(){		
+		if(this.getSubtermRecoveries() == null){ //trivial recovery (no damage)
+			return new ArrayList<DiscardableRegion>(); 
+		}
+		else if(isRecovered){ //only damage in tokens associated to subterms 
+			ArrayList<DiscardableRegion> damagedRegions = new ArrayList<DiscardableRegion>();
+			for (RecoverInterpretation subtermRecovery : getSubtermRecoveries()) {
+				damagedRegions.addAll(subtermRecovery.getDamagedRegions());
+			}
+			return damagedRegions; 
+		}
+		else { //damage in tokens associated to term
+			return getDamagedRegionsForAffectedTerm();
+		}
+	}
 
+	private ArrayList<DiscardableRegion> getDamagedRegionsForAffectedTerm() {
+		ArrayList<DiscardableRegion> damagedRegions = new ArrayList<DiscardableRegion>();
+		int startOffset = getLeftToken(term).getStartOffset();
+		for (int i = 0; i < getSubtermRecoveries().size(); i++) {
+			RecoverInterpretation subtermRecovery = getSubtermRecoveries().get(i);
+			int endOffset = getLeftToken(subtermRecovery.getTerm()).getStartOffset()-1;
+			if(startOffset <= endOffset){ //discard tokens associated to term
+				DiscardableRegion region = new DiscardableRegion(startOffset, endOffset, getTerm());
+				damagedRegions.add(region);
+			}
+			damagedRegions.addAll(subtermRecovery.getDamagedRegions()); //collect damaged regions in subterm
+			startOffset = getRightToken(subtermRecovery.getTerm()).getEndOffset() + 1;
+		}
+		int endOffset = getRightToken(term).getEndOffset();
+		if(startOffset <= endOffset){ //discard suffix tokens associated to term
+			DiscardableRegion damagedRegion = new DiscardableRegion(startOffset, endOffset, getTerm());
+			damagedRegions.add(damagedRegion);
+		}
+		return damagedRegions;
+	}
 }
+
+
+
+
+
+
+
+

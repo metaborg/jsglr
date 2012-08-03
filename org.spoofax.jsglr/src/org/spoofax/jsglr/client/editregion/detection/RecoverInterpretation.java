@@ -130,7 +130,7 @@ public class RecoverInterpretation {
 				subtermCosts += subtermRecovery.getRecoveryCosts();
 			}
 		}
-		assert isRecovered? recoveryCosts == subtermCosts : recoveryCosts > subtermCosts;
+		assert isRecovered? recoveryCosts == subtermCosts : recoveryCosts >= subtermCosts;
 	}
 	
 //private functions
@@ -201,6 +201,10 @@ public class RecoverInterpretation {
 			damagedRegions.add(damagedRegion);
 		}
 		return damagedRegions;
+	}
+
+	public boolean isUndamagedTerm() {
+		return getSubtermRecoveries() == null;
 	}
 }
 

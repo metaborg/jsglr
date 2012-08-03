@@ -96,6 +96,9 @@ public class TermEditsAnalyzer {
 			//optimal interpretation for the fragment already found, no need to further traverse subterms 
 			return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
 		}
+		if(candidateFromVisited != null && candidateFromVisited.isUndamagedTerm()){
+			return null;
+		}
 		
 		//traverse subterms of subterm
 		ArrayList<RecoverInterpretation> candidatesFromSubterms = new ArrayList<RecoverInterpretation> ();
@@ -110,7 +113,7 @@ public class TermEditsAnalyzer {
 		
 		//non-list elements: pick best
 		//TODO: what if term is list, what about separators
-		if(!parent.isList()){
+		if(parent == null || !parent.isList()){
 			ArrayList<RecoverInterpretation> candidates = new ArrayList<RecoverInterpretation>();
 			if(candidateFromVisited != null && candidateFromVisited.hasCompatibleSort(term, parent)){
 				candidates.add(RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited));

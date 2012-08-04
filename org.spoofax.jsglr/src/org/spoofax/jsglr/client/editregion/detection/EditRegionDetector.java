@@ -66,7 +66,7 @@ public class EditRegionDetector {
 	 * @return offsets of characters in discarded regions
 	 */
 	public ArrayList<Integer> getDiscardOffsetsCorrectInput() {
-		return getEditOffsets(getEditedRegionsCorrect());
+		return DiscardableRegion.getEditOffsets(getEditedRegionsCorrect());
 	}
 	
 	/**
@@ -116,7 +116,7 @@ public class EditRegionDetector {
 	 */
 	public ArrayList<DiscardableRegion> getEditedRegionsErroneous(){
 		ArrayList<DiscardableRegion> editsFromDeletions = mapRegions(getEditedRegionsCorrect(), true);
-		ArrayList<DiscardableRegion> editsFromInsertions = this.constructRegionsFromOffsets(getInsertionOffsets(), getErroneousInput());
+		ArrayList<DiscardableRegion> editsFromInsertions = DiscardableRegion.constructRegionsFromOffsets(getInsertionOffsets());
 		return mergeRegions(editsFromDeletions, editsFromInsertions);
 	}
 
@@ -126,7 +126,7 @@ public class EditRegionDetector {
 	 * @return offsets of edit regions from erroneous input
 	 */
 	public ArrayList<Integer> getDiscardOffsetsErroneousInput() {
-		return getEditOffsets(getEditedRegionsErroneous());
+		return DiscardableRegion.getEditOffsets(getEditedRegionsErroneous());
 	}
 
 // method for accessing the recovered input
@@ -138,12 +138,11 @@ public class EditRegionDetector {
 	 * @return recovered program
 	 */
 	public String getRecoveredInput(){
-		String recoveredProgram = replaceAllRegionByWhitespace(getEditedRegionsErroneous(), getErroneousInput());
+		String recoveredProgram = DiscardableRegion.replaceAllRegionsByWhitespace(getEditedRegionsErroneous(), getErroneousInput());
 		//assert recoveredProgram.equals(replaceAllRegionByWhitespace(getEditedRegionsCorrect(), correctInput)); //modulo comments and layout
 		assert recoveredProgram.length() == getErroneousInput().length(): "whitespaces are inserted for characters in the edit regions";
 		return recoveredProgram;
 	}
-
 	
 	/**
 	 * Detects possible erroneous code constructs and comments
@@ -270,29 +269,8 @@ public class EditRegionDetector {
 		return merged;
 	}
 
-	private ArrayList<DiscardableRegion> constructRegionsFromOffsets(ArrayList<Integer> offsets, String inputString){
-		ArrayList<DiscardableRegion> result = new ArrayList<DiscardableRegion>();
-		int startOffset = -1;
-		for (int i = 0; i < offsets.size(); i++) {
-			int offset = offsets.get(i);
-			if(i==0){
-				startOffset = offsets.get(i);
-			}
-			else if (offset != offsets.get(i-1) + 1){
-				DiscardableRegion region = new DiscardableRegion(startOffset, offsets.get(i-1), null);
-				result.add(region);
-				startOffset = offsets.get(i);
-			}
-		}
-		if(startOffset != -1){
-			DiscardableRegion region = new DiscardableRegion(startOffset, offsets.get(offsets.size()-1), null);
-			result.add(region);
-		}
-		return result;		
-	}
-
 	private ArrayList<String> constructSubstringsFromOffsets(ArrayList<Integer> offsets, String inputString){
-		ArrayList<DiscardableRegion> regions = constructRegionsFromOffsets(offsets, inputString);
+		ArrayList<DiscardableRegion> regions = DiscardableRegion.constructRegionsFromOffsets(offsets);
 		ArrayList<String> result = new ArrayList<String>();
 		for (DiscardableRegion region : regions) {
 			String fragment = inputString.substring(region.getStartOffset(), region.getEndOffset() + 1);
@@ -300,40 +278,4 @@ public class EditRegionDetector {
 		}
 		return result;
 	}
-	
-	private String replaceRegionByWhitespace(DiscardableRegion region, String input) {
-		char[] chars = input.toCharArray();
-		for (int offset = region.getStartOffset(); offset <= region.getEndOffset(); offset++) {
-			char charAtOffset = chars[offset];
-			if(!Character.isWhitespace(charAtOffset)){
-				chars[offset] = ' ';
-			}
-		}
-		return String.valueOf(chars);
-	}
-
-	private String replaceAllRegionByWhitespace(ArrayList<DiscardableRegion> regions, String input) {
-		String result = input;
-		for (DiscardableRegion region : regions) {
-			result = replaceRegionByWhitespace(region, result);
-		}
-		return result;
-	}
-		
-	private ArrayList<Integer> getEditOffsets(ArrayList<DiscardableRegion> editRegions) {
-		ArrayList<Integer> result = new ArrayList<Integer>();
-		for (DiscardableRegion region : editRegions) {
-			int startOffset = region.getStartOffset();
-			int endOffset = region.getEndOffset();
-			for (int offset = startOffset; offset <= endOffset; offset++) {
-				// "regions can overlap, for example: term + separation and comment in separation";
-				if(!result.contains(offset))
-					result.add(offset);
-			}
-		}
-		Collections.sort(result);
-		return result;
-	}
-
-	
 }

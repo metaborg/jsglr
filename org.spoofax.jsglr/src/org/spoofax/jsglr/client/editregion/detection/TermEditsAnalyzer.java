@@ -49,6 +49,9 @@ public class TermEditsAnalyzer {
 	private RecoverInterpretation constructMinimalCostRecovery(IStrategoTerm term, IStrategoTerm parent) {
 		//candidates can be null
 		RecoverInterpretation candidate1 = constructRepairSubtermsRecovery(term, parent);
+		if(!hasAssociatedDeletions(term) && term.isList()){
+			return candidate1;
+		}
 		RecoverInterpretation candidate2 = constructReplaceBySubtermsRecovery(term, parent);
 		RecoverInterpretation candidate3 = constructDiscardRecovery(term, parent);
 		ArrayList<RecoverInterpretation> candidates = new ArrayList<RecoverInterpretation>();
@@ -82,12 +85,12 @@ public class TermEditsAnalyzer {
 	}
 
 	private RecoverInterpretation constructReplaceBySubtermsRecovery(IStrategoTerm term, IStrategoTerm parent) {
-		System.out.println("recover: " + term);
+		//System.out.println("recover: " + term);
 		return getRecoveryFromSubterms(term, term, parent);
 	}
 
 	private RecoverInterpretation getRecoveryFromSubterms(IStrategoTerm visitedTerm, IStrategoTerm term, IStrategoTerm parent) {
-		System.out.println("    visited: " + visitedTerm);
+		//System.out.println("    visited: " + visitedTerm);
 
 		//visited term may provide a candidate recovery
 		RecoverInterpretation candidateFromVisited = recoveryLookup.get(visitedTerm);
@@ -97,6 +100,9 @@ public class TermEditsAnalyzer {
 			return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
 		}
 		if(candidateFromVisited != null && candidateFromVisited.isUndamagedTerm()){
+			if(candidateFromVisited.hasCompatibleSort(term, parent)){
+				return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
+			}
 			return null;
 		}
 		

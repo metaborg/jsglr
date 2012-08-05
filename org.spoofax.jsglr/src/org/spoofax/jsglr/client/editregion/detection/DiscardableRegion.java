@@ -107,5 +107,41 @@ public class DiscardableRegion{
 		Collections.sort(result);
 		return result;
 	}
-
+	
+	public static ArrayList<DiscardableRegion> mergeRegions(ArrayList<DiscardableRegion> regions1, ArrayList<DiscardableRegion> regions2){
+		ArrayList<DiscardableRegion> merged = new ArrayList<DiscardableRegion>();
+		int index_r1 = 0;
+		int index_r2 = 0;
+		while (index_r1 < regions1.size() && index_r2 < regions2.size()) {
+			DiscardableRegion r1 = regions1.get(index_r1);			
+			DiscardableRegion r2 = regions2.get(index_r2);
+			if(r1.getEndOffset() < r2.getStartOffset()){
+				merged.add(r1);
+				index_r1 ++;
+			}
+			else if(r2.getEndOffset() < r1.getStartOffset()){
+				merged.add(r2);
+				index_r2 ++;
+			}
+			else {
+				int startOffset = Math.min(r1.getStartOffset(), r2.getStartOffset());
+				int endOffset = Math.max(r1.getEndOffset(), r2.getEndOffset());
+				DiscardableRegion mergedRegion = new DiscardableRegion(startOffset, endOffset, null);
+				merged.add(mergedRegion);
+				index_r1++;
+				index_r2++;
+			}
+		}
+		while (index_r1 < regions1.size()) {
+			DiscardableRegion r1 = regions1.get(index_r1);
+			merged.add(r1);
+			index_r1 ++;
+		}
+		while (index_r2 < regions2.size()) {
+			DiscardableRegion r2 = regions2.get(index_r2);
+			merged.add(r2);
+			index_r2++;
+		}
+		return merged;
+	}
 }

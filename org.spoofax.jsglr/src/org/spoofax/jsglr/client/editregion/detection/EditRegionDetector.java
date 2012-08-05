@@ -1,9 +1,7 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import org.spoofax.jsglr.client.editregion.detection.LCS;
-import org.spoofax.jsglr.client.editregion.detection.LCSCommand;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
@@ -58,7 +56,7 @@ public class EditRegionDetector {
 	 * @return discarded edit regions from the correct input
 	 */
 	public ArrayList<DiscardableRegion> getEditedRegionsCorrect(){
-		return mergeRegions(discardableRegions, discardableCommentRegions);
+		return DiscardableRegion.mergeRegions(discardableRegions, discardableCommentRegions);
 	}
 	
 	/**
@@ -117,7 +115,7 @@ public class EditRegionDetector {
 	public ArrayList<DiscardableRegion> getEditedRegionsErroneous(){
 		ArrayList<DiscardableRegion> editsFromDeletions = mapRegions(getEditedRegionsCorrect(), true);
 		ArrayList<DiscardableRegion> editsFromInsertions = DiscardableRegion.constructRegionsFromOffsets(getInsertionOffsets());
-		return mergeRegions(editsFromDeletions, editsFromInsertions);
+		return DiscardableRegion.mergeRegions(editsFromDeletions, editsFromInsertions);
 	}
 
 	/**
@@ -232,50 +230,23 @@ public class EditRegionDetector {
 		return result;
 	}
 	
-	private ArrayList<DiscardableRegion> mergeRegions(ArrayList<DiscardableRegion> regions1, ArrayList<DiscardableRegion> regions2){
-		ArrayList<DiscardableRegion> merged = new ArrayList<DiscardableRegion>();
-		int index_r1 = 0;
-		int index_r2 = 0;
-		while (index_r1 < regions1.size() && index_r2 < regions2.size()) {
-			DiscardableRegion r1 = regions1.get(index_r1);			
-			DiscardableRegion r2 = regions2.get(index_r2);
-			if(r1.getEndOffset() < r2.getStartOffset()){
-				merged.add(r1);
-				index_r1 ++;
-			}
-			else if(r2.getEndOffset() < r1.getStartOffset()){
-				merged.add(r2);
-				index_r2 ++;
-			}
-			else {
-				int startOffset = Math.min(r1.getStartOffset(), r2.getStartOffset());
-				int endOffset = Math.max(r1.getEndOffset(), r2.getEndOffset());
-				DiscardableRegion mergedRegion = new DiscardableRegion(startOffset, endOffset, null);
-				merged.add(mergedRegion);
-				index_r1++;
-				index_r2++;
-			}
-		}
-		while (index_r1 < regions1.size()) {
-			DiscardableRegion r1 = regions1.get(index_r1);
-			merged.add(r1);
-			index_r1 ++;
-		}
-		while (index_r2 < regions2.size()) {
-			DiscardableRegion r2 = regions2.get(index_r2);
-			merged.add(r2);
-			index_r2++;
-		}
-		return merged;
-	}
 
 	private ArrayList<String> constructSubstringsFromOffsets(ArrayList<Integer> offsets, String inputString){
 		ArrayList<DiscardableRegion> regions = DiscardableRegion.constructRegionsFromOffsets(offsets);
+		return constructFragments(inputString, regions);
+	}
+
+	private ArrayList<String> constructFragments(String inputString, ArrayList<DiscardableRegion> regions) {
 		ArrayList<String> result = new ArrayList<String>();
 		for (DiscardableRegion region : regions) {
-			String fragment = inputString.substring(region.getStartOffset(), region.getEndOffset() + 1);
+			String fragment = constructFragment(inputString, region);
 			result.add(fragment);
 		}
 		return result;
+	}
+
+	private String constructFragment(String inputString, DiscardableRegion region) {
+		String fragment = inputString.substring(region.getStartOffset(), region.getEndOffset() + 1);
+		return fragment;
 	}
 }

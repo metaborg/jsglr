@@ -206,6 +206,8 @@ public class RecoverInterpretation {
 	public boolean isUndamagedTerm() {
 		return getSubtermRecoveries() == null;
 	}
+	
+	//TODO: ToString
 }
 
 

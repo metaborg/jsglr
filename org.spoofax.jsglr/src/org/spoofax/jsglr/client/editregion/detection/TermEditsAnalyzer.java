@@ -4,11 +4,9 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
 public class TermEditsAnalyzer {
 	private final IStrategoTerm correctAST;
@@ -24,12 +22,12 @@ public class TermEditsAnalyzer {
 	/**
 	 * Returns discardable regions that are edited 
 	 */
-	public ArrayList<DiscardableRegion> getDamagedTermRegions(){
+	public RecoverInterpretation getDiscardRecovery(){
 		recoveryLookup.clear();
 		collectRecoveries(correctAST, null);
 		RecoverInterpretation discardRecovery = recoveryLookup.get(correctAST); //TODO: if null, alltd look for regions in subterms
 		assert discardRecovery == null || discardRecovery.getTerm() == correctAST;
-		return discardRecovery.getDamagedRegions();
+		return discardRecovery;
 	}
 
 	private void collectRecoveries(IStrategoTerm term, IStrategoTerm parent){

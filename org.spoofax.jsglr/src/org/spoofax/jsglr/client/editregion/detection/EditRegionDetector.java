@@ -21,7 +21,7 @@ public class EditRegionDetector {
 	private final IStrategoTerm correctAST;
 	
 	//edit regions found after analyzing the correct AST/input and its deleted characters
-	private ArrayList<DiscardableRegion> discardableRegions;
+	private RecoverInterpretation discardRecovery;
 	private ArrayList<DiscardableRegion> discardableCommentRegions;
 
 
@@ -56,7 +56,11 @@ public class EditRegionDetector {
 	 * @return discarded edit regions from the correct input
 	 */
 	public ArrayList<DiscardableRegion> getEditedRegionsCorrect(){
-		return DiscardableRegion.mergeRegions(discardableRegions, discardableCommentRegions);
+		if(discardRecovery == null){
+			RecoverInterpretation emptyRecovery = RecoverInterpretation.createDiscardInterpretation(correctAST, null);
+			return emptyRecovery.getDamagedRegions();
+		}
+		return DiscardableRegion.mergeRegions(discardRecovery.getDamagedRegions(), discardableCommentRegions);
 	}
 	
 	/**
@@ -67,18 +71,13 @@ public class EditRegionDetector {
 		return DiscardableRegion.getOffsets(getEditedRegionsCorrect());
 	}
 	
-//	/**
-//	 * Returns the (discardable) terms that were edited, from the correct input 
-//	 * @return discarded terms
-//	 */
-//	public ArrayList<IStrategoTerm> getEditedTerms(){
-//		ArrayList<IStrategoTerm> discardableTerms = new ArrayList<IStrategoTerm>();
-//		for (DiscardableRegion region : getEditedRegionsCorrect()) {
-//			if(!HelperFunctions.contains(discardableTerms, region.getAffectedTerm()))
-//				discardableTerms.add(region.getAffectedTerm());
-//		}
-//		return discardableTerms;
-//	}	
+	/**
+	 * Returns the (discardable) terms that were edited, from the correct input 
+	 * @return discarded terms
+	 */
+	public ArrayList<IStrategoTerm> getEditedTerms(){
+		return discardRecovery.getDamagedTerms();
+	}	
 
 
 //methods that access the erroneous parse input string
@@ -180,7 +179,7 @@ public class EditRegionDetector {
 		
 		//detects discardable regions that correspond to edited terms.
 		TermEditsAnalyzer brokenConstructDetector = new TermEditsAnalyzer(offsetsDeletedChars, correctAST);
-		this.discardableRegions = brokenConstructDetector.getDamagedTermRegions();		
+		this.discardRecovery = brokenConstructDetector.getDiscardRecovery();		
 	}
 	
 

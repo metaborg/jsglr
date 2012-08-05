@@ -40,6 +40,11 @@ public class HelperFunctions {
 		return termSort;
 	}
 	
+	public static boolean isListSort(String sort) {
+		return sort.endsWith("*");
+	}
+
+	
 	public static boolean isSomeNode(IStrategoTerm trm) {
 		if(trm.getTermType() == IStrategoTerm.APPL){
 			return trm.getSubtermCount() == 1 && ((IStrategoAppl)trm).getConstructor().getName().equals("Some");

@@ -11,6 +11,8 @@ import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
 
+import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
+
 public class RecoverInterpretation {
 
 //private fields
@@ -36,11 +38,7 @@ public class RecoverInterpretation {
 		return recoveryCosts;
 	}
 
-//public methods
-		
-	//	public boolean isListSort(String sort) {
-	//		return sort.endsWith("*");
-	//	}
+//public methods	
 	
 	public String getGeneralSort(){
 		return HelperFunctions.getGeneralSort(term, parentTerm);
@@ -76,6 +74,48 @@ public class RecoverInterpretation {
 				
 		return hasCompatibleSort;
 	}
+
+	public boolean isUndamagedTerm() {
+		return getSubtermRecoveries() == null;
+	}
+	
+	public ArrayList<DiscardableRegion> getDamagedRegions(){
+		if(this.getSubtermRecoveries() == null){ //trivial recovery (no damage)
+			return new ArrayList<DiscardableRegion>(); 
+		}
+		else if(isRecovered){ //only damage in tokens associated to subterms 
+			return getDamagedRegionsForUnaffectedTerm(); 
+		}
+		else { //damage in tokens associated to term
+			return getDamagedRegionsForAffectedTerm();
+		}
+	}
+
+	public ArrayList<IStrategoTerm> getDamagedTerms(){
+		ArrayList<IStrategoTerm> damagedTerms = new ArrayList<IStrategoTerm>();
+		if(this.getSubtermRecoveries() == null){ //trivial recovery (no damage)
+			return new ArrayList<IStrategoTerm>();
+		}
+		if(!isRecovered){ 
+			damagedTerms.add(getTerm());
+		}
+		for (int i = 0; i < this.getSubtermRecoveries().size(); i++) {
+			damagedTerms.addAll(getSubtermRecoveries().get(i).getDamagedTerms());
+		}
+		return damagedTerms;
+	}
+	
+	@Override
+	public String toString(){
+		ArrayList<DiscardableRegion> damagedRegions = getDamagedRegions();
+		String inputString = getInputString();
+		String recoveredProgram = DiscardableRegion.replaceAllRegionsByWhitespace(damagedRegions, inputString);
+		int startOffset = ImploderAttachment.getLeftToken(term).getStartOffset();
+		int endOffset = ImploderAttachment.getRightToken(term).getEndOffset();
+		String recoveredTermFragment = recoveredProgram.substring(startOffset, endOffset + 1);
+		return recoveredTermFragment;
+	}
+
 
 	
 // constructors
@@ -166,24 +206,8 @@ public class RecoverInterpretation {
 		return nrOfNonLayoutTokens;
 	}
 	
-	public ArrayList<DiscardableRegion> getDamagedRegions(){		
-		if(this.getSubtermRecoveries() == null){ //trivial recovery (no damage)
-			return new ArrayList<DiscardableRegion>(); 
-		}
-		else if(isRecovered){ //only damage in tokens associated to subterms 
-			ArrayList<DiscardableRegion> damagedRegions = new ArrayList<DiscardableRegion>();
-			for (RecoverInterpretation subtermRecovery : getSubtermRecoveries()) {
-				damagedRegions.addAll(subtermRecovery.getDamagedRegions());
-			}
-			return damagedRegions; 
-		}
-		else { //damage in tokens associated to term
-			return getDamagedRegionsForAffectedTerm();
-		}
-	}
-
 	private ArrayList<DiscardableRegion> getDamagedRegionsForAffectedTerm() {
-		String input = ImploderAttachment.getTokenizer(getTerm()).getInput();
+		String input = getInputString();
 		ArrayList<DiscardableRegion> damagedRegions = new ArrayList<DiscardableRegion>();
 		int startOffset = getLeftToken(term).getStartOffset();
 		for (int i = 0; i < getSubtermRecoveries().size(); i++) {
@@ -203,13 +227,18 @@ public class RecoverInterpretation {
 		}
 		return damagedRegions;
 	}
-
-	public boolean isUndamagedTerm() {
-		return getSubtermRecoveries() == null;
-	}
 	
-	//TODO: GetDamagedTerms
-	//TODO: ToString
+	private ArrayList<DiscardableRegion> getDamagedRegionsForUnaffectedTerm() {
+		ArrayList<DiscardableRegion> damagedRegions = new ArrayList<DiscardableRegion>();
+		for (RecoverInterpretation subtermRecovery : getSubtermRecoveries()) {
+			damagedRegions.addAll(subtermRecovery.getDamagedRegions());
+		}
+		return damagedRegions;
+	}
+
+	private String getInputString() {
+		return ImploderAttachment.getTokenizer(getTerm()).getInput();
+	}
 }
 
 

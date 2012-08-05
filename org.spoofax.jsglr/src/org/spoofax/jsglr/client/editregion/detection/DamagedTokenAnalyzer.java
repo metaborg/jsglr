@@ -23,6 +23,10 @@ public class DamagedTokenAnalyzer {
 	//filled in the token stream analysis
 	private final ArrayList<IToken> tokensDamagedByInsertion;
 	private final ArrayList<IToken> tokensDamagedByDeletion;
+	
+	public ITokenizer getTokens() {
+		return tokens;
+	}
 
 	/**
 	 * Returns all tokens in the correct term that are (possible) damaged by

@@ -183,13 +183,14 @@ public class RecoverInterpretation {
 	}
 
 	private ArrayList<DiscardableRegion> getDamagedRegionsForAffectedTerm() {
+		String input = ImploderAttachment.getTokenizer(getTerm()).getInput();
 		ArrayList<DiscardableRegion> damagedRegions = new ArrayList<DiscardableRegion>();
 		int startOffset = getLeftToken(term).getStartOffset();
 		for (int i = 0; i < getSubtermRecoveries().size(); i++) {
 			RecoverInterpretation subtermRecovery = getSubtermRecoveries().get(i);
 			int endOffset = getLeftToken(subtermRecovery.getTerm()).getStartOffset()-1;
 			if(startOffset <= endOffset){ //discard tokens associated to term
-				DiscardableRegion region = new DiscardableRegion(startOffset, endOffset, getTerm());
+				DiscardableRegion region = new DiscardableRegion(startOffset, endOffset, input);
 				damagedRegions.add(region);
 			}
 			damagedRegions.addAll(subtermRecovery.getDamagedRegions()); //collect damaged regions in subterm
@@ -197,7 +198,7 @@ public class RecoverInterpretation {
 		}
 		int endOffset = getRightToken(term).getEndOffset();
 		if(startOffset <= endOffset){ //discard suffix tokens associated to term
-			DiscardableRegion damagedRegion = new DiscardableRegion(startOffset, endOffset, getTerm());
+			DiscardableRegion damagedRegion = new DiscardableRegion(startOffset, endOffset, input);
 			damagedRegions.add(damagedRegion);
 		}
 		return damagedRegions;
@@ -207,6 +208,7 @@ public class RecoverInterpretation {
 		return getSubtermRecoveries() == null;
 	}
 	
+	//TODO: GetDamagedTerms
 	//TODO: ToString
 }
 

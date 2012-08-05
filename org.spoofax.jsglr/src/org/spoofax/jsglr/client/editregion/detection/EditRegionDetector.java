@@ -64,21 +64,21 @@ public class EditRegionDetector {
 	 * @return offsets of characters in discarded regions
 	 */
 	public ArrayList<Integer> getDiscardOffsetsCorrectInput() {
-		return DiscardableRegion.getEditOffsets(getEditedRegionsCorrect());
+		return DiscardableRegion.getOffsets(getEditedRegionsCorrect());
 	}
 	
-	/**
-	 * Returns the (discardable) terms that were edited, from the correct input 
-	 * @return discarded terms
-	 */
-	public ArrayList<IStrategoTerm> getEditedTerms(){
-		ArrayList<IStrategoTerm> discardableTerms = new ArrayList<IStrategoTerm>();
-		for (DiscardableRegion region : getEditedRegionsCorrect()) {
-			if(!HelperFunctions.contains(discardableTerms, region.getAffectedTerm()))
-				discardableTerms.add(region.getAffectedTerm());
-		}
-		return discardableTerms;
-	}	
+//	/**
+//	 * Returns the (discardable) terms that were edited, from the correct input 
+//	 * @return discarded terms
+//	 */
+//	public ArrayList<IStrategoTerm> getEditedTerms(){
+//		ArrayList<IStrategoTerm> discardableTerms = new ArrayList<IStrategoTerm>();
+//		for (DiscardableRegion region : getEditedRegionsCorrect()) {
+//			if(!HelperFunctions.contains(discardableTerms, region.getAffectedTerm()))
+//				discardableTerms.add(region.getAffectedTerm());
+//		}
+//		return discardableTerms;
+//	}	
 
 
 //methods that access the erroneous parse input string
@@ -114,7 +114,7 @@ public class EditRegionDetector {
 	 */
 	public ArrayList<DiscardableRegion> getEditedRegionsErroneous(){
 		ArrayList<DiscardableRegion> editsFromDeletions = mapRegions(getEditedRegionsCorrect(), true);
-		ArrayList<DiscardableRegion> editsFromInsertions = DiscardableRegion.constructRegionsFromOffsets(getInsertionOffsets());
+		ArrayList<DiscardableRegion> editsFromInsertions = DiscardableRegion.constructRegionsFromOffsets(getInsertionOffsets(), this.getErroneousInput());
 		return DiscardableRegion.mergeRegions(editsFromDeletions, editsFromInsertions);
 	}
 
@@ -124,7 +124,7 @@ public class EditRegionDetector {
 	 * @return offsets of edit regions from erroneous input
 	 */
 	public ArrayList<Integer> getDiscardOffsetsErroneousInput() {
-		return DiscardableRegion.getEditOffsets(getEditedRegionsErroneous());
+		return DiscardableRegion.getOffsets(getEditedRegionsErroneous());
 	}
 
 // method for accessing the recovered input
@@ -215,7 +215,11 @@ public class EditRegionDetector {
 			}
 		}
 		if(startOffset >= 0){
-			return new DiscardableRegion(startOffset, endOffset, null);
+			String input = this.getCorrectInput();
+			if(!isInCorrectInputString){
+				input = this.getErroneousInput();
+			}
+			return new DiscardableRegion(startOffset, endOffset, input);
 		}
 		return null;
 	}
@@ -232,21 +236,7 @@ public class EditRegionDetector {
 	
 
 	private ArrayList<String> constructSubstringsFromOffsets(ArrayList<Integer> offsets, String inputString){
-		ArrayList<DiscardableRegion> regions = DiscardableRegion.constructRegionsFromOffsets(offsets);
-		return constructFragments(inputString, regions);
-	}
-
-	private ArrayList<String> constructFragments(String inputString, ArrayList<DiscardableRegion> regions) {
-		ArrayList<String> result = new ArrayList<String>();
-		for (DiscardableRegion region : regions) {
-			String fragment = constructFragment(inputString, region);
-			result.add(fragment);
-		}
-		return result;
-	}
-
-	private String constructFragment(String inputString, DiscardableRegion region) {
-		String fragment = inputString.substring(region.getStartOffset(), region.getEndOffset() + 1);
-		return fragment;
+		ArrayList<DiscardableRegion> regions = DiscardableRegion.constructRegionsFromOffsets(offsets, inputString);
+		return DiscardableRegion.constructFragments(regions);
 	}
 }

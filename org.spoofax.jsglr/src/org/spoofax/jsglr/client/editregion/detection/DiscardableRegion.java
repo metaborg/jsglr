@@ -3,30 +3,35 @@ package org.spoofax.jsglr.client.editregion.detection;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.spoofax.interpreter.terms.IStrategoTerm;
-
 /**
  * Fragment in the source code that represents a (possibly broken) construct
  * that (presumably) can be discarded safely, e.g., without invalidating the parse input.
  * @author maartje
  */
 public class DiscardableRegion{
+	
+//private fields
+	
 	private final int startOffset;
 	private final int endOffset;
-	private final IStrategoTerm affectedTerm;
+	private final String inputString;
 	
 
+//constructor
+	
 	/**
 	 * Fragment in the source code that represents a (possibly broken) construct
 	 * that can be discarded safely, e.g., without invalidating the parse input.
 	 */
-	public DiscardableRegion(int startOffset, int endOffset, IStrategoTerm affectedTerm){
+	public DiscardableRegion(int startOffset, int endOffset, String inputString){
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
-		this.affectedTerm = affectedTerm;
+		this.inputString = inputString;
 		assert startOffset <= endOffset;
 	}
 
+//getters
+	
 	/**
 	 * Returns the start offset of the discardable code fragment
 	 * @return start offset
@@ -48,31 +53,22 @@ public class DiscardableRegion{
 	 * Can be null in case the discarded region is a comment, or in case the abstract representation is not known.
 	 * @return term
 	 */
-	public IStrategoTerm getAffectedTerm() {
-		assert(!affectedTerm.isList()): "Individual list elements are prefered over full lists";
-		return affectedTerm;
+	public String getInputString() {
+		return inputString;
 	}
+	
+//public functions
 	
 	public static String replaceAllRegionsByWhitespace(ArrayList<DiscardableRegion> regions, String input) {
 		String result = input;
 		for (DiscardableRegion region : regions) {
+			assert region.getInputString() == input;
 			result = replaceRegionByWhitespace(region, result);
 		}
 		return result;
 	}
-	
-	private static String replaceRegionByWhitespace(DiscardableRegion region, String input) {
-		char[] chars = input.toCharArray();
-		for (int offset = region.getStartOffset(); offset <= region.getEndOffset(); offset++) {
-			char charAtOffset = chars[offset];
-			if(!Character.isWhitespace(charAtOffset)){
-				chars[offset] = ' ';
-			}
-		}
-		return String.valueOf(chars);
-	}
-	
-	public static ArrayList<DiscardableRegion> constructRegionsFromOffsets(ArrayList<Integer> offsets){
+		
+	public static ArrayList<DiscardableRegion> constructRegionsFromOffsets(ArrayList<Integer> offsets, String inputString){
 		ArrayList<DiscardableRegion> result = new ArrayList<DiscardableRegion>();
 		int startOffset = -1;
 		for (int i = 0; i < offsets.size(); i++) {
@@ -81,7 +77,7 @@ public class DiscardableRegion{
 				startOffset = offsets.get(i);
 			}
 			else if (offset != offsets.get(i-1) + 1){
-				DiscardableRegion region = new DiscardableRegion(startOffset, offsets.get(i-1), null);
+				DiscardableRegion region = new DiscardableRegion(startOffset, offsets.get(i-1), inputString);
 				result.add(region);
 				startOffset = offsets.get(i);
 			}
@@ -93,7 +89,7 @@ public class DiscardableRegion{
 		return result;		
 	}
 	
-	public static ArrayList<Integer> getEditOffsets(ArrayList<DiscardableRegion> editRegions) {
+	public static ArrayList<Integer> getOffsets(ArrayList<DiscardableRegion> editRegions) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		for (DiscardableRegion region : editRegions) {
 			int startOffset = region.getStartOffset();
@@ -126,7 +122,8 @@ public class DiscardableRegion{
 			else {
 				int startOffset = Math.min(r1.getStartOffset(), r2.getStartOffset());
 				int endOffset = Math.max(r1.getEndOffset(), r2.getEndOffset());
-				DiscardableRegion mergedRegion = new DiscardableRegion(startOffset, endOffset, null);
+				assert r1.getInputString() == r2.getInputString();
+				DiscardableRegion mergedRegion = new DiscardableRegion(startOffset, endOffset, r1.getInputString());
 				merged.add(mergedRegion);
 				index_r1++;
 				index_r2++;
@@ -143,5 +140,32 @@ public class DiscardableRegion{
 			index_r2++;
 		}
 		return merged;
+	}
+	
+	public static ArrayList<String> constructFragments(ArrayList<DiscardableRegion> regions) {
+		ArrayList<String> result = new ArrayList<String>();
+		for (DiscardableRegion region : regions) {
+			String fragment = region.constructFragment();
+			result.add(fragment);
+		}
+		return result;
+	}
+
+	public String constructFragment() {
+		return inputString.substring(getStartOffset(), getEndOffset() + 1);
+	}
+
+//private functions
+	
+	private static String replaceRegionByWhitespace(DiscardableRegion region, String modifiedInput) {
+		assert modifiedInput.length() == region.getInputString().length();
+		char[] chars = modifiedInput.toCharArray();
+		for (int offset = region.getStartOffset(); offset <= region.getEndOffset(); offset++) {
+			char charAtOffset = chars[offset];
+			if(!Character.isWhitespace(charAtOffset)){
+				chars[offset] = ' ';
+			}
+		}
+		return String.valueOf(chars);
 	}
 }

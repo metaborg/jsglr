@@ -30,6 +30,12 @@ public class HelperFunctions {
 		return false;
 	}
 
+	/**
+	 * Gets the sort or, for lists and list elements, the Elem* sort associated to the (parent)list 
+	 * @param term
+	 * @param parent
+	 * @return
+	 */
 	public static String getGeneralSort(IStrategoTerm term, IStrategoTerm parent) {
 		String termSort = getSort(term);
 		if(parent != null){
@@ -40,11 +46,20 @@ public class HelperFunctions {
 		return termSort;
 	}
 	
+	/**
+	 * Returns true iff the sort represents a list sort, e.g., Elem*
+	 * @param sort
+	 * @return
+	 */
 	public static boolean isListSort(String sort) {
 		return sort.endsWith("*");
 	}
 
-	
+	/**
+	 * Says wether the given node is an optional Some(_) sort.
+	 * @param trm
+	 * @return
+	 */
 	public static boolean isSomeNode(IStrategoTerm trm) {
 		if(trm.getTermType() == IStrategoTerm.APPL){
 			return trm.getSubtermCount() == 1 && ((IStrategoAppl)trm).getConstructor().getName().equals("Some");

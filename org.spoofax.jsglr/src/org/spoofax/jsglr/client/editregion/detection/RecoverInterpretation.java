@@ -11,8 +11,11 @@ import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
 
-import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
-
+/**
+ * Represents a recovery based on discarding tokens associated to the term and/or its subterms.
+ * @author maartje
+ *
+ */
 public class RecoverInterpretation {
 
 //private fields
@@ -21,33 +24,59 @@ public class RecoverInterpretation {
 	private final IStrategoTerm parentTerm;
 	private final boolean isRecovered;
 	private final ArrayList<RecoverInterpretation> subtermRecoveries;
-
 	private final int recoveryCosts;
 
 //public field accessors 
 
+	/**
+	 * Returns the recovered term
+	 * @return
+	 */
 	public IStrategoTerm getTerm() {
 		return term;
 	}
 	
+	/**
+	 * Returns the recoveries associated to the subterms
+	 * @return
+	 */
 	public ArrayList<RecoverInterpretation> getSubtermRecoveries() {
 		return subtermRecoveries;
 	}
 
+	/**
+	 * Returns the cost of the recovery calculated as the number of non-layout tokens that are discarded from the correct input
+	 * fragment associated to the recovered term 
+	 * @return
+	 */
 	public int getRecoveryCosts() {
 		return recoveryCosts;
 	}
 
 //public methods	
 	
+	/**
+	 * Gets the sort of the (parent) list for lists and list elems, and the sort of the term for other terms 
+	 * @return
+	 */
 	public String getGeneralSort(){
 		return HelperFunctions.getGeneralSort(term, parentTerm);
 	}
 
+	/**
+	 * Gets the sort of the term
+	 * @return
+	 */
 	public String getSort(){
 		return ImploderAttachment.getSort(term);
 	}
 	
+	/**
+	 * Says wether the recovered term has the same sort and general sort as the term given as parameter
+	 * @param term
+	 * @param parent, needed to determine the general sort of the term 
+	 * @return
+	 */
 	public boolean hasSameSort(IStrategoTerm term, IStrategoTerm parent) {
 		String generalSort = HelperFunctions.getGeneralSort(term, parent);
 		String sort = ImploderAttachment.getSort(term);
@@ -56,6 +85,13 @@ public class RecoverInterpretation {
 		return generalSort == generalTermSort && sort == termSort;
 	}
 
+	/**
+	 * Says whether the recovery has a sort that is compatible with the sort of the input term,
+	 * e.g., the recovered term can be used as a recover interpretation for the input term 
+	 * @param term
+	 * @param parent
+	 * @return
+	 */
 	public boolean hasCompatibleSort(IStrategoTerm term, IStrategoTerm parent) {
 		String generalSort = HelperFunctions.getGeneralSort(term, parent);
 		String sort = ImploderAttachment.getSort(term);
@@ -75,10 +111,19 @@ public class RecoverInterpretation {
 		return hasCompatibleSort;
 	}
 
+	/**
+	 * Says wether the recovery is a trivial recover interpretation,
+	 *  e.g. the original interpretation of an undamaged term. 
+	 * @return
+	 */
 	public boolean isUndamagedTerm() {
 		return getSubtermRecoveries() == null;
 	}
 	
+	/**
+	 * Returns a recursively constructed list of discarded regions that together form a recovery for the term 
+	 * @return
+	 */
 	public ArrayList<DiscardableRegion> getDamagedRegions(){
 		if(this.getSubtermRecoveries() == null){ //trivial recovery (no damage)
 			return new ArrayList<DiscardableRegion>(); 
@@ -91,6 +136,10 @@ public class RecoverInterpretation {
 		}
 	}
 
+	/**
+	 * Returns a recursively constructed list of terms for which the associate tokens are discarded as a recovery 
+	 * @return
+	 */
 	public ArrayList<IStrategoTerm> getDamagedTerms(){
 		ArrayList<IStrategoTerm> damagedTerms = new ArrayList<IStrategoTerm>();
 		if(this.getSubtermRecoveries() == null){ //trivial recovery (no damage)
@@ -120,21 +169,52 @@ public class RecoverInterpretation {
 	
 // constructors
 	
+	/**
+	 * Returns a trivial recover interpretation by taking the original interpretation.
+	 * Intended for undamaged terms. 
+	 * @param term
+	 * @param parentTerm
+	 * @return
+	 */
 	public static RecoverInterpretation createOriginalTermInterpretation(IStrategoTerm term, IStrategoTerm parentTerm){
 		return new RecoverInterpretation(term, parentTerm, true, null);
 		//Remark: recursively constructing original term recoveries for subterms seems not needed. 
 	}
 
+	/**
+	 * Returns a recover interpretation based on discarding the characters associated to the term and all its subterms.
+	 * Intended as fall back recovery for list elements and 'Some(_)' terms.  
+	 * @param term
+	 * @param parentTerm
+	 * @return
+	 */
 	public static RecoverInterpretation createDiscardInterpretation(IStrategoTerm term, IStrategoTerm parentTerm){
 		assert parentTerm.isList() || HelperFunctions.isSomeNode(term);
 		return new RecoverInterpretation(term, parentTerm, false, new ArrayList<RecoverInterpretation>());
 	}
 
+	/**
+	 * Returns a recover interpretation based on repairing the subterms
+	 * Intended for terms that are not affected themselves, but do have changes in their subterms,
+	 * whereby the child terms can be recovered.
+	 * @param term
+	 * @param parentTerm
+	 * @param recoveredSubterms
+	 * @return
+	 */
 	public static RecoverInterpretation createRepairSubtermsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, ArrayList<RecoverInterpretation> recoveredSubterms){
 		assert recoveredSubterms.size() == term.getSubtermCount() && !recoveredSubterms.contains(null);
 		return new RecoverInterpretation(term, parentTerm, true, recoveredSubterms);
 	}
 
+	/**
+	 * Returns a recover interpretation by replacing the term with a sub-term of the same sort.
+	 * Intended for terms that are affected themselves, or terms whereby the child terms can not be repaired.
+	 * @param term
+	 * @param parentTerm
+	 * @param recoveredSubterm
+	 * @return
+	 */
 	public static RecoverInterpretation createReplaceBySubtermsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, RecoverInterpretation recoveredSubterm){
 		assert recoveredSubterm.hasCompatibleSort(term, parentTerm);
 		ArrayList<RecoverInterpretation> subRecoveries = new ArrayList<RecoverInterpretation>();
@@ -142,6 +222,14 @@ public class RecoverInterpretation {
 		return createReplaceBySubtermsInterpretation(term, parentTerm, subRecoveries);
 	}
 
+	/**
+	 * Returns a recover interpretation by replacing the terms with a list of sub terms of the same sort.
+	 * Intended for list elements that are affected themselves, or list elements whereby the child terms can not be repaired.
+	 * @param term
+	 * @param parentTerm
+	 * @param recoveredSubterms
+	 * @return
+	 */
 	public static RecoverInterpretation createReplaceBySubtermsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, ArrayList<RecoverInterpretation> recoveredSubterms){
 		assert parentTerm.isList() || recoveredSubterms.size() == 1;
 		return new RecoverInterpretation(term, parentTerm, false, recoveredSubterms);
@@ -240,11 +328,3 @@ public class RecoverInterpretation {
 		return ImploderAttachment.getTokenizer(getTerm()).getInput();
 	}
 }
-
-
-
-
-
-
-
-

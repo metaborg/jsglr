@@ -8,11 +8,20 @@ import java.util.IdentityHashMap;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
+/**
+ * Analyzes the terms in the correct AST that are affected during editing and therefore (possible) damaged.
+ * Constructs a recovery based on discarding tokens associated to erroneous (discardable) terms. 
+ * @author Maartje de Jonge
+ *
+ */
 public class TermEditsAnalyzer {
 	private final IStrategoTerm correctAST;
 	private final ArrayList<Integer> offsetsDeletedChars;
 	private final IdentityHashMap<IStrategoTerm, RecoverInterpretation> recoveryLookup;
 
+	/**
+	 * Constructs a recovery based on discarding tokens associated to erroneous (discardable) terms. 
+	 */
 	public TermEditsAnalyzer(ArrayList<Integer> offsetsDeletedChars, IStrategoTerm correctAST){
 		this.offsetsDeletedChars = offsetsDeletedChars;
 		this.recoveryLookup = new IdentityHashMap<IStrategoTerm, RecoverInterpretation>();

@@ -59,6 +59,12 @@ public class DiscardableRegion{
 	
 //public functions
 	
+	/**
+	 * Returns a recovered input String by replacing erroneous regions by whitespaces
+	 * @param regions
+	 * @param input
+	 * @return
+	 */
 	public static String replaceAllRegionsByWhitespace(ArrayList<DiscardableRegion> regions, String input) {
 		String result = input;
 		for (DiscardableRegion region : regions) {
@@ -67,7 +73,13 @@ public class DiscardableRegion{
 		}
 		return result;
 	}
-		
+	
+	/**
+	 * Construct regions by grouping subsequent offsets
+	 * @param offsets
+	 * @param inputString
+	 * @return
+	 */
 	public static ArrayList<DiscardableRegion> constructRegionsFromOffsets(ArrayList<Integer> offsets, String inputString){
 		ArrayList<DiscardableRegion> result = new ArrayList<DiscardableRegion>();
 		int startOffset = -1;
@@ -89,6 +101,11 @@ public class DiscardableRegion{
 		return result;		
 	}
 	
+	/**
+	 * Returns all offsets covered by the regions
+	 * @param editRegions
+	 * @return
+	 */
 	public static ArrayList<Integer> getOffsets(ArrayList<DiscardableRegion> editRegions) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		for (DiscardableRegion region : editRegions) {
@@ -104,6 +121,12 @@ public class DiscardableRegion{
 		return result;
 	}
 	
+	/**
+	 * Merges ordered region lists so that the resulting lists is ordered and merges overlapping regions
+	 * @param regions1
+	 * @param regions2
+	 * @return
+	 */
 	public static ArrayList<DiscardableRegion> mergeRegions(ArrayList<DiscardableRegion> regions1, ArrayList<DiscardableRegion> regions2){
 		ArrayList<DiscardableRegion> merged = new ArrayList<DiscardableRegion>();
 		int index_r1 = 0;
@@ -142,6 +165,11 @@ public class DiscardableRegion{
 		return merged;
 	}
 	
+	/**
+	 * Constructs the list of text fragments represented by the regions
+	 * @param regions
+	 * @return
+	 */
 	public static ArrayList<String> constructFragments(ArrayList<DiscardableRegion> regions) {
 		ArrayList<String> result = new ArrayList<String>();
 		for (DiscardableRegion region : regions) {

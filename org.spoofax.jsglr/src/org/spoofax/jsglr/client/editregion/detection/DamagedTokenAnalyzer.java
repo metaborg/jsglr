@@ -24,10 +24,6 @@ public class DamagedTokenAnalyzer {
 	private final ArrayList<IToken> tokensDamagedByInsertion;
 	private final ArrayList<IToken> tokensDamagedByDeletion;
 	
-	public ITokenizer getTokens() {
-		return tokens;
-	}
-
 	/**
 	 * Returns all tokens in the correct term that are (possible) damaged by
 	 * the insertion of characters between the start and end character of the token.   
@@ -62,23 +58,21 @@ public class DamagedTokenAnalyzer {
 		analyzeDamagedTokens();
 	}
 
-	private void analyzeDamagedTokens() {
-		for (int i = 0; i < tokens.getTokenCount(); i++) {
-			IToken t = tokens.getTokenAt(i);
-			if (isDamagedByDeletion(t)){
-				tokensDamagedByDeletion.add(t);
-			}
-			if (isDamagedByInsertion(t)){
-				tokensDamagedByInsertion.add(t);
-			}
-		}
-	}
-
+	/**
+	 * Says whether a token in the (correctly) parsed input has deleted characters in the (possible) erroneous input 
+	 * @param t
+	 * @return
+	 */
 	public boolean isDamagedByDeletion(IToken t) {
 		ArrayList<Integer> deletions = getOffsetsDeletions(t);
 		return !deletions.isEmpty();
 	}
 
+	/**
+	 * Returns the offsets of characters in the token that are deleted in the (possible) erroneous input 
+	 * @param t
+	 * @return
+	 */
 	public ArrayList<Integer> getOffsetsDeletions(IToken t) {
 		int startOffset = t.getStartOffset();
 		int endOffset = t.getEndOffset();
@@ -91,6 +85,11 @@ public class DamagedTokenAnalyzer {
 		return deletions;
 	}
 	
+	/**
+	 * Says whether a token in the (correctly) parsed input has inserted characters in the (possible) erroneous input 
+	 * @param t
+	 * @return
+	 */
 	public boolean isDamagedByInsertion(IToken t) {
 		int startOffset = t.getStartOffset();
 		int endOffset = t.getEndOffset();
@@ -105,10 +104,16 @@ public class DamagedTokenAnalyzer {
 		return false;
 	}
 	
-	public boolean isDamagingLayoutDeletion(IToken tokenWithDeletions) {
-		int numberOfDeletions = getOffsetsDeletions(tokenWithDeletions).size();
-		int startOffset = tokenWithDeletions.getStartOffset();
-		int endOffset = tokenWithDeletions.getEndOffset();
+	/**
+	 * Says whether a token is a layout token between two non-layout tokens that has been completely removed,
+	 * and therefore may affect the parse result.
+	 * @param token
+	 * @return
+	 */
+	public boolean isDamagingLayoutDeletion(IToken token) {
+		int numberOfDeletions = getOffsetsDeletions(token).size();
+		int startOffset = token.getStartOffset();
+		int endOffset = token.getEndOffset();
 		if (numberOfDeletions == endOffset - startOffset + 1){ //full deletion
 			int firstMatchedOffsetInPrefix = -1;
 			int firstMatchedOffsetInSuffix = -1;
@@ -130,8 +135,8 @@ public class DamagedTokenAnalyzer {
 				firstMatchedOffsetInSuffix_2 == firstMatchedOffsetInPrefix_2 + 1 && //no insertions that are discarded as whitespace
 				firstMatchedOffsetInPrefix_2 != -1 &&
 				firstMatchedOffsetInSuffix_2 != -1 &&
-				!isOffsetOfLayoutChar(tokenWithDeletions.getTokenizer(), firstMatchedOffsetInPrefix) &&
-				!isOffsetOfLayoutChar(tokenWithDeletions.getTokenizer(), firstMatchedOffsetInSuffix);
+				!isOffsetOfLayoutChar(token.getTokenizer(), firstMatchedOffsetInPrefix) &&
+				!isOffsetOfLayoutChar(token.getTokenizer(), firstMatchedOffsetInSuffix);
 		}
 		return false;
 	}
@@ -139,5 +144,17 @@ public class DamagedTokenAnalyzer {
 	private boolean isOffsetOfLayoutChar(ITokenizer tokens, int offset) {
 		boolean precedingLayout = tokens.getTokenAtOffset(offset).getKind() == Token.TK_LAYOUT;
 		return precedingLayout;
+	}
+	
+	private void analyzeDamagedTokens() {
+		for (int i = 0; i < tokens.getTokenCount(); i++) {
+			IToken t = tokens.getTokenAt(i);
+			if (isDamagedByDeletion(t)){
+				tokensDamagedByDeletion.add(t);
+			}
+			if (isDamagedByInsertion(t)){
+				tokensDamagedByInsertion.add(t);
+			}
+		}
 	}
 }

@@ -20,7 +20,7 @@ public class EditRegionDetector {
 	private final String erroneousInput;
 	private final IStrategoTerm correctAST;
 	
-	//edit regions found after analyzing the correct AST/input and its deleted characters
+	//discard recovery found after analyzing the correct AST/input and its deleted characters
 	private RecoverInterpretation discardRecovery;
 	private ArrayList<DiscardableRegion> discardableCommentRegions;
 

@@ -203,6 +203,11 @@ public class EditRegionDetector {
 	}
 
 	private DiscardableRegion mapRegion(DiscardableRegion region, boolean isInCorrectInputString){
+		String input = this.getCorrectInput();
+		if(isInCorrectInputString){
+			input = this.getErroneousInput();
+		}
+
 		int startOffset = -1;
 		int endOffset = -1;
 		for (int offset = region.getStartOffset(); offset <= region.getEndOffset(); offset++) {
@@ -214,10 +219,6 @@ public class EditRegionDetector {
 			}
 		}
 		if(startOffset >= 0){
-			String input = this.getCorrectInput();
-			if(!isInCorrectInputString){
-				input = this.getErroneousInput();
-			}
 			return new DiscardableRegion(startOffset, endOffset, input);
 		}
 		return null;

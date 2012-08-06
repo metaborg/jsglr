@@ -189,8 +189,21 @@ public class RecoverInterpretation {
 	 * @return
 	 */
 	public static RecoverInterpretation createDiscardInterpretation(IStrategoTerm term, IStrategoTerm parentTerm){
-		assert parentTerm.isList() || HelperFunctions.isSomeNode(term);
+		assert term.isList() || HelperFunctions.isSomeNode(term); //parentTerm.isList()
 		return new RecoverInterpretation(term, parentTerm, false, new ArrayList<RecoverInterpretation>());
+	}
+
+	/**
+	 * Returns a recover interpretation based on repairing sublists with correct separation in between.
+	 * @param term
+	 * @param parentTerm
+	 * @param recoveredSubterms
+	 * @return
+	 */
+	public static RecoverInterpretation createRepairSublistsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, ArrayList<RecoverInterpretation> recoveredSublists){
+		assert !recoveredSublists.contains(null);
+		//assert sublists cover list (?)
+		return new RecoverInterpretation(term, parentTerm, true, recoveredSublists);
 	}
 
 	/**
@@ -231,7 +244,7 @@ public class RecoverInterpretation {
 	 * @return
 	 */
 	public static RecoverInterpretation createReplaceBySubtermsInterpretation(IStrategoTerm term, IStrategoTerm parentTerm, ArrayList<RecoverInterpretation> recoveredSubterms){
-		assert parentTerm.isList() || recoveredSubterms.size() == 1;
+		assert (parentTerm.isList() && recoveredSubterms.size() >= 1) || recoveredSubterms.size() == 1;
 		return new RecoverInterpretation(term, parentTerm, false, recoveredSubterms);
 	}
 
@@ -250,7 +263,7 @@ public class RecoverInterpretation {
 	}
 
 	private void checkAssertions() {
-		assert subtermRecoveries == null? (isRecovered && this.recoveryCosts == 0) : recoveryCosts > 0;
+		assert subtermRecoveries == null? (isRecovered && this.recoveryCosts == 0) : recoveryCosts >= 0;
 		int subtermCosts = 0;
 		if(this.subtermRecoveries != null){
 			for (RecoverInterpretation subtermRecovery : this.subtermRecoveries) {

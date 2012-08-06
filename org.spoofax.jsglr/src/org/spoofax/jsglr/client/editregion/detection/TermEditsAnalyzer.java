@@ -12,8 +12,6 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.TermFactory;
 
-import com.sun.xml.internal.bind.marshaller.MinimumEscapeHandler;
-
 /**
  * Analyzes the terms in the correct AST that are affected during editing and therefore (possible) damaged.
  * Constructs a recovery based on discarding tokens associated to erroneous (discardable) terms. 
@@ -62,70 +60,69 @@ public class TermEditsAnalyzer {
 	
 	private RecoverInterpretation constructMinimalCostRecovery(IStrategoTerm term, IStrategoTerm parent) {
 		//candidates can be null
-		RecoverInterpretation candidate1 = constructRepairSubtermsRecovery(term, parent);
-		if(term.isList()){
-			if(!hasAssociatedDeletions(term))
-				return candidate1;
-			//else
-				//return sublistRecovery(term, parent);
+		RecoverInterpretation discardRecovery = constructDiscardRecovery(term, parent);
+		RecoverInterpretation childTermsRecovery = null;
+		if(!term.isList())
+			childTermsRecovery = constructRepairSubtermsRecovery(term, parent);
+		else {
+			childTermsRecovery = sublistRecovery(0, term, parent); 
+			if(childTermsRecovery != null)
+				return childTermsRecovery;
+			return discardRecovery;
 		}
-		RecoverInterpretation candidate2 = constructReplaceBySubtermsRecovery(term, parent);
-		RecoverInterpretation candidate3 = constructDiscardRecovery(term, parent);
+		RecoverInterpretation subTermsRecovery = constructReplaceBySubtermsRecovery(term, parent);
 		ArrayList<RecoverInterpretation> candidates = new ArrayList<RecoverInterpretation>();
-		candidates.add(candidate1);
-		candidates.add(candidate2);
-		candidates.add(candidate3);
+		candidates.add(childTermsRecovery);
+		candidates.add(subTermsRecovery);
+		candidates.add(discardRecovery);
 		return getMinimumCostRecovery(candidates);
 	}
 	
-	private RecoverInterpretation sublistRecovery(IStrategoTerm term, IStrategoTerm parent) {
-		assert term.isList();
-		assert term.getSubtermCount() != 0;
+	private RecoverInterpretation sublistRecovery(int startIndex, IStrategoTerm listTerm, IStrategoTerm parent) {
+		assert listTerm.isList();
+		assert listTerm.getSubtermCount() != 0;
 		
-		final ITermFactory termFactory = new TermFactory().getFactoryWithStorageType(IStrategoTerm.MUTABLE);
-		final TermTreeFactory termTreeFactory = new TermTreeFactory(termFactory);
-		IStrategoTerm prefixSublist = null;
-		IStrategoTerm suffixSublist = null;
-		for (int i = 0; i < term.getSubtermCount(); i++) {
-			if(i == term.getSubtermCount()-1 || hasCorrectSeparationAfterIndex(term, i)){
-				if(i==0){
-					prefixSublist = term.getSubterm(0);
-				}
-				else{
-					IStrategoTerm firstChild = term.getSubterm(0);
-					IStrategoTerm lastChild = term.getSubterm(i);
-					prefixSublist = termTreeFactory.createSublist((IStrategoList)term, firstChild, lastChild);					
-				}
-				if(i < term.getSubtermCount()-1){
-					IStrategoTerm firstChild = term.getSubterm(i+1);
-					IStrategoTerm lastChild = term.getSubterm(term.getSubtermCount() -1);
-					if(firstChild == lastChild)
-						suffixSublist = firstChild;
-					else
-						suffixSublist = termTreeFactory.createSublist((IStrategoList)term, firstChild, lastChild);
+		for (int i = startIndex; i < listTerm.getSubtermCount(); i++) {
+			if(i == listTerm.getSubtermCount()-1 || hasCorrectSeparationAfterIndex(listTerm, i)){
+				int endIndex = i;
+				IStrategoTerm prefixSublist = createSublist(listTerm, startIndex, endIndex);
+				ArrayList<RecoverInterpretation> candidates = 
+						getRecoverCandidatesFromChildTerms(listTerm, startIndex, endIndex, prefixSublist, listTerm);
+				RecoverInterpretation prefixRecovery = getMinimumCostRecovery(candidates);
+				if(prefixRecovery != null){
+					assert prefixRecovery.getTerm() == prefixSublist;
+					assert prefixRecovery.getSubtermRecoveries().size() >= 1;
+					assert !prefixRecovery.isDiscardRecovery();
+					RecoverInterpretation suffixRecovery = sublistRecovery(endIndex + 1, listTerm, parent);
+					if(suffixRecovery != null){
+						assert !suffixRecovery.isDiscardRecovery();
+						ArrayList<RecoverInterpretation> recoveredSubLists = new ArrayList<RecoverInterpretation>();
+						recoveredSubLists.add(prefixRecovery);
+						recoveredSubLists.add(suffixRecovery);
+						return RecoverInterpretation.createRepairSublistsInterpretation(listTerm, parent, recoveredSubLists);
+					}
+					else{ //prefixRecovery != null && suffixRecovery == null
+						ArrayList<RecoverInterpretation> prefixCandidates = prefixRecovery.getSubtermRecoveries();
+						if(startIndex == 0) //whole list recovered with single term
+							return RecoverInterpretation.createReplaceBySubtermsInterpretation(listTerm, parent, prefixCandidates);
+						IStrategoTerm sublist = createSublist(listTerm, startIndex, listTerm.getSubtermCount() - 1);
+						return RecoverInterpretation.createReplaceBySubtermsInterpretation(sublist, listTerm, prefixCandidates);
+					}
 				}
 			}
 		}
-		assert prefixSublist != null;
-		if(suffixSublist == null){
-			//isRecovered == false
-			//Recovery: prefix => bestSubtermRecovery(prefix)
-		}
-		else {
-			//Recovery_Prefix: prefix => bestSubtermRecovery(prefix)
-			//Recovery_Suffix: suffix => sublistRecovery(suffix, parent)
-			//isRecovered iff both non-discards
-			//Recovery: term, [prefixRec, suffixRec]
-		}
-		
-		RecoverInterpretation prefixRecovery = null; //TODO
-		RecoverInterpretation suffixRecovery = null;
-		if(suffixSublist != null){
-			suffixRecovery = null; //TODO
-		}
-		
-		
 		return null;
+	}
+
+	private IStrategoTerm createSublist(IStrategoTerm listTerm, int startIndex,
+			int endIndex) {
+		IStrategoTerm prefixSublist;
+		final ITermFactory termFactory = new TermFactory().getFactoryWithStorageType(IStrategoTerm.MUTABLE);
+		final TermTreeFactory termTreeFactory = new TermTreeFactory(termFactory);
+		IStrategoTerm firstChild = listTerm.getSubterm(startIndex);
+		IStrategoTerm lastChild = listTerm.getSubterm(endIndex);
+		prefixSublist = termTreeFactory.createSublist((IStrategoList)listTerm, firstChild, lastChild);
+		return prefixSublist;
 	}
 
 	private boolean hasCorrectSeparationAfterIndex(IStrategoTerm listTerm, int i) {
@@ -155,7 +152,7 @@ public class TermEditsAnalyzer {
 	}
 	
 	private RecoverInterpretation constructDiscardRecovery(IStrategoTerm term, IStrategoTerm parent) {
-		if(HelperFunctions.isSomeNode(term) || (parent != null && parent.isList())){
+		if(HelperFunctions.isSomeNode(term) || term.isList()){ //|| (parent != null && parent.isList())
 			return RecoverInterpretation.createDiscardInterpretation(term, parent);
 		}
 		return null;
@@ -222,9 +219,23 @@ public class TermEditsAnalyzer {
 
 	private ArrayList<RecoverInterpretation> getRecoverCandidatesFromChildTerms(
 			IStrategoTerm visitedTerm, IStrategoTerm term, IStrategoTerm parent) {
+		if(visitedTerm.getSubtermCount() == 0)
+			return new ArrayList<RecoverInterpretation>();
+		int startIndex = 0;
+		int endIndex = visitedTerm.getSubtermCount() - 1;
+		ArrayList<RecoverInterpretation> candidatesFromSubterms = getRecoverCandidatesFromChildTerms(visitedTerm, startIndex, endIndex, term, parent);
+		return candidatesFromSubterms;
+	}
+
+	private ArrayList<RecoverInterpretation> getRecoverCandidatesFromChildTerms(
+			IStrategoTerm visitedTerm, int startIndex, int endIndex,
+			IStrategoTerm term, IStrategoTerm parent) {
+		assert endIndex <= visitedTerm.getSubtermCount()-1;
+		assert startIndex >= 0;
+		assert startIndex <= endIndex;
 		//traverse subterms of subterm
 		ArrayList<RecoverInterpretation> candidatesFromSubterms = new ArrayList<RecoverInterpretation> ();
-		for (int i = 0; i < visitedTerm.getSubtermCount(); i++) {
+		for (int i = startIndex; i <= endIndex; i++) {
 			IStrategoTerm subterm = visitedTerm.getSubterm(i);
 			//System.out.println("visited: " + subterm);
 			RecoverInterpretation subtermRecovery = getRecoveryFromSubterms(subterm, visitedTerm, term, parent);

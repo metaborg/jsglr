@@ -63,8 +63,8 @@ public class LayoutEditsAnalyzer {
 				}
 				if(!Token.isWhiteSpace(tokenWithDeletions)){
 					DiscardableRegion commentRegion = new DiscardableRegion(tokenWithDeletions.getStartOffset(), tokenWithDeletions.getEndOffset(), input);
-					damagedCommentRegions.add(commentRegion);
 					assert !HelperFunctions.contains(damagedCommentRegions, commentRegion);
+					damagedCommentRegions.add(commentRegion);
 				}
 			}
 		}

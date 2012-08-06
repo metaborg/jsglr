@@ -27,7 +27,10 @@ public class DiscardableRegion{
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
 		this.inputString = inputString;
+		assert inputString != null;
 		assert startOffset <= endOffset;
+		assert startOffset >= 0;
+		assert endOffset <= inputString.length() - 1;
 	}
 
 //getters
@@ -95,7 +98,7 @@ public class DiscardableRegion{
 			}
 		}
 		if(startOffset != -1){
-			DiscardableRegion region = new DiscardableRegion(startOffset, offsets.get(offsets.size()-1), null);
+			DiscardableRegion region = new DiscardableRegion(startOffset, offsets.get(offsets.size()-1), inputString);
 			result.add(region);
 		}
 		return result;		

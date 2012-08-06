@@ -18,35 +18,43 @@ public class TestEditRegionNestedListElems extends AbstractTestRegionDetection {
 		setJavaParser();
 	}
 
-	@Ignore @Test
+	@Test
 	public void testDeletionInParentElem1() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
-		String expectedConcatenatedDiscards = "@@";
+		String expectedConcatenatedDiscards = "while(i > 5)\n\t\t\t\n\t\t}";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem1.java";
-		super.parseString(editRegionRecovery.getRecoveredInput());
 		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
+		super.parseString(editRegionRecovery.getRecoveredInput());
 	}
 
-	@Ignore @Test
+	@Test
 	public void testDeletionInParentElem2() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
-		String expectedConcatenatedDiscards = "@@";
+		String expectedConcatenatedDiscards = "while(i > 5\n\t\t\t\n\t\t}";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem2.java";
-		super.parseString(editRegionRecovery.getRecoveredInput());
 		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
+		super.parseString(editRegionRecovery.getRecoveredInput());
 	}
 
-	@Ignore @Test
+	@Test
 	public void testDeletionInParentElem3() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
-		String expectedConcatenatedDiscards = "@@";
+		String expectedConcatenatedDiscards = "while(){\n\t\t\t\n\t\t}";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem3.java";
-		super.parseString(editRegionRecovery.getRecoveredInput());
 		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
+		super.parseString(editRegionRecovery.getRecoveredInput());
 	}
 
-	@Ignore @Test
+	@Test
 	public void testDeletionInParentElem4() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
-		String expectedConcatenatedDiscards = "@@";
+		String expectedConcatenatedDiscards = "while(i > 5 {\n\t\t\t\n\t\t}";
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-elem4.java";
-		super.parseString(editRegionRecovery.getRecoveredInput());
 		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
+		super.parseString(editRegionRecovery.getRecoveredInput());
+	}
+
+	@Test
+	public void testDeletionInParentAndChild() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+		String expectedConcatenatedDiscards = "while(i > 5 {\n\t\t\t\n\t\t\ti = i + \n\t\t\t\t\n\t\t\t\n\t\t}";
+		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-in-parent-and-child-elem.java";
+		testDiscardedCharacters(expectedConcatenatedDiscards, pathToErroneousFile);
+		super.parseString(editRegionRecovery.getRecoveredInput());
 	}
 }

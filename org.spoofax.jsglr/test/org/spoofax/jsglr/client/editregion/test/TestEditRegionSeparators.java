@@ -25,7 +25,7 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
 		String concatenated = concatenatedDiscardChars(erroneousInput, discardOffsets);
 		super.parseString(editRegionRecovery.getRecoveredInput());
-		Assert.assertEquals("int y ", concatenated);
+		Assert.assertEquals(" int z", concatenated);
 	}
 	
 	@Test

@@ -327,4 +327,8 @@ public class RecoverInterpretation {
 	private String getInputString() {
 		return ImploderAttachment.getTokenizer(getTerm()).getInput();
 	}
+
+	public boolean isDiscardRecovery() {
+		return getSubtermRecoveries() != null && getSubtermRecoveries().isEmpty();
+	}
 }

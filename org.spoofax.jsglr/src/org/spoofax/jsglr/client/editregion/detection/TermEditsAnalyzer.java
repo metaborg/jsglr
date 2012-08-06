@@ -6,7 +6,13 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.TermTreeFactory;
+import org.spoofax.terms.TermFactory;
+
+import com.sun.xml.internal.bind.marshaller.MinimumEscapeHandler;
 
 /**
  * Analyzes the terms in the correct AST that are affected during editing and therefore (possible) damaged.
@@ -57,8 +63,11 @@ public class TermEditsAnalyzer {
 	private RecoverInterpretation constructMinimalCostRecovery(IStrategoTerm term, IStrategoTerm parent) {
 		//candidates can be null
 		RecoverInterpretation candidate1 = constructRepairSubtermsRecovery(term, parent);
-		if(!hasAssociatedDeletions(term) && term.isList()){
-			return candidate1;
+		if(term.isList()){
+			if(!hasAssociatedDeletions(term))
+				return candidate1;
+			//else
+				//return sublistRecovery(term, parent);
 		}
 		RecoverInterpretation candidate2 = constructReplaceBySubtermsRecovery(term, parent);
 		RecoverInterpretation candidate3 = constructDiscardRecovery(term, parent);
@@ -69,6 +78,66 @@ public class TermEditsAnalyzer {
 		return getMinimumCostRecovery(candidates);
 	}
 	
+	private RecoverInterpretation sublistRecovery(IStrategoTerm term, IStrategoTerm parent) {
+		assert term.isList();
+		assert term.getSubtermCount() != 0;
+		
+		final ITermFactory termFactory = new TermFactory().getFactoryWithStorageType(IStrategoTerm.MUTABLE);
+		final TermTreeFactory termTreeFactory = new TermTreeFactory(termFactory);
+		IStrategoTerm prefixSublist = null;
+		IStrategoTerm suffixSublist = null;
+		for (int i = 0; i < term.getSubtermCount(); i++) {
+			if(i == term.getSubtermCount()-1 || hasCorrectSeparationAfterIndex(term, i)){
+				if(i==0){
+					prefixSublist = term.getSubterm(0);
+				}
+				else{
+					IStrategoTerm firstChild = term.getSubterm(0);
+					IStrategoTerm lastChild = term.getSubterm(i);
+					prefixSublist = termTreeFactory.createSublist((IStrategoList)term, firstChild, lastChild);					
+				}
+				if(i < term.getSubtermCount()-1){
+					IStrategoTerm firstChild = term.getSubterm(i+1);
+					IStrategoTerm lastChild = term.getSubterm(term.getSubtermCount() -1);
+					if(firstChild == lastChild)
+						suffixSublist = firstChild;
+					else
+						suffixSublist = termTreeFactory.createSublist((IStrategoList)term, firstChild, lastChild);
+				}
+			}
+		}
+		assert prefixSublist != null;
+		if(suffixSublist == null){
+			//isRecovered == false
+			//Recovery: prefix => bestSubtermRecovery(prefix)
+		}
+		else {
+			//Recovery_Prefix: prefix => bestSubtermRecovery(prefix)
+			//Recovery_Suffix: suffix => sublistRecovery(suffix, parent)
+			//isRecovered iff both non-discards
+			//Recovery: term, [prefixRec, suffixRec]
+		}
+		
+		RecoverInterpretation prefixRecovery = null; //TODO
+		RecoverInterpretation suffixRecovery = null;
+		if(suffixSublist != null){
+			suffixRecovery = null; //TODO
+		}
+		
+		
+		return null;
+	}
+
+	private boolean hasCorrectSeparationAfterIndex(IStrategoTerm listTerm, int i) {
+		if(i < listTerm.getSubtermCount() - 1){
+			int startOffset = getRightToken(listTerm.getSubterm(i)).getEndOffset() + 1;
+			int endOffset = getLeftToken(listTerm.getSubterm(i+1)).getStartOffset() - 1;
+			return getCoveredOffsets(startOffset, endOffset, offsetsDeletedChars).isEmpty();
+		}
+		else
+			return true;
+	}
+
 	private RecoverInterpretation constructRepairSubtermsRecovery(IStrategoTerm term, IStrategoTerm parent) {
 		if(hasAssociatedDeletions(term))
 			return null; //term itself is broken thus it can not be recovered by repairing subterms
@@ -100,20 +169,59 @@ public class TermEditsAnalyzer {
 	}
 
 	private RecoverInterpretation getRecoveryFromSubterms(IStrategoTerm visitedTerm, IStrategoTerm visitedParent, IStrategoTerm term, IStrategoTerm parent) {
-		//visited term may provide a candidate recovery
+		//set recover interpretation provided by the visited term
+		RecoverInterpretation fromVisitedRecovery = null;
 		RecoverInterpretation candidateFromVisited = lookupRecovery(visitedTerm, null);
-		assert candidateFromVisited == null || candidateFromVisited.getTerm() == visitedTerm;
-		if(candidateFromVisited != null && candidateFromVisited.hasSameSort(term, parent)){
+		if(candidateFromVisited != null && candidateFromVisited.hasCompatibleSort(term, parent)){
+			assert candidateFromVisited.getTerm() == visitedTerm;
+			fromVisitedRecovery = RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
+			assert fromVisitedRecovery != null && fromVisitedRecovery.getTerm() == term && fromVisitedRecovery.hasCompatibleSort(term, parent);
+		}
+
+		//return from visited recovery if that is known to be better than interpretations provided by its subterms
+		if(fromVisitedRecovery != null && (fromVisitedRecovery.hasSameSort(term, parent) || candidateFromVisited.isUndamagedTerm())){
 			//optimal interpretation for the fragment already found, no need to further traverse subterms 
-			return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
+			return fromVisitedRecovery;
 		}
-		if(candidateFromVisited != null && candidateFromVisited.isUndamagedTerm()){
-			if(candidateFromVisited.hasCompatibleSort(term, parent)){
-				return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
-			}
-			//return null;
+
+		//find candidates by traversing subterms of visited term
+		RecoverInterpretation fromSubtermsRecovery = null;
+		if(parent == null || !parent.isList()){
+			fromSubtermsRecovery = getMinimumCostRecoveryFromChildterms(visitedTerm, term, parent);
 		}
-		
+		else { //parent is list
+			//TODO: separators?
+			fromSubtermsRecovery = getMergedRecoveriesFromChildTerms(visitedTerm, term, parent);
+		}
+
+		//compares recovery from subterms and recovery from visited term and chooses the best of both.
+		RecoverInterpretation minimumCostRecovery = getMinimumCostRecovery(fromSubtermsRecovery, fromVisitedRecovery);
+		assert minimumCostRecovery == null || (minimumCostRecovery.getTerm() == term && minimumCostRecovery.hasCompatibleSort(term, parent)) ;
+		return minimumCostRecovery;
+	}
+
+	private RecoverInterpretation getMergedRecoveriesFromChildTerms(
+			IStrategoTerm visitedTerm, IStrategoTerm term, IStrategoTerm parent) {
+		ArrayList<RecoverInterpretation> candidatesFromSubterms = getRecoverCandidatesFromChildTerms(visitedTerm, term, parent);
+		ArrayList<RecoverInterpretation> mergedSubtermRecoveries = new ArrayList<RecoverInterpretation>();
+		for (int i = 0; i < candidatesFromSubterms.size(); i++) {
+			mergedSubtermRecoveries.addAll(candidatesFromSubterms.get(i).getSubtermRecoveries());
+		}
+		RecoverInterpretation fromSubtermsRecovery = null;
+		if(!mergedSubtermRecoveries.isEmpty()){
+			fromSubtermsRecovery = RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, mergedSubtermRecoveries);
+		}
+		return fromSubtermsRecovery;
+	}
+
+	private RecoverInterpretation getMinimumCostRecoveryFromChildterms(IStrategoTerm visitedTerm, IStrategoTerm term, IStrategoTerm parent) {
+		ArrayList<RecoverInterpretation> candidatesFromSubterms = getRecoverCandidatesFromChildTerms(visitedTerm, term, parent);
+		RecoverInterpretation minimumCostRecovery = getMinimumCostRecovery(candidatesFromSubterms); //can be null
+		return minimumCostRecovery;
+	}
+
+	private ArrayList<RecoverInterpretation> getRecoverCandidatesFromChildTerms(
+			IStrategoTerm visitedTerm, IStrategoTerm term, IStrategoTerm parent) {
 		//traverse subterms of subterm
 		ArrayList<RecoverInterpretation> candidatesFromSubterms = new ArrayList<RecoverInterpretation> ();
 		for (int i = 0; i < visitedTerm.getSubtermCount(); i++) {
@@ -121,42 +229,13 @@ public class TermEditsAnalyzer {
 			//System.out.println("visited: " + subterm);
 			RecoverInterpretation subtermRecovery = getRecoveryFromSubterms(subterm, visitedTerm, term, parent);
 			//System.out.println("recovery: " + subtermRecovery);
-			if(subtermRecovery != null){
-				candidatesFromSubterms.add(subtermRecovery);
+			if(subtermRecovery != null && !subtermRecovery.isDiscardRecovery()){
 				assert subtermRecovery.hasCompatibleSort(term, parent);
+				assert subtermRecovery.getTerm() == term;
+				candidatesFromSubterms.add(subtermRecovery);
 			}
 		}
-		
-		//non-list elements: pick best
-		//TODO: what if term is list, what about separators
-		if(parent == null || !parent.isList()){
-			ArrayList<RecoverInterpretation> candidates = new ArrayList<RecoverInterpretation>();
-			if(candidateFromVisited != null && candidateFromVisited.hasCompatibleSort(term, parent)){
-				candidates.add(RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited));
-			}
-			for (RecoverInterpretation subRecovery : candidatesFromSubterms) {
-				candidates.add(RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, subRecovery));
-			}
-			RecoverInterpretation minimumCostRecovery = getMinimumCostRecovery(candidates);
-			if(minimumCostRecovery != null)
-				return RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, minimumCostRecovery);
-			return null;
-		}
-		else { //parent is list
-			ArrayList<RecoverInterpretation> mergedSubtermRecoveries = new ArrayList<RecoverInterpretation>();
-			for (int i = 0; i < candidatesFromSubterms.size(); i++) {
-				mergedSubtermRecoveries.addAll(candidatesFromSubterms.get(i).getSubtermRecoveries());
-			}
-			RecoverInterpretation fromSubtermsRecovery = null;
-			if(!mergedSubtermRecoveries.isEmpty()){
-				fromSubtermsRecovery = RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, mergedSubtermRecoveries);
-			}
-			if(candidateFromVisited != null && candidateFromVisited.hasCompatibleSort(term, parent)){
-				RecoverInterpretation fromVisistedRecovery = RecoverInterpretation.createReplaceBySubtermsInterpretation(term, parent, candidateFromVisited);
-				return this.getMinimumCostRecovery(fromSubtermsRecovery, fromVisistedRecovery);				
-			}
-			return fromSubtermsRecovery;
-		}
+		return candidatesFromSubterms;
 	}
 
 	private RecoverInterpretation lookupRecovery(IStrategoTerm visitedTerm, IStrategoTerm parentTerm) {
@@ -187,7 +266,6 @@ public class TermEditsAnalyzer {
 	}
 
 
-
 	private boolean hasDeletions(IStrategoTerm term) {
 		return !getCoveredOffsets(term, this.offsetsDeletedChars).isEmpty();
 	}
@@ -208,9 +286,14 @@ public class TermEditsAnalyzer {
 	}
 
 	private static ArrayList<Integer> getCoveredOffsets(IStrategoTerm term, ArrayList<Integer> offsets) {
-		ArrayList<Integer> coveredOffsets = new ArrayList<Integer>();
 		int startOffset = getLeftToken(term).getStartOffset();
 		int endOffset = getRightToken(term).getEndOffset();
+		ArrayList<Integer> coveredOffsets = getCoveredOffsets(startOffset, endOffset, offsets);
+		return coveredOffsets;
+	}
+
+	private static ArrayList<Integer> getCoveredOffsets(int startOffset, int endOffset, ArrayList<Integer> offsets) {
+		ArrayList<Integer> coveredOffsets = new ArrayList<Integer>();
 		for (int i = 0; i < offsets.size(); i++) {
 			int offset = offsets.get(i); 
 			if(startOffset <= offset && offset <= endOffset){

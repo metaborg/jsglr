@@ -9,6 +9,7 @@ import java.util.IdentityHashMap;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.TermFactory;
 
@@ -54,8 +55,12 @@ public class TermEditsAnalyzer {
 		for (int i = 0; i < term.getSubtermCount(); i++) {
 			collectRecoveries(term.getSubterm(i), term);
 		}
-		RecoverInterpretation recovery = constructMinimalCostRecovery(term, parent);		
-		recoveryLookup.put(term, recovery);
+		int s = ImploderAttachment.getLeftToken(term).getStartOffset();
+		int e =ImploderAttachment.getRightToken(term).getEndOffset();
+		System.out.println(ImploderAttachment.getTokenizer(term).getInput().substring(s, e+1));
+		RecoverInterpretation recovery = constructMinimalCostRecovery(term, parent);
+		if(recovery != null)
+			recoveryLookup.put(term, recovery);
 	}
 	
 	private RecoverInterpretation constructMinimalCostRecovery(IStrategoTerm term, IStrategoTerm parent) {

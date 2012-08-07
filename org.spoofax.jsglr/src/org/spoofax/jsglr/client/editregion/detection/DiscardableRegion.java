@@ -185,6 +185,11 @@ public class DiscardableRegion{
 	public String constructFragment() {
 		return inputString.substring(getStartOffset(), getEndOffset() + 1);
 	}
+	
+	@Override
+	public String toString(){
+		return constructFragment();
+	}
 
 //private functions
 	

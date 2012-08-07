@@ -98,4 +98,12 @@ public class AbstractTestRegionDetection {
 				lastErr0AST = parseFile(pathToCorrectFile);
 			}
 
+	protected void setStrategoParser() throws IOException,
+	InvalidParseTableException, FileNotFoundException,
+	BadTokenException, TokenExpectedException, ParseException,
+	SGLRException {
+		String pathToParseTable = "tests/grammars/Stratego.tbl";
+		setSGLR(pathToParseTable);
+	}
+
 }

@@ -55,9 +55,9 @@ public class TermEditsAnalyzer {
 		for (int i = 0; i < term.getSubtermCount(); i++) {
 			collectRecoveries(term.getSubterm(i), term);
 		}
-		int s = ImploderAttachment.getLeftToken(term).getStartOffset();
-		int e =ImploderAttachment.getRightToken(term).getEndOffset();
-		System.out.println(ImploderAttachment.getTokenizer(term).getInput().substring(s, e+1));
+		//int s = ImploderAttachment.getLeftToken(term).getStartOffset();
+		//int e =ImploderAttachment.getRightToken(term).getEndOffset();
+		//System.out.println(ImploderAttachment.getTokenizer(term).getInput().substring(s, e+1));
 		RecoverInterpretation recovery = constructMinimalCostRecovery(term, parent);
 		if(recovery != null)
 			recoveryLookup.put(term, recovery);

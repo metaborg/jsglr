@@ -30,6 +30,8 @@ public class TestEditSequenceStratego extends AbstractTestRegionDetection {
 				try {
 					parseString(editRegionRecovery.getRecoveredInput());
 					System.out.println("recovered: " + fname);
+					System.out.println(editRegionRecovery.getDiscardOffsetsErroneousInput().size());
+					System.out.println(editRegionRecovery.getEditedRegionsErroneous());
 				} 
 				catch (Exception e) {
 					System.err.println("failed: " + fname);

@@ -145,13 +145,22 @@ public class RecoverInterpretation {
 		if(this.getSubtermRecoveries() == null){ //trivial recovery (no damage)
 			return new ArrayList<IStrategoTerm>();
 		}
-		if(!isRecovered){ 
+		if(!isRecovered && hasNonLayoutTokenDiscards()){
 			damagedTerms.add(getTerm());
 		}
 		for (int i = 0; i < this.getSubtermRecoveries().size(); i++) {
 			damagedTerms.addAll(getSubtermRecoveries().get(i).getDamagedTerms());
 		}
 		return damagedTerms;
+	}
+
+	private boolean hasNonLayoutTokenDiscards() {
+		int recoverCostsSubterms = 0;
+		for (RecoverInterpretation subtermRecovery : getSubtermRecoveries()) {
+			recoverCostsSubterms += subtermRecovery.getRecoveryCosts();
+		}
+		assert recoveryCosts >= recoverCostsSubterms;
+		return recoveryCosts > recoverCostsSubterms;
 	}
 	
 	@Override

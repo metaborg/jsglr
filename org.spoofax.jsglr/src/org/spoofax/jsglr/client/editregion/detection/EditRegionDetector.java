@@ -60,7 +60,10 @@ public class EditRegionDetector {
 			RecoverInterpretation emptyRecovery = RecoverInterpretation.createDiscardInterpretation(correctAST, null);
 			return emptyRecovery.getDamagedRegions();
 		}
-		return DiscardableRegion.mergeRegions(discardRecovery.getDamagedRegions(), discardableCommentRegions);
+		return 
+				DiscardableRegion.mergeSubsequentRegions(
+						DiscardableRegion.mergeRegions(discardRecovery.getDamagedRegions(), discardableCommentRegions)
+				);
 	}
 	
 	/**
@@ -114,7 +117,10 @@ public class EditRegionDetector {
 	public ArrayList<DiscardableRegion> getEditedRegionsErroneous(){
 		ArrayList<DiscardableRegion> editsFromDeletions = mapRegions(getEditedRegionsCorrect(), true);
 		ArrayList<DiscardableRegion> editsFromInsertions = DiscardableRegion.constructRegionsFromOffsets(getInsertionOffsets(), this.getErroneousInput());
-		return DiscardableRegion.mergeRegions(editsFromDeletions, editsFromInsertions);
+		return 
+				DiscardableRegion.mergeSubsequentRegions(
+						DiscardableRegion.mergeRegions(editsFromDeletions, editsFromInsertions)
+				);
 	}
 
 	/**
@@ -159,19 +165,33 @@ public class EditRegionDetector {
 	private void detectEditRegions() {
 		ITokenizer tokens = ImploderAttachment.getTokenizer(correctAST);
 
+		long time = System.currentTimeMillis();
+		
 		// calculates offsets deleted characters (correct input), and offsets inserted characters (erroneous input)
 		constructCharacterMatching();
 		ArrayList<Integer> offsetsDeletedChars = lcs.getUnMatchedIndices1();
+		System.out.println("LCS: " + (System.currentTimeMillis()-time));
+		time = System.currentTimeMillis();
+		//TODO: LCS on lines (instead of characters) in case LCS optimized does not work to reduce the size enough
+		
+		DamagedTokenAnalyzer tokenEdits = new DamagedTokenAnalyzer(tokens, lcs);
+		System.out.println("token edits: " + (System.currentTimeMillis()-time));
+		time = System.currentTimeMillis();
+		//TODO: Improve performance!!
 
 		//removes from deletion offsets, all offsets of layout characters that are irrelevant for the parse result.
 		//detects all edited comment regions, since these may affect the parse result if they are broken.
-		LayoutEditsAnalyzer loAnalyzer = new LayoutEditsAnalyzer(tokens, lcs);
+		LayoutEditsAnalyzer loAnalyzer = new LayoutEditsAnalyzer(tokenEdits);
 		this.discardableCommentRegions = loAnalyzer.getDamagedCommentRegions();
 		loAnalyzer.filterNonLayoutOffsets(offsetsDeletedChars);
-		
+		System.out.println("layout edits: " + (System.currentTimeMillis()-time));
+		time = System.currentTimeMillis();
+
 		//extends deletion offsets so that all possible damaged tokens are covered
-		TerminalEditsAnalyzer terminalAnalyzer = new TerminalEditsAnalyzer(tokens, lcs);
+		TerminalEditsAnalyzer terminalAnalyzer = new TerminalEditsAnalyzer(tokenEdits);
 		terminalAnalyzer.addDamagedTokensStartOffsets(offsetsDeletedChars);
+		System.out.println("terminal edits: " + (System.currentTimeMillis()-time));
+		time = System.currentTimeMillis();
 
 		//detects discardable regions that correspond to edited terms.
 		//NonTerminalEditsAnalyzer brokenConstructDetector = new NonTerminalEditsAnalyzer(correctAST, offsetsDeletedChars);
@@ -180,6 +200,8 @@ public class EditRegionDetector {
 		//detects discardable regions that correspond to edited terms.
 		TermEditsAnalyzer brokenConstructDetector = new TermEditsAnalyzer(offsetsDeletedChars, correctAST);
 		this.discardRecovery = brokenConstructDetector.getDiscardRecovery();		
+		System.out.println("Term edits: " + (System.currentTimeMillis()-time));
+		time = System.currentTimeMillis();
 	}
 	
 

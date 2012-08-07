@@ -37,9 +37,9 @@ public class TerminalEditsAnalyzer {
 	 * The reason is that a "parse-as-whitespace" recovery may not repair the problem.
 	 * Example damaged token: 'priva@te'
 	 */
-	public TerminalEditsAnalyzer(ITokenizer tokens, LCS<Character> lcs){
+	public TerminalEditsAnalyzer(DamagedTokenAnalyzer tokenEdits){
 		this.startOffsetsTokensDamagedByInsertions = new ArrayList<Integer>();
-		tokenEdits = new DamagedTokenAnalyzer(tokens, lcs);
+		this.tokenEdits = tokenEdits;
 		analyze();
 	}
 	

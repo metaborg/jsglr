@@ -24,7 +24,6 @@ public class LayoutEditsAnalyzer {
 	//filled in the analysis
 	private final ArrayList<DiscardableRegion> damagedCommentRegions;
 	private final ArrayList<Integer> offsetsDeletedLayoutChars;
-	private final ITokenizer tokens;
 	
 	/**
 	 * Returns the comment regions that are edited and therefore (possible) damaged.
@@ -46,16 +45,15 @@ public class LayoutEditsAnalyzer {
 	 * Filters the offsets of the deleted characters, removing comment and whitespace offsets 
 	 * that are either irrelevant (not affecting the parse result) or allready processed (block comment damage)
 	 */
-	public LayoutEditsAnalyzer(ITokenizer tokens, LCS<Character> lcs){
+	public LayoutEditsAnalyzer(DamagedTokenAnalyzer tokenEdits){
 		this.offsetsDeletedLayoutChars = new ArrayList<Integer>();
 		this.damagedCommentRegions = new ArrayList<DiscardableRegion>();
-		tokenEdits = new DamagedTokenAnalyzer(tokens, lcs);
-		this.tokens = tokens;
+		this.tokenEdits = tokenEdits;
 		analyze();
 	}
 	
 	private void analyze() {
-		String input = tokens.getInput();
+		String input = tokenEdits.getTokens().getInput();
 		for (IToken tokenWithDeletions : tokenEdits.getTokensDamagedByDeletion()) {
 			if(tokenWithDeletions.getKind() == Token.TK_LAYOUT){
 				if(!tokenEdits.isDamagingLayoutDeletion(tokenWithDeletions)){

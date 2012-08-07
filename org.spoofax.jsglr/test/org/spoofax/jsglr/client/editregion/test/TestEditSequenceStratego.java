@@ -20,13 +20,28 @@ public class TestEditSequenceStratego extends AbstractTestRegionDetection {
 
 	@Test
 	public void test() throws FileNotFoundException, IOException {
+		//TODO: improve performance of DamagedTokenAnalyzer
+		//TODO: look at LCS algorithms, prevent LCS on too large sequence
+		
 		lastErr0AST = null;
 		String path = "tests-editregions/stratego/edit-sequence";
+//		for (int i = 0; i < 73; i++) {
+//			String fname = path + "/edit_"+ i + ".str.scn";
+//			try {
+//				parseFile(fname);
+//			} 
+//			catch (Exception e) {
+//				//
+//			} 	
+//			
+//		}
 		for (int i = 0; i < 73; i++) {
 			String fname = path + "/edit_"+ i + ".str.scn";
 			if(lastErr0AST != null){
 				String erroneousInput = loadAsString(fname);
+				long timeStart = System.currentTimeMillis();
 				editRegionRecovery = new EditRegionDetector(lastErr0AST, erroneousInput);
+				System.out.println("time: " + (System.currentTimeMillis() - timeStart));
 				try {
 					parseString(editRegionRecovery.getRecoveredInput());
 					System.out.println("recovered: " + fname);
@@ -55,6 +70,11 @@ public class TestEditSequenceStratego extends AbstractTestRegionDetection {
 
 	@Test
 	public void test_no_recovery_1() throws FileNotFoundException, IOException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+
+//		[] -> strategy
+//		     ---
+//		_ -> strategy
+
 		String path = "tests-editregions/stratego/edit-sequence";
 		String fname_corr = path + "/edit_"+ 26 + ".str.scn";
 		String fname_err  = path + "/edit_"+ 27 + ".str.scn";
@@ -74,4 +94,32 @@ public class TestEditSequenceStratego extends AbstractTestRegionDetection {
 			System.err.println(editRegionRecovery.getEditedTerms());
 		} 			
 	}
+
+	@Test
+	public void test_no_recovery_2() throws FileNotFoundException, IOException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+
+//		;result := $[Seq([strategy], [<concat-listOfIfs(|x)> xs])]
+//				---
+//		; result := $[Seq([strategy], [])]
+
+		String path = "tests-editregions/stratego/edit-sequence";
+		String fname_corr = path + "/edit_"+ 35 + ".str.scn";
+		String fname_err  = path + "/edit_"+ 36 + ".str.scn";
+		lastErr0AST = parseFile(fname_corr);
+		String erroneousInput = loadAsString(fname_err);
+		editRegionRecovery = new EditRegionDetector(lastErr0AST, erroneousInput);
+		try {
+			parseString(editRegionRecovery.getRecoveredInput());
+			System.out.println("recovered: " + fname_err);
+		} 
+		catch (Exception e) {
+			System.err.println("failed: " + fname_err);
+			System.err.println(editRegionRecovery.getDeletedSubstrings());
+			System.err.println(editRegionRecovery.getInsertedSubstrings());
+			System.err.println(editRegionRecovery.getEditedRegionsCorrect());
+			System.err.println(editRegionRecovery.getEditedRegionsErroneous());
+			System.err.println(editRegionRecovery.getEditedTerms());
+		} 			
+	}
+
 }

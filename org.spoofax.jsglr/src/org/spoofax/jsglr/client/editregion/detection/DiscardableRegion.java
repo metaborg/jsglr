@@ -123,7 +123,33 @@ public class DiscardableRegion{
 		Collections.sort(result);
 		return result;
 	}
-	
+
+	public static ArrayList<DiscardableRegion> mergeSubsequentRegions(ArrayList<DiscardableRegion> regions){
+		ArrayList<DiscardableRegion> merged = new ArrayList<DiscardableRegion>();
+		if(!regions.isEmpty()){
+			merged.add(regions.get(0));
+		}
+		int index = 1;
+		while (index < regions.size()) {
+			DiscardableRegion r1 = merged.get(0);
+			DiscardableRegion r2 = regions.get(index);
+			assert r2.getEndOffset() > r1.getStartOffset() : "input regions should be ordered"; 
+			if(r1.getEndOffset() + 1 < r2.getStartOffset()){
+				merged.add(r2);
+			}
+			else {
+				int startOffset = Math.min(r1.getStartOffset(), r2.getStartOffset());
+				int endOffset = Math.max(r1.getEndOffset(), r2.getEndOffset());
+				assert r1.getInputString() == r2.getInputString();
+				DiscardableRegion mergedRegion = new DiscardableRegion(startOffset, endOffset, r1.getInputString());
+				merged.set(merged.size()-1, mergedRegion);
+			}
+			index ++;
+		}
+		assert merged.size() <= regions.size();
+		return merged;
+	}
+
 	/**
 	 * Merges ordered region lists so that the resulting lists is ordered and merges overlapping regions
 	 * @param regions1
@@ -182,8 +208,28 @@ public class DiscardableRegion{
 		return result;
 	}
 
+	/**
+	 * Constructs the discarded fragment
+	 * @return
+	 */
 	public String constructFragment() {
 		return inputString.substring(getStartOffset(), getEndOffset() + 1);
+	}
+	
+	/**
+	 * Includes preceding and succeeding layout (to be used with the permissive grammars technique) 
+	 * @return
+	 */
+	public DiscardableRegion extendRegionWithWhitespace(){
+		int start = this.startOffset;
+		while(start > 0 && Character.isWhitespace(this.inputString.charAt(start-1))){
+			start -= 1;
+		}
+		int end = this.endOffset;
+		while(end < inputString.length()-2 && Character.isWhitespace(this.inputString.charAt(end+1))){
+			end += 1;
+		}
+		return new DiscardableRegion(start, end, inputString);
 	}
 	
 	@Override

@@ -23,7 +23,15 @@ public class DamagedTokenAnalyzer {
 	//filled in the token stream analysis
 	private final ArrayList<IToken> tokensDamagedByInsertion;
 	private final ArrayList<IToken> tokensDamagedByDeletion;
-	
+
+	/**
+	 * Returns tokens in token stream
+	 * @return
+	 */
+	public ITokenizer getTokens() {
+		return tokens;
+	}
+
 	/**
 	 * Returns all tokens in the correct term that are (possible) damaged by
 	 * the insertion of characters between the start and end character of the token.   
@@ -92,7 +100,7 @@ public class DamagedTokenAnalyzer {
 	 */
 	public boolean isDamagedByInsertion(IToken t) {
 		int startOffset = t.getStartOffset();
-		int endOffset = t.getEndOffset();
+		int endOffset = t.getEndOffset();		
 		int offsetPreviousMatch = -1;
 		for (int j = startOffset; j <= endOffset; j++) {
 			int matchIndexInElems2 = lcs.getMatchIndexInElems2(j);
@@ -104,6 +112,7 @@ public class DamagedTokenAnalyzer {
 		return false;
 	}
 	
+
 	/**
 	 * Says whether a token is a layout token between two non-layout tokens that has been completely removed,
 	 * and therefore may affect the parse result.

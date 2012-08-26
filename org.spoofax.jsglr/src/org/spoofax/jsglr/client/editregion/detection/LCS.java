@@ -84,7 +84,9 @@ public class LCS<T> {
 	 * @return
 	 */
 	public ArrayList<Integer> getMatchedIndices1() {
-		return matchedIndices1;
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		result.addAll(matchedIndices1);
+		return result;
 	}
 
 	/**
@@ -92,7 +94,9 @@ public class LCS<T> {
 	 * @return
 	 */
 	public ArrayList<Integer> getMatchedIndices2() {
-		return matchedIndices2;
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		result.addAll(matchedIndices2);
+		return result;
 	}
 
 	/**

@@ -84,7 +84,7 @@ public class DamagedTokenAnalyzer {
 	public ArrayList<Integer> getOffsetsDeletions(IToken t) {
 		int startOffset = t.getStartOffset();
 		int endOffset = t.getEndOffset();
-		ArrayList<Integer> deletions = new ArrayList<Integer>();
+		ArrayList<Integer> deletions = new ArrayList<Integer>();		
 		for (int j = startOffset; j <= endOffset; j++) {
 			if(lcs.getMatchIndexInElems2(j) == -1){
 				deletions.add(j);
@@ -156,13 +156,42 @@ public class DamagedTokenAnalyzer {
 	}
 	
 	private void analyzeDamagedTokens() {
+		//hack to improve the performance
+		ArrayList<Integer> lcsOffsets1 = lcs.getMatchedIndices1();
+		ArrayList<Integer> lcsOffsets2 = lcs.getMatchedIndices2();
+		int lengthMatchedPrefix = 0;
+		while(
+			lengthMatchedPrefix < lcs.getLCSSize() &&
+			lcsOffsets1.get(lengthMatchedPrefix) == lengthMatchedPrefix &&
+			lcsOffsets2.get(lengthMatchedPrefix) == lengthMatchedPrefix
+		)
+		{
+			lengthMatchedPrefix ++;
+		}
+
+		int lengthMatchedSuffix = 0;
+		int elems1Size = lcs.getElems1().size();
+		int elems2Size = lcs.getElems2().size();
+		while(
+			lengthMatchedSuffix < lcs.getLCSSize() &&
+			lcsOffsets1.get(lcs.getLCSSize() - 1 - lengthMatchedSuffix) == elems1Size - 1 - lengthMatchedSuffix &&
+			lcsOffsets2.get(lcs.getLCSSize() - 1 - lengthMatchedSuffix) == elems2Size - 1 - lengthMatchedSuffix
+		)
+		{
+			lengthMatchedSuffix ++;
+		}
+		
+
 		for (int i = 0; i < tokens.getTokenCount(); i++) {
 			IToken t = tokens.getTokenAt(i);
-			if (isDamagedByDeletion(t)){
-				tokensDamagedByDeletion.add(t);
-			}
-			if (isDamagedByInsertion(t)){
-				tokensDamagedByInsertion.add(t);
+			boolean possibleDamaged = t.getEndOffset() >= lengthMatchedPrefix -1 && t.getStartOffset() <= lcs.getElems1().size() - lengthMatchedSuffix + 1; //performance
+			if(possibleDamaged){
+				if (isDamagedByDeletion(t)){
+					tokensDamagedByDeletion.add(t);
+				}
+				if (isDamagedByInsertion(t)){
+					tokensDamagedByInsertion.add(t);
+				}
 			}
 		}
 	}

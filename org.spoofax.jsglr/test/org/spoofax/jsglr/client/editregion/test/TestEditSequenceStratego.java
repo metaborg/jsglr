@@ -20,8 +20,7 @@ public class TestEditSequenceStratego extends AbstractTestRegionDetection {
 
 	@Test
 	public void test() throws FileNotFoundException, IOException {
-		//TODO: improve performance of DamagedTokenAnalyzer
-		//TODO: look at LCS algorithms, prevent LCS on too large sequence
+		//TODO: improve LCS algorithms, LCS on fragments (separated by newline)
 		
 		lastErr0AST = null;
 		String path = "tests-editregions/stratego/edit-sequence";

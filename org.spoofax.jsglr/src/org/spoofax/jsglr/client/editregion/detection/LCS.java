@@ -12,19 +12,26 @@ import java.util.List;
 public class LCS<T> {
 	
 	private final LCSCommand<T> lcsCommand;
-	private List<T> elems1;
-	private List<T> elems2;
+	private ArrayList<T> elems1;
+	private ArrayList<T> elems2;
 	private ArrayList<Integer> matchedIndices1;
 	private ArrayList<Integer> matchedIndices2;
+	
+	private ArrayList<Integer> unMatchedIndices1;
+	private ArrayList<Integer> unMatchedIndices2;
+	private ArrayList<T> resultLCS1;
+	private ArrayList<T> resultLCS2;
+	private ArrayList<T> resultUnmatched1;
+	private ArrayList<T> resultUnmatched2;
+	private int matchedPrefixSize;
+	private int matchedSuffixSize;
 
 	/**
 	 * Returns the elements of the first input list
 	 * @return 
 	 */
 	public ArrayList<T> getElems1() {
-		ArrayList<T> result = new ArrayList<T>();
-		result.addAll(elems1);
-		return result;
+		return elems1;
 	}
 
 	/**
@@ -32,9 +39,7 @@ public class LCS<T> {
 	 * @return
 	 */
 	public ArrayList<T> getElems2() {
-		ArrayList<T> result = new ArrayList<T>();
-		result.addAll(elems2);
-		return result;
+		return elems2;
 	}
 	
 	/**
@@ -84,9 +89,7 @@ public class LCS<T> {
 	 * @return
 	 */
 	public ArrayList<Integer> getMatchedIndices1() {
-		ArrayList<Integer> result = new ArrayList<Integer>();
-		result.addAll(matchedIndices1);
-		return result;
+		return matchedIndices1;
 	}
 
 	/**
@@ -94,9 +97,7 @@ public class LCS<T> {
 	 * @return
 	 */
 	public ArrayList<Integer> getMatchedIndices2() {
-		ArrayList<Integer> result = new ArrayList<Integer>();
-		result.addAll(matchedIndices2);
-		return result;
+		return matchedIndices2;
 	}
 
 	/**
@@ -104,7 +105,10 @@ public class LCS<T> {
 	 * @return
 	 */
 	public ArrayList<Integer> getUnMatchedIndices1() {
-		return getUnmatchedIndices(elems1, matchedIndices1);
+		if(unMatchedIndices1 == null){
+			unMatchedIndices1 = getUnmatchedIndices(elems1, matchedIndices1);
+		}
+		return unMatchedIndices1;
 	}
 
 	/**
@@ -112,7 +116,10 @@ public class LCS<T> {
 	 * @return
 	 */
 	public ArrayList<Integer> getUnMatchedIndices2() {
-		return getUnmatchedIndices(elems2, matchedIndices2);
+		if(unMatchedIndices2 == null){
+			unMatchedIndices2 = getUnmatchedIndices(elems2, matchedIndices2);
+		}
+		return unMatchedIndices2;
 	}
 
 	/**
@@ -121,7 +128,10 @@ public class LCS<T> {
 	 * @return LCS elements for input 1
 	 */
 	public ArrayList<T> getResultLCS1() {
-		return getIncludedElems(elems1, matchedIndices1);
+		if(resultLCS1 == null){
+			resultLCS1 = getIncludedElems(elems1, matchedIndices1);
+		}
+		return resultLCS1;
 	}
 
 	/**
@@ -130,7 +140,10 @@ public class LCS<T> {
 	 * @return LCS elements for input 2
 	 */
 	public ArrayList<T> getResultLCS2() {
-		return getIncludedElems(elems2, matchedIndices2);
+		if(resultLCS2 == null){
+			resultLCS2 = getIncludedElems(elems2, matchedIndices2);
+		}
+		return resultLCS2;
 	}
 
 	/**
@@ -139,7 +152,10 @@ public class LCS<T> {
 	 * @return non-LCS elements for input 1
 	 */
 	public ArrayList<T> getResultUnmatched1() {
-		return getIncludedElems(elems1, getUnMatchedIndices1());
+		if(resultUnmatched1 == null){
+			resultUnmatched1 = getIncludedElems(elems1, getUnMatchedIndices1());
+		}
+		return resultUnmatched1;
 	}
 
 	/**
@@ -148,7 +164,10 @@ public class LCS<T> {
 	 * @return non-LCS elements for input 2
 	 */
 	public ArrayList<T> getResultUnmatched2() {
-		return getIncludedElems(elems2, getUnMatchedIndices2());
+		if(resultUnmatched2 == null){
+			resultUnmatched2 = getIncludedElems(elems2, getUnMatchedIndices2());
+		}
+		return resultUnmatched2;
 	}
 	
 	/**
@@ -160,6 +179,46 @@ public class LCS<T> {
 	}
 
 	/**
+	 * Returns the number of matched elements at the prefix
+	 * @return
+	 */
+	public int getMatchedPrefixSize(){
+		if(matchedPrefixSize == -1){
+			matchedPrefixSize = 0;
+			while(
+				matchedPrefixSize < getLCSSize() &&
+				matchedIndices1.get(matchedPrefixSize) == matchedPrefixSize &&
+				matchedIndices2.get(matchedPrefixSize) == matchedPrefixSize
+			)
+			{
+				matchedPrefixSize ++;
+			}
+		}
+		return matchedPrefixSize;
+	}
+
+	/**
+	 * Returns the number of matched elements at the suffix
+	 * @return
+	 */
+	public int getMatchedSuffixSize(){
+		if(matchedSuffixSize == -1){
+			matchedSuffixSize = 0;
+			int elems1Size = elems1.size();
+			int elems2Size = elems2.size();
+			while(
+				matchedSuffixSize < getLCSSize() &&
+				matchedIndices1.get(getLCSSize() - 1 - matchedSuffixSize) == elems1Size - 1 - matchedSuffixSize &&
+				matchedIndices2.get(getLCSSize() - 1 - matchedSuffixSize) == elems2Size - 1 - matchedSuffixSize
+			)
+			{
+				matchedSuffixSize ++;
+			}
+		}
+		return matchedSuffixSize;
+	}
+
+	/**
 	 * Finds the Longest Common Subsequence of two lists with elements
 	 * @param lcsCommand Implements the matching criterion
 	 */
@@ -168,7 +227,15 @@ public class LCS<T> {
 		elems2 = new ArrayList<T>();
 		matchedIndices1 = new ArrayList<Integer>();
 		matchedIndices2 = new ArrayList<Integer>();
+		unMatchedIndices1 = null;
+		unMatchedIndices2 = null;
+		resultLCS1 = null;
+		resultLCS2 = null;
+		resultUnmatched1 = null;
+		resultUnmatched2 = null;
 		this.lcsCommand = lcsCommand;
+		matchedPrefixSize = -1;
+		matchedSuffixSize = -1;
 	}
 			
 	/**
@@ -179,8 +246,8 @@ public class LCS<T> {
 	 */
 	public LCS<T> createLCSResultsOptimized(List<T> elems1, List<T> elems2) {
 		clearResults();
-		this.elems1 = elems1;
-		this.elems2 = elems2;
+		this.elems1.addAll(elems1);
+		this.elems2.addAll(elems2);
 		return createLCSResultsOptimized();
 	}
 	
@@ -191,8 +258,8 @@ public class LCS<T> {
 	 */
 	public LCS<T> createLCSResults(List<T> elems1, List<T> elems2) {
 		clearResults();
-		this.elems1 = elems1;
-		this.elems2 = elems2;
+		this.elems1.addAll(elems1);
+		this.elems2.addAll(elems2);
 		lcs(elems1, elems2, 0);
 		checkAssertions(elems1, elems2);
 		return this;
@@ -202,8 +269,18 @@ public class LCS<T> {
 // helper functions
 
 	private void clearResults(){
+		elems1.clear();
+		elems2.clear();
 		matchedIndices1.clear();
 		matchedIndices2.clear();
+		unMatchedIndices1 = null;
+		unMatchedIndices2 = null;
+		resultLCS1 = null;
+		resultLCS2 = null;
+		resultUnmatched1 = null;
+		resultUnmatched2 = null;
+		matchedPrefixSize = -1;
+		matchedSuffixSize = -1;
 	}
 
 	private ArrayList<Integer> getUnmatchedIndices(List<T> elems, ArrayList<Integer> indices) {

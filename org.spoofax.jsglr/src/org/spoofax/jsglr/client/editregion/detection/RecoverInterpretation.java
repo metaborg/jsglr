@@ -10,7 +10,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
-import org.spoofax.terms.attachments.ParentAttachment;
 
 /**
  * Represents a recovery based on discarding tokens associated to the term and/or its subterms.

@@ -23,13 +23,18 @@ public class Link {
     
     public int length; //mj: private final (see sglr.reducer: replace link by link with less avoids)
     
+    private int line;
+    private int column;
+    
     public int recoverCount;
 
-    public Link(Frame destination, AbstractParseNode t, int length) {
+    public Link(Frame destination, AbstractParseNode t, int length, int line, int column) {
         this.parent = destination;
         label = t;
         rejected = false;
         this.length = length;
+        this.line = line;
+        this.column = column;
         recoverCount =0;
         linksCreated +=1;
     }
@@ -53,6 +58,14 @@ public class Link {
 
     public int getLength() {
         return length;
+    }
+    
+    public int getLine() {
+      return line;
+    }
+
+    public int getColumn() {
+      return column;
     }
 
     public void clear() {

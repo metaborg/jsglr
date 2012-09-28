@@ -117,10 +117,9 @@ public class ParserHistory {
     public String getFragment(int startTok, int endTok, PushbackStringIterator chars) {
         String fragment="";
         for (int i = startTok; i <= endTok; i++) {
-        	int nextChar = readCharAt(i, chars);
-            if(i >= recoverTokenCount || nextChar == -1)
+            if(i >= recoverTokenCount)
                 break;
-            fragment+= (char)nextChar;
+            fragment+= (char)readCharAt(i, chars);
         }        
         return fragment;
     }

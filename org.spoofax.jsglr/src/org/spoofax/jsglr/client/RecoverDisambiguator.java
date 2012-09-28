@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client;
 
 
+
 public class RecoverDisambiguator {
     
     private ParseTable parseTable;

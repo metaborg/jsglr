@@ -1,5 +1,6 @@
 package org.spoofax.jsglr.client;
 
+
 /**
  * 
  * @author Emma Nilsson-Nyman <emma at cs.lth.se>

@@ -36,7 +36,7 @@ public class BadTokenException extends SGLRException {
 
     @Override
     public String getMessage() {
-        return getShortMessage() + " at line " + lineNumber + ", column " + columnNumber;
+        return getShortMessage() + " at line " + (lineNumber + 1)  + ", column " + (columnNumber - 1);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class BadTokenException extends SGLRException {
             return "Syntax error near unexpected character '" + escape(token) + "'";
     }
 
-    private String escape(int ch) {
+    protected String escape(int ch) {
     	switch(ch) {
     	case 0: return "\\0";
     	case '\n': return "\\n";

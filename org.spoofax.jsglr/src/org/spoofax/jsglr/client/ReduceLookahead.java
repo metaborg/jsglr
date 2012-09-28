@@ -8,6 +8,7 @@
 package org.spoofax.jsglr.client;
 
 
+
 public class ReduceLookahead extends ActionItem {
 
     private static final long serialVersionUID = 8620275049778432243L;

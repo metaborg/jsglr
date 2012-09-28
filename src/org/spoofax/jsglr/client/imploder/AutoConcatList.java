@@ -59,6 +59,15 @@ public class AutoConcatList<E> implements List<E> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public boolean merges(E e) {
+	  if (e instanceof AutoConcatList) {
+	    String esort = ((AutoConcatList<E>) e).sort;
+	    return esort == null || esort.equals(sort);
+	  }
+	  return false;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public boolean add(E e) {
 		if (e == null) {
 			throw new IllegalArgumentException();

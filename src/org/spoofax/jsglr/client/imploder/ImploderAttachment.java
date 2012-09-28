@@ -23,35 +23,25 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	private static final long serialVersionUID = -578795745164445689L;
 
 	public static final TermAttachmentType<ImploderAttachment> TYPE =
-		new TermAttachmentType<ImploderAttachment>(ImploderAttachment.class, "ImploderAttachment", 6) {
+		new TermAttachmentType<ImploderAttachment>(ImploderAttachment.class, "ImploderAttachment", 5) {
 
 			@Override
 			protected IStrategoTerm[] toSubterms(ITermFactory f, ImploderAttachment attachment) {
 				IToken left = attachment.getLeftToken();
 				IToken right = attachment.getRightToken();
-				
-				String sortType = attachment.getSort() == null ? "" : attachment.getSort() ;
-				String fileName = left.getTokenizer().getFilename()  == null ? "" :left.getTokenizer().getFilename();
-				
-				
 				return new IStrategoTerm[] {
-					f.makeString(fileName),
+					f.makeString(left.getTokenizer().getFilename()),
 					f.makeInt(left.getLine()),
 					f.makeInt(left.getColumn()),
 					f.makeInt(left.getStartOffset()),
-					f.makeInt(right.getEndOffset()),
-					f.makeString( sortType )
+					f.makeInt(right.getEndOffset())
 				};
 			}
 
 			@Override
 			protected ImploderAttachment fromSubterms(IStrategoTerm[] subterms) {
-				String fileName =  asJavaString(subterms[0]).equals("") ? null :asJavaString(subterms[0]);
-				String sortType =  asJavaString(subterms[0]).equals("") ? null :asJavaString(subterms[5]);
-				
-				return createCompactPositionAttachment(fileName, asJavaInt(subterms[1]),
-						asJavaInt(subterms[2]), asJavaInt(subterms[3]), asJavaInt(subterms[4]) , sortType);
-				
+				return createCompactPositionAttachment(asJavaString(subterms[0]), asJavaInt(subterms[1]),
+						asJavaInt(subterms[2]), asJavaInt(subterms[3]), asJavaInt(subterms[4]));
 			}
 		
 		};
@@ -98,10 +88,12 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	/**
 	 * The element sort for list terms.
-	 * Same as {@link #getSort()} for non-list terms.
+	 * 
+	 * @throws UnsupportedOperationException
+	 *             If the node is not a list.
 	 */
 	public String getElementSort() {
-		return getSort();
+		throw new UnsupportedOperationException();
 	}
 
 	public static IToken getLeftToken(ISimpleTerm term) {
@@ -200,22 +192,13 @@ public class ImploderAttachment extends AbstractTermAttachment {
 		return createCompactPositionAttachment(filename, left.getLine(), left.getColumn(), left.getStartOffset(), right.getEndOffset());
 	}
 	
-	
-	
 	public static ImploderAttachment createCompactPositionAttachment(
 			String filename, int line, int column, int startOffset, int endOffset) {
-		return createCompactPositionAttachment(filename, line, column, startOffset, endOffset, null);
-	}
-	
-	
-	public static ImploderAttachment createCompactPositionAttachment(
-			String filename, int line, int column, int startOffset, int endOffset, String sortType) {
 		Token token = new Token(null, 0, line, column, startOffset, endOffset, TK_UNKNOWN);
-		NullTokenizer newTokenizer = new NullTokenizer(sortType, filename, token);
+		NullTokenizer newTokenizer = new NullTokenizer(null, filename, token);
 		token.setTokenizer(newTokenizer);
 		return new ImploderAttachment(null, token, token);
 	}
-	
 
 	/**
 	 * @param isAnonymousSequence  True if the term is an unnamed sequence like a list or tuple.
@@ -229,9 +212,9 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	@Override
 	public String toString() {
 		if (getLeftToken() != null) {
-			return "(" + getSort() + ",\"" + getLeftToken().getTokenizer().toString(getLeftToken(), getRightToken()) + "\")";
+			return "(" + sort + ",\"" + getLeftToken().getTokenizer().toString(getLeftToken(), getRightToken()) + "\")";
 		} else {
-			return "(" + getSort() + ",null)";
+			return "(" + sort + ",null)";
 		}
 	}
 	

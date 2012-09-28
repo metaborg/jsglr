@@ -3,8 +3,6 @@ package org.spoofax.jsglr.client.imploder;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.ITreeBuilder;
 
 /**
@@ -44,8 +42,6 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	 * Create a new node list. 
 	 */
 	TNode createList(String elementSort, IToken leftToken, IToken rightToken, List<TNode> children);
-
-	TNode createSublist(IStrategoList list, IStrategoTerm firstChild, IStrategoTerm lastChild);
 
 	TNode createTop(TNode tree, String filename, int ambiguityCount);
 

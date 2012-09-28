@@ -9,8 +9,6 @@ public class RecoveryPerformance {
     private long startCG;
     private ArrayList<Integer> CGTimes;
     private long startFG;
-    private ArrayList<Integer> FGOnCursorTimes;
-    private long startFGOnCursor;
     private ArrayList<Integer> FGTimes;
     private long startBP;
     private ArrayList<Integer> BPTimes;
@@ -19,31 +17,20 @@ public class RecoveryPerformance {
     
     private ArrayList<Boolean> CGResults;
     private ArrayList<Boolean> FGResults;
-    private ArrayList<Boolean> FGOnCursorResults;
     private ArrayList<Boolean> BPResults;
     private ArrayList<Boolean> recoveryResults;
     private boolean parseResult;
-    private int recoverCount; 
-
-    private ArrayList<Integer> failureLocations;
-    
-    public ArrayList<Integer> getFailureLocations() {
-		return failureLocations;
-	}
     
     public RecoveryPerformance(){
         CGTimes=new ArrayList<Integer>();
         FGTimes=new ArrayList<Integer>();
-        FGOnCursorTimes=new ArrayList<Integer>();
         BPTimes=new ArrayList<Integer>();
         recoveryTimes=new ArrayList<Integer>();
         
         CGResults=new ArrayList<Boolean>();
         FGResults=new ArrayList<Boolean>();
-        FGOnCursorResults=new ArrayList<Boolean>();
         BPResults=new ArrayList<Boolean>();
         recoveryResults=new ArrayList<Boolean>();
-        failureLocations = new ArrayList<Integer>();
     }
     
     public boolean isParseSucceeded() {
@@ -114,17 +101,7 @@ public class RecoveryPerformance {
         FGTimes.add((int)FGTime);
         FGResults.add(succeeded);
     }
-
-	public void startFGOnCursor() {
-        startFGOnCursor = System.currentTimeMillis();
-	}
-
-	public void endFGOnCursor(boolean succeeded) {
-        long FGTime=System.currentTimeMillis()-startFGOnCursor;
-        FGOnCursorTimes.add((int)FGTime);
-        FGOnCursorResults.add(succeeded);
-	}
-
+    
     void startBP(){
         startBP=System.currentTimeMillis();
     }
@@ -144,16 +121,4 @@ public class RecoveryPerformance {
         recoveryTimes.add((int)recoveryTime);
         recoveryResults.add(succeeded);
     }
-
-    public void addFailureLocation(int tokensSeen) {
-		failureLocations.add(tokensSeen);		
-	}
-    
-	public void setRecoverCount(int recoverCount) {
-		this.recoverCount = recoverCount;
-	}
-    
-	public int getRecoverCount() {
-		return recoverCount;
-	}
 }

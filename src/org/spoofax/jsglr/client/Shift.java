@@ -8,6 +8,7 @@
 package org.spoofax.jsglr.client;
 
 
+
 public class Shift extends ActionItem {
 
     private static final long serialVersionUID = -5777912109162535928L;

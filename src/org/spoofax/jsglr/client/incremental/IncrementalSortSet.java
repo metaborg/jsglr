@@ -10,7 +10,6 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,40 +43,28 @@ public class IncrementalSortSet {
 	private final Set<String> incrementalSorts;
 	
 	private final Set<String> incrementalContainerSorts;
-	
-	public Set<String> getIncrementalSorts() {
-		return Collections.unmodifiableSet(incrementalSorts);
-	}
-	
+
 	/**
 	 * @param expand
 	 *            Whether to expand the set of sorts with injections to those
 	 *            sorts (e.g., add MethodDec if ClassBodyDec was specified.)
 	 */
-	private IncrementalSortSet(ParseTable table, boolean expand, boolean expandReverse, Set<String> sorts) {
+	private IncrementalSortSet(ParseTable table, boolean expand, Set<String> sorts) {
 		sortFun = table.getFactory().makeConstructor("sort", 1);
 		cfFun = table.getFactory().makeConstructor("cf", 1);
 		lexFun = table.getFactory().makeConstructor("lex", 1);
 		incrementalSorts = expand ? getInjectionsTo(table, sorts, false) : sorts;
-		incrementalContainerSorts = expandReverse ? getInjectionsTo(table, incrementalSorts, true) : incrementalSorts;
+		incrementalContainerSorts = getInjectionsTo(table, incrementalSorts, true);
 	}
 	
 	public static IncrementalSortSet create(ParseTable table, boolean expand, String... sorts) {
-		return new IncrementalSortSet(table, expand, true, asSet(sorts));
+		return new IncrementalSortSet(table, expand, asSet(sorts));
 	}
 	
 	public static IncrementalSortSet create(ParseTable table, boolean expand, Set<String> sorts) {
-		return new IncrementalSortSet(table, expand, true, sorts);
+		return new IncrementalSortSet(table, expand, sorts);
 	}
-
-	public static IncrementalSortSet create(ParseTable table, boolean expand, boolean expandReverse, String... sorts) {
-		return new IncrementalSortSet(table, expand, expandReverse, asSet(sorts));
-	}
-
-	public static IncrementalSortSet create(ParseTable table, boolean expand, boolean expandReverse, Set<String> sorts) {
-		return new IncrementalSortSet(table, expand, expandReverse, sorts);
-	}
-
+	
 	public static IncrementalSortSet read(ParseTable table) {
 		IStrategoConstructor incrementalFun = table.getFactory().makeConstructor("incremental", 0);
 		ProductionAttributeReader reader = new ProductionAttributeReader(table.getFactory());

@@ -10,6 +10,8 @@ package org.spoofax.jsglr.client;
 import java.io.Serializable;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.Term;
 
 public class Label implements Serializable {
 
@@ -19,6 +21,8 @@ public class Label implements Serializable {
     /*package*/ final IStrategoAppl prod;
     private final ProductionAttributes productionAttributes;
     private final boolean injection;
+    private Boolean isLayout;
+    //private final boolean isNewlineEnforcer;
 
     public Label(int labelNumber, IStrategoAppl prod, ProductionAttributes productionAttributes, boolean injection) {
         this.labelNumber = labelNumber;
@@ -40,10 +44,6 @@ public class Label implements Serializable {
 
     public boolean isRecoverProduction() {
         return productionAttributes.isRecoverProduction();
-    }
-    
-    public boolean isCompletionProduction() {
-        return productionAttributes.isCompletionProduction();
     }
 
     public boolean isMoreEager(Label rightProd) {
@@ -70,5 +70,41 @@ public class Label implements Serializable {
     @Override
     public int hashCode() {
         return labelNumber;
+    }
+
+    
+    
+    public boolean isLayout() {
+      if (isLayout != null)
+        return isLayout;
+      
+      IStrategoTerm t = prod.getSubterm(1);
+      
+      while (true) {
+        if (t.getTermType() != IStrategoTerm.APPL) {
+          isLayout = false;
+          break;
+        }
+        
+        IStrategoAppl app = (IStrategoAppl) t;
+        
+        if (Term.hasConstructor(app, "layout")) {
+          isLayout = true;
+          break;
+        }
+        
+        if (app.getSubtermCount() == 1 &&
+            (Term.hasConstructor(app, "cf") ||
+             Term.hasConstructor(app, "lex") ||
+             Term.hasConstructor(app, "opt") ||
+             Term.hasConstructor(app, "iter")))
+          t = app.getSubterm(0);
+        else {
+          isLayout = false;
+          break;
+        }
+      }
+      
+      return isLayout;
     }
 }

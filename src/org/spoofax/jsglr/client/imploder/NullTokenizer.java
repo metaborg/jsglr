@@ -65,10 +65,11 @@ public class NullTokenizer extends AbstractTokenizer {
 	protected void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
 		if (leftToken != onlyToken || rightToken != onlyToken)
 			throw new IllegalArgumentException("Argument tokens do not belong to this NullTokenizer");
+		// Do nothing
 	}
 
 	public void tryMakeSkippedRegionToken(int endOffset) {
-		setSyntaxCorrect(false);
+		// Do nothing
 	}
 
 	@Override
@@ -79,10 +80,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	@Override
 	public void markPossibleSyntaxError(LabelInfo label, IToken firstToken,
 			int endOffset, ProductionAttributeReader prodReader) {
-		
-		if (label.isRecover() || label.isReject() || label.isCompletion()) {
-			setSyntaxCorrect(false);
-		}
+		// Do nothing
 	}
 
 	public Iterator<IToken> iterator() {

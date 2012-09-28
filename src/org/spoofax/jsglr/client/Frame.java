@@ -1,22 +1,23 @@
 /*
  * Created on 04.des.2005
  *
- * Copyright (c) 2005-2011, Karl Trygve Kalleberg <karltk near strategoxt dot org>
- *
+ * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
+ * 
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.jsglr.client;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.spoofax.jsglr.shared.Tools;
 
 
 public class Frame implements Serializable {
-
+    
     private static final long serialVersionUID = -4757644376472129935L;
-
+            
     public static int framesCreated =0; //MJ: for testing
 
     public final State state;
@@ -24,12 +25,12 @@ public class Frame implements Serializable {
     // Using a Vector and regular iteration takes parsing of file-test from 1100ms (min) to 2020ms (max)!
     // TODO: Just use an ArrayList for Frame.steps?
     //       which should have better performance than the obsolete, synchronized Vector classs
-
-
+    
+    
 
     private Link[] steps;
     private int stepsCount;
-
+    
     // FIXME: All frames except the root must have a step with a label
     // that goes to the parent frame. Should we enforce this in this
     // constructor?
@@ -37,15 +38,14 @@ public class Frame implements Serializable {
         state = s;
         steps = new Link[20];
         stepsCount = 0;
-        framesCreated +=1; //MJ: for testing
-
+        framesCreated +=1; //MJ: for testing 
     }
 
     public boolean allLinksRejected() {
         if(Tools.tracing) {
             SGLR.TRACE("SG_Rejected() - " + state.stateNumber);
         }
-
+        
         if (stepsCount == 0)
             return false;
 
@@ -60,12 +60,26 @@ public class Frame implements Serializable {
     public State peek() {
         return state;
     }
+    
+    public Link peekLink() {
+      if (stepsCount == 0)
+        return null;
+      return steps[0];
+  }
 
-    public void findAllPaths(PooledPathList pool, int arity) {
+  public Link[] peekLinks() {
+    return steps;
+  }
+
+    
+    public void findAllPaths(PooledPathList pool, int arity) throws InterruptedException {
     	doComputePathsToRoot(pool, null, arity, 0, 0);
     }
 
-    private void doComputePathsToRoot(PooledPathList pool, Path node, int arity, int parentCount, int length) {
+    private void doComputePathsToRoot(PooledPathList pool, Path node, int arity, int parentCount, int length) throws InterruptedException {
+        
+      if (Thread.currentThread().isInterrupted())
+        throw new InterruptedException();
 
     	if(Tools.tracing) {
             SGLR.TRACE("SG_FindAllPaths() - " + arity + ", " + length);
@@ -76,10 +90,10 @@ public class Frame implements Serializable {
             if(Tools.tracing) {
                 SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + length);
             }
-        } else {
+        } else { 
             for (int i = 1; i <= stepsCount; i++) {
                 Link link = steps[stepsCount - i];
-
+                
                 Path n = pool.makePath(node, link, this, link.getLength(), parentCount);
                 link.parent.doComputePathsToRoot(pool, n, arity - 1, parentCount + 1, length + link.getLength());
             }
@@ -98,15 +112,15 @@ public class Frame implements Serializable {
         if(Tools.tracing) {
             SGLR.TRACE("SG_FindDirectLink() - [" + state.stateNumber + ", " + st0.state.stateNumber + "]");
         }
-
+        
         for (int i = 0; i < stepsCount; i++) {
             if (steps[i].parent == st0)
                 return steps[i];
         }
-
+        
         return null;
-    }
-
+    }   
+    
     /**
      * @deprecated Use the primitive types (or an iterator) to just iterate over the links.
      */
@@ -114,24 +128,25 @@ public class Frame implements Serializable {
         ArrayList<Link> links=new ArrayList<Link>();
         for (int i = 0; i < stepsCount; i++) {
             links.add(steps[i]);
-        }
+        }        
         return links;
-    }
-
+    }   
+    
 
 //    static public int[] counter = new int[1000];
-
-    public Link addLink(Frame st0, AbstractParseNode n, int length) {
+    
+    public Link addLink(Frame st0, AbstractParseNode n, int length, int line, int column) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_AddLink() - " + state.stateNumber + ", " + st0.state.stateNumber + ", " + length);
         }
         if(stepsCount >= steps.length) {
             resizeSteps();
         }
+        
 //        counter[stepsCount]++;
-        return steps[stepsCount++] = new Link(st0, n, length);
+        return steps[stepsCount++] = new Link(st0, n, length, line, column); 
     }
-
+    
     public Link addLink(Link ln) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_AddLink() - " + state.stateNumber + " (recover node) ");
@@ -139,10 +154,11 @@ public class Frame implements Serializable {
         if(stepsCount >= steps.length) {
             resizeSteps();
         }
+        
 //        counter[stepsCount]++;
-        return steps[stepsCount++] = ln;
+        return steps[stepsCount++] = ln; 
     }
-
+    
     private void resizeSteps() {
         // Resize the steps array (not necessary for most grammars).
         // (see steps field)
@@ -217,14 +233,14 @@ public class Frame implements Serializable {
         return sb.toString();
     }
 
-    public void findLimitedPaths(PooledPathList pool, int arity, Link l) {
+    public void findLimitedPaths(PooledPathList pool, int arity, Link l) throws InterruptedException {
         if(Tools.tracing) {
             SGLR.TRACE("SG_FindLimitedPaths() - " + arity + ", " + l.getLength() + ", " + l.parent.state.stateNumber);
             TRACE_DumpLinks(steps);
         }
-        if(findLink(arity, l)) {
+        if(findLink(arity, l)) { 
             doComputePathsToRoot(pool, null, l, false, arity, 0, 0);
-        }
+        } 
     }
 
     private void TRACE_DumpLinks(Link[] st) {
@@ -241,7 +257,7 @@ public class Frame implements Serializable {
             SGLR.TRACE("SG_FindLink() - " + arity);
             SGLR.TRACE("SG_ - links: " + stepsCount);
         }
-
+        
         if(arity > 0) {
             for(int i = 0; i < stepsCount; i++) {
                 Link l1 = steps[stepsCount - i - 1];
@@ -262,7 +278,10 @@ public class Frame implements Serializable {
     }
 
     private void doComputePathsToRoot(PooledPathList pool, Path node, Link l,
-      boolean seen, int arity, int parentCount, int length) {
+      boolean seen, int arity, int parentCount, int length) throws InterruptedException {
+        if (Thread.currentThread().isInterrupted())
+          throw new InterruptedException();
+      
         if(Tools.tracing) {
             SGLR.TRACE("SG_FindPaths() - " + arity);
         }
@@ -293,21 +312,21 @@ public class Frame implements Serializable {
             this.stepsCount = 0;
         }
     }
-
-    /*mj debug info function
+    
+    //mj debug info function
     public int minAvoidValue()
     {
         int result = 0;
         for (int i = 0; i < stepsCount; i++) {
             if(i==0){
-                result = steps[i].recoverWeight;
-            result = Math.min(result, steps[i].recoverWeight);
-            }
+                result = steps[i].recoverCount;
+            result = Math.min(result, steps[i].recoverCount);
+            }            
         }
         return result;
     }
-
-    //mj debug info function
+    
+  //mj debug info function
     public List<String> getStackPaths(String frontEnd, boolean avoidFree)
     {
         String front = this.state.stateNumber + frontEnd;
@@ -319,16 +338,16 @@ public class Frame implements Serializable {
         for (int i = 0; i < stepsCount; i++) {
             Link ln = steps[i];
             List<String> childColl;
-            if(ln.recoverWeight ==0 || (avoidFree==false)) {
-                if(ln.recoverWeight ==0)
-                    childColl= ln.parent.getStackPaths(" - "+front, avoidFree);
+            if(ln.recoverCount ==0 || (avoidFree==false)) {
+                if(ln.recoverCount ==0)
+                    childColl= ln.parent.getStackPaths(" - "+front, avoidFree); 
                 else {
-                    String frnt = "-$"+ ln.recoverWeight +"$-" + front;
+                    String frnt = "-$"+ ln.recoverCount +"$-" + front;
                     childColl=ln.parent.getStackPaths(frnt, avoidFree);
                 }
                 stackStrings.addAll(childColl);
-            }
-        }
+            }            
+        }            
         return stackStrings;
     }
 
@@ -336,5 +355,5 @@ public class Frame implements Serializable {
     public String[] getStackRepresentation(boolean avoidFree){
         List<String> stackStrings=this.getStackPaths("", avoidFree);
         return stackStrings.toArray(new String[stackStrings.size()]);
-    }*/
+    }
 }

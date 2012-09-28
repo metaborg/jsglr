@@ -21,16 +21,21 @@ public class ProductionAttributes implements Serializable {
     private final int type;
 
     private final boolean isRecover;
-
-    private final boolean isCompletion;
+    private final boolean isIgnoreLayout;
+    private final IStrategoTerm layoutConstraint;
+    private final boolean isNewlineEnforced;
+    private final boolean isLongestMatch;
 
     private final transient IStrategoTerm abstractCtor;
 
-    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover, boolean isCompletion) {
+    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover, boolean isIgnoreIndent, IStrategoTerm layoutConstraint, boolean isNewlineEnforced, boolean isLongestMatch) {
         this.type = type;
         this.abstractCtor = ctor;
         this.isRecover = isRecover;
-        this.isCompletion = isCompletion;
+        this.isIgnoreLayout = isIgnoreIndent;
+        this.layoutConstraint = layoutConstraint;
+        this.isNewlineEnforced = isNewlineEnforced;
+        this.isLongestMatch = isLongestMatch;
     }
 
     public final int getType() {
@@ -44,12 +49,24 @@ public class ProductionAttributes implements Serializable {
     public boolean isRecoverProduction() {
         return isRecover;
     }
-
-    public boolean isCompletionProduction() {
-        return isCompletion;
+    
+    public boolean isIgnoreLayout() {
+      return isIgnoreLayout;
+    }
+    
+    public IStrategoTerm getLayoutConstraint() {
+      return layoutConstraint;
+    }
+    
+    public boolean isNewlineEnforced() {
+      return isNewlineEnforced;
     }
 
     public boolean isMoreEager(ProductionAttributes other) {
         return type != other.type && (type == PREFER || other.type == AVOID);
+    }
+
+    public boolean isLongestMatch() {
+      return isLongestMatch;
     }
 }

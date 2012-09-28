@@ -40,10 +40,6 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public boolean isSyntaxCorrect() {
 		return isSyntaxCorrect;
 	}
-	
-	public void setSyntaxCorrect(boolean isSyntaxCorrect)  {
-		this.isSyntaxCorrect = isSyntaxCorrect;
-	}
 
 	private LineStartOffsetList getLineStartOffsets() {
 		if (lineStartOffsets == null)
@@ -68,7 +64,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	}
 
 	public void markPossibleSyntaxError(LabelInfo label, IToken prevToken, int endOffset, ProductionAttributeReader prodReader) {
-		if (label.isRecover() || label.isReject() || label.getDeprecationMessage() != null || label.isCompletion()) {
+		if (label.isRecover() || label.isReject() || label.getDeprecationMessage() != null) {
 			if (prodReader.isIgnoredUnspecifiedRecoverySort(label.getSort())) {
 				// Special case: don't report here, but further up the tree
 				return;
@@ -78,38 +74,27 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				isSyntaxCorrect = label.getDeprecationMessage() != null;
 			
 			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
-			//TODO: refactor
+			
 			IToken first, last;
 			
 			if (prevToken == currentToken()) {
 				first = last = makeToken(endOffset, TK_ERROR, true);
 			} else {
-				first = getTokenAfter(prevToken);
-				if (first != currentToken() && first.getKind() == TK_LAYOUT)
-					first = findRightMostLayoutToken(first);
+				first = findRightMostLayoutToken(getTokenAfter(prevToken));
 				if (first != currentToken() && first.getKind() == TK_LAYOUT)
 					first = getTokenAfter(first);
 				last = currentToken();
 			}
-			if (first.getStartOffset() - 1 == last.getEndOffset()) {
+			if (first.getStartOffset() + 1 == last.getEndOffset()) {
 				// bah, we need some characters to mark, to the left then...
-				first = last = findLeftMostLayoutToken(first);//mark insertion errors at the end of previous token (before layout)
-				if (first.getKind() == TK_LAYOUT)
-					first = last = getTokenBefore(last);
+				first = findLeftMostLayoutToken(first);
 			}
 			
-			String tokenText = makeTokenText(first, last);
+			String tokenText = toString(first, last);
+			if (tokenText.length() > 40)
+				tokenText = tokenText.substring(0, 40) + "...";
 			
-			if (label.isCompletion()) {
-				if(last.getKind() == IToken.TK_LAYOUT){
-					last = findLeftMostLayoutToken(last);
-					if (last.getKind() == TK_LAYOUT)
-						last = getTokenBefore(last);
-				}
-				String completionText = makeTokenText(first, last);
-				setErrorMessage(first, last, ERROR_INCOMPLETE_PREFIX
-						+ ": '" + completionText + "'");
-			} else if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
+			if (label.isReject() || prodReader.isWaterConstructor(label.getConstructor())) {
 				setErrorMessage(first, last, ERROR_WATER_PREFIX
 						+ ": '" + tokenText + "'");
 			} else if (prodReader.isInsertEndConstructor(label.getConstructor())) {
@@ -128,13 +113,6 @@ public abstract class AbstractTokenizer implements ITokenizer {
 						+ ": '" + tokenText + "'");
 			}
 		}
-	}
-
-	private String makeTokenText(IToken first, IToken last) {
-		String tokenText = toString(first, last);
-		if (tokenText.length() > 40)
-			tokenText = tokenText.substring(0, 40) + "...";
-		return tokenText;
 	}
 
 	/**

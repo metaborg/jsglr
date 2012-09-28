@@ -47,7 +47,7 @@ public interface IToken extends Comparable<IToken>, Serializable {
 	/** Token kind for an erroneous token. */
 	public static final int TK_ERROR_EOF_UNEXPECTED = 12;
 	
-	/** Token kind for a meta-escape operator. */
+	/** Token kind for a meta-esape operator. */
 	public static final int TK_ESCAPE_OPERATOR = 13;
 	
 	/** A reserved token kind for internal use only. */
@@ -64,9 +64,6 @@ public interface IToken extends Comparable<IToken>, Serializable {
 
 	int getStartOffset();
 
-	/**
-	 * Gets the end offset (inclusive).
-	 */
 	int getEndOffset();
 
 	int getLine();

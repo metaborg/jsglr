@@ -15,10 +15,13 @@ import static org.spoofax.terms.Term.isTermInt;
 import static org.spoofax.terms.Term.javaInt;
 import static org.spoofax.terms.Term.termAt;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +32,11 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
+import org.spoofax.jsglr.io.ParseTableManager;
+import org.spoofax.jsglr.io.SGLR;
+import org.spoofax.jsglr.shared.SGLRException;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 
@@ -48,6 +56,8 @@ public class ParseTable implements Serializable {
     public static final int LABEL_BASE = NUM_CHARS + 1;
     
     private static final long serialVersionUID = -3372429249660900093L;
+    
+    private static SGLR layoutParser;
 
     private State[] states;
 
@@ -74,7 +84,7 @@ public class ParseTable implements Serializable {
     transient public IStrategoConstructor ambIStrategoConstructor;
 
     private Label[] injections;
-
+    
     // TODO: allocate prototypes to avoid measurable GC overhead in ParseTable construction
     //       (especially when using the CMS garbage collector, those gotos and stuff
     //        introduce a lot of overhead)
@@ -89,16 +99,8 @@ public class ParseTable implements Serializable {
 
     private transient Map<Label, List<Priority>> priorityCache;
 	
-	private transient KeywordRecognizer keywords;
-
-    private static final ParseProductionNode[] productionNodes = new ParseProductionNode[256 + 1];
+    private transient KeywordRecognizer keywords;
     
-    static {
-    	for(int i = 0; i < productionNodes.length; i++) {
-    		productionNodes[i] = new ParseProductionNode(i);
-    	}
-    }
-                                             
     public ParseTable(IStrategoTerm pt, ITermFactory factory) throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
@@ -136,7 +138,7 @@ public class ParseTable implements Serializable {
         states = parseStates(statesTerm);
         priorities = parsePriorities(prioritiesTerm);
         associativities = parseAssociativities(prioritiesTerm);
-
+        
         injections = new Label[labels.length];
         for(int i = 0; i < labels.length; i++)
             if(labels[i] != null && labels[i].isInjection())
@@ -266,13 +268,17 @@ public class ParseTable implements Serializable {
         final IStrategoConstructor fun = ((IStrategoAppl)ls.head()).getConstructor();
         return !(fun.getName().equals("lit") && fun.getArity() == 1);
     }
+    
 
     private ProductionAttributes parseProductionAttributes(IStrategoAppl attr)
             throws InvalidParseTableException {
-        if (attr.getName().equals("attrs")) {
+      if (attr.getName().equals("attrs")) {
             int type = 0;
             boolean isRecover = false;
-            boolean isCompletion = false;
+            boolean isIgnoreLayout = false;
+            IStrategoTerm layoutConstraint = null;
+            boolean isNewlineEnforced = false;
+            boolean isLongestMatch = false;
             IStrategoTerm term = null;
 
             for (IStrategoList ls = (IStrategoList) attr.getSubterm(0); !ls.isEmpty(); ls = ls.tail()) {
@@ -313,10 +319,39 @@ public class ParseTable implements Serializable {
                     			term = t.getSubterm(0).getSubterm(0);
                     		} else if (child.getSubtermCount() == 0 && child.getName().equals("recover")) {
                     		    hasRecovers = isRecover = true;
-                       		} else if (child.getSubtermCount() == 0 && child.getName().equals("completion")) {
-                    		    isCompletion = true;
                     		}
+                        else if (child.getSubtermCount() == 0 && (child.getName().equals("ignore-layout") || child.getName().equals("ignore-indent"))) {
+                          isIgnoreLayout = true;
                         }
+                        else if (child.getSubtermCount() == 1 && child.getName().equals("layout")) {
+                          layoutConstraint = child.getSubterm(0);
+                          if (Term.isTermString(layoutConstraint))
+                            try {
+                              if (layoutParser == null) {
+                                try {
+                                  InputStream in = getClass().getResourceAsStream("indentation/LayoutConstraint.tbl");
+                                  ParseTable pt = new ParseTableManager(factory).loadFromStream(in);
+                                  layoutParser =  new SGLR(new TreeBuilder(), pt);
+                                } catch (ParseError e) {
+                                  e.printStackTrace();
+                                } catch (IOException e) {
+                                  e.printStackTrace();
+                                }
+                              }
+                              layoutConstraint = (IStrategoTerm) layoutParser.parse(Term.asJavaString(layoutConstraint), "", "Constraint");
+                            } catch (SGLRException e) {
+                              throw new InvalidParseTableException("invalid layout constraint " + Term.asJavaString(layoutConstraint) + ": " + e.getMessage());
+                            } catch (InterruptedException e) {
+                              e.printStackTrace();
+                            }
+                        }
+                        else if (child.getSubtermCount() == 0 && child.getName().equals("enforce-newline")) {
+                          isNewlineEnforced = true;
+                        }
+                        else if (child.getSubtermCount() == 0 && child.getName().equals("longest-match")) {
+                          isLongestMatch = true;
+                        }
+                    	}
                     	// TODO Support other terms that are not a constructor (custom annotations)
                     } else if (ctor.equals("id")) {
                         // FIXME not certain about this
@@ -326,9 +361,9 @@ public class ParseTable implements Serializable {
                     }
                 }
             }
-            return new ProductionAttributes(term, type, isRecover, isCompletion);
+            return new ProductionAttributes(term, type, isRecover, isIgnoreLayout, layoutConstraint, isNewlineEnforced, isLongestMatch);
         } else if (attr.getName().equals("no-attrs")) {
-            return new ProductionAttributes(null, ProductionType.NO_TYPE, false, false);
+            return new ProductionAttributes(null, ProductionType.NO_TYPE, false, false, null, false, false);
         }
         throw new InvalidParseTableException("Unknown attribute type: " + attr);
     }
@@ -390,8 +425,7 @@ public class ParseTable implements Serializable {
                 int label = intAt(a, 1);
                 int status = intAt(a, 2);
                 boolean isRecoverAction = getLabel(label).getAttributes().isRecoverProduction();
-                boolean isCompletionAction = getLabel(label).getAttributes().isCompletionProduction();
-                item = makeReduce(productionArity, label, status, isRecoverAction, isCompletionAction);
+                item = makeReduce(productionArity, label, status, isRecoverAction);
             } else if(a.getName().equals("reduce") && a.getConstructor().getArity() == 4) {
                 int productionArity = intAt(a, 0);
                 int label = intAt(a, 1);
@@ -413,8 +447,8 @@ public class ParseTable implements Serializable {
     }
 
     private RangeList[] parseCharRanges(IStrategoList list) throws InvalidParseTableException {
-        RangeList[] ret = new RangeList[list.getSubtermCount()];
-        for (int i=0;i<ret.length; i++) {
+        List<RangeList> ret = new LinkedList<RangeList>();
+        for (int i=0;i<list.getSubtermCount(); i++) {
             IStrategoNamed t = (IStrategoNamed) list.head();
             list = list.tail();
             IStrategoList l, n;
@@ -430,34 +464,22 @@ public class ParseTable implements Serializable {
             // FIXME: multiple lookahead are not fully supported or tested
             //        (and should work for both 2.4 and 2.6 tables)
 
-            if (n.getSubtermCount() > 0 && l.getSubtermCount() == 1) {
-                // This handles restrictions like:
-                //   LAYOUT? -/- [\/].[\/]
-                // where there is no other restriction that starts with a [\/]
-                
-                ret[i] = parseRanges(l);
-            } else if (n.getSubtermCount() > 0) {
-                // This handles restrictions like:
-                //   LAYOUT? -/- [\/].[\/\+].[\*]
-                throw new InvalidParseTableException("Multiple lookahead not fully supported");
-            } else {
-                // This handles restrictions like:
-                //   LAYOUT? -/- [\/].[\/]
-                //   LAYOUT? -/- [\/].[\*]
-                //   LAYOUT? -/- [\/].[\{]
-
-                ret[i] = parseRanges(l);
-            }
+            ret.add(parseRanges(l));
+            
+            if (n.getSubtermCount() > 0) 
+              throw new InvalidParseTableException("Multiple lookahead not fully supported"); 
+            for (IStrategoTerm nt : n.getAllSubterms())
+              ret.add(parseRanges((IStrategoList) nt.getSubterm(0)));
         }
-        return ret;
+        return ret.toArray(new RangeList[ret.size()]);
     }
 
     private ActionItem makeReduceLookahead(int productionArity, int label, int status, RangeList[] charClasses) {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
 
-    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction, boolean isCompletionAction) {
-        Reduce r = new Reduce(arity, label, status, isRecoverAction, isCompletionAction);
+    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction) {
+        Reduce r = new Reduce(arity, label, status, isRecoverAction);
         Reduce cached = reduceCache.get(r);
         if (cached == null) {
             reduceCache.put(r, r);
@@ -545,7 +567,7 @@ public class ParseTable implements Serializable {
             return cached;
         }
     }
-
+    
     public State getInitialState() {
         return states[startState];
     }
@@ -616,10 +638,6 @@ public class ParseTable implements Serializable {
 
     public boolean hasPrefersOrAvoids() {
         return hasAvoids() || hasPrefers();
-    }
-
-    public AbstractParseNode lookupProduction(int currentToken) {
-    	return productionNodes[currentToken];
     }
 
     public IStrategoTerm getProduction(int prod) {

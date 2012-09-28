@@ -13,9 +13,9 @@ public class Token implements IToken, Cloneable {
 	
 	private static final long serialVersionUID = -6972938219235720902L;
 
-	private transient static Map<String, Integer> asyncAllTokenKinds;
+	private static Map<String, Integer> asyncAllTokenKinds;
 
-	private transient ITokenizer tokenizer;
+	private ITokenizer tokenizer;
 	
 	private final int line;
 	

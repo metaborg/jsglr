@@ -2,6 +2,7 @@ package org.spoofax.jsglr.client;
 
 import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 
+
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
@@ -11,8 +12,10 @@ public class CycleParseNode extends AbstractParseNode {
 		new AbstractParseNode[0];
 	
 	private ParseNode target;
+	private transient AbstractParseNode nonAmbiguousTarget = null;
 	
 	public CycleParseNode(ParseNode target) {
+	  super(target.getLine(), target.getColumn());
 		this.target = target;
 	}
 
@@ -30,22 +33,28 @@ public class CycleParseNode extends AbstractParseNode {
 	public Object toTreeBottomup(BottomupTreeBuilder builder) {
 		return builder.buildCycle(getTargetLabel());
 	}
+	
+	 @Override
+	  public Object toTreeTopdown(TopdownTreeBuilder builder) {
+	    return builder.buildTreeCycle(this);
+	  }
 
+	private AbstractParseNode getNonAmbiguousTarget() {
+	  if (nonAmbiguousTarget != null)
+	    return nonAmbiguousTarget;
+	  
+	  nonAmbiguousTarget = this.target;
+    while (target.isAmbNode())
+      nonAmbiguousTarget = target.getChildren()[0];
+    return nonAmbiguousTarget;
+	}
+	
 	public int getTargetLabel() {
-		AbstractParseNode target = this.target;
-		while (target.isAmbNode()) {
-			target = target.getChildren()[0];
-		}
-		if (target.isParseNode())
-			return ((ParseNode) target).getLabel();
+		if (getNonAmbiguousTarget().isParseNode())
+			return ((ParseNode) getNonAmbiguousTarget()).getLabel();
 		return -1;
 	}
 
-	@Override
-	public Object toTreeTopdown(TopdownTreeBuilder builder) {
-		return builder.buildTreeCycle(this);
-	}
-	
 	@Override
 	public void reject() {
 		throw new UnsupportedOperationException();
@@ -90,11 +99,30 @@ public class CycleParseNode extends AbstractParseNode {
 			return false;
 		return true;
 	}
-	
-	@Override
-    public int getLabel() {
-		return target.getLabel();
-	}
 
+  @Override
+  public int getLabel() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 
+  @Override
+  public boolean isEmpty() {
+    return getNonAmbiguousTarget().isEmpty();
+  }
+  
+  @Override
+  public AbstractParseNode getLeft() {
+    return target.getLeft();
+  }
+  
+  @Override
+  public boolean isLayout() {
+    return target.isLayout();
+  }
+
+  @Override
+  public boolean isIgnoreLayout() {
+    return target.isIgnoreLayout();
+  }
 }

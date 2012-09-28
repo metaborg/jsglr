@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client;
 
 
+
 public class RecoverNode {
     public final int tokensSeen;
     public Frame recoverStack;    

@@ -28,6 +28,8 @@ public class LabelInfo {
 	private final boolean isVar;
 
 	private final boolean isList;
+	
+	private final boolean isFlatten;
 
 	private final boolean isIndentPaddingLexical;
 	
@@ -42,9 +44,7 @@ public class LabelInfo {
 	private final boolean isOptional;
 	
 	private final boolean isRecover;
-
-	private final boolean isCompletion;
-
+	
 	private final boolean isReject;
 	
 	private final String metaVarConstructor;
@@ -57,7 +57,8 @@ public class LabelInfo {
 		constructor = reader.getConsAttribute(attrs);
 		astAttribute = reader.getAstAttribute(attrs);
 		isNonContextFree = reader.isNonContextFree(rhs);
-		isList = reader.isList(rhs);
+		isList = reader.isList(rhs, attrs);
+		isFlatten = reader.isFlatten(rhs, attrs);
 		isVar = reader.isVariableNode(rhs);
 		isIndentPaddingLexical = reader.isIndentPaddingLexical(attrs);
 		isLexLayout = reader.isLexLayout(rhs);
@@ -66,11 +67,10 @@ public class LabelInfo {
 		isLiteral = reader.isLiteral(rhs);
 		isOptional = reader.isOptional(rhs);
 		isRecover = reader.isRecoverProduction(attrs, constructor);
-		isCompletion = reader.isCompletionProduction(attrs, production.getSubtermCount());
 		isReject = reader.isRejectProduction(attrs);
 		deprecationMessage = reader.getDeprecationMessage(attrs);
 		isSortProduction = reader.sortFun == rhs.getConstructor() || reader.parameterizedSortFun == rhs.getConstructor();
-		metaVarConstructor = reader.getMetaVarConstructor(rhs);
+		metaVarConstructor = reader.getMetaVarConstructor(rhs, attrs);
 	}
     
 	protected IStrategoList getLHS() {
@@ -108,7 +108,11 @@ public class LabelInfo {
 	public boolean isList() {
 		return isList;
 	}
-	
+
+  public boolean isFlatten() {
+    return isFlatten;
+  }
+
 	public boolean isVar() {
 		return isVar;
 	}
@@ -132,11 +136,7 @@ public class LabelInfo {
 	public boolean isRecover() {
 		return isRecover;
 	}
-
-	public boolean isCompletion() {
-		return isCompletion && !isLiteral; //exclude artificial completion start: -> "@#$"{completion}
-	}
-
+	
 	public boolean isReject() {
 		return isReject;
 	}

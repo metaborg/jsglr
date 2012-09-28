@@ -18,11 +18,9 @@ import java.io.Writer;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.Asfix2TreeBuilder;
-import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.NullTreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
-import org.spoofax.jsglr.client.imploder.MemoryRecordingTreeBuilder;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.FileTools;
@@ -37,7 +35,7 @@ public class Main {
 	
 	private static final String NO_OUTPUT = "-";
 
-	public static void main(String[] args) throws FileNotFoundException, IOException, InvalidParseTableException {
+	public static void main(String[] args) throws FileNotFoundException, IOException, InvalidParseTableException, InterruptedException {
 
 		if(args.length < 2) {
 			usage();
@@ -57,7 +55,6 @@ public class Main {
 		boolean buildParseTree = true;
 		boolean implode = false;
 		boolean ambiguityIsError = false;
-		boolean measureMemory = false;
 		int profilingRuns = 1;
 		
 		int warmup = 0;
@@ -89,8 +86,6 @@ public class Main {
 				profilingRuns = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--timing")) {
 				timing = true;
-			} else if(args[i].equals("--measure-memory")) {
-				measureMemory = true;
 			} else if(args[i].equals("--warmup")) {
 				warmup = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--no-tree-build")) {
@@ -109,12 +104,11 @@ public class Main {
 			usage();
 		}
 
-		ITreeBuilder treeBuilder = new Asfix2TreeBuilder(); 
 		final TermFactory factory = new TermFactory();
 		long tableLoadingTime = System.currentTimeMillis();
 		final IStrategoTerm tableTerm = new TermReader(factory).parseFromFile(parseTableFile);
 		final ParseTable pt = new ParseTable(tableTerm, factory);
-		final SGLR sglr = new SGLR(treeBuilder, pt);
+		final SGLR sglr = new SGLR(new Asfix2TreeBuilder(), pt);
 		sglr.setUseStructureRecovery(recover);
 
 		tableLoadingTime = System.currentTimeMillis() - tableLoadingTime;
@@ -126,17 +120,9 @@ public class Main {
 		sglr.getDisambiguator().setHeuristicFilters(heuristicFilters);
 		sglr.getDisambiguator().setAmbiguityIsError(ambiguityIsError);
 		if (!buildParseTree)
-			treeBuilder = new NullTreeBuilder();
+			sglr.setTreeBuilder(new NullTreeBuilder());
 		else if (implode)
-			treeBuilder = new TreeBuilder(new TermTreeFactory(new TermFactory()), true);
-		
-		MemoryRecordingTreeBuilder memory = null;
-		if(measureMemory) {
-			memory = new MemoryRecordingTreeBuilder(treeBuilder);
-			sglr.setTreeBuilder(memory);
-		} else {
-			sglr.setTreeBuilder(treeBuilder);
-		}
+			sglr.setTreeBuilder(new TreeBuilder(new TermTreeFactory(new TermFactory()), true));
 		
 		String input = FileTools.loadFileAsString(new BufferedReader(new FileReader(inputFile)));
 		
@@ -162,17 +148,11 @@ public class Main {
 			System.err.println("Parse table loading time : " + tableLoadingTime + "ms");
 			System.err.println("Parsing time             : " + (parsingTime / profilingRuns) + "ms");
 		}
-		
-		if(measureMemory) {
-			System.err.println("Total memory (min/max)   : " + memory.getMinTotal() + " / " + memory.getMaxTotal());
-			System.err.println("Used memory (min/max)    : " + memory.getMinUsed() + " / " + memory.getMaxUsed());
-			System.err.println("# of memory measurements : " + memory.getMeasureCount());
-		}
 	}
 
 	private static void warmup(final SGLR sglr, String inputFile, String input,
 			String startSymbol, int warmup) throws FileNotFoundException,
-			IOException {
+			IOException, InterruptedException {
 		long time = System.currentTimeMillis();
 		while (System.currentTimeMillis() < time + warmup * 1000) {
 			parseFile(input, inputFile, NO_OUTPUT, sglr, startSymbol);
@@ -181,7 +161,7 @@ public class Main {
 	}
 
 	public static long parseFile(String input, String inputFile, String output, SGLR sglr, String startSymbol)
-	throws FileNotFoundException, IOException {
+	throws FileNotFoundException, IOException, InterruptedException {
 		/* TODO: support stdin input
 		InputStream fis = null;
 		if(input == null) {

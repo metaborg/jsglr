@@ -9,6 +9,7 @@ package org.spoofax.jsglr.client;
 
 
 
+
 public class Reduce extends ActionItem {
 
     private static final long serialVersionUID = 8620275049778432244L;
@@ -21,7 +22,7 @@ public class Reduce extends ActionItem {
 
     public final Production production;
 
-    public Reduce(int arity, int label, int status, boolean isRecoverAction, boolean isCompletionAction) {
+    public Reduce(int arity, int label, int status, boolean isRecoverAction) {
 
         super(REDUCE);
 
@@ -29,7 +30,7 @@ public class Reduce extends ActionItem {
         this.label = label;
         this.status = status;
 
-        production = new Production(arity, label, status, isRecoverAction, isCompletionAction);
+        production = new Production(arity, label, status, isRecoverAction);
     }
 
 

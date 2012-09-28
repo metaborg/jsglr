@@ -148,11 +148,7 @@ public class ProductionAttributeReader {
 	public boolean isRecoverProduction(IStrategoAppl attrs, String constructor) {
 		return getAttribute(attrs, "recover") != null || isWaterConstructor(constructor);
 	}
-
-	public boolean isCompletionProduction(IStrategoAppl attrs, int subtermCount) {
-		return getAttribute(attrs, "completion") != null && subtermCount > 0;
-	}
-
+	
 	public boolean isRejectProduction(IStrategoAppl attrs) {
 		return getAttribute(attrs, "reject") != null;
 	}
@@ -199,10 +195,10 @@ public class ProductionAttributeReader {
     }
 	
 	// FIXME: support meta-var constructors
-	public String getMetaVarConstructor(IStrategoAppl rhs) {
+	public String getMetaVarConstructor(IStrategoAppl rhs, IStrategoAppl attrs) {
 		if (varSymFun == rhs.getConstructor()) {
 			rhs = termAt(rhs, 0);
-			return isList(rhs)
+			return isList(rhs, attrs)
 					? "meta-listvar"
 					: "meta-var";
 		}
@@ -340,7 +336,7 @@ public class ProductionAttributeReader {
 		return litFun == fun || cilitFun == fun;
 	}
 	
-	public boolean isList(IStrategoAppl rhs) {
+	public boolean isList(IStrategoAppl rhs, IStrategoAppl attrs) {
 		IStrategoAppl details = rhs;
 		
 		if (details.getConstructor() == varsymFun)
@@ -355,7 +351,14 @@ public class ProductionAttributeReader {
 		IStrategoConstructor fun = details.getConstructor();
 		
 		 // FIXME: Spoofax/159: AsfixImploder creates tuples instead of lists for seqs
-		return isIterFun(fun) || seqFun == fun;
+		if (isIterFun(fun) || seqFun == fun)
+		  return true;
+		
+	  return isFlatten(rhs, attrs);
+	}
+	
+	public boolean isFlatten(IStrategoAppl rhs, IStrategoAppl attrs) {
+	  return getAttribute(attrs, "flatten") != null;
 	}
 
 	public boolean isIterFun(IStrategoConstructor fun) {

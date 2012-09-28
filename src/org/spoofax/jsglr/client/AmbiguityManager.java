@@ -58,6 +58,14 @@ public class AmbiguityManager {
         ambiguitiesCount++;
     }
 
+    public void decreaseAmbiguityCount() {
+      ambiguitiesCount--;
+    }
+
+    public void decreaseAmbiguityCount(int c) {
+      ambiguitiesCount -= c;
+    }
+    
     public int getClusterIndex(AbstractParseNode t, int pos) {
         if(Tools.debugging) {
             Tools.debug("getClusterIndex()");

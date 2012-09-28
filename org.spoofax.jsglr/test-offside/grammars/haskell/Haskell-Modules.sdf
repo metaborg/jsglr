@@ -1,0 +1,94 @@
+module Haskell-Modules
+exports
+  context-free syntax
+    "module" Modid Exports?
+            "where" Body 	-> Module 	{cons("Module")}
+    Body 			-> Module 	{cons("Program")}
+    Decl 		   	-> Topdecl
+
+  context-free syntax
+  	"{" NoOffsideBody "}" -> Body {ignore-layout, bracket}
+    OffsideBody           -> Body
+  	
+  	"" -> Empty {cons("Empty")}
+  	
+  	Empty                          Empty                   -> NoOffsideBody {cons("Body")}
+  	Empty                          NoOffsideTopdeclListSem -> NoOffsideBody {cons("Body")}
+  	NoOffsideImportdeclListSem     Empty                   -> NoOffsideBody {cons("Body")}
+    NoOffsideImportdeclListSem ";" NoOffsideTopdeclList -> NoOffsideBody {cons("Body")}
+
+    Empty                 Empty              -> OffsideBody {cons("Body")}
+    Empty                 OffsideTopdeclList -> OffsideBody {cons("Body")}
+    OffsideImportdeclList Empty              -> OffsideBody {cons("Body")}
+    OffsideImportdeclListNEWLINE OffsideTopdeclList -> OffsideBody {cons("Body"), layout(eq(col(first(1)), col(first(2))))}
+
+    
+%% No offside import declarations    
+  context-free priorities
+    Importdecl -> NoOffsideImportdecl
+  >
+    NoOffsideImportdecl ";" -> NoOffsideImportdecl
+%%  >
+%%    ";" NoOffsideImportdecl -> NoOffsideImportdecl
+
+  context-free syntax
+    NoOffsideImportdecl -> NoOffsideImportdeclList
+    NoOffsideImportdecl ";" NoOffsideImportdeclList -> NoOffsideImportdeclList {cons("ImportdeclSeq")}
+
+    NoOffsideImportdeclList  -> NoOffsideImportdeclListSem
+    ";" NoOffsideImportdeclListSem -> NoOffsideImportdeclListSem 
+
+%% No offside top declarations
+  context-free priorities
+    Topdecl -> NoOffsideTopdecl
+  >
+    NoOffsideTopdecl ";" -> NoOffsideTopdecl {prefer}
+
+  context-free syntax
+    NoOffsideTopdecl -> NoOffsideTopdeclList
+    NoOffsideTopdecl ";" NoOffsideTopdeclList -> NoOffsideTopdeclList {cons("TopdeclSeq")}
+
+    NoOffsideTopdeclList  -> NoOffsideTopdeclListSem
+    ";" NoOffsideTopdeclListSem -> NoOffsideTopdeclListSem 
+
+
+%% Offside import declarations
+  context-free priorities
+    Importdecl -> OffsideImportdecl {layout(gt(col(left(1)), col(first(1))))}
+  >
+    OffsideImportdecl ";" -> OffsideImportdecl {layout(gt(col(first(2)), col(first(1))))}
+  >
+    ";" OffsideImportdecl -> OffsideImportdecl {layout(gt(col(first(2)), col(first(1))))}
+  >
+    Importdecl ";" OffsideImportdecl -> OffsideImportdecl
+          {cons("ImportdeclSeq"),
+           layout(and(gt(col(left(1)), col(first(1))),
+                  and(gt(col(first(2)), col(first(1))),
+                      gt(col(first(3)), col(first(1))))))}
+
+  context-free syntax
+    OffsideImportdecl -> OffsideImportdeclList
+    OffsideImportdeclNEWLINE OffsideImportdeclList -> OffsideImportdeclList {cons("ImportdeclSeq"), layout(eq(col(first(1)), col(first(2))))}
+
+    OffsideImportdecl LAYOUT? -> OffsideImportdeclNEWLINE {enforce-newline}
+    OffsideImportdeclList LAYOUT? -> OffsideImportdeclListNEWLINE {enforce-newline}
+
+%% Offside top declarations
+  context-free priorities
+    Topdecl -> OffsideTopdecl {layout(gt(col(left(1)), col(first(1))))}
+  >
+    OffsideTopdecl ";" -> OffsideTopdecl {prefer,layout(gt(col(first(2)), col(first(1))))}
+  >
+    ";" OffsideTopdecl -> OffsideTopdecl {layout(gt(col(first(2)), col(first(1))))}
+  >
+    Topdecl ";" OffsideTopdecl -> OffsideTopdecl
+          {cons("TopdeclSeq"),
+           layout(and(gt(col(left(1)), col(first(1))),
+                  and(gt(col(first(2)), col(first(1))),
+                      gt(col(first(3)), col(first(1))))))}
+
+  context-free syntax
+    OffsideTopdecl -> OffsideTopdeclList
+    OffsideTopdeclNEWLINE OffsideTopdeclList -> OffsideTopdeclList {cons("TopdeclSeq"), layout(eq(col(first(1)), col(first(2))))}
+
+    OffsideTopdecl LAYOUT? -> OffsideTopdeclNEWLINE {enforce-newline}

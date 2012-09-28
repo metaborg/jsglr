@@ -1,0 +1,10 @@
+module sdf2parenthesize
+
+strategies
+
+  r :
+    a ->
+      |[ 
+         rules
+           ~*rs
+      ]|

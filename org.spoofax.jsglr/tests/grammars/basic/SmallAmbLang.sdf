@@ -1,0 +1,23 @@
+module basic/SmallAmbLang
+
+exports
+
+  context-free start-symbols
+    Start
+
+context-free syntax
+  
+    Type     -> Start {cons("Module")}
+    ID -> Type {cons("AType")}
+    "xyz" -> Type {cons("BType")}
+
+lexical syntax
+	
+	"xyz" -> ID
+	[\ \t\n\r] -> LAYOUT
+	
+context-free restrictions
+  
+    %% Ensure greedy matching for comments
+
+    LAYOUT? -/- [\ \t\n\r]

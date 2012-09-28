@@ -1,0 +1,21 @@
+definition
+module Main
+
+exports
+
+  context-free start-symbols
+    Start
+
+  context-free syntax
+
+    RegexExp "."  -> Start {cons("Call")}
+
+    "/" Pattern "/" -> RegexExp { cons("RegexPattern") }
+  
+  lexical syntax
+  
+    [a-z]* -> Pattern
+
+  context-free restrictions
+    LAYOUT? -/- [\/].[\*]
+    LAYOUT? -/- [\/].[\/]

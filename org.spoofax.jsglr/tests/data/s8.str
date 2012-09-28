@@ -1,0 +1,3 @@
+module testamb
+rules		
+leq-pos=?(t1)

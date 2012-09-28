@@ -1,0 +1,6 @@
+package java.java6;
+
+class Foo {
+  int foo();
+  the int bar makes no sense
+}

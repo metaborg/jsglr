@@ -1,6 +1,0 @@
-module Haskell-Signature-Declarations
-exports
-  context-free syntax
-    Signdecl 	   -> Decl 
-    Vars "::" Context? Type -> Signdecl {cons("SignDecl")}
-   

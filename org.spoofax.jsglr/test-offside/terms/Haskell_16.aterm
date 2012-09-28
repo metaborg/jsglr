@@ -1,8 +1,0 @@
-Program(
-  Body(
-    Empty,
-    Valdef(
-      Var("f"),
-      Do(
-        StmtList(
-          ExpStmt(AppBin(Var("x"),Var("y"))))))))

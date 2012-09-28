@@ -1,5 +1,0 @@
-DoStm(StmList(
-  StmSeq(ReturnZeroStm,
-         DoStm(StmList(
-           StmSeq(ReturnZeroStm,
-                  ReturnZeroStm))))))

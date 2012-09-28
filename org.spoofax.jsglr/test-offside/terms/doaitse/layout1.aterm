@@ -1,8 +1,0 @@
-Program(Body(Empty,
-  Valdef(
-    Var("test"),
-    Let(
-      DeclList(
-        DeclSeq(Valdef(Var("x"),Lit(Int("1"))),
-                Valdef(Var("y"),Var("x")))),
-      Var("y")))))

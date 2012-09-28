@@ -1,5 +1,0 @@
-Program(Body(Empty,
-  Valdef(
-    VarFunLHS(Var("f"),[Var("x")]),
-    Do(StmtList(
-      ExpStmt(Var("x")))))))

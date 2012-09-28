@@ -1,1 +1,0 @@
--- comment{ id x = x; f x = let{ x = y; y = 1 } in 1}

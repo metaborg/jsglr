@@ -1,8 +1,0 @@
-module Haskell-Qualifiers
-exports
-  context-free syntax
-    {Qual ","}+ 	 -> Quals
-    Pat "<-" Exp 	 -> Qual {cons("QualBind")}
-    Exp 	      	 -> Qual
-    "let" Declbinds   	 -> Qual {cons("QualLet")}
-

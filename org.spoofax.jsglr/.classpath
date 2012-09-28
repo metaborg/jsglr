@@ -12,6 +12,5 @@
 	<classpathentry kind="lib" path="gwt-servlet.jar"/>
 	<classpathentry kind="lib" path="gwt-soyc-vis.jar"/>
 	<classpathentry kind="lib" path="gwt-user.jar"/>
-	<classpathentry kind="lib" path="org.spoofax.terms_1.0.0.201105211714.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

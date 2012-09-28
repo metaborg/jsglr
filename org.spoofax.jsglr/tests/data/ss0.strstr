@@ -1,6 +1,0 @@
-module meta_var
-
-strategies
-
-  generate-rule :
-    pos -> |[ l : t1 -> t2 where fail ]|

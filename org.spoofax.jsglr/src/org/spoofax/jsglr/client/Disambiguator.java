@@ -1409,12 +1409,10 @@ public class Disambiguator {
       nodes.push(n);
     }
     
-    @Override
     public void remove() {
       throw new UnsupportedOperationException();
     }
     
-    @Override
     public int[] next() {
       if (!computedNext)
         computeNext();
@@ -1424,7 +1422,6 @@ public class Disambiguator {
       return res;
     }
     
-    @Override
     public boolean hasNext() {
       if (!computedNext)
         computeNext();

@@ -3,4 +3,5 @@ Program(Body(Empty,
     VarFunLHS(Var("test"),[Var("x")]),
     Product(
       Cons(Case(Var("x"),AltList(Alt(Int("1"),Lit(Int("1")),Where(DeclList(Empty))))),
-           [Lit(Int("1"))])))))
+           [Lit(Int("1"))])),
+    Where(DeclList(Empty)))))

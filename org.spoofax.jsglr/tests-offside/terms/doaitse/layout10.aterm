@@ -4,4 +4,5 @@ Program(Body(Empty,
     Do(StmtList(
       StmtSeq(ExpStmt(Var("x")),
       StmtSeq(ExpStmt(Var("x")),
-              ExpStmt(Var("x")))))))))
+              ExpStmt(Var("x")))))),
+    Where(DeclList(Empty)))))

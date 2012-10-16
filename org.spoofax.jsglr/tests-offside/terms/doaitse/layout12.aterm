@@ -3,4 +3,5 @@ Program(Body(Empty,
     VarFunLHS(Var("f"),[Var("x")]),
     Do(StmtList(
       StmtSeq(ExpStmt(Var("x")),
-              ExpStmt(If(Var("x"),Var("x"),Var("x")))))))))
+              ExpStmt(If(Var("x"),Var("x"),Var("x")))))),
+    Where(DeclList(Empty)))))

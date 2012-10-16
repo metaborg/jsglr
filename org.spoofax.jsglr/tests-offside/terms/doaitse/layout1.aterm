@@ -3,6 +3,7 @@ Program(Body(Empty,
     Var("test"),
     Let(
       DeclList(
-        DeclSeq(Valdef(Var("x"),Lit(Int("1"))),
-                Valdef(Var("y"),Var("x")))),
-      Var("y")))))
+        DeclSeq(Valdef(Var("x"),Lit(Int("1")),Where(DeclList(Empty))),
+                Valdef(Var("y"),Var("x"),Where(DeclList(Empty))))),
+      Var("y")),
+    Where(DeclList(Empty)))))

@@ -1,0 +1,44 @@
+module GHC-Magic-Hash
+imports Haskell-Identifiers
+imports Haskell-Numbers
+imports Haskell-Strings
+exports
+  lexical syntax
+  	[a-z][A-Za-z0-9\'\_]*[\#]+ -> VARID
+    [\_][A-Za-z0-9\'\_]+[\#]+  -> VARID
+    [A-Z][A-Za-z0-9\'\_]*[\#]+ -> CONID
+  
+  lexical restrictions
+  	VARID -/- [\#]
+  	CONID -/- [\#]
+
+  lexical syntax
+    Decimal              -> INTEGER-HASH
+    [0] [Oo] Octal       -> INTEGER-HASH
+    [0] [Xx] Hexadecimal -> INTEGER-HASH
+    
+    Decimal "." Decimal           -> FLOAT-HASH
+    Decimal Exponent              -> RATIONAL-HASH
+    Decimal "." Decimal Exponent  -> RATIONAL-HASH
+
+  syntax
+    "'" CharChar "'" "#"       -> <Char-HASH-CF> {cons("CharHash")}
+    "\"" StringChar* "\"" "#"  -> <String-HASH-CF> {cons("StringHash")}
+    <INTEGER-HASH-LEX> "#" -> <Integer-HASH-CF> {cons("IntegerHash")}
+    <FLOAT-HASH-LEX> "#" -> <Float-HASH-CF> {cons("FloatHash")}
+    <RATIONAL-HASH-LEX> "#" -> <Float-HASH-CF> {cons("FloatHash")}
+    
+  context-free syntax
+    Char-HASH   -> Literal
+    String-HASH -> Literal
+    Integer-HASH  -> Literal
+    Float-HASH    -> Literal
+    
+  lexical restrictions
+    INTEGER -/- [\#]
+    FLOAT -/- [\#]
+    RATIONAL -/- [\#]
+    
+  context-free restrictions
+    Char -/- [\#]
+    String -/- [\#]

@@ -1,4 +1,3 @@
-
    
 Scannerless Generalized LR parsing for Java
 ===========================================
@@ -13,13 +12,13 @@ Scannerless Generalized LR parsing for Java
 Project page
 ============
 
- http://www.spoofax.org/jsglr.html
+ http://www.spoofax.org/jsglr
 
 
-Bugs
-====
+Bug tracker
+===========
 
- https://bugs.strategoxt.org/browse/SPX
+ http://yellowgrass.org/project/Spoofax
 
 
 

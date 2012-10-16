@@ -19,7 +19,7 @@ public class TestG1 extends ParseTestCase {
     }
 
 
-    public void testG1_1() {
+    public void testG1_1() throws InterruptedException {
         doParseTest("g1_1");
     }
 }

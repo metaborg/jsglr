@@ -22,7 +22,7 @@ public class TestG_ambi extends ParseTestCase {
     	doParseTest("g-ambi-1");
     }
 
-    public void testG_ambi_2() {
+    public void testG_ambi_2() throws InterruptedException {
         doParseTest("g-ambi-2");
     }
 }

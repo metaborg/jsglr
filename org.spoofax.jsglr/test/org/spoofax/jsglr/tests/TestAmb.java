@@ -21,7 +21,7 @@ public class TestAmb extends ParseTestCase {
     }
 
 
-    public void testAmb_1() {
+    public void testAmb_1() throws InterruptedException {
     	sglr.setTreeBuilder(new TreeBuilder());
     	doCompare=false; //c-sglr does not show ambiguity, sglri does???
     	IStrategoTerm parsed=doParseTest("amb1");

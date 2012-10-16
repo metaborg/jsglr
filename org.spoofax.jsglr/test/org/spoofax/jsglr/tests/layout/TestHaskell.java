@@ -18,7 +18,7 @@ public class TestHaskell extends AbstractParseTestCase {
   @Override
   public void gwtSetUp() throws FileNotFoundException, IOException,
       ParserException, InvalidParseTableException {
-    super.gwtSetUp("haskell/Haskell", "test-offside/terms", "txt");
+    super.gwtSetUp("haskell/Haskell", "tests-offside/terms", "txt");
   }
 
   public void testHaskell_1() throws FileNotFoundException, IOException {

@@ -73,7 +73,7 @@ public abstract class AbstractParseTestCase extends TestCase {
       InvalidParseTableException {
     this.directory = directory;
     this.suffix = suffix;
-    final String fn = "test-offside/grammars/" + grammar + ".tbl";
+    final String fn = "tests-offside/grammars/" + grammar + ".tbl";
 
     try {
       table = parseTables.loadFromFile(fn);
@@ -87,9 +87,9 @@ public abstract class AbstractParseTestCase extends TestCase {
     BufferedWriter write = null;
     BufferedWriter writePrios = null;
     try {
-      write = new BufferedWriter(new FileWriter("test-offside/grammars/"
+      write = new BufferedWriter(new FileWriter("tests-offside/grammars/"
           + grammar + ".labs"));
-      writePrios = new BufferedWriter(new FileWriter("test-offside/grammars/"
+      writePrios = new BufferedWriter(new FileWriter("tests-offside/grammars/"
           + grammar + ".prios"));
 
       List<Label> labels = sglr.getParseTable().getLabels();

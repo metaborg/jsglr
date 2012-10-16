@@ -18,7 +18,7 @@ public class TestSimple2 extends AbstractParseTestCase {
   @Override
   public void gwtSetUp() throws FileNotFoundException, IOException,
       ParserException, InvalidParseTableException {
-    super.gwtSetUp("Simple2", "test-offside/terms/", "txt");
+    super.gwtSetUp("Simple2", "tests-offside/terms/", "txt");
   }
 
   public void testSimple2_1() throws FileNotFoundException, IOException {

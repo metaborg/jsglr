@@ -7,12 +7,10 @@
 	<property name="strategoxt" value="../tools/strategoxt.jar" />
 	
 	<target name="compile">
-		<compile-grammar module="Simple1" />
 		<compile-grammar module="Simple2" />
 	</target>
 	
 	<target name="gen-signature">
-		<compile-signature module="Simple1"/>
 		<compile-signature module="Simple2"/>
 	</target>
 

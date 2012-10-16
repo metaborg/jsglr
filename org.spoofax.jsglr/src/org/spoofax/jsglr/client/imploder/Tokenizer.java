@@ -79,7 +79,9 @@ public class Tokenizer extends AbstractTokenizer {
 	
 	public Token getTokenAt(int i) {
 		Token result = tokens.get(i);
-		assert i == 0 || result.getIndex() == i;
+		// Disabled: might fail for testing language token sequences
+		//           (e.g., self-application.spt)
+		// assert i == 0 || result.getIndex() == i;
 		return result;
 	}
 	
@@ -210,6 +212,8 @@ public class Tokenizer extends AbstractTokenizer {
 				makeToken(offset, TK_ERROR, false, ERROR_SKIPPED_REGION);
 			}
 		}
+		
+		setSyntaxCorrect(false);
 	}
 
 	private boolean isAtPotentialKeywordEnd(int offset, boolean isInputKeywordChar) {

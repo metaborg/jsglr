@@ -162,7 +162,7 @@ public class Measures {
             proAvgParseTime = (int)Math.round((m.getAverageParseTime()*1.0/base.getAverageParseTime())*100);
             
             // Count
-            proParseCount = (int)Math.round((m.getParseCount()*1.0/base.getParseCount())*100);
+            proParseCount = (int)Math.round((Measures.getParseCount()*1.0/Measures.getParseCount())*100);
             proRedCount = (int)Math.round((m.getReductionCount()*1.0/base.getReductionCount())*100);
             proAvoidCount = (int)Math.round((m.getAvoidCount()*1.0/base.getAvoidCount())*100);
             

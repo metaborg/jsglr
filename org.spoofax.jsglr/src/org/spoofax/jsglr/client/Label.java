@@ -45,6 +45,10 @@ public class Label implements Serializable {
     public boolean isRecoverProduction() {
         return productionAttributes.isRecoverProduction();
     }
+    
+    public boolean isCompletionProduction() {
+        return productionAttributes.isCompletionProduction();
+    }
 
     public boolean isMoreEager(Label rightProd) {
         return productionAttributes.isMoreEager(rightProd.productionAttributes);

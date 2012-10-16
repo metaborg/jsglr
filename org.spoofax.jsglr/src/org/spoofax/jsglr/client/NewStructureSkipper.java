@@ -241,9 +241,9 @@ public class NewStructureSkipper {
             }
             indexEnd++;
         }         
-        IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexEnd));
-        if(indexStart<0)
+        if(indexStart<0 || indexEnd > getHistory().getIndexLastLine())
             return prevRegions;
+        IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexEnd));
         IndentInfo startSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexStart));
         StructureSkipSuggestion previousRegion=new StructureSkipSuggestion();
         previousRegion.setSkipLocations(startSkip, endSkip, indexStart, indexEnd);
@@ -406,9 +406,8 @@ public class NewStructureSkipper {
     
     private int findParentBegin(int startLineIndex) {
         int indentStartLine=separatorIndent(startLineIndex); 
-        int indexHistoryLines=startLineIndex;
+        int indexHistoryLines=startLineIndex-1;
         while(indexHistoryLines > 0){
-            indexHistoryLines-=1;            
             int indentSkipPosition=separatorIndent(indexHistoryLines); //currentLine.getIndentValue();
             indentShift shift=calculateShift(indentStartLine, indentSkipPosition);
             if (shift==indentShift.DEDENT){
@@ -421,6 +420,7 @@ public class NewStructureSkipper {
                 }                
                 return indexHistoryLines;
             }            
+            indexHistoryLines-=1;            
         }        
         return 0; //SOF
     }
@@ -454,7 +454,7 @@ public class NewStructureSkipper {
     private String readLine(int index) {
         while(getHistory().getIndexLastLine()<=index && myParser.getCurrentToken()!=SGLR.EOF)
             getHistory().readRecoverToken(myParser, false);
-        if(index<=getHistory().getIndexLastLine()){
+        if(0 <= index && index<=getHistory().getIndexLastLine()){
             IndentInfo line=getHistory().getLine(index);
             return readLine(line);
         }

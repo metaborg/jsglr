@@ -641,8 +641,7 @@ public class Disambiguator {
     return t;
   }
 
-  private AbstractParseNode applyRightAssociativeFilter(ParseNode t,
-      Label prodLabel) {
+  private AbstractParseNode applyRightAssociativeFilter(ParseNode t, Label prodLabel) {
     // SG_Right_Associativity_Filter(t, prodl)
     // - almost ok
 

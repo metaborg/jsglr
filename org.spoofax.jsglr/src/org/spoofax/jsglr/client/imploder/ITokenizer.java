@@ -22,12 +22,16 @@ public interface ITokenizer extends Iterable<IToken> {
 	
 	public static final String ERROR_INSERT_END_PREFIX =
 		"Syntax error, unterminated construct";
-	
+
+	public static final String ERROR_INCOMPLETE_PREFIX =
+		"Syntax error, incomplete construct";
+
 	public static final String ERROR_GENERIC_PREFIX =
 		"Syntax error";
 
 	public static final String ERROR_WARNING_PREFIX =
 		"Warning";
+
 
 	String getInput();
 
@@ -65,6 +69,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	 * invoked for each character in a skipped/erroneous region of code.
 	 * Required for keyword highlighting with {@link KeywordRecognizer}.
 	 * 
+	 * Additionally, ensures that {@link #isSyntaxCorrect()} returns false.
+	 * 
 	 * @param offset
 	 *           The offset of the 
 	 */
@@ -83,6 +89,8 @@ public interface ITokenizer extends Iterable<IToken> {
 	void markPossibleSyntaxError(LabelInfo label, IToken firstToken, int endOffset, ProductionAttributeReader prodReader);
 	
 	boolean isSyntaxCorrect();
+	
+	void setSyntaxCorrect(boolean syntaxCorrect);
 
 	String toString(IToken left, IToken right);
 

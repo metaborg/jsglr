@@ -24,14 +24,18 @@ import org.spoofax.jsglr.shared.Tools;
 
 public class SGLR {
 
-  private static final boolean ENFORCE_NEWLINE_FILTER = true;
-  private static final boolean PARSE_TIME_LAYOUT_FITER = true;
-  
-  private int layoutFiltering;
-  
-  private int enforcedNewlineSkip = 0;
-  
-  private RecoveryPerformance performanceMeasuring;
+	private static final boolean ENFORCE_NEWLINE_FILTER = true;
+	private static final boolean PARSE_TIME_LAYOUT_FITER = true;
+	
+	/**
+	 * logging variables
+	 */
+	private int layoutFiltering;
+	private int enforcedNewlineSkip = 0;
+	  
+	private RecoveryPerformance performanceMeasuring;
+	
+	private static final int COMPLETION_REGION_SIZE = 1000;
 
 	private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
 
@@ -61,7 +65,7 @@ public class SGLR {
 	
 	private int currentIndentation;
 	
-	protected int tokensSeen;
+	private int tokensSeen;
 
 	protected int lineNumber;
 
@@ -112,15 +116,49 @@ public class SGLR {
 	private AbstractParseNode parseTree;
 
 	protected boolean useIntegratedRecovery;
+
+	public void setUseStructureRecovery(boolean useRecovery) {
+		this.useIntegratedRecovery = useRecovery;
+		this.recoverIntegrator = new RecoveryConnector(this);
+	}
+
+	public void setUseStructureRecovery(boolean useRecovery, IntegratedRecoverySettings settings, FineGrainedSetting fgSettings) {
+		this.useIntegratedRecovery = useRecovery;
+		this.recoverIntegrator = new RecoveryConnector(this, settings, fgSettings);
+	}
+
+	private boolean isCompletionMode;
 	
 	public ParserHistory getHistory() {
 		return history;
 	}
+	
+	public int getParserLocation(){
+		return this.getHistory().getTokenIndex(); //should also work in recover mode
+	}
 
-	private boolean fineGrainedOnRegion;
+	private boolean isFineGrainedMode;
+	
+	private int fineGrainedStartLocation;
+	
+	private int fineGrainedRecoverMax;
+
+	private int cursorLocation;
 	
 	private LayoutFilter layoutFilter;
 
+	public int getCursorLocation() {
+		return cursorLocation;
+	}
+	
+	public boolean isSetCursorLocation() {
+		return 0 < cursorLocation && cursorLocation != Integer.MAX_VALUE;
+	}
+	
+	private void setCompletionParse(boolean isCompletionMode, int cursorLocation){
+		this.isCompletionMode = isCompletionMode;
+		this.cursorLocation = cursorLocation;
+	}
 
 	protected ArrayDeque<Frame> getRecoverStacks() {
 		return recoverStacks;
@@ -171,53 +209,31 @@ public class SGLR {
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
 		this.parseTable = parseTable;
-
 		activeStacks = new ArrayDeque<Frame>();
 		forActor = new ArrayDeque<Frame>();
 		forActorDelayed = new ArrayDeque<Frame>();
 		forShifter = new ArrayDeque<ActionState>();
 		disambiguator = new Disambiguator();
 		useIntegratedRecovery = false;
-		recoverIntegrator = null;
+		setUseStructureRecovery(false);
 		history = new ParserHistory();
+    	setCompletionParse(false, Integer.MAX_VALUE);
 		setTreeBuilder(treeBuilder);
 		layoutFilter = new LayoutFilter(parseTable, true);
 	}
-
-	public void setUseStructureRecovery(boolean useRecovery, IRecoveryParser parser) {
-		useIntegratedRecovery = useRecovery;
-		recoverIntegrator = new RecoveryConnector(this, parser);
-	}
-
-	/**
-	 * Enables error recovery based on region recovery and, if available, recovery rules.
-	 * Does not enable bridge parsing.
-	 *
-	 * @see ParseTable#hasRecovers()   Determines if the parse table supports recovery rules
-	 */
-	public final void setUseStructureRecovery(boolean useRecovery) {
-		setUseStructureRecovery(useRecovery, null);
-	}
 	
-    protected void setFineGrainedOnRegion(boolean fineGrainedMode) {
-        fineGrainedOnRegion = fineGrainedMode;
+    protected void setFinegrainedRecoverMode(boolean fineGrainedMode) {
+        this.isFineGrainedMode = fineGrainedMode;
         recoverStacks = new ArrayDeque<Frame>();
     }
+    
+    protected void setFineGrainedStartLocation(int fineGrainedStartLocation) {
+		this.fineGrainedStartLocation = fineGrainedStartLocation;
+	}
 
-    @Deprecated
-    protected void setUseFineGrained(boolean useFG) {
-        recoverIntegrator.setUseFineGrained(useFG);
-    }
-
-    // FIXME: we have way to many of these accessors; does this have to be public?
-    //        if not for normal use, it should at least be 'internalSet....'
-    @Deprecated
-    public void setCombinedRecovery(boolean useBP, boolean useFG,
-            boolean useOnlyFG) {
-        recoverIntegrator.setOnlyFineGrained(useOnlyFG);
-        recoverIntegrator.setUseBridgeParser(useBP);
-        recoverIntegrator.setUseFineGrained(useFG);
-    }
+    protected void setFineGrainedRecoverMax(int fineGrainedRecoverMax) {
+		this.fineGrainedRecoverMax = fineGrainedRecoverMax;
+	}
 
     public RecoveryPerformance getPerformanceMeasuring() {
         return performanceMeasuring;
@@ -283,6 +299,24 @@ public class SGLR {
 	/**
 	 * Parses a string and constructs a new tree using the tree builder.
 	 * 
+	 * @param input           The input string.
+	 * @param filename        The source filename of the string, or null if not available.
+	 * @param startSymbol     The start symbol to use, or null if any applicable.
+	 * @param completionMode  True in case the parser result is used for content completion.
+	 * @param cursorLocation  The location of the cursor used to find completion recoveries.
+	 * @throws InterruptedException 
+	 */
+    public Object parse(String input, String filename, String startSymbol, boolean completionMode, int cursorLocation) 
+    	throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
+    	setCompletionParse(completionMode, cursorLocation);
+    	Object parseResult = parse(input, filename, startSymbol);
+    	setCompletionParse(false, Integer.MAX_VALUE);
+    	return parseResult;
+    }
+
+    /**
+	 * Parses a string and constructs a new tree using the tree builder.
+	 * 
 	 * @param input        The input string.
 	 * @param filename     The source filename of the string, or null if not available.
 	 * @param startSymbol  The start symbol to use, or null if any applicable.
@@ -294,6 +328,7 @@ public class SGLR {
 		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
+		getPerformanceMeasuring().startParse();
         Object result = sglrParse(startSymbol);
         return result;
 	}
@@ -301,14 +336,12 @@ public class SGLR {
 	private Object sglrParse(String startSymbol)
 	throws BadTokenException, TokenExpectedException,
 	ParseException, SGLRException, InterruptedException {
-		getPerformanceMeasuring().startParse();
 		try {
 			do {
 		     if (Thread.currentThread().isInterrupted())
 		        throw new InterruptedException();
 
 				readNextToken();
-				//System.out.print((char)currentToken);
 				history.keepTokenAndState(this);
 				doParseStep();
 			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
@@ -342,9 +375,14 @@ public class SGLR {
 		if (s == null) {
 			throw new ParseException(this, "Accepting stack has no link");
 		}
+		//System.out.println(s.recoverCount);
+		assert(s.recoverCount <= s.recoverWeight);
+
+		performanceMeasuring.setRecoverCount(s.recoverCount);
 
 		logParseResult(s);
-		Tools.debug("avoids: ", s.recoverCount);
+		//System.out.println("recoveries: " + s.recoverCount);
+		Tools.debug("recoveries: ", s.recoverCount);
 		//Tools.debug(s.label.toParseTree(parseTable));
 
 		if (getTreeBuilder() instanceof NullTreeBuilder) {
@@ -675,7 +713,16 @@ public class SGLR {
 	}
 
 	private boolean recoverModeOk(Frame st, Production prod) {
-		return !prod.isRecoverProduction() || fineGrainedOnRegion;
+		if(!prod.isCompletionProduction()){
+			return !prod.isRecoverProduction() || isFineGrainedMode;
+		}
+		return inCompletionMode(prod);
+	}
+
+	private boolean inCompletionMode(Production prod) {
+		if(!prod.isCompletionStartProduction()) //Performance trick: -> "@#$" {completion} starts the completion
+			return isCompletionMode && cursorLocation <= getParserLocation() && getParserLocation() <= cursorLocation + COMPLETION_REGION_SIZE;
+		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= getParserLocation() && getParserLocation() <= cursorLocation;
 	}
 
 	private void doLimitedReductions(Frame st, Production prod, Link l) throws InterruptedException { //Todo: Look add sharing code with doReductions
@@ -694,56 +741,77 @@ public class SGLR {
 
 	private void reduceAllPaths(Production prod, PooledPathList paths) throws InterruptedException {
 
-		for(int i = 0; i < paths.size(); i++) {
+		for (int i = 0; i < paths.size(); i++) {
 			final Path path = paths.get(i);
 			final AbstractParseNode[] kids = path.getParseNodes();
 			final Frame st0 = path.getEnd();
 			final State next = parseTable.go(st0.state, prod.label);
 			logReductionPath(prod, path, st0, next);
-			
-			if (PARSE_TIME_LAYOUT_FITER &&
-			    !layoutFilter.hasValidLayout(prod.label, kids)) {
-			  layoutFiltering++;
-			  continue;
+
+			if (PARSE_TIME_LAYOUT_FITER
+				&& !layoutFilter.hasValidLayout(prod.label, kids)) {
+				layoutFiltering++;
+				continue;
+			} else if (PARSE_TIME_LAYOUT_FITER)
+				layoutFiltering += layoutFilter.getDisambiguationCount();
+
+			if (ENFORCE_NEWLINE_FILTER
+				&& parseTable.getLabel(prod.label).getAttributes().isNewlineEnforced()) {
+				boolean hasNewline = false;
+				for (int j = kids.length - 1; j >= 0; j--) {
+					int status = kids[j].getLayoutStatus();
+
+					if (status == AbstractParseNode.NEWLINE_LAYOUT) {
+						hasNewline = true;
+						break;
+					}
+					if (status == AbstractParseNode.OTHER_LAYOUT) {
+						hasNewline = false;
+						break;
+					}
+				}
+
+				if (!hasNewline) {
+					enforcedNewlineSkip++;
+					continue;
+				}
 			}
-			else if (PARSE_TIME_LAYOUT_FITER)
-			  layoutFiltering += layoutFilter.getDisambiguationCount();
-			
-			if (ENFORCE_NEWLINE_FILTER && 
-          parseTable.getLabel(prod.label).getAttributes().isNewlineEnforced()) {
-        boolean hasNewline = false;
-        for (int j = kids.length - 1; j >= 0; j--) {
-          int status = kids[j].getLayoutStatus();
-          
-          if (status == AbstractParseNode.NEWLINE_LAYOUT) {
-            hasNewline = true;
-            break;
-          }
-          if (status == AbstractParseNode.OTHER_LAYOUT) {
-            hasNewline = false;
-            break;
-          }
-        }
-        
-        if (!hasNewline) {
-          enforcedNewlineSkip++;
-          continue;
-        }
-      }
 
-
-			if(!prod.isRecoverProduction())
-				reducer(st0, next, prod, kids, path);
-			else
-				reducerRecoverProduction(st0, next, prod, kids, path);				
+			if (!prod.isCompletionProduction()
+					|| isReductionOverCursorLocation(path)) {
+				if (checkMaxRecoverCount(prod, path)) {
+					if (!prod.isRecoverProduction())
+						reducer(st0, next, prod, kids, path);
+					else
+						reducerRecoverProduction(st0, next, prod, kids, path);
+				}
+			}
 		}
 
 		if (asyncAborted) {
 			// Rethrown as ParseTimeoutException in SGLR.sglrParse()
-			throw new TaskCancellationException("Long-running parse job aborted");
+			throw new TaskCancellationException(
+					"Long-running parse job aborted");
 		}
 	}
 
+	private boolean checkMaxRecoverCount(Production prod, final Path path) {
+		return checkRecoverCountLocal(prod, path) && checkRecoverCountGlobal(prod, path);
+	}
+
+	private boolean checkRecoverCountLocal(Production prod, final Path path) {
+		return !isFineGrainedMode || 
+			calcRecoverCount(prod, path) <= fineGrainedRecoverMax || 
+			getHistory().getTokenIndex() - path.getLength() < fineGrainedStartLocation; //large reduction
+	}
+
+	private boolean checkRecoverCountGlobal(Production prod, final Path path) {
+		return calcRecoverCount(prod, path) <= this.recoverIntegrator.getMaxNumberOfRecoverApplicationsGlobal();
+	}
+
+	private boolean isReductionOverCursorLocation(final Path path) {
+		return getParserLocation() - path.getLength() < cursorLocation;
+	}
 	
 	private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) throws InterruptedException {
 		assert(!prod.isRecoverProduction());
@@ -758,48 +826,47 @@ public class SGLR {
 		                                       path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
 		                                       parseTable.getLabel(prod.label).isLayout(),
 		                                       parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout());
+		final int recoverWeight = calcRecoverWeight(prod, path);
 		final Frame st1 = findStack(activeStacks, s);
 
 		if (st1 == null) {
 			// Found no existing stack with for state s; make new stack
-			Link nl = addNewStack(st0, s, prod, length, numberOfRecoveries, t);
-//			if (illegalLayout) {
-//			  nl.reject();
-//			}
+			addNewStack(st0, s, prod, length, numberOfRecoveries, recoverWeight, t);
 		} else {
 			/* A stack with state s exists; check for ambiguities */
 			Link nl = st1.findDirectLink(st0);
 
 			if (nl != null) {
-        logAmbiguity(st0, prod, st1, nl);
-        if (prod.isRejectProduction()) {
-          nl.reject();
-        } 
-//        else if (illegalLayout) {
-//          nl.reject();
-//        }
-        if(numberOfRecoveries == 0 && nl.recoverCount == 0 || nl.isRejected()) {
-          createAmbNode(t, nl);
-        } else if (numberOfRecoveries < nl.recoverCount) {
-          nl.label = t;
-          nl.recoverCount = numberOfRecoveries;
-          actorOnActiveStacksOverNewLink(nl);
-        } else if (numberOfRecoveries == nl.recoverCount) {
-          nl.label = t;
-        }
-      } else {
-        nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
-        nl.recoverCount = numberOfRecoveries;
-        if (prod.isRejectProduction()) {
-          nl.reject();
-          increaseRejectCount();
-        }
-//        else if (illegalLayout) {
-//          nl.reject();
-//        }
-        logAddedLink(st0, st1, nl);
-        actorOnActiveStacksOverNewLink(nl);
-      }
+
+				logAmbiguity(st0, prod, st1, nl);
+				if (prod.isRejectProduction()) {
+					nl.reject();
+				} 
+				if(recoverWeight == 0 && nl.recoverWeight == 0 || nl.isRejected()) {
+					createAmbNode(t, nl);
+				} else if (recoverWeight < nl.recoverWeight) {
+					nl.label = t;
+					nl.recoverCount = numberOfRecoveries;
+					nl.recoverWeight = recoverWeight;
+					actorOnActiveStacksOverNewLink(nl);
+				} else if (recoverWeight == nl.recoverWeight) {
+					nl.label = t;
+				}
+			} else {
+				nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
+				nl.recoverWeight = recoverWeight;
+				nl.recoverCount = numberOfRecoveries;
+				if (prod.isRejectProduction()) {
+					nl.reject();
+					increaseRejectCount();
+				}
+				logAddedLink(st0, st1, nl);
+				actorOnActiveStacksOverNewLink(nl);
+			}
+		}
+		if(Tools.tracing) {
+			TRACE_ActiveStacks();
+			TRACE("SG_ - reducer done");
 		}
 	}
 	
@@ -807,25 +874,28 @@ public class SGLR {
 		assert(prod.isRecoverProduction());
 		final int length = path.getLength();
 		final int numberOfRecoveries = calcRecoverCount(prod, path);
+		final int recoverWeight = calcRecoverWeight(prod, path);
 		final AbstractParseNode t = prod.apply(kids, lineNumber, columnNumber, parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout());
+
 		final Frame stActive = findStack(activeStacks, s);
-		if(stActive!=null){
+		if(stActive != null){
 			Link lnActive=stActive.findDirectLink(st0);
 			if(lnActive!=null){
 				return; //TODO: ambiguity
 			}
 		}
 		final Frame stRecover = findStack(recoverStacks, s);
-		if(stRecover!=null){
+		if(stRecover != null){
 			Link nlRecover = stRecover.findDirectLink(st0);
-			if(nlRecover!=null){
+			if(nlRecover != null){
 				return; //TODO: ambiguity
 			}
 			nlRecover = stRecover.addLink(st0, t, length, t.getLine(), t.getColumn());
 			nlRecover.recoverCount = numberOfRecoveries;
+			nlRecover.recoverWeight = recoverWeight;
 			return;
 		}
-		addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, t);
+		addNewRecoverStack(st0, s, prod, length, numberOfRecoveries, recoverWeight, t);
 	}
 
 	private void createAmbNode(AbstractParseNode t, Link nl) {
@@ -837,12 +907,13 @@ public class SGLR {
 	 * Found no existing stack with for state s; make new stack
 	 */
 	private Link addNewStack(Frame st0, State s, Production prod, int length,
-			int numberOfRecoveries, AbstractParseNode t) {
+			int numberOfRecoveries, int recoverWeight, AbstractParseNode t) {
 
 		final Frame st1 = newStack(s);
 		final Link nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
 
 		nl.recoverCount = numberOfRecoveries;
+		nl.recoverWeight = recoverWeight;
 		addStack(st1);
 		forActorDelayed.addFirst(st1);
 
@@ -865,13 +936,14 @@ public class SGLR {
 	 *  Found no existing stack with for state s; make new stack
 	 */
 	private void addNewRecoverStack(Frame st0, State s, Production prod, int length,
-			int numberOfRecoveries, AbstractParseNode t) {
-		if (!(fineGrainedOnRegion && !prod.isRejectProduction())) {
+			int numberOfRecoveries, int recoverWeight, AbstractParseNode t) {
+		if (!(isFineGrainedMode && !prod.isRejectProduction())) {
 			return;
 		}
 		final Frame st1 = newStack(s);
 		final Link nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
 		nl.recoverCount = numberOfRecoveries;
+		nl.recoverWeight = recoverWeight;
 		recoverStacks.addFirst(st1);
 	}
 
@@ -914,9 +986,17 @@ public class SGLR {
 
 	private int calcRecoverCount(Production prod, Path path) {
 		int result = path.getRecoverCount();
-		if (prod.isRecoverProduction()){
+		if (prod.isRecoverProduction() || prod.isCompletionProduction()){
 			result += 1;
-			if (path.getLength() > 0)
+		}
+		return result;
+	}
+
+	private int calcRecoverWeight(Production prod, Path path) {
+		int result = path.getRecoverWeight();
+		if (prod.isRecoverProduction() || prod.isCompletionProduction()){
+			result += 1;
+			if (path.getLength() > 0 && !prod.isCompletionProduction())
 				result += 1; //Hack: insertion rules (length 0) should be preferred above water rules.
 		}
 		return result;
@@ -1501,4 +1581,5 @@ public class SGLR {
   public AbstractParseNode getParseTree() {
     return parseTree;
   }
+
 }

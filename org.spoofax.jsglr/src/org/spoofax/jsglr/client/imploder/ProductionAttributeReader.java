@@ -148,7 +148,11 @@ public class ProductionAttributeReader {
 	public boolean isRecoverProduction(IStrategoAppl attrs, String constructor) {
 		return getAttribute(attrs, "recover") != null || isWaterConstructor(constructor);
 	}
-	
+
+	public boolean isCompletionProduction(IStrategoAppl attrs, int subtermCount) {
+		return getAttribute(attrs, "completion") != null && subtermCount > 0;
+	}
+
 	public boolean isRejectProduction(IStrategoAppl attrs) {
 		return getAttribute(attrs, "reject") != null;
 	}

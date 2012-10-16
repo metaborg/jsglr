@@ -44,7 +44,9 @@ public class LabelInfo {
 	private final boolean isOptional;
 	
 	private final boolean isRecover;
-	
+
+	private final boolean isCompletion;
+
 	private final boolean isReject;
 	
 	private final String metaVarConstructor;
@@ -67,6 +69,7 @@ public class LabelInfo {
 		isLiteral = reader.isLiteral(rhs);
 		isOptional = reader.isOptional(rhs);
 		isRecover = reader.isRecoverProduction(attrs, constructor);
+		isCompletion = reader.isCompletionProduction(attrs, production.getSubtermCount());
 		isReject = reader.isRejectProduction(attrs);
 		deprecationMessage = reader.getDeprecationMessage(attrs);
 		isSortProduction = reader.sortFun == rhs.getConstructor() || reader.parameterizedSortFun == rhs.getConstructor();
@@ -136,7 +139,11 @@ public class LabelInfo {
 	public boolean isRecover() {
 		return isRecover;
 	}
-	
+
+	public boolean isCompletion() {
+		return isCompletion && !isLiteral; //exclude artificial completion start: -> "@#$"{completion}
+	}
+
 	public boolean isReject() {
 		return isReject;
 	}

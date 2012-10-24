@@ -138,7 +138,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		return input;
 	}
 	
-	protected void setOffset(int offset) {
+	public void setOffset(int offset) {
 		this.offset = offset;
 	}
 	
@@ -169,6 +169,14 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				: new Tokenizer(tokenizer.getInput(), tokenizer.getFilename(), table.getKeywordRecognizer()));
 		}
 	}
+	
+	public void reset(int startOffset) {
+		((Tokenizer)getTokenizer()).setPositions(0, 0, 0);
+		reset();
+		((Tokenizer)getTokenizer()).setPositions(0, startOffset, 0);
+		setOffset(startOffset);
+	}
+
 	
 	@Override
 	public Object buildTreeTop(Object subtree, int ambiguityCount) {
@@ -567,5 +575,4 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			tokenizer.makeToken(input.length() - 1, TK_ERROR_EOF_UNEXPECTED, true);
 		}
 	}
-
 }

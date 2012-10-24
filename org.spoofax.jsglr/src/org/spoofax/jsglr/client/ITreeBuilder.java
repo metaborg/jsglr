@@ -13,7 +13,9 @@ public interface ITreeBuilder {
 	Object buildTreeTop(Object subtree, int ambiguityCount);
 	
 	void reset();
-	
+
+	void reset(int startOffset);
+
 	/**
 	 * Gets the tokenizer, if applicable and initialized, or null.
 	 */

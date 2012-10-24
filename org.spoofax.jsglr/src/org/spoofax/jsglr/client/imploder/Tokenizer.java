@@ -94,7 +94,7 @@ public class Tokenizer extends AbstractTokenizer {
 		tokens.remove(i);
 	}
 
-	protected void setPositions(int line, int startOffset, int offsetAtLineStart) {
+	public void setPositions(int line, int startOffset, int offsetAtLineStart) {
 		this.line = line;
 		this.offsetAtLineStart = offsetAtLineStart;
 		this.startOffset = startOffset;

@@ -222,7 +222,11 @@ public class Disambiguator {
 		setDefaultFilters();
 	}
 
-    public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
+	public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
+		return applyFilters(parser, root, sort, 0, inputLength);
+	}
+		   
+    public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int startOffset, int inputLength) throws SGLRException, FilterException {
     	AbstractParseNode t = root;
 		if(Tools.debugging) {
 			Tools.debug("applyFilters()");
@@ -246,14 +250,14 @@ public class Disambiguator {
 	            }
 
 				if (filterReject && rejectedBranch != null && !parser.useIntegratedRecovery)
-					throw new FilterException(parser, "Unexpected reject annotation in " + yieldTree(rejectedBranch));
+					throw new FilterException(parser, "Unexpected reject annotation in " + yieldTree(rejectedBranch, startOffset));
 	        } catch (RuntimeException e) {
 	            throw new FilterException(parser, "Runtime exception when applying filters", e);
 	        } finally {
 	        	rejectedBranch = null;
 	        }
 
-	        return yieldTreeTop(t);
+	        return yieldTreeTop(t, startOffset);
 
         } finally {
             initializeFromParser(null);
@@ -282,12 +286,12 @@ public class Disambiguator {
 		Tools.logger("Number of Injection Counts: ", ambiguityManager.getInjectionCount());
 	}
 
-    private Object yieldTree(AbstractParseNode t) {
-		parser.getTreeBuilder().reset(); // in case yieldTree is used for debugging
+    private Object yieldTree(AbstractParseNode t, int startOffset) {
+		parser.getTreeBuilder().reset(startOffset); // in case yieldTree is used for debugging
 		return parser.getTreeBuilder().buildTree(t);
     }
 
-    private Object yieldTreeTop(AbstractParseNode t) throws SGLRException {
+    private Object yieldTreeTop(AbstractParseNode t, int startOffset) throws SGLRException {
         int ambCount = ambiguityManager.getAmbiguitiesCount();
 
 		if (Tools.debugging) {
@@ -296,7 +300,7 @@ public class Disambiguator {
 
 		try {
 			ambiguityManager.resetAmbiguityCount();
-			final Object r = yieldTree(t);
+			final Object r = yieldTree(t, startOffset);
 
 			if(logStatistics)
 				logStatus();

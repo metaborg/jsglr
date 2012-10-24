@@ -61,6 +61,10 @@ public class MemoryRecordingTreeBuilder implements ITreeBuilder {
 		measure();
 		actualBuilder.reset();
 	}
+	
+	public void reset(int startOffset) {
+		// TODO Auto-generated method stub
+	}
 
 	public ITokenizer getTokenizer() {
 		measure();

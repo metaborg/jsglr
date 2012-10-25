@@ -137,7 +137,7 @@ public class SGLR {
 		return 0 < cursorLocation && cursorLocation != Integer.MAX_VALUE;
 	}
 	
-	private void setCompletionParse(boolean isCompletionMode, int cursorLocation){
+	public void setCompletionParse(boolean isCompletionMode, int cursorLocation){
 		this.isCompletionMode = isCompletionMode;
 		this.cursorLocation = cursorLocation;
 	}
@@ -308,6 +308,7 @@ public class SGLR {
     	}
     	this.currentInputStream.setOffset(startOffset);
     	this.tokensSeen = startOffset;
+		getHistory().setTokenIndex(startOffset);
     	do {
 			readNextToken();
 			parseCharacter(); //applies reductions on active stack structure and fills forshifter
@@ -384,13 +385,14 @@ public class SGLR {
     	assert startOffset < endOffset;
     	
     	//set the parser configuration
-    	String inputSubFragment = inputFragment.substring(startOffset);
-    	int endParseOffset = endOffset - startOffset;
-    	initParseVariables(inputSubFragment, null);
+    	initParseVariables(inputFragment, null);
+    	this.currentInputStream.setOffset(startOffset);
+    	this.tokensSeen = startOffset;    	
+		getHistory().setTokenIndex(startOffset);
     	FineGrainedRecovery fgRecovery = null;
     	if(useRecovery){
     		FineGrainedSetting fgSettings = FineGrainedSetting.createDefaultSetting();
-    		fgSettings.setEndOffsetFragment(endParseOffset);
+    		fgSettings.setEndOffsetFragment(endOffset);
     		fgRecovery = new FineGrainedRecovery(this, fgSettings);
     	}
     	if(stackStructure != null){
@@ -398,7 +400,7 @@ public class SGLR {
 	    	acceptingStack = null;
 		    activeStacks.addAll(stackStructure);
     	}
-		return parseInputPart(endParseOffset, fgRecovery, useRecovery);
+		return parseInputPart(endOffset, fgRecovery, useRecovery);
     }
 
 	private ArrayDeque<Frame> parseInputPart(int endParseOffset, FineGrainedRecovery fgRecovery, boolean useRecovery) {

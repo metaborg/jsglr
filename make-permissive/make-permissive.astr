@@ -29,7 +29,8 @@ overlays
   SEPARATORS_ON     = "separators"
   OPTIMIZE_ON       = "optimize"
   NONNESTABLE_ON    = "nonnestable"
-  COMPLETIONS_ON    = "completions"
+  SEMANTIC_COMPLETIONS_ON     = "semantic-completions"
+  SYNTACTIC_COMPLETIONS_ON    = "syntactic-completions"
 
 signature constructors
 
@@ -52,8 +53,12 @@ strategies // I/O
 
       add-permissive-sections;
       
-      if-switch(!COMPLETIONS_ON(),
+      if-switch(!SEMANTIC_COMPLETIONS_ON(),
         generate-completion-grammar-top
+      );
+
+      if-switch(!SYNTACTIC_COMPLETIONS_ON(),
+        generate-sort-completion-rules
       );
             
       /* Disabled:
@@ -109,9 +114,14 @@ strategies // I/O
     , "Optimize the inserted literals to character groups (disabled in this version)"
     )
   + SwitchOption(|
-      COMPLETIONS_ON()
+      SEMANTIC_COMPLETIONS_ON()
+    , "off"
+    , "Add completion recovery rules for all construct prefixes to improve semantic completion"
+    )
+  + SwitchOption(|
+      SYNTACTIC_COMPLETIONS_ON()
     , "on"
-    , "Add completion recovery rules"
+    , "Add sort insertion rules for syntactic completion"
     )
   + ArgOption(
       "-m"

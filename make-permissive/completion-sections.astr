@@ -17,7 +17,6 @@ rules //extend grammar with completion helper rules for syntactic completion tem
   create-sort-completion-rules =
     collect-all(?context-free-syntax(_));
     collect-all(prod-to-sort);
-    debug;
     map(create-sort-completion-rule)
         
   prod-to-sort: 

@@ -15,12 +15,15 @@ rules //extend grammar with completion helper rules for syntactic completion tem
     lexical-syntax(prods) -> lexical-syntax(<conc> (prods, more-prods))
 
   create-sort-completion-rules =
-    collect-all(?context-free-syntax(_));    
+    collect-all(?context-free-syntax(_));
     collect-all(prod-to-sort);
+    debug;
     map(create-sort-completion-rule)
         
   prod-to-sort: 
-    prod(_, sort(sortname), _) -> sortname
+    prod(lhs, sort(sortname), _) -> sortname{}
+    where
+      <fetch-elem(?lit(_))> lhs
     
   create-sort-completion-rule:
     sortname -> prod(

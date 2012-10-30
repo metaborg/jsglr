@@ -256,7 +256,6 @@ public class Disambiguator {
 	        } finally {
 	        	rejectedBranch = null;
 	        }
-
 	        return yieldTreeTop(t, startOffset);
 
         } finally {
@@ -302,6 +301,10 @@ public class Disambiguator {
 			ambiguityManager.resetAmbiguityCount();
 			final Object r = yieldTree(t, startOffset);
 
+			if(r == null){
+				return null; //This can happen when a partial tree is build
+			}
+			
 			if(logStatistics)
 				logStatus();
 

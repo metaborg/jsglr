@@ -345,10 +345,9 @@ public class SGLR {
     		if (!(getTreeBuilder() instanceof NullTreeBuilder)) {
     			try {
     				getTreeBuilder().reset(startReductionOffset);
-    				//((Tokenizer)getTreeBuilder().getTokenizer()).setPositions(0, startReductionOffset, 0);
-    				//((TreeBuilder)getTreeBuilder()).setOffset(startReductionOffset);
-					IStrategoTerm candidate = ((IStrategoTerm)disambiguator.applyFilters(this, node, null, startReductionOffset, tokensSeen));			
-					result.add(candidate);
+    				IStrategoTerm candidate = ((IStrategoTerm)disambiguator.applyFilters(this, node, null, startReductionOffset, tokensSeen));
+    				if(candidate != null)
+    					result.add(candidate);
 				} catch (FilterException e) {
 					e.printStackTrace();
 				} catch (SGLRException e) {
@@ -408,10 +407,10 @@ public class SGLR {
 			do {
 				assert getHistory().getTokenIndex() == this.currentInputStream.getOffset();
 				assert this.currentInputStream.getOffset() <= endParseOffset;
+				//System.out.print(((char)this.currentToken));
 				readNextToken();
 				history.keepTokenAndState(this);
 				doParseStep();
-				//System.out.print(((char)this.currentToken));
 				if(this.currentInputStream.getOffset() == endParseOffset && activeStacks.size() > 0){
 					ArrayDeque<Frame> stackNodes = new ArrayDeque<Frame>();
 					stackNodes.addAll(activeStacks);
@@ -431,6 +430,8 @@ public class SGLR {
 			}
 			ArrayDeque<Frame> stackNodes = new ArrayDeque<Frame>();
 			stackNodes.addAll(activeStacks);
+			if(acceptingStack != null)
+				stackNodes.add(acceptingStack);
 			return stackNodes;
 		} finally {
 			activeStacks.clear();

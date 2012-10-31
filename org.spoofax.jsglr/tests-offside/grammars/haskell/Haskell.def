@@ -107,7 +107,7 @@ exports
   >
     OffsideStmt ";" OffsideStmt -> OffsideStmt
           {cons("StmtSeq"),
-           layout("1.first.col < 2.first.col && 1.first.col < 3.first.col")}
+           layout("1.first.col < 2.first.col && 1.first.col < 3.first.col && 1.first.col < 3.left.col")}
   
   context-free syntax
     OffsideStmt -> OffsideStmtList
@@ -230,15 +230,13 @@ exports
   context-free priorities
     Decl -> OffsideDecl {layout(gt(col(left(1)), col(first(1))))}
   >
-    OffsideDecl ";" -> OffsideDecl {prefer, layout(gt(col(first(2)), col(first(1))))}
+    OffsideDecl ";" -> OffsideDecl {layout(gt(col(first(2)), col(first(1))))}
   >
     ";" OffsideDecl -> OffsideDecl {layout(gt(col(first(2)), col(first(1))))}
   >
-    Decl ";" OffsideDecl -> OffsideDecl
+    OffsideDecl ";" Decl -> OffsideDecl
           {cons("DeclSeq"),
-           layout(and(gt(col(left(1)), col(first(1))),
-                  and(gt(col(first(2)), col(first(1))),
-                      gt(col(first(3)), col(first(1))))))}
+           layout("1.first.col < 2.first.col && 1.first.col < 3.first.col && 1.first.col < 3.left.col")}
   
   context-free syntax
     OffsideDecl -> OffsideDeclList
@@ -279,11 +277,9 @@ exports
   >
     ";" OffsideAlt -> OffsideAlt {layout(gt(col(first(2)), col(first(1))))}
   >
-    Alt ";" OffsideAlt -> OffsideAlt
+    OffsideAlt ";" Alt -> OffsideAlt
           {cons("AltSeq"),
-           layout(and(gt(col(left(1)), col(first(1))),
-                  and(gt(col(first(2)), col(first(1))),
-                      gt(col(first(3)), col(first(1))))))}
+           layout("1.first.col < 2.first.col && 1.first.col < 3.first.col && 1.first.col < 3.left.col")}
   
   context-free syntax
     OffsideAlt -> OffsideAltList

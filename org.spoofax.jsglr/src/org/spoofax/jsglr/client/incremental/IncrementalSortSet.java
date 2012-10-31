@@ -22,6 +22,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.Label;
 import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.ProductionType;
 import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 
 /**
@@ -58,7 +59,9 @@ public class IncrementalSortSet {
 		sortFun = table.getFactory().makeConstructor("sort", 1);
 		cfFun = table.getFactory().makeConstructor("cf", 1);
 		lexFun = table.getFactory().makeConstructor("lex", 1);
-		incrementalSorts = expand ? getInjectionsTo(table, sorts, false) : sorts; //TODO: what about list sorts? e.g. given a* -> b, add a if b specified
+		incrementalSorts = expand ? getInjectionsTo(table, sorts, false) : sorts; 
+		//TODO: what about list sorts? e.g. given a* -> b, add a if b specified
+		//TODO: not rejects
 		incrementalContainerSorts = expandReverse ? getInjectionsTo(table, incrementalSorts, true) : incrementalSorts;
 	}
 	
@@ -147,7 +150,7 @@ public class IncrementalSortSet {
 		ITermFactory factory = table.getFactory();
 		IStrategoTerm sortTerm = factory.makeAppl(sortFun, factory.makeString(sort));
 		for (Label l : table.getLabels()) {
-			if (l != null) {
+			if (l != null && checkProductionType(l)) {
 				IStrategoAppl production = l.getProduction();
 				IStrategoTerm sort1 = reverse ? getFromSort(production) : getToSort(production);
 				if (sortTerm.equals(sort1)) {
@@ -158,6 +161,13 @@ public class IncrementalSortSet {
 			}
 		}
 		results.add(sort);
+	}
+
+	private boolean checkProductionType(Label l) {
+		return 
+			l.getAttributes().getType() != ProductionType.REJECT &&
+			!l.isRecoverProduction() &&
+			!l.isCompletionProduction();
 	}
 
 	private IStrategoTerm getToSort(IStrategoAppl production) {

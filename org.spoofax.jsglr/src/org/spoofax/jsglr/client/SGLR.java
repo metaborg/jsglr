@@ -336,8 +336,24 @@ public class SGLR {
 				} 
 			}
 			shifter(); //renewes active stacks with states in forshifter
-		} while (tokensSeen < endOffset && getCurrentToken() != SGLR.EOF && activeStacks.size() > 0);
-    	//TODO: do anything special with accepting stack?
+		} while (tokensSeen < endOffset && activeStacks.size() > 0);
+    	if(acceptingStack != null){
+			for (Link lnk : acceptingStack.getAllLinks()) {
+				int length = lnk.getLength();
+				AbstractParseNode parseNode = lnk.label;
+				if(length > currentInputStream.getOffset() - startOffset){
+					if(length > maxLength){
+						maxLength = length;
+						maxPrefixReductionOffset = tokensSeen;
+						maxPrefixReductions.clear();
+						maxPrefixReductions.add(parseNode);
+					}
+					else if(length == maxLength && tokensSeen == maxPrefixReductionOffset){
+						maxPrefixReductions.add(parseNode);								
+					}
+				}
+			}					
+    	}
     	Set<IStrategoTerm> result = new java.util.HashSet<IStrategoTerm>();
     	for (AbstractParseNode node : maxPrefixReductions) {
     		int startReductionOffset = maxPrefixReductionOffset - maxLength-1;

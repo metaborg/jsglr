@@ -3,4 +3,5 @@ Program(Body(Empty,
     VarFunLHS(Var("f"),[Var("x")]),
     Let(
       DeclList(Empty),
-      Var("x")))))
+      Var("x")),
+    Where(DeclList(Empty)))))

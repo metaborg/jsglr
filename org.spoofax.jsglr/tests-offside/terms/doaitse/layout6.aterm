@@ -4,7 +4,7 @@ Program(Body(Empty,
     DeclList(
       DeclSeq(Valdef(Var("x"),Lit(Int("1")),Where(DeclList(Empty))),
       DeclSeq(Valdef(Var("y"),Var("x"),Where(DeclList(Empty))),
-      DeclSeq(Valdef(Var("z"),AppBin(AppBin(Var("f"),Var("x")),Var("y")),Where(DeclList(Empty))),
-              Valdef(VarFunLHS(Var("f"),[Var("x"),Var("y")]),Var("z"),Where(DeclList(Empty))))))),
+      DeclSeq(Valdef(VarFunLHS(Var("f"),[Var("x"),Var("y")]),Var("z"),Where(DeclList(Empty))),
+              Valdef(Var("z"),AppBin(AppBin(Var("f"),Var("x")),Var("y")),Where(DeclList(Empty))))))),
     Var("y")),
   Where(DeclList(Empty)))))

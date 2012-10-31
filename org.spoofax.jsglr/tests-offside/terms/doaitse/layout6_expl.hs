@@ -1,1 +1,1 @@
--- layout can extend over multiple linestest = let {x = 1             ;y = x; z = f x            y           ;f x y = z} in y
+-- layout can extend over multiple linestest = let {x = 1             ;y = x           ;f x y = z; z = f x            y} in y

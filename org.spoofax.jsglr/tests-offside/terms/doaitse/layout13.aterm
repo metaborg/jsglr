@@ -5,5 +5,5 @@ Module("Test",None,
       OpApp(
         Constr("Just"),
         ".",
-        Let(DeclList(Valdef(Var("x"),Var("id"))),Var("x"))),
+        Let(DeclList(Valdef(Var("x"),Var("id"),Where(DeclList(Empty)))),Var("x"))),
       Where(DeclList(Empty)))))

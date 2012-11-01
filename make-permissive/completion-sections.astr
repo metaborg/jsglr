@@ -2,27 +2,27 @@ module completion-sections
 
 imports
 
-
 rules //extend grammar with completion helper rules for syntactic completion templates
 
   generate-sort-completion-rules:
     ast -> ast'
     where
-      completion-prods := <create-sort-completion-rules> ast;
+      completion-prods := 
+        [<completion-prefix-production>|<create-sort-completion-rules> ast];
       ast' := <try(oncetd(add-lexical-prods(|completion-prods)))> ast
         
   add-lexical-prods(|more-prods):
     lexical-syntax(prods) -> lexical-syntax(<conc> (prods, more-prods))
 
   create-sort-completion-rules =
-    collect-all(?context-free-syntax(_) <+ ?syntax(_));
+    collect-all(?context-free-syntax(_) <+ ?syntax(_) <+ ?lexical-syntax(_));
     collect-all(prod-to-sort);
     map(create-sort-completion-rule)
         
   prod-to-sort: 
     prod(lhs, rhs, _) -> sortname{}
     where
-      <fetch-elem(?lit(_))> lhs;
+      <fetch-elem(?lit(_) <+ ?iter-sep(_, _) <+ ?iter-star-sep(_, _))> lhs;
       <oncetd(?sort(sortname))> rhs 
     
   create-sort-completion-rule:
@@ -31,6 +31,13 @@ rules //extend grammar with completion helper rules for syntactic completion tem
     , sort(sortname)
     , attrs([term(default(fun(unquoted("completion"))))])
     )  
+
+  completion-prefix-production =
+    !prod(
+      [lit($["completion123"])]
+    , sort("COMPLETIONPREFIX")
+    , attrs([term(default(fun(unquoted("completion"))))])
+    )
 
 
 rules //extend grammar with completion rules for semantic completions

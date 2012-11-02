@@ -61,7 +61,6 @@ public class IncrementalSortSet {
 		lexFun = table.getFactory().makeConstructor("lex", 1);
 		incrementalSorts = expand ? getInjectionsTo(table, sorts, false) : sorts; 
 		//TODO: what about list sorts? e.g. given a* -> b, add a if b specified
-		//TODO: not rejects
 		incrementalContainerSorts = expandReverse ? getInjectionsTo(table, incrementalSorts, true) : incrementalSorts;
 	}
 	

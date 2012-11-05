@@ -22,7 +22,7 @@ rules //extend grammar with completion helper rules for syntactic completion tem
   prod-to-sort: 
     prod(lhs, rhs, _) -> sortname{}
     where
-      <fetch-elem(?lit(_) <+ ?iter-sep(_, _) <+ ?iter-star-sep(_, _))> lhs;
+      //<fetch-elem(?lit(_) <+ ?iter-sep(_, _) <+ ?iter-star-sep(_, _))> lhs;
       <oncetd(?sort(sortname))> rhs 
     
   create-sort-completion-rule:

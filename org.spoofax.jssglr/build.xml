@@ -23,7 +23,7 @@
                    </classpath>
                    <jvmarg value="-Xmx512M" />
 	           <arg value="-style" />
-			<arg value="PRETTY" />
+			<arg value="OBF" />
 		   <arg value="-XdisableClassMetadata" />
 		   <arg value="-XdisableCastChecking" />
 		   <arg value="-optimize" />

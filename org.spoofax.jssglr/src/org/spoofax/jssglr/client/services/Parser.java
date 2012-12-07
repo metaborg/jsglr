@@ -346,11 +346,11 @@ public class Parser {
 			return makeParseResult(makeJsArray(attrs), jserrors);
 		}
 		final ITokenizer tok = t.getTokenizer();
-
+		
 		//log("Tokencount: "  + tok.getTokenCount());
 		for(int i = 0; i < tok.getTokenCount(); i++) {
 			final IToken x = tok.getTokenAt(i);
-			int line = x.getLine() - 1;
+			int line = x.getLine();// - 1;
 			
 			String tokentype = convertTokenType(x.getKind());
 			String tokenKey = getTokenCompareString(x);
@@ -520,10 +520,12 @@ public class Parser {
 	private String convertTokenType(int kind) {
 		switch(kind) {
 		case IToken.TK_LAYOUT: return "comment";
-		case IToken.TK_NUMBER: return "constant.numeric";
+		case IToken.TK_NUMBER: return "constant";
 		case IToken.TK_OPERATOR: return "keyword.operator";
 		case IToken.TK_KEYWORD: return "keyword";
 		case IToken.TK_STRING: return "string";
+		case IToken.TK_IDENTIFIER: return "variable";
+		case IToken.TK_ERROR_KEYWORD: return "invalid.illegal";
 		default: return "plain";
 		}
 	}

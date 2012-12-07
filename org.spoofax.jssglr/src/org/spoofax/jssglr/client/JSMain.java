@@ -51,7 +51,7 @@ public class JSMain {
 			
 		
 		if(args.length < 4) {
-			JsPrintln("Usage: node thisfile.js -p <parsetable.tbl> -i <inputfile>");
+			JsPrintln("Usage: node thisfile.js -p <parsetable.tbl> -i <inputfile>\n\nOptional parameters: \n--timing\n--measure-memory\n--warmup");
 			return;
 		}
 		

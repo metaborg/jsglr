@@ -171,10 +171,15 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 	
 	public void reset(int startOffset) {
-		((Tokenizer)getTokenizer()).setPositions(0, 0, 0);
-		reset();
-		((Tokenizer)getTokenizer()).setPositions(0, startOffset, 0);
-		setOffset(startOffset);
+		if(getTokenizer() instanceof Tokenizer){
+			((Tokenizer)getTokenizer()).setPositions(0, 0, 0);
+			reset();
+			((Tokenizer)getTokenizer()).setPositions(0, startOffset, 0);
+			setOffset(startOffset);
+		}
+		else{
+			reset();
+		}
 	}
 
 	

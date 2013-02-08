@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.spoofax.PushbackStringIterator;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
@@ -135,7 +137,7 @@ public class SGLR {
 		return 0 < cursorLocation && cursorLocation != Integer.MAX_VALUE;
 	}
 	
-	private void setCompletionParse(boolean isCompletionMode, int cursorLocation){
+	public void setCompletionParse(boolean isCompletionMode, int cursorLocation){
 		this.isCompletionMode = isCompletionMode;
 		this.cursorLocation = cursorLocation;
 	}
@@ -183,7 +185,7 @@ public class SGLR {
 		forShifter = new ArrayDeque<ActionState>();
 		disambiguator = new Disambiguator();
 		useIntegratedRecovery = false;
-		recoverIntegrator = null;
+		setUseStructureRecovery(false);
 		history = new ParserHistory();
     	setCompletionParse(false, Integer.MAX_VALUE);
 		setTreeBuilder(treeBuilder);
@@ -279,6 +281,182 @@ public class SGLR {
     	setCompletionParse(false, Integer.MAX_VALUE);
     	return parseResult;
     }
+    
+    /**
+     * Parses the right context of a given offset and collects the largest reductions over that offset
+     * Remark: This method is used to interpret the local context around the cursor location for semantic completions
+     * @param prefixStackStructure Active stacks at the start offset 
+     * @param startOffset Offset where the parsing start, also the offset that must be reduced
+     * @param endOffset Offset where the parsing stops.
+     * @param inputFragment Input string
+     * @return Set of sub terms that surround the start offset location
+     */
+	public Set<IStrategoTerm> findLongestLeftContextReductions(
+			ArrayDeque<Frame> prefixStackStructure,
+			int startOffset, 
+			int endOffset, 
+			String inputFragment
+	) { 
+		Set<AbstractParseNode> maxPrefixReductions = new java.util.HashSet<AbstractParseNode>();
+		int maxLength = 0;
+		int maxPrefixReductionOffset = -1;
+    	initParseVariables(inputFragment, null);
+    	if(prefixStackStructure != null){
+	    	activeStacks.clear();
+	    	acceptingStack = null;
+		    activeStacks.addAll(prefixStackStructure);
+    	}
+    	this.currentInputStream.setOffset(startOffset);
+    	this.tokensSeen = startOffset;
+		getHistory().setTokenIndex(startOffset);
+    	do {
+			readNextToken();
+			parseCharacter(); //applies reductions on active stack structure and fills forshifter
+			
+			for (int j = 0; j < forShifter.size(); j++) {
+				final ActionState as = forShifter.get(j);
+				if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {
+					Frame mj = as.st;
+					ArrayList<Link> links = mj.getAllLinks();
+					for (Link lnk : links) {
+						int length = lnk.getLength();
+						AbstractParseNode parseNode = lnk.label;
+						if(length > currentInputStream.getOffset() - startOffset){
+							if(length > maxLength){
+								maxLength = length;
+								maxPrefixReductionOffset = tokensSeen;
+								maxPrefixReductions.clear();
+								maxPrefixReductions.add(parseNode);
+							}
+							else if(length == maxLength && tokensSeen == maxPrefixReductionOffset){
+								maxPrefixReductions.add(parseNode);								
+							}
+						}
+					}					
+				} 
+			}
+			shifter(); //renewes active stacks with states in forshifter
+		} while (tokensSeen < endOffset && activeStacks.size() > 0);
+    	if(acceptingStack != null){
+			for (Link lnk : acceptingStack.getAllLinks()) {
+				int length = lnk.getLength();
+				AbstractParseNode parseNode = lnk.label;
+				if(length > currentInputStream.getOffset() - startOffset){
+					if(length > maxLength){
+						maxLength = length;
+						maxPrefixReductionOffset = tokensSeen;
+						maxPrefixReductions.clear();
+						maxPrefixReductions.add(parseNode);
+					}
+					else if(length == maxLength && tokensSeen == maxPrefixReductionOffset){
+						maxPrefixReductions.add(parseNode);								
+					}
+				}
+			}					
+    	}
+    	Set<IStrategoTerm> result = new java.util.HashSet<IStrategoTerm>();
+    	for (AbstractParseNode node : maxPrefixReductions) {
+    		int startReductionOffset = maxPrefixReductionOffset - maxLength-1;
+    		assert startReductionOffset <= startOffset;
+    		if (!(getTreeBuilder() instanceof NullTreeBuilder)) {
+    			try {
+    				getTreeBuilder().reset(startReductionOffset);
+    				IStrategoTerm candidate = ((IStrategoTerm)disambiguator.applyFilters(this, node, null, startReductionOffset, tokensSeen));
+    				if(candidate != null)
+    					result.add(candidate);
+				} catch (FilterException e) {
+					e.printStackTrace();
+				} catch (SGLRException e) {
+					e.printStackTrace();
+				}
+    		}
+		}
+    	return result;
+	}
+
+    // only FG recovery, 
+    // 1) this ensure that recovery does not touch characters after endoffset
+    // 2) this ensures real parser state that represents the text without "skip fragments"
+	
+	/**
+	 * Constructs the stack structure for an endoffset from a start offset
+	 * Remark: This method is used for checking the "valid prefix" criterion of syntactic completion templates
+	 * @param stackStructure Active stacks at the start offset
+     * @param startOffset Offset where the parsing starts
+     * @param endOffset Offset where the parsing stops.
+     * @param inputFragment Input string
+	 * @param useRecovery Use fine-grained recovery to reconstruct the stack structure
+	 * @return Parser stacks at the end offset
+	 */
+    public ArrayDeque<Frame> parseInputPart(
+    		ArrayDeque<Frame> stackStructure, 
+    		int startOffset, 
+    		int endOffset, 
+    		String inputFragment,
+    		boolean useRecovery
+    ){
+    	if(startOffset == endOffset)
+    		return stackStructure;
+    	assert startOffset < endOffset;
+    	
+    	//set the parser configuration
+    	initParseVariables(inputFragment, null);
+    	this.currentInputStream.setOffset(startOffset);
+    	this.tokensSeen = startOffset;    	
+		getHistory().setTokenIndex(startOffset);
+    	FineGrainedRecovery fgRecovery = null;
+    	if(useRecovery){
+    		FineGrainedSetting fgSettings = FineGrainedSetting.createDefaultSetting();
+    		fgSettings.setEndOffsetFragment(endOffset);
+    		fgRecovery = new FineGrainedRecovery(this, fgSettings);
+    	}
+    	if(stackStructure != null){
+	    	activeStacks.clear();
+	    	acceptingStack = null;
+		    activeStacks.addAll(stackStructure);
+    	}
+		return parseInputPart(endOffset, fgRecovery, useRecovery);
+    }
+
+	private ArrayDeque<Frame> parseInputPart(int endParseOffset, FineGrainedRecovery fgRecovery, boolean useRecovery) {
+		try {
+			do {
+				assert getHistory().getTokenIndex() == this.currentInputStream.getOffset();
+				assert this.currentInputStream.getOffset() <= endParseOffset;
+				//System.out.print(((char)this.currentToken));
+				readNextToken();
+				history.keepTokenAndState(this);
+				doParseStep();
+				if(this.currentInputStream.getOffset() == endParseOffset && activeStacks.size() > 0){
+					ArrayDeque<Frame> stackNodes = new ArrayDeque<Frame>();
+					stackNodes.addAll(activeStacks);
+					return stackNodes;
+				}
+			} while (
+					getCurrentToken() != SGLR.EOF &&
+					activeStacks.size() > 0
+			);
+			if(useRecovery && activeStacks.isEmpty() && acceptingStack == null){ //TODO: specialized FG recover support
+				int failureOffset = getParserLocation();
+				int failureLineIndex = getHistory().getLineOfTokenPosition(failureOffset - 1);
+				fgRecovery.recover(failureOffset, failureLineIndex);
+				if(acceptingStack==null && activeStacks.size() > 0 && this.currentInputStream.getOffset() != endParseOffset) {
+					return parseInputPart(endParseOffset, fgRecovery, useRecovery);
+				}
+			}
+			ArrayDeque<Frame> stackNodes = new ArrayDeque<Frame>();
+			stackNodes.addAll(activeStacks);
+			if(acceptingStack != null)
+				stackNodes.add(acceptingStack);
+			return stackNodes;
+		} finally {
+			activeStacks.clear();
+			activeStacksWorkQueue.clear();
+			forShifter.clear();
+			history.clear();
+			if (recoverStacks != null) recoverStacks.clear();
+		}
+	}
 
     /**
 	 * Parses a string and constructs a new tree using the tree builder.
@@ -357,6 +535,7 @@ public class SGLR {
 	void readNextToken() {
 		logCurrentToken();
 		setCurrentToken(getNextToken());
+		//System.out.print((char)currentToken);
 	}
 
 	protected void doParseStep() {

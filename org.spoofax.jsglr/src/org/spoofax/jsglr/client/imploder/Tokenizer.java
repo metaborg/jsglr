@@ -79,7 +79,9 @@ public class Tokenizer extends AbstractTokenizer {
 	
 	public Token getTokenAt(int i) {
 		Token result = tokens.get(i);
-		assert i == 0 || result.getIndex() == i;
+		// Disabled: might fail for testing language token sequences
+		//           (e.g., self-application.spt)
+		// assert i == 0 || result.getIndex() == i;
 		return result;
 	}
 	
@@ -92,7 +94,7 @@ public class Tokenizer extends AbstractTokenizer {
 		tokens.remove(i);
 	}
 
-	protected void setPositions(int line, int startOffset, int offsetAtLineStart) {
+	public void setPositions(int line, int startOffset, int offsetAtLineStart) {
 		this.line = line;
 		this.offsetAtLineStart = offsetAtLineStart;
 		this.startOffset = startOffset;

@@ -1,5 +1,8 @@
 package org.spoofax.jsglr.client;
 
+/*
+ * Settings that control the heuristics applied to find a recover branch
+ */
 public class FineGrainedSetting {
 
 	private int acceptDistanceLines; //number of lines that must be parsed error-free before recovery is accepted
@@ -9,12 +12,22 @@ public class FineGrainedSetting {
 	private double backwardFactor; //increase explored left context with x lines at each loop 
 	private double forwardFactor; //increase explored right context with x lines at each loop (for example: 0.5 then extend one line after two loops)
 	private int maxNumberOfRecoverApplicationsLocal; //branches with more then x recoveries after backtrack offset are cut off in FG mode
+	
+	private int endOffsetFragment; 	//recovery must stop here and return the constructed recover branches
+									//setting for subfragment parsing
 
-	/*
-	 * Settings that control the heuristics applied to find a recover branch
-	 */
+
 	private int timeLimit; //finegrained is stopped in case time limit expired
 	
+	public int getEndOffsetFragment() {
+		return endOffsetFragment;
+	}
+
+	public FineGrainedSetting setEndOffsetFragment(int endOffsetFragment) {
+		this.endOffsetFragment = endOffsetFragment;
+		return this;
+	}
+
 	public int getTimeLimit() {
 		return timeLimit;
 	}
@@ -97,6 +110,7 @@ public class FineGrainedSetting {
 		this.setForwardDistanceLines(8);
 		this.setForwardFactor(0.5);
 		this.setMaxNumberOfRecoverApplicationsLocal(5);		
+		this.endOffsetFragment = Integer.MAX_VALUE;
 	}
 	
 	/**

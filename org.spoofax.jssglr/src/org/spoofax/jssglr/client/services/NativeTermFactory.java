@@ -34,7 +34,7 @@ public class NativeTermFactory extends TermFactory {
 	    return ctor;
     }-*/;
 
-	public native JavaScriptObject exposeFactory(TermFactory factory) /*-{
+	public native JavaScriptObject exposeFactory() /*-{
 		var self = this;
 		self.@org.spoofax.jssglr.client.services.NativeTermFactory::constructorCache = {};
 		var factory = {};

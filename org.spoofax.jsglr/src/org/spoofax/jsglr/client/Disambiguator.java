@@ -222,7 +222,11 @@ public class Disambiguator {
 		setDefaultFilters();
 	}
 
-    public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
+	public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength) throws SGLRException, FilterException {
+		return applyFilters(parser, root, sort, 0, inputLength);
+	}
+		   
+    public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int startOffset, int inputLength) throws SGLRException, FilterException {
     	AbstractParseNode t = root;
 		if(Tools.debugging) {
 			Tools.debug("applyFilters()");
@@ -246,14 +250,13 @@ public class Disambiguator {
 	            }
 
 				if (filterReject && rejectedBranch != null && !parser.useIntegratedRecovery)
-					throw new FilterException(parser, "Unexpected reject annotation in " + yieldTree(rejectedBranch));
+					throw new FilterException(parser, "Unexpected reject annotation in " + yieldTree(rejectedBranch, startOffset));
 	        } catch (RuntimeException e) {
 	            throw new FilterException(parser, "Runtime exception when applying filters", e);
 	        } finally {
 	        	rejectedBranch = null;
 	        }
-
-	        return yieldTreeTop(t);
+	        return yieldTreeTop(t, startOffset);
 
         } finally {
             initializeFromParser(null);
@@ -282,12 +285,12 @@ public class Disambiguator {
 		Tools.logger("Number of Injection Counts: ", ambiguityManager.getInjectionCount());
 	}
 
-    private Object yieldTree(AbstractParseNode t) {
-		parser.getTreeBuilder().reset(); // in case yieldTree is used for debugging
+    private Object yieldTree(AbstractParseNode t, int startOffset) {
+		parser.getTreeBuilder().reset(startOffset); // in case yieldTree is used for debugging
 		return parser.getTreeBuilder().buildTree(t);
     }
 
-    private Object yieldTreeTop(AbstractParseNode t) throws SGLRException {
+    private Object yieldTreeTop(AbstractParseNode t, int startOffset) throws SGLRException {
         int ambCount = ambiguityManager.getAmbiguitiesCount();
 
 		if (Tools.debugging) {
@@ -296,8 +299,12 @@ public class Disambiguator {
 
 		try {
 			ambiguityManager.resetAmbiguityCount();
-			final Object r = yieldTree(t);
+			final Object r = yieldTree(t, startOffset);
 
+			if(r == null){
+				return null; //This can happen when a partial tree is build
+			}
+			
 			if(logStatistics)
 				logStatus();
 
@@ -583,14 +590,14 @@ public class Disambiguator {
 				}
 			}
 
-			final int additionalAmbNodes = newAmbiguities.isEmpty() ? 0 : 1;
-			final AbstractParseNode[] restKids = new AbstractParseNode[t.getChildren().length - 1 + additionalAmbNodes];
-			for(int i = 0; i < restKids.length; i++) {
-				restKids[i] = kids[i + 1];
-			}
-
 			// FIXME is this correct?
 					if(!newAmbiguities.isEmpty()) {
+
+						final AbstractParseNode[] restKids = new AbstractParseNode[kids.length];
+						for(int i = 1; i < restKids.length; i++) {
+							restKids[i] = kids[i];
+						}
+						
 						AbstractParseNode extraAmb;
 						if(newAmbiguities.size() > 1) {
 							extraAmb = ParseNode.createAmbNode(newAmbiguities.toArray(new AbstractParseNode[newAmbiguities.size()]));
@@ -598,13 +605,12 @@ public class Disambiguator {
 						} else {
 							extraAmb = newAmbiguities.get(0);
 						}
-						restKids[restKids.length - 1] = extraAmb;
+						restKids[0] = extraAmb;
+
+						return new ParseNode(t.getLabel(), restKids, AbstractParseNode.PARSENODE);
 					} else {
 						throw new FilterException(parser);
 					}
-
-					// FIXME is this correct?
-					return new ParseNode(t.getLabel(), restKids, AbstractParseNode.PARSENODE);
 
 		} else if(firstKid.isParseNode()) {
 			if(((ParseNode)firstKid).getLabel() == prodLabel.labelNumber) {

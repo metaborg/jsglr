@@ -1,8 +1,6 @@
 package org.spoofax.jssglr.client;
 
-import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jssglr.client.services.NativeTermFactory;
 import org.spoofax.jssglr.client.services.Parser;
 import org.spoofax.terms.TermFactory;
@@ -20,7 +18,8 @@ public class Worker extends DedicatedWorkerEntryPoint {
 
 	private Parser parser;
 	private NativeTermFactory factory;
-	private JavaScriptObject jsfactory;
+	//private STRJSNativeFactory factory;
+	//private JavaScriptObject jsfactory;
 
 	private native void nativeOnWorkerLoad() /*-{
 		var oneself = this;
@@ -33,17 +32,22 @@ public class Worker extends DedicatedWorkerEntryPoint {
 		self.spoofax.createParserSync = function(ast) {
 			return oneself.@org.spoofax.jssglr.client.Worker::createParserSync(Lorg/spoofax/interpreter/terms/IStrategoTerm;)(ast);
 		}
+		
+		self.spoofax.cliinvoke = function(args) {
+			@org.spoofax.jssglr.client.JSMain::main([Ljava/lang/String;)(args);
+		}
+		
 	}-*/;
 
 	@Override
 	public void onWorkerLoad() {
+		//factory = new STRJSNativeFactory();
 		factory = new NativeTermFactory();
-		jsfactory = factory.exposeFactory(factory);
 		nativeOnWorkerLoad();
 	}
-
+	
 	public JavaScriptObject getFactory() {
-		return jsfactory;
+		return factory.exposeFactory();
 	}
 
 	private JavaScriptObject createParser(String grammarUrl) {

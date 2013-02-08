@@ -241,9 +241,9 @@ public class NewStructureSkipper {
             }
             indexEnd++;
         }         
-        IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexEnd));
-        if(indexStart<0)
+        if(indexStart<0 || indexEnd > getHistory().getIndexLastLine())
             return prevRegions;
+        IndentInfo endSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexEnd));
         IndentInfo startSkip=IndentInfo.cloneIndentInfo(getHistory().getLine(indexStart));
         StructureSkipSuggestion previousRegion=new StructureSkipSuggestion();
         previousRegion.setSkipLocations(startSkip, endSkip, indexStart, indexEnd);

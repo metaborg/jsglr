@@ -6,6 +6,8 @@
         <inherits name='com.google.gwt.webworker.WebWorker' />
 		<inherits name='org.spoofax.JsglrGWT'/>
 
+		<super-source path="gwt"/>
+
 		<entry-point class="org.spoofax.jssglr.client.Worker"/>
 
 		<set-property name='user.agent' value='gecko1_8' />

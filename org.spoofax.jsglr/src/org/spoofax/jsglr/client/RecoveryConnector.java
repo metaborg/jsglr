@@ -62,7 +62,7 @@ public class RecoveryConnector {
 			boolean fgSucceeded = tryFineGrainedRecovery(failureOffset, failureLineIndex, skipSucceeded);
 			if (parseRemainingTokens(true)) {
 				return true;
-			} else if (fgSucceeded) {
+			} else if (fgSucceeded && mySGLR.getParserLocation() > failureOffset) {
 				return combinedRecover();
 			}
 		}
@@ -70,7 +70,7 @@ public class RecoveryConnector {
 			parseErrorFragmentAsWhiteSpace();
 			if (parseRemainingTokens(true))
 				return true;
-			else
+			else if (mySGLR.getParserLocation() > failureOffset)
 				return combinedRecover();
 		}
 		return false;

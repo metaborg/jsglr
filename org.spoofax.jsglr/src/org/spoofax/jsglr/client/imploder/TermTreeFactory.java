@@ -56,7 +56,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 	 */
 	public TermTreeFactory(ITermFactory factory) {
 		originalFactory = factory;
-		setEnableTokens(false);
+		setEnableTokens(false); // (is set by TreeBuilder.initializeParseTable)
 	}
 	
 	public void setEnableTokens(boolean enableTokens) {

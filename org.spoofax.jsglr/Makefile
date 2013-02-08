@@ -12,4 +12,6 @@ dist:
 	ant -f build.ant.xml dist
 	
 check:
-	echo "no check"
+	$(MAKE) -C tests
+	@echo
+	@echo "Warning: only tests in tests/ were executed. JUnit-based tests in test/ and WebDSL tests in tests2/ were ignored."

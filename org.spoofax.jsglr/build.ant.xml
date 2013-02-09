@@ -16,7 +16,8 @@
 		
     <target name="compile" description="--> compile the project">
         <mkdir dir="${build.dir}/classes" />
-        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id">
+        <mkdir dir="${lib.dir}" />
+        <javac srcdir="${src.dir}" source="1.5" destdir="${build.dir}/classes" classpathref="lib.path.id">
             <exclude name="org/spoofax/client/JSGLREntryPoint.java" />
             <exclude name="org/spoofax/jsglr/shared/RemoteParseTableService.java" />
             <exclude name="org/spoofax/jsglr/shared/RemoteParseTableServiceAsync.java" />
@@ -27,6 +28,7 @@
    <target name="install" depends="jar" description="--> install the project into prefix">
         <mkdir dir="${prefix}/bin" />
         <mkdir dir="${prefix}/share/java" />
+        <mkdir dir="${lib.dir}" />
 
         <copy todir="${prefix}/share/java">
             <fileset dir="${lib.dir}/" />

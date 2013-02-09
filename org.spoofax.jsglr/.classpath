@@ -6,12 +6,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="gwt-api-checker.jar"/>
-	<classpathentry kind="lib" path="gwt-benchmark-viewer.war"/>
-	<classpathentry kind="lib" path="gwt-dev.jar"/>
-	<classpathentry kind="lib" path="gwt-servlet-deps.jar"/>
-	<classpathentry kind="lib" path="gwt-servlet.jar"/>
-	<classpathentry kind="lib" path="gwt-soyc-vis.jar"/>
-	<classpathentry kind="lib" path="gwt-user.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

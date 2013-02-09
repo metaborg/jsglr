@@ -6,8 +6,8 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.spoofax.PushbackStringIterator;
@@ -224,7 +224,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
       // structure of layout does not matter; can simply iterate over all production nodes
       children = null;
       
-      LinkedList<AbstractParseNode> nodes = new LinkedList<AbstractParseNode>();
+      ArrayDeque<AbstractParseNode> nodes = new ArrayDeque<AbstractParseNode>();
       nodes.push(node);
 
       while (!nodes.isEmpty()) {
@@ -233,6 +233,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
         if (current.isParseProductionNode())
           buildTreeProduction((ParseProductionNode) current);
         
+        if (current.isAmbNode()) {
+          nodes.push(current.getChildren()[0]);
+          continue;
+        }
+        
         for (int i = current.getChildren().length - 1; i >= 0; i--)
           nodes.push(current.getChildren()[i]);
       }
@@ -240,7 +245,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
     else if (isList) {
       children = inLexicalContext ? null : new AutoConcatList<Object>(label.getSort());
 
-      LinkedList<AbstractParseNode> nodes = new LinkedList<AbstractParseNode>();
+      ArrayDeque<AbstractParseNode> nodes = new ArrayDeque<AbstractParseNode>();
       nodes.push(node);
 
       while (!nodes.isEmpty()) {

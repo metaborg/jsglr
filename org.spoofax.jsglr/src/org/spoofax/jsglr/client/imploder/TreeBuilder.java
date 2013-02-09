@@ -348,8 +348,10 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	      return buildTreeProduction((ParseProductionNode) n);
 	    case AbstractParseNode.AMBIGUITY :
 	      return buildTreeAmb((ParseNode) n);
-	    default :
+	    case AbstractParseNode.PARSENODE :
 	      return buildTreeNode((ParseNode) n);
+	    default:
+	      throw new IllegalStateException("Unkown node type");
 	    }
 		}
 		
@@ -369,6 +371,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			inLexicalContext = oldLexicalContext;
 			
 			Object subtree;
+			
 			switch (subnode.getNodeType()) {
       case AbstractParseNode.CYCLE :
         subtree = buildTreeCycle((CycleParseNode) subnode);
@@ -379,8 +382,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
       case AbstractParseNode.AMBIGUITY :
         subtree = buildTreeAmb((ParseNode) subnode);
         break;
-      default :
-        subtree = buildTreeNode((ParseNode) subnode);
+      case AbstractParseNode.PARSENODE :
+	    subtree = buildTreeNode((ParseNode) subnode);
+	    break;
+	  default:
+	    throw new IllegalStateException("Unkown node type");
       }
 			Object child = tryBuildAutoConcatListNode(subtree);
 			

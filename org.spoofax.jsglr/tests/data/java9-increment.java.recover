@@ -1,0 +1,7 @@
+package java.java9;
+
+class Foo {
+  {
+  int baz();
+  int qux();
+}

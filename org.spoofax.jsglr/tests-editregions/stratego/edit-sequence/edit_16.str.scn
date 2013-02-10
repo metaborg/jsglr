@@ -1,0 +1,189 @@
+module coverage
+
+imports
+	coverage/construct-text
+	coverage/layout-adaption
+	coverage/origin-tracking
+	include/SpoofaxLang
+	libstrc
+	
+rules
+	
+	external parse-str-file(|)
+	external apply-inline-coverage(|newProjectName, ast)
+	external change-files(|astChanges, textChanges)
+	
+	
+	run-with-coverage(|projectname, filename)=
+		file:= <parse-str-file> filename
+	;	coverageProjectName := <conc-strings> (projectname,"-CoverageTest")
+	;	astChanges := <apply-inline-coverage(|coverageProjectName, file)>
+	; 	textReplaceTerm:= <construct-textual-change(pp-dynRules)> astChanges
+	  	;	<write-to-string;debug> astChanges
+	  	;	<write-to-string;debug> textReplaceTerm
+	;	<conc-strings;change-files(|astChanges,textReplaceTerm)> (coverageProjectName, "/trans/analysis.str") 
+	
+	pp-dynRules =
+    	pp-stratego-string
+	
+    inlineCoverage:
+		(_,ast2,_,ast,path,project-path) -> ([(ast,new-ast')], fatal-errors, errors, warnings)
+		with
+			rules(MainStrategy := "analyse")
+		;   new-ast := <topdown(try(inlineCoverageRules))> ast
+		;	fatal-errors:= []
+		;	errors := []
+		; 	warnings := []
+		;	MainStrategy;debug
+		;	new-ast' := <topdown(try(write-feedback))> new-ast
+		
+			
+	write-feedback:
+		SDefNoArgs(name,strategy) -> SDefNoArgs(name,strategy')
+		where
+			!name; debug;
+			<eq> (name, <MainStrategy>)
+			;<debug> "ok!"
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	<write-to-string;debug> listOfIfs
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+		;	<write-to-strin;
+		 	
+	write-feedback:
+		SDef(name,args,strategy) -> SDef(name,args,strategy')
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+		 	
+	write-feedback:
+		SDefT(name,args1,args2,strategy) -> SDefT(name,args1,args2,strategy')
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+	
+	
+	write-feedback:
+		RDefNoArgs(name,Rule(a,b,strategy)) -> RDefNoArgs(name,Rule(a,b,strategy'))
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+	
+			
+	write-feedback:
+		RDefNoArgs(name,Rule(a,b,WithClause(strategy))) -> RDefNoArgs(name,Rule(a,b,WithClause(strategy')))
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+	
+	write-feedback:
+		RDef(name,args,Rule(a,b,strategy)) -> RDef(name,args,Rule(a,b,strategy'))
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+			
+	write-feedback:
+		RDef(name,args,Rule(a,b,WithClause(strategy))) -> RDef(name,args,Rule(a,b,WithClause(strategy')))
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+	
+	write-feedback: 
+		RDefT(name,args1,args2,Rule(a,b,strategy)) -> RDefT(name,args1,args2,Rule(a,b,strategy'))
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+		
+	write-feedback: 
+		RDefT(name,args1,args2,Rule(a,b,WithClause(strategy))) -> RDefT(name,args1,args2,Rule(a,b,WithClause(strategy')))
+		where
+			<eq> (name, <MainStrategy>)
+		with
+			listOfIfs := <map(add-feedback)> <bagof-CoverageRules>
+		;	strategy' := <concat-listOfIfs(|strategy)> listOfIfs
+	
+	concat-listOfIfs(|strategy):
+		[x | xs] -> result
+		with
+			result := $[Seq([strategy], [<concat-listOfIfs(|x)> xs])]
+	
+	concat-listOfIfs(|strategy):
+		[] -> strategy
+				
+	add-feedback=
+		?ruleName
+	;	dr1 := <conc-strings> (ruleName, "_1")
+	;	!IfThen(BA(CallNoArgs(SVar(dr1)), NoAnnoList(Int("1"))), GenDynRules([SetDynRuleMatch(DynRuleId(RDecNoArgs("Covered")), NoAnnoList(Str(<double-quote> dr1)))]))
+			
+	inlineCoverageRules:
+		SDefNoArgs(name,strategy) -> SDefNoArgs(name,strategy')
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+	
+	inlineCoverageRules:
+		SDef(name,args,strategy) -> SDef(name,args,strategy')
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+			
+	inlineCoverageRules:
+		SDefT(name,args1,args2,strategy) -> SDefT(name,args1,args2,strategy')
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+			
+	inlineCoverageRules:
+		RDefNoArgs(name,Rule(a,b,strategy)) -> RDefNoArgs(name,Rule(a,b,strategy'))
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+	
+			
+	inlineCoverageRules:
+		RDefNoArgs(name,Rule(a,b,WithClause(strategy))) -> RDefNoArgs(name,Rule(a,b,WithClause(strategy')))
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+	
+	inlineCoverageRules:
+		RDef(name,args,Rule(a,b,strategy)) -> RDef(name,args,Rule(a,b,strategy'))
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+			
+	inlineCoverageRules:
+		RDef(name,args,Rule(a,b,WithClause(strategy))) -> RDef(name,args,Rule(a,b,WithClause(strategy')))
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+	
+	inlineCoverageRules: 
+		RDefT(name,args1,args2,Rule(a,b,strategy)) -> RDefT(name,args1,args2,Rule(a,b,strategy'))
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+		
+	inlineCoverageRules: 
+		RDefT(name,args1,args2,Rule(a,b,WithClause(strategy))) -> RDefT(name,args1,args2,Rule(a,b,WithClause(strategy')))
+		with
+			strategy' := <try(surroundStrategy(|name))> strategy
+	
+	surroundStrategy(|name)=
+		?strategy
+	;	if not(<eq> (name,<MainStrategy>)) then
+			mainName := <newname> name
+		;	rules(CoverageRules : mainName)
+		;	dr1_name := <concat-strings> [mainName, "_1"]
+		;	dr1 := GenDynRules([DynRuleAssign(DynRuleId(RDecNoArgs(dr1_name)), NoAnnoList(Int("1")))])
+		;	dr2_name := <concat-strings> [mainName, "_2"]
+		;	dr2 := GenDynRules([DynRuleAssign(DynRuleId(RDecNoArgs(dr2_name)), NoAnnoList(Int("1")))])
+		;	!Seq(dr1,Seq(strategy,dr2))
+		end
+				

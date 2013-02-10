@@ -1,0 +1,42 @@
+module Haskell-Case-Alternatives
+exports
+  context-free syntax
+    Pat "->" Exp MaybeWhere 	-> Alt   {cons("Alt")}
+
+    Pat Gdpat+ MaybeWhere	 	-> Alt   {cons("GdAlt")}
+    "|" Exp "->" Exp                  -> Gdpat {cons("GdPat")}
+
+  context-free syntax
+  	NoOffsideAltBlock -> AltList {cons("AltList")}
+  	OffsideAltList   -> AltList {cons("AltList")}
+  	
+    "{" NoOffsideAltList "}"  -> NoOffsideAltBlock {bracket, ignore-layout}
+    
+  context-free priorities
+    Alt -> NoOffsideAlt
+  >
+    NoOffsideAlt ";" -> NoOffsideAlt
+
+  context-free syntax
+    NoOffsideAlt -> NoOffsideAltList
+    NoOffsideAlt ";" NoOffsideAltList -> NoOffsideAltList {cons("AltSeq")}
+
+    NoOffsideAltList  -> NoOffsideAltListSem
+    ";" NoOffsideAltListSem -> NoOffsideAltListSem 
+
+  context-free priorities
+    Alt -> OffsideAlt {layout(gt(col(left(1)), col(first(1))))}
+  >
+    OffsideAlt ";" -> OffsideAlt {prefer,layout(gt(col(first(2)), col(first(1))))}
+  >
+    ";" OffsideAlt -> OffsideAlt {layout(gt(col(first(2)), col(first(1))))}
+  >
+    OffsideAlt ";" Alt -> OffsideAlt
+          {cons("AltSeq"),
+           layout("1.first.col < 2.first.col && 1.first.col < 3.first.col && 1.first.col < 3.left.col")}
+  
+  context-free syntax
+    OffsideAlt -> OffsideAltList
+    OffsideAltNEWLINE OffsideAltList -> OffsideAltList {cons("AltSeq"), layout(eq(col(first(1)), col(first(2))))}
+
+    OffsideAlt LAYOUT? -> OffsideAltNEWLINE {enforce-newline}

@@ -1,0 +1,103 @@
+%% Grammar for the SpoofaxConfiguration language
+%% By default, based on an example "entities" syntax
+module SpoofaxConfiguration
+
+exports
+
+  	context-free start-symbols
+    	Start
+
+  	context-free syntax
+  
+	    "Configuration"  ConfigSection*         -> Start {cons("Configuration")}
+	    
+	    "Includes" IncludeDefinition*    				-> ConfigSection{cons("Includes")}
+	     IncludeOption RelativePath*						-> IncludeDefinition {cons("Sources")}
+	    "SpxProjects" AbsolutePath* 						-> IncludeDefinition {cons("SpxProjects")}
+	    	
+	    
+	    "CodeGeneration" CodeGenDefinition*     -> ConfigSection{cons("CodeGeneration")}
+	    "OutputDirectory"  RelativePath				    -> CodeGenDefinition {cons("OutputDirectory")}
+	    
+	    "AllDirectories"												->   IncludeOption{cons("AllDirectories")}
+	    "RootDirectory"												  ->   IncludeOption{cons("RootDirectory")}
+
+	lexical syntax 
+		%%STRING -> RelativePath
+		PathChar                                   	-> RelativePath
+		PathChar (PathChar | Slash)* PathChar       -> RelativePath
+		[A-Za-z0-9\_\-\.\+]                         -> PathChar
+		"/"                                         -> Slash
+    Slash RelativePath				                  -> AbsolutePath
+		[a-zA-Z]":" Slash RelativePath              -> AbsolutePath
+		".." Slash RelativePath                     -> AbsolutePath{prefer}
+		
+	lexical syntax     
+    
+    "SpxProjects"        			  -> Reserved
+    "Sources"          					-> Reserved
+    "SpxSources"        		    -> Reserved
+    "Configuration"     		   	-> Reserved
+    "Includes"        					-> Reserved		
+    "AllDirectories"   					-> Reserved		
+    "CodeGeneration"            -> Reserved   
+    "RootDirectory" 				  -> Reserved		
+   
+    Reserved -> RelativePath{reject}
+	    
+	    
+	lexical restrictions
+	  Slash        -/- [\/]
+		RelativePath -/- [A-Za-z0-9\_\-\/\.\+]
+			
+		"SpxProjects" 
+		"Sources" 
+		"SpxSources"
+		"Configuration" 
+    "CodeGeneration" 
+		"Includes"
+		"AllDirectories"
+		"RootDirectory" -/- [A-Za-z0-9\_]
+		
+  lexical syntax
+  
+    [a-zA-Z][a-zA-Z0-9]* -> ID
+    "-"? [0-9]+          -> INT
+    
+    "\"" StringChar* "\"" -> STRING
+    ~[\"\n]               -> StringChar
+    "\\\""                -> StringChar
+    BackSlashChar         -> StringChar
+    "\\"                  -> BackSlashChar
+    
+    [\ \t\n\r] -> LAYOUT
+    
+    [\*]                             -> CommentChar
+    "/*" (~[\*] | CommentChar)* "*/" -> LAYOUT
+    "//" ~[\n\r]* ([\n\r] | EOF)     -> LAYOUT
+    
+    -> EOF
+  
+  lexical restrictions
+  
+    %% Ensure greedy matching for lexicals
+  
+    CommentChar   -/- [\/]
+    INT           -/- [0-9]
+    ID            -/- [a-zA-Z0-9\_]
+    
+    %% EOF may not be followed by any char
+    
+    EOF           -/- ~[]
+
+    %% Backslash chars in strings may not be followed by " 
+    
+    BackSlashChar -/- [\"]
+
+  context-free restrictions
+  
+    %% Ensure greedy matching for comments
+
+    LAYOUT? -/- [\ \t\n\r]
+    LAYOUT? -/- [\/].[\/]
+    LAYOUT? -/- [\/].[\*]

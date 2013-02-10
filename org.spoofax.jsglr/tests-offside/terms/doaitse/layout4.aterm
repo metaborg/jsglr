@@ -1,0 +1,10 @@
+Program(Body(Empty,
+  Valdef(
+    VarFunLHS(Var("f"),[Var("x")]),
+    Let(
+      DeclList(
+        DeclSeq(Valdef(Var("a"),Lit(Int("1")),Where(DeclList(Empty))),
+        DeclSeq(Valdef(Var("b"),Lit(Int("2")),Where(DeclList(Empty))),
+                Valdef(Var("c"),Lit(Int("3")),Where(DeclList(Empty)))))),
+      Var("x")),
+    Where(DeclList(Empty)))))

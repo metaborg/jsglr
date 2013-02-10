@@ -1,0 +1,3 @@
+module foo
+rules
+  foo : 0 -> 1 wher i

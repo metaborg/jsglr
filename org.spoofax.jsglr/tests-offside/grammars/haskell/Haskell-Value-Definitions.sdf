@@ -1,0 +1,62 @@
+module Haskell-Value-Definitions
+exports
+  context-free syntax
+    Valdef 		   -> Decl
+    FunLHS "=" Exp MaybeWhere -> Valdef 	{cons("Valdef"), longest-match}
+
+    FunLHS Gdrh+ MaybeWhere  -> Valdef 	{cons("GdValdef"), longest-match}
+    "|" Exp "=" Exp 	   -> Gdrh   	{cons("Guarded")}   
+
+    
+    Pat -> FunLHS
+    Var APat+ -> FunLHS {cons("VarFunLHS")}
+    Pat Varop Pat -> FunLHS {cons("OpFunLHS")}
+    "(" FunLHS ")" APat+ -> FunLHS {cons("NestedFunLHS")}
+
+  context-free syntax
+    "where" DeclList       -> Where     {cons("Where")}
+    
+    -> MaybeWhere {ast("Where(DeclList(Empty))")}
+    Where   -> MaybeWhere
+  
+    DeclList 		   -> Declbinds
+
+
+  context-free restrictions
+%%  	NoWhere -/- [w].[h].[e].[r].[e]
+
+  context-free syntax
+  	NoOffsideDeclBlock -> DeclList {cons("DeclList")}
+  	OffsideDeclList | Empty   -> DeclList {cons("DeclList"), longest-match} 
+  	
+    "{" NoOffsideDeclListSem | Empty "}"  -> NoOffsideDeclBlock {bracket, ignore-layout}
+    
+  context-free priorities
+    Decl -> NoOffsideDecl
+  >
+    NoOffsideDecl ";" -> NoOffsideDecl
+
+  context-free syntax
+    NoOffsideDecl -> NoOffsideDeclList
+    NoOffsideDecl ";" NoOffsideDeclList -> NoOffsideDeclList {cons("DeclSeq")}
+    
+    NoOffsideDeclList  -> NoOffsideDeclListSem
+    ";" NoOffsideDeclListSem -> NoOffsideDeclListSem 
+
+
+  context-free priorities
+    Decl -> OffsideDecl {layout(gt(col(left(1)), col(first(1))))}
+  >
+    OffsideDecl ";" -> OffsideDecl {layout(gt(col(first(2)), col(first(1))))}
+  >
+    ";" OffsideDecl -> OffsideDecl {layout(gt(col(first(2)), col(first(1))))}
+  >
+    OffsideDecl ";" Decl -> OffsideDecl
+          {cons("DeclSeq"),
+           layout("1.first.col < 2.first.col && 1.first.col < 3.first.col && 1.first.col < 3.left.col")}
+  
+  context-free syntax
+    OffsideDecl -> OffsideDeclList
+    OffsideDeclNEWLINE OffsideDeclList -> OffsideDeclList {cons("DeclSeq"), layout(eq(col(first(1)), col(first(2))))}
+
+    OffsideDecl LAYOUT? -> OffsideDeclNEWLINE {enforce-newline}

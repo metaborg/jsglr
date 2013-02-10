@@ -78,7 +78,7 @@ public class Disambiguator {
 
   private SGLR parser;
 
-  private ParseTable parseTable;
+  ParseTable parseTable;
 
   private ProductionAttributeReader prodReader;
 
@@ -250,116 +250,121 @@ public class Disambiguator {
     setDefaultFilters();
   }
 
-  public Object applyFilters(SGLR parser, AbstractParseNode root, String sort,
-      int inputLength) throws SGLRException, FilterException, InterruptedException {
-    AbstractParseNode t = root;
-    if (Tools.debugging) {
-      Tools.debug("applyFilters()");
-    }
+	public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int inputLength)
+				throws SGLRException, FilterException, InterruptedException {
+		return applyFilters(parser, root, sort, 0, inputLength);
+	}
 
-    try {
-      try {
-        if (Tools.debugging) {
-          Tools.debug("applyFilters()");
+	public Object applyFilters(SGLR parser, AbstractParseNode root, String sort, int startOffset,
+			int inputLength) throws SGLRException, FilterException, InterruptedException {
+	  
+		AbstractParseNode t = root;
+		if(Tools.debugging) {
+			Tools.debug("applyFilters()");
+		}
+
+    	try {
+    		try {
+	            if(Tools.debugging) {
+	                Tools.debug("applyFilters()");
+	            }
+
+	            initializeFromParser(parser);
+	            t = applyTopSortFilter(sort, t);
+
+	            if (filterAny) {
+	                t = applyCycleDetectFilter(t);
+
+	                // SG_FilterTree
+	                ambiguityManager.resetClustersVisitedCount();
+	                t = filterTree(t);
+	            }
+	            
+	            if (t == null)
+	                return null;
+	        } catch (RuntimeException e) {
+	            throw new FilterException(parser, "Runtime exception when applying filters", e);
+	        }
+    		
+    		newAmbiguityCount = t.getAmbiguityCount();
+    		
+    		return yieldTreeTop(t, startOffset);
+    	} finally {
+			// System.out.println("  layout filter calls at parse time: " + parser.getLayoutFilterCallCount());
+    		// System.out.println("  illegal layout filtered at parse time: " + parser.getLayoutFilteringCount());
+    		// System.out.println("  layout filter calls at disambiguation time: " + getLayoutFilterCallCount());
+    		// System.out.println("  illegal layout filtered at disambiguation time: " + getLayoutFilteringCount());
+    		// System.out.println("  enforced newline skips: " + parser.getEnforcedNewlineSkips());
+			initializeFromParser(null);
         }
+	}
+    	
+	  public void initializeFromParser(SGLR parser) {
+		    if (parser == null) {
+		      this.parser = null;
+		      parseTable = null;
+		      ambiguityCount += ambiguityManager == null ? 0 : ambiguityManager.getAmbiguitiesCount();
+		      ambiguityManager = null;
+		      layoutFilter = null;
+		    } else {
+		      this.parser = parser;
+		      parseTable = parser.getParseTable();
+		      prodReader = new ProductionAttributeReader(parseTable.getFactory());
+		      ambiguityManager = parser.getAmbiguityManager();
+		      ambiguityCount = 0;
+		      layoutFilter = new LayoutFilter(parseTable, false);
+		      layoutFiltering = 0;
+		    }
+		  }
 
-        initializeFromParser(parser);
-        t = applyTopSortFilter(sort, t);
 
-        if (filterAny) {
-          t = applyCycleDetectFilter(t);
+		private void logStatus() {
+			Tools.logger("Number of rejects: ", parser.getRejectCount());
+			Tools.logger("Number of reductions: ", parser.getReductionCount());
+			Tools.logger("Number of ambiguities: ", ambiguityManager.getMaxNumberOfAmbiguities());
+			Tools.logger("Number of calls to Amb: ", ambiguityManager.getAmbiguityCallsCount());
+			Tools.logger("Count Eagerness Comparisons: ", ambiguityManager.getEagernessComparisonCount(), " / ", ambiguityManager.getEagernessSucceededCount());
+			Tools.logger("Number of Injection Counts: ", ambiguityManager.getInjectionCount());
+		}
 
-          // SG_FilterTree
-          ambiguityManager.resetClustersVisitedCount();
-          t = filterTree(t);
-        }
+	    private Object yieldTree(AbstractParseNode t, int startOffset) {
+			parser.getTreeBuilder().reset(startOffset); // in case yieldTree is used for debugging
+			return parser.getTreeBuilder().buildTree(t);
+	    }
+	    
+	    private Object yieldTreeTop(AbstractParseNode t, int startOffset) throws SGLRException {
+	        int ambCount = ambiguityManager.getAmbiguitiesCount();
 
-        if (t == null)
-          return null;
-      } catch (RuntimeException e) {
-        throw new FilterException(parser,
-            "Runtime exception when applying filters", e);
-      }
-      
-      newAmbiguityCount = t.getAmbiguityCount();
+			if (Tools.debugging) {
+				Tools.debug("convertToATerm: ", t);
+			}
 
-      return yieldTreeTop(t);
+			try {
+				ambiguityCount += ambiguityManager.getAmbiguitiesCount();
+				ambiguityManager.resetAmbiguityCount();
+				final Object r = yieldTree(t, startOffset);
 
-    } finally {
-//      System.out.println("  layout filter calls at parse time: " + parser.getLayoutFilterCallCount());
-//      System.out.println("  illegal layout filtered at parse time: " + parser.getLayoutFilteringCount());
-//      System.out.println("  layout filter calls at disambiguation time: " + getLayoutFilterCallCount());
-//      System.out.println("  illegal layout filtered at disambiguation time: " + getLayoutFilteringCount());
-//      System.out.println("  enforced newline skips: " + parser.getEnforcedNewlineSkips());
-//      initializeFromParser(null);
-    }
-  }
+				if(r == null){
+					return null; //This can happen when a partial tree is build
+				}
+				
+				if(logStatistics)
+					logStatus();
 
-  public void initializeFromParser(SGLR parser) {
-    if (parser == null) {
-      this.parser = null;
-      parseTable = null;
-      ambiguityCount += ambiguityManager == null ? 0 : ambiguityManager.getAmbiguitiesCount();
-      ambiguityManager = null;
-      layoutFilter = null;
-    } else {
-      this.parser = parser;
-      parseTable = parser.getParseTable();
-      prodReader = new ProductionAttributeReader(parseTable.getFactory());
-      ambiguityManager = parser.getAmbiguityManager();
-      ambiguityCount = 0;
-      layoutFilter = new LayoutFilter(parseTable, false);
-      layoutFiltering = 0;
-    }
-  }
+		        if (Tools.debugging) {
+		            Tools.debug("yield: ", r);
+		        }
 
-  private void logStatus() {
-    Tools.logger("Number of rejects: ", parser.getRejectCount());
-    Tools.logger("Number of reductions: ", parser.getReductionCount());
-    Tools.logger("Number of ambiguities: ",
-        ambiguityManager.getMaxNumberOfAmbiguities());
-    Tools.logger("Number of calls to Amb: ",
-        ambiguityManager.getAmbiguityCallsCount());
-    Tools.logger("Count Eagerness Comparisons: ",
-        ambiguityManager.getEagernessComparisonCount(), " / ",
-        ambiguityManager.getEagernessSucceededCount());
-    Tools.logger("Number of Injection Counts: ",
-        ambiguityManager.getInjectionCount());
-  }
-
-  private Object yieldTree(AbstractParseNode t) {
-    parser.getTreeBuilder().reset(); // in case yieldTree is used for debugging
-    return parser.getTreeBuilder().buildTree(t);
-  }
-
-  private Object yieldTreeTop(AbstractParseNode t) throws SGLRException {
-    int ambCount = ambiguityManager.getAmbiguitiesCount();
-
-    if (Tools.debugging) {
-      Tools.debug("convertToATerm: ", t);
-    }
-
-    try {
-      ambiguityCount += ambiguityManager.getAmbiguitiesCount();
-      ambiguityManager.resetAmbiguityCount();
-      final Object r = yieldTree(t);
-
-      if (logStatistics)
-        logStatus();
-
-      if (Tools.debugging) {
-        Tools.debug("yield: ", r);
-      }
-
-      if (ambiguityIsError && ambCount > 0) {
-        throw new SGLRException(parser, "Ambiguities found");
-      } else {
-        return parser.getTreeBuilder().buildTreeTop(r, ambCount);
-      }
-    } finally {
-      parser.getTreeBuilder().reset();
-    }
-  }
+		        if(ambiguityIsError && ambCount > 0) {
+		        	throw new SGLRException(parser, "Ambiguities found") ;
+		        }
+		        else {
+		        	return parser.getTreeBuilder().buildTreeTop(r, ambCount);
+		        }
+			} finally {
+				parser.getTreeBuilder().reset();
+			}
+	    }
 
   private AbstractParseNode applyCycleDetectFilter(AbstractParseNode t)
       throws FilterException {

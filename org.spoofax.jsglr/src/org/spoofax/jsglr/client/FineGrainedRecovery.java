@@ -193,7 +193,9 @@ public class FineGrainedRecovery {
 				&& getHistory().getTokenIndex() <= exploredRegionEndOffset
 				&& getHistory().getTokenIndex() <= fwTokensSeenMax
 				&& mySGLR.acceptingStack == null
-				&& mySGLR.getCurrentToken() != SGLR.EOF);
+				&& mySGLR.getCurrentToken() != SGLR.EOF
+				&& getHistory().getTokenIndex() < this.settings.getEndOffsetFragment()
+		);
 		mySGLR.setFinegrainedRecoverMode(false);
 		return newCandidates;
 	}
@@ -286,7 +288,7 @@ public class FineGrainedRecovery {
 	 */
 	private boolean acceptParse() throws InterruptedException {
 		String parsedFragment = "";
-		while (mySGLR.activeStacks.size() > 0 && !acceptRecovery(parsedFragment)) {
+		while (mySGLR.activeStacks.size() > 0 && !acceptRecovery(parsedFragment) && getHistory().getTokenIndex() < settings.getEndOffsetFragment()) {
 			getHistory().readRecoverToken(mySGLR, false);
 			if(getHistory().getTokenIndex() > failureOffset){
 				parsedFragment += ((char)mySGLR.getCurrentToken());
@@ -304,6 +306,8 @@ public class FineGrainedRecovery {
 	 */
 	private boolean acceptRecovery(String parsedFragmentSinceLastRecovery){
 		if(mySGLR.acceptingStack != null)
+			return true;
+		if(mySGLR.activeStacks.size() > 0 && getHistory().getTokenIndex() == settings.getEndOffsetFragment())
 			return true;
 		return 
 			mySGLR.activeStacks.size() > 0

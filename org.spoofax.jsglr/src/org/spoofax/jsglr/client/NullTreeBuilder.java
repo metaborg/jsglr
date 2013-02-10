@@ -40,4 +40,8 @@ public class NullTreeBuilder implements ITreeBuilder {
 		// Do ... nothing
 	}
 
+	public void reset(int startOffset) {
+		// Do ... nothing
+	}
+
 }

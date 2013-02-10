@@ -29,6 +29,10 @@ public abstract class BottomupTreeBuilder implements ITreeBuilder {
 	public void reset() {
 		// Do nothing by default
 	}
+	
+	public void reset(int startOffset) {
+		// TODO Auto-generated method stub	
+	}
 
 	public Object buildTreeTop(Object subtree, int ambiguityCount) {
 		return subtree;

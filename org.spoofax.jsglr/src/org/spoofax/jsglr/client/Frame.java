@@ -27,7 +27,7 @@ public class Frame implements Serializable {
 
 
 
-    private Link[] steps;
+    protected Link[] steps;
     private int stepsCount;
     
     // FIXME: All frames except the root must have a step with a label

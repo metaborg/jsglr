@@ -14,8 +14,10 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.shared.Tools;
 
 
 /**
@@ -159,12 +161,17 @@ public class ProductionAttributeReader {
 	
 	public String getDeprecationMessage(IStrategoAppl attrs) {
 		IStrategoTerm deprecated = getAttribute(attrs, "deprecated");
-		if (deprecated == null) {
+		if(deprecated == null){
 			return null;
-		} else if (deprecated.getSubtermCount() == 1) {
-			return asJavaString(termAt(deprecated, 0));
 		} else {
-			return "Deprecated construct";
+			final StringBuilder msg = new StringBuilder("Deprecated construct");
+			if(deprecated.getTermType() == IStrategoTerm.STRING){
+				msg.append(": ");
+				msg.append(asJavaString(deprecated));
+				return msg.toString();
+			}else{
+				return msg.toString();
+			}
 		}
 	}
 	

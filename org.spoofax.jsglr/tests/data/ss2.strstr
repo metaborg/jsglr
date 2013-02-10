@@ -1,5 +1,0 @@
-module metavar-list
-
-strategies
-
-  r : a -> Strat |[ ?(t* ) ]| 

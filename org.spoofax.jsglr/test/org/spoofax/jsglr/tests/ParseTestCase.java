@@ -23,7 +23,6 @@ import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
-import org.spoofax.jsglr.client.PathListPool;
 import org.spoofax.jsglr.client.PooledPathList;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;

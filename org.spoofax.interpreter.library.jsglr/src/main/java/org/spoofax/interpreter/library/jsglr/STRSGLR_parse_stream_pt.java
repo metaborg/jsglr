@@ -70,6 +70,9 @@ public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 			return result != null;
 		} catch(SGLRException e) {
 			return STRSGLR_parse_string_pt.handleException(env, svars[0], e, Tools.asJavaString(tvars[3]));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
 		} 
 	}
 

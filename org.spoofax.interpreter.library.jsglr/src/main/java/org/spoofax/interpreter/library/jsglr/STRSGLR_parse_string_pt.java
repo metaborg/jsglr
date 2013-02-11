@@ -106,6 +106,10 @@ public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
 		} catch (SGLRException e) {
 			lastException = e;
 			return handleException(env, svars[0], e, getLastPath());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -136,7 +140,9 @@ public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
 		}
 	}
 
-	protected IStrategoTerm doParse(IContext env, IStrategoString input, ParseTable table, String startSymbol, String path) throws InterpreterException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	protected IStrategoTerm doParse(IContext env, IStrategoString input, ParseTable table, String startSymbol, String path) 
+			throws InterpreterException, TokenExpectedException, BadTokenException, 
+			ParseException, SGLRException, InterruptedException {
 
 		SGLR parser = new SGLR(createTreeBuilder(env), table);
 		parser.setDisambiguator(filterSettings);

@@ -32,7 +32,7 @@ public abstract class AbstractTestTreeDiff {
 
 	protected IStrategoTerm parseFile(String fname) throws IOException,
 			FileNotFoundException, BadTokenException, TokenExpectedException,
-			ParseException, SGLRException {
+			ParseException, SGLRException, InterruptedException {
 				String inputChars = FileTools.loadFileAsString(new BufferedReader(new FileReader(fname)));
 				IStrategoTerm trm1 = (IStrategoTerm) sglr.parse(inputChars, fname, null);
 				return trm1;

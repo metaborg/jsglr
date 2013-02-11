@@ -89,6 +89,9 @@ public class STRSGLR_recover_parse_string extends JSGLRPrimitive {
 
 			// FIXME: Stratego doesn't seem to print the erroneous line in Java
 			return svars[0].evaluate(env);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -111,7 +114,7 @@ public class STRSGLR_recover_parse_string extends JSGLRPrimitive {
 
 	protected IStrategoTerm call(IContext env, IStrategoString input,
 			ParseTable table, String startSymbol)
-			throws InterpreterException, IOException, SGLRException {
+			throws InterpreterException, IOException, SGLRException, InterruptedException {
 		SGLR parser = new SGLR(new TreeBuilder(new TermTreeFactory(env.getFactory())), table);
 		parser.setUseStructureRecovery(true);
 		IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol, true, cursorLocation);

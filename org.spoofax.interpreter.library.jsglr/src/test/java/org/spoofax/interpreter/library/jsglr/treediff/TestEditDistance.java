@@ -20,7 +20,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 	}
 
 	@Test
-	public void testInsertion() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testInsertion() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-insertion1-001.java";
 		String fname2 = "tests/test-inputs/test-insertion2-001.java";
@@ -53,7 +53,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 	}
 
 	@Test
-	public void testDeletion() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testDeletion() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-insertion2-001.java";
 		String fname2 = "tests/test-inputs/test-insertion1-001.java";
@@ -86,7 +86,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 	}
 
 	@Test
-	public void testUpdateValue() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testUpdateValue() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-updateValue1-001.java";
 		String fname2 = "tests/test-inputs/test-updateValue2-001.java";
@@ -120,7 +120,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 	}
 
 	@Test
-	public void testRelabel() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testRelabel() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-relabel1-001.java";
 		String fname2 = "tests/test-inputs/test-relabel2-001.java";
@@ -155,7 +155,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 
 
 	@Test
-	public void testMove001() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testMove001() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-move1-001.java";
 		String fname2 = "tests/test-inputs/test-move2-001.java";
@@ -175,7 +175,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 
 	
 	@Test
-	public void testMove002() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testMove002() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-move1-002.java";
 		String fname2 = "tests/test-inputs/test-move2-002.java";
@@ -208,7 +208,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 
 	
 	@Test
-	public void testMove003() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testMove003() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-move1-003.java";
 		String fname2 = "tests/test-inputs/test-move2-003.java";
@@ -242,7 +242,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 
 
 	@Test
-	public void testMove004() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testMove004() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		String fname1 = "tests/test-inputs/test-move1-004.java";
 		String fname2 = "tests/test-inputs/test-move2-004.java";
@@ -261,7 +261,7 @@ public class TestEditDistance extends AbstractTestTreeDiff {
 	}
 
 	@Test
-	public void testMove005() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException
+	public void testMove005() throws TokenExpectedException, FileNotFoundException, BadTokenException, ParseException, IOException, SGLRException, InterruptedException
 	{
 		//fail();//TODO: check results manually
 		String fname1 = "tests/test-inputs/test-move1-005.java";

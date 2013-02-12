@@ -28,7 +28,7 @@ public class Frame implements Serializable {
 
 
     protected Link[] steps;
-    private int stepsCount;
+    protected int stepsCount;
     
     // FIXME: All frames except the root must have a step with a label
     // that goes to the parent frame. Should we enforce this in this

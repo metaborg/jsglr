@@ -349,9 +349,9 @@ public class SGLR {
 			for (int j = 0; j < forShifter.size(); j++) {
 				final ActionState as = forShifter.get(j);
 				if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {
-					Frame mj = as.st;
-					Link[] links = mj.steps;
-					for (Link lnk : links) {
+					Frame fr = as.st;
+			        for (int i = 0; i < fr.stepsCount; i++) {
+			        	Link lnk = fr.steps[i];
 						int length = lnk.getLength();
 						AbstractParseNode parseNode = lnk.label;
 						if(length > currentInputStream.getOffset() - startOffset){
@@ -371,7 +371,8 @@ public class SGLR {
 			shifter(); //renewes active stacks with states in forshifter
 		} while (tokensSeen < endOffset && activeStacks.size() > 0);
     	if(acceptingStack != null){
-			for (Link lnk : acceptingStack.steps) {
+	        for (int i = 0; i < acceptingStack.stepsCount; i++) {
+	        	Link lnk = acceptingStack.steps[i];
 				int length = lnk.getLength();
 				AbstractParseNode parseNode = lnk.label;
 				if(length > currentInputStream.getOffset() - startOffset){

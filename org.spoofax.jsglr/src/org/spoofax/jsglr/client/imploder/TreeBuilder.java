@@ -238,22 +238,17 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			// production nodes
 			children = null;
 
-			ArrayDeque<AbstractParseNode> nodes = new ArrayDeque<AbstractParseNode>();
-			nodes.push(node);
-
+			ArrayDeque<AbstractParseNode> nodes = fillNodeStack(node);
 			while (!nodes.isEmpty()) {
 				AbstractParseNode current = nodes.pop();
-
-				if (current.isParseProductionNode())
+				if (current.isParseProductionNode()){
 					buildTreeProduction((ParseProductionNode) current);
-
-				if (current.isAmbNode()) {
-					nodes.push(current.getChildren()[0]);
-					continue;
 				}
-
-				for (int i = current.getChildren().length - 1; i >= 0; i--)
-					nodes.push(current.getChildren()[i]);
+				if (0 <= current.getLabel() - labelStart && current.getLabel() - labelStart < labels.length) {
+					LabelInfo mjlabel = labels[current.getLabel() - labelStart];
+					tokenizer.markPossibleSyntaxError(mjlabel, prevToken, offset - 1,
+							prodReader);
+				} 
 			}
 		} else if (isList) {
 			children = inLexicalContext ? null : new AutoConcatList<Object>(
@@ -334,6 +329,21 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		tokenizer.markPossibleSyntaxError(label, prevToken, offset - 1,
 				prodReader);
 		return result;
+	}
+
+	private ArrayDeque<AbstractParseNode> fillNodeStack(AbstractParseNode node) {		
+		if (node.isAmbNode()) {
+			return fillNodeStack(node.getChildren()[0]);
+		}
+		ArrayDeque<AbstractParseNode> nodes = new ArrayDeque<AbstractParseNode>();
+		for (int i = 0; i < node.getChildren().length; i++){
+			ArrayDeque<AbstractParseNode> nodesChild = fillNodeStack(node.getChildren()[i]);
+			while(!nodesChild.isEmpty()){
+				nodes.addLast(nodesChild.pop());
+			}
+		}
+		nodes.addLast(node);
+		return nodes;
 	}
 
 	/**

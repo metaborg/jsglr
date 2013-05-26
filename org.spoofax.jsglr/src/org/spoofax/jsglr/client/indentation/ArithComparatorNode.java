@@ -101,7 +101,7 @@ public class ArithComparatorNode extends BinaryArithNode<Boolean> implements
     this.comperator = comperator;
   }
 
-  @Override
+ // @Override
   public Boolean evaluate(AbstractParseNode[] kids, Map<String, Object> env,
       boolean parseTime) {
     Integer value1 = this.operands[0].evaluate(kids, env, parseTime);

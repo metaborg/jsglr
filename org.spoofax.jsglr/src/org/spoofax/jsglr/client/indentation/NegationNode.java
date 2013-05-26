@@ -11,7 +11,7 @@ public class NegationNode extends LogicalNode {
     super(new BooleanNode[] { operand });
   }
 
-  @Override
+ // @Override
   public Boolean evaluate(AbstractParseNode[] kids, Map<String, Object> env,
       boolean parseTime) {
     Boolean value = this.operands[0].evaluate(kids, env, parseTime);
@@ -21,7 +21,7 @@ public class NegationNode extends LogicalNode {
     return !value;
   }
 
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager, boolean atParseTime) {
     switch (this.operands[0].getInvokeState(atParseTime)) {
     case NOT_INVOKABLE:
@@ -38,7 +38,7 @@ public class NegationNode extends LogicalNode {
   }
 
 
-  @Override
+ // @Override
   public InvokeState getInvokeState(boolean atParseTime) {
     return this.operands[0].getInvokeState(atParseTime);
   }

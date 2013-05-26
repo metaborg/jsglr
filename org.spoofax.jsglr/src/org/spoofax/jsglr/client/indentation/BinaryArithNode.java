@@ -12,7 +12,7 @@ public abstract class BinaryArithNode<V> extends ArithmeticNode<V> {
   
   protected abstract String getOperatorString();
   protected abstract String convertToInt(String val, LocalVariableManager manager);
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager, boolean atParseTime) {
     InvokeState type0 = this.operands[0].getInvokeState(atParseTime);
     InvokeState type1 = this.operands[1].getInvokeState(atParseTime);
@@ -60,7 +60,7 @@ public abstract class BinaryArithNode<V> extends ArithmeticNode<V> {
     return code;
   }
 
-  @Override
+ // @Override
   public InvokeState getInvokeState(boolean atParseTime) {
     return this.operands[0].getInvokeState(atParseTime).combine(
         this.operands[1].getInvokeState(atParseTime));

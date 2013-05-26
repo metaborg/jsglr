@@ -89,7 +89,7 @@ public class LogOperationNode extends LogicalNode {
     this.operator = operator;
   }
 
-  @Override
+ // @Override
   public Boolean evaluate(AbstractParseNode[] kids, Map<String, Object> env,
       boolean parseTime) {
     // Evaluate first operand
@@ -115,7 +115,7 @@ public class LogOperationNode extends LogicalNode {
     }
   }
 
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager, boolean atParseTime) {
     // First check to own type
     switch (this.getInvokeState(atParseTime)) {
@@ -203,7 +203,7 @@ public class LogOperationNode extends LogicalNode {
     return code;
   }
 
-  @Override
+ // @Override
   public InvokeState getInvokeState(boolean atParseTime) {
     // Cannot combine because sometimes the operator does not need to evaluate
     // one operand

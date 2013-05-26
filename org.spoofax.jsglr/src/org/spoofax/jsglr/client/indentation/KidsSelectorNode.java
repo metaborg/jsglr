@@ -13,18 +13,18 @@ public class KidsSelectorNode implements AbstractParseNodeNode {
     this.arrayIndex = 2 * (index -1);
   }
 
-  @Override
+ // @Override
   public AbstractParseNode evaluate(AbstractParseNode[] kids,
       Map<String, Object> env, boolean parseTime) {
     return kids[this.arrayIndex];
   }
 
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager, boolean atParseTime) {
     return "$1["+this.arrayIndex+"]";
   }
 
-  @Override
+ // @Override
   public InvokeState getInvokeState(boolean atParseTime) {
     // Can always be invoked on parse time
     return InvokeState.SAFELY_INVOKABLE;

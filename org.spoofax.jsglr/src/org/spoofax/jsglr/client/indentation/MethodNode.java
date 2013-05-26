@@ -48,7 +48,7 @@ public class MethodNode extends NodeOperatorNode<Integer> implements
     this.method = method;
   }
 
-  @Override
+ // @Override
   public Integer evaluate(AbstractParseNode[] kids, Map<String, Object> env,
       boolean parseTime) {
     AbstractParseNode r = this.operand.evaluate(kids, env, parseTime);
@@ -59,7 +59,7 @@ public class MethodNode extends NodeOperatorNode<Integer> implements
     }
   }
 
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager, boolean atParseTime) {
     switch (this.operand.getInvokeState(atParseTime)) {
     case SAFELY_INVOKABLE:
@@ -75,7 +75,7 @@ public class MethodNode extends NodeOperatorNode<Integer> implements
     }
   }
 
-  @Override
+ // @Override
   public InvokeState getInvokeState(boolean atParseTime) {
     return this.operand.getInvokeState(atParseTime);
   }

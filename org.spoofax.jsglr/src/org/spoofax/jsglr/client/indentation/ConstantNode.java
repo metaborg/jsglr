@@ -13,18 +13,18 @@ public class ConstantNode implements IntegerNode {
     this.value = value;
   }
 
-  @Override
+ // @Override
   public Integer evaluate(AbstractParseNode[] kids, Map<String, Object> env,
       boolean parseTime) {
     return this.value;
   }
 
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager, boolean atParseTime) {
     return Integer.toString(this.value);
   }
 
-  @Override
+ // @Override
   public InvokeState getInvokeState(boolean atParseTime) {
     return InvokeState.SAFELY_INVOKABLE;
   }

@@ -86,7 +86,7 @@ public class NodeSelectorNode extends NodeOperatorNode<AbstractParseNode>
     this.position = position;
   }
 
-  @Override
+ // @Override
   public AbstractParseNode evaluate(AbstractParseNode[] kids,
       Map<String, Object> env, boolean parseTime) {
     if (parseTime
@@ -104,7 +104,7 @@ public class NodeSelectorNode extends NodeOperatorNode<AbstractParseNode>
     return result;
   }
 
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager, boolean atParseTime) {
     if (this.getInvokeState(atParseTime) == InvokeState.NOT_INVOKABLE) {
       return "null";
@@ -113,7 +113,7 @@ public class NodeSelectorNode extends NodeOperatorNode<AbstractParseNode>
     }
   }
 
-  @Override
+ // @Override
   public InvokeState getInvokeState(boolean atParseTime) {
     if (this.position == Position.LEFT || this.position == Position.RIGHT) {
       if (atParseTime) {

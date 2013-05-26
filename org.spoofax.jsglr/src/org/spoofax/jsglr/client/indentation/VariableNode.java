@@ -13,20 +13,20 @@ public class VariableNode<V> implements CompilableLayoutNode<V> {
     this.name = name;
   }
 
-  @Override
+ // @Override
   public V evaluate(AbstractParseNode[] kids, Map<String, Object> env,
       boolean parseTime) {
     return (V) env.get(this.name);
   }
 
-  @Override
+ // @Override
   public String getCompiledCode(LocalVariableManager manager,
       boolean atParseTime) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
+ // @Override
   public org.spoofax.jsglr.client.indentation.CompilableLayoutNode.InvokeState getInvokeState(
       boolean atParseTime) {
     // TODO Auto-generated method stub

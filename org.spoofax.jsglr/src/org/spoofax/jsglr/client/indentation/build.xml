@@ -1,19 +1,37 @@
 <project>
 
-	<!-- I know, this sucks -->
-	<condition property="binary.sdf2table" value="D:\\layout-parsing\\jsglr-layout\\test-offside\\tools\\sdf2table.exe" else="/Users/seba/.nix-profile/bin/sdf2table">
+	<condition property="binary.sdf2table" value="${project.loc}/test-offside/tools/win/sdf2table.exe" else="${project.loc}/test-offside/tools/mac/sdf2table">
 		<os family="windows" />
 	</condition>
 
+	<property name="strategoxt" value="${project.loc}/test-offside/tools/strategoxt.jar" />
+	
 	<target name="compile">
-		<compile-grammar path="src/org/spoofax/jsglr/client/indentation" module="LayoutConstraint" />
+		<compile-grammar path="./" module="LayoutConstraint" />
 	</target>
 	
 	<macrodef name="compile-grammar">
 		<attribute name="module" />
 		<attribute name="path" default="." />
 		<sequential>
+			<pack-sdf source="@{path}/@{module}.sdf" output="@{path}/@{module}.def" />
 			<sdf2table source="@{path}/@{module}.def" output="@{path}/@{module}.tbl" module="@{module}" />
+		</sequential>
+	</macrodef>
+
+	
+	<macrodef name="pack-sdf">
+		<attribute name="source" />
+		<attribute name="output" />
+		<attribute name="failonerror" default="true" />
+		<sequential>
+			<java classpath="${strategoxt}" classname="start" failonerror="@{failonerror}">
+				<arg value="org.strategoxt.tools.main-pack-sdf" />
+				<arg value="-i" />
+				<arg path="@{source}" />
+				<arg value="-o" />
+				<arg path="@{output}" />
+			</java>
 		</sequential>
 	</macrodef>
 
@@ -34,4 +52,47 @@
 		</sequential>
 	</macrodef>
 
+	<macrodef name="compile-signature">
+		<attribute name="module" />
+		<sequential>
+			<pack-sdf source="@{module}.sdf" output="@{module}.def" />
+			<sdf2rtg source="@{module}.def" output="@{module}.rtg" module="@{module}" />
+			<rtg2sig source="@{module}.rtg" output="@{module}.str" module="@{module}" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="sdf2rtg">
+		<attribute name="source" />
+		<attribute name="output" />
+		<attribute name="module" />
+		<attribute name="failonerror" default="true" />
+		<sequential>
+			<exec executable="${bindir}sdf2rtg" failonerror="@{failonerror}">
+				<arg value="-i" />
+				<arg value="@{source}"/>
+				<arg value="-o" />
+				<arg value="@{output}"/>
+				<arg value="-m" />
+				<arg value="@{module}"/>
+				<arg value="--ignore-missing-cons" />
+			</exec>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="rtg2sig">
+			<attribute name="source" />
+			<attribute name="output" />
+			<attribute name="module" />
+			<attribute name="failonerror" default="true" />
+			<sequential>
+				<exec executable="${bindir}rtg2sig" failonerror="@{failonerror}">
+					<arg value="-i" />
+					<arg value="@{source}"/>
+					<arg value="-o" />
+					<arg value="@{output}"/>
+					<arg value="--module" />
+					<arg value="@{module}"/>
+				</exec>
+			</sequential>
+		</macrodef>
 </project>

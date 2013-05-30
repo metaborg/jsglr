@@ -57,6 +57,8 @@ public class SGLR {
 	protected volatile boolean asyncAborted;
 
 	protected Frame acceptingStack;
+	protected Frame lastAcceptingStack;
+	protected int lastAcceptTokenSeen;
 
 	protected final ArrayDeque<Frame> activeStacks;
 
@@ -491,6 +493,13 @@ public class SGLR {
 			if (recoverStacks != null) recoverStacks.clear();
 		}
 	}
+	
+	  
+    public Object parse(String input, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+    SGLRException, InterruptedException {
+      return parse(input, filename, startSymbol, false);
+    }
+    
 
     /**
 	 * Parses a string and constructs a new tree using the tree builder.
@@ -498,23 +507,32 @@ public class SGLR {
 	 * @param input        The input string.
 	 * @param filename     The source filename of the string, or null if not available.
 	 * @param startSymbol  The start symbol to use, or null if any applicable.
+	 * @param parseMax     If true, parser reads as many characters as possible, but succeeds even if not all characters were read.
 	 * @throws InterruptedException 
 	 */
-    public Object parse(String input, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+    public Object parse(String input, String filename, String startSymbol, boolean parseMax) throws BadTokenException, TokenExpectedException, ParseException,
 	SGLRException, InterruptedException {
 		logBeforeParsing();
 		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
 		getPerformanceMeasuring().startParse();
-        Object result = sglrParse(startSymbol);
+        Object result = sglrParse(startSymbol, parseMax);
         return result;
 	}
 
-	private Object sglrParse(String startSymbol)
-	throws BadTokenException, TokenExpectedException,
-	ParseException, SGLRException, InterruptedException {
+    /**
+     * 
+     * @param startSymbol
+     * @param parseMax If true, parser reads as many characters as possible, but succeeds even if not all characters were read.
+     * @return if parseMax then new Object[]{result,num-characters-parsed} else result
+     */
+  	private Object sglrParse(String startSymbol, boolean parseMax)
+  	throws BadTokenException, TokenExpectedException,
+  	ParseException, SGLRException, InterruptedException {
+  		getPerformanceMeasuring().startParse(); // TODO Check that
 		try {
+			disambiguator.initializeFromParser(this); // Check
 			do {
 		     if (Thread.currentThread().isInterrupted())
 		        throw new InterruptedException();
@@ -522,8 +540,17 @@ public class SGLR {
 				readNextToken();
 				history.keepTokenAndState(this);
 				doParseStep();
+				if (parseMax) {
+					Frame accept = checkImmediateAcceptance(startSymbol);
+					if (accept != null) {
+						lastAcceptingStack = accept;
+						lastAcceptTokenSeen = tokensSeen;
+					}
+				}
 			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
-
+			if (parseMax && acceptingStack == null) {
+		        acceptingStack = lastAcceptingStack;
+			}
 			if (acceptingStack == null) {
 				collectedErrors.add(createBadTokenException());
 			}
@@ -531,7 +558,7 @@ public class SGLR {
 			if(useIntegratedRecovery && acceptingStack==null){
 				recoverIntegrator.recover();
 				if(acceptingStack==null && activeStacks.size()>0) {
-					return sglrParse(startSymbol);
+					return sglrParse(startSymbol, parseMax);
 				}
 			}
 			getPerformanceMeasuring().endParse(acceptingStack!=null);
@@ -571,6 +598,64 @@ public class SGLR {
 		}
 	}
 
+	private Object filteredResult(String startSymbol, boolean parseMax) throws SGLRException, InterruptedException {
+	    Link s = acceptingStack.findDirectLink(startFrame);
+
+	    if (s == null) {
+	      throw new ParseException(this, "Accepting stack has no link");
+	    }
+
+	    logParseResult(s);
+	    Tools.debug("avoids: ", s.recoverCount);
+	    //Tools.debug(s.label.toParseTree(parseTable));
+
+	    if (getTreeBuilder() instanceof NullTreeBuilder) {
+	      return null;
+	    } else {
+	      this.parseTree = s.label;
+	      Object result = disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
+	      if (parseMax)
+	        result = new Object[] {result, lastAcceptTokenSeen};
+	      return result;
+	    }
+	  }
+
+	  private Frame checkImmediateAcceptance(String startSymbol) throws InterruptedException {
+		  if (acceptingStack == null) {
+	  	  int tmpToken = currentToken;
+	  	  ArrayDeque<Frame> tmpActiveStacks = new ArrayDeque<Frame>(activeStacks);
+	  	  ArrayDeque<Frame> tmpForActor = new ArrayDeque<Frame>(forActor);
+	  	  
+	  	  currentToken = 256; // EOF
+	  	  
+	  	  try {
+	  	    parseCharacter();
+	  	  } finally {
+	  	    currentToken = tmpToken;
+	  	    activeStacks.clear();
+	  	    activeStacks.addAll(tmpActiveStacks);
+	  	    forActor.clear();
+	  	    forActor.addAll(tmpForActor);
+	  	  }
+		  }
+		  
+		  // if we now have an accepting stack
+		  if (acceptingStack != null) {
+		    Object node = null;
+		    try {
+	        node = disambiguator.applyTopSortFilter(startSymbol, acceptingStack.findDirectLink(startFrame).label);
+	      } catch (SGLRException e) {
+	        // ignore here
+	      }
+		    if (node == null)
+		      acceptingStack = null;
+		  }
+		  
+		  Frame result = acceptingStack;
+		  acceptingStack = null;
+		  return result;
+	  }
+  	
 	void readNextToken() {
 		logCurrentToken();
 		setCurrentToken(getNextToken());
@@ -618,6 +703,7 @@ public class SGLR {
 		tokensSeen = 0;
 		currentInputStream = new PushbackStringIterator(input);
 		acceptingStack = null;
+		lastAcceptingStack = null;
 		collectedErrors.clear();
 		history=new ParserHistory();
 		performanceMeasuring=new RecoveryPerformance();

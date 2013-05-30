@@ -220,5 +220,12 @@ public class Token implements IToken, Cloneable {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public org.spoofax.jsglr.client.imploder.Token makeStdToken(Tokenizer tokenizer) {
+		org.spoofax.jsglr.client.imploder.Token tok = new org.spoofax.jsglr.client.imploder.Token(tokenizer, index,
+				line, column, startOffset, endOffset, kind, null, null);
+		tok.setError(errorMessage);
+		return tok;
+	}
 
 }

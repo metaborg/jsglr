@@ -1,0 +1,20 @@
+module UTF8
+
+exports 
+	
+	context-free start-symbols
+		Y
+	
+	context-free syntax
+		"b" Y2				-> K
+		
+		K Z				-> Y
+		
+		{TrebleClef ","}*	-> Z
+				
+	lexical syntax
+		$Unicode(Ø) "c" -> Y2
+		$Unicode(𝄞) -> TrebleClef
+	 
+
+	

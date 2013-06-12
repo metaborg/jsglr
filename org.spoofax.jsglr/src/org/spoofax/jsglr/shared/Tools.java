@@ -20,13 +20,19 @@ public class Tools {
     private static Measures measures;
 
     public static void debug(Object ...s) {
-    	if(debugging)
-    		System.err.println(s);
+    	if (debugging) {
+    	for (Object o : s)
+    		System.err.print(o);
+    	System.out.println();
+    	}
     }
 
     public static void logger(Object ...s) {
-    	if(logging)
-    		System.out.println(s);
+    	if(logging) {
+    		for (Object o : s) 
+    			System.out.println(o);
+    		System.out.println();
+    	}
     }
 
     public static void setLogging(boolean enableLogging) {

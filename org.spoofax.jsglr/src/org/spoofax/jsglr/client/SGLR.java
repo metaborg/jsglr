@@ -22,20 +22,21 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.jsglr.unicode.UnicodeConverter;
 
 public class SGLR {
 
 	private static final boolean ENFORCE_NEWLINE_FILTER = true;
 	private static final boolean PARSE_TIME_LAYOUT_FITER = true;
-	
+
 	/**
 	 * logging variables
 	 */
 	private int layoutFiltering;
 	private int enforcedNewlineSkip = 0;
-	  
+
 	private RecoveryPerformance performanceMeasuring;
-	
+
 	private static final int COMPLETION_REGION_SIZE = 1000;
 
 	private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
@@ -46,9 +47,9 @@ public class SGLR {
 
 	protected static boolean WORK_AROUND_MULTIPLE_LOOKAHEAD;
 
-	//Performance testing
-	private static long parseTime=0;
-	private static int parseCount=0;
+	// Performance testing
+	private static long parseTime = 0;
+	private static int parseCount = 0;
 
 	protected Frame startFrame;
 
@@ -63,20 +64,20 @@ public class SGLR {
 	private ParseTable parseTable;
 
 	private int currentToken;
-	
+
 	private int currentIndentation;
-	
+
 	private int tokensSeen;
 
 	protected int lineNumber;
 
 	protected int columnNumber;
 
-  protected int lastLineNumber;
+	protected int lastLineNumber;
 
-  protected int lastColumnNumber;
+	protected int lastColumnNumber;
 
-  private int startOffset;
+	private int startOffset;
 
 	private final ArrayDeque<ActionState> forShifter;
 
@@ -111,9 +112,9 @@ public class SGLR {
 	private ParserHistory history;
 
 	private RecoveryConnector recoverIntegrator;
-	
+
 	private ITreeBuilder treeBuilder;
-	
+
 	private AbstractParseNode parseTree;
 
 	protected boolean useIntegratedRecovery;
@@ -123,40 +124,42 @@ public class SGLR {
 		this.recoverIntegrator = new RecoveryConnector(this);
 	}
 
-	public void setUseStructureRecovery(boolean useRecovery, IntegratedRecoverySettings settings, FineGrainedSetting fgSettings) {
+	public void setUseStructureRecovery(boolean useRecovery, IntegratedRecoverySettings settings,
+			FineGrainedSetting fgSettings) {
 		this.useIntegratedRecovery = useRecovery;
 		this.recoverIntegrator = new RecoveryConnector(this, settings, fgSettings);
 	}
 
 	private boolean isCompletionMode;
-	
+
 	public ParserHistory getHistory() {
 		return history;
 	}
-	
-	public int getParserLocation(){
-		return this.getHistory().getTokenIndex(); //should also work in recover mode
+
+	public int getParserLocation() {
+		return this.getHistory().getTokenIndex(); // should also work in recover
+													// mode
 	}
 
 	private boolean isFineGrainedMode;
-	
+
 	private int fineGrainedStartLocation;
-	
+
 	private int fineGrainedRecoverMax;
 
 	private int cursorLocation;
-	
+
 	private LayoutFilter layoutFilter;
 
 	public int getCursorLocation() {
 		return cursorLocation;
 	}
-	
+
 	public boolean isSetCursorLocation() {
 		return 0 < cursorLocation && cursorLocation != Integer.MAX_VALUE;
 	}
-	
-	public void setCompletionParse(boolean isCompletionMode, int cursorLocation){
+
+	public void setCompletionParse(boolean isCompletionMode, int cursorLocation) {
 		this.isCompletionMode = isCompletionMode;
 		this.cursorLocation = cursorLocation;
 	}
@@ -168,44 +171,43 @@ public class SGLR {
 	public Set<BadTokenException> getCollectedErrors() {
 		return collectedErrors;
 	}
-	
+
 	public int getEnforcedNewlineSkips() {
-	  return enforcedNewlineSkip;
+		return enforcedNewlineSkip;
 	}
-   
+
 	public int getLayoutFilteringCount() {
-    return layoutFiltering;
-  }
-	
-	 public int getLayoutFilterCallCount() {
-	    return layoutFilter.getFilterCallCount();
-	  }
-	  
-    /**
-     * Attempts to set a timeout for parsing.
-     * Default implementation throws an
-     * {@link UnsupportedOperationException}.
-     * 
-     * @see org.spoofax.jsglr.io.SGLR#setTimeout(int)
-     */
-    public void setTimeout(int timeout) {
-        throw new UnsupportedOperationException("Use org.spoofax.jsglr.io.SGLR for setting a timeout");
-    }
-    
-    protected void initParseTimer() {
-        // Default does nothing (not supported by GWT)
-    }
+		return layoutFiltering;
+	}
+
+	public int getLayoutFilterCallCount() {
+		return layoutFilter.getFilterCallCount();
+	}
+
+	/**
+	 * Attempts to set a timeout for parsing. Default implementation throws an
+	 * {@link UnsupportedOperationException}.
+	 * 
+	 * @see org.spoofax.jsglr.io.SGLR#setTimeout(int)
+	 */
+	public void setTimeout(int timeout) {
+		throw new UnsupportedOperationException("Use org.spoofax.jsglr.io.SGLR for setting a timeout");
+	}
+
+	protected void initParseTimer() {
+		// Default does nothing (not supported by GWT)
+	}
 
 	@Deprecated
 	public SGLR(ITermFactory pf, ParseTable parseTable) {
 		this(new Asfix2TreeBuilder(pf), parseTable);
 	}
-	
+
 	@Deprecated
 	public SGLR(ParseTable parseTable) {
 		this(new Asfix2TreeBuilder(), parseTable);
 	}
-	
+
 	public SGLR(ITreeBuilder treeBuilder, ParseTable parseTable) {
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
@@ -218,27 +220,27 @@ public class SGLR {
 		useIntegratedRecovery = false;
 		setUseStructureRecovery(false);
 		history = new ParserHistory();
-    	setCompletionParse(false, Integer.MAX_VALUE);
+		setCompletionParse(false, Integer.MAX_VALUE);
 		setTreeBuilder(treeBuilder);
 		layoutFilter = new LayoutFilter(parseTable, true);
 	}
-	
-    protected void setFinegrainedRecoverMode(boolean fineGrainedMode) {
-        this.isFineGrainedMode = fineGrainedMode;
-        recoverStacks = new ArrayDeque<Frame>();
-    }
-    
-    protected void setFineGrainedStartLocation(int fineGrainedStartLocation) {
+
+	protected void setFinegrainedRecoverMode(boolean fineGrainedMode) {
+		this.isFineGrainedMode = fineGrainedMode;
+		recoverStacks = new ArrayDeque<Frame>();
+	}
+
+	protected void setFineGrainedStartLocation(int fineGrainedStartLocation) {
 		this.fineGrainedStartLocation = fineGrainedStartLocation;
 	}
 
-    protected void setFineGrainedRecoverMax(int fineGrainedRecoverMax) {
+	protected void setFineGrainedRecoverMax(int fineGrainedRecoverMax) {
 		this.fineGrainedRecoverMax = fineGrainedRecoverMax;
 	}
 
-    public RecoveryPerformance getPerformanceMeasuring() {
-        return performanceMeasuring;
-    }
+	public RecoveryPerformance getPerformanceMeasuring() {
+		return performanceMeasuring;
+	}
 
 	/**
 	 * @deprecated Use {@link #asyncCancel()} instead.
@@ -249,8 +251,9 @@ public class SGLR {
 	}
 
 	/**
-	 * Aborts an asynchronously running parse job, causing it to throw an exception.
-	 *
+	 * Aborts an asynchronously running parse job, causing it to throw an
+	 * exception.
+	 * 
 	 * (Provides no guarantee that the parser is actually cancelled.)
 	 */
 	public void asyncCancel() {
@@ -274,7 +277,7 @@ public class SGLR {
 	 * Initializes the active stacks. At the start of parsing there is only one
 	 * active stack, and this stack contains the start symbol obtained from the
 	 * parse table.
-	 *
+	 * 
 	 * @return top-level frame of the initial stack
 	 */
 	private Frame initActiveStacks() {
@@ -283,204 +286,232 @@ public class SGLR {
 		addStack(st0);
 		return st0;
 	}
-	
+
 	@Deprecated
-	public Object parse(String input) throws BadTokenException,
-    TokenExpectedException, ParseException, SGLRException, InterruptedException {
-	    return parse(input, null, null);
+	public Object parse(String input) throws BadTokenException, TokenExpectedException, ParseException, SGLRException,
+			InterruptedException {
+		return parse(input, null, null);
 	}
 
-    @Deprecated
-	public final Object parse(String input, String filename) throws BadTokenException,
-    TokenExpectedException, ParseException, SGLRException, InterruptedException {
+	@Deprecated
+	public final Object parse(String input, String filename) throws BadTokenException, TokenExpectedException,
+			ParseException, SGLRException, InterruptedException {
 
-        return parse(input, filename, null);
-    }
+		return parse(input, filename, null);
+	}
 
 	/**
 	 * Parses a string and constructs a new tree using the tree builder.
 	 * 
-	 * @param input           The input string.
-	 * @param filename        The source filename of the string, or null if not available.
-	 * @param startSymbol     The start symbol to use, or null if any applicable.
-	 * @param completionMode  True in case the parser result is used for content completion.
-	 * @param cursorLocation  The location of the cursor used to find completion recoveries.
-	 * @throws InterruptedException 
+	 * @param input
+	 *            The input string.
+	 * @param filename
+	 *            The source filename of the string, or null if not available.
+	 * @param startSymbol
+	 *            The start symbol to use, or null if any applicable.
+	 * @param completionMode
+	 *            True in case the parser result is used for content completion.
+	 * @param cursorLocation
+	 *            The location of the cursor used to find completion recoveries.
+	 * @throws InterruptedException
 	 */
-    public Object parse(String input, String filename, String startSymbol, boolean completionMode, int cursorLocation) 
-    	throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
-    	setCompletionParse(completionMode, cursorLocation);
-    	Object parseResult = parse(input, filename, startSymbol);
-    	setCompletionParse(false, Integer.MAX_VALUE);
-    	return parseResult;
-    }
-    
-    /**
-     * Parses the right context of a given offset and collects the largest reductions over that offset
-     * Remark: This method is used to interpret the local context around the cursor location for semantic completions
-     * @param prefixStackStructure Active stacks at the start offset 
-     * @param startOffset Offset where the parsing start, also the offset that must be reduced
-     * @param endOffset Offset where the parsing stops.
-     * @param inputFragment Input string
-     * @return Set of sub terms that surround the start offset location
-     */
-	public Set<IStrategoTerm> findLongestLeftContextReductions(
-			ArrayDeque<Frame> prefixStackStructure,
-			int startOffset, 
-			int endOffset, 
-			String inputFragment) throws InterruptedException {
-		
+	public Object parse(String input, String filename, String startSymbol, boolean completionMode, int cursorLocation)
+			throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
+		setCompletionParse(completionMode, cursorLocation);
+		Object parseResult = parse(input, filename, startSymbol);
+		setCompletionParse(false, Integer.MAX_VALUE);
+		return parseResult;
+	}
+
+	public Object parse(String input, String filename, String startSymbol, boolean completionMode, int cursorLocation,
+			boolean utf8) throws BadTokenException, TokenExpectedException, ParseException, SGLRException,
+			InterruptedException {
+		String parseInput;
+		if (utf8) {
+			parseInput = UnicodeConverter.convertFromUnicode(input);
+		} else {
+			parseInput = input;
+		}
+		return parse(parseInput, filename, startSymbol, completionMode, cursorLocation);
+	}
+
+	/**
+	 * Parses the right context of a given offset and collects the largest
+	 * reductions over that offset Remark: This method is used to interpret the
+	 * local context around the cursor location for semantic completions
+	 * 
+	 * @param prefixStackStructure
+	 *            Active stacks at the start offset
+	 * @param startOffset
+	 *            Offset where the parsing start, also the offset that must be
+	 *            reduced
+	 * @param endOffset
+	 *            Offset where the parsing stops.
+	 * @param inputFragment
+	 *            Input string
+	 * @return Set of sub terms that surround the start offset location
+	 */
+	public Set<IStrategoTerm> findLongestLeftContextReductions(ArrayDeque<Frame> prefixStackStructure, int startOffset,
+			int endOffset, String inputFragment) throws InterruptedException {
+
 		Set<AbstractParseNode> maxPrefixReductions = new java.util.HashSet<AbstractParseNode>();
 		int maxLength = 0;
 		int maxPrefixReductionOffset = -1;
-    	initParseVariables(inputFragment, null);
-    	if(prefixStackStructure != null){
-	    	activeStacks.clear();
-	    	acceptingStack = null;
-		    activeStacks.addAll(prefixStackStructure);
-    	}
-    	this.currentInputStream.setOffset(startOffset);
-    	this.tokensSeen = startOffset;
+		initParseVariables(inputFragment, null);
+		if (prefixStackStructure != null) {
+			activeStacks.clear();
+			acceptingStack = null;
+			activeStacks.addAll(prefixStackStructure);
+		}
+		this.currentInputStream.setOffset(startOffset);
+		this.tokensSeen = startOffset;
 		getHistory().setTokenIndex(startOffset);
-    	do {
+		do {
 			readNextToken();
-			parseCharacter(); //applies reductions on active stack structure and fills forshifter
-			
+			parseCharacter(); // applies reductions on active stack structure
+								// and fills forshifter
+
 			for (int j = 0; j < forShifter.size(); j++) {
 				final ActionState as = forShifter.get(j);
 				if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {
 					Frame fr = as.st;
-			        for (int i = 0; i < fr.stepsCount; i++) {
-			        	Link lnk = fr.steps[i];
+					for (int i = 0; i < fr.stepsCount; i++) {
+						Link lnk = fr.steps[i];
 						int length = lnk.getLength();
 						AbstractParseNode parseNode = lnk.label;
-						if(length > currentInputStream.getOffset() - startOffset){
-							if(length > maxLength){
+						if (length > currentInputStream.getOffset() - startOffset) {
+							if (length > maxLength) {
 								maxLength = length;
 								maxPrefixReductionOffset = tokensSeen;
 								maxPrefixReductions.clear();
 								maxPrefixReductions.add(parseNode);
-							}
-							else if(length == maxLength && tokensSeen == maxPrefixReductionOffset){
-								maxPrefixReductions.add(parseNode);								
+							} else if (length == maxLength && tokensSeen == maxPrefixReductionOffset) {
+								maxPrefixReductions.add(parseNode);
 							}
 						}
-					}					
-				} 
+					}
+				}
 			}
-			shifter(); //renewes active stacks with states in forshifter
+			shifter(); // renewes active stacks with states in forshifter
 		} while (tokensSeen < endOffset && activeStacks.size() > 0);
-    	if(acceptingStack != null){
-	        for (int i = 0; i < acceptingStack.stepsCount; i++) {
-	        	Link lnk = acceptingStack.steps[i];
+		if (acceptingStack != null) {
+			for (int i = 0; i < acceptingStack.stepsCount; i++) {
+				Link lnk = acceptingStack.steps[i];
 				int length = lnk.getLength();
 				AbstractParseNode parseNode = lnk.label;
-				if(length > currentInputStream.getOffset() - startOffset){
-					if(length > maxLength){
+				if (length > currentInputStream.getOffset() - startOffset) {
+					if (length > maxLength) {
 						maxLength = length;
 						maxPrefixReductionOffset = tokensSeen;
 						maxPrefixReductions.clear();
 						maxPrefixReductions.add(parseNode);
-					}
-					else if(length == maxLength && tokensSeen == maxPrefixReductionOffset){
-						maxPrefixReductions.add(parseNode);								
+					} else if (length == maxLength && tokensSeen == maxPrefixReductionOffset) {
+						maxPrefixReductions.add(parseNode);
 					}
 				}
-			}					
-    	}
-    	Set<IStrategoTerm> result = new java.util.HashSet<IStrategoTerm>();
-    	for (AbstractParseNode node : maxPrefixReductions) {
-    		int startReductionOffset = maxPrefixReductionOffset - maxLength-1;
-    		assert startReductionOffset <= startOffset;
-    		if (!(getTreeBuilder() instanceof NullTreeBuilder)) {
-    			try {
-    				getTreeBuilder().reset(startReductionOffset);
-    				IStrategoTerm candidate = ((IStrategoTerm)disambiguator.applyFilters(this, node, null, startReductionOffset, tokensSeen));
-    				if(candidate != null)
-    					result.add(candidate);
+			}
+		}
+		Set<IStrategoTerm> result = new java.util.HashSet<IStrategoTerm>();
+		for (AbstractParseNode node : maxPrefixReductions) {
+			int startReductionOffset = maxPrefixReductionOffset - maxLength - 1;
+			assert startReductionOffset <= startOffset;
+			if (!(getTreeBuilder() instanceof NullTreeBuilder)) {
+				try {
+					getTreeBuilder().reset(startReductionOffset);
+					IStrategoTerm candidate = ((IStrategoTerm) disambiguator.applyFilters(this, node, null,
+							startReductionOffset, tokensSeen));
+					if (candidate != null)
+						result.add(candidate);
 				} catch (FilterException e) {
 					e.printStackTrace();
 				} catch (SGLRException e) {
 					e.printStackTrace();
 				}
-    		}
+			}
 		}
-    	return result;
+		return result;
 	}
 
-    // only FG recovery, 
-    // 1) this ensure that recovery does not touch characters after endoffset
-    // 2) this ensures real parser state that represents the text without "skip fragments"
-	
+	// only FG recovery,
+	// 1) this ensure that recovery does not touch characters after endoffset
+	// 2) this ensures real parser state that represents the text without
+	// "skip fragments"
+
 	/**
 	 * Constructs the stack structure for an endoffset from a start offset
-	 * Remark: This method is used for checking the "valid prefix" criterion of syntactic completion templates
-	 * @param stackStructure Active stacks at the start offset
-     * @param startOffset Offset where the parsing starts
-     * @param endOffset Offset where the parsing stops.
-     * @param inputFragment Input string
-	 * @param useRecovery Use fine-grained recovery to reconstruct the stack structure
+	 * Remark: This method is used for checking the "valid prefix" criterion of
+	 * syntactic completion templates
+	 * 
+	 * @param stackStructure
+	 *            Active stacks at the start offset
+	 * @param startOffset
+	 *            Offset where the parsing starts
+	 * @param endOffset
+	 *            Offset where the parsing stops.
+	 * @param inputFragment
+	 *            Input string
+	 * @param useRecovery
+	 *            Use fine-grained recovery to reconstruct the stack structure
 	 * @return Parser stacks at the end offset
 	 */
-    public ArrayDeque<Frame> parseInputPart(
-    		ArrayDeque<Frame> stackStructure, 
-    		int startOffset, 
-    		int endOffset, 
-    		String inputFragment,
-    		boolean useRecovery) throws InterruptedException {
-    	
-    	if(startOffset == endOffset)
-    		return stackStructure;
-    	assert startOffset < endOffset;
-    	
-    	//set the parser configuration
-    	initParseVariables(inputFragment, null);
-    	this.currentInputStream.setOffset(startOffset);
-    	this.tokensSeen = startOffset;    	
-		getHistory().setTokenIndex(startOffset);
-    	FineGrainedRecovery fgRecovery = null;
-    	if(useRecovery){
-    		FineGrainedSetting fgSettings = FineGrainedSetting.createDefaultSetting();
-    		fgSettings.setEndOffsetFragment(endOffset);
-    		fgRecovery = new FineGrainedRecovery(this, fgSettings);
-    	}
-    	if(stackStructure != null){
-	    	activeStacks.clear();
-	    	acceptingStack = null;
-		    activeStacks.addAll(stackStructure);
-    	}
-		return parseInputPart(endOffset, fgRecovery, useRecovery);
-    }
+	public ArrayDeque<Frame> parseInputPart(ArrayDeque<Frame> stackStructure, int startOffset, int endOffset,
+			String inputFragment, boolean useRecovery) throws InterruptedException {
 
-	private ArrayDeque<Frame> parseInputPart(int endParseOffset, FineGrainedRecovery fgRecovery, boolean useRecovery) throws InterruptedException {
+		if (startOffset == endOffset)
+			return stackStructure;
+		assert startOffset < endOffset;
+
+		// set the parser configuration
+		initParseVariables(inputFragment, null);
+		this.currentInputStream.setOffset(startOffset);
+		this.tokensSeen = startOffset;
+		getHistory().setTokenIndex(startOffset);
+		FineGrainedRecovery fgRecovery = null;
+		if (useRecovery) {
+			FineGrainedSetting fgSettings = FineGrainedSetting.createDefaultSetting();
+			fgSettings.setEndOffsetFragment(endOffset);
+			fgRecovery = new FineGrainedRecovery(this, fgSettings);
+		}
+		if (stackStructure != null) {
+			activeStacks.clear();
+			acceptingStack = null;
+			activeStacks.addAll(stackStructure);
+		}
+		return parseInputPart(endOffset, fgRecovery, useRecovery);
+	}
+
+	private ArrayDeque<Frame> parseInputPart(int endParseOffset, FineGrainedRecovery fgRecovery, boolean useRecovery)
+			throws InterruptedException {
 		try {
 			do {
 				assert getHistory().getTokenIndex() == this.currentInputStream.getOffset();
 				assert this.currentInputStream.getOffset() <= endParseOffset;
-				//System.out.print(((char)this.currentToken));
+				// System.out.print(((char)this.currentToken));
 				readNextToken();
 				history.keepTokenAndState(this);
 				doParseStep();
-				if(this.currentInputStream.getOffset() == endParseOffset && activeStacks.size() > 0){
+				if (this.currentInputStream.getOffset() == endParseOffset && activeStacks.size() > 0) {
 					ArrayDeque<Frame> stackNodes = new ArrayDeque<Frame>();
 					stackNodes.addAll(activeStacks);
 					return stackNodes;
 				}
-			} while (
-					getCurrentToken() != SGLR.EOF &&
-					activeStacks.size() > 0
-			);
-			if(useRecovery && activeStacks.isEmpty() && acceptingStack == null){ //TODO: specialized FG recover support
+			} while (getCurrentToken() != SGLR.EOF && activeStacks.size() > 0);
+			if (useRecovery && activeStacks.isEmpty() && acceptingStack == null) { // TODO:
+																					// specialized
+																					// FG
+																					// recover
+																					// support
 				int failureOffset = getParserLocation();
 				int failureLineIndex = getHistory().getLineOfTokenPosition(failureOffset - 1);
 				fgRecovery.recover(failureOffset, failureLineIndex);
-				if(acceptingStack==null && activeStacks.size() > 0 && this.currentInputStream.getOffset() != endParseOffset) {
+				if (acceptingStack == null && activeStacks.size() > 0
+						&& this.currentInputStream.getOffset() != endParseOffset) {
 					return parseInputPart(endParseOffset, fgRecovery, useRecovery);
 				}
 			}
 			ArrayDeque<Frame> stackNodes = new ArrayDeque<Frame>();
 			stackNodes.addAll(activeStacks);
-			if(acceptingStack != null)
+			if (acceptingStack != null)
 				stackNodes.add(acceptingStack);
 			return stackNodes;
 		} finally {
@@ -488,36 +519,50 @@ public class SGLR {
 			activeStacksWorkQueue.clear();
 			forShifter.clear();
 			history.clear();
-			if (recoverStacks != null) recoverStacks.clear();
+			if (recoverStacks != null)
+				recoverStacks.clear();
 		}
 	}
 
-    /**
+	/**
 	 * Parses a string and constructs a new tree using the tree builder.
 	 * 
-	 * @param input        The input string.
-	 * @param filename     The source filename of the string, or null if not available.
-	 * @param startSymbol  The start symbol to use, or null if any applicable.
-	 * @throws InterruptedException 
+	 * @param input
+	 *            The input string.
+	 * @param filename
+	 *            The source filename of the string, or null if not available.
+	 * @param startSymbol
+	 *            The start symbol to use, or null if any applicable.
+	 * @throws InterruptedException
 	 */
-    public Object parse(String input, String filename, String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
-	SGLRException, InterruptedException {
+	public Object parse(String input, String filename, String startSymbol) throws BadTokenException,
+			TokenExpectedException, ParseException, SGLRException, InterruptedException {
 		logBeforeParsing();
 		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
 		getPerformanceMeasuring().startParse();
-        Object result = sglrParse(startSymbol);
-        return result;
+		Object result = sglrParse(startSymbol);
+		return result;
 	}
 
-	private Object sglrParse(String startSymbol)
-	throws BadTokenException, TokenExpectedException,
-	ParseException, SGLRException, InterruptedException {
+	public Object parse(String input, String filename, String startSymbol, boolean utf8) throws BadTokenException,
+			TokenExpectedException, ParseException, SGLRException, InterruptedException {
+		String parseInput;
+		if (utf8) {
+			parseInput = UnicodeConverter.convertFromUnicode(input);
+		} else {
+			parseInput = input;
+		}
+		return this.parse(parseInput, filename, startSymbol);
+	}
+
+	private Object sglrParse(String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,
+			SGLRException, InterruptedException {
 		try {
 			do {
-		     if (Thread.currentThread().isInterrupted())
-		        throw new InterruptedException();
+				if (Thread.currentThread().isInterrupted())
+					throw new InterruptedException();
 
 				readNextToken();
 				history.keepTokenAndState(this);
@@ -528,22 +573,23 @@ public class SGLR {
 				collectedErrors.add(createBadTokenException());
 			}
 
-			if(useIntegratedRecovery && acceptingStack==null){
+			if (useIntegratedRecovery && acceptingStack == null) {
 				recoverIntegrator.recover();
-				if(acceptingStack==null && activeStacks.size()>0) {
+				if (acceptingStack == null && activeStacks.size() > 0) {
 					return sglrParse(startSymbol);
 				}
 			}
-			getPerformanceMeasuring().endParse(acceptingStack!=null);
+			getPerformanceMeasuring().endParse(acceptingStack != null);
 		} catch (final TaskCancellationException e) {
-			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber,
-					columnNumber, collectedErrors);
+			throw new ParseTimeoutException(this, currentToken, tokensSeen - 1, lineNumber, columnNumber,
+					collectedErrors);
 		} finally {
 			activeStacks.clear();
 			activeStacksWorkQueue.clear();
 			forShifter.clear();
 			history.clear();
-			if (recoverStacks != null) recoverStacks.clear();
+			if (recoverStacks != null)
+				recoverStacks.clear();
 		}
 
 		logAfterParsing();
@@ -553,20 +599,20 @@ public class SGLR {
 		if (s == null) {
 			throw new ParseException(this, "Accepting stack has no link");
 		}
-		//System.out.println(s.recoverCount);
-		assert(s.recoverCount <= s.recoverWeight);
+		// System.out.println(s.recoverCount);
+		assert (s.recoverCount <= s.recoverWeight);
 
 		performanceMeasuring.setRecoverCount(s.recoverCount);
 
 		logParseResult(s);
-		//System.out.println("recoveries: " + s.recoverCount);
+		// System.out.println("recoveries: " + s.recoverCount);
 		Tools.debug("recoveries: ", s.recoverCount);
-		//Tools.debug(s.label.toParseTree(parseTable));
+		// Tools.debug(s.label.toParseTree(parseTable));
 
 		if (getTreeBuilder() instanceof NullTreeBuilder) {
 			return null;
 		} else {
-		  this.parseTree = s.label;
+			this.parseTree = s.label;
 			return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
 		}
 	}
@@ -574,37 +620,38 @@ public class SGLR {
 	void readNextToken() {
 		logCurrentToken();
 		setCurrentToken(getNextToken());
-		//System.out.print((char)currentToken);
+		// System.out.print((char)currentToken);
 	}
-	
+
 	protected void setCurrentToken(int tok) {
-	  if (currentToken == -1)
-	    currentIndentation = 0;
-	  else
-	    switch (currentToken) {
-	    case '\n':
-	      currentIndentation = 0;
-	      break;
-	    case '\t':
-	      currentIndentation = (currentIndentation / TAB_SIZE + 1) * TAB_SIZE;
-	      break;
-	    case -1:
-	      break;
-	    default:
-	      currentIndentation++;
-	    }
-	  
-	  this.currentToken = tok;
+		if (currentToken == -1)
+			currentIndentation = 0;
+		else
+			switch (currentToken) {
+			case '\n':
+				currentIndentation = 0;
+				break;
+			case '\t':
+				currentIndentation = (currentIndentation / TAB_SIZE + 1) * TAB_SIZE;
+				break;
+			case -1:
+				break;
+			default:
+				currentIndentation++;
+			}
+
+		this.currentToken = tok;
 	}
-	
+
 	protected int getCurrentToken() {
-	  return this.currentToken;
+		return this.currentToken;
 	}
 
 	protected void doParseStep() throws InterruptedException {
 		logBeforeParseCharacter();
-		parseCharacter(); //applies reductions on active stack structure and fills forshifter
-		shifter(); //renewes active stacks with states in forshifter
+		parseCharacter(); // applies reductions on active stack structure and
+							// fills forshifter
+		shifter(); // renewes active stacks with states in forshifter
 	}
 
 	private void initParseVariables(String input, String filename) {
@@ -619,8 +666,8 @@ public class SGLR {
 		currentInputStream = new PushbackStringIterator(input);
 		acceptingStack = null;
 		collectedErrors.clear();
-		history=new ParserHistory();
-		performanceMeasuring=new RecoveryPerformance();
+		history = new ParserHistory();
+		performanceMeasuring = new RecoveryPerformance();
 		getTreeBuilder().initializeInput(input, filename);
 		PooledPathList.resetPerformanceCounters();
 		pathCache.resetPerformanceCounters();
@@ -629,7 +676,8 @@ public class SGLR {
 		enforcedNewlineSkip = 0;
 		layoutFiltering = 0;
 		if (getTreeBuilder().getTokenizer() != null) {
-			// Make sure we use the same starting offsets as the tokenizer, if any
+			// Make sure we use the same starting offsets as the tokenizer, if
+			// any
 			// (crucial for parsing fragments at a time)
 			lineNumber = getTreeBuilder().getTokenizer().getEndLine();
 			columnNumber = getTreeBuilder().getTokenizer().getEndColumn();
@@ -669,14 +717,13 @@ public class SGLR {
 				} while (action != null);
 
 				if (expected.length() > 0) {
-					return new TokenExpectedException(this, expected.toString(), currentToken,
-							tokensSeen + startOffset - 1, lineNumber, columnNumber);
+					return new TokenExpectedException(this, expected.toString(), currentToken, tokensSeen + startOffset
+							- 1, lineNumber, columnNumber);
 				}
 			}
 		}
 
-		return new BadTokenException(this, currentToken, tokensSeen + startOffset - 1, lineNumber,
-				columnNumber);
+		return new BadTokenException(this, currentToken, tokensSeen + startOffset - 1, lineNumber, columnNumber);
 	}
 
 	private void shifter() {
@@ -686,17 +733,16 @@ public class SGLR {
 
 		while (forShifter.size() > 0) {
 			final ActionState as = forShifter.remove();
-			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {				
-				Frame	st1=findStack(activeStacks, as.s);
-				if(st1==null){				
+			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {
+				Frame st1 = findStack(activeStacks, as.s);
+				if (st1 == null) {
 					st1 = newStack(as.s);
 					addStack(st1);
 				}
 				st1.addLink(as.st, prod, 1, lastLineNumber, lastColumnNumber);
 			} else {
 				if (Tools.logging) {
-					Tools.logger("Shifter: skipping rejected stack with state ",
-							as.st.state.stateNumber);
+					Tools.logger("Shifter: skipping rejected stack with state ", as.st.state.stateNumber);
 				}
 			}
 		}
@@ -704,7 +750,7 @@ public class SGLR {
 	}
 
 	protected void addStack(Frame st1) {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_AddStack() - " + st1.state.stateNumber);
 		}
 		activeStacks.addFirst(st1);
@@ -720,22 +766,23 @@ public class SGLR {
 		forShifter.clear();
 
 		while (activeStacksWorkQueue.size() > 0 || forActor.size() > 0) {
-		  if (Thread.currentThread().isInterrupted())
-		    throw new InterruptedException();
-		  
+			if (Thread.currentThread().isInterrupted())
+				throw new InterruptedException();
+
 			final Frame st = pickStackNodeFromActivesOrForActor(activeStacksWorkQueue);
 			if (!st.allLinksRejected()) {
 				actor(st);
 			}
 
-			if(activeStacksWorkQueue.size() == 0 && forActor.size() == 0) {
-				fillForActorWithDelayedFrames(); //Fills foractor, clears foractor delayed
+			if (activeStacksWorkQueue.size() == 0 && forActor.size() == 0) {
+				fillForActorWithDelayedFrames(); // Fills foractor, clears
+													// foractor delayed
 			}
 		}
 	}
 
 	private void fillForActorWithDelayedFrames() {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_ - both empty");
 		}
 		final ArrayDeque<Frame> empty = forActor;
@@ -746,13 +793,13 @@ public class SGLR {
 
 	private Frame pickStackNodeFromActivesOrForActor(ArrayDeque<Frame> actives) {
 		Frame st;
-		if(actives.size() > 0) {
-			if(Tools.tracing) {
+		if (actives.size() > 0) {
+			if (Tools.tracing) {
 				TRACE("SG_ - took active");
 			}
 			st = actives.remove();
 		} else {
-			if(Tools.tracing) {
+			if (Tools.tracing) {
 				TRACE("SG_ - took foractor");
 			}
 			st = forActor.remove();
@@ -773,8 +820,9 @@ public class SGLR {
 						final Shift sh = (Shift) ai;
 						final ActionState actState = new ActionState(st, parseTable.getState(sh.nextState));
 						actState.currentToken = currentToken;
-						addShiftPair(actState); //Adds StackNode to forshifter
-						statsRecordParsers(); //sets some values un current parse state
+						addShiftPair(actState); // Adds StackNode to forshifter
+						statsRecordParsers(); // sets some values un current
+												// parse state
 						break;
 					}
 					case ActionItem.REDUCE: {
@@ -784,8 +832,8 @@ public class SGLR {
 					}
 					case ActionItem.REDUCE_LOOKAHEAD: {
 						final ReduceLookahead red = (ReduceLookahead) ai;
-						if(checkLookahead(red)) {
-							if(Tools.tracing) {
+						if (checkLookahead(red)) {
+							if (Tools.tracing) {
 								TRACE("SG_ - ok");
 							}
 							doReductions(st, red.production);
@@ -808,7 +856,7 @@ public class SGLR {
 			}
 		}
 
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_ - actor done");
 		}
 	}
@@ -818,43 +866,43 @@ public class SGLR {
 	}
 
 	private boolean doCheckLookahead(ReduceLookahead red, RangeList[] charClass) {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_CheckLookAhead() - ");
 		}
 
 		if (charClass.length == 0)
-		  return true;
-		
-    boolean permit = false;
-    int offset = -1;
-    int[] readChars = new int[charClass.length];
-		
-    int i;
+			return true;
+
+		boolean permit = false;
+		int offset = -1;
+		int[] readChars = new int[charClass.length];
+
+		int i;
 		for (i = 0; i < charClass.length; i++) {
-  		int c = currentInputStream.read();
-  		offset++;
-  		readChars[offset] = c; 
-  
-  		// EOF
-  		if(c == -1) {
-  			permit = true;
-  			break;
-  		}
-  
-  		if (!charClass[i].within(c)) {
-  		  permit = true;
-  		  break;
-  		}
+			int c = currentInputStream.read();
+			offset++;
+			readChars[offset] = c;
+
+			// EOF
+			if (c == -1) {
+				permit = true;
+				break;
+			}
+
+			if (!charClass[i].within(c)) {
+				permit = true;
+				break;
+			}
 		}
 
 		for (int j = offset; j >= 0; j--)
-		  currentInputStream.unread(readChars[j]);
+			currentInputStream.unread(readChars[j]);
 
 		return permit;
 	}
 
 	private void addShiftPair(ActionState state) {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_AddShiftPair() - " + state.s.stateNumber);
 		}
 		forShifter.add(state);
@@ -870,17 +918,16 @@ public class SGLR {
 		}
 	}
 
-
 	private void doReductions(Frame st, Production prod) throws InterruptedException {
 
-	  if (Thread.currentThread().isInterrupted())
-	    throw new InterruptedException();
-	  
-		if(!recoverModeOk(st, prod)) {
+		if (Thread.currentThread().isInterrupted())
+			throw new InterruptedException();
+
+		if (!recoverModeOk(st, prod)) {
 			return;
 		}
-		
-				PooledPathList paths = pathCache.create();
+
+		PooledPathList paths = pathCache.create();
 		try {
 			st.findAllPaths(paths, prod.arity);
 			logBeforeDoReductions(st, prod, paths.size());
@@ -892,25 +939,37 @@ public class SGLR {
 	}
 
 	private boolean recoverModeOk(Frame st, Production prod) {
-		if(!prod.isCompletionProduction()){
+		if (!prod.isCompletionProduction()) {
 			return !prod.isRecoverProduction() || isFineGrainedMode;
 		}
 		return inCompletionMode(prod);
 	}
 
 	private boolean inCompletionMode(Production prod) {
-		if(!prod.isCompletionStartProduction()) //Performance trick: -> "@#$" {completion} starts the completion
-			return isCompletionMode && cursorLocation <= getParserLocation() && getParserLocation() <= cursorLocation + COMPLETION_REGION_SIZE;
-		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= getParserLocation() && getParserLocation() <= cursorLocation;
+		if (!prod.isCompletionStartProduction()) // Performance trick: -> "@#$"
+													// {completion} starts the
+													// completion
+			return isCompletionMode && cursorLocation <= getParserLocation()
+					&& getParserLocation() <= cursorLocation + COMPLETION_REGION_SIZE;
+		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= getParserLocation()
+				&& getParserLocation() <= cursorLocation;
 	}
 
-	private void doLimitedReductions(Frame st, Production prod, Link l) throws InterruptedException { //Todo: Look add sharing code with doReductions
-		if(!recoverModeOk(st, prod)) {
+	private void doLimitedReductions(Frame st, Production prod, Link l) throws InterruptedException { // Todo:
+																										// Look
+																										// add
+																										// sharing
+																										// code
+																										// with
+																										// doReductions
+		if (!recoverModeOk(st, prod)) {
 			return;
 		}
 		PooledPathList limitedPool = pathCache.create();
 		try {
-			st.findLimitedPaths(limitedPool, prod.arity, l); //find paths containing the link
+			st.findLimitedPaths(limitedPool, prod.arity, l); // find paths
+																// containing
+																// the link
 			logBeforeLimitedReductions(st, prod, l, limitedPool);
 			reduceAllPaths(prod, limitedPool);
 		} finally {
@@ -927,15 +986,13 @@ public class SGLR {
 			final State next = parseTable.go(st0.state, prod.label);
 			logReductionPath(prod, path, st0, next);
 
-			if (PARSE_TIME_LAYOUT_FITER
-				&& !layoutFilter.hasValidLayout(prod.label, kids)) {
+			if (PARSE_TIME_LAYOUT_FITER && !layoutFilter.hasValidLayout(prod.label, kids)) {
 				layoutFiltering++;
 				continue;
 			} else if (PARSE_TIME_LAYOUT_FITER)
 				layoutFiltering += layoutFilter.getDisambiguationCount();
 
-			if (ENFORCE_NEWLINE_FILTER
-				&& parseTable.getLabel(prod.label).getAttributes().isNewlineEnforced()) {
+			if (ENFORCE_NEWLINE_FILTER && parseTable.getLabel(prod.label).getAttributes().isNewlineEnforced()) {
 				boolean hasNewline = false;
 				for (int j = kids.length - 1; j >= 0; j--) {
 					int status = kids[j].getLayoutStatus();
@@ -956,8 +1013,7 @@ public class SGLR {
 				}
 			}
 
-			if (!prod.isCompletionProduction()
-					|| isReductionOverCursorLocation(path)) {
+			if (!prod.isCompletionProduction() || isReductionOverCursorLocation(path)) {
 				if (checkMaxRecoverCount(prod, path)) {
 					if (!prod.isRecoverProduction())
 						reducer(st0, next, prod, kids, path);
@@ -969,8 +1025,7 @@ public class SGLR {
 
 		if (asyncAborted) {
 			// Rethrown as ParseTimeoutException in SGLR.sglrParse()
-			throw new TaskCancellationException(
-					"Long-running parse job aborted");
+			throw new TaskCancellationException("Long-running parse job aborted");
 		}
 	}
 
@@ -979,9 +1034,9 @@ public class SGLR {
 	}
 
 	private boolean checkRecoverCountLocal(Production prod, final Path path) {
-		return !isFineGrainedMode || 
-			calcRecoverCount(prod, path) <= fineGrainedRecoverMax || 
-			getHistory().getTokenIndex() - path.getLength() < fineGrainedStartLocation; //large reduction
+		return !isFineGrainedMode || calcRecoverCount(prod, path) <= fineGrainedRecoverMax
+				|| getHistory().getTokenIndex() - path.getLength() < fineGrainedStartLocation; // large
+																								// reduction
 	}
 
 	private boolean checkRecoverCountGlobal(Production prod, final Path path) {
@@ -991,20 +1046,21 @@ public class SGLR {
 	private boolean isReductionOverCursorLocation(final Path path) {
 		return getParserLocation() - path.getLength() < cursorLocation;
 	}
-	
-	private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) throws InterruptedException {
-		assert(!prod.isRecoverProduction());
+
+	private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path)
+			throws InterruptedException {
+		assert (!prod.isRecoverProduction());
 		logBeforeReducer(s, prod, path.getLength());
 		increaseReductionCount();
 
-//		final boolean illegalLayout = !layoutFilter.hasValidLayout(prod, kids, parseTable);
+		// final boolean illegalLayout = !layoutFilter.hasValidLayout(prod,
+		// kids, parseTable);
 		final int length = path.getLength();
 		final int numberOfRecoveries = calcRecoverCount(prod, path);
-		final AbstractParseNode t = prod.apply(kids, 
-		                                       path.getParentCount() > 0 ? path.getParent().getLink().getLine() : lineNumber, 
-		                                       path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
-		                                       parseTable.getLabel(prod.label).isLayout(),
-		                                       parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout());
+		final AbstractParseNode t = prod.apply(kids, path.getParentCount() > 0 ? path.getParent().getLink().getLine()
+				: lineNumber, path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
+				parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes()
+						.isIgnoreLayout());
 		final int recoverWeight = calcRecoverWeight(prod, path);
 		final Frame st1 = findStack(activeStacks, s);
 
@@ -1020,8 +1076,8 @@ public class SGLR {
 				logAmbiguity(st0, prod, st1, nl);
 				if (prod.isRejectProduction()) {
 					nl.reject();
-				} 
-				if(recoverWeight == 0 && nl.recoverWeight == 0 || nl.isRejected()) {
+				}
+				if (recoverWeight == 0 && nl.recoverWeight == 0 || nl.isRejected()) {
 					createAmbNode(t, nl);
 				} else if (recoverWeight < nl.recoverWeight) {
 					nl.label = t;
@@ -1043,31 +1099,32 @@ public class SGLR {
 				actorOnActiveStacksOverNewLink(nl);
 			}
 		}
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE_ActiveStacks();
 			TRACE("SG_ - reducer done");
 		}
 	}
-	
+
 	private void reducerRecoverProduction(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
-		assert(prod.isRecoverProduction());
+		assert (prod.isRecoverProduction());
 		final int length = path.getLength();
 		final int numberOfRecoveries = calcRecoverCount(prod, path);
 		final int recoverWeight = calcRecoverWeight(prod, path);
-		final AbstractParseNode t = prod.apply(kids, lineNumber, columnNumber, parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout());
+		final AbstractParseNode t = prod.apply(kids, lineNumber, columnNumber, parseTable.getLabel(prod.label)
+				.isLayout(), parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout());
 
 		final Frame stActive = findStack(activeStacks, s);
-		if(stActive != null){
-			Link lnActive=stActive.findDirectLink(st0);
-			if(lnActive!=null){
-				return; //TODO: ambiguity
+		if (stActive != null) {
+			Link lnActive = stActive.findDirectLink(st0);
+			if (lnActive != null) {
+				return; // TODO: ambiguity
 			}
 		}
 		final Frame stRecover = findStack(recoverStacks, s);
-		if(stRecover != null){
+		if (stRecover != null) {
 			Link nlRecover = stRecover.findDirectLink(st0);
-			if(nlRecover != null){
-				return; //TODO: ambiguity
+			if (nlRecover != null) {
+				return; // TODO: ambiguity
 			}
 			nlRecover = stRecover.addLink(st0, t, length, t.getLine(), t.getColumn());
 			nlRecover.recoverCount = numberOfRecoveries;
@@ -1081,12 +1138,12 @@ public class SGLR {
 		nl.addAmbiguity(t, tokensSeen);
 		ambiguityManager.increaseAmbiguityCalls();
 	}
-	
+
 	/**
 	 * Found no existing stack with for state s; make new stack
 	 */
-	private Link addNewStack(Frame st0, State s, Production prod, int length,
-			int numberOfRecoveries, int recoverWeight, AbstractParseNode t) {
+	private Link addNewStack(Frame st0, State s, Production prod, int length, int numberOfRecoveries,
+			int recoverWeight, AbstractParseNode t) {
 
 		final Frame st1 = newStack(s);
 		final Link nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
@@ -1096,7 +1153,7 @@ public class SGLR {
 		addStack(st1);
 		forActorDelayed.addFirst(st1);
 
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_AddStack() - " + st1.state.stateNumber);
 		}
 
@@ -1107,15 +1164,15 @@ public class SGLR {
 			nl.reject();
 			increaseRejectCount();
 		}
-		
+
 		return nl;
 	}
 
 	/**
-	 *  Found no existing stack with for state s; make new stack
+	 * Found no existing stack with for state s; make new stack
 	 */
-	private void addNewRecoverStack(Frame st0, State s, Production prod, int length,
-			int numberOfRecoveries, int recoverWeight, AbstractParseNode t) {
+	private void addNewRecoverStack(Frame st0, State s, Production prod, int length, int numberOfRecoveries,
+			int recoverWeight, AbstractParseNode t) {
 		if (!(isFineGrainedMode && !prod.isRejectProduction())) {
 			return;
 		}
@@ -1131,28 +1188,27 @@ public class SGLR {
 		// new elements may be inserted at the beginning
 		final int sz = activeStacks.size();
 		for (int i = 0; i < sz; i++) {
-			//                for(Frame st2 : activeStacks) {
-			if(Tools.tracing) {
+			// for(Frame st2 : activeStacks) {
+			if (Tools.tracing) {
 				TRACE("SG_ activeStack - ");
 			}
 			final int pos = activeStacks.size() - sz + i;
 			final Frame st2 = activeStacks.get(pos);
-			if (st2.allLinksRejected() || inReduceStacks(forActor, st2) || inReduceStacks(forActorDelayed, st2))
-			{
-				continue; //stacknode will find reduction in regular process
+			if (st2.allLinksRejected() || inReduceStacks(forActor, st2) || inReduceStacks(forActorDelayed, st2)) {
+				continue; // stacknode will find reduction in regular process
 			}
 
 			for (final Action action : st2.peek().getActions()) {
 				if (action.accepts(currentToken)) {
 					for (final ActionItem ai : action.getActionItems()) {
-						switch(ai.type) {
+						switch (ai.type) {
 						case ActionItem.REDUCE:
 							final Reduce red = (Reduce) ai;
 							doLimitedReductions(st2, red.production, nl);
 							break;
 						case ActionItem.REDUCE_LOOKAHEAD:
 							final ReduceLookahead red2 = (ReduceLookahead) ai;
-							if(checkLookahead(red2)) {
+							if (checkLookahead(red2)) {
 								doLimitedReductions(st2, red2.production, nl);
 							}
 							break;
@@ -1165,7 +1221,7 @@ public class SGLR {
 
 	private int calcRecoverCount(Production prod, Path path) {
 		int result = path.getRecoverCount();
-		if (prod.isRecoverProduction() || prod.isCompletionProduction()){
+		if (prod.isRecoverProduction() || prod.isCompletionProduction()) {
 			result += 1;
 		}
 		return result;
@@ -1173,150 +1229,157 @@ public class SGLR {
 
 	private int calcRecoverWeight(Production prod, Path path) {
 		int result = path.getRecoverWeight();
-		if (prod.isRecoverProduction() || prod.isCompletionProduction()){
+		if (prod.isRecoverProduction() || prod.isCompletionProduction()) {
 			result += 1;
 			if (path.getLength() > 0 && !prod.isCompletionProduction())
-				result += 1; //Hack: insertion rules (length 0) should be preferred above water rules.
+				result += 1; // Hack: insertion rules (length 0) should be
+								// preferred above water rules.
 		}
 		return result;
 	}
 
-	
 	int count = 0;
 	int count2 = 0;
-	
-	
-//	private class LongestMatchKey {
-//	  private AbstractParseNode n1, n2;
-//	  public LongestMatchKey(AbstractParseNode n1, AbstractParseNode n2) { this.n1 = n1; this.n2 = n2; }
-//	  @Override public int hashCode() { return (9 << n1.hashCode()) + n2.hashCode(); }
-//	  @Override public boolean equals(Object o) { 
-//	    return o instanceof LongestMatchKey && ((LongestMatchKey) o).n1 == n1 && ((LongestMatchKey) o).n2 == n2;
-//	  }
-//	}
-//	private Map<LongestMatchKey, Integer> longestMatchCache = new HashMap<LongestMatchKey, Integer>();
-//	
-//	@SuppressWarnings("null")
-//  private AbstractParseNode filterLongestMatch(AbstractParseNode t1, AbstractParseNode t2) {
-//	  if (t1.isParseRejectNode() || t2.isParseRejectNode())
-//	    return null;
-//	  
-//	  System.out.println(t1.toString());
-//	  System.out.println(t2.toString());
-//	  
-//	  Stack<AbstractParseNode[]> stack = new Stack<AbstractParseNode[]>();
-//	  stack.push(new AbstractParseNode[] {t1, t2});
-//
-//	  LinkedList<LongestMatchKey> done = new LinkedList<LongestMatchKey>();
-//	  
-//	  AbstractParseNode res = null;
-//	  
-//	  while (!stack.isEmpty()) {
-//	    AbstractParseNode[] ns = stack.pop();
-//	    AbstractParseNode n1 = ns[0];
-//	    AbstractParseNode n2 = ns[1];
-//	  
-//	    if (n1.equals(n2))
-//	      continue;
-//	    
-//	    LongestMatchKey key = new LongestMatchKey(n1, n2);
-//	    Integer prevRes = longestMatchCache.get(key);
-//	    if (prevRes != null) {
-//	      AbstractParseNode newres = prevRes == -1 ? null : (prevRes == 0 ? t1 : t2);
-//	      if (res != null && res != newres) {
-//	        res = null;
-//	        break;
-//	      }
-//	      if (newres == null)
-//	        continue;
-//	      
-//	      res = newres;
-//	      break;
-//	    }
-//	    
-//	    Label l1 = n1.isAmbNode() ? null : parseTable.getLabel(n1.getLabel());
-//	    Label l2 = n2.isAmbNode() ? null : parseTable.getLabel(n2.getLabel());
-//	    
-//      if (n1.isAmbNode() || n2.isAmbNode()) {
-//        AbstractParseNode[] n1Array = n1.isAmbNode() ? n1.getChildren() : new AbstractParseNode[] {n1};
-//        AbstractParseNode[] n2Array = n2.isAmbNode() ? n2.getChildren() : new AbstractParseNode[] {n2};
-//        
-//        for (int i = 0; i < n1Array.length; i++)
-//          for (int j = 0; j < n2Array.length; j++) {
-//            if (!n1Array[i].isParseRejectNode() && !n2Array[j].isParseRejectNode())
-//              stack.push(new AbstractParseNode[] {n1Array[i], n2Array[j]});
-//          }
-//        continue;
-//      }
-//
-//	    else if (l1 != null && l1.getAttributes().isLongestMatch() && 
-//	             (l2 == null || !l2.getAttributes().isLongestMatch())) {
-//	      if (res == t2) {
-//	        res = null;
-//	        break;
-//	      }
-//	      res = t1;
-//	      break;
-//	    }
-//
-//      else if (l2 != null && l2.getAttributes().isLongestMatch() &&
-//               (l1 == null || !l1.getAttributes().isLongestMatch())) {
-//        if (res == t1) {
-//          res = null;
-//          break;
-//        }
-//        res = t2;
-//        break;
-//      }
-//	    
-//      else if (n1.getLabel() != n2.getLabel())
-//        continue;
-//
-//      else if (l1 != null && l2 != null &&
-//          l1.equals(l2) && l1.getAttributes().isLongestMatch()) {
-//        int[] end1 = n1.getEnd();
-//        int[] end2 = n2.getEnd();
-//        if (end1[0] > end2[0] || end1[0] == end2[0] && end1[1] > end2[1]) {
-//          if (res == t2) {
-//            res = null;
-//            break;
-//          }
-//          res = t1;
-//          break;
-//        }
-//        else if (end2[0] > end1[0] || end2[0] == end1[0] && end2[1] > end1[1]) {
-//          if (res == t1) {
-//            res = null;
-//            break;
-//          }
-//          res = t2;
-//          break;
-//        }
-//      }
-//	    
-//      done.add(key);
-//
-//      for (int i = n1.getChildren().length - 1; i >= 0; i--)
-//        stack.push(new AbstractParseNode[] {n1.getChildren()[i], n2.getChildren()[i]});
-//	  }
-//	  
-//	  int val = res == t1 ? 0 : (res == t2 ? 1 : -1);
-//	  for (LongestMatchKey key : done)
-//	    longestMatchCache.put(key, val);
-//	  
-//	  return res;
-//	}
-	
-	
-  private boolean inReduceStacks(Queue<Frame> q, Frame frame) {
-		if(Tools.tracing) {
+
+	// private class LongestMatchKey {
+	// private AbstractParseNode n1, n2;
+	// public LongestMatchKey(AbstractParseNode n1, AbstractParseNode n2) {
+	// this.n1 = n1; this.n2 = n2; }
+	// @Override public int hashCode() { return (9 << n1.hashCode()) +
+	// n2.hashCode(); }
+	// @Override public boolean equals(Object o) {
+	// return o instanceof LongestMatchKey && ((LongestMatchKey) o).n1 == n1 &&
+	// ((LongestMatchKey) o).n2 == n2;
+	// }
+	// }
+	// private Map<LongestMatchKey, Integer> longestMatchCache = new
+	// HashMap<LongestMatchKey, Integer>();
+	//
+	// @SuppressWarnings("null")
+	// private AbstractParseNode filterLongestMatch(AbstractParseNode t1,
+	// AbstractParseNode t2) {
+	// if (t1.isParseRejectNode() || t2.isParseRejectNode())
+	// return null;
+	//
+	// System.out.println(t1.toString());
+	// System.out.println(t2.toString());
+	//
+	// Stack<AbstractParseNode[]> stack = new Stack<AbstractParseNode[]>();
+	// stack.push(new AbstractParseNode[] {t1, t2});
+	//
+	// LinkedList<LongestMatchKey> done = new LinkedList<LongestMatchKey>();
+	//
+	// AbstractParseNode res = null;
+	//
+	// while (!stack.isEmpty()) {
+	// AbstractParseNode[] ns = stack.pop();
+	// AbstractParseNode n1 = ns[0];
+	// AbstractParseNode n2 = ns[1];
+	//
+	// if (n1.equals(n2))
+	// continue;
+	//
+	// LongestMatchKey key = new LongestMatchKey(n1, n2);
+	// Integer prevRes = longestMatchCache.get(key);
+	// if (prevRes != null) {
+	// AbstractParseNode newres = prevRes == -1 ? null : (prevRes == 0 ? t1 :
+	// t2);
+	// if (res != null && res != newres) {
+	// res = null;
+	// break;
+	// }
+	// if (newres == null)
+	// continue;
+	//
+	// res = newres;
+	// break;
+	// }
+	//
+	// Label l1 = n1.isAmbNode() ? null : parseTable.getLabel(n1.getLabel());
+	// Label l2 = n2.isAmbNode() ? null : parseTable.getLabel(n2.getLabel());
+	//
+	// if (n1.isAmbNode() || n2.isAmbNode()) {
+	// AbstractParseNode[] n1Array = n1.isAmbNode() ? n1.getChildren() : new
+	// AbstractParseNode[] {n1};
+	// AbstractParseNode[] n2Array = n2.isAmbNode() ? n2.getChildren() : new
+	// AbstractParseNode[] {n2};
+	//
+	// for (int i = 0; i < n1Array.length; i++)
+	// for (int j = 0; j < n2Array.length; j++) {
+	// if (!n1Array[i].isParseRejectNode() && !n2Array[j].isParseRejectNode())
+	// stack.push(new AbstractParseNode[] {n1Array[i], n2Array[j]});
+	// }
+	// continue;
+	// }
+	//
+	// else if (l1 != null && l1.getAttributes().isLongestMatch() &&
+	// (l2 == null || !l2.getAttributes().isLongestMatch())) {
+	// if (res == t2) {
+	// res = null;
+	// break;
+	// }
+	// res = t1;
+	// break;
+	// }
+	//
+	// else if (l2 != null && l2.getAttributes().isLongestMatch() &&
+	// (l1 == null || !l1.getAttributes().isLongestMatch())) {
+	// if (res == t1) {
+	// res = null;
+	// break;
+	// }
+	// res = t2;
+	// break;
+	// }
+	//
+	// else if (n1.getLabel() != n2.getLabel())
+	// continue;
+	//
+	// else if (l1 != null && l2 != null &&
+	// l1.equals(l2) && l1.getAttributes().isLongestMatch()) {
+	// int[] end1 = n1.getEnd();
+	// int[] end2 = n2.getEnd();
+	// if (end1[0] > end2[0] || end1[0] == end2[0] && end1[1] > end2[1]) {
+	// if (res == t2) {
+	// res = null;
+	// break;
+	// }
+	// res = t1;
+	// break;
+	// }
+	// else if (end2[0] > end1[0] || end2[0] == end1[0] && end2[1] > end1[1]) {
+	// if (res == t1) {
+	// res = null;
+	// break;
+	// }
+	// res = t2;
+	// break;
+	// }
+	// }
+	//
+	// done.add(key);
+	//
+	// for (int i = n1.getChildren().length - 1; i >= 0; i--)
+	// stack.push(new AbstractParseNode[] {n1.getChildren()[i],
+	// n2.getChildren()[i]});
+	// }
+	//
+	// int val = res == t1 ? 0 : (res == t2 ? 1 : -1);
+	// for (LongestMatchKey key : done)
+	// longestMatchCache.put(key, val);
+	//
+	// return res;
+	// }
+
+	private boolean inReduceStacks(Queue<Frame> q, Frame frame) {
+		if (Tools.tracing) {
 			TRACE("SG_InReduceStacks() - " + frame.state.stateNumber);
 		}
 		return q.contains(frame);
 	}
 
 	protected Frame newStack(State s) {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_NewStack() - " + s.stateNumber);
 		}
 		return new Frame(s);
@@ -1336,7 +1399,7 @@ public class SGLR {
 
 	Frame findStack(ArrayDeque<Frame> stacks, State s) {
 		int desiredState = s.stateNumber;
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_FindStack() - " + desiredState);
 		}
 
@@ -1350,28 +1413,27 @@ public class SGLR {
 		for (int i = 0; i < size; i++) {
 			Frame stack = stacks.get(i);
 			if (stack.state.stateNumber == desiredState) {
-				if(Tools.tracing) {
+				if (Tools.tracing) {
 					TRACE("SG_ - found stack");
 				}
 				return stack;
 			}
 		}
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_ - stack not found");
 		}
 		return null;
 	}
 
-
 	private int getNextToken() {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_NextToken() - ");
 		}
 
 		final int ch = currentInputStream.read();
 		updateLineAndColumnInfo(ch);
-		
-		if(ch == -1) {
+
+		if (ch == -1) {
 			return SGLR.EOF;
 		}
 		return ch;
@@ -1383,7 +1445,7 @@ public class SGLR {
 		if (Tools.debugging) {
 			Tools.debug("getNextToken() - ", ch, "(", (char) ch, ")");
 		}
-		
+
 		lastLineNumber = lineNumber;
 		lastColumnNumber = columnNumber;
 
@@ -1401,7 +1463,7 @@ public class SGLR {
 			columnNumber++;
 		}
 	}
-	
+
 	public ParseTable getParseTable() {
 		return parseTable;
 	}
@@ -1416,9 +1478,9 @@ public class SGLR {
 	}
 
 	AmbiguityManager getAmbiguityManager() {
-	  return ambiguityManager;
+		return ambiguityManager;
 	}
-	
+
 	public Disambiguator getDisambiguator() {
 		return disambiguator;
 	}
@@ -1440,12 +1502,9 @@ public class SGLR {
 		return rejectCount;
 	}
 
+	// //////////////////////////////////////////////////// Log functions
+	// ///////////////////////////////////////////////////////////////////////////////
 
-
-
-
-	////////////////////////////////////////////////////// Log functions ///////////////////////////////////////////////////////////////////////////////
-	
 	// TODO: cleanup, this doesn't belong here!
 
 	private static int traceCallCount = 0;
@@ -1473,42 +1532,41 @@ public class SGLR {
 		return sb.toString();
 	}
 
-
 	private void logParseResult(Link s) {
 		if (Tools.debugging) {
 			Tools.debug("internal parse tree:\n", s.label);
 		}
 
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_ - internal tree: " + s.label);
 		}
 
 		if (Tools.measuring) {
 			final Measures m = new Measures();
-			//Tools.debug("Time (ms): " + (System.currentTimeMillis()-startTime));
+			// Tools.debug("Time (ms): " +
+			// (System.currentTimeMillis()-startTime));
 			m.setTime(System.currentTimeMillis() - startTime);
-			//Tools.debug("Red.: " + reductionCount);
+			// Tools.debug("Red.: " + reductionCount);
 			m.setReductionCount(reductionCount);
-			//Tools.debug("Nodes: " + Frame.framesCreated);
+			// Tools.debug("Nodes: " + Frame.framesCreated);
 			m.setFramesCreated(Frame.framesCreated);
-			//Tools.debug("Links: " + Link.linksCreated);
+			// Tools.debug("Links: " + Link.linksCreated);
 			m.setLinkedCreated(Link.linksCreated);
-			//Tools.debug("avoids: " + s.avoidCount);
+			// Tools.debug("avoids: " + s.avoidCount);
 			m.setAvoidCount(s.recoverCount);
-			//Tools.debug("Total Time: " + parseTime);
+			// Tools.debug("Total Time: " + parseTime);
 			m.setParseTime(parseTime);
-			//Tools.debug("Total Count: " + parseCount);
+			// Tools.debug("Total Count: " + parseCount);
 			Measures.setParseCount(++parseCount);
-			//Tools.debug("Average Time: " + (int)parseTime / parseCount);
-			m.setAverageParseTime((int)parseTime / parseCount);
+			// Tools.debug("Average Time: " + (int)parseTime / parseCount);
+			m.setAverageParseTime((int) parseTime / parseCount);
 			m.setRecoverTime(-1);
 			Tools.setMeasures(m);
 		}
 	}
 
-
 	private void logBeforeParsing() {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_Parse() - ");
 		}
 
@@ -1517,13 +1575,11 @@ public class SGLR {
 		}
 	}
 
-	private void logAfterParsing()
-	throws BadTokenException, TokenExpectedException {
+	private void logAfterParsing() throws BadTokenException, TokenExpectedException {
 		if (isLogging()) {
 			Tools.logger("Number of lines: ", lineNumber);
-			Tools.logger("Maximum ", maxBranches, " parse branches reached at token ",
-					logCharify(maxToken), ", line ", maxLine, ", column ", maxColumn,
-					" (token #", maxTokenNumber, ")");
+			Tools.logger("Maximum ", maxBranches, " parse branches reached at token ", logCharify(maxToken), ", line ",
+					maxLine, ", column ", maxColumn, " (token #", maxTokenNumber, ")");
 
 			final long elapsed = System.currentTimeMillis() - startTime;
 			Tools.logger("Parse time: " + elapsed / 1000.0f + "s");
@@ -1543,7 +1599,6 @@ public class SGLR {
 			}
 		}
 
-
 		if (Tools.debugging) {
 			Tools.debug("Accepting stack exists");
 		}
@@ -1556,14 +1611,14 @@ public class SGLR {
 	}
 
 	private void logAfterShifter() {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_DiscardShiftPairs() - ");
 			TRACE_ActiveStacks();
 		}
 	}
 
 	private void logBeforeShifter() {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_Shifter() - ");
 			TRACE_ActiveStacks();
 		}
@@ -1582,7 +1637,7 @@ public class SGLR {
 	}
 
 	private void logBeforeParseCharacter() {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_ParseToken() - ");
 		}
 
@@ -1591,7 +1646,7 @@ public class SGLR {
 			Tools.debug(" # active stacks : " + activeStacks.size());
 		}
 
-		/* forActor = *///computeStackOfStacks(activeStacks);
+		/* forActor = */// computeStackOfStacks(activeStacks);
 
 		if (Tools.debugging) {
 			Tools.debug(" # for actor     : " + forActor.size());
@@ -1621,7 +1676,7 @@ public class SGLR {
 			actionItems = s.getActionItems(currentToken);
 		}
 
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_Actor() - " + st.state.stateNumber);
 			TRACE_ActiveStacks();
 		}
@@ -1639,7 +1694,7 @@ public class SGLR {
 			Tools.debug(" actions : ", actionItems);
 		}
 
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_ - actions: " + actionItems.size());
 		}
 	}
@@ -1649,7 +1704,7 @@ public class SGLR {
 			Tools.debug("<doReductions() - " + dumpActiveStacks());
 		}
 
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_ - doreductions done");
 		}
 	}
@@ -1661,15 +1716,12 @@ public class SGLR {
 		}
 
 		if (Tools.logging) {
-			Tools.logger("Goto(", st0.peek().stateNumber, ",", prod.label + ") == ",
-					next.stateNumber);
+			Tools.logger("Goto(", st0.peek().stateNumber, ",", prod.label + ") == ", next.stateNumber);
 		}
 	}
 
-
-	private void logBeforeDoReductions(Frame st, Production prod,
-			final int pathsCount) {
-		if(Tools.tracing) {
+	private void logBeforeDoReductions(Frame st, Production prod, final int pathsCount) {
+		if (Tools.tracing) {
 			TRACE("SG_DoReductions() - " + st.state.stateNumber);
 		}
 
@@ -1680,9 +1732,8 @@ public class SGLR {
 		}
 	}
 
-	private void logBeforeLimitedReductions(Frame st, Production prod, Link l,
-			PooledPathList paths) {
-		if(Tools.tracing) {
+	private void logBeforeLimitedReductions(Frame st, Production prod, Link l, PooledPathList paths) {
+		if (Tools.tracing) {
 			TRACE("SG_ - back in reducer ");
 			TRACE_ActiveStacks();
 			TRACE("SG_DoLimitedReductions() - " + st.state.stateNumber + ", " + l.parent.state.stateNumber);
@@ -1705,24 +1756,23 @@ public class SGLR {
 
 	private void logAddedLink(Frame st0, Frame st1, Link nl) {
 		if (Tools.debugging) {
-			Tools.debug(" added link ", nl, " from ", st1.state.stateNumber, " to ",
-					st0.state.stateNumber);
+			Tools.debug(" added link ", nl, " from ", st1.state.stateNumber, " to ", st0.state.stateNumber);
 		}
 
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE_ActiveStacks();
 		}
 	}
 
 	private void logBeforeReducer(State s, Production prod, int length) {
-		if(Tools.tracing) {
+		if (Tools.tracing) {
 			TRACE("SG_Reducer() - " + s.stateNumber + ", " + length + ", " + prod.label);
 			TRACE_ActiveStacks();
 		}
 
 		if (Tools.logging) {
-			Tools.logger("Reducing; state ", s.stateNumber, ", token: ", logCharify(currentToken),
-					", production: ", prod.label);
+			Tools.logger("Reducing; state ", s.stateNumber, ", token: ", logCharify(currentToken), ", production: ",
+					prod.label);
 		}
 
 		if (Tools.debugging) {
@@ -1740,25 +1790,22 @@ public class SGLR {
 		TRACE("SG_ - for_actor_delayed stacks: " + forActorDelayed.size());
 	}
 
-
 	private void logAmbiguity(Frame st0, Production prod, Frame st1, Link nl) {
 		if (Tools.logging) {
-			Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ",
-					st1.state.stateNumber, " ", (prod.isRejectProduction() ? "{reject}" : ""));
+			Tools.logger("Ambiguity: direct link ", st0.state.stateNumber, " -> ", st1.state.stateNumber, " ",
+					(prod.isRejectProduction() ? "{reject}" : ""));
 			if (nl.label.isParseNode()) {
-				Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ",
-						((ParseNode) nl.label).getLabel());
+				Tools.logger("nl is ", nl.isRejected() ? "{reject}" : "", " for ", ((ParseNode) nl.label).getLabel());
 			}
 		}
 
 		if (Tools.debugging) {
-			Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/",
-					nl.getLength());
+			Tools.debug("createAmbiguityCluster - ", tokensSeen - nl.getLength() - 1, "/", nl.getLength());
 		}
 	}
 
-  public AbstractParseNode getParseTree() {
-    return parseTree;
-  }
+	public AbstractParseNode getParseTree() {
+		return parseTree;
+	}
 
 }

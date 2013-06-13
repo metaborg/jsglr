@@ -6,15 +6,15 @@ exports
 		Y
 	
 	context-free syntax
-		"b" Y2				-> K
+		"b" Y2				-> K {cons("K")}
 		
 		K Z				-> Y
 		
-		{TrebleClef ","}*	-> Z
+		{TrebleClef ","}*	-> Z {cons("Z")}
 				
 	lexical syntax
-		$Unicode(Ø) "c" -> Y2
-		$Unicode(𝄞) -> TrebleClef
+		$Unicode(Ø) "c" -> Y2 {cons("Y2")}
+		$Unicode(𝄞) -> TrebleClef {cons("TC")}
 	 
 
 	

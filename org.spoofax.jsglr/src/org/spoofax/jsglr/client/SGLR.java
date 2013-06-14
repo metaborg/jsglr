@@ -23,6 +23,7 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.unicode.UnicodeConverter;
+import org.spoofax.jsglr.unicode.UnicodeStrategoTermPostprocessor;
 
 public class SGLR {
 
@@ -328,11 +329,15 @@ public class SGLR {
 			InterruptedException {
 		String parseInput;
 		if (utf8) {
-			parseInput = UnicodeConverter.convertFromUnicode(input);
+			parseInput = UnicodeConverter.encodeUnicodeToAscii(input);
 		} else {
 			parseInput = input;
 		}
-		return parse(parseInput, filename, startSymbol, completionMode, cursorLocation);
+		Object result =  this.parse(parseInput, filename, startSymbol, completionMode, cursorLocation);
+		if (utf8 && result instanceof IStrategoTerm) {
+			return UnicodeStrategoTermPostprocessor.postprocess((IStrategoTerm) result);
+		}
+		return result;
 	}
 
 	/**
@@ -550,11 +555,15 @@ public class SGLR {
 			TokenExpectedException, ParseException, SGLRException, InterruptedException {
 		String parseInput;
 		if (utf8) {
-			parseInput = UnicodeConverter.convertFromUnicode(input);
+			parseInput = UnicodeConverter.encodeUnicodeToAscii(input);
 		} else {
 			parseInput = input;
 		}
-		return this.parse(parseInput, filename, startSymbol);
+		Object result =  this.parse(parseInput, filename, startSymbol);
+		if (utf8 && result instanceof IStrategoTerm) {
+			return UnicodeStrategoTermPostprocessor.postprocess((IStrategoTerm) result);
+		}
+		return result;
 	}
 
 	private Object sglrParse(String startSymbol) throws BadTokenException, TokenExpectedException, ParseException,

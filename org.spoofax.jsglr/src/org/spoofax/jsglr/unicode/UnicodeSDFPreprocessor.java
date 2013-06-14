@@ -167,13 +167,13 @@ public class UnicodeSDFPreprocessor {
 		int separatorIndex = arg.indexOf("-");
 		if (separatorIndex == -1) {
 			// Single character
-			int val = UnicodeConverter.decodeFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg));
+			int val = UnicodeConverter.extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg));
 			return new UnicodeRangePair(val, val);
 		} else {
 			// Character range
-			int start = UnicodeConverter.decodeFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg.substring(
+			int start = UnicodeConverter.extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg.substring(
 					0, separatorIndex)));
-			int end = UnicodeConverter.decodeFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg.substring(
+			int end = UnicodeConverter.extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg.substring(
 					separatorIndex + 1, arg.length())));
 			return new UnicodeRangePair(start, end);
 		}

@@ -32,7 +32,7 @@ public class UnicodeConverter {
 	 *            the unicode String to convery
 	 * @return the resulting ascii String
 	 */
-	public static String convertFromUnicode(String unicodeString) {
+	public static String encodeUnicodeToAscii(String unicodeString) {
 		// Reserve a bit more space because the string might get longer and thus
 		// we do not need to reallocate an array
 		StringBuilder builder = new StringBuilder((int) (unicodeString.length() * 1.1));
@@ -43,7 +43,7 @@ public class UnicodeConverter {
 			// Convert the unicde character. This possibly merges two chars
 			// because a char is 16 bit in Java and some UTF-16 characters have
 			// 32 bit.
-			int nextChar = decodeFirstUnicodeCharacter(buffer);
+			int nextChar = extractFirstUnicodeCharacter(buffer);
 			// Encode the unicode character to ascii if necessary
 			if (isUnicode(nextChar)) {
 				builder.append(encodeUnicodeCharacterToAscii(nextChar));
@@ -86,8 +86,39 @@ public class UnicodeConverter {
 		}
 	}
 
+	private static final int UNICODE_4_BYTE_PATTERN_MSBS = 0x36;
+	private static final int UNICODE_4_BYTE_PATTERN_LSBS = 0x37;
+
 	/**
-	 * Decodes the first unicode character in the given buffer. If the first
+	 * Checks whether the two given bytes decode the start of a four byte
+	 * unicode character.
+	 * 
+	 * @param c
+	 *            the character to check
+	 * @return whether c are the first two bytes of a four byte character,
+	 *         otherwise c is a completecharacter
+	 */
+	private static boolean is4ByteUnicodeBegin(int c) {
+		return (c >> 10) == UNICODE_4_BYTE_PATTERN_MSBS;
+	}
+
+	/**
+	 * Validates that the given two bytes are two valid lsbs of a four byte
+	 * unicode character.
+	 * 
+	 * @param lsbs
+	 *            the two last bytes
+	 * @throws IllegalArgumentException
+	 *             when lsbs is invalid
+	 */
+	private static void validate4ByteUnicodeLSBs(int lsbs) {
+		if ((lsbs >> 10) != UNICODE_4_BYTE_PATTERN_LSBS) {
+			throw new IllegalArgumentException("The character " + lsbs + "is not valid LSBs of UTF-16 character");
+		}
+	}
+
+	/**
+	 * Extracts the first unicode character in the given buffer. If the first
 	 * character only covers the first char in the buffer, this char is read. If
 	 * the first character needs two chars, because it is an 32 bit value, the
 	 * first two chars are read if possible.
@@ -96,34 +127,30 @@ public class UnicodeConverter {
 	 *            the buffer to decode its first character
 	 * @return the decoded character
 	 */
-	public static int decodeFirstUnicodeCharacter(CharBuffer buffer) {
+	public static int extractFirstUnicodeCharacter(CharBuffer buffer) {
 		// Check whether this is a four bit word
 		int c1 = buffer.get();
 		// Check that this char is not the beginning of a single UTF
 		// Character
 		// Shift out the bits which describe the character, only keep the
 		// signal bits
-		if ((c1 >> 10) == 0x36) {
+		if (is4ByteUnicodeBegin(c1)) {
 			// Now validate the second
 			int c2 = buffer.get();
-			if ((c2 >> 10) == 0x37) {
-				// Now it is a valid 32 bit Unicode character
-				// Concatenate the two 16 bits
-				int val = c1 << 16 | c2;
-				assert !UnicodeConverter.isTwoByteCharacter(val);
-				return val;
-			} else {
-				// This is an invalid string
-				throw new IllegalArgumentException("The character " + c1 + "is not a valid UTF-16 character");
-			}
+			validate4ByteUnicodeLSBs(c2);
+			// Now it is a valid 32 bit Unicode character
+			// Concatenate the two 16 bits
+			int val = c1 << 16 | c2;
+			assert !UnicodeConverter.isTwoByteCharacter(val);
+			return val;
 		}
 
 		// Single 16 but Unicode Character
 		return c1;
 	}
 
-	public static int decodeFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer buffer) {
-		int c = decodeFirstUnicodeCharacter(buffer);
+	public static int extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer buffer) {
+		int c = extractFirstUnicodeCharacter(buffer);
 		if (buffer.hasRemaining()) {
 			throw new IllegalArgumentException("CharBuffer contains more than a single character");
 		}
@@ -145,6 +172,69 @@ public class UnicodeConverter {
 		int temp = c >> (num * 8);
 		temp = temp & 0xFF;
 		return (char) temp;
+	}
+
+	/**
+	 * Decodes the given ascii String to a regular string with unicode
+	 * characters instead of the ascii decoded unicode characters.
+	 * 
+	 * @param asciiString
+	 *            the to ascii encoded unicode string
+	 * @return the decoded unicode string
+	 */
+	public static String decodeAsciiToUnicode(String asciiString) {
+		CharBuffer readBuffer = CharBuffer.wrap(asciiString);
+		// New string could not be longer than the inut string
+		CharBuffer writeBuffer = CharBuffer.allocate(asciiString.length());
+		// Decode characters while the inout is not empty
+		while (readBuffer.hasRemaining()) {
+			decodeFirstCharacter(readBuffer, writeBuffer);
+		}
+		// now the result is in write Buffer
+		int position = writeBuffer.position();
+		writeBuffer.rewind();
+		return writeBuffer.subSequence(0, position).toString();
+	}
+
+	/**
+	 * Decodes the first character from the readBuffer to unicode and writes it
+	 * to the write buffer. Note that more than one char is consumed for an
+	 * unicode character and up two two chars may be written for an unicode
+	 * character.
+	 * 
+	 * @param readBuffer
+	 *            the input buffer
+	 * @param writeBuffer
+	 *            the output buffer
+	 */
+	private static void decodeFirstCharacter(CharBuffer readBuffer, CharBuffer writeBuffer) {
+		// Get the first char
+		char c = readBuffer.get();
+		if (c != UNICODE_PRAEFIX) {
+			assert isUnicode(c);
+			// Just ascii
+			writeBuffer.put(c);
+		} else {
+			// Now we have unicode, so at leadt read the first to chars
+			char c1 = readBuffer.get();
+			char c2 = readBuffer.get();
+
+			// Combine both chars
+			int r1 = c1 << 8 | c2;
+			if (is4ByteUnicodeBegin(r1)) {
+				// Read the next
+				c1 = readBuffer.get();
+				c2 = readBuffer.get();
+				int r2 = c1 << 8 | c2;
+				validate4ByteUnicodeLSBs(r2);
+				// Now we have the character, write both parts in the buffer
+				writeBuffer.append((char) r1);
+				writeBuffer.append((char) r2);
+			} else {
+				// Got only a two byte value
+				writeBuffer.append((char) r1);
+			}
+		}
 	}
 
 }

@@ -22,6 +22,7 @@ import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.unicode.UnicodeConverter;
 import org.spoofax.jsglr.unicode.UnicodeSDFPreprocessor;
+import org.spoofax.jsglr.unicode.UnicodeStrategoTermPostprocessor;
 import org.spoofax.terms.attachments.ParentTermFactory;
 
 import com.sun.tools.javac.util.Paths;
@@ -54,8 +55,7 @@ public class TestUnicode {
 				true), simpleUTF8Table);
 		String content = readFile(simpleUTF8TestFile1, Charset.forName("UTF-8"));
 		IStrategoTerm term = (IStrategoTerm) sglr.parse(content, null, null, true);
-		Assert.assertEquals("(K(\"Øc\"),Z([\"𝄞\",\"𝄞\"]))", term);
-		System.out.println(term);
+		Assert.assertEquals("(K(\"Øc\"),Z([\"𝄞\",\"𝄞\"]))", term.toString());
 	}
 
 	private static String readFile(File path, Charset encoding) throws IOException {

@@ -5,27 +5,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
+import java.text.ParseException;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.ITreeBuilder;
-import org.spoofax.jsglr.client.Label;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
-import org.spoofax.jsglr.unicode.UnicodeConverter;
 import org.spoofax.jsglr.unicode.UnicodeSDFPreprocessor;
-import org.spoofax.jsglr.unicode.UnicodeStrategoTermPostprocessor;
 import org.spoofax.terms.attachments.ParentTermFactory;
-
-import com.sun.tools.javac.util.Paths;
 
 public class TestUnicode {
 
@@ -41,7 +34,7 @@ public class TestUnicode {
 	}
 
 	@Test
-	public void testUnicodeSDFPreprocessor() {
+	public void testUnicodeSDFPreprocessor() throws ParseException {
 		String testString = "XYZABC $Unicode(Ø,∀) HIJKLMNO $Unicode(∀) $Unicode(∀-水,𝄞) $Unicode(𝄞)";
 		String result = UnicodeSDFPreprocessor.preprocess(testString);
 		Assert.assertEquals(

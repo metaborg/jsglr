@@ -188,7 +188,7 @@ public class UnicodeSDFPreprocessor {
 		System.out.println(preprocess("$Unicode(Ø,∀) $Unicode(∀) $Unicode(∀-水,𝄞) $Unicode(𝄞)"));
 
 		try {
-			preprocessFile(new File("tests/grammars/basic/UTF8.sdfu"));
+			preprocessFile(new File("tests/grammars/basic/UTF8.sdfu"), "UTF-8");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

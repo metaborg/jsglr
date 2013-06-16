@@ -3,12 +3,13 @@ package org.spoofax.jsglr.unicode;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.CharBuffer;
-
-import org.spoofax.terms.ParseError;
+import java.text.ParseException;
 
 /**
  * The UnicodeSDFPreprocessor allows to define unicode characters and ranges in
@@ -51,14 +52,16 @@ public class UnicodeSDFPreprocessor {
 	 * 
 	 * @param inputFile
 	 *            the input SDF file containing Unicode characters
+	 * @param encoding
+	 * 				the encoding of the input file
 	 * @throws IOException
 	 *             problems with reading and writing files
 	 */
-	public static void preprocessFile(File inputFile) throws IOException {
+	public static void preprocessFile(File inputFile, String encoding) throws IOException, ParseException {
 		StringBuilder content = new StringBuilder();
 
 		// === Read the content of the file ===
-		BufferedReader inputReader = new BufferedReader(new FileReader(inputFile));
+		BufferedReader inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), encoding));
 		try {
 			String temp;
 			while ((temp = inputReader.readLine()) != null) {
@@ -104,7 +107,7 @@ public class UnicodeSDFPreprocessor {
 	 *            the SDF Code to preprocess
 	 * @return the preprocessed SDF Code which is now valid SDF Code
 	 */
-	public static String preprocess(String sdfContent) {
+	public static String preprocess(String sdfContent) throws ParseException{
 		// Search all occurrences of the $Unicode command
 		StringBuilder builder = new StringBuilder((int) (sdfContent.length() * 1.1));
 		int startIndex = 0;
@@ -116,18 +119,18 @@ public class UnicodeSDFPreprocessor {
 			// Search for the arguments of the command
 			argStart = sdfContent.indexOf("(", newStartIndex);
 			if (argStart == -1) {
-				throw new ParseError("Cannot parse the arguments for $Unicode call. Missing (");
+				throw new ParseException("Cannot parse the arguments for $Unicode call. Missing (", newStartIndex);
 			}
 			argEnd = sdfContent.indexOf(")", argStart);
 			if (argEnd == -1) {
-				throw new ParseError("Cannot parse the arguments for $Unicode call. Missing )");
+				throw new ParseException("Cannot parse the arguments for $Unicode call. Missing )", argStart);
 			}
 			String argumentString = sdfContent.substring(argStart + 1, argEnd);
 
 			// Split the arguments by ,
 			String[] arguments = argumentString.split(",");
 			if (arguments == null) {
-				throw new ParseError("Missing arguments for $Unicode call.");
+				throw new ParseException("Missing arguments for $Unicode call.", argEnd);
 			}
 			// Now convert the argument
 			UnicodeRangePair r = parseArguments(arguments);
@@ -181,7 +184,7 @@ public class UnicodeSDFPreprocessor {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args)  throws ParseException {
 		System.out.println(preprocess("$Unicode(Ø,∀) $Unicode(∀) $Unicode(∀-水,𝄞) $Unicode(𝄞)"));
 
 		try {

@@ -7,8 +7,8 @@ import org.spoofax.terms.StrategoConstructor;
 import org.spoofax.terms.TermFactory;
 
 /**
- * THe {@link UnicodeTermFactory} decodes all Strng paramters from ascii encoded
- * unicode to usual unicode und delegates the rest to the {@link TermFactory}.
+ * THe {@link UnicodeTermFactory} decodes all String parameters from ascii encoded
+ * unicode to usual unicode and delegates the rest to the {@link TermFactory}.
  * 
  * @author moritzlichter
  * 

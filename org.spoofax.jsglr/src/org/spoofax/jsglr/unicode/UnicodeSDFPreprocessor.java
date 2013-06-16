@@ -32,6 +32,8 @@ import org.spoofax.terms.ParseError;
  * The proprecessor, for simplicity, does not work on ASTs but on strings.
  * Correct $Unicode notations are preprocessed correctly, wrong may be
  * preprocessed two without an exception to probably wrong SDF code.
+ * Additionally it does not check that the <b> $Unicode calls are only in
+ * lexical syntax</b> because no layout between unicode bytes is allowed.
  * 
  * @author moritzlichter
  * 

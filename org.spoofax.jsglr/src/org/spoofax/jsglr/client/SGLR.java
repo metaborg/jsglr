@@ -562,7 +562,7 @@ public class SGLR {
 		Object result =  this.parse(parseInput, filename, startSymbol);
 		if (utf8 && result instanceof IStrategoTerm) {
 			return UnicodeStrategoTermPostprocessor.postprocess((IStrategoTerm) result);
-		}
+		} 
 		return result;
 	}
 

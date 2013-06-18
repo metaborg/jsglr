@@ -20,7 +20,41 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 
 	public UnicodeRange(UnicodeInterval initial) {
 		this();
-		this.ranges.add(initial);
+		// Be careful, an UnicodeInterval may needs to be split in more when more than the last byte differ
+		// Calculate the equal bytes (from hsb) and get the equal part
+		int numBytes = UnicodeConverter.isTwoByteCharacter(initial.x) ? 2 : 4;
+		int numEqualBytes = 0;
+		int equal = 0;
+		for (int i = numBytes-1; i >= 0; i--) {
+			int byteX = UnicodeConverter.getByte(i, initial.x) ;
+			int byteY = UnicodeConverter.getByte(i, initial.y);
+			if (byteX== byteY) {
+				numEqualBytes++;
+				equal = equal << 8;
+				equal = equal | byteX;
+			} else {
+				break;
+			}
+		}
+		//Check whether there is more than a single byte
+		if (numEqualBytes < numBytes - 1) {
+			// Create three intervals
+			// 1. initial.x - equalbytes | first from rest of initial x  ff...
+			// 2. equalbytes | first from rest of initial x + 1 | 0 ... - equalbytes | first from rest of initial.y -1| ff...
+			// 3. equalbytes | first from rest of initial.y | 0... - initial.y
+			int endFirst = (equal << 8) | UnicodeConverter.getByte(numEqualBytes+1, initial.x);
+			int startSecond = (equal << 8) | (UnicodeConverter.getByte(numEqualBytes+1, initial.y) );
+			for (int i = numEqualBytes+1; i < numBytes; i++) {
+				endFirst = (endFirst << 8) | 0xff;
+				startSecond = (startSecond << 8) | 0x0;
+			}
+			this.ranges.add(new UnicodeInterval(initial.x, endFirst));
+			this.ranges.add(new UnicodeInterval(endFirst+1, startSecond-1));
+			this.ranges.add(new UnicodeInterval(startSecond, initial.y));
+		} else {
+			//Simple Case :)
+			this.ranges.add(initial);
+		}
 	}
 
 	public void unite(UnicodeRange r) {
@@ -43,6 +77,7 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 		if (!this.ranges.isEmpty()) {
 			int num = UnicodeConverter.isTwoByteCharacter(this.ranges.get(0).x) ? 2 : 4;
 			for (UnicodeInterval r : this) {
+				builder.append("(");
 				for (int i = num - 1; i >= 0; i--) {
 					builder.append('[');
 					int start = Math.min(r.x, r.y);
@@ -57,6 +92,7 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 					}
 					builder.append(']');
 				}
+				builder.append(")");
 				builder.append('|');
 			}
 		}

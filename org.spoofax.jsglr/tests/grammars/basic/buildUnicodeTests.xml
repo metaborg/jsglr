@@ -8,6 +8,7 @@
 	
 	<target name="compile" >
 		<compile-grammar module="UTF8" />
+		<compile-grammar module="UnicodeLambdaLanguage" />
 	</target>
 	
 	<target name="gen-signature">

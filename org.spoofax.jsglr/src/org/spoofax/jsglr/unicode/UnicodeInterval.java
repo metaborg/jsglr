@@ -16,4 +16,5 @@ public class UnicodeInterval extends Pair<Integer, Integer> {
 	public UnicodeInterval(Integer val) {
 		this(val, val);
 	}
+	
 }

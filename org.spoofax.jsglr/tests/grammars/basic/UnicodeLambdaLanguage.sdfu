@@ -1,0 +1,57 @@
+module UnicodeLambdaLanguage
+
+exports
+
+	context-free start-symbols
+		Lambda
+
+	context-free syntax
+	
+		Id AssignSign Exp		-> Declaration {cons("Declaration")}
+	
+		LambdaSign Id* "." Exp	-> Lambda {cons("Lambda")}
+		
+		LetDeclaration Exp 	-> Exp {cons ("Let")}
+		Lambda				-> Exp
+		Integer				-> Exp 
+		Identifier			-> Exp 
+		LambdaApp			-> Exp
+		JavaCall			-> Exp
+		Identifier "(" Exp* ")" -> LambdaApp {cons("LambdaApp")}
+		OpenLambdaBracket Exp CloseLambdaBracket "(" Exp* ")" -> LambdaApp {cons("ExpLambdaApp")}
+		
+		JavaCallSign JavaName	"(" Exp* ")" -> JavaCall {cons("JavaExpCall")}
+		JavaCallSign Id* "." JavaName -> Lambda {cons("JavaLambda")}
+		
+		OpenLetBracket Declaration* CloseLetBracket -> LetDeclaration {cons("LetDeclaration")}
+	
+		Id -> Identifier {cons ("Identifier")}
+		Int -> Integer{cons ("Integer")}
+	
+	context-free priorities
+		
+		
+	lexical syntax
+  		$Unicode(✎)	 ~[\n]* [\n] -> LAYOUT
+		[\ \t\r\n] 						-> LAYOUT
+		
+	%%	(~[\ \t\r\n\.\(\)] / [0-9])+	-> Id {longest-match}
+		((~[\ \t\r\n\.\(\)] / [0-9] / [\7]) | ($Unicode(¡-✍, ✑)))+-> Id {longest-match}
+		[0-9]+							-> Int {longest-match}
+		[a-zA-Z]([a-zA-Z\.\$\#\_])*			-> JavaName {longest-match}
+		
+		$Unicode(λ)						-> LambdaSign
+		$Unicode(λ)						-> Identifier {reject}
+		$Unicode(≔)						-> AssignSign
+		$Unicode(≔)						-> Identifier {reject}
+		$Unicode(«)						-> OpenLetBracket
+		$Unicode(»)						-> CloseLetBracket
+		$Unicode(«)						-> Identifier {reject}
+		$Unicode(»)						-> Identifier {reject}
+		$Unicode(♨)						-> JavaCallSign
+		$Unicode(♨)						-> Identifier {reject}
+		$Unicode(⟨)						-> OpenLambdaBracket
+		$Unicode(⟩)						-> CloseLambdaBracket
+		$Unicode(⟨)						-> Identifier {reject}
+		$Unicode(⟩)						-> Identifier {reject}
+	

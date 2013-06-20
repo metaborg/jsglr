@@ -32,26 +32,24 @@ exports
 		
 		
 	lexical syntax
-  		$Unicode(✎)	 ~[\n]* [\n] -> LAYOUT
+  		$Unicode([✎])	 ~[\n]* [\n] -> LAYOUT
 		[\ \t\r\n] 						-> LAYOUT
 		
 	%%	(~[\ \t\r\n\.\(\)] / [0-9])+	-> Id {longest-match}
-		((~[\ \t\r\n\.\(\)] / [0-9] / [\7]) | ($Unicode(¡-✍, ✑)))+-> Id {longest-match}
+		((~[\ \t\r\n\.\(\)] / [0-9] / [\7]) | ($Unicode([ALL]/[⟨⟩])))+-> Id {longest-match}
 		[0-9]+							-> Int {longest-match}
 		[a-zA-Z]([a-zA-Z\.\$\#\_])*			-> JavaName {longest-match}
 		
-		$Unicode(λ)						-> LambdaSign
-		$Unicode(λ)						-> Identifier {reject}
-		$Unicode(≔)						-> AssignSign
-		$Unicode(≔)						-> Identifier {reject}
-		$Unicode(«)						-> OpenLetBracket
-		$Unicode(»)						-> CloseLetBracket
-		$Unicode(«)						-> Identifier {reject}
-		$Unicode(»)						-> Identifier {reject}
-		$Unicode(♨)						-> JavaCallSign
-		$Unicode(♨)						-> Identifier {reject}
-		$Unicode(⟨)						-> OpenLambdaBracket
-		$Unicode(⟩)						-> CloseLambdaBracket
-		$Unicode(⟨)						-> Identifier {reject}
-		$Unicode(⟩)						-> Identifier {reject}
+		$Unicode([λ])						-> LambdaSign
+		$Unicode([λ])						-> Identifier {reject}
+		$Unicode([≔])						-> AssignSign
+		$Unicode([≔])						-> Identifier {reject}
+		$Unicode([«])						-> OpenLetBracket
+		$Unicode([»])						-> CloseLetBracket
+		$Unicode([«])						-> Identifier {reject}
+		$Unicode([»])						-> Identifier {reject}
+		$Unicode([♨])						-> JavaCallSign
+		$Unicode([♨])						-> Identifier {reject}
+		$Unicode([⟨])						-> OpenLambdaBracket
+		$Unicode([⟩])						-> CloseLambdaBracket
 	

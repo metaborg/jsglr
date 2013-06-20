@@ -15,6 +15,7 @@ exports
 		Range "/\\" PrimitiveRange		-> Range {cons("Intersection")}
 		
 		"[" RangeElem+ "]"			-> PrimitiveRange {cons("Range")}
+		"[" "ALL" "]"				-> PrimitiveRange {cons("AllRange")}
 		
 		Unicode				-> RangeElem
 		Unicode "-" Unicode -> RangeElem {cons("Interval")}
@@ -25,12 +26,14 @@ exports
 		UnicodeVal4B	-> Unicode {cons("Val")}
 		
 	lexical syntax
+		%% Support for ASCII encoded Unicode characters
 		[\7][\0-\255][\0-\255] -> UnicodeChar2B
 		%% Limitation of first byte due to UTF16 encoding
 		%% Otherwise grammar is ambigious
 		[\7][\200-\255][\0-\255]
 		    [\201-\255][\0-\255] -> UnicodeChar4B
 		
+		%% Support to define Unicode characters by their byte value
 		[\\][u][0-9a-f][0-9a-f][0-9a-f][0-9a-f] -> UnicodeVal2B
 		[\\][u][0-9a-f][0-9a-f][0-9a-f][0-9a-f]
 		       [0-9a-f][0-9a-f][0-9a-f][0-9a-f] -> UnicodeVal4B

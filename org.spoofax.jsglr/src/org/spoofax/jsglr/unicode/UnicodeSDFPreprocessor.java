@@ -179,6 +179,8 @@ public class UnicodeSDFPreprocessor {
 				pair.unite(buildUnicodeRangeElem(list.getSubterm(i)));
 			}
 			return pair;
+		} else if (cons.equals("AllRange")) {
+			return new UnicodeRangePair(UnicodeConverter.FIRST_UNICODE, UnicodeConverter.LAST_UNICODE);
 		} else {
 			UnicodeRangePair left = buildUnicodeRange(term.getSubterm(0));
 			UnicodeRangePair right = buildUnicodeRange(term.getSubterm(1));

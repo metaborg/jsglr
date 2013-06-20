@@ -20,6 +20,9 @@ public class UnicodeConverter {
 	 * The praefix to indicate a Unicode character in an ascii string
 	 */
 	public static final char UNICODE_PRAEFIX = 0x7;
+	
+	public static final int FIRST_UNICODE = 128;
+	public static final int LAST_UNICODE = 0x10FFFD;
 
 	/**
 	 * Converts a given unicode string to a ascii string which converted unicode
@@ -57,7 +60,7 @@ public class UnicodeConverter {
 	private static boolean isUnicode(int c) {
 		// Need two check for greater 127 or less 0 because integer comparison
 		// is signed
-		return c > 127 || c < 0;
+		return c >= FIRST_UNICODE || c < 0;
 	}
 
 	/**

@@ -1,8 +1,12 @@
 package org.spoofax.jsglr.unicode;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A UnicodeRange is a list of UnicodeIntervals.
@@ -12,53 +16,81 @@ import java.util.List;
  */
 public class UnicodeRange implements Iterable<UnicodeInterval> {
 
-	private List<UnicodeInterval> ranges;
+	private Set<UnicodeInterval> ranges;
 
 	public UnicodeRange() {
-		this.ranges = new LinkedList<UnicodeInterval>();
+		this.ranges = new HashSet<UnicodeInterval>();
 	}
 
 	public UnicodeRange(UnicodeInterval initial) {
 		this();
-		// Be careful, an UnicodeInterval may needs to be split in more when more than the last byte differ
-		// Calculate the equal bytes (from hsb) and get the equal part
-		int numBytes = UnicodeConverter.isTwoByteCharacter(initial.x) ? 2 : 4;
-		int numEqualBytes = 0;
-		int equal = 0;
-		for (int i = numBytes-1; i >= 0; i--) {
-			int byteX = UnicodeConverter.getByte(i, initial.x) ;
-			int byteY = UnicodeConverter.getByte(i, initial.y);
-			if (byteX== byteY) {
-				numEqualBytes++;
-				equal = equal << 8;
-				equal = equal | byteX;
-			} else {
-				break;
-			}
-		}
-		//Check whether there is more than a single byte
-		if (numEqualBytes < numBytes - 1) {
-			// Create three intervals
-			// 1. initial.x - equalbytes | first from rest of initial x  ff...
-			// 2. equalbytes | first from rest of initial x + 1 | 0 ... - equalbytes | first from rest of initial.y -1| ff...
-			// 3. equalbytes | first from rest of initial.y | 0... - initial.y
-			int endFirst = (equal << 8) | UnicodeConverter.getByte(numEqualBytes+1, initial.x);
-			int startSecond = (equal << 8) | (UnicodeConverter.getByte(numEqualBytes+1, initial.y) );
-			for (int i = numEqualBytes+1; i < numBytes; i++) {
-				endFirst = (endFirst << 8) | 0xff;
-				startSecond = (startSecond << 8) | 0x0;
-			}
-			this.ranges.add(new UnicodeInterval(initial.x, endFirst));
-			this.ranges.add(new UnicodeInterval(endFirst+1, startSecond-1));
-			this.ranges.add(new UnicodeInterval(startSecond, initial.y));
-		} else {
-			//Simple Case :)
-			this.ranges.add(initial);
-		}
+		this.ranges.add(initial);
+	}
+	
+	public UnicodeRange(UnicodeInterval i1, UnicodeInterval i2) {
+		this();
+		this.ranges.add(i1);
+		this.ranges.add(i2);
 	}
 
+	public void addInterval(UnicodeInterval i) {
+		this.ranges.add(i);
+	}
+	
+	private void unite(UnicodeInterval unite) {
+		Set<UnicodeInterval> newRange = new HashSet<UnicodeInterval>();
+		UnicodeInterval temp = unite;
+		for (UnicodeInterval l : this) {
+			UnicodeInterval newI = temp.unite(l);
+			if (newI == null) {
+				newRange.add(l);
+			} else {
+				temp = newI;
+			}
+		}
+		newRange.add(temp);
+		this.ranges = newRange;
+	}
+	
 	public void unite(UnicodeRange r) {
-		this.ranges.addAll(r.ranges);
+		if (this.isEmpty()) {
+			this.ranges = new HashSet<UnicodeInterval>(r.ranges);
+		} else {
+			for (UnicodeInterval other : r) {
+				this.unite(other);
+			}
+		}
+	}
+	
+	private void intersect(UnicodeInterval intersect) {
+		Set<UnicodeInterval> newRange = new HashSet<UnicodeInterval>();
+		for (UnicodeInterval i : this) {
+			UnicodeInterval newI = intersect.intersect(i);
+			if (newI != null) {
+				newRange.add(newI);
+			}
+		}
+		this.ranges = newRange;
+	}
+	
+	public void intersect(UnicodeRange r) {
+		for (UnicodeInterval other : r) {
+			this.intersect(other);
+		}
+	}
+	
+	private void diff(UnicodeInterval diff) {
+		Set<UnicodeInterval> newRange = new HashSet<UnicodeInterval>();
+		for (UnicodeInterval i : this) {
+			newRange.addAll(i.diff(diff).ranges);
+		}
+		this.ranges = newRange;
+	}
+	
+	public void diff(UnicodeRange r) {
+		for (UnicodeInterval other : r) {
+			this.diff(other);
+		}
 	}
 
 	public Iterator<UnicodeInterval> iterator() {
@@ -69,14 +101,52 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 		return ranges.isEmpty();
 	}
 
+	public void normalize() {
+		Set<UnicodeInterval> newRange = new HashSet<UnicodeInterval>();
+		for (UnicodeInterval i : this) {
+			newRange.addAll(i.normalize());
+		}
+		this.ranges = newRange;
+	}
+	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((ranges == null) ? 0 : ranges.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UnicodeRange other = (UnicodeRange) obj;
+		if (ranges == null) {
+			if (other.ranges != null)
+				return false;
+		} else if (!ranges.equals(other.ranges))
+			return false;
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
+		
+		// This is for Debug purpose that we get an reasonable order of the intervals
+		List<UnicodeInterval> intervalList = new ArrayList<UnicodeInterval>(this.ranges);
+		Collections.sort(intervalList, new UnicodeIntervalComparator());
 
 		builder.append('(');
 		if (!this.ranges.isEmpty()) {
-			int num = UnicodeConverter.isTwoByteCharacter(this.ranges.get(0).x) ? 2 : 4;
-			for (UnicodeInterval r : this) {
+			int num = UnicodeConverter.isTwoByteCharacter(intervalList.get(0).x) ? 2 : 4;
+			for (UnicodeInterval r : intervalList) {
 				builder.append("(");
 				for (int i = num - 1; i >= 0; i--) {
 					builder.append('[');

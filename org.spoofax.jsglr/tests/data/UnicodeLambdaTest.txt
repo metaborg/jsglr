@@ -1,56 +1,71 @@
 λ.
- «
-  ? ≔ ♨ condition then else. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#if_impl
-  ⋀ ≔ ♨ φ ψ. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#and_impl
-  = ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#equal_impl
-  ≣ ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#ident_impl
-  ∎ ≔ ♨. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#null_impl
-  × ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#times_impl
-  - ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#subtract_impl
+ « ✎ Native definitions
+  ? 	≔ ♨ condition then else. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#if_impl
+  ⋀ 	≔ ♨ φ ψ. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#and_impl
+  = 	≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#equal_impl
+  ≣ 	≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#ident_impl
+  × 	≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#times_impl
+  - 	≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#subtract_impl
   ✎ Returns a new unique value, thus Ů is not functional!
-  Ů ≔ ♨. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#unique_impl
+  Ů 	≔ ♨. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#unique_impl
   ✎ Evaluates π, prints the result and evaluates itself to the result
-  ✑ ≔ ♨ π. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#print_impl
+  ✑ 	≔ ♨ π. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#print_impl
  »
-  «
-     false ≔ 0
-     true ≔ 1
-		
-	 ✎ Empty Set:: List [Unique]		
-     ∅ ≔ Ů ()
+  « ✎ Primitive definitions
+  	 
+	 ✎ true, false and ∎ (null) are just unique values
+     false 	≔ Ů()
+     true 	≔ Ů()
+	 ∎		≔ Ů()
 	 
-	 ✎ Cons:: a List ↦ List [(Bool ↦ a | List)]
-     ☐ ≔ 	λ α β. λ σ. 
-     			? (σ β α)
-	 ✎ Head 
-     ∫ ≔ λ σ. σ (false)
-	 ✎ Tail
-     ∬ ≔ λ σ. σ (true)
+	 false?	≔ λ φ. = (φ false)
+	 true?	≔ λ φ. = (φ true )
+	 ∎?		≔ λ φ. = (φ ∎    )
+	 
+	 ¬		≔ λ φ. ? (φ false true)
+	 
+	 »
+	  « ✎ List Definition
+		✎ Empty Set:: List [Unique]		
+		∅ 	≔ Ů ()
+	 
+		✎ Cons:: a List ↦ List [(Bool ↦ a | List)]
+		☐ 	≔ 	λ α β. λ σ. 
+				? (σ β α)
+				
+		✎ Head 
+		∫ 	≔ λ σ. σ (false)
+		✎ Tail
+		∬ 	≔ λ σ. σ (true)
 
-	 ✎ Is Empty
-     ∅? ≔ 	λ σ.
-     		= (σ ∅)
+		✎ Is Empty
+		∅? 	≔ 	λ σ. = (σ ∅)
 	
-	 ✎ Map
-     ∀ ≔ λ Φ. λ σ.
-     		«∀i ≔ λ σ.
-     			? (∅? (σ)
-   				∅
-   				☐( Φ(∫(σ))
-   					∀i (∬(σ))))
-   			» ∀i (σ)
-	 nth ≔ λ s. λ n.
-	 		«i ≔ λ s n.
-	 			? (≣(n 0) ∫(s) i(∬(s) -(n 1)))
-			» i (s n)
+		✎ Map: maps Φ over List σ
+		∀ 	≔ λ Φ. λ σ.
+				«∀i ≔ λ σ.
+					? (	∅? (σ)
+						∅
+						☐( Φ(∫(σ))
+							∀i (∬(σ))))
+				» ∀i (σ)
+				
+				
+		nth ≔ λ s. λ n.
+				«i ≔ λ s n.
+					? (	≣(n 0)
+						∫(s)
+						i(∬(s) -(n 1)))
+				» i (s n)
 			
-  »
-   «
-    list ≔ ☐(1 ☐(2 ☐(3 ☐(4 ∅))))
-	getter ≔ nth (⟨∀ (λ α. ×(α α))⟩ (list))
-   »
-   ✎ getter(n)
-   ✎ = (∅ ∅)
-   ✎ ⟨∀ (✑)⟩ (list)
-   ⟨∀ (λ φ. ✑(getter(-(✑(φ) 1))))⟩ (list)
+	  »
+       « ✎ User Definitions
+    	list 	≔ ☐(1 ☐(2 ☐(3 ☐(4 ∅))))
+		getter 	≔ nth (⟨∀ (λ α. ×(α α))⟩ (list))
+       » 
+	    ✎ Expression to execute
+		✎ getter(n)
+		✎ = (∅ ∅)
+		✎ ⟨∀ (✑)⟩ (list)
+	 	⟨∀ (λ φ. ✑(getter(-(✑(φ) 1))))⟩ (list)
    

@@ -4,12 +4,21 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.CharBuffer;
 import java.text.ParseException;
+
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.TermTreeFactory;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
+import org.spoofax.jsglr.io.ParseTableManager;
+import org.spoofax.terms.Term;
+import org.spoofax.terms.attachments.ParentTermFactory;
 
 /**
  * The UnicodeSDFPreprocessor allows to define unicode characters and ranges in
@@ -53,7 +62,7 @@ public class UnicodeSDFPreprocessor {
 	 * @param inputFile
 	 *            the input SDF file containing Unicode characters
 	 * @param encoding
-	 * 				the encoding of the input file
+	 *            the encoding of the input file
 	 * @throws IOException
 	 *             problems with reading and writing files
 	 */
@@ -107,7 +116,7 @@ public class UnicodeSDFPreprocessor {
 	 *            the SDF Code to preprocess
 	 * @return the preprocessed SDF Code which is now valid SDF Code
 	 */
-	public static String preprocess(String sdfContent) throws ParseException{
+	public static String preprocess(String sdfContent) throws ParseException {
 		// Search all occurrences of the $Unicode command
 		StringBuilder builder = new StringBuilder((int) (sdfContent.length() * 1.1));
 		int startIndex = 0;
@@ -127,71 +136,90 @@ public class UnicodeSDFPreprocessor {
 			}
 			String argumentString = sdfContent.substring(argStart + 1, argEnd);
 
-			// Split the arguments by ,
-			String[] arguments = argumentString.split(",");
-			if (arguments == null) {
-				throw new ParseException("Missing arguments for $Unicode call.", argEnd);
+			UnicodeRangePair r;
+			try {
+				r = buildUnicodeRange(parseUnicodeRangeArgument(argumentString));
+				r.normalize();
+				 builder.append(r.toString());
+			} catch (Exception e) {
+
+				e.printStackTrace();
 			}
-			// Now convert the argument
-			UnicodeRangePair r = parseArguments(arguments);
 
 			// Append the converted ranges
-			builder.append(r.toString());
 			startIndex = argEnd + 1;
 		}
 		builder.append(sdfContent.substring(startIndex));
 		return builder.toString();
 	}
 
-	/**
-	 * Parses the given arguments of a Unicode call to a RangePair.
-	 * 
-	 * @param arguments
-	 *            the arguments of a Unicode call
-	 * @return the resulting RangePair
-	 */
-	private static UnicodeRangePair parseArguments(String[] arguments) {
-		// Unite the ranges of all arguments
-		UnicodeRangePair r = new UnicodeRangePair();
-		for (String arg : arguments) {
-			r.unite(parseArgument(arg));
-		}
-		return r;
-	}
+	private static ParseTable unicodeTable;
 
-	/**
-	 * Parses the given argument to a RangePair.
-	 * 
-	 * @param arg
-	 *            the argument to parse
-	 * @return the resulting RangePair
-	 */
-	private static UnicodeRangePair parseArgument(String arg) {
-		// Check for the range
-		arg = arg.replace(" ", "");
-		int separatorIndex = arg.indexOf("-");
-		if (separatorIndex == -1) {
-			// Single character
-			int val = UnicodeConverter.extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg));
-			return new UnicodeRangePair(val, val);
-		} else {
-			// Character range
-			int start = UnicodeConverter.extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg.substring(
-					0, separatorIndex)));
-			int end = UnicodeConverter.extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(arg.substring(
-					separatorIndex + 1, arg.length())));
-			return new UnicodeRangePair(start, end);
-		}
-	}
-
-	public static void main(String[] args)  throws ParseException {
-		System.out.println(preprocess("$Unicode(Ø,∀) $Unicode(∀) $Unicode(∀-水,𝄞) $Unicode(𝄞)"));
-
+	static {
 		try {
-			preprocessFile(new File("tests/grammars/basic/UTF8.sdfu"), "UTF-8");
-		} catch (IOException e) {
+			unicodeTable = new ParseTableManager().loadFromStream(UnicodeSDFPreprocessor.class
+					.getResourceAsStream("/org/spoofax/jsglr/unicode/Unicode.tbl"));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static IStrategoTerm parseUnicodeRangeArgument(String argument) throws Exception {
+		SGLR sglr = new SGLR(new TreeBuilder(new TermTreeFactory(new ParentTermFactory(unicodeTable.getFactory())),
+				true), unicodeTable);
+		return (IStrategoTerm) sglr.parse(argument, null, null, true);
+	}
+
+	private static UnicodeRangePair buildUnicodeRange(IStrategoTerm term) {
+		String cons = Term.tryGetConstructor(term).getName();
+		if (cons.equals("Range")) {
+			IStrategoList list = (IStrategoList) term.getSubterm(0);
+			UnicodeRangePair pair = new UnicodeRangePair();
+			for (int i = 0; i < list.getSubtermCount(); i++) {
+				pair.unite(buildUnicodeRangeElem(list.getSubterm(i)));
+			}
+			return pair;
+		} else {
+			UnicodeRangePair left = buildUnicodeRange(term.getSubterm(0));
+			UnicodeRangePair right = buildUnicodeRange(term.getSubterm(1));
+			if (cons.equals("Union")) {
+				left.unite(right);
+			} else if (cons.equals("Intersection")) {
+				left.intersect(right);
+			} else if (cons.equals("Difference")) {
+				left.diff(right);
+			} else {
+				throw new RuntimeException("Unsupported Unicode Constructor");
+			}
+			return left;
+		}
+	}
+	
+	private static UnicodeRangePair buildUnicodeRangeElem(IStrategoTerm term) {
+		String cons = Term.tryGetConstructor(term).getName();
+		if (cons.equals("Interval")) {
+			int startVal = buildUnicodeVal(term.getSubterm(0));
+			int endVal = buildUnicodeVal(term.getSubterm(1));
+			return new UnicodeRangePair(startVal, endVal);
+		} else {
+			int val = buildUnicodeVal(term);
+			return new UnicodeRangePair(val, val);
+		}
+	}
+	
+	private static int buildUnicodeVal(IStrategoTerm term) {
+		String cons = Term.tryGetConstructor(term).getName();
+		String val = Term.asJavaString(term.getSubterm(0));
+		if (cons.equals("Char")) {
+			return UnicodeConverter.toUnicodeCharacter(val);
+		} else if (cons.equals("Val")) {
+			if (val.startsWith("\\u")) {
+				return Integer.parseInt(val.substring(2), 16);
+			} else {
+				throw new RuntimeException("Invalid Unicode value");
+			}
+		}
+		return 0;
 	}
 
 }

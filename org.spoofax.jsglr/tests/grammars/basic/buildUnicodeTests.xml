@@ -8,20 +8,20 @@
 	
 	<target name="compile" >
 		<compile-grammar module="UTF8" />
-		<compile-grammar module="UnicodeLambdaLanguage" />
+		<!-- compile-grammar module="UnicodeLambdaLanguage" />-->
 	</target>
 	
 	<target name="gen-signature">
 		<compile-signature module="UTF8"/>
 	</target>
 	
-	<taskdef name="unicodesdf" classname="org.spoofax.jsglr.unicode.UnicodeSDFPreprocessorTask" classpath="../../../bin"/>
+	<taskdef name="unicodesdf" classname="org.spoofax.jsglr.unicode.UnicodeSDFPreprocessorTask" classpath="../../../bin;/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.terms_1.0.0.201304181013.jar"/>
 
 	<macrodef name="compile-grammar">
 		<attribute name="module" />
 		<sequential>
 			<unicodesdf encoding="UTF-8" onlysdfufiles="true">
-				<fileset dir="."/>
+				<fileset file="@{module}.sdfu"/>
 			</unicodesdf>
 			<pack-sdf source="@{module}.sdf" output="@{module}.def" />
 			<sdf2table source="@{module}.def" output="@{module}.tbl" module="@{module}" />

@@ -13,8 +13,8 @@ exports
 		{TrebleClef ","}*	-> Z {cons("Z")}
 				
 	lexical syntax
-		$Unicode(Ø) "c" -> Y2
-		$Unicode(𝄞) -> TrebleClef
+		$Unicode([Ø]) "c" -> Y2
+		$Unicode([𝄞]) -> TrebleClef
 	 
 
 	

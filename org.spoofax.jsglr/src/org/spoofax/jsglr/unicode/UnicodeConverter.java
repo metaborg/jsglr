@@ -117,6 +117,10 @@ public class UnicodeConverter {
 		}
 	}
 
+	public static int toUnicodeCharacter(String s) {
+		return extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(s));
+	}
+	
 	/**
 	 * Extracts the first unicode character in the given buffer. If the first
 	 * character only covers the first char in the buffer, this char is read. If

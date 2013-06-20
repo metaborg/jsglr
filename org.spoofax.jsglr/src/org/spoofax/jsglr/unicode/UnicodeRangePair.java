@@ -66,6 +66,21 @@ public class UnicodeRangePair extends Pair<UnicodeRange, UnicodeRange> {
 		this.y.unite(p.y);
 	}
 
+	public void intersect(UnicodeRangePair p) {
+		this.x.intersect(p.x);
+		this.y.intersect(p.y);
+	}
+	
+	public void diff(UnicodeRangePair p) {
+		this.x.diff(p.x);
+		this.y.diff(p.y);
+	}
+	
+	public void normalize() {
+		this.x.normalize();
+		this.y.normalize();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

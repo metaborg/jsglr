@@ -26,6 +26,8 @@ public class OriginLocationOffsetPrimitive extends AbstractPrimitive {
 		ImploderAttachment imploder = ImploderAttachment.get(term);
 		if(imploder == null) {
 			final IStrategoTerm originTerm = OriginAttachment.getOrigin(term);
+			if(originTerm == null)
+				return false;
 			imploder = ImploderAttachment.get(originTerm);
 		}
 		if(imploder == null)

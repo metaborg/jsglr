@@ -44,7 +44,8 @@ public class UnicodeLambdaTest {
 				System.out.print((int)c + " ");
 		}*/
 		IStrategoTerm term = (IStrategoTerm) sglr.parse(content, null, null, true);
-		//System.out.println(term.toString());
+		
+		System.out.println(term.toString());
 		Interpreter.eval(term);
 	}
 	

@@ -36,6 +36,14 @@ public class UnicodeConverter {
 	 * @return the resulting ascii String
 	 */
 	public static String encodeUnicodeToAscii(String unicodeString) {
+		return encodeUnicode(unicodeString, UNICODE_TO_ASCII_ENCODER);
+	}
+	
+	public static String encodeUnicodeToBacklashU(String unicodeString) {
+		return encodeUnicode(unicodeString, UNICODE_TO_BACKSLASH_U_ENCODER);
+	}
+	
+	private static String encodeUnicode(String unicodeString, UnicodeEncoder encoder) {
 		// Reserve a bit more space because the string might get longer and thus
 		// we do not need to reallocate an array
 		StringBuilder builder = new StringBuilder((int) (unicodeString.length() * 1.1));
@@ -49,15 +57,34 @@ public class UnicodeConverter {
 			int nextChar = extractFirstUnicodeCharacter(buffer);
 			// Encode the unicode character to ascii if necessary
 			if (isUnicode(nextChar)) {
-				builder.append(encodeUnicodeCharacterToAscii(nextChar));
+				builder.append(encoder.encodeUnicodeCharacter(nextChar));
 			} else {
 				builder.append((char) nextChar);
 			}
 		}
 		return builder.toString();
 	}
+	
+	private static interface UnicodeEncoder {
+		public String encodeUnicodeCharacter(int nextChar);
+	}
+	
+	public static final UnicodeEncoder UNICODE_TO_ASCII_ENCODER = new UnicodeEncoder() {
+		
+		public String encodeUnicodeCharacter(int nextChar) {
+			return UnicodeConverter.encodeUnicodeCharacterToAscii(nextChar);
+		}
+	};
+	
+	public static final UnicodeEncoder UNICODE_TO_BACKSLASH_U_ENCODER = new UnicodeEncoder() {
+		
+		public String encodeUnicodeCharacter(int nextChar) {
+			return "\\u" + Integer.toHexString(utf164ByteToNumber(nextChar));
+		}
+	};
+	
 
-	private static boolean isUnicode(int c) {
+	public static boolean isUnicode(int c) {
 		// Need two check for greater 127 or less 0 because integer comparison
 		// is signed
 		return c >= FIRST_UNICODE || c < 0;
@@ -91,6 +118,18 @@ public class UnicodeConverter {
 
 	private static final int UNICODE_4_BYTE_PATTERN_MSBS = 0x36;
 	private static final int UNICODE_4_BYTE_PATTERN_LSBS = 0x37;
+	
+	private static int utf164ByteToNumber(int encoded) {
+		int first = encoded & 0x03ff0000;
+		int second = encoded & 0x000003ff;
+		first = first >> 16;
+		int res = (first << 10) | second ;
+		if (res >= 0x10000) {
+			res += 0x10000;
+		}
+		return res;
+		
+	}
 
 	/**
 	 * Checks whether the two given bytes decode the start of a four byte

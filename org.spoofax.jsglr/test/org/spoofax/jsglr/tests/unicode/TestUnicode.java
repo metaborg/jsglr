@@ -20,6 +20,8 @@ import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.unicode.UnicodeSDFPreprocessor;
 import org.spoofax.terms.attachments.ParentTermFactory;
 
+import sun.tools.tree.NewInstanceExpression;
+
 public class TestUnicode {
 
 	private static ParseTableManager parseTableManager;
@@ -63,7 +65,12 @@ public class TestUnicode {
 	}
 
 	public static String readFile(File path, Charset encoding) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(path), encoding));
+		BufferedReader in;
+		if (encoding == null) {
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
+		} else {
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(path), encoding));
+		}
 		StringBuilder builder = new StringBuilder();
 		String temp = in.readLine();
 		while (temp != null) {

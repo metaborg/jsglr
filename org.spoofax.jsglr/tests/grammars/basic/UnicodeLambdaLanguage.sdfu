@@ -5,11 +5,14 @@ exports
 	context-free start-symbols
 		Lambda
 
+	syntax
+	$Unicode([\u99776]) LAYOUT? <Id*-CF> LAYOUT? "." LAYOUT? <Exp-CF>	-> <Lambda-CF> {cons("Lambda")}
+
 	context-free syntax
 	
 		Id AssignSign Exp		-> Declaration {cons("Declaration")}
 	
-		LambdaSign Id* "." Exp	-> Lambda {cons("Lambda")}
+		
 		
 		LetDeclaration Exp 	-> Exp {cons ("Let")}
 		Lambda				-> Exp

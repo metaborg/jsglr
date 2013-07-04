@@ -1,6 +1,10 @@
 package org.spoofax.jsglr.unicode;
 
 import java.nio.CharBuffer;
+import java.util.LinkedList;
+
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.Term;
 
 /**
  * This class contains static helper functions for converting a unicode string
@@ -79,10 +83,14 @@ public class UnicodeConverter {
 	public static final UnicodeEncoder UNICODE_TO_BACKSLASH_U_ENCODER = new UnicodeEncoder() {
 		
 		public String encodeUnicodeCharacter(int nextChar) {
-			return "\\u" + Integer.toHexString(utf164ByteToNumber(nextChar));
+			return "\\u" + Integer.toHexString(utf164ByteToNumber(nextChar)) + "\\u";
 		}
 	};
 	
+	public static String unicodeBackslashUToString(String string) {
+		int value = Integer.parseInt(string, 16);
+		return new String(numberToUtf16_4Byte(value));
+	}
 
 	public static boolean isUnicode(int c) {
 		// Need two check for greater 127 or less 0 because integer comparison
@@ -128,7 +136,26 @@ public class UnicodeConverter {
 			res += 0x10000;
 		}
 		return res;
-		
+	}
+	
+	private static char[] numberToUtf16_4Byte(int number) {
+		boolean needToByte = number >= 0x10000;
+		if (needToByte) {
+			number -= 0x10000;
+		}
+		int first = number >> 10;
+		int second = number & 0x000003ff;
+		if (needToByte) {
+			first = UNICODE_4_BYTE_PATTERN_MSBS <<10 | first;
+			second = UNICODE_4_BYTE_PATTERN_LSBS << 10 | second;
+		}
+		char firstC = (char) first;
+		char secondC = (char) second;
+		if (firstC != 0) {
+			return new char[] {firstC, secondC};
+		} else {
+			return new char[] {secondC};
+		}
 	}
 
 	/**

@@ -1,10 +1,6 @@
 package org.spoofax.jsglr.tests.unicode;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 
@@ -18,6 +14,7 @@ import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.unicode.UnicodeSDFPreprocessor;
+import org.spoofax.jsglr.unicode.UnicodeUtils;
 import org.spoofax.terms.attachments.ParentTermFactory;
 
 import sun.tools.tree.NewInstanceExpression;
@@ -49,7 +46,7 @@ public class TestUnicode {
 	public void testParseSimpleUTF8() throws Exception {
 		SGLR sglr = new SGLR(new TreeBuilder(new TermTreeFactory(new ParentTermFactory(simpleUTF8Table.getFactory())),
 				true), simpleUTF8Table);
-		String content = readFile(simpleUTF8TestFile1, Charset.forName("UTF-8"));
+		String content = UnicodeUtils.readFile(simpleUTF8TestFile1, Charset.forName("UTF-8"));
 		IStrategoTerm term = (IStrategoTerm) sglr.parse(content, null, null, true);
 		Assert.assertEquals("(K(\"Øc\"),Z([\"𝄞\",\"𝄞\"]))", term.toString());
 	}
@@ -62,26 +59,6 @@ public class TestUnicode {
 		input = "$Unicode([" + (char)0x3a04 + " - " + (char)0x3a45 + "])";
 		result = UnicodeSDFPreprocessor.preprocess(input);
 		Assert.assertEquals("[\\7](([\\58-\\58][\\4-\\69]))", result);
-	}
-
-	public static String readFile(File path, Charset encoding) throws IOException {
-		BufferedReader in;
-		if (encoding == null) {
-			in = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
-		} else {
-			in = new BufferedReader(new InputStreamReader(new FileInputStream(path), encoding));
-		}
-		StringBuilder builder = new StringBuilder();
-		String temp = in.readLine();
-		while (temp != null) {
-			builder.append(temp);
-			temp = in.readLine();
-			if (temp != null) {
-				builder.append("\n");
-			}
-		}
-		in.close();
-		return builder.toString();
 	}
 
 }

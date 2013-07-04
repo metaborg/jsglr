@@ -1,0 +1,22 @@
+module Unicode2
+
+exports
+	
+	context-free syntax
+		"Test" Test1 "Test2" -> Test3 {cons("Test1")}
+		"Tæst" Test2 "Tπ¬s…" -> Test4 {cons("Test4")}
+		
+	syntax
+		
+		"Hallo" <Test2-CF> LAYOUT? Test4 -> Test5 {cons("Strange")}
+		
+	context-free syntax
+		"ææ…" -> Test1 {cons("Constant")}
+		
+	context-free syntax
+		
+	lexical syntax
+		[a-ø] -> Test2
+		[ø-å] / [a-b¬∂] \/ [π] -> Test4
+		
+		

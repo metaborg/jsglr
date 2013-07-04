@@ -17,6 +17,7 @@ import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.tests.unicode.interpreter.Interpreter;
 import org.spoofax.jsglr.unicode.UnicodeConverter;
+import org.spoofax.jsglr.unicode.UnicodeUtils;
 import org.spoofax.terms.attachments.ParentTermFactory;
 
 public class UnicodeLambdaTest {
@@ -36,7 +37,7 @@ public class UnicodeLambdaTest {
 	public void testUnicodeLambda() throws Exception{
 		SGLR sglr = new SGLR(new TreeBuilder(new TermTreeFactory(new ParentTermFactory(unicodeLambdaParseTable.getFactory())),
 				true), unicodeLambdaParseTable);
-		String content = TestUnicode.readFile(unicodeLambdaFile, Charset.forName("UTF-8"));
+		String content = UnicodeUtils.readFile(unicodeLambdaFile, Charset.forName("UTF-8"));
 		/*for (char c : UnicodeConverter.encodeUnicodeToAscii(content).toCharArray()) {
 			if (c == '\n')
 				System.out.println();

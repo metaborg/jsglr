@@ -57,6 +57,8 @@ public class SGLR {
 	protected volatile boolean asyncAborted;
 
 	protected Frame acceptingStack;
+	protected Frame lastAcceptingStack;
+	protected int lastAcceptTokenSeen;
 
 	protected final ArrayDeque<Frame> activeStacks;
 
@@ -130,6 +132,11 @@ public class SGLR {
 
 	private boolean isCompletionMode;
 	
+	/**
+	 * If true, parser reads as many characters as possible, but succeeds even if not all characters were read.
+	 */
+	private boolean isParseMaxMode;
+	
 	public ParserHistory getHistory() {
 		return history;
 	}
@@ -159,6 +166,10 @@ public class SGLR {
 	public void setCompletionParse(boolean isCompletionMode, int cursorLocation){
 		this.isCompletionMode = isCompletionMode;
 		this.cursorLocation = cursorLocation;
+	}
+	
+	public void setParseMaxMode(boolean isParseMaxMode) {
+		this.isParseMaxMode = isParseMaxMode;
 	}
 
 	protected ArrayDeque<Frame> getRecoverStacks() {
@@ -305,6 +316,7 @@ public class SGLR {
 	 * @param startSymbol     The start symbol to use, or null if any applicable.
 	 * @param completionMode  True in case the parser result is used for content completion.
 	 * @param cursorLocation  The location of the cursor used to find completion recoveries.
+	 * @param isParseMaxMode  If true, parser reads as many characters as possible, but succeeds even if not all characters were read.
 	 * @throws InterruptedException 
 	 */
     public Object parse(String input, String filename, String startSymbol, boolean completionMode, int cursorLocation) 
@@ -314,7 +326,23 @@ public class SGLR {
     	setCompletionParse(false, Integer.MAX_VALUE);
     	return parseResult;
     }
-    
+
+
+	/**
+	 * Parses a string. The parser reads as many characters as possible, but succeeds even if not all characters were read.
+	 * 
+	 * @param input           The input string.
+	 * @param filename        The source filename of the string, or null if not available.
+	 * @param startSymbol     The start symbol to use, or null if any applicable.
+	 * @throws InterruptedException 
+	 */
+    public Object parseMax(String input, String filename, String startSymbol) 
+    	throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
+    	setParseMaxMode(true);
+    	disambiguator.initializeFromParser(this);
+    	return parse(input, filename, startSymbol);
+    }
+
     /**
      * Parses the right context of a given offset and collects the largest reductions over that offset
      * Remark: This method is used to interpret the local context around the cursor location for semantic completions
@@ -522,8 +550,24 @@ public class SGLR {
 				readNextToken();
 				history.keepTokenAndState(this);
 				doParseStep();
+				
+				if (isParseMaxMode) {
+			          Frame accept = checkImmediateAcceptance(startSymbol);
+			          if (accept != null) {
+			            lastAcceptingStack = accept;
+			            lastAcceptTokenSeen = tokensSeen;
+			          }
+			        }
 			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
 
+			if (acceptingStack != null) {
+				lastAcceptingStack = acceptingStack;
+				lastAcceptTokenSeen = tokensSeen;
+			}
+			else if (isParseMaxMode) {
+		        acceptingStack = lastAcceptingStack;
+			}
+			
 			if (acceptingStack == null) {
 				collectedErrors.add(createBadTokenException());
 			}
@@ -566,8 +610,11 @@ public class SGLR {
 		if (getTreeBuilder() instanceof NullTreeBuilder) {
 			return null;
 		} else {
-		  this.parseTree = s.label;
-			return disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
+			this.parseTree = s.label;
+			Object result = disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
+			if (isParseMaxMode)
+				result = new Object[] {result, lastAcceptTokenSeen};
+			return result;
 		}
 	}
 
@@ -1759,6 +1806,42 @@ public class SGLR {
 
   public AbstractParseNode getParseTree() {
     return parseTree;
+  }
+
+  private Frame checkImmediateAcceptance(String startSymbol) throws InterruptedException {
+	  if (acceptingStack == null) {
+  	  int tmpToken = currentToken;
+  	  ArrayDeque<Frame> tmpActiveStacks = new ArrayDeque<Frame>(activeStacks);
+  	  ArrayDeque<Frame> tmpForActor = new ArrayDeque<Frame>(forActor);
+  	  
+  	  currentToken = 256; // EOF
+  	  
+  	  try {
+  	    parseCharacter();
+  	  } finally {
+  	    currentToken = tmpToken;
+  	    activeStacks.clear();
+  	    activeStacks.addAll(tmpActiveStacks);
+  	    forActor.clear();
+  	    forActor.addAll(tmpForActor);
+  	  }
+	  }
+	  
+	  // if we now have an accepting stack
+	  if (acceptingStack != null) {
+	    Object node = null;
+	    try {
+        node = disambiguator.applyTopSortFilter(startSymbol, acceptingStack.findDirectLink(startFrame).label);
+      } catch (SGLRException e) {
+        // ignore here
+      }
+	    if (node == null)
+	      acceptingStack = null;
+	  }
+	  
+	  Frame result = acceptingStack;
+	  acceptingStack = null;
+	  return result;
   }
 
 }

@@ -396,7 +396,7 @@ public class Disambiguator {
 		}
 	}
 
-	private AbstractParseNode applyTopSortFilter(String sort, AbstractParseNode t) throws SGLRException {
+	protected AbstractParseNode applyTopSortFilter(String sort, AbstractParseNode t) throws SGLRException {
 
 		if (Tools.debugging) {
 			Tools.debug("applyTopSortFilter() - ", t);

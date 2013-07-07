@@ -1,7 +1,6 @@
 module Unicode
 
 exports
-	
 	context-free syntax
 		Hallo "sd嶲dssdf" Hallo2 -> Hallo
 		[a-φ] Word -> SpecialWord

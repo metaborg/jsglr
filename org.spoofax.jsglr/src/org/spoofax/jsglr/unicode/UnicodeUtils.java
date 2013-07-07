@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -193,4 +194,51 @@ public class UnicodeUtils {
 		String content = Term.asJavaString(term.getSubterm(0));
 		return content.substring(1, content.length() - 1);
 	}
+
+	private static void validateCharClass(int symbol) {
+		if (symbol > 255 || symbol < 0) {
+			throw new IllegalArgumentException("Symbol " + symbol + " is out of range");
+		}
+	}
+
+	public static IStrategoTerm makeCharClass(int symbol) {
+		validateCharClass(symbol);
+		return makePresentSimpleCharClass(makeNumericCharacter(symbol));
+	}
+
+	private static IStrategoAppl makeNumericCharacter(int symbol) {
+		return factory.makeAppl(factory.makeConstructor("numeric", 1), factory.makeString("\\" + symbol));
+	}
+
+	private static IStrategoTerm makePresentSimpleCharClass(IStrategoTerm charrange) {
+		return factory.makeAppl(factory.makeConstructor("simple-charclass", 1),
+				factory.makeAppl(factory.makeConstructor("present", 1), charrange));
+	}
+
+	public static IStrategoTerm makeCharRange(int start, int end) {
+		validateCharClass(start);
+		validateCharClass(end);
+		int newStart = Math.min(start, end);
+		int newEnd = Math.max(start, end);
+		IStrategoTerm startTerm = makeNumericCharacter(newStart);
+		IStrategoTerm endTerm = makeNumericCharacter(newEnd);
+		IStrategoTerm range = factory.makeAppl(factory.makeConstructor("range", 2), startTerm, endTerm);
+		return makePresentSimpleCharClass(range);
+	}
+
+	public static IStrategoTerm makeOrSymbol(List<IStrategoTerm> terms) {
+		if (terms.size() == 0) {
+			throw new IllegalArgumentException("Connot create or over no terms");
+		} else if (terms.size() == 1) {
+			return terms.get(0);
+		}
+		IStrategoTerm left = terms.get(0);
+		IStrategoTerm second = makeOrSymbol(terms.subList(1, terms.size()));
+		return factory.makeAppl(factory.makeConstructor("alt", 2), left, second);
+	}
+	
+	public static IStrategoTerm makeEmptySymbol() {
+		return factory.makeAppl(factory.makeConstructor("empty", 0));
+	}
+
 }

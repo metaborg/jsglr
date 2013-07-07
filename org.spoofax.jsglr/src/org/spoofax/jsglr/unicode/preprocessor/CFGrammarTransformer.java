@@ -8,6 +8,7 @@ import java.util.ListIterator;
 
 import org.apache.tools.ant.taskdefs.condition.IsLastModified;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.unicode.UnicodeRangePair;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.TermTransformer;
@@ -58,7 +59,7 @@ public class CFGrammarTransformer extends TermTransformer {
 			if (isUnicode(content)) {
 				return makeSymbolSeq(splitUnicodeString(unicodeToString(content)));
 			}
-		}
+		} 
 		return arg0;
 	}
 
@@ -99,4 +100,9 @@ public class CFGrammarTransformer extends TermTransformer {
 		return resultTerms;
 	}
 
+	private UnicodeRangePair evaluateCharClass(IStrategoTerm charclass) {
+		
+	}
+	
+	
 }

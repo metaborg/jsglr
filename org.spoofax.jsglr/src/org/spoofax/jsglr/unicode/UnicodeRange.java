@@ -8,6 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.tools.ant.util.UnicodeUtil;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
 /**
  * A UnicodeRange is a list of UnicodeIntervals.
  * 
@@ -169,6 +172,33 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 		builder.deleteCharAt(builder.length() - 1);
 		builder.append(')');
 		return builder.toString();
+	}
+	
+	public IStrategoTerm toAST() {
+		// This is for Debug purpose that we get an reasonable order of the intervals
+		List<UnicodeInterval> intervalList = new ArrayList<UnicodeInterval>(this.ranges);
+		Collections.sort(intervalList, new UnicodeIntervalComparator());
+		
+		LinkedList<IStrategoTerm> orTerms = new LinkedList<IStrategoTerm> ();
+		if (!this.ranges.isEmpty()) {
+			int num = UnicodeConverter.isTwoByteCharacter(intervalList.get(0).x) ? 2 : 4;
+			for (UnicodeInterval r : intervalList) {
+				LinkedList<IStrategoTerm> seqBytes = new LinkedList<IStrategoTerm>();
+				for (int i = num - 1; i >= 0; i--) {
+					int start = r.x;
+					int end = r.y;
+					if (start != end) {
+						seqBytes.add(UnicodeUtils.makeCharRange(start, end));
+					} else {
+						seqBytes.add(UnicodeUtils.makeCharClass(start));
+					}
+				}
+				orTerms.add(UnicodeUtils.makeSymbolSeq(seqBytes));
+			}
+			return UnicodeUtils.makeOrSymbol(orTerms);
+		} else {
+			return UnicodeUtils.makeEmptySymbol();
+		}
 	}
 
 }

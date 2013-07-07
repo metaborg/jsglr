@@ -2,11 +2,14 @@ module UnicodeLambdaLanguage
 
 exports
 
+	lexical syntax
+		[\23-\3] -> X
+
 	context-free start-symbols
 		Lambda
 
 	syntax
-	$Unicode([\u99776]) LAYOUT? <Id*-CF> LAYOUT? "." LAYOUT? <Exp-CF>	-> <Lambda-CF> {cons("Lambda")}
+	%% Unicode([\u99776]) LAYOUT? <Id*-CF> LAYOUT? "." LAYOUT? <Exp-CF>	-> <Lambda-CF> {cons("Lambda")}
 
 	context-free syntax
 	

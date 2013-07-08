@@ -156,7 +156,7 @@ exports
 
     CharRange                                   -> CharRanges
     "left":CharRanges "right":CharRanges        -> CharRanges   {cons("conc"),right,memo}
-    "(" CharRanges ")"                          -> CharRanges   {bracket}
+    "("  CharRanges ")"                          -> CharRanges   {bracket}
 
                               -> OptCharRanges  {cons("absent")}
     CharRanges                -> OptCharRanges  {cons("present")}

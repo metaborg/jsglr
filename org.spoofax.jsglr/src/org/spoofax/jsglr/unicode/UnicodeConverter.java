@@ -97,6 +97,19 @@ public class UnicodeConverter {
 		// is signed
 		return c >= FIRST_UNICODE || c < 0;
 	}
+	
+	public static boolean isAscii(int c) {
+		return c < FIRST_UNICODE && c >= 0;
+	}
+	
+	public static int getFirstUnicode() {
+		return FIRST_UNICODE;
+	}
+	
+	public static int getLastUnicode() {
+		return LAST_UNICODE;
+	}
+	
 
 	/**
 	 * Checks whether the given character consists of a single char or more

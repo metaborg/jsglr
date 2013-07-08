@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -82,6 +83,47 @@ public class UnicodeUtils {
 	public static boolean isUnicode(IStrategoTerm term) {
 		return isConstructors(term, "unicode");
 	}
+	
+	public static boolean isPresentCharRange(IStrategoTerm term) {
+		return isConstructors(term, "present");
+	}
+	
+	public static boolean isAbsentCharRange(IStrategoTerm term) {
+		return isConstructors(term, "absent");
+	}
+	
+	public static boolean isConcCharRange(IStrategoTerm term) {
+		return isConstructors(term, "conc");
+	}
+	
+	public static boolean isRangeCharRange(IStrategoTerm term) {
+		return isConstructors(term, "range");
+	}
+	
+	public static boolean isSimpleCharClass(IStrategoTerm term) {
+		return isConstructors(term, "simple-charclass");
+	}
+	
+	public static boolean isInvertCharClass(IStrategoTerm term) {
+		return isConstructors(term, "comp");
+	}
+	
+	public static boolean isDiffCharClass(IStrategoTerm term) {
+		return isConstructors(term, "diff");
+	}
+	
+	public static boolean isIntersetCharClass(IStrategoTerm term) {
+		return isConstructors(term, "iset");
+	}
+	
+	public static boolean isUnionCharClass(IStrategoTerm term) {
+		return isConstructors(term, "union");
+	}
+	
+	public static boolean isCharClass(IStrategoTerm term) {
+		return isConstructors(term, "char-class");
+	}
+	
 
 	public static IStrategoTerm makeConcGrammer(IStrategoTerm grammar1, IStrategoTerm grammar2) {
 		return factory.makeAppl(factory.makeConstructor("conc-grammars", 2), grammar1, grammar2);
@@ -182,7 +224,7 @@ public class UnicodeUtils {
 
 	public static IStrategoTerm makeUnicodeCharClass(String unicodeSymbolIdent) {
 		return factory.makeAppl(
-				factory.makeConstructor("simple-char-class", 1),
+				factory.makeConstructor("simple-charclass", 1),
 				factory.makeAppl(
 						factory.makeConstructor("present", 1),
 						factory.makeAppl(factory.makeConstructor("unicodechar", 1),
@@ -214,6 +256,10 @@ public class UnicodeUtils {
 		return factory.makeAppl(factory.makeConstructor("simple-charclass", 1),
 				factory.makeAppl(factory.makeConstructor("present", 1), charrange));
 	}
+	
+	public static IStrategoTerm charClassToSymbol(IStrategoTerm charclass) {
+		return factory.makeAppl(factory.makeConstructor("char-class", 1), charclass);
+	}
 
 	public static IStrategoTerm makeCharRange(int start, int end) {
 		validateCharClass(start);
@@ -239,6 +285,34 @@ public class UnicodeUtils {
 	
 	public static IStrategoTerm makeEmptySymbol() {
 		return factory.makeAppl(factory.makeConstructor("empty", 0));
+	}
+	
+	public static int characterToInt(IStrategoTerm term) {
+		if (isConstructors(term, "numeric")) {
+			return Integer.parseInt(Term.asJavaString(term.getSubterm(0)).substring(1));
+		} else if (isConstructors(term, "short")) {
+			String str = Term.asJavaString(term.getSubterm(0));
+			if (str.length() == 1) {
+				return str.charAt(0);
+			} else {
+				//...
+				
+			}
+		} else if (isConstructors(term, "unicodechar")) {
+			String str = Term.asJavaString(term.getSubterm(0));
+			return Integer.parseInt(str.substring(2, str.length()-2), 16);
+		} else if (isConstructors(term, "top")) {
+			
+		} else if (isConstructors(term, "eof")) {
+		
+		} else if (isConstructors(term, "bot")) {
+			
+		} else if (isConstructors(term, "label_start")) {
+			
+		} else {
+			throw new IllegalArgumentException("Given term is not a valid character: " + term);
+		}
+		throw new NotImplementedException("characterToLong not implemented for " + term );
 	}
 
 }

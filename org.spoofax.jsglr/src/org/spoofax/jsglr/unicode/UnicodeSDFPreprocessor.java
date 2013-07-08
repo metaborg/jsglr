@@ -136,7 +136,7 @@ public class UnicodeSDFPreprocessor {
 			}
 			String argumentString = sdfContent.substring(argStart + 1, argEnd);
 
-			UnicodeRangePair r;
+			MixedUnicodeRange r;
 			try {
 				r = buildUnicodeRange(parseUnicodeRangeArgument(argumentString));
 				r.normalize();
@@ -170,20 +170,20 @@ public class UnicodeSDFPreprocessor {
 		return (IStrategoTerm) sglr.parse(argument, null, null, true);
 	}
 
-	private static UnicodeRangePair buildUnicodeRange(IStrategoTerm term) {
+	private static MixedUnicodeRange buildUnicodeRange(IStrategoTerm term) {
 		String cons = Term.tryGetConstructor(term).getName();
 		if (cons.equals("Range")) {
 			IStrategoList list = (IStrategoList) term.getSubterm(0);
-			UnicodeRangePair pair = new UnicodeRangePair();
+			MixedUnicodeRange pair = new MixedUnicodeRange();
 			for (int i = 0; i < list.getSubtermCount(); i++) {
 				pair.unite(buildUnicodeRangeElem(list.getSubterm(i)));
 			}
 			return pair;
 		} else if (cons.equals("AllRange")) {
-			return new UnicodeRangePair(UnicodeConverter.FIRST_UNICODE, UnicodeConverter.LAST_UNICODE);
+			return new MixedUnicodeRange(UnicodeConverter.FIRST_UNICODE, UnicodeConverter.LAST_UNICODE);
 		} else {
-			UnicodeRangePair left = buildUnicodeRange(term.getSubterm(0));
-			UnicodeRangePair right = buildUnicodeRange(term.getSubterm(1));
+			MixedUnicodeRange left = buildUnicodeRange(term.getSubterm(0));
+			MixedUnicodeRange right = buildUnicodeRange(term.getSubterm(1));
 			if (cons.equals("Union")) {
 				left.unite(right);
 			} else if (cons.equals("Intersection")) {
@@ -197,15 +197,15 @@ public class UnicodeSDFPreprocessor {
 		}
 	}
 	
-	private static UnicodeRangePair buildUnicodeRangeElem(IStrategoTerm term) {
+	private static MixedUnicodeRange buildUnicodeRangeElem(IStrategoTerm term) {
 		String cons = Term.tryGetConstructor(term).getName();
 		if (cons.equals("Interval")) {
 			int startVal = buildUnicodeVal(term.getSubterm(0));
 			int endVal = buildUnicodeVal(term.getSubterm(1));
-			return new UnicodeRangePair(startVal, endVal);
+			return new MixedUnicodeRange(startVal, endVal);
 		} else {
 			int val = buildUnicodeVal(term);
-			return new UnicodeRangePair(val, val);
+			return new MixedUnicodeRange(val, val);
 		}
 	}
 	

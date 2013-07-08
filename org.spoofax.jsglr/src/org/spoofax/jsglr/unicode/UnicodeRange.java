@@ -95,6 +95,23 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 			this.diff(other);
 		}
 	}
+	
+	public void invert(UnicodeInterval universe) {
+		List<UnicodeInterval> intervalList = new ArrayList<UnicodeInterval>(this.ranges);
+		Collections.sort(intervalList, new UnicodeIntervalComparator());
+		this.ranges = new HashSet<UnicodeInterval>();
+		long start = universe.x;
+		for (UnicodeInterval l : intervalList) {
+			if (start != l.x) {
+				this.ranges.add(new UnicodeInterval(start, l.x-1));
+			}
+			start = l.y +1 ;
+		}
+		if (start != universe.y) {
+			this.ranges.add(new UnicodeInterval(start +1, universe.y));
+		}
+		
+	}
 
 	public Iterator<UnicodeInterval> iterator() {
 		return this.ranges.iterator();
@@ -148,20 +165,20 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 
 		builder.append('(');
 		if (!this.ranges.isEmpty()) {
-			int num = UnicodeConverter.isTwoByteCharacter(intervalList.get(0).x) ? 2 : 4;
+			int num = UnicodeConverter.isTwoByteCharacter(intervalList.get(0).x.intValue()) ? 2 : 4;
 			for (UnicodeInterval r : intervalList) {
 				builder.append("(");
 				for (int i = num - 1; i >= 0; i--) {
 					builder.append('[');
-					int start = Math.min(r.x, r.y);
-					int end = Math.max(r.x, r.y);
+					long start = Math.min(r.x, r.y);
+					long end = Math.max(r.x, r.y);
 					// System.out.println("Range from " + start + " to " + end);
 					builder.append("\\");
-					builder.append((int) UnicodeConverter.getByte(i, start));
+					builder.append((int) UnicodeConverter.getByte(i, (int)start));
 					if (start != end) {
 						builder.append('-');
 						builder.append("\\");
-						builder.append((int) UnicodeConverter.getByte(i, end));
+						builder.append((int) UnicodeConverter.getByte(i, (int)end));
 					}
 					builder.append(']');
 				}
@@ -181,17 +198,22 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 		
 		LinkedList<IStrategoTerm> orTerms = new LinkedList<IStrategoTerm> ();
 		if (!this.ranges.isEmpty()) {
-			int num = UnicodeConverter.isTwoByteCharacter(intervalList.get(0).x) ? 2 : 4;
+			int num = UnicodeConverter.isTwoByteCharacter(intervalList.get(0).x.intValue()) ? 2 : 4;
+			if (UnicodeConverter.isAscii(intervalList.get(0).x.intValue())) {
+				num = 1;
+			}
 			for (UnicodeInterval r : intervalList) {
 				LinkedList<IStrategoTerm> seqBytes = new LinkedList<IStrategoTerm>();
 				for (int i = num - 1; i >= 0; i--) {
-					int start = r.x;
-					int end = r.y;
+					int start = UnicodeConverter.getByte(i,r.x.intValue());
+					int end = UnicodeConverter.getByte(i,r.y.intValue());
+					IStrategoTerm term;
 					if (start != end) {
-						seqBytes.add(UnicodeUtils.makeCharRange(start, end));
+						term = UnicodeUtils.makeCharRange(start, end);
 					} else {
-						seqBytes.add(UnicodeUtils.makeCharClass(start));
+						term = UnicodeUtils.makeCharClass(start);
 					}
+					seqBytes.add(UnicodeUtils.charClassToSymbol(term));
 				}
 				orTerms.add(UnicodeUtils.makeSymbolSeq(seqBytes));
 			}

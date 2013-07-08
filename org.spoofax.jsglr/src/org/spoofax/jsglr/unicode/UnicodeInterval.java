@@ -10,13 +10,27 @@ import java.util.List;
  * @author moritzlichter
  * 
  */
-public class UnicodeInterval extends Pair<Integer, Integer> {
+public class UnicodeInterval extends Pair<Long, Long> {
 
-	public UnicodeInterval(Integer start, Integer end) {
-		super(start, end);
+	public static long intToLong(int i) {
+		long l = 0;
+		l = l | i;
+		return l;
+	}
+	
+	public UnicodeInterval(Long start, Long end) {
+		super(Math.min(start, end), Math.max(start, end));
+	}
+	
+	public UnicodeInterval(int start, int end) {
+		super(intToLong(start), intToLong(end));
 	}
 
-	public UnicodeInterval(Integer val) {
+	public UnicodeInterval(Long val) {
+		this(val, val);
+	}
+	
+	public UnicodeInterval(int val) {
 		this(val, val);
 	}
 
@@ -99,12 +113,12 @@ public class UnicodeInterval extends Pair<Integer, Integer> {
 		// Be careful, an UnicodeInterval may needs to be split in more when
 		// more than the last byte differ
 		// Calculate the equal bytes (from hsb) and get the equal part
-		int numBytes = UnicodeConverter.isTwoByteCharacter(this.x) ? 2 : 4;
+		int numBytes = UnicodeConverter.isTwoByteCharacter(this.x.intValue()) ? 2 : 4;
 		int numEqualBytes = 0;
 		int equal = 0;
 		for (int i = numBytes - 1; i >= 0; i--) {
-			int byteX = UnicodeConverter.getByte(i, this.x);
-			int byteY = UnicodeConverter.getByte(i, this.y);
+			int byteX = UnicodeConverter.getByte(i, this.x.intValue());
+			int byteY = UnicodeConverter.getByte(i, this.y.intValue());
 			if (byteX == byteY) {
 				numEqualBytes++;
 				equal = equal << 8;
@@ -120,15 +134,15 @@ public class UnicodeInterval extends Pair<Integer, Integer> {
 			// 2. equalbytes | first from rest of initial x + 1 | 0 ... -
 			// equalbytes | first from rest of initial.y -1| ff...
 			// 3. equalbytes | first from rest of initial.y | 0... - initial.y
-			int endFirst = (equal << 8) | UnicodeConverter.getByte(numEqualBytes + 1, this.x);
-			int startSecond = (equal << 8) | (UnicodeConverter.getByte(numEqualBytes + 1, this.y));
+			int endFirst = (equal << 8) | UnicodeConverter.getByte(numEqualBytes + 1, this.x.intValue());
+			int startSecond = (equal << 8) | (UnicodeConverter.getByte(numEqualBytes + 1, this.y.intValue()));
 			for (int i = numEqualBytes + 1; i < numBytes; i++) {
 				endFirst = (endFirst << 8) | 0xff;
 				startSecond = (startSecond << 8) | 0x0;
 			}
-			normalizedIntervals.add(new UnicodeInterval(this.x, endFirst));
-			normalizedIntervals.add(new UnicodeInterval(endFirst + 1, startSecond - 1));
-			normalizedIntervals.add(new UnicodeInterval(startSecond, this.y));
+			normalizedIntervals.add(new UnicodeInterval(this.x, (long)endFirst));
+			normalizedIntervals.add(new UnicodeInterval((long)endFirst + 1, (long)startSecond - 1));
+			normalizedIntervals.add(new UnicodeInterval((long) startSecond, this.y));
 		} else {
 			// Simple Case :)
 			normalizedIntervals.add(this);

@@ -6,17 +6,42 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import org.apache.tools.ant.taskdefs.condition.IsLastModified;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.unicode.UnicodeRangePair;
-import org.spoofax.terms.Term;
+import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
+import org.spoofax.jsglr.unicode.MixedUnicodeRange;
+import org.spoofax.jsglr.unicode.UnicodeUtils;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.TermTransformer;
 
-public class CFGrammarTransformer extends TermTransformer {
+public class CFGrammarTransformer extends MyTermTransformer {
 
 	public CFGrammarTransformer() {
 		super(new TermFactory(), false);
+	}
+	
+	private boolean doNotRecur = false;
+	int ident = 0;
+	private String getIdent() {
+		String s = "";
+		for (int i = 0; i <ident; i++) {
+			s += " ";
+		}
+		return s;
+	}
+	public final IStrategoTerm transform(IStrategoTerm term) {
+		term = preTransform(term);
+		if (term == null) {
+			return null;
+		} else if (doNotRecur) {
+			doNotRecur = false;
+			System.out.println("Do Not recur in:" + term);
+			return postTransform(term);
+		} else {
+			System.out.println(getIdent() + term);
+			ident ++;
+			IStrategoTerm t= postTransform(simpleAll(term));
+			ident --;
+			return t;
+		}
 	}
 
 	@Override
@@ -59,7 +84,24 @@ public class CFGrammarTransformer extends TermTransformer {
 			if (isUnicode(content)) {
 				return makeSymbolSeq(splitUnicodeString(unicodeToString(content)));
 			}
+		} else if (isCharClass(arg0)) {
+			doNotRecur = true;
+			System.out.println("CharRange: " + arg0);
+			MixedUnicodeRange r = evaluateCharClass(arg0.getSubterm(0));
+			System.out.println("New AST: " + r.toAST());
+			IStrategoTerm newAST =  r.toAST();
+			if (!newAST.equals(arg0)) {
+				return newAST;
+			}
 		} 
+		
+		
+		return arg0;
+	}
+	
+	@Override
+	public IStrategoTerm postTransform(IStrategoTerm arg0) {
+		
 		return arg0;
 	}
 
@@ -75,7 +117,7 @@ public class CFGrammarTransformer extends TermTransformer {
 
 					if (isUnicode) {
 						String content = stringvalue.substring(startPosition, currentPosition + 2);
-						resultTerms.add(makeUnicodeCharClass(content));
+						resultTerms.add(charClassToSymbol(makeUnicodeCharClass(content)));
 					} else {
 						String content = stringvalue.substring(startPosition, currentPosition);
 						resultTerms.add(makeAsciiLit(content));
@@ -100,8 +142,49 @@ public class CFGrammarTransformer extends TermTransformer {
 		return resultTerms;
 	}
 
-	private UnicodeRangePair evaluateCharClass(IStrategoTerm charclass) {
-		
+	private MixedUnicodeRange evaluateCharClass(IStrategoTerm charclass) {
+		if (UnicodeUtils.isSimpleCharClass(charclass)) {
+			return evaluateCharRange(charclass.getSubterm(0));
+		} else if (isInvertCharClass(charclass)) {
+			MixedUnicodeRange range = evaluateCharClass(charclass.getSubterm(0));
+			range.invert();
+			return range;
+		} else {
+			System.out.println(charclass);
+			MixedUnicodeRange r1 = evaluateCharClass(charclass.getSubterm(0));
+			MixedUnicodeRange r2 = evaluateCharClass(charclass.getSubterm(1));
+			if (isDiffCharClass(charclass)) {
+				r1.diff(r2);
+			} else if (isIntersetCharClass(charclass)) {
+				r1.intersect(r2);
+			} else if (isUnionCharClass(charclass)) {
+				r1.unite(r2);
+			} else {
+				throw new IllegalArgumentException("Given charclass is invalid: " + charclass);
+			}
+			return r1;
+		}
+	}
+	
+	private MixedUnicodeRange evaluateCharRange(IStrategoTerm charrange) {
+		if (isAbsentCharRange(charrange)) {
+			return new MixedUnicodeRange();
+		} else if (isPresentCharRange(charrange)) {
+			return evaluateCharRange(charrange.getSubterm(0));
+			
+		} else if (isConcCharRange(charrange)) {
+			MixedUnicodeRange r1 = evaluateCharRange(charrange.getSubterm(0));
+			MixedUnicodeRange r2 = evaluateCharRange(charrange.getSubterm(1));
+			r1.unite(r2);
+			return r1;
+		} else if (isRangeCharRange(charrange)){
+			int start = characterToInt(charrange.getSubterm(0));
+			int end = characterToInt(charrange.getSubterm(1));
+			return new MixedUnicodeRange(start, end);
+		} else {
+			int chr = characterToInt(charrange);
+			return new MixedUnicodeRange(chr, chr);
+		} 
 	}
 	
 	

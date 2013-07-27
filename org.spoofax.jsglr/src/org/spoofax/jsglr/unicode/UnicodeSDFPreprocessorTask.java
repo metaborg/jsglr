@@ -9,6 +9,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.resources.FileResource;
+import org.spoofax.jsglr.unicode.preprocessor.UnicodePreprocessor;
 
 /**
  * The {@link UnicodeSDFPreprocessorTask} integrates
@@ -60,8 +61,10 @@ public class UnicodeSDFPreprocessorTask extends Task {
 					if (!this.onlySDFUFiles || file.getName().endsWith(".sdfu")) {
 						try {
 							System.out.println("Unicode Preprocessing file: " + file);
-							UnicodeSDFPreprocessor.preprocessFile(file, encoding);
+						//	UnicodeSDFPreprocessor.preprocessFile(file, encoding);
+							UnicodePreprocessor.preprocessUnicodeSDF(file);
 						} catch (Exception e) {
+							e.printStackTrace();
 							throw new BuildException(e);
 						}
 					}

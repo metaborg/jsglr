@@ -9,13 +9,12 @@ exports
 		Lambda
 
 	syntax
-	%% Unicode([\u99776]) LAYOUT? <Id*-CF> LAYOUT? "." LAYOUT? <Exp-CF>	-> <Lambda-CF> {cons("Lambda")}
-
+	
 	context-free syntax
 	
 		Id AssignSign Exp		-> Declaration {cons("Declaration")}
 	
-		
+		"λ" Id* "." Exp -> Lambda {cons("Lambda")}
 		
 		LetDeclaration Exp 	-> Exp {cons ("Let")}
 		Lambda				-> Exp
@@ -38,24 +37,24 @@ exports
 		
 		
 	lexical syntax
-  		$Unicode([✎])	 ~[\n]* [\n] -> LAYOUT
+  		"✎"	 ~[\n]* [\n] -> LAYOUT
 		[\ \t\r\n] 						-> LAYOUT
 		
 	%%	(~[\ \t\r\n\.\(\)] / [0-9])+	-> Id {longest-match}
-		((~[\ \t\r\n\.\(\)] / [0-9] / [\7]) | ($Unicode([ALL]/[⟨⟩])))+-> Id {longest-match}
+		(~[\ \t\r\n\.\(\)] / [0-9]) | (~[⟨⟩])+ -> Id {longest-match}
 		[0-9]+							-> Int {longest-match}
 		[a-zA-Z]([a-zA-Z\.\$\#\_])*			-> JavaName {longest-match}
 		
-		$Unicode([λ])						-> LambdaSign
-		$Unicode([λ])						-> Identifier {reject}
-		$Unicode([≔])						-> AssignSign
-		$Unicode([≔])						-> Identifier {reject}
-		$Unicode([«])						-> OpenLetBracket
-		$Unicode([»])						-> CloseLetBracket
-		$Unicode([«])						-> Identifier {reject}
-		$Unicode([»])						-> Identifier {reject}
-		$Unicode([♨])						-> JavaCallSign
-		$Unicode([♨])						-> Identifier {reject}
-		$Unicode([⟨])						-> OpenLambdaBracket
-		$Unicode([⟩])						-> CloseLambdaBracket
+		"λ"						-> LambdaSign
+		"λ"						-> Identifier {reject}
+		"≔"						-> AssignSign
+		"≔"						-> Identifier {reject}
+		"«"						-> OpenLetBracket
+		"»"						-> CloseLetBracket
+		"«"						-> Identifier {reject}
+		"»"						-> Identifier {reject}
+		"♨"						-> JavaCallSign
+		"♨"						-> Identifier {reject}
+		"⟨"						-> OpenLambdaBracket
+		"⟩"						-> CloseLambdaBracket
 	

@@ -15,7 +15,13 @@
 		<compile-signature module="UTF8"/>
 	</target>
 	
-	<taskdef name="unicodesdf" classname="org.spoofax.jsglr.unicode.UnicodeSDFPreprocessorTask" classpath="../../../bin;/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.terms_1.0.0.201304181013.jar"/>
+	<taskdef name="unicodesdf" classname="org.spoofax.jsglr.unicode.UnicodeSDFPreprocessorTask" 
+		classpath="../../../bin;
+		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.terms_1.0.0.201304181013.jar;
+		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.strategoxt.strj_0.17.92.201304181013/java/strategoxt.jar;
+		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.interpreter.core_0.4.1.201304181013.jar;
+		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.interpreter.library.jsglr_0.3.9.201304181013.jar
+		"/>
 
 	<macrodef name="compile-grammar">
 		<attribute name="module" />

@@ -1,8 +1,10 @@
 package org.spoofax.jsglr.unicode;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -38,6 +40,13 @@ public class UnicodeUtils {
 		}
 		in.close();
 		return builder.toString();
+	}
+	
+	public static void writeFile(String content, File dest) throws IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(dest));
+		writer.append(content);
+		writer.flush();
+		writer.close();
 	}
 
 	public static ITermFactory factory = new TermFactory();
@@ -82,6 +91,10 @@ public class UnicodeUtils {
 
 	public static boolean isUnicode(IStrategoTerm term) {
 		return isConstructors(term, "unicode");
+	}
+	
+	public static boolean isAscii(IStrategoTerm term) {
+		return isConstructors(term, "ascii");
 	}
 	
 	public static boolean isPresentCharRange(IStrategoTerm term) {
@@ -218,8 +231,9 @@ public class UnicodeUtils {
 	}
 
 	public static IStrategoTerm makeAsciiLit(String string) {
-		return factory.makeAppl(factory.makeConstructor("lit", 1),
-				factory.makeAppl(factory.makeConstructor("ascii", 1), factory.makeString("\"" + string + "\"")));
+		//return factory.makeAppl(factory.makeConstructor("lit", 1),
+		//		factory.makeAppl(factory.makeConstructor("ascii", 1), factory.makeString("\"" + string + "\"")));
+		return factory.makeAppl(factory.makeConstructor("lit", 1),factory.makeString(string));
 	}
 
 	public static IStrategoTerm makeUnicodeCharClass(String unicodeSymbolIdent) {
@@ -231,10 +245,14 @@ public class UnicodeUtils {
 								factory.makeString(unicodeSymbolIdent))));
 	}
 
+	public static String toJavaString(IStrategoTerm term) {
+		String s = Term.asJavaString(term.getSubterm(0));
+		return s.substring(1, s.length() -1);
+	}
+	
 	public static String unicodeToString(IStrategoTerm term) {
 		forceConstructors(term, "unicode");
-		String content = Term.asJavaString(term.getSubterm(0));
-		return content.substring(1, content.length() - 1);
+		return toJavaString(term);
 	}
 
 	private static void validateCharClass(int symbol) {

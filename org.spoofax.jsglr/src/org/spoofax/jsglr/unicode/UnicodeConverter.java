@@ -24,7 +24,7 @@ public class UnicodeConverter {
 	 * The praefix to indicate a Unicode character in an ascii string
 	 */
 	public static final char UNICODE_PRAEFIX = 0x7;
-	
+
 	public static final int FIRST_UNICODE = 128;
 	public static final int LAST_UNICODE = 0x10FFFD;
 
@@ -42,11 +42,11 @@ public class UnicodeConverter {
 	public static String encodeUnicodeToAscii(String unicodeString) {
 		return encodeUnicode(unicodeString, UNICODE_TO_ASCII_ENCODER);
 	}
-	
+
 	public static String encodeUnicodeToBacklashU(String unicodeString) {
 		return encodeUnicode(unicodeString, UNICODE_TO_BACKSLASH_U_ENCODER);
 	}
-	
+
 	private static String encodeUnicode(String unicodeString, UnicodeEncoder encoder) {
 		// Reserve a bit more space because the string might get longer and thus
 		// we do not need to reallocate an array
@@ -68,25 +68,25 @@ public class UnicodeConverter {
 		}
 		return builder.toString();
 	}
-	
+
 	private static interface UnicodeEncoder {
 		public String encodeUnicodeCharacter(int nextChar);
 	}
-	
+
 	public static final UnicodeEncoder UNICODE_TO_ASCII_ENCODER = new UnicodeEncoder() {
-		
+
 		public String encodeUnicodeCharacter(int nextChar) {
 			return UnicodeConverter.encodeUnicodeCharacterToAscii(nextChar);
 		}
 	};
-	
+
 	public static final UnicodeEncoder UNICODE_TO_BACKSLASH_U_ENCODER = new UnicodeEncoder() {
-		
+
 		public String encodeUnicodeCharacter(int nextChar) {
 			return "\\u" + Integer.toHexString(utf164ByteToNumber(nextChar)) + "\\u";
 		}
 	};
-	
+
 	public static String unicodeBackslashUToString(String string) {
 		int value = Integer.parseInt(string, 16);
 		return new String(numberToUtf16_4Byte(value));
@@ -97,19 +97,18 @@ public class UnicodeConverter {
 		// is signed
 		return c >= FIRST_UNICODE || c < 0;
 	}
-	
+
 	public static boolean isAscii(int c) {
 		return c < FIRST_UNICODE && c >= 0;
 	}
-	
+
 	public static int getFirstUnicode() {
 		return FIRST_UNICODE;
 	}
-	
+
 	public static int getLastUnicode() {
 		return LAST_UNICODE;
 	}
-	
 
 	/**
 	 * Checks whether the given character consists of a single char or more
@@ -139,35 +138,41 @@ public class UnicodeConverter {
 
 	private static final int UNICODE_4_BYTE_PATTERN_MSBS = 0x36;
 	private static final int UNICODE_4_BYTE_PATTERN_LSBS = 0x37;
-	
+
 	private static int utf164ByteToNumber(int encoded) {
-		int first = encoded & 0x03ff0000;
-		int second = encoded & 0x000003ff;
-		first = first >> 16;
-		int res = (first << 10) | second ;
-		if (res >= 0x10000) {
-			res += 0x10000;
+		boolean needToByte = encoded < 0 || encoded >= 0x10000;
+		if (needToByte) {
+			int first = encoded & 0x03ff0000;
+			int second = encoded & 0x000003ff;
+			first = first >> 16;
+			// System.out.println(first + " " + second);
+			int res = (first << 10) | second;
+			if (res >= 0x10000) {
+				res += 0x10000;
+			}
+			return res;
+		} else {
+			return encoded;
 		}
-		return res;
 	}
-	
+
 	private static char[] numberToUtf16_4Byte(int number) {
-		boolean needToByte = number >= 0x10000;
+		boolean needToByte = number < 0 || number >= 0x10000;
 		if (needToByte) {
 			number -= 0x10000;
 		}
 		int first = number >> 10;
 		int second = number & 0x000003ff;
 		if (needToByte) {
-			first = UNICODE_4_BYTE_PATTERN_MSBS <<10 | first;
+			first = UNICODE_4_BYTE_PATTERN_MSBS << 10 | first;
 			second = UNICODE_4_BYTE_PATTERN_LSBS << 10 | second;
 		}
 		char firstC = (char) first;
 		char secondC = (char) second;
 		if (firstC != 0) {
-			return new char[] {firstC, secondC};
+			return new char[] { firstC, secondC };
 		} else {
-			return new char[] {secondC};
+			return new char[] { secondC };
 		}
 	}
 
@@ -202,7 +207,7 @@ public class UnicodeConverter {
 	public static int toUnicodeCharacter(String s) {
 		return extractFirstUnicodeCharacterAndForceEmptyBuffer(CharBuffer.wrap(s));
 	}
-	
+
 	/**
 	 * Extracts the first unicode character in the given buffer. If the first
 	 * character only covers the first char in the buffer, this char is read. If

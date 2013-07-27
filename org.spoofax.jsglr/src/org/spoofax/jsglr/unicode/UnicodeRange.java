@@ -157,7 +157,7 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		/*StringBuilder builder = new StringBuilder();
 		
 		// This is for Debug purpose that we get an reasonable order of the intervals
 		List<UnicodeInterval> intervalList = new ArrayList<UnicodeInterval>(this.ranges);
@@ -188,7 +188,8 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 		}
 		builder.deleteCharAt(builder.length() - 1);
 		builder.append(')');
-		return builder.toString();
+		return builder.toString();*/
+		return this.ranges.toString();
 	}
 	
 	public IStrategoTerm toAST() {

@@ -138,10 +138,10 @@ public class MixedUnicodeRange {
 	}
 	
 	public IStrategoTerm toAST() {
-		//System.out.println("Produce AST for:");
-		//System.out.println("A: "+ this.ascii);
-		//System.out.println("2: "+ this.utf16_2byte);
-		//System.out.println("4: " + this.utf16_4byte);
+		System.out.println("Produce AST for:");
+		System.out.println("A: "+ this.ascii);
+		System.out.println("2: "+ this.utf16_2byte);
+		System.out.println("4: " + this.utf16_4byte);
 		LinkedList<IStrategoTerm> alternativeTerms = new LinkedList<IStrategoTerm>();
 		if (!this.ascii.isEmpty()) {
 			alternativeTerms.add(this.ascii.toAST());
@@ -156,7 +156,7 @@ public class MixedUnicodeRange {
 	}
 	
 	private IStrategoTerm prependSeven(IStrategoTerm term) {
-		IStrategoTerm sevenCharClass = UnicodeUtils.makeCharClass(UnicodeConverter.UNICODE_PRAEFIX);
+		IStrategoTerm sevenCharClass = UnicodeUtils.charClassToSymbol(UnicodeUtils.makeCharClass(UnicodeConverter.UNICODE_PRAEFIX));
 		LinkedList<IStrategoTerm> list = new LinkedList<IStrategoTerm>();
 		list.add(sevenCharClass);
 		list.add(term);

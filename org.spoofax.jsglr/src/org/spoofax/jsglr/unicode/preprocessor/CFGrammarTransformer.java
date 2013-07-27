@@ -10,6 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
 import org.spoofax.jsglr.unicode.MixedUnicodeRange;
 import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 
 public class CFGrammarTransformer extends MyTermTransformer {
@@ -33,10 +34,9 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			return null;
 		} else if (doNotRecur) {
 			doNotRecur = false;
-			System.out.println("Do Not recur in:" + term);
 			return postTransform(term);
 		} else {
-			System.out.println(getIdent() + term);
+			//System.out.println(getIdent() + term);
 			ident ++;
 			IStrategoTerm t= postTransform(simpleAll(term));
 			ident --;
@@ -46,6 +46,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 	@Override
 	public IStrategoTerm preTransform(IStrategoTerm arg0) {
+		System.out.println(arg0);
 		if (isConcGrammars(arg0)) {
 			LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
 			LinkedList<IStrategoTerm> convertedProductions = new LinkedList<IStrategoTerm>();
@@ -83,17 +84,32 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			IStrategoTerm content = arg0.getSubterm(0);
 			if (isUnicode(content)) {
 				return makeSymbolSeq(splitUnicodeString(unicodeToString(content)));
+			} else if (isAscii(content)) {
+				return makeAsciiLit(toJavaString(arg0.getSubterm(0)));
+			} else {
+				return arg0;
 			}
+		} else if (isAscii(arg0)) {
+			return arg0.getSubterm(0);
 		} else if (isCharClass(arg0)) {
 			doNotRecur = true;
 			System.out.println("CharRange: " + arg0);
 			MixedUnicodeRange r = evaluateCharClass(arg0.getSubterm(0));
-			System.out.println("New AST: " + r.toAST());
+			//System.out.println("New AST: " + r.toAST());
 			IStrategoTerm newAST =  r.toAST();
 			if (!newAST.equals(arg0)) {
 				return newAST;
 			}
-		} 
+		} else if (isSimpleCharClass(arg0)) {
+			doNotRecur = true;
+			System.out.println("CharRange: " + arg0);
+			MixedUnicodeRange r = evaluateCharClass(arg0);
+			//System.out.println("New AST: " + r.toAST());
+			IStrategoTerm newAST =  r.toAST();
+			if (!newAST.equals(arg0)) {
+				return newAST;
+			}
+		}
 		
 		
 		return arg0;
@@ -117,6 +133,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 					if (isUnicode) {
 						String content = stringvalue.substring(startPosition, currentPosition + 2);
+						System.out.println(content);
 						resultTerms.add(charClassToSymbol(makeUnicodeCharClass(content)));
 					} else {
 						String content = stringvalue.substring(startPosition, currentPosition);
@@ -148,9 +165,9 @@ public class CFGrammarTransformer extends MyTermTransformer {
 		} else if (isInvertCharClass(charclass)) {
 			MixedUnicodeRange range = evaluateCharClass(charclass.getSubterm(0));
 			range.invert();
+			range.diff(new MixedUnicodeRange(7, 7));
 			return range;
 		} else {
-			System.out.println(charclass);
 			MixedUnicodeRange r1 = evaluateCharClass(charclass.getSubterm(0));
 			MixedUnicodeRange r2 = evaluateCharClass(charclass.getSubterm(1));
 			if (isDiffCharClass(charclass)) {
@@ -182,7 +199,9 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			int end = characterToInt(charrange.getSubterm(1));
 			return new MixedUnicodeRange(start, end);
 		} else {
+			System.out.print(charrange);
 			int chr = characterToInt(charrange);
+			System.out.println(" " + chr);
 			return new MixedUnicodeRange(chr, chr);
 		} 
 	}

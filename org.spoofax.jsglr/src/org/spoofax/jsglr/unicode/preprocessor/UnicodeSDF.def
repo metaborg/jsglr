@@ -286,7 +286,7 @@ exports
   context-free syntax
     list:Module* -> Definition
 
-    "module" ModuleName list:ImpSection* Sections -> Module  {cons("module")}
+      ModuleName list:ImpSection* Sections -> Module  {cons("module")}
 
     "exports" Grammar            -> Section  {cons("exports")}
     "hiddens" Grammar            -> Section  {cons("hiddens")}

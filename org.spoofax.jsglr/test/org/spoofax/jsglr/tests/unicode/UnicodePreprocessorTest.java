@@ -6,9 +6,13 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
+import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.unicode.UnicodeSDFPreprocessor;
 import org.spoofax.jsglr.unicode.UnicodeUtils;
 import org.spoofax.jsglr.unicode.preprocessor.CFGrammarTransformer;
+import org.spoofax.jsglr.unicode.preprocessor.SDFPrettyPrinter;
 import org.spoofax.jsglr.unicode.preprocessor.UnicodeCleaner;
 import org.spoofax.jsglr.unicode.preprocessor.UnicodeSDFParser;
 
@@ -46,6 +50,17 @@ public class UnicodePreprocessorTest {
 		CFGrammarTransformer transformer = new CFGrammarTransformer();
 		IStrategoTerm result = transformer.transform(term);
 		System.out.println(result);
+		file.delete();
+	}
+	
+	@Test
+	public void testSDFPrettyPrinter2() throws Exception {
+		File file = UnicodeCleaner.removeUnicode(UNICODE_EXAMPLE2_SDF);
+		IStrategoTerm term = UnicodeSDFParser.parseUnicodeSDF(file);
+		CFGrammarTransformer transformer = new CFGrammarTransformer();
+		IStrategoTerm result = transformer.transform(term);
+		SDFPrettyPrinter pp = new SDFPrettyPrinter();
+		System.out.println(pp.prettyPrintSDF(result));
 		file.delete();
 	}
 

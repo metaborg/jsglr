@@ -33,16 +33,6 @@ public class TestUnicode {
 	}
 
 	@Test
-	public void testUnicodeSDFPreprocessor() throws ParseException {
-		String testString = "XYZABC $Unicode([Ø∀]) HIJKLMNO $Unicode([∀]) $Unicode([∀-水𝄞]) $Unicode([𝄞])";
-		String result = UnicodeSDFPreprocessor.preprocess(testString);
-		System.out.println(result);
-		Assert.assertEquals(
-				"XYZABC [\\7](([\\0][\\216])|([\\34][\\0])) HIJKLMNO [\\7](([\\34][\\0])) [\\7]((([\\34-\\34][\\0-\\255])|([\\35-\\107][\\0-\\255])|([\\108-\\108][\\0-\\52]))|(([\\216][\\52][\\221][\\30]))) [\\7](([\\216][\\52][\\221][\\30]))",
-				result);
-	}
-
-	@Test
 	public void testParseSimpleUTF8() throws Exception {
 		SGLR sglr = new SGLR(new TreeBuilder(new TermTreeFactory(new ParentTermFactory(simpleUTF8Table.getFactory())),
 				true), simpleUTF8Table);

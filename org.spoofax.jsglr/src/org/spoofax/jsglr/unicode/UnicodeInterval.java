@@ -33,6 +33,11 @@ public class UnicodeInterval extends Pair<Long, Long> {
 	public UnicodeInterval(int val) {
 		this(val, val);
 	}
+	
+	@Override
+	public UnicodeInterval clone() {
+		return new UnicodeInterval(x, y);
+	}
 
 	private boolean isContactAndSmaller(UnicodeInterval other) {
 		return this.y +1 >= other.x && this.x <= other.x && this.y < other.y;

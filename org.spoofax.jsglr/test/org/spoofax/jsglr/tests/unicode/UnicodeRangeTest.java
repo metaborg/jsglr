@@ -153,5 +153,39 @@ public class UnicodeRangeTest {
 		assertEquals(u1, exp4);
 		
 	}
+	
+	@Test
+	public void testInvert() {
+		UnicodeRange r = createRange(25, 27);
+		r.unite(createRange(40,54));
+		UnicodeRange r2 = r.clone();
+		
+		r.invert(new UnicodeInterval(0, 60));
+		
+		UnicodeRange result = createRange(0, 24);
+		result.unite(createRange(28, 39));
+		result.unite(createRange(55, 60));
+		
+		assertEquals(result, r);
+		
+		r.invert(new UnicodeInterval(0, 60));
+		
+		assertEquals(r2, r);
+	}
+	
+	@Test
+	public void test1() {
+		UnicodeRange r = createRange(0, 255);
+		r.diff(createRange(10, 10));
+		
+		UnicodeRange r2 = createRange(10, 10);
+		r2.invert(new UnicodeInterval(0, 255));
+		
+		UnicodeRange result = createRange(0, 9);
+		result.unite(createRange(11, 255));
+
+		assertEquals(result, r);
+		assertEquals(result, r2);
+	}
 
 }

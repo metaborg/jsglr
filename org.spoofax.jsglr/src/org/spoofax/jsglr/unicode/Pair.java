@@ -1,6 +1,6 @@
 package org.spoofax.jsglr.unicode;
 
-public class Pair<X, Y> {
+public class Pair<X, Y> implements Cloneable {
 	
 	protected X x;
 	protected Y y;
@@ -10,6 +10,11 @@ public class Pair<X, Y> {
 		this.y = y;
 	}
 
+	@Override
+	public Pair<X,Y> clone() {
+		return new Pair<X,Y>(x,y);
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

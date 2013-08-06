@@ -17,12 +17,21 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author moritzlichter
  * 
  */
-public class UnicodeRange implements Iterable<UnicodeInterval> {
+public class UnicodeRange implements Iterable<UnicodeInterval>, Cloneable {
 
 	private Set<UnicodeInterval> ranges;
 
 	public UnicodeRange() {
 		this.ranges = new HashSet<UnicodeInterval>();
+	}
+	
+	@Override
+	public UnicodeRange clone() {
+		UnicodeRange newRange = new UnicodeRange();
+		for (UnicodeInterval i : this.ranges) {
+			newRange.addInterval(i.clone());
+		}
+		return newRange;
 	}
 
 	public UnicodeRange(UnicodeInterval initial) {
@@ -97,19 +106,10 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 	}
 	
 	public void invert(UnicodeInterval universe) {
-		List<UnicodeInterval> intervalList = new ArrayList<UnicodeInterval>(this.ranges);
-		Collections.sort(intervalList, new UnicodeIntervalComparator());
-		this.ranges = new HashSet<UnicodeInterval>();
-		long start = universe.x;
-		for (UnicodeInterval l : intervalList) {
-			if (start != l.x) {
-				this.ranges.add(new UnicodeInterval(start, l.x-1));
-			}
-			start = l.y +1 ;
-		}
-		if (start != universe.y) {
-			this.ranges.add(new UnicodeInterval(start +1, universe.y));
-		}
+		UnicodeRange r2 = this.clone();
+		this.ranges.clear();
+		this.ranges.add(universe);
+		this.diff(r2);
 		
 	}
 
@@ -223,5 +223,6 @@ public class UnicodeRange implements Iterable<UnicodeInterval> {
 			return UnicodeUtils.makeEmptySymbol();
 		}
 	}
+	
 
 }

@@ -19,30 +19,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 		super(new TermFactory(), false);
 	}
 	
-	private boolean doNotRecur = false;
-	int ident = 0;
-	private String getIdent() {
-		String s = "";
-		for (int i = 0; i <ident; i++) {
-			s += " ";
-		}
-		return s;
-	}
-	public final IStrategoTerm transform(IStrategoTerm term) {
-		term = preTransform(term);
-		if (term == null) {
-			return null;
-		} else if (doNotRecur) {
-			doNotRecur = false;
-			return postTransform(term);
-		} else {
-			//System.out.println(getIdent() + term);
-			ident ++;
-			IStrategoTerm t= postTransform(simpleAll(term));
-			ident --;
-			return t;
-		}
-	}
+	
 
 	@Override
 	public IStrategoTerm preTransform(IStrategoTerm arg0) {
@@ -91,23 +68,17 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			}
 		} else if (isAscii(arg0)) {
 			return arg0.getSubterm(0);
-		} else if (isCharClass(arg0)) {
-			doNotRecur = true;
-			System.out.println("CharRange: " + arg0);
-			MixedUnicodeRange r = evaluateCharClass(arg0.getSubterm(0));
-			//System.out.println("New AST: " + r.toAST());
-			IStrategoTerm newAST =  r.toAST();
-			if (!newAST.equals(arg0)) {
-				return newAST;
+		} else if (isCharClass(arg0) |isSimpleCharClass(arg0)) {
+			IStrategoTerm eval = arg0;
+			if (isCharClass(arg0)) {
+				eval = arg0.getSubterm(0);
 			}
-		} else if (isSimpleCharClass(arg0)) {
 			doNotRecur = true;
-			System.out.println("CharRange: " + arg0);
-			MixedUnicodeRange r = evaluateCharClass(arg0);
+			MixedUnicodeRange r = evaluateCharClass(eval);
 			//System.out.println("New AST: " + r.toAST());
 			IStrategoTerm newAST =  r.toAST();
 			if (!newAST.equals(arg0)) {
-				return newAST;
+				return makeLEXSymbol(newAST);
 			}
 		}
 		
@@ -133,7 +104,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 					if (isUnicode) {
 						String content = stringvalue.substring(startPosition, currentPosition + 2);
-						System.out.println(content);
+						//System.out.println(content);
 						resultTerms.add(charClassToSymbol(makeUnicodeCharClass(content)));
 					} else {
 						String content = stringvalue.substring(startPosition, currentPosition);
@@ -199,9 +170,9 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			int end = characterToInt(charrange.getSubterm(1));
 			return new MixedUnicodeRange(start, end);
 		} else {
-			System.out.print(charrange);
+			//System.out.print(charrange);
 			int chr = characterToInt(charrange);
-			System.out.println(" " + chr);
+			//System.out.println(" " + chr);
 			return new MixedUnicodeRange(chr, chr);
 		} 
 	}

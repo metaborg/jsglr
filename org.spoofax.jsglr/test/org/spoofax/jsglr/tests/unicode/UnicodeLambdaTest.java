@@ -30,7 +30,7 @@ public class UnicodeLambdaTest {
 	public static void initializeParseTable() throws Exception {
 		parseTableManager = new ParseTableManager();
 		unicodeLambdaParseTable = parseTableManager.loadFromFile("tests/grammars/basic/UnicodeLambdaLanguage.tbl");
-		unicodeLambdaFile = new File("tests/data/UnicodeLambdaTest.txt");
+		unicodeLambdaFile = new File("tests/data/UnicodeLambdaTest2.txt");
 	}
 	
 	@Test

@@ -6,10 +6,6 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.client.imploder.TreeBuilder;
-import org.spoofax.jsglr.io.ParseTableManager;
-import org.spoofax.jsglr.unicode.UnicodeSDFPreprocessor;
 import org.spoofax.jsglr.unicode.UnicodeUtils;
 import org.spoofax.jsglr.unicode.preprocessor.CFGrammarTransformer;
 import org.spoofax.jsglr.unicode.preprocessor.SDFPrettyPrinter;
@@ -62,6 +58,15 @@ public class UnicodePreprocessorTest {
 		SDFPrettyPrinter pp = new SDFPrettyPrinter();
 		System.out.println(pp.prettyPrintSDF(result));
 		file.delete();
+	}
+	
+
+	@Test
+	public void testSDFPrettyPrinter() throws Exception {
+		
+		IStrategoTerm term = UnicodeSDFParser.parseUnicodeSDF(new File("tests/grammars/basic/Booleans.sdf"));
+		SDFPrettyPrinter pp = new SDFPrettyPrinter();
+		System.out.println(pp.prettyPrintSDF(term));
 	}
 
 }

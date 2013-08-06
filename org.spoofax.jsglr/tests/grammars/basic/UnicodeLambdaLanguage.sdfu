@@ -1,19 +1,10 @@
 module UnicodeLambdaLanguage
 
 exports
-
-	lexical syntax
-		[\23-\3] -> X
-
 	context-free start-symbols
 		Lambda
 
-	syntax
-	
 	context-free syntax
-	
-		Id AssignSign Exp		-> Declaration {cons("Declaration")}
-	
 		"λ" Id* "." Exp -> Lambda {cons("Lambda")}
 		
 		LetDeclaration Exp 	-> Exp {cons ("Let")}
@@ -23,38 +14,21 @@ exports
 		LambdaApp			-> Exp
 		JavaCall			-> Exp
 		Identifier "(" Exp* ")" -> LambdaApp {cons("LambdaApp")}
-		OpenLambdaBracket Exp CloseLambdaBracket "(" Exp* ")" -> LambdaApp {cons("ExpLambdaApp")}
+		"⟨" Exp "⟩" "(" Exp* ")" -> LambdaApp {cons("ExpLambdaApp")}
 		
-		JavaCallSign JavaName	"(" Exp* ")" -> JavaCall {cons("JavaExpCall")}
-		JavaCallSign Id* "." JavaName -> Lambda {cons("JavaLambda")}
+		"♨"	 JavaName	"(" Exp* ")" -> JavaCall {cons("JavaExpCall")}
+		"♨"	 Id* "." JavaName -> Lambda {cons("JavaLambda")}
 		
-		OpenLetBracket Declaration* CloseLetBracket -> LetDeclaration {cons("LetDeclaration")}
+		Id "≔"	 Exp		-> Declaration {cons("Declaration")}
+		"«" Declaration* "»" -> LetDeclaration {cons("LetDeclaration")}
 	
 		Id -> Identifier {cons ("Identifier")}
 		Int -> Integer{cons ("Integer")}
 	
-	context-free priorities
-		
-		
 	lexical syntax
   		"✎"	 ~[\n]* [\n] -> LAYOUT
 		[\ \t\r\n] 						-> LAYOUT
-		
-	%%	(~[\ \t\r\n\.\(\)] / [0-9])+	-> Id {longest-match}
-		(~[\ \t\r\n\.\(\)] / [0-9]) | (~[⟨⟩])+ -> Id {longest-match}
+		(~[\ \t\r\n\.\(\)⟨⟩✎] / [0-9])+ -> Id {longest-match}
 		[0-9]+							-> Int {longest-match}
 		[a-zA-Z]([a-zA-Z\.\$\#\_])*			-> JavaName {longest-match}
-		
-		"λ"						-> LambdaSign
-		"λ"						-> Identifier {reject}
-		"≔"						-> AssignSign
-		"≔"						-> Identifier {reject}
-		"«"						-> OpenLetBracket
-		"»"						-> CloseLetBracket
-		"«"						-> Identifier {reject}
-		"»"						-> Identifier {reject}
-		"♨"						-> JavaCallSign
-		"♨"						-> Identifier {reject}
-		"⟨"						-> OpenLambdaBracket
-		"⟩"						-> CloseLambdaBracket
 	

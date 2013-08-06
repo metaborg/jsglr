@@ -28,10 +28,20 @@ public abstract class MyTermTransformer {
 		this.factory = factory;
 		this.keepAttachments = keepAttachments;
 	}
+	
+	protected boolean doNotRecur = false;
 
-	public IStrategoTerm transform(IStrategoTerm term) {
+	public final IStrategoTerm transform(IStrategoTerm term) {
 		term = preTransform(term);
-		return term == null ? null : postTransform(simpleAll(term));
+		if (term == null) {
+			return null;
+		} else if (doNotRecur) {
+			doNotRecur = false;
+			return postTransform(term);
+		} else {
+			IStrategoTerm t= postTransform(simpleAll(term));
+			return t;
+		}
 	}
 	
 	public abstract IStrategoTerm preTransform(IStrategoTerm term);

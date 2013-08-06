@@ -63,15 +63,19 @@ public abstract class ProductionAST {
 	
 	public void insertLayoutAndWrapSorts() {
 		ListIterator<IStrategoTerm> iterator = this.symbols.listIterator();
+		ProductionCFTransformer transformer = new ProductionCFTransformer();
 		while (iterator.hasNext()) {
 			IStrategoTerm term = iterator.next();
-			if (UnicodeUtils.isSort(term)) {
-				iterator.set(UnicodeUtils.makeCFSort(term));
+			IStrategoTerm litLexTerm = transformer.transform(term);
+			if (!UnicodeUtils.isLex(litLexTerm)) {
+				litLexTerm = UnicodeUtils.makeCFSymbol(litLexTerm);
 			}
+			iterator.set(litLexTerm);
 			if (iterator.hasNext()) {
-				iterator.add(UnicodeUtils.makeOptionalLayout());
+				iterator.add(UnicodeUtils.makeLEXSymbol(UnicodeUtils.makeOptionalLayout()));
 			}
 		}
+		this.resultSymbol = UnicodeUtils.makeCFSymbol(this.resultSymbol);
 	}
 	
 

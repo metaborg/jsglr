@@ -137,6 +137,10 @@ public class UnicodeUtils {
 		return isConstructors(term, "char-class");
 	}
 	
+	public static boolean isLex(IStrategoTerm term) {
+		return isConstructors(term, "lex");
+	}
+	
 
 	public static IStrategoTerm makeConcGrammer(IStrategoTerm grammar1, IStrategoTerm grammar2) {
 		return factory.makeAppl(factory.makeConstructor("conc-grammars", 2), grammar1, grammar2);
@@ -213,12 +217,15 @@ public class UnicodeUtils {
 
 	public static IStrategoTerm makeOptionalLayout() {
 		return factory.makeAppl(factory.makeConstructor("opt", 1),
-				factory.makeAppl(factory.makeConstructor("layout", 0)));
+				factory.makeAppl(factory.makeConstructor("iter-star", 1), factory.makeAppl(factory.makeConstructor("layout", 0))));
 	}
 
-	public static IStrategoTerm makeCFSort(IStrategoTerm term) {
-		forceConstructors(term, "sort");
+	public static IStrategoTerm makeCFSymbol(IStrategoTerm term) {
 		return factory.makeAppl(factory.makeConstructor("cf", 1), term);
+	}
+	
+	public static IStrategoTerm makeLEXSymbol(IStrategoTerm term) {
+		return factory.makeAppl(factory.makeConstructor("lex", 1), term);
 	}
 
 	public static IStrategoTerm makeSymbolSeq(LinkedList<IStrategoTerm> symbolList) {
@@ -313,7 +320,15 @@ public class UnicodeUtils {
 			if (str.length() == 1) {
 				return str.charAt(0);
 			} else {
-				//...
+				if (str.equals("\\n")) {
+					return '\n';
+				} else if (str.equals("\\r")) {
+					return '\r';
+				} else if (str.equals("\\t")) {
+					return '\t';
+				} else if (str.length() == 2) {
+					return str.charAt(1);
+				}
 				
 			}
 		} else if (isConstructors(term, "unicodechar")) {

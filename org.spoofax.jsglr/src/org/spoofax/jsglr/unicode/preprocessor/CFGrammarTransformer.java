@@ -23,7 +23,6 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 	@Override
 	public IStrategoTerm preTransform(IStrategoTerm arg0) {
-		System.out.println(arg0);
 		if (isConcGrammars(arg0)) {
 			LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
 			LinkedList<IStrategoTerm> convertedProductions = new LinkedList<IStrategoTerm>();

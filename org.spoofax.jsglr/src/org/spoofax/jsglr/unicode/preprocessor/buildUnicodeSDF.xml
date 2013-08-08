@@ -5,14 +5,16 @@
 		</condition>
 
 	<target name="compile">
-		<compile-grammar module="UnicodeSDF" />
+		<compile-grammar module="UnicodeSDF" moduleName="SDF" />
+		<compile-grammar module="Annotations" moduleName="Annotations"/>
 	</target>
 	
 	<macrodef name="compile-grammar">
 		<attribute name="module" />
+		<attribute name="moduleName" default="@{module}"/>
 		<attribute name="path" default="." />
 		<sequential>
-			<sdf2table source="@{path}/@{module}.def" output="@{path}/@{module}.tbl" module="SDF" />
+			<sdf2table source="@{path}/@{module}.def" output="@{path}/@{module}.tbl" module="@{moduleName}" />
 		</sequential>
 	</macrodef>
 

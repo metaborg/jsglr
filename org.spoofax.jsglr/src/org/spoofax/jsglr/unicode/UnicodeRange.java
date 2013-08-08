@@ -193,6 +193,7 @@ public class UnicodeRange implements Iterable<UnicodeInterval>, Cloneable {
 	}
 	
 	public IStrategoTerm toAST() {
+		this.normalize();
 		// This is for Debug purpose that we get an reasonable order of the intervals
 		List<UnicodeInterval> intervalList = new ArrayList<UnicodeInterval>(this.ranges);
 		Collections.sort(intervalList, new UnicodeIntervalComparator());
@@ -203,7 +204,9 @@ public class UnicodeRange implements Iterable<UnicodeInterval>, Cloneable {
 			if (UnicodeConverter.isAscii(intervalList.get(0).x.intValue())) {
 				num = 1;
 			}
+			System.out.println(num);
 			for (UnicodeInterval r : intervalList) {
+				System.out.println(r.toString());
 				LinkedList<IStrategoTerm> seqBytes = new LinkedList<IStrategoTerm>();
 				for (int i = num - 1; i >= 0; i--) {
 					int start = UnicodeConverter.getByte(i,r.x.intValue());

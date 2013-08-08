@@ -36,7 +36,7 @@ public class Interpreter {
 		} else if (type.equals("LambdaApp")) {
 			return evalLambdaApp(term, 0, 1, e);
 		} else if (type.equals("ExpLambdaApp")) {
-			return evalLambdaApp(term, 1, 3, e);
+			return evalLambdaApp(term, 0, 1, e);
 		} else if (type.equals("Let")) {
 			return evalLet(term, e);
 		}
@@ -57,8 +57,8 @@ public class Interpreter {
 	}
 	
 	private static Closure evalLambda(IStrategoTerm term, Environment e, Class<? extends Closure> closureClass) {
-		IStrategoTerm expression = term.getSubterm(2);
-		IStrategoList operandsList = (IStrategoList)term.getSubterm(1);
+		IStrategoTerm expression = term.getSubterm(1);
+		IStrategoList operandsList = (IStrategoList)term.getSubterm(0);
 		String[] operands = new String[operandsList.getSubtermCount()];
 		for (int i = 0; i < operandsList.getSubtermCount(); i++) {
 			operands[i] = asJavaString(operandsList.getSubterm(i));
@@ -87,7 +87,7 @@ public class Interpreter {
 	private static Object evalLet(IStrategoTerm term, Environment e) {
 		IStrategoTerm declarationTerm = term.getSubterm(0);
 		IStrategoTerm expTerm = term.getSubterm(1);
-		IStrategoList declarations = (IStrategoList) declarationTerm.getSubterm(1);
+		IStrategoList declarations = (IStrategoList) declarationTerm.getSubterm(0);
 		Environment enew = new Environment(e);
 		for (int i = 0; i < declarations.getSubtermCount(); i++) {
 			evalDelcaration(declarations.getSubterm(i), enew, enew);
@@ -97,7 +97,7 @@ public class Interpreter {
 	
 	private static void evalDelcaration(IStrategoTerm term, Environment e, Environment eput) {
 		String identifier = asJavaString(term.getSubterm(0));
-		IStrategoTerm expr = term.getSubterm(2);
+		IStrategoTerm expr = term.getSubterm(1);
 		eput.put(identifier, eval(expr,e));
 	}
 

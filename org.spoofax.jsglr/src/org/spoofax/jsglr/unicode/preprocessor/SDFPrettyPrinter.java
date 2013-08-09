@@ -15,9 +15,6 @@ import org.strategoxt.tools.sdf_desugar_0_0;
 public class SDFPrettyPrinter {
 
 	public String prettyPrintSDF(IStrategoTerm ast) {
-		
-		
-		System.out.println(ast);
 		HybridInterpreter interp = new HybridInterpreter();
 		
 		/*IStrategoTerm result = null;

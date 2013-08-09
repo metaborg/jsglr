@@ -15,30 +15,21 @@ exports
 	
 	context-free syntax
 	StrCon -> MaybeQuoted
-	IdCon -> MaybeQuoted
 	"unquoted" "(" "\"" MaybeQuoted "\"" ")" -> AFunAST {cons("unquoted")}
 	"quoted" "(" "\"\\\"" MaybeQuoted "\\\"\"" ")" 	-> AFunAST {cons("quoted")}
 	"fun" "(" AFunAST ")" -> ATermAST {cons("fun")}
-	"appl" "(" AFunAST "," "[[" ATermAST "]]" ")" -> ATermAST {cons("appl")} 
+	"appl" "(" AFunAST "," "[[" ATermAST "]]" ")" -> ATermAST {cons("appl")}
 	
-	"default" "(" ATermAST ")" -> AnnotationAST {cons("default")}
+	StrCon 						-> Annotation {cons("const")}
+	"default" "(" ATermAST ")" 	-> Annotation {cons("default")}
+	
+	
+	Annotation -> AnnotationAST
+	AnnotationAST "," Annotation -> AnnotationAST {cons("annoseq")}
 	
 	
 
 
-module basic/IdentifierCon
-
-exports
-
-sorts IdCon
-
-lexical syntax
-
-head:[A-Za-z] tail:[A-Za-z\-0-9]* -> IdCon {cons("default")}
-
-lexical restrictions
-
-IdCon -/- [A-Za-z\-0-9]
 
 module basic/StrCon
 
@@ -58,12 +49,8 @@ lexical syntax
     UnicodeChar				   -> MaybeUnicodeChar
     "\\u" [0-9a-fA-F]+ "\\u"   -> UnicodeChar
 
- 	[\"] chars:StrChar* [\"]   -> AsciiStrCon
- 	[\"] (StrChar | UnicodeChar)* [\"] -> UnicodeStrCon {avoid}
+ 	 chars:StrChar*   -> StrCon
  	
-context-free syntax
-	AsciiStrCon -> StrCon{cons("ascii")}
-	UnicodeStrCon -> StrCon {cons("unicode")}
   
 module languages/aterm/syntax/RealCon
 

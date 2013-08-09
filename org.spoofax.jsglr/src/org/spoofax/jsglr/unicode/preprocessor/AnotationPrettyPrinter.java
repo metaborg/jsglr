@@ -74,7 +74,11 @@ public class AnotationPrettyPrinter {
 	}
 	
 	private void prettyPrint(IStrategoTerm t, StringBuilder b) {
-		if (Term.tryGetName(t).equals("default")) {
+		if (Term.tryGetName(t).equals("annoseq")) {
+			prettyPrint(t.getSubterm(0), b);
+			b.append(',');
+			prettyPrint(t.getSubterm(1), b);
+		} else if (Term.tryGetName(t).equals("default")) {
 			prettyPrint(t.getSubterm(0), b);
 		} else if (Term.tryGetName(t).equals("appl")) {
 			prettyPrint(t.getSubterm(0), b);
@@ -89,6 +93,8 @@ public class AnotationPrettyPrinter {
 			b.append('\"');
 			b.append(Term.asJavaString(t.getSubterm(0)));
 			b.append('\"');
+		} else if (Term.tryGetName(t).equals("const")) {
+			b.append(Term.asJavaString(t.getSubterm(0)));
 		} else {
 			throw new RuntimeException("Unexpected term: "  + t);
 		}

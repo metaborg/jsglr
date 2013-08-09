@@ -1,0 +1,60 @@
+module UnicodeMathExpressions
+
+exports
+
+	context-free start-symbols
+		Exps
+
+	context-free syntax
+		{Exp "\n"} * -> Exps
+		
+		BoolExp -> Exp {cons("BoolExp")}
+		
+		"(" BoolExp ")"		-> BoolExp {bracket}
+		"[" BoolExp "]"		-> BoolExp {bracket}
+
+	context-free priorities
+		"¬" BoolExp			-> BoolExp {cons("Not")}
+	>	BoolExp "∧" BoolExp -> BoolExp {cons("And"), left}
+	>	BoolExp "∨" BoolExp -> BoolExp {cons("Or"), left}
+	>	BoolExp "→" BoolExp -> BoolExp {cons("Implies"), left}
+	>	BoolExp "↔" BoolExp	-> BoolExp {cons("Aequivalent"), left}
+	
+	context-free syntax
+	
+		NumberExp	-> Exp {cons("NumberExp")}
+		
+		"(" NumberExp ")"	-> NumberExp {bracket}
+		"[" NumberExp "]" 	-> NumberExp {bracket}
+		
+		NumberExp "=" NumberExp 	-> BoolExp {cons("Equals")}
+		NumberExp "≤" NumberExp		-> BoolExp {cons("LessEq")}
+		NumberExp "≥" NumberExp		-> BoolExp {cons("GreaterEq")}
+		NumberExp "<" NumberExp		-> BoolExp {cons("Less")}
+		NumberExp ">" NumberExp		-> BoolExp {cons("Greater")}
+		NumberExp "≠" NumberExp		-> BoolExp {cons("NotEqual")}
+		
+	context-free priorities
+	{	"√" NumberExp				-> NumberExp {cons("Root")}
+		"-" NumberExp				-> NumberExp {cons("Negate")}	}
+	>	NumberExp TimesOp NumberExp		-> NumberExp {cons("Times"), left}
+	> 	NumberExp DivideOp NumberExp	-> NumberExp {cons("Divide"), left}
+	>	NumberExp "+" NumberExp		-> NumberExp {cons("Plus"), left}
+	>	NumberExp "-" NumberExp		-> NumberExp {cons("Minus"), left}
+	
+	
+	lexical syntax
+		[×∙\*]		 	-> TimesOp
+		[÷\/]			-> DivideOp
+	
+	context-free syntax
+		
+		SmallGreekLetter -> BoolExp {cons("BoolVar")}
+		SmallLatinLetter -> NumberExp {cons("NumberVar")}
+		
+	lexical syntax
+		[α-ω]	-> SmallGreekLetter
+		[a-z]	-> SmallLatinLetter
+		
+		[\ \t] -> LAYOUT
+		

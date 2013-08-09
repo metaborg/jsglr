@@ -23,39 +23,50 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 	@Override
 	public IStrategoTerm preTransform(IStrategoTerm arg0) {
-		if (isConcGrammars(arg0)) {
-			LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
-			LinkedList<IStrategoTerm> convertedProductions = new LinkedList<IStrategoTerm>();
-			ListIterator<IStrategoTerm> grammarIterator = grammars.listIterator();
-			while (grammarIterator.hasNext()) {
-				IStrategoTerm grammar = grammarIterator.next();
-				if (isContextFreeGrammar(grammar)) {
-					LinkedList<IStrategoTerm> productions = contextFreeGrammarToProductionList(grammar);
+//		if (isConcGrammars(arg0)) {
+//			LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
+//			LinkedList<IStrategoTerm> convertedSyntaxProductions = new LinkedList<IStrategoTerm>();
+//			LinkedList<IStrategoTerm> convertedPrioritiesProductions = new LinkedList<IStrategoTerm>();
+//			ListIterator<IStrategoTerm> grammarIterator = grammars.listIterator();
+//			while (grammarIterator.hasNext()) {
+//				IStrategoTerm grammar = grammarIterator.next();
+				if (isContextFreeGrammar(arg0) | isContextFreePriorities(arg0)) {
+					/*LinkedList<IStrategoTerm> productions = contextFreeGrammarToProductionList(grammar);
 					Iterator<IStrategoTerm> productionsIterator = productions.iterator();
 					boolean changed = false;
 					while (productionsIterator.hasNext()) {
-						IStrategoTerm p = productionsIterator.next();
-						if (ProductionAST.isProduction(p)) {
-							ProductionAST prod = ProductionAST.selectProduction(p);
-							prod.unpack(p);
-							if (prod.containsUnicode()) {
-								productionsIterator.remove();
-								prod.insertLayoutAndWrapSorts();
-								convertedProductions.add(prod.pack(factory));
-								changed = true;
-							}
-						}
+						IStrategoTerm p = productionsIterator.next();*/
+//						if (ProductionAST.isProduction(p)) {
+//							ProductionAST prod = ProductionAST.selectProduction(p);
+//							prod.unpack(p);
+//							if (prod.containsUnicode()) {
+//								productionsIterator.remove();
+//								prod.insertLayoutAndWrapSorts();
+//								convertedSyntaxProductions.add(prod.pack(factory));
+//								changed = true;
+//							}
+//						}
+//					}
+					UnicodeSymbolVisitor v = new UnicodeSymbolVisitor();
+					v.visit(arg0);
+					if (v.isContainingUnicode()) {
+					
+					ProductionTransformer prodTransformer = new ProductionTransformer();
+					IStrategoTerm transformedGrammar = prodTransformer.transform(arg0);
+					//System.out.println(transformedGrammar);
+					return transformedGrammar;
+					} else {
+						return arg0;
 					}
-					if (changed) {
-						grammarIterator.set(makeContextFreeGrammar(productions));
-					}
-				}
-			}
-			if (!convertedProductions.isEmpty()) {
-				grammars.add(makeSyntaxGrammar(convertedProductions));
-			}
-			IStrategoTerm newGrammar = grammarListToConcGrammar(grammars);
-			return newGrammar;
+			//		convertedSyntaxProductions.addAll(prodTransformer.getConvertedSyntaxProductions());
+					//grammarIterator.set(transformedGrammar);
+			//	}
+//			}
+//			if (!convertedSyntaxProductions.isEmpty()) {
+//				grammars.add(makeSyntaxGrammar(convertedSyntaxProductions));
+//			}
+			//IStrategoTerm newGrammar = grammarListToConcGrammar(grammars);
+			//return newGrammar;
 		} else if (isLit(arg0)) {
 			IStrategoTerm content = arg0.getSubterm(0);
 			if (isUnicode(content)) {

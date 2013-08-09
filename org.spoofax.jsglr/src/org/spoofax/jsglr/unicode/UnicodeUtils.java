@@ -76,6 +76,10 @@ public class UnicodeUtils {
 	public static boolean isContextFreeGrammar(IStrategoTerm term) {
 		return isConstructors(term, "context-free-syntax");
 	}
+	
+	public static boolean isContextFreePriorities(IStrategoTerm term) {
+		return isConstructors(term, "context-free-priorities");
+	}
 
 	public static boolean isProduction(IStrategoTerm term) {
 		return isConstructors(term, "prod", "prefix-fun");
@@ -202,7 +206,15 @@ public class UnicodeUtils {
 	public static IStrategoTerm makeSyntaxGrammar(LinkedList<IStrategoTerm> productionList) {
 		return makeGrammar("syntax", productionList);
 	}
+	
+	public static IStrategoTerm makeSyntaxGrammar(IStrategoTerm productions) {
+		return factory.makeAppl(factory.makeConstructor("syntax", 1), productions);
+	}
 
+	public static IStrategoTerm makePriorities(IStrategoTerm priorities) {
+		return factory.makeAppl(factory.makeConstructor("priorities", 1), priorities); 
+	}
+	
 	public static boolean isPrefixProduction(IStrategoTerm term) {
 		return isConstructors(term, "prefix-fun");
 	}

@@ -36,7 +36,8 @@ exports
 		
 	context-free priorities
 	{	"√" NumberExp				-> NumberExp {cons("Root")}
-		"-" NumberExp				-> NumberExp {cons("Negate")}	}
+		"-" NumberExp				-> NumberExp {cons("Negate")}	
+		NumberExp Superscript		-> NumberExp {cons("Power")}	}
 	>	NumberExp TimesOp NumberExp		-> NumberExp {cons("Times"), left}
 	> 	NumberExp DivideOp NumberExp	-> NumberExp {cons("Divide"), left}
 	>	NumberExp "+" NumberExp		-> NumberExp {cons("Plus"), left}
@@ -46,6 +47,10 @@ exports
 	lexical syntax
 		[×∙\*]		 	-> TimesOp
 		[÷\/]			-> DivideOp
+		[⁰¹²³⁴⁵⁶⁷⁸⁹]+			-> Superscript
+		
+	lexical restrictions
+		Superscript -/- [⁰¹²³⁴⁵⁶⁷⁸⁹]
 	
 	context-free syntax
 		

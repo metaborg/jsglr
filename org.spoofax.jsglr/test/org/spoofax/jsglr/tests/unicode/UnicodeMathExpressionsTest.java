@@ -20,11 +20,15 @@ public class UnicodeMathExpressionsTest {
 	private static File file1;
 	
 	@BeforeClass
-	public static void initializeParseTable() throws Exception {
+	public static void initializeParseTable()  {
+		try {
 		ParseTableManager parseTableManager = new ParseTableManager();
 		parseTable = parseTableManager.loadFromFile("tests/grammars/basic/UnicodeMathExpressions.tbl");
 		file1 = new File("tests/data/UnicodeMathExpressions1.txt");
 		sglr = new SGLR(new TreeBuilder(), parseTable);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test

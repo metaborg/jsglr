@@ -65,8 +65,9 @@ public class UnicodePreprocessorTest {
 	public void testSDFPrettyPrinter() throws Exception {
 		
 		IStrategoTerm term = UnicodeSDFParser.parseUnicodeSDF(new File("tests/grammars/basic/Booleans.sdf"));
+		System.out.println(term);
 		SDFPrettyPrinter pp = new SDFPrettyPrinter();
-		//System.out.println(pp.prettyPrintSDF(term));
+		System.out.println(pp.prettyPrintSDF(term));
 	}
 
 }

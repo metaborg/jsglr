@@ -3,6 +3,7 @@ package org.spoofax.jsglr.tests.unicode;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.spoofax.jsglr.unicode.DefaultSequenceCreator;
 import org.spoofax.jsglr.unicode.UnicodeInterval;
 import org.spoofax.jsglr.unicode.UnicodeRange;
 
@@ -200,7 +201,7 @@ public class UnicodeRangeTest {
 		UnicodeRange r = createRange(0,127);
 		r.diff(createRange(20,30));
 		r.diff(createRange(45,45));
-		String astString = r.toAST().toString();
+		String astString = r.toAST(new DefaultSequenceCreator()).toString();
 		String expect = "alt(" +
 							makeCharRangeString(0, 19) + "," +
 							"alt(" +
@@ -213,7 +214,7 @@ public class UnicodeRangeTest {
 	public void testUTF8_2ByteAST() {
 		UnicodeRange r = createRange(128, 1400);
 	
-		String astString = r.toAST().toString();
+		String astString = r.toAST(new DefaultSequenceCreator()).toString();
 		String expect = 
 						"alt(" +
 							"seq(" +

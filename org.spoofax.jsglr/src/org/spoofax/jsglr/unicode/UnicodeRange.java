@@ -192,7 +192,7 @@ public class UnicodeRange implements Iterable<UnicodeInterval>, Cloneable {
 		return this.ranges.toString();
 	}
 	
-	public IStrategoTerm toAST() {
+	public IStrategoTerm toAST(SequenceCreator seq) {
 		this.normalize();
 		// This is for Debug purpose that we get an reasonable order of the intervals
 		List<UnicodeInterval> intervalList = new ArrayList<UnicodeInterval>(this.ranges);
@@ -217,7 +217,7 @@ public class UnicodeRange implements Iterable<UnicodeInterval>, Cloneable {
 					}
 					seqBytes.add(UnicodeUtils.charClassToSymbol(term));
 				}
-				orTerms.add(UnicodeUtils.makeSymbolSeq(seqBytes));
+				orTerms.add(seq.createSequence(seqBytes));
 			}
 			return UnicodeUtils.makeOrSymbol(orTerms);
 		} else {

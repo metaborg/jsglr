@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,6 +80,14 @@ public class UnicodeUtils {
 	
 	public static boolean isContextFreePriorities(IStrategoTerm term) {
 		return isConstructors(term, "context-free-priorities");
+	}
+	
+	public static boolean isRestriction(IStrategoTerm term) {
+		return isConstructors(term, "context-free-restrictions", "lexical-restrictions", "restrictions");
+	}
+	
+	public static boolean isSyntaxOrPriorities(IStrategoTerm term) {
+		return isConstructors(term, "context-free-syntax", "context-free-priorities", "syntax", "priorities", "lexical-syntax", "lexical-priorities");
 	}
 
 	public static boolean isProduction(IStrategoTerm term) {
@@ -240,14 +249,32 @@ public class UnicodeUtils {
 		return factory.makeAppl(factory.makeConstructor("lex", 1), term);
 	}
 
-	public static IStrategoTerm makeSymbolSeq(LinkedList<IStrategoTerm> symbolList) {
-		if (symbolList.size() == 1) {
-			return symbolList.getFirst();
+	public static IStrategoTerm makeSymbolSeq(IStrategoTerm t1, IStrategoTerm t2) {
+		
+			return factory.makeAppl(factory.makeConstructor("seq", 2), t1,factory.makeList(t2));
+		
+	}
+	
+	public static IStrategoTerm makeRestrictionSymbolSeq(IStrategoTerm t1, IStrategoTerm t2) {
+		
+		return factory.makeAppl(factory.makeConstructor("seq", 2), t1,t2);
+	
+}
+	
+	public static IStrategoTerm makeSymbolSeq(IStrategoTerm first, Collection<IStrategoTerm> rest) {
+		if (rest.size() == 0) {
+			return first;
 		} else {
-			return factory.makeAppl(factory.makeConstructor("seq", 2), symbolList.getFirst(),
-					factory.makeList(symbolList.subList(1, symbolList.size())));
+			return factory.makeAppl(factory.makeConstructor("seq", 2), first,
+					factory.makeList(rest));
 		}
 	}
+	
+	public static IStrategoTerm makeSingle(IStrategoTerm term) {
+		
+		return factory.makeAppl(factory.makeConstructor("single", 1), term);
+	
+}
 
 	public static IStrategoTerm makeAsciiLit(String string) {
 		//return factory.makeAppl(factory.makeConstructor("lit", 1),

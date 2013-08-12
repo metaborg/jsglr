@@ -8,69 +8,84 @@ import java.util.ListIterator;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
+import org.spoofax.jsglr.unicode.DefaultSequenceCreator;
 import org.spoofax.jsglr.unicode.MixedUnicodeRange;
+import org.spoofax.jsglr.unicode.RestrictionsSequenceCreator;
+import org.spoofax.jsglr.unicode.SequenceCreator;
 import org.spoofax.jsglr.unicode.UnicodeUtils;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 
 public class CFGrammarTransformer extends MyTermTransformer {
 
+	private SequenceCreator currentSequenceCreator;
+
 	public CFGrammarTransformer() {
 		super(new TermFactory(), false);
 	}
-	
-	
 
 	@Override
 	public IStrategoTerm preTransform(IStrategoTerm arg0) {
-//		if (isConcGrammars(arg0)) {
-//			LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
-//			LinkedList<IStrategoTerm> convertedSyntaxProductions = new LinkedList<IStrategoTerm>();
-//			LinkedList<IStrategoTerm> convertedPrioritiesProductions = new LinkedList<IStrategoTerm>();
-//			ListIterator<IStrategoTerm> grammarIterator = grammars.listIterator();
-//			while (grammarIterator.hasNext()) {
-//				IStrategoTerm grammar = grammarIterator.next();
-				if (isContextFreeGrammar(arg0) | isContextFreePriorities(arg0)) {
-					/*LinkedList<IStrategoTerm> productions = contextFreeGrammarToProductionList(grammar);
-					Iterator<IStrategoTerm> productionsIterator = productions.iterator();
-					boolean changed = false;
-					while (productionsIterator.hasNext()) {
-						IStrategoTerm p = productionsIterator.next();*/
-//						if (ProductionAST.isProduction(p)) {
-//							ProductionAST prod = ProductionAST.selectProduction(p);
-//							prod.unpack(p);
-//							if (prod.containsUnicode()) {
-//								productionsIterator.remove();
-//								prod.insertLayoutAndWrapSorts();
-//								convertedSyntaxProductions.add(prod.pack(factory));
-//								changed = true;
-//							}
-//						}
-//					}
-					UnicodeSymbolVisitor v = new UnicodeSymbolVisitor();
-					v.visit(arg0);
-					if (v.isContainingUnicode()) {
-					
-					ProductionTransformer prodTransformer = new ProductionTransformer();
-					IStrategoTerm transformedGrammar = prodTransformer.transform(arg0);
-					//System.out.println(transformedGrammar);
-					return transformedGrammar;
-					} else {
-						return arg0;
-					}
-			//		convertedSyntaxProductions.addAll(prodTransformer.getConvertedSyntaxProductions());
-					//grammarIterator.set(transformedGrammar);
-			//	}
-//			}
-//			if (!convertedSyntaxProductions.isEmpty()) {
-//				grammars.add(makeSyntaxGrammar(convertedSyntaxProductions));
-//			}
-			//IStrategoTerm newGrammar = grammarListToConcGrammar(grammars);
-			//return newGrammar;
+		// if (isConcGrammars(arg0)) {
+		// LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
+		// LinkedList<IStrategoTerm> convertedSyntaxProductions = new
+		// LinkedList<IStrategoTerm>();
+		// LinkedList<IStrategoTerm> convertedPrioritiesProductions = new
+		// LinkedList<IStrategoTerm>();
+		// ListIterator<IStrategoTerm> grammarIterator =
+		// grammars.listIterator();
+		// while (grammarIterator.hasNext()) {
+		// IStrategoTerm grammar = grammarIterator.next();
+		if (isSyntaxOrPriorities(arg0)) {
+			this.currentSequenceCreator = new DefaultSequenceCreator();
+		} else if (isRestriction(arg0)) {
+			this.currentSequenceCreator = new RestrictionsSequenceCreator();
+		}
+		if (isContextFreeGrammar(arg0) | isContextFreePriorities(arg0)) {
+
+			/*
+			 * LinkedList<IStrategoTerm> productions =
+			 * contextFreeGrammarToProductionList(grammar);
+			 * Iterator<IStrategoTerm> productionsIterator =
+			 * productions.iterator(); boolean changed = false; while
+			 * (productionsIterator.hasNext()) { IStrategoTerm p =
+			 * productionsIterator.next();
+			 */
+			// if (ProductionAST.isProduction(p)) {
+			// ProductionAST prod = ProductionAST.selectProduction(p);
+			// prod.unpack(p);
+			// if (prod.containsUnicode()) {
+			// productionsIterator.remove();
+			// prod.insertLayoutAndWrapSorts();
+			// convertedSyntaxProductions.add(prod.pack(factory));
+			// changed = true;
+			// }
+			// }
+			// }
+			UnicodeSymbolVisitor v = new UnicodeSymbolVisitor();
+			v.visit(arg0);
+			if (v.isContainingUnicode()) {
+
+				ProductionTransformer prodTransformer = new ProductionTransformer();
+				IStrategoTerm transformedGrammar = prodTransformer.transform(arg0);
+				// System.out.println(transformedGrammar);
+				return transformedGrammar;
+			} else {
+				return arg0;
+			}
+			// convertedSyntaxProductions.addAll(prodTransformer.getConvertedSyntaxProductions());
+			// grammarIterator.set(transformedGrammar);
+			// }
+			// }
+			// if (!convertedSyntaxProductions.isEmpty()) {
+			// grammars.add(makeSyntaxGrammar(convertedSyntaxProductions));
+			// }
+			// IStrategoTerm newGrammar = grammarListToConcGrammar(grammars);
+			// return newGrammar;
 		} else if (isLit(arg0)) {
 			IStrategoTerm content = arg0.getSubterm(0);
 			if (isUnicode(content)) {
-				return makeSymbolSeq(splitUnicodeString(unicodeToString(content)));
+				return this.currentSequenceCreator.createSequence(splitUnicodeString(unicodeToString(content)));
 			} else if (isAscii(content)) {
 				return makeAsciiLit(toJavaString(arg0.getSubterm(0)));
 			} else {
@@ -78,27 +93,27 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			}
 		} else if (isAscii(arg0)) {
 			return arg0.getSubterm(0);
-		} else if (isCharClass(arg0) |isSimpleCharClass(arg0)) {
+		} else if (isCharClass(arg0) | isSimpleCharClass(arg0)) {
 			IStrategoTerm eval = arg0;
 			if (isCharClass(arg0)) {
 				eval = arg0.getSubterm(0);
 			}
 			doNotRecur = true;
 			MixedUnicodeRange r = evaluateCharClass(eval);
-			//System.out.println("New AST: " + r.toAST());
-			IStrategoTerm newAST =  r.toAST();
+			// System.out.println("New AST: " + r.toAST());
+			IStrategoTerm newAST = r.toAST(this.currentSequenceCreator);
+		//	System.out.println(newAST);
 			if (!newAST.equals(arg0)) {
-				return makeLEXSymbol(newAST);
+				return newAST;
 			}
 		}
-		
-		
+
 		return arg0;
 	}
-	
+
 	@Override
 	public IStrategoTerm postTransform(IStrategoTerm arg0) {
-		
+
 		return arg0;
 	}
 
@@ -114,7 +129,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 					if (isUnicode) {
 						String content = stringvalue.substring(startPosition, currentPosition + 2);
-						//System.out.println(content);
+						// System.out.println(content);
 						resultTerms.add(charClassToSymbol(makeUnicodeCharClass(content)));
 					} else {
 						String content = stringvalue.substring(startPosition, currentPosition);
@@ -127,7 +142,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 				if (!isUnicode) {
 					startPosition = currentPosition;
 				} else {
-					startPosition = currentPosition -2;
+					startPosition = currentPosition - 2;
 				}
 			} else {
 				currentPosition++;
@@ -163,29 +178,28 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			return r1;
 		}
 	}
-	
+
 	private MixedUnicodeRange evaluateCharRange(IStrategoTerm charrange) {
 		if (isAbsentCharRange(charrange)) {
 			return new MixedUnicodeRange();
 		} else if (isPresentCharRange(charrange)) {
 			return evaluateCharRange(charrange.getSubterm(0));
-			
+
 		} else if (isConcCharRange(charrange)) {
 			MixedUnicodeRange r1 = evaluateCharRange(charrange.getSubterm(0));
 			MixedUnicodeRange r2 = evaluateCharRange(charrange.getSubterm(1));
 			r1.unite(r2);
 			return r1;
-		} else if (isRangeCharRange(charrange)){
+		} else if (isRangeCharRange(charrange)) {
 			int start = characterToInt(charrange.getSubterm(0));
 			int end = characterToInt(charrange.getSubterm(1));
 			return new MixedUnicodeRange(start, end);
 		} else {
-			//System.out.print(charrange);
+			// System.out.print(charrange);
 			int chr = characterToInt(charrange);
-			//System.out.println(" " + chr);
+			// System.out.println(" " + chr);
 			return new MixedUnicodeRange(chr, chr);
-		} 
+		}
 	}
-	
-	
+
 }

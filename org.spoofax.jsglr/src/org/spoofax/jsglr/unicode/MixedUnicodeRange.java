@@ -137,25 +137,22 @@ public class MixedUnicodeRange {
 		return builder.toString();
 	}
 	
-	public IStrategoTerm toAST() {
+	public IStrategoTerm toAST(SequenceCreator seq) {
 		LinkedList<IStrategoTerm> alternativeTerms = new LinkedList<IStrategoTerm>();
 		if (!this.ascii.isEmpty()) {
-			alternativeTerms.add(this.ascii.toAST());
+			alternativeTerms.add(this.ascii.toAST(seq));
 		}
 		if (!this.utf16_2byte.isEmpty()) {
-			alternativeTerms.add(prependSeven(this.utf16_2byte.toAST()));
+			alternativeTerms.add(prependSeven(this.utf16_2byte.toAST(seq), seq));
 		}
 		if (!this.utf16_4byte.isEmpty()) {
-			alternativeTerms.add(prependSeven(this.utf16_4byte.toAST()));
+			alternativeTerms.add(prependSeven(this.utf16_4byte.toAST(seq), seq));
 		}
 		return UnicodeUtils.makeOrSymbol(alternativeTerms);
 	}
 	
-	private IStrategoTerm prependSeven(IStrategoTerm term) {
+	private IStrategoTerm prependSeven(IStrategoTerm term, SequenceCreator seq) {
 		IStrategoTerm sevenCharClass = UnicodeUtils.charClassToSymbol(UnicodeUtils.makeCharClass(UnicodeConverter.UNICODE_PRAEFIX));
-		LinkedList<IStrategoTerm> list = new LinkedList<IStrategoTerm>();
-		list.add(sevenCharClass);
-		list.add(term);
-		return UnicodeUtils.makeSymbolSeq(list);
+		return seq.createSequence(sevenCharClass, term);
 	}
 }

@@ -417,6 +417,12 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				case AbstractParseNode.PARSENODE:
 					subtree = buildTreeNode((ParseNode) subnode);
 					break;
+				case AbstractParseNode.PREFER:
+					subtree = buildTreeNode((ParseNode) subnode);
+					break;
+				case AbstractParseNode.AVOID:
+					subtree = buildTreeNode((ParseNode) subnode);
+					break;
 				default:
 					throw new IllegalStateException("Unkown node type");
 			}

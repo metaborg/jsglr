@@ -68,10 +68,15 @@ public class Primitives {
 		return mul1 * mul2;
 	}
 	
-	public static Object subtract_impl(IStrategoTerm mul1Term, IStrategoTerm mul2Term, Environment e) {
+	public static Object add_impl(IStrategoTerm mul1Term, IStrategoTerm mul2Term, Environment e) {
 		Integer mul1 = evalInteger(mul1Term, e, "First subtract argument");
 		Integer mul2 = evalInteger(mul2Term, e, "Second subtract argument");
-		return mul1 - mul2;
+		return mul1 + mul2;
+	}
+	
+	public static Object negate_impl(IStrategoTerm mul1Term, Environment e) {
+		Integer mul1 = evalInteger(mul1Term, e, "First subtract argument");
+		return -mul1;
 	}
 	
 	public static Object print_impl(IStrategoTerm printTerm, Environment e) {

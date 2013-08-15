@@ -131,6 +131,9 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			IStrategoTerm newAST = r.toAST(this.currentSequenceCreator);
 			// System.out.println(newAST);
 			if (!newAST.equals(arg0)) {
+				if (this.currentSequenceCreator instanceof DefaultSequenceCreator) {
+					return UnicodeUtils.makeBracket(newAST);
+				}
 				return newAST;
 			}
 		}

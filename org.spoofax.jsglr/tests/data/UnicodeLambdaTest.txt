@@ -6,7 +6,8 @@
   ≣ ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#ident_impl
   ∎ ≔ ♨. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#null_impl
   × ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#times_impl
-  - ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#subtract_impl
+  + ≔ ♨ α β. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#add_impl
+  - ≔ ♨ α. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#negate_impl
   ✎ Returns a new unique value, thus Ů is not functional!
   Ů ≔ ♨. org.spoofax.jsglr.tests.unicode.interpreter.Primitives#unique_impl
   ✎ Evaluates π, prints the result and evaluates itself to the result
@@ -15,6 +16,9 @@
   «
      false ≔ 0
      true ≔ 1
+	 
+	 − ≔ λ α β.
+	 	 + (α -(β))
 		
 	 ✎ Empty Set:: List [Unique]		
      ∅ ≔ Ů ()
@@ -35,10 +39,16 @@
      ∀ ≔ λ Φ. λ σ.
      		«∀i ≔ λ σ.
      			? (∅? (σ)
-   				∅
+				∅
    				☐( Φ(∫(σ))
    					∀i (∬(σ))))
    			» ∀i (σ)
+	 ✎ Fold
+	 ⋐ ≔ λ Φ a σ.
+				? (∅? (σ)
+				a
+				Φ (∫(σ) ⋐(Φ a ∬(σ))))
+				
 	 nth ≔ λ s. λ n.
 	 		«i ≔ λ s n.
 	 			? (≣(n 0) ∫(s) i(∬(s) -(n 1)))
@@ -52,5 +62,5 @@
    ✎ getter(n)
    ✎ = (∅ ∅)
    ✎ ⟨∀ (✑)⟩ (list)
-   ⟨∀ (λ φ. ✑(getter(-(✑(φ) 1))))⟩ (list)
-   
+   ✎ ⟨∀ (λ φ. ✑(getter(-(✑(φ) 1))))⟩ (list)
+   ✑ (⋐(λ a b. + (a b) 0 list))

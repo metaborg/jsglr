@@ -1438,8 +1438,8 @@ public class SGLR {
 		if (Tools.tracing) {
 			TRACE("SG_NextToken() - ");
 		}
-
 		final int ch = currentInputStream.read();
+
 		updateLineAndColumnInfo(ch);
 
 		if (ch == -1) {

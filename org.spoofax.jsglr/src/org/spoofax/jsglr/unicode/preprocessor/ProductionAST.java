@@ -67,10 +67,10 @@ public abstract class ProductionAST {
 		while (iterator.hasNext()) {
 			IStrategoTerm term = iterator.next();
 			IStrategoTerm litLexTerm = transformer.transform(term);
-//			if (!UnicodeUtils.isLex(litLexTerm)) {
-//				litLexTerm = UnicodeUtils.makeCFSymbol(litLexTerm);
-//			}
-			litLexTerm = UnicodeUtils.makeBracket(litLexTerm);
+			if (!UnicodeUtils.isLex(litLexTerm)) {
+				litLexTerm = UnicodeUtils.makeCFSymbol(litLexTerm);
+			}
+			//litLexTerm = UnicodeUtils.makeBracket(litLexTerm);
 			iterator.set(litLexTerm);
 			if (iterator.hasNext()) {
 				iterator.add(UnicodeUtils.makeLEXSymbol(UnicodeUtils.makeOptionalLayout()));

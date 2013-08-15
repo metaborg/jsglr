@@ -1,10 +1,31 @@
 package org.spoofax.jsglr.unicode.preprocessor;
 
-import static org.spoofax.jsglr.unicode.UnicodeUtils.*;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.charClassToSymbol;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.characterToInt;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isAbsentCharRange;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isAscii;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isCharClass;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isConcCharRange;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isContextFreeGrammar;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isContextFreePriorities;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isDiffCharClass;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isFollow;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isIntersetCharClass;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isInvertCharClass;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isLit;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isPresentCharRange;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isRangeCharRange;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isRestriction;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isSimpleCharClass;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isSyntaxOrPriorities;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isUnicode;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.isUnionCharClass;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.makeAsciiLit;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.makeUnicodeCharClass;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.toJavaString;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.unicodeToString;
 
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.ListIterator;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
@@ -13,7 +34,7 @@ import org.spoofax.jsglr.unicode.MixedUnicodeRange;
 import org.spoofax.jsglr.unicode.RestrictionsSequenceCreator;
 import org.spoofax.jsglr.unicode.SequenceCreator;
 import org.spoofax.jsglr.unicode.UnicodeUtils;
-import org.spoofax.terms.Term;
+import org.spoofax.jsglr.unicode.preprocessor.RestrictionsTransformer.Task;
 import org.spoofax.terms.TermFactory;
 
 public class CFGrammarTransformer extends MyTermTransformer {
@@ -82,7 +103,13 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			// }
 			// IStrategoTerm newGrammar = grammarListToConcGrammar(grammars);
 			// return newGrammar;
+		} else if (isFollow(arg0)) {
+			RestrictionsTransformer transformer = new RestrictionsTransformer();
+			transformer.setTask(Task.REMOVE_LISTS);
+			IStrategoTerm t = transformer.transform(arg0);
+			return t;
 		} else if (isLit(arg0)) {
+
 			IStrategoTerm content = arg0.getSubterm(0);
 			if (isUnicode(content)) {
 				return this.currentSequenceCreator.createSequence(splitUnicodeString(unicodeToString(content)));
@@ -102,7 +129,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			MixedUnicodeRange r = evaluateCharClass(eval);
 			// System.out.println("New AST: " + r.toAST());
 			IStrategoTerm newAST = r.toAST(this.currentSequenceCreator);
-		//	System.out.println(newAST);
+			// System.out.println(newAST);
 			if (!newAST.equals(arg0)) {
 				return newAST;
 			}
@@ -113,7 +140,16 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 	@Override
 	public IStrategoTerm postTransform(IStrategoTerm arg0) {
-
+		if (isFollow(arg0)) {
+			RestrictionsTransformer transformer = new RestrictionsTransformer();
+			transformer.setTask(Task.LIFT_ALTS);
+			IStrategoTerm t = transformer.transform(arg0);
+			System.out.println(t);
+			transformer.setTask(Task.ADD_BRACKETS);
+			t = transformer.transform(t);
+			System.out.println(t);
+			return t;
+		}
 		return arg0;
 	}
 

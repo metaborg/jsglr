@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -86,6 +87,10 @@ public class UnicodeUtils {
 		return isConstructors(term, "context-free-restrictions", "lexical-restrictions", "restrictions");
 	}
 	
+	public static boolean isFollow(IStrategoTerm term) {
+		return isConstructors(term, "follow");
+	}
+	
 	public static boolean isSyntaxOrPriorities(IStrategoTerm term) {
 		return isConstructors(term, "context-free-syntax", "context-free-priorities", "syntax", "priorities", "lexical-syntax", "lexical-priorities");
 	}
@@ -101,6 +106,11 @@ public class UnicodeUtils {
 	public static boolean isLit(IStrategoTerm term) {
 		return isConstructors(term, "lit");
 	}
+	
+	public static boolean isList(IStrategoTerm term) {
+		return isConstructors(term, "list");
+	}
+
 
 	public static boolean isUnicode(IStrategoTerm term) {
 		return isConstructors(term, "unicode");
@@ -261,6 +271,11 @@ public class UnicodeUtils {
 	
 }
 	
+	public static IStrategoTerm makeBracket(IStrategoTerm term) {
+		return factory.makeAppl(factory.makeConstructor("seq", 2), term,
+				factory.makeList(new ArrayList<IStrategoTerm>()));
+	}
+	
 	public static IStrategoTerm makeSymbolSeq(IStrategoTerm first, Collection<IStrategoTerm> rest) {
 		if (rest.size() == 0) {
 			return first;
@@ -335,6 +350,10 @@ public class UnicodeUtils {
 		IStrategoTerm range = factory.makeAppl(factory.makeConstructor("range", 2), startTerm, endTerm);
 		return makePresentSimpleCharClass(range);
 	}
+	
+	public static IStrategoTerm makeOrSymbol(IStrategoTerm term1, IStrategoTerm term2) {
+		return factory.makeAppl(factory.makeConstructor("alt", 2), term1, term2);
+	}
 
 	public static IStrategoTerm makeOrSymbol(List<IStrategoTerm> terms) {
 		if (terms.size() == 0) {
@@ -344,7 +363,7 @@ public class UnicodeUtils {
 		}
 		IStrategoTerm left = terms.get(0);
 		IStrategoTerm second = makeOrSymbol(terms.subList(1, terms.size()));
-		return factory.makeAppl(factory.makeConstructor("alt", 2), left, second);
+		return makeOrSymbol(left, second);
 	}
 	
 	public static IStrategoTerm makeEmptySymbol() {

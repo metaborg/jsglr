@@ -27,9 +27,9 @@
 	<macrodef name="compile-grammar">
 		<attribute name="module" />
 		<sequential>
-			<unicodesdf encoding="UTF-8" onlysdfufiles="true">
+		<!--	<unicodesdf encoding="UTF-8" onlysdfufiles="true">
 				<fileset file="@{module}.sdfu"/>
-			</unicodesdf>
+			</unicodesdf> -->
 			<pack-sdf source="@{module}.sdf" output="@{module}.def" />
 			<sdf2table source="@{module}.def" output="@{module}.tbl" module="@{module}" />
 		</sequential>

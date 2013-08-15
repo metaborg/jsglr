@@ -1,0 +1,18 @@
+module RestrictionsTest
+
+exports
+	
+	context-free start-symbols
+		X
+	
+	context-free syntax
+		Y+ -> X 	{cons("X")}
+		
+	lexical syntax
+		[\ ] 	-> LAYOUT
+		[a-zα-ω]+	-> Y
+		
+	lexical restrictions
+		Y -/- [[ [a-m] , [n-z]]]  | [α-ωab] . [\ ]
+		
+		

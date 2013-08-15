@@ -12,7 +12,7 @@ public class ProductionTransformer extends MyTermTransformer {
 	private LinkedList<IStrategoTerm> convertedSyntaxProductions;
 	
 	public ProductionTransformer() {
-		super(factory, true);
+		super(factory, false);
 		this.convertedSyntaxProductions = new LinkedList<IStrategoTerm>();
 	}
 	

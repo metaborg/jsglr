@@ -1,4 +1,4 @@
-module RestrictionsTest
+module UnicodeRestrictionsTest
 
 exports
 	

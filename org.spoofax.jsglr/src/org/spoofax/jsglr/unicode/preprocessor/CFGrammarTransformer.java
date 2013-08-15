@@ -144,10 +144,8 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			RestrictionsTransformer transformer = new RestrictionsTransformer();
 			transformer.setTask(Task.LIFT_ALTS);
 			IStrategoTerm t = transformer.transform(arg0);
-			System.out.println(t);
 			transformer.setTask(Task.ADD_BRACKETS);
 			t = transformer.transform(t);
-			System.out.println(t);
 			return t;
 		}
 		return arg0;

@@ -1,41 +1,48 @@
 <project default="compile">
 
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+
 	<condition property="binary.sdf2table" value="${project.loc}/tests-offside/tools/win/sdf2table.exe" else="${project.loc}/tests-offside/tools/mac/sdf2table">
 		<os family="windows" />
 	</condition>
 
 	<property name="strategoxt" value="../../../tests-offside/tools/strategoxt.jar" />
-	
-	<target name="compile" >
+
+	<target name="compile">
 		<compile-grammar module="UTF8" />
 		<compile-grammar module="UnicodeLambdaLanguage" />
 		<compile-grammar module="UnicodeMathExpressions" />
+		<compile-grammar module="UnicodeRestrictionsTest" />
 	</target>
-	
+
 	<target name="gen-signature">
-		<compile-signature module="UTF8"/>
+		<compile-signature module="UTF8" />
 	</target>
-	
-	<taskdef name="unicodesdf" classname="org.spoofax.jsglr.unicode.UnicodeSDFPreprocessorTask" 
-		classpath="../../../bin;
+
+	<taskdef name="unicodesdf" classname="org.spoofax.jsglr.unicode.UnicodeSDFPreprocessorTask" classpath="../../../bin;
 		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.terms_1.0.0.201304181013.jar;
 		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.strategoxt.strj_0.17.92.201304181013/java/strategoxt.jar;
 		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.interpreter.core_0.4.1.201304181013.jar;
 		/Users/moritzlichter/Developer/Applications/Eclipse 4/eclipse/plugins/org.spoofax.interpreter.library.jsglr_0.3.9.201304181013.jar
-		"/>
+		" />
 
 	<macrodef name="compile-grammar">
 		<attribute name="module" />
 		<sequential>
-		<!--	<unicodesdf encoding="UTF-8" onlysdfufiles="true">
-				<fileset file="@{module}.sdfu"/>
-			</unicodesdf> -->
+			<if>
+				<available file="@{module}.sdfu" />
+				<then>
+					<unicodesdf encoding="UTF-8" onlysdfufiles="true">
+						<fileset file="@{module}.sdfu" />
+					</unicodesdf>
+				</then>
+			</if>
 			<pack-sdf source="@{module}.sdf" output="@{module}.def" />
 			<sdf2table source="@{module}.def" output="@{module}.tbl" module="@{module}" />
 		</sequential>
 	</macrodef>
 
-	
+
 	<macrodef name="pack-sdf">
 		<attribute name="source" />
 		<attribute name="output" />
@@ -85,30 +92,30 @@
 		<sequential>
 			<exec executable="${bindir}sdf2rtg" failonerror="@{failonerror}">
 				<arg value="-i" />
-				<arg value="@{source}"/>
+				<arg value="@{source}" />
 				<arg value="-o" />
-				<arg value="@{output}"/>
+				<arg value="@{output}" />
 				<arg value="-m" />
-				<arg value="@{module}"/>
+				<arg value="@{module}" />
 				<arg value="--ignore-missing-cons" />
 			</exec>
 		</sequential>
 	</macrodef>
-	
+
 	<macrodef name="rtg2sig">
-			<attribute name="source" />
-			<attribute name="output" />
-			<attribute name="module" />
-			<attribute name="failonerror" default="true" />
-			<sequential>
-				<exec executable="${bindir}rtg2sig" failonerror="@{failonerror}">
-					<arg value="-i" />
-					<arg value="@{source}"/>
-					<arg value="-o" />
-					<arg value="@{output}"/>
-					<arg value="--module" />
-					<arg value="@{module}"/>
-				</exec>
-			</sequential>
-		</macrodef>
+		<attribute name="source" />
+		<attribute name="output" />
+		<attribute name="module" />
+		<attribute name="failonerror" default="true" />
+		<sequential>
+			<exec executable="${bindir}rtg2sig" failonerror="@{failonerror}">
+				<arg value="-i" />
+				<arg value="@{source}" />
+				<arg value="-o" />
+				<arg value="@{output}" />
+				<arg value="--module" />
+				<arg value="@{module}" />
+			</exec>
+		</sequential>
+	</macrodef>
 </project>

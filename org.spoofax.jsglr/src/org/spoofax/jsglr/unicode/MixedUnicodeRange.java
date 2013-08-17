@@ -13,23 +13,24 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * 
  */
 public class MixedUnicodeRange {
-	
-	private static final UnicodeInterval ASCII_INTERVAL = new UnicodeInterval(0, UnicodeConverter.FIRST_UNICODE-1);
-	private static final UnicodeInterval UTF16_2BYTE_INTERVAL = new UnicodeInterval(UnicodeConverter.FIRST_UNICODE, UnicodeConverter.getMaxTwoByteChar());
-	private static final UnicodeInterval UTF16_4BYTE_INTERVAL = new UnicodeInterval((long)UnicodeConverter.getMaxTwoByteChar()+1, UnicodeInterval.intToLong(UnicodeConverter.getLastUnicode()));
+
+	private static final UnicodeInterval ASCII_INTERVAL = new UnicodeInterval(0, UnicodeConverter.FIRST_UNICODE - 1);
+	private static final UnicodeInterval UTF16_2BYTE_INTERVAL = new UnicodeInterval(UnicodeConverter.FIRST_UNICODE,
+			UnicodeConverter.getMaxTwoByteChar());
+	private static final UnicodeInterval UTF16_4BYTE_INTERVAL = new UnicodeInterval(
+			UnicodeInterval.intToLong(UnicodeConverter.numberToInt(UnicodeConverter.getMaxTwoByteChar()+1)),
+			UnicodeInterval.intToLong(UnicodeConverter.numberToInt(UnicodeConverter.getLastUnicode())));
 
 	private UnicodeRange utf16_2byte;
 	private UnicodeRange utf16_4byte;
 	private UnicodeRange ascii;
-	
+
 	/**
 	 * Create an empty UnicodeRangePair
 	 */
 	public MixedUnicodeRange() {
 		this(new UnicodeRange(), new UnicodeRange(), new UnicodeRange());
 	}
-	
-	
 
 	/**
 	 * Creates a new UnicodeRangePair from the given value to the given value.
@@ -50,27 +51,27 @@ public class MixedUnicodeRange {
 			start = end;
 			end = temp;
 		}
-	//	System.out.println("Create for: " + start + " - " + end);
+		// System.out.println("Create for: " + start + " - " + end);
 		if (UnicodeConverter.isAscii(end)) {
 			this.ascii = new UnicodeRange(new UnicodeInterval(start, end));
 		} else if (UnicodeConverter.isAscii(start)) {
-			this.ascii = new UnicodeRange(new UnicodeInterval(start, UnicodeConverter.getFirstUnicode()-1));
+			this.ascii = new UnicodeRange(new UnicodeInterval(start, UnicodeConverter.getFirstUnicode() - 1));
 			start = UnicodeConverter.getFirstUnicode();
-		} 
-		if (!UnicodeConverter.isAscii(start)) {
-		// Check how many bytes start and end needs
-		if (UnicodeConverter.isTwoByteCharacter(end)) {
-			// Both two bytes
-			this.utf16_2byte = new UnicodeRange(new UnicodeInterval(start, end));
-		} else if (!UnicodeConverter.isTwoByteCharacter(start)) {
-			// Both four bytes
-			this.utf16_4byte = new UnicodeRange(new UnicodeInterval(start, end));
-		} else {
-			// Mixed, split the interval into start - Max 2 Bytes and Min 4
-			// Bytes - end
-			this.utf16_2byte = new UnicodeRange(new UnicodeInterval(start, UnicodeConverter.getMaxTwoByteChar()));
-			this.utf16_4byte = new UnicodeRange(new UnicodeInterval(UnicodeConverter.getMaxTwoByteChar() + 1, end));
 		}
+		if (!UnicodeConverter.isAscii(start)) {
+			// Check how many bytes start and end needs
+			if (UnicodeConverter.isTwoByteCharacter(end)) {
+				// Both two bytes
+				this.utf16_2byte = new UnicodeRange(new UnicodeInterval(start, end));
+			} else if (!UnicodeConverter.isTwoByteCharacter(start)) {
+				// Both four bytes
+				this.utf16_4byte = new UnicodeRange(new UnicodeInterval(start, end));
+			} else {
+				// Mixed, split the interval into start - Max 2 Bytes and Min 4
+				// Bytes - end
+				this.utf16_2byte = new UnicodeRange(new UnicodeInterval(start, UnicodeConverter.getMaxTwoByteChar()));
+				this.utf16_4byte = new UnicodeRange(new UnicodeInterval(UnicodeConverter.getMaxTwoByteChar() + 1, end));
+			}
 		}
 	}
 
@@ -97,25 +98,25 @@ public class MixedUnicodeRange {
 		this.utf16_2byte.intersect(p.utf16_2byte);
 		this.utf16_4byte.intersect(p.utf16_4byte);
 	}
-	
+
 	public void diff(MixedUnicodeRange p) {
 		this.ascii.diff(p.ascii);
 		this.utf16_2byte.diff(p.utf16_2byte);
 		this.utf16_4byte.diff(p.utf16_4byte);
 	}
-	
+
 	public void invert() {
 		this.ascii.invert(ASCII_INTERVAL);
 		this.utf16_2byte.invert(UTF16_2BYTE_INTERVAL);
 		this.utf16_4byte.invert(UTF16_4BYTE_INTERVAL);
 	}
-	
+
 	public void normalize() {
 		this.ascii.normalize();
 		this.utf16_2byte.normalize();
 		this.utf16_4byte.normalize();
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -136,7 +137,7 @@ public class MixedUnicodeRange {
 		}
 		return builder.toString();
 	}
-	
+
 	public IStrategoTerm toAST(SequenceCreator seq) {
 		LinkedList<IStrategoTerm> alternativeTerms = new LinkedList<IStrategoTerm>();
 		if (!this.ascii.isEmpty()) {
@@ -150,9 +151,10 @@ public class MixedUnicodeRange {
 		}
 		return UnicodeUtils.makeOrSymbol(alternativeTerms);
 	}
-	
+
 	private IStrategoTerm prependSeven(IStrategoTerm term, SequenceCreator seq) {
-		IStrategoTerm sevenCharClass = UnicodeUtils.charClassToSymbol(UnicodeUtils.makeCharClass(UnicodeConverter.UNICODE_PRAEFIX));
+		IStrategoTerm sevenCharClass = UnicodeUtils.charClassToSymbol(UnicodeUtils
+				.makeCharClass(UnicodeConverter.UNICODE_PRAEFIX));
 		return seq.createSequence(sevenCharClass, term);
 	}
 }

@@ -1474,11 +1474,7 @@ public class SGLR {
 		// complete
 		s = UnicodeConverter.decodeAsciiToUnicode(s);
 		// Check the length of the result and combine it to a single integer
-		if (s.length() == 2) {
-			return (s.charAt(0) << 16) | s.charAt(1);
-		} else {
-			return s.charAt(0);
-		}
+		return UnicodeConverter.toUnicodeCharacter(s);
 	}
 
 	/**

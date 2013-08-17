@@ -155,6 +155,10 @@ public class UnicodeConverter {
 			return encoded;
 		}
 	}
+	
+	public static int numberToInt(int number) {
+		return toUnicodeCharacter(new String(numberToUtf16_4Byte(number)));
+	}
 
 	private static char[] numberToUtf16_4Byte(int number) {
 		boolean needToByte = number < 0 || number >= 0x10000;

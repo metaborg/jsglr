@@ -302,7 +302,7 @@ public class UnicodeConverter {
 		// Get the first char
 		char c = readBuffer.get();
 		if (c != UNICODE_PRAEFIX) {
-			assert isUnicode(c);
+			assert !isUnicode(c);
 			// Just ascii
 			writeBuffer.put(c);
 		} else {

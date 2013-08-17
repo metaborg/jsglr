@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,15 +36,14 @@ public class UnicodeLambdaTest {
 	
 	@Test
 	public void testUnicodeLambda() throws Exception{
+		for (char c : UnicodeConverter.encodeUnicodeToAscii("蜨").toCharArray()) {
+			System.out.print((int)c + " ");
+		}
+		System.out.println();
 		SGLR sglr = new SGLR(new TreeBuilder(new TermTreeFactory(new ParentTermFactory(unicodeLambdaParseTable.getFactory())),
 				true), unicodeLambdaParseTable);
 		String content = UnicodeUtils.readFile(unicodeLambdaFile, Charset.forName("UTF-8"));
-		/*for (char c : UnicodeConverter.encodeUnicodeToAscii(content).toCharArray()) {
-			if (c == '\n')
-				System.out.println();
-			else
-				System.out.print((int)c + " ");
-		}*/
+		/**/
 		IStrategoTerm term = (IStrategoTerm) sglr.parse(content, null, null, true);
 		
 		System.out.println(term.toString());

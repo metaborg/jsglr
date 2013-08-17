@@ -7,8 +7,10 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -333,7 +335,7 @@ public class SGLR {
 		} else {
 			parseInput = input;
 		}
-		Object result =  this.parse(parseInput, filename, startSymbol, completionMode, cursorLocation);
+		Object result = this.parse(parseInput, filename, startSymbol, completionMode, cursorLocation);
 		if (utf8 && result instanceof IStrategoTerm) {
 			return UnicodeStrategoTermPostprocessor.postprocess((IStrategoTerm) result);
 		}
@@ -559,10 +561,10 @@ public class SGLR {
 		} else {
 			parseInput = input;
 		}
-		Object result =  this.parse(parseInput, filename, startSymbol);
+		Object result = this.parse(parseInput, filename, startSymbol);
 		if (utf8 && result instanceof IStrategoTerm) {
 			return UnicodeStrategoTermPostprocessor.postprocess((IStrategoTerm) result);
-		} 
+		}
 		return result;
 	}
 
@@ -726,13 +728,14 @@ public class SGLR {
 				} while (action != null);
 
 				if (expected.length() > 0) {
-					return new TokenExpectedException(this, expected.toString(), currentToken, tokensSeen + startOffset
-							- 1, lineNumber, columnNumber);
+					return new TokenExpectedException(this, expected.toString(), getCompleteLastChar(), tokensSeen
+							+ startOffset - 1, lineNumber, columnNumber);
 				}
 			}
 		}
 
-		return new BadTokenException(this, currentToken, tokensSeen + startOffset - 1, lineNumber, columnNumber);
+		return new BadTokenException(this, getCompleteLastChar(), tokensSeen + startOffset - 1, lineNumber,
+				columnNumber);
 	}
 
 	private void shifter() {
@@ -1448,8 +1451,88 @@ public class SGLR {
 		return ch;
 	}
 
+	/**
+	 * List which tracks the last integer data for the last character. For ASCII
+	 * this list contains only a singe Integer, for Unicode more
+	 */
+	private LinkedList<Integer> lastChars = new LinkedList<Integer>();
+
+	/**
+	 * Returns the last character read. This method may fail and throw an
+	 * exception when a Unicode character has not been read completely.
+	 * 
+	 * @return the last char
+	 */
+	protected int getLastChar() throws Exception {
+		// Convert list to array to make a string out of it
+		int[] data = new int[lastChars.size()];
+		for (int i = 0; i < lastChars.size(); i++) {
+			data[i] = lastChars.get(i);
+		}
+		String s = new String(data, 0, lastChars.size());
+		// Decode it, this may throw buffer exceptions when the character is not
+		// complete
+		s = UnicodeConverter.decodeAsciiToUnicode(s);
+		// Check the length of the result and combine it to a single integer
+		if (s.length() == 2) {
+			return (s.charAt(0) << 16) | s.charAt(1);
+		} else {
+			return s.charAt(0);
+		}
+	}
+
+	/**
+	 * Gets the complete last character. This method always returns a valid
+	 * character and reads more data from the input stream when necessary to
+	 * complete a unicode character. It resets the stream to the position before
+	 * calling this method.
+	 * 
+	 * @return the last character
+	 */
+	protected int getCompleteLastChar() {
+		int charV = 0;
+		int numAdditionalReads = 0;
+		LinkedList<Integer> lastCharsBackup = this.lastChars;
+		this.lastChars = new LinkedList<Integer> ();
+		this.lastChars.addAll(lastCharsBackup);
+		// Continue until end is reached or the character is complete
+		while (charV != SGLR.EOF) {
+			try {
+				//Get the last char
+				charV = getLastChar();
+				// Reset the stream and the list
+				currentInputStream.setOffset(currentInputStream.getOffset() - numAdditionalReads);
+				this.lastChars = lastCharsBackup;
+				return charV;
+			} catch (Exception e) {
+				// Last char failed, so the current char is not complete, get the next one
+				numAdditionalReads++;
+				charV = currentInputStream.read();
+				this.lastChars.addLast(charV);
+			}
+		}
+		return charV;
+	}
+
 	protected void updateLineAndColumnInfo(int ch) {
 		tokensSeen++;
+
+		boolean characterComplete = true;
+		if (!lastChars.isEmpty() && lastChars.getFirst() == UnicodeConverter.UNICODE_PRAEFIX) {
+			// Try whether string is ok
+			try {
+				getLastChar();
+			} catch (Exception e) {
+				// Thrown when buffers have a problem, the char is not complete
+				characterComplete = false;
+			}
+			if (characterComplete) {
+				lastChars.clear();
+			}
+		} else if (!lastChars.isEmpty()) {
+			lastChars.removeLast();
+		}
+		lastChars.addLast(ch);
 
 		if (Tools.debugging) {
 			Tools.debug("getNextToken() - ", ch, "(", (char) ch, ")");
@@ -1460,13 +1543,19 @@ public class SGLR {
 
 		switch (ch) {
 		case '\n':
-			lineNumber++;
-			columnNumber = 0;
+			// Ignore new lines in byte sequences of a unicode character
+			if (characterComplete) {
+				lineNumber++;
+				columnNumber = 0;
+			} else {
+				columnNumber++;
+			}
 			break;
 		case '\t':
 			columnNumber = (columnNumber / TAB_SIZE + 1) * TAB_SIZE;
 			break;
 		case -1:
+		case UnicodeConverter.UNICODE_PRAEFIX:
 			break;
 		default:
 			columnNumber++;

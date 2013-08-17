@@ -47,10 +47,7 @@ exports
 	lexical syntax
 		[×∙\*]		 	-> TimesOp
 		[÷\/]			-> DivideOp
-		[⁰¹²³⁴⁵⁶⁷⁸⁹]+			-> Superscript
-		
-	lexical restrictions
-		Superscript -/- [⁰¹²³⁴⁵⁶⁷⁸⁹]
+		[⁰¹²³⁴⁵⁶⁷⁸⁹]+			-> Superscript {longest-match}
 	
 	context-free syntax
 		

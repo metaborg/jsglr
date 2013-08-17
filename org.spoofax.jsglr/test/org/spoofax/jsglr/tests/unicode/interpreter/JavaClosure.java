@@ -15,7 +15,7 @@ public class JavaClosure extends Closure {
 	@Override
 	public Object eval(IStrategoTerm[] operands, Environment e) {
 		if (this.operands.length != operands.length) {
-			throw new RuntimeException("Wrong number of arguments. Expected " + this.operands.length + " but got "+ operands.length );
+			throw new RuntimeException("Wrong number of arguments for " + Term.asJavaString(this.lambda)+ ". Expected " + this.operands.length + " but got "+ operands.length );
 		}
 		String javaMethod = Term.asJavaString(this.lambda);
 		try  {

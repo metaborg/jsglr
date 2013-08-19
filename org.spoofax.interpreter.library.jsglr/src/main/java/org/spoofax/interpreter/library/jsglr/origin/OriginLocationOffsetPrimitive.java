@@ -35,7 +35,11 @@ public class OriginLocationOffsetPrimitive extends AbstractPrimitive {
 
 		final IToken left = imploder.getLeftToken();
 		final IToken right = imploder.getRightToken();
-		final String filename = left.getTokenizer().getFilename();
+		String filename = left.getTokenizer().getFilename();
+		if(filename == null)
+			filename = right.getTokenizer().getFilename();
+		if(filename == null)
+			filename = ".";
 
 		env.setCurrent(factory.makeTuple(factory.makeString(filename), factory.makeInt(left.getLine()),
 			factory.makeInt(left.getColumn()), factory.makeInt(left.getStartOffset()),

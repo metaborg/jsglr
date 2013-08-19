@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.terms;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

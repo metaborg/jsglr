@@ -3,7 +3,8 @@ package org.spoofax.jsglr.unicode.preprocessor;
 import java.io.File;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
+import org.spoofax.jsglr.unicode.transformer.CFGrammarTransformer;
 
 public class UnicodePreprocessor {
 

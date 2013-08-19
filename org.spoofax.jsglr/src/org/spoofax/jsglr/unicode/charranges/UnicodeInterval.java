@@ -1,7 +1,9 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.charranges;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.spoofax.jsglr.unicode.UnicodeConverter;
 
 /**
  * The UnicodeInterval is an interval of Unicode characters from a start to an

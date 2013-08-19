@@ -1,8 +1,11 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.charranges;
 
 import java.util.LinkedList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.unicode.UnicodeConverter;
+import org.spoofax.jsglr.unicode.terms.SequenceCreator;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 
 /**
  * A UnicodeRangePair is a pair of two UnicodeRanges where the first range only

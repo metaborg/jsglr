@@ -1,6 +1,4 @@
 eclipse.preferences.version=1
-encoding//src/org/spoofax/jsglr/unicode/UnicodeSDFPreprocessor.java=UTF-8
-encoding//test/org/spoofax/jsglr/tests/unicode/TestUnicode.java=UTF-8
 encoding//tests/data/UnicodeLambdaTest.txt=UTF-8
 encoding//tests/grammars/basic/UTF8.sdf=UTF-8
 encoding//tests/grammars/basic/UnicodeLambdaLanguage.sdfu=UTF-8

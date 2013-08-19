@@ -6,11 +6,11 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
-import org.spoofax.jsglr.unicode.preprocessor.CFGrammarTransformer;
 import org.spoofax.jsglr.unicode.preprocessor.SDFPrettyPrinter;
 import org.spoofax.jsglr.unicode.preprocessor.UnicodeCleaner;
 import org.spoofax.jsglr.unicode.preprocessor.UnicodeSDFParser;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
+import org.spoofax.jsglr.unicode.transformer.CFGrammarTransformer;
 
 public class UnicodePreprocessorTest {
 

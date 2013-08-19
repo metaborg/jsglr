@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.terms;
 
 import java.util.Iterator;
 import java.util.LinkedList;

@@ -6,7 +6,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 
 public class UnicodeSDFParser {
 

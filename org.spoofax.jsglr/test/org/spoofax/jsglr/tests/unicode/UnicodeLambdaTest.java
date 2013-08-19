@@ -16,7 +16,7 @@ import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.tests.unicode.interpreter.Interpreter;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 import org.spoofax.terms.attachments.ParentTermFactory;
 
 public class UnicodeLambdaTest {

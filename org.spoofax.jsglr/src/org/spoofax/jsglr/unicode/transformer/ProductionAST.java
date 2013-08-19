@@ -1,11 +1,11 @@
-package org.spoofax.jsglr.unicode.preprocessor;
+package org.spoofax.jsglr.unicode.transformer;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 
 public abstract class ProductionAST {
 	

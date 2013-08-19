@@ -2,7 +2,7 @@ package org.spoofax.jsglr.unicode.preprocessor;
 
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 import org.strategoxt.HybridInterpreter;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.StrategoExit;

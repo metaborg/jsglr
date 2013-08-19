@@ -1,7 +1,7 @@
-package org.spoofax.jsglr.unicode.preprocessor;
+package org.spoofax.jsglr.unicode.transformer;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 import org.spoofax.terms.TermVisitor;
 
 public class UnicodeSymbolVisitor extends TermVisitor {

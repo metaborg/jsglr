@@ -3,9 +3,9 @@ package org.spoofax.jsglr.tests.unicode;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.spoofax.jsglr.unicode.DefaultSequenceCreator;
-import org.spoofax.jsglr.unicode.UnicodeInterval;
-import org.spoofax.jsglr.unicode.UnicodeRange;
+import org.spoofax.jsglr.unicode.charranges.UnicodeInterval;
+import org.spoofax.jsglr.unicode.charranges.UnicodeRange;
+import org.spoofax.jsglr.unicode.terms.DefaultSequenceCreator;
 
 public class UnicodeRangeTest {
 

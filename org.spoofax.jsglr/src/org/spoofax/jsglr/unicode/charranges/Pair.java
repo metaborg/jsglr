@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.charranges;
 
 public class Pair<X, Y> implements Cloneable {
 	

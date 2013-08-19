@@ -1,17 +1,17 @@
-package org.spoofax.jsglr.unicode.preprocessor;
+package org.spoofax.jsglr.unicode.transformer;
 
-import static org.spoofax.jsglr.unicode.UnicodeUtils.*;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.*;
 
 import java.util.LinkedList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
-import org.spoofax.jsglr.unicode.DefaultSequenceCreator;
-import org.spoofax.jsglr.unicode.MixedUnicodeRange;
-import org.spoofax.jsglr.unicode.RestrictionsSequenceCreator;
-import org.spoofax.jsglr.unicode.SequenceCreator;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
-import org.spoofax.jsglr.unicode.preprocessor.RestrictionsTransformer.Task;
+import org.spoofax.jsglr.unicode.charranges.MixedUnicodeRange;
+import org.spoofax.jsglr.unicode.terms.DefaultSequenceCreator;
+import org.spoofax.jsglr.unicode.terms.RestrictionsSequenceCreator;
+import org.spoofax.jsglr.unicode.terms.SequenceCreator;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
+import org.spoofax.jsglr.unicode.transformer.RestrictionsTransformer.Task;
 import org.spoofax.terms.TermFactory;
 
 public class CFGrammarTransformer extends MyTermTransformer {

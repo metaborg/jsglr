@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.terms;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 

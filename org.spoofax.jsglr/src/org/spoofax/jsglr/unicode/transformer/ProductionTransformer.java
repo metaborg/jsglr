@@ -1,6 +1,6 @@
-package org.spoofax.jsglr.unicode.preprocessor;
+package org.spoofax.jsglr.unicode.transformer;
 
-import static org.spoofax.jsglr.unicode.UnicodeUtils.*;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.*;
 
 import java.util.LinkedList;
 

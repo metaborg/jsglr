@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.preprocessor;
 
 import java.io.File;
 import java.util.Iterator;
@@ -9,7 +9,6 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.resources.FileResource;
-import org.spoofax.jsglr.unicode.preprocessor.UnicodePreprocessor;
 
 /**
  * The {@link UnicodeSDFPreprocessorTask} integrates

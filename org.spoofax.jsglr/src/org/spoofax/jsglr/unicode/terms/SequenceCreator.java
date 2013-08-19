@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.terms;
 
 import java.util.Arrays;
 import java.util.Iterator;

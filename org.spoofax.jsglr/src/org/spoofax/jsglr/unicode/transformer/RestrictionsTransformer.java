@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode.preprocessor;
+package org.spoofax.jsglr.unicode.transformer;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
-import org.spoofax.jsglr.unicode.UnicodeUtils;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 
 public class RestrictionsTransformer extends MyTermTransformer {
 

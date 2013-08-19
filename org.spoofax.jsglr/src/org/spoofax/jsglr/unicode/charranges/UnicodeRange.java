@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.unicode;
+package org.spoofax.jsglr.unicode.charranges;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +10,9 @@ import java.util.Set;
 
 import org.apache.tools.ant.util.UnicodeUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.unicode.UnicodeConverter;
+import org.spoofax.jsglr.unicode.terms.SequenceCreator;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 
 /**
  * A UnicodeRange is a list of UnicodeIntervals.

@@ -87,6 +87,10 @@ public class UnicodeUtils {
 		return isConstructors(term, "context-free-restrictions", "lexical-restrictions", "restrictions");
 	}
 	
+	public static boolean isVariables(IStrategoTerm term) {
+		return isConstructors(term, "lexical-variables", "variables");
+	}
+	
 	public static boolean isFollow(IStrategoTerm term) {
 		return isConstructors(term, "follow");
 	}
@@ -142,6 +146,10 @@ public class UnicodeUtils {
 	
 	public static boolean isInvertCharClass(IStrategoTerm term) {
 		return isConstructors(term, "comp");
+	}
+	
+	public static boolean isUnicodeInvertCharClass(IStrategoTerm term) {
+		return isConstructors(term, "unicodecomp");
 	}
 	
 	public static boolean isDiffCharClass(IStrategoTerm term) {

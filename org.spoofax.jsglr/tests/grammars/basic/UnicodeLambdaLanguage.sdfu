@@ -28,7 +28,7 @@ exports
 	lexical syntax
   		"✎"	 ~[\n]* [\n] -> LAYOUT
 		[\ \t\r\n] 						-> LAYOUT
-		(~[\ \t\r\n\.\(\)⟨⟩✎] / [0-9])+ -> Id {longest-match}
+		(~u[\ \t\r\n\.\(\)⟨⟩✎] / [0-9])+ -> Id {longest-match}
 		[0-9]+							-> Int {longest-match}
 		[a-zA-Z]([a-zA-Z\.\$\#\_])*			-> JavaName {longest-match}
 	

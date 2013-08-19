@@ -1,29 +1,6 @@
 package org.spoofax.jsglr.unicode.preprocessor;
 
-import static org.spoofax.jsglr.unicode.UnicodeUtils.charClassToSymbol;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.characterToInt;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isAbsentCharRange;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isAscii;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isCharClass;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isConcCharRange;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isContextFreeGrammar;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isContextFreePriorities;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isDiffCharClass;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isFollow;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isIntersetCharClass;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isInvertCharClass;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isLit;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isPresentCharRange;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isRangeCharRange;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isRestriction;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isSimpleCharClass;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isSyntaxOrPriorities;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isUnicode;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.isUnionCharClass;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.makeAsciiLit;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.makeUnicodeCharClass;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.toJavaString;
-import static org.spoofax.jsglr.unicode.UnicodeUtils.unicodeToString;
+import static org.spoofax.jsglr.unicode.UnicodeUtils.*;
 
 import java.util.LinkedList;
 
@@ -195,9 +172,13 @@ public class CFGrammarTransformer extends MyTermTransformer {
 	private MixedUnicodeRange evaluateCharClass(IStrategoTerm charclass) {
 		if (UnicodeUtils.isSimpleCharClass(charclass)) {
 			return evaluateCharRange(charclass.getSubterm(0));
-		} else if (isInvertCharClass(charclass)) {
+		} else if (isInvertCharClass(charclass) | isUnicodeInvertCharClass(charclass)) {
 			MixedUnicodeRange range = evaluateCharClass(charclass.getSubterm(0));
-			range.invert();
+			if (isUnicodeInvertCharClass(charclass)) {
+				range.invert();
+			} else {
+				range.invertASCII();
+			}
 			range.diff(new MixedUnicodeRange(7, 7));
 			return range;
 		} else {

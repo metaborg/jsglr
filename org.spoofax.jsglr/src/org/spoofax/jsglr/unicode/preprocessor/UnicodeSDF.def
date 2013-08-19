@@ -163,13 +163,15 @@ exports
 
     "[" OptCharRanges "]"                    -> CharClass  {cons("simple-charclass")}
     "~" CharClass                            -> CharClass  {cons("comp")}
+    "~u" CharClass							 -> CharClass  {cons("unicodecomp")}
     "left":CharClass "/" "right":CharClass   -> CharClass  {cons("diff"),left,memo}
     "left":CharClass "/\\" "right":CharClass -> CharClass  {cons("isect"),left,memo}
     "left":CharClass "\\/" "right":CharClass -> CharClass  {cons("union"),left}
     "(" CharClass ")"                        -> CharClass  {bracket, avoid}
 
   context-free priorities
-    "~" CharClass             -> CharClass >
+    {"~" CharClass            -> CharClass
+     "~u" CharClass			  -> CharClass }>
     CharClass "/" CharClass   -> CharClass >
     CharClass "/\\" CharClass -> CharClass >
     CharClass "\\/" CharClass -> CharClass           

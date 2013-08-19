@@ -14,23 +14,36 @@ import org.strategoxt.tools.sdf_desugar_0_0;
 
 public class SDFPrettyPrinter {
 
+	private static Context ctx = stratego_sdf.init();
+
+	public static IStrategoTerm fixSDF(IStrategoTerm term) {
+		if (term == null)
+			return null;
+
+		IStrategoTerm result = null;
+		try {
+			result = sdf_desugar_0_0.instance.invoke(ctx, term);
+		} catch (StrategoExit e) {
+			if (e.getValue() != 0 || result == null)
+				throw new RuntimeException("Sdf desugaring failed", e);
+		}
+
+		return result;
+	}
+
 	public String prettyPrintSDF(IStrategoTerm ast) {
-		HybridInterpreter interp = new HybridInterpreter();
+
+		/*
+		 * IStrategoTerm result = null; try { result =
+		 * sdf_desugar_0_0.instance.invoke(interp.getCompiledContext(), ast); }
+		 * catch (StrategoExit e) { if (e.getValue() != 0 || result == null)
+		 * throw new RuntimeException("Sdf desugaring failed", e); } ast =
+		 * result;
+		 */
+
 		
-		/*IStrategoTerm result = null;
-	    try {
-	      result = sdf_desugar_0_0.instance.invoke(interp.getCompiledContext(), ast);
-	    }
-	    catch (StrategoExit e) {
-	      if (e.getValue() != 0 || result == null)
-	        throw new RuntimeException("Sdf desugaring failed", e);
-	    }
-	    ast = result;*/
-		
-		
-		Context ctx = stratego_sdf.init();
 		IStrategoTerm boxTerm = pp_sdf_box_0_0.instance.invoke(ctx, ast);
-	
+		
 		if (boxTerm != null) {
 			IStrategoTerm textTerm = box2text_string_0_1.instance
 					.invoke(ctx, boxTerm, UnicodeUtils.factory.makeInt(80));

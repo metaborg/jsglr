@@ -110,6 +110,12 @@ public class MixedUnicodeRange {
 		this.utf16_2byte.invert(UTF16_2BYTE_INTERVAL);
 		this.utf16_4byte.invert(UTF16_4BYTE_INTERVAL);
 	}
+	
+	public void invertASCII() {
+		this.ascii.invert(ASCII_INTERVAL);
+		this.utf16_2byte = new UnicodeRange();
+		this.utf16_4byte = new UnicodeRange();
+	}
 
 	public void normalize() {
 		this.ascii.normalize();

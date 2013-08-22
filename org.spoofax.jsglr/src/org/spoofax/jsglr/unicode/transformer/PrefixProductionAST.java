@@ -5,14 +5,21 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 
+/**
+ * Implementation of {@link ProductionAST} for prefix productions.
+ * 
+ * @author moritzlichter
+ * 
+ */
 public class PrefixProductionAST extends ProductionAST {
 
-	public static final String PREFIX_FUN_CONSTRUCTOR = "prefix-fun";
+	private static final String PREFIX_FUN_CONSTRUCTOR = "prefix-fun";
 
 	private IStrategoTerm functionName;
 
-	public PrefixProductionAST(){}
-	
+	public PrefixProductionAST() {
+	}
+
 	@Override
 	public void unpack(IStrategoTerm productionTerm) {
 		UnicodeUtils.forceConstructors(productionTerm, PREFIX_FUN_CONSTRUCTOR);

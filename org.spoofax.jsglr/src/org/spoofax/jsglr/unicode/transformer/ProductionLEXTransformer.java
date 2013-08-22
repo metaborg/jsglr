@@ -1,13 +1,21 @@
 package org.spoofax.jsglr.unicode.transformer;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 import org.spoofax.terms.TermTransformer;
 
-public class ProductionCFTransformer extends TermTransformer {
+/**
+ * The {@link ProductionLEXTransformer} wraps LEX brackets around unicode
+ * literals in a given AST. This is necessary because a unicode literal may
+ * expand to a sequence of char-classes, which are not allowed to contain layout
+ * and should not be placed in the ASTs.
+ * 
+ * @author moritzlichter
+ * 
+ */
+public class ProductionLEXTransformer extends TermTransformer {
 
-	public ProductionCFTransformer() {
+	public ProductionLEXTransformer() {
 		super(UnicodeUtils.factory, false);
 	}
 
@@ -23,6 +31,5 @@ public class ProductionCFTransformer extends TermTransformer {
 		}
 		return super.postTransform(arg0);
 	}
-	
 
 }

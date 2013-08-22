@@ -5,11 +5,18 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 
+/**
+ * Implementation of {@link ProductionAST} for default productions.
+ * 
+ * @author moritzlichter
+ * 
+ */
 public class DefaultProductionAST extends ProductionAST {
 
-	public static final String PROD_CONSTRUCTOR = "prod";
-	
-	public DefaultProductionAST() {}
+	private static final String PROD_CONSTRUCTOR = "prod";
+
+	public DefaultProductionAST() {
+	}
 
 	@Override
 	public void unpack(IStrategoTerm productionTerm) {
@@ -21,8 +28,8 @@ public class DefaultProductionAST extends ProductionAST {
 
 	@Override
 	public IStrategoTerm pack(final ITermFactory factory) {
-		return factory.makeAppl(factory.makeConstructor(PROD_CONSTRUCTOR, 3), factory.makeList(this.symbols), this.resultSymbol,
-				this.attributes);
+		return factory.makeAppl(factory.makeConstructor(PROD_CONSTRUCTOR, 3), factory.makeList(this.symbols),
+				this.resultSymbol, this.attributes);
 	}
 
 	@Override

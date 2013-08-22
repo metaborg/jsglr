@@ -50,101 +50,75 @@ public class CFGrammarTransformer extends TermTransformer {
 
 	@Override
 	public IStrategoTerm preTransform(IStrategoTerm arg0) {
+		// Lock: When a lockedTerm is set this method does not make any
+		// modification to the terms
 		if (this.lockedTerm != null) {
 			return arg0;
 		}
-		// if (isConcGrammars(arg0)) {
-		// LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
-		// LinkedList<IStrategoTerm> convertedSyntaxProductions = new
-		// LinkedList<IStrategoTerm>();
-		// LinkedList<IStrategoTerm> convertedPrioritiesProductions = new
-		// LinkedList<IStrategoTerm>();
-		// ListIterator<IStrategoTerm> grammarIterator =
-		// grammars.listIterator();
-		// while (grammarIterator.hasNext()) {
-		// IStrategoTerm grammar = grammarIterator.next();
+		// Switch the the current sequence creator for syntax/priorities or
+		// restriction sections
 		if (isSyntaxOrPriorities(arg0)) {
 			this.currentSequenceCreator = new DefaultSequenceCreator();
 		} else if (isRestriction(arg0)) {
 			this.currentSequenceCreator = new RestrictionsSequenceCreator();
 		}
+		// Handle context-free grammars and priorities
 		if (isContextFreeGrammar(arg0) | isContextFreePriorities(arg0)) {
-
-			/*
-			 * LinkedList<IStrategoTerm> productions =
-			 * contextFreeGrammarToProductionList(grammar);
-			 * Iterator<IStrategoTerm> productionsIterator =
-			 * productions.iterator(); boolean changed = false; while
-			 * (productionsIterator.hasNext()) { IStrategoTerm p =
-			 * productionsIterator.next();
-			 */
-			// if (ProductionAST.isProduction(p)) {
-			// ProductionAST prod = ProductionAST.selectProduction(p);
-			// prod.unpack(p);
-			// if (prod.containsUnicode()) {
-			// productionsIterator.remove();
-			// prod.insertLayoutAndWrapSorts();
-			// convertedSyntaxProductions.add(prod.pack(factory));
-			// changed = true;
-			// }
-			// }
-			// }
+			// Need to do something when unicode is contained
 			UnicodeSymbolVisitor v = new UnicodeSymbolVisitor();
 			v.visit(arg0);
 			if (v.isContainingUnicode()) {
-
+				// Desugar the grammar to syntax such that unicode can be
+				// replaced
 				ProductionTransformer prodTransformer = new ProductionTransformer();
 				IStrategoTerm transformedGrammar = prodTransformer.transform(arg0);
-				// System.out.println(transformedGrammar);
 				return transformedGrammar;
 			} else {
 				return arg0;
 			}
-			// convertedSyntaxProductions.addAll(prodTransformer.getConvertedSyntaxProductions());
-			// grammarIterator.set(transformedGrammar);
-			// }
-			// }
-			// if (!convertedSyntaxProductions.isEmpty()) {
-			// grammars.add(makeSyntaxGrammar(convertedSyntaxProductions));
-			// }
-			// IStrategoTerm newGrammar = grammarListToConcGrammar(grammars);
-			// return newGrammar;
 		} else if (isFollow(arg0)) {
+			// Handle follows in restrictions
+			// Remove lists because the cannot be handles. replace them with
+			// alts
 			RestrictionsTransformer transformer = new RestrictionsTransformer();
 			transformer.setTask(Task.REMOVE_LISTS);
 			IStrategoTerm t = transformer.transform(arg0);
 			return t;
 		} else if (isLit(arg0)) {
-
+			// Handle literals
 			IStrategoTerm content = arg0.getSubterm(0);
 			if (isUnicode(content)) {
+				// Relace with sequence of unicode and plain ascii literals
 				return this.currentSequenceCreator.createSequence(splitUnicodeString(unicodeToString(content)));
 			} else if (isAscii(content)) {
+				// Extract content of asciis
 				return makeAsciiLit(toJavaString(arg0.getSubterm(0)));
 			} else {
 				return arg0;
 			}
 		} else if (isAscii(arg0)) {
+			// extract context of ascii
 			return arg0.getSubterm(0);
 		} else if (isCharClass(arg0) | isSimpleCharClass(arg0)) {
+			// Handle character classes and simple char classes
+
+			// Extract content of charclasses when necessary
 			IStrategoTerm eval = arg0;
 			if (isCharClass(arg0)) {
 				eval = arg0.getSubterm(0);
 			}
-			//doNotRecur = true;
+			// Evaluate the char class
 			MixedUnicodeRange r = evaluateCharClass(eval);
 			// System.out.println("New AST: " + r.toAST());
 			IStrategoTerm newAST = r.toAST(this.currentSequenceCreator);
-			// System.out.println(newAST);
-			if (!newAST.equals(arg0)) {
-				if (this.currentSequenceCreator instanceof DefaultSequenceCreator) {
-					return UnicodeUtils.makeBracket(newAST);
-				}
-				this.lockedTerm = newAST;
-				return newAST;
-			} else {
-				this.lockedTerm = arg0;
+			if (this.currentSequenceCreator instanceof DefaultSequenceCreator) {
+				return UnicodeUtils.makeBracket(newAST);
 			}
+			// Set the lock, otherwise evaluation is applied on the evaluation
+			// char-classes resulting in stack overflow
+			this.lockedTerm = newAST;
+			return newAST;
+
 		}
 
 		return arg0;

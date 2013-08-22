@@ -22,7 +22,7 @@ public class RestrictionsTest {
 	public static void initializeParseTable()  {
 		try {
 		ParseTableManager parseTableManager = new ParseTableManager();
-		parseTable = parseTableManager.loadFromFile("tests/grammars/basic/RestrictionsTest.tbl");
+		parseTable = parseTableManager.loadFromFile("tests/grammars/basic/UnicodeRestrictionsTest.tbl");
 		sglr = new SGLR(new TreeBuilder(), parseTable);
 		} catch(Exception e) {
 			e.printStackTrace();

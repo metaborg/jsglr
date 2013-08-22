@@ -4,11 +4,10 @@ import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
 import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
+import org.spoofax.terms.TermTransformer;
 
-public class RestrictionsTransformer extends MyTermTransformer {
+public class RestrictionsTransformer extends TermTransformer {
 
 	public static enum Task {
 		REMOVE_LISTS, LIFT_ALTS, ADD_BRACKETS;

@@ -1,11 +1,35 @@
 package org.spoofax.jsglr.unicode.transformer;
 
-import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.*;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.charClassToSymbol;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.characterToInt;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isAbsentCharRange;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isAscii;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isConcCharRange;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isContextFreeGrammar;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isContextFreePriorities;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isDiffCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isFollow;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isIntersetCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isInvertCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isLit;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isPresentCharRange;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isRangeCharRange;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isRestriction;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isSimpleCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isSyntaxOrPriorities;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isUnicode;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isUnicodeInvertCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.isUnionCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.makeAsciiLit;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.makeUnicodeCharClass;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.toJavaString;
+import static org.spoofax.jsglr.unicode.terms.UnicodeUtils.unicodeToString;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.tests.unicode.MyTermTransformer;
 import org.spoofax.jsglr.unicode.charranges.MixedUnicodeRange;
 import org.spoofax.jsglr.unicode.terms.DefaultSequenceCreator;
 import org.spoofax.jsglr.unicode.terms.RestrictionsSequenceCreator;
@@ -13,10 +37,12 @@ import org.spoofax.jsglr.unicode.terms.SequenceCreator;
 import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 import org.spoofax.jsglr.unicode.transformer.RestrictionsTransformer.Task;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.TermTransformer;
 
-public class CFGrammarTransformer extends MyTermTransformer {
+public class CFGrammarTransformer extends TermTransformer {
 
 	private SequenceCreator currentSequenceCreator;
+	private IStrategoTerm lockedTerm;
 
 	public CFGrammarTransformer() {
 		super(new TermFactory(), false);
@@ -24,6 +50,9 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 	@Override
 	public IStrategoTerm preTransform(IStrategoTerm arg0) {
+		if (this.lockedTerm != null) {
+			return arg0;
+		}
 		// if (isConcGrammars(arg0)) {
 		// LinkedList<IStrategoTerm> grammars = concGrammarsToList(arg0);
 		// LinkedList<IStrategoTerm> convertedSyntaxProductions = new
@@ -102,7 +131,7 @@ public class CFGrammarTransformer extends MyTermTransformer {
 			if (isCharClass(arg0)) {
 				eval = arg0.getSubterm(0);
 			}
-			doNotRecur = true;
+			//doNotRecur = true;
 			MixedUnicodeRange r = evaluateCharClass(eval);
 			// System.out.println("New AST: " + r.toAST());
 			IStrategoTerm newAST = r.toAST(this.currentSequenceCreator);
@@ -111,7 +140,10 @@ public class CFGrammarTransformer extends MyTermTransformer {
 				if (this.currentSequenceCreator instanceof DefaultSequenceCreator) {
 					return UnicodeUtils.makeBracket(newAST);
 				}
+				this.lockedTerm = newAST;
 				return newAST;
+			} else {
+				this.lockedTerm = arg0;
 			}
 		}
 
@@ -120,6 +152,9 @@ public class CFGrammarTransformer extends MyTermTransformer {
 
 	@Override
 	public IStrategoTerm postTransform(IStrategoTerm arg0) {
+		if (Arrays.asList(arg0.getAllSubterms()).contains(lockedTerm)) {
+			this.lockedTerm = null;
+		}
 		if (isFollow(arg0)) {
 			RestrictionsTransformer transformer = new RestrictionsTransformer();
 			transformer.setTask(Task.LIFT_ALTS);

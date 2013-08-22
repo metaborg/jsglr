@@ -26,7 +26,7 @@ exports
 		Int -> Integer{cons ("Integer")}
 	
 	lexical syntax
-  		"✎"	 ~[\n]* [\n] -> LAYOUT
+  		"✎"	 ~u[\n]* [\n] -> LAYOUT
 		[\ \t\r\n] 						-> LAYOUT
 		(~u[\ \t\r\n\.\(\)⟨⟩✎] / [0-9])+ -> Id {longest-match}
 		[0-9]+							-> Int {longest-match}

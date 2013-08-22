@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.tools.ant.util.UnicodeUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.unicode.UnicodeConverter;
 import org.spoofax.jsglr.unicode.terms.SequenceCreator;

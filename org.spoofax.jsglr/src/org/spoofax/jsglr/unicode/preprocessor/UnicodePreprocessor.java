@@ -8,8 +8,8 @@ import org.spoofax.jsglr.unicode.transformer.CFGrammarTransformer;
 
 public class UnicodePreprocessor {
 
-	public static File preprocessUnicodeSDF(File unicodeSDF) throws Exception{
-		File file = UnicodeCleaner.removeUnicode(unicodeSDF);
+	public static File preprocessUnicodeSDF(File unicodeSDF, String encoding) throws Exception{
+		File file = UnicodeCleaner.removeUnicode(unicodeSDF, encoding);
 		IStrategoTerm term = UnicodeSDFParser.parseUnicodeSDF(file);
 		file.delete();
 		CFGrammarTransformer transformer = new CFGrammarTransformer();

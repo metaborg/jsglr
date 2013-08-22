@@ -32,10 +32,12 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.shared.SGLRException;
+import org.spoofax.jsglr.unicode.UnicodeTermFactory;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
@@ -112,7 +114,7 @@ public class ParseTable implements Serializable {
     }
 
     public void initTransientData(ITermFactory factory) {
-        this.factory = factory;
+        this.factory = new UnicodeTermFactory(IStrategoTerm.MUTABLE, factory);
         applIStrategoConstructor = factory.makeConstructor("appl", 2);
         ambIStrategoConstructor = factory.makeConstructor("amb", 1);
     }

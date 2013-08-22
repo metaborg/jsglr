@@ -22,7 +22,7 @@ public class UnicodeSDFParser {
 	}
 	
 	public static IStrategoTerm parseUnicodeSDF(File file) throws Exception {
-		return (IStrategoTerm) unicodeSDFParser.parse(UnicodeUtils.readFile(file, null), file.getName(), null, false);
+		return (IStrategoTerm) unicodeSDFParser.parse(UnicodeUtils.readFile(file, null), file.getName(), null);
 	}
 
 }

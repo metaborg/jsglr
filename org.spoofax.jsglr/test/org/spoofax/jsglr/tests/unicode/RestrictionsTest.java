@@ -31,19 +31,19 @@ public class RestrictionsTest {
 	
 	@Test
 	public void testSimpleExpressions() throws Exception{
-		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyza hgs", null, null, true);
+		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyza hgs", null, null);
 		System.out.println(ast);
 	}
 	
 	@Test
 	public void testUnicodeExpressions() throws Exception{
-		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyzρξa hgπs", null, null, true);
+		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyzρξa hgπs", null, null);
 		System.out.println(ast);
 	}
 	
 	@Test
 	public void testWrongeExpressions() throws Exception{
-		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyzρξ hgπs", null, null, true);
+		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyzρξ hgπs", null, null);
 		System.out.println(ast);
 	}
 }

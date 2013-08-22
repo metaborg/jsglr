@@ -38,7 +38,7 @@ public class UnicodeLambdaTest {
 				true), unicodeLambdaParseTable);
 		String content = UnicodeUtils.readFile(unicodeLambdaFile, Charset.forName("UTF-8"));
 		/**/
-		IStrategoTerm term = (IStrategoTerm) sglr.parse(content, null, null, true);
+		IStrategoTerm term = (IStrategoTerm) sglr.parse(content, null, null);
 		
 		System.out.println(term.toString());
 		Interpreter.eval(term);

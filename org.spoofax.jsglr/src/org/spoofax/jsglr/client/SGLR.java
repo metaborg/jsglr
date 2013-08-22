@@ -7,7 +7,6 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -25,7 +24,6 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.jsglr.unicode.UnicodeConverter;
-import org.spoofax.jsglr.unicode.UnicodeStrategoTermPostprocessor;
 
 public class SGLR {
 
@@ -326,22 +324,6 @@ public class SGLR {
 		return parseResult;
 	}
 
-	public Object parse(String input, String filename, String startSymbol, boolean completionMode, int cursorLocation,
-			boolean utf8) throws BadTokenException, TokenExpectedException, ParseException, SGLRException,
-			InterruptedException {
-		String parseInput;
-		if (utf8) {
-			parseInput = UnicodeConverter.encodeUnicodeToAscii(input);
-		} else {
-			parseInput = input;
-		}
-		Object result = this.parse(parseInput, filename, startSymbol, completionMode, cursorLocation);
-		if (utf8 && result instanceof IStrategoTerm) {
-			return UnicodeStrategoTermPostprocessor.postprocess((IStrategoTerm) result);
-		}
-		return result;
-	}
-
 	/**
 	 * Parses the right context of a given offset and collects the largest
 	 * reductions over that offset Remark: This method is used to interpret the
@@ -544,27 +526,13 @@ public class SGLR {
 	 */
 	public Object parse(String input, String filename, String startSymbol) throws BadTokenException,
 			TokenExpectedException, ParseException, SGLRException, InterruptedException {
+		input = UnicodeConverter.encodeUnicodeToAscii(input);
 		logBeforeParsing();
 		initParseVariables(input, filename);
 		startTime = System.currentTimeMillis();
 		initParseTimer();
 		getPerformanceMeasuring().startParse();
 		Object result = sglrParse(startSymbol);
-		return result;
-	}
-
-	public Object parse(String input, String filename, String startSymbol, boolean utf8) throws BadTokenException,
-			TokenExpectedException, ParseException, SGLRException, InterruptedException {
-		String parseInput;
-		if (utf8) {
-			parseInput = UnicodeConverter.encodeUnicodeToAscii(input);
-		} else {
-			parseInput = input;
-		}
-		Object result = this.parse(parseInput, filename, startSymbol);
-		if (utf8 && result instanceof IStrategoTerm) {
-			return UnicodeStrategoTermPostprocessor.postprocess((IStrategoTerm) result);
-		}
 		return result;
 	}
 

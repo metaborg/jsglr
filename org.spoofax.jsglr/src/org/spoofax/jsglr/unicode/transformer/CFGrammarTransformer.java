@@ -126,7 +126,7 @@ public class CFGrammarTransformer extends TermTransformer {
 
 	@Override
 	public IStrategoTerm postTransform(IStrategoTerm arg0) {
-		if (Arrays.asList(arg0.getAllSubterms()).contains(lockedTerm)) {
+		if (arg0 == this.lockedTerm) {
 			this.lockedTerm = null;
 		}
 		if (isFollow(arg0)) {

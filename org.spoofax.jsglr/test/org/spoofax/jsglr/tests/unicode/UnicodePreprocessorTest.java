@@ -55,19 +55,10 @@ public class UnicodePreprocessorTest {
 		IStrategoTerm term = UnicodeSDFParser.parseUnicodeSDF(file);
 		CFGrammarTransformer transformer = new CFGrammarTransformer();
 		IStrategoTerm result = transformer.transform(term);
+		System.out.println(result);
 		SDFPrettyPrinter pp = new SDFPrettyPrinter();
 		System.out.println(pp.prettyPrintSDF(result));
 		file.delete();
 	}
 	
-
-	@Test
-	public void testSDFPrettyPrinter() throws Exception {
-		
-		IStrategoTerm term = UnicodeSDFParser.parseUnicodeSDF(new File("tests/grammars/basic/Booleans.sdf"));
-		System.out.println(term);
-		SDFPrettyPrinter pp = new SDFPrettyPrinter();
-		System.out.println(pp.prettyPrintSDF(term));
-	}
-
 }

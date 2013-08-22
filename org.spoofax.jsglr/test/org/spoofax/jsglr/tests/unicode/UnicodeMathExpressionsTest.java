@@ -33,7 +33,7 @@ public class UnicodeMathExpressionsTest {
 	
 	@Test
 	public void testSimpleExpressions() throws Exception{
-		IStrategoTerm ast = (IStrategoTerm) sglr.parse(UnicodeUtils.readFile(file1, Charset.forName("UTF-8")), null, null, true);
+		IStrategoTerm ast = (IStrategoTerm) sglr.parse(UnicodeUtils.readFile(file1, Charset.forName("UTF-8")), null, null);
 		System.out.println(ast);
 	}
 }

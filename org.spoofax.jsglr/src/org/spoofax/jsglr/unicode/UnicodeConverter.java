@@ -1,10 +1,6 @@
 package org.spoofax.jsglr.unicode;
 
 import java.nio.CharBuffer;
-import java.util.LinkedList;
-
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
 
 /**
  * This class contains static helper functions for converting a unicode string

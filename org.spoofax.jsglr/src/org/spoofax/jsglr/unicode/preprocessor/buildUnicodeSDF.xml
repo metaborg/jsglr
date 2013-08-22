@@ -6,7 +6,6 @@
 
 	<target name="compile">
 		<compile-grammar module="UnicodeSDF" moduleName="SDF" />
-		<compile-grammar module="Annotations" moduleName="Annotations"/>
 	</target>
 	
 	<macrodef name="compile-grammar">

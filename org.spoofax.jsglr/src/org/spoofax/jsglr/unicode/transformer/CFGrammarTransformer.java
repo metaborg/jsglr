@@ -112,7 +112,7 @@ public class CFGrammarTransformer extends TermTransformer {
 			// System.out.println("New AST: " + r.toAST());
 			IStrategoTerm newAST = r.toAST(this.currentSequenceCreator);
 			if (this.currentSequenceCreator instanceof DefaultSequenceCreator) {
-				return UnicodeUtils.makeBracket(newAST);
+				newAST = UnicodeUtils.makeBracket(newAST);
 			}
 			// Set the lock, otherwise evaluation is applied on the evaluation
 			// char-classes resulting in stack overflow

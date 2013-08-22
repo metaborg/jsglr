@@ -24,8 +24,8 @@ public class UnicodePreprocessor {
 		} else {
 			destFile = new File(unicodeSDF.getParentFile(), name +".sdf");
 		}
-		AnotationPrettyPrinter annoPP = new AnotationPrettyPrinter();
-		unicodeCleanSDF = annoPP.prettyPrintAnnotations(unicodeCleanSDF);
+	//	AnotationPrettyPrinter annoPP = new AnotationPrettyPrinter();
+	//	unicodeCleanSDF = annoPP.prettyPrintAnnotations(unicodeCleanSDF);
 		UnicodeUtils.writeFile(unicodeCleanSDF, destFile);
 		return destFile;
 	}

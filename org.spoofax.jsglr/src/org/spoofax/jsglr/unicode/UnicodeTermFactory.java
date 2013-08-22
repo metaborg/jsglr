@@ -16,6 +16,7 @@ import org.spoofax.terms.TermFactory;
  * 
  */
 public class UnicodeTermFactory extends TermFactory {
+	//AbstractWrappedTermFactory
 
 	public StrategoConstructor makeConstructor(String name, int arity) {;
 		return super.makeConstructor(decodeAsciiToUnicode(name), arity);

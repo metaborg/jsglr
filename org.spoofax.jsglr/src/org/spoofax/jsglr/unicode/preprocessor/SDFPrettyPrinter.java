@@ -11,10 +11,12 @@ import org.strategoxt.stratego_sdf.pp_sdf_box_0_0;
 import org.strategoxt.stratego_sdf.stratego_sdf;
 import org.strategoxt.tools.pp_sdf2_file_0_1;
 import org.strategoxt.tools.sdf_desugar_0_0;
+import org.strategoxt.tools.tools;
 
 public class SDFPrettyPrinter {
 
 	private static Context ctx = stratego_sdf.init();
+	private static Context ctx_fix = tools.init();
 
 	public static IStrategoTerm fixSDF(IStrategoTerm term) {
 		if (term == null)
@@ -22,7 +24,7 @@ public class SDFPrettyPrinter {
 
 		IStrategoTerm result = null;
 		try {
-			result = sdf_desugar_0_0.instance.invoke(ctx, term);
+			result = sdf_desugar_0_0.instance.invoke(ctx_fix, term);
 		} catch (StrategoExit e) {
 			if (e.getValue() != 0 || result == null)
 				throw new RuntimeException("Sdf desugaring failed", e);
@@ -41,7 +43,7 @@ public class SDFPrettyPrinter {
 		 * result;
 		 */
 
-		
+		ast = fixSDF(ast);
 		IStrategoTerm boxTerm = pp_sdf_box_0_0.instance.invoke(ctx, ast);
 		
 		if (boxTerm != null) {

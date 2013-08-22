@@ -17,7 +17,8 @@ exports
 		"⟨" Exp "⟩" "(" Exp* ")" -> LambdaApp {cons("ExpLambdaApp")}
 		
 		"♨"	 JavaName	"(" Exp* ")" -> JavaCall {cons("JavaExpCall")}
-		"♨"	 Id* "." JavaName -> Lambda {cons("JavaLambda")}
+		%%"♨"	 Id* "." JavaName -> Lambda {cons("JavaLambda")}
+		JavaLambda ("♨",	 Id*, "." ,JavaName) -> Lambda 
 		
 		Id "≔"	 Exp		-> Declaration {cons("Declaration")}
 		"«" Declaration* "»" -> LetDeclaration {cons("LetDeclaration")}

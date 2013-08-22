@@ -157,7 +157,12 @@ public class LayoutStructure {
 	 */
 	public int getInsertBeforeOffset() {
 		assert this.commentsBeforeStartIndex <= getLeftToken(node).getStartOffset();
-		return getTokenAt(this.commentsBeforeStartIndex).getStartOffset();
+		int offset = getTokenAt(this.commentsBeforeStartIndex).getStartOffset();
+		String input = tokens.getInput();
+		while (input.charAt(offset) == ' ' || input.charAt(offset) == '\t') {
+			offset++;
+		}
+		return offset;
 	}
 
 	/**

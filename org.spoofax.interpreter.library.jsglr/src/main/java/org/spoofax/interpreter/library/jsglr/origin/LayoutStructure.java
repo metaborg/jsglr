@@ -169,8 +169,19 @@ public class LayoutStructure {
 	 * End offset+1 of succeeding comment (if any) or node
 	 */
 	public int getInsertAtEndOffset() {
-		if(isValidTokenIndex(commentsAfterExclEndIndex))
-			return getTokenAt(this.commentsAfterExclEndIndex).getStartOffset();
+		int tokenIndex = this.commentsAfterExclEndIndex;
+		
+		if(isValidTokenIndex(tokenIndex)) {
+			if (node.isList() && node.getSubtermCount() == 0) {
+				// insert a first list element at the first rather than the last valid offset
+				while (isLayout(tokenIndex-1)) {
+					tokenIndex--;
+				}
+			}
+			
+			return getTokenAt(tokenIndex).getStartOffset();
+		}
+		
 		assert(getRightToken(node).getIndex() == tokens.getTokenCount()-1);
 		return getRightToken(node).getEndOffset()+1;
 	}	

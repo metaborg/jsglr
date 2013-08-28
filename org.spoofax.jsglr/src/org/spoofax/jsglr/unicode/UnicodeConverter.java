@@ -85,7 +85,11 @@ public class UnicodeConverter {
 
 	public static String unicodeBackslashUToString(String string) {
 		int value = Integer.parseInt(string, 16);
-		return new String(numberToUtf16_4Byte(value));
+		return unicodeNumberToString(value);
+	}
+	
+	public static String unicodeNumberToString(int number) {
+		return new String(numberToUtf16_4Byte(number));
 	}
 
 	public static boolean isUnicode(int c) {
@@ -157,13 +161,15 @@ public class UnicodeConverter {
 	}
 
 	private static char[] numberToUtf16_4Byte(int number) {
-		boolean needToByte = number < 0 || number >= 0x10000;
-		if (needToByte) {
+		boolean needTwoChars = number < 0 || number >= 0x10000;
+		if (needTwoChars) {
 			number -= 0x10000;
+		} else {
+			return new char[]{(char)number};
 		}
 		int first = number >> 10;
 		int second = number & 0x000003ff;
-		if (needToByte) {
+		if (needTwoChars) {
 			first = UNICODE_4_BYTE_PATTERN_MSBS << 10 | first;
 			second = UNICODE_4_BYTE_PATTERN_LSBS << 10 | second;
 		}

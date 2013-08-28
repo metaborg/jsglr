@@ -13,6 +13,7 @@
 		<compile-grammar module="UnicodeLambdaLanguage" />
 		<compile-grammar module="UnicodeMathExpressions" />
 		<compile-grammar module="UnicodeRestrictionsTest" />
+		<compile-grammar module="UnicodeBasics" />
 	</target>
 
 	<target name="gen-signature">

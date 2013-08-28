@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,9 +45,12 @@ public class UnicodeUtils {
 		in.close();
 		return builder.toString();
 	}
-	
 	public static void writeFile(String content, File dest) throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(dest));
+		writeFile(content, dest, Charset.forName("UTF-8"));
+	}
+	
+	public static void writeFile(String content, File dest, Charset encoding) throws IOException {
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dest), encoding));
 		writer.append(content);
 		writer.flush();
 		writer.close();
@@ -157,7 +162,7 @@ public class UnicodeUtils {
 	}
 	
 	public static boolean isIntersetCharClass(IStrategoTerm term) {
-		return isConstructors(term, "iset");
+		return isConstructors(term, "isect");
 	}
 	
 	public static boolean isUnionCharClass(IStrategoTerm term) {

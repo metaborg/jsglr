@@ -133,7 +133,7 @@ exports
     [\\] number:[0-9]+                     -> NumChar   {cons("digits")}
     character:[a-zA-Z0-9]                  -> ShortChar {cons("regular")}
     [\\] escape:~[\0-\31A-Za-mo-qsu-z0-9]  -> ShortChar {cons("escaped")}
-    "\\u"[0-9a-fA-F]+ "\\u"          -> UnicodeChar
+    "\\u("[0-9a-fA-F]+ ")"          -> UnicodeChar
 
   context-free syntax
     NumChar   -> Character {cons("numeric")}

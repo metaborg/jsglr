@@ -24,8 +24,8 @@ public class UnicodePreprocessorTest {
 		text = text.replaceAll("[\n,\t]+", " ");
 		Assert.assertEquals("module Unicode " +
 				"exports context-free syntax "+
-				"Hallo \"sd\\u2f9f4\\udssdf\" Hallo2 -> Hallo "+
-				"[a-\\u3c6\\u] Word -> SpecialWord " +
+				"Hallo \"sd\\u(2f9f4)dssdf\" Hallo2 -> Hallo "+
+				"[a-\\u(3c6)] Word -> SpecialWord " +
 				"lexical syntax "+
 				"~[a-z] -> Word", text);
 		file.delete();

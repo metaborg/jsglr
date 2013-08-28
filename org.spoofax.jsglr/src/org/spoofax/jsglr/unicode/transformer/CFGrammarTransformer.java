@@ -145,28 +145,27 @@ public class CFGrammarTransformer extends TermTransformer {
 		int currentPosition = 0;
 		boolean isUnicode = false;
 		LinkedList<IStrategoTerm> resultTerms = new LinkedList<IStrategoTerm>();
-		while (currentPosition < stringvalue.length() - 1) {
-			if (stringvalue.charAt(currentPosition) == '\\' && stringvalue.charAt(currentPosition + 1) == 'u') {
+		while (currentPosition < stringvalue.length()) {
+			if (stringvalue.charAt(currentPosition) == '\\' && stringvalue.charAt(currentPosition + 1) == 'u'
+					&& stringvalue.charAt(currentPosition + 2) == '(') {
+				isUnicode = true;
 				// End or begin of unicode
 				if (currentPosition != startPosition) {
 
-					if (isUnicode) {
-						String content = stringvalue.substring(startPosition, currentPosition + 2);
-						// System.out.println(content);
-						resultTerms.add(charClassToSymbol(makeUnicodeCharClass(content)));
-					} else {
-						String content = stringvalue.substring(startPosition, currentPosition);
-						resultTerms.add(makeAsciiLit(content));
-					}
+					String content = stringvalue.substring(startPosition, currentPosition);
+					resultTerms.add(makeAsciiLit(content));
+
 				}
-				// Skip the \\u
-				currentPosition += 2;
-				isUnicode = !isUnicode;
-				if (!isUnicode) {
-					startPosition = currentPosition;
-				} else {
-					startPosition = currentPosition - 2;
-				}
+				// Skip the \\u(
+				startPosition = currentPosition;
+				currentPosition += 3;
+			} else if (stringvalue.charAt(currentPosition) == ')' && isUnicode) {
+
+				String content = stringvalue.substring(startPosition, currentPosition+1);
+				// System.out.println(content);
+				resultTerms.add(charClassToSymbol(makeUnicodeCharClass(content)));
+				currentPosition++;
+				startPosition = currentPosition;
 			} else {
 				currentPosition++;
 			}

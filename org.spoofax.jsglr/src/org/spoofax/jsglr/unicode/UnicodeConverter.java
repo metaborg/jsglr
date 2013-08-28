@@ -79,7 +79,7 @@ public class UnicodeConverter {
 	public static final UnicodeEncoder UNICODE_TO_BACKSLASH_U_ENCODER = new UnicodeEncoder() {
 
 		public String encodeUnicodeCharacter(int nextChar) {
-			return "\\u" + Integer.toHexString(utf164ByteToNumber(nextChar)) + "\\u";
+			return "\\u(" + Integer.toHexString(utf164ByteToNumber(nextChar)) + ")";
 		}
 	};
 

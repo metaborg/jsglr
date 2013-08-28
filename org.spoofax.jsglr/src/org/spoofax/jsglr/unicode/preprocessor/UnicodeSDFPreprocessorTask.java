@@ -16,8 +16,9 @@ import java.io.File;
 public class UnicodeSDFPreprocessorTask {
 
 	public static void main(String[] args) throws Exception {
-
+	
 		if (args.length != 2) {
+			System.out.println("Expected two arguments. First file, second encoding");
 			throw new IllegalArgumentException("Expected two arguments. First file, second encoding");
 		}
 		

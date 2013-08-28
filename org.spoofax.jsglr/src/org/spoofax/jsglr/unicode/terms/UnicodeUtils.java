@@ -404,7 +404,7 @@ public class UnicodeUtils {
 			}
 		} else if (isConstructors(term, "unicodechar")) {
 			String str = Term.asJavaString(term.getSubterm(0));
-			return Integer.parseInt(str.substring(2, str.length()-2), 16);
+			return Integer.parseInt(str.substring(3, str.length()-1), 16);
 		} else if (isConstructors(term, "top")) {
 			
 		} else if (isConstructors(term, "eof")) {

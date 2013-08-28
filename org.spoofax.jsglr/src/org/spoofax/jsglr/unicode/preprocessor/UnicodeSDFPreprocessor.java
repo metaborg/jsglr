@@ -6,7 +6,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 import org.spoofax.jsglr.unicode.transformer.CFGrammarTransformer;
 
-public class UnicodePreprocessor {
+public class UnicodeSDFPreprocessor {
 
 	public static File preprocessUnicodeSDF(File unicodeSDF, String encoding) throws Exception{
 		File file = UnicodeCleaner.removeUnicode(unicodeSDF, encoding);
@@ -29,5 +29,26 @@ public class UnicodePreprocessor {
 		UnicodeUtils.writeFile(unicodeCleanSDF, destFile);
 		return destFile;
 	}
+	
+	public static void main(String[] args) throws Exception {
+		
+		if (args.length != 2) {
+			System.out.println("Expected two arguments. First file, second encoding");
+			throw new IllegalArgumentException("Expected two arguments. First file, second encoding");
+		}
+		
+		File file = new File(args[0]);
+		// Preprocess the file
+		try {
+			System.out.println("Unicode Preprocessing file: " + file);
+			// UnicodeSDFPreprocessor.preprocessFile(file, encoding);
+			UnicodeSDFPreprocessor.preprocessUnicodeSDF(file, args[1]);
+		} catch (Exception e) {
+			System.out.println("Failed.");
+			throw e;
+		}
+
+	}
+
 
 }

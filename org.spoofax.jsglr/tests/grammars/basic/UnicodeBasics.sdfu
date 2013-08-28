@@ -18,6 +18,8 @@ module UnicodeBasics
 			
 			[\u(1680)\u(180e)\u(2000)-\u(2006)\u(2008)-\u(200b)\u(2028)-\u(2029)\u(205f)\u(3000)]
 												-> UnicodeWhitespace
+			[\9-\13\28-\32]						-> AsciiWhitespace
+			UnicodeWhitespace | AsciiWhiteSpace	-> Whitespace
 												
 			[٠-٩۰-۹०-९০-৯੦-੯૦-૯୦-୯௧-௯౦-౯೦-೯൦-൯๐-๙໐-໙༠-༩၀-၉፩-፱០-៩᠐-᠙᥆-᥏０-９𐒠-𐒩𝟎-𝟿] \/
 			[²-³¹¼-¾৴-৹௰-௲༪-༳፲-፼៰-៹⁰⁴-⁹₀-₉⅓-⅟①-⒛⓪-⓿❶-➓㆒-㆕㈠-㈩㉑-㉟㊀-㊉㊱-㊿𐄇-𐄳𐌠-𐌣]

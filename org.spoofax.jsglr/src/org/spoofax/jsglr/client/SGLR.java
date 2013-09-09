@@ -339,7 +339,6 @@ public class SGLR {
     public Object parseMax(String input, String filename, String startSymbol) 
     	throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
     	setParseMaxMode(true);
-    	disambiguator.initializeFromParser(this);
     	return parse(input, filename, startSymbol);
     }
 
@@ -542,6 +541,9 @@ public class SGLR {
 	private Object sglrParse(String startSymbol)
 	throws BadTokenException, TokenExpectedException,
 	ParseException, SGLRException, InterruptedException {
+		if (isParseMaxMode)
+			disambiguator.initializeFromParser(this);
+		
 		try {
 			do {
 		     if (Thread.currentThread().isInterrupted())

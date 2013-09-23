@@ -1,0 +1,133 @@
+### UNICODE SUPPORT FOR SDF
+Moritz Lichter, 28th Aug 2013
+
+## Unicode Literals
+With unicode support for SDF one may freely use any unicode character in string literals and char classes. The can be mixed with normal ascii letters. There are two ways to write a unicode character:
+
+1) Write the unicode character itself, e.g., a negation operator
+
+    "¬" BoolExp -> BoolExp
+
+2) Write the number of the character. To avoid ambiguities with following numbers (in Literals) the number of a unicode character is writen as "\u(" <hex number> ")". No whitespaces are allowed between brackets and number. So rewriting the example above gives:
+
+    "\u(00ac)" BoolExp -> BoolExp or
+    "\u(ac)" BoolExp -> BoolExp
+
+# Implementation Details:
+The current unicode support does not extend sdf2table to support unicode characters. Instead it decodes unicode characters in extended ascii (1 byte, 0 to 255). This is achieved by reserving an Ascii symbol to mark the beginning of an Unicode byte sequence. We use Ascii symbol \007 (the bell symbol) to mark a Unicode sequence because we do not expect that this character is used anymore. If you use this character in your grammar, you will likely conflict with unicode support. We provide a preprocessor `UnicodeSDFPreprocessor` to convert a grammar containing unicode to a standard SDF grammar. As first step, this preprocessor rewrites all unicode characters into the number-based representation.
+
+
+## Unicode Character Classes
+Like in unicode literals, unicode characters may appear in any character classes. However, one needs to be careful when using unicode ranges: Unicode characters may be further apart than is obvious at first sight. For example, superscript ³ and superscript ⁴ are not consecutive unicode characters. Nevertheless, in many cases unicode ranges are useful.
+
+For example, the greek letters Α through Ω correspond to Unicode 0391 through 03A9 and α through ω correspond to 03B1 through 03C9. Thus, a string containing only greek letters can be written as:
+
+    "\"" [Α-Ωα-ω\ ]* "\"" -> GreekString
+
+# Implementation Details
+Unicode characters are encoded in SDF as a sequence of bytes with a leading byte \007. The characters are encoded in UTF-16 so that their length is well-defined. The above example of greek letters is preprocessed to.
+
+    "\""  ( [\32] | ( [\7] ( [\3] [\145-\169] ) | ( [\3] [\177-\201] ) ) ) "\"" -> GreekString
+
+To support unicode characters in context-free productions, the preprocessor desugars context free production to productions in a `syntax` section and inserts the unicode sequence. This way we ensure no layout can be inserted between any two unicode bytes.
+	
+
+# Mixed Character Classes
+Unicode characters can be mixed with ascii characters in character ranges. In UTF-16 encoding a unicode character can be of range 2 bytes or 4 bytes. To limit the overhead, only unicode characters outside the standard ascii range are converted. These conversions are all done by the preprocessor of the grammar. For an identifier with all greek and latin letters one could write:
+
+    [a-zA-Zα-ωΑ-Ω] -> Id {longest-match}
+
+We use the `longest-match` annotation in place of, say, a follow restrictions because unicodes may not appear in follow restrictions (more on that below).
+
+# Inversion and its universe
+Character class inversion is written "~" in SDF. But, to support inversion, there has to be a universe of possible characters. In order not to break existing grammar code, the ~ inversion is restricted to ascii symbols from 0 to 127. If one used the inversion for extended ascii from 128 to 255, one needs to rewrite its grammar (see extended ascii section below).
+
+To invert a character class in the universe of all unicode characters, the unicode preprocessor introduces a new operator "~u". This inverts the following char range in the universe of all unicode characters. This can be used to define identifiers which support unicode characters. The following production allows the regular latin characters and all unicode characters which are not regular ascii symbols because these are often reserved for operators:
+	[a-zA-Z] \/ ~u[\0-\127]	-> Id {longest-match}
+	
+# Implementation Details
+As described, the byte with value 7 is used to encode unicode characters in an extended ascii character stream. Naturally, an inversion like ~[0-9] would accept the byte 7 as a valid character. This can cause strange ambiguities with unicode characters obviously. Because the grammar is not expected to use the 7 byte, 7 is removed from all inversion. For example, ~[0-9] would be preprocessed to ~[0-9]/[\7]. Because of mathematical set rules this does not conflict with nested inversion, because ~~[0-9], which is expected to be equal to [0-9], is ~(~[0-9]/[\7])/[\7] equals to ~~[0-9\7]/[\7] equals to [0-9\7]/[\7] equals to [0-9].
+
+# Extended Ascii
+One could use extended Ascii (byte values 128 to 255) which SDF. If one uses extended Ascii in its grammar, it is not compatible with the unicode version of JSGLR!! The reason is that Unicode is compatible with Ascii but not with extended ascii. So byte value 128 in extended Ascii is "Ç" but in unicode it is "€".
+But rewriting the grammar is not as complicated. In SDF you can specify extended Ascii characters only by charclasses, e.g. [\128]. You just need to replace it with the correct symbol "Ç". This symbol is interpreted as the Unicode symbol 00C7. Of course, than you cannot parse extended Ascii encoded files anymore, they need to be re-encoded (e.g. by using the correct Charset when reading the file in Java, this decodes extended Ascii to UTF-16). But luckily, most grammars do not use extended Ascii.
+
+# Unicode in Restrictions
+Formally, unicode characters are allowed to occur in restrictions. But they expand to a series of character classes which is currently not supported by JSGRL, although the generated SDF code of the preprocessor is valid. Instead of restrictions one can often use the longest-match annotation, which works with unicode characters (see examples above).
+
+
+
+## Building a unicode character grammar
+The grammar with unicode needs to be converted to a standard SDF grammar before being compiled with sdf2table. This is done by the unicode preprocessor. We used the file extension ".sdfu" for grammars with unicode so that the preprocessor can generate the corresponding .sdf file, which can be further processed with standard SDF tools pack-sdf and sdf2table. The unicode preprocessor can be used with ANT using the following marco:
+
+<macrodef name="unicodesdf">
+		<attribute name="file" />
+		<attribute name="encoding" default="UTF-8" />
+		<sequential>
+			<java classpath="../../../bin;${strategoxt}" classname="org.spoofax.jsglr.unicode.preprocessor.UnicodeSDFPreprocessor" failonerror="true">
+				<arg value="@{file}" />
+				<arg value="@{encoding}" />
+			</java>
+		</sequential>
+	</macrodef>
+	
+Of course the classpath has to be adapted to match the current environment.
+The attribute "file" denotes the file to preprocess and the attribute "encoding" the encoding of the file to interpret unicode characters correctly. All encodings supported by your current JRE are supported because everything is converted to UTF-16, the internal character representation of Java.
+
+## Using the grammar to parse a string with JSGLR
+No further changes have to be done to use the generated parse table. The unicode characters in the input string are automatically translated into the numerical representation, and character sequences in the resulting parse tree are automatically translated into unicode characters. In case of a parse error, the parser correctly displays line and column information and points to an unexpected unicode character.
+
+## Useful Examples ===
+We demonstrate some examples that describe basic things required for unicode support in grammars. All examples have been designed to be used in our Haskell Grammar (https://github.com/seba--/layout-parsing/tree/master/jsglr-layout/test-offside/grammars/haskell) and you can also find them in the file "BasicUnicode.sdfu", which you can modify and/or include in your project.
+
+The Haskell Grammar needs support for lower case letters. Unfortunately, lower case letters are widespread over the unicode range. Thus, the char class describing all lower case unicode characters is quite large.
+
+    	[ªµºß-öø-ÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĳĵķ-ĸĺļľŀłńņň-ŉŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźżž-ƀƃƅƈƌ-ƍƒƕƙ-ƛƞơƣƥƨƪ-ƫƭưƴƶƹ-ƺƽ-ƿǆǉǌǎǐǒǔǖǘǚǜ-ǝǟǡǣǥǧǩǫǭǯ-ǰǳǵǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȡȣȥȧȩȫȭȯȱȳ-ȶɐ-ʯΐά-ώϐ-ϑϕ-ϗϙϛϝϟϡϣϥϧϩϫϭϯ-ϳϵϸϻа-џѡѣѥѧѩѫѭѯѱѳѵѷѹѻѽѿҁҋҍҏґғҕҗҙқҝҟҡңҥҧҩҫҭүұҳҵҷҹһҽҿӂӄӆӈӊӌӎӑӓӕӗәӛӝӟӡӣӥӧөӫӭӯӱӳӵӹԁԃԅԇԉԋԍԏա-ևᴀ-ᴫᵢ-ᵫḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕ-ẛạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹἀ-ἇἐ-ἕἠ-ἧἰ-ἷὀ-ὅὐ-ὗὠ-ὧὰ-ώᾀ-ᾇᾐ-ᾗᾠ-ᾧᾰ-ᾴᾶ-ᾷιῂ-ῄῆ-ῇῐ-ΐῖ-ῗῠ-ῧῲ-ῴῶ-ῷⁱⁿℊℎ-ℏℓℯℴℹℽⅆ-ⅉﬀ-ﬆﬓ-ﬗａ-ｚ𐐨-𐑏𝐚-𝐳𝑎-𝑔𝑖-𝑧𝒂-𝒛𝒶-𝒹𝒻𝒽-𝓃𝓅-𝓏𝓪-𝔃𝔞-𝔷𝕒-𝕫𝖆-𝖟𝖺-𝗓𝗮-𝘇𝘢-𝘻𝙖-𝙯𝚊-𝚣𝛂-𝛚𝛜-𝛡𝛼-𝜔𝜖-𝜛𝜶-𝝎𝝐-𝝕𝝰-𝞈𝞊-𝞏𝞪-𝟂𝟄-𝟉] 
+															-> UnicodeLowerCase
+	[a-z] 													-> AsciiLowerCase
+	UnicodeLowerCase | AsciiLowerCase 						-> LowerCase
+
+In the grammar file "BasicUnicode.sdfu" you find sorts for lower case ascii, general lower case and the same for upper case.
+Using these sorts we can formulate identifiers for Haskell variable identifiers:
+	
+		LowerCase (LowerCase | UpperCase | Digit | [\'] )* -> HaskellVarid
+		LowerCase (LowerCase | UpperCase | Digit | [\'] )* -> HaskellReservedID {reject}
+
+To support unicode whitespace characters it is useful to write them as numbers because otherwise the code gets confusing (too much whitespace which are no layout in the SDF file):
+
+	[\u(1680)\u(180e)\u(2000)-\u(2006)\u(2008)-\u(200b)\u(2028)-\u(2029)\u(205f)\u(3000)]
+															-> UnicodeWhitespace
+		[\9-\13\28-\32]										-> AsciiWhitespace
+		UnicodeWhitespace | AsciiWhiteSpace					-> Whitespace
+
+You find more character groups in the grammar file. I do not give a definition for plain ascii symbols because most grammars use a subset of this symbols as special operators or the characters allowed as symbols differ. So you need to define your symbols in Ascii yourself (see the larger example). Note that the preprocessed grammar file requires a lot of RAM for sdf2table (I guess because of the huge number of alternatives).
+
+# Larger Example for Haskell Grammar
+The following code integrates Unicode characters into the Haskell grammar. The definition follows the definition given here (http://www.haskell.org/onlinereport/haskell2010/haskellch10.html). This is not the briefest way to define the productions in SDF but it shows the integration of unicode.
+
+	lexical syntax
+		[\!\#\$\%\&\⋆\+\.\/\<\=\>\?\@] \/ [\|\\\|\^\|\-\~\:]					-> HaskellAsciiSymbol
+		[\(\)\,\;\[\]\`\{\}]													-> HaskellSpecial
+		UnicodeSymbol | UnicodePunctuation										-> HaskellUnicodeSymbol
+		(HaskellAsciiSymbol | UnicodeSymbol) / (HaskellSpecial \/ [\_\"\']) 	-> HaskellSymbol
+		(HaskellSymbol / [\:]) HaskellSymbol*									-> HaskellVarSym {longest-match}
+		(HaskellSymbol / [\:]) HaskellSymbol*									-> HaskellReservedOp {reject}
+		(HaskellSymbol / [\:]) HaskellSymbol*									-> HaskellDashes	 {reject}
+		%% Note that LowerCase, UpperCase and Digit already allow unicode characters
+		LowerCase (LowerCase | UpperCase | Digit | [\'] )* 						-> HaskellVarid {longest-match}
+		LowerCase (LowerCase | UpperCase | Digit | [\'] )* 						-> HaskellReservedID {reject}
+		UpperCase (LowerCase | UpperCase | Digit | [\'] )*						-> HaskellConid {longest-match}
+		
+The unicode symbols are defined as follows (punctuation analogous):
+			[¢-¥৲-৳૱௹฿៛₠-₱﷼﹩＄￠-￡￥-￦] 		-> UnicodeCurrencySymbols
+			[¬±×÷϶⁄⁒⁺-⁼₊-₌⅀-⅄⅋←-↔↚-↛↠↣↦↮⇎-⇏⇒⇔⇴-⋿⌈-⌋⌠-⌡⍼⎛-⎳▷◁◸-◿♯⟐-⟥⟰-⟿⤀-⦂⦙-⧗⧜-⧻⧾-⫿﬩﹢﹤-﹦＋＜-＞｜～￢￩-￬𝛁𝛛𝛻𝜕𝜵𝝏𝝯𝞉𝞩𝟃]
+												-> UnicodeMathSymbol
+			[¨¯´¸˂-˅˒-˟˥-˭˯-˿ʹ-͵΄-΅᾽᾿-῁῍-῏῝-῟῭-`´-῾゛-゜＾｀￣]
+												-> UnicodeModifierSymbol
+			[¦-§©®°¶҂؎-؏۩۽-۾৺୰௳-௸௺༁-༃༓-༗༚-༟༴༶༸྾-࿅࿇-࿌࿏᥀᧠-᧿℀-℁℃-℆℈-℉℔№-℘℞-℣℥℧℩℮Ⅎ℺-℻⅊↕-↙↜-↟↡-↢↤-↥↧-↭↯-⇍⇐-⇑⇓⇕-⇳⌀-⌇⌌-⌟⌢-⌨⌫-⍻⍽-⎚⎷-⏐␀-␦⑀-⑊⒜-ⓩ─-▶▸-◀◂-◷☀-☗☙-♮♰-♽⚀-⚑⚠-⚡✁-✄✆-✉✌-✧✩-❋❍❏-❒❖❘-❞❡-❧➔➘-➯➱-➾⠀-⣿⬀-⬍⺀-⺙⺛-⻳⼀-⿕⿰-⿻〄〒-〓〠〶-〷〾-〿㆐-㆑㆖-㆟㈀-㈞㈪-㉃㉐㉠-㉽㉿㊊-㊰㋀-㋾㌀-㏿䷀-䷿꒐-꓆﷽￤￨￭-￮-�𐄂𐄷-𐄿𝀀-𝃵𝄀-𝄦𝄪-𝅘𝅥𝅲𝅪-𝅬𝆃-𝆄𝆌-𝆩𝆮-𝇝𝌀-𝍖]
+												-> UnicodeOtherSymbol
+												
+						
+			UnicodeCurrencySymbol | UnicodeMathSymbol | UnicodeModifierSymbol | UnicodeOtherSymbol
+												-> UnicodeSymbol
+

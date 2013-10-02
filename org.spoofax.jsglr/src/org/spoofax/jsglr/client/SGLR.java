@@ -171,6 +171,10 @@ public class SGLR {
 	public void setParseMaxMode(boolean isParseMaxMode) {
 		this.isParseMaxMode = isParseMaxMode;
 	}
+	
+	public void setDisambiguatorTimeout(long timeout) {
+		this.disambiguator.setTimeout(timeout);
+	}
 
 	protected ArrayDeque<Frame> getRecoverStacks() {
 		return recoverStacks;

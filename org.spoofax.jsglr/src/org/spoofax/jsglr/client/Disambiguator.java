@@ -84,6 +84,8 @@ public class Disambiguator {
 
 	private LayoutFilter layoutFilter;
 	private int layoutFiltering;
+	
+	private long timeout = Long.MAX_VALUE;
 
 	// private Map<AmbKey, IParseNode> resolvedTable = new HashMap<AmbKey,
 	// IParseNode>();
@@ -229,6 +231,10 @@ public class Disambiguator {
 	public int getLayoutFilterCallCount() {
 		return layoutFilter == null ? 0 : layoutFilter.getFilterCallCount();
 	}
+	
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
+	}
 
 	public final void setDefaultFilters() {
 		filterAny = true;
@@ -271,13 +277,16 @@ public class Disambiguator {
 
 				initializeFromParser(parser);
 				t = applyTopSortFilter(sort, t);
-
+				
 				if (filterAny) {
 					t = applyCycleDetectFilter(t);
 
 					// SG_FilterTree
 					ambiguityManager.resetClustersVisitedCount();
-					t = filterTree(t);
+					final Timer timer = new Timer();
+					timer.start();
+					t = filterTree(t, timer);
+					timer.reset();
 				}
 
 				if (t == null)
@@ -473,11 +482,14 @@ public class Disambiguator {
 	 *            We're inside an amb and can return null to reject this branch.
 	 * @throws InterruptedException
 	 */
-	public AbstractParseNode filterTree(AbstractParseNode node) throws FilterException, InterruptedException {
+	public AbstractParseNode filterTree(AbstractParseNode node, Timer timer) throws FilterException, InterruptedException {
 		// SG_FilterTreeRecursive
 		if (Tools.debugging) {
 			Tools.debug("filterTree(node)    - ", node);
 		}
+		
+		if(timer.peek() > timeout)
+			throw new InterruptedException("Disambiguator timed out, this is usually caused by a very high number of layout ambiguities.");
 
 		LinkedList<AbstractParseNode> input = new LinkedList<AbstractParseNode>();
 		LinkedList<AbstractParseNode> output = new LinkedList<AbstractParseNode>();
@@ -532,7 +544,7 @@ public class Disambiguator {
 				case AMBIGUITY:
 					if (!output.isEmpty()) {
 						// (some cycle stuff should be done here)
-						t = filterAmbiguities(t.getChildren());
+						t = filterAmbiguities(t.getChildren(), timer);
 						if (t == null)
 							return null;
 						output.push(t);
@@ -541,7 +553,7 @@ public class Disambiguator {
 					else if (filterReject && t.isParseRejectNode())
 						output.push(t);
 					else
-						output.push(filterAmbiguities(t.getChildren()));
+						output.push(filterAmbiguities(t.getChildren(), timer));
 
 					break;
 
@@ -868,17 +880,17 @@ public class Disambiguator {
 		return null;
 	}
 
-	private AbstractParseNode filterAmbiguities(AbstractParseNode[] ambs) throws FilterException, InterruptedException {
+	private AbstractParseNode filterAmbiguities(AbstractParseNode[] ambs, Timer timer) throws FilterException, InterruptedException {
 		if (ambs.length == 0)
 			return null;
 		AbstractParseNode current = ambs[0];
 		for (int i = 1; i < ambs.length; i++)
-			current = filterAmbiguities(current, ambs[i]);
+			current = filterAmbiguities(current, ambs[i], timer);
 
 		return current;
 	}
 
-	private AbstractParseNode filterAmbiguities(AbstractParseNode amb1, AbstractParseNode amb2) throws FilterException,
+	private AbstractParseNode filterAmbiguities(AbstractParseNode amb1, AbstractParseNode amb2, Timer timer) throws FilterException,
 			InterruptedException {
 		// SG_FilterAmb
 
@@ -886,8 +898,8 @@ public class Disambiguator {
 			Tools.debug("filterAmbiguities() - [", 2, "]");
 		}
 
-		amb1 = filterTree(amb1);
-		amb2 = filterTree(amb2);
+		amb1 = filterTree(amb1, timer);
+		amb2 = filterTree(amb2, timer);
 
 		if (amb1 == null)
 			return amb2;

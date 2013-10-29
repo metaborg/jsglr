@@ -1431,8 +1431,11 @@ public class SGLR {
 	 * 
 	 * @return the last char
 	 */
-	protected int getLastChar() throws Exception {
+	protected int getLastChar()  {
 		// Convert list to array to make a string out of it
+		if (lastChars.size() > 0 && lastChars.get(0) < 0) {
+			return -1;
+		}
 		int[] data = new int[lastChars.size()];
 		for (int i = 0; i < lastChars.size(); i++) {
 			data[i] = lastChars.get(i);
@@ -1440,7 +1443,11 @@ public class SGLR {
 		String s = new String(data, 0, lastChars.size());
 		// Decode it, this may throw buffer exceptions when the character is not
 		// complete
-		s = UnicodeConverter.decodeAsciiToUnicode(s);
+		try {
+			s = UnicodeConverter.decodeAsciiToUnicode(s);
+		} catch (Exception e) {
+			return Integer.MIN_VALUE;
+		}
 		// Check the length of the result and combine it to a single integer
 		return UnicodeConverter.toUnicodeCharacter(s);
 	}
@@ -1457,24 +1464,28 @@ public class SGLR {
 		int charV = 0;
 		int numAdditionalReads = 0;
 		LinkedList<Integer> lastCharsBackup = this.lastChars;
-		this.lastChars = new LinkedList<Integer> ();
+		this.lastChars = new LinkedList<Integer>();
 		this.lastChars.addAll(lastCharsBackup);
+		
 		// Continue until end is reached or the character is complete
-		while (charV != SGLR.EOF) {
-			try {
-				//Get the last char
-				charV = getLastChar();
+		while (charV != SGLR.EOF && charV != -1) {
+
+			// Get the last char
+			charV = getLastChar();
+			if (charV != Integer.MIN_VALUE) {
 				// Reset the stream and the list
 				currentInputStream.setOffset(currentInputStream.getOffset() - numAdditionalReads);
 				this.lastChars = lastCharsBackup;
 				return charV;
-			} catch (Exception e) {
-				// Last char failed, so the current char is not complete, get the next one
+			} else {
+				// Last char failed, so the current char is not complete, get
+				// the next one
 				numAdditionalReads++;
 				charV = currentInputStream.read();
 				this.lastChars.addLast(charV);
 			}
 		}
+		System.out.println(charV);
 		return charV;
 	}
 

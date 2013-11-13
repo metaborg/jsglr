@@ -398,7 +398,7 @@ lexical syntax
     
     StrChar					   -> MaybeUnicodeChar
     UnicodeChar				   -> MaybeUnicodeChar
-    "\\u" [0-9a-fA-F]+ "\\u"   -> UnicodeChar
+    "\\u("[0-9a-fA-F]+ ")"   -> UnicodeChar
 
  	[\"] chars:StrChar* [\"]   -> AsciiStrCon
  	[\"] (StrChar | UnicodeChar)* [\"] -> UnicodeStrCon {avoid}

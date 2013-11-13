@@ -30,12 +30,14 @@ public class HaskellParser {
 
   private static final boolean DEBUG = false;
 
-  private static final String tableLocation = HaskellParser.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "/org/spoofax/jsglr_layout/tests/haskell/Haskell.tbl";
+  private static final String tableLocation = "/Users/moritzlichter/Developer/Java/Eclipse workspaces/HiwiSE/layout-parsing2/jsglr-layout/test-offside/grammars/haskell/Haskell.tbl";
+		  // HaskellParser.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "/org/spoofax/jsglr_layout/tests/haskell/Haskell.tbl";
   
   private static final ParseTable table;
   static {
     try {
       table = new ParseTableManager().loadFromFile(tableLocation);
+     
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -46,10 +48,12 @@ public class HaskellParser {
   public long timeParse;
   public long memoryBefore;
   public long memoryAfter;
+  private boolean filterLayout;
   
 //  public AbstractParseNode parseTree;
   
-  public HaskellParser() {
+  public HaskellParser(boolean filterLayout) {
+	  this.filterLayout = filterLayout;
   }
   
   private void reset() {
@@ -74,7 +78,7 @@ public class HaskellParser {
   public Object parse(final String input, final String filename, final String startSymbol) throws ExecutionException {
     reset();
     
-    final SGLR parser = new SGLR(new TreeBuilder(new TermTreeFactory(new ParentTermFactory(table.getFactory())), true), table);
+    final SGLR parser = new SGLR(new TreeBuilder(new TermTreeFactory(new ParentTermFactory(table.getFactory())), true), table, this.filterLayout);
 
     FutureTask<Object> parseTask = new FutureTask<Object>(new Callable<Object>() {
       public Object call() throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {

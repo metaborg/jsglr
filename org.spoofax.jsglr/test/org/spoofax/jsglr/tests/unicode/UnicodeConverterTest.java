@@ -26,5 +26,12 @@ public class UnicodeConverterTest {
 	public void testEncodeDecode() {
 		assertEquals(UNICODE_STRING1, UnicodeConverter.decodeAsciiToUnicode(UnicodeConverter.encodeUnicodeToAscii(UNICODE_STRING1)));
 	}
+	
+	@Test
+	public void testEncodeDecode2() {
+		assertEquals("ԱՑ", UnicodeConverter.decodeAsciiToUnicode(UnicodeConverter.encodeUnicodeToAscii("ԱՑ")));
+	}
+	
+	
 
 }

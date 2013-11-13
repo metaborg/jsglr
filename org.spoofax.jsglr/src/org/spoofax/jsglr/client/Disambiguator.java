@@ -35,7 +35,7 @@ import org.spoofax.jsglr.shared.Tools;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class Disambiguator {
-	private static final boolean LAYOUT_FITERING = true;
+	private final boolean LAYOUT_FITERING;
 
 	private static final int FILTER_DRAW = 1;
 
@@ -246,7 +246,8 @@ public class Disambiguator {
 		ambiguityIsError = false;
 	}
 
-	public Disambiguator() {
+	public Disambiguator(boolean filterLayout) {
+		this.LAYOUT_FITERING = filterLayout;
 		setDefaultFilters();
 	}
 
@@ -660,7 +661,7 @@ public class Disambiguator {
 
 			final int additionalAmbNodes = newAmbiguities.isEmpty() ? 0 : 1;
 			final AbstractParseNode[] restKids = new AbstractParseNode[kids.length - 1 + additionalAmbNodes];
-			System.arraycopy(kids, 1, restKids, 0, kids.length - 1);
+			System.arraycopy(kids, 1, restKids, 1, kids.length - 1);
 
 			// FIXME is this correct?
 			assert !newAmbiguities.isEmpty();
@@ -672,7 +673,7 @@ public class Disambiguator {
 			} else {
 				extraAmb = newAmbiguities.get(0);
 			}
-			restKids[restKids.length - 1] = extraAmb;
+			restKids[0] = extraAmb;
 
 			// FIXME is this correct?
 			return new ParseNode(t.getLabel(), restKids, AbstractParseNode.PARSENODE, t.getLine(), t.getColumn(),
@@ -683,6 +684,7 @@ public class Disambiguator {
 		}
 		return t;
 	}
+
 
 	private AbstractParseNode applyPriorityFilter(ParseNode t, Label prodLabel) {
 		// SG_Priority_Filter

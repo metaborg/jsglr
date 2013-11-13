@@ -1,18 +1,23 @@
 module UnicodeRestrictionsTest
 
+
 exports
 	
 	context-free start-symbols
-		X
+		Y
 	
-	context-free syntax
-		Y+ -> X 	{cons("X")}
+	context-free priorities
+		Y "->" Y -> Y	{cons("F")}
+	>	Y Y -> Y 	{cons("X"),left}
+		
 		
 	lexical syntax
 		[\ ] 	-> LAYOUT
-		[a-zα-ω]+	-> Y
+		[a-zα-ωß-ö]+	-> Y
 		
 	lexical restrictions
-		Y -/- [[ [a-m] , [n-z]]]  | [α-ωab] . [\ ]
+		Y -/- [a-z]
+	%%	Y -/- [ß-ö]
+		Y -/- [α-ω]
 		
 		

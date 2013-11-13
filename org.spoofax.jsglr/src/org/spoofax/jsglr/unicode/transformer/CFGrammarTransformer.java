@@ -107,6 +107,10 @@ public class CFGrammarTransformer extends TermTransformer {
 			if (isCharClass(arg0)) {
 				eval = arg0.getSubterm(0);
 			}
+			// Do not eval absent char classes
+			if (isSimpleCharClass(eval) && isAbsentCharRange(eval.getSubterm(0))) {
+				return arg0;
+			}
 			// Evaluate the char class
 			MixedUnicodeRange r = evaluateCharClass(eval);
 			// System.out.println("New AST: " + r.toAST());

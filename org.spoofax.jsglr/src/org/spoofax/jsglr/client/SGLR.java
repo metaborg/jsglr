@@ -208,8 +208,12 @@ public class SGLR {
 	public SGLR(ParseTable parseTable) {
 		this(new Asfix2TreeBuilder(), parseTable);
 	}
-
+	
 	public SGLR(ITreeBuilder treeBuilder, ParseTable parseTable) {
+		this(treeBuilder, parseTable, true);
+	}
+
+	public SGLR(ITreeBuilder treeBuilder, ParseTable parseTable, boolean filterLayout) {
 		assert parseTable != null;
 		// Init with a new factory for both serialized or BAF instances.
 		this.parseTable = parseTable;
@@ -217,7 +221,7 @@ public class SGLR {
 		forActor = new ArrayDeque<Frame>();
 		forActorDelayed = new ArrayDeque<Frame>();
 		forShifter = new ArrayDeque<ActionState>();
-		disambiguator = new Disambiguator();
+		disambiguator = new Disambiguator(filterLayout);
 		useIntegratedRecovery = false;
 		setUseStructureRecovery(false);
 		history = new ParserHistory();

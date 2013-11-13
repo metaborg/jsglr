@@ -349,6 +349,11 @@ public class UnicodeUtils {
 				factory.makeAppl(factory.makeConstructor("present", 1), charrange));
 	}
 	
+	public static IStrategoTerm makeEmptyCharClass() {
+		return factory.makeAppl(factory.makeConstructor("simple-charclass", 1),
+				factory.makeAppl(factory.makeConstructor("absent", 0)));
+	}
+	
 	public static IStrategoTerm charClassToSymbol(IStrategoTerm charclass) {
 		return factory.makeAppl(factory.makeConstructor("char-class", 1), charclass);
 	}

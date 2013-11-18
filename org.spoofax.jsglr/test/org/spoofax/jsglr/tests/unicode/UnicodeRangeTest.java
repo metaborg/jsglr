@@ -1,6 +1,9 @@
 package org.spoofax.jsglr.tests.unicode;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.spoofax.jsglr.unicode.charranges.UnicodeInterval;
@@ -69,6 +72,12 @@ public class UnicodeRangeTest {
 		expected.unite(createRange(23, 34));
 
 		assertEquals(expected, u);
+		
+		UnicodeRange u7 = createRange(14,16);
+		u = new UnicodeRange();
+		u.unite(u7);
+		u.unite(u5);
+		assertEquals(u5,u);
 	}
 
 	@Test
@@ -228,5 +237,40 @@ public class UnicodeRangeTest {
 									makeCharRangeString(5, 5) + "," +
 									"[" + makeCharRangeString(0, 120) + "])))";
 		assertEquals(expect, astString);
+	}
+	
+	private static List<UnicodeInterval> createIntervalList(long... values) {
+		List<UnicodeInterval> l = new ArrayList<UnicodeInterval>(values.length/2);
+		for (int i = 0; i < values.length; i=i+2) {
+			l.add(new UnicodeInterval(values[i], values[i+1]));
+		}
+		return l;
+	}
+	
+	@Test
+	public void testNormalizeUTF8Charclasses() {
+		UnicodeInterval interval;
+		List<UnicodeInterval> expected;
+		
+		interval = new UnicodeInterval(0x23000000, 0x23FFFFFF);
+		expected = createIntervalList(0x23000000, 0x23FFFFFF);
+		assertEquals(expected, interval.normalize());
+		
+		interval = new UnicodeInterval(0x1234, 0x12DE);
+		expected = createIntervalList(0x1234,0x12DE);
+		assertEquals(expected, interval.normalize());
+		
+		interval = new UnicodeInterval(0x123221, 0x452132);
+		expected = createIntervalList(0x123221,0x1232ff,0x123300,0x12ffff,0x130000,0x44ffff,0x450000,0x4520ff,0x452100,0x452132);
+		assertEquals(expected, interval.normalize());
+		
+		interval = new UnicodeInterval(0x3476, 0x35D0);
+		expected = createIntervalList(0x3476, 0x34ff,0x3500, 0x35D0);
+		assertEquals(expected, interval.normalize());
+		
+		interval = new UnicodeInterval(0x1111, 0x1111);
+		expected = createIntervalList(0x1111,0x1111);
+		assertEquals(expected, interval.normalize());
+		
 	}
 }

@@ -24,7 +24,7 @@
 		<attribute name="file" />
 		<attribute name="encoding" default="UTF-8" />
 		<sequential>
-			<java classpath="../../../bin;${strategoxt}" classname="org.spoofax.jsglr.unicode.preprocessor.UnicodeSDFPreprocessor" failonerror="true">
+			<java classpath="${strategoxt};../../../bin" classname="org.spoofax.jsglr.unicode.preprocessor.UnicodeSDFPreprocessor" failonerror="true">
 				<arg value="@{file}" />
 				<arg value="@{encoding}" />
 			</java>

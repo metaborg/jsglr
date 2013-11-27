@@ -18,6 +18,8 @@ import java.lang.ref.WeakReference;
 
   private static boolean isIniting;
 
+  protected static IStrategoTerm constNil0;
+
   public static IStrategoConstructor _consConc_2;
 
   public static IStrategoConstructor _consNone_0;
@@ -52,11 +54,9 @@ import java.lang.ref.WeakReference;
 
   protected static IStrategoConstructor _conscomp_1;
 
+  protected static IStrategoConstructor _consprod_3;
+
   public static IStrategoConstructor _consParenthetical_1;
-
-  public static IStrategoConstructor _consDR_DUMMY_0;
-
-  public static IStrategoConstructor _consDR_UNDEFINE_1;
 
   public static Context init(Context context)
   { 
@@ -94,9 +94,63 @@ import java.lang.ref.WeakReference;
     return init(new Context());
   }
 
+  public static void main(String args[])
+  { 
+    Context context = init();
+    context.setStandAlone(true);
+    try
+    { 
+      IStrategoTerm result;
+      try
+      { 
+        result = context.invokeStrategyCLI(main_0_0.instance, "sdf_parenthesize", args);
+      }
+      finally
+      { 
+        context.getIOAgent().closeAllFiles();
+      }
+      if(result == null)
+      { 
+        System.err.println("sdf_parenthesize" + (TRACES_ENABLED ? ": rewriting failed, trace:" : ": rewriting failed"));
+        context.printStackTrace();
+        context.setStandAlone(false);
+        System.exit(1);
+      }
+      else
+      { 
+        System.out.println(result);
+        context.setStandAlone(false);
+        System.exit(0);
+      }
+    }
+    catch(StrategoExit exit)
+    { 
+      context.setStandAlone(false);
+      System.exit(exit.getValue());
+    }
+  }
+
+  public static IStrategoTerm mainNoExit(String ... args) throws StrategoExit
+  { 
+    return mainNoExit(new Context(), args);
+  }
+
+  public static IStrategoTerm mainNoExit(Context context, String ... args) throws StrategoExit
+  { 
+    try
+    { 
+      init(context);
+      return context.invokeStrategyCLI(main_0_0.instance, "sdf_parenthesize", args);
+    }
+    finally
+    { 
+      context.getIOAgent().closeAllFiles();
+    }
+  }
+
   public static Strategy getMainStrategy()
   { 
-    return null;
+    return main_0_0.instance;
   }
 
   public static void initConstructors(ITermFactory termFactory)
@@ -118,13 +172,14 @@ import java.lang.ref.WeakReference;
     _consisect_2 = termFactory.makeConstructor("isect", 2);
     _consunion_2 = termFactory.makeConstructor("union", 2);
     _conscomp_1 = termFactory.makeConstructor("comp", 1);
+    _consprod_3 = termFactory.makeConstructor("prod", 3);
     _consParenthetical_1 = termFactory.makeConstructor("Parenthetical", 1);
-    _consDR_DUMMY_0 = termFactory.makeConstructor("DR_DUMMY", 0);
-    _consDR_UNDEFINE_1 = termFactory.makeConstructor("DR_UNDEFINE", 1);
   }
 
   public static void initConstants(ITermFactory termFactory)
-  { }
+  { 
+    constNil0 = (IStrategoTerm)termFactory.makeList();
+  }
 
   public static void registerInterop(org.spoofax.interpreter.core.IContext context, Context compiledContext)
   { 

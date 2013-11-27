@@ -6,11 +6,17 @@ exports
 		Y
 	
 	context-free syntax
-		"b" Y2				-> K {cons("K")}
+		"b" "∷" Y2				-> K {cons("K")}
 		
 		K Z				-> Y
+		"𝔹"				->K
 		
 		{TrebleClef ","}*	-> Z {cons("Z")}
+		
+	context-free syntax
+		(A | B)* -> X
+	 	A (B | X) -> Y
+
 				
 	lexical syntax
 		"Øc" -> Y2

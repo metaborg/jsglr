@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.nio.BufferUnderflowException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -1438,7 +1439,7 @@ public class SGLR {
 	protected int getLastChar()  {
 		// Convert list to array to make a string out of it
 		if (lastChars.size() > 0 && lastChars.get(0) < 0) {
-			return -1;
+			return -1; // Can not read more
 		}
 		int[] data = new int[lastChars.size()];
 		for (int i = 0; i < lastChars.size(); i++) {
@@ -1449,7 +1450,7 @@ public class SGLR {
 		// complete
 		try {
 			s = UnicodeConverter.decodeAsciiToUnicode(s);
-		} catch (Exception e) {
+		} catch (BufferUnderflowException e) {
 			return Integer.MIN_VALUE;
 		}
 		// Check the length of the result and combine it to a single integer
@@ -1470,7 +1471,6 @@ public class SGLR {
 		LinkedList<Integer> lastCharsBackup = this.lastChars;
 		this.lastChars = new LinkedList<Integer>();
 		this.lastChars.addAll(lastCharsBackup);
-		
 		// Continue until end is reached or the character is complete
 		while (charV != SGLR.EOF && charV != -1) {
 
@@ -1489,7 +1489,6 @@ public class SGLR {
 				this.lastChars.addLast(charV);
 			}
 		}
-		System.out.println(charV);
 		return charV;
 	}
 
@@ -1499,10 +1498,7 @@ public class SGLR {
 		boolean characterComplete = true;
 		if (!lastChars.isEmpty() && lastChars.getFirst() == UnicodeConverter.UNICODE_PRAEFIX) {
 			// Try whether string is ok
-			try {
-				getLastChar();
-			} catch (Exception e) {
-				// Thrown when buffers have a problem, the char is not complete
+			if (getLastChar() == Integer.MIN_VALUE) {
 				characterComplete = false;
 			}
 			if (characterComplete) {
@@ -1526,18 +1522,17 @@ public class SGLR {
 			if (characterComplete) {
 				lineNumber++;
 				columnNumber = 0;
-			} else {
-				columnNumber++;
-			}
+			} 
 			break;
 		case '\t':
 			columnNumber = (columnNumber / TAB_SIZE + 1) * TAB_SIZE;
 			break;
-		case -1:
-		case UnicodeConverter.UNICODE_PRAEFIX:
-			break;
+		case -1:			break;
 		default:
+			// For layout parsing: unicode character is only one column
+			if (characterComplete) {
 			columnNumber++;
+			}
 		}
 	}
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.spoofax.jsglr.unicode.charranges.MixedUnicodeRange;
 import org.spoofax.jsglr.unicode.charranges.UnicodeInterval;
 import org.spoofax.jsglr.unicode.charranges.UnicodeRange;
 import org.spoofax.jsglr.unicode.terms.DefaultSequenceCreator;
@@ -252,7 +253,7 @@ public class UnicodeRangeTest {
 		UnicodeInterval interval;
 		List<UnicodeInterval> expected;
 		
-		interval = new UnicodeInterval(0x23000000, 0x23FFFFFF);
+	/*	interval = new UnicodeInterval(0x23000000, 0x23FFFFFF);
 		expected = createIntervalList(0x23000000, 0x23FFFFFF);
 		assertEquals(expected, interval.normalize());
 		
@@ -270,7 +271,11 @@ public class UnicodeRangeTest {
 		
 		interval = new UnicodeInterval(0x1111, 0x1111);
 		expected = createIntervalList(0x1111,0x1111);
-		assertEquals(expected, interval.normalize());
+		assertEquals(expected, interval.normalize());*/
+		
+		interval = MixedUnicodeRange.UTF16_4BYTE_INTERVAL;
+		System.out.println(interval);
+		System.out.println(interval.normalize());
 		
 	}
 }

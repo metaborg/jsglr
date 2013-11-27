@@ -17,10 +17,10 @@ import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
  */
 public class MixedUnicodeRange {
 
-	private static final UnicodeInterval ASCII_INTERVAL = new UnicodeInterval(0, UnicodeConverter.FIRST_UNICODE - 1);
-	private static final UnicodeInterval UTF16_2BYTE_INTERVAL = new UnicodeInterval(UnicodeConverter.FIRST_UNICODE,
+	public static final UnicodeInterval ASCII_INTERVAL = new UnicodeInterval(0, UnicodeConverter.FIRST_UNICODE - 1);
+	public static final UnicodeInterval UTF16_2BYTE_INTERVAL = new UnicodeInterval(UnicodeConverter.FIRST_UNICODE,
 			UnicodeConverter.getMaxTwoByteChar());
-	private static final UnicodeInterval UTF16_4BYTE_INTERVAL = new UnicodeInterval(
+	public static final UnicodeInterval UTF16_4BYTE_INTERVAL = new UnicodeInterval(
 			UnicodeInterval.intToLong(UnicodeConverter.numberToInt(UnicodeConverter.getMaxTwoByteChar()+1)),
 			UnicodeInterval.intToLong(UnicodeConverter.numberToInt(UnicodeConverter.getLastUnicode())));
 

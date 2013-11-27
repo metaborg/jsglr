@@ -16,7 +16,8 @@ public class UnicodeInterval extends Pair<Long, Long> {
 
 	public static long intToLong(int i) {
 		long l = 0;
-		l = l | i;
+		l = i;
+		l = l & 0x0ffffffffL;
 		return l;
 	}
 
@@ -191,14 +192,18 @@ public class UnicodeInterval extends Pair<Long, Long> {
 		for (int i = 0; i < numBytes; i++) {
 			long byteX = getByte(start, i, numBytes);
 			long byteY = getByte(end, i, numBytes);
+		//	System.out.println(Long.toHexString(byteY));
 			if (byteX == byteY) {
 				numEqualBytes++;
 				equal = equal << 8;
 				equal = equal | byteX;
+
+			//	System.out.println(Long.toHexString(equal));
 			} else {
 				break;
 			}
 		}
+	//	System.out.println(Long.toHexString(equal));
 		// According to the theorem, an interval is normalized, if
 		// a) or
 		boolean isNormalizedA = (numBytes - numEqualBytes) == 1;

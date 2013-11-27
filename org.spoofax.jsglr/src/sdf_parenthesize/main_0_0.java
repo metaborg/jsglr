@@ -8,13 +8,13 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import java.util.ArrayList;
 import java.lang.ref.WeakReference;
 
-@SuppressWarnings("all") public class io_core_sdf_parenthesize_0_0 extends Strategy 
+@SuppressWarnings("all") public class main_0_0 extends Strategy 
 { 
-  public static io_core_sdf_parenthesize_0_0 instance = new io_core_sdf_parenthesize_0_0();
+  public static main_0_0 instance = new main_0_0();
 
   @Override public IStrategoTerm invoke(Context context, IStrategoTerm term)
   { 
-    context.push("io_core_sdf_parenthesize_0_0");
+    context.push("main_0_0");
     Fail0:
     { 
       term = io_wrap_1_0.instance.invoke(context, term, parenthesize_$Sdf2_0_0.instance);

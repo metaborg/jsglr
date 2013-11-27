@@ -21,6 +21,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.unicode.UnicodeConverter;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 
@@ -409,7 +410,7 @@ public class UnicodeUtils {
 			}
 		} else if (isConstructors(term, "unicodechar")) {
 			String str = Term.asJavaString(term.getSubterm(0));
-			return Integer.parseInt(str.substring(3, str.length()-1), 16);
+			return UnicodeConverter.numberToInt(Integer.parseInt(str.substring(3, str.length()-1), 16));
 		} else if (isConstructors(term, "top")) {
 			
 		} else if (isConstructors(term, "eof")) {

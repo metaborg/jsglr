@@ -32,6 +32,15 @@ public class UnicodeConverterTest {
 		assertEquals("ԱՑ", UnicodeConverter.decodeAsciiToUnicode(UnicodeConverter.encodeUnicodeToAscii("ԱՑ")));
 	}
 	
+	@Test
+	public void testBackslashU() {
+		String s = UnicodeConverter.encodeUnicodeToAscii("𝔹");
+		for (char c : s.toCharArray()) {
+			System.out.println((int)c);
+		}
+		assertEquals("𝔹",UnicodeConverter.unicodeBackslashUToString(UnicodeConverter.encodeUnicodeToBacklashU("𝔹")));
+	}
+	
 	
 
 }

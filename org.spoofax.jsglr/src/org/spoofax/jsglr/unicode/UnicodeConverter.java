@@ -82,8 +82,12 @@ public class UnicodeConverter {
 			return "\\u(" + Integer.toHexString(utf164ByteToNumber(nextChar)) + ")";
 		}
 	};
-
+	
 	public static String unicodeBackslashUToString(String string) {
+		return unicodeBackslashUNumberToString(string.substring(3,string.length()-1));
+	}
+
+	public static String unicodeBackslashUNumberToString(String string) {
 		int value = Integer.parseInt(string, 16);
 		return unicodeNumberToString(value);
 	}
@@ -142,14 +146,12 @@ public class UnicodeConverter {
 	private static int utf164ByteToNumber(int encoded) {
 		boolean needToByte = encoded < 0 || encoded >= 0x10000;
 		if (needToByte) {
+			
 			int first = encoded & 0x03ff0000;
 			int second = encoded & 0x000003ff;
 			first = first >> 16;
-			// System.out.println(first + " " + second);
 			int res = (first << 10) | second;
-			if (res >= 0x10000) {
-				res += 0x10000;
-			}
+			res += 0x10000;
 			return res;
 		} else {
 			return encoded;

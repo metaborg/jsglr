@@ -126,6 +126,10 @@ public class UnicodeConverter {
 		// Need the check for greater 0, because integer comparison is signed
 		return c >= 0 && c <= getMaxTwoByteChar();
 	}
+	
+	public static boolean isValidFourByteCharacter(int c) {
+		return is4ByteUnicodeBegin((c >> 16) & 0xFFFF) && isValid4ByteUnicodeLSB(c & 0xFFFF);
+	}
 
 	public static int getMaxTwoByteChar() {
 		return 0xFFFF;
@@ -207,9 +211,13 @@ public class UnicodeConverter {
 	 *             when lsbs is invalid
 	 */
 	private static void validate4ByteUnicodeLSBs(int lsbs) {
-		if ((lsbs >> 10) != UNICODE_4_BYTE_PATTERN_LSBS) {
+		if (!isValid4ByteUnicodeLSB(lsbs)) {
 			throw new IllegalArgumentException("The character " + lsbs + "is not valid LSBs of UTF-16 character");
 		}
+	}
+	
+	private static boolean isValid4ByteUnicodeLSB(int lsbs) {
+		return (lsbs >> 10) == UNICODE_4_BYTE_PATTERN_LSBS;
 	}
 
 	public static int toUnicodeCharacter(String s) {

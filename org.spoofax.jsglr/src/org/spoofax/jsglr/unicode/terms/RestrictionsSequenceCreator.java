@@ -11,7 +11,7 @@ public class RestrictionsSequenceCreator extends SequenceCreator {
 
 	@Override
 	protected IStrategoTerm wrapTerm(IStrategoTerm term) {
-		return UnicodeUtils.makeSingle(term);
+		return term; //UnicodeUtils.makeSingle(term);
 	}
 
 }

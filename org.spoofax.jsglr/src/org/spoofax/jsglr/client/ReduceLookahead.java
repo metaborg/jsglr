@@ -7,6 +7,8 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.List;
+
 
 
 public class ReduceLookahead extends ActionItem {
@@ -21,9 +23,9 @@ public class ReduceLookahead extends ActionItem {
 
     public final Production production;
 
-    protected final RangeList[] charRanges;
+    protected final List<RangeList[]> charRanges;
     
-    public ReduceLookahead(int arity, int label, int status, RangeList[] charClasses) {
+    public ReduceLookahead(int arity, int label, int status, List<RangeList[]> charClasses) {
         super(REDUCE_LOOKAHEAD);
 
         this.arity = arity;
@@ -52,7 +54,15 @@ public class ReduceLookahead extends ActionItem {
         return "reduce(" + arity + ", " + label + ", " + status + ")";
     }
 
-    public RangeList[] getCharRanges() {
+    public List<RangeList[]> getCharRanges() {
         return charRanges;
+    }
+    
+    public int getMaximumLookaheadLength() {
+    	int max = 0;
+    	for (RangeList[] r : charRanges) {
+    		max = Math.max(max, r.length);
+    	}
+    	return max;
     }
 }

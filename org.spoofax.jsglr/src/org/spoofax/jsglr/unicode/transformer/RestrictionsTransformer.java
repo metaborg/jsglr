@@ -39,6 +39,10 @@ public class RestrictionsTransformer extends TermTransformer {
 									UnicodeUtils.makeRestrictionSymbolSeq(term.getSubterm(0).getSubterm(1),
 											term.getSubterm(1)));
 				}
+				if (UnicodeUtils.isConstructors(term.getSubterm(1), "alt")) {
+					return  UnicodeUtils.makeOrSymbol(UnicodeUtils.makeRestrictionSymbolSeq(term.getSubterm(0), term.getSubterm(1).getSubterm(0)),
+							UnicodeUtils.makeRestrictionSymbolSeq(term.getSubterm(0), term.getSubterm(1).getSubterm(1)));
+				}
 			}
 		}
 		return term;
@@ -53,4 +57,5 @@ public class RestrictionsTransformer extends TermTransformer {
 		}
 		return super.postTransform(term);
 	}
+	
 }

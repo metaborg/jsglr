@@ -31,7 +31,7 @@ public class RestrictionsTest {
 	
 	@Test
 	public void testSimpleExpressions() throws Exception{
-		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyzρξ hgπs -> πas", null, null);
+		IStrategoTerm ast = (IStrategoTerm) sglr.parse("xyzρξ πhgππs -> πas", null, null);
 		System.out.println(ast);
 	}
 /*	

@@ -37,7 +37,9 @@ import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
 import org.spoofax.jsglr.shared.SGLRException;
+import org.spoofax.jsglr.unicode.UnicodeConverter;
 import org.spoofax.jsglr.unicode.UnicodeTermFactory;
+import org.spoofax.jsglr.unicode.terms.UnicodeUtils;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
@@ -410,13 +412,13 @@ public class ParseTable implements Serializable {
             IStrategoNamed action = (IStrategoNamed) actionList.head();
             actionList = actionList.tail();
             RangeList ranges = parseRanges((IStrategoList) termAt(action, 0));
-            ActionItem[] items = parseActionItems((IStrategoList) termAt(action, 1));
+            ActionItem[] items = parseActionItems((IStrategoList) termAt(action, 1), ranges.getFirstRangeElement() == ranges.getLastRangeElement() && ranges.getFirstRangeElement() == 7);
             ret[i] = new Action(ranges, items);
         }
         return ret;
     }
 
-    private ActionItem[] parseActionItems(IStrategoList items) throws InvalidParseTableException {
+    private ActionItem[] parseActionItems(IStrategoList items, boolean correctUnicodeLookaheads) throws InvalidParseTableException {
 
         ActionItem[] ret = new ActionItem[items.getSubtermCount()];
 
@@ -436,7 +438,7 @@ public class ParseTable implements Serializable {
                 int productionArity = intAt(a, 0);
                 int label = intAt(a, 1);
                 int status = intAt(a, 2);
-                RangeList[] charClasses = parseCharRanges((IStrategoList) termAt(a, 3));
+                List<RangeList[]> charClasses = parseCharRanges((IStrategoList) termAt(a, 3), correctUnicodeLookaheads);
                 item = makeReduceLookahead(productionArity, label, status, charClasses);
 
             } else if (a.getName().equals("accept")) {
@@ -452,8 +454,9 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    private RangeList[] parseCharRanges(IStrategoList list) throws InvalidParseTableException {
+    private List<RangeList[]> parseCharRanges(IStrategoList list, boolean correctUnicodeLookaheads) throws InvalidParseTableException {
         List<RangeList> ret = new LinkedList<RangeList>();
+       
         for (int i=0;i<list.getSubtermCount(); i++) {
             IStrategoNamed t = (IStrategoNamed) list.head();
             list = list.tail();
@@ -466,21 +469,66 @@ public class ParseTable implements Serializable {
                 l = termAt(Term.termAt(termAt(t, 0), 0), 0);
                 n = ((IStrategoList) termAt(t, 0)).tail();
             }
-
             // FIXME: multiple lookahead are not fully supported or tested
             //        (and should work for both 2.4 and 2.6 tables)
-
-            ret.add(parseRanges(l));
+           
+            RangeList ranges = parseRanges(l);
+            ret.add(ranges);
             
-            if (n.getSubtermCount() > 0) 
-              throw new InvalidParseTableException("Multiple lookahead not fully supported"); 
+       //     if (n.getSubtermCount() > 0) 
+       //      throw new InvalidParseTableException("Multiple lookahead not fully supported"); 
             for (IStrategoTerm nt : n.getAllSubterms())
               ret.add(parseRanges((IStrategoList) nt.getSubterm(0)));
         }
-        return ret.toArray(new RangeList[ret.size()]);
+        List<RangeList[]> results = new ArrayList<RangeList[]>();
+        if (correctUnicodeLookaheads) {
+        	 
+        	// check whether this range list can be split in more following unicode characters because sdf2table has concatenaded the alternatives
+        	while (ret.size() >= 4) {
+        		RangeList r0 = ret.get(0);
+        		RangeList r1 = ret.get(1);
+        		RangeList r2 = ret.get(2);
+        		RangeList r3 = ret.get(3);
+        		// Check wether the sequence of a member of r0 and r1 is a two byte unicode character
+        		
+        		if (UnicodeConverter.isValidFourByteCharacter((r0.getFirstRangeElement() << 24) | (r1.getFirstRangeElement() << 16) | (r2.getFirstRangeElement() << 8) | r3.getFirstRangeElement())) {
+        			results.add(new RangeList[] {r0,r1, r2, r3});
+        			ret.remove(0);
+        			ret.remove(0);
+        			ret.remove(0);
+        			ret.remove(0);
+        		} else if (UnicodeConverter.isTwoByteCharacter(r0.getFirstRangeElement() << 8 | r1.getFirstRangeElement())) {
+        			results.add(new RangeList[] {r0,r1});
+        			ret.remove(0);
+        			ret.remove(0); 
+        		} else {
+        			//sorry, is no unicode, from the output of the unicode preprocessor we know, that this has to be a single ascii character 
+        			results.add(new RangeList[]{r0});
+        			ret.remove(0);
+        		}
+        	}
+        	// Check for a least 2 byte unicode
+        	if (ret.size() >= 2) {
+        		RangeList r0 = ret.get(0);
+        		RangeList r1 = ret.get(1);
+        		if (UnicodeConverter.isTwoByteCharacter(r0.getFirstRangeElement() << 8 | r1.getFirstRangeElement())) {
+        			results.add(new RangeList[] {r0,r1});
+        			ret.remove(0);
+        			ret.remove(0);
+        		}
+        	}
+        	// Check for a last characters
+        	while(!ret.isEmpty()) {
+        		results.add(new RangeList[]{ret.remove(0)});
+        	}
+        } else {
+        	results.add( ret.toArray(new RangeList[ret.size()]));
+        }
+       return results;
+        
     }
 
-    private ActionItem makeReduceLookahead(int productionArity, int label, int status, RangeList[] charClasses) {
+    private ActionItem makeReduceLookahead(int productionArity, int label, int status, List<RangeList[]> charClasses) {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
 

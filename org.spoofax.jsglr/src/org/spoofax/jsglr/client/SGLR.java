@@ -850,38 +850,41 @@ public class SGLR {
 		return doCheckLookahead(red, red.getCharRanges());
 	}
 
-	private boolean doCheckLookahead(ReduceLookahead red, RangeList[] charClass) {
+	private boolean doCheckLookahead(ReduceLookahead red, List<RangeList[]> charClass) {
 		if (Tools.tracing) {
 			TRACE("SG_CheckLookAhead() - ");
 		}
 
-		if (charClass.length == 0)
+		if (red.getMaximumLookaheadLength() == 0) {
 			return true;
+		}
 
-		boolean permit = false;
+		boolean permit = true;
 		int offset = -1;
-		int[] readChars = new int[charClass.length];
-
+		int[] readChars = new int[red.getMaximumLookaheadLength()];
+		
 		int i;
-		for (i = 0; i < charClass.length; i++) {
+		for (i = 0; i < red.getMaximumLookaheadLength(); i++) {
 			int c = currentInputStream.read();
 			offset++;
 			readChars[offset] = c;
-
 			// EOF
 			if (c == -1) {
 				permit = true;
-				break;
+				
 			}
-
-			if (!charClass[i].within(c)) {
-				permit = true;
-				break;
+			
+			for(RangeList[] r : charClass) {
+				if (r.length > i && r[i].within(c)) {
+					permit = false;
+					break;
+				}
 			}
 		}
 
-		for (int j = offset; j >= 0; j--)
+		for (int j = offset; j >= 0; j--) {
 			currentInputStream.unread(readChars[j]);
+		}
 
 		return permit;
 	}

@@ -11,7 +11,9 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.KeywordRecognizer;
@@ -22,45 +24,47 @@ import org.spoofax.terms.SimpleTermVisitor;
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
 public class Tokenizer extends AbstractTokenizer {
-	
+
 	private static final double EXPECTED_TOKENS_DIVIDER = 1.3;
 
 	private final ArrayList<Token> tokens;
-	
+
 	private KeywordRecognizer keywords;
-	
+
 	private ISimpleTerm ast;
-	
+
 	/** Start of the next token. */
 	private int startOffset;
-	
+
 	/** Line number of the next token. */
 	private int line;
 
 	private int offsetAtLineStart;
-	
+
 	/**
-	 * Creates a new tokenizer for the given
-	 * file name (if applicable) and contents.
+	 * Creates a new tokenizer for the given file name (if applicable) and
+	 * contents.
 	 */
 	public Tokenizer(String input, String filename, KeywordRecognizer keywords) {
 		super(input, filename);
 		this.keywords = keywords;
-		this.tokens = new ArrayList<Token>(); // capacity set in internalMakeToken()
+		this.tokens = new ArrayList<Token>(); // capacity set in
+												// internalMakeToken()
 		startOffset = 0;
 		line = 1; // same as SGLR
 		offsetAtLineStart = 0;
 		// Ensure there's at least one token
 		tokens.add(new Token(this, 0, line, 0, 0, -1, TK_RESERVED));
 	}
-	
+
 	public final int getStartOffset() {
 		return startOffset;
 	}
 
 	public void setStartOffset(int startOffset) {
 		assert isAmbigous() || this.startOffset >= getInput().length();
-		if (this.startOffset == startOffset) return;
+		if (this.startOffset == startOffset)
+			return;
 		this.startOffset = startOffset;
 		IToken lastToken = getTokenAtOffset(startOffset);
 		this.offsetAtLineStart = lastToken.getStartOffset() - lastToken.getColumn();
@@ -68,23 +72,21 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	public IToken currentToken() {
-		return tokens.size() == 0
-			? null
-			: tokens.get(tokens.size() - 1);
+		return tokens.size() == 0 ? null : tokens.get(tokens.size() - 1);
 	}
-	
+
 	public int getTokenCount() {
 		return tokens.size();
 	}
-	
+
 	public Token getTokenAt(int i) {
 		Token result = tokens.get(i);
 		// Disabled: might fail for testing language token sequences
-		//           (e.g., self-application.spt)
+		// (e.g., self-application.spt)
 		// assert i == 0 || result.getIndex() == i;
 		return result;
 	}
-	
+
 	public Token internalGetTokenAt(int i) {
 		Token result = tokens.get(i);
 		return result;
@@ -99,42 +101,42 @@ public class Tokenizer extends AbstractTokenizer {
 		this.offsetAtLineStart = offsetAtLineStart;
 		this.startOffset = startOffset;
 	}
-	
+
 	protected void setKeywordRecognizer(KeywordRecognizer keywords) {
 		this.keywords = keywords;
 	}
-	
+
 	public IToken getTokenAtOffset(int offset) {
-		assert isAmbigous() || 
-			getTokenCount() < 2 || internalGetTokenAt(getTokenCount() - 1).getStartOffset()
-			== internalGetTokenAt(getTokenCount() - 2).getEndOffset() + 1
-			: "Unordered tokens at end of tokenizer";
+		assert isAmbigous()
+				|| getTokenCount() < 2
+				|| internalGetTokenAt(getTokenCount() - 1).getStartOffset() == internalGetTokenAt(getTokenCount() - 2)
+						.getEndOffset() + 1 : "Unordered tokens at end of tokenizer";
 		Token key = new Token(this, -1, -1, -1, offset, offset - 1, TK_RESERVED);
 		int resultIndex = Collections.binarySearch(tokens, key);
 		if (resultIndex == -1)
-			throw new IndexOutOfBoundsException("No token at offset " + offset + " (binary search returned " + resultIndex + ")");
+			throw new IndexOutOfBoundsException("No token at offset " + offset + " (binary search returned "
+					+ resultIndex + ")");
 		if (resultIndex < -1)
 			resultIndex = (-resultIndex) - 1;
 		if (offset == getInput().length() && tokens.size() > 0)
 			return currentToken();
 		if (resultIndex >= getTokenCount())
 			throw new IndexOutOfBoundsException("No token at offset " + offset);
-		return /*resultIndex == -1 ? null :*/ internalGetTokenAt(resultIndex);
+		return /* resultIndex == -1 ? null : */internalGetTokenAt(resultIndex);
 	}
-	
+
 	public final Token makeToken(int endOffset, int kind, boolean allowEmptyToken) {
 		return makeToken(endOffset, kind, allowEmptyToken, null);
 	}
-		
+
 	public Token makeToken(int endOffset, int kind, boolean allowEmptyToken, String errorMessage) {
 		String input = getInput();
 		assert endOffset <= input.length();
 		if (!allowEmptyToken && startOffset > endOffset) // empty token
 			return null;
-		
-		assert endOffset + 1 >= startOffset || (kind == TK_RESERVED && startOffset == 0)
-			: "Creating token ending before current start offset";
-		
+
+		assert endOffset + 1 >= startOffset || (kind == TK_RESERVED && startOffset == 0) : "Creating token ending before current start offset";
+
 		int offset;
 		Token token = null;
 		for (offset = min(startOffset, endOffset); offset < endOffset; offset++) {
@@ -146,7 +148,7 @@ public class Tokenizer extends AbstractTokenizer {
 				offsetAtLineStart = startOffset;
 			}
 		}
-		
+
 		if (token == null || offset <= endOffset) {
 			int oldStartOffset = startOffset;
 			token = internalMakeToken(kind, offset, errorMessage);
@@ -165,15 +167,17 @@ public class Tokenizer extends AbstractTokenizer {
 			assert false;
 			endOffset = getInput().length() - 1; // move 'zig'
 		}
-		Token result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
-		if (errorMessage != null) result.setError(errorMessage);
+		Token result = new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset,
+				kind);
+		if (errorMessage != null)
+			result.setError(errorMessage);
 		if (tokens.size() == 5)
 			tokens.ensureCapacity((int) (getInput().length() / EXPECTED_TOKENS_DIVIDER));
 		tokens.add(result);
 		startOffset = endOffset + 1;
 		return result;
 	}
-	
+
 	/**
 	 * Reassigns (i.e., steals) an existing tokenizer to this tokenizer.
 	 */
@@ -185,7 +189,7 @@ public class Tokenizer extends AbstractTokenizer {
 		tokens.add(token);
 		startOffset = token.getEndOffset() + 1;
 	}
-	
+
 	@Override
 	protected void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
 		assert leftToken.getTokenizer() == this && rightToken.getTokenizer() == this;
@@ -196,7 +200,7 @@ public class Tokenizer extends AbstractTokenizer {
 
 	public void tryMakeSkippedRegionToken(int offset) {
 		char inputChar = getInput().charAt(offset);
-		
+
 		boolean isInputKeywordChar = KeywordRecognizer.isPotentialKeywordChar(inputChar);
 		if (isAtPotentialKeywordEnd(offset, isInputKeywordChar)) {
 			if (keywords.isKeyword(toString(startOffset, offset - 1))) {
@@ -212,15 +216,14 @@ public class Tokenizer extends AbstractTokenizer {
 				makeToken(offset, TK_ERROR, false, ERROR_SKIPPED_REGION);
 			}
 		}
-		
+
 		setSyntaxCorrect(false);
 	}
 
 	private boolean isAtPotentialKeywordEnd(int offset, boolean isInputKeywordChar) {
 		if (offset >= 1 && offset > startOffset) {
 			char prevChar = getInput().charAt(offset - 1);
-			return 	(isInputKeywordChar && !isKeywordChar(prevChar))
-					|| (!isInputKeywordChar && isKeywordChar(prevChar));
+			return (isInputKeywordChar && !isKeywordChar(prevChar)) || (!isInputKeywordChar && isKeywordChar(prevChar));
 		}
 		return false;
 	}
@@ -228,22 +231,21 @@ public class Tokenizer extends AbstractTokenizer {
 	private boolean isAtPotentialKeywordStart(int offset, boolean isInputKeywordChar) {
 		if (offset + 1 < getInput().length()) {
 			char nextChar = getInput().charAt(offset + 1);
-			if ((isInputKeywordChar && !isKeywordChar(nextChar))
-					|| (!isInputKeywordChar && isKeywordChar(nextChar))) {
+			if ((isInputKeywordChar && !isKeywordChar(nextChar)) || (!isInputKeywordChar && isKeywordChar(nextChar))) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Determines whether the given character could possibly 
-	 * be part of a keyword (as opposed to an operator).
+	 * Determines whether the given character could possibly be part of a
+	 * keyword (as opposed to an operator).
 	 */
 	private boolean isKeywordChar(char c) {
 		return Character.isLetterOrDigit(c) || c == '_';
 	}
-	
+
 	@Override
 	public String toString() {
 		String input = getInput();
@@ -265,15 +267,16 @@ public class Tokenizer extends AbstractTokenizer {
 	}
 
 	public Iterator<IToken> iterator() {
-		@SuppressWarnings("unchecked") // covariance
+		@SuppressWarnings("unchecked")
+		// covariance
 		Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
 		return result;
 	}
-	
+
 	public void setAst(ISimpleTerm ast) {
 		this.ast = ast;
 	}
-	
+
 	public void initAstNodeBinding() {
 		if (ast == null)
 			return;
@@ -284,25 +287,25 @@ public class Tokenizer extends AbstractTokenizer {
 
 	private void bindAstNode(ISimpleTerm node, int tokenIndex, int endTokenIndex) {
 		assert getTokenizer(node) == this;
-		int tokenCount = getTokenCount(); 
-		
+		int tokenCount = getTokenCount();
+
 		// Set ast node for spaces between children and recursively for children
-		Iterator<ISimpleTerm> iterator = SimpleTermVisitor.tryGetListIterator(node); 
+		Iterator<ISimpleTerm> iterator = SimpleTermVisitor.tryGetListIterator(node);
 		for (int i = 0, max = node.getSubtermCount(); i < max; i++) {
 			ISimpleTerm child = iterator == null ? node.getSubterm(i) : iterator.next();
-			
+
 			int childStart = getLeftToken(child).getIndex();
 			int childEnd = getRightToken(child).getIndex();
-			
+
 			while (tokenIndex < childStart && tokenIndex < tokenCount) {
 				Token token = getTokenAt(tokenIndex++);
 				token.setAstNode(node);
 			}
-			
+
 			bindAstNode(child, childStart, childEnd);
-			tokenIndex = childEnd + 1; 
+			tokenIndex = childEnd + 1;
 		}
-		
+
 		// Set ast node for tokens after children
 		while (tokenIndex <= endTokenIndex && tokenIndex < tokenCount) {
 			Token token = getTokenAt(tokenIndex++);
@@ -310,4 +313,21 @@ public class Tokenizer extends AbstractTokenizer {
 		}
 	}
 
+	public org.spoofax.jsglr.client.imploder.Tokenizer makeStdTokenizer() {
+		org.spoofax.jsglr.client.imploder.Tokenizer tokenizer = new org.spoofax.jsglr.client.imploder.Tokenizer(
+				getInput(), getFilename(), keywords.makeStdKeywordRecognizer());
+
+		return tokenizer;
+	}
+
+	public Map<Token, org.spoofax.jsglr.client.imploder.Token> reassignTokens(
+			org.spoofax.jsglr.client.imploder.Tokenizer tokenizer) {
+		HashMap<Token, org.spoofax.jsglr.client.imploder.Token> map = new HashMap<Token, org.spoofax.jsglr.client.imploder.Token>();
+		for (Token tok : tokens) {
+			org.spoofax.jsglr.client.imploder.Token other = tok.makeStdToken(null);
+			map.put(tok, other);
+			tokenizer.reassignToken(other);
+		}
+		return map;
+	}
 }

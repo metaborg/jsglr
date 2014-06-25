@@ -16,5 +16,19 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<excludes>
+						<exclude>org/spoofax/jsglr/shared/RemoteParseTableService*</exclude>
+						<exclude>org/spoofax/client/JSGLREntryPoint.java</exclude>
+						<exclude>org/spoofax/jsglr/server/RemoteParseTableServiceImpl.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 </project>

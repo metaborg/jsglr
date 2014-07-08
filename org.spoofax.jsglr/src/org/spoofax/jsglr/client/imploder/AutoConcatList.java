@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.spoofax.NotImplementedException;
+import org.spoofax.terms.util.NotImplementedException;
 
 /**
  * A list implementation that will automatically 

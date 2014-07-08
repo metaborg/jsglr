@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.indentation.LayoutFilter;
@@ -22,6 +21,7 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.terms.util.PushbackStringIterator;
 
 public class SGLR {
 

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
@@ -33,6 +32,7 @@ import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ParentAttachment;
+import org.spoofax.terms.util.NotImplementedException;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

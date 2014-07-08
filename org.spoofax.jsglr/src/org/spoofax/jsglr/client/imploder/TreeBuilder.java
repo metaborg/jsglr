@@ -10,7 +10,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -20,6 +19,7 @@ import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseProductionNode;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.RecoveryConnector;
+import org.spoofax.terms.util.PushbackStringIterator;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

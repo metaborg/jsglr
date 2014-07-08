@@ -7,8 +7,8 @@
  */
 package org.spoofax.jsglr.client;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.terms.util.NotImplementedException;
 
 
 public class Link {

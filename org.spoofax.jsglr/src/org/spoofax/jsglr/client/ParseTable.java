@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -39,6 +38,7 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.util.NotImplementedException;
 
 /**
  * A parse table.

@@ -1,0 +1,9 @@
+Module("Test",None,
+  Body(Empty,
+    Valdef(
+      Var("f"),
+      OpApp(
+        Constr("Just"),
+        ".",
+        Let(DeclList(Valdef(Var("x"),Var("id"),Where(DeclList(Empty)))),Var("x"))),
+      Where(DeclList(Empty)))))

@@ -14,7 +14,7 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 
 public class TestEditRegionMisc extends AbstractTestRegionDetection {
-	public TestEditRegionMisc() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException{
+	public TestEditRegionMisc() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException{
 		pathToJavaTestInputs = "tests-editregions/java/misc";
 		setJavaParser();
 	}
@@ -40,7 +40,7 @@ public class TestEditRegionMisc extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testLargeRegion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testLargeRegion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 
 		String pathToCorrectFile = pathToJavaTestInputs + "/tricky.base.java";
 		IStrategoTerm lastErr0AST = parseFile(pathToCorrectFile);

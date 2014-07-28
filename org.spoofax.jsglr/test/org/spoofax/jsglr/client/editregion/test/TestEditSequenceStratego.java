@@ -68,7 +68,7 @@ public class TestEditSequenceStratego extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void test_no_recovery_1() throws FileNotFoundException, IOException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void test_no_recovery_1() throws FileNotFoundException, IOException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 
 //		[] -> strategy
 //		     ---
@@ -95,7 +95,7 @@ public class TestEditSequenceStratego extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void test_no_recovery_2() throws FileNotFoundException, IOException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void test_no_recovery_2() throws FileNotFoundException, IOException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 
 //		;result := $[Seq([strategy], [<concat-listOfIfs(|x)> xs])]
 //				---

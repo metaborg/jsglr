@@ -35,13 +35,13 @@ public class RecoveryConnector {
 		this.fgRegionalRecovery = new FineGrainedRecovery(mySGLR, fgSettings);
 	}
 	
-	public void recover() {
+	public void recover() throws InterruptedException {
 		mySGLR.getPerformanceMeasuring().startRecovery();
 		boolean recoverySucceeded = combinedRecover();
 		mySGLR.getPerformanceMeasuring().endRecovery(recoverySucceeded);
 	}
 
-	private boolean combinedRecover() {
+	private boolean combinedRecover() throws InterruptedException {
 		int failureOffset = mySGLR.getParserLocation();
 		int failureLineIndex = getHistory().getLineOfTokenPosition(failureOffset - 1);
 		int cursorLineIndex = getHistory().getLineOfTokenPosition(mySGLR.getCursorLocation());
@@ -76,7 +76,7 @@ public class RecoveryConnector {
 		return false;
 	}
 
-	private boolean tryFineGrainedOnCursorLine(int failureOffset, int failureLineIndex, int cursorLineIndex) {
+	private boolean tryFineGrainedOnCursorLine(int failureOffset, int failureLineIndex, int cursorLineIndex) throws InterruptedException {
 		if(isLikelyErrorLocation(failureLineIndex, cursorLineIndex)){
 			/*			
 			int startTok = getHistory().getLine(Math.max(0, cursorLineIndex - 1)).getTokensSeen();		
@@ -95,7 +95,7 @@ public class RecoveryConnector {
 		return false;
 	}
 
-	private boolean trySelectErroneousRegion(int failureOffset, int failureLineIndex, int cursorLineIndex) {
+	private boolean trySelectErroneousRegion(int failureOffset, int failureLineIndex, int cursorLineIndex) throws InterruptedException {
 		boolean skipSucceeded;
 		mySGLR.getPerformanceMeasuring().startCG();
 		if(settings.useCursorLocation() && isPossibleErrorLocation(failureLineIndex, cursorLineIndex))
@@ -108,7 +108,7 @@ public class RecoveryConnector {
 		return skipSucceeded;
 	}
 
-	private boolean tryFineGrainedRecovery(int failureOffset, int failureLineIndex, boolean skipSucceeded) {
+	private boolean tryFineGrainedRecovery(int failureOffset, int failureLineIndex, boolean skipSucceeded) throws InterruptedException {
 		mySGLR.getPerformanceMeasuring().startFG();
 		boolean fgSucceeded = false;
 		if (skipSucceeded && settings.useRegionSelection()) {
@@ -136,7 +136,7 @@ public class RecoveryConnector {
 		return mySGLR.isSetCursorLocation() && failureLineIndex >= cursorLineIndex;
 	}
 
-	public boolean parseRemainingTokens(boolean keepHistory) {
+	public boolean parseRemainingTokens(boolean keepHistory) throws InterruptedException {
 		while ((!getHistory().hasFinishedRecoverTokens())
 				&& mySGLR.activeStacks.size() > 0
 				&& mySGLR.acceptingStack == null) {
@@ -150,7 +150,7 @@ public class RecoveryConnector {
 		return (mySGLR.activeStacks.size() > 0 || mySGLR.acceptingStack != null);
 	}
 
-	public boolean parseErrorFragmentAsWhiteSpace() {
+	public boolean parseErrorFragmentAsWhiteSpace() throws InterruptedException {
 		mySGLR.activeStacks.clear();
 		mySGLR.activeStacks.addAll(regionSelector.getStartLineErrorFragment().getStackNodes());
 		getHistory().setTokenIndex(regionSelector.getStartPositionErrorFragment());
@@ -164,7 +164,7 @@ public class RecoveryConnector {
 		return recoverySucceeded();
 	}
 
-	private void parseAsLayout() {
+	private void parseAsLayout() throws InterruptedException {
 		if (!isLayoutCharacter((char) mySGLR.getCurrentToken()) && mySGLR.getCurrentToken() != SGLR.EOF) {
 			mySGLR.setCurrentToken(' ');
 		}

@@ -14,7 +14,7 @@ import org.spoofax.jsglr.shared.TokenExpectedException;
 
 public class TestEditRegionOperators extends AbstractTestRegionDetection {
 	
-	public TestEditRegionOperators() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException{
+	public TestEditRegionOperators() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException{
 		pathToJavaTestInputs = "tests-editregions/java/operators";
 		setJavaParser();
 	}
@@ -85,7 +85,7 @@ public class TestEditRegionOperators extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testDeletedMultipleOperands() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDeletedMultipleOperands() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/delete-multiple-operands.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = getDiscardOffsets(lastErr0AST, erroneousInput);

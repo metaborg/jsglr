@@ -44,13 +44,13 @@ SpoofaxConfiguration.tbl : SpoofaxConfiguration.def
 #	ln -sf $< $@
 
 Stratego.tbl:
-	curl http://boblycat.org/~karltk/stuff/$@ | baffle -wt -o $@
+	curl http://lennart.cl/misc/$@ | baffle -wt -o $@
 
 Java-15.tbl:
-	curl http://boblycat.org/~karltk/stuff/$@ | baffle -wt -o $@
+	curl http://lennart.cl/misc/$@ | baffle -wt -o $@
 
 WebDSL.tbl:
-	curl http://boblycat.org/~karltk/stuff/$@ | baffle -wt -o $@
+	curl http://lennart.cl/misc/$@ | baffle -wt -o $@
 
 clean:
 	rm -f *.def *.tbl

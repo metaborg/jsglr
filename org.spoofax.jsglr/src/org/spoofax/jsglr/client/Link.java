@@ -22,18 +22,24 @@ public class Link {
     private boolean rejected;
     
     public int length; //mj: private final (see sglr.reducer: replace link by link with less avoids)
-    
-    public int recoverWeight; //Weighted count used for disambiguation: Deletions are more expensive then Insertions
+    private int line;
+    private int column;
 
+    public int recoverWeight; //Weighted count used for disambiguation: Deletions are more expensive then Insertions
     public int recoverCount; //number of recover actions (used for cutting branches and error analysis)
 
-    public Link(Frame destination, AbstractParseNode t, int length) {
+    public Link(Frame destination, AbstractParseNode t, int length, int line, int column) {
         this.parent = destination;
         label = t;
         rejected = false;
+
         this.length = length;
+        this.line = line;
+        this.column = column;
+
         recoverWeight =0;
         recoverCount = 0;
+
         linksCreated +=1;
     }
 
@@ -56,6 +62,14 @@ public class Link {
 
     public int getLength() {
         return length;
+    }
+    
+    public int getLine() {
+      return line;
+    }
+
+    public int getColumn() {
+      return column;
     }
 
     public void clear() {

@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client;
 
 
+
 /*
  * Keeps up with indentation by inspecting characters
  * Use: inspect characters during parsing, or during the traversal of an ATerm

@@ -74,14 +74,15 @@ public class RegionRecovery {
         return getHistory().getLinesFromTo(erroneousRegion.getIndexHistoryStart(), getEndPositionErrorFragment());
     }      
 
-    public boolean selectErroneousFragment(int failureOffset, int failureLineIndex){
+    public boolean selectErroneousFragment(int failureOffset, int failureLineIndex) throws InterruptedException{
     	return selectErroneousFragment(failureOffset, failureLineIndex, -1);
     }
 
     /**
      * Selects erroneous region based on layout 
+     * @throws InterruptedException 
      */
-    public boolean selectErroneousFragment(int failureOffset, int failureLineIndex, int cursorLineIndex) { 
+    public boolean selectErroneousFragment(int failureOffset, int failureLineIndex, int cursorLineIndex) throws InterruptedException { 
         boolean eofReached=myParser.getCurrentToken()==SGLR.EOF;
         acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
@@ -178,7 +179,7 @@ public class RegionRecovery {
         return true; 
     }
 
-    private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) {
+    private boolean trySetErroneousRegion(ArrayList<StructureSkipSuggestion> regions) throws InterruptedException {
         StructureSkipSuggestion aSkip=new StructureSkipSuggestion();
         int indexSkips=0;
         myParser.acceptingStack=null; 
@@ -196,7 +197,7 @@ public class RegionRecovery {
         return hasFoundErroneousRegion;
     }
 
-    private boolean testRegion(StructureSkipSuggestion aSkip) {
+    private boolean testRegion(StructureSkipSuggestion aSkip) throws InterruptedException {
        // System.out.println("%%%%%%%%%%% TEST REGION %%%%%%%%%%%");
         //System.out.println(getInputFragment(aSkip));
         IndentInfo endPos=aSkip.getEndSkip();
@@ -227,7 +228,7 @@ public class RegionRecovery {
     }
 
     private void parseAdditionalTokens(
-            StructureSkipSuggestion aSkip) {
+            StructureSkipSuggestion aSkip) throws InterruptedException {
         for (char aChar : aSkip.getAdditionalTokens()) {
             myParser.setCurrentToken(aChar);           
             myParser.doParseStep();

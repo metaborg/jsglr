@@ -7,17 +7,17 @@ CLASSES=$(wildcard ../bin/org/spoofax/jsglr/*.class)
 WDINS=$(wildcard *.app) $(wildcard $(WD)/test/*/*.app)
 WDOUTS=$(WDINS:.app=.aapp)
 
-PARSE=java -Xverify:none -client -cp ../bin:`strj-jar -p` org.spoofax.jsglr.Main
+PARSE=java -Xss8m -Xverify:none -client -cp ../bin:`strj-jar -p` org.spoofax.jsglr.Main
 
 
-all : $(TBLS)
+all : $(TBLS)	
 
 check : $(TBLS) $(OUTS) check-webdsl
 	echo done
 
 check-webdsl : $(WDOUTS)
-	if [ "$(WD)" = "" ]; then \
-	  echo 'check-webdsl: This test requires a $(WD) environment variable to be set.'; \
+	@if [ "$(WD)" = "" ]; then \
+	  echo 'check-webdsl: This test requires a WD environment variable to be set.'; \
 	  exit 1; \
 	fi
 

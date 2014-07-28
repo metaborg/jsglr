@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+
 public class Path {
 
 	private Path parent;
@@ -58,6 +59,10 @@ public class Path {
 
 	public Frame getEnd() {
 		return frame;
+	}
+	
+	public int getParentCount() {
+	  return parentCount;
 	}
 
 	public final AbstractParseNode[] getParseNodes() {

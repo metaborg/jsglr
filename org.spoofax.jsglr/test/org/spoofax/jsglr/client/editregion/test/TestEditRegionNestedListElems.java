@@ -12,7 +12,7 @@ import org.spoofax.jsglr.shared.TokenExpectedException;
 
 public class TestEditRegionNestedListElems extends AbstractTestRegionDetection {
 	
-	public TestEditRegionNestedListElems() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException{
+	public TestEditRegionNestedListElems() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException{
 		pathToJavaTestInputs = "tests-editregions/java/nested-list-elems";
 		setJavaParser();
 	}

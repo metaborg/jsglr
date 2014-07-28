@@ -27,9 +27,9 @@ public class Frame implements Serializable {
 
 
 
-    private Link[] steps;
-    private int stepsCount;
-
+    protected Link[] steps;
+    protected int stepsCount;
+    
     // FIXME: All frames except the root must have a step with a label
     // that goes to the parent frame. Should we enforce this in this
     // constructor?
@@ -37,8 +37,7 @@ public class Frame implements Serializable {
         state = s;
         steps = new Link[20];
         stepsCount = 0;
-        framesCreated +=1; //MJ: for testing
-
+        framesCreated +=1; //MJ: for testing 
     }
 
     public boolean allLinksRejected() {
@@ -60,12 +59,26 @@ public class Frame implements Serializable {
     public State peek() {
         return state;
     }
+    
+    public Link peekLink() {
+      if (stepsCount == 0)
+        return null;
+      return steps[0];
+  }
 
-    public void findAllPaths(PooledPathList pool, int arity) {
+  public Link[] peekLinks() {
+    return steps;
+  }
+
+    
+    public void findAllPaths(PooledPathList pool, int arity) throws InterruptedException {
     	doComputePathsToRoot(pool, null, arity, 0, 0);
     }
 
-    private void doComputePathsToRoot(PooledPathList pool, Path node, int arity, int parentCount, int length) {
+    private void doComputePathsToRoot(PooledPathList pool, Path node, int arity, int parentCount, int length) throws InterruptedException {
+
+      if (Thread.currentThread().isInterrupted())
+        throw new InterruptedException();
 
     	if(Tools.tracing) {
             SGLR.TRACE("SG_FindAllPaths() - " + arity + ", " + length);
@@ -121,15 +134,16 @@ public class Frame implements Serializable {
 
 //    static public int[] counter = new int[1000];
 
-    public Link addLink(Frame st0, AbstractParseNode n, int length) {
+    public Link addLink(Frame st0, AbstractParseNode n, int length, int line, int column) {
         if(Tools.tracing) {
             SGLR.TRACE("SG_AddLink() - " + state.stateNumber + ", " + st0.state.stateNumber + ", " + length);
         }
         if(stepsCount >= steps.length) {
             resizeSteps();
         }
+        
 //        counter[stepsCount]++;
-        return steps[stepsCount++] = new Link(st0, n, length);
+        return steps[stepsCount++] = new Link(st0, n, length, line, column); 
     }
 
     public Link addLink(Link ln) {
@@ -139,10 +153,11 @@ public class Frame implements Serializable {
         if(stepsCount >= steps.length) {
             resizeSteps();
         }
+        
 //        counter[stepsCount]++;
         return steps[stepsCount++] = ln;
     }
-
+    
     private void resizeSteps() {
         // Resize the steps array (not necessary for most grammars).
         // (see steps field)
@@ -217,7 +232,7 @@ public class Frame implements Serializable {
         return sb.toString();
     }
 
-    public void findLimitedPaths(PooledPathList pool, int arity, Link l) {
+    public void findLimitedPaths(PooledPathList pool, int arity, Link l) throws InterruptedException {
         if(Tools.tracing) {
             SGLR.TRACE("SG_FindLimitedPaths() - " + arity + ", " + l.getLength() + ", " + l.parent.state.stateNumber);
             TRACE_DumpLinks(steps);
@@ -262,7 +277,10 @@ public class Frame implements Serializable {
     }
 
     private void doComputePathsToRoot(PooledPathList pool, Path node, Link l,
-      boolean seen, int arity, int parentCount, int length) {
+      boolean seen, int arity, int parentCount, int length) throws InterruptedException {
+        if (Thread.currentThread().isInterrupted())
+          throw new InterruptedException();
+      
         if(Tools.tracing) {
             SGLR.TRACE("SG_FindPaths() - " + arity);
         }

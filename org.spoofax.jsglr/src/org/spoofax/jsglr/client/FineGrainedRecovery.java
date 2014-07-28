@@ -84,8 +84,10 @@ public class FineGrainedRecovery {
      * @param regionStartOffset restricts the search space to the left
      * @param regionEndOffset restricts the search space to the right
      * @return true iff suitable recover branch is constructed
+     * @throws InterruptedException 
+     * @throws s 
      */
-    public boolean recover(int failureOffset, int recoverIndex, int regionStartOffset, int regionEndOffset){
+    public boolean recover(int failureOffset, int recoverIndex, int regionStartOffset, int regionEndOffset) throws InterruptedException {
     	this.exploredRegionStartOffset = regionStartOffset; 
     	this.exploredRegionEndOffset = regionEndOffset;
     	return finegrainedRecover(failureOffset, recoverIndex);
@@ -97,14 +99,15 @@ public class FineGrainedRecovery {
      * @param recoverIndex line index (from parser history) where recover search starts
      * (typically: failure index, or: index of cursor line if nearby and at the left of failure index)
      * @return true iff suitable recover branch is constructed
+     * @throws InterruptedException 
      */
-	public boolean recover(int failureOffset, int recoverIndex){
+	public boolean recover(int failureOffset, int recoverIndex) throws InterruptedException{
     	this.exploredRegionStartOffset = -1;
     	this.exploredRegionEndOffset = Integer.MAX_VALUE;
     	return finegrainedRecover(failureOffset, recoverIndex);
     }
 
-	private boolean finegrainedRecover(int failureOffset, int recoverIndex) {
+	private boolean finegrainedRecover(int failureOffset, int recoverIndex) throws InterruptedException {
 		this.failureOffset = failureOffset;
     	this.lineIndexRecovery = recoverIndex; 
     	this.recoverStartTime = System.currentTimeMillis();
@@ -113,7 +116,7 @@ public class FineGrainedRecovery {
     	return recoverFrom(0, new ArrayList<RecoverNode>());
 	}
 
-	private boolean recoverFrom(int loopIndex, ArrayList<RecoverNode> unexplored_branches) {
+	private boolean recoverFrom(int loopIndex, ArrayList<RecoverNode> unexplored_branches) throws InterruptedException {
 		int bwLoopIndex = lineIndexRecovery - (int)(settings.getBackwardFactor() * loopIndex);
 		int backwardIndex = Math.max(0, bwLoopIndex);
 		int forwardLinesMax = Math.min(settings.getForwardDistanceLines(), (int)(settings.getForwardFactor() * loopIndex));
@@ -161,8 +164,9 @@ public class FineGrainedRecovery {
 	 * @param fwTokensSeenMax restricts search space to the right, exploration within erroneous region
 	 * @param candidates candidate branches that are explored
 	 * @return new candidate branches
+	 * @throws InterruptedException 
 	 */
-	private ArrayList<RecoverNode> recoverParse(int fwLineMax, int fwTokensSeenMax, ArrayList<RecoverNode> candidates) {
+	private ArrayList<RecoverNode> recoverParse(int fwLineMax, int fwTokensSeenMax, ArrayList<RecoverNode> candidates) throws InterruptedException {
 		// Backtracking is not combined with exploration because that creates
 		// duplicates
 		assert (mySGLR.activeStacks.size() == 0 || candidates.size() == 0);
@@ -236,7 +240,7 @@ public class FineGrainedRecovery {
 		return System.currentTimeMillis() - this.recoverStartTime > settings.getTimeLimit();
 	}
 
-	private ArrayList<RecoverNode> getBackwardRecoverCandidates(int loopIndex) {
+	private ArrayList<RecoverNode> getBackwardRecoverCandidates(int loopIndex) throws InterruptedException {
 
 		int bwIndexPrev = Math.max(0,lineIndexRecovery - (int)(settings.getBackwardFactor() * (loopIndex - 1)));
 		int bwIndex = Math.max(0, lineIndexRecovery - (int)(settings.getBackwardFactor() * loopIndex));
@@ -280,8 +284,9 @@ public class FineGrainedRecovery {
 	 * are parsed error free after failure location (and last recovery location).
 	 * Or in case accepting stack is constructed
 	 * @return true iff suitable recover stack constructed
+	 * @throws InterruptedException 
 	 */
-	private boolean acceptParse() {
+	private boolean acceptParse() throws InterruptedException {
 		String parsedFragment = "";
 		while (mySGLR.activeStacks.size() > 0 && !acceptRecovery(parsedFragment) && getHistory().getTokenIndex() < settings.getEndOffsetFragment()) {
 			getHistory().readRecoverToken(mySGLR, false);

@@ -8,6 +8,7 @@
 package org.spoofax.jsglr.client;
 
 
+
 public class Accept extends ActionItem {
 
     private static final long serialVersionUID = -3768565929814294895L;

@@ -23,7 +23,6 @@ import org.spoofax.jsglr.client.Asfix2TreeBuilder;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ParserException;
-import org.spoofax.jsglr.client.PathListPool;
 import org.spoofax.jsglr.client.PooledPathList;
 import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
@@ -141,6 +140,9 @@ public abstract class ParseTestCase extends TestCase {
 		} catch (SGLRException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		parseTime = System.nanoTime() - parseTime;
 		System.out.println("Parsing " + s + " took " + parseTime/1000/1000 + " millis.");
@@ -153,7 +155,7 @@ public abstract class ParseTestCase extends TestCase {
 			System.out.println(toCompactString(parsed));
 		}
 
-		System.out.println(PathListPool.asyncCacheMisses);
+//		System.out.println(PathListPool.asyncCacheMisses);
 		System.out.println(PooledPathList.maxRemembered);
 		System.out.println(PooledPathList.maxAllocated);
 		return parsed;

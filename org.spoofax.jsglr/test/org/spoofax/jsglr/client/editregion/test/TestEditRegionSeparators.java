@@ -13,13 +13,13 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 
 public class TestEditRegionSeparators extends AbstractTestRegionDetection {
-	public TestEditRegionSeparators() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException{
+	public TestEditRegionSeparators() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException{
 		pathToJavaTestInputs = "tests-editregions/java/separators";
 		setJavaParser();
 	}
 
 	@Test
-	public void testDelSeparator() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDelSeparator() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/del-separator.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -29,7 +29,7 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 	}
 	
 	@Test
-	public void testDelSeparatedElemFirst() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDelSeparatedElemFirst() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/del-separated-elem-first.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -39,7 +39,7 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 	}
 	
 	@Test
-	public void testDelSeparatedElemMid() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDelSeparatedElemMid() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/del-separated-elem-mid.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -49,7 +49,7 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testDelSeparatedElemLast() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDelSeparatedElemLast() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/del-separated-elem-last.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -59,7 +59,7 @@ public class TestEditRegionSeparators extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testDelSeparatorAndNextElem() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDelSeparatorAndNextElem() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/del-separator-and-next-elem.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);

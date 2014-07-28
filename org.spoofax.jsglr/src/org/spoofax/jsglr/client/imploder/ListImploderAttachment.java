@@ -1,5 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
+
 /** 
  * An imploder attachment for a list node,
  * which has an additional {@link #getElementSort()} operation.

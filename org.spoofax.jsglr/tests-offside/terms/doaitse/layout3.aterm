@@ -1,0 +1,4 @@
+Module("M",None,Body(Empty,
+  Valdef(VarFunLHS(Var("f"),[Var("x")]),
+         Var("x"),
+         Where(DeclList(Empty)))))

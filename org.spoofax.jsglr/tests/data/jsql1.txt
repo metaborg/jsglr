@@ -1,4 +1,4 @@
-public class C {
+public class CoassJakasfasfasfasfasfasfa {
   public void m() {
     SQL o = <| |>;
   } 

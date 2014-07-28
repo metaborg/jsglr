@@ -1,0 +1,7 @@
+Program(Body(Empty,
+  Valdef(
+    VarFunLHS(Var("f"),[Var("x")]),
+    Let(
+      DeclList(Empty),
+      Var("x")),
+    Where(DeclList(Empty)))))

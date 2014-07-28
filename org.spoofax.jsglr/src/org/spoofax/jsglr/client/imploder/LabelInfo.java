@@ -28,6 +28,8 @@ public class LabelInfo {
 	private final boolean isVar;
 
 	private final boolean isList;
+	
+	private final boolean isFlatten;
 
 	private final boolean isIndentPaddingLexical;
 	
@@ -57,7 +59,8 @@ public class LabelInfo {
 		constructor = reader.getConsAttribute(attrs);
 		astAttribute = reader.getAstAttribute(attrs);
 		isNonContextFree = reader.isNonContextFree(rhs);
-		isList = reader.isList(rhs);
+		isList = reader.isList(rhs, attrs);
+		isFlatten = reader.isFlatten(rhs, attrs);
 		isVar = reader.isVariableNode(rhs);
 		isIndentPaddingLexical = reader.isIndentPaddingLexical(attrs);
 		isLexLayout = reader.isLexLayout(rhs);
@@ -70,7 +73,7 @@ public class LabelInfo {
 		isReject = reader.isRejectProduction(attrs);
 		deprecationMessage = reader.getDeprecationMessage(attrs);
 		isSortProduction = reader.sortFun == rhs.getConstructor() || reader.parameterizedSortFun == rhs.getConstructor();
-		metaVarConstructor = reader.getMetaVarConstructor(rhs);
+		metaVarConstructor = reader.getMetaVarConstructor(rhs, attrs);
 	}
     
 	protected IStrategoList getLHS() {
@@ -108,7 +111,11 @@ public class LabelInfo {
 	public boolean isList() {
 		return isList;
 	}
-	
+
+  public boolean isFlatten() {
+    return isFlatten;
+  }
+
 	public boolean isVar() {
 		return isVar;
 	}

@@ -8,6 +8,7 @@
 package org.spoofax.jsglr.client;
 
 
+
 public class AmbKey {
 
     private AbstractParseNode key;

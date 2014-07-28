@@ -157,15 +157,31 @@ public class LayoutStructure {
 	 */
 	public int getInsertBeforeOffset() {
 		assert this.commentsBeforeStartIndex <= getLeftToken(node).getStartOffset();
-		return getTokenAt(this.commentsBeforeStartIndex).getStartOffset();
+		int offset = getTokenAt(this.commentsBeforeStartIndex).getStartOffset();
+		String input = tokens.getInput();
+		while (input.charAt(offset) == ' ' || input.charAt(offset) == '\t') {
+			offset++;
+		}
+		return offset;
 	}
 
 	/**
 	 * End offset+1 of succeeding comment (if any) or node
 	 */
 	public int getInsertAtEndOffset() {
-		if(isValidTokenIndex(commentsAfterExclEndIndex))
-			return getTokenAt(this.commentsAfterExclEndIndex).getStartOffset();
+		int tokenIndex = this.commentsAfterExclEndIndex;
+		
+		if(isValidTokenIndex(tokenIndex)) {
+			if (node.isList() && node.getSubtermCount() == 0) {
+				// insert a first list element at the first rather than the last valid offset
+				while (isLayout(tokenIndex-1)) {
+					tokenIndex--;
+				}
+			}
+			
+			return getTokenAt(tokenIndex).getStartOffset();
+		}
+		
 		assert(getRightToken(node).getIndex() == tokens.getTokenCount()-1);
 		return getRightToken(node).getEndOffset()+1;
 	}	

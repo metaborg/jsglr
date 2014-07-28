@@ -1,0 +1,8 @@
+Program(
+  Body(
+    Empty,
+    Valdef(Var("main"),
+      Do(StmtList(
+        ExpStmt(Do(StmtList(
+          ExpStmt(Var("x"))))))),
+      Where(DeclList(Empty)))))

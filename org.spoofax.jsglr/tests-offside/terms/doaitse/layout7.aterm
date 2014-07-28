@@ -1,0 +1,20 @@
+Program(Body(Empty,
+  Valdef(
+    VarFunLHS(Var("f"),[Var("x")]),
+    Let(
+      DeclList(
+        Valdef(
+          VarFunLHS(Var("f"),[Var("x")]),
+          Let(
+            DeclList(
+              Valdef(
+                VarFunLHS(Var("f"),[Var("x")]),
+                Let(
+                  DeclList(
+                    Valdef(VarFunLHS(Var("f"),[Var("x")]),Lit(Int("2")),Where(DeclList(Empty)))),
+                  Lit(Int("3"))),
+                  Where(DeclList(Empty)))),
+            Lit(Int("4"))),
+            Where(DeclList(Empty)))),
+      Lit(Int("5"))),
+      Where(DeclList(Empty)))))

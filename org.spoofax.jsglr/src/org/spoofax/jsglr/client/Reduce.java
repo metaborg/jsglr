@@ -9,6 +9,7 @@ package org.spoofax.jsglr.client;
 
 
 
+
 public class Reduce extends ActionItem {
 
     private static final long serialVersionUID = 8620275049778432244L;

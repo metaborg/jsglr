@@ -10,6 +10,7 @@ package org.spoofax.jsglr.client;
 import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 
 
+
 public class ParseProductionNode extends AbstractParseNode {
 
 	private static final AbstractParseNode[] NO_CHILDREN =
@@ -17,7 +18,8 @@ public class ParseProductionNode extends AbstractParseNode {
 
 	public final int prod;
 
-    public ParseProductionNode(int prod) {
+    public ParseProductionNode(int prod, int line, int column) {
+      super(line, column);
         this.prod = prod;
     }
     
@@ -32,32 +34,34 @@ public class ParseProductionNode extends AbstractParseNode {
     }
 
     @Override
-	public Object toTreeBottomup(BottomupTreeBuilder builder) {
+    public Object toTreeBottomup(BottomupTreeBuilder builder) {
     	return builder.buildProduction(prod);
     }
     
     @Override
     public Object toTreeTopdown(TopdownTreeBuilder builder) {
-    	return builder.buildTreeProduction(this);
+      return builder.buildTreeProduction(this);
+    }
+
+    
+    @Override
+    public String toString() {
+        return "\"" + prod + (prod >= 32 ? (":" + (char) prod) : "").replace("\"", "\\\"") + "\"";
     }
 
     @Override
-    public String toString() {
-        return "" + prod;
-    }
-
-    public int getProduction() { return prod; }
+    public int getLabel() { return prod; }
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof ParseProductionNode))
+        if(!(obj instanceof ParseProductionNode) ||!super.equals(obj))
             return false;
         return prod == ((ParseProductionNode)obj).prod;
     }
 
     @Override
     public int hashCode() {
-        return 6359 * prod;
+        return 6359 * prod + super.hashCode();
     }
 
     @Override
@@ -74,9 +78,24 @@ public class ParseProductionNode extends AbstractParseNode {
 	public AbstractParseNode[] getChildren() {
 		return NO_CHILDREN;
 	}
-	
-    @Override
-	public int getLabel() {
-    	return prod;
-    }
+
+  @Override
+  public boolean isEmpty() {
+    return false;
+  }
+  
+  @Override
+  public AbstractParseNode getLeft() {
+    return this;
+  }
+  
+  @Override
+  public boolean isLayout() {
+    return false;
+  }
+
+  @Override
+  public boolean isIgnoreLayout() {
+    return false;
+  }
 }

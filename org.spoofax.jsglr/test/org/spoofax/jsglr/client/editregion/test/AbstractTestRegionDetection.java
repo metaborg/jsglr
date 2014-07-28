@@ -38,14 +38,20 @@ public class AbstractTestRegionDetection {
 	}
 
 	protected IStrategoTerm parseFile(String fname) throws IOException, FileNotFoundException, BadTokenException, TokenExpectedException, ParseException,
-			SGLRException {
+			SGLRException, InterruptedException {
 				String inputChars = loadAsString(fname);
 				IStrategoTerm trm1 = parseString(inputChars);
 				return trm1;
 			}
 
 	public IStrategoTerm parseString(String inputChars) throws BadTokenException, TokenExpectedException, ParseException, SGLRException {
-		IStrategoTerm trm1 = (IStrategoTerm) sglr.parse(inputChars, null, null);
+		IStrategoTerm trm1 = null;
+		try {
+			trm1 = (IStrategoTerm) sglr.parse(inputChars, null, null);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 		return trm1;
 	}
 
@@ -91,7 +97,7 @@ public class AbstractTestRegionDetection {
 	protected void setJavaParser() throws IOException,
 			InvalidParseTableException, FileNotFoundException,
 			BadTokenException, TokenExpectedException, ParseException,
-			SGLRException {
+			SGLRException, InterruptedException {
 				String pathToParseTable = "tests/grammars/Java-15.tbl";
 				setSGLR(pathToParseTable);
 				pathToCorrectFile = pathToJavaTestInputs + "/base.java";

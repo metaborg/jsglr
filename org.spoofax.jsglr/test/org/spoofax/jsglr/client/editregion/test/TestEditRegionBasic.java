@@ -13,13 +13,13 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 
 public class TestEditRegionBasic extends AbstractTestRegionDetection {
-	public TestEditRegionBasic() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException{
+	public TestEditRegionBasic() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException{
 		pathToJavaTestInputs = "tests-editregions/java/basic"; 
 		setJavaParser();
 	} 
 
 	@Test
-	public void testInsertedRegion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testInsertedRegion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/insertion.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -29,7 +29,7 @@ public class TestEditRegionBasic extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testDeletedRegion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDeletedRegion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -39,7 +39,7 @@ public class TestEditRegionBasic extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testMultipleDeletedRegions() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testMultipleDeletedRegions() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/multiple-deletions.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		//System.out.println(lastErr0AST);
@@ -51,7 +51,7 @@ public class TestEditRegionBasic extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testNestedDeletedRegions() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testNestedDeletedRegions() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/nested-deletions.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -61,7 +61,7 @@ public class TestEditRegionBasic extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testDeletionAndInsertion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDeletionAndInsertion() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/deletion-and-insertion.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -72,7 +72,7 @@ public class TestEditRegionBasic extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testReplacement() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testReplacement() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/replacement.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);
@@ -85,7 +85,7 @@ public class TestEditRegionBasic extends AbstractTestRegionDetection {
 	}
 
 	@Test
-	public void testDelInsNesting() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException {
+	public void testDelInsNesting() throws IOException, InvalidParseTableException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
 		String pathToErroneousFile = pathToJavaTestInputs + "/del-ins-nesting.java";
 		String erroneousInput = loadAsString(pathToErroneousFile);
 		ArrayList<Integer> discardOffsets = super.getDiscardOffsets(lastErr0AST, erroneousInput);

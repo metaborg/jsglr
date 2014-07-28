@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="org/spoofax/client/JSGLREntryPoint.java|org/spoofax/jsglr/server/RemoteParseTableServiceImpl.java|org/spoofax/jsglr/shared/RemoteParseTableService.java|org/spoofax/jsglr/shared/RemoteParseTableServiceAsync.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

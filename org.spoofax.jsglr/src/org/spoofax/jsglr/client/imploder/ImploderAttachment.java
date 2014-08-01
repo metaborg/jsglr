@@ -227,6 +227,43 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	}
 	
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((leftToken == null) ? 0 : leftToken.hashCode());
+		result = prime * result + ((rightToken == null) ? 0 : rightToken.hashCode());
+		result = prime * result + ((sort == null) ? 0 : sort.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		ImploderAttachment other = (ImploderAttachment) obj;
+		if(leftToken == null) {
+			if(other.leftToken != null)
+				return false;
+		} else if(!leftToken.equals(other.leftToken))
+			return false;
+		if(rightToken == null) {
+			if(other.rightToken != null)
+				return false;
+		} else if(!rightToken.equals(other.rightToken))
+			return false;
+		if(sort == null) {
+			if(other.sort != null)
+				return false;
+		} else if(!sort.equals(other.sort))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		if (getLeftToken() != null) {
 			return "(" + getSort() + ",\"" + getLeftToken().getTokenizer().toString(getLeftToken(), getRightToken()) + "\")";

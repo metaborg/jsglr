@@ -4,6 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.spoofax.interpreter.library.jsglr</artifactId>
 	<packaging>jar</packaging>
+	<description>JSGLR primitives for the Stratego runtime</description>
+	<url>https://github.com/metaborg/jsglr</url>
 
 	<parent>
 		<groupId>org.metaborg</groupId>
@@ -42,4 +44,19 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<developers>
+		<developer>
+			<name>Eduardo Amorim</name>
+			<email>l.e.desouzaamorim-1@tudelft.nl</email>
+			<organization>Delft University of Technology</organization>
+			<organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
+		<developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
+		<url>https://github.com/metaborg/jsglr</url>
+	</scm>
 </project>

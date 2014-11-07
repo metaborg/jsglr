@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -29,6 +28,7 @@ import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 import org.spoofax.jsglr.client.indentation.LayoutFilter;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.terms.util.NotImplementedException;
 
 /**
  * @author Karl Trygve Kalleberg <karltk near strategoxt.org>

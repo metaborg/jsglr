@@ -2,7 +2,7 @@ package org.spoofax.jsglr.client;
 
 import java.util.ArrayList;
 
-import org.spoofax.PushbackStringIterator;
+import org.spoofax.terms.util.PushbackStringIterator;
 
 public class ParserHistory {
     

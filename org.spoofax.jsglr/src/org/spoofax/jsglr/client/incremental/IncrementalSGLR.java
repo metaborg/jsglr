@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.SGLR;
@@ -24,6 +23,7 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.terms.attachments.ParentTermFactory;
+import org.spoofax.terms.util.NotImplementedException;
 
 /**
  * An incremental parsing extension of SGLR.

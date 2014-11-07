@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.util.NotImplementedException;
 
 public class ParseNode extends AbstractParseNode {
 

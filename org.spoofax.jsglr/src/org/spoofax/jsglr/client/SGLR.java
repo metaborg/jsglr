@@ -7,7 +7,9 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Queue;
@@ -27,6 +29,10 @@ public class SGLR {
 
 	private static final boolean ENFORCE_NEWLINE_FILTER = true;
 	private static final boolean PARSE_TIME_LAYOUT_FITER = true;
+	private static final int MAXSTATES = 50;
+	
+	private Set<State> completionStates;
+	private static boolean completionHasShifted = false;
 	
 	/**
 	 * logging variables
@@ -555,6 +561,7 @@ public class SGLR {
 
 				readNextToken();
 				history.keepTokenAndState(this);
+				logBeforeNextParseStep();
 				doParseStep();
 				
 				if (isParseMaxMode) {
@@ -565,6 +572,8 @@ public class SGLR {
 			          }
 			        }
 			} while (currentToken != SGLR.EOF && activeStacks.size() > 0);
+			
+			logCompletions(SGLR.EOF);
 
 			if (acceptingStack != null) {
 				lastAcceptingStack = acceptingStack;
@@ -593,6 +602,8 @@ public class SGLR {
 			activeStacksWorkQueue.clear();
 			forShifter.clear();
 			history.clear();
+			completionStates.clear();
+			completionHasShifted = false;
 			if (recoverStacks != null) recoverStacks.clear();
 		}
 
@@ -655,12 +666,12 @@ public class SGLR {
 	}
 
 	protected void doParseStep() throws InterruptedException {
-		logBeforeParseCharacter();
 		parseCharacter(); //applies reductions on active stack structure and fills forshifter
 		shifter(); //renewes active stacks with states in forshifter
 	}
 
 	private void initParseVariables(String input, String filename) {
+		
 		forActor.clear();
 		forActorDelayed.clear();
 		forShifter.clear();
@@ -681,6 +692,7 @@ public class SGLR {
 		parseTree = null;
 		enforcedNewlineSkip = 0;
 		layoutFiltering = 0;
+		initCompletionStates();
 		if (getTreeBuilder().getTokenizer() != null) {
 			// Make sure we use the same starting offsets as the tokenizer, if any
 			// (crucial for parsing fragments at a time)
@@ -691,6 +703,10 @@ public class SGLR {
 			lineNumber = 1;
 			columnNumber = 0;
 		}
+	}
+
+	private void initCompletionStates() {
+		completionStates = new HashSet<State>();		
 	}
 
 	private BadTokenException createBadTokenException() {
@@ -739,14 +755,25 @@ public class SGLR {
 
 		while (forShifter.size() > 0) {
 			final ActionState as = forShifter.remove();
-			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {				
+			if (!parseTable.hasRejects() || !as.st.allLinksRejected()) {
 				Frame	st1=findStack(activeStacks, as.s);
 				if(st1==null){				
 					st1 = newStack(as.s);
 					addStack(st1);
 				}
 				st1.addLink(as.st, prod, 1, lastLineNumber, lastColumnNumber);
+				
+				completionStates.add(as.st.state);
+				logCompletions(currentToken);
+				
+				if (checkCompletionEOF()){
+					completionStates.add(as.s);
+				}
+				completionHasShifted = true; 
 			} else {
+				if (Tools.tracing){
+					TRACE("SG_SkippingReject() - skipping reject stack with state " + as.st.state.stateNumber);					
+				}
 				if (Tools.logging) {
 					Tools.logger("Shifter: skipping rejected stack with state ",
 							as.st.state.stateNumber);
@@ -756,15 +783,24 @@ public class SGLR {
 		logAfterShifter();
 	}
 
+	private boolean checkCompletionEOF() {
+		int nextInput = currentInputStream.read();
+		if (nextInput == SGLR.EOF || nextInput == -1){
+			return true;
+		}
+		currentInputStream.unread(nextInput);	
+		return false;
+	}
+
 	protected void addStack(Frame st1) {
 		if(Tools.tracing) {
-			TRACE("SG_AddStack() - " + st1.state.stateNumber);
+			TRACE("SG_AddStack() - actives += " + st1.state.stateNumber);
 		}
 		activeStacks.addFirst(st1);
 	}
 
 	private void parseCharacter() throws InterruptedException {
-		logBeforeParseCharacter();
+	    logBeforeParseCharacter();
 
 		activeStacksWorkQueue.clear();
 		activeStacksWorkQueue.addAll(activeStacks);
@@ -776,14 +812,15 @@ public class SGLR {
 		  if (Thread.currentThread().isInterrupted())
 		    throw new InterruptedException();
 		  
-			final Frame st = pickStackNodeFromActivesOrForActor(activeStacksWorkQueue);
-			if (!st.allLinksRejected()) {
+		  final Frame st = pickStackNodeFromActivesOrForActor(activeStacksWorkQueue);
+		  
+		  if (!st.allLinksRejected()) {
 				actor(st);
-			}
+		  }
 
-			if(activeStacksWorkQueue.size() == 0 && forActor.size() == 0) {
-				fillForActorWithDelayedFrames(); //Fills foractor, clears foractor delayed
-			}
+		  if(activeStacksWorkQueue.size() == 0 && forActor.size() == 0) {
+			  fillForActorWithDelayedFrames(); //Fills foractor, clears foractor delayed
+		  }
 		}
 	}
 
@@ -908,7 +945,7 @@ public class SGLR {
 
 	private void addShiftPair(ActionState state) {
 		if(Tools.tracing) {
-			TRACE("SG_AddShiftPair() - " + state.s.stateNumber);
+			TRACE("SG_AddShiftPair() - " + state.st.state.stateNumber + "->" + state.s.stateNumber);
 		}
 		forShifter.add(state);
 	}
@@ -925,15 +962,16 @@ public class SGLR {
 
 
 	private void doReductions(Frame st, Production prod) throws InterruptedException {
-
-	  if (Thread.currentThread().isInterrupted())
-	    throw new InterruptedException();
-	  
-		if(!recoverModeOk(st, prod)) {
-			return;
-		}
 		
-				PooledPathList paths = pathCache.create();
+		if (Thread.currentThread().isInterrupted())
+		    throw new InterruptedException();
+		
+		if(!recoverModeOk(st, prod)) { //check whether the production is a completion production, if yes, check the boundaries for the completion region, the parser location and the cursor location and if the parser is in completion mode
+			return;						// if not, check whether it's a recover production or the parser is in fine grained recovery mode
+		}
+			
+		PooledPathList paths = pathCache.create();
+		  
 		try {
 			st.findAllPaths(paths, prod.arity);
 			logBeforeDoReductions(st, prod, paths.size());
@@ -952,9 +990,9 @@ public class SGLR {
 	}
 
 	private boolean inCompletionMode(Production prod) {
-		if(!prod.isCompletionStartProduction()) //Performance trick: -> "@#$" {completion} starts the completion
-			return isCompletionMode && cursorLocation <= getParserLocation() && getParserLocation() <= cursorLocation + COMPLETION_REGION_SIZE;
-		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= getParserLocation() && getParserLocation() <= cursorLocation;
+		if(!prod.isCompletionStartProduction()) //Performance trick: -> "@#$" {completion} starts the completion									//if it's not the completion starting production??? 
+			return isCompletionMode && cursorLocation <= getParserLocation() && getParserLocation() <= cursorLocation + COMPLETION_REGION_SIZE;     //use completion mode only if cursorLocation <= ParserLocation <= cursorLocation + CompletionRegionSize
+		return isCompletionMode && cursorLocation - COMPLETION_REGION_SIZE <= getParserLocation() && getParserLocation() <= cursorLocation; //use completion mode only if cursorLocation - CompletionRegionSize <= parserLocation <= cursorLocation
 	}
 
 	private void doLimitedReductions(Frame st, Production prod, Link l) throws InterruptedException { //Todo: Look add sharing code with doReductions
@@ -1058,6 +1096,15 @@ public class SGLR {
 		                                       path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
 		                                       parseTable.getLabel(prod.label).isLayout(),
 		                                       parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout());
+		
+		
+		if (completionHasShifted){
+			completionStates.clear();
+			completionHasShifted = false;
+		}
+		
+		completionStates.add(path.getOriginalState());
+		
 		final int recoverWeight = calcRecoverWeight(prod, path);
 		final Frame st1 = findStack(activeStacks, s);
 
@@ -1150,7 +1197,7 @@ public class SGLR {
 		forActorDelayed.addFirst(st1);
 
 		if(Tools.tracing) {
-			TRACE("SG_AddStack() - " + st1.state.stateNumber);
+			TRACE("SG_AddStack() - for-actor-delayed: stack " + st1.state.stateNumber);
 		}
 
 		if (prod.isRejectProduction()) {
@@ -1390,7 +1437,7 @@ public class SGLR {
 	Frame findStack(ArrayDeque<Frame> stacks, State s) {
 		int desiredState = s.stateNumber;
 		if(Tools.tracing) {
-			TRACE("SG_FindStack() - " + desiredState);
+			TRACE("SG_FindStack() - state " + desiredState);
 		}
 
 		// We need only check the top frames of the active stacks.
@@ -1417,11 +1464,12 @@ public class SGLR {
 
 
 	private int getNextToken() {
-		if(Tools.tracing) {
-			TRACE("SG_NextToken() - ");
-		}
-
 		final int ch = currentInputStream.read();
+		
+		if(Tools.tracing) {
+			TRACE("SG_NextToken() - " + ch);
+		}
+		
 		updateLineAndColumnInfo(ch);
 		
 		if(ch == -1) {
@@ -1610,8 +1658,18 @@ public class SGLR {
 
 	private void logAfterShifter() {
 		if(Tools.tracing) {
-			TRACE("SG_DiscardShiftPairs() - ");
+			TRACE("SG_AfterShift() - ");
 			TRACE_ActiveStacks();
+		}
+	}
+	
+	private void logCompletions(int token){
+		if(Tools.debuggingCompletion) {
+			if (token >= 0)
+				TRACE("SG_CompletionStates() - before token:  " + currentToken);
+			else
+				TRACE("SG_CompletionStates() - before end of prefix");
+			TRACE_CompletionStates();
 		}
 	}
 
@@ -1636,7 +1694,8 @@ public class SGLR {
 
 	private void logBeforeParseCharacter() {
 		if(Tools.tracing) {
-			TRACE("SG_ParseToken() - ");
+			TRACE("SG_ParseToken() - " + this.currentToken);
+			TRACE(" # active stacks : " + activeStacks.size());
 		}
 
 		if (Tools.debugging) {
@@ -1651,6 +1710,13 @@ public class SGLR {
 		}
 	}
 
+	private void logBeforeNextParseStep(){
+		if(Tools.tracing) {
+			TRACE("SG_NextParseStep() - " + dumpActiveStacks());
+			TRACE(" # active stacks : " + activeStacks.size());
+		}		
+	}
+	
 	private String logCharify(int currentToken) {
 		switch (currentToken) {
 		case 32:
@@ -1675,7 +1741,7 @@ public class SGLR {
 		}
 
 		if(Tools.tracing) {
-			TRACE("SG_Actor() - " + st.state.stateNumber);
+			TRACE("SG_Actor() - State " + st.state.stateNumber);
 			TRACE_ActiveStacks();
 		}
 
@@ -1693,7 +1759,7 @@ public class SGLR {
 		}
 
 		if(Tools.tracing) {
-			TRACE("SG_ - actions: " + actionItems.size());
+			TRACE("SG_ - #actions: " + actionItems.size());
 		}
 	}
 
@@ -1723,7 +1789,7 @@ public class SGLR {
 	private void logBeforeDoReductions(Frame st, Production prod,
 			final int pathsCount) {
 		if(Tools.tracing) {
-			TRACE("SG_DoReductions() - " + st.state.stateNumber);
+			TRACE("SG_DoReductions() - state " + st.state.stateNumber + ", #paths= " + pathsCount);
 		}
 
 		if (Tools.debugging) {
@@ -1769,7 +1835,7 @@ public class SGLR {
 
 	private void logBeforeReducer(State s, Production prod, int length) {
 		if(Tools.tracing) {
-			TRACE("SG_Reducer() - " + s.stateNumber + ", " + length + ", " + prod.label);
+			TRACE("SG_Reducer() - next state " + s.stateNumber + ", length " + length + ", applying production " + prod.label);
 			TRACE_ActiveStacks();
 		}
 
@@ -1788,9 +1854,19 @@ public class SGLR {
 	}
 
 	private void TRACE_ActiveStacks() {
-		TRACE("SG_ - active stacks: " + activeStacks.size());
-		TRACE("SG_ - for_actor stacks: " + forActor.size());
-		TRACE("SG_ - for_actor_delayed stacks: " + forActorDelayed.size());
+		TRACE("SG_ - #active stacks: " + activeStacks.size());
+		TRACE("SG_ - #for_actor stacks: " + forActor.size());
+		TRACE("SG_ - #for_actor_delayed stacks: " + forActorDelayed.size());
+	}
+	
+	private void TRACE_CompletionStates() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SG_ - states: [ ");
+		for (State state : completionStates) {
+			sb.append(state.stateNumber + " ");
+		}
+		sb.append("]");
+		TRACE(sb.toString());
 	}
 
 

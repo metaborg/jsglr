@@ -95,7 +95,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 		lastReconstructedNodes = Collections.emptyList();
 
 		if (lastAst == null || incrementalSorts.isEmpty()) {
-			lastAst = (TNode) parser.parse(newInput, filename, startSymbol);
+			lastAst = (TNode) parser.parse(newInput, filename, startSymbol).output;
 			return lastAst;
 		}
 

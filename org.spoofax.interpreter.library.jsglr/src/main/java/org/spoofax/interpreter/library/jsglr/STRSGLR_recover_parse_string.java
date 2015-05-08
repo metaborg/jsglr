@@ -118,7 +118,7 @@ public class STRSGLR_recover_parse_string extends JSGLRPrimitive {
         SGLR parser = new SGLR(new TreeBuilder(new TermTreeFactory(env.getFactory())), table);
         parser.setUseStructureRecovery(true);
         parser.setCompletionParse(true, cursorLocation);
-        IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol);
+        IStrategoTerm result = (IStrategoTerm) parser.parse(input.stringValue(), null, startSymbol).output;
         parser.setCompletionParse(false, Integer.MAX_VALUE);
 
         return result;

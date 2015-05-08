@@ -47,7 +47,7 @@ public class AbstractTestRegionDetection {
 	public IStrategoTerm parseString(String inputChars) throws BadTokenException, TokenExpectedException, ParseException, SGLRException {
 		IStrategoTerm trm1 = null;
 		try {
-			trm1 = (IStrategoTerm) sglr.parse(inputChars, null, null);
+			trm1 = (IStrategoTerm) sglr.parse(inputChars, null, null).output;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

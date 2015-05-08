@@ -124,6 +124,6 @@ public class SGLR extends org.spoofax.jsglr.client.SGLR {
 			throws BadTokenException, TokenExpectedException, ParseException,
 			SGLRException, IOException, InterruptedException {
 		String input = FileTools.loadFileAsString(in);
-		return parse(input, filename, startSymbol);
+		return parse(input, filename, startSymbol).output;
 	}
 }

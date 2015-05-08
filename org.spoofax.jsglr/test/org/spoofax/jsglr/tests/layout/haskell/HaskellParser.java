@@ -81,7 +81,7 @@ public class HaskellParser {
         memoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         startParse = System.nanoTime();
         try {
-          return parser.parse(input, filename, startSymbol);
+          return parser.parse(input, filename, startSymbol).output;
         } catch (RuntimeException e) {
           e.printStackTrace();
           throw e;

@@ -314,7 +314,7 @@ public class SGLR {
     public Object parseMax(String input, String filename, String startSymbol) throws BadTokenException,
         TokenExpectedException, ParseException, SGLRException, InterruptedException {
         setParseMaxMode(true);
-        return parse(input, filename, startSymbol);
+        return parse(input, filename, startSymbol).output;
     }
 
     /**

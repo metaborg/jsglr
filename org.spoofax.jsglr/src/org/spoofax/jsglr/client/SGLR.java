@@ -580,10 +580,25 @@ public class SGLR {
 
         logAfterParsing();
 
+        if(isCompletionMode) {
+        	return new SGLRParseResult(resultCompletionStates, null);
+        }
+        
+        if(acceptingStack == null) {
+            final BadTokenException bad = createBadTokenException();
+            if(collectedErrors.isEmpty()) {
+                throw bad;
+            } else {
+                collectedErrors.add(bad);
+                throw new MultiBadTokenException(this, collectedErrors);
+            }
+        }
+        
         final Link s = acceptingStack.findDirectLink(startFrame);
 
         if(s == null) {
-            throw new ParseException(this, "Accepting stack has no link");
+        	return new SGLRParseResult(resultCompletionStates, null);
+            //throw new ParseException(this, "Accepting stack has no link");
         }
         // System.out.println(s.recoverCount);
         assert (s.recoverCount <= s.recoverWeight);
@@ -1611,17 +1626,6 @@ public class SGLR {
         if(Tools.debugging) {
             Tools.debug("Parsing complete: all tokens read");
         }
-
-        if(acceptingStack == null) {
-            final BadTokenException bad = createBadTokenException();
-            if(collectedErrors.isEmpty()) {
-                throw bad;
-            } else {
-                collectedErrors.add(bad);
-                throw new MultiBadTokenException(this, collectedErrors);
-            }
-        }
-
 
         if(Tools.debugging) {
             Tools.debug("Accepting stack exists");

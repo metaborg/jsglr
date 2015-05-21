@@ -7,9 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Queue;
@@ -29,9 +27,9 @@ public class SGLR {
 
     private static final boolean ENFORCE_NEWLINE_FILTER = true;
     private static final boolean PARSE_TIME_LAYOUT_FITER = true;
-    private static final int MAXSTATES = 50;
+    
 
-    private Set<State> completionStates;
+    private CompletionStateSet completionStates;
     private static boolean completionHasShifted = false;
 
     /**
@@ -524,7 +522,7 @@ public class SGLR {
         ParseException, SGLRException, InterruptedException {
         if(isParseMaxMode)
             disambiguator.initializeFromParser(this);
-
+        CompletionStateSet resultCompletionStates = new CompletionStateSet();
         try {
             do {
                 if(Thread.currentThread().isInterrupted())
@@ -545,6 +543,8 @@ public class SGLR {
             } while(currentToken != SGLR.EOF && activeStacks.size() > 0);
 
             logCompletions(SGLR.EOF);
+            resultCompletionStates.addAll(completionStates);
+            
 
             if(acceptingStack != null) {
                 lastAcceptingStack = acceptingStack;
@@ -602,7 +602,7 @@ public class SGLR {
             Object result = disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
             if(isParseMaxMode)
                 result = new Object[] { result, lastAcceptTokenSeen };
-            return new SGLRParseResult(completionStates, result);
+            return new SGLRParseResult(resultCompletionStates, result);
         }
     }
 
@@ -642,7 +642,6 @@ public class SGLR {
     }
 
     private void initParseVariables(String input, String filename) {
-
         forActor.clear();
         forActorDelayed.clear();
         forShifter.clear();
@@ -663,7 +662,9 @@ public class SGLR {
         parseTree = null;
         enforcedNewlineSkip = 0;
         layoutFiltering = 0;
-        initCompletionStates();
+        completionStates = new CompletionStateSet();
+        //add initial state to completion states
+        completionStates.add(parseTable.getInitialState());
         if(getTreeBuilder().getTokenizer() != null) {
             // Make sure we use the same starting offsets as the tokenizer, if any
             // (crucial for parsing fragments at a time)
@@ -674,10 +675,6 @@ public class SGLR {
             lineNumber = 1;
             columnNumber = 0;
         }
-    }
-
-    private void initCompletionStates() {
-        completionStates = new HashSet<State>();
     }
 
     private BadTokenException createBadTokenException() {
@@ -732,14 +729,21 @@ public class SGLR {
                     addStack(st1);
                 }
                 st1.addLink(as.st, prod, 1, lastLineNumber, lastColumnNumber);
-
-                completionStates.add(as.st.state);
+                
+	            if (completionHasShifted){
+                	completionStates.replace(as.s);
+                } else {
+                	completionStates.add(as.s);
+                }
+                
                 logCompletions(currentToken);
 
-                if(checkCompletionEOF()) {
-                    completionStates.add(as.s);
-                }
+                //if(checkCompletionEOF()) {
+                //ompletionStates.replace(as.s);
+               // }
                 completionHasShifted = true;
+                
+                
             } else {
                 if(Tools.tracing) {
                     TRACE("SG_SkippingReject() - skipping reject stack with state " + as.st.state.stateNumber);
@@ -1080,7 +1084,7 @@ public class SGLR {
             completionHasShifted = false;
         }
 
-        completionStates.add(path.getOriginalState());
+        completionStates.add(s);
 
         final int recoverWeight = calcRecoverWeight(prod, path);
         final Frame st1 = findStack(activeStacks, s);
@@ -1831,11 +1835,8 @@ public class SGLR {
 
     private void TRACE_CompletionStates() {
         StringBuffer sb = new StringBuffer();
-        sb.append("SG_ - states: [ ");
-        for(State state : completionStates) {
-            sb.append(state.stateNumber + " ");
-        }
-        sb.append("]");
+        sb.append("SG_ - states: ");
+        sb.append(completionStates.toString());
         TRACE(sb.toString());
     }
 

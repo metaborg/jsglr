@@ -1,14 +1,13 @@
 package org.spoofax.jsglr.client;
 
-import java.util.Set;
 
 public class SGLRParseResult {
-    public final Set<State> completionStates;
+    public final CompletionStateSet completionStates;
     public final Object output;
 
 
-    public SGLRParseResult(Set<State> completionStates, Object output) {
-        this.completionStates = completionStates;
+    public SGLRParseResult(CompletionStateSet resultCompletionStates, Object output) {
+        this.completionStates = resultCompletionStates;
         this.output = output;
     }
 }

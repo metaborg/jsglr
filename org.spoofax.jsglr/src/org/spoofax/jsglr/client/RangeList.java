@@ -87,7 +87,7 @@ public class RangeList implements Serializable {
             sb.append(singularRange);
         } else {
             sb.append('[');
-            for (int i = 0, end = ranges.length - 1; i < end; i++) {
+            for (int i = 0, end = ranges.length - 1; i < end; i+=2) {
                 int low = ranges[i];
                 int high = ranges[i + 1];
                 sb.append(low);

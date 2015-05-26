@@ -136,7 +136,7 @@ public abstract class ParseTestCase extends TestCase {
 		long parseTime = System.nanoTime();
 		IStrategoTerm parsed = null;
 		try {
-			parsed = (IStrategoTerm) sglr.parse(result, null, null);
+			parsed = (IStrategoTerm) sglr.parse(result, null, null).output;
 		} catch (SGLRException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

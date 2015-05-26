@@ -148,7 +148,7 @@ public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
 		parser.setDisambiguator(filterSettings);
 		parser.setUseStructureRecovery(isRecoveryEnabled());
 
-		return (IStrategoTerm) parser.parse(input.stringValue(), path, startSymbol);
+		return (IStrategoTerm) parser.parse(input.stringValue(), path, startSymbol).output;
 	}
 
 	protected ITreeBuilder createTreeBuilder(IContext env) {

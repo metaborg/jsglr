@@ -1,4 +1,3 @@
-
 package org.spoofax.jsglr.client;
 
 import java.io.Serializable;
@@ -8,64 +7,62 @@ import java.util.Set;
 import org.spoofax.jsglr.shared.Tools;
 
 public class CompletionStateSet implements Serializable {
+    static final long serialVersionUID = 3383369639779986307L;
 
-	static final long serialVersionUID = 3383369639779986307L;
+    private final Set<State> states = new LinkedHashSet<State>();
 
-	private int traceCallCount = 0;
+    private int traceCallCount = 0;
+    private State last;
 
-	private Set<State> states;
-	private State last;
 
-	public State getLast() {
-		return last;
-	}
+    public Iterable<State> states() {
+        return states;
+    }
 
-	public CompletionStateSet() {
-		last = null;
-		states = new LinkedHashSet<State>();
-	}
+    public State last() {
+        return last;
+    }
 
-	public boolean add(State e){
-		if (Tools.debuggingCompletion){
-			COMPLETIONS_TRACE("SG_CompletionTRACE() - adding state " + e.stateNumber);
-		}
-		last = e;
-		return states.add(e);
-	}
-	
-	public boolean replace(State state) {
-		if (Tools.debuggingCompletion) {
-			COMPLETIONS_TRACE("SG_CompletionStates() - replacing state " + last.stateNumber + " by " + state.stateNumber);
-		}
-		states.remove(last);
-		return add(state);		
-	}
+    public boolean add(State e) {
+        if(Tools.debuggingCompletion) {
+            COMPLETIONS_TRACE("SG_CompletionTRACE() - adding state " + e.stateNumber);
+        }
+        last = e;
+        return states.add(e);
+    }
 
-	public boolean addAll(CompletionStateSet cs){
-		last = cs.last;
-		return states.addAll(cs.states);
-	}
-	
-	public void clear(){
-		last = null;
-		states.clear();
-	}
-	
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("[ ");
-		for (State s : states){
-			sb.append(s.stateNumber + " ");
-		}
-		sb.append("]");
-		
-		return sb.toString();
-	}
+    public boolean replace(State state) {
+        if(Tools.debuggingCompletion) {
+            COMPLETIONS_TRACE("SG_CompletionStates() - replacing state " + last.stateNumber + " by "
+                + state.stateNumber);
+        }
+        states.remove(last);
+        return add(state);
+    }
 
-	private void COMPLETIONS_TRACE(String string) {
-		System.out.println("[" + traceCallCount + "] " + string + "\n");
+    public boolean addAll(CompletionStateSet cs) {
+        last = cs.last;
+        return states.addAll(cs.states);
+    }
+
+    public void clear() {
+        last = null;
+        states.clear();
+    }
+
+    @Override public String toString() {
+        final StringBuffer sb = new StringBuffer();
+        sb.append("[ ");
+        for(State s : states) {
+            sb.append(s.stateNumber + " ");
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
+
+    private void COMPLETIONS_TRACE(String string) {
+        System.out.println("[" + traceCallCount + "] " + string + "\n");
         traceCallCount++;
-		
-	}
+    }
 }

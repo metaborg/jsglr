@@ -27,7 +27,7 @@ public class SGLR {
 
     private static final boolean ENFORCE_NEWLINE_FILTER = true;
     private static final boolean PARSE_TIME_LAYOUT_FITER = true;
-    
+
 
     private CompletionStateSet completionStates;
     private static boolean completionHasShifted = false;
@@ -542,9 +542,11 @@ public class SGLR {
                 }
             } while(currentToken != SGLR.EOF && activeStacks.size() > 0);
 
-            logCompletions(SGLR.EOF);
-            resultCompletionStates.addAll(completionStates);
-            
+            logCompletions();
+
+            if(currentToken == SGLR.EOF)
+                resultCompletionStates.addAll(completionStates);
+
 
             if(acceptingStack != null) {
                 lastAcceptingStack = acceptingStack;
@@ -581,9 +583,9 @@ public class SGLR {
         logAfterParsing();
 
         if(isCompletionMode) {
-        	return new SGLRParseResult(resultCompletionStates, null);
+            return new SGLRParseResult(resultCompletionStates, null);
         }
-        
+
         if(acceptingStack == null) {
             final BadTokenException bad = createBadTokenException();
             if(collectedErrors.isEmpty()) {
@@ -593,12 +595,12 @@ public class SGLR {
                 throw new MultiBadTokenException(this, collectedErrors);
             }
         }
-        
+
         final Link s = acceptingStack.findDirectLink(startFrame);
 
         if(s == null) {
-        	return new SGLRParseResult(resultCompletionStates, null);
-            //throw new ParseException(this, "Accepting stack has no link");
+            return new SGLRParseResult(resultCompletionStates, null);
+            // throw new ParseException(this, "Accepting stack has no link");
         }
         // System.out.println(s.recoverCount);
         assert (s.recoverCount <= s.recoverWeight);
@@ -678,7 +680,7 @@ public class SGLR {
         enforcedNewlineSkip = 0;
         layoutFiltering = 0;
         completionStates = new CompletionStateSet();
-        //add initial state to completion states
+        // add initial state to completion states
         completionStates.add(parseTable.getInitialState());
         if(getTreeBuilder().getTokenizer() != null) {
             // Make sure we use the same starting offsets as the tokenizer, if any
@@ -745,20 +747,24 @@ public class SGLR {
                 }
                 st1.addLink(as.st, prod, 1, lastLineNumber, lastColumnNumber);
                 
-	            if (completionHasShifted){
-                	completionStates.replace(as.s);
-                } else {
-                	completionStates.add(as.s);
+                logCompletions();
+                
+                if(tokensSeen <= cursorLocation) {
+                    if(completionHasShifted) {
+                        completionStates.replace(as.s);
+                    } else {
+                        completionStates.add(as.s);
+                    }
                 }
-                
-                logCompletions(currentToken);
 
-                //if(checkCompletionEOF()) {
-                //ompletionStates.replace(as.s);
-               // }
+                
+
+                // if(checkCompletionEOF()) {
+                // completionStates.add(as.st.state);
+                // }
                 completionHasShifted = true;
-                
-                
+
+
             } else {
                 if(Tools.tracing) {
                     TRACE("SG_SkippingReject() - skipping reject stack with state " + as.st.state.stateNumber);
@@ -1093,14 +1099,18 @@ public class SGLR {
                 parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes()
                     .isIgnoreLayout());
 
+        
+        if(tokensSeen <= cursorLocation + 1) {
+            if(completionHasShifted) {
+                completionStates.clear();
+                completionStates.add(path.getOriginalState());
+                completionHasShifted = false;
+            }
 
-        if(completionHasShifted) {
-            completionStates.clear();
-            completionHasShifted = false;
+            completionStates.add(s);
         }
 
-        completionStates.add(s);
-
+        
         final int recoverWeight = calcRecoverWeight(prod, path);
         final Frame st1 = findStack(activeStacks, s);
 
@@ -1645,12 +1655,12 @@ public class SGLR {
         }
     }
 
-    private void logCompletions(int token) {
+    private void logCompletions() {
         if(Tools.debuggingCompletion) {
-            if(token >= 0)
-                TRACE("SG_CompletionStates() - before token:  " + currentToken);
+            if(tokensSeen <= cursorLocation)
+                TRACE("SG_CompletionStates() - before token:  " + currentToken + " tokens seen: " + tokensSeen);
             else
-                TRACE("SG_CompletionStates() - before end of prefix");
+                TRACE("SG_CompletionStates() - after end of prefix. Current token: " + currentToken + " tokens seen: " + tokensSeen);
             TRACE_CompletionStates();
         }
     }

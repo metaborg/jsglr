@@ -1,3 +1,5 @@
-/target/
-/.cache/
-/META-INF/
+/.classpath
+/.project
+/.settings
+/META-INF
+/target

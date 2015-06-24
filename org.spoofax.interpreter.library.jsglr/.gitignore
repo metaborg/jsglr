@@ -1,3 +1,6 @@
-target
-META-INF
-bin
+/.cache
+/.classpath
+/.project
+/.settings
+/META-INF
+/target

@@ -246,4 +246,9 @@ public abstract class AbstractParseNode {
       return null;
     return properties.get(key);
   }
+
+abstract public boolean isPlaceholderInsertionNode();
+
+abstract public boolean isLiteralCompletionNode();
+    
 }

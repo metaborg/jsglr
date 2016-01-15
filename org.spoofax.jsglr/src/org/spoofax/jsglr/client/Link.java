@@ -28,6 +28,8 @@ public class Link {
     public int recoverWeight; //Weighted count used for disambiguation: Deletions are more expensive then Insertions
     public int recoverCount; //number of recover actions (used for cutting branches and error analysis)
 
+    public int completionCount; //number of completion actions
+
     public Link(Frame destination, AbstractParseNode t, int length, int line, int column) {
         this.parent = destination;
         label = t;
@@ -37,8 +39,10 @@ public class Link {
         this.line = line;
         this.column = column;
 
-        recoverWeight =0;
+        recoverWeight = 0;
         recoverCount = 0;
+        
+        completionCount = 0;
 
         linksCreated +=1;
     }

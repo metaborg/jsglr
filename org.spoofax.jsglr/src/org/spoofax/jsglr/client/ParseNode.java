@@ -38,12 +38,17 @@ public class ParseNode extends AbstractParseNode {
 
 	private final boolean isLayout;
 	private final boolean isIgnoreLayout;
+	
+	private final boolean isPlaceholderInsertion;
+	private final boolean isLiteralCompletion;
 
 	public ParseNode(int label, AbstractParseNode[] kids, int type, int line,
-			int column, boolean isLayout, boolean isIgnoreLayout) {
+			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion) {
 		super(line, column);
 		this.isLayout = isLayout;
 		this.isIgnoreLayout = isIgnoreLayout;
+		this.isPlaceholderInsertion = isPlaceholderInsertion;
+		this.isLiteralCompletion = isLiteralCompletion;
 		setFields(label, kids, type);
 		if (type == AbstractParseNode.AMBIGUITY) {
 			this.isParseProductionChain = false;
@@ -64,15 +69,23 @@ public class ParseNode extends AbstractParseNode {
 
 		int line = kids[0].getLine();
 		int column = kids[0].getColumn();
+		boolean isPlaceholderInsertion = false;
+		boolean isLiteralCompletion = false;
 
+		
 		for (int i = 1; i < kids.length; i++) {
 			assert kids[i].getLine() == line;
 			assert kids[i].getColumn() == column;
+			if (kids[i].isPlaceholderInsertionNode())
+			    isPlaceholderInsertion = true;
+			if (kids[i].isLiteralCompletionNode())
+                isLiteralCompletion = true;
 		}
+		
 
 		ParseNode amb = new ParseNode(AMB_LABEL, kids,
 				AbstractParseNode.AMBIGUITY, line, column, kids[0].isLayout(),
-				kids[0].isIgnoreLayout());
+				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion);
 		return amb;
 	}
 
@@ -123,7 +136,7 @@ public class ParseNode extends AbstractParseNode {
 		assert getColumn() == pn.getColumn();
 
 		ParseNode left = new ParseNode(this.label, this.kids, this.nodeType,
-				getLine(), getColumn(), isLayout, isIgnoreLayout);
+				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion);
 
 		if (pn instanceof ParseNode)
 			((ParseNode) pn).replaceCycle(this, left);
@@ -431,6 +444,16 @@ public class ParseNode extends AbstractParseNode {
 	public boolean isIgnoreLayout() {
 		return isIgnoreLayout;
 	}
+
+    @Override public boolean isPlaceholderInsertionNode() {
+        // TODO Auto-generated method stub
+        return isPlaceholderInsertion;
+    }
+
+    @Override public boolean isLiteralCompletionNode() {
+        // TODO Auto-generated method stub
+        return isLiteralCompletion;
+    }
 
 	/*
 	 * private void log(){ System.out.println(this.toStringShallow()); for (int

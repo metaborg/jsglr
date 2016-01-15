@@ -7,6 +7,7 @@
  */
 package org.spoofax.jsglr.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,12 +16,16 @@ import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.LabelInfo;
+import org.spoofax.jsglr.client.imploder.TopdownTreeBuilder;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.client.indentation.LayoutFilter;
 import org.spoofax.jsglr.shared.ArrayDeque;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr.shared.Tools;
+import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.util.PushbackStringIterator;
 
 public class SGLR {
@@ -69,6 +74,7 @@ public class SGLR {
     private ParseTable parseTable;
 
     private int currentToken;
+    private boolean applyCompletionProd = false;
 
     private int currentIndentation;
 
@@ -136,6 +142,7 @@ public class SGLR {
     }
 
     private boolean isCompletionMode;
+    private boolean isNewCompletionMode;
 
     /**
      * If true, parser reads as many characters as possible, but succeeds even if not all characters were read.
@@ -169,7 +176,7 @@ public class SGLR {
     }
 
     public void setCompletionParse(boolean isCompletionMode, int cursorLocation) {
-        this.isCompletionMode = isCompletionMode;
+        this.isNewCompletionMode = isCompletionMode;
         this.cursorLocation = cursorLocation;
     }
 
@@ -746,9 +753,9 @@ public class SGLR {
                     addStack(st1);
                 }
                 st1.addLink(as.st, prod, 1, lastLineNumber, lastColumnNumber);
-                
+
                 logCompletions();
-                
+
                 if(tokensSeen <= cursorLocation) {
                     if(completionHasShifted) {
                         completionStates.replace(as.s);
@@ -757,7 +764,7 @@ public class SGLR {
                     }
                 }
 
-                
+
 
                 // if(checkCompletionEOF()) {
                 // completionStates.add(as.st.state);
@@ -960,10 +967,8 @@ public class SGLR {
         if(Thread.currentThread().isInterrupted())
             throw new InterruptedException();
 
-        if(!recoverModeOk(st, prod)) { // check whether the production is a completion production, if yes, check the
-                                       // boundaries for the completion region, the parser location and the cursor
-                                       // location and if the parser is in completion mode
-            return; // if not, check whether it's a recover production or the parser is in fine grained recovery mode
+        if(recoverModeOk(st, prod)) { 
+            return; 
         }
 
         PooledPathList paths = pathCache.create();
@@ -979,10 +984,7 @@ public class SGLR {
     }
 
     private boolean recoverModeOk(Frame st, Production prod) {
-        if(!prod.isCompletionProduction()) {
-            return !prod.isRecoverProduction() || isFineGrainedMode;
-        }
-        return inCompletionMode(prod);
+        return prod.isRecoverProduction() && !isFineGrainedMode && !prod.isNewCompletionProduction();
     }
 
     private boolean inCompletionMode(Production prod) {
@@ -1002,7 +1004,7 @@ public class SGLR {
                                                                                                       // sharing code
                                                                                                       // with
                                                                                                       // doReductions
-        if(!recoverModeOk(st, prod)) {
+        if(recoverModeOk(st, prod)) {
             return;
         }
         PooledPathList limitedPool = pathCache.create();
@@ -1051,20 +1053,34 @@ public class SGLR {
                 }
             }
 
-            if(!prod.isCompletionProduction() || isReductionOverCursorLocation(path)) {
-                if(checkMaxRecoverCount(prod, path)) {
-                    if(!prod.isRecoverProduction())
-                        reducer(st0, next, prod, kids, path);
-                    else
+           if(checkMaxRecoverCount(prod, path))
+                if(isNewCompletionMode) {
+                    if(prod.isRecoverProduction() && !prod.isNewCompletionProduction())
                         reducerRecoverProduction(st0, next, prod, kids, path);
+                    else
+                        reducer(st0, next, prod, kids, path);
+                } else {
+                    if(prod.isRecoverProduction() && !prod.isNewCompletionProduction())
+                        reducerRecoverProduction(st0, next, prod, kids, path);
+                    else
+                        reducer(st0, next, prod, kids, path);
+                    
                 }
-            }
+
+
+
         }
 
         if(asyncAborted) {
             // Rethrown as ParseTimeoutException in SGLR.sglrParse()
             throw new TaskCancellationException("Long-running parse job aborted");
         }
+    }
+
+    private boolean reducingAfterCursor(Path path) {
+
+        return cursorLocation < getHistory().getTokenIndex();
+
     }
 
     private boolean checkMaxRecoverCount(Production prod, final Path path) {
@@ -1080,46 +1096,42 @@ public class SGLR {
         return calcRecoverCount(prod, path) <= this.recoverIntegrator.getMaxNumberOfRecoverApplicationsGlobal();
     }
 
-    private boolean isReductionOverCursorLocation(final Path path) {
-        return getParserLocation() - path.getLength() < cursorLocation;
-    }
-
     private void reducer(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path)
         throws InterruptedException {
-        assert (!prod.isRecoverProduction());
+        //assert (!prod.isRecoverProduction());
         logBeforeReducer(s, prod, path.getLength());
         increaseReductionCount();
 
         // final boolean illegalLayout = !layoutFilter.hasValidLayout(prod, kids, parseTable);
         final int length = path.getLength();
         final int numberOfRecoveries = calcRecoverCount(prod, path);
+        final int numberOfCompletions = calcCompletionCount(prod, path);
+
         final AbstractParseNode t =
             prod.apply(kids, path.getParentCount() > 0 ? path.getParent().getLink().getLine() : lineNumber,
                 path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
                 parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes()
                     .isIgnoreLayout());
 
-        
-        if(tokensSeen <= cursorLocation + 1) {
-            if(completionHasShifted) {
-                completionStates.clear();
-                completionStates.add(path.getOriginalState());
-                completionHasShifted = false;
-            }
-
-            completionStates.add(s);
-        }
-
-        
         final int recoverWeight = calcRecoverWeight(prod, path);
         final Frame st1 = findStack(activeStacks, s);
 
+        // if prod is not a new-completion prod
+        if(!prod.isNewCompletionProduction() && path.getCompletionCount() >  0 && !checkPlaceholderRequirements(kids)) {
+           return;
+        } 
+
+        if(prod.isNewCompletionProduction()){
+            System.out.println("new completion");
+        }
+
         if(st1 == null) {
             // Found no existing stack with for state s; make new stack
-            addNewStack(st0, s, prod, length, numberOfRecoveries, recoverWeight, t);
+            addNewStack(st0, s, prod, length, numberOfRecoveries, numberOfCompletions, recoverWeight, t);
         } else {
             /* A stack with state s exists; check for ambiguities */
             Link nl = st1.findDirectLink(st0);
+
 
             if(nl != null) {
 
@@ -1128,11 +1140,61 @@ public class SGLR {
                     nl.reject();
                 }
                 if(recoverWeight == 0 && nl.recoverWeight == 0 || nl.isRejected()) {
-                    createAmbNode(t, nl);
+                    // if the existing direct link has placeholders
+                    if(nl.completionCount != 0) {
+
+                        // applying just a new-completion (placeholder) or a non-completion rule that does not use placeholders should be preferred
+                        if(prod.isNewCompletionProduction() || numberOfCompletions == 0) {
+                            nl.label = t;
+                            nl.recoverCount = numberOfRecoveries;
+                            nl.recoverWeight = recoverWeight;
+                            nl.completionCount = numberOfCompletions;
+                            actorOnActiveStacksOverNewLink(nl);
+                        }
+
+                        else {
+//                            if(treeBuilder instanceof TreeBuilder) {
+//                                LabelInfo[] infos = ((TreeBuilder) treeBuilder).getLabels();
+//                                int labelStart = ((TreeBuilder) treeBuilder).getLabelStart();
+//                                LabelInfo infoT = infos[t.getLabel() - labelStart];
+//                                LabelInfo infoNl = infos[nl.label.getLabel() - labelStart];
+//
+//                                // if both are lists then the smallest list should be preferred (it uses less
+//                                // placeholders)
+//                                if(infoT.isList() && infoNl.isList()) {
+//                                    int elementsT = countElementsOfList(t.getChildren(), infos, labelStart);
+//                                    int elementsNl = countElementsOfList(nl.label.getChildren(), infos, labelStart);
+//                                 
+//                                    if(elementsT < elementsNl) {
+//                                        nl.label = t;
+//                                        nl.recoverCount = numberOfRecoveries;
+//                                        nl.recoverWeight = recoverWeight;
+//                                        nl.completionCount = numberOfCompletions;
+//                                        actorOnActiveStacksOverNewLink(nl);
+//                                    }
+//                                } else {
+                                    createAmbNode(t, nl);
+//                                }
+//                            }
+
+                          
+
+                        }
+
+
+                    }
+                    // create ambiguity when applying regular rule without placeholders
+                    // and direct link doesn't contain placeholders
+                    else if(!prod.isNewCompletionProduction() && path.getCompletionCount() == 0) {
+                        createAmbNode(t, nl);
+                    }
+
+
                 } else if(recoverWeight < nl.recoverWeight) {
                     nl.label = t;
                     nl.recoverCount = numberOfRecoveries;
                     nl.recoverWeight = recoverWeight;
+                    nl.completionCount = numberOfCompletions;
                     actorOnActiveStacksOverNewLink(nl);
                 } else if(recoverWeight == nl.recoverWeight) {
                     nl.label = t;
@@ -1141,6 +1203,7 @@ public class SGLR {
                 nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
                 nl.recoverWeight = recoverWeight;
                 nl.recoverCount = numberOfRecoveries;
+                nl.completionCount = numberOfCompletions;
                 if(prod.isRejectProduction()) {
                     nl.reject();
                     increaseRejectCount();
@@ -1154,9 +1217,30 @@ public class SGLR {
             TRACE("SG_ - reducer done");
         }
     }
+    
+    
+    
+    /*
+     * Applying a production with placeholder elements (path.getCompletionCount() >  0) has to go with the following requirements:
+     *  - Placeholders can only be inserted at the cursor position;
+     *  - Placeholders should be adjacent;
+     *  - Placeholders should only be inserted in completion mode;
+     *  - Regular Productions with only placeholders should not be reduced.
+     * 
+     */
+    private boolean checkPlaceholderRequirements(AbstractParseNode[] kids) {
+        if (!isCompletionMode) return false;
+       
+        
+        return false;
+    }
+
+    
+
+
 
     private void reducerRecoverProduction(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
-        assert (prod.isRecoverProduction());
+        assert (prod.isRecoverProduction() && !prod.isNewCompletionProduction());
         final int length = path.getLength();
         final int numberOfRecoveries = calcRecoverCount(prod, path);
         final int recoverWeight = calcRecoverWeight(prod, path);
@@ -1164,18 +1248,22 @@ public class SGLR {
             prod.apply(kids, lineNumber, columnNumber, parseTable.getLabel(prod.label).isLayout(),
                 parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout());
 
+        // final Object treeTest = getTreeBuilder().buildTree(t);
+        
         final Frame stActive = findStack(activeStacks, s);
         if(stActive != null) {
             Link lnActive = stActive.findDirectLink(st0);
             if(lnActive != null) {
-                return; // TODO: ambiguity
+                return;
+                // TODO: ambiguity
             }
         }
         final Frame stRecover = findStack(recoverStacks, s);
         if(stRecover != null) {
             Link nlRecover = stRecover.findDirectLink(st0);
             if(nlRecover != null) {
-                return; // TODO: ambiguity
+                return;
+                // TODO: ambiguity
             }
             nlRecover = stRecover.addLink(st0, t, length, t.getLine(), t.getColumn());
             nlRecover.recoverCount = numberOfRecoveries;
@@ -1194,13 +1282,14 @@ public class SGLR {
      * Found no existing stack with for state s; make new stack
      */
     private Link addNewStack(Frame st0, State s, Production prod, int length, int numberOfRecoveries,
-        int recoverWeight, AbstractParseNode t) {
+        int numberOfCompletions, int recoverWeight, AbstractParseNode t) {
 
         final Frame st1 = newStack(s);
         final Link nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
 
         nl.recoverCount = numberOfRecoveries;
         nl.recoverWeight = recoverWeight;
+        nl.completionCount = numberOfCompletions;
         addStack(st1);
         forActorDelayed.addFirst(st1);
 
@@ -1273,6 +1362,14 @@ public class SGLR {
     private int calcRecoverCount(Production prod, Path path) {
         int result = path.getRecoverCount();
         if(prod.isRecoverProduction() || prod.isCompletionProduction()) {
+            result += 1;
+        }
+        return result;
+    }
+
+    private int calcCompletionCount(Production prod, Path path) {
+        int result = path.getCompletionCount();
+        if(prod.isNewCompletionProduction()) {
             result += 1;
         }
         return result;
@@ -1660,7 +1757,8 @@ public class SGLR {
             if(tokensSeen <= cursorLocation)
                 TRACE("SG_CompletionStates() - before token:  " + currentToken + " tokens seen: " + tokensSeen);
             else
-                TRACE("SG_CompletionStates() - after end of prefix. Current token: " + currentToken + " tokens seen: " + tokensSeen);
+                TRACE("SG_CompletionStates() - after end of prefix. Current token: " + currentToken + " tokens seen: "
+                    + tokensSeen);
             TRACE_CompletionStates();
         }
     }

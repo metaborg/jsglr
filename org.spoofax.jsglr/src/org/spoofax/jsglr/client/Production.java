@@ -26,14 +26,18 @@ public class Production implements Serializable {
 
 	private final boolean isRecover;
 	private final boolean isCompletion;
+	private final boolean isPlaceholderInsertion;
+	private final boolean isLiteralCompletion;
 
 	public Production(int arity, int label, int status, boolean isRecover,
-			boolean isCompletion) {
+			boolean isCompletion, boolean isPlaceholderInsertion, boolean isLiteralCompletion) {
 		this.arity = arity;
 		this.label = label;
 		this.status = status;
 		this.isRecover = isRecover;
 		this.isCompletion = isCompletion;
+		this.isPlaceholderInsertion = isPlaceholderInsertion;
+		this.isLiteralCompletion = isLiteralCompletion;
 	}
 
 	public AbstractParseNode apply(AbstractParseNode[] kids, int line,
@@ -41,16 +45,16 @@ public class Production implements Serializable {
 		switch (status) {
 		case REJECT:
 			return new ParseNode(label, kids, AbstractParseNode.REJECT, line,
-					column, isLayout, isIgnoreLayout);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion);
 		case AVOID:
 			return new ParseNode(label, kids, AbstractParseNode.AVOID, line,
-					column, isLayout, isIgnoreLayout);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion);
 		case PREFER:
 			return new ParseNode(label, kids, AbstractParseNode.PREFER, line,
-					column, isLayout, isIgnoreLayout);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion);
 		case NO_TYPE:
 			return new ParseNode(label, kids, AbstractParseNode.PARSENODE,
-					line, column, isLayout, isIgnoreLayout);
+					line, column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion);
 		}
 		throw new IllegalStateException();
 	}
@@ -66,6 +70,10 @@ public class Production implements Serializable {
 	public boolean isCompletionProduction() {
 		return isCompletion;
 	}
+	
+	public boolean isNewCompletionProduction() {
+        return isPlaceholderInsertion || isLiteralCompletion;
+    }
 
 	/**
 	 * -> "@#$"{completion} (added for performance reasons)

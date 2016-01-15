@@ -28,6 +28,8 @@ public class Path {
 		}
 		return result;        
 	}
+	
+	
 
 	public int getRecoverCount()
 	{
@@ -115,6 +117,19 @@ public class Path {
 		}
 		return origin;
 	}
+
+
+
+    public int getCompletionCount() {
+        int result = 0;
+        if(link != null) {
+            result += link.completionCount;           
+        }
+        if(parent != null) {
+            result += parent.getCompletionCount();
+        }
+        return result;
+    }
 
 //	public static Path valueOf(Path parent, Link link, Frame frame, int length/*, int parentCount*/) {
 //		Path r = new Path();

@@ -83,7 +83,7 @@ public class Frame implements Serializable {
       if (Thread.currentThread().isInterrupted())
         throw new InterruptedException();
 
-    	if(Tools.tracing && node != null) {
+    	if(Tools.tracing) {
     		
             SGLR.TRACE("SG_FindPaths() - from state " + node.getLink() + " arity= " + arity + ", length= " + length);
             

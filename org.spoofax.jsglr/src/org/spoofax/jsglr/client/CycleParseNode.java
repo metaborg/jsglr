@@ -125,4 +125,16 @@ public class CycleParseNode extends AbstractParseNode {
   public boolean isIgnoreLayout() {
     return target.isIgnoreLayout();
   }
+
+@Override public boolean isPlaceholderInsertionNode() {
+    // TODO Auto-generated method stub
+    return target.isPlaceholderInsertionNode();
+}
+
+@Override public boolean isLiteralCompletionNode() {
+    // TODO Auto-generated method stub
+    return target.isLiteralCompletionNode();
+}
+  
+  
 }

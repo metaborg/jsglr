@@ -60,9 +60,17 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	private LabelInfo[] labels;
 	
-	private int labelStart;
+	public LabelInfo[] getLabels() {
+        return labels;
+    }
+
+    private int labelStart;
 	
-	/** Character offset for the current implosion. */ 
+	public int getLabelStart() {
+        return labelStart;
+    }
+
+    /** Character offset for the current implosion. */ 
 	private int offset;
 	
 	private int nonMatchingOffset = NONE;

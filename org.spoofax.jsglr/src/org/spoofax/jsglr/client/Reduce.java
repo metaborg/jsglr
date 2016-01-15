@@ -22,7 +22,7 @@ public class Reduce extends ActionItem {
 
     public final Production production;
 
-    public Reduce(int arity, int label, int status, boolean isRecoverAction, boolean isCompletionAction) {
+    public Reduce(int arity, int label, int status, boolean isRecoverAction, boolean isCompletionAction, boolean isPlaceholderInsertionAction, boolean isLiteralCompletionAction) {
 
         super(REDUCE);
 
@@ -30,7 +30,7 @@ public class Reduce extends ActionItem {
         this.label = label;
         this.status = status;
 
-        production = new Production(arity, label, status, isRecoverAction, isCompletionAction);
+        production = new Production(arity, label, status, isRecoverAction, isCompletionAction, isPlaceholderInsertionAction, isLiteralCompletionAction);
     }
 
 

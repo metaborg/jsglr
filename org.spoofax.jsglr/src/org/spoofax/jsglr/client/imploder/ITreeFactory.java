@@ -21,7 +21,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	 * Create a new non-terminal node (or a terminal with only a constructor).
 	 */
 	TNode createNonTerminal(String sort, String constructor, IToken leftToken, IToken rightToken,
-			List<TNode> children);
+			List<TNode> children, boolean isCompletion);
 	
 	/**
 	 * Create a new terminal node for an int value.
@@ -49,7 +49,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 
 	TNode createTop(TNode tree, String filename, int ambiguityCount);
 
-	TNode createAmb(List<TNode> alternatives, IToken leftToken, IToken rightToken);
+	TNode createAmb(List<TNode> alternatives, IToken leftToken, IToken rightToken, boolean isCompletion);
 	
 	/**
 	 * Creates a new node similar to an existing node,

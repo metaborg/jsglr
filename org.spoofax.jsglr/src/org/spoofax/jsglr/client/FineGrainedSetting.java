@@ -33,7 +33,7 @@ public class FineGrainedSetting {
 	}
 
 	public FineGrainedSetting setTimeLimit(int timeLimit) {
-		this.timeLimit = 100000000;//timeLimit;
+		this.timeLimit = timeLimit;
 		return this;
 	}
 

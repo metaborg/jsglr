@@ -43,8 +43,10 @@ public class ParseNode extends AbstractParseNode {
 	private final boolean isLiteralCompletion;
 
 	public ParseNode(int label, AbstractParseNode[] kids, int type, int line,
-			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion) {
+			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isCompleted, boolean completedBranch) {
 		super(line, column);
+		super.setCompleted(isCompleted);
+		super.setCompletedBranch(completedBranch);
 		this.isLayout = isLayout;
 		this.isIgnoreLayout = isIgnoreLayout;
 		this.isPlaceholderInsertion = isPlaceholderInsertion;
@@ -71,6 +73,8 @@ public class ParseNode extends AbstractParseNode {
 		int column = kids[0].getColumn();
 		boolean isPlaceholderInsertion = false;
 		boolean isLiteralCompletion = false;
+		boolean completed = false;
+		boolean completedBranch = false;
 
 		
 		for (int i = 1; i < kids.length; i++) {
@@ -80,12 +84,16 @@ public class ParseNode extends AbstractParseNode {
 			    isPlaceholderInsertion = true;
 			if (kids[i].isLiteralCompletionNode())
                 isLiteralCompletion = true;
+			if (kids[i].isCompletedBranch())
+			    completedBranch = true;
+			if (kids[i].isCompleted())
+			    completed = true;
 		}
 		
 
 		ParseNode amb = new ParseNode(AMB_LABEL, kids,
 				AbstractParseNode.AMBIGUITY, line, column, kids[0].isLayout(),
-				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion);
+				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion, completed, completedBranch);
 		return amb;
 	}
 
@@ -136,7 +144,7 @@ public class ParseNode extends AbstractParseNode {
 		assert getColumn() == pn.getColumn();
 
 		ParseNode left = new ParseNode(this.label, this.kids, this.nodeType,
-				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion);
+				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, super.isCompleted(), super.isCompletedBranch());
 
 		if (pn instanceof ParseNode)
 			((ParseNode) pn).replaceCycle(this, left);

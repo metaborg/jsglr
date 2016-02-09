@@ -32,6 +32,7 @@ import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ParentAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.util.NotImplementedException;
 
 /**
@@ -86,30 +87,34 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 	}
 
 	public IStrategoTerm createNonTerminal(String sort, String constructor,
-			IToken leftToken, IToken rightToken, List<IStrategoTerm> children) {
+			IToken leftToken, IToken rightToken, List<IStrategoTerm> children, boolean isCompletion) {
 		
 		// TODO: Optimize - cache IStrategoConstructors in fields? hard to do up front, messy to do now in the LabelInfo objects 
 		IStrategoConstructor cons = factory.makeConstructor(constructor, children.size());
 		IStrategoTerm result = factory.makeAppl(cons, children.toArray(new IStrategoTerm[children.size()]));
-		configure(result, sort, leftToken, rightToken, false);
+		
+		// if it's a completion node, it should have no origin information?
+		
+		
+		configure(result, sort, leftToken, rightToken, false, isCompletion);
 		return result;
 	}
 
 	public IStrategoTerm createIntTerminal(String sort, IToken token, int value) {
 		IStrategoTerm result = factory.makeInt(value);
-		configure(result, sort, token, token, false);
+		configure(result, sort, token, token, false, false);
 		return result;
 	}
 
 	public IStrategoTerm createRealTerminal(String sort, IToken token, double value) {
 		IStrategoTerm result = factory.makeReal(value);
-		configure(result, sort, token, token, false);
+		configure(result, sort, token, token, false, false);
 		return result;
 	}
 
 	public IStrategoTerm createStringTerminal(String sort, IToken leftToken, IToken rightToken, String value) {
 		IStrategoTerm result = factory.makeString(value);
-		configure(result, sort, leftToken, rightToken, false);
+		configure(result, sort, leftToken, rightToken, false, false );
 		return result;
 	}
 
@@ -117,22 +122,22 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 			IToken rightToken, List<IStrategoTerm> children) {
 		
 		IStrategoTerm result = factory.makeTuple(toArray(children));
-		configure(result, elementSort, leftToken, rightToken, true);
+		configure(result, elementSort, leftToken, rightToken, true, false);
 		return result;
 	}
 
-	public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
+	public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken, boolean isCompletion) {
 		List<IStrategoTerm> alternativesInList = new ArrayList<IStrategoTerm>();
 		alternativesInList.add(createList(null, leftToken, rightToken, alternatives));
 		
-		return createNonTerminal(null, "amb", leftToken, rightToken, alternativesInList);
+		return createNonTerminal(null, "amb", leftToken, rightToken, alternativesInList, isCompletion);
 	}
 
 	public IStrategoTerm createList(String elementSort, IToken leftToken,
 			IToken rightToken, List<IStrategoTerm> children) {
 		
 		IStrategoTerm result = factory.makeList(toArray(children));
-		configure(result, elementSort, leftToken, rightToken, true);
+		configure(result, elementSort, leftToken, rightToken, true, false);
 		return result;
 	}
 	
@@ -174,7 +179,8 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 				true,
 				getElementSort(list), 
 				getLeftToken(firstChild), 
-				getRightToken(lastChild)
+				getRightToken(lastChild),
+				false
 			);
 		return result;
 	}
@@ -182,11 +188,14 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 	
 	
 	public IStrategoTerm recreateNode(IStrategoTerm oldNode, IToken leftToken, IToken rightToken, List<IStrategoTerm> children) {
+	    ImploderAttachment it = oldNode.getAttachment(ImploderAttachment.TYPE);
+	    	    
+	    
 		switch (oldNode.getTermType()) {
 			case INT:
 				return createIntTerminal(getSort(oldNode), leftToken, ((IStrategoInt) oldNode).intValue());
 			case APPL:
-				return createNonTerminal(getSort(oldNode), ((IStrategoAppl) oldNode).getName(), leftToken, rightToken, children);
+				return createNonTerminal(getSort(oldNode), ((IStrategoAppl) oldNode).getName(), leftToken, rightToken, children, it.isCompletion());
 			case LIST:
 				return createList(getElementSort(oldNode), leftToken, rightToken, children);
 			case STRING:
@@ -211,7 +220,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 			IStrategoTuple result = factory.makeTuple(toArray(children));
 			IToken left = getLeftToken(children.get(0));
 			IToken right = getRightToken(children.get(children.size() - 1));
-			configure(result, null, left, right, true);
+			configure(result, null, left, right, true, false);
 			return result;
 		}
 	}
@@ -257,10 +266,10 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 		return tree;
 	}
 	
-	protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken, boolean isListOrTuple) {
+	protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken, boolean isListOrTuple, boolean isCompletion) {
 		assert isListOrTuple
 			== (term.getTermType() == TUPLE || term.getTermType() == LIST);
 		if (enableTokens)
-			putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken);
+			putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken, isCompletion);
 	}
 }

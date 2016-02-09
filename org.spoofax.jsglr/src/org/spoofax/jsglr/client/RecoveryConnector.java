@@ -165,8 +165,8 @@ public class RecoveryConnector {
 	}
 
 	private void parseAsLayout() throws InterruptedException {
-		if (!isLayoutCharacter((char) mySGLR.getCurrentToken()) && mySGLR.getCurrentToken() != SGLR.EOF) {
-			mySGLR.setCurrentToken(' ');
+		if (!isLayoutCharacter((char) mySGLR.getCurrentToken().getToken()) && mySGLR.getCurrentToken().getToken() != SGLR.EOF) {
+			mySGLR.setCurrentToken(new TokenOffset(' ', mySGLR.getCurrentToken().getOffset()));
 		}
 		mySGLR.doParseStep();
 	}

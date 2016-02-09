@@ -179,7 +179,7 @@ public class FineGrainedRecovery {
 			curTokIndex = getHistory().getTokenIndex();
 			addCurrentCandidates(candidates, curTokIndex);
 			getHistory().readRecoverToken(mySGLR, false);
-			if (mySGLR.getCurrentToken() == '\n' && curTokIndex > getTokensSeenAtLine(lineIndexRecovery)){
+			if (mySGLR.getCurrentToken().getToken() == '\n' && curTokIndex > getTokensSeenAtLine(lineIndexRecovery)){
 				exploredLinesForward++;
 			}
 			// System.out.print((char)mySGLR.currentToken);
@@ -188,12 +188,12 @@ public class FineGrainedRecovery {
 			newCandidates.addAll(collectNewRecoverCandidates(curTokIndex));
 			mySGLR.getRecoverStacks().clear();
 		} while (
-				   (exploredLinesForward <= fwLineMax || RecoveryConnector.isLayoutCharacter((char)mySGLR.getCurrentToken()))
-				&& (exploredLinesForward <= settings.getForwardDistanceLines() || RecoveryConnector.isLayoutCharacter((char)mySGLR.getCurrentToken()))
+				   (exploredLinesForward <= fwLineMax || RecoveryConnector.isLayoutCharacter((char)mySGLR.getCurrentToken().getToken()))
+				&& (exploredLinesForward <= settings.getForwardDistanceLines() || RecoveryConnector.isLayoutCharacter((char)mySGLR.getCurrentToken().getToken()))
 				&& getHistory().getTokenIndex() <= exploredRegionEndOffset
 				&& getHistory().getTokenIndex() <= fwTokensSeenMax
 				&& mySGLR.acceptingStack == null
-				&& mySGLR.getCurrentToken() != SGLR.EOF
+				&& mySGLR.getCurrentToken().getToken() != SGLR.EOF
 				&& getHistory().getTokenIndex() < this.settings.getEndOffsetFragment()
 		);
 		mySGLR.setFinegrainedRecoverMode(false);
@@ -291,7 +291,7 @@ public class FineGrainedRecovery {
 		while (mySGLR.activeStacks.size() > 0 && !acceptRecovery(parsedFragment) && getHistory().getTokenIndex() < settings.getEndOffsetFragment()) {
 			getHistory().readRecoverToken(mySGLR, false);
 			if(getHistory().getTokenIndex() > failureOffset){
-				parsedFragment += ((char)mySGLR.getCurrentToken());
+				parsedFragment += ((char)mySGLR.getCurrentToken().getToken());
 			}
 			// System.out.print((char)mySGLR.currentToken);
 			mySGLR.doParseStep();

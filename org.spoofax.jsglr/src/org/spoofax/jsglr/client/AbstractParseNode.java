@@ -27,6 +27,8 @@ public abstract class AbstractParseNode {
 
   private final int line;
   private final int column;
+  private boolean completed = false;
+  private boolean completedBranch = false;
   
   private Map<String, Object> properties;
 
@@ -250,5 +252,22 @@ public abstract class AbstractParseNode {
 abstract public boolean isPlaceholderInsertionNode();
 
 abstract public boolean isLiteralCompletionNode();
+
+public boolean isCompleted() {
+    return completed;
+}
+
+public void setCompleted(boolean completed) {
+    this.completed = completed;
+}
+
+public boolean isCompletedBranch(){
+    return completedBranch;
+}
+
+public void setCompletedBranch(boolean completedBranch) {
+    this.completedBranch = completedBranch;
+    
+}
     
 }

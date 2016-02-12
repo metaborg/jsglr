@@ -1091,12 +1091,28 @@ public class SGLR {
                 }
             }
 
+
+
             if(checkMaxRecoverCount(prod, path))
                 if(prod.isRecoverProduction())
                     if(!isFineGrainedMode && prod.isNewCompletionProduction())
                         reducer(st0, next, prod, kids, path);
-                    else
-                        reducerRecoverProduction(st0, next, prod, kids, path);
+                    else {
+                        // still apply placeholder insertion in recovery mode
+                        if(prod.isNewCompletionProduction()) {
+                            // only apply new completion productions before reading non-layout character after cursor
+                            // position
+                            if(currentToken.getOffset() >= cursorLocation && applyCompletionProd && isNewCompletionMode) {
+                                reducer(st0, next, prod, kids, path);
+                            } else {
+                                reducerRecoverProduction(st0, next, prod, kids, path);
+                            }
+                        } else {
+                            reducerRecoverProduction(st0, next, prod, kids, path);
+                        }
+
+                    }
+
                 else
                     reducer(st0, next, prod, kids, path);
 
@@ -1159,17 +1175,17 @@ public class SGLR {
                 completedBranch = true;
             }
 
-            // only apply new completion productions before reading non-layout character after cursor position
             if(prod.isNewCompletionProduction()) {
-                if(currentToken.getOffset() >= cursorLocation && applyCompletionProd && isNewCompletionMode) {
-                    System.out.print("\ncurrent token/offset: " + currentToken + " - here applied new completion\n");
-
+                if(currentToken.getOffset() >= cursorLocation && applyCompletionProd) {
+                    System.out.print("\ncurrent token/offset: " + currentToken + " - here applied new completion prod " + prod.label + " + \n");
 
                 } else {
-                    System.out.print("\ncurrent token/offset: " + currentToken + " - here skipped new completion\n");
+                    System.out.print("\ncurrent token/offset: " + currentToken + " - here skipped new completion prod " + prod.label + " + \n");
                     return;
                 }
             }
+
+
         }
 
         final AbstractParseNode t =
@@ -1280,11 +1296,9 @@ public class SGLR {
 
     /*
      * Applying a production with placeholder elements (path.getCompletionCount() > 0) has to go with the following
-     * requirements: 
-     * - Placeholders should be adjacent; 
-     * - Placeholders should only be inserted in completion mode; 
-     * - Regular Productions with only placeholders should not be reduced 
-     * - Regular Productions with placeholders should be reduced only if the current token is after the cursorLocation
+     * requirements: - Placeholders should be adjacent; - Placeholders should only be inserted in completion mode; -
+     * Regular Productions with only placeholders should not be reduced - Regular Productions with placeholders should
+     * be reduced only if the current token is after the cursorLocation
      */
     private boolean checkPlaceholderRequirements(AbstractParseNode[] kids) {
         // Placeholders should only be inserted in completion mode;
@@ -1293,7 +1307,7 @@ public class SGLR {
 
         // Placeholders can only be inserted at the cursor position;
         // After all tokens before cursorLocation have been read
-        if(currentToken.getOffset() <= cursorLocation)
+        if(currentToken.getOffset() < cursorLocation)
             return false;
 
         // Shouldn't be only placeholders and
@@ -1473,7 +1487,7 @@ public class SGLR {
             return result;
         }
 
-        if(prod.isRecoverProduction() && !prod.isNewCompletionProduction()) {
+        if(prod.isRecoverProduction() || prod.isCompletionProduction()) {
             result += 1;
         }
         return result;
@@ -1494,9 +1508,10 @@ public class SGLR {
             return result;
         }
 
-        if(prod.isRecoverProduction()) {
+
+        if(prod.isRecoverProduction() || prod.isCompletionProduction()) {
             result += 1;
-            if(path.getLength() > 0)
+            if(path.getLength() > 0 && !prod.isCompletionProduction())
                 result += 1; // Hack: insertion rules (length 0) should be preferred above water rules.
         }
         return result;

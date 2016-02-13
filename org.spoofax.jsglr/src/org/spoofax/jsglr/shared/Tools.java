@@ -13,6 +13,7 @@ import org.spoofax.jsglr.client.Measures;
 public class Tools {
 
     public static final boolean tracing = false;
+    public static final boolean debuggingCompletion = false;
     public static final boolean debugging = false;
     public static boolean logging = false;
     public static boolean measuring = false;

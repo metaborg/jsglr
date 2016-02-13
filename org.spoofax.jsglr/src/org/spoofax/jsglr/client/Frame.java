@@ -42,7 +42,7 @@ public class Frame implements Serializable {
 
     public boolean allLinksRejected() {
         if(Tools.tracing) {
-            SGLR.TRACE("SG_Rejected() - " + state.stateNumber);
+            SGLR.TRACE("SG_Rejected() - checking " + state.stateNumber);
         }
 
         if (stepsCount == 0)
@@ -72,6 +72,9 @@ public class Frame implements Serializable {
 
     
     public void findAllPaths(PooledPathList pool, int arity) throws InterruptedException {
+    	if(Tools.tracing) {
+            SGLR.TRACE("SG_FindAllPaths() - from state " + state.stateNumber + " of arity= " + arity);
+        }
     	doComputePathsToRoot(pool, null, arity, 0, 0);
     }
 
@@ -80,14 +83,17 @@ public class Frame implements Serializable {
       if (Thread.currentThread().isInterrupted())
         throw new InterruptedException();
 
-    	if(Tools.tracing) {
-            SGLR.TRACE("SG_FindAllPaths() - " + arity + ", " + length);
+    	if(Tools.tracing && node != null) {
+    		
+            SGLR.TRACE("SG_FindPaths() - from state " + node.getLink() + " arity= " + arity + ", length= " + length);
+            
         }
 
         if (arity == 0) {
             pool.rememberPath(node, null, this, length, parentCount);
             if(Tools.tracing) {
-                SGLR.TRACE("SG_NewPath() - " + state.stateNumber + ", " + length);
+            	final int endState = node != null ? node.getLink().parent.state.stateNumber : this.state.stateNumber ;
+                SGLR.TRACE("SG_NewPath() - end state= " + endState + ", length= " + length);
             }
         } else {
             for (int i = 1; i <= stepsCount; i++) {
@@ -136,7 +142,7 @@ public class Frame implements Serializable {
 
     public Link addLink(Frame st0, AbstractParseNode n, int length, int line, int column) {
         if(Tools.tracing) {
-            SGLR.TRACE("SG_AddLink() - " + state.stateNumber + ", " + st0.state.stateNumber + ", " + length);
+            SGLR.TRACE("SG_AddLink() - to = " + state.stateNumber + ", from = " + st0.state.stateNumber + ", of length " + length);
         }
         if(stepsCount >= steps.length) {
             resizeSteps();

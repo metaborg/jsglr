@@ -201,7 +201,7 @@ public class Main {
 		Object t = null;
 		try {
 			parsingTime = System.currentTimeMillis();
-			t = sglr.parse(input, inputFile, startSymbol);
+			t = sglr.parse(input, inputFile, startSymbol).output;
 			parsingTime = System.currentTimeMillis() - parsingTime;
 		} catch(final BadTokenException e) {
 			System.err.println("Parsing failed: " + e.getMessage());

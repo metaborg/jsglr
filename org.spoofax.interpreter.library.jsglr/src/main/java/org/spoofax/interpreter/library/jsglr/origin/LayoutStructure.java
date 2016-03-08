@@ -159,7 +159,7 @@ public class LayoutStructure {
 		assert this.commentsBeforeStartIndex <= getLeftToken(node).getStartOffset();
 		int offset = getTokenAt(this.commentsBeforeStartIndex).getStartOffset();
 		String input = tokens.getInput();
-		while (input.charAt(offset) == ' ' || input.charAt(offset) == '\t') {
+		while (offset < input.length() && (input.charAt(offset) == ' ' || input.charAt(offset) == '\t')) {
 			offset++;
 		}
 		return offset;

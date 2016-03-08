@@ -41,20 +41,20 @@ public class Production implements Serializable {
 	}
 
 	public AbstractParseNode apply(AbstractParseNode[] kids, int line,
-			int column, boolean isLayout, boolean isIgnoreLayout, boolean completedNode, boolean completedBranch) {
+			int column, boolean isLayout, boolean isIgnoreLayout, boolean completedNode) {
 		switch (status) {
 		case REJECT:
 			return new ParseNode(label, kids, AbstractParseNode.REJECT, line,
-					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode, completedBranch);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode);
 		case AVOID:
 			return new ParseNode(label, kids, AbstractParseNode.AVOID, line,
-					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode, completedBranch);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode);
 		case PREFER:
 			return new ParseNode(label, kids, AbstractParseNode.PREFER, line,
-					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode, completedBranch);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode);
 		case NO_TYPE:
 			return new ParseNode(label, kids, AbstractParseNode.PARSENODE,
-					line, column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode, completedBranch);
+					line, column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, completedNode);
 		}
 		throw new IllegalStateException();
 	}

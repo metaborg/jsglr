@@ -20,7 +20,6 @@ public class Frame implements Serializable {
     public static int framesCreated =0; //MJ: for testing
 
     public final State state;
-
     // Using a Vector and regular iteration takes parsing of file-test from 1100ms (min) to 2020ms (max)!
     // TODO: Just use an ArrayList for Frame.steps?
     //       which should have better performance than the obsolete, synchronized Vector classs
@@ -30,10 +29,14 @@ public class Frame implements Serializable {
     protected Link[] steps;
     protected int stepsCount;
     
+    // tag frame as already being completed
+    private boolean completed;
+    
     // FIXME: All frames except the root must have a step with a label
     // that goes to the parent frame. Should we enforce this in this
     // constructor?
     public Frame(State s) {
+        completed = false;
         state = s;
         steps = new Link[20];
         stepsCount = 0;
@@ -316,6 +319,14 @@ public class Frame implements Serializable {
             this.steps = null;
             this.stepsCount = 0;
         }
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     /*mj debug info function

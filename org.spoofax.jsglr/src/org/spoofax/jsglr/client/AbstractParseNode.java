@@ -28,7 +28,6 @@ public abstract class AbstractParseNode {
   private final int line;
   private final int column;
   private boolean completed = false;
-  private boolean completedBranch = false;
   
   private Map<String, Object> properties;
 
@@ -260,14 +259,4 @@ public boolean isCompleted() {
 public void setCompleted(boolean completed) {
     this.completed = completed;
 }
-
-public boolean isCompletedBranch(){
-    return completedBranch;
-}
-
-public void setCompletedBranch(boolean completedBranch) {
-    this.completedBranch = completedBranch;
-    
-}
-    
 }

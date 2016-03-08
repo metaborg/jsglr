@@ -156,6 +156,14 @@ public class SGLR {
     private boolean isCompletionMode;
     private boolean isNewCompletionMode;
 
+    public boolean isNewCompletionMode() {
+        return isNewCompletionMode;
+    }
+
+    public void setNewCompletionMode(boolean isNewCompletionMode) {
+        this.isNewCompletionMode = isNewCompletionMode;
+    }
+
     /**
      * If true, parser reads as many characters as possible, but succeeds even if not all characters were read.
      */
@@ -1153,38 +1161,34 @@ public class SGLR {
         final int length = path.getLength();
         final int numberOfRecoveries = calcRecoverCount(prod, path);
         final int numberOfCompletions = calcCompletionCount(prod, path);
-        boolean completedBranch = false;
+        int placeholders = countPlaceholders(kids);
         boolean completedNode = false;
-
-
+        
+        // if the current frame has been already completed, not try to apply any regular production with placeholders nor any completion production
+        if(st0.isCompleted() && (placeholders > 0 || prod.isNewCompletionProduction()))
+            return;
+        
         if(!isFineGrainedMode && isNewCompletionMode) {
-            // if prod is not a new completion prod and has more than 1 completed branch
-            if(!prod.isNewCompletionProduction() && countCompletedBranch(kids) > 1)
-                return;
-
-            // if prod is not a new-completion prod and has placeholders
-            if(!prod.isNewCompletionProduction() && countPlaceholders(kids) > 0) {
-                if(!checkPlaceholderRequirements(kids)) // if the placeholders a valid then the node is completed
-                    return;
-                else
-                    completedNode = true;
-            }
-
-            // if prod is not a new-completion prod and has any placeholders in the path the branch is completed
-            if(!prod.isNewCompletionProduction() && path.getCompletionCount() > 0) {
-                completedBranch = true;
-            }
-
+            
             if(prod.isNewCompletionProduction()) {
                 if(currentToken.getOffset() >= cursorLocation && applyCompletionProd) {
-                    System.out.print("\ncurrent token/offset: " + currentToken + " - here applied new completion prod " + prod.label + " + \n");
+                    System.out.print("\ncurrent token/offset: " + (char)currentToken.getToken() + " - here applied new completion prod " + prod.label + "\n");
 
                 } else {
-                    System.out.print("\ncurrent token/offset: " + currentToken + " - here skipped new completion prod " + prod.label + " + \n");
+                    System.out.print("\ncurrent token/offset: " + (char)currentToken.getToken() + " - here skipped new completion prod " + prod.label + "\n");
                     return;
                 }
-            }
-
+            }           
+            
+            // if prod is not a new-completion prod and has placeholders
+            if(!prod.isNewCompletionProduction() && placeholders > 0) {
+                if(!checkPlaceholderRequirements(kids)) // if the placeholders a valid then the node is completed
+                    return;
+                else {
+                    completedNode = true;
+                }
+            }           
+            
 
         }
 
@@ -1192,7 +1196,7 @@ public class SGLR {
             prod.apply(kids, path.getParentCount() > 0 ? path.getParent().getLink().getLine() : lineNumber,
                 path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
                 parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes()
-                    .isIgnoreLayout(), completedNode, completedBranch);
+                    .isIgnoreLayout(), completedNode);
 
         final int recoverWeight = calcRecoverWeight(prod, path);
         final Frame st1 = findStack(activeStacks, s);
@@ -1218,8 +1222,10 @@ public class SGLR {
                             nl.recoverCount = numberOfRecoveries;
                             nl.recoverWeight = recoverWeight;
                             nl.completionCount = numberOfCompletions;
+                            st1.setCompleted(true);
                             actorOnActiveStacksOverNewLink(nl);
                         } else {
+                            st1.setCompleted(true);
                             createAmbNode(t, nl);
                         }
                     }
@@ -1234,6 +1240,7 @@ public class SGLR {
                     nl.recoverCount = numberOfRecoveries;
                     nl.recoverWeight = recoverWeight;
                     nl.completionCount = numberOfCompletions;
+                    if(st0.isCompleted() || completedNode) st1.setCompleted(true);
                     actorOnActiveStacksOverNewLink(nl);
                 } else if(recoverWeight == nl.recoverWeight) {
                     nl.label = t;
@@ -1243,6 +1250,7 @@ public class SGLR {
                 nl.recoverWeight = recoverWeight;
                 nl.recoverCount = numberOfRecoveries;
                 nl.completionCount = numberOfCompletions;
+                if(st0.isCompleted() || completedNode) st1.setCompleted(true);
                 if(prod.isRejectProduction()) {
                     nl.reject();
                     increaseRejectCount();
@@ -1273,18 +1281,6 @@ public class SGLR {
         return placeholders;
     }
 
-    private int countCompletedBranch(AbstractParseNode[] kids) {
-        int numberOfCompleted = 0;
-        for(int i = 0; i < kids.length; i++) {
-            if(kids[i].isCompletedBranch())
-                numberOfCompleted++;
-        }
-        if(numberOfCompleted > 1)
-            return numberOfCompleted;
-
-        return numberOfCompleted;
-    }
-
     boolean isLayout(int token) {
         char tokenChar = (char) token;
 
@@ -1301,10 +1297,7 @@ public class SGLR {
      * be reduced only if the current token is after the cursorLocation
      */
     private boolean checkPlaceholderRequirements(AbstractParseNode[] kids) {
-        // Placeholders should only be inserted in completion mode;
-        if(!isNewCompletionMode)
-            return false;
-
+        
         // Placeholders can only be inserted at the cursor position;
         // After all tokens before cursorLocation have been read
         if(currentToken.getOffset() < cursorLocation)
@@ -1332,19 +1325,16 @@ public class SGLR {
                 if(seenPlaceholder && changedTerm)
                     return false;
                 seenPlaceholder = true;
-
             } else if(!kids[i].isLayout()) {
                 onlyPlaceholders = false;
                 if(seenPlaceholder)
                     changedTerm = true;
             }
-
         }
 
         if(onlyPlaceholders)
             return false;
-
-
+        
         return true;
     }
 
@@ -1367,7 +1357,7 @@ public class SGLR {
         final int recoverWeight = calcRecoverWeight(prod, path);
         final AbstractParseNode t =
             prod.apply(kids, lineNumber, columnNumber, parseTable.getLabel(prod.label).isLayout(),
-                parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout(), false, false);
+                parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout(), false);
 
         // final Object treeTest = getTreeBuilder().buildTree(t);
 
@@ -1406,7 +1396,11 @@ public class SGLR {
         int numberOfCompletions, int recoverWeight, AbstractParseNode t) {
 
         final Frame st1 = newStack(s);
+        
         final Link nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
+        
+        if (t.isCompleted() || st0.isCompleted())
+            st1.setCompleted(true);
 
         nl.recoverCount = numberOfRecoveries;
         nl.recoverWeight = recoverWeight;
@@ -1702,6 +1696,9 @@ public class SGLR {
 
     private TokenOffset getNextToken() {
         final int ch = currentInputStream.read();
+        
+        if (isNewCompletionMode) System.out.print((char) ch);
+        
         final TokenOffset to = new TokenOffset(ch, currentTokenOffset);
 
         if(applyCompletionProd && readNonLayout)

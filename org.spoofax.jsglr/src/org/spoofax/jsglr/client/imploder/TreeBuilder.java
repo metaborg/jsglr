@@ -414,9 +414,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			offset = oldOffset;
 			tokenizer.setStartOffset(oldBeginOffset);
 			inLexicalContext = oldLexicalContext;
-			if(subnode.isCompleted()){
-			    isCompletion = true;
-			}
+			//if(subnode.isCompleted()){
+			//    isCompletion = true;
+			//}
 			
 			Object subtree;
 			

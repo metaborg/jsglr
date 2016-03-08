@@ -43,10 +43,9 @@ public class ParseNode extends AbstractParseNode {
 	private final boolean isLiteralCompletion;
 
 	public ParseNode(int label, AbstractParseNode[] kids, int type, int line,
-			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isCompleted, boolean completedBranch) {
+			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isCompleted) {
 		super(line, column);
 		super.setCompleted(isCompleted);
-		super.setCompletedBranch(completedBranch);
 		this.isLayout = isLayout;
 		this.isIgnoreLayout = isIgnoreLayout;
 		this.isPlaceholderInsertion = isPlaceholderInsertion;
@@ -74,7 +73,6 @@ public class ParseNode extends AbstractParseNode {
 		boolean isPlaceholderInsertion = false;
 		boolean isLiteralCompletion = false;
 		boolean completed = false;
-		boolean completedBranch = false;
 
 		
 		for (int i = 1; i < kids.length; i++) {
@@ -84,8 +82,6 @@ public class ParseNode extends AbstractParseNode {
 			    isPlaceholderInsertion = true;
 			if (kids[i].isLiteralCompletionNode())
                 isLiteralCompletion = true;
-			if (kids[i].isCompletedBranch())
-			    completedBranch = true;
 			if (kids[i].isCompleted())
 			    completed = true;
 		}
@@ -93,7 +89,7 @@ public class ParseNode extends AbstractParseNode {
 
 		ParseNode amb = new ParseNode(AMB_LABEL, kids,
 				AbstractParseNode.AMBIGUITY, line, column, kids[0].isLayout(),
-				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion, completed, completedBranch);
+				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion, completed);
 		return amb;
 	}
 
@@ -104,8 +100,9 @@ public class ParseNode extends AbstractParseNode {
 		this.kids = kids;
 		this.isParseProductionChain = false;
 		this.isSetPPC = false;
+		
 
-		for (AbstractParseNode kid : kids)
+		for (AbstractParseNode kid : kids){
 			if (!kid.isLayout() && !kid.isEmpty() && !kid.isIgnoreLayout()) {
 				if (kid.getLine() > getLine()
 						&& (left == null || kid.getColumn() < left.getColumn()))
@@ -117,6 +114,8 @@ public class ParseNode extends AbstractParseNode {
 								.getColumn()))
 					left = kidLeft;
 			}
+			
+		}
 
 	}
 
@@ -144,7 +143,7 @@ public class ParseNode extends AbstractParseNode {
 		assert getColumn() == pn.getColumn();
 
 		ParseNode left = new ParseNode(this.label, this.kids, this.nodeType,
-				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, super.isCompleted(), super.isCompletedBranch());
+				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, super.isCompleted());
 
 		if (pn instanceof ParseNode)
 			((ParseNode) pn).replaceCycle(this, left);

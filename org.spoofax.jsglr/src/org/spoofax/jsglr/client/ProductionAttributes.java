@@ -21,6 +21,7 @@ public class ProductionAttributes implements Serializable {
     private final int type;
 
     private final boolean isRecover;
+    private final boolean isBracket;
     private final boolean isCompletion;
     private final boolean isPlaceholderInsertion;
     private final boolean isLiteralCompletion;
@@ -33,10 +34,11 @@ public class ProductionAttributes implements Serializable {
 
     private final transient IStrategoTerm abstractCtor;
 
-    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover, boolean isCompletion, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isIgnoreIndent, IStrategoTerm layoutConstraint, boolean isNewlineEnforced, boolean isLongestMatch) {
+    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover, boolean isBracket, boolean isCompletion, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isIgnoreIndent, IStrategoTerm layoutConstraint, boolean isNewlineEnforced, boolean isLongestMatch) {
         this.type = type;
         this.abstractCtor = ctor;
         this.isRecover = isRecover;
+        this.isBracket = isBracket;
         this.isCompletion = isCompletion;
         this.isPlaceholderInsertion = isPlaceholderInsertion;
         this.isLiteralCompletion = isLiteralCompletion;
@@ -91,5 +93,9 @@ public class ProductionAttributes implements Serializable {
     public boolean isLiteralCompletionProduction() {
         // TODO Auto-generated method stub
         return isLiteralCompletion;
+    }
+
+    public boolean isBracket() {
+        return isBracket;
     }
 }

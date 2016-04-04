@@ -44,6 +44,8 @@ public class LabelInfo {
 	private final boolean isOptional;
 	
 	private final boolean isRecover;
+	
+	private final boolean isBracket;
 
 	private final boolean isCompletion;
 
@@ -69,6 +71,7 @@ public class LabelInfo {
 		isLiteral = reader.isLiteral(rhs);
 		isOptional = reader.isOptional(rhs);
 		isRecover = reader.isRecoverProduction(attrs, constructor);
+		isBracket = reader.isBracketProduction(attrs);
 		isCompletion = reader.isCompletionProduction(attrs, production.getSubtermCount());
 		isReject = reader.isRejectProduction(attrs);
 		deprecationMessage = reader.getDeprecationMessage(attrs);
@@ -168,4 +171,8 @@ public class LabelInfo {
 	public String toString() {
 		return production.toString();
 	}
+
+    public boolean isBracket() {
+        return isBracket;
+    }
 }

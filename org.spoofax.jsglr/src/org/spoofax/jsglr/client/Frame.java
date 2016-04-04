@@ -29,14 +29,17 @@ public class Frame implements Serializable {
     protected Link[] steps;
     protected int stepsCount;
     
-    // tag frame as already being completed
-    private boolean completed;
+    
+    // if frame can still be extended with completion rules
+    
+    
+    
     
     // FIXME: All frames except the root must have a step with a label
     // that goes to the parent frame. Should we enforce this in this
     // constructor?
     public Frame(State s) {
-        completed = false;
+        //completed = false;
         state = s;
         steps = new Link[20];
         stepsCount = 0;
@@ -321,13 +324,13 @@ public class Frame implements Serializable {
         }
     }
 
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
+//    public boolean isCompleted() {
+//        return completed;
+//    }
+//
+//    public void setCompleted(boolean completed) {
+//        this.completed = completed;
+//    }
 
     /*mj debug info function
     public int minAvoidValue()

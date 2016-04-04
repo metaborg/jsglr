@@ -17,7 +17,7 @@ public class ListImploderAttachment extends ImploderAttachment {
 	 * Note that attachment instances should not be shared.
 	 */
 	protected ListImploderAttachment(String sort, IToken leftToken, IToken rightToken) {
-		super(sort, leftToken, rightToken, false);
+		super(sort, leftToken, rightToken, false, false, false);
 	}
 
 	@Override

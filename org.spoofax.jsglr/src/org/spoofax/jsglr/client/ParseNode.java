@@ -43,9 +43,10 @@ public class ParseNode extends AbstractParseNode {
 	private final boolean isLiteralCompletion;
 
 	public ParseNode(int label, AbstractParseNode[] kids, int type, int line,
-			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isCompleted) {
+			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isCompleted, boolean isNestedCompleted) {
 		super(line, column);
 		super.setCompleted(isCompleted);
+		super.setNestedCompleted(isNestedCompleted);
 		this.isLayout = isLayout;
 		this.isIgnoreLayout = isIgnoreLayout;
 		this.isPlaceholderInsertion = isPlaceholderInsertion;
@@ -73,6 +74,7 @@ public class ParseNode extends AbstractParseNode {
 		boolean isPlaceholderInsertion = false;
 		boolean isLiteralCompletion = false;
 		boolean completed = false;
+		boolean nestedCompleted = false;
 
 		
 		for (int i = 1; i < kids.length; i++) {
@@ -84,12 +86,14 @@ public class ParseNode extends AbstractParseNode {
                 isLiteralCompletion = true;
 			if (kids[i].isCompleted())
 			    completed = true;
+			if (kids[i].isNestedCompleted())
+			    nestedCompleted = true;
 		}
 		
 
 		ParseNode amb = new ParseNode(AMB_LABEL, kids,
 				AbstractParseNode.AMBIGUITY, line, column, kids[0].isLayout(),
-				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion, completed);
+				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion, completed, nestedCompleted);
 		return amb;
 	}
 
@@ -143,11 +147,12 @@ public class ParseNode extends AbstractParseNode {
 		assert getColumn() == pn.getColumn();
 
 		ParseNode left = new ParseNode(this.label, this.kids, this.nodeType,
-				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, super.isCompleted());
+				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, super.isCompleted(), super.isNestedCompleted());
 
 		if (pn instanceof ParseNode)
 			((ParseNode) pn).replaceCycle(this, left);
-
+		
+		
 		setFields(AMB_LABEL, new AbstractParseNode[] { left, pn },
 				AbstractParseNode.AMBIGUITY);
 

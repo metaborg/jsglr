@@ -120,13 +120,26 @@ public class Path {
 
 
 
-    public int getCompletionCount() {
+    public int getCompletedCount() {
         int result = 0;
+        
         if(link != null) {
             result += link.completionCount;           
         }
         if(parent != null) {
-            result += parent.getCompletionCount();
+            result += parent.getCompletedCount();
+        }
+        return result;
+    }
+    
+    public int getPlaceholderCount() {
+        int result = 0;
+        
+        if(link != null) {
+            result += link.placeholderCount;           
+        }
+        if(parent != null) {
+            result += parent.getPlaceholderCount();
         }
         return result;
     }

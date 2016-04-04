@@ -282,6 +282,7 @@ public class ParseTable implements Serializable {
             boolean isCompletion = false;
             boolean isPlaceholderInsertion = false;
             boolean isLiteralCompletion = false;
+            boolean isBracket = false;
             IStrategoTerm term = null;
 
             for (IStrategoList ls = (IStrategoList) attr.getSubterm(0); !ls.isEmpty(); ls = ls.tail()) {
@@ -298,6 +299,7 @@ public class ParseTable implements Serializable {
                     hasAvoids = true;
                 } else if (ctor.equals("bracket")) {
                     type = ProductionType.BRACKET;
+                    isBracket = true;
                 } else {
                     if (ctor.equals("assoc")) {
                         IStrategoNamed a = (IStrategoNamed) t.getSubterm(0);
@@ -370,9 +372,9 @@ public class ParseTable implements Serializable {
                 }
             }
             }
-            return new ProductionAttributes(term, type, isRecover, isCompletion, isPlaceholderInsertion, isLiteralCompletion, isIgnoreLayout, layoutConstraint, isNewlineEnforced, isLongestMatch);
+            return new ProductionAttributes(term, type, isRecover, isBracket, isCompletion, isPlaceholderInsertion, isLiteralCompletion, isIgnoreLayout, layoutConstraint, isNewlineEnforced, isLongestMatch);
         } else if (attr.getName().equals("no-attrs")) {
-            return new ProductionAttributes(null, ProductionType.NO_TYPE, false, false, false, false, false, null, false, false);
+            return new ProductionAttributes(null, ProductionType.NO_TYPE, false, false, false, false, false, false, null, false, false);
         }
         throw new InvalidParseTableException("Unknown attribute type: " + attr);
     }
@@ -437,7 +439,8 @@ public class ParseTable implements Serializable {
                 boolean isCompletionAction = getLabel(label).getAttributes().isCompletionProduction();
                 boolean isPlaceholderInsertionAction = getLabel(label).getAttributes().isPlaceholderInsertionProduction();
                 boolean isLiteralCompletionAction = getLabel(label).getAttributes().isLiteralCompletionProduction();
-                item = makeReduce(productionArity, label, status, isRecoverAction, isCompletionAction, isPlaceholderInsertionAction, isLiteralCompletionAction);
+                boolean isBracketAction = getLabel(label).getAttributes().isBracket();
+                item = makeReduce(productionArity, label, status, isRecoverAction, isBracketAction, isCompletionAction, isPlaceholderInsertionAction, isLiteralCompletionAction);
             } else if(a.getName().equals("reduce") && a.getConstructor().getArity() == 4) {
                 int productionArity = intAt(a, 0);
                 int label = intAt(a, 1);
@@ -490,8 +493,8 @@ public class ParseTable implements Serializable {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
 
-    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction, boolean isCompletionAction, boolean isPlaceholderInsertionAction, boolean isLiteralCompletionAction) {
-        Reduce r = new Reduce(arity, label, status, isRecoverAction, isCompletionAction, isPlaceholderInsertionAction, isLiteralCompletionAction);
+    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction, boolean isBracketAction, boolean isCompletionAction, boolean isPlaceholderInsertionAction, boolean isLiteralCompletionAction) {
+        Reduce r = new Reduce(arity, label, status, isRecoverAction, isBracketAction, isCompletionAction, isPlaceholderInsertionAction, isLiteralCompletionAction);
         Reduce cached = reduceCache.get(r);
         if (cached == null) {
             reduceCache.put(r, r);

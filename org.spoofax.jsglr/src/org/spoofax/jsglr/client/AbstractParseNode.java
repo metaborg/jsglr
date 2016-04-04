@@ -28,6 +28,7 @@ public abstract class AbstractParseNode {
   private final int line;
   private final int column;
   private boolean completed = false;
+  private boolean nestedCompleted = false;
   
   private Map<String, Object> properties;
 
@@ -252,11 +253,19 @@ abstract public boolean isPlaceholderInsertionNode();
 
 abstract public boolean isLiteralCompletionNode();
 
-public boolean isCompleted() {
-    return completed;
-}
+    public boolean isCompleted() {
+        return completed;
+    }
 
-public void setCompleted(boolean completed) {
-    this.completed = completed;
-}
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean isNestedCompleted() {
+        return nestedCompleted;
+    }
+
+    public void setNestedCompleted(boolean nestedCompleted) {
+        this.nestedCompleted = nestedCompleted;
+    }
 }

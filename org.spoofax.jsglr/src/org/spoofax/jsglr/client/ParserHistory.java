@@ -63,7 +63,7 @@ public class ParserHistory {
         else{
             int ct = readCharAt(tokenIndex, myParser.currentInputStream);
             myParser.setCurrentToken(new TokenOffset(ct, tokenIndex));
-            if (myParser.isNewCompletionMode())  System.out.print("(set)" + (char) ct);
+            
             
             if (myParser.getReadNonLayout() && myParser.getApplyCompletionProd())
                 myParser.setApplyCompletionProd(false);

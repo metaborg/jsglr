@@ -108,6 +108,14 @@ public class Path {
 		return link;
 	}
 
+	public State getOriginalState() {
+		State origin = null;
+		for (Path p = this; p != null; p = p.parent) {
+			origin = p.frame.state;
+		}
+		return origin;
+	}
+
 //	public static Path valueOf(Path parent, Link link, Frame frame, int length/*, int parentCount*/) {
 //		Path r = new Path();
 //		r.parent = parent;

@@ -1,0 +1,23 @@
+module optimize
+
+strategies
+
+  optimize-sdf = topdown-consnil(try(optimize))
+  
+  // Convert literal rhs to char group (e.g., "{" becomes [\125])
+  optimize:
+    [ prod(pattern, lit(s), attrs) | p* ] ->
+    [ CommentLine(description)
+    , prod(
+        pattern
+      , char-class(simple-charclass(present(numeric(chargroup))))
+      , attrs
+      )
+    | p*
+    ]
+    where
+      <explode-string> s => ['"', char, '"']
+    with
+      chargroup   := <conc-strings> ("\\", <write-to-string> char);
+      description := <conc-strings> ("Insertion rule for ", s, ":")
+

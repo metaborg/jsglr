@@ -124,7 +124,7 @@ public class Path {
         int result = 0;
         
         if(link != null) {
-            result += link.completionCount;           
+            result += link.hasCompletedLabel ? 1 : 0;           
         }
         if(parent != null) {
             result += parent.getCompletedCount();

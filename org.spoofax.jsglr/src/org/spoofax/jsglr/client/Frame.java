@@ -30,9 +30,6 @@ public class Frame implements Serializable {
     protected int stepsCount;
     
     
-    // if frame can still be extended with completion rules
-    
-    
     
     
     // FIXME: All frames except the root must have a step with a label

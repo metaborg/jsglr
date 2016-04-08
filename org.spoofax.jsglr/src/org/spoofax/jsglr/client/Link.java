@@ -28,7 +28,7 @@ public class Link {
     public int recoverWeight; //Weighted count used for disambiguation: Deletions are more expensive then Insertions
     public int recoverCount; //number of recover actions (used for cutting branches and error analysis)
 
-    public int completionCount; // links to a completed frame
+    public boolean hasCompletedLabel; 
     
     public int placeholderCount;
     
@@ -46,7 +46,7 @@ public class Link {
         recoverWeight = 0;
         recoverCount = 0;
         
-        completionCount = 0;
+        hasCompletedLabel = false;
         placeholderCount = 0;
 
         linksCreated +=1;

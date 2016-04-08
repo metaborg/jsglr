@@ -682,7 +682,7 @@ public class SGLR {
         ambiguityManager = new AmbiguityManager(input.length());
         parseTree = null;
         enforcedNewlineSkip = 0;
-        layoutFiltering = 0;       
+        layoutFiltering = 0;
         if(getTreeBuilder().getTokenizer() != null) {
             // Make sure we use the same starting offsets as the tokenizer, if any
             // (crucial for parsing fragments at a time)
@@ -1008,7 +1008,7 @@ public class SGLR {
         } finally {
             pathCache.endCreate(paths);
         }
-    }  
+    }
 
     private void doLimitedReductions(Frame st, Production prod, Link l) throws InterruptedException { // Todo: Look add
                                                                                                       // sharing code
@@ -1179,7 +1179,7 @@ public class SGLR {
 
         }
 
-        if(completedNode)
+        if(completedNode || nestedCompletedNode)
             numberOfCompleted = 1;
 
 
@@ -1194,12 +1194,11 @@ public class SGLR {
 
         if(st1 == null) {
             // Found no existing stack with for state s; make new stack
-            addNewStack(st0, s, prod, length, numberOfRecoveries, numberOfCompleted, placeholders, recoverWeight, t,
-                completedNode);
+            addNewStack(st0, s, prod, length, numberOfRecoveries, numberOfCompleted, placeholders, recoverWeight, t);
         } else {
             /* A stack with state s exists; check for ambiguities */
             Link nl = st1.findDirectLink(st0);
-            
+
             if(nl != null) {
                 logAmbiguity(st0, prod, st1, nl);
 
@@ -1208,31 +1207,39 @@ public class SGLR {
                 }
                 if(recoverWeight == 0 && nl.recoverWeight == 0 || nl.isRejected()) {
 
-                    if(nl.length == 1 && prod.isNewCompletionProduction()) {
+                    // creating ambiguity when having two placeholders
+                    if(prod.isNewCompletionProduction() && nl.length == 1 && nl.placeholderCount == 1) {
                         createAmbNode(t, nl);
                     }
+                    
+                    if(!prod.isNewCompletionProduction()) {
+                        
+                        
+                        // creating ambiguity when there is no completion involved
+                        if(!nl.hasCompletedLabel && numberOfCompleted == 0) {
+                            createAmbNode(t, nl);
+                        }
 
-                    if(nl.placeholderCount == 0 && placeholders == 0) {
-                        createAmbNode(t, nl);
-                    }
+                        // if there is a completion node in the link, but there's a way to parse without placeholders
+                        if(nl.hasCompletedLabel && numberOfCompleted == 0) {
+                            nl.label = t;
+                            nl.recoverCount = numberOfRecoveries;
+                            nl.recoverWeight = recoverWeight;
+                            nl.hasCompletedLabel = (numberOfCompleted == 1);
+                            nl.placeholderCount = placeholders;
+                        }
 
-                    if(nl.placeholderCount > 0 && placeholders == 0) {
-                        nl.label = t;
-                        nl.recoverCount = numberOfRecoveries;
-                        nl.recoverWeight = recoverWeight;
-                        nl.completionCount = numberOfCompleted;
-                        nl.placeholderCount = placeholders;
-                    }
-
-                    if(nl.placeholderCount > 0 && placeholders > 0) {
-                        createAmbNode(t, nl);
+                        // making two possibilities for completions ambiguous
+                        if(nl.hasCompletedLabel && numberOfCompleted > 0) {
+                            createAmbNode(t, nl);
+                        }
                     }
 
                 } else if(recoverWeight < nl.recoverWeight) {
                     nl.label = t;
                     nl.recoverCount = numberOfRecoveries;
                     nl.recoverWeight = recoverWeight;
-                    nl.completionCount = numberOfCompleted;
+                    nl.hasCompletedLabel = (numberOfCompleted == 1);
                     nl.placeholderCount = placeholders;
 
                     actorOnActiveStacksOverNewLink(nl);
@@ -1243,7 +1250,7 @@ public class SGLR {
                 nl = st1.addLink(st0, t, length, t.getLine(), t.getColumn());
                 nl.recoverWeight = recoverWeight;
                 nl.recoverCount = numberOfRecoveries;
-                nl.completionCount = numberOfCompleted;
+                nl.hasCompletedLabel = (numberOfCompleted == 1);
                 nl.placeholderCount = placeholders;
 
                 if(prod.isRejectProduction()) {
@@ -1418,7 +1425,7 @@ public class SGLR {
      * Found no existing stack with for state s; make new stack
      */
     private Link addNewStack(Frame st0, State s, Production prod, int length, int numberOfRecoveries,
-        int numberOfCompletions, int numberOfPlaceholders, int recoverWeight, AbstractParseNode t, boolean isCompleted) {
+        int numberOfCompleted, int numberOfPlaceholders, int recoverWeight, AbstractParseNode t) {
 
         final Frame st1 = newStack(s);
 
@@ -1426,7 +1433,7 @@ public class SGLR {
 
         nl.recoverCount = numberOfRecoveries;
         nl.recoverWeight = recoverWeight;
-        nl.completionCount = numberOfCompletions;
+        nl.hasCompletedLabel = (numberOfCompleted == 1);
         nl.placeholderCount = numberOfPlaceholders;
         addStack(st1);
         forActorDelayed.addFirst(st1);
@@ -1711,7 +1718,7 @@ public class SGLR {
 
     private TokenOffset getNextToken() {
         final int ch = currentInputStream.read();
-        
+
         final TokenOffset to = new TokenOffset(ch, currentTokenOffset);
 
         if(applyCompletionProd && readNonLayout)
@@ -2087,7 +2094,7 @@ public class SGLR {
         TRACE("SG_ - #for_actor_delayed stacks: " + forActorDelayed.size());
     }
 
-  
+
 
     private void logAmbiguity(Frame st0, Production prod, Frame st1, Link nl) {
         if(Tools.logging) {

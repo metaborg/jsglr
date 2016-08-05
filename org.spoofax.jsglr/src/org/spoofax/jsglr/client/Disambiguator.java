@@ -520,7 +520,7 @@ public class Disambiguator {
 
 				if (!rejected && changed)
 					t = new ParseNode(t.getLabel(), args, t.getNodeType(), t.getLine(), t.getColumn(), t.isLayout(),
-							t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isCompleted(), t.isNestedCompleted());
+							t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isProposal(), t.isNestedProposal(), t.isSinglePlaceholderInsertion());
 
 				if (!rejected)
 					if (LAYOUT_FITERING) {
@@ -688,7 +688,7 @@ public class Disambiguator {
 
 			// FIXME is this correct?
 			return new ParseNode(t.getLabel(), restKids, AbstractParseNode.PARSENODE, t.getLine(), t.getColumn(),
-					t.isLayout(), t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isCompleted(), t.isNestedCompleted());
+					t.isLayout(), t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isProposal(), t.isNestedProposal(), t.isSinglePlaceholderInsertion());
 
 		} else if (firstKid.isParseNode()) {
 			assert ((ParseNode) firstKid).getLabel() != prodLabel.labelNumber;
@@ -754,7 +754,7 @@ public class Disambiguator {
 		// FIXME (KTK) get rid of toArray by precomputing the necessary size of
 		// newKids earlier in the method
 		return new ParseNode(t.getLabel(), newKids.toArray(new AbstractParseNode[newKids.size()]),
-				AbstractParseNode.PARSENODE, t.getLine(), t.getColumn(), t.isLayout(), t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isCompleted(), t.isNestedCompleted());
+				AbstractParseNode.PARSENODE, t.getLine(), t.getColumn(), t.isLayout(), t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isProposal(), t.isNestedProposal(), t.isSinglePlaceholderInsertion());
 	}
 
 	private AbstractParseNode replaceUnderInjections(AbstractParseNode alt, AbstractParseNode injection,
@@ -862,7 +862,7 @@ public class Disambiguator {
 			rest[rest.length - 1] = last;
 			ambiguityManager.increaseAmbiguityCount();
 			return new ParseNode(t.getLabel(), rest, AbstractParseNode.PARSENODE, t.getLine(), t.getColumn(),
-					t.isLayout(), t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isCompleted(), t.isNestedCompleted());
+					t.isLayout(), t.isIgnoreLayout(), t.isPlaceholderInsertionNode(), t.isLiteralCompletionNode(), t.isProposal(), t.isNestedProposal(), t.isSinglePlaceholderInsertion());
 		} else if (last.isParseNode()) {
 			final Label other = parseTable.getLabel(((ParseNode) last).getLabel());
 			assert !prodLabel.equals(other);

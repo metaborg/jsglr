@@ -1140,15 +1140,16 @@ public class SGLR {
         final int length = path.getLength();
         final int numberOfRecoveries = calcRecoverCount(prod, path);
         int numberOfCompleted = path.getCompletedCount();
-        int placeholders = countPlaceholders(kids);
+        int insertionNodes = countInsertionNodes(kids, false);
+        int placeholderNodes = countInsertionNodes(kids, true);
         int layoutTerms = countLayoutTerms(kids);
-        boolean completedNode = false;
-        boolean nestedCompletedNode = false;
+        boolean proposalNode = false;
+        boolean nestedProposalNode = false;
+        boolean proposalSinglePlaceholder = false;
 
 
         if(numberOfCompleted > 1)
             return;
-
 
         if(!isFineGrainedMode && isNewCompletionMode) {
 
@@ -1159,27 +1160,27 @@ public class SGLR {
             }
 
             // if prod is not a new-completion prod and has placeholders
-            if(!prod.isNewCompletionProduction() && placeholders > 0) {
+            if(!prod.isNewCompletionProduction() && insertionNodes > 0) {
                 if(!checkPlaceholderRequirements(kids)) // if the placeholders a valid then the node is completed
                     return;
                 else {
                     // disallowing nested completion using only placeholders and another completion node
-                    if(numberOfCompleted > 0 && placeholders == (kids.length - layoutTerms - 1)) {
+                    if(numberOfCompleted > 0 && insertionNodes == (kids.length - layoutTerms - 1)) {
                         return;
                     }
                     // tag the node as completed (necessary to find which completion rule has been triggered)
                     if(numberOfCompleted == 0) {
-                        completedNode = true;
+                        if(insertionNodes == 1 && placeholderNodes == 1)
+                            proposalSinglePlaceholder = true;
+                        proposalNode = true;
                     } else if(numberOfCompleted > 0) {
-                        nestedCompletedNode = true;
+                        nestedProposalNode = true;
                     }
                 }
             }
-
-
         }
 
-        if(completedNode || nestedCompletedNode)
+        if(proposalNode || nestedProposalNode)
             numberOfCompleted = 1;
 
 
@@ -1187,14 +1188,14 @@ public class SGLR {
             prod.apply(kids, path.getParentCount() > 0 ? path.getParent().getLink().getLine() : lineNumber,
                 path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
                 parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes()
-                    .isIgnoreLayout(), completedNode, nestedCompletedNode);
+                    .isIgnoreLayout(), proposalNode, nestedProposalNode, proposalSinglePlaceholder);
 
         final int recoverWeight = calcRecoverWeight(prod, path);
         final Frame st1 = findStack(activeStacks, s);
 
         if(st1 == null) {
             // Found no existing stack with for state s; make new stack
-            addNewStack(st0, s, prod, length, numberOfRecoveries, numberOfCompleted, placeholders, recoverWeight, t);
+            addNewStack(st0, s, prod, length, numberOfRecoveries, numberOfCompleted, insertionNodes, recoverWeight, t);
         } else {
             /* A stack with state s exists; check for ambiguities */
             Link nl = st1.findDirectLink(st0);
@@ -1211,10 +1212,10 @@ public class SGLR {
                     if(prod.isNewCompletionProduction() && nl.length == 1 && nl.placeholderCount == 1) {
                         createAmbNode(t, nl);
                     }
-                    
+
                     if(!prod.isNewCompletionProduction()) {
-                        
-                        
+
+
                         // creating ambiguity when there is no completion involved
                         if(!nl.hasCompletedLabel && numberOfCompleted == 0) {
                             createAmbNode(t, nl);
@@ -1226,7 +1227,7 @@ public class SGLR {
                             nl.recoverCount = numberOfRecoveries;
                             nl.recoverWeight = recoverWeight;
                             nl.hasCompletedLabel = (numberOfCompleted == 1);
-                            nl.placeholderCount = placeholders;
+                            nl.placeholderCount = insertionNodes;
                         }
 
                         // making two possibilities for completions ambiguous
@@ -1240,7 +1241,7 @@ public class SGLR {
                     nl.recoverCount = numberOfRecoveries;
                     nl.recoverWeight = recoverWeight;
                     nl.hasCompletedLabel = (numberOfCompleted == 1);
-                    nl.placeholderCount = placeholders;
+                    nl.placeholderCount = insertionNodes;
 
                     actorOnActiveStacksOverNewLink(nl);
                 } else if(recoverWeight == nl.recoverWeight) {
@@ -1251,7 +1252,7 @@ public class SGLR {
                 nl.recoverWeight = recoverWeight;
                 nl.recoverCount = numberOfRecoveries;
                 nl.hasCompletedLabel = (numberOfCompleted == 1);
-                nl.placeholderCount = placeholders;
+                nl.placeholderCount = insertionNodes;
 
                 if(prod.isRejectProduction()) {
                     nl.reject();
@@ -1268,18 +1269,21 @@ public class SGLR {
     }
 
 
-    private int countPlaceholders(AbstractParseNode[] kids) {
-        int placeholders = 0;
+    private int countInsertionNodes(AbstractParseNode[] kids, boolean countOnlyPlaceholders) {
+        int insertions = 0;
 
         for(int i = 0; i < kids.length; i++) {
-            boolean isAmbPlaceholder = isAmbPlaceholder(kids[i]);
-            if(kids[i].isPlaceholderInsertionNode() || kids[i].isLiteralCompletionNode() || isAmbPlaceholder) {
-                placeholders++;
+            boolean isAmbInsertion = isAmbInsertion(kids[i], countOnlyPlaceholders);
+            if(kids[i].isPlaceholderInsertionNode() || isAmbInsertion) {
+                insertions++;
+            }
+            if(!countOnlyPlaceholders && kids[i].isLiteralCompletionNode()){
+                insertions++;
             }
 
         }
 
-        return placeholders;
+        return insertions;
     }
 
     private int countLayoutTerms(AbstractParseNode[] kids) {
@@ -1330,12 +1334,12 @@ public class SGLR {
 
         boolean seenPlaceholder = false;
         boolean changedTerm = false;
-        boolean onlyPlaceholders = true;
+        boolean onlyPlaceholders = true; 
 
         for(int i = 0; i < kids.length; i++) {
-            boolean isAmbPlaceholder = isAmbPlaceholder(kids[i]);
+            boolean isAmbPlaceholder = isAmbInsertion(kids[i], false);
             if(kids[i].isPlaceholderInsertionNode() || kids[i].isLiteralCompletionNode() || isAmbPlaceholder
-                || kids[i].isCompleted() || kids[i].isNestedCompleted()) {
+                || kids[i].isProposal() || kids[i].isNestedProposal()) {
                 if(seenPlaceholder && changedTerm)
                     return false;
                 seenPlaceholder = true;
@@ -1360,26 +1364,28 @@ public class SGLR {
         return true;
     }
 
-    private boolean isAmbPlaceholder(AbstractParseNode abstractParseNode) {
-        boolean isAmbPlaceholder = false;
+    private boolean isAmbInsertion(AbstractParseNode abstractParseNode, boolean countOnlyPlaceholders) {
+        boolean isAmbInsertion = false;
         if(abstractParseNode.isAmbNode()) {
             AbstractParseNode[] ambNodes = abstractParseNode.getChildren();
             for(int i = 0; i < ambNodes.length; i++) {
-                if(ambNodes[i].isPlaceholderInsertionNode() || ambNodes[i].isLiteralCompletionNode()) {
-                    isAmbPlaceholder = true;
+                if(ambNodes[i].isPlaceholderInsertionNode() ) {
+                    isAmbInsertion = true;
+                    break;
+                }
+                if(!countOnlyPlaceholders && ambNodes[i].isLiteralCompletionNode()){
+                    isAmbInsertion = true;
                     break;
                 }
                 if(ambNodes[i].isAmbNode()) {
-                    isAmbPlaceholder = isAmbPlaceholder(ambNodes[i]);
-                    if(isAmbPlaceholder)
+                    isAmbInsertion = isAmbInsertion(ambNodes[i], countOnlyPlaceholders);
+                    if(isAmbInsertion)
                         break;
                 }
             }
         }
 
-
-        return isAmbPlaceholder;
-
+        return isAmbInsertion;
     }
 
     private void reducerRecoverProduction(Frame st0, State s, Production prod, AbstractParseNode[] kids, Path path) {
@@ -1389,7 +1395,7 @@ public class SGLR {
         final int recoverWeight = calcRecoverWeight(prod, path);
         final AbstractParseNode t =
             prod.apply(kids, lineNumber, columnNumber, parseTable.getLabel(prod.label).isLayout(),
-                parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout(), false, false);
+                parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout(), false, false, false);
 
         // final Object treeTest = getTreeBuilder().buildTree(t);
 

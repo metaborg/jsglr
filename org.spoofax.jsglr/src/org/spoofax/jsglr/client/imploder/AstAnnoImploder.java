@@ -121,7 +121,7 @@ public class AstAnnoImploder<TNode> {
 		if (appl.getTermType() == STRING) {
 			return factory.createStringTerminal(sort, leftToken, rightToken, appl.getName());
 		} else {
-			return factory.createNonTerminal(sort, appl.getName(), leftToken, rightToken, children, false, false);
+			return factory.createNonTerminal(sort, appl.getName(), leftToken, rightToken, children, false, false, false);
 		}
 	}
 	

@@ -43,10 +43,11 @@ public class ParseNode extends AbstractParseNode {
 	private final boolean isLiteralCompletion;
 
 	public ParseNode(int label, AbstractParseNode[] kids, int type, int line,
-			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isCompleted, boolean isNestedCompleted) {
+			int column, boolean isLayout, boolean isIgnoreLayout, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isProposal, boolean isNestedProposal, boolean isSinglePlaceholderInsertion) {
 		super(line, column);
-		super.setCompleted(isCompleted);
-		super.setNestedCompleted(isNestedCompleted);
+		super.setProposal(isProposal);
+		super.setNestedProposal(isNestedProposal);
+		super.setSinglePlaceholderInsertion(isSinglePlaceholderInsertion);
 		this.isLayout = isLayout;
 		this.isIgnoreLayout = isIgnoreLayout;
 		this.isPlaceholderInsertion = isPlaceholderInsertion;
@@ -75,6 +76,7 @@ public class ParseNode extends AbstractParseNode {
 		boolean isLiteralCompletion = false;
 		boolean completed = false;
 		boolean nestedCompleted = false;
+		boolean singlePlaceholderInsertion = false;
 
 		
 		for (int i = 1; i < kids.length; i++) {
@@ -84,16 +86,18 @@ public class ParseNode extends AbstractParseNode {
 			    isPlaceholderInsertion = true;
 			if (kids[i].isLiteralCompletionNode())
                 isLiteralCompletion = true;
-			if (kids[i].isCompleted())
+			if (kids[i].isProposal())
 			    completed = true;
-			if (kids[i].isNestedCompleted())
+			if (kids[i].isNestedProposal())
 			    nestedCompleted = true;
+			if (kids[i].isSinglePlaceholderInsertion())
+			    singlePlaceholderInsertion = true;
 		}
 		
 
 		ParseNode amb = new ParseNode(AMB_LABEL, kids,
 				AbstractParseNode.AMBIGUITY, line, column, kids[0].isLayout(),
-				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion, completed, nestedCompleted);
+				kids[0].isIgnoreLayout(), isPlaceholderInsertion, isLiteralCompletion, completed, nestedCompleted, singlePlaceholderInsertion);
 		return amb;
 	}
 
@@ -147,7 +151,7 @@ public class ParseNode extends AbstractParseNode {
 		assert getColumn() == pn.getColumn();
 
 		ParseNode left = new ParseNode(this.label, this.kids, this.nodeType,
-				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, super.isCompleted(), super.isNestedCompleted());
+				getLine(), getColumn(), isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, super.isProposal(), super.isNestedProposal(), super.isSinglePlaceholderInsertion());
 
 		if (pn instanceof ParseNode)
 			((ParseNode) pn).replaceCycle(this, left);

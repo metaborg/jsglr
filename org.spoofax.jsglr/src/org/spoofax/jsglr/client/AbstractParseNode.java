@@ -30,6 +30,7 @@ public abstract class AbstractParseNode {
   private boolean proposal = false;
   private boolean nestedProposal = false;
   private boolean singlePlaceholderInsertion = false;
+  private boolean containsProposal = false;
   
   private Map<String, Object> properties;
 
@@ -260,6 +261,14 @@ abstract public boolean isLiteralCompletionNode();
 
     public void setProposal(boolean proposal) {
         this.proposal = proposal;
+    }
+    
+    public boolean containsProposal() {
+        return containsProposal;
+    }
+
+    public void setContaintsProposal(boolean containsProposal) {
+        this.containsProposal = containsProposal;
     }
 
     public boolean isNestedProposal() {

@@ -5,6 +5,7 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.ParentAttachment;
 
 /**
@@ -19,8 +20,14 @@ public class SSL_EXT_get_parent_not_amb extends AbstractPrimitive {
     @Override
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
     	IStrategoTerm parent = ParentAttachment.getParent(tvars[0]);
-    	if (parent == null) return false;
-		IStrategoTerm result = getNonAmbiguityParent(parent);
+    	IStrategoTerm originParent = parent;
+    	if (parent == null) {
+    	    IStrategoTerm origin = OriginAttachment.getOrigin(tvars[0]);
+    	    if (origin == null) return false;
+    	    originParent = ParentAttachment.getParent(origin);    	   
+    	    if (originParent == null) return false;
+    	}
+		IStrategoTerm result = getNonAmbiguityParent(originParent);
     	env.setCurrent(result);
     	return true;
     }

@@ -28,6 +28,8 @@ public class Path {
 		}
 		return result;        
 	}
+	
+	
 
 	public int getRecoverCount()
 	{
@@ -115,6 +117,32 @@ public class Path {
 		}
 		return origin;
 	}
+
+
+
+    public int getCompletedCount() {
+        int result = 0;
+        
+        if(link != null) {
+            result += link.hasCompletedLabel ? 1 : 0;           
+        }
+        if(parent != null) {
+            result += parent.getCompletedCount();
+        }
+        return result;
+    }
+    
+    public int getPlaceholderCount() {
+        int result = 0;
+        
+        if(link != null) {
+            result += link.placeholderCount;           
+        }
+        if(parent != null) {
+            result += parent.getPlaceholderCount();
+        }
+        return result;
+    }
 
 //	public static Path valueOf(Path parent, Link link, Frame frame, int length/*, int parentCount*/) {
 //		Path r = new Path();

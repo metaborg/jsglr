@@ -60,12 +60,13 @@ public class IndentTokenizer {
      */
     public void handleIndentShifts(SGLR parser) throws IOException, ParseException, InterruptedException
     {
-        int curTok=parser.getCurrentToken();
+        int curTok = parser.getCurrentToken().getToken();
+        int curOffset = parser.getCurrentToken().getOffset();
         if(myIndentHandler.lineMarginEnded()){
             updateIndentFields();
             parseIndentation(parser);
             resetForNextLine();
-            parser.setCurrentToken(curTok);
+            parser.setCurrentToken(new TokenOffset(curTok, curOffset));
         }
     }    
 
@@ -78,11 +79,11 @@ public class IndentTokenizer {
                 throw new ParseException(parser, "Indentation inconsistent");
         }        
         for (int i = 0; i < dedentCount; i++) {
-            parser.setCurrentToken(DEDENT_TOK);                         
+            parser.setCurrentToken(new TokenOffset(DEDENT_TOK, parser.getCurrentToken().getOffset()));                         
             parser.doParseStep();
         }
         if(indentShift){
-            parser.setCurrentToken(INDENT_TOK);                         
+            parser.setCurrentToken(new TokenOffset(INDENT_TOK, parser.getCurrentToken().getOffset()));                         
             parser.doParseStep();
         }
         if(parser.activeStacks.size()==0)//if indent and dedent tokens are not expected, ignore them as layout 

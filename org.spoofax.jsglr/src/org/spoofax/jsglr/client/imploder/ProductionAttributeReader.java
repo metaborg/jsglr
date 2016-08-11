@@ -154,6 +154,10 @@ public class ProductionAttributeReader {
 	public boolean isCompletionProduction(IStrategoAppl attrs, int subtermCount) {
 		return getAttribute(attrs, "completion") != null && subtermCount > 0;
 	}
+	
+	public boolean isBracketProduction(IStrategoAppl attrs) {
+        return getAttribute(attrs, "bracket") != null;
+    }
 
 	public boolean isRejectProduction(IStrategoAppl attrs) {
 		return getAttribute(attrs, "reject") != null;
@@ -239,7 +243,11 @@ public class ProductionAttributeReader {
 					
 					if (namedAttr.getName().equals(attrName))
 						return namedAttr.getSubtermCount() == 1 ? termAt(namedAttr, 0) : namedAttr;
-				}				
+				}
+				if (namedAttr.getName().equals(attrName)) {
+				    return namedAttr;
+				}
+				
 			}
 		}
 		

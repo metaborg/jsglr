@@ -60,9 +60,17 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	private LabelInfo[] labels;
 	
-	private int labelStart;
+	public LabelInfo[] getLabels() {
+        return labels;
+    }
+
+    private int labelStart;
 	
-	/** Character offset for the current implosion. */ 
+	public int getLabelStart() {
+        return labelStart;
+    }
+
+    /** Character offset for the current implosion. */ 
 	private int offset;
 	
 	private int nonMatchingOffset = NONE;
@@ -227,7 +235,12 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		boolean isList = label.isList();
 		boolean isLayout = label.isLayout();
 		boolean lexicalStart = false;
-
+		boolean isCompletion = node.isProposal();
+		boolean isNestedCompletion = node.isNestedProposal();
+		boolean isSinglePlaceholderCompletion = node.isSinglePlaceholderInsertion();
+		
+		
+		
 		if (!inLexicalContext && label.isNonContextFree())
 			inLexicalContext = lexicalStart = true;
 
@@ -324,7 +337,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		} else if (isList) {
 			result = children;
 		} else {
-			result = createNodeOrInjection(label, prevToken, children);
+			result = createNodeOrInjection(label, prevToken, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 		}
 		tokenizer.markPossibleSyntaxError(label, prevToken, offset - 1,
 				prodReader);
@@ -394,6 +407,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		final ArrayList<Object> children =
 			new ArrayList<Object>(max(EXPECTED_NODE_CHILDREN, subnodes.length));
 		tokenizer.setAmbiguous(true);
+		
 
 		// Recurse
 		for (AbstractParseNode subnode : subnodes) {
@@ -401,6 +415,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			offset = oldOffset;
 			tokenizer.setStartOffset(oldBeginOffset);
 			inLexicalContext = oldLexicalContext;
+			//if(subnode.isCompleted()){
+			//    isCompletion = true;
+			//}
 			
 			Object subtree;
 			
@@ -441,7 +458,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			// leftToken = rightToken = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true); 
 		}
 		
-		return factory.createAmb(children, leftToken, rightToken);
+	    
+		
+		return factory.createAmb(children, leftToken, rightToken, false, false, false);
 	}
 
 	@Override
@@ -450,15 +469,15 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return null;
 		IToken token = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true);
 		if (node.getTargetLabel() == -1) {
-			return factory.createNonTerminal("cycle", "cycle", token, token, new ArrayList<Object>());
+			return factory.createNonTerminal("cycle", "cycle", token, token, new ArrayList<Object>(), node.isProposal(), node.isNestedProposal(), node.isSinglePlaceholderInsertion());
 		} else {
 			LabelInfo label = labels[node.getTargetLabel() - labelStart];
 			String cons = label.getSort();
 			if (cons == null) cons = "cycle";
-			Object child = factory.createNonTerminal(label.getSort(), cons, token, token, new ArrayList<Object>());
+			Object child = factory.createNonTerminal(label.getSort(), cons, token, token, new ArrayList<Object>(), node.isProposal(), node.isNestedProposal(), node.isSinglePlaceholderInsertion());
 			List<Object> children = new ArrayList<Object>();
 			children.add(child);
-			return factory.createNonTerminal("cycle", "cycle", token, token, children);
+			return factory.createNonTerminal("cycle", "cycle", token, token, children, node.isProposal(), node.isNestedProposal(), node.isSinglePlaceholderInsertion());
 		}
 	}
 
@@ -506,7 +525,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		if (constructor != null) {
 			ArrayList<Object> children = new ArrayList<Object>(1);
 			children.add(result);
-			result = factory.createNonTerminal(sort, constructor, leftToken, rightToken, children);
+			result = factory.createNonTerminal(sort, constructor, leftToken, rightToken, children, false, false, false);
 		}
 		return result;
 	}
@@ -517,7 +536,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		return factory.createIntTerminal(label == null ? null : label.getSort(), token, value);
 	}
 
-	private Object createNodeOrInjection(LabelInfo label, IToken prevToken, List<Object> children) {
+	private Object createNodeOrInjection(LabelInfo label, IToken prevToken, List<Object> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
 		
 		String constructor = label.getConstructor();
 		
@@ -526,16 +545,16 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			// return createNode(label, LIST_CONSTRUCTOR, prevToken, children);
 		} else if (constructor != null) {
 			// UNDONE: tokenizer.makeToken(offset, label); // TODO: why makeToken here??
-			return createNode(label, constructor, prevToken, children);
+			return createNode(label, constructor, prevToken, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 		} else if (label.getAstAttribute() != null) {
 			return createAstNonTerminal(label, prevToken, children);
 		} else if (label.isOptional()) {
 			// TODO: Spoofax/295: JSGLR does not output correct AST for optional literals
 			if (children == null || children.size() == 0) {
-				return createNode(label, "None", prevToken, children);
+				return createNode(label, "None", prevToken, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 			} else {
 				assert children.size() == 1;
-				return createNode(label, "Some", prevToken, children);
+				return createNode(label, "Some", prevToken, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 			}
 		} else if (children.size() == 1) {
 			// Injection
@@ -543,10 +562,15 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			//       would be needed to distinguish FoldingRules and Sorts in "folding" sections...
 			//       maybe only if the content proposer demands it?
 			// TODO: also, avoid semantics for deprecated?
-			return factory.createInjection(label.getSort(), children);
+		    
+		    // adding brackets to origin of bracket nodes
+		    IToken left = getStartToken(prevToken);
+		    IToken right = tokenizer.currentToken();
+		    
+		    return factory.createInjection(label.getSort(), left, right, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion, label.isBracket());
 		} else {
 			// Constructor-less application (tuple)
-			return createNode(label, TUPLE_CONSTRUCTOR, prevToken, children);
+			return createNode(label, TUPLE_CONSTRUCTOR, prevToken, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 		}
 	}
 
@@ -558,7 +582,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	 *          or {@link #TUPLE_CONSTRUCTOR} to construct a tuple.
 	 */
 	private Object createNode(LabelInfo label, String constructor, IToken prevToken,
-			List<Object> children) {
+			List<Object> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
 		
 		IToken left = getStartToken(prevToken);
 		// IToken right = getEndToken(left, tokenizer.currentToken());
@@ -572,7 +596,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			// Child node was a <string> node (rare case); unpack it and create a new terminal
 			return factory.createStringTerminal(label.getSort(), left, right, factory.tryGetStringValue(children.get(0)));
 		} else {
-			return factory.createNonTerminal(label.getSort(), constructor, left, right, children);
+			return factory.createNonTerminal(label.getSort(), constructor, left, right, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 		}
 	}
 

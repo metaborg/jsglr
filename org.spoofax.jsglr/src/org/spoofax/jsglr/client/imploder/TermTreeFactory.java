@@ -32,6 +32,7 @@ import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ParentAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.util.NotImplementedException;
 
 /**
@@ -86,30 +87,34 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 	}
 
 	public IStrategoTerm createNonTerminal(String sort, String constructor,
-			IToken leftToken, IToken rightToken, List<IStrategoTerm> children) {
+			IToken leftToken, IToken rightToken, List<IStrategoTerm> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
 		
 		// TODO: Optimize - cache IStrategoConstructors in fields? hard to do up front, messy to do now in the LabelInfo objects 
 		IStrategoConstructor cons = factory.makeConstructor(constructor, children.size());
 		IStrategoTerm result = factory.makeAppl(cons, children.toArray(new IStrategoTerm[children.size()]));
-		configure(result, sort, leftToken, rightToken, false);
+		
+		
+		
+		
+		configure(result, sort, leftToken, rightToken, false, false, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 		return result;
 	}
 
 	public IStrategoTerm createIntTerminal(String sort, IToken token, int value) {
 		IStrategoTerm result = factory.makeInt(value);
-		configure(result, sort, token, token, false);
+		configure(result, sort, token, token, false, false, false, false, false);
 		return result;
 	}
 
 	public IStrategoTerm createRealTerminal(String sort, IToken token, double value) {
 		IStrategoTerm result = factory.makeReal(value);
-		configure(result, sort, token, token, false);
+		configure(result, sort, token, token, false, false, false, false, false);
 		return result;
 	}
 
 	public IStrategoTerm createStringTerminal(String sort, IToken leftToken, IToken rightToken, String value) {
 		IStrategoTerm result = factory.makeString(value);
-		configure(result, sort, leftToken, rightToken, false);
+		configure(result, sort, leftToken, rightToken, false, false, false, false, false);
 		return result;
 	}
 
@@ -117,22 +122,22 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 			IToken rightToken, List<IStrategoTerm> children) {
 		
 		IStrategoTerm result = factory.makeTuple(toArray(children));
-		configure(result, elementSort, leftToken, rightToken, true);
+		configure(result, elementSort, leftToken, rightToken, true, false, false, false, false);
 		return result;
 	}
 
-	public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
+	public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken, boolean isCompletion, boolean isNestedCompletion,  boolean isSinglePlaceholderCompletion) {
 		List<IStrategoTerm> alternativesInList = new ArrayList<IStrategoTerm>();
 		alternativesInList.add(createList(null, leftToken, rightToken, alternatives));
 		
-		return createNonTerminal(null, "amb", leftToken, rightToken, alternativesInList);
+		return createNonTerminal(null, "amb", leftToken, rightToken, alternativesInList, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 	}
 
 	public IStrategoTerm createList(String elementSort, IToken leftToken,
 			IToken rightToken, List<IStrategoTerm> children) {
 		
 		IStrategoTerm result = factory.makeList(toArray(children));
-		configure(result, elementSort, leftToken, rightToken, true);
+		configure(result, elementSort, leftToken, rightToken, true, false, false, false, false);
 		return result;
 	}
 	
@@ -174,7 +179,11 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 				true,
 				getElementSort(list), 
 				getLeftToken(firstChild), 
-				getRightToken(lastChild)
+				getRightToken(lastChild),
+				false,
+				false,
+				false,
+				false
 			);
 		return result;
 	}
@@ -182,11 +191,14 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 	
 	
 	public IStrategoTerm recreateNode(IStrategoTerm oldNode, IToken leftToken, IToken rightToken, List<IStrategoTerm> children) {
+	    ImploderAttachment it = oldNode.getAttachment(ImploderAttachment.TYPE);
+	    	    
+	    
 		switch (oldNode.getTermType()) {
 			case INT:
 				return createIntTerminal(getSort(oldNode), leftToken, ((IStrategoInt) oldNode).intValue());
 			case APPL:
-				return createNonTerminal(getSort(oldNode), ((IStrategoAppl) oldNode).getName(), leftToken, rightToken, children);
+				return createNonTerminal(getSort(oldNode), ((IStrategoAppl) oldNode).getName(), leftToken, rightToken, children, it.isCompletion(), it.isNestedCompletion(), it.isSinglePlaceholderCompletion());
 			case LIST:
 				return createList(getElementSort(oldNode), leftToken, rightToken, children);
 			case STRING:
@@ -204,19 +216,62 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 		return isTermString(node) ? ((IStrategoString) node).stringValue() : null;
 	}
 
-	public IStrategoTerm createInjection(String sort, List<IStrategoTerm> children) {
+	public IStrategoTerm createInjection(String sort, IToken leftToken, IToken rightToken, List<IStrategoTerm> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion, boolean isBracket) {
 		if (children.size() == 1) {
-			return children.get(0);
+		    // tagging bracket nodes as completed and adding the brackets as part of the origin
+		    if (isBracket) {
+		        IStrategoTerm result = children.get(0);
+		        if(result instanceof IStrategoAppl){
+		            if (((IStrategoAppl) result).getConstructor().getName().equals("amb")){
+		                IStrategoTerm ambList = result.getSubterm(0);
+		                configureAmbNodes(ambList, isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
+		                return result;
+		            }
+		        }
+	            IToken left = leftToken;
+	            IToken right = rightToken;
+	            if (ImploderAttachment.get(result).isCompletion()) {
+                    configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false, isBracket, true, false, isSinglePlaceholderCompletion);
+                } else {
+                    configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false, isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
+                }    
+	            return result;    
+		    }
+		    else {
+		        return children.get(0);
+		    }		    
 		} else {
 			IStrategoTuple result = factory.makeTuple(toArray(children));
 			IToken left = getLeftToken(children.get(0));
 			IToken right = getRightToken(children.get(children.size() - 1));
-			configure(result, null, left, right, true);
+			configure(result, null, left, right, true, false, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 			return result;
 		}
 	}
 
-	public Iterable<IStrategoTerm> getChildren(IStrategoTerm node) {
+	private void configureAmbNodes(IStrategoTerm result, boolean isBracket, boolean isCompletion,
+        boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
+	    for(int i = 0; i < result.getSubtermCount(); i++){
+	        IStrategoTerm child = result.getSubterm(i);
+	        if(child instanceof IStrategoAppl){
+                if (((IStrategoAppl) child).getConstructor().getName().equals("amb")){
+                    IStrategoTerm ambList = child.getSubterm(0);
+                    configureAmbNodes(ambList, isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
+                }
+                else {                    
+                    IToken left = getLeftToken(child);
+                    IToken right = getRightToken(child);
+                    if (ImploderAttachment.get(child).isCompletion()) {
+                        configure(child, child.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false, isBracket, true, false, isSinglePlaceholderCompletion);
+                    } else {
+                        configure(child, child.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false, isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
+                    }                                  
+                }
+	        } 
+        }        
+    }
+
+    public Iterable<IStrategoTerm> getChildren(IStrategoTerm node) {
 		if (node instanceof Iterable<?>) {
 			@SuppressWarnings("unchecked")
 			Iterable<IStrategoTerm> result = (Iterable<IStrategoTerm>) node;
@@ -257,10 +312,10 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 		return tree;
 	}
 	
-	protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken, boolean isListOrTuple) {
+	protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken, boolean isListOrTuple, boolean isBracket, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
 		assert isListOrTuple
 			== (term.getTermType() == TUPLE || term.getTermType() == LIST);
 		if (enableTokens)
-			putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken);
+			putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken, isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 	}
 }

@@ -14,6 +14,7 @@ public class OriginLibrary extends AbstractStrategoOperatorRegistry {
         add(new SSL_EXT_enable_desugared_origins());
         add(new SSL_EXT_clone_and_set_parents());
         add(new SSL_EXT_get_parent());
+        add(new SSL_EXT_get_parent_not_amb());
 		add(new OriginLocationPrimitive());
 		add(new OriginOffsetPrimitive());
 		add(new OriginStripPrimitive());

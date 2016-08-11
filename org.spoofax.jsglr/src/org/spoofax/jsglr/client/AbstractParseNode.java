@@ -27,6 +27,10 @@ public abstract class AbstractParseNode {
 
   private final int line;
   private final int column;
+  private boolean proposal = false;
+  private boolean nestedProposal = false;
+  private boolean singlePlaceholderInsertion = false;
+  private boolean containsProposal = false;
   
   private Map<String, Object> properties;
 
@@ -246,4 +250,42 @@ public abstract class AbstractParseNode {
       return null;
     return properties.get(key);
   }
+
+abstract public boolean isPlaceholderInsertionNode();
+
+abstract public boolean isLiteralCompletionNode();
+
+    public boolean isProposal() {
+        return proposal;
+    }
+
+    public void setProposal(boolean proposal) {
+        this.proposal = proposal;
+    }
+    
+    public boolean containsProposal() {
+        return containsProposal;
+    }
+
+    public void setContaintsProposal(boolean containsProposal) {
+        this.containsProposal = containsProposal;
+    }
+
+    public boolean isNestedProposal() {
+        return nestedProposal;
+    }
+
+    public void setNestedProposal(boolean nestedProposal) {
+        this.nestedProposal = nestedProposal;
+    }
+
+    public boolean isSinglePlaceholderInsertion() {
+        return singlePlaceholderInsertion;
+    }
+
+    public void setSinglePlaceholderInsertion(boolean singlePlaceholderInsertion) {
+        this.singlePlaceholderInsertion = singlePlaceholderInsertion;
+    }
+    
+    
 }

@@ -411,4 +411,8 @@ public class ProductionAttributeReader {
 			&& ((IStrategoAppl) contents).getConstructor() == optFun;
 	}
 
+    public boolean isCaseInsensitive(IStrategoAppl attrs) {
+        return getAttribute(attrs, "case-insensitive") != null;
+    }
+
 }

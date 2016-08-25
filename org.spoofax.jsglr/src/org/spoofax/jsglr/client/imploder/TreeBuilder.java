@@ -520,7 +520,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		assert disableTokens || tokenizer.isAmbigous()
 			|| (contents.equals(tokenizer.toString(leftToken, rightToken)) && lastOffset == leftToken.getStartOffset());
 		
-		Object result = factory.createStringTerminal(sort, leftToken, rightToken, getPaddedLexicalValue(label, contents, lastOffset));
+		Object result = factory.createStringTerminal(sort, leftToken, rightToken, getPaddedLexicalValue(label, contents, lastOffset), label.isCaseInsensitive());
 		String constructor = label.getMetaVarConstructor();
 		if (constructor != null) {
 			ArrayList<Object> children = new ArrayList<Object>(1);
@@ -594,7 +594,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return factory.createTuple(label.getSort(), left, right, children);
 		} else if (constructor == null && children.size() == 1 && factory.tryGetStringValue(children.get(0)) != null) {
 			// Child node was a <string> node (rare case); unpack it and create a new terminal
-			return factory.createStringTerminal(label.getSort(), left, right, factory.tryGetStringValue(children.get(0)));
+			return factory.createStringTerminal(label.getSort(), left, right, factory.tryGetStringValue(children.get(0)), label.isCaseInsensitive());
 		} else {
 			return factory.createNonTerminal(label.getSort(), constructor, left, right, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
 		}

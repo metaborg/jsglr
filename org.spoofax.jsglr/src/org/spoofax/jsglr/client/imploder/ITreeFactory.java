@@ -36,7 +36,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	/**
 	 * Create a new terminal node for a string token.
 	 */
-	TNode createStringTerminal(String sort, IToken leftToken, IToken rightToken, String value);
+	TNode createStringTerminal(String sort, IToken leftToken, IToken rightToken, String value, boolean caseInsensitive);
 	
 	TNode createTuple(String elementSort, IToken leftToken, IToken rightToken, List<TNode> children);
 	

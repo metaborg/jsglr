@@ -36,6 +36,8 @@ public class LabelInfo {
 	private final boolean isLexLayout;
 	
 	private final boolean isSortProduction;
+	
+	private final boolean isCaseInsensitive;
 
 	private final boolean isLayout;
 	
@@ -74,6 +76,7 @@ public class LabelInfo {
 		isBracket = reader.isBracketProduction(attrs);
 		isCompletion = reader.isCompletionProduction(attrs, production.getSubtermCount());
 		isReject = reader.isRejectProduction(attrs);
+		isCaseInsensitive = reader.isCaseInsensitive(attrs);
 		deprecationMessage = reader.getDeprecationMessage(attrs);
 		isSortProduction = reader.sortFun == rhs.getConstructor() || reader.parameterizedSortFun == rhs.getConstructor();
 		metaVarConstructor = reader.getMetaVarConstructor(rhs, attrs);
@@ -151,7 +154,11 @@ public class LabelInfo {
 		return isReject;
 	}
 	
-	public String getDeprecationMessage() {
+	public boolean isCaseInsensitive() {
+        return isCaseInsensitive;
+    }
+
+    public String getDeprecationMessage() {
 		return deprecationMessage;
 	}
 	

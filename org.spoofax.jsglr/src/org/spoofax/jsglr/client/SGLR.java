@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.indentation.LayoutFilter;
@@ -325,8 +324,8 @@ public class SGLR {
      *            The start symbol to use, or null if any applicable.
      * @throws InterruptedException
      */
-    public Object parseMax(String input, String filename, String startSymbol) throws BadTokenException,
-        TokenExpectedException, ParseException, SGLRException, InterruptedException {
+    public Object parseMax(String input, String filename, String startSymbol)
+        throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
         setParseMaxMode(true);
         return parse(input, filename, startSymbol).output;
     }
@@ -411,8 +410,8 @@ public class SGLR {
             if(!(getTreeBuilder() instanceof NullTreeBuilder)) {
                 try {
                     getTreeBuilder().reset(startReductionOffset);
-                    IStrategoTerm candidate =
-                        ((IStrategoTerm) disambiguator.applyFilters(this, node, null, startReductionOffset, tokensSeen));
+                    IStrategoTerm candidate = ((IStrategoTerm) disambiguator.applyFilters(this, node, null,
+                        startReductionOffset, tokensSeen));
                     if(candidate != null)
                         result.add(candidate);
                 } catch(FilterException e) {
@@ -523,8 +522,8 @@ public class SGLR {
      *            The start symbol to use, or null if any applicable.
      * @throws InterruptedException
      */
-    public SGLRParseResult parse(String input, String filename, String startSymbol) throws BadTokenException,
-        TokenExpectedException, ParseException, SGLRException, InterruptedException {
+    public SGLRParseResult parse(String input, String filename, String startSymbol)
+        throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
         logBeforeParsing();
         initParseVariables(input, filename);
         startTime = System.currentTimeMillis();
@@ -534,8 +533,8 @@ public class SGLR {
         return result;
     }
 
-    private SGLRParseResult sglrParse(String startSymbol) throws BadTokenException, TokenExpectedException,
-        ParseException, SGLRException, InterruptedException {
+    private SGLRParseResult sglrParse(String startSymbol)
+        throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
         if(isParseMaxMode)
             disambiguator.initializeFromParser(this);
         try {
@@ -725,8 +724,8 @@ public class SGLR {
                 } while(action != null);
 
                 if(expected.length() > 0) {
-                    return new TokenExpectedException(this, expected.toString(), currentToken.getToken(), tokensSeen
-                        + startOffset - 1, lineNumber, columnNumber);
+                    return new TokenExpectedException(this, expected.toString(), currentToken.getToken(),
+                        tokensSeen + startOffset - 1, lineNumber, columnNumber);
                 }
             }
         }
@@ -944,8 +943,24 @@ public class SGLR {
             }
         }
 
-        for(int j = offset; j >= 0; j--)
-            currentInputStream.unread(readChars[j]);
+        for(int j = offset; j >= 0; j--) {
+            int c = readChars[j];
+
+            /*
+             * WORKAROUND: The PushbackStringIterator usually reads the character at its position and then increments
+             * its position. However, if the end of the String is found it will return -1 and NOT update the position.
+             * Unreading simply decrements the position. Therefore, unreading a -1 will decrement the position even
+             * though during reading it was never incremented. This results in reading (and doing a parseStep for) the
+             * last character twice if during that parse step a lookahead reduction is performed.
+             *
+             * We can 'fix' the behavior inside the PushbackStringIterator, but I don't know who else (if anyone)
+             * depends on this tricky behavior. Therefore I 'fixed' it here by not unreading if we got a -1.
+             */
+            if(c != -1) {
+                currentInputStream.unread(c);
+            }
+        }
+
 
         return permit;
     }
@@ -1096,7 +1111,8 @@ public class SGLR {
                         if(prod.isNewCompletionProduction()) {
                             // only apply new completion productions before reading non-layout character after cursor
                             // position
-                            if(currentToken.getOffset() >= cursorLocation && applyCompletionProd && isNewCompletionMode) {
+                            if(currentToken.getOffset() >= cursorLocation && applyCompletionProd
+                                && isNewCompletionMode) {
                                 reducer(st0, next, prod, kids, path);
                             } else {
                                 reducerRecoverProduction(st0, next, prod, kids, path);
@@ -1210,8 +1226,9 @@ public class SGLR {
         final AbstractParseNode t =
             prod.apply(kids, path.getParentCount() > 0 ? path.getParent().getLink().getLine() : lineNumber,
                 path.getParentCount() > 0 ? path.getParent().getLink().getColumn() : columnNumber,
-                parseTable.getLabel(prod.label).isLayout(), parseTable.getLabel(prod.label).getAttributes()
-                    .isIgnoreLayout(), proposalNode, nestedProposalNode, proposalSinglePlaceholder);
+                parseTable.getLabel(prod.label).isLayout(),
+                parseTable.getLabel(prod.label).getAttributes().isIgnoreLayout(), proposalNode, nestedProposalNode,
+                proposalSinglePlaceholder);
 
         if(numberOfCompleted == 1) {
             t.setContaintsProposal(true);

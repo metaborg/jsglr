@@ -34,7 +34,6 @@ public class SGLR {
     private int layoutFiltering;
     private int enforcedNewlineSkip = 0;
 
-
     private RecoveryPerformance performanceMeasuring;
 
     private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
@@ -130,6 +129,8 @@ public class SGLR {
     private AbstractParseNode parseTree;
 
     protected boolean useIntegratedRecovery;
+
+    private boolean triedRecovery = false;
 
     public void setUseStructureRecovery(boolean useRecovery) {
         this.useIntegratedRecovery = useRecovery;
@@ -410,8 +411,9 @@ public class SGLR {
             if(!(getTreeBuilder() instanceof NullTreeBuilder)) {
                 try {
                     getTreeBuilder().reset(startReductionOffset);
-                    IStrategoTerm candidate = ((IStrategoTerm) disambiguator.applyFilters(this, node, null,
-                        startReductionOffset, tokensSeen));
+                    IStrategoTerm candidate =
+                        ((IStrategoTerm) disambiguator.applyFilters(this, node, null, startReductionOffset,
+                            tokensSeen));
                     if(candidate != null)
                         result.add(candidate);
                 } catch(FilterException e) {
@@ -537,7 +539,9 @@ public class SGLR {
         throws BadTokenException, TokenExpectedException, ParseException, SGLRException, InterruptedException {
         if(isParseMaxMode)
             disambiguator.initializeFromParser(this);
+
         try {
+            // main parse loop, repeats until stuck or EOF is encountered
             do {
                 if(Thread.currentThread().isInterrupted())
                     throw new InterruptedException();
@@ -556,7 +560,6 @@ public class SGLR {
                 }
             } while(currentToken.getToken() != SGLR.EOF && activeStacks.size() > 0);
 
-
             if(acceptingStack != null) {
                 lastAcceptingStack = acceptingStack;
                 lastAcceptTokenSeen = tokensSeen;
@@ -565,11 +568,14 @@ public class SGLR {
             }
 
             if(acceptingStack == null) {
+                // the parsing failed
                 collectedErrors.add(createBadTokenException());
             }
 
             if(useIntegratedRecovery && acceptingStack == null) {
                 recoverIntegrator.recover();
+                // signal that normal parsing failed, but we tried recovery
+                triedRecovery = true;
                 if(acceptingStack == null && activeStacks.size() > 0) {
                     return sglrParse(startSymbol);
                 }
@@ -590,6 +596,7 @@ public class SGLR {
         logAfterParsing();
 
         if(acceptingStack == null) {
+            // both parsing and recovery (if attempted) failed
             final BadTokenException bad = createBadTokenException();
             if(collectedErrors.isEmpty()) {
                 throw bad;
@@ -602,8 +609,8 @@ public class SGLR {
         final Link s = acceptingStack.findDirectLink(startFrame);
 
         if(s == null) {
-            return new SGLRParseResult(null, null);
-            // throw new ParseException(this, "Accepting stack has no link");
+            // I don't think this can happen normally, but recovery might cause this
+            throw new ParseException(this, "Accepting stack has no link");
         }
         // System.out.println(s.recoverCount);
         assert (s.recoverCount <= s.recoverWeight);
@@ -615,14 +622,32 @@ public class SGLR {
         Tools.debug("recoveries: ", s.recoverCount);
         // Tools.debug(s.label.toParseTree(parseTable));
 
+        Object result;
         if(getTreeBuilder() instanceof NullTreeBuilder) {
-            return null;
+            result = null;
         } else {
             this.parseTree = s.label;
-            Object result = disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
+            result = disambiguator.applyFilters(this, s.label, startSymbol, tokensSeen);
+
             if(isParseMaxMode)
                 result = new Object[] { result, lastAcceptTokenSeen };
-            return new SGLRParseResult(null, result);
+        }
+
+        // If we don't intend to return an AST, recovery is meaningless.
+        if(triedRecovery && result == null) {
+            // we tried recovery, so normal parsing had failed
+            switch(collectedErrors.size()) {
+                case 0:
+                    throw new ParseException(this,
+                        "Parsing failed without indicating an error, please notify Spoofax developers.");
+                case 1:
+                    throw collectedErrors.iterator().next();
+                default:
+                    throw new MultiBadTokenException(this, collectedErrors);
+            }
+        } else {
+            // either parsing succeeded, or recovery succeeded and the caller cares about an AST
+            return new SGLRParseResult(result);
         }
     }
 
@@ -742,7 +767,6 @@ public class SGLR {
 
         // System.out.println("current token offset " + currentTokenOffset);
         // System.out.println("shifted token " + (char)currentToken + " or (int) " + currentToken);
-
 
         while(forShifter.size() > 0) {
             final ActionState as = forShifter.remove();
@@ -961,7 +985,6 @@ public class SGLR {
             }
         }
 
-
         return permit;
     }
 
@@ -981,7 +1004,6 @@ public class SGLR {
             maxTokenNumber = tokensSeen;
         }
     }
-
 
     private void doReductions(Frame st, Production prod) throws InterruptedException {
 
@@ -1011,8 +1033,6 @@ public class SGLR {
                     return;
             }
         }
-
-
 
         PooledPathList paths = pathCache.create();
 
@@ -1099,8 +1119,6 @@ public class SGLR {
                     continue;
                 }
             }
-
-
 
             if(checkMaxRecoverCount(prod, path))
                 if(prod.isRecoverProduction())
@@ -1221,7 +1239,6 @@ public class SGLR {
 
         if(proposalNode || nestedProposalNode)
             numberOfCompleted = 1;
-
 
         final AbstractParseNode t =
             prod.apply(kids, path.getParentCount() > 0 ? path.getParent().getLink().getLine() : lineNumber,
@@ -1394,8 +1411,6 @@ public class SGLR {
         // Placeholders should be adjacent;
         if(!onlyAdjacentPlaceholders(kids))
             return false;
-
-
 
         return true;
     }
@@ -1603,7 +1618,6 @@ public class SGLR {
             return result;
         }
 
-
         if(prod.isRecoverProduction() || prod.isCompletionProduction()) {
             result += 1;
             if(path.getLength() > 0 && !prod.isCompletionProduction())
@@ -1612,11 +1626,8 @@ public class SGLR {
         return result;
     }
 
-
     int count = 0;
     int count2 = 0;
-
-
 
     // private class LongestMatchKey {
     // private AbstractParseNode n1, n2;
@@ -1739,7 +1750,6 @@ public class SGLR {
     // return res;
     // }
 
-
     private boolean inReduceStacks(Queue<Frame> q, Frame frame) {
         if(Tools.tracing) {
             TRACE("SG_InReduceStacks() - " + frame.state.stateNumber);
@@ -1793,7 +1803,6 @@ public class SGLR {
         }
         return null;
     }
-
 
     private TokenOffset getNextToken() {
         final int ch = currentInputStream.read();
@@ -1882,8 +1891,6 @@ public class SGLR {
         return rejectCount;
     }
 
-
-
     // //////////////////////////////////////////////////// Log functions
     // ///////////////////////////////////////////////////////////////////////////////
 
@@ -1913,7 +1920,6 @@ public class SGLR {
         }
         return sb.toString();
     }
-
 
     private void logParseResult(Link s) {
         if(Tools.debugging) {
@@ -1946,7 +1952,6 @@ public class SGLR {
             Tools.setMeasures(m);
         }
     }
-
 
     private void logBeforeParsing() {
         if(Tools.tracing) {
@@ -1989,7 +1994,6 @@ public class SGLR {
             TRACE_ActiveStacks();
         }
     }
-
 
     private void logBeforeShifter() {
         if(Tools.tracing) {
@@ -2101,7 +2105,6 @@ public class SGLR {
         }
     }
 
-
     private void logBeforeDoReductions(Frame st, Production prod, final int pathsCount) {
         if(Tools.tracing) {
             TRACE("SG_DoReductions() - state " + st.state.stateNumber + ", #paths= " + pathsCount);
@@ -2172,8 +2175,6 @@ public class SGLR {
         TRACE("SG_ - #for_actor stacks: " + forActor.size());
         TRACE("SG_ - #for_actor_delayed stacks: " + forActorDelayed.size());
     }
-
-
 
     private void logAmbiguity(Frame st0, Production prod, Frame st1, Link nl) {
         if(Tools.logging) {

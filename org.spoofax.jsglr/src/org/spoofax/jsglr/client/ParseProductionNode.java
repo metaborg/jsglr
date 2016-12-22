@@ -98,4 +98,14 @@ public class ParseProductionNode extends AbstractParseNode {
   public boolean isIgnoreLayout() {
     return false;
   }
+
+  @Override public boolean isPlaceholderInsertionNode() {
+      // TODO Auto-generated method stub
+      return false;
+  }
+
+  @Override public boolean isLiteralCompletionNode() {
+      // TODO Auto-generated method stub
+      return false;
+  }
 }

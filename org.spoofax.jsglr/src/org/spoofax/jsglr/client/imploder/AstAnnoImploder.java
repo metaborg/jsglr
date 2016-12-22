@@ -119,9 +119,9 @@ public class AstAnnoImploder<TNode> {
 			children.add(toNode(termAt(appl, i), null));
 		}
 		if (appl.getTermType() == STRING) {
-			return factory.createStringTerminal(sort, leftToken, rightToken, appl.getName());
+			return factory.createStringTerminal(sort, leftToken, rightToken, appl.getName(), false);
 		} else {
-			return factory.createNonTerminal(sort, appl.getName(), leftToken, rightToken, children);
+			return factory.createNonTerminal(sort, appl.getName(), leftToken, rightToken, children, false, false, false);
 		}
 	}
 	

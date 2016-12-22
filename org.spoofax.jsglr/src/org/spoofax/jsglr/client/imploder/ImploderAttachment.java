@@ -58,6 +58,12 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	private final IToken leftToken, rightToken;
 	
+	private boolean isCompletion = false;
+	private boolean isNestedCompletion = false;
+	private boolean isSinglePlaceholderCompletion = false;
+	private boolean isBracket = false;
+	
+	
 	private final String sort;
 	
 	/**
@@ -65,11 +71,15 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	 * 
 	 * Note that attachment instances should not be shared.
 	 */
-	protected ImploderAttachment(String sort, IToken leftToken, IToken rightToken) {
-		assert leftToken != null && rightToken != null;
+	protected ImploderAttachment(String sort, IToken leftToken, IToken rightToken, boolean isBracket, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
+        assert leftToken != null && rightToken != null;
 		this.sort = sort;
 		this.leftToken = leftToken;
 		this.rightToken = rightToken;
+		this.isCompletion = isCompletion;
+		this.isNestedCompletion = isNestedCompletion;
+		this.isSinglePlaceholderCompletion = isSinglePlaceholderCompletion;
+		this.setBracket(isBracket);
 	}
 	
 	public TermAttachmentType<ImploderAttachment> getAttachmentType() {
@@ -213,17 +223,17 @@ public class ImploderAttachment extends AbstractTermAttachment {
 		Token token = new Token(null, 0, line, column, startOffset, endOffset, TK_UNKNOWN);
 		NullTokenizer newTokenizer = new NullTokenizer(sortType, filename, token);
 		token.setTokenizer(newTokenizer);
-		return new ImploderAttachment(null, token, token);
+		return new ImploderAttachment(null, token, token, false, false, false, false);
 	}
 	
 
 	/**
 	 * @param isAnonymousSequence  True if the term is an unnamed sequence like a list or tuple.
 	 */
-	public static void putImploderAttachment(ISimpleTerm term, boolean isAnonymousSequence, String sort, IToken leftToken, IToken rightToken) {
+	public static void putImploderAttachment(ISimpleTerm term, boolean isAnonymousSequence, String sort, IToken leftToken, IToken rightToken, boolean isBracket, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
 		term.putAttachment(isAnonymousSequence ?
 				  new ListImploderAttachment(sort, leftToken, rightToken)
-				: new ImploderAttachment(sort, leftToken, rightToken));
+				: new ImploderAttachment(sort, leftToken, rightToken, isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion));
 	}
 	
 	@Override
@@ -271,8 +281,42 @@ public class ImploderAttachment extends AbstractTermAttachment {
 			return "(" + getSort() + ",null)";
 		}
 	}
-	
-	/**
+
+    public boolean isCompletion() {
+        return isCompletion;
+    }
+
+    public void setCompletion(boolean isCompletion) {
+        this.isCompletion = isCompletion;
+    }
+
+    public boolean isNestedCompletion() {
+        return isNestedCompletion;
+    }
+
+    public void setNestedCompletion(boolean isNestedCompletion) {
+        this.isNestedCompletion = isNestedCompletion;
+    }
+    
+    
+
+    public boolean isSinglePlaceholderCompletion() {
+        return isSinglePlaceholderCompletion;
+    }
+
+    public void setSinglePlaceholderCompletion(boolean isSinglePlaceholderCompletion) {
+        this.isSinglePlaceholderCompletion = isSinglePlaceholderCompletion;
+    }
+
+    public boolean isBracket() {
+        return isBracket;
+    }
+
+    public void setBracket(boolean isBracket) {
+        this.isBracket = isBracket;
+    }
+
+    /**
 	 * An inner class that fetches the first imploder atachment
 	 * in a tree.
 	 * 

@@ -21,7 +21,10 @@ public class ProductionAttributes implements Serializable {
     private final int type;
 
     private final boolean isRecover;
+    private final boolean isBracket;
     private final boolean isCompletion;
+    private final boolean isPlaceholderInsertion;
+    private final boolean isLiteralCompletion;
 
     private final boolean isIgnoreLayout;
     private final IStrategoTerm layoutConstraint;
@@ -31,11 +34,14 @@ public class ProductionAttributes implements Serializable {
 
     private final transient IStrategoTerm abstractCtor;
 
-    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover, boolean isCompletion, boolean isIgnoreIndent, IStrategoTerm layoutConstraint, boolean isNewlineEnforced, boolean isLongestMatch) {
+    ProductionAttributes(IStrategoTerm ctor, int type, boolean isRecover, boolean isBracket, boolean isCompletion, boolean isPlaceholderInsertion, boolean isLiteralCompletion, boolean isIgnoreIndent, IStrategoTerm layoutConstraint, boolean isNewlineEnforced, boolean isLongestMatch) {
         this.type = type;
         this.abstractCtor = ctor;
         this.isRecover = isRecover;
+        this.isBracket = isBracket;
         this.isCompletion = isCompletion;
+        this.isPlaceholderInsertion = isPlaceholderInsertion;
+        this.isLiteralCompletion = isLiteralCompletion;
 
         this.isIgnoreLayout = isIgnoreIndent;
         this.layoutConstraint = layoutConstraint;
@@ -70,6 +76,11 @@ public class ProductionAttributes implements Serializable {
     public boolean isCompletionProduction() {
         return isCompletion;
     }
+    
+    public boolean isPlaceholderInsertionProduction() {
+        return isPlaceholderInsertion;
+    }
+    
 
     public boolean isMoreEager(ProductionAttributes other) {
         return type != other.type && (type == PREFER || other.type == AVOID);
@@ -77,5 +88,14 @@ public class ProductionAttributes implements Serializable {
 
     public boolean isLongestMatch() {
       return isLongestMatch;
+    }
+
+    public boolean isLiteralCompletionProduction() {
+        // TODO Auto-generated method stub
+        return isLiteralCompletion;
+    }
+
+    public boolean isBracket() {
+        return isBracket;
     }
 }

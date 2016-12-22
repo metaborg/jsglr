@@ -83,7 +83,7 @@ public class RegionRecovery {
      * @throws InterruptedException 
      */
     public boolean selectErroneousFragment(int failureOffset, int failureLineIndex, int cursorLineIndex) throws InterruptedException { 
-        boolean eofReached=myParser.getCurrentToken()==SGLR.EOF;
+        boolean eofReached=myParser.getCurrentToken().getToken()==SGLR.EOF;
         acceptPosition=-1;
         NewStructureSkipper newRegionSelector=new NewStructureSkipper(myParser);
         errorDetectionLocation = failureOffset - 1;
@@ -214,7 +214,7 @@ public class RegionRecovery {
         //System.out.println("-------------------------");
         while((myParser.activeStacks.size() > 0 && nrOfParsedLines<NR_OF_LINES_TILL_SUCCESS)) {//|| !getHistory().hasFinishedRecoverTokens() 
             getHistory().readRecoverToken(myParser,false); 
-            indentHandler.updateIndentation(myParser.getCurrentToken());           
+            indentHandler.updateIndentation(myParser.getCurrentToken().getToken());           
             //System.out.print((char)myParser.currentToken);
             myParser.doParseStep();
             if(getHistory().getTokenIndex()>errorDetectionLocation && indentHandler.lineMarginEnded())
@@ -229,8 +229,10 @@ public class RegionRecovery {
 
     private void parseAdditionalTokens(
             StructureSkipSuggestion aSkip) throws InterruptedException {
+        int i = 0;
         for (char aChar : aSkip.getAdditionalTokens()) {
-            myParser.setCurrentToken(aChar);           
+            myParser.setCurrentToken(new TokenOffset(aChar, myParser.getCurrentToken().getOffset() + i));
+            i++;
             myParser.doParseStep();
         }
         if(aSkip.getAdditionalTokens().length>0){            

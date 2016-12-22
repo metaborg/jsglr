@@ -26,31 +26,37 @@ public class Production implements Serializable {
 
 	private final boolean isRecover;
 	private final boolean isCompletion;
+	private final boolean isPlaceholderInsertion;
+	private final boolean isLiteralCompletion;
+	private final boolean isBracket;
 
-	public Production(int arity, int label, int status, boolean isRecover,
-			boolean isCompletion) {
+	public Production(int arity, int label, int status, boolean isRecover, boolean isBracket, 
+			boolean isCompletion, boolean isPlaceholderInsertion, boolean isLiteralCompletion) {
 		this.arity = arity;
 		this.label = label;
 		this.status = status;
 		this.isRecover = isRecover;
+        this.isBracket = isBracket;
 		this.isCompletion = isCompletion;
+		this.isPlaceholderInsertion = isPlaceholderInsertion;
+		this.isLiteralCompletion = isLiteralCompletion;
 	}
 
 	public AbstractParseNode apply(AbstractParseNode[] kids, int line,
-			int column, boolean isLayout, boolean isIgnoreLayout) {
+			int column, boolean isLayout, boolean isIgnoreLayout, boolean proposalNode, boolean nestedProposalNode, boolean proposalSinglePlaceholder) {
 		switch (status) {
 		case REJECT:
 			return new ParseNode(label, kids, AbstractParseNode.REJECT, line,
-					column, isLayout, isIgnoreLayout);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, proposalNode, nestedProposalNode, proposalSinglePlaceholder);
 		case AVOID:
 			return new ParseNode(label, kids, AbstractParseNode.AVOID, line,
-					column, isLayout, isIgnoreLayout);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, proposalNode, nestedProposalNode, proposalSinglePlaceholder);
 		case PREFER:
 			return new ParseNode(label, kids, AbstractParseNode.PREFER, line,
-					column, isLayout, isIgnoreLayout);
+					column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, proposalNode, nestedProposalNode, proposalSinglePlaceholder);
 		case NO_TYPE:
 			return new ParseNode(label, kids, AbstractParseNode.PARSENODE,
-					line, column, isLayout, isIgnoreLayout);
+					line, column, isLayout, isIgnoreLayout, isPlaceholderInsertion, isLiteralCompletion, proposalNode, nestedProposalNode, proposalSinglePlaceholder);
 		}
 		throw new IllegalStateException();
 	}
@@ -65,6 +71,14 @@ public class Production implements Serializable {
 
 	public boolean isCompletionProduction() {
 		return isCompletion;
+	}
+	
+	public boolean isNewCompletionProduction() {
+        return isPlaceholderInsertion || isLiteralCompletion;
+    }
+	
+	public boolean isLiteralCompletion(){
+	    return isLiteralCompletion;
 	}
 
 	/**
@@ -91,4 +105,8 @@ public class Production implements Serializable {
 		result = prime * result + status;
 		return result;
 	}
+
+    public boolean isBracket() {
+        return isBracket;
+    }
 }

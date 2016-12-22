@@ -21,7 +21,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	 * Create a new non-terminal node (or a terminal with only a constructor).
 	 */
 	TNode createNonTerminal(String sort, String constructor, IToken leftToken, IToken rightToken,
-			List<TNode> children);
+			List<TNode> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion);
 	
 	/**
 	 * Create a new terminal node for an int value.
@@ -36,7 +36,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	/**
 	 * Create a new terminal node for a string token.
 	 */
-	TNode createStringTerminal(String sort, IToken leftToken, IToken rightToken, String value);
+	TNode createStringTerminal(String sort, IToken leftToken, IToken rightToken, String value, boolean caseInsensitive);
 	
 	TNode createTuple(String elementSort, IToken leftToken, IToken rightToken, List<TNode> children);
 	
@@ -49,7 +49,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 
 	TNode createTop(TNode tree, String filename, int ambiguityCount);
 
-	TNode createAmb(List<TNode> alternatives, IToken leftToken, IToken rightToken);
+	TNode createAmb(List<TNode> alternatives, IToken leftToken, IToken rightToken, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion);
 	
 	/**
 	 * Creates a new node similar to an existing node,
@@ -60,7 +60,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	/**
 	 * Create an injection node.
 	 */
-	TNode createInjection(String sort, List<TNode> children);
+	TNode createInjection(String sort, IToken leftToken, IToken rightToken, List<TNode> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion, boolean isBracket);
 
 	void setEnableTokens(boolean enableTokens);
 }

@@ -231,6 +231,9 @@ public class Tokenizer extends AbstractTokenizer {
     }
 
     private boolean isAtPotentialKeywordStart(int offset, boolean isInputKeywordChar) {
+        // Eduardo: check whether reaching the end of file
+        if(isInputKeywordChar && offset + 1 == getInput().length())
+            return true;
         if(offset + 1 < getInput().length()) {
             char nextChar = getInput().charAt(offset + 1);
             if((isInputKeywordChar && !isKeywordChar(nextChar)) || (!isInputKeywordChar && isKeywordChar(nextChar))) {

@@ -29,11 +29,10 @@ public class ImploderAttachment extends AbstractTermAttachment {
 			protected IStrategoTerm[] toSubterms(ITermFactory f, ImploderAttachment attachment) {
 				IToken left = attachment.getLeftToken();
 				IToken right = attachment.getRightToken();
-				
+	
 				String sortType = attachment.getSort() == null ? "" : attachment.getSort() ;
-				String fileName = left.getTokenizer().getFilename()  == null ? "" :left.getTokenizer().getFilename();
-				
-				
+				String fileName = left.getFilename() == null ? "" : left.getFilename();
+	
 				return new IStrategoTerm[] {
 					f.makeString(fileName),
 					f.makeInt(left.getLine()),
@@ -154,7 +153,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	public static String getFilename(ISimpleTerm term) {
 		IToken token = getLeftToken(term);
-		return token == null ? null : token.getTokenizer().getFilename();
+		return token == null ? null : token.getFilename();
 	}
 	
 	public static ITokenizer getTokenizer(ISimpleTerm term) {
@@ -205,7 +204,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
 		
 		IToken left = first.getLeftToken();
 		IToken right = last.getRightToken();
-		String filename = left.getTokenizer().getFilename();
+		String filename = left.getFilename();
 		
 		return createCompactPositionAttachment(filename, left.getLine(), left.getColumn(), left.getStartOffset(), right.getEndOffset());
 	}
@@ -220,7 +219,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	public static ImploderAttachment createCompactPositionAttachment(
 			String filename, int line, int column, int startOffset, int endOffset, String sortType) {
-		Token token = new Token(null, 0, line, column, startOffset, endOffset, TK_UNKNOWN);
+		Token token = new Token(null, filename, 0, line, column, startOffset, endOffset, TK_UNKNOWN);
 		NullTokenizer newTokenizer = new NullTokenizer(sortType, filename, token);
 		token.setTokenizer(newTokenizer);
 		return new ImploderAttachment(null, token, token, false, false, false, false);

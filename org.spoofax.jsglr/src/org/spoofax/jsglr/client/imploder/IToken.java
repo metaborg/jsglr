@@ -85,6 +85,8 @@ public interface IToken extends Comparable<IToken>, Serializable {
 	
 	ISimpleTerm getAstNode();
 	
+	String getFilename();
+	
 	ITokenizer getTokenizer();
 	
 	IToken clone();

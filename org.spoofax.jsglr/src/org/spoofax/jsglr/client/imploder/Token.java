@@ -17,6 +17,8 @@ public class Token implements IToken, Cloneable {
 
     private transient ITokenizer tokenizer;
 
+    private final String filename;
+
     private final int line;
 
     private final int column;
@@ -33,13 +35,14 @@ public class Token implements IToken, Cloneable {
 
     private ISimpleTerm astNode;
 
-    public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind) {
-        this(tokenizer, index, line, column, startOffset, endOffset, kind, null, null);
+    public Token(ITokenizer tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset, int kind) {
+        this(tokenizer, filename, index, line, column, startOffset, endOffset, kind, null, null);
     }
 
-    public Token(ITokenizer tokenizer, int index, int line, int column, int startOffset, int endOffset, int kind,
+    public Token(ITokenizer tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset, int kind,
         String errorMessage, ISimpleTerm astNode) {
         this.tokenizer = tokenizer;
+        this.filename = filename;
         this.index = index;
         this.line = line;
         this.column = column;
@@ -108,6 +111,11 @@ public class Token implements IToken, Cloneable {
         return getEndOffset() - getStartOffset() + 1;
     }
 
+    @Override
+    public String getFilename() {
+        return filename;
+    }
+    
     /**
      * Gets the error message associated with this token, if any.
      * 

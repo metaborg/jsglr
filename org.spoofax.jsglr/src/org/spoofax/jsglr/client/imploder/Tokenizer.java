@@ -55,7 +55,7 @@ public class Tokenizer extends AbstractTokenizer {
         offsetAtLineStart = 0;
         // Ensure there's at least one token
         if(startWithReserved) {
-            tokens.add(new Token(this, 0, line, 0, 0, -1, TK_RESERVED));
+            tokens.add(new Token(this, filename, 0, line, 0, 0, -1, TK_RESERVED));
         }
     }
 
@@ -113,7 +113,7 @@ public class Tokenizer extends AbstractTokenizer {
             || internalGetTokenAt(getTokenCount() - 1)
                 .getStartOffset() == internalGetTokenAt(getTokenCount() - 2).getEndOffset()
                     + 1 : "Unordered tokens at end of tokenizer";
-        Token key = new Token(this, -1, -1, -1, offset, offset - 1, TK_RESERVED);
+        Token key = new Token(this, getFilename(), -1, -1, -1, offset, offset - 1, TK_RESERVED);
         int resultIndex = Collections.binarySearch(tokens, key);
         if(resultIndex == -1)
             throw new IndexOutOfBoundsException(
@@ -171,7 +171,7 @@ public class Tokenizer extends AbstractTokenizer {
             endOffset = getInput().length() - 1; // move 'zig'
         }
         Token result =
-            new Token(this, tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
+            new Token(this, getFilename(), tokens.size(), line, startOffset - offsetAtLineStart, startOffset, endOffset, kind);
         if(errorMessage != null)
             result.setError(errorMessage);
         if(tokens.size() == 5)

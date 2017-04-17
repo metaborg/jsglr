@@ -369,7 +369,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			int line, int column) {
 		IToken nearbyToken = getTokenAtOffset(startOffset);
 		int fakeIndex = nearbyToken == null ? 0 : nearbyToken.getIndex();
-		return new Token(this, fakeIndex, line, column, startOffset, endOffset, tokenKind);
+		return new Token(this, filename, fakeIndex, line, column, startOffset, endOffset, tokenKind);
 	}
 
 	private static IToken findReportableErrorToken(IToken token) {

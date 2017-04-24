@@ -25,6 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.vfs2.FileObject;
+import org.metaborg.newsdf2table.dynamic.DynamicParseTableGenerator;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -56,6 +58,8 @@ public class ParseTable implements Serializable {
     public static final int LABEL_BASE = NUM_CHARS + 1;
     
     private static final long serialVersionUID = -3372429249660900093L;
+    
+    private final DynamicParseTableGenerator pt_generator;
     
     private static SGLR layoutParser;
 
@@ -104,6 +108,18 @@ public class ParseTable implements Serializable {
     public ParseTable(IStrategoTerm pt, ITermFactory factory) throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
+        pt_generator = null;
+    }
+    
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject normGrammar, boolean dynamic) throws InvalidParseTableException {
+        initTransientData(factory);
+        parse(pt);
+        // TODO If #states is 1, then parse table generation is dynamic
+        if(dynamic && normGrammar != null) {
+            pt_generator = new DynamicParseTableGenerator(normGrammar);
+        } else {
+            pt_generator = null;
+        }
     }
     
     @Deprecated

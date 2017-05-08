@@ -27,6 +27,8 @@ import java.util.Map;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.newsdf2table.dynamic.DynamicParseTableGenerator;
+import org.metaborg.newsdf2table.grammar.CharacterClass;
+import org.metaborg.newsdf2table.parsetable.GoTo;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -42,28 +44,32 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 /**
  * A parse table.
  * 
- * Can (should!) be shared by multiple parser instances. 
+ * Can (should!) be shared by multiple parser instances.
  */
 public class ParseTable implements Serializable {
 
     /**
-     * Number of possible characters to expect
-     * (0x10FFFF would be all chars of UTF-8, but is not yet
-     *  supported by the parse table format.)
+     * Number of possible characters to expect (0x10FFFF would be all chars of UTF-8, but is not yet supported by the
+     * parse table format.)
      */
     public static final int NUM_CHARS = 256;
     public static final int LABEL_BASE = NUM_CHARS + 1;
-    
+
     private static final long serialVersionUID = -3372429249660900093L;
-    
+
     private final DynamicParseTableGenerator pt_generator;
-    
+
     private static SGLR layoutParser;
 
     private State[] states;
+
+    private Map<org.metaborg.newsdf2table.parsetable.State, State> states_cache = Maps.newHashMap();
 
     private int startState;
 
@@ -88,10 +94,10 @@ public class ParseTable implements Serializable {
     transient public IStrategoConstructor ambIStrategoConstructor;
 
     private Label[] injections;
-    
+
     // TODO: allocate prototypes to avoid measurable GC overhead in ParseTable construction
-    //       (especially when using the CMS garbage collector, those gotos and stuff
-    //        introduce a lot of overhead)
+    // (especially when using the CMS garbage collector, those gotos and stuff
+    // introduce a lot of overhead)
 
     private transient HashMap<Goto, Goto> gotoCache = new HashMap<Goto, Goto>();
 
@@ -102,29 +108,42 @@ public class ParseTable implements Serializable {
     private transient HashMap<RangeList, RangeList> rangesCache = new HashMap<RangeList, RangeList>();
 
     private transient Map<Label, List<Priority>> priorityCache;
-	
+
     private transient KeywordRecognizer keywords;
-    
+
+    private boolean dynamicPTgeneration = false;
+
     public ParseTable(IStrategoTerm pt, ITermFactory factory) throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
         pt_generator = null;
     }
-    
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject normGrammar, boolean dynamic) throws InvalidParseTableException {
+
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject normGrammar)
+        throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
-        // TODO If #states is 1, then parse table generation is dynamic
-        if(dynamic && normGrammar != null) {
+        if(states.length == 0) {
+            dynamicPTgeneration = true;
+        }
+        
+        if(dynamicPTgeneration && normGrammar != null) {
             pt_generator = new DynamicParseTableGenerator(normGrammar);
+            gotoCache = new HashMap<Goto, Goto>();
+            shiftCache = new HashMap<Shift, Shift>();
+            reduceCache = new HashMap<Reduce, Reduce>();
+            rangesCache = new HashMap<RangeList, RangeList>();
         } else {
             pt_generator = null;
         }
+        
+        if(dynamicPTgeneration && normGrammar == null) {
+            throw new InvalidParseTableException("Parse table does not contain any state and normalized grammar is null");
+        }
     }
-    
-    @Deprecated
-    public ParseTable(IStrategoTerm pt) throws InvalidParseTableException {
-    	this(pt, new TermFactory());
+
+    @Deprecated public ParseTable(IStrategoTerm pt) throws InvalidParseTableException {
+        this(pt, new TermFactory());
     }
 
     public void initTransientData(ITermFactory factory) {
@@ -139,14 +158,14 @@ public class ParseTable implements Serializable {
 
     private boolean parse(IStrategoTerm pt) throws InvalidParseTableException {
         int version = intAt(pt, 0);
-        if (pt.getSubtermCount() == 1) // Seen with ParseTable(0)
-          throw new InvalidParseTableException("Invalid parse table (possibly wrong start symbol specified)\n" + pt);
+        if(pt.getSubtermCount() == 1) // Seen with ParseTable(0)
+            throw new InvalidParseTableException("Invalid parse table (possibly wrong start symbol specified)\n" + pt);
         startState = intAt(pt, 1);
         IStrategoList labelsTerm = termAt(pt, 2);
         IStrategoNamed statesTerm = termAt(pt, 3);
         IStrategoNamed prioritiesTerm = termAt(pt, 4);
 
-        if (version != 4 && version !=6) {
+        if(version != 4 && version != 6) {
             throw new InvalidParseTableException("Only supports version 4 and 6 tables.");
         }
 
@@ -154,17 +173,18 @@ public class ParseTable implements Serializable {
         states = parseStates(statesTerm);
         priorities = parsePriorities(prioritiesTerm);
         associativities = parseAssociativities(prioritiesTerm);
-        
+
         injections = new Label[labels.length];
         for(int i = 0; i < labels.length; i++)
             if(labels[i] != null && labels[i].isInjection())
                 injections[i] = labels[i];
 
-        gotoCache = null;
-        shiftCache = null;
-        reduceCache = null;
-        rangesCache = null;
-
+        if(!dynamicPTgeneration) {
+            gotoCache = null;
+            shiftCache = null;
+            reduceCache = null;
+            rangesCache = null;
+        }
         return true;
     }
 
@@ -173,24 +193,24 @@ public class ParseTable implements Serializable {
         IStrategoList prods = termAt(prioritiesTerm, 0);
         List<Priority> ret = new ArrayList<Priority>();
 
-        while (!prods.isEmpty()) {
+        while(!prods.isEmpty()) {
             IStrategoNamed a = (IStrategoNamed) prods.head();
             prods = prods.tail();
 
             int left = intAt(a, 0);
             int right = intAt(a, 1);
-            if (a.getName().equals("left-prio")) {
+            if(a.getName().equals("left-prio")) {
                 // handled by parseAssociativities
-            } else if (a.getName().equals("right-prio")) {
+            } else if(a.getName().equals("right-prio")) {
                 // handled by parseAssociativities
-            } else if (a.getName().equals("non-assoc")) {
+            } else if(a.getName().equals("non-assoc")) {
                 // handled by parseAssociativities
-            } else if (a.getName().equals("gtr-prio")) {
+            } else if(a.getName().equals("gtr-prio")) {
                 if(left != right)
                     ret.add(new Priority(Priority.GTR, left, right));
-            } else if (a.getName().equals("arg-gtr-prio")) {
-            	int arg = right;
-            	right = intAt(a, 2);
+            } else if(a.getName().equals("arg-gtr-prio")) {
+                int arg = right;
+                right = intAt(a, 2);
                 if(left != right)
                     ret.add(new Priority(Priority.GTR, left, right, arg));
             } else {
@@ -205,21 +225,21 @@ public class ParseTable implements Serializable {
         IStrategoList prods = termAt(prioritiesTerm, 0);
         List<Associativity> ret = new ArrayList<Associativity>();
 
-        for (IStrategoNamed a = (IStrategoNamed) prods.head(); !prods.tail().isEmpty(); prods = prods.tail()) {
+        for(IStrategoNamed a = (IStrategoNamed) prods.head(); !prods.tail().isEmpty(); prods = prods.tail()) {
             int left = intAt(a, 0);
             int right = intAt(a, 1);
-            if (a.getName().equals("left-prio")) {
+            if(a.getName().equals("left-prio")) {
                 if(left == right)
                     ret.add(new Associativity(Priority.LEFT, left));
-            } else if (a.getName().equals("right-prio")) {
+            } else if(a.getName().equals("right-prio")) {
                 if(left == right)
                     ret.add(new Associativity(Priority.RIGHT, left));
-            } else if (a.getName().equals("non-assoc")) {
+            } else if(a.getName().equals("non-assoc")) {
                 if(left == right)
                     ret.add(new Associativity(Priority.NONASSOC, left));
-            } else if (a.getName().equals("gtr-prio")) {
+            } else if(a.getName().equals("gtr-prio")) {
                 // handled by parsePriorities
-            } else if (a.getName().equals("arg-gtr-prio")) {
+            } else if(a.getName().equals("arg-gtr-prio")) {
                 // handled by parsePriorities
             } else {
                 throw new InvalidParseTableException("Unknown priority : " + a.getName());
@@ -232,15 +252,15 @@ public class ParseTable implements Serializable {
 
         final Label[] ret = new Label[labelsTerm.getSubtermCount() + LABEL_BASE];
 
-        while (!labelsTerm.isEmpty()) {
-            
-        	final IStrategoNamed a = (IStrategoNamed) labelsTerm.head();
+        while(!labelsTerm.isEmpty()) {
+
+            final IStrategoNamed a = (IStrategoNamed) labelsTerm.head();
             final IStrategoAppl prod = termAt(a, 0);
             final int labelNumber = intAt(a, 1);
             final boolean injection = isInjection(prod);
             IStrategoAppl attrs = termAt(prod, 2);
-			final ProductionAttributes pa = parseProductionAttributes(attrs);
-            
+            final ProductionAttributes pa = parseProductionAttributes(attrs);
+
             ret[labelNumber] = new Label(labelNumber, prod, pa, injection);
 
             labelsTerm = labelsTerm.tail();
@@ -251,44 +271,43 @@ public class ParseTable implements Serializable {
 
     private boolean isInjection(IStrategoNamed prod) {
 
-    	// Injections are terms on the following form:
-    	//  . prod([<term>],cf(<term>),<term>)
-    	//  . prod([<term>],lex(sort(<str>)),<term>)
-    	//  . lit(<str>)
-    	
-    	// TODO: optimize - use constants for these constructors (a la parseproductionreader)
+        // Injections are terms on the following form:
+        // . prod([<term>],cf(<term>),<term>)
+        // . prod([<term>],lex(sort(<str>)),<term>)
+        // . lit(<str>)
+
+        // TODO: optimize - use constants for these constructors (a la parseproductionreader)
 
         if(!prod.getName().equals("prod"))
-        	return false;
-        
-        
+            return false;
+
+
         if(prod.getSubterm(1).getTermType() != APPL)
-        	return false;
-        
-        final String nm = ((IStrategoNamed)prod.getSubterm(1)).getName();
-        
+            return false;
+
+        final String nm = ((IStrategoNamed) prod.getSubterm(1)).getName();
+
         if(!(nm.equals("cf") || nm.equals("lex")))
-        	return false;
+            return false;
 
         if(prod.getSubterm(0).getTermType() != LIST)
-        	return false;
+            return false;
 
-        IStrategoList ls = ((IStrategoList)prod.getSubterm(0));
+        IStrategoList ls = ((IStrategoList) prod.getSubterm(0));
 
         if(ls.getSubtermCount() != 1)
-        	return false;
-        
+            return false;
+
         if(ls.head().getTermType() != APPL)
-        	return false;
-        
-        final IStrategoConstructor fun = ((IStrategoAppl)ls.head()).getConstructor();
+            return false;
+
+        final IStrategoConstructor fun = ((IStrategoAppl) ls.head()).getConstructor();
         return !(fun.getName().equals("lit") && fun.getArity() == 1);
     }
-    
 
-    private ProductionAttributes parseProductionAttributes(IStrategoAppl attr)
-            throws InvalidParseTableException {
-      if (attr.getName().equals("attrs")) {
+
+    private ProductionAttributes parseProductionAttributes(IStrategoAppl attr) throws InvalidParseTableException {
+        if(attr.getName().equals("attrs")) {
             int type = 0;
             boolean isRecover = false;
             boolean isIgnoreLayout = false;
@@ -301,30 +320,30 @@ public class ParseTable implements Serializable {
             boolean isBracket = false;
             IStrategoTerm term = null;
 
-            for (IStrategoList ls = (IStrategoList) attr.getSubterm(0); !ls.isEmpty(); ls = ls.tail()) {
+            for(IStrategoList ls = (IStrategoList) attr.getSubterm(0); !ls.isEmpty(); ls = ls.tail()) {
                 IStrategoNamed t = (IStrategoNamed) ls.head();
                 String ctor = t.getName();
-                if (ctor.equals("reject")) {
+                if(ctor.equals("reject")) {
                     type = ProductionType.REJECT;
                     hasRejects = true;
-                } else if (ctor.equals("prefer")) {
+                } else if(ctor.equals("prefer")) {
                     type = ProductionType.PREFER;
                     hasPrefers = true;
-                } else if (ctor.equals("avoid")) {
+                } else if(ctor.equals("avoid")) {
                     type = ProductionType.AVOID;
                     hasAvoids = true;
-                } else if (ctor.equals("bracket")) {
+                } else if(ctor.equals("bracket")) {
                     type = ProductionType.BRACKET;
                     isBracket = true;
                 } else {
-                    if (ctor.equals("assoc")) {
+                    if(ctor.equals("assoc")) {
                         IStrategoNamed a = (IStrategoNamed) t.getSubterm(0);
-                        if (a.getName().equals("left") || a.getName().equals("assoc")) {
-                        	// ('assoc' is identical to 'left' for the parser)
+                        if(a.getName().equals("left") || a.getName().equals("assoc")) {
+                            // ('assoc' is identical to 'left' for the parser)
                             type = ProductionType.LEFT_ASSOCIATIVE;
-                        } else if (a.getName().equals("right")) {
+                        } else if(a.getName().equals("right")) {
                             type = ProductionType.RIGHT_ASSOCIATIVE;
-                        } else if (a.getName().equals("non-assoc")) {
+                        } else if(a.getName().equals("non-assoc")) {
                             // FIXME: complete and test the non-assoc implementation
                             // (it currently already seems to work at least for direct cases)
                             // the current SDF manual and some tests seem to indicate that non-assoc
@@ -332,65 +351,67 @@ public class ParseTable implements Serializable {
                         } else {
                             throw new InvalidParseTableException("Unknown assocativity: " + a.getName());
                         }
-                    } else if (	ctor.equals("term") && t.getSubtermCount() == 1) {
+                    } else if(ctor.equals("term") && t.getSubtermCount() == 1) {
                         // Term needs to be shaped as term(cons(Constructor)) to be a constructor
-                    	if(t.getSubterm(0) instanceof IStrategoNamed) {
-                    	    IStrategoNamed child = (IStrategoNamed) t.getSubterm(0);
-                            if (child.getSubtermCount() == 1 && child.getName().equals("cons")) {
-                    			term = t.getSubterm(0).getSubterm(0);
-                    		} else if (child.getSubtermCount() == 0 && child.getName().equals("recover")) {
-                    		    hasRecovers = isRecover = true;
-                       		} else if (child.getSubtermCount() == 0 && child.getName().equals("completion")) {
-                    		    isCompletion = true;
-                    		} else if (child.getSubtermCount() == 0 && child.getName().equals("placeholder-insertion")) {
+                        if(t.getSubterm(0) instanceof IStrategoNamed) {
+                            IStrategoNamed child = (IStrategoNamed) t.getSubterm(0);
+                            if(child.getSubtermCount() == 1 && child.getName().equals("cons")) {
+                                term = t.getSubterm(0).getSubterm(0);
+                            } else if(child.getSubtermCount() == 0 && child.getName().equals("recover")) {
+                                hasRecovers = isRecover = true;
+                            } else if(child.getSubtermCount() == 0 && child.getName().equals("completion")) {
+                                isCompletion = true;
+                            } else if(child.getSubtermCount() == 0 && child.getName().equals("placeholder-insertion")) {
                                 isPlaceholderInsertion = true;
-                            } else if (child.getSubtermCount() == 0 && child.getName().equals("literal-completion")) {
+                            } else if(child.getSubtermCount() == 0 && child.getName().equals("literal-completion")) {
                                 isLiteralCompletion = true;
+                            } else if(child.getSubtermCount() == 0 && (child.getName().equals("ignore-layout")
+                                || child.getName().equals("ignore-indent"))) {
+                                isIgnoreLayout = true;
+                            } else if(child.getSubtermCount() == 1 && child.getName().equals("layout")) {
+                                layoutConstraint = child.getSubterm(0);
+                                if(Term.isTermString(layoutConstraint))
+                                    try {
+                                        if(layoutParser == null) {
+                                            try {
+                                                InputStream in =
+                                                    getClass().getResourceAsStream("indentation/LayoutConstraint.tbl");
+                                                ParseTable pt = new ParseTableManager(factory).loadFromStream(in);
+                                                layoutParser = new SGLR(new TreeBuilder(), pt);
+                                            } catch(ParseError e) {
+                                                e.printStackTrace();
+                                            } catch(IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                        layoutConstraint = (IStrategoTerm) layoutParser
+                                            .parse(Term.asJavaString(layoutConstraint), "", "Constraint").output;
+                                    } catch(SGLRException e) {
+                                        throw new InvalidParseTableException("invalid layout constraint "
+                                            + Term.asJavaString(layoutConstraint) + ": " + e.getMessage());
+                                    } catch(InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                            } else if(child.getSubtermCount() == 0 && child.getName().equals("enforce-newline")) {
+                                isNewlineEnforced = true;
+                            } else if(child.getSubtermCount() == 0 && child.getName().equals("longest-match")) {
+                                isLongestMatch = true;
                             }
-                        else if (child.getSubtermCount() == 0 && (child.getName().equals("ignore-layout") || child.getName().equals("ignore-indent"))) {
-                          isIgnoreLayout = true;
+                            // TODO Support other terms that are not a constructor (custom annotations)
+                        } else if(ctor.equals("id")) {
+                            // FIXME not certain about this
+                            term = t.getSubterm(0);
+                        } else {
+                            throw new InvalidParseTableException("Unknown attribute: " + t);
                         }
-                        else if (child.getSubtermCount() == 1 && child.getName().equals("layout")) {
-                          layoutConstraint = child.getSubterm(0);
-                          if (Term.isTermString(layoutConstraint))
-                            try {
-                              if (layoutParser == null) {
-                                try {
-                                  InputStream in = getClass().getResourceAsStream("indentation/LayoutConstraint.tbl");
-                                  ParseTable pt = new ParseTableManager(factory).loadFromStream(in);
-                                  layoutParser =  new SGLR(new TreeBuilder(), pt);
-                                } catch (ParseError e) {
-                                  e.printStackTrace();
-                                } catch (IOException e) {
-                                  e.printStackTrace();
-                                }
-                              }
-                              layoutConstraint = (IStrategoTerm) layoutParser.parse(Term.asJavaString(layoutConstraint), "", "Constraint").output;
-                            } catch (SGLRException e) {
-                              throw new InvalidParseTableException("invalid layout constraint " + Term.asJavaString(layoutConstraint) + ": " + e.getMessage());
-                            } catch (InterruptedException e) {
-                              e.printStackTrace();
-                            }
-                        }
-                        else if (child.getSubtermCount() == 0 && child.getName().equals("enforce-newline")) {
-                          isNewlineEnforced = true;
-                        }
-                        else if (child.getSubtermCount() == 0 && child.getName().equals("longest-match")) {
-                          isLongestMatch = true;
-                        }
-                    	// TODO Support other terms that are not a constructor (custom annotations)
-                    } else if (ctor.equals("id")) {
-                        // FIXME not certain about this
-                        term = t.getSubterm(0);
-                    } else {
-                        throw new InvalidParseTableException("Unknown attribute: " + t);
                     }
                 }
             }
-            }
-            return new ProductionAttributes(term, type, isRecover, isBracket, isCompletion, isPlaceholderInsertion, isLiteralCompletion, isIgnoreLayout, layoutConstraint, isNewlineEnforced, isLongestMatch);
-        } else if (attr.getName().equals("no-attrs")) {
-            return new ProductionAttributes(null, ProductionType.NO_TYPE, false, false, false, false, false, false, null, false, false);
+            return new ProductionAttributes(term, type, isRecover, isBracket, isCompletion, isPlaceholderInsertion,
+                isLiteralCompletion, isIgnoreLayout, layoutConstraint, isNewlineEnforced, isLongestMatch);
+        } else if(attr.getName().equals("no-attrs")) {
+            return new ProductionAttributes(null, ProductionType.NO_TYPE, false, false, false, false, false, false,
+                null, false, false);
         }
         throw new InvalidParseTableException("Unknown attribute type: " + attr);
     }
@@ -417,7 +438,7 @@ public class ParseTable implements Serializable {
     private Goto makeGoto(int newStateNumber, RangeList ranges) {
         Goto g = new Goto(ranges, newStateNumber);
         Goto cached = gotoCache.get(g);
-        if (cached == null) {
+        if(cached == null) {
             gotoCache.put(g, g);
             return g;
         } else {
@@ -447,16 +468,18 @@ public class ParseTable implements Serializable {
             IStrategoAppl a = (IStrategoAppl) items.head();
             items = items.tail();
 
-            if (a.getName().equals("reduce") && a.getConstructor().getArity() == 3) {
+            if(a.getName().equals("reduce") && a.getConstructor().getArity() == 3) {
                 int productionArity = intAt(a, 0);
                 int label = intAt(a, 1);
                 int status = intAt(a, 2);
                 boolean isRecoverAction = getLabel(label).getAttributes().isRecoverProduction();
                 boolean isCompletionAction = getLabel(label).getAttributes().isCompletionProduction();
-                boolean isPlaceholderInsertionAction = getLabel(label).getAttributes().isPlaceholderInsertionProduction();
+                boolean isPlaceholderInsertionAction =
+                    getLabel(label).getAttributes().isPlaceholderInsertionProduction();
                 boolean isLiteralCompletionAction = getLabel(label).getAttributes().isLiteralCompletionProduction();
                 boolean isBracketAction = getLabel(label).getAttributes().isBracket();
-                item = makeReduce(productionArity, label, status, isRecoverAction, isBracketAction, isCompletionAction, isPlaceholderInsertionAction, isLiteralCompletionAction);
+                item = makeReduce(productionArity, label, status, isRecoverAction, isBracketAction, isCompletionAction,
+                    isPlaceholderInsertionAction, isLiteralCompletionAction);
             } else if(a.getName().equals("reduce") && a.getConstructor().getArity() == 4) {
                 int productionArity = intAt(a, 0);
                 int label = intAt(a, 1);
@@ -464,9 +487,9 @@ public class ParseTable implements Serializable {
                 RangeList[] charClasses = parseCharRanges((IStrategoList) termAt(a, 3));
                 item = makeReduceLookahead(productionArity, label, status, charClasses);
 
-            } else if (a.getName().equals("accept")) {
+            } else if(a.getName().equals("accept")) {
                 item = new Accept();
-            } else if (a.getName().equals("shift")) {
+            } else if(a.getName().equals("shift")) {
                 int nextState = intAt(a, 0);
                 item = makeShift(nextState);
             } else {
@@ -479,11 +502,11 @@ public class ParseTable implements Serializable {
 
     private RangeList[] parseCharRanges(IStrategoList list) throws InvalidParseTableException {
         List<RangeList> ret = new LinkedList<RangeList>();
-        for (int i=0;i<list.getSubtermCount(); i++) {
+        for(int i = 0; i < list.getSubtermCount(); i++) {
             IStrategoNamed t = (IStrategoNamed) list.head();
             list = list.tail();
             IStrategoList l, n;
-            if (t.getName().equals("look")) { // sdf2bundle 2.4
+            if(t.getName().equals("look")) { // sdf2bundle 2.4
                 l = termAt(termAt(t, 0), 0);
                 n = termAt(t, 1);
             } else { // sdf2bundle 2.6
@@ -493,14 +516,14 @@ public class ParseTable implements Serializable {
             }
 
             // FIXME: multiple lookahead are not fully supported or tested
-            //        (and should work for both 2.4 and 2.6 tables)
+            // (and should work for both 2.4 and 2.6 tables)
 
             ret.add(parseRanges(l));
-            
-            if (n.getSubtermCount() > 0) 
-              throw new InvalidParseTableException("Multiple lookahead not fully supported"); 
-            for (IStrategoTerm nt : n.getAllSubterms())
-              ret.add(parseRanges((IStrategoList) nt.getSubterm(0)));
+
+            if(n.getSubtermCount() > 0)
+                throw new InvalidParseTableException("Multiple lookahead not fully supported");
+            for(IStrategoTerm nt : n.getAllSubterms())
+                ret.add(parseRanges((IStrategoList) nt.getSubterm(0)));
         }
         return ret.toArray(new RangeList[ret.size()]);
     }
@@ -509,10 +532,12 @@ public class ParseTable implements Serializable {
         return new ReduceLookahead(productionArity, label, status, charClasses);
     }
 
-    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction, boolean isBracketAction, boolean isCompletionAction, boolean isPlaceholderInsertionAction, boolean isLiteralCompletionAction) {
-        Reduce r = new Reduce(arity, label, status, isRecoverAction, isBracketAction, isCompletionAction, isPlaceholderInsertionAction, isLiteralCompletionAction);
+    private Reduce makeReduce(int arity, int label, int status, boolean isRecoverAction, boolean isBracketAction,
+        boolean isCompletionAction, boolean isPlaceholderInsertionAction, boolean isLiteralCompletionAction) {
+        Reduce r = new Reduce(arity, label, status, isRecoverAction, isBracketAction, isCompletionAction,
+            isPlaceholderInsertionAction, isLiteralCompletionAction);
         Reduce cached = reduceCache.get(r);
-        if (cached == null) {
+        if(cached == null) {
             reduceCache.put(r, r);
             return r;
         } else {
@@ -523,7 +548,7 @@ public class ParseTable implements Serializable {
     private Shift makeShift(int nextState) {
         Shift s = new Shift(nextState);
         Shift cached = shiftCache.get(s);
-        if (cached == null) {
+        if(cached == null) {
             shiftCache.put(s, s);
             return s;
         } else {
@@ -540,31 +565,31 @@ public class ParseTable implements Serializable {
             IStrategoList rangeList = termAt(go, 0);
             int newStateNumber = intAt(go, 1);
             RangeList ranges = parseRanges(rangeList);
-            //int[] productionLabels = parseProductionLabels(rangeList);
+            // int[] productionLabels = parseProductionLabels(rangeList);
             ret[i] = makeGoto(newStateNumber, ranges);
         }
 
         return ret;
     }
 
-//    private int[] parseProductionLabels(IStrategoList ranges) throws InvalidParseTableException {
-//
-//        int[] ret = new int[ranges.getChildCount()];
-//
-//        for (int i = 0; i < ranges.getChildCount(); i++) {
-//            IStrategoTerm t = Term.termAt(ranges, i);
-//            if (isTermInt(t)) {
-//                ret[i] = javaInt(t);
-//            } else {
-////                else if(Term.isAppl(t) && ((IStrategoNamed)t).getName().equals("range")) {
-////                int s = intAt(t, 0);
-////                int e = intAt(t, 1);
-//                Tools.debug(t);
-//                throw new InvalidParseTableException("");
-//            }
-//        }
-//        return ret;
-//    }
+    // private int[] parseProductionLabels(IStrategoList ranges) throws InvalidParseTableException {
+    //
+    // int[] ret = new int[ranges.getChildCount()];
+    //
+    // for (int i = 0; i < ranges.getChildCount(); i++) {
+    // IStrategoTerm t = Term.termAt(ranges, i);
+    // if (isTermInt(t)) {
+    // ret[i] = javaInt(t);
+    // } else {
+    //// else if(Term.isAppl(t) && ((IStrategoNamed)t).getName().equals("range")) {
+    //// int s = intAt(t, 0);
+    //// int e = intAt(t, 1);
+    // Tools.debug(t);
+    // throw new InvalidParseTableException("");
+    // }
+    // }
+    // return ret;
+    // }
 
     private RangeList parseRanges(IStrategoList ranges) throws InvalidParseTableException {
         int size = ranges.getSubtermCount();
@@ -575,7 +600,7 @@ public class ParseTable implements Serializable {
         for(int i = 0; i < size; i++) {
             IStrategoTerm t = ranges.head();
             ranges = ranges.tail();
-            if (isTermInt(t)) {
+            if(isTermInt(t)) {
                 int value = javaInt(t);
                 ret[idx++] = value;
                 ret[idx++] = value;
@@ -591,19 +616,85 @@ public class ParseTable implements Serializable {
     private RangeList makeRangeList(int[] ranges) throws InvalidParseTableException {
         RangeList r = new RangeList(ranges);
         RangeList cached = rangesCache.get(r);
-        if (cached == null) {
+        if(cached == null) {
             rangesCache.put(r, r);
             return r;
         } else {
             return cached;
         }
     }
-    
+
+    private Goto parseGoto(IStrategoTerm term) {
+        IStrategoNamed go = (IStrategoNamed) term;
+
+        IStrategoList rangeList = termAt(go, 0);
+        int newStateNumber = intAt(go, 1);
+        RangeList ranges = null;
+        try {
+            ranges = parseRanges(rangeList);
+        } catch(InvalidParseTableException e) {
+            System.err.println("Could not generate Goto.");
+            e.printStackTrace();
+        }
+
+        return makeGoto(newStateNumber, ranges);
+    }
+
+    private State parseDynamicState(org.metaborg.newsdf2table.parsetable.State s_orig) {
+        if(states_cache.containsKey(s_orig)) {
+            return states_cache.get(s_orig);
+        }
+        List<Goto> gotos = Lists.newArrayList();
+
+        for(GoTo g : s_orig.gotos()) {
+            // TODO create the structure directly without generating an ATerm
+            gotos.add(parseGoto(g.toAterm(factory)));
+        }
+
+        List<IStrategoTerm> action_terms = Lists.newArrayList();
+
+        for(CharacterClass cc : s_orig.actions().keySet()) {
+
+            List<IStrategoTerm> actions = Lists.newArrayList();
+            for(org.metaborg.newsdf2table.parsetable.Action a : s_orig.actions().get(cc)) {
+                actions.add(a.toAterm(factory, pt_generator));
+            }
+            action_terms.add(factory.makeAppl(factory.makeConstructor("action", 2), cc.toStateAterm(factory),
+                factory.makeList(actions)));
+            // action_terms.add(action.toAterm(termFactory, this));
+        }
+        Action[] new_actions = null;
+
+        try {
+            new_actions = parseActions(factory.makeList(action_terms));
+        } catch(InvalidParseTableException e) {
+            System.err.println("Could not generate Actions.");
+            e.printStackTrace();
+        }
+
+        State s_new = new State(s_orig.getLabel(), gotos.toArray(new Goto[gotos.size()]), new_actions);
+        states_cache.put(s_orig, s_new);
+        return s_new;
+    }
+
     public State getInitialState() {
+        if(dynamicPTgeneration) {
+            org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getInitialState();
+
+            State s = parseDynamicState(s0);
+//            System.out.println(s0.getLabel() + "->");
+            return s;
+        }
         return states[startState];
     }
 
     public State go(State s, int label) {
+        if(dynamicPTgeneration) {
+            org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getState(s.go(label));
+            State s_new = parseDynamicState(s0);
+//            System.out.println(s0.getLabel() + "->");
+            return s_new;
+        }
         return states[s.go(label)];
     }
 
@@ -612,6 +703,12 @@ public class ParseTable implements Serializable {
     }
 
     public State getState(int s) {
+        if(dynamicPTgeneration) {
+            org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getState(s);
+            State s_new = parseDynamicState(s0);
+//            System.out.println(s0.getLabel() + "->");
+            return s_new;
+        }
         return states[s];
     }
 
@@ -625,7 +722,7 @@ public class ParseTable implements Serializable {
 
     public int getActionEntryCount() {
         int total = 0;
-        for (State s : states) {
+        for(State s : states) {
             total += s.getActionItemCount();
         }
         return total;
@@ -633,7 +730,7 @@ public class ParseTable implements Serializable {
 
     public int getGotoCount() {
         int total = 0;
-        for (State s : states) {
+        for(State s : states) {
             total += s.getGotoCount();
         }
         return total;
@@ -641,7 +738,7 @@ public class ParseTable implements Serializable {
 
     public int getActionCount() {
         int total = 0;
-        for (State s : states) {
+        for(State s : states) {
             total += s.getActionCount();
         }
         return total;
@@ -672,21 +769,22 @@ public class ParseTable implements Serializable {
     }
 
     public IStrategoTerm getProduction(int prod) {
-        if (prod < NUM_CHARS) {
+        if(prod < NUM_CHARS) {
             return factory.makeInt(prod);
         }
         return labels[prod].prod;
     }
 
     public List<Priority> getPriorities(Label prodLabel) {
-        if (priorityCache == null)
+        if(priorityCache == null)
             priorityCache = new HashMap<Label, List<Priority>>();
         List<Priority> results = priorityCache.get(prodLabel);
-        if (results != null) return results;
+        if(results != null)
+            return results;
 
         results = new ArrayList<Priority>();
-        for (Priority p : priorities) {
-            if (p.left == prodLabel.labelNumber && p.type == Priority.GTR) {
+        for(Priority p : priorities) {
+            if(p.left == prodLabel.labelNumber && p.type == Priority.GTR) {
                 results.add(p);
             }
         }
@@ -700,25 +798,26 @@ public class ParseTable implements Serializable {
         return injections[prod];
     }
 
-	public void lookupAction(int stateNumber, int peekNextToken) {
-		throw new NotImplementedException();
-	}
+    public void lookupAction(int stateNumber, int peekNextToken) {
+        throw new NotImplementedException();
+    }
 
-	public List<Label> getLabels() {
-	    return Collections.unmodifiableList(asList(labels));
-	}
+    public List<Label> getLabels() {
+        return Collections.unmodifiableList(asList(labels));
+    }
 
-	public void initializeTreeBuilder(ITreeBuilder treeBuilder) {
-		treeBuilder.initializeTable(this, NUM_CHARS, LABEL_BASE, labels.length);
-		for(int i = 0; i < labels.length; i++) {
-			if(labels[i] == null)
-				continue;
-			treeBuilder.initializeLabel(i, labels[i].getProduction());
-		}
-	}
-	
-	public KeywordRecognizer getKeywordRecognizer() {
-		if (keywords == null) keywords = new KeywordRecognizer(this);
-		return keywords;
-	}
+    public void initializeTreeBuilder(ITreeBuilder treeBuilder) {
+        treeBuilder.initializeTable(this, NUM_CHARS, LABEL_BASE, labels.length);
+        for(int i = 0; i < labels.length; i++) {
+            if(labels[i] == null)
+                continue;
+            treeBuilder.initializeLabel(i, labels[i].getProduction());
+        }
+    }
+
+    public KeywordRecognizer getKeywordRecognizer() {
+        if(keywords == null)
+            keywords = new KeywordRecognizer(this);
+        return keywords;
+    }
 }

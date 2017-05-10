@@ -126,7 +126,7 @@ public class ParseTable implements Serializable {
         if(states.length == 0) {
             dynamicPTgeneration = true;
         }
-        
+
         if(dynamicPTgeneration && normGrammar != null) {
             pt_generator = new DynamicParseTableGenerator(normGrammar);
             gotoCache = new HashMap<Goto, Goto>();
@@ -136,9 +136,10 @@ public class ParseTable implements Serializable {
         } else {
             pt_generator = null;
         }
-        
+
         if(dynamicPTgeneration && normGrammar == null) {
-            throw new InvalidParseTableException("Parse table does not contain any state and normalized grammar is null");
+            throw new InvalidParseTableException(
+                "Parse table does not contain any state and normalized grammar is null");
         }
     }
 
@@ -179,12 +180,12 @@ public class ParseTable implements Serializable {
             if(labels[i] != null && labels[i].isInjection())
                 injections[i] = labels[i];
 
-        if(!dynamicPTgeneration) {
-            gotoCache = null;
-            shiftCache = null;
-            reduceCache = null;
-            rangesCache = null;
-        }
+
+        gotoCache = null;
+        shiftCache = null;
+        reduceCache = null;
+        rangesCache = null;
+
         return true;
     }
 
@@ -682,7 +683,7 @@ public class ParseTable implements Serializable {
             org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getInitialState();
 
             State s = parseDynamicState(s0);
-//            System.out.println(s0.getLabel() + "->");
+            // System.out.println(s0.getLabel() + "->");
             return s;
         }
         return states[startState];
@@ -692,7 +693,7 @@ public class ParseTable implements Serializable {
         if(dynamicPTgeneration) {
             org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getState(s.go(label));
             State s_new = parseDynamicState(s0);
-//            System.out.println(s0.getLabel() + "->");
+            // System.out.println(s0.getLabel() + "->");
             return s_new;
         }
         return states[s.go(label)];
@@ -706,7 +707,7 @@ public class ParseTable implements Serializable {
         if(dynamicPTgeneration) {
             org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getState(s);
             State s_new = parseDynamicState(s0);
-//            System.out.println(s0.getLabel() + "->");
+            // System.out.println(s0.getLabel() + "->");
             return s_new;
         }
         return states[s];

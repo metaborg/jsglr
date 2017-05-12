@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.newsdf2table.dynamic.DynamicParseTableGenerator;
-import org.metaborg.newsdf2table.grammar.CharacterClass;
-import org.metaborg.newsdf2table.parsetable.GoTo;
+import org.metaborg.sdf2table.dynamic.DynamicParseTableGenerator;
+import org.metaborg.sdf2table.grammar.CharacterClass;
+import org.metaborg.sdf2table.parsetable.GoTo;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -69,7 +69,7 @@ public class ParseTable implements Serializable {
 
     private State[] states;
 
-    private Map<org.metaborg.newsdf2table.parsetable.State, State> states_cache = Maps.newHashMap();
+    private Map<org.metaborg.sdf2table.parsetable.State, State> states_cache = Maps.newHashMap();
 
     private int startState;
 
@@ -641,7 +641,7 @@ public class ParseTable implements Serializable {
         return makeGoto(newStateNumber, ranges);
     }
 
-    private State parseDynamicState(org.metaborg.newsdf2table.parsetable.State s_orig) {
+    private State parseDynamicState(org.metaborg.sdf2table.parsetable.State s_orig) {
         if(states_cache.containsKey(s_orig)) {
             return states_cache.get(s_orig);
         }
@@ -657,7 +657,7 @@ public class ParseTable implements Serializable {
         for(CharacterClass cc : s_orig.actions().keySet()) {
 
             List<IStrategoTerm> actions = Lists.newArrayList();
-            for(org.metaborg.newsdf2table.parsetable.Action a : s_orig.actions().get(cc)) {
+            for(org.metaborg.sdf2table.parsetable.Action a : s_orig.actions().get(cc)) {
                 actions.add(a.toAterm(factory, pt_generator));
             }
             action_terms.add(factory.makeAppl(factory.makeConstructor("action", 2), cc.toStateAterm(factory),
@@ -680,7 +680,7 @@ public class ParseTable implements Serializable {
 
     public State getInitialState() {
         if(dynamicPTgeneration) {
-            org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getInitialState();
+            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getInitialState();
 
             State s = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
@@ -691,7 +691,7 @@ public class ParseTable implements Serializable {
 
     public State go(State s, int label) {
         if(dynamicPTgeneration) {
-            org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getState(s.go(label));
+            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getState(s.go(label));
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;
@@ -705,7 +705,7 @@ public class ParseTable implements Serializable {
 
     public State getState(int s) {
         if(dynamicPTgeneration) {
-            org.metaborg.newsdf2table.parsetable.State s0 = pt_generator.getState(s);
+            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getState(s);
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;

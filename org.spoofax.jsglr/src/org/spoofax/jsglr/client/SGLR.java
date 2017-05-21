@@ -1835,6 +1835,10 @@ public class SGLR {
     AmbiguityManager getAmbiguityManager() {
         return ambiguityManager;
     }
+    
+    public long getAmbiguitiesCount(){
+        return disambiguator.getAmbiguityCount();
+    }
 
     public Disambiguator getDisambiguator() {
         return disambiguator;

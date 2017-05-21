@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.sdf2table.dynamic.DynamicParseTableGenerator;
 import org.metaborg.sdf2table.grammar.CharacterClass;
+import org.metaborg.sdf2table.grammar.NormGrammar;
 import org.metaborg.sdf2table.parsetable.GoTo;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -117,9 +118,38 @@ public class ParseTable implements Serializable {
         initTransientData(factory);
         parse(pt);
         pt_generator = null;
+        
+        if(states.length == 0) {
+            throw new InvalidParseTableException(
+                "Parse table does not contain any state and normalized grammar is null");
+        }     
     }
 
     public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject normGrammar)
+        throws InvalidParseTableException {
+        initTransientData(factory);
+        parse(pt);
+        if(states.length == 0) {
+            dynamicPTgeneration = true;
+        }
+
+        if(dynamicPTgeneration && normGrammar != null) {
+            pt_generator = new DynamicParseTableGenerator(normGrammar);
+            gotoCache = new HashMap<Goto, Goto>();
+            shiftCache = new HashMap<Shift, Shift>();
+            reduceCache = new HashMap<Reduce, Reduce>();
+            rangesCache = new HashMap<RangeList, RangeList>();
+        } else {
+            pt_generator = null;
+        }
+
+        if(dynamicPTgeneration && normGrammar == null) {
+            throw new InvalidParseTableException(
+                "Parse table does not contain any state and normalized grammar is null");
+        }
+    }
+    
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, NormGrammar normGrammar)
         throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
@@ -743,6 +773,10 @@ public class ParseTable implements Serializable {
             total += s.getActionCount();
         }
         return total;
+    }
+
+    public DynamicParseTableGenerator getPTgenerator() {
+        return pt_generator;
     }
 
     public boolean hasPriorities() {

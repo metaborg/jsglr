@@ -110,7 +110,7 @@ public class ParseTable implements Serializable {
 
     private transient Map<Label, List<Priority>> priorityCache;
 
-    private transient KeywordRecognizer keywords;
+    private transient IKeywordRecognizer keywords;
 
     private boolean dynamicPTgeneration = false;
 
@@ -850,7 +850,7 @@ public class ParseTable implements Serializable {
         }
     }
 
-    public KeywordRecognizer getKeywordRecognizer() {
+    public IKeywordRecognizer getKeywordRecognizer() {
         if(keywords == null)
             keywords = new KeywordRecognizer(this);
         return keywords;

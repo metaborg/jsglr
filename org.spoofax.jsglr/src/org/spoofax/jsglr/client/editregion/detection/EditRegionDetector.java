@@ -3,7 +3,8 @@ package org.spoofax.jsglr.client.editregion.detection;
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.AbstractTokenizer;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
 /**
@@ -163,7 +164,7 @@ public class EditRegionDetector {
 	}
 	
 	private void detectEditRegions() {
-		ITokenizer tokens = ImploderAttachment.getTokenizer(correctAST);
+		ITokens tokens = ImploderAttachment.getTokenizer(correctAST);
 
 		long time = System.currentTimeMillis();
 		
@@ -174,7 +175,7 @@ public class EditRegionDetector {
 		time = System.currentTimeMillis();
 		//TODO: LCS on lines (instead of characters) in case LCS optimized does not work to reduce the size enough
 		
-		DamagedTokenAnalyzer tokenEdits = new DamagedTokenAnalyzer(tokens, lcs);
+		DamagedTokenAnalyzer tokenEdits = new DamagedTokenAnalyzer((AbstractTokenizer) tokens, lcs);
 		System.out.println("token edits: " + (System.currentTimeMillis()-time));
 		time = System.currentTimeMillis();
 		//TODO: Improve performance!!

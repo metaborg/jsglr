@@ -15,7 +15,7 @@ public class Token implements IToken, Cloneable {
 
     private transient static Map<String, Integer> asyncAllTokenKinds;
 
-    private transient ITokenizer tokenizer;
+    private ITokenizer tokenizer;
 
     private final String filename;
 

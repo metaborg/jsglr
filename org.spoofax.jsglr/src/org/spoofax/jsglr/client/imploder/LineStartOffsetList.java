@@ -1,11 +1,15 @@
 package org.spoofax.jsglr.client.imploder;
 
+import java.io.Serializable;
+
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class LineStartOffsetList {
+public class LineStartOffsetList implements Serializable {
 	
-	private static final double EXPECTED_NEWLINES_DIVIDER = 12; 
+	private static final long serialVersionUID = 2435789615135832945L;
+
+    private static final double EXPECTED_NEWLINES_DIVIDER = 12; 
 	
 	private int[] lineStarts;
 	

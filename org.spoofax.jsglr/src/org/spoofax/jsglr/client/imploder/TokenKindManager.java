@@ -11,6 +11,7 @@ import static org.spoofax.terms.Term.intAt;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -27,8 +28,10 @@ import org.spoofax.terms.TermVisitor;
  * 
  * @author Lennart Kats <L.C.L.Kats add tudelft.nl>
  */
-public class TokenKindManager {
-	private static final int RANGE_START = 0;
+public class TokenKindManager implements Serializable {
+	private static final long serialVersionUID = 856473135736955433L;
+
+    private static final int RANGE_START = 0;
 	
 	private static final int RANGE_END = 1;
 	

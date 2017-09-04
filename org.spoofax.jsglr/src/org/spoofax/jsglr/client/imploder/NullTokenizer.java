@@ -13,7 +13,9 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
  */
 public class NullTokenizer extends AbstractTokenizer {
 	
-	private final IToken onlyToken;
+	private static final long serialVersionUID = -6653567639280036480L;
+	
+    private final IToken onlyToken;
 	
 	public NullTokenizer(String input, String filename, Token onlyToken) {
 		super(input, filename);

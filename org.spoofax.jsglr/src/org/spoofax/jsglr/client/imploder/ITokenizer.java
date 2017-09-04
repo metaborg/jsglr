@@ -1,12 +1,14 @@
 package org.spoofax.jsglr.client.imploder;
 
+import java.io.Serializable;
+
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.KeywordRecognizer;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface ITokenizer extends Iterable<IToken> {
+public interface ITokenizer extends Iterable<IToken>, Serializable {
 	
 	public static final String ERROR_SKIPPED_REGION =
 		"Syntax error, unexpected construct(s)";

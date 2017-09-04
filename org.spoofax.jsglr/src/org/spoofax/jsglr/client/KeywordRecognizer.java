@@ -3,6 +3,7 @@ package org.spoofax.jsglr.client;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,9 +19,11 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class KeywordRecognizer {
+public class KeywordRecognizer implements Serializable {
 	
-	private final Set<String> keywords = new HashSet<String>();
+	private static final long serialVersionUID = 7078477392176661390L;
+	
+    private final Set<String> keywords = new HashSet<String>();
 	
 	protected KeywordRecognizer(ParseTable table) {
 		if (table != null) {

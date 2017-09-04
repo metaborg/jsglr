@@ -11,7 +11,9 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
  */
 public abstract class AbstractTokenizer implements ITokenizer {
 	
-	private final TokenKindManager manager =
+	private static final long serialVersionUID = 7697367149430201531L;
+
+    private final TokenKindManager manager =
 		new TokenKindManager();
 	
 	private boolean isAmbiguous;

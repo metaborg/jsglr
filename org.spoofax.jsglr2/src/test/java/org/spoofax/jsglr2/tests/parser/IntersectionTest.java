@@ -14,7 +14,10 @@ public class IntersectionTest extends BaseTest implements WithGrammar {
 	    setupParseTableFromDefFile("intersection");
 	}
 	
-	/*@Test
+	/*
+	TODO: implement stack priorities during reducing to fix intersection problem (see P9707 Section 8.4) to make this test pass
+	
+	@Test
 	public void testOneNotInIntersection() throws ParseError, ParseTableReadException, IOException {
 		testParseFailure("1");
 	}

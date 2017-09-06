@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.tests.languages;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.tests.util.BaseTestWithJSGLR1;

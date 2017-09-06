@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.tests.sdf3;
+package org.spoofax.jsglr2.tests.sdf;
 
 import java.io.IOException;
 

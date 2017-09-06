@@ -1,0 +1,37 @@
+Program(
+  MainClass(
+    "Factorial"
+  , "a"
+  , Print(Call(NewObject("Fac"), "ComputeFac", [IntValue("10")]))
+  )
+, [ Class(
+      "Fac"
+    , None()
+    , []
+    , [ Method(
+          Int()
+        , "ComputeFac"
+        , [Param(Int(), "num")]
+        , [Var(Int(), "num_aux")]
+        , [ If(
+              Lt(VarRef("num"), IntValue("1"))
+            , Assign(VarRef("num_aux"), IntValue("1"))
+            , Assign(
+                VarRef("num_aux")
+              , Mul(
+                  VarRef("num")
+                , Call(
+                    This()
+                  , "ComputeFac"
+                  , [Sub(VarRef("num"), IntValue("1"))]
+                  )
+                )
+              )
+            )
+          ]
+        , VarRef("num_aux")
+        )
+      ]
+    )
+  ]
+)

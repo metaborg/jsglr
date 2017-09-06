@@ -1,0 +1,22 @@
+#header {
+  width: 300px;
+  margin: 1em auto;
+}
+.container {
+  width: 50%;
+  height: 100%;
+}
+.container.left {
+  float: left;
+}
+.container.right {
+  float: right;
+}
+.container h2 {
+  text-align: center;
+}
+#gss, #parseForest {
+  border: 1px solid lightgray;
+  height: 100%;
+  border-radius: 5px;
+}

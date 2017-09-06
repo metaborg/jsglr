@@ -1,0 +1,20 @@
+definition
+
+module lists
+
+exports
+  lexical syntax 
+    [\ ] -> LAYOUT
+
+  context-free restrictions
+    LAYOUT? -/- [\ ]
+
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    X*       -> Start {cons("ZeroOrMoreXs")}
+    X+       -> Start {cons("OneOrMoreXs")}
+    {X ","}* -> Start {cons("ZeroOrMoreXsCommaSeparated")}
+    {X ","}+ -> Start {cons("OneOrMoreXsCommaSeparated")}
+    "x"      -> X     {cons("X")}

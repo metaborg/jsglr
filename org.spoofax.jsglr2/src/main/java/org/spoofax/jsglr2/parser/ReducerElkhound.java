@@ -57,7 +57,7 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
         StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link = stackManager.createStackLink(parse, newStack, stack, parseNode);
         
         parse.activeStacks.add(newStack);
-        parse.forActor.add(newStack); // TODO: check if this is required, it might cause unrequired overhead
+        parse.forActor.add(newStack);
         
         if (reduce.isRejectProduction())
             stackManager.rejectStackLink(parse, link);

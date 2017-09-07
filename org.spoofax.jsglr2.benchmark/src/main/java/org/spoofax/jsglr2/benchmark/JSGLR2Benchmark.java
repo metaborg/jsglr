@@ -38,6 +38,9 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
     @Param({"true", "false"})
+    public boolean elkhoundStack;
+    
+    @Param({"true", "false"})
     public boolean elkhoundReducing;
     
     @Setup
@@ -46,8 +49,8 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
         
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);
 
-        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, elkhoundReducing);
-        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, elkhoundReducing);
+        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, elkhoundStack, elkhoundReducing);
+        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, elkhoundStack, elkhoundReducing);
         
         inputs = getInputs();
     }

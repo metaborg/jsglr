@@ -18,9 +18,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.InvalidParseTableException;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.util.WithJSGLR1;
+import org.spoofax.jsglr2.util.WithGrammar;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
@@ -28,16 +26,16 @@ import org.spoofax.terms.io.binary.TermReader;
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-public abstract class BaseBenchmark implements WithJSGLR1 {
+public abstract class BaseBenchmark implements WithGrammar {
 
     protected IStrategoTerm parseTableTerm;
     protected TermReader termReader;
     
-    protected String parseTableFileName;
     protected List<Input> inputs;
     
-    protected BaseBenchmark(String parseTableFileName) {
-        this.parseTableFileName = parseTableFileName;
+    protected BaseBenchmark() {
+        TermFactory termFactory = new TermFactory();
+        this.termReader = new TermReader(termFactory);
     }
     
     protected abstract List<Input> getInputs() throws IOException;
@@ -50,17 +48,23 @@ public abstract class BaseBenchmark implements WithJSGLR1 {
             this.content = content;
         }
     }
-    
-    protected void setupWithParseTable(String parseTableFilename) throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
-        this.termReader = new TermReader(new TermFactory());
-        
-        this.parseTableTerm = parseTableTermFromFile(parseTableFilename);
+
+    public TermReader getTermReader() {
+        return termReader;
+    }
+
+    public IStrategoTerm getParseTableTerm() {
+        return parseTableTerm;
+    }
+
+    public void setParseTableTerm(IStrategoTerm parseTableTerm) {
+        this.parseTableTerm = parseTableTerm;
     }
     
-    private IStrategoTerm parseTableTermFromFile(String filename) throws ParseError, IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/parsetables/" + filename);
+    public IStrategoTerm parseTableTerm(String filename) throws ParseError, IOException {
+        InputStream inputStream = getClass().getResourceAsStream("/" + filename);
         
-        return this.termReader.parseFromStream(inputStream);
+        return getTermReader().parseFromStream(inputStream);
     }
 
     protected String getFileAsString(String filename) throws IOException {
@@ -113,10 +117,6 @@ public abstract class BaseBenchmark implements WithJSGLR1 {
         }
         
         return acc;
-    }
-
-    public IStrategoTerm getParseTableTerm() {
-        return parseTableTerm;
     }
 
 }

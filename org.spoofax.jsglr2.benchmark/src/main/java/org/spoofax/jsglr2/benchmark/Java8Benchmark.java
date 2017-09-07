@@ -3,10 +3,10 @@ package org.spoofax.jsglr2.benchmark;
 import java.io.IOException;
 import java.util.List;
 
-public class Java8Benchmark extends JSGLR2Benchmark {
+public class Java8Benchmark extends JSGLR2ParseTableBenchmark {
     
     public Java8Benchmark() {
-        super("Java8.tbl");
+        super("Java8");
     }
     
     protected List<Input> getInputs() throws IOException {

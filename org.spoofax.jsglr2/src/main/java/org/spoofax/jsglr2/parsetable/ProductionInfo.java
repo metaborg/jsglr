@@ -162,7 +162,24 @@ public class ProductionInfo {
 	}
 	
 	public boolean isLexical() {
-		return "lex".equals(lhs.getConstructor().getName());
+	    boolean lexTerm = "lex".equals(lhs.getConstructor().getName());
+	    
+		return lexTerm || isLexicalRhs();
+	}
+	
+	public boolean isLexicalRhs() {
+	    if (rhs.getSubtermCount() > 0) {
+	        boolean lexRhs = true;
+	        
+	        for (IStrategoTerm rhsPart : rhs.getAllSubterms()) {
+	            String rhsPartConstructor = ((IStrategoAppl) rhsPart).getConstructor().getName();
+	            
+	            lexRhs &= "char-class".equals(rhsPartConstructor);
+	        }
+	        
+	        return lexRhs;
+	    } else
+	        return false;
 	}
 
 	public boolean isLayout() {

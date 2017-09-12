@@ -7,13 +7,19 @@ import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
 public interface WithGrammar extends WithParseTable {
-	
-	default void setupParseTableFromDefFile(String grammarName) throws InterruptedException, IOException, ParseError, ParseTableReadException, InvalidParseTableException {
+    
+    default String grammarsPath() {
         ClassLoader classLoader = getClass().getClassLoader();
         String path = classLoader.getResource("grammars").getFile();
         
-        String grammarDefPath     = path + "/" + grammarName + ".def",
-               parseTableTermPath = path + "/" + grammarName + ".tbl";
+        return path;
+    }
+	
+	default void setupParseTableFromDefFile(String grammarName) throws InterruptedException, IOException, ParseError, ParseTableReadException, InvalidParseTableException {
+	    setupDefFile(grammarName);
+	    
+        String grammarDefPath     = grammarsPath() + "/" + grammarName + ".def",
+               parseTableTermPath = grammarsPath() + "/" + grammarName + ".tbl";
         
         String command = "sdf2table -i " + grammarDefPath + " -o " + parseTableTermPath + " -m " + grammarName + " -t";
         
@@ -25,5 +31,7 @@ public interface WithGrammar extends WithParseTable {
         
         setupParseTableByFilename("grammars/" + grammarName + ".tbl");
     }
+    
+    default void setupDefFile(String grammarName) throws IOException {}
 	
 }

@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,9 +37,17 @@ public abstract class BaseBenchmark implements WithGrammar {
     
     protected List<Input> inputs;
     
+    private String basePath; // The directory the executed JAR is located in, grammar files and parse tables are copied here for parse table generation
+    
     protected BaseBenchmark() {
         TermFactory termFactory = new TermFactory();
         this.termReader = new TermReader(termFactory);
+        
+        try {
+            basePath = new File(BaseBenchmark.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent();
+        } catch(URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
     
     protected abstract List<Input> getInputs() throws IOException;
@@ -61,10 +73,26 @@ public abstract class BaseBenchmark implements WithGrammar {
         this.parseTableTerm = parseTableTerm;
     }
     
+    @Override
     public IStrategoTerm parseTableTerm(String filename) throws ParseError, IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/" + filename);
+        InputStream inputStream = new FileInputStream(basePath + "/" + filename);
         
         return getTermReader().parseFromStream(inputStream);
+    }
+
+    @Override
+    public String grammarsPath() {
+        return basePath + "/grammars";
+    }
+    
+    @Override
+    public void setupDefFile(String grammarName) throws IOException {
+        new File(basePath + "/grammars").mkdirs();
+        
+        InputStream defResourceInJar = getClass().getResourceAsStream("/grammars/" + grammarName + ".def");
+        String destinationInJarDir = basePath + "/grammars/" + grammarName + ".def";
+        
+        Files.copy(defResourceInJar, Paths.get(destinationInJarDir), StandardCopyOption.REPLACE_EXISTING);
     }
 
     protected String getFileAsString(String filename) throws IOException {

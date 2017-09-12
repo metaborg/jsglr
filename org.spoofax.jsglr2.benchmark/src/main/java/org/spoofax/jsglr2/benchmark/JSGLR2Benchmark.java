@@ -29,10 +29,10 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({"true", "false"})
     public boolean elkhoundReducing;
     
-    protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException;
+    protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException;
     
     @Setup
-    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
+    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
         prepareParseTable();
         
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);

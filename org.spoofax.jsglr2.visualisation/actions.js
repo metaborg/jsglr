@@ -157,13 +157,13 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
       
       break;
     case "reduce":
-      var parseForests = json.parseForests;
+      var parseNodes = json.parseNodes;
       var activeStackWithGotoState = json.activeStackWithGotoState;
       
       if (activeStackWithGotoState != -1)
-        console.log("Reducing (parse forests: " + parseForests.join(", ") + ") with existing active stack " + activeStackWithGotoState);
+        console.log("Reducing (parse forests: " + parseNodes.join(", ") + ") with existing active stack " + activeStackWithGotoState);
       else
-        console.log("Reducing (parse forests: " + parseForests.join(", ") + ") with no existing active stack");
+        console.log("Reducing (parse forests: " + parseNodes.join(", ") + ") with no existing active stack");
       
       break;
     case "directLinkFound":
@@ -194,7 +194,7 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
       console.log("Accept stack " + stackNumber + "");
       
       break;
-    case "createParseSymbolNode":
+    case "createParseNode":
       var nodeNumber = json.nodeNumber;
       var production = json.production;
       var term = json.term;
@@ -204,7 +204,7 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
       createParseSymbolNode(nodeNumber, production, term, parseForestNodes);
       
       break;
-    case "createParseRuleNode":
+    case "createDerivation":
       var nodeNumber = json.nodeNumber;
       var production = json.production;
       var term = json.term;
@@ -217,7 +217,7 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
       createParseRuleNode(nodeNumber, production, term, subTrees, parseForestNodes, parseForestEdges, beginPosition, endPosition);
       
       break;
-    case "createParseTermNode":
+    case "createCharacterNode":
       var nodeNumber = json.nodeNumber;
       var character = json.character;
       var beginPosition = json.beginPosition;
@@ -228,7 +228,7 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
       createParseTermNode(nodeNumber, character, parseForestNodes, beginPosition, endPosition);
       
       break;
-    case "addParseSymbolNodeDerivation":
+    case "addDerivation":
       var symbolNode = json.symbolNode;
       var ruleNode = json.ruleNode;
     

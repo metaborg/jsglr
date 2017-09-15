@@ -1,28 +1,20 @@
 package org.spoofax.jsglr2;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
-import org.spoofax.jsglr2.imploder.hybrid.HStrategoImploder;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.HParseForestManager;
-import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.ParseFailure;
 import org.spoofax.jsglr2.parser.ParseResult;
 import org.spoofax.jsglr2.parser.ParseSuccess;
-import org.spoofax.jsglr2.parser.Parser;
-import org.spoofax.jsglr2.parser.Reducer;
-import org.spoofax.jsglr2.parser.ReducerElkhound;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.StackManager;
-import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
 
 public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
@@ -31,14 +23,7 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     private IImploder<ParseForest, AbstractSyntaxTree> imploder;
     
     public static JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm> standard(IParseTable parseTable) throws ParseTableReadException {
-        HParseForestManager hParseForestManager = new HParseForestManager();
-        StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new ElkhoundStackManager<HParseForest>();
-        Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hElkhoundReducer = new ReducerElkhound<HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
-        
-        IParser<ElkhoundStackNode<HParseForest>, HParseForest> parser = new Parser<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager, hElkhoundReducer);
-        IImploder<HParseForest, IStrategoTerm> imploder = new HStrategoImploder();
-        
-        return new JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm>(parser, imploder);
+        return (JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, true, true);
     }
     
     public static JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {

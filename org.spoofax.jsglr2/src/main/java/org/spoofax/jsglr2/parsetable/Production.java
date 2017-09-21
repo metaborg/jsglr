@@ -1,20 +1,29 @@
 package org.spoofax.jsglr2.parsetable;
 
-import static org.spoofax.terms.Term.termAt;
-
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoString;
-
 public class Production implements IProduction {
 
 	private final int productionNumber;
-	private final ProductionAttributes productionAttributes;
-	private final ProductionInfo productionInfo;
+	private final String sort;
+	private final boolean isContextFree;
+	private final boolean isLayout;
+	private final boolean isLiteral;
+	private final boolean isLexical;
+	private final boolean isList;
+	private final boolean isOptional;
+	private final boolean isOperator;
+	private final ProductionAttributes attributes;
 	
-	public Production(int productionNumber, IStrategoAppl productionTerm, ProductionAttributes productionAttributes) {
+	public Production(int productionNumber, String sort, Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isList, Boolean isOptional, Boolean isOperator, ProductionAttributes attributes) {
 		this.productionNumber = productionNumber;
-		this.productionAttributes = productionAttributes;
-		this.productionInfo = new ProductionInfo(productionTerm);
+		this.sort = sort;
+		this.isContextFree = isContextFree;
+		this.isLayout = isLayout;
+		this.isLiteral = isLiteral;
+		this.isLexical = isLexical;
+		this.isList = isList;
+		this.isOptional = isOptional;
+		this.isOperator = isOperator;
+		this.attributes = attributes;
 	}
 	
 	public int productionNumber() {
@@ -23,68 +32,58 @@ public class Production implements IProduction {
 	
 	public static ProductionType typeFromInt(int productionType) {
 		switch (productionType) {
-		case 1:		return ProductionType.REJECT;
-		case 2:		return ProductionType.PREFER;
-		case 3:		return ProductionType.BRACKET;
-		case 4:		return ProductionType.AVOID;
-		case 5:		return ProductionType.LEFT_ASSOCIATIVE;
-		case 6:		return ProductionType.RIGHT_ASSOCIATIVE;
-		default:	return ProductionType.NO_TYPE; 
+			case 1:		return ProductionType.REJECT;
+			case 2:		return ProductionType.PREFER;
+			case 3:		return ProductionType.BRACKET;
+			case 4:		return ProductionType.AVOID;
+			case 5:		return ProductionType.LEFT_ASSOCIATIVE;
+			case 6:		return ProductionType.RIGHT_ASSOCIATIVE;
+			default:		return ProductionType.NO_TYPE; 
 		}
 	}
     
     public String sort() {
-        return productionInfo.getSort();
+        return sort;
     }
     
     public String constructor() {
-        return productionInfo.getConstructor();
+        return attributes.constructor;
     }
     
     public String descriptor() {
-        return productionInfo.descriptor();
+        return "";
     }
     
     public boolean isContextFree() {
-        return productionInfo.isContextFree();
+        return isContextFree;
     }
     
     public boolean isLayout() {
-        return productionInfo.isLayout();
+        return isLayout;
     }
     
     public boolean isLiteral() {
-        return productionInfo.isLiteral();
+        return isLiteral;
     }
     
     public boolean isLexical() {
-        return productionInfo.isLexical();
+        return isLexical;
     }
     
     public boolean isList() {
-        return productionInfo.isList();
+        return isList;
     }
     
     public boolean isOptional() {
-        return productionInfo.isOptional();
+        return isOptional;
     }
+	
+    public boolean isOperator() {
+		return isOperator;
+	}
     
     public boolean isCompletionOrRecovery() {
-        return productionAttributes.isCompletionOrRecovery();
-    }
-    
-    public boolean isOperator() {
-        if (!productionInfo.isLiteral()) return false;
-        
-        IStrategoString lit = termAt(productionInfo.lhs, 0);
-        String contents = lit.stringValue();
-        
-        for (int i = 0; i < contents.length(); i++) {
-            char c = contents.charAt(i);
-            if (Character.isLetter(c)) return false;
-        }
-        
-        return true;
+        return attributes.isCompletionOrRecovery();
     }
 	
 }

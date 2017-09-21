@@ -15,7 +15,6 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.actions.Accept;
-import org.spoofax.jsglr2.actions.Action;
 import org.spoofax.jsglr2.actions.ActionType;
 import org.spoofax.jsglr2.actions.Goto;
 import org.spoofax.jsglr2.actions.IAction;
@@ -25,6 +24,7 @@ import org.spoofax.jsglr2.actions.Reduce;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.actions.Shift;
 import org.spoofax.jsglr2.characters.Characters;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.characters.RangesCharacterSet;
 import org.spoofax.jsglr2.characters.SingleCharacter;
 import org.spoofax.terms.ParseError;
@@ -32,23 +32,19 @@ import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
 public class ParseTableReader {
-	
-	public static IParseTable read(InputStream inputStream) throws ParseTableReadException, ParseError, IOException {
-		TermFactory factory = new TermFactory();
-		TermReader termReader = new TermReader(factory);
-		IStrategoTerm parseTableTerm = termReader.parseFromStream(inputStream);
-		
-		return read(parseTableTerm);
-	}
 
+	/*
+	 * Reads a parse table from a term. The format consists of a tuple of 4:
+	 *  - version number (not used)
+	 *  - start state number
+	 *  - list of productions (i.e. labels)
+	 *  - list of states
+	 *  - list of priorities (not used since priorities are now encoded in the parse table itself and do not have to be implemented separately during parsing)
+	 */
 	public static IParseTable read(IStrategoTerm pt) throws ParseTableReadException {
-		// int version = intAt(pt, 0); // Not used 
-		
 		int startStateNumber = intAt(pt, 1);
-		
 		IStrategoList productionsTermList = termAt(pt, 2);
         IStrategoNamed statesTerm = termAt(pt, 3);
-        // IStrategoNamed prioritiesTerm = termAt(pt, 4); // Not used
         
         Production[] productions = readProductions(productionsTermList);
         State[] states = readStates(statesTerm, productions);
@@ -58,34 +54,13 @@ public class ParseTableReader {
         return new ParseTable(productions, states, startStateNumber);
 	}
 	
-	private static void markRejectableStates(State[] states) {
-	    List<IProduction> rejectProductions = new ArrayList<IProduction>();
-        
-        for (State state : states) {
-            for (IAction action : state.actions()) {
-                if (action.actionType() == ActionType.REDUCE) {
-                    IReduce reduce = (IReduce) action;
-                    
-                    if (reduce.productionType() == ProductionType.REJECT)
-                        rejectProductions.add(reduce.production());
-                }
-            }
-        }
-        
-        for (State state : states) {
-            for (IGoto gotoAction : state.gotos()) {
-                boolean withRejectProduction = false;
-                
-                for (int production : gotoAction.productions()) {
-                    for (IProduction rejectProduction : rejectProductions)
-                        if (rejectProduction.productionNumber() == production)
-                            withRejectProduction = true;
-                }
-                
-                if (withRejectProduction)
-                    states[gotoAction.gotoState()].markRejectable();
-            }
-        }
+	public static IParseTable read(InputStream inputStream) throws ParseTableReadException, ParseError, IOException {
+		TermFactory factory = new TermFactory();
+		TermReader termReader = new TermReader(factory);
+		
+		IStrategoTerm parseTableTerm = termReader.parseFromStream(inputStream);
+		
+		return read(parseTableTerm);
 	}
 	
 	private static Production[] readProductions(IStrategoList productionsTermList) throws ParseTableReadException {
@@ -94,96 +69,15 @@ public class ParseTableReader {
 		Production[] productions = new Production[257 + productionsCount];
 		
 		for (IStrategoTerm numberedProductionTerm : productionsTermList) {
-			IStrategoNamed numberedProductionTermNamed = (IStrategoNamed) numberedProductionTerm;
-			IStrategoAppl productionTerm = termAt(numberedProductionTermNamed, 0);
-			IStrategoAppl attributesTerm = termAt(productionTerm, 2);
+			Production production = ProductionReader.read((IStrategoNamed) numberedProductionTerm);
 			
-			int productionNumber = intAt(numberedProductionTermNamed, 1);
-			ProductionAttributes productionAttributes = readProductionAttributes(attributesTerm);
-			
-			productions[productionNumber] = new Production(productionNumber, productionTerm, productionAttributes);
+			productions[production.productionNumber()] = production;
 		}
 		
 		return productions;
 	}
 	
-	private static ProductionAttributes readProductionAttributes(IStrategoAppl attributesTerm) throws ParseTableReadException {
-		if (attributesTerm.getName().equals("attrs")) {
-			ProductionType type = ProductionType.NO_TYPE;
-
-            IStrategoTerm term = null;
-            
-			boolean isRecover = false;
-			boolean isBracket = false;
-			boolean isCompletion = false;
-			boolean isPlaceholderInsertion = false;
-			boolean isLiteralCompletion = false;
-			boolean isIgnoreLayout = false;
-			boolean isNewlineEnforced = false;
-			boolean isLongestMatch = false;
-            
-            IStrategoList attributesTermsList = (IStrategoList) attributesTerm.getSubterm(0);
-            
-            for (IStrategoTerm attributeTerm : attributesTermsList) {
-            	IStrategoNamed attributeTermNamed = (IStrategoNamed) attributeTerm;
-            	
-            	if (attributeTermNamed.getName().equals("reject")) {
-            		type = ProductionType.REJECT;
-            	} else if (attributeTermNamed.getName().equals("prefer")) {
-            		type = ProductionType.PREFER;
-            	} else if (attributeTermNamed.getName().equals("avoid")) {
-            		type = ProductionType.AVOID;
-            	} else if (attributeTermNamed.getName().equals("bracket")) {
-            		type = ProductionType.BRACKET;
-            		isBracket = true;
-            	} else if (attributeTermNamed.getName().equals("assoc")) {
-        			IStrategoNamed associativityTermNamed = (IStrategoNamed) attributeTermNamed.getSubterm(0);
-        			
-        			if (associativityTermNamed.getName().equals("left") || associativityTermNamed.getName().equals("assoc")) {
-                        type = ProductionType.LEFT_ASSOCIATIVE;
-                    } else if (associativityTermNamed.getName().equals("right")) {
-                        type = ProductionType.RIGHT_ASSOCIATIVE;
-                    }
-        		} else if (attributeTermNamed.getName().equals("term") && attributeTermNamed.getSubtermCount() == 1) {
-        			if (attributeTermNamed.getSubterm(0) instanceof IStrategoNamed) {
-        				IStrategoNamed childTermNamed = (IStrategoNamed) attributeTermNamed.getSubterm(0);
-        				
-        				if (childTermNamed.getSubtermCount() == 1 && childTermNamed.getName().equals("cons")) {
-                			term = childTermNamed.getSubterm(0);
-                		} else if (childTermNamed.getSubtermCount() == 0 && childTermNamed.getName().equals("recover")) {
-                		    isRecover = true;
-                   		} else if (childTermNamed.getSubtermCount() == 0 && childTermNamed.getName().equals("completion")) {
-                		    isCompletion = true;
-                		} else if (childTermNamed.getSubtermCount() == 0 && childTermNamed.getName().equals("placeholder-insertion")) {
-                            isPlaceholderInsertion = true;
-                        } else if (childTermNamed.getSubtermCount() == 0 && childTermNamed.getName().equals("literal-completion")) {
-                            isLiteralCompletion = true;
-                        } else if (childTermNamed.getSubtermCount() == 0 && (childTermNamed.getName().equals("ignore-layout") || childTermNamed.getName().equals("ignore-indent"))) {
-                            isIgnoreLayout = true;
-                        } else if (childTermNamed.getSubtermCount() == 1 && childTermNamed.getName().equals("layout")) {
-                        	throw new ParseTableReadException("'layout' production attributes not supported");
-                        } else if (childTermNamed.getSubtermCount() == 0 && childTermNamed.getName().equals("enforce-newline")) {
-                        	isNewlineEnforced = true;
-                        } else if (childTermNamed.getSubtermCount() == 0 && childTermNamed.getName().equals("longest-match")) {
-                        	isLongestMatch = true;
-                        }
-                    }
-    			} else if (attributeTermNamed.getName().equals("id")) {
-    				term = attributeTermNamed.getSubterm(0);
-        		} else {
-        			throw new ParseTableReadException("'layout' production attributes not supported");
-        		}
-            }
-            
-            return new ProductionAttributes(type, term, isRecover, isBracket, isCompletion, isPlaceholderInsertion, isLiteralCompletion, isIgnoreLayout, isNewlineEnforced, isLongestMatch);
-		} else if (attributesTerm.getName().equals("no-attrs")) {
-            return new ProductionAttributes(ProductionType.NO_TYPE, null, false, false, false, false, false, false, false, false);
-        }
-		
-		throw new ParseTableReadException("unknown production attribute type: " + attributesTerm);
-	}
-	
-	private static State[] readStates(IStrategoNamed statesTermNamed, Production[] productions) throws ParseTableReadException {
+	private static State[] readStates(IStrategoNamed statesTermNamed, IProduction[] productions) throws ParseTableReadException {
 		IStrategoList statesTermList = termAt(statesTermNamed, 0);
 		int stateCount = statesTermList.getSubtermCount();
 		
@@ -197,8 +91,8 @@ public class ParseTableReader {
 			IStrategoList gotosTermList = (IStrategoList) termAt(stateTermNamed, 1);
 			IStrategoList actionsTermList = (IStrategoList) termAt(stateTermNamed, 2);
 			
-			Goto[] gotos = readGotos(gotosTermList);
-			Action[] actions = readActions(actionsTermList, productions);
+			IGoto[] gotos = readGotos(gotosTermList);
+			IAction[] actions = readActions(actionsTermList, productions);
 			
 			states[stateNumber] = new State(stateNumber, gotos, actions);
 		}
@@ -206,10 +100,10 @@ public class ParseTableReader {
 		return states;
 	}
 	
-	private static Goto[] readGotos(IStrategoList gotosTermList) {
+	private static IGoto[] readGotos(IStrategoList gotosTermList) {
 		int gotoCount = gotosTermList.getSubtermCount();
 		
-		Goto[] gotos = new Goto[gotoCount];
+		IGoto[] gotos = new IGoto[gotoCount];
 		
 		int i = 0;
 		
@@ -252,10 +146,10 @@ public class ParseTableReader {
 		return res;
 	}
 	
-	private static Action[] readActions(IStrategoList characterActionsTermList, Production[] productions) throws ParseTableReadException {
+	private static IAction[] readActions(IStrategoList characterActionsTermList, IProduction[] productions) throws ParseTableReadException {
 		int actionCount = characterActionsTermList.getSubtermCount();
 		
-		List<Action> actions = new ArrayList<Action>(actionCount);
+		List<IAction> actions = new ArrayList<IAction>(actionCount);
 		
 		for (IStrategoTerm charactersActionsTerm : characterActionsTermList) {
 			IStrategoNamed charactersActionsTermNamed = (IStrategoNamed) charactersActionsTerm;
@@ -263,14 +157,14 @@ public class ParseTableReader {
 			IStrategoList charactersTermList = (IStrategoList) termAt(charactersActionsTermNamed, 0);
 			IStrategoList actionsTermList = (IStrategoList) termAt(charactersActionsTermNamed, 1);
 			
-			Characters characters = readCharacters(charactersTermList);
+			ICharacters characters = readCharacters(charactersTermList);
 			
-			List<Action> actionsForCharacters = readActionsForCharacters(actionsTermList, characters, productions);
+			List<IAction> actionsForCharacters = readActionsForCharacters(actionsTermList, characters, productions);
 			
 			actions.addAll(actionsForCharacters);
 		}
 		
-		Action[] res = new Action[actions.size()];
+		IAction[] res = new IAction[actions.size()];
 		
 		for (int i = 0; i < res.length; i++)
 			res[i] = actions.get(i);
@@ -278,7 +172,7 @@ public class ParseTableReader {
 		return res;
 	}
     
-    private static Characters readCharacters(IStrategoList charactersTermList) {
+    private static ICharacters readCharacters(IStrategoList charactersTermList) {
         Characters characters = null;
         
         for (IStrategoTerm charactersTerm : charactersTermList) {
@@ -298,12 +192,12 @@ public class ParseTableReader {
         return characters;
     }
     
-    private static Characters[] readReduceLookaheadCharacters(IStrategoList list) throws ParseTableReadException {
-        List<Characters> followRestrictionCharacters = new ArrayList<Characters>(); // The length of this list equals the length of the lookahead, currently only 1 supported
+    private static ICharacters[] readReduceLookaheadCharacters(IStrategoList list) throws ParseTableReadException {
+        List<ICharacters> followRestrictionCharacters = new ArrayList<ICharacters>(); // The length of this list equals the length of the lookahead
         
         for (IStrategoTerm term : list.getAllSubterms()) {
             IStrategoNamed termNamed = (IStrategoNamed) term;
-            list = list.tail();
+            list = list.tail(); // TODO: check if this is required
             
             if ("follow-restriction".equals(termNamed.getName())) {
                 IStrategoList listOfFollowCharRanges = (IStrategoList) termAt(termNamed, 0);
@@ -311,34 +205,32 @@ public class ParseTableReader {
                 for (IStrategoTerm charClass : listOfFollowCharRanges.getAllSubterms()) {
                     followRestrictionCharacters.add(readCharacters((IStrategoList) charClass.getSubterm(0)));
                 }
-            } else {
-                throw new ParseTableReadException("invalid follow restriction for reduce");
-            }
+            } else throw new ParseTableReadException("Invalid follow restriction for reduce");
         }
         
-        return followRestrictionCharacters.toArray(new Characters[followRestrictionCharacters.size()]);
+        return followRestrictionCharacters.toArray(new ICharacters[followRestrictionCharacters.size()]);
     }
 	
-	private static List<Action> readActionsForCharacters(IStrategoList actionsTermList, Characters characters, Production[] productions) throws ParseTableReadException {
+	private static List<IAction> readActionsForCharacters(IStrategoList actionsTermList, ICharacters characters, IProduction[] productions) throws ParseTableReadException {
 		int actionCount = actionsTermList.getSubtermCount();
 		
-		List<Action> actions = new ArrayList<Action>(actionCount);
+		List<IAction> actions = new ArrayList<IAction>(actionCount);
 		
 		for (IStrategoTerm actionTerm : actionsTermList) {
 			IStrategoAppl actionTermAppl = (IStrategoAppl) actionTerm;
-			Action action = null;
+			IAction action = null;
 			
 			if (actionTermAppl.getName().equals("reduce")) { // Reduce
 				int arity = intAt(actionTermAppl, 0);
 				int productionNumber = intAt(actionTermAppl, 1);
 				ProductionType productionType = Production.typeFromInt(intAt(actionTermAppl, 2));
 				
-				Production production = productions[productionNumber];
+				IProduction production = productions[productionNumber];
 				
 				if (actionTermAppl.getConstructor().getArity() == 3) { // Reduce without lookahead
 					action = new Reduce(characters, production, productionType, arity);
 				} else if (actionTermAppl.getConstructor().getArity() == 4) { // Reduce with lookahead
-					Characters[] followRestriction = readReduceLookaheadCharacters((IStrategoList) termAt(actionTermAppl, 3));
+					ICharacters[] followRestriction = readReduceLookaheadCharacters((IStrategoList) termAt(actionTermAppl, 3));
 					
 					action = new ReduceLookahead(characters, production, productionType, arity, followRestriction);
 				}
@@ -354,6 +246,39 @@ public class ParseTableReader {
 		}
 		
 		return actions;
+	}
+	
+	// Mark states that are reachable by a reject production as rejectable
+    // That means the parser transitions into such state by means of a goto action after there is reduced by the reject production
+	private static void markRejectableStates(State[] states) {
+	    List<IProduction> rejectProductions = new ArrayList<IProduction>();
+        
+        for (IState state : states) {
+            for (IAction action : state.actions()) {
+                if (action.actionType() == ActionType.REDUCE || action.actionType() == ActionType.REDUCE_LOOKAHEAD) {
+                    IReduce reduce = (IReduce) action;
+                    
+                    if (reduce.productionType() == ProductionType.REJECT)
+                        rejectProductions.add(reduce.production());
+                }
+            }
+        }
+
+        for (IState state : states) {
+            for (IGoto gotoAction : state.gotos()) {
+                boolean withRejectProduction = false;
+                
+                for (int production : gotoAction.productions()) {
+                    for (IProduction rejectProduction : rejectProductions)
+                        if (rejectProduction.productionNumber() == production)
+                            withRejectProduction = true;
+                }
+                
+                // The goto state for this goto action is marked rejectable if it is for at least one reject production
+                if (withRejectProduction)
+                    states[gotoAction.gotoState()].markRejectable();
+            }
+        }
 	}
 	
 }

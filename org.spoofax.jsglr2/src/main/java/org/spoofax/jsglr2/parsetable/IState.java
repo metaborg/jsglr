@@ -8,6 +8,10 @@ public interface IState {
 
     int stateNumber();
     
+    IGoto[] gotos();
+    
+	IAction[] actions();
+    
     boolean isRejectable();
     
     Iterable<IAction> applicableActions(int character);

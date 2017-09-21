@@ -125,15 +125,15 @@ public class ParseTable implements Serializable {
         }
     }
 
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject normGrammar) throws Exception {
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable) throws Exception {
         initTransientData(factory);
         parse(pt);
         if(states.length == 0) {
             dynamicPTgeneration = true;
         }
 
-        if(dynamicPTgeneration && normGrammar != null) {
-            pt_generator = new ParseTableGenerator(normGrammar);
+        if(dynamicPTgeneration && persistedTable != null) {
+            pt_generator = new ParseTableGenerator(persistedTable);
             gotoCache = new HashMap<Goto, Goto>();
             shiftCache = new HashMap<Shift, Shift>();
             reduceCache = new HashMap<Reduce, Reduce>();
@@ -142,21 +142,21 @@ public class ParseTable implements Serializable {
             pt_generator = null;
         }
 
-        if(dynamicPTgeneration && normGrammar == null) {
+        if(dynamicPTgeneration && persistedTable == null) {
             throw new InvalidParseTableException(
                 "Parse table does not contain any state and normalized grammar is null");
         }
     }
 
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject normGrammar,
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable,
         org.metaborg.sdf2table.parsetable.ParseTable referencePt) throws Exception {
         initTransientData(factory);
 
         dynamicPTgeneration = checkDynamicGeneration(pt);
 
 
-        if(dynamicPTgeneration && normGrammar != null) {
-            pt_generator = new IncrementalParseTableGenerator(normGrammar, referencePt);
+        if(dynamicPTgeneration && persistedTable != null) {
+            pt_generator = new IncrementalParseTableGenerator(persistedTable, referencePt);
         } else {
             pt_generator = null;
         }
@@ -167,7 +167,7 @@ public class ParseTable implements Serializable {
         reduceCache = new HashMap<Reduce, Reduce>();
         rangesCache = new HashMap<RangeList, RangeList>();
 
-        if(dynamicPTgeneration && normGrammar == null) {
+        if(dynamicPTgeneration && persistedTable == null) {
             throw new InvalidParseTableException(
                 "Parse table does not contain any state and normalized grammar is null");
         }

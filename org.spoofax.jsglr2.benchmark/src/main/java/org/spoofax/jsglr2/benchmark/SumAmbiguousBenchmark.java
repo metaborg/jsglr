@@ -13,7 +13,7 @@ public class SumAmbiguousBenchmark extends JSGLR2GrammarBenchmark {
         super("sum-ambiguous");
     }
     
-    @Param({"10", "20", "40", "80"})
+    @Param({"10", "20", "30", "40", "50", "60", "70", "80"})
     public int n;
     
     protected List<Input> getInputs() throws IOException {

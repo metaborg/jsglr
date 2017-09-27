@@ -13,7 +13,7 @@ public class SumNonAmbiguousBenchmark extends JSGLR2GrammarBenchmark {
         super("sum-nonambiguous");
     }
     
-    @Param({"100", "1000", "10000"})
+    @Param({"1000", "2000", "4000", "8000", "16000"})
     public int n;
     
     protected List<Input> getInputs() throws IOException {

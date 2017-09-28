@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.tests.parser;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
@@ -10,7 +11,7 @@ import org.spoofax.terms.ParseError;
 
 public class IntersectionTest extends BaseTest implements WithGrammar {
 	
-	public IntersectionTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+	public IntersectionTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
 	    setupParseTableFromDefFile("intersection");
 	}
 	

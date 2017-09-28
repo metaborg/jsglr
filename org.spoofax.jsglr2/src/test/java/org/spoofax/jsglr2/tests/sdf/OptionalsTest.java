@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.tests.sdf;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 import org.spoofax.jsglr.client.InvalidParseTableException;
@@ -12,7 +13,7 @@ import org.spoofax.terms.ParseError;
 
 public class OptionalsTest extends BaseTest implements WithGrammar {
 	
-	public OptionalsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+	public OptionalsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
 		setupParseTableFromDefFile("optionals");
 	}
 

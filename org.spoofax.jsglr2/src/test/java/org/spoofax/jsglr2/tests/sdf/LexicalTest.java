@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.tests.sdf;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 import org.spoofax.jsglr.client.InvalidParseTableException;
@@ -12,7 +13,7 @@ import org.spoofax.terms.ParseError;
 
 public class LexicalTest extends BaseTest implements WithJSGLR1, WithGrammar {
 	
-	public LexicalTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+	public LexicalTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
 		setupParseTableFromDefFile("lexical-id");
 	}
 

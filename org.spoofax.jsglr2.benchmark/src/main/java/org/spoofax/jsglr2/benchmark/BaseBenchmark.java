@@ -90,9 +90,9 @@ public abstract class BaseBenchmark implements WithGrammar {
         new File(basePath + "/grammars").mkdirs();
         
         InputStream defResourceInJar = getClass().getResourceAsStream("/grammars/" + grammarName + ".def");
-        String destinationInJarDir = basePath + "/grammars/" + grammarName + ".def";
+        String destinationInTargetDir = basePath + "/grammars/" + grammarName + ".def";
         
-        Files.copy(defResourceInJar, Paths.get(destinationInJarDir), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(defResourceInJar, Paths.get(destinationInTargetDir), StandardCopyOption.REPLACE_EXISTING);
     }
 
     protected String getFileAsString(String filename) throws IOException {

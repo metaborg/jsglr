@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.tests.parser;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 import org.spoofax.jsglr.client.InvalidParseTableException;
@@ -11,7 +12,7 @@ import org.spoofax.terms.ParseError;
 
 public class CommentsTest extends BaseTest implements WithGrammar {
 	
-	public CommentsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+	public CommentsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
 	    setupParseTableFromDefFile("comments");
 	}
     

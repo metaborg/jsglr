@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>org.spoofax.jsglr2.benchmark</artifactId>
+  <packaging>jar</packaging>
+  <description>Benchmarking suite for the 2nd generation Java implementation of the scannerless generalized LR parser</description>
+  <url>https://github.com/metaborg/jsglr</url>
+  
+  <properties>
+    <jmh-version>1.17.4</jmh-version>
+    <main-class>org.openjdk.jmh.Main</main-class>
+  </properties>
+  
+  <parent>
+    <groupId>org.metaborg</groupId>
+    <artifactId>parent.java</artifactId>
+    <version>2.3.0-SNAPSHOT</version>
+    <relativePath>../../releng/parent/java</relativePath>
+  </parent>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.spoofax.jsglr2</artifactId>
+      <version>2.3.0-SNAPSHOT</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <version>${jmh-version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-generator-annprocess</artifactId>
+      <version>${jmh-version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <!-- Use resources of main jsglr2 project -->
+    <resources>
+      <resource>
+        <directory>../org.spoofax.jsglr2/src/test/resources</directory>
+      </resource>
+    </resources>
+    
+    <plugins>
+      <!-- Use javac compiler, since the JMH annotation processor does not work with the JDT -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.6.0</version><!--$NO-MVN-MAN-VER$ -->
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-compiler-javac</artifactId>
+            <version>2.8.1</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <compilerId>javac</compilerId>
+        </configuration>
+      </plugin>
+      <!-- Create an executable JAR -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <finalName>${project.artifactId}</finalName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>${main-class}</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Testing if the code is runnable, and if the shaded JAR is runnable -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-executable</id>
+            <phase>test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath />
+                <argument>${main-class}</argument>
+                <argument>-h</argument>
+              </arguments>
+              <outputFile>${null-device}</outputFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-shaded-jar-executable</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.artifactId}.jar</argument>
+                <argument>-h</argument>
+              </arguments>
+              <outputFile>${null-device}</outputFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Skip installation of executable -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <developers>
+    <developer>
+      <name>Jasper Denkers</name>
+      <email>jasperdenkers@gmail.com</email>
+      <organization>Delft University of Technology</organization>
+      <organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
+    <developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
+    <url>https://github.com/metaborg/jsglr</url>
+  </scm>
+</project>

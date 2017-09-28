@@ -2,8 +2,9 @@ package org.spoofax.jsglr.client.editregion.detection;
 
 import java.util.ArrayList;
 import org.spoofax.jsglr.client.editregion.detection.LCS;
+import org.spoofax.jsglr.client.imploder.AbstractTokenizer;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.Token;
 
 /**
@@ -17,7 +18,7 @@ import org.spoofax.jsglr.client.imploder.Token;
  */
 public class DamagedTokenAnalyzer {
 
-	private final ITokenizer tokens;
+	private final AbstractTokenizer tokens;
 	private final LCS<Character> lcs;
 	
 	//filled in the token stream analysis
@@ -28,7 +29,7 @@ public class DamagedTokenAnalyzer {
 	 * Returns tokens in token stream
 	 * @return
 	 */
-	public ITokenizer getTokens() {
+	public ITokens getTokens() {
 		return tokens;
 	}
 
@@ -58,7 +59,7 @@ public class DamagedTokenAnalyzer {
 	 * Determines the tokens in the correct term that are (possible) damaged
 	 * by edit operations.
 	 */
-	public DamagedTokenAnalyzer(ITokenizer tokens, LCS<Character> lcs){
+	public DamagedTokenAnalyzer(AbstractTokenizer tokens, LCS<Character> lcs){
 		this.tokens = tokens;
 		this.lcs = lcs;
 		this.tokensDamagedByInsertion = new ArrayList<IToken>();
@@ -144,13 +145,13 @@ public class DamagedTokenAnalyzer {
 				firstMatchedOffsetInSuffix_2 == firstMatchedOffsetInPrefix_2 + 1 && //no insertions that are discarded as whitespace
 				firstMatchedOffsetInPrefix_2 != -1 &&
 				firstMatchedOffsetInSuffix_2 != -1 &&
-				!isOffsetOfLayoutChar(token.getTokenizer(), firstMatchedOffsetInPrefix) &&
-				!isOffsetOfLayoutChar(token.getTokenizer(), firstMatchedOffsetInSuffix);
+				!isOffsetOfLayoutChar((AbstractTokenizer) token.getTokenizer(), firstMatchedOffsetInPrefix) &&
+				!isOffsetOfLayoutChar((AbstractTokenizer) token.getTokenizer(), firstMatchedOffsetInSuffix);
 		}
 		return false;
 	}
 
-	private boolean isOffsetOfLayoutChar(ITokenizer tokens, int offset) {
+	private boolean isOffsetOfLayoutChar(AbstractTokenizer tokens, int offset) {
 		boolean precedingLayout = tokens.getTokenAtOffset(offset).getKind() == Token.TK_LAYOUT;
 		return precedingLayout;
 	}

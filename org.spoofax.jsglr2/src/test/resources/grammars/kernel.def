@@ -1,0 +1,22 @@
+definition
+
+module kernel
+
+exports
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    String -> Start
+
+  syntax
+    <QMLex-LEX> <StringLex-LEX> <QMLex-LEX> -> <String-CF>  {ast("String(<2>)")}
+
+  lexical syntax
+    "\""                         -> QMLex
+    StringChar*                  -> StringLex
+    ~[\"\n]                      -> StringChar
+    "\\\""                       -> StringChar
+
+  lexical restrictions
+    StringLex -/- ~[\"\n]

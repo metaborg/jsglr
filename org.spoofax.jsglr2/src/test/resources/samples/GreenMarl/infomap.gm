@@ -1,0 +1,712 @@
+
+procedure weighted_infomap(G: graph, rank: nodeProp<double>, weight: edgeProp<double>): int {
+
+  double tau = 0.15;
+  double tol = 0.0001;
+  int max_iter = 10;
+  nodeProp<long> module;
+
+  //node p,q,tmp_n;
+  bool converged;
+
+  nodeProp<double> exit_pr;
+  nodeProp<double> weight_sum;
+  edgeProp<double> norm_weight;
+  edgeProp<double> normal;
+  double N = G.numNodes();
+  long l = 0;
+
+  //initialize modules (each node is a module)
+  map<long, long> mod_size;
+  map<long, double> mod_rank;
+  map<long, double> q_i;
+
+  //assuming equal tp weights (1/N):
+  double init_tp_weight = (N - 1) / N;
+
+  double sigma_q_i = 0.0;
+  double code_length = 0;
+  double code_diff = 0;
+
+  //remove region
+  //*/
+  double aux1 = 0;
+  double aux2 = 0;
+  double aux3 = 0;
+  double aux4 = 0;
+
+  for(n: G.nodes) {
+
+    double sum_weight = sum(out: n.outEdges) { out.weight };
+    n.weight_sum = sum_weight;
+    n.module = l;
+
+    bool p = true;
+    for(n_nbr: n.nbrs) {
+      edge e = n_nbr.toEdge();
+      e.norm_weight = (1 - tau) * n.rank * e.weight / sum_weight;
+      e.normal = (1 - tau) * e.weight / sum_weight;
+    }
+
+    q_i[l] = (tau * init_tp_weight * n.rank) + ((1 - tau) * n.rank);
+    n.exit_pr = q_i[l];
+    mod_rank[l] = n.rank;
+    mod_size[l] = 1;
+
+    sigma_q_i += q_i[l];
+    aux2 += plogp(q_i[l]);
+    aux3 += plogp(q_i[l] + n.rank);
+    aux4 += plogp(n.rank);
+
+    l++;
+  }
+
+  aux1 = plogp(sigma_q_i);
+  code_length = (aux1 - 2 * aux2 + aux3 - aux4) / log(2.0);
+
+  //println("aux1: {}", aux1);
+  //println("aux2: {}", aux2);
+  //println("aux3: {}", aux3);
+  //println("aux4: {}", aux4);
+  /*/
+  //end remove region
+
+  map<int, double> aux_map2;
+  bool init = initialization(G, N, tau, rank, weight, module, exit_pr, weight_sum, norm_weight, mod_size, mod_rank,
+      q_i, aux_map2);
+
+  if(init) {
+    sigma_q_i = aux_map2[0];
+    code_length = aux_map2[1];
+  }
+  //*/
+
+  //println("sigma_q_i: {}", sigma_q_i);
+  //println("code_length: {}", code_length);
+
+
+  //outer loop
+  int out_cnt = 0;
+  do {
+
+    double old_code_length = code_length + code_diff;
+    converged = false;
+
+    //fine-grain loop
+    int cnt = 0;
+    long moved = 0;//*
+    do {
+
+      moved = 0;
+
+      //Updating modules
+      long old_module = 0;
+
+      for(nd: G.nodes order by uniform()) {
+        
+        old_module = nd.module;
+
+        map<long, double> out_flow_to_mod;
+        map<long, double> in_flow_from_mod;
+
+        for(nd_nbr: nd.nbrs) {
+          edge e = nd_nbr.toEdge();
+          out_flow_to_mod[nd_nbr.module] += e.norm_weight;
+          //out_flow_to_mod[nd_nbr.module] += (1 - tau) * nd.rank * e.weight / nd.weight_sum;
+        }
+
+        for(nd_nbr: nd.inNbrs) {
+          edge e = nd_nbr.toEdge();
+          in_flow_from_mod[nd_nbr.module] += e.norm_weight;
+          //in_flow_from_mod[nd_nbr.module] += (1 - tau) * nd_nbr.rank * e.weight / nd_nbr.weight_sum;
+        }
+
+        /*/
+        bool fine_grain = true;
+        map<int, double> map_of_bests;
+        double loc_rank = nd.rank;
+        double loc_exit_pr = nd.exit_pr;
+
+        bool moving = compare_nbr_modules(old_module, N, tau, sigma_q_i, loc_rank, loc_exit_pr,
+            fine_grain, q_i, mod_rank, mod_size, out_flow_to_mod, in_flow_from_mod, map_of_bests);
+
+        double best_diff_code_len = 0;
+        long best_new_module = 0;
+        double best_rank_old_module = 0;
+        double best_rank_new_module = 0;
+        double best_exit_pr_old_module = 0;
+        double best_exit_pr_new_module = 0;
+        double best_new_sigma_q_i = 0;
+
+        if (moving) {
+          best_diff_code_len = map_of_bests[0];
+          best_new_module = (long) map_of_bests[1];
+          best_rank_old_module = map_of_bests[2];
+          best_rank_new_module = map_of_bests[3];
+          best_exit_pr_old_module = map_of_bests[4];
+          best_exit_pr_new_module = map_of_bests[5];
+          best_new_sigma_q_i = map_of_bests[6];
+        }
+
+        /*/
+        double old_exit_pr1 = q_i[nd.module];
+        double old_sum_pr1 = mod_rank[nd.module];
+        //considering all nodes with the same (uniform) teleportation weight
+        double nd_tp_weight = 1.0 / N;
+        double old_mod_tp_weight = mod_size[nd.module] * 1.0 / N;
+
+        double additional_teleport_out_flow = tau * nd.rank * (old_mod_tp_weight - nd_tp_weight);
+        double additional_teleport_in_flow = tau * (old_sum_pr1 - nd.rank) * nd_tp_weight;
+
+        for(new_module: out_flow_to_mod.keys) {
+          if (nd.module == new_module) {
+            out_flow_to_mod[new_module] += additional_teleport_out_flow;
+            in_flow_from_mod[new_module] += additional_teleport_in_flow;
+          } else {
+            out_flow_to_mod[new_module] += tau * nd.rank * mod_size[new_module] / N;
+            in_flow_from_mod[new_module] += tau * mod_rank[new_module] * nd_tp_weight;
+          }
+        }
+        
+        double out_flow_to_old_mod = additional_teleport_out_flow;
+        double in_flow_from_old_mod = additional_teleport_in_flow;
+
+        if (out_flow_to_mod.hasKey(old_module)) {
+          out_flow_to_old_mod = out_flow_to_mod[old_module];
+          in_flow_from_old_mod = in_flow_from_mod[old_module];
+        }
+
+        double new_exit_pr1 = old_exit_pr1 - nd.exit_pr + out_flow_to_old_mod + in_flow_from_old_mod;
+
+        long best_new_module = 0;
+        double best_diff_code_len = 0;
+        double best_rank_old_module = 0;
+        double best_rank_new_module = 0;
+        double best_exit_pr_old_module = 0;
+        double best_exit_pr_new_module = 0;
+        double best_new_sigma_q_i = 0;
+
+        long current_new_module = 0;
+        double current_diff_code_len = 0;
+        double current_rank_old_module = 0;
+        double current_rank_new_module = 0;
+        double current_exit_pr_old_module = 0;
+        double current_exit_pr_new_module = 0;
+        double current_new_sigma_q_i = 0;
+
+        for(new_module: out_flow_to_mod.keys) {
+
+          double out_flow_to_new_mod = out_flow_to_mod[new_module];
+          double in_flow_from_new_mod = in_flow_from_mod[new_module];
+
+          if (old_module != new_module) {
+
+            double old_exit_pr2 = q_i[new_module];
+            double old_sum_pr2 = mod_rank[new_module];
+
+            current_new_module = new_module;
+            current_rank_old_module = old_sum_pr1 - nd.rank;
+            current_rank_new_module = old_sum_pr2 + nd.rank;
+            current_exit_pr_old_module = new_exit_pr1;
+            current_exit_pr_new_module = old_exit_pr2 + nd.exit_pr - out_flow_to_new_mod - in_flow_from_new_mod;
+            current_new_sigma_q_i = sigma_q_i + new_exit_pr1 + current_exit_pr_new_module - old_exit_pr1 - old_exit_pr2;
+
+            double plogp_old = plogp(sigma_q_i);
+            double plogp_new = plogp(current_new_sigma_q_i);
+            double plogp_exit_old = plogp(old_exit_pr1) + plogp(old_exit_pr2);
+            double plogp_exit_new = plogp(current_exit_pr_old_module) + plogp(current_exit_pr_new_module);
+            double plogp_stay_old = plogp(old_exit_pr1 + old_sum_pr1) + plogp(old_exit_pr2 + old_sum_pr2);
+            double plogp_stay_new = plogp(current_exit_pr_old_module + current_rank_old_module) + 
+                plogp(current_exit_pr_new_module + current_rank_new_module);
+
+            double delta_all_exit_log_all_exit =  plogp_new - plogp_old;
+            double delta_exit_log_exit = plogp_exit_new - plogp_exit_old;
+            double delta_stay_log_stay = plogp_stay_new - plogp_stay_old;
+
+            current_diff_code_len = delta_all_exit_log_all_exit - 2 * delta_exit_log_exit + delta_stay_log_stay;
+
+            if (current_diff_code_len < best_diff_code_len) {
+              best_diff_code_len = current_diff_code_len;
+              best_new_module = current_new_module;
+              best_rank_old_module = current_rank_old_module;
+              best_rank_new_module = current_rank_new_module;
+              best_exit_pr_old_module = current_exit_pr_old_module;
+              best_exit_pr_new_module = current_exit_pr_new_module;
+              best_new_sigma_q_i = current_new_sigma_q_i;
+            }
+          }
+        }//*/
+
+        
+        if (best_diff_code_len < 0) {
+          //long new_module = best_new_module;
+          nd.module = best_new_module;
+          mod_size[best_new_module]++;
+          q_i[best_new_module] = best_exit_pr_new_module;
+          mod_rank[best_new_module] = best_rank_new_module;
+
+          mod_size[old_module]--;
+          q_i[old_module] = best_exit_pr_old_module;
+          mod_rank[old_module] = best_rank_old_module;
+          if (mod_size[old_module] < 1) {
+            mod_size.remove(old_module);
+            mod_rank.remove(old_module);
+            q_i.remove(old_module);
+          }
+          moved++;
+          sigma_q_i = best_new_sigma_q_i;
+          code_diff += best_diff_code_len/log(2.0);
+
+          //println("node: {} old: {} new: {}", nd, old_module, best_new_module);
+          /*if(moved <= 5) {
+            println("node: {} sigma_q_i: {} code_diff: {}", nd, sigma_q_i, code_diff);
+          }//*/
+        }
+        //*/
+
+      }
+
+      cnt++;
+
+      println("fine cnt: {} code_length: {} mod_size: {} moved: {}", cnt, code_length+code_diff, mod_size.size(), moved);
+    } while (cnt < max_iter && moved > 0);//*/
+
+    map<long, nodeSet> group_nodes;
+    map<long, nodeSet> super_nbrs;
+    map<long, nodeSet> in_super_nbrs;
+    map<long, double> all_super_edges;
+
+    for(n: G.nodes) {
+      group_nodes[n.module].add(n);
+      for(n_nbr: n.nbrs) {
+        edge e = n_nbr.toEdge();
+        if(n.module != n_nbr.module) {
+          long id = ((long) N * n.module) + n_nbr.module;
+          if (!all_super_edges.hasKey(((long) N * n.module) + n_nbr.module)) {
+            super_nbrs[n.module].add(n_nbr);
+            in_super_nbrs[n_nbr.module].add(n);
+            //println("n: {} nbr: {}", n.module, n_nbr.module);
+          }
+          all_super_edges[((long) N * n.module) + n_nbr.module] += e.norm_weight;
+          //all_super_edges[((long) N * n.module) + n_nbr.module] += e.normal;
+        }
+      }
+    }
+
+    //coarse-grain loop
+    int coarse_cnt = 0;
+    do {
+
+      map<long, nodeSet> copy_group_nodes = group_nodes;
+      moved = 0;
+
+      for(old_module: copy_group_nodes.keys) {
+
+        nodeSet tmp = group_nodes[old_module];
+
+        //println("super_nbrs[{}]: {}", old_module, super_nbrs[old_module].size());
+        //println("in_super_nbrs[{}]: {}", old_module, in_super_nbrs[old_module].size());
+        
+        map<long, double> super_out_flow_to_mod;
+        map<long, double> super_in_flow_from_mod;
+
+        nodeSet out_sn = super_nbrs[old_module];
+        nodeSet in_sn = in_super_nbrs[old_module];
+
+        for(sn: out_sn.items) {
+          //println("OUT MOD: {} SIZE: {}", sn.module, group_nodes[sn.module].size());
+          if (!super_out_flow_to_mod.hasKey(sn.module)) {
+            super_out_flow_to_mod[sn.module] += all_super_edges[((long) N * old_module) + sn.module];
+            //super_out_flow_to_mod[sn.module] += mod_rank[old_module] * all_super_edges[((long) N * old_module) + sn.module];
+          }
+        }
+        for(sn: in_sn.items) {
+          //println("IN MOD: {}", sn.module);
+          if (!super_in_flow_from_mod.hasKey(sn.module)) {
+            super_in_flow_from_mod[sn.module] += all_super_edges[((long) N * sn.module) + old_module];
+            //super_in_flow_from_mod[sn.module] += mod_rank[sn.module] * all_super_edges[((long) N * sn.module) + old_module];
+          }
+        }
+
+        /*/
+        bool fine_grain = false;
+        map<int, double> map_of_bests;
+        double loc_rank = mod_rank[old_module];
+        double loc_exit_pr = q_i[old_module];
+
+        bool moving = compare_nbr_modules(old_module, N, tau, sigma_q_i, loc_rank, loc_exit_pr,
+            fine_grain, q_i, mod_rank, mod_size, super_out_flow_to_mod, super_in_flow_from_mod,
+            map_of_bests);
+
+        double best_diff_code_len = 0;
+        long best_new_module = 0;
+        double best_rank_old_module = 0;
+        double best_rank_new_module = 0;
+        double best_exit_pr_old_module = 0;
+        double best_exit_pr_new_module = 0;
+        double best_new_sigma_q_i = 0;
+
+        if (moving) {
+          best_diff_code_len = map_of_bests[0];
+          best_new_module = (long) map_of_bests[1];
+          best_rank_old_module = map_of_bests[2];
+          best_rank_new_module = map_of_bests[3];
+          best_exit_pr_old_module = map_of_bests[4];
+          best_exit_pr_new_module = map_of_bests[5];
+          best_new_sigma_q_i = map_of_bests[6];
+        }
+
+        /*/
+        double old_exit_pr1 = q_i[old_module];
+        double old_sum_pr1 = mod_rank[old_module];
+        double nd_tp_weight = mod_size[old_module] / N;
+        double old_mod_tp_weight = mod_size[old_module] * 1.0 / N;
+
+        double additional_teleport_out_flow = tau * mod_rank[old_module] * (old_mod_tp_weight - nd_tp_weight);
+        double additional_teleport_in_flow = tau * (old_sum_pr1 - mod_rank[old_module]) * nd_tp_weight;
+
+        for(new_module: super_out_flow_to_mod.keys){        
+          if (old_module == new_module) {
+            super_out_flow_to_mod[new_module] += additional_teleport_out_flow;
+            super_in_flow_from_mod[new_module] += additional_teleport_in_flow;
+          } else {
+            super_out_flow_to_mod[new_module] += tau * mod_rank[old_module] * mod_size[new_module] / N;
+            super_in_flow_from_mod[new_module] += tau * mod_rank[new_module] * nd_tp_weight;
+          }          
+        }
+
+        double out_flow_to_old_mod = additional_teleport_out_flow;
+        double in_flow_from_old_mod = additional_teleport_in_flow;
+        
+        if (super_out_flow_to_mod.hasKey(old_module)) {
+          out_flow_to_old_mod = super_out_flow_to_mod[old_module];
+          in_flow_from_old_mod = super_in_flow_from_mod[old_module];
+        }
+
+        double new_exit_pr1 = old_exit_pr1 - q_i[old_module] + out_flow_to_old_mod + in_flow_from_old_mod;
+
+        double best_diff_code_len = 0;
+        long best_new_module = 0;
+        double best_rank_old_module = 0;
+        double best_rank_new_module = 0;
+        double best_exit_pr_old_module = 0;
+        double best_exit_pr_new_module = 0;
+        double best_new_sigma_q_i = 0;
+
+        double current_diff_code_len = 0;
+        long current_new_module = 0;
+        double current_rank_old_module = 0;
+        double current_rank_new_module = 0;
+        double current_exit_pr_old_module = 0;
+        double current_exit_pr_new_module = 0;
+        double current_new_sigma_q_i = 0;
+
+        for(new_module: super_out_flow_to_mod.keys) {
+
+          double out_flow_to_new_mod = super_out_flow_to_mod[new_module];
+          double in_flow_from_new_mod = super_in_flow_from_mod[new_module];
+
+          if (old_module != new_module) {
+
+            double old_exit_pr2 = q_i[new_module];
+            double old_sum_pr2 = mod_rank[new_module];
+
+            current_new_module = new_module;
+            current_rank_old_module = old_sum_pr1 - mod_rank[old_module];
+            current_rank_new_module = old_sum_pr2 + mod_rank[old_module];
+            current_exit_pr_old_module = new_exit_pr1;
+            current_exit_pr_new_module = old_exit_pr2 + q_i[old_module] - out_flow_to_new_mod - in_flow_from_new_mod;
+            current_new_sigma_q_i = sigma_q_i + new_exit_pr1 + current_exit_pr_new_module - old_exit_pr1 - old_exit_pr2;
+
+            double plogp_old = plogp(sigma_q_i);
+            double plogp_new = plogp(current_new_sigma_q_i);
+            double plogp_exit_old = plogp(old_exit_pr1) + plogp(old_exit_pr2);
+            double plogp_exit_new = plogp(current_exit_pr_old_module) + plogp(current_exit_pr_new_module);
+            double plogp_stay_old = plogp(old_exit_pr1 + old_sum_pr1) + plogp(old_exit_pr2 + old_sum_pr2);
+            double plogp_stay_new = plogp(current_exit_pr_old_module + current_rank_old_module) + 
+                plogp(current_exit_pr_new_module + current_rank_new_module);
+
+            double delta_all_exit_log_all_exit =  plogp_new - plogp_old;
+            double delta_exit_log_exit = plogp_exit_new - plogp_exit_old;
+            double delta_stay_log_stay = plogp_stay_new - plogp_stay_old;
+
+            current_diff_code_len = delta_all_exit_log_all_exit - 2 * delta_exit_log_exit + delta_stay_log_stay;
+
+            if (current_diff_code_len < best_diff_code_len) {
+              best_diff_code_len = current_diff_code_len;
+              best_new_module = current_new_module;
+              best_rank_old_module = current_rank_old_module;
+              best_rank_new_module = current_rank_new_module;
+              best_exit_pr_old_module = current_exit_pr_old_module;
+              best_exit_pr_new_module = current_exit_pr_new_module;
+              best_new_sigma_q_i = current_new_sigma_q_i;
+              //println("BEST MOD: {}", best_new_module);
+            }
+            //println("CURR MOD: {} DIFF: {}", current_new_module, current_diff_code_len);
+          }
+        }
+
+        if (best_diff_code_len < 0) {
+
+          long old_mod_size = (long) group_nodes[old_module].size();
+
+          out_sn = super_nbrs[old_module];
+          in_sn = in_super_nbrs[old_module];
+
+          //println("old mod: {} new mod: {}", old_module, best_new_module);
+          all_super_edges.remove(((long) N * old_module) + best_new_module);
+          all_super_edges.remove(((long) N * best_new_module) + old_module);
+
+          for(sn: out_sn.items order by sn.module) {
+
+            nodeSet tmp_out_sn = super_nbrs[sn.module];
+
+            if (sn.module != best_new_module) {
+              bool old_edge = all_super_edges.hasKey(((long) N * old_module) + sn.module);
+              bool new_edge = all_super_edges.hasKey(((long) N * best_new_module) + sn.module);
+
+              if (old_edge && new_edge) {
+                for (ndd: tmp_out_sn.items) {
+                  if (ndd.module == old_module) {
+                    super_nbrs[sn.module].remove(ndd);
+                  }
+                }
+              }
+
+              all_super_edges[((long) N * best_new_module) + sn.module] += all_super_edges[((long) N * old_module) + sn.module];
+              all_super_edges.remove(((long) N * old_module) + sn.module);
+
+            } else {
+              for (ndd: tmp_out_sn.items) {
+                if (ndd.module == old_module) {
+                  super_nbrs[sn.module].remove(ndd);
+                }
+              }
+            }
+          }
+
+          for(sn: in_sn.items order by sn.module) {
+
+            nodeSet tmp_in_sn = in_super_nbrs[sn.module];
+
+            if (sn.module != best_new_module) {
+              bool old_edge = all_super_edges.hasKey(((long) N * sn.module) + old_module);
+              bool new_edge = all_super_edges.hasKey(((long) N * sn.module) + best_new_module);
+
+              if (old_edge && new_edge) {
+                for (ndd: tmp_in_sn.items) {
+                  if (ndd.module == old_module) {
+                    in_super_nbrs[sn.module].remove(ndd);
+                  }
+                }
+              }
+
+              all_super_edges[((long) N * sn.module) + best_new_module] += all_super_edges[((long) N * sn.module) + old_module];
+              all_super_edges.remove(((long) N * sn.module) + old_module);
+
+            } else {
+              for (ndd: tmp_in_sn.items) {
+                if (ndd.module == old_module) {
+                  in_super_nbrs[sn.module].remove(ndd);
+                }
+              }
+            }
+          }
+
+          for(n: tmp.items) {
+            n.module = best_new_module;
+            group_nodes[best_new_module].add(n);
+          }
+
+          moved += mod_size[old_module];
+
+          mod_size[best_new_module] += mod_size[old_module];
+          q_i[best_new_module] = best_exit_pr_new_module;
+          mod_rank[best_new_module] = best_rank_new_module;
+
+          mod_size.remove(old_module);
+          mod_rank.remove(old_module);
+          q_i.remove(old_module);
+          group_nodes.remove(old_module);
+
+          sigma_q_i = best_new_sigma_q_i;
+          code_diff += best_diff_code_len/log(2.0);
+
+          //println("super node: {} sigma_q_i: {} code_diff: {} moved: {}", old_module, sigma_q_i, code_diff, moved);
+          //println("OLD MOD: {} NEW MOD: {}", old_module, best_new_module);
+        }
+      }//* /
+
+      coarse_cnt++;
+      println("coarse cnt: {} code_length: {} mod_size: {} moved: {}", coarse_cnt, code_length+code_diff, mod_size.size(), moved);
+    } while(coarse_cnt < max_iter && moved > 0);
+    //*/
+
+    if (old_code_length - (code_length+code_diff) < tol) {
+      converged = true;
+    }
+
+    out_cnt++;
+  } while(out_cnt < max_iter && !converged);
+
+  /*for(n: G.nodes) {
+    println("NODE: {} MOD: {}", n, n.module);
+  }//*/
+
+  println("CODE LENGTH: {}", code_length+code_diff);
+
+  //return code_length+code_diff;
+  return mod_size.size();
+}
+
+local plogp(p: double) : double {
+  if (p > 0) {
+    return p * log(p);
+  } else {
+    return 0.0;
+  }
+}
+
+/*
+local compare_nbr_modules(old_module: long, N, tau, sigma_q_i, loc_rank, loc_exit_pr: double,
+    fine_grain: bool, q_i, mod_rank: map<long, double>, mod_size: map<long, long>;
+    out_flow_to_mod, in_flow_from_mod: map<long, double>, map_of_bests: map<int, double>) : bool {
+
+  double old_exit_pr1 = q_i[old_module];
+  double old_sum_pr1 = mod_rank[old_module];
+  double old_mod_tp_weight = mod_size[old_module] * 1.0 / N;
+  double nd_tp_weight = fine_grain ? 1.0 : mod_size[old_module];
+  nd_tp_weight = nd_tp_weight / N;
+
+  double additional_teleport_out_flow = tau * loc_rank * (old_mod_tp_weight - nd_tp_weight);
+  double additional_teleport_in_flow = tau * (old_sum_pr1 - loc_rank) * nd_tp_weight;
+
+  for(new_module: out_flow_to_mod.keys) {
+    if (old_module == new_module) {
+      out_flow_to_mod[new_module] += additional_teleport_out_flow;
+      in_flow_from_mod[new_module] += additional_teleport_in_flow;
+    } else {
+      out_flow_to_mod[new_module] += tau * loc_rank * mod_size[new_module] / N;
+      in_flow_from_mod[new_module] += tau * mod_rank[new_module] * nd_tp_weight;
+    }
+  }
+
+  double out_flow_to_old_mod = additional_teleport_out_flow;
+  double in_flow_from_old_mod = additional_teleport_in_flow;
+  
+  if (out_flow_to_mod.hasKey(old_module)) {
+    out_flow_to_old_mod = out_flow_to_mod[old_module];
+    in_flow_from_old_mod = in_flow_from_mod[old_module];
+  }
+
+  double new_exit_pr1 = old_exit_pr1 - loc_exit_pr + out_flow_to_old_mod + in_flow_from_old_mod;
+
+  double best_diff_code_len = 0;
+
+  double current_diff_code_len = 0;
+  long current_new_module = 0;
+  double current_rank_old_module = 0;
+  double current_rank_new_module = 0;
+  double current_exit_pr_old_module = 0;
+  double current_exit_pr_new_module = 0;
+  double current_new_sigma_q_i = 0;
+
+  for(new_module: out_flow_to_mod.keys) {
+    double out_flow_to_new_mod = out_flow_to_mod[new_module];
+    double in_flow_from_new_mod = in_flow_from_mod[new_module];
+
+    if (old_module != new_module) {
+
+      double old_exit_pr2 = q_i[new_module];
+      double old_sum_pr2 = mod_rank[new_module];
+
+      current_new_module = new_module;
+      current_rank_old_module = old_sum_pr1 - loc_rank;
+      current_rank_new_module = old_sum_pr2 + loc_rank;
+      current_exit_pr_old_module = new_exit_pr1;
+      current_exit_pr_new_module = old_exit_pr2 + loc_exit_pr - out_flow_to_new_mod - in_flow_from_new_mod;
+      current_new_sigma_q_i = sigma_q_i + new_exit_pr1 + current_exit_pr_new_module - old_exit_pr1 - old_exit_pr2;
+
+      double plogp_old = plogp(sigma_q_i);
+      double plogp_new = plogp(current_new_sigma_q_i);
+      double plogp_exit_old = plogp(old_exit_pr1) + plogp(old_exit_pr2);
+      double plogp_exit_new = plogp(current_exit_pr_old_module) + plogp(current_exit_pr_new_module);
+      double plogp_stay_old = plogp(old_exit_pr1 + old_sum_pr1) + plogp(old_exit_pr2 + old_sum_pr2);
+      double plogp_stay_new = plogp(current_exit_pr_old_module + current_rank_old_module) + 
+          plogp(current_exit_pr_new_module + current_rank_new_module);
+
+      double delta_all_exit_log_all_exit =  plogp_new - plogp_old;
+      double delta_exit_log_exit = plogp_exit_new - plogp_exit_old;
+      double delta_stay_log_stay = plogp_stay_new - plogp_stay_old;
+
+      current_diff_code_len = delta_all_exit_log_all_exit - 2 * delta_exit_log_exit + delta_stay_log_stay;
+
+      if (current_diff_code_len < best_diff_code_len) {
+        best_diff_code_len = current_diff_code_len;
+        map_of_bests[0] = current_diff_code_len;
+        map_of_bests[1] = current_new_module;
+        map_of_bests[2] = current_rank_old_module;
+        map_of_bests[3] = current_rank_new_module;
+        map_of_bests[4] = current_exit_pr_old_module;
+        map_of_bests[5] = current_exit_pr_new_module;
+        map_of_bests[6] = current_new_sigma_q_i;
+        //println("BEST MOD: {}", current_new_module);
+      }
+    }
+  }
+
+  return true;
+}//*/
+
+/*
+local initialization(G: graph, N: double, tau: double, rank: nodeProp<double>, weight: edgeProp<double>;
+    module: nodeProp<long>, exit_pr: nodeProp<double>, weight_sum: nodeProp<double>, norm_weight: edgeProp<double>,
+    mod_size: map<long, long>, mod_rank: map<long, double>, q_i: map<long, double>, aux_map: map<int, double>) : bool {
+
+  double aux1 = 0;
+  double aux2 = 0;
+  double aux3 = 0;
+  double aux4 = 0;
+
+  double sigma_q_i = 0;
+
+  long l = 0;
+  double init_tp_weight = (N - 1) / N;  
+
+  for(n: G.nodes) {
+
+    double sum_weight = sum(out: n.outEdges) { out.weight };
+    //n.weight_sum = sum_weight;
+    n.module = l;
+
+    for(n_nbr: n.nbrs) {
+      edge e = n_nbr.toEdge();
+      //println("NODE: {} E: {}", n, e);
+      e.norm_weight = ((1 - tau) * n.rank * e.weight) / sum_weight;
+    }
+
+    q_i[l] = (tau * init_tp_weight * n.rank) + ((1 - tau) * n.rank);
+    n.exit_pr = q_i[l];
+    mod_rank[l] = n.rank;
+    mod_size[l] = 1;
+
+    sigma_q_i += q_i[l];
+    aux2 += plogp(q_i[l]);
+    aux3 += plogp(q_i[l] + n.rank);
+    aux4 += plogp(n.rank);
+
+    l++;
+  }
+
+  aux1 = plogp(sigma_q_i);
+  aux_map[0] = sigma_q_i;
+  aux_map[1] = (aux1 - 2 * aux2 + aux3 - aux4) / log(2.0);
+
+  println("aux1: {}", aux1);
+  println("aux2: {}", aux2);
+  println("aux3: {}", aux3);
+  println("aux4: {}", aux4);
+
+  return true;
+}
+//*/

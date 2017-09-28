@@ -44,7 +44,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	
 	private ParseTable table;
 	
-	private ITokenizer tokenizer;
+	private AbstractTokenizer tokenizer;
 	
 	private String input;
 	
@@ -132,7 +132,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 	
 	protected void setTokenizer(ITokenizer tokenizer) {
-		this.tokenizer = tokenizer;
+		this.tokenizer = (AbstractTokenizer) tokenizer;
 	}
 	
 	protected void setInput(String input) {

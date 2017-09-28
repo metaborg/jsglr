@@ -18,7 +18,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class KeywordRecognizer {
+public class KeywordRecognizer implements IKeywordRecognizer {
 	
 	private final Set<String> keywords = new HashSet<String>();
 	

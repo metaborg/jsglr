@@ -82,12 +82,14 @@ public interface IToken extends Comparable<IToken>, Serializable {
 	char charAt(int index);
 	
 	String getError();
+
+    void setAstNode(ISimpleTerm astNode);
 	
 	ISimpleTerm getAstNode();
 	
 	String getFilename();
 	
-	ITokenizer getTokenizer();
+	ITokens getTokenizer();
 	
 	IToken clone();
 }

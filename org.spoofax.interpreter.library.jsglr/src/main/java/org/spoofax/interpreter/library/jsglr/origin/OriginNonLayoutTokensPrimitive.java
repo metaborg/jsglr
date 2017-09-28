@@ -6,7 +6,8 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.jsglr.origin.AbstractOriginPrimitive;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ITokens;
+
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 
 /**
@@ -20,7 +21,7 @@ public class OriginNonLayoutTokensPrimitive extends AbstractOriginPrimitive {
 
 	@Override
 	public IStrategoTerm call(IContext env, IStrategoTerm origin) {
-		ITokenizer tokenizer=getTokenizer(origin);
+		ITokens tokenizer=getTokenizer(origin);
 		int startIndex=getLeftToken(origin).getIndex();
 		int endIndex = getRightToken(origin).getIndex();
 		ArrayList<IStrategoTerm> tokenStrings=new ArrayList<IStrategoTerm>();

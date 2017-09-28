@@ -9,7 +9,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public abstract class AbstractTokenizer implements ITokenizer {
+public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	
 	private final TokenKindManager manager =
 		new TokenKindManager();
@@ -164,7 +164,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	}
 	
 	public static boolean isErrorInRange(IToken start, IToken end) {
-		ITokenizer tokens = start.getTokenizer();
+		ITokens tokens = start.getTokenizer();
 		for (int i = start.getIndex(), max = end.getIndex(); i <= max; i++) {
 			IToken token = tokens.getTokenAt(i);
 			if (token.getError() != null)
@@ -180,7 +180,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	 */
 	public static IToken findLeftMostLayoutToken(IToken token) {
 		if (token == null) return null;
-		ITokenizer tokens = token.getTokenizer();
+		ITokens tokens = token.getTokenizer();
 		for (int i = token.getIndex() - 1; i >= 0; i--) {
 			IToken neighbour = tokens.getTokenAt(i);
 			switch (neighbour.getKind()) {
@@ -201,7 +201,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	 */
 	public static IToken findRightMostLayoutToken(IToken token) {
 		if (token == null) return null;
-		ITokenizer tokens = token.getTokenizer();
+		ITokens tokens = token.getTokenizer();
 		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
 			IToken neighbour = tokens.getTokenAt(i);
 			switch (neighbour.getKind()) {
@@ -218,7 +218,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public static IToken findLeftMostTokenOnSameLine(IToken token) {
 		if (token == null) return null;
 		int line = token.getLine();
-		ITokenizer tokens = token.getTokenizer();
+		ITokens tokens = token.getTokenizer();
 		for (int i = token.getIndex() - 1; i >= 0; i--) {
 			IToken neighbour = tokens.getTokenAt(i);
 			if (neighbour.getLine() != line || i == 0)
@@ -230,7 +230,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public static IToken findRightMostTokenOnSameLine(IToken token) {
 		if (token == null) return null;
 		int line = token.getLine();
-		ITokenizer tokens = token.getTokenizer();
+		ITokens tokens = token.getTokenizer();
 		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
 			IToken neighbour = tokens.getTokenAt(i);
 			if (neighbour.getLine() != line || i == count - 1)
@@ -248,7 +248,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public static IToken getTokenAfter(IToken token) {
 		if (token == null) return null;
 		int nextOffset = token.getEndOffset();
-		ITokenizer tokens = token.getTokenizer();
+		ITokens tokens = token.getTokenizer();
 		for (int i = token.getIndex() + 1, max = tokens.getTokenCount(); i < max; i++) {
 			IToken result = tokens.getTokenAt(i);
 			if (result.getStartOffset() >= nextOffset) return result;
@@ -265,7 +265,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public static IToken getTokenBefore(IToken token) {
 		if (token == null) return null;
 		int prevOffset = token.getStartOffset();
-		ITokenizer tokens = token.getTokenizer();
+		ITokens tokens = token.getTokenizer();
 		for (int i = token.getIndex() - 1; i >= 0; i--) {
 			IToken result = tokens.getTokenAt(i);
 			if (result.getEndOffset() <= prevOffset) return result;
@@ -373,7 +373,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	}
 
 	private static IToken findReportableErrorToken(IToken token) {
-		ITokenizer tokenizer = token.getTokenizer();
+	    ITokens tokenizer = token.getTokenizer();
 		// Search right
 		for (int i = token.getIndex(), max = tokenizer.getTokenCount(); i < max; i++) {
 			token = tokenizer.getTokenAt(i);

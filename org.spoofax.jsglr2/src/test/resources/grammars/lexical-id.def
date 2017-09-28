@@ -1,0 +1,10 @@
+definition
+
+module lexical-id
+
+exports
+  lexical start-symbols
+    Exp
+
+  lexical syntax
+    [a-z]+ -> Exp

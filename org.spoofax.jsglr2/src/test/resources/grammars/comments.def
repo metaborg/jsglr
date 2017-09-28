@@ -1,0 +1,31 @@
+definition
+
+module comments
+
+exports
+  lexical syntax 
+    [\ \t\n\r]               -> LAYOUT        
+    [\*]                     -> CommentChar   
+    "/*" InsideComment* "*/" -> LAYOUT        
+    ~[\*]                    -> InsideComment 
+    CommentChar              -> InsideComment 
+    "//" ~[\n\r]* NewLineEOF -> LAYOUT        
+    [\n\r]                   -> NewLineEOF    
+    EOF                      -> NewLineEOF    
+                             -> EOF   
+
+  lexical restrictions
+    CommentChar   -/- [\/]
+    EOF           -/- ~[]
+    
+  context-free restrictions
+    LAYOUT?       -/- [\ \t\n\r]
+    LAYOUT?       -/- [\/].[\/]
+    LAYOUT?       -/- [\/].[\*]
+
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    X+            -> Start {cons("Xs")}
+    "x"           -> X     {cons("X")}

@@ -27,6 +27,12 @@
 			<artifactId>org.spoofax.jsglr</artifactId>
 			<version>${metaborg-version}</version>
 		</dependency>
+		
+	    <dependency>
+	      <groupId>org.metaborg</groupId>
+	      <artifactId>org.metaborg.spoofax.nativebundle</artifactId>
+	      <version>${metaborg-version}</version>
+	    </dependency>
 
 		<dependency>
 			<groupId>junit</groupId>

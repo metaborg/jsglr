@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 
 /**
@@ -26,7 +26,7 @@ public class TestTokenize extends ParseTestCase {
 
     public void testJava5() throws FileNotFoundException, IOException {
     	IStrategoTerm parsed = doParseTest("java5");
-    	ITokenizer tokenizer = getLeftToken(parsed).getTokenizer();
+    	ITokens tokenizer = getLeftToken(parsed).getTokenizer();
     	Iterator<IToken> tokens = tokenizer.iterator();
     	System.out.println(tokenizer);
     	
@@ -63,7 +63,7 @@ public class TestTokenize extends ParseTestCase {
     public void testJava6() throws FileNotFoundException, IOException {
     	suffix = "java.recover";
     	IStrategoTerm parsed = doParseTest("java6");
-    	ITokenizer tokenizer = getLeftToken(parsed).getTokenizer();
+    	ITokens tokenizer = getLeftToken(parsed).getTokenizer();
     	Iterator<IToken> tokens = tokenizer.iterator();
     	System.out.println(tokenizer);
     	

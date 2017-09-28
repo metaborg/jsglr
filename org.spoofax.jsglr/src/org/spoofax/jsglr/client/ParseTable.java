@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.sdf2table.dynamic.DynamicParseTableGenerator;
 import org.metaborg.sdf2table.grammar.CharacterClass;
-import org.metaborg.sdf2table.grammar.NormGrammar;
+import org.metaborg.sdf2table.io.IncrementalParseTableGenerator;
+import org.metaborg.sdf2table.io.ParseTableGenerator;
 import org.metaborg.sdf2table.parsetable.GoTo;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -64,7 +64,7 @@ public class ParseTable implements Serializable {
 
     private static final long serialVersionUID = -3372429249660900093L;
 
-    private final DynamicParseTableGenerator pt_generator;
+    private final ParseTableGenerator pt_generator;
 
     private static SGLR layoutParser;
 
@@ -110,7 +110,7 @@ public class ParseTable implements Serializable {
 
     private transient Map<Label, List<Priority>> priorityCache;
 
-    private transient KeywordRecognizer keywords;
+    private transient IKeywordRecognizer keywords;
 
     private boolean dynamicPTgeneration = false;
 
@@ -118,23 +118,22 @@ public class ParseTable implements Serializable {
         initTransientData(factory);
         parse(pt);
         pt_generator = null;
-        
+
         if(states.length == 0) {
             throw new InvalidParseTableException(
                 "Parse table does not contain any state and normalized grammar is null");
-        }     
+        }
     }
 
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject normGrammar)
-        throws InvalidParseTableException {
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable) throws Exception {
         initTransientData(factory);
         parse(pt);
         if(states.length == 0) {
             dynamicPTgeneration = true;
         }
 
-        if(dynamicPTgeneration && normGrammar != null) {
-            pt_generator = new DynamicParseTableGenerator(normGrammar);
+        if(dynamicPTgeneration && persistedTable != null) {
+            pt_generator = new ParseTableGenerator(persistedTable);
             gotoCache = new HashMap<Goto, Goto>();
             shiftCache = new HashMap<Shift, Shift>();
             reduceCache = new HashMap<Reduce, Reduce>();
@@ -143,34 +142,41 @@ public class ParseTable implements Serializable {
             pt_generator = null;
         }
 
-        if(dynamicPTgeneration && normGrammar == null) {
+        if(dynamicPTgeneration && persistedTable == null) {
             throw new InvalidParseTableException(
                 "Parse table does not contain any state and normalized grammar is null");
         }
     }
-    
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, NormGrammar normGrammar)
-        throws InvalidParseTableException {
-        initTransientData(factory);
-        parse(pt);
-        if(states.length == 0) {
-            dynamicPTgeneration = true;
-        }
 
-        if(dynamicPTgeneration && normGrammar != null) {
-            pt_generator = new DynamicParseTableGenerator(normGrammar);
-            gotoCache = new HashMap<Goto, Goto>();
-            shiftCache = new HashMap<Shift, Shift>();
-            reduceCache = new HashMap<Reduce, Reduce>();
-            rangesCache = new HashMap<RangeList, RangeList>();
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable,
+        org.metaborg.sdf2table.parsetable.ParseTable referencePt) throws Exception {
+        initTransientData(factory);
+
+        dynamicPTgeneration = checkDynamicGeneration(pt);
+
+
+        if(dynamicPTgeneration && persistedTable != null) {
+            pt_generator = new IncrementalParseTableGenerator(persistedTable, referencePt);
         } else {
             pt_generator = null;
         }
 
-        if(dynamicPTgeneration && normGrammar == null) {
+        parse(pt_generator.generateATerm(pt_generator.getParseTable()));
+        gotoCache = new HashMap<Goto, Goto>();
+        shiftCache = new HashMap<Shift, Shift>();
+        reduceCache = new HashMap<Reduce, Reduce>();
+        rangesCache = new HashMap<RangeList, RangeList>();
+
+        if(dynamicPTgeneration && persistedTable == null) {
             throw new InvalidParseTableException(
                 "Parse table does not contain any state and normalized grammar is null");
         }
+    }
+
+    private boolean checkDynamicGeneration(IStrategoTerm pt) {
+        // check if list of states in the aterm is empty
+        // TODO may need a different checking method
+        return true;
     }
 
     @Deprecated public ParseTable(IStrategoTerm pt) throws InvalidParseTableException {
@@ -688,7 +694,7 @@ public class ParseTable implements Serializable {
 
             List<IStrategoTerm> actions = Lists.newArrayList();
             for(org.metaborg.sdf2table.parsetable.Action a : s_orig.actions().get(cc)) {
-                actions.add(a.toAterm(factory, pt_generator));
+                actions.add(a.toAterm(factory, pt_generator.getParseTable()));
             }
             action_terms.add(factory.makeAppl(factory.makeConstructor("action", 2), cc.toStateAterm(factory),
                 factory.makeList(actions)));
@@ -710,7 +716,7 @@ public class ParseTable implements Serializable {
 
     public State getInitialState() {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getInitialState();
+            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getParseTable().initialState();
 
             State s = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
@@ -721,7 +727,7 @@ public class ParseTable implements Serializable {
 
     public State go(State s, int label) {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getState(s.go(label));
+            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getParseTable().getState(s.go(label));
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;
@@ -735,7 +741,7 @@ public class ParseTable implements Serializable {
 
     public State getState(int s) {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getState(s);
+            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getParseTable().getState(s);
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;
@@ -775,7 +781,7 @@ public class ParseTable implements Serializable {
         return total;
     }
 
-    public DynamicParseTableGenerator getPTgenerator() {
+    public ParseTableGenerator getPTgenerator() {
         return pt_generator;
     }
 
@@ -850,7 +856,7 @@ public class ParseTable implements Serializable {
         }
     }
 
-    public KeywordRecognizer getKeywordRecognizer() {
+    public IKeywordRecognizer getKeywordRecognizer() {
         if(keywords == null)
             keywords = new KeywordRecognizer(this);
         return keywords;

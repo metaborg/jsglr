@@ -1,0 +1,28 @@
+definition
+
+module lookahead
+
+exports
+  lexical syntax
+    PrefixOneCharFollowRestricted Letters Suffix   -> OneCharFollowRestricted         
+    PrefixTwoCharFollowRestricted Letters Suffix   -> TwoCharFollowRestricted         
+    PrefixThreeCharFollowRestricted Letters Suffix -> ThreeCharFollowRestricted       
+    "1["                                           -> PrefixOneCharFollowRestricted   
+    "2["                                           -> PrefixTwoCharFollowRestricted   
+    "3["                                           -> PrefixThreeCharFollowRestricted 
+    [a-z] [a-z]*                                   -> Letters                         
+    "]"                                            -> Suffix                          
+
+  lexical restrictions
+    PrefixOneCharFollowRestricted -/- [a]
+    PrefixTwoCharFollowRestricted -/- [a] . [b]
+    PrefixThreeCharFollowRestricted -/- [a] . [b] . [c]
+    Letters -/- [a-z]
+
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    OneCharFollowRestricted   -> Start {cons("OneCharFollowRestricted")}
+    TwoCharFollowRestricted   -> Start {cons("TwoCharFollowRestricted")}
+    ThreeCharFollowRestricted -> Start {cons("ThreeCharFollowRestricted")}

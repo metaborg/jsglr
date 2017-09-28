@@ -15,7 +15,7 @@ public class Token implements IToken, Cloneable {
 
     private transient static Map<String, Integer> asyncAllTokenKinds;
 
-    private ITokenizer tokenizer;
+    private transient ITokens tokens;
 
     private final String filename;
 
@@ -35,13 +35,13 @@ public class Token implements IToken, Cloneable {
 
     private ISimpleTerm astNode;
 
-    public Token(ITokenizer tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset, int kind) {
+    public Token(ITokens tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset, int kind) {
         this(tokenizer, filename, index, line, column, startOffset, endOffset, kind, null, null);
     }
 
-    public Token(ITokenizer tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset, int kind,
+    public Token(ITokens tokens, String filename, int index, int line, int column, int startOffset, int endOffset, int kind,
         String errorMessage, ISimpleTerm astNode) {
-        this.tokenizer = tokenizer;
+        this.tokens = tokens;
         this.filename = filename;
         this.index = index;
         this.line = line;
@@ -51,12 +51,12 @@ public class Token implements IToken, Cloneable {
         this.kind = kind;
     }
 
-    public ITokenizer getTokenizer() {
-        return tokenizer;
+    public ITokens getTokenizer() {
+        return tokens;
     }
 
-    protected void setTokenizer(ITokenizer tokenizer) {
-        this.tokenizer = tokenizer;
+    protected void setTokenizer(ITokens tokenizer) {
+        this.tokens = tokenizer;
     }
 
     public int getKind() {
@@ -115,10 +115,10 @@ public class Token implements IToken, Cloneable {
     public String getFilename() {
         return filename;
     }
-    
+
     /**
      * Gets the error message associated with this token, if any.
-     * 
+     *
      * Note that this message is independent from the token kind, which may also indicate an error.
      */
     public String getError() {
@@ -137,17 +137,22 @@ public class Token implements IToken, Cloneable {
     }
 
     public ISimpleTerm getAstNode() {
-        if(astNode == null)
-            getTokenizer().initAstNodeBinding();
+        if(astNode == null) {
+            ITokens tokens = getTokenizer();
+
+            // This is a hack. For jsglr1 the AST binding might not be done yet. For jsglr2 it is always done during imploding.
+            if (tokens instanceof AbstractTokenizer)
+                ((AbstractTokenizer) getTokenizer()).initAstNodeBinding();
+        }
         return astNode;
     }
 
     @Override public String toString() {
-        return tokenizer.toString(this, this);
+        return tokens.toString(this, this);
     }
 
     public char charAt(int index) {
-        return tokenizer.getInput().charAt(index + startOffset);
+        return tokens.getInput().charAt(index + startOffset);
     }
 
     @Override public int hashCode() {

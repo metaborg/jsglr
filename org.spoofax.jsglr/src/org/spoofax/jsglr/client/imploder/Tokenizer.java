@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
+import org.spoofax.jsglr.client.IKeywordRecognizer;
 import org.spoofax.jsglr.client.KeywordRecognizer;
 import org.spoofax.terms.SimpleTermVisitor;
 
@@ -29,7 +30,7 @@ public class Tokenizer extends AbstractTokenizer {
 
     private final ArrayList<Token> tokens;
 
-    private KeywordRecognizer keywords;
+    private IKeywordRecognizer keywords;
 
     private ISimpleTerm ast;
 
@@ -44,11 +45,11 @@ public class Tokenizer extends AbstractTokenizer {
     /**
      * Creates a new tokenizer for the given file name (if applicable) and contents.
      */
-    public Tokenizer(String input, String filename, KeywordRecognizer keywords) {
+    public Tokenizer(String input, String filename, IKeywordRecognizer keywords) {
         this(input, filename, keywords, true);
     }
 
-    public Tokenizer(String input, String filename, KeywordRecognizer keywords, boolean startWithReserved) {
+    public Tokenizer(String input, String filename, IKeywordRecognizer keywords, boolean startWithReserved) {
         super(input, filename);
         this.keywords = keywords;
         this.tokens = new ArrayList<Token>(); // capacity set in internalMakeToken()
@@ -106,7 +107,7 @@ public class Tokenizer extends AbstractTokenizer {
         this.startOffset = startOffset;
     }
 
-    protected void setKeywordRecognizer(KeywordRecognizer keywords) {
+    protected void setKeywordRecognizer(IKeywordRecognizer keywords) {
         this.keywords = keywords;
     }
 
@@ -267,7 +268,7 @@ public class Tokenizer extends AbstractTokenizer {
         return result.toString();
     }
 
-    protected KeywordRecognizer getKeywordRecognizer() {
+    protected IKeywordRecognizer getKeywordRecognizer() {
         return keywords;
     }
 

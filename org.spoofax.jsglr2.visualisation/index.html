@@ -1,0 +1,50 @@
+<html>
+
+  <head>
+    <script type="text/javascript" src="./lib/jquery.min.js"></script>
+    <script type="text/javascript" src="./lib/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./lib/vis.min.js"></script>
+    
+    <link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="./lib/vis.min.css" type="text/css" />
+    <link rel="stylesheet" href="./style.css" type="text/css" />
+  </head>
+
+  <body>
+    
+    <div id="header">
+      <div class="btn-group btn-group-lg btn-group-justified">
+        <a id="play" class="btn btn-default" role="button">
+          <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+        </a>
+        <a id="pause" class="btn btn-default" role="button">
+          <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+        </a>
+        <a id="step-forward" class="btn btn-default" role="button">
+          <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span>
+        </a>
+        <a id="all-forward" class="btn btn-default" role="button">
+          <span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span>
+        </a>
+        <a id="refresh" class="btn btn-default" role="button">
+          <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+        </a>
+      </div>
+    </div>
+    
+    <div class="container left">
+      <h2>Graph Structured Stack</h2>
+      <div id="gss"></div>
+    </div>
+    
+    <div class="container right">
+      <h2>Parse Forest</h2>
+      <div id="parseForest"></div>
+    </div>
+    
+    <script type="text/javascript" src="./actions.js"></script>
+    <script type="text/javascript" src="./main.js"></script>
+    
+  </body>
+
+</html>

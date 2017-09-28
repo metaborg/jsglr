@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 
@@ -224,7 +224,7 @@ public class IncrementalTreeBuilder<TNode extends ISimpleTerm> {
 	 *           The change in offset between the given tokens and the copied tokens in the new tokenizer.
 	 */
 	private void copyTokens(IToken startToken, IToken stopToken, int stopOffset, int offsetChange) {
-		ITokenizer fromTokenizer = startToken.getTokenizer();
+		ITokens fromTokenizer = startToken.getTokenizer();
 		assert fromTokenizer == stopToken.getTokenizer();
 		int oldStartOffset = newTokenizer.getStartOffset();
 		for (int i = findLeftMostLayoutToken(startToken).getIndex(), last = stopToken.getIndex(); i < last; i++) {

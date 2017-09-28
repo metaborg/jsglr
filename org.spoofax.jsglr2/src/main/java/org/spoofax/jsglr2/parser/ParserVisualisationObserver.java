@@ -127,15 +127,13 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
         String res = "";
         
         for (String action : jsonTrace) {
-            res += "\n\t";
-            
             if (res.isEmpty())
-                res += action;
+                res += "\n\t" + action;
             else
-                res += "," + action;
+                res += ",\n\t" + action;
         }
         
-        return "[" + res + "]";
+        return "[" + res + "\n]";
     }
     
     public void toJsonFile(String filename) throws FileNotFoundException {

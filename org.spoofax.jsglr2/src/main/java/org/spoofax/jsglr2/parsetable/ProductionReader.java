@@ -7,12 +7,15 @@ import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.javaString;
 import static org.spoofax.terms.Term.termAt;
 
+import java.util.Iterator;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.TermVisitor;
 
 public class ProductionReader {
 	
@@ -29,14 +32,17 @@ public class ProductionReader {
 		String sort = getSort(lhs);
 		boolean isLayout = getIsLayout(lhs);
 		boolean isLiteral = getIsLiteral(lhs);
-		boolean isLexical = getIsLexical(lhs, rhs);
+		boolean isLexical = getIsLexical(lhs);
+		boolean isLexicalRhs = getIsLexicalRhs(rhs);
 		boolean isList = getIsList(lhs, attributes.isFlatten);
 		boolean isOptional = getIsOptional(lhs);
+		boolean isStringLiteral = getIsStringLiteral(rhs);
+		boolean isNumberLiteral = getIsNumberLiteral(rhs);
 		boolean isOperator = getIsOperator(lhs, isLiteral);
 		
-		boolean isContextFree = !(isLayout || isLiteral || isLexical);
+		boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
 		
-		return new Production(productionNumber, sort, isContextFree, isLayout, isLiteral, isLexical, isList, isOptional, isOperator, attributes);
+		return new Production(productionNumber, sort, isContextFree, isLayout, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
 	}
 	
 	private static String getSort(IStrategoAppl lhs) {
@@ -96,7 +102,7 @@ public class ProductionReader {
 		return left + "_" + right + "0";
     }
 
-	public static boolean getIsLayout(IStrategoTerm lhs) {
+	private static boolean getIsLayout(IStrategoTerm lhs) {
 		IStrategoTerm details = termAt(lhs, 0);
 		
 		if (!isTermAppl(details))
@@ -108,19 +114,19 @@ public class ProductionReader {
 		return "layout".equals(((IStrategoAppl) details).getConstructor().getName());
 	}
 
-	public static boolean getIsLiteral(IStrategoAppl lhs) {
+	private static boolean getIsLiteral(IStrategoAppl lhs) {
 		String constructorName = lhs.getConstructor().getName();
 		
 		return "lit".equals(constructorName) || "cilit".equals(constructorName);
 	}
 
-	public static boolean getIsLexical(IStrategoAppl lhs, IStrategoList rhs) {
+	private static boolean getIsLexical(IStrategoAppl lhs) {
 		String constructorName = lhs.getConstructor().getName();
 	    
-		return "lex".equals(constructorName) || getIsLexicalRhs(rhs);
+		return "lex".equals(constructorName);
 	}
 	
-	public static boolean getIsLexicalRhs(IStrategoList rhs) {
+	private static boolean getIsLexicalRhs(IStrategoList rhs) {
 		if (rhs.getSubtermCount() > 0) {
 	        boolean lexRhs = true;
 	        
@@ -135,7 +141,7 @@ public class ProductionReader {
 	        return false;
 	}
 	
-	public static boolean getIsList(IStrategoAppl lhs, boolean isFlatten) {
+	private static boolean getIsList(IStrategoAppl lhs, boolean isFlatten) {
 		IStrategoConstructor constructor = getIterConstructor(lhs);
 		
 		return getIsIterFun(constructor) || "seq".equals(constructor.getName()) || isFlatten;
@@ -156,13 +162,13 @@ public class ProductionReader {
         return details.getConstructor();
 	}
 
-	public static boolean getIsIterFun(IStrategoConstructor constructor) {
+	private static boolean getIsIterFun(IStrategoConstructor constructor) {
 		String constructorName = constructor.getName();
 		
 		return "iter".equals(constructorName) || "iter-star".equals(constructorName) || "iter-plus".equals(constructorName) || "iter-sep".equals(constructorName) || "iter-star-sep".equals(constructorName) || "iter-plus-sep".equals(constructorName);
 	}
 
-	public static boolean getIsOptional(IStrategoAppl lhs) {
+	private static boolean getIsOptional(IStrategoAppl lhs) {
 		if ("opt".equals(lhs.getConstructor().getName()))
 			return true;
 		
@@ -171,7 +177,17 @@ public class ProductionReader {
 		return contents.getSubtermCount() == 1 && isTermAppl(contents) && "opt".equals(((IStrategoAppl) contents).getConstructor().getName());
 	}
     
-    public static boolean getIsOperator(IStrategoAppl lhs, boolean isLiteral) {
+	private static boolean getIsStringLiteral(IStrategoTerm rhs) {
+		return topdownHasSpaces(rhs);
+	}
+	
+	private static boolean getIsNumberLiteral(IStrategoTerm rhs) {
+		IStrategoTerm range = getFirstRange(rhs);
+		
+		return range != null && intAt(range, 0) == '0' && intAt(range, 1) == '9';
+	}
+	
+	private static boolean getIsOperator(IStrategoAppl lhs, boolean isLiteral) {
     		// An operator literal is always a literal
         if (!isLiteral)
         		return false;
@@ -189,6 +205,48 @@ public class ProductionReader {
         
         return true;
     }
+	
+	private static boolean topdownHasSpaces(IStrategoTerm term) {
+		Iterator<IStrategoTerm> iterator = TermVisitor.tryGetListIterator(term);
+		
+		for (int i = 0, max = term.getSubtermCount(); i < max; i++) {
+			IStrategoTerm child = iterator == null ? term.getSubterm(i) : iterator.next();
+			
+			if (isRangeAppl(child)) {
+				int start = intAt(child, 0);
+				int end = intAt(child, 1);
+				
+				if (start <= ' ' && ' ' <= end)
+					return true;
+			} else {
+				if (topdownHasSpaces(child))
+					return true;
+			}
+		}
+		
+		return false;
+	}
+    
+    private static boolean isRangeAppl(IStrategoTerm child) {
+		return isTermAppl(child) && ((IStrategoAppl) child).getName().equals("range");
+	}
+	
+    private static IStrategoTerm getFirstRange(IStrategoTerm term) {
+		for (int i = 0; i < term.getSubtermCount(); i++) {
+			IStrategoTerm child = termAt(term, i);
+			
+			if (isRangeAppl(child))
+				return child;
+			else {
+				child = getFirstRange(child);
+				
+				if (child != null)
+					return child;
+			}
+		}
+		
+		return null;
+	}
 	
 	private static ProductionAttributes readProductionAttributes(IStrategoAppl attributesTerm) throws ParseTableReadException {
 		if (attributesTerm.getName().equals("attrs")) {

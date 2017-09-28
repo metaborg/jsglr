@@ -8,20 +8,26 @@ public class Production implements IProduction {
 	private final boolean isLayout;
 	private final boolean isLiteral;
 	private final boolean isLexical;
+	private final boolean isLexicalRhs;
 	private final boolean isList;
 	private final boolean isOptional;
+	private final boolean isStringLiteral;
+	private final boolean isNumberLiteral;
 	private final boolean isOperator;
 	private final ProductionAttributes attributes;
 	
-	public Production(int productionNumber, String sort, Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isList, Boolean isOptional, Boolean isOperator, ProductionAttributes attributes) {
+	public Production(int productionNumber, String sort, Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
 		this.productionNumber = productionNumber;
 		this.sort = sort;
 		this.isContextFree = isContextFree;
 		this.isLayout = isLayout;
 		this.isLiteral = isLiteral;
 		this.isLexical = isLexical;
+		this.isLexicalRhs = isLexicalRhs;
 		this.isList = isList;
 		this.isOptional = isOptional;
+		this.isStringLiteral = isStringLiteral;
+		this.isNumberLiteral = isNumberLiteral;
 		this.isOperator = isOperator;
 		this.attributes = attributes;
 	}
@@ -70,6 +76,10 @@ public class Production implements IProduction {
         return isLexical;
     }
     
+    public boolean isLexicalRhs() {
+        return isLexicalRhs;
+    }
+    
     public boolean isList() {
         return isList;
     }
@@ -77,6 +87,14 @@ public class Production implements IProduction {
     public boolean isOptional() {
         return isOptional;
     }
+	
+    public boolean isStringLiteral() {
+		return isStringLiteral;
+	}
+	
+    public boolean isNumberLiteral() {
+		return isNumberLiteral;
+	}
 	
     public boolean isOperator() {
 		return isOperator;

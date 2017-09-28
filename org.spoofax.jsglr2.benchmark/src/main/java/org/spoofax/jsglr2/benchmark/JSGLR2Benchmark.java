@@ -1,6 +1,8 @@
 package org.spoofax.jsglr2.benchmark;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
@@ -29,10 +31,10 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({"true", "false"})
     public boolean elkhoundReducing;
     
-    protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException;
+    protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException;
     
     @Setup
-    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
         prepareParseTable();
         
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);

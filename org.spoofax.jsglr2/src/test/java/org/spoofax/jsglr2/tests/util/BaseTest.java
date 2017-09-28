@@ -7,12 +7,14 @@ import static org.junit.Assert.fail;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
@@ -38,6 +40,7 @@ import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.stack.standard.StandardStackManager;
 import org.spoofax.jsglr2.util.AstUtilities;
+import org.spoofax.jsglr2.util.Sdf2Table;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -53,6 +56,11 @@ public abstract class BaseTest {
         this.termReader = new TermReader(termFactory);
         
         this.astUtilities = new AstUtilities();
+    }
+    
+    @BeforeClass
+    public static void setUpNativeSdf2Table() throws URISyntaxException, IOException {
+    		Sdf2Table.setupSdf2TableInTargetDir();
     }
     
     public TermReader getTermReader() {

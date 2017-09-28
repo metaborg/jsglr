@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,11 +48,13 @@ public interface WithGrammar extends WithParseTable {
 		
         String pathInTargetDir = targetPath + "/native/" + NativeBundle.getSdf2TableName();
         
-        // Copy the sdf2table executable to the target/native directory
-        Files.copy(Sdf2Table.getNativeInputStream(), Paths.get(pathInTargetDir), StandardCopyOption.REPLACE_EXISTING);
-        
-        // Make it executable
-        new File(pathInTargetDir).setExecutable(true);
+        if (!new File(pathInTargetDir).exists()) { // Only copy sdf2table to the target directory once
+        		// Copy the sdf2table executable to the target/native directory
+	        Files.copy(Sdf2Table.getNativeInputStream(), Paths.get(pathInTargetDir), StandardCopyOption.REPLACE_EXISTING);
+	        
+	        // Make it executable
+	        new File(pathInTargetDir).setExecutable(true);
+        }
         
         return pathInTargetDir;
 	}

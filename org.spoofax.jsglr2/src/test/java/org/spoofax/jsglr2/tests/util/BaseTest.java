@@ -36,7 +36,7 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.StackManager;
-import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackManager;
+import org.spoofax.jsglr2.stack.elkhound.StandardElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.stack.standard.StandardStackManager;
 import org.spoofax.jsglr2.util.AstUtilities;
@@ -93,7 +93,7 @@ public abstract class BaseTest {
     
     private IParser<?, SRParseForest> srElkhoundParser() {
         IParseTable parseTable = getParseTable();
-        StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> stackManager = new ElkhoundStackManager<SRParseForest>();
+        StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> stackManager = new StandardElkhoundStackManager<SRParseForest>();
         SRParseForestManager parseForestManager = new SRParseForestManager();
         
         Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> elkhoundReducer = new ReducerElkhound<SRParseForest, SymbolNode, RuleNode>(parseTable, stackManager, parseForestManager);
@@ -102,7 +102,7 @@ public abstract class BaseTest {
     }
     
     private IParser<?, HParseForest> hParser() {
-        return new Parser(getParseTable(), new ElkhoundStackManager<SRParseForest>(), new HParseForestManager());
+        return new Parser(getParseTable(), new StandardElkhoundStackManager<SRParseForest>(), new HParseForestManager());
     }
 
 	public void testParseFailure(String inputString) {

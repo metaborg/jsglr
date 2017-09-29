@@ -6,10 +6,12 @@ import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 
-public class ElkhoundStackManager<ParseForest extends AbstractParseForest> extends StackManager<ElkhoundStackNode<ParseForest>, ParseForest> {
+public abstract class ElkhoundStackManager<StackNode extends ElkhoundStackNode<ParseForest>, ParseForest extends AbstractParseForest> extends StackManager<ElkhoundStackNode<ParseForest>, ParseForest> {
     
+	protected abstract StackNode createStackNode(int stackNumber, IState state, int deterministicDepth);
+	
     public ElkhoundStackNode<ParseForest> createInitialStackNode(Parse<ElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
-        ElkhoundStackNode<ParseForest> newStackNode = new ElkhoundStackNode<ParseForest>(parse.stackNodeCount++, state, 1);
+        ElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, 1);
         
         parse.notify(observer -> observer.createStackNode(newStackNode));
                 
@@ -17,7 +19,7 @@ public class ElkhoundStackManager<ParseForest extends AbstractParseForest> exten
     }
     
     public ElkhoundStackNode<ParseForest> createStackNode(Parse<ElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
-        ElkhoundStackNode<ParseForest> newStackNode = new ElkhoundStackNode<ParseForest>(parse.stackNodeCount++, state, 0);
+        ElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, 0);
         
         parse.notify(observer -> observer.createStackNode(newStackNode));
                 
@@ -25,7 +27,7 @@ public class ElkhoundStackManager<ParseForest extends AbstractParseForest> exten
     }
     
     public StackLink<ElkhoundStackNode<ParseForest>, ParseForest> createStackLink(Parse<ElkhoundStackNode<ParseForest>, ParseForest> parse, ElkhoundStackNode<ParseForest> from, ElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
-        StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link = from.addLink(parse.stackLinkCount++, to, parseNode);
+        StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link = from.addOutLink(parse.stackLinkCount++, to, parseNode);
         
         parse.notify(observer -> observer.createStackLink(link.linkNumber, from, to, parseNode));
         

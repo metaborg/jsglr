@@ -22,7 +22,7 @@ import org.spoofax.jsglr2.parser.ReducerElkhound;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.stack.StackManager;
-import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackManager;
+import org.spoofax.jsglr2.stack.elkhound.StandardElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.stack.standard.StandardStackManager;
 import org.spoofax.jsglr2.stack.standard.StandardStackNode;
@@ -86,13 +86,13 @@ public class JSGLR2Variants {
                 SRParseForestManager srParseForestManager = new SRParseForestManager();
                 
                 if (elkhoundReducing) {
-                    StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new ElkhoundStackManager<SRParseForest>();
+                    StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
                     Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srElkhoundReducer = new ReducerElkhound<SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager);
                     
                     return new Parser<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager, srElkhoundReducer);
                 } else {
                     if (elkhoundStack) {
-                        StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new ElkhoundStackManager<SRParseForest>();
+                        StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
                         Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srReducer = new Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager);
                         
                         return new Parser<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager, srReducer);
@@ -107,13 +107,13 @@ public class JSGLR2Variants {
                 HParseForestManager hParseForestManager = new HParseForestManager();
                 
                 if (elkhoundReducing) {
-                    StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new ElkhoundStackManager<HParseForest>();
+                    StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
                     Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hElkhoundReducer = new ReducerElkhound<HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
                     
                     return new Parser<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager, hElkhoundReducer);
                 } else {
                     if (elkhoundStack) {
-                        StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new ElkhoundStackManager<HParseForest>();
+                        StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
                         Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hReducer = new Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
                         
                         return new Parser<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager, hReducer);

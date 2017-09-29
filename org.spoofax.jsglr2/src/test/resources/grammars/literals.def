@@ -1,0 +1,12 @@
+definition
+
+module literals
+
+exports
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    Literal       -> Start   {cons("Literal")}
+    "sensitive"   -> Literal {cons("CaseSensitive")}
+    'insensitive' -> Literal {cons("CaseInsensitive")}

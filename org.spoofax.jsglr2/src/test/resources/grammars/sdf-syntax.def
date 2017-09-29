@@ -1,0 +1,11 @@
+definition
+
+module sdf-syntax
+
+exports
+  start-symbols
+    Exp
+
+  syntax
+    Exp [\+] Exp -> Exp {cons("Add"), left}
+    [a-z]        -> Exp {cons("Id")}

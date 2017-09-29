@@ -1,0 +1,18 @@
+definition
+
+module intersection
+
+exports
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    AandB -> Start 
+    A     -> AandB 
+    AminB -> AandB {reject}
+    A     -> AminB 
+    B     -> AminB {reject}
+    "1"   -> A     {cons("One")}
+    "2"   -> A     {cons("Two")}
+    "2"   -> B     {cons("Two")}
+    "3"   -> B     {cons("Three")}

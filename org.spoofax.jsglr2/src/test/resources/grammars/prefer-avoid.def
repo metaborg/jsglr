@@ -1,0 +1,29 @@
+definition
+
+module prefer-avoid
+
+exports
+  lexical syntax
+    [\ ] -> LAYOUT 
+
+  context-free restrictions
+    LAYOUT? -/- [\ ]
+
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    "p" Prefer -> Start  {cons("Prefer")}
+    "a" Avoid  -> Start  {cons("Avoid")}
+
+    X1         -> Prefer {prefer}
+    X2         -> Prefer 
+    X3         -> Prefer 
+
+    X1         -> Avoid  {avoid}
+    X2         -> Avoid  
+    X3         -> Avoid  
+
+    "x"        -> X1     {cons("X1")}
+    "x"        -> X2     {cons("X2")}
+    "x"        -> X3     {cons("X3")}

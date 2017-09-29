@@ -10,7 +10,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.terms.attachments.OriginAttachment;
 
 /**
@@ -24,7 +24,7 @@ public class OriginTokenStreamPrimitive extends AbstractOriginPrimitive {
 
 	@Override
 	public IStrategoTerm call(IContext env, IStrategoTerm origin) {
-		ITokenizer tokenizer=getTokenizer(origin);
+		ITokens tokenizer=getTokenizer(origin);
 		int startIndex=getLeftToken(origin).getIndex();
 		int endIndex = getRightToken(origin).getIndex();
 		ArrayList<IStrategoTerm> tokenTuples=new ArrayList<IStrategoTerm>();

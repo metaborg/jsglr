@@ -1,0 +1,89 @@
+CompilationUnit(
+  None()
+, []
+, [ ClassDeclaration(
+      []
+    , Id("Factorial")
+    , None()
+    , None()
+    , None()
+    , [ MethodDecl(
+          [Public(), Static()]
+        , MethodHeader(
+            Void()
+          , Id("main")
+          , SingleParam(
+              FormalParam(
+                []
+              , ArrayTypeClassType(ClassType(Id("String"), None()), [AnnotateDim([])])
+              , VariableDecl(Id("a"))
+              )
+            )
+          , []
+          , None()
+          )
+        , Block(
+            [ ExpressionStatement(
+                InvokeQExp(
+                  ExpressionName(AmbiguousName(Id("System")), Id("out"))
+                , None()
+                , Id("println")
+                , [ InvokeQExp(
+                      NewInstance(None(), [], Id("Fac"), [], None(), [])
+                    , None()
+                    , Id("ComputeFac")
+                    , [Deci("10")]
+                    )
+                  ]
+                )
+              )
+            ]
+          )
+        )
+      ]
+    )
+  , ClassDeclaration(
+      []
+    , Id("Fac")
+    , None()
+    , None()
+    , None()
+    , [ MethodDecl(
+          [Public()]
+        , MethodHeader(
+            NumericType(Int())
+          , Id("ComputeFac")
+          , SingleParam(FormalParam([], NumericType(Int()), VariableDecl(Id("num"))))
+          , []
+          , None()
+          )
+        , Block(
+            [ LocVarDeclStm(
+                LocalVarDecl([], NumericType(Int()), [VariableDecl(Id("num_aux"))])
+              )
+            , IfElse(
+                Lt(ExpressionName(Id("num")), Deci("1"))
+              , ExpressionStatement(Assign(ExpressionName(Id("num_aux")), Deci("1")))
+              , ExpressionStatement(
+                  Assign(
+                    ExpressionName(Id("num_aux"))
+                  , Mul(
+                      ExpressionName(Id("num"))
+                    , InvokeQExp(
+                        This()
+                      , None()
+                      , Id("ComputeFac")
+                      , [Sub(ExpressionName(Id("num")), Deci("1"))]
+                      )
+                    )
+                  )
+                )
+              )
+            , Return(ExpressionName(Id("num_aux")))
+            ]
+          )
+        )
+      ]
+    )
+  ]
+)

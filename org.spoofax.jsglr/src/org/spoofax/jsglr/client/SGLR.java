@@ -68,14 +68,6 @@ public class SGLR {
     private boolean applyCompletionProd = true;
     private boolean readNonLayout = false;
 
-    public void setReadNonLayout(boolean readNonLayout) {
-        this.readNonLayout = readNonLayout;
-    }
-
-    public void setApplyCompletionProd(boolean applyCompletionProd) {
-        this.applyCompletionProd = applyCompletionProd;
-    }
-
     private int currentIndentation;
 
     private int tokensSeen;
@@ -132,39 +124,12 @@ public class SGLR {
 
     private boolean triedRecovery = false;
 
-    public void setUseStructureRecovery(boolean useRecovery) {
-        this.useIntegratedRecovery = useRecovery;
-        this.recoverIntegrator = new RecoveryConnector(this);
-    }
-
-    public void setUseStructureRecovery(boolean useRecovery, IntegratedRecoverySettings settings,
-        FineGrainedSetting fgSettings) {
-        this.useIntegratedRecovery = useRecovery;
-        this.recoverIntegrator = new RecoveryConnector(this, settings, fgSettings);
-    }
-
     private boolean isNewCompletionMode;
-
-    public boolean isNewCompletionMode() {
-        return isNewCompletionMode;
-    }
-
-    public void setNewCompletionMode(boolean isNewCompletionMode) {
-        this.isNewCompletionMode = isNewCompletionMode;
-    }
 
     /**
      * If true, parser reads as many characters as possible, but succeeds even if not all characters were read.
      */
     private boolean isParseMaxMode;
-
-    public ParserHistory getHistory() {
-        return history;
-    }
-
-    public int getParserLocation() {
-        return this.getHistory().getTokenIndex(); // should also work in recover mode
-    }
 
     private boolean isFineGrainedMode;
 
@@ -1870,6 +1835,10 @@ public class SGLR {
     AmbiguityManager getAmbiguityManager() {
         return ambiguityManager;
     }
+    
+    public long getAmbiguitiesCount(){
+        return disambiguator.getAmbiguityCount();
+    }
 
     public Disambiguator getDisambiguator() {
         return disambiguator;
@@ -2242,6 +2211,41 @@ public class SGLR {
     public boolean getReadNonLayout() {
         // TODO Auto-generated method stub
         return this.readNonLayout;
+    }
+
+    public void setUseStructureRecovery(boolean useRecovery) {
+        this.useIntegratedRecovery = useRecovery;
+        this.recoverIntegrator = new RecoveryConnector(this);
+    }
+
+    public void setUseStructureRecovery(boolean useRecovery, IntegratedRecoverySettings settings,
+        FineGrainedSetting fgSettings) {
+        this.useIntegratedRecovery = useRecovery;
+        this.recoverIntegrator = new RecoveryConnector(this, settings, fgSettings);
+    }
+
+    public boolean isNewCompletionMode() {
+        return isNewCompletionMode;
+    }
+
+    public void setNewCompletionMode(boolean isNewCompletionMode) {
+        this.isNewCompletionMode = isNewCompletionMode;
+    }
+
+    public ParserHistory getHistory() {
+        return history;
+    }
+
+    public int getParserLocation() {
+        return this.getHistory().getTokenIndex(); // should also work in recover mode
+    }
+
+    public void setReadNonLayout(boolean readNonLayout) {
+        this.readNonLayout = readNonLayout;
+    }
+
+    public void setApplyCompletionProd(boolean applyCompletionProd) {
+        this.applyCompletionProd = applyCompletionProd;
     }
 
 }

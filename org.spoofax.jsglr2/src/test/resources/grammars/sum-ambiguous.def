@@ -1,0 +1,11 @@
+definition
+
+module sum-ambiguous
+
+exports
+  context-free start-symbols
+    Exp
+
+  context-free syntax
+    Exp "+" Exp -> Exp {cons("Add")}
+    "x"         -> Exp {cons("Term")}

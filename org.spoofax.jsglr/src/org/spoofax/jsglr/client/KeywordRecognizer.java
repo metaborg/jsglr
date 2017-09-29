@@ -19,7 +19,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  *
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class KeywordRecognizer implements IKeywordRecognizer, Serializable {
+public class KeywordRecognizer implements IKeywordRecognizer {
 
 	private static final long serialVersionUID = 7078477392176661390L;
 

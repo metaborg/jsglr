@@ -1,12 +1,14 @@
 package org.spoofax.jsglr.client.imploder;
 
+import java.io.Serializable;
+
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.IKeywordRecognizer;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface ITokenizer implements Serializable {
+public interface ITokenizer extends Serializable {
 
 	int getStartOffset();
 

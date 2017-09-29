@@ -155,14 +155,14 @@ public abstract class BaseTest {
 	}
 
     protected String getFileAsString(String filename) throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        byte[] encoded = Files.readAllBytes(Paths.get(classLoader.getResource("samples/" + filename).getPath()));
+        byte[] encoded = Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("samples/" + filename).getPath()));
+        
         return new String(encoded, StandardCharsets.UTF_8);
     }
 
     protected IStrategoTerm getFileAsAST(String filename) throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = new FileInputStream(classLoader.getResource("samples/" + filename).getFile());
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("samples/" + filename);
+        
         return this.termReader.parseFromStream(inputStream);
     }
 	

@@ -9,8 +9,7 @@ import org.spoofax.terms.ParseError;
 public interface WithGrammar extends WithParseTable {
     
     default String grammarsPath() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        String path = classLoader.getResource("grammars").getFile();
+        String path = getClass().getClassLoader().getResource("grammars").getFile();
         
         return path;
     }

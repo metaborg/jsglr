@@ -25,11 +25,11 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({"SymbolRule", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
-    @Param({"false", "true"})
-    public boolean elkhoundStack;
+    @Param({"Default", "Elkhound"})
+    public JSGLR2Variants.StackRepresentation stackRepresentation;
     
-    @Param({"false", "true"})
-    public boolean elkhoundReducing;
+    @Param({"Default", "Elkhound"})
+    public JSGLR2Variants.Reducing reducing;
     
     protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException;
     
@@ -39,8 +39,8 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
         
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);
 
-        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, elkhoundStack, elkhoundReducing);
-        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, elkhoundStack, elkhoundReducing);
+        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, stackRepresentation, reducing);
+        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, stackRepresentation, reducing);
         
         inputs = getInputs();
     }

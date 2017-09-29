@@ -69,6 +69,10 @@ public class JSGLR2Variants {
         public boolean isValid() {
         		return !(reducing == Reducing.Elkhound && stackRepresentation != StackRepresentation.Default);
         }
+        
+        public String name() {
+        		return "ParseForestRepresentation:" + parseForestRepresentation + "/" + "StackRepresentation:" + stackRepresentation + "/" + "Reducing:" + reducing;
+        }
     }
     
     public static List<Variant> allVariants() {
@@ -155,11 +159,11 @@ public class JSGLR2Variants {
         return parsers;
     }
     
-    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, StackRepresentation stackRepresentation, Reducing reducing) {
-        IParser<?, ?> parser = getParser(parseTable, parseForestRepresentation, stackRepresentation, reducing);
+    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
+        IParser<?, ?> parser = getParser(parseTable, variant.parseForestRepresentation, variant.stackRepresentation, variant.reducing);
         IImploder<?, IStrategoTerm> imploder;
         
-        switch (parseForestRepresentation) {
+        switch (variant.parseForestRepresentation) {
             default:
             case SymbolRule:
                 imploder = new SRStrategoImploder();
@@ -172,6 +176,10 @@ public class JSGLR2Variants {
         }
         
         return new JSGLR2(parser, imploder);
+    }
+    
+    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, StackRepresentation stackRepresentation, Reducing reducing) {
+    		return getJSGLR2(parseTable, new Variant(parseForestRepresentation, stackRepresentation, reducing));
     }
     
     public static List<JSGLR2<?, ?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {

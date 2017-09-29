@@ -73,29 +73,39 @@ public abstract class BaseTest {
     }
 
 	public void testParseSuccess(String inputString) {
-		for (Parser<?, ?, ?, ?> parser : JSGLR2Variants.allParsers(getParseTable())) {
+		IParseTable parseTable = getParseTable();
+		
+		for (JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
+			Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
+			
 	        ParseResult<?> parseResult = parser.parse(inputString);
 
-	        assertEquals(true, parseResult.isSuccess);
+	        assertEquals("Variant '" + variant.name() + "' failed: ", true, parseResult.isSuccess);
 		}
 	}
 
 	public void testParseFailure(String inputString) {
-		for (Parser<?, ?, ?, ?> parser : JSGLR2Variants.allParsers(getParseTable())) {
+		IParseTable parseTable = getParseTable();
+		
+		for (JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
+			Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
+			
 	        ParseResult<?> parseResult = parser.parse(inputString);
 
-	        assertEquals(false, parseResult.isSuccess);
+	        assertEquals("Variant '" + variant.name() + "' failed: ", false, parseResult.isSuccess);
 		}
 	}
 
-    protected IStrategoTerm testSuccess(JSGLR2<?, ?, IStrategoTerm> jsglr2, String inputString) {
+    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.Variant variant, String inputString) {
+    		JSGLR2<?, ?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
+    		
         ParseResult<?> parseResult = jsglr2.parser.parse(inputString);
 
-        assertEquals(true, parseResult.isSuccess); // Fail here if parsing failed
+        assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess); // Fail here if parsing failed
         
         IStrategoTerm result = jsglr2.parse(inputString);
         
-        assertNotNull(result); // Fail here if imploding or tokenization failed
+        assertNotNull("Variant '" + variant.name() + "' failed imploding: ", result); // Fail here if imploding or tokenization failed
         
         return result;
     }
@@ -109,8 +119,10 @@ public abstract class BaseTest {
 	}
 	
 	private void testSuccess(String inputString, String expectedOutputAstString, boolean equalityByExpansions) {
-		for (JSGLR2<?, ?, IStrategoTerm> jsglr2 : JSGLR2Variants.allJSGLR2(getParseTable())) {
-			IStrategoTerm actualOutputAst = testSuccess(jsglr2, inputString);
+		IParseTable parseTable = getParseTable();
+		
+		for (JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
+			IStrategoTerm actualOutputAst = testSuccess(parseTable, variant, inputString);
 			
 			if (equalityByExpansions) {
 				IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);

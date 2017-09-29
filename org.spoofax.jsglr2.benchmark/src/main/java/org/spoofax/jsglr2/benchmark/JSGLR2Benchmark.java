@@ -25,10 +25,10 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({"SymbolRule", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
-    @Param({"true", "false"})
+    @Param({"false", "true"})
     public boolean elkhoundStack;
     
-    @Param({"true", "false"})
+    @Param({"false", "true"})
     public boolean elkhoundReducing;
     
     protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException;

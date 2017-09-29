@@ -18,17 +18,17 @@ public class SumAmbiguousTest extends BaseTestWithJSGLR1 implements WithGrammar 
 
     @Test
     public void one() throws ParseError, ParseTableReadException, IOException {
-    		testParseSuccessByJSGLR("x");
+    		testSuccessByJSGLR1("x");
     }
 
     @Test
     public void two() throws ParseError, ParseTableReadException, IOException {
-    		testParseSuccessByJSGLR("x+x");
+    		testSuccessByJSGLR1("x+x");
     }
 
     @Test
     public void three() throws ParseError, ParseTableReadException, IOException {
-    		testParseSuccessByJSGLR("x+x+x");
+    		testSuccessByJSGLR1("x+x+x");
     }
   
 }

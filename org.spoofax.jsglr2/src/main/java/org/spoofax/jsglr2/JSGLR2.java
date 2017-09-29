@@ -19,8 +19,8 @@ import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
 
 public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
 
-    private IParser<StackNode, ParseForest> parser;
-    private IImploder<ParseForest, AbstractSyntaxTree> imploder;
+    public IParser<StackNode, ParseForest> parser;
+    public IImploder<ParseForest, AbstractSyntaxTree> imploder;
     
     public static JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm> standard(IParseTable parseTable) throws ParseTableReadException {
         return (JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, true, true);
@@ -32,7 +32,7 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         return standard(parseTable);
     }
     
-    public JSGLR2(IParser<StackNode, ParseForest> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) throws ParseTableReadException {
+    public JSGLR2(IParser<StackNode, ParseForest> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
         this.parser = parser;
         this.imploder = imploder;
     }

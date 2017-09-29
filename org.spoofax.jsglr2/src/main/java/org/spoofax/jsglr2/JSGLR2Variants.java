@@ -58,6 +58,10 @@ public class JSGLR2Variants {
             this.elkhoundStack = elkhoundStack;
             this.elkhoundReducing = elkhoundReducing;
         }
+        
+        public boolean isValid() {
+        		return !(elkhoundReducing && !elkhoundStack);
+        }
     }
     
     public static List<Variant> allVariants() {
@@ -68,7 +72,8 @@ public class JSGLR2Variants {
                 for (boolean elkhoundReducing : elkhoundReducingVariants) {
                     Variant variant = new Variant(parseForestRepresentation, elkhoundStack, elkhoundReducing);
                     
-                    variants.add(variant);
+                    if (variant.isValid())
+                    		variants.add(variant);
                 }
             }
         }
@@ -76,22 +81,22 @@ public class JSGLR2Variants {
         return variants;
     }
     
-    public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, boolean elkhoundStack, boolean elkhoundReducing) {
-        if (elkhoundReducing && !elkhoundStack)
-            throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
+    public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, Variant variant) {
+        if (!variant.isValid())
+            throw new IllegalStateException("Invalid parser variant (Elkhound reducing requires Elkhound stack)");
         
-        switch (parseForestRepresentation) {
+        switch (variant.parseForestRepresentation) {
             default:
             case SymbolRule:
                 SRParseForestManager srParseForestManager = new SRParseForestManager();
                 
-                if (elkhoundReducing) {
+                if (variant.elkhoundReducing) {
                     StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
                     Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srElkhoundReducer = new ReducerElkhound<SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager);
                     
                     return new Parser<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager, srElkhoundReducer);
                 } else {
-                    if (elkhoundStack) {
+                    if (variant.elkhoundStack) {
                         StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
                         Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srReducer = new Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager);
                         
@@ -106,13 +111,13 @@ public class JSGLR2Variants {
             case Hybrid:
                 HParseForestManager hParseForestManager = new HParseForestManager();
                 
-                if (elkhoundReducing) {
+                if (variant.elkhoundReducing) {
                     StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
                     Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hElkhoundReducer = new ReducerElkhound<HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
                     
                     return new Parser<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager, hElkhoundReducer);
                 } else {
-                    if (elkhoundStack) {
+                    if (variant.elkhoundStack) {
                         StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
                         Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hReducer = new Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
                         
@@ -127,6 +132,10 @@ public class JSGLR2Variants {
         }
     }
     
+    public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, boolean elkhoundStack, boolean elkhoundReducing) {
+    		return getParser(parseTable, new Variant(parseForestRepresentation, elkhoundStack, elkhoundReducing));
+    }
+    
     public static List<Parser<?, ?, ?, ?>> allParsers(IParseTable parseTable) {
         List<Parser<?, ?, ?, ?>> parsers = new ArrayList<Parser<?, ?, ?, ?>>();
         
@@ -139,7 +148,7 @@ public class JSGLR2Variants {
         return parsers;
     }
     
-    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, boolean elkhoundStack, boolean elkhoundReducing) throws ParseTableReadException {
+    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, boolean elkhoundStack, boolean elkhoundReducing) {
         IParser<?, ?> parser = getParser(parseTable, parseForestRepresentation, elkhoundStack, elkhoundReducing);
         IImploder<?, IStrategoTerm> imploder;
         
@@ -158,7 +167,7 @@ public class JSGLR2Variants {
         return new JSGLR2(parser, imploder);
     }
     
-    public static List<JSGLR2<?, ?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) throws ParseTableReadException {
+    public static List<JSGLR2<?, ?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
         List<JSGLR2<?, ?, IStrategoTerm>> jsglr2s = new ArrayList<JSGLR2<?, ?, IStrategoTerm>>();
         
         for (Variant variant : allVariants()) {

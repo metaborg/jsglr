@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.tests.util;
 
 import static java.util.Collections.sort;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.FileInputStream;
@@ -16,29 +17,13 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.imploder.IImploder;
-import org.spoofax.jsglr2.imploder.ImplodeResult;
-import org.spoofax.jsglr2.imploder.hybrid.HStrategoImploder;
-import org.spoofax.jsglr2.imploder.symbolrule.SRStrategoImploder;
-import org.spoofax.jsglr2.parseforest.hybrid.HParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.HParseForestManager;
-import org.spoofax.jsglr2.parseforest.symbolrule.RuleNode;
-import org.spoofax.jsglr2.parseforest.symbolrule.SRParseForest;
-import org.spoofax.jsglr2.parseforest.symbolrule.SRParseForestManager;
-import org.spoofax.jsglr2.parseforest.symbolrule.SymbolNode;
-import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.JSGLR2;
+import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.parser.ParseResult;
-import org.spoofax.jsglr2.parser.ParseSuccess;
 import org.spoofax.jsglr2.parser.Parser;
-import org.spoofax.jsglr2.parser.Reducer;
-import org.spoofax.jsglr2.parser.ReducerElkhound;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.stack.StackManager;
-import org.spoofax.jsglr2.stack.elkhound.StandardElkhoundStackManager;
-import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
-import org.spoofax.jsglr2.stack.standard.StandardStackManager;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.jsglr2.util.Sdf2Table;
 import org.spoofax.terms.TermFactory;
@@ -75,7 +60,7 @@ public abstract class BaseTest {
         return parseTableTerm;
     }
     
-    private IParseTable getParseTable() {
+    protected IParseTable getParseTable() {
         try {
             return ParseTableReader.read(getParseTableTerm());
         } catch(ParseTableReadException e) {
@@ -86,98 +71,54 @@ public abstract class BaseTest {
             return null;
         }
     }
-    
-    private IParser<?, SRParseForest> srParser() {
-        return new Parser(getParseTable(), new StandardStackManager<SRParseForest>(), new SRParseForestManager());
-    }
-    
-    private IParser<?, SRParseForest> srElkhoundParser() {
-        IParseTable parseTable = getParseTable();
-        StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> stackManager = new StandardElkhoundStackManager<SRParseForest>();
-        SRParseForestManager parseForestManager = new SRParseForestManager();
-        
-        Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> elkhoundReducer = new ReducerElkhound<SRParseForest, SymbolNode, RuleNode>(parseTable, stackManager, parseForestManager);
-        
-        return new Parser(parseTable, stackManager, parseForestManager, elkhoundReducer);
-    }
-    
-    private IParser<?, HParseForest> hParser() {
-        return new Parser(getParseTable(), new StandardElkhoundStackManager<SRParseForest>(), new HParseForestManager());
-    }
+
+	public void testParseSuccess(String inputString) {
+		for (Parser<?, ?, ?, ?> parser : JSGLR2Variants.allParsers(getParseTable())) {
+	        ParseResult<?> parseResult = parser.parse(inputString);
+
+	        assertEquals(true, parseResult.isSuccess);
+		}
+	}
 
 	public void testParseFailure(String inputString) {
-        ParseResult<SRParseForest> srParseResult = srParser().parse(inputString);
-        ParseResult<HParseForest> hParseResult = hParser().parse(inputString);
+		for (Parser<?, ?, ?, ?> parser : JSGLR2Variants.allParsers(getParseTable())) {
+	        ParseResult<?> parseResult = parser.parse(inputString);
 
-        assertEquals(false, srParseResult.isSuccess);
-        assertEquals(false, hParseResult.isSuccess);
+	        assertEquals(false, parseResult.isSuccess);
+		}
 	}
 
-    protected IStrategoTerm testSRParseSuccess(String inputString) {
-        ParseResult<SRParseForest> srParseResult = srParser().parse(inputString);
+    protected IStrategoTerm testSuccess(JSGLR2<?, ?, IStrategoTerm> jsglr2, String inputString) {
+        ParseResult<?> parseResult = jsglr2.parser.parse(inputString);
 
-        assertEquals(true, srParseResult.isSuccess);
-
-        IImploder<SRParseForest, IStrategoTerm> srImploder = new SRStrategoImploder();
+        assertEquals(true, parseResult.isSuccess); // Fail here if parsing failed
         
-        ImplodeResult<IStrategoTerm> implodeResult = srImploder.implode(srParseResult.parse, ((ParseSuccess<SRParseForest>) srParseResult).parseResult);
+        IStrategoTerm result = jsglr2.parse(inputString);
         
-        assertEquals(true, implodeResult.isSuccess);
-
-        return implodeResult.ast;
-    }
-
-    protected IStrategoTerm testHParseSuccess(String inputString) {
-        ParseResult<HParseForest> hParseResult = hParser().parse(inputString);
-
-        assertEquals(true, hParseResult.isSuccess);
-
-        IImploder<HParseForest, IStrategoTerm> hImploder = new HStrategoImploder();
+        assertNotNull(result); // Fail here if imploding or tokenization failed
         
-        ImplodeResult<IStrategoTerm> implodeResult = hImploder.implode(hParseResult.parse, ((ParseSuccess<HParseForest>) hParseResult).parseResult);
-        
-        assertEquals(true, implodeResult.isSuccess);
-
-        return implodeResult.ast;
-    }
-
-    protected IStrategoTerm testSRElkhoundParseSuccess(String inputString) {
-        ParseResult<SRParseForest> srElkhoundParseResult = srElkhoundParser().parse(inputString);
-
-        assertEquals(true, srElkhoundParseResult.isSuccess);
-
-        IImploder<SRParseForest, IStrategoTerm> srImploder = new SRStrategoImploder();
-        
-        ImplodeResult<IStrategoTerm> implodeResult = srImploder.implode(srElkhoundParseResult.parse, ((ParseSuccess<SRParseForest>) srElkhoundParseResult).parseResult);
-        
-        assertEquals(true, implodeResult.isSuccess);
-
-        return implodeResult.ast;
+        return result;
     }
 	
-	protected void testParseSuccessByAstString(String inputString, String expectedOutputAstString) {
-		testParseSuccess(inputString, expectedOutputAstString, false);
+	protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {
+		testSuccess(inputString, expectedOutputAstString, false);
 	}
 	
-	protected void testParseSuccessByExpansions(String inputString, String expectedOutputAstString) {
-		testParseSuccess(inputString, expectedOutputAstString, true);
+	protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
+		testSuccess(inputString, expectedOutputAstString, true);
 	}
 	
-	private void testParseSuccess(String inputString, String expectedOutputAstString, boolean equalityByExpansions) {
-        IStrategoTerm srActualOutputAst = testSRParseSuccess(inputString);
-        IStrategoTerm hActualOutputAst = testHParseSuccess(inputString);
-        IStrategoTerm srElkhoundActualOutputAst = testSRElkhoundParseSuccess(inputString);
-		
-		if (equalityByExpansions) {
-			IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);
+	private void testSuccess(String inputString, String expectedOutputAstString, boolean equalityByExpansions) {
+		for (JSGLR2<?, ?, IStrategoTerm> jsglr2 : JSGLR2Variants.allJSGLR2(getParseTable())) {
+			IStrategoTerm actualOutputAst = testSuccess(jsglr2, inputString);
+			
+			if (equalityByExpansions) {
+				IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);
 
-            assertEqualTermExpansions(expectedOutputAst, srActualOutputAst);
-            assertEqualTermExpansions(expectedOutputAst, hActualOutputAst);
-            assertEqualTermExpansions(expectedOutputAst, srElkhoundActualOutputAst);
-		} else {
-            assertEquals(expectedOutputAstString, srActualOutputAst.toString());
-            assertEquals(expectedOutputAstString, hActualOutputAst.toString());
-            assertEquals(expectedOutputAstString, srElkhoundActualOutputAst.toString());
+	            assertEqualTermExpansions(expectedOutputAst, actualOutputAst);
+			} else {
+	            assertEquals(expectedOutputAstString, actualOutputAst.toString());
+			}
 		}
 	}
 	

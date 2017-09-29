@@ -5,3 +5,5 @@
 /META-INF
 /target
 /bin/
+/.idea
+/*.iml

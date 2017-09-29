@@ -10,7 +10,7 @@ public class StandardElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pa
     private ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> linksOut = new ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>();
     
     // Directed from the initial stack node
-    private ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> linksIn = new ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>();;
+    private ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> linksIn = new ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>();
     
 	public StandardElkhoundStackNode(int stackNumber, IState state, int deterministicDepth) {
 		super(stackNumber, state, deterministicDepth);
@@ -44,12 +44,6 @@ public class StandardElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pa
         
         return link;
     }
-	
-	public StackLink<ElkhoundStackNode<ParseForest>, ParseForest> addOutLink(int linkNumber, ElkhoundStackNode<ParseForest> parent, ParseForest parseNode) {
-		StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link = new StackLink<ElkhoundStackNode<ParseForest>, ParseForest>(linkNumber, this, parent, parseNode);
-		
-		return addOutLink(link);
-	}
     
     protected void addInLink(StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link) {
         linksIn.add(link);
@@ -64,7 +58,7 @@ public class StandardElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pa
         }
     }
 	
-    public boolean allLinksRejected() {
+    public boolean allOutLinksRejected() {
         if (linksOut.isEmpty())
             return false;
         

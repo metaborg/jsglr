@@ -24,7 +24,11 @@ public abstract class ElkhoundStackNode<ParseForest> extends AbstractStackNode<P
     
     public abstract StackLink<ElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link);
 	
-	public abstract StackLink<ElkhoundStackNode<ParseForest>, ParseForest> addOutLink(int linkNumber, ElkhoundStackNode<ParseForest> parent, ParseForest parseNode);
+    public StackLink<ElkhoundStackNode<ParseForest>, ParseForest> addOutLink(int linkNumber, ElkhoundStackNode<ParseForest> parent, ParseForest parseNode) {
+		StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link = new StackLink<ElkhoundStackNode<ParseForest>, ParseForest>(linkNumber, this, parent, parseNode);
+		
+		return addOutLink(link);
+	}
     
 	protected abstract void addInLink(StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link);
 	

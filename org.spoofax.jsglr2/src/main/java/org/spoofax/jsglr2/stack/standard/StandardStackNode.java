@@ -31,7 +31,7 @@ public class StandardStackNode<ParseForest> extends AbstractStackNode<ParseFores
 		return addOutLink(link);
 	}
 	
-	public boolean allLinksRejected() {
+	public boolean allOutLinksRejected() {
 		if (linksOut.isEmpty())
 			return false;
 		

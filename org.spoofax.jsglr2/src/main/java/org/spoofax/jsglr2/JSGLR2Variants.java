@@ -23,6 +23,7 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.elkhound.StandardElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
+import org.spoofax.jsglr2.stack.elkhound.HybridElkhoundStackManager;
 import org.spoofax.jsglr2.stack.standard.StandardStackManager;
 import org.spoofax.jsglr2.stack.standard.StandardStackNode;
 
@@ -33,7 +34,7 @@ public class JSGLR2Variants {
     }
     
     public enum StackRepresentation {
-        Default, Elkhound
+        Default, ElkhoundStandard, ElkhoundHybrid
     }
     
     public enum Reducing {
@@ -47,7 +48,8 @@ public class JSGLR2Variants {
 
     public static StackRepresentation[] stackRepresentationVariants = new StackRepresentation[]{
     		StackRepresentation.Default,
-        StackRepresentation.Elkhound
+        StackRepresentation.ElkhoundStandard,
+        StackRepresentation.ElkhoundHybrid
     };
 
     public static Reducing[] reducingVariants = new Reducing[]{
@@ -67,7 +69,7 @@ public class JSGLR2Variants {
         }
         
         public boolean isValid() {
-        		return !(reducing == Reducing.Elkhound && stackRepresentation != StackRepresentation.Default);
+        		return reducing != Reducing.Elkhound || stackRepresentation != StackRepresentation.Default;
         }
         
         public String name() {
@@ -102,42 +104,66 @@ public class JSGLR2Variants {
                 SRParseForestManager srParseForestManager = new SRParseForestManager();
                 
                 if (variant.reducing == Reducing.Elkhound) {
-                    StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
+	                	StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager;
+	                    
+	            		if (variant.stackRepresentation == StackRepresentation.ElkhoundHybrid)
+	            			srElkhoundStackManager = new HybridElkhoundStackManager<SRParseForest>();
+	            		else
+	            			srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
+	            		
                     Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srElkhoundReducer = new ReducerElkhound<SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager);
                     
                     return new Parser<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager, srElkhoundReducer);
                 } else {
-                    if (variant.stackRepresentation == StackRepresentation.Elkhound) {
-                        StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
-                        Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srReducer = new Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager);
-                        
-                        return new Parser<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager, srReducer);
-                    } else {
+                    if (variant.stackRepresentation == StackRepresentation.Default) {
                         StackManager<StandardStackNode<SRParseForest>, SRParseForest> srStandardStackManager = new StandardStackManager<SRParseForest>();
                         Reducer<StandardStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srReducer = new Reducer<StandardStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srStandardStackManager, srParseForestManager);
                         
                         return new Parser<StandardStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srStandardStackManager, srParseForestManager, srReducer);
+                    	} else {
+                    		StackManager<ElkhoundStackNode<SRParseForest>, SRParseForest> srElkhoundStackManager;
+                        
+                    		if (variant.stackRepresentation == StackRepresentation.ElkhoundHybrid)
+                    			srElkhoundStackManager = new HybridElkhoundStackManager<SRParseForest>();
+                    		else
+                    			srElkhoundStackManager = new StandardElkhoundStackManager<SRParseForest>();
+                    		
+                        Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode> srReducer = new Reducer<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager);
+                        
+                        return new Parser<ElkhoundStackNode<SRParseForest>, SRParseForest, SymbolNode, RuleNode>(parseTable, srElkhoundStackManager, srParseForestManager, srReducer);
                     }
                 }
             case Hybrid:
                 HParseForestManager hParseForestManager = new HParseForestManager();
                 
                 if (variant.reducing == Reducing.Elkhound) {
-                    StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
+	                	StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager;
+	                    
+	            		if (variant.stackRepresentation == StackRepresentation.ElkhoundHybrid)
+	            			hElkhoundStackManager = new HybridElkhoundStackManager<HParseForest>();
+	            		else
+	            			hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
+	            		
                     Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hElkhoundReducer = new ReducerElkhound<HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
                     
                     return new Parser<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager, hElkhoundReducer);
                 } else {
-                    if (variant.stackRepresentation == StackRepresentation.Elkhound) {
-                        StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
-                        Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hReducer = new Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
-                        
-                        return new Parser<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager, hReducer);
-                    } else {
+                    if (variant.stackRepresentation == StackRepresentation.Default) {
                         StackManager<StandardStackNode<HParseForest>, HParseForest> hStandardStackManager = new StandardStackManager<HParseForest>();
                         Reducer<StandardStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hReducer = new Reducer<StandardStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hStandardStackManager, hParseForestManager);
                         
                         return new Parser<StandardStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hStandardStackManager, hParseForestManager, hReducer);
+                    } else {
+                        	StackManager<ElkhoundStackNode<HParseForest>, HParseForest> hElkhoundStackManager;
+	                        
+	                		if (variant.stackRepresentation == StackRepresentation.ElkhoundHybrid)
+	                			hElkhoundStackManager = new HybridElkhoundStackManager<HParseForest>();
+	                		else
+	                			hElkhoundStackManager = new StandardElkhoundStackManager<HParseForest>();
+	                		
+                        Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation> hReducer = new Reducer<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager);
+                        
+                        return new Parser<ElkhoundStackNode<HParseForest>, HParseForest, ParseNode, Derivation>(parseTable, hElkhoundStackManager, hParseForestManager, hReducer);
                     }
                 }
         }

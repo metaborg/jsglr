@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.HParseForest;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.ParseFailure;
@@ -24,14 +24,14 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     public IParser<StackNode, ParseForest> parser;
     public IImploder<ParseForest, AbstractSyntaxTree> imploder;
     
-    public static JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm> standard(IParseTable parseTable) throws ParseTableReadException {
-        return (JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, StackRepresentation.ElkhoundStandard, Reducing.Elkhound);
+    public static JSGLR2<ElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IParseTable parseTable) throws ParseTableReadException {
+        return (JSGLR2<ElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, StackRepresentation.HybridElkhound, Reducing.Elkhound);
     }
     
-    public static JSGLR2<ElkhoundStackNode<HParseForest>, HParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
+    public static JSGLR2<ElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);
 
-        return standard(parseTable);
+        return best(parseTable);
     }
     
     public JSGLR2(IParser<StackNode, ParseForest> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {

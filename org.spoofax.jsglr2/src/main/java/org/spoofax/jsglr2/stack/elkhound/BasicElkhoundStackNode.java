@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class StandardElkhoundStackNode<ParseForest> extends ElkhoundStackNode<ParseForest> {
+public class BasicElkhoundStackNode<ParseForest> extends ElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
     private ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> linksOut = new ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>();
@@ -12,7 +12,7 @@ public class StandardElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pa
     // Directed from the initial stack node
     private ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> linksIn = new ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>();
     
-	public StandardElkhoundStackNode(int stackNumber, IState state, int deterministicDepth) {
+	public BasicElkhoundStackNode(int stackNumber, IState state, int deterministicDepth) {
 		super(stackNumber, state, deterministicDepth);
 	}
     

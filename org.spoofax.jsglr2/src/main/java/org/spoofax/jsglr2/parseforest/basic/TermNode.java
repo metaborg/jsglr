@@ -1,10 +1,10 @@
-package org.spoofax.jsglr2.parseforest.symbolrule;
+package org.spoofax.jsglr2.parseforest.basic;
 
 import org.spoofax.jsglr2.characters.Characters;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 
-public class TermNode extends SRParseForest {
+public class TermNode extends BasicParseForest {
 
 	public final int character;
 	

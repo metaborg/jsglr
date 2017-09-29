@@ -1,18 +1,17 @@
-package org.spoofax.jsglr2.imploder.hybrid;
+package org.spoofax.jsglr2.imploder;
 
 import java.util.List;
 
-import org.spoofax.jsglr2.imploder.StrategoTermImploder;
 import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
-import org.spoofax.jsglr2.parseforest.hybrid.HParseForest;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
 import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.tokenizer.hybrid.HTokenizer;
+import org.spoofax.jsglr2.tokenizer.HybridParseForestTokenizer;
 
-public class HStrategoImploder extends StrategoTermImploder<HParseForest, ParseNode, Derivation> {
+public class HybridParseForestStrategoImploder extends StrategoTermImploder<HybridParseForest, ParseNode, Derivation> {
 	
-    public HStrategoImploder() {
-        super(new HTokenizer());
+    public HybridParseForestStrategoImploder() {
+        super(new HybridParseForestTokenizer());
     }
 
     protected IProduction parseNodeProduction(ParseNode parseNode) {

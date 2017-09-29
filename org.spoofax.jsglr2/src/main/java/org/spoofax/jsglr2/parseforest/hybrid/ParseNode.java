@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class ParseNode extends HParseForest {
+public class ParseNode extends HybridParseForest {
 
 	public final IProduction production;
     private final Derivation firstDerivation;

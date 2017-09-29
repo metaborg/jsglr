@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.parseforest.symbolrule;
+package org.spoofax.jsglr2.parseforest.basic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IProduction;
 
-public class SymbolNode extends SRParseForest {
+public class SymbolNode extends BasicParseForest {
 
 	public final IProduction production;
 	private final List<RuleNode> derivations;

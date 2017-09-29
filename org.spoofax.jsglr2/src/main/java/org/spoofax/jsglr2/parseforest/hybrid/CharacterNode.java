@@ -4,7 +4,7 @@ import org.spoofax.jsglr2.characters.Characters;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 
-public class CharacterNode extends HParseForest {
+public class CharacterNode extends HybridParseForest {
 
 	public final int character;
 	

@@ -1,12 +1,11 @@
-package org.spoofax.jsglr2.tokenizer.hybrid;
+package org.spoofax.jsglr2.tokenizer;
 
 import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
-import org.spoofax.jsglr2.parseforest.hybrid.HParseForest;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
 import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.tokenizer.Tokenizer;
 
-public class HTokenizer extends Tokenizer<HParseForest, ParseNode, Derivation> {
+public class HybridParseForestTokenizer extends Tokenizer<HybridParseForest, ParseNode, Derivation> {
 
     protected IProduction parseNodeProduction(ParseNode parseNode) {
         return parseNode.production;

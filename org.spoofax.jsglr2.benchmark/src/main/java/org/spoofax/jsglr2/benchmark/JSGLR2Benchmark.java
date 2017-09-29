@@ -22,13 +22,13 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     protected IParser<?, ?> parser;
     protected JSGLR2<?, ?, ?> jsglr2;
     
-    @Param({"SymbolRule", "Hybrid"})
+    @Param({"Basic", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
-    @Param({"Default", "ElkhoundStandard", "ElkhoundHybrid"})
+    @Param({"Basic", "BasicElkhound", "HybridElkhound"})
     public JSGLR2Variants.StackRepresentation stackRepresentation;
     
-    @Param({"Default", "Elkhound"})
+    @Param({"Basic", "Elkhound"})
     public JSGLR2Variants.Reducing reducing;
     
     protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException;

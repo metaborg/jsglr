@@ -17,18 +17,18 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
+import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 
 public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
 
     public IParser<StackNode, ParseForest> parser;
     public IImploder<ParseForest, AbstractSyntaxTree> imploder;
     
-    public static JSGLR2<ElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IParseTable parseTable) throws ParseTableReadException {
-        return (JSGLR2<ElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, StackRepresentation.HybridElkhound, Reducing.Elkhound);
+    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IParseTable parseTable) throws ParseTableReadException {
+        return (JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, StackRepresentation.HybridElkhound, Reducing.Elkhound);
     }
     
-    public static JSGLR2<ElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IStrategoTerm parseTableTerm) throws ParseTableReadException {
+    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);
 
         return best(parseTable);

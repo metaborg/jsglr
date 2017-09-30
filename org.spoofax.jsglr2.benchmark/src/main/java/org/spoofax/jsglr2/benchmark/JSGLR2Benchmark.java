@@ -25,7 +25,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({"Basic", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
-    @Param({"Basic", "BasicElkhound", "HybridElkhound"})
+    @Param({"Basic", "Hybrid", "BasicElkhound", "HybridElkhound"})
     public JSGLR2Variants.StackRepresentation stackRepresentation;
     
     @Param({"Basic", "Elkhound"})

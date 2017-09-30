@@ -8,41 +8,41 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridElkhoundStackNode<ParseForest> extends ElkhoundStackNode<ParseForest> {
+public class HybridElkhoundStackNode<ParseForest> extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node (to the origin)
-    private StackLink<ElkhoundStackNode<ParseForest>, ParseForest> firstLinkOut;
-    private ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> otherLinksOut;
+    private StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> firstLinkOut;
+    private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> otherLinksOut;
     
     // Directed from the initial stack node (to the future)
-    private StackLink<ElkhoundStackNode<ParseForest>, ParseForest> firstLinkIn;
-    private ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> otherLinksIn;
+    private StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> firstLinkIn;
+    private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> otherLinksIn;
     
 	public HybridElkhoundStackNode(int stackNumber, IState state, int deterministicDepth) {
 		super(stackNumber, state, deterministicDepth);
 	}
     
-    public Iterable<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {
+    public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {
         if (otherLinksOut == null)
-        		return new SingleElementIterable<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkOut);
+        		return new SingleElementIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkOut);
 	    else
-	        return new SingleElementWithListIterable<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkOut, otherLinksOut);
+	        return new SingleElementWithListIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkOut, otherLinksOut);
     }
     
-    public StackLink<ElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut() {
+    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut() {
     		return firstLinkOut;
     }
     
-    public Iterable<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>> getLinksIn() {
+    public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksIn() {
 	    	if (firstLinkIn == null)
 	    		return Collections.emptyList();
 	    	else if (otherLinksIn == null)
-	    		return new SingleElementIterable<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkIn);
+	    		return new SingleElementIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkIn);
 	    else
-	        return new SingleElementWithListIterable<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkIn, otherLinksIn);
+	        return new SingleElementWithListIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkIn, otherLinksIn);
     }
     
-    public StackLink<ElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link) {
+    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
         link.to.addInLink(link);
         
     		if (firstLinkOut == null) { // This means where adding the first link now
@@ -50,13 +50,13 @@ public class HybridElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pars
     		
     			deterministicDepth = link.to.deterministicDepth + 1;
     		} else if (otherLinksOut == null) { // The second link is added; at this point we detect non-determinism
-    			otherLinksOut = new ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>();
+    			otherLinksOut = new ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
     			
     			otherLinksOut.add(link);
     			
     			deterministicDepth = 0;
                 
-            for (StackLink<ElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
+            for (StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(1);
     		} else { // We do not handle the case > 2, since the case == 2 already adjusted deterministic depths
     			otherLinksOut.add(link);
@@ -65,12 +65,12 @@ public class HybridElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pars
         return link;
     }
     
-    protected void addInLink(StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link) {
+    protected void addInLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
     		if (firstLinkIn == null)
     			firstLinkIn = link;
     		else {
     			if (otherLinksIn == null)
-    				otherLinksIn = new ArrayList<StackLink<ElkhoundStackNode<ParseForest>, ParseForest>>();
+    				otherLinksIn = new ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
     			
     			otherLinksIn.add(link);
     		}
@@ -80,7 +80,7 @@ public class HybridElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pars
         if (deterministicDepth != 0) {
             this.deterministicDepth = deterministicDepth;
             
-            for (StackLink<ElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
+            for (StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(deterministicDepth + 1);
         }
     }
@@ -92,7 +92,7 @@ public class HybridElkhoundStackNode<ParseForest> extends ElkhoundStackNode<Pars
     		if (otherLinksOut == null)
     			return true;
     		
-        for (StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link : otherLinksOut) {
+        for (StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link : otherLinksOut) {
             if (!link.isRejected())
                 return false;
         }

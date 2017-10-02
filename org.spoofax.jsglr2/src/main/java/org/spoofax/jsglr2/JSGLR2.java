@@ -24,14 +24,14 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     public IParser<StackNode, ParseForest> parser;
     public IImploder<ParseForest, AbstractSyntaxTree> imploder;
     
-    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IParseTable parseTable) throws ParseTableReadException {
+    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> standard(IParseTable parseTable) throws ParseTableReadException {
         return (JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, StackRepresentation.HybridElkhound, Reducing.Elkhound);
     }
     
-    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> best(IStrategoTerm parseTableTerm) throws ParseTableReadException {
+    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);
 
-        return best(parseTable);
+        return standard(parseTable);
     }
     
     public JSGLR2(IParser<StackNode, ParseForest> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {

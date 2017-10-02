@@ -26,7 +26,7 @@ public class Sdf2Table {
 		return pathInTargetDir;
 	}
 	
-	public static void setupSdf2TableInTargetDir() throws URISyntaxException, IOException {
+	synchronized public static void setupSdf2TableInTargetDir() throws URISyntaxException, IOException {
 		String targetPath = new File(WithGrammar.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent(); // Path of the target directory
         
 		// Create a separate directory for the native sdf2table file

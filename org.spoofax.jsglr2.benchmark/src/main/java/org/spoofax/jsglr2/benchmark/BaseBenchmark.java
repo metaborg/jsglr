@@ -52,7 +52,7 @@ public abstract class BaseBenchmark implements WithGrammar {
     
     protected abstract List<Input> getInputs() throws IOException;
     
-    class Input {
+    public class Input {
         public String filename;
         public String content;
         public Input(String filename, String content) {

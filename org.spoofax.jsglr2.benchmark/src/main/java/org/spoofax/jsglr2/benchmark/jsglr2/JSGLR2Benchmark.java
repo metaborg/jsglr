@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.benchmark;
+package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;

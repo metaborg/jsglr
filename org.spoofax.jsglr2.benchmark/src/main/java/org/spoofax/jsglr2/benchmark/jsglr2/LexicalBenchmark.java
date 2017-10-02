@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.benchmark;
+package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,17 +7,17 @@ import java.util.List;
 
 import org.openjdk.jmh.annotations.Param;
 
-public class SumNonAmbiguousBenchmark extends JSGLR2GrammarBenchmark {
+public class LexicalBenchmark extends JSGLR2GrammarBenchmark {
     
-    public SumNonAmbiguousBenchmark() {
-        super("sum-nonambiguous");
+    public LexicalBenchmark() {
+        super("lexical-id");
     }
     
-    @Param({"1000", "2000", "4000", "8000", "16000"})
+    @Param({"100000"})
     public int n;
     
     protected List<Input> getInputs() throws IOException {
-        String string = String.join("+", Collections.nCopies(n, "x"));
+        String string = String.join("", Collections.nCopies(n, "a"));
         
         Input input = new Input("", string);
         

@@ -25,6 +25,7 @@ import org.spoofax.jsglr2.stack.basic.BasicStackManager;
 import org.spoofax.jsglr2.stack.basic.HybridStackManager;
 import org.spoofax.jsglr2.stack.basic.AbstractBasicStackNode;
 import org.spoofax.jsglr2.stack.elkhound.BasicElkhoundStackManager;
+import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.stack.elkhound.HybridElkhoundStackManager;
 
@@ -106,7 +107,7 @@ public class JSGLR2Variants {
                 BasicParseForestManager basicParseForestManager = new BasicParseForestManager();
                 
                 if (variant.reducing == Reducing.Elkhound) {
-	                	StackManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest> elkhoundStackManager;
+	                	AbstractElkhoundStackManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest> elkhoundStackManager;
 	                    
 	            		if (variant.stackRepresentation == StackRepresentation.HybridElkhound)
 	            			elkhoundStackManager = new HybridElkhoundStackManager<BasicParseForest>();
@@ -145,7 +146,7 @@ public class JSGLR2Variants {
                 HybridParseForestManager hybridParseForestManager = new HybridParseForestManager();
                 
                 if (variant.reducing == Reducing.Elkhound) {
-	                	StackManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest> elkhoundStackManager;
+                		AbstractElkhoundStackManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest> elkhoundStackManager;
 	                    
 	            		if (variant.stackRepresentation == StackRepresentation.HybridElkhound)
 	            			elkhoundStackManager = new HybridElkhoundStackManager<HybridParseForest>();

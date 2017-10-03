@@ -2,10 +2,7 @@ package org.spoofax.jsglr2.stack.elkhound;
 
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.EmptyStackPath;
-import org.spoofax.jsglr2.stack.NonEmptyStackPath;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackPath;
 
 public abstract class AbstractElkhoundStackNode<ParseForest> extends AbstractStackNode<ParseForest> {
     
@@ -38,18 +35,6 @@ public abstract class AbstractElkhoundStackNode<ParseForest> extends AbstractSta
             
             for (StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(deterministicDepth + 1);
-        }
-    }
-    
-    public StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> findDeterministicPathOfLength(int length) {
-        if (length == 0)
-            return new EmptyStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest>(this);
-        else {
-            StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> onlyOwnLink = getOnlyLinkOut();
-            
-            StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> pathAfterOwnLink = onlyOwnLink.to.findDeterministicPathOfLength(length - 1);
-            
-            return new NonEmptyStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest>(onlyOwnLink, pathAfterOwnLink);
         }
     }
 	

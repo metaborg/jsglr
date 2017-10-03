@@ -7,14 +7,18 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.StackPath;
+import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 
 public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<AbstractElkhoundStackNode<ParseForest>, ParseForest, ParseNode, Derivation> {
 
-    public ReducerElkhound(IParseTable parseTable, StackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+    protected final AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager;
+    
+    public ReducerElkhound(IParseTable parseTable, AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         super(parseTable, stackManager, parseForestManager);
+        
+        this.stackManager = stackManager;
     }
     
     @Override
@@ -23,7 +27,7 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
             return;
         
         if (stack.deterministicDepth >= reduce.arity()) {
-            StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stack.findDeterministicPathOfLength(reduce.arity());
+            StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stackManager.findDeterministicPathOfLength(stack, reduce.arity());
             
             if (parse.activeStacks.size() == 1)
                 reduceElkhoundPath(parse, deterministicPath, reduce); // Do standard LR if there is only 1 active stack

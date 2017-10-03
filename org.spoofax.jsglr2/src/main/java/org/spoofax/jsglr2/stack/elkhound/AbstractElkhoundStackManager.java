@@ -1,13 +1,11 @@
 package org.spoofax.jsglr2.stack.elkhound;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IState;
-import org.spoofax.jsglr2.stack.EmptyStackPath;
-import org.spoofax.jsglr2.stack.NonEmptyStackPath;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
-import org.spoofax.jsglr2.stack.StackPath;
 
 public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElkhoundStackNode<ParseForest>, ParseForest extends AbstractParseForest> extends StackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> {
     
@@ -37,16 +35,24 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
         return link;
     }
     
-    public StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> findDeterministicPathOfLength(AbstractElkhoundStackNode<ParseForest> stack, int length) {
-        if (length == 0)
-            return new EmptyStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest>(stack);
-        else {
-            StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> onlyOwnLink = stack.getOnlyLinkOut();
-            
-            StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> pathAfterOwnLink = findDeterministicPathOfLength(onlyOwnLink.to, length - 1);
-            
-            return new NonEmptyStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest>(onlyOwnLink, pathAfterOwnLink);
-        }
+    public DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> findDeterministicPathOfLength(ParseForestManager<ParseForest, ?, ?> parseForestManager, AbstractElkhoundStackNode<ParseForest> stack, int length) {
+		ParseForest[] parseForests = parseForestManager.parseForestsArray(length);
+		AbstractElkhoundStackNode<ParseForest> lastStackNode = stack;
+
+		AbstractElkhoundStackNode<ParseForest> currentStackNode = stack;
+    		
+    		for (int i = length - 1; i >= 0; i--) {
+    			StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = currentStackNode.getOnlyLinkOut();
+    			
+    			parseForests[i] = link.parseForest;
+    			
+    			if (i == 0)
+    				lastStackNode = link.to;
+    			else
+    				currentStackNode = link.to;
+    		}
+    		
+    		return new DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest>(parseForests, lastStackNode);
     }
     
     protected Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> stackLinksOut(AbstractElkhoundStackNode<ParseForest> stack) {

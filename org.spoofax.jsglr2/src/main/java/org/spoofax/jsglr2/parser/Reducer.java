@@ -44,10 +44,13 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
     }
     
     protected void reducePath(Parse<StackNode, ParseForest> parse, StackPath<StackNode, ParseForest> path, IReduce reduce) {
-        StackNode pathEnd = path.lastStackNode();
-        
-        ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+    		ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+    		StackNode pathEnd = path.lastStackNode();
+    		
+    		reducePath(parse, parseNodes, pathEnd, reduce);    		
+    }
     
+    protected void reducePath(Parse<StackNode, ParseForest> parse, ParseForest[] parseNodes, StackNode pathEnd, IReduce reduce) {
         IGoto gotoAction = pathEnd.state.getGoto(reduce.production().productionNumber());
         IState gotoState = parseTable.getState(gotoAction.gotoState());
         

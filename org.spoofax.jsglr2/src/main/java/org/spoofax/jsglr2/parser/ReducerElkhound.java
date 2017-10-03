@@ -10,6 +10,7 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackPath;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.stack.elkhound.DeterministicStackPath;
 
 public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<AbstractElkhoundStackNode<ParseForest>, ParseForest, ParseNode, Derivation> {
 
@@ -27,12 +28,12 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
             return;
         
         if (stack.deterministicDepth >= reduce.arity()) {
-            StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stackManager.findDeterministicPathOfLength(stack, reduce.arity());
+        		DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
             
             if (parse.activeStacks.size() == 1)
-                reduceElkhoundPath(parse, deterministicPath, reduce); // Do standard LR if there is only 1 active stack
+                reduceElkhoundPath(parse, deterministicPath.parseForests, deterministicPath.lastStackNode(), reduce); // Do standard LR if there is only 1 active stack
             else
-                reducePath(parse, deterministicPath, reduce); // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
+                reducePath(parse, deterministicPath.parseForests, deterministicPath.lastStackNode(), reduce); // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
         } else {
             // Fall back to regular GLR
             for (StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
@@ -40,11 +41,7 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
         }
     }
     
-    private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path, IReduce reduce) {
-        AbstractElkhoundStackNode<ParseForest> pathEnd = path.lastStackNode(); 
-        
-        ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
-    
+    private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> pathEnd, IReduce reduce) {
         IGoto gotoAction = pathEnd.state.getGoto(reduce.production().productionNumber());
         IState gotoState = parseTable.getState(gotoAction.gotoState());
         

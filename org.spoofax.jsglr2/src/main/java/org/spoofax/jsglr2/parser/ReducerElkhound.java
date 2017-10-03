@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.List;
-
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -41,7 +39,7 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
     private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path, IReduce reduce) {
         AbstractElkhoundStackNode<ParseForest> pathEnd = path.lastStackNode(); 
         
-        List<ParseForest> parseNodes = path.getParseForests();
+        ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
     
         IGoto gotoAction = pathEnd.state.getGoto(reduce.production().productionNumber());
         IState gotoState = parseTable.getState(gotoAction.gotoState());
@@ -49,7 +47,7 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
         reducerElkhound(parse, pathEnd, gotoState, reduce, parseNodes);
     }
     
-    private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, List<ParseForest> parseForests) {
+    private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
         ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
         

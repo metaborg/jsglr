@@ -30,7 +30,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 	
 	public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement);
 	
-	public void reduce(IReduce reduce, List<ParseForest> parseNodes, StackNode activeStackWithGotoState);
+	public void reduce(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
 	
 	public void directLinkFound(StackLink<StackNode, ParseForest> directLink);
 	

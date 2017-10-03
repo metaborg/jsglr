@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IState;
 
@@ -62,5 +63,24 @@ public abstract class StackManager<StackNode extends AbstractStackNode<ParseFore
     }
     
     protected abstract Iterable<StackLink<StackNode, ParseForest>> stackLinksOut(StackNode stack);
+    
+    public ParseForest[] getParseForests(ParseForestManager<ParseForest, ?, ?> parseForestManager, StackPath<StackNode, ParseForest> pathBegin) {
+		ParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
+		
+		StackPath<StackNode, ParseForest> path = pathBegin;
+		int i = 0;
+		
+		while (path.length > 0) {
+			i++;
+			
+			NonEmptyStackPath<StackNode, ParseForest> nonEmptyPath = (NonEmptyStackPath<StackNode, ParseForest>) path;
+			
+			res[pathBegin.length - i] = nonEmptyPath.link.parseForest;
+			
+			path = nonEmptyPath.next;
+		}
+		
+		return res;
+    }
     
 }

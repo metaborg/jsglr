@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
 
@@ -50,7 +49,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 		log("Add for shifter " + forShifterElementToString(forShifterElement));
 	}
 	
-	public void reduce(IReduce reduce, List<ParseForest> parseNodes, StackNode activeStackWithGotoState) {
+	public void reduce(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {
 		log("Reduce by prodution " + reduce.production().productionNumber() + " (" + reduce.productionType().toString() + ") with parse nodes " + parseForestListToString(parseNodes) + ", using existing stack: " + (activeStackWithGotoState != null ? activeStackWithGotoState.stackNumber : "no"));
 	}
 	

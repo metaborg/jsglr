@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
-import java.util.List;
 
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
@@ -45,9 +44,9 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
     }
     
     protected void reducePath(Parse<StackNode, ParseForest> parse, StackPath<StackNode, ParseForest> path, IReduce reduce) {
-        StackNode pathEnd = path.lastStackNode(); 
+        StackNode pathEnd = path.lastStackNode();
         
-        List<ParseForest> parseNodes = path.getParseForests();
+        ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
     
         IGoto gotoAction = pathEnd.state.getGoto(reduce.production().productionNumber());
         IState gotoState = parseTable.getState(gotoAction.gotoState());
@@ -55,7 +54,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
         reducer(parse, pathEnd, gotoState, reduce, parseNodes);
     }
     
-    private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, List<ParseForest> parseForests) {
+    private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
         StackNode activeStackWithGotoState = stackManager.findActiveStackWithState(parse, gotoState);
         
         parse.notify(observer -> observer.reduce(reduce, parseForests, activeStackWithGotoState));

@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
-import java.util.List;
-
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
@@ -20,12 +18,10 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return parseNode;
     }
     
-    public Derivation createDerivation(Parse<?, HybridParseForest> parse, IProduction production, ProductionType productionType, List<HybridParseForest> parseForests) {
-        HybridParseForest[] parseForestsArray = parseForests.toArray(new HybridParseForest[parseForests.size()]);
+    public Derivation createDerivation(Parse<?, HybridParseForest> parse, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
+        Derivation derivation = new Derivation(production, productionType, parseForests);
         
-        Derivation derivation = new Derivation(production, productionType, parseForestsArray);
-        
-        parse.notify(observer -> observer.createDerivation(parseForestsArray));
+        parse.notify(observer -> observer.createDerivation(parseForests));
                 
         return derivation;
     }
@@ -42,6 +38,10 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         parse.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
         
         return characterNode;
+    }
+    
+    public HybridParseForest[] parseForestsArray(int length) {
+    		return new HybridParseForest[length];
     }
    
 }

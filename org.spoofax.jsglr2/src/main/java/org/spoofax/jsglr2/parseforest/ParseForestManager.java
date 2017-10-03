@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parseforest;
 
-import java.util.List;
-
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IProduction;
@@ -11,11 +9,13 @@ public abstract class ParseForestManager<ParseForest extends AbstractParseForest
 
     abstract public ParseForest createParseNode(Parse<?, ParseForest> parse, IProduction production, Derivation firstDerivation);
     
-    abstract public Derivation createDerivation(Parse<?, ParseForest> parse, IProduction production, ProductionType productionType, List<ParseForest> parseForests);
+    abstract public Derivation createDerivation(Parse<?, ParseForest> parse, IProduction production, ProductionType productionType, ParseForest[] parseForests);
     
     abstract public void addDerivation(Parse<?, ParseForest> parse, ParseNode parseNode, Derivation derivation);
     
     abstract public ParseForest createCharacterNode(Parse<?, ParseForest> parse);
+
+    abstract public ParseForest[] parseForestsArray(int length);
     
     protected Cover getCover(Parse<?, ParseForest> parse, ParseForest[] parseNodes) {
         Position startPosition, endPosition;

@@ -55,7 +55,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 	    trace("{\"action\":\"addForShifter\",\"stack\":" + forShifterElement.stack.stackNumber + ", \"state\":" + forShifterElement.state.stateNumber() + "}");
 	}
 	
-	public void reduce(IReduce reduce, List<ParseForest> parseNodes, StackNode activeStackWithGotoState) {
+	public void reduce(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {
 	    trace("{\"action\":\"reduce\",\"parseNodes\":" + parseForestListToString(parseNodes) + ",\"activeStackWithGotoState\":" + (activeStackWithGotoState != null ? activeStackWithGotoState.stackNumber : -1) + "}");
 	}
     

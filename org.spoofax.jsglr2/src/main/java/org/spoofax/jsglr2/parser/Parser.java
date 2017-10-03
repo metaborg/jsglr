@@ -40,10 +40,10 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
 	
 	public ParseResult<ParseForest> parse(String inputString, String filename) {
-		notify(observer -> observer.parseStart(inputString));
-		
 		Parse<StackNode, ParseForest> parse = new Parse<StackNode, ParseForest>(inputString, filename, observers);
         
+		notify(observer -> observer.parseStart(parse));
+		
 		StackNode initialStackNode = stackManager.createInitialStackNode(parse, parseTable.startState());
 
         parse.activeStacks.add(initialStackNode);

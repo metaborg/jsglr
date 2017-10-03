@@ -29,7 +29,7 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
     public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> createStackLink(Parse<AbstractBasicStackNode<ParseForest>, ParseForest> parse, AbstractBasicStackNode<ParseForest> from, AbstractBasicStackNode<ParseForest> to, ParseForest parseNode) {
         StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link = from.addOutLink(parse.stackLinkCount++, to, parseNode);
         
-        parse.notify(observer -> observer.createStackLink(link.linkNumber, from, to, parseNode));
+        parse.notify(observer -> observer.createStackLink(link));
         
         return link;
     }

@@ -15,106 +15,86 @@ import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class ParserVisualisationObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> extends ParserLogObserver<StackNode, ParseForest> {
+public class ParserVisualisationObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> implements IParserObserver<StackNode, ParseForest> {
 	
 	List<String> jsonTrace = new ArrayList<String>();
 	
-	@Override
-	public void parseStart(String inputString) {
-		trace("{\"action\":\"start\",\"inputString\":\"" + inputString +  "\"}");
+	public void parseStart(Parse<StackNode, ParseForest> parse) {
+		trace("{\"action\":\"start\",\"inputString\":\"" + parse.inputString +  "\"}");
 	}
 	
-	@Override
 	public void parseCharacter(int character, Queue<StackNode> activeStacks) {
 		trace("{\"action\":\"parseCharacter\",\"character\":\"" + Characters.charToString(character) + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
 	}
 	
-	@Override
 	public void createStackNode(StackNode stack) {
 		trace("{\"action\":\"createStackNode\",\"stackNumber\":" + stack.stackNumber + ",\"stateNumber\":" + stack.state.stateNumber() + "}");
 	}
 	
-	@Override
-	public void createStackLink(int linkNumber, StackNode from, StackNode to, ParseForest parseNode) {
-		trace("{\"action\":\"createStackLink\",\"linkNumber\":" + linkNumber + ",\"fromStack\":" + from.stackNumber + ",\"toStack\":" + to.stackNumber + ",\"parseNode\":" + parseNode.nodeNumber + ",\"descriptor\":\"" + escape(parseNode.descriptor()) + "\"}");
+	public void createStackLink(StackLink<StackNode, ParseForest> link) {
+		trace("{\"action\":\"createStackLink\",\"linkNumber\":" + link.linkNumber + ",\"fromStack\":" + link.from.stackNumber + ",\"toStack\":" + link.to.stackNumber + ",\"parseNode\":" + link.parseForest.nodeNumber + ",\"descriptor\":\"" + escape(link.parseForest.descriptor()) + "\"}");
 	}
 	
-	@Override
 	public void rejectStackLink(StackLink<StackNode, ParseForest> link) {
 		trace("{\"action\":\"rejectStackLink\",\"linkNumber\":" + link.linkNumber + "}");
 	}
     
-	@Override
-    public void forActorStacks(Queue<StackNode> forActor, Queue<StackNode> forActorDelayed) {
+	public void forActorStacks(Queue<StackNode> forActor, Queue<StackNode> forActorDelayed) {
         trace("{\"action\":\"forActorStacks\",\"forActor\":" + stackQueueToString(forActor) + ",\"forActorDelayed\":" + stackQueueToString(forActorDelayed) + "}");
     }
 	
-	@Override
 	public void actor(StackNode stack, Iterable<IAction> applicableActions) {
 	    trace("{\"action\":\"actor\",\"stackNumber\":" + stack.stackNumber + "}");
 	}
     
-	@Override
-    public void skipRejectedStack(StackNode stack) {
+	public void skipRejectedStack(StackNode stack) {
         trace("{\"action\":\"skipRejectedStack\",\"stackNumber\":" + stack.stackNumber + "}");
     }
 	
-	@Override
 	public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement) {
 	    trace("{\"action\":\"addForShifter\",\"stack\":" + forShifterElement.stack.stackNumber + ", \"state\":" + forShifterElement.state.stateNumber() + "}");
 	}
 	
-	@Override
-	public void reduce(IReduce reduce, List<? extends AbstractParseForest> parseNodes, StackNode activeStackWithGotoState) {
+	public void reduce(IReduce reduce, List<ParseForest> parseNodes, StackNode activeStackWithGotoState) {
 	    trace("{\"action\":\"reduce\",\"parseNodes\":" + parseForestListToString(parseNodes) + ",\"activeStackWithGotoState\":" + (activeStackWithGotoState != null ? activeStackWithGotoState.stackNumber : -1) + "}");
 	}
     
-	@Override
-    public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {
+	public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {
         trace("{\"action\":\"directLinkFound\",\"linkNumber\":" + (directLink != null ? directLink.linkNumber : -1) + "}");
     }
 	
-	@Override
 	public void accept(StackNode acceptingStack) {
 		trace("{\"action\":\"acceptStackNode\",\"stackNumber\":" + acceptingStack.stackNumber + "}");
 	}
 	
-	@Override
-	public void createParseNode(AbstractParseForest parseNode, IProduction production) {
+	public void createParseNode(ParseForest parseNode, IProduction production) {
 		trace("{\"action\":\"createParseNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"production\":" + production.productionNumber() + ",\"term\":\"" + escape(production.descriptor()) + "\"}");
 	}
 	
-	@Override
-	public void createDerivation(AbstractParseForest[] parseNodes) {
+	public void createDerivation(ParseForest[] parseNodes) {
 		trace("{\"action\":\"createDerivation\",\"subTrees\":" + parseForestListToString(parseNodes) + "}");
 	}
 	
-	@Override
-	public void createCharacterNode(AbstractParseForest parseNode, int character) {
+	public void createCharacterNode(ParseForest parseNode, int character) {
 		trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\"" + Characters.charToString(character) + "\"}");
 	}
 	
-	@Override
 	public void addDerivation(AbstractParseForest parseNode) {
 		trace("{\"action\":\"addDerivation\",\"parseNode\":" + parseNode.nodeNumber + "}");
 	}
 	
-	@Override
-	public void shifter(AbstractParseForest termNode, Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
+	public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
         trace("{\"action\":\"shifter\",\"termNode\":" + termNode.nodeNumber + ",\"elements\":" + forShifterQueueToString(forShifter) + "}");
 	}
 	
-	@Override
 	public void remark(String remark) {
 		trace("{\"action\":\"remark\",\"remark\":\"" + remark + "\"}");
 	}
 	
-	@Override
 	public void success(ParseSuccess<ParseForest> success) {
 		trace("{\"action\":\"success\"}");
 	}
 
-	@Override
 	public void failure(ParseFailure<ParseForest> failure) {
 		trace("{\"action\":\"failure\"}");
 	}

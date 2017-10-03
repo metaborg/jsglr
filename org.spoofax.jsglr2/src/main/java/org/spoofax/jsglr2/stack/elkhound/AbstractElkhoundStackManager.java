@@ -29,7 +29,7 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> createStackLink(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> from, AbstractElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
         StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = from.addOutLink(parse.stackLinkCount++, to, parseNode);
         
-        parse.notify(observer -> observer.createStackLink(link.linkNumber, from, to, parseNode));
+        parse.notify(observer -> observer.createStackLink(link));
         
         return link;
     }

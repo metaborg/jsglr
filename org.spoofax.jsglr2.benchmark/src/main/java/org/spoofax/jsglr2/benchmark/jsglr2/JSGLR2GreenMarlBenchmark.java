@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import java.io.IOException;
 import java.util.List;
 
-public class GreenMarlBenchmark extends JSGLR2ParseTableBenchmark {
+public class JSGLR2GreenMarlBenchmark extends JSGLR2ParseTableBenchmark {
     
-    public GreenMarlBenchmark() {
+    public JSGLR2GreenMarlBenchmark() {
         super("GreenMarl");
     }
     

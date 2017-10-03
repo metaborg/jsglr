@@ -7,13 +7,13 @@ import java.util.List;
 
 import org.openjdk.jmh.annotations.Param;
 
-public class LexicalBenchmark extends JSGLR2GrammarBenchmark {
+public class JSGLR2LexicalBenchmark extends JSGLR2GrammarBenchmark {
     
-    public LexicalBenchmark() {
+    public JSGLR2LexicalBenchmark() {
         super("lexical-id");
     }
     
-    @Param({"100000"})
+    @Param({"10000", "50000", "100000"})
     public int n;
     
     protected List<Input> getInputs() throws IOException {

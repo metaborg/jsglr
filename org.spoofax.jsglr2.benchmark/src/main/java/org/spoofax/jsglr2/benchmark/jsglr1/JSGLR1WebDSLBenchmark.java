@@ -1,11 +1,11 @@
-package org.spoofax.jsglr2.benchmark.jsglr2;
+package org.spoofax.jsglr2.benchmark.jsglr1;
 
 import java.io.IOException;
 import java.util.List;
 
-public class WebDSLBenchmark extends JSGLR2ParseTableBenchmark {
+public class JSGLR1WebDSLBenchmark extends JSGLR1ParseTableBenchmark {
     
-    public WebDSLBenchmark() {
+    public JSGLR1WebDSLBenchmark() {
         super("WebDSL");
     }
     

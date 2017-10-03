@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import java.io.IOException;
 import java.util.List;
 
-public class CSVBenchmark extends JSGLR2GrammarBenchmark {
+public class JSGLR2CSVBenchmark extends JSGLR2GrammarBenchmark {
     
-    public CSVBenchmark() {
+    public JSGLR2CSVBenchmark() {
         super("csv");
     }
     

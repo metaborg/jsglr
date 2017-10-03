@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.openjdk.jmh.annotations.Param;
 
-public class SumNonAmbiguousBenchmark extends JSGLR2GrammarBenchmark {
+public class JSGLR2SumNonAmbiguousBenchmark extends JSGLR2GrammarBenchmark {
     
-    public SumNonAmbiguousBenchmark() {
+    public JSGLR2SumNonAmbiguousBenchmark() {
         super("sum-nonambiguous");
     }
     

@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import java.io.IOException;
 import java.util.List;
 
-public class Java8Benchmark extends JSGLR2ParseTableBenchmark {
+public class JSGLR2Java8Benchmark extends JSGLR2ParseTableBenchmark {
     
-    public Java8Benchmark() {
+    public JSGLR2Java8Benchmark() {
         super("Java8");
     }
     

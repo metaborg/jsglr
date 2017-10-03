@@ -2,18 +2,12 @@ package org.spoofax.jsglr2.stack;
 
 public class NonEmptyStackPath<StackNode extends AbstractStackNode<ParseForest>, ParseForest> extends StackPath<StackNode, ParseForest> {
 
-	protected final StackPath<StackNode, ParseForest> next;
+	protected final StackPath<StackNode, ParseForest> tail;
 	protected final StackLink<StackNode, ParseForest> link;
 	
-	public NonEmptyStackPath(StackLink<StackNode, ParseForest> stackLink) {
-		super(1);
-		this.next = new EmptyStackPath<StackNode, ParseForest>(stackLink.to);
-		this.link = stackLink;
-	}
-	
-	public NonEmptyStackPath(StackLink<StackNode, ParseForest> stackLink, StackPath<StackNode, ParseForest> next) {
-		super(next.length + 1);
-		this.next = next;
+	public NonEmptyStackPath(StackLink<StackNode, ParseForest> stackLink, StackPath<StackNode, ParseForest> tail) {
+		super(tail.length + 1);
+		this.tail = tail;
 		this.link = stackLink;
 	}
     
@@ -21,12 +15,12 @@ public class NonEmptyStackPath<StackNode extends AbstractStackNode<ParseForest>,
         return false;
     }
 	
-	public StackNode lastStackNode() {
-		return this.next.lastStackNode();
+	public StackNode head() {
+		return this.link.to;
 	}
 	
 	public boolean contains(StackLink<StackNode, ParseForest> link) {
-		return this.link == link || (this.next != null && this.next.contains(link));
+		return this.link == link || (this.tail != null && this.tail.contains(link));
 	}
 
 }

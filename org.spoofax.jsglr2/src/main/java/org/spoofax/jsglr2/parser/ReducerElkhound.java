@@ -31,9 +31,9 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
         		DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
             
             if (parse.activeStacks.size() == 1)
-                reduceElkhoundPath(parse, deterministicPath.parseForests, deterministicPath.lastStackNode(), reduce); // Do standard LR if there is only 1 active stack
+                reduceElkhoundPath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Do standard LR if there is only 1 active stack
             else
-                reducePath(parse, deterministicPath.parseForests, deterministicPath.lastStackNode(), reduce); // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
+                reducePath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
         } else {
             // Fall back to regular GLR
             for (StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
@@ -41,11 +41,11 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
         }
     }
     
-    private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> pathEnd, IReduce reduce) {
-        IGoto gotoAction = pathEnd.state.getGoto(reduce.production().productionNumber());
+    private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> pathBegin, IReduce reduce) {
+        IGoto gotoAction = pathBegin.state.getGoto(reduce.production().productionNumber());
         IState gotoState = parseTable.getState(gotoAction.gotoState());
         
-        reducerElkhound(parse, pathEnd, gotoState, reduce, parseNodes);
+        reducerElkhound(parse, pathBegin, gotoState, reduce, parseNodes);
     }
     
     private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {

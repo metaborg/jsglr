@@ -13,7 +13,7 @@ public class EmptyStackPath<StackNode extends AbstractStackNode<ParseForest>, Pa
 	    return true;
 	}
 	
-	public StackNode lastStackNode() {
+	public StackNode head() {
 		return this.stackNode;
 	}
 	

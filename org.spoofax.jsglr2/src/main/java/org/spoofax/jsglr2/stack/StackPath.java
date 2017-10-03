@@ -10,7 +10,7 @@ public abstract class StackPath<StackNode extends AbstractStackNode<ParseForest>
     
     public abstract boolean isEmpty();
 	
-	public abstract StackNode lastStackNode();
+	public abstract StackNode head();
 	
 	public abstract boolean contains(StackLink<StackNode, ParseForest> link);
 

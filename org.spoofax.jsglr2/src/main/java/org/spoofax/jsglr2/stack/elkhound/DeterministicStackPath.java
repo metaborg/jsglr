@@ -7,20 +7,20 @@ import org.spoofax.jsglr2.stack.StackPath;
 public class DeterministicStackPath<StackNode extends AbstractStackNode<ParseForest>, ParseForest> extends StackPath<StackNode, ParseForest> {
 
 	public final ParseForest[] parseForests;
-	private final StackNode lastStackNode;
+	private final StackNode head;
 	
-	public DeterministicStackPath(ParseForest[] parseForests, StackNode lastStackNode) {
+	public DeterministicStackPath(ParseForest[] parseForests, StackNode head) {
 		super(parseForests.length);
 		this.parseForests = parseForests;
-		this.lastStackNode = lastStackNode;
+		this.head = head;
 	}
     
     public boolean isEmpty() {
         return length == 0;
     }
 	
-	public StackNode lastStackNode() {
-		return lastStackNode;
+	public StackNode head() {
+		return head;
 	}
 	
 	public boolean contains(StackLink<StackNode, ParseForest> link) {

@@ -11,21 +11,21 @@ import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.StackPath;
-import org.spoofax.jsglr2.stack.elkhound.ElkhoundStackNode;
+import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 
-public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<ElkhoundStackNode<ParseForest>, ParseForest, ParseNode, Derivation> {
+public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<AbstractElkhoundStackNode<ParseForest>, ParseForest, ParseNode, Derivation> {
 
-    public ReducerElkhound(IParseTable parseTable, StackManager<ElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+    public ReducerElkhound(IParseTable parseTable, StackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         super(parseTable, stackManager, parseForestManager);
     }
     
     @Override
-    public void doReductions(Parse<ElkhoundStackNode<ParseForest>, ParseForest> parse, ElkhoundStackNode<ParseForest> stack, IReduce reduce) {
+    public void doReductions(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce) {
         if (reduce.production().isCompletionOrRecovery())
             return;
         
         if (stack.deterministicDepth >= reduce.arity()) {
-            StackPath<ElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stack.findDeterministicPathOfLength(reduce.arity());
+            StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stack.findDeterministicPathOfLength(reduce.arity());
             
             if (parse.activeStacks.size() == 1)
                 reduceElkhoundPath(parse, deterministicPath, reduce); // Do standard LR if there is only 1 active stack
@@ -33,13 +33,13 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
                 reducePath(parse, deterministicPath, reduce); // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
         } else {
             // Fall back to regular GLR
-            for (StackPath<ElkhoundStackNode<ParseForest>, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
+            for (StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
                 reducePath(parse, path, reduce);
         }
     }
     
-    private void reduceElkhoundPath(Parse<ElkhoundStackNode<ParseForest>, ParseForest> parse, StackPath<ElkhoundStackNode<ParseForest>, ParseForest> path, IReduce reduce) {
-        ElkhoundStackNode<ParseForest> pathEnd = path.lastStackNode(); 
+    private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path, IReduce reduce) {
+        AbstractElkhoundStackNode<ParseForest> pathEnd = path.lastStackNode(); 
         
         List<ParseForest> parseNodes = path.getParseForests();
     
@@ -49,12 +49,12 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
         reducerElkhound(parse, pathEnd, gotoState, reduce, parseNodes);
     }
     
-    private void reducerElkhound(Parse<ElkhoundStackNode<ParseForest>, ParseForest> parse, ElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, List<ParseForest> parseForests) {
+    private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, List<ParseForest> parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
         ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
         
-        ElkhoundStackNode<ParseForest> newStack = stackManager.createStackNode(parse, gotoState);
-        StackLink<ElkhoundStackNode<ParseForest>, ParseForest> link = stackManager.createStackLink(parse, newStack, stack, parseNode);
+        AbstractElkhoundStackNode<ParseForest> newStack = stackManager.createStackNode(parse, gotoState);
+        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = stackManager.createStackLink(parse, newStack, stack, parseNode);
         
         parse.activeStacks.add(newStack);
         parse.forActor.add(newStack);

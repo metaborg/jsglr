@@ -19,12 +19,12 @@ public class OptionalsTest extends BaseTest implements WithGrammar {
 
     @Test
     public void testEmpty() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("", "None");
+        testSuccessByExpansions("", "None");
     }
     
     @Test
     public void testSingleX() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("X", "Some(X)");
+        testSuccessByExpansions("X", "Some(X)");
     }
   
 }

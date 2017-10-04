@@ -87,7 +87,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
                 ArrayDeque<StackNode> activeStacksCopy = new ArrayDeque<StackNode>(parse.activeStacks);
                 
                 for (StackNode activeStack : activeStacksCopy) {
-                    if (!activeStack.allLinksRejected() && !parse.forActor.contains(activeStack) && !parse.forActorDelayed.contains(activeStack))
+                    if (!activeStack.allOutLinksRejected() && !parse.forActor.contains(activeStack) && !parse.forActorDelayed.contains(activeStack))
                         for (IReduce reduceAction : activeStack.state.applicableReduceActions(parse.currentChar))
                             doLimitedRedutions(parse, activeStack, reduceAction, link);
                 }

@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.parseforest.symbolrule;
+package org.spoofax.jsglr2.parseforest.basic;
 
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.Parse;
@@ -6,13 +6,13 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
-public class RuleNode extends SRParseForest implements IDerivation<SRParseForest> {
+public class RuleNode extends BasicParseForest implements IDerivation<BasicParseForest> {
 	
 	public final IProduction production;
     public final ProductionType productionType;
-	public final SRParseForest[] parseForests;
+	public final BasicParseForest[] parseForests;
 	
-	public RuleNode(int nodeNumber, Parse parse, Position startPosition, Position endPosition, IProduction production, ProductionType productionType, SRParseForest[] parseForests) {
+	public RuleNode(int nodeNumber, Parse parse, Position startPosition, Position endPosition, IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
 		super(nodeNumber, parse, startPosition, endPosition);
 		this.production = production;
         this.productionType = productionType;
@@ -27,7 +27,7 @@ public class RuleNode extends SRParseForest implements IDerivation<SRParseForest
         return production;
     }
     
-    public SRParseForest[] parseForests() {
+    public BasicParseForest[] parseForests() {
         return parseForests;
     }
 

@@ -1,6 +1,8 @@
 package org.spoofax.jsglr2.benchmark;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
@@ -20,25 +22,25 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     protected IParser<?, ?> parser;
     protected JSGLR2<?, ?, ?> jsglr2;
     
-    @Param({"SymbolRule", "Hybrid"})
+    @Param({"Basic", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
-    @Param({"true", "false"})
-    public boolean elkhoundStack;
+    @Param({"Basic", "Hybrid", "BasicElkhound", "HybridElkhound"})
+    public JSGLR2Variants.StackRepresentation stackRepresentation;
     
-    @Param({"true", "false"})
-    public boolean elkhoundReducing;
+    @Param({"Basic", "Elkhound"})
+    public JSGLR2Variants.Reducing reducing;
     
-    protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException;
+    protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException;
     
     @Setup
-    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
         prepareParseTable();
         
         IParseTable parseTable = ParseTableReader.read(parseTableTerm);
 
-        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, elkhoundStack, elkhoundReducing);
-        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, elkhoundStack, elkhoundReducing);
+        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, stackRepresentation, reducing);
+        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, stackRepresentation, reducing);
         
         inputs = getInputs();
     }

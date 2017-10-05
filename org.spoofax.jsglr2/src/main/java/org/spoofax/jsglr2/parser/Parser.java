@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
+import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.actions.IShift;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.characters.Characters;
@@ -130,7 +131,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
                 
                 break;
             case REDUCE_LOOKAHEAD:
-                ReduceLookahead reduceLookaheadAction = (ReduceLookahead) action;
+                IReduceLookahead reduceLookaheadAction = (IReduceLookahead) action;
                 
                 if (reduceLookaheadAction.allowsLookahead(parse)) {
                     reducer.doReductions(parse, stack, reduceLookaheadAction);

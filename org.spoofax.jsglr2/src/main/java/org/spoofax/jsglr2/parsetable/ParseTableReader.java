@@ -129,13 +129,12 @@ public class ParseTableReader {
 				int productionNumber = javaInt(productionNumbersTerm);
 				
 				productionNumbers.add(productionNumber);
-			} else {
-				int productionNumberRangeFrom = intAt(productionNumbersTerm, 0);
-				int productionNumberRangeTo = intAt(productionNumbersTerm, 1);
-				
-				for (int productionNumber = productionNumberRangeFrom; productionNumber <= productionNumberRangeTo; productionNumber++)
-					productionNumbers.add(productionNumber);
 			}
+			
+			// productionNumbersTermproductionNumbersTerm can also be a range representing character classes.
+			// That is a remainder of parse table generation (representing transitions between states).
+			// We can ignore them here since parsing only looks up gotos after a reduction and than uses
+			// the production that is used for the reduction the retrieve the goto action, not a character.
 		}
 		
 		int[] res = new int[productionNumbers.size()];

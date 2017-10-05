@@ -102,6 +102,19 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 	public String getLookahead(int length) {
 	    return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
 	}
+	
+	public boolean hasNextActorStack() {
+		return !forActor.isEmpty() || !forActorDelayed.isEmpty();
+	}
+	
+	public StackNode getNextActorStack() {
+		// First return all actors in forActor
+		if (!forActor.isEmpty())
+			return forActor.remove();
+		
+		// Then return actors from forActorDelayed
+		return forActorDelayed.remove();
+	}
     
     public void notify(IParserNotification<StackNode, ParseForest> notification) {
         for (IParserObserver<StackNode, ParseForest> observer : observers)

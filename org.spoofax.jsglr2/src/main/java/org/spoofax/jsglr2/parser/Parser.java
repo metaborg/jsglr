@@ -95,18 +95,13 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 		
 		notify(observer -> observer.forActorStacks(parse.forActor, parse.forActorDelayed));
 		
-		while (!parse.forActor.isEmpty() || !parse.forActorDelayed.isEmpty()) {
-			if (parse.forActor.isEmpty())
-			    parse.forActor.add(parse.forActorDelayed.remove());
+		while (parse.hasNextActorStack()) {
+			StackNode stack = parse.getNextActorStack();
+			
+			if (!stack.allOutLinksRejected())
+				actor(stack, parse);
 			else
-				while (!parse.forActor.isEmpty()) {
-				    StackNode stack = parse.forActor.remove();
-					
-					if (!stack.allOutLinksRejected())
-						actor(stack, parse);
-					else
-					    notify(observer -> observer.skipRejectedStack(stack));
-				}
+			    notify(observer -> observer.skipRejectedStack(stack));
 	        
 	        notify(observer -> observer.forActorStacks(parse.forActor, parse.forActorDelayed));
 		}

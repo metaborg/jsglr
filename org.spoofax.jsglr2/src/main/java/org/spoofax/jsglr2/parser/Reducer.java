@@ -91,7 +91,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
                 		StackNode activeStack = parse.activeStacks.get(i);
                 	
                     if (!activeStack.allOutLinksRejected() && !parse.forActor.contains(activeStack) && !parse.forActorDelayed.contains(activeStack))
-                        for (IReduce reduceAction : activeStack.state.applicableReduceActions(parse.currentChar))
+                        for (IReduce reduceAction : activeStack.state.applicableReduceActions(parse))
                             doLimitedRedutions(parse, activeStack, reduceAction, link);
                 }
             }

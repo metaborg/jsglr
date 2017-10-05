@@ -1,13 +1,13 @@
 package org.spoofax.jsglr2.parsetable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.spoofax.jsglr2.actions.ActionType;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
+import org.spoofax.jsglr2.actions.IReduceLookahead;
+import org.spoofax.jsglr2.parser.Parse;
 
 public class State implements IState {
 	
@@ -71,7 +71,7 @@ public class State implements IState {
 		};
 	}
 	
-	public Iterable<IReduce> applicableReduceActions(int character) { // TODO: this should probably not instantiate a list
+	public Iterable<IReduce> applicableReduceActions(Parse parse) {
 		return new Iterable<IReduce>() {
 			public Iterator<IReduce> iterator() {
 				return new Iterator<IReduce>() {
@@ -79,7 +79,7 @@ public class State implements IState {
 					
 					public boolean hasNext() {
 						if (i < actions.length) {
-							if (actions[i].actionType() == ActionType.REDUCE && actions[i].appliesTo(character))
+							if ((actions[i].actionType() == ActionType.REDUCE || actions[i].actionType() == ActionType.REDUCE_LOOKAHEAD && ((IReduceLookahead) actions[i]).allowsLookahead(parse)) && actions[i].appliesTo(parse.currentChar))
 								return true;
 							else {
 								i++;

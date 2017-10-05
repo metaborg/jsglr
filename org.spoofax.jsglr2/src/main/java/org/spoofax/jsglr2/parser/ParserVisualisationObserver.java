@@ -23,7 +23,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 		trace("{\"action\":\"start\",\"inputString\":\"" + parse.inputString +  "\"}");
 	}
 	
-	public void parseCharacter(int character, Queue<StackNode> activeStacks) {
+	public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
 		trace("{\"action\":\"parseCharacter\",\"character\":\"" + Characters.charToString(character) + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
 	}
 	

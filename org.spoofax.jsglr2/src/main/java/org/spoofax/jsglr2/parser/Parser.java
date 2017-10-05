@@ -87,8 +87,9 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 		notify(observer -> observer.parseCharacter(parse.currentChar, parse.activeStacks)); 
 		
 		parse.forActor.clear();
-		parse.forActor.addAll(parse.activeStacks);
 		parse.forActorDelayed.clear();
+		
+		parse.activeStacks.addAllTo(parse.forActor);
 		
 		parse.forShifter.clear();
 		
@@ -158,7 +159,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 		notify(observer -> observer.shifter(characterNode, parse.forShifter));
 		
 		for (ForShifterElement<StackNode, ParseForest> forShifterElement : parse.forShifter) {
-		    StackNode activeStackForState = stackManager.findActiveStackWithState(parse, forShifterElement.state);
+		    StackNode activeStackForState = parse.activeStacks.findWithState(forShifterElement.state);
 			
 			if (activeStackForState != null) {
 			    stackManager.createStackLink(parse, activeStackForState, forShifterElement.stack, characterNode);

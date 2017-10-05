@@ -10,6 +10,8 @@ import java.util.Queue;
 import org.spoofax.jsglr2.characters.Characters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.ActiveStacks;
+import org.spoofax.jsglr2.stack.IActiveStacks;
 
 public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
 
@@ -23,7 +25,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 	public int currentChar;
 	
 	public StackNode acceptingStack;
-	public Queue<StackNode> activeStacks;
+	public IActiveStacks<StackNode> activeStacks;
 	public Queue<StackNode> forActor;
 	public Queue<StackNode> forActorDelayed;
 	public Queue<ForShifterElement<StackNode, ParseForest>> forShifter;
@@ -50,7 +52,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         };
         
         this.acceptingStack = null;
-        this.activeStacks = new ArrayDeque<StackNode>();
+        this.activeStacks = new ActiveStacks<ParseForest, StackNode>();
         this.forActor = new ArrayDeque<StackNode>();
         this.forActorDelayed = new PriorityQueue<StackNode>(stackNodePriorityComparator);
         this.forShifter = new ArrayDeque<ForShifterElement<StackNode, ParseForest>>();

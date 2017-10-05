@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.ArrayDeque;
-
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -58,7 +56,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
     }
     
     private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
-        StackNode activeStackWithGotoState = stackManager.findActiveStackWithState(parse, gotoState);
+        StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
         
         parse.notify(observer -> observer.reduce(reduce, parseForests, activeStackWithGotoState));
         
@@ -85,10 +83,13 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
                 if (reduce.isRejectProduction())
                     stackManager.rejectStackLink(parse, link);
                 
-                // Copy the currently active stacks since the reductions performed below could add new ones (resulting into java.util.ConcurrentModificationException)
-                ArrayDeque<StackNode> activeStacksCopy = new ArrayDeque<StackNode>(parse.activeStacks);
+                // Save the number of active stacks to prevent the for loop from processing active stacks that are added by doLimitedReductions.
+                // We can safely limit the loop by the current number of stacks since new stack are added at the end.
+                int size = parse.activeStacks.size();
                 
-                for (StackNode activeStack : activeStacksCopy) {
+                for (int i = 0; i < size; i++) {
+                		StackNode activeStack = parse.activeStacks.get(i);
+                	
                     if (!activeStack.allOutLinksRejected() && !parse.forActor.contains(activeStack) && !parse.forActorDelayed.contains(activeStack))
                         for (IReduce reduceAction : activeStack.state.applicableReduceActions(parse.currentChar))
                             doLimitedRedutions(parse, activeStack, reduceAction, link);

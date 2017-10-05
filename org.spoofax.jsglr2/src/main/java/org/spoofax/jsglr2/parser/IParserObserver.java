@@ -14,7 +14,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
 	public void parseStart(Parse<StackNode, ParseForest> parse);
 	
-	public void parseCharacter(int character, Queue<StackNode> activeStacks);
+	public void parseCharacter(int character, Iterable<StackNode> activeStacks);
 	
 	public void createStackNode(StackNode stack);
 	
@@ -52,7 +52,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 	
 	public void failure(ParseFailure<ParseForest> failure);
 	
-	default String stackQueueToString(Queue<StackNode> stacks) {
+	default String stackQueueToString(Iterable<StackNode> stacks) {
 		String res = "";
 		
 		for (StackNode stack : stacks) {

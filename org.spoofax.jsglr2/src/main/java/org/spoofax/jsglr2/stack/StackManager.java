@@ -22,15 +22,6 @@ public abstract class StackManager<StackNode extends AbstractStackNode<ParseFore
         parse.notify(observer -> observer.rejectStackLink(link));
     }
     
-    public StackNode findActiveStackWithState(Parse<StackNode, ParseForest> parse, IState state) {
-        for (StackNode activeStack : parse.activeStacks) {
-            if (activeStack.state.equals(state))
-                return activeStack;
-        }
-        
-        return null;
-    }
-    
     public StackLink<StackNode, ParseForest> findDirectLink(StackNode from, StackNode to) {
         for (StackLink<StackNode, ParseForest> link : stackLinksOut(from)) {
             if (link.to == to)

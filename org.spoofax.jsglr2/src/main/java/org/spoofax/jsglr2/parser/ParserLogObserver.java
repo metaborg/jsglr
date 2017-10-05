@@ -17,7 +17,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 		log("\n  ---  Starting parse for input '" + parse.inputString + "'  ---\n");
 	}
 	
-	public void parseCharacter(int character, Queue<StackNode> activeStacks) {
+	public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
 		log("Parse character '" + Characters.charToString(character) + "' (active stacks: " + stackQueueToString(activeStacks) + ")");
 	}
 	

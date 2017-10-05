@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.parsetable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.spoofax.jsglr2.actions.ActionType;
@@ -41,27 +42,61 @@ public class State implements IState {
     public void markRejectable() {
         this.rejectable = true;
     }
+    
+	public Iterable<IAction> applicableActions(int character) {
+		return new Iterable<IAction>() {
+			public Iterator<IAction> iterator() {
+				return new Iterator<IAction>() {
+					int i = 0;
+					
+					public boolean hasNext() {
+						if (i < actions.length) {
+							if (actions[i].appliesTo(character))
+								return true;
+							else {
+								i++;
+								
+								return hasNext();
+							}
+						}
+						
+						return false;
+					}
 	
-	public List<IAction> applicableActions(int character) {
-		List<IAction> res = new ArrayList<IAction>();
-		
-		for (IAction action : actions) {
-			if (action.appliesTo(character))
-				res.add(action);
-		}
-		
-		return res;
+					public IAction next() {
+						return actions[i++];
+					}
+				};
+			}
+		};
 	}
 	
-	public List<IReduce> applicableReduceActions(int character) {
-		List<IReduce> res = new ArrayList<IReduce>();
-		
-		for (IAction action : actions) {
-			if (action.actionType() == ActionType.REDUCE && action.appliesTo(character)) // TODO: handle reduces with lookahead
-				res.add((IReduce) action);
-		}
-		
-		return res;
+	public Iterable<IReduce> applicableReduceActions(int character) { // TODO: this should probably not instantiate a list
+		return new Iterable<IReduce>() {
+			public Iterator<IReduce> iterator() {
+				return new Iterator<IReduce>() {
+					int i = 0;
+					
+					public boolean hasNext() {
+						if (i < actions.length) {
+							if (actions[i].actionType() == ActionType.REDUCE && actions[i].appliesTo(character))
+								return true;
+							else {
+								i++;
+								
+								return hasNext();
+							}
+						}
+						
+						return false;
+					}
+	
+					public IReduce next() {
+						return (IReduce) actions[i++];
+					}
+				};
+			}
+		};
 	}
 	
 	public IGoto getGoto(int production) {

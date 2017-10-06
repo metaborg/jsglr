@@ -43,7 +43,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
         trace("{\"action\":\"forActorStacks\",\"forActor\":" + stackQueueToString(forActor) + ",\"forActorDelayed\":" + stackQueueToString(forActorDelayed) + "}");
     }
 	
-	public void actor(StackNode stack, Iterable<IAction> applicableActions) {
+	public void actor(StackNode stack, int currentChar, Iterable<IAction> applicableActions) {
 	    trace("{\"action\":\"actor\",\"stackNumber\":" + stack.stackNumber + "}");
 	}
     

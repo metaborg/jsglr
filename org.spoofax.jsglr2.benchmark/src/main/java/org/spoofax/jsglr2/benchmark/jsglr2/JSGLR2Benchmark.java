@@ -42,7 +42,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     public JSGLR2Variants.Reducing reducing;
     
     @Setup
-    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
+    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
         IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, stackRepresentation, reducing);
@@ -50,7 +50,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     }
     
     @Benchmark
-    public void parse(Blackhole bh) throws ParseException {
+    public void benchmark(Blackhole bh) throws ParseException {
     		if (implode) { 
     			for (Input input : inputs)
     	            bh.consume(jsglr2.parseUnsafe(

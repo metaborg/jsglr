@@ -37,7 +37,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
         log("For actor: " + stackQueueToString(forActor) + ", for actor delayed: " + stackQueueToString(forActorDelayed));
     }
     
-    public void actor(StackNode stack, Iterable<IAction> applicableActions) {
+    public void actor(StackNode stack, int currentChar, Iterable<IAction> applicableActions) {
         log("Actor for stack " + stack.stackNumber + " (applicable actions: " + applicableActionsToString(applicableActions) + ")");
     }
     

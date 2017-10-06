@@ -1,16 +1,11 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
-import java.io.IOException;
-import java.util.List;
+import org.spoofax.jsglr2.testset.TestSet;
 
-public class JSGLR2GreenMarlBenchmark extends JSGLR2ParseTableBenchmark {
+public class JSGLR2GreenMarlBenchmark extends JSGLR2Benchmark {
     
     public JSGLR2GreenMarlBenchmark() {
-        super("GreenMarl");
-    }
-    
-    protected List<Input> getInputs() throws IOException {
-        return getSingleInput("GreenMarl/infomap.gm");
+        super(TestSet.greenMarl);
     }
 
 }

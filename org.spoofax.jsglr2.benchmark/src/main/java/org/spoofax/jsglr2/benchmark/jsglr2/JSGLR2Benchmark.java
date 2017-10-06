@@ -16,12 +16,18 @@ import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.testset.Input;
+import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
-    protected IParser<?, ?> parser;
-    protected JSGLR2<?, ?, ?> jsglr2;
+	protected IParser<?, ?> parser; // Just parsing
+    protected JSGLR2<?, ?, ?> jsglr2; // Parsing and imploding (including tokenization)
+
+    protected JSGLR2Benchmark(TestSet testSet) {
+		super(testSet);
+	}
     
     @Param({"Basic", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
@@ -32,18 +38,12 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({"Basic", "Elkhound"})
     public JSGLR2Variants.Reducing reducing;
     
-    protected abstract void prepareParseTable() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException;
-    
     @Setup
     public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-        prepareParseTable();
-        
-        IParseTable parseTable = ParseTableReader.read(parseTableTerm);
+        IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, stackRepresentation, reducing);
         jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, stackRepresentation, reducing);
-        
-        inputs = getInputs();
     }
     
     @Benchmark

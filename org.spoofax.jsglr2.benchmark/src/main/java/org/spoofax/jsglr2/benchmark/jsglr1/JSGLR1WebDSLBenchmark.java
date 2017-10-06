@@ -1,16 +1,11 @@
 package org.spoofax.jsglr2.benchmark.jsglr1;
 
-import java.io.IOException;
-import java.util.List;
+import org.spoofax.jsglr2.testset.TestSet;
 
-public class JSGLR1WebDSLBenchmark extends JSGLR1ParseTableBenchmark {
+public class JSGLR1WebDSLBenchmark extends JSGLR1Benchmark {
     
     public JSGLR1WebDSLBenchmark() {
-        super("WebDSL");
-    }
-    
-    protected List<Input> getInputs() throws IOException {
-        return getSingleInput("WebDSL/built-in.app");
+        super(TestSet.webDSL);
     }
 
 }

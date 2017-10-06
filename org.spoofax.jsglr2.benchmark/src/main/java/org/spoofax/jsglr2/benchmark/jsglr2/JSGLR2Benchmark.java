@@ -29,6 +29,9 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 		super(testSet);
 	}
     
+    @Param({"false", "true"})
+    public boolean implode;
+    
     @Param({"Basic", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
@@ -47,21 +50,20 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     }
     
     @Benchmark
-    public void jsglr2parse(Blackhole bh) throws ParseException {
-        for (Input input : inputs)
-            bh.consume(parser.parseUnsafe(
-                input.content,
-                input.filename
-            ));
-    }
-    
-    @Benchmark
-    public void jsglr2parseAndImplode(Blackhole bh) throws ParseException {
-        for (Input input : inputs)
-            bh.consume(jsglr2.parseUnsafe(
-                input.content,
-                input.filename
-            ));
+    public void parse(Blackhole bh) throws ParseException {
+    		if (implode) { 
+    			for (Input input : inputs)
+    	            bh.consume(jsglr2.parseUnsafe(
+    	                input.content,
+    	                input.filename
+    	            ));
+    		} else {
+    	        for (Input input : inputs)
+    	            bh.consume(parser.parseUnsafe(
+    	                input.content,
+    	                input.filename
+    	            ));
+    		}
     }
 
 }

@@ -7,8 +7,7 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.actions.IShift;
-import org.spoofax.jsglr2.actions.ReduceLookahead;
-import org.spoofax.jsglr2.characters.Characters;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parsetable.IParseTable;
@@ -67,7 +66,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 				
 				result = success;
 			} else {
-				ParseFailure<ParseForest> failure = new ParseFailure<ParseForest>(parse, new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar + "/'" + Characters.charToString(parse.currentChar) + "', position: " + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/" + parse.inputLength + "])"));
+				ParseFailure<ParseForest> failure = new ParseFailure<ParseForest>(parse, new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar + "/'" + ICharacters.charToString(parse.currentChar) + "', position: " + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/" + parse.inputLength + "])"));
 				
 				notify(observer -> observer.failure(failure));
 				

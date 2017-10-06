@@ -23,7 +23,6 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.Reduce;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.actions.Shift;
-import org.spoofax.jsglr2.characters.Characters;
 import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.characters.RangesCharacterSet;
 import org.spoofax.jsglr2.characters.SingleCharacter;
@@ -172,10 +171,10 @@ public class ParseTableReader {
 	}
     
     private static ICharacters readCharacters(IStrategoList charactersTermList) {
-        Characters characters = null;
+        ICharacters characters = null;
         
         for (IStrategoTerm charactersTerm : charactersTermList) {
-            Characters charactersForTerm;
+        		ICharacters charactersForTerm;
             
             if (isTermInt(charactersTerm))
                 charactersForTerm = new SingleCharacter(javaInt(charactersTerm));

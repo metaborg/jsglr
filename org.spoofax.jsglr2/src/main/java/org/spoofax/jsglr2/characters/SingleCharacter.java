@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.characters;
 
-public class SingleCharacter extends Characters {
+public class SingleCharacter implements ICharacters {
 
 	private final int containsCharacter;
 	
@@ -10,6 +10,14 @@ public class SingleCharacter extends Characters {
 	
 	public boolean containsCharacter(int character) {
 		return character == containsCharacter;
+	}
+
+	public ICharacters union(ICharacters other) {
+		CharactersBitSet characters = new CharactersBitSet(other);
+		
+		characters.containsCharacter.set(containsCharacter);
+		
+		return characters;
 	}
 	
 }

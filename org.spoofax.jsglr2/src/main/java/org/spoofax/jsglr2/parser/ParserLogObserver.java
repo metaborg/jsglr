@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.characters.Characters;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -18,7 +18,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 	}
 	
 	public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
-		log("Parse character '" + Characters.charToString(character) + "' (active stacks: " + stackQueueToString(activeStacks) + ")");
+		log("Parse character '" + ICharacters.charToString(character) + "' (active stacks: " + stackQueueToString(activeStacks) + ")");
 	}
 	
 	public void createStackNode(StackNode stack) {
@@ -70,7 +70,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 	}
 	
 	public void createCharacterNode(ParseForest characterNode, int character) {
-		log("Create character node " + characterNode.nodeNumber + " for character '" + Characters.charToString(character) + "'");
+		log("Create character node " + characterNode.nodeNumber + " for character '" + ICharacters.charToString(character) + "'");
 	}
 	
 	public void addDerivation(ParseForest parseNode) {

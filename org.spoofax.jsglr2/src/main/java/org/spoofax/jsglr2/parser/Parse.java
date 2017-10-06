@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.characters.Characters;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.ActiveStacks;
@@ -81,7 +81,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 		if (currentChar > 256)
 		    throw new ParseException("Unicode not supported");
 		
-		if (Characters.isNewLine(currentChar)) {
+		if (ICharacters.isNewLine(currentChar)) {
 		    currentLine++;
 		    currentColumn = 1;
 		} else {
@@ -92,7 +92,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 	}
 	
 	private int getChar(int position) {
-		return position < inputLength ? inputString.charAt(position) : Characters.EOF;
+		return position < inputLength ? inputString.charAt(position) : ICharacters.EOF;
 	}
 	
 	public String getPart(int begin, int end) {

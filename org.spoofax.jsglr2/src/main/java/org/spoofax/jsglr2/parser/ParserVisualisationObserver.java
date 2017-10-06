@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.characters.Characters;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -24,7 +24,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 	}
 	
 	public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
-		trace("{\"action\":\"parseCharacter\",\"character\":\"" + Characters.charToString(character) + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
+		trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacters.charToString(character) + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
 	}
 	
 	public void createStackNode(StackNode stack) {
@@ -76,7 +76,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 	}
 	
 	public void createCharacterNode(ParseForest parseNode, int character) {
-		trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\"" + Characters.charToString(character) + "\"}");
+		trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\"" + ICharacters.charToString(character) + "\"}");
 	}
 	
 	public void addDerivation(AbstractParseForest parseNode) {

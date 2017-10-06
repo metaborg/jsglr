@@ -1,10 +1,12 @@
 package org.spoofax.jsglr2.characters;
 
-public class RangesCharacterSet extends CharacterSet {
+public class RangesCharacterSet extends CharactersBitSet {
 	
 	public RangesCharacterSet(int singleRangeFrom, int singleRangeTo) {
-		for (int i = singleRangeFrom; i <= singleRangeTo; i++)
-			containsCharacter[i] = true;
+		super();
+		
+		for (int character = singleRangeFrom; character <= singleRangeTo; character++)
+			containsCharacter.set(character);
 	}
 	
 	public RangesCharacterSet(int[] ranges) {
@@ -15,8 +17,8 @@ public class RangesCharacterSet extends CharacterSet {
 			int iRangeFrom = ranges[i];
 			int iRangeTo = ranges[i + 1];
 			
-			for (int j = iRangeFrom; j <= iRangeTo; j++)
-				containsCharacter[j] = true;
+			for (int character = iRangeFrom; character <= iRangeTo; character++)
+				containsCharacter.set(character);
 		}
 	}
 

@@ -35,7 +35,9 @@ public class TestSet {
 	
 	public static TestSet csv = new TestSet(
 		new TestSetParseTableFromGrammarDef("csv"),
-		new TestSetSingleInput("CSV/random_1000.csv")
+		new TestSetSizedInput(n -> {
+			return String.join("\n", Collections.nCopies(n, "1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\""));
+		})
 	);
 	
 	public static TestSet java8 = new TestSet(

@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -21,7 +22,8 @@ public abstract class BaseBenchmark {
 	protected TestSetReader testSetReader;
 	protected Iterable<Input> inputs;
 	
-	public int n = -1; // Can be overwritten if the input has a dynamic size
+	@Param({"-1"})
+	public int n; // Can be overwritten if the input has a dynamic size
 
 	protected BaseBenchmark(TestSet testSet) {
 		this.testSetReader = new BenchmarkTestsetReader(testSet);

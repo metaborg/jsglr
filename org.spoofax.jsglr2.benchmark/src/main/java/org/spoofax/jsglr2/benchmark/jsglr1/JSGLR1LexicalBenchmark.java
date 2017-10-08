@@ -9,7 +9,7 @@ public class JSGLR1LexicalBenchmark extends JSGLR1Benchmark {
         super(TestSet.lexical);
     }
     
-    @Param({"50000", "100000"})
+    @Param({"10000", "50000", "100000"})
     public int n;
 
 }

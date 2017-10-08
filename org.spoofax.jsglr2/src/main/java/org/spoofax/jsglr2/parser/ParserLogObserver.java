@@ -65,7 +65,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 		log("Create parse node " + parseNode.nodeNumber + " for production " + production.productionNumber());
 	}
 	
-	public void createDerivation(ParseForest[] parseNodes) {
+	public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
 		log("Create derivation with parse nodes " + parseForestListToString(parseNodes));
 	}
 	

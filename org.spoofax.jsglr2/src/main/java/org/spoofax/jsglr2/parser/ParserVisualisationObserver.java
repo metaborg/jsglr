@@ -71,12 +71,12 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 		trace("{\"action\":\"createParseNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"production\":" + production.productionNumber() + ",\"term\":\"" + escape(production.descriptor()) + "\"}");
 	}
 	
-	public void createDerivation(ParseForest[] parseNodes) {
-		trace("{\"action\":\"createDerivation\",\"subTrees\":" + parseForestListToString(parseNodes) + "}");
+	public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
+		trace("{\"action\":\"createDerivation\",\"nodeNumber\":" + nodeNumber + ",\"production\":" + production.productionNumber() + ",\"term\":\"" + escape(production.descriptor()) + "\",\"subTrees\":" + parseForestListToString(parseNodes) + "}");
 	}
 	
 	public void createCharacterNode(ParseForest parseNode, int character) {
-		trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\"" + ICharacters.charToString(character) + "\"}");
+		trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\"" + ICharacters.charToString(character) + "\"" + ",\"startPosition\":" + parseNode.startPosition.offset + ",\"endPosition\":" + parseNode.endPosition.offset + "}");
 	}
 	
 	public void addDerivation(AbstractParseForest parseNode) {
@@ -84,7 +84,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 	}
 	
 	public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
-        trace("{\"action\":\"shifter\",\"termNode\":" + termNode.nodeNumber + ",\"elements\":" + forShifterQueueToString(forShifter) + "}");
+        trace("{\"action\":\"shifter\",\"characterNode\":" + termNode.nodeNumber + ",\"elements\":" + forShifterQueueToString(forShifter) + "}");
 	}
 	
 	public void remark(String remark) {

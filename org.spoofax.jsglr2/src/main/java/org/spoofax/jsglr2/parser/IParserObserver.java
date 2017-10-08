@@ -38,7 +38,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 	
 	public void createParseNode(ParseForest parseNode, IProduction production);
 	
-	public void createDerivation(ParseForest[] parseNodes);
+	public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes);
 	
 	public void createCharacterNode(ParseForest characterNode, int character);
 	

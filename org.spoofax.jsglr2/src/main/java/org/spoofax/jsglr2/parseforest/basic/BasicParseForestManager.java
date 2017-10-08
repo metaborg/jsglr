@@ -22,7 +22,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         
         RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, cover.startPosition, cover.endPosition, production, productionType, parseForests);
         
-        parse.notify(observer -> observer.createDerivation(parseForests));
+        parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
                 
         return ruleNode;
     }

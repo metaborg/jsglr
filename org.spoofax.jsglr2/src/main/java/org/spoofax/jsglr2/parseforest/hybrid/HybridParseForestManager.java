@@ -21,7 +21,9 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     public Derivation createDerivation(Parse<?, HybridParseForest> parse, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         Derivation derivation = new Derivation(production, productionType, parseForests);
         
-        parse.notify(observer -> observer.createDerivation(parseForests));
+        int derivationNumber = parse.parseNodeCount++;
+        
+        parse.notify(observer -> observer.createDerivation(derivationNumber, production, derivation.parseForests));
                 
         return derivation;
     }

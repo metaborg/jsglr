@@ -27,16 +27,23 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
         if (reduce.production().isCompletionOrRecovery())
             return;
         
-        for (StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
-            reducePath(parse, path, reduce);
+        parse.notify(observer -> observer.doReductions(parse, stack, reduce));
+        
+        doReductionsHelper(parse, stack, reduce, null);
     }
     
-    private void doLimitedRedutions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce, StackLink<StackNode, ParseForest> link) {
+    private void doLimitedRedutions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce, StackLink<StackNode, ParseForest> throughLink) {
         if (reduce.production().isCompletionOrRecovery())
             return;
         
-        for (StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
-            if (path.contains(link))
+        parse.notify(observer -> observer.doLimitedReductions(parse, stack, reduce, throughLink));
+        
+        doReductionsHelper(parse, stack, reduce, throughLink);
+    }
+    
+    protected void doReductionsHelper(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce, StackLink<StackNode, ParseForest> throughLink) {
+    		for (StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
+            if (throughLink == null || path.contains(throughLink))
                 reducePath(parse, path, reduce);
         }
     }
@@ -58,7 +65,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
     private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
         StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
         
-        parse.notify(observer -> observer.reduce(reduce, parseForests, activeStackWithGotoState));
+        parse.notify(observer -> observer.reducer(reduce, parseForests, activeStackWithGotoState));
         
         Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
         

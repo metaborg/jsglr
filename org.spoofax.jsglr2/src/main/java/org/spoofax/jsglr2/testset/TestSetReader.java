@@ -99,6 +99,47 @@ public abstract class TestSetReader implements WithGrammar {
 		}
     }
     
+    public Iterable<InputBatch> getInputBatches() throws IOException {
+		switch (testSet.input.type) {
+			case SINGLE:
+				TestSetSingleInput testSetSingleInput = (TestSetSingleInput) testSet.input;
+				
+				return Arrays.asList(new InputBatch(getSingleInput(testSetSingleInput.filename), -1));
+			case MULTIPLE:
+				TestSetMultipleInputs testSetMultipleInputs = (TestSetMultipleInputs) testSet.input;
+				
+				return Arrays.asList(new InputBatch(getMultipleInputs(testSetMultipleInputs.path, testSetMultipleInputs.extension), -1));
+			case SIZED:
+				TestSetSizedInput testSizedInput = (TestSetSizedInput) testSet.input;
+				
+				if (testSizedInput.sizes == null)
+					throw new IllegalStateException("invalid input type (sizes missing)");
+				
+				List<InputBatch> result = new ArrayList<InputBatch>();
+				
+				for (int size : testSizedInput.sizes) {
+					result.add(new InputBatch(testSizedInput.get(size), size));
+				}
+				
+				return result;
+			default:
+				throw new IllegalStateException("invalid input type (does have a size)");
+		}
+    }
+    
+    public class InputBatch {
+    		public Iterable<Input> inputs;
+    		public int size;
+    		public InputBatch(Iterable<Input> inputs, int size) {
+    			this.inputs = inputs;
+    			this.size = size;
+    		}
+    		public InputBatch(Input input, int size) {
+    			this.inputs = Arrays.asList(input);
+    			this.size = size;
+    		}
+    }
+    
     protected abstract String getFileAsString(String filename) throws IOException;
 
     @SuppressWarnings("resource")

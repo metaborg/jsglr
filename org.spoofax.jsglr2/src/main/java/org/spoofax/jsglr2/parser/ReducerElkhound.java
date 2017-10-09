@@ -23,22 +23,22 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
     }
     
     @Override
-    public void doReductions(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce) {
-        if (reduce.production().isCompletionOrRecovery())
-            return;
-        
-        if (stack.deterministicDepth >= reduce.arity()) {
-        		DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
-            
-            if (parse.activeStacks.size() == 1)
-                reduceElkhoundPath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Do standard LR if there is only 1 active stack
-            else
-                reducePath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
-        } else {
-            // Fall back to regular GLR
-            for (StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
-                reducePath(parse, path, reduce);
-        }
+    protected void doReductionsHelper(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce, StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> throughLink) {
+	    	if (stack.deterministicDepth >= reduce.arity()) {
+	    		DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> deterministicPath = stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
+	        
+	    		if (throughLink == null || deterministicPath.contains(throughLink)) {
+		        if (parse.activeStacks.size() == 1)
+		            reduceElkhoundPath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Do standard LR if there is only 1 active stack
+		        else
+		            reducePath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
+	    		}
+	    } else {
+	        // Fall back to regular GLR
+	        for (StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
+		        	if (throughLink == null || path.contains(throughLink))
+		            reducePath(parse, path, reduce);
+	    }
     }
     
     private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> pathBegin, IReduce reduce) {
@@ -49,6 +49,8 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
     }
     
     private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
+    		parse.notify(observer -> observer.reducerElkhound(reduce, parseForests));
+        
         Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
         ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
         

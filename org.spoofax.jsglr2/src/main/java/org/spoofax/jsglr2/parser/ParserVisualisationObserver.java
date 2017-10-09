@@ -55,8 +55,16 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 	    trace("{\"action\":\"addForShifter\",\"stack\":" + forShifterElement.stack.stackNumber + ", \"state\":" + forShifterElement.state.stateNumber() + "}");
 	}
 	
-	public void reduce(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {
+	public void doReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce) {}
+	
+	public void doLimitedReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce, StackLink<StackNode, ParseForest> link) {}
+	
+	public void reducer(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {
 	    trace("{\"action\":\"reduce\",\"parseNodes\":" + parseForestListToString(parseNodes) + ",\"activeStackWithGotoState\":" + (activeStackWithGotoState != null ? activeStackWithGotoState.stackNumber : -1) + "}");
+	}
+	
+	public void reducerElkhound(IReduce reduce, ParseForest[] parseNodes) {
+	    trace("{\"action\":\"reduce\",\"parseNodes\":" + parseForestListToString(parseNodes) + ",\"activeStackWithGotoState\":-1}");
 	}
     
 	public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {

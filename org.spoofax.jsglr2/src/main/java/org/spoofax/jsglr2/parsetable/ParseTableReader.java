@@ -24,7 +24,7 @@ import org.spoofax.jsglr2.actions.Reduce;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.actions.Shift;
 import org.spoofax.jsglr2.characters.ICharacters;
-import org.spoofax.jsglr2.characters.RangesCharacterSet;
+import org.spoofax.jsglr2.characters.SingleRangeCharacterSet;
 import org.spoofax.jsglr2.characters.SingleCharacter;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
@@ -179,7 +179,7 @@ public class ParseTableReader {
             if (isTermInt(charactersTerm))
                 charactersForTerm = new SingleCharacter(javaInt(charactersTerm));
             else
-                charactersForTerm = new RangesCharacterSet(intAt(charactersTerm, 0), intAt(charactersTerm, 1));
+                charactersForTerm = new SingleRangeCharacterSet(intAt(charactersTerm, 0), intAt(charactersTerm, 1));
             
             if (characters == null)
                 characters = charactersForTerm;

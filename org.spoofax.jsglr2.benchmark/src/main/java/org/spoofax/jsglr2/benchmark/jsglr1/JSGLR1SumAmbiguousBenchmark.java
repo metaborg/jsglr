@@ -9,7 +9,7 @@ public class JSGLR1SumAmbiguousBenchmark extends JSGLR1Benchmark {
         super(TestSet.sumAmbiguous);
     }
     
-    @Param({"20", "40", "80"})
+    @Param({"20", "40", "60", "80"})
     public int n;
 
 }

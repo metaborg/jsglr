@@ -29,7 +29,7 @@ public class TestSet {
 		new TestSetParseTableFromGrammarDef("sum-ambiguous"),
 		new TestSetSizedInput(n -> {
 			return String.join("+", Collections.nCopies(n, "x"));
-		}, 20, 40, 80)
+		}, 20, 40, 60, 80)
 	);
 	
 	public static TestSet sumNonAmbiguous = new TestSet(
@@ -55,13 +55,13 @@ public class TestSet {
 	);
 	
 	public static TestSet greenMarl = new TestSet(
-		"greenMarl",
+		"greenmarl",
 		new TestSetParseTableFromATerm("GreenMarl"),
 		new TestSetSingleInput("GreenMarl/infomap.gm")
 	);
 	
 	public static TestSet webDSL = new TestSet(
-		"webDSL",
+		"webdsl",
 		new TestSetParseTableFromATerm("WebDSL"),
 		new TestSetSingleInput("WebDSL/built-in.app")
 	);

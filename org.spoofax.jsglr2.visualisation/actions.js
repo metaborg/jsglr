@@ -60,6 +60,8 @@ function doStep(step, gssNodes, parseForestNodes, gssEdges, parseForestEdges) {
   doAction(action, gssNodes, parseForestNodes, gssEdges, parseForestEdges);
 }
 
+var lastDerivation = null;
+
 function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) {
   switch (json.action) {
     case "start":
@@ -201,7 +203,7 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
     
       console.log("Create parse symbol node " + nodeNumber + " (production: '" + production + "', term: '" + term + "')");
       
-      createParseSymbolNode(nodeNumber, production, term, parseForestNodes);
+      createParseNode(nodeNumber, production, term, parseForestNodes);
       
       break;
     case "createDerivation":
@@ -209,43 +211,43 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
       var production = json.production;
       var term = json.term;
       var subTrees = json.subTrees;
-      var beginPosition = json.beginPosition;
-      var endPosition = json.endPosition;
     
       console.log("Create parse rule node " + nodeNumber + " (production: '" + production + "', term: '" + term + "', subTrees: [" + subTrees.join(", ") + "])");
       
-      createParseRuleNode(nodeNumber, production, term, subTrees, parseForestNodes, parseForestEdges, beginPosition, endPosition);
+      createDerivation(nodeNumber, production, term, subTrees, parseForestNodes, parseForestEdges);
+      
+      lastDerivation = nodeNumber;
       
       break;
     case "createCharacterNode":
       var nodeNumber = json.nodeNumber;
       var character = json.character;
-      var beginPosition = json.beginPosition;
+      var startPosition = json.startPosition;
       var endPosition = json.endPosition;
     
       console.log("Create parse term node " + nodeNumber + " (character: '" + character + "')");
       
-      createParseTermNode(nodeNumber, character, parseForestNodes, beginPosition, endPosition);
+      createCharacterNode(nodeNumber, character, parseForestNodes, startPosition, endPosition);
       
       break;
     case "addDerivation":
-      var symbolNode = json.symbolNode;
-      var ruleNode = json.ruleNode;
+      var parseNode = json.parseNode;
+      var derivation = lastDerivation;
     
-      console.log("Add parse symbol node derivation (symbol node: " + symbolNode + ", rule node: " + ruleNode + ")");
+      console.log("Add parse node derivation (parse node: " + parseNode + ", derivation: " + derivation + ")");
       
       parseForestEdges.add({
         id: parseForestEdgeCount++,
-        from: ruleNode,
-        to: symbolNode
+        from: derivation,
+        to: parseNode
       });
       
       break;
     case "shifter":
-      var termNode = json.termNode;
+      var characterNode = json.characterNode;
       var elements = json.elements;
     
-      console.log("Shifter (term node: " + termNode + ", elements: [" + elements.map(function(forShifterElement) {
+      console.log("Shifter (character node: " + characterNode + ", elements: [" + elements.map(function(forShifterElement) {
         return "(stack:" + forShifterElement.stack + ",state:" + forShifterElement.state + ")";
       }).join(",") + "])");
       
@@ -259,7 +261,7 @@ function doAction(json, gssNodes, parseForestNodes, gssEdges, parseForestEdges) 
   }
 }
 
-function createParseSymbolNode(nodeNumber, production, term, parseForestNodes) {
+function createParseNode(nodeNumber, production, term, parseForestNodes) {
   parseForestNodes.add({
     id: nodeNumber,
     label: "" + nodeNumber + " (p" + production + ")",
@@ -268,10 +270,10 @@ function createParseSymbolNode(nodeNumber, production, term, parseForestNodes) {
   });
 }
 
-function createParseRuleNode(nodeNumber, production, term, subTrees, parseForestNodes, parseForestEdges, beginPosition, endPosition) {
+function createDerivation(nodeNumber, production, term, subTrees, parseForestNodes, parseForestEdges) {
   parseForestNodes.add({
     id: nodeNumber,
-    label: "" + nodeNumber + " (p" + production + ") [" + beginPosition + ", " + endPosition + "]",
+    label: "" + nodeNumber + " (p" + production + ")",
     shape: 'triangle'
   });
   
@@ -284,10 +286,10 @@ function createParseRuleNode(nodeNumber, production, term, subTrees, parseForest
   });
 }
 
-function createParseTermNode(nodeNumber, character, parseForestNodes, beginPosition, endPosition) {
+function createCharacterNode(nodeNumber, character, parseForestNodes, startPosition, endPosition) {
   parseForestNodes.add({
     id: nodeNumber,
-    label: "" + nodeNumber + " (" + character + ") [" + beginPosition + ", " + endPosition + "]",
+    label: "" + nodeNumber + " (" + character + ") [" + startPosition + ", " + endPosition + "]",
     shape: 'text'
   });
 }

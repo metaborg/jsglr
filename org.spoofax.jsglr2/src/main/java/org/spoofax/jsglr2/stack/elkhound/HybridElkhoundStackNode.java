@@ -75,15 +75,6 @@ public class HybridElkhoundStackNode<ParseForest> extends AbstractElkhoundStackN
     			otherLinksIn.add(link);
     		}
     }
-    
-    public void resetDeterministicDepth(int deterministicDepth) {
-        if (deterministicDepth != 0) {
-            this.deterministicDepth = deterministicDepth;
-            
-            for (StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
-                linkIn.from.resetDeterministicDepth(deterministicDepth + 1);
-        }
-    }
 	
     public boolean allOutLinksRejected() {
         if (firstLinkOut == null || !firstLinkOut.isRejected())

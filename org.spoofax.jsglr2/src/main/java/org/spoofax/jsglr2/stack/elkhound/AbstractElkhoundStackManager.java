@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.stack.elkhound;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -29,9 +30,29 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> createStackLink(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> from, AbstractElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
         StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = from.addOutLink(parse.stackLinkCount++, to, parseNode);
         
-        parse.notify(observer -> observer.createStackLink(link.linkNumber, from, to, parseNode));
+        parse.notify(observer -> observer.createStackLink(link));
         
         return link;
+    }
+    
+    public DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> findDeterministicPathOfLength(ParseForestManager<ParseForest, ?, ?> parseForestManager, AbstractElkhoundStackNode<ParseForest> stack, int length) {
+		ParseForest[] parseForests = parseForestManager.parseForestsArray(length);
+		AbstractElkhoundStackNode<ParseForest> lastStackNode = stack;
+
+		AbstractElkhoundStackNode<ParseForest> currentStackNode = stack;
+    		
+    		for (int i = length - 1; i >= 0; i--) {
+    			StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = currentStackNode.getOnlyLinkOut();
+    			
+    			parseForests[i] = link.parseForest;
+    			
+    			if (i == 0)
+    				lastStackNode = link.to;
+    			else
+    				currentStackNode = link.to;
+    		}
+    		
+    		return new DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest>(parseForests, lastStackNode);
     }
     
     protected Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> stackLinksOut(AbstractElkhoundStackNode<ParseForest> stack) {

@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
-import java.util.List;
-
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
@@ -19,14 +17,12 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return symbolNode;
     }
     
-    public RuleNode createDerivation(Parse<?, BasicParseForest> parse, IProduction production, ProductionType productionType, List<BasicParseForest> parseForests) {
-        BasicParseForest[] parseForestArray = parseForests.toArray(new BasicParseForest[parseForests.size()]);
+    public RuleNode createDerivation(Parse<?, BasicParseForest> parse, IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
+        Cover cover = getCover(parse, parseForests);
         
-        Cover cover = getCover(parse, parseForestArray);
+        RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, cover.startPosition, cover.endPosition, production, productionType, parseForests);
         
-        RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, cover.startPosition, cover.endPosition, production, productionType, parseForestArray);
-        
-        parse.notify(observer -> observer.createDerivation(parseForestArray));
+        parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
                 
         return ruleNode;
     }
@@ -43,6 +39,10 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
         
         return termNode;
+    }
+    
+    public BasicParseForest[] parseForestsArray(int length) {
+    		return new BasicParseForest[length];
     }
    
 }

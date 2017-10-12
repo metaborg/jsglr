@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.ArrayDeque;
-import java.util.List;
-
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -30,35 +27,45 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
         if (reduce.production().isCompletionOrRecovery())
             return;
         
-        for (StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity()))
-            reducePath(parse, path, reduce);
+        parse.notify(observer -> observer.doReductions(parse, stack, reduce));
+        
+        doReductionsHelper(parse, stack, reduce, null);
     }
     
-    private void doLimitedRedutions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce, StackLink<StackNode, ParseForest> link) {
+    private void doLimitedRedutions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce, StackLink<StackNode, ParseForest> throughLink) {
         if (reduce.production().isCompletionOrRecovery())
             return;
         
-        for (StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
-            if (path.contains(link))
+        parse.notify(observer -> observer.doLimitedReductions(parse, stack, reduce, throughLink));
+        
+        doReductionsHelper(parse, stack, reduce, throughLink);
+    }
+    
+    protected void doReductionsHelper(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce, StackLink<StackNode, ParseForest> throughLink) {
+    		for (StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
+            if (throughLink == null || path.contains(throughLink))
                 reducePath(parse, path, reduce);
         }
     }
     
     protected void reducePath(Parse<StackNode, ParseForest> parse, StackPath<StackNode, ParseForest> path, IReduce reduce) {
-        StackNode pathEnd = path.lastStackNode(); 
-        
-        List<ParseForest> parseNodes = path.getParseForests();
-    
-        IGoto gotoAction = pathEnd.state.getGoto(reduce.production().productionNumber());
-        IState gotoState = parseTable.getState(gotoAction.gotoState());
-        
-        reducer(parse, pathEnd, gotoState, reduce, parseNodes);
+    		ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+    		StackNode pathBegin = path.head();
+    		
+    		reducePath(parse, parseNodes, pathBegin, reduce);    		
     }
     
-    private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, List<ParseForest> parseForests) {
-        StackNode activeStackWithGotoState = stackManager.findActiveStackWithState(parse, gotoState);
+    protected void reducePath(Parse<StackNode, ParseForest> parse, ParseForest[] parseNodes, StackNode pathBegin, IReduce reduce) {
+        IGoto gotoAction = pathBegin.state.getGoto(reduce.production().productionNumber());
+        IState gotoState = parseTable.getState(gotoAction.gotoState());
         
-        parse.notify(observer -> observer.reduce(reduce, parseForests, activeStackWithGotoState));
+        reducer(parse, pathBegin, gotoState, reduce, parseNodes);
+    }
+    
+    private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
+        StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
+        
+        parse.notify(observer -> observer.reducer(reduce, parseForests, activeStackWithGotoState));
         
         Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
         
@@ -83,12 +90,15 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
                 if (reduce.isRejectProduction())
                     stackManager.rejectStackLink(parse, link);
                 
-                // Copy the currently active stacks since the reductions performed below could add new ones (resulting into java.util.ConcurrentModificationException)
-                ArrayDeque<StackNode> activeStacksCopy = new ArrayDeque<StackNode>(parse.activeStacks);
+                // Save the number of active stacks to prevent the for loop from processing active stacks that are added by doLimitedReductions.
+                // We can safely limit the loop by the current number of stacks since new stack are added at the end.
+                int size = parse.activeStacks.size();
                 
-                for (StackNode activeStack : activeStacksCopy) {
+                for (int i = 0; i < size; i++) {
+                		StackNode activeStack = parse.activeStacks.get(i);
+                	
                     if (!activeStack.allOutLinksRejected() && !parse.forActor.contains(activeStack) && !parse.forActorDelayed.contains(activeStack))
-                        for (IReduce reduceAction : activeStack.state.applicableReduceActions(parse.currentChar))
+                        for (IReduce reduceAction : activeStack.state.applicableReduceActions(parse))
                             doLimitedRedutions(parse, activeStack, reduceAction, link);
                 }
             }

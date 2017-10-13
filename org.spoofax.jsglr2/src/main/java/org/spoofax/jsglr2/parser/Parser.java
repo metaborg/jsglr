@@ -39,7 +39,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
     }
 	
-	public ParseResult<ParseForest> parse(String inputString, String filename) {
+	public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename) {
 		Parse<StackNode, ParseForest> parse = new Parse<StackNode, ParseForest>(inputString, filename, observers);
         
 		notify(observer -> observer.parseStart(parse));
@@ -57,16 +57,16 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 				parseCharacter(parse);
 			}
 			
-			ParseResult<ParseForest> result;
+			ParseResult<StackNode, ParseForest, ?> result;
 			
 			if (parse.acceptingStack != null) {
-				ParseSuccess<ParseForest> success = new ParseSuccess<ParseForest>(parse, stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest);
+				ParseSuccess<StackNode, ParseForest, ?> success = new ParseSuccess(parse, stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest);
 				
 				notify(observer -> observer.success(success));
 				
 				result = success;
 			} else {
-				ParseFailure<ParseForest> failure = new ParseFailure<ParseForest>(parse, new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar + "/'" + ICharacters.charToString(parse.currentChar) + "', position: " + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/" + parse.inputLength + "])"));
+				ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure(parse, new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar + "/'" + ICharacters.charToString(parse.currentChar) + "', position: " + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/" + parse.inputLength + "])"));
 				
 				notify(observer -> observer.failure(failure));
 				
@@ -75,7 +75,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 			
 			return result;
 		} catch (ParseException parseException) {
-			ParseFailure<ParseForest> failure = new ParseFailure<ParseForest>(parse, parseException);
+			ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure(parse, parseException);
 			
 			notify(observer -> observer.failure(failure));
 			

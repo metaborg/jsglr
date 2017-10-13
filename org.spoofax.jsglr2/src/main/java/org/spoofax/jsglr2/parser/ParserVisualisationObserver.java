@@ -102,11 +102,11 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 		trace("{\"action\":\"remark\",\"remark\":\"" + remark + "\"}");
 	}
 	
-	public void success(ParseSuccess<ParseForest> success) {
+	public void success(ParseSuccess<StackNode, ParseForest, ?> success) {
 		trace("{\"action\":\"success\"}");
 	}
 
-	public void failure(ParseFailure<ParseForest> failure) {
+	public void failure(ParseFailure<StackNode, ParseForest, ?> failure) {
 		trace("{\"action\":\"failure\"}");
 	}
 	

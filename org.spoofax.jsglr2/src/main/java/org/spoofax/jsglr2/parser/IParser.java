@@ -5,9 +5,9 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 public interface IParser<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
     
-	public ParseResult<ParseForest> parse(String input, String filename);
+	public ParseResult<StackNode, ParseForest, ?> parse(String input, String filename);
     
-    public default ParseResult<ParseForest> parse(String input) {
+    public default ParseResult<StackNode, ParseForest, ?> parse(String input) {
         return parse(input, "");
     }
     
@@ -15,14 +15,14 @@ public interface IParser<StackNode extends AbstractStackNode<ParseForest>, Parse
      * Parses an input and directly returns the parse forest in case of a successful parse or throws a ParseException otherwise.
      */
     public default ParseForest parseUnsafe(String input, String filename) throws ParseException {
-        ParseResult<ParseForest> result = parse(input, filename);
+        ParseResult<StackNode, ParseForest, ?> result = parse(input, filename);
         
         if (result.isSuccess) {
-            ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;
+            ParseSuccess<StackNode, ParseForest, ?> success = (ParseSuccess<StackNode, ParseForest, ?>) result;
         
             return success.parseResult;
         } else {
-            ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) result;
+            ParseFailure<StackNode, ParseForest, ?> failure = (ParseFailure<StackNode, ParseForest, ?>) result;
             
             throw failure.parseException;
         }

@@ -22,7 +22,7 @@ import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
 
     public IParser<StackNode, ParseForest> parser;
-    public IImploder<ParseForest, AbstractSyntaxTree> imploder;
+    public IImploder<StackNode, ParseForest, AbstractSyntaxTree> imploder;
     
     public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm> standard(IParseTable parseTable) throws ParseTableReadException {
         return (JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, StackRepresentation.HybridElkhound, Reducing.Elkhound);
@@ -34,22 +34,35 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         return standard(parseTable);
     }
     
-    public JSGLR2(IParser<StackNode, ParseForest> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
+    public JSGLR2(IParser<StackNode, ParseForest> parser, IImploder<StackNode, ParseForest, AbstractSyntaxTree> imploder) {
         this.parser = parser;
         this.imploder = imploder;
     }
     
     public AbstractSyntaxTree parse(String input, String filename) {
-        ParseResult<ParseForest> parseResult = parser.parse(input, filename);
+    		ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename);
         
         if (!parseResult.isSuccess)
             return null;
         
-        ParseSuccess<ParseForest> parseSuccess = (ParseSuccess<ParseForest>) parseResult;
+        ParseSuccess<StackNode, ParseForest, ?> parseSuccess = (ParseSuccess<StackNode, ParseForest, ?>) parseResult;
         
-        ImplodeResult<AbstractSyntaxTree> implodeResult = imploder.implode(parseSuccess.parse, parseSuccess.parseResult);
+        ImplodeResult<StackNode, ParseForest, AbstractSyntaxTree> implodeResult = imploder.implode(parseSuccess.parse, parseSuccess.parseResult);
         
         return implodeResult.ast;
+    }
+    
+    public JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree> parseResult(String input, String filename) {
+    		ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename);
+        
+        if (!parseResult.isSuccess)
+            return (JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree>) parseResult;
+        
+        ParseSuccess<StackNode, ParseForest, ?> parseSuccess = (ParseSuccess<StackNode, ParseForest, ?>) parseResult;
+        
+        ImplodeResult<StackNode, ParseForest, AbstractSyntaxTree> implodeResult = imploder.implode(parseSuccess.parse, parseSuccess.parseResult);
+        
+        return implodeResult;
     }
     
     public AbstractSyntaxTree parse(String input) {
@@ -57,16 +70,16 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
     
     public AbstractSyntaxTree parseUnsafe(String input, String filename) throws ParseException {
-        ParseResult<ParseForest> result = parser.parse(input, filename);
+        ParseResult<StackNode, ParseForest, ?> result = parser.parse(input, filename);
         
         if (result.isSuccess) {
-            ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;
+            ParseSuccess<StackNode, ParseForest, ?> success = (ParseSuccess<StackNode, ParseForest, ?>) result;
         
-            ImplodeResult<AbstractSyntaxTree> implodeResult = imploder.implode(success.parse, success.parseResult);
+            ImplodeResult<StackNode, ParseForest, AbstractSyntaxTree> implodeResult = imploder.implode(success.parse, success.parseResult);
             
             return implodeResult.ast;
         } else {
-            ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) result;
+            ParseFailure<StackNode, ParseForest, ?> failure = (ParseFailure<StackNode, ParseForest, ?>) result;
             
             throw failure.parseException;
         }

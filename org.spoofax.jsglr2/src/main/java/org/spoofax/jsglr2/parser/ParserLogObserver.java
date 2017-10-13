@@ -98,11 +98,11 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 		log(remark);
 	}
 	
-	public void success(ParseSuccess<ParseForest> success) {
+	public void success(ParseSuccess<StackNode, ParseForest, ?> success) {
 		log("Parsing succeeded. Result: " + success.parseResult.toString());
 	}
 	
-	public void failure(ParseFailure<ParseForest> failure) {
+	public void failure(ParseFailure<StackNode, ParseForest, ?> failure) {
 		log("Parsing failed");
 	}
 	

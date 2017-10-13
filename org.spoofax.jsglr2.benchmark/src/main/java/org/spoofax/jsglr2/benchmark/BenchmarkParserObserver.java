@@ -60,9 +60,9 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
 	
 	public void remark(String remark) {}
 	
-	public void success(ParseSuccess<ParseForest> success) {}
+	public void success(ParseSuccess<StackNode, ParseForest, ?> success) {}
 
-	public void failure(ParseFailure<ParseForest> failure) {
+	public void failure(ParseFailure<StackNode, ParseForest, ?> failure) {
 		throw new IllegalStateException("Failing parses not allowed during benchmarks");
 	}
 	

@@ -34,6 +34,8 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     public int stackLinkCount;
     public int parseNodeCount;
     
+    public int ambiguities;
+    
     private final List<IParserObserver<StackNode, ParseForest>> observers;
 	
 	public Parse(String inputString, String filename, List<IParserObserver<StackNode, ParseForest>> observers) {
@@ -44,6 +46,8 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         this.stackNodeCount = 0;
         this.stackLinkCount = 0;
         this.parseNodeCount = 0;
+
+        this.ambiguities = 0;
 
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
             public int compare(StackNode stackNode1, StackNode stackNode2) {

@@ -28,30 +28,32 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         @SuppressWarnings("unchecked")
         ParseNode topParseNode = (ParseNode) parseForest;
         
-        Tree tree = implodeParseNode(topParseNode, tokens.startToken, tokens.endToken);
+        Tree tree = implodeParseNode(parse, topParseNode, tokens.startToken, tokens.endToken);
 		
         tokenTreeBinding(tokens.getTokenAt(0), tree);
         
 		return new ImplodeResult<Tree>(parse, tree);
 	}
 	
-	protected Tree implodeParseNode(ParseNode parseNode, IToken leftToken, IToken rightToken) {
+	protected Tree implodeParseNode(Parse<?, ParseForest> parse, ParseNode parseNode, IToken leftToken, IToken rightToken) {
 	    IProduction production = parseNodeProduction(parseNode);
 	    
         if (production.isContextFree()) {
             List<Derivation> preferredAvoidedDerivations = parseNodePreferredAvoidedDerivations(parseNode);
             
             if (preferredAvoidedDerivations.size() > 1) {
+            		parse.ambiguities++;
+            	
                 List<Tree> trees = new ArrayList<Tree>(preferredAvoidedDerivations.size());
                 
                 for (Derivation derivation : preferredAvoidedDerivations)
-                    trees.add(implodeDerivation(derivation, leftToken, rightToken));
+                    trees.add(implodeDerivation(parse, derivation, leftToken, rightToken));
                 
                 String sort = production.sort();
                 
                 return treeFactory.createAmb(sort, trees, leftToken, rightToken);
             } else
-                return implodeDerivation(preferredAvoidedDerivations.get(0), leftToken, rightToken);
+                return implodeDerivation(parse, preferredAvoidedDerivations.get(0), leftToken, rightToken);
         } else if (production.isLayout() || production.isLiteral()) {
             return null;
         } else if (production.isLexical() || production.isLexicalRhs()) {
@@ -61,7 +63,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         }
     }
 
-	protected Tree implodeDerivation(Derivation derivation, IToken leftToken, IToken rightToken) {
+	protected Tree implodeDerivation(Parse<?, ParseForest> parse, Derivation derivation, IToken leftToken, IToken rightToken) {
 	    IProduction production = derivation.production();
 	    
         if (!production.isContextFree())
@@ -70,7 +72,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         List<Tree> childASTs = new ArrayList<Tree>();
         List<ParseForest> nonAstLexicals = new ArrayList<ParseForest>();
         
-        implodeChildParseNodes(childASTs, derivation, derivation.production(), leftToken, rightToken, nonAstLexicals);
+        implodeChildParseNodes(parse, childASTs, derivation, derivation.production(), leftToken, rightToken, nonAstLexicals);
         
         Tree resultAst = createContextFreeTerm(derivation.production(), childASTs, leftToken, rightToken);
         
@@ -80,7 +82,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         return resultAst;
     }
     
-	protected void implodeChildParseNodes(List<Tree> childASTs, Derivation derivation, IProduction production, IToken leftToken, IToken rightToken, List<ParseForest> nonAstLexicals) {
+	protected void implodeChildParseNodes(Parse<?, ParseForest> parse, List<Tree> childASTs, Derivation derivation, IProduction production, IToken leftToken, IToken rightToken, List<ParseForest> nonAstLexicals) {
         ParseForest[] childParseForests = derivation.parseForests();
         
         IToken[] rightTokenPerChild = getRightTokensPerParseNode(childParseForests, rightToken);
@@ -96,9 +98,9 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
             
             if (production.isList() && parseNodeProduction.isList()) {
                 // Make sure lists are flattened
-                implodeChildParseNodes(childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction, childLeftToken, childRightToken, nonAstLexicals);
+                implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction, childLeftToken, childRightToken, nonAstLexicals);
             } else {
-                Tree childAST = implodeParseNode(parseNode, childLeftToken, childRightToken);
+                Tree childAST = implodeParseNode(parse, parseNode, childLeftToken, childRightToken);
                 
                 if (childAST != null)
                     childASTs.add(childAST);

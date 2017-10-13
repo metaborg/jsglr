@@ -3,12 +3,14 @@ package org.spoofax.jsglr2.stack.elkhound;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridElkhoundStackNode<ParseForest> extends AbstractElkhoundStackNode<ParseForest> {
+public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node (to the origin)
     private StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> firstLinkOut;
@@ -42,7 +44,7 @@ public class HybridElkhoundStackNode<ParseForest> extends AbstractElkhoundStackN
 	        return new SingleElementWithListIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkIn, otherLinksIn);
     }
     
-    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
+    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link, Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
         link.to.addInLink(link);
         
     		if (firstLinkOut == null) { // This means where adding the first link now
@@ -55,6 +57,8 @@ public class HybridElkhoundStackNode<ParseForest> extends AbstractElkhoundStackN
     			otherLinksOut.add(link);
     			
     			deterministicDepth = 0;
+                
+    			parse.notify(observer -> observer.resetDeterministicDepth(this));
                 
             for (StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(1);

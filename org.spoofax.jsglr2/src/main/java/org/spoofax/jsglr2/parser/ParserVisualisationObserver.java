@@ -14,6 +14,7 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 
 public class ParserVisualisationObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> implements IParserObserver<StackNode, ParseForest> {
 	
@@ -34,6 +35,8 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 	public void createStackLink(StackLink<StackNode, ParseForest> link) {
 		trace("{\"action\":\"createStackLink\",\"linkNumber\":" + link.linkNumber + ",\"fromStack\":" + link.from.stackNumber + ",\"toStack\":" + link.to.stackNumber + ",\"parseNode\":" + link.parseForest.nodeNumber + ",\"descriptor\":\"" + escape(link.parseForest.descriptor()) + "\"}");
 	}
+	
+	public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {}
 	
 	public void rejectStackLink(StackLink<StackNode, ParseForest> link) {
 		trace("{\"action\":\"rejectStackLink\",\"linkNumber\":" + link.linkNumber + "}");

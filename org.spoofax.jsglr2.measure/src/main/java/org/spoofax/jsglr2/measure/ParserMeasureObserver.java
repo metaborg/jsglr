@@ -38,6 +38,8 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest> impl
 	Set<Reducer> reducers = new HashSet<Reducer>();
 	Set<Reducer> reducersElkhound = new HashSet<Reducer>();
 
+	public int deterministicDepthResets = 0;
+
 	Set<ParseNode> parseNodes = new HashSet<ParseNode>();
 	Set<ParseForest> characterNodes = new HashSet<ParseForest>();
 
@@ -75,6 +77,10 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest> impl
 	
 	public void createStackLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
 		stackLinks.add(link);
+	}
+	
+	public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
+		deterministicDepthResets++;
 	}
 	
 	public void rejectStackLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {

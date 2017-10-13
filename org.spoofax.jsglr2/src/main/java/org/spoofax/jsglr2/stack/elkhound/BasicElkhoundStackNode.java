@@ -1,10 +1,13 @@
 package org.spoofax.jsglr2.stack.elkhound;
 
 import java.util.ArrayList;
+
+import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class BasicElkhoundStackNode<ParseForest> extends AbstractElkhoundStackNode<ParseForest> {
+public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest> extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
     private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> linksOut = new ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
@@ -28,7 +31,7 @@ public class BasicElkhoundStackNode<ParseForest> extends AbstractElkhoundStackNo
         return linksIn;
     }
     
-    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
+    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link, Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
         linksOut.add(link);
         
         link.to.addInLink(link);
@@ -37,6 +40,8 @@ public class BasicElkhoundStackNode<ParseForest> extends AbstractElkhoundStackNo
             deterministicDepth = link.to.deterministicDepth + 1;
         } else if (linksOut.size() == 2) { // The second link is added; this means non-determinism
             deterministicDepth = 0;
+            
+            parse.notify(observer -> observer.resetDeterministicDepth(this));
             
             for (StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(1);

@@ -101,6 +101,9 @@ public class Main {
 				case stackLinksRejected:
 					cells.add("" + measureObserver.stackLinksRejected.size());
 					break;
+				case deterministicDepthResets:
+					cells.add("" + measureObserver.deterministicDepthResets);
+					break;
 				case parseNodes:
 					cells.add("" + measureObserver.parseNodes.size());
 					break;
@@ -185,6 +188,7 @@ public class Main {
 		stackNodes,
 		stackLinks,
 		stackLinksRejected,
+		deterministicDepthResets,
 		parseNodes,
 		characterNodes,
 		parseNodesAmbiguous,
@@ -207,6 +211,7 @@ public class Main {
 		Measurement.stackNodes,
 		Measurement.stackLinks,
 		Measurement.stackLinksRejected,
+		Measurement.deterministicDepthResets,
 		Measurement.parseNodes,
 		Measurement.characterNodes,
 		Measurement.parseNodesAmbiguous,

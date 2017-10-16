@@ -36,21 +36,23 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
     }
     
     public DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> findDeterministicPathOfLength(ParseForestManager<ParseForest, ?, ?> parseForestManager, AbstractElkhoundStackNode<ParseForest> stack, int length) {
-		ParseForest[] parseForests = parseForestManager.parseForestsArray(length);
 		AbstractElkhoundStackNode<ParseForest> lastStackNode = stack;
-
 		AbstractElkhoundStackNode<ParseForest> currentStackNode = stack;
     		
-    		for (int i = length - 1; i >= 0; i--) {
-    			StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = currentStackNode.getOnlyLinkOut();
-    			
-    			parseForests[i] = link.parseForest;
-    			
-    			if (i == 0)
-    				lastStackNode = link.to;
-    			else
-    				currentStackNode = link.to;
-    		}
+		ParseForest[] parseForests = parseForestManager.parseForestsArray(length);
+		
+		for (int i = length - 1; i >= 0; i--) {
+			StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = currentStackNode.getOnlyLinkOut();
+
+			if (parseForests != null) {		
+				parseForests[i] = link.parseForest;
+			}
+			
+			if (i == 0)
+				lastStackNode = link.to;
+			else
+				currentStackNode = link.to;
+		}
     		
     		return new DeterministicStackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest>(parseForests, lastStackNode);
     }

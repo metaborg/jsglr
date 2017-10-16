@@ -7,10 +7,13 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.BasicParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.HybridParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.IImploder;
+import org.spoofax.jsglr2.imploder.NullParseForestStrategoImploder;
 import org.spoofax.jsglr2.parseforest.basic.RuleNode;
+import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForestManager;
 import org.spoofax.jsglr2.parseforest.basic.SymbolNode;
+import org.spoofax.jsglr2.parseforest.empty.NullParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
@@ -32,7 +35,7 @@ import org.spoofax.jsglr2.stack.elkhound.HybridElkhoundStackManager;
 public class JSGLR2Variants {
     
     public enum ParseForestRepresentation {
-        Basic, Hybrid
+        Null, Basic, Hybrid
     }
     
     public enum StackRepresentation {
@@ -142,8 +145,14 @@ public class JSGLR2Variants {
                         return new Parser<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, elkhoundStackManager, basicParseForestManager, basicReducer);
                     }
                 }
+            case Null:
             case Hybrid:
-                HybridParseForestManager hybridParseForestManager = new HybridParseForestManager();
+            		ParseForestManager<HybridParseForest, ParseNode, Derivation> hybridParseForestManager;
+            		
+            		if (variant.parseForestRepresentation == ParseForestRepresentation.Null)
+            			hybridParseForestManager = new NullParseForestManager();
+            		else
+            			hybridParseForestManager = new HybridParseForestManager();
                 
                 if (variant.reducing == Reducing.Elkhound) {
                 		AbstractElkhoundStackManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest> elkhoundStackManager;
@@ -212,6 +221,10 @@ public class JSGLR2Variants {
                 break;
             case Hybrid:
                 imploder = new HybridParseForestStrategoImploder();
+                
+                break;
+            case Null:
+                imploder = new NullParseForestStrategoImploder();
                 
                 break;
         }

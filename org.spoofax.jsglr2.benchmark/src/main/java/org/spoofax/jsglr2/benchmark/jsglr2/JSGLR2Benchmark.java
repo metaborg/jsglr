@@ -32,7 +32,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({"false", "true"})
     public boolean implode;
     
-    @Param({"Basic", "Hybrid"})
+    @Param({"Null", "Basic", "Hybrid"})
     public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
     
     @Param({"Basic", "Hybrid", "BasicElkhound", "HybridElkhound"})
@@ -51,7 +51,10 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     
     @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
-    		if (implode) { 
+    		if (implode) {
+    			if (parseForestRepresentation == JSGLR2Variants.ParseForestRepresentation.Null)
+    				throw new IllegalStateException("imploding requires a parse forest");
+    			
     			for (Input input : inputs)
     	            bh.consume(jsglr2.parseUnsafe(
     	                input.content,

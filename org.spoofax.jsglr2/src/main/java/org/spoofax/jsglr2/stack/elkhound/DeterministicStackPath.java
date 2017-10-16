@@ -10,7 +10,7 @@ public class DeterministicStackPath<StackNode extends AbstractStackNode<ParseFor
 	private final StackNode head;
 	
 	public DeterministicStackPath(ParseForest[] parseForests, StackNode head) {
-		super(parseForests.length);
+		super(parseForests != null ? parseForests.length : 0);
 		this.parseForests = parseForests;
 		this.head = head;
 	}

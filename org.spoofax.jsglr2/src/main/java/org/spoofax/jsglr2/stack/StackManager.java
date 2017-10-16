@@ -60,17 +60,21 @@ public abstract class StackManager<StackNode extends AbstractStackNode<ParseFore
     public ParseForest[] getParseForests(ParseForestManager<ParseForest, ?, ?> parseForestManager, StackPath<StackNode, ParseForest> pathBegin) {
 		ParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
 		
-		StackPath<StackNode, ParseForest> path = pathBegin;
-		
-		for (int i = 0; i < pathBegin.length; i++) {
-			NonEmptyStackPath<StackNode, ParseForest> nonEmptyPath = (NonEmptyStackPath<StackNode, ParseForest>) path;
+		if (res != null) {
+			StackPath<StackNode, ParseForest> path = pathBegin;
 			
-			res[i] = nonEmptyPath.link.parseForest;
+			for (int i = 0; i < pathBegin.length; i++) {
+				NonEmptyStackPath<StackNode, ParseForest> nonEmptyPath = (NonEmptyStackPath<StackNode, ParseForest>) path;
+				
+				res[i] = nonEmptyPath.link.parseForest;
+				
+				path = nonEmptyPath.tail;
+			}
 			
-			path = nonEmptyPath.tail;
+			return res;
 		}
 		
-		return res;
+		return null;
     }
     
 }

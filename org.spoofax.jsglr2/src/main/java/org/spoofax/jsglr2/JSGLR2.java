@@ -39,8 +39,8 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         this.imploder = imploder;
     }
     
-    public AbstractSyntaxTree parse(String input, String filename) {
-    		ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename);
+    public AbstractSyntaxTree parse(String input, String filename, String startSymbol) {
+    		ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);
         
         if (!parseResult.isSuccess)
             return null;
@@ -52,8 +52,8 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         return implodeResult.ast;
     }
     
-    public JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree> parseResult(String input, String filename) {
-    		ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename);
+    public JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree> parseResult(String input, String filename, String startSymbol) {
+    		ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);
         
         if (!parseResult.isSuccess)
             return (JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree>) parseResult;
@@ -66,11 +66,11 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
     
     public AbstractSyntaxTree parse(String input) {
-        return parse(input, "");
+        return parse(input, "", null);
     }
     
-    public AbstractSyntaxTree parseUnsafe(String input, String filename) throws ParseException {
-        ParseResult<StackNode, ParseForest, ?> result = parser.parse(input, filename);
+    public AbstractSyntaxTree parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
+        ParseResult<StackNode, ParseForest, ?> result = parser.parse(input, filename, startSymbol);
         
         if (result.isSuccess) {
             ParseSuccess<StackNode, ParseForest, ?> success = (ParseSuccess<StackNode, ParseForest, ?>) result;
@@ -86,7 +86,7 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
     
     public AbstractSyntaxTree parseUnsafe(String input) throws ParseException {
-        return parseUnsafe(input, "");
+        return parseUnsafe(input, "", null);
     }
     
 }

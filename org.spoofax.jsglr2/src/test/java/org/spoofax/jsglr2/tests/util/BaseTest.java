@@ -95,14 +95,14 @@ public abstract class BaseTest {
 		}
 	}
 
-    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.Variant variant, String inputString) {
+    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.Variant variant, String startSymbol, String inputString) {
     		JSGLR2<?, ?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
     		
-        ParseResult<?, ?, ?> parseResult = jsglr2.parser.parse(inputString);
+        ParseResult<?, ?, ?> parseResult = jsglr2.parser.parse(inputString, "", startSymbol);
 
         assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess); // Fail here if parsing failed
         
-        IStrategoTerm result = jsglr2.parse(inputString);
+        IStrategoTerm result = jsglr2.parse(inputString, "", startSymbol);
         
         assertNotNull("Variant '" + variant.name() + "' failed imploding: ", result); // Fail here if imploding or tokenization failed
         
@@ -110,18 +110,26 @@ public abstract class BaseTest {
     }
 	
 	protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {
-		testSuccess(inputString, expectedOutputAstString, false);
+		testSuccess(inputString, expectedOutputAstString, null, false);
 	}
 	
 	protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
-		testSuccess(inputString, expectedOutputAstString, true);
+		testSuccess(inputString, expectedOutputAstString, null, true);
 	}
 	
-	private void testSuccess(String inputString, String expectedOutputAstString, boolean equalityByExpansions) {
+	protected void testSuccessByAstString(String startSymbol, String inputString, String expectedOutputAstString) {
+		testSuccess(inputString, expectedOutputAstString, startSymbol, false);
+	}
+	
+	protected void testSuccessByExpansions(String startSymbol, String inputString, String expectedOutputAstString) {
+		testSuccess(inputString, expectedOutputAstString, startSymbol, true);
+	}
+	
+	private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol, boolean equalityByExpansions) {
 		IParseTable parseTable = getParseTable();
 		
 		for (JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
-			IStrategoTerm actualOutputAst = testSuccess(parseTable, variant, inputString);
+			IStrategoTerm actualOutputAst = testSuccess(parseTable, variant, startSymbol, inputString);
 			
 			if (equalityByExpansions) {
 				IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);

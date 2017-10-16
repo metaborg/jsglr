@@ -4,6 +4,7 @@ public class Production implements IProduction {
 
 	private final int productionNumber;
 	private final String sort;
+	private final String startSymbolSort;
 	private final String descriptor;
 	private final boolean isContextFree;
 	private final boolean isLayout;
@@ -17,9 +18,10 @@ public class Production implements IProduction {
 	private final boolean isOperator;
 	private final ProductionAttributes attributes;
 	
-	public Production(int productionNumber, String sort, String descriptor, Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
+	public Production(int productionNumber, String sort, String startSymbolSort, String descriptor, Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
 		this.productionNumber = productionNumber;
 		this.sort = sort;
+		this.startSymbolSort = startSymbolSort;
 		this.descriptor = descriptor;
 		this.isContextFree = isContextFree;
 		this.isLayout = isLayout;
@@ -52,6 +54,10 @@ public class Production implements IProduction {
     
     public String sort() {
         return sort;
+    }
+    
+    public String startSymbolSort() {
+        return startSymbolSort;
     }
     
     public String constructor() {

@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
@@ -16,6 +19,29 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
                 
         return symbolNode;
     }
+
+	public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol) {
+		SymbolNode topNode = (SymbolNode) parseForest;
+		List<RuleNode> result = new ArrayList<RuleNode>();
+		
+		for (RuleNode derivation : topNode.getDerivations()) {
+			String derivationStartSymbol = derivation.production.startSymbolSort(); 
+			
+			if (derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
+				result.add(derivation);
+		}
+		
+		if (result.isEmpty())
+			return null;
+		else {
+			SymbolNode filteredTopNode = new SymbolNode(topNode.nodeNumber, topNode.parse, topNode.startPosition, topNode.endPosition, topNode.production);
+			
+			for (RuleNode derivation : result)
+				filteredTopNode.addDerivation(derivation);				
+			
+			return filteredTopNode;
+		}
+	}
     
     public RuleNode createDerivation(Parse<?, BasicParseForest> parse, IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
         Cover cover = getCover(parse, parseForests);

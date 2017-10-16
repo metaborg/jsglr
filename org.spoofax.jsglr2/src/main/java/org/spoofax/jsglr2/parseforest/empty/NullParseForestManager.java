@@ -14,6 +14,10 @@ public class NullParseForestManager extends ParseForestManager<HybridParseForest
     public ParseNode createParseNode(Parse<?, HybridParseForest> parse, IProduction production, Derivation firstDerivation) {
         return null;
     }
+
+	public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol) {
+		return null;
+	}
     
     public Derivation createDerivation(Parse<?, HybridParseForest> parse, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         return null;

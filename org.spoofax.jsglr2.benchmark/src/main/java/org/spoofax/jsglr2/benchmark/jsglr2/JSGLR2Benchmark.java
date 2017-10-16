@@ -58,13 +58,15 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     			for (Input input : inputs)
     	            bh.consume(jsglr2.parseUnsafe(
     	                input.content,
-    	                input.filename
+    	                input.filename,
+    	                null
     	            ));
     		} else {
     	        for (Input input : inputs)
     	            bh.consume(parser.parseUnsafe(
     	                input.content,
-    	                input.filename
+    	                input.filename,
+    	                null
     	            ));
     		}
     }

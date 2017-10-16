@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
@@ -17,6 +20,29 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
                 
         return parseNode;
     }
+
+	public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol) {
+		ParseNode topNode = (ParseNode) parseForest;
+		List<Derivation> result = new ArrayList<Derivation>();
+		
+		for (Derivation derivation : topNode.getDerivations()) {
+			String derivationStartSymbol = derivation.production.startSymbolSort(); 
+			
+			if (derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
+				result.add(derivation);
+		}
+		
+		if (result.isEmpty())
+			return null;
+		else {
+			ParseNode filteredTopNode = new ParseNode(topNode.nodeNumber, topNode.parse, topNode.startPosition, topNode.endPosition, topNode.production, result.get(0));
+			
+			for (int i = 1; i < result.size(); i++)
+				filteredTopNode.addDerivation(result.get(i));				
+			
+			return filteredTopNode;
+		}
+	}
     
     public Derivation createDerivation(Parse<?, HybridParseForest> parse, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         Derivation derivation = new Derivation(production, productionType, parseForests);

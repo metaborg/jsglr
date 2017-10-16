@@ -69,7 +69,8 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 			for (Input input : inputs)
 				parser.parseUnsafe(
 				    input.content,
-				    input.filename
+				    input.filename,
+	                null
 				);
 		} catch (ParseException e) {
 			throw new IllegalStateException("setup of benchmark should not fail");

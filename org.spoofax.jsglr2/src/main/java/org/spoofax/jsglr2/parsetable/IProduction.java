@@ -6,6 +6,8 @@ public interface IProduction {
     
     String sort();
     
+    String startSymbolSort();
+    
     String constructor();
     
     String descriptor();

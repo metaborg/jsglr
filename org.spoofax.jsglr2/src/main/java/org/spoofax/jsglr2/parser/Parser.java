@@ -39,7 +39,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
     }
 	
-	public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename) {
+	public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
 		Parse<StackNode, ParseForest> parse = new Parse<StackNode, ParseForest>(inputString, filename, observers);
         
 		notify(observer -> observer.parseStart(parse));
@@ -60,7 +60,13 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 			ParseResult<StackNode, ParseForest, ?> result;
 			
 			if (parse.acceptingStack != null) {
-				ParseSuccess<StackNode, ParseForest, ?> success = new ParseSuccess(parse, stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest);
+				ParseForest parseForest = stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
+				ParseForest parseForestWithStartSymbol = startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol) : parseForest;
+				
+				if (parseForestWithStartSymbol == null)
+					throw new ParseException("invalid start symbol");
+				
+				ParseSuccess<StackNode, ParseForest, ?> success = new ParseSuccess(parse, parseForestWithStartSymbol);
 				
 				notify(observer -> observer.success(success));
 				

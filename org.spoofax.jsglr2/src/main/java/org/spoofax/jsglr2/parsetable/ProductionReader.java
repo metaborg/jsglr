@@ -30,6 +30,7 @@ public class ProductionReader {
 		ProductionAttributes attributes = readProductionAttributes(attributesTerm); // Attributes stored in a separate term
 		
 		String sort = getSort(lhs);
+		String startSymbolSort = getStartSymbolSort(lhs, rhs);
 		String descriptor = lhs.toString();
 		boolean isLayout = getIsLayout(lhs);
 		boolean isLiteral = getIsLiteral(lhs);
@@ -43,19 +44,29 @@ public class ProductionReader {
 		
 		boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
 		
-		return new Production(productionNumber, sort, descriptor, isContextFree, isLayout, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
+		return new Production(productionNumber, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
 	}
 	
 	private static String getSort(IStrategoAppl lhs) {
 		for (IStrategoTerm current = lhs; current.getSubtermCount() > 0 && isTermAppl(current); current = termAt(current, 0)) {
-    			IStrategoAppl currentAppl = (IStrategoAppl) current;
-			String sort = tryGetSort(currentAppl);
+    			String sort = tryGetSort((IStrategoAppl) current);
 			
 			if (sort != null)
 				return sort;
 	    	}
 	    	
 	    	return null;
+	}
+	
+	public static String tryGetFirstSort(IStrategoList lhs) {
+		for (IStrategoTerm current : lhs.getAllSubterms()) {
+			String sort = tryGetSort((IStrategoAppl) current);
+		
+			if (sort != null)
+				return sort;
+		}
+		
+		return null;
 	}
 
 	private static String tryGetSort(IStrategoAppl appl) {
@@ -102,6 +113,14 @@ public class ProductionReader {
 		
 		return left + "_" + right + "0";
     }
+    
+    private static String getStartSymbolSort(IStrategoAppl lhs, IStrategoList rhs) {
+    		if ("<START>".equals(tryGetSort(lhs))) {
+    			return tryGetFirstSort(rhs);
+    		}
+    		
+    		return null;
+	}
 
 	private static boolean getIsLayout(IStrategoTerm lhs) {
 		IStrategoTerm details = termAt(lhs, 0);

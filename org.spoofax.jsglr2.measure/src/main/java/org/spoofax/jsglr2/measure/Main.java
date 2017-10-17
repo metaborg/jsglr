@@ -92,9 +92,11 @@ public class Main {
 		for (ParseNode parseNode : measureObserver.parseNodes) {
 			if (parseNode.production.isContextFree())
 				parseNodesContextFree.add(parseNode);
-			else if (parseNode.production.isLexical() || parseNode.production.isLexicalRhs()) {
+			
+			if (!parseNode.production.isLayout() && (parseNode.production.isLexical() || parseNode.production.isLexicalRhs()))
 				parseNodesLexical.add(parseNode);
-			} else if (parseNode.production.isLayout())
+			
+			if (parseNode.production.isLayout())
 				parseNodesLayout.add(parseNode);
 		}
 		

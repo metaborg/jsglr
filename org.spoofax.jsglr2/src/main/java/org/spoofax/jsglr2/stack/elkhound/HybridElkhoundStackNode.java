@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
@@ -20,8 +21,8 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> ex
     private StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> firstLinkIn;
     private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> otherLinksIn;
     
-	public HybridElkhoundStackNode(int stackNumber, IState state, int offset, int deterministicDepth) {
-		super(stackNumber, state, deterministicDepth, offset);
+	public HybridElkhoundStackNode(int stackNumber, IState state, Position position, int deterministicDepth) {
+		super(stackNumber, state, position, deterministicDepth);
 	}
     
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {

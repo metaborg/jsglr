@@ -6,13 +6,14 @@ import java.util.List;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 
 public abstract class StackManager<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
     
     public abstract StackNode createInitialStackNode(Parse<StackNode, ParseForest> parse, IState state);
     
-    public abstract StackNode createStackNode(Parse<StackNode, ParseForest> parse, IState state, int offset);
+    public abstract StackNode createStackNode(Parse<StackNode, ParseForest> parse, IState state);
     
     public abstract StackLink<StackNode, ParseForest> createStackLink(Parse<StackNode, ParseForest> parse, StackNode from, StackNode to, ParseForest parseNode);
     

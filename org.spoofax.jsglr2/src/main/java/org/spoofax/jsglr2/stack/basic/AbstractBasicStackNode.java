@@ -1,13 +1,14 @@
 package org.spoofax.jsglr2.stack.basic;
 
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
 public abstract class AbstractBasicStackNode<ParseForest> extends AbstractStackNode<ParseForest> {
 
-    public AbstractBasicStackNode(int stackNumber, IState state, int offset) {
-		super(stackNumber, state, offset);
+    public AbstractBasicStackNode(int stackNumber, IState state, Position position) {
+		super(stackNumber, state, position);
 	}
 	
 	public abstract Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut();

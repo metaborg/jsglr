@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.stack.elkhound;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -10,8 +11,8 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractPars
     
 	public int deterministicDepth;
 	
-	public AbstractElkhoundStackNode(int stackNumber, IState state, int offset, int deterministicDepth) {
-		super(stackNumber, state, offset);
+	public AbstractElkhoundStackNode(int stackNumber, IState state, Position position, int deterministicDepth) {
+		super(stackNumber, state, position);
         this.deterministicDepth = deterministicDepth;
 	}
     

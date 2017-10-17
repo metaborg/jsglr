@@ -3,24 +3,25 @@ package org.spoofax.jsglr2.stack.elkhound;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 
 public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElkhoundStackNode<ParseForest>, ParseForest extends AbstractParseForest> extends StackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> {
     
-	protected abstract StackNode createStackNode(int stackNumber, IState state, int offset, int deterministicDepth);
+	protected abstract StackNode createStackNode(int stackNumber, IState state, Position position, int deterministicDepth);
 	
     public AbstractElkhoundStackNode<ParseForest> createInitialStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
-        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, 0, 1);
+        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), 1);
         
         parse.notify(observer -> observer.createStackNode(newStackNode));
                 
         return newStackNode;
     }
     
-    public AbstractElkhoundStackNode<ParseForest> createStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state, int offset) {
-        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, offset, 0);
+    public AbstractElkhoundStackNode<ParseForest> createStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
+        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), 0);
         
         parse.notify(observer -> observer.createStackNode(newStackNode));
                 

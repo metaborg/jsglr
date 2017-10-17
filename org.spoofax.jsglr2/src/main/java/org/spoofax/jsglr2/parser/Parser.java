@@ -165,7 +165,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 			if (activeStackForState != null) {
 			    stackManager.createStackLink(parse, activeStackForState, forShifterElement.stack, characterNode);
 			} else {
-			    StackNode newStack = stackManager.createStackNode(parse, forShifterElement.state, parse.currentOffset);
+			    StackNode newStack = stackManager.createStackNode(parse, forShifterElement.state);
 				
 				stackManager.createStackLink(parse, newStack, forShifterElement.stack, characterNode);
 				

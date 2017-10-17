@@ -61,7 +61,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
     		Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
         ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
         
-        StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState, parse.currentOffset);
+        StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState);
 		StackLink<StackNode, ParseForest> link = stackManager.createStackLink(parse, newStackWithGotoState, stack, parseNode);
         
         if (reduce.isRejectProduction())

@@ -1,6 +1,8 @@
 package org.spoofax.jsglr2.stack.basic;
 
 import java.util.ArrayList;
+
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
@@ -11,8 +13,8 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
     private StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> firstLinkOut;
     private ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> otherLinksOut;
 	
-	public HybridStackNode(int stackNumber, IState state, int offset) {
-		super(stackNumber, state, offset);
+	public HybridStackNode(int stackNumber, IState state, Position position) {
+		super(stackNumber, state, position);
 	}
 	
 	public Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {

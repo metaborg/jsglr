@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.spoofax.jsglr2.JSGLR2Variants;
@@ -62,7 +63,7 @@ public class Main {
 			parser.attachObserver(measureObserver);
 			
 			for (Input input : inputBatch.inputs) {
-				parser.parseUnsafe(input.content, input.filename);
+				parser.parseUnsafe(input.content, input.filename, null);
 			}
 			
 			csvRow(out, inputBatch, measureObserver);
@@ -83,6 +84,19 @@ public class Main {
 	
 	private static void csvRow(PrintWriter out, TestSetReader.InputBatch inputBatch, ParserMeasureObserver<HybridParseForest> measureObserver) {
 		List<String> cells = new ArrayList<String>();
+
+		List<ParseNode> parseNodesContextFree = new ArrayList<ParseNode>();
+		List<ParseNode> parseNodesLexical = new ArrayList<ParseNode>();
+		List<ParseNode> parseNodesLayout = new ArrayList<ParseNode>();
+		
+		for (ParseNode parseNode : measureObserver.parseNodes) {
+			if (parseNode.production.isContextFree())
+				parseNodesContextFree.add(parseNode);
+			else if (parseNode.production.isLexical() || parseNode.production.isLexicalRhs()) {
+				parseNodesLexical.add(parseNode);
+			} else if (parseNode.production.isLayout())
+				parseNodesLayout.add(parseNode);
+		}
 		
 		for (Measurement measurement : measurements) {
 			switch (measurement) {
@@ -108,44 +122,25 @@ public class Main {
 					cells.add("" + measureObserver.parseNodes.size());
 					break;
 				case parseNodesAmbiguous:
-					int parseNodesAmbiguous = 0;
-					
-					for (ParseNode parseNode : measureObserver.parseNodes) {
-						if (parseNode.isAmbiguous())
-							parseNodesAmbiguous++;
-					}
-					
-					cells.add("" + parseNodesAmbiguous);
+					cells.add("" + parseNodesAmbiguous(measureObserver.parseNodes));
 					break;
 				case parseNodesContextFree:
-					int parseNodesContextFree = 0;
-					
-					for (ParseNode parseNode : measureObserver.parseNodes) {
-						if (parseNode.production.isContextFree())
-							parseNodesContextFree++;
-					}
-					
-					cells.add("" + parseNodesContextFree);
+					cells.add("" + parseNodesContextFree.size());
+					break;
+				case parseNodesContextFreeAmbiguous:
+					cells.add("" + parseNodesAmbiguous(parseNodesContextFree));
 					break;
 				case parseNodesLexical:
-					int parseNodesLexical = 0;
-					
-					for (ParseNode parseNode : measureObserver.parseNodes) {
-						if (parseNode.production.isLexical() || parseNode.production.isLexicalRhs())
-							parseNodesLexical++;
-					}
-					
-					cells.add("" + parseNodesLexical);
+					cells.add("" + parseNodesLexical.size());
+					break;
+				case parseNodesLexicalAmbiguous:
+					cells.add("" + parseNodesAmbiguous(parseNodesLexical));
 					break;
 				case parseNodesLayout:
-					int parseNodesLayout = 0;
-					
-					for (ParseNode parseNode : measureObserver.parseNodes) {
-						if (parseNode.production.isLayout())
-							parseNodesLayout++;
-					}
-					
-					cells.add("" + parseNodesLayout);
+					cells.add("" + parseNodesLayout.size());
+					break;
+				case parseNodesLayoutAmbiguous:
+					cells.add("" + parseNodesAmbiguous(parseNodesLayout));
 					break;
 				case characterNodes:
 					cells.add("" + measureObserver.characterNodes.size());
@@ -182,6 +177,17 @@ public class Main {
 		csvLine(out, cells);
 	}
 	
+	private static int parseNodesAmbiguous(Collection<ParseNode> parseNodes) {
+		int parseNodesAmbiguous = 0;
+		
+		for (ParseNode parseNode : parseNodes) {
+			if (parseNode.isAmbiguous())
+				parseNodesAmbiguous++;
+		}
+		
+		return parseNodesAmbiguous;
+	}
+	
 	public enum Measurement {
 		size,
 		characters,
@@ -190,11 +196,14 @@ public class Main {
 		stackLinksRejected,
 		deterministicDepthResets,
 		parseNodes,
-		characterNodes,
 		parseNodesAmbiguous,
 		parseNodesContextFree,
+		parseNodesContextFreeAmbiguous,
 		parseNodesLexical,
+		parseNodesLexicalAmbiguous,
 		parseNodesLayout,
+		parseNodesLayoutAmbiguous,
+		characterNodes,
 		actors,
 		doReductions,
 		doLimitedReductions,
@@ -213,11 +222,14 @@ public class Main {
 		Measurement.stackLinksRejected,
 		Measurement.deterministicDepthResets,
 		Measurement.parseNodes,
-		Measurement.characterNodes,
 		Measurement.parseNodesAmbiguous,
 		Measurement.parseNodesContextFree,
+		Measurement.parseNodesContextFreeAmbiguous,
 		Measurement.parseNodesLexical,
+		Measurement.parseNodesLexicalAmbiguous,
 		Measurement.parseNodesLayout,
+		Measurement.parseNodesLayoutAmbiguous,
+		Measurement.characterNodes,
 		Measurement.actors,
 		Measurement.doReductions,
 		Measurement.doLimitedReductions,

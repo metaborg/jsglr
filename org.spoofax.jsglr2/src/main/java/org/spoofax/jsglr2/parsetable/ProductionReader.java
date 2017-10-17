@@ -136,7 +136,7 @@ public class ProductionReader {
 	}
 
 	private static boolean getIsLayoutParent(IStrategoTerm lhs, String descriptor) {
-		return getIsLayout(lhs) && "cf".equals(((IStrategoAppl) lhs).getConstructor().getName()) && !"cf(layout) -> [cf(layout),cf(layout)]".equals(descriptor);
+		return getIsLayout(lhs) && "cf".equals(((IStrategoAppl) lhs).getConstructor().getName()) && !"cf(layout) -> [cf(layout),cf(layout)]".equals(descriptor) && !"cf(opt(layout)) -> []".equals(descriptor);
 	}
 
 	private static boolean getIsLiteral(IStrategoAppl lhs) {

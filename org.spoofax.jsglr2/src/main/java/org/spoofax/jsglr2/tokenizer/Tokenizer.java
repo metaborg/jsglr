@@ -22,7 +22,7 @@ public abstract class Tokenizer<ParseForest extends AbstractParseForest, ParseNo
     protected TokenizationCover tokenizeParseNode(Tokens tokens, ParseNode parseNode) {
         TokenizationCover result = null;
         
-        if (parseNode.startPosition.offset < parseNode.endPosition.offset) {
+        if (parseNode != null && parseNode.startPosition.offset < parseNode.endPosition.offset) {
             IProduction production = parseNodeProduction(parseNode);
             
             if (production.isContextFree()) {

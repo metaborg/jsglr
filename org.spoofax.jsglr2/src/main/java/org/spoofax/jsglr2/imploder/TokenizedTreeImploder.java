@@ -93,25 +93,27 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
             @SuppressWarnings("unchecked")
             ParseNode parseNode = (ParseNode) childParseForests[i];
             
-            IToken childRightToken = rightTokenPerChild[i];
-            
-            IProduction parseNodeProduction = parseNodeProduction(parseNode);
-            
-            if (production.isList() && parseNodeProduction.isList()) {
-                // Make sure lists are flattened
-                implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction, childLeftToken, childRightToken, nonAstLexicals);
-            } else {
-                Tree childAST = implodeParseNode(parse, parseNode, childLeftToken, childRightToken);
-                
-                if (childAST != null)
-                    childASTs.add(childAST);
-                
-                if (childAST == null && parseNode.token != null)
-                    nonAstLexicals.add(parseNode);
+            if (parseNode != null) { // Can be null in the case of a layout subtree parse node that is not created 
+	            IToken childRightToken = rightTokenPerChild[i];
+	            
+	            IProduction parseNodeProduction = parseNodeProduction(parseNode);
+	            
+	            if (production.isList() && parseNodeProduction.isList()) {
+	                // Make sure lists are flattened
+	                implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction, childLeftToken, childRightToken, nonAstLexicals);
+	            } else {
+	                Tree childAST = implodeParseNode(parse, parseNode, childLeftToken, childRightToken);
+	                
+	                if (childAST != null)
+	                    childASTs.add(childAST);
+	                
+	                if (childAST == null && parseNode.token != null)
+	                    nonAstLexicals.add(parseNode);
+	            }
+	            
+	            if (parseNode.lastToken != null)
+	                childLeftToken = parseNode.lastToken;
             }
-            
-            if (parseNode.lastToken != null)
-                childLeftToken = parseNode.lastToken;
         }
     }
     
@@ -121,7 +123,7 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
         for (int i = parseNodes.length - 1; i >= 0; i--) {
             if (i == parseNodes.length - 1)
                 rightTokenPerParseNode[i] = rightToken;
-            else if (parseNodes[i + 1].firstToken != null)
+            else if (parseNodes[i + 1] != null && parseNodes[i + 1].firstToken != null)
                 rightTokenPerParseNode[i] = parseNodes[i + 1].firstToken;
             else
                 rightTokenPerParseNode[i] = rightTokenPerParseNode[i + 1];

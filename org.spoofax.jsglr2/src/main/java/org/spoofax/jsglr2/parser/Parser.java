@@ -64,7 +64,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 				ParseForest parseForest = stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
 				ParseForest parseForestWithStartSymbol = startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol) : parseForest;
 				
-				if (parseForestWithStartSymbol == null)
+				if (parseForest != null && parseForestWithStartSymbol == null)
 					throw new ParseException("invalid start symbol");
 				
 				ParseSuccess<StackNode, ParseForest, ?> success = new ParseSuccess(parse, parseForestWithStartSymbol);

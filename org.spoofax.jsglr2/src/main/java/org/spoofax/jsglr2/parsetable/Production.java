@@ -8,6 +8,7 @@ public class Production implements IProduction {
 	private final String descriptor;
 	private final boolean isContextFree;
 	private final boolean isLayout;
+	private final boolean isLayoutTop;
 	private final boolean isLiteral;
 	private final boolean isLexical;
 	private final boolean isLexicalRhs;
@@ -18,13 +19,14 @@ public class Production implements IProduction {
 	private final boolean isOperator;
 	private final ProductionAttributes attributes;
 	
-	public Production(int productionNumber, String sort, String startSymbolSort, String descriptor, Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
+	public Production(int productionNumber, String sort, String startSymbolSort, String descriptor, Boolean isContextFree, Boolean isLayout, Boolean isLayoutTop, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
 		this.productionNumber = productionNumber;
 		this.sort = sort;
 		this.startSymbolSort = startSymbolSort;
 		this.descriptor = descriptor;
 		this.isContextFree = isContextFree;
 		this.isLayout = isLayout;
+		this.isLayoutTop = isLayoutTop;
 		this.isLiteral = isLiteral;
 		this.isLexical = isLexical;
 		this.isLexicalRhs = isLexicalRhs;
@@ -74,6 +76,10 @@ public class Production implements IProduction {
     
     public boolean isLayout() {
         return isLayout;
+    }
+    
+    public boolean isLayoutTop() {
+        return isLayoutTop;
     }
     
     public boolean isLiteral() {

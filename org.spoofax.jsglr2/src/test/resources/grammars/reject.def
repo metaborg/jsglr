@@ -1,0 +1,19 @@
+definition
+
+module reject
+
+exports
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    ID -> Start {cons("Id")}
+    
+  lexical syntax
+    [a-z]+  -> ID
+    "foo"   -> ID {reject}
+    "bar"   -> KEYWORD
+    KEYWORD -> ID {reject}
+    
+  lexical restrictions
+    ID -/- [a-z]

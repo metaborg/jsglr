@@ -12,11 +12,11 @@ import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.stack.elkhound.DeterministicStackPath;
 
-public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<AbstractElkhoundStackNode<ParseForest>, ParseForest, ParseNode, Derivation> {
+public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends ReduceManager<AbstractElkhoundStackNode<ParseForest>, ParseForest, ParseNode, Derivation> {
 
     protected final AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager;
     
-    public ReducerElkhound(IParseTable parseTable, AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+    public ReduceManagerElkhound(IParseTable parseTable, AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         super(parseTable, stackManager, parseForestManager);
         
         this.stackManager = stackManager;
@@ -51,7 +51,7 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
     private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
     		parse.notify(observer -> observer.reducerElkhound(reduce, parseForests));
         
-    		AbstractElkhoundStackNode<ParseForest> newStack = reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
+    		AbstractElkhoundStackNode<ParseForest> newStack = reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
         
         parse.activeStacks.add(newStack);
         parse.forActor.add(newStack);

@@ -20,18 +20,18 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     private final IParseTable parseTable;
     private final StackManager<StackNode, ParseForest> stackManager;
     private final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
-    private final Reducer<StackNode, ParseForest, ParseNode, Derivation> reducer;
+    private final ReduceManager<StackNode, ParseForest, ParseNode, Derivation> reducer;
 	private final List<IParserObserver<StackNode, ParseForest>> observers;
     
     public Parser(IParseTable parseTable, StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reducer = new Reducer<StackNode, ParseForest, ParseNode, Derivation>(parseTable, stackManager, parseForestManager);
+        this.reducer = new ReduceManager<StackNode, ParseForest, ParseNode, Derivation>(parseTable, stackManager, parseForestManager);
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
     }
     
-    public Parser(IParseTable parseTable, StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager, Reducer<StackNode, ParseForest, ParseNode, Derivation> reducer) {
+    public Parser(IParseTable parseTable, StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager, ReduceManager<StackNode, ParseForest, ParseNode, Derivation> reducer) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;

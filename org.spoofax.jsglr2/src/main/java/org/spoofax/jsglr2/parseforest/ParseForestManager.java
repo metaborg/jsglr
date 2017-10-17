@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public abstract class ParseForestManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> {
 
-    abstract public ParseForest createParseNode(Parse<?, ParseForest> parse, Position beginPosition, IProduction production, Derivation firstDerivation);
+    abstract public ParseNode createParseNode(Parse<?, ParseForest> parse, Position beginPosition, IProduction production, Derivation firstDerivation);
     
     abstract public Derivation createDerivation(Parse<?, ParseForest> parse, Position beginPosition, IProduction production, ProductionType productionType, ParseForest[] parseForests);
     

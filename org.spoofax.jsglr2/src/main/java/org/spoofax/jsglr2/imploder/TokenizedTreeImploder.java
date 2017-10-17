@@ -43,7 +43,7 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
             List<Derivation> preferredAvoidedDerivations = parseNodePreferredAvoidedDerivations(parseNode);
             
             if (preferredAvoidedDerivations.size() > 1) {
-            		parse.ambiguities++;
+            		parse.ambiguousTreeNodes++;
             	
                 List<Tree> trees = new ArrayList<Tree>(preferredAvoidedDerivations.size());
                 

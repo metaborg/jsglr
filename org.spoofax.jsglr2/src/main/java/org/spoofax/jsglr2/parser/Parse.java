@@ -19,22 +19,16 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     final public String inputString;
 	final public int inputLength;
 
-    public int currentOffset;
-    public int currentLine;
-    public int currentColumn;
-	public int currentChar;
+    public int currentOffset, currentLine, currentColumn, currentChar;
 	
 	public StackNode acceptingStack;
 	public IActiveStacks<StackNode> activeStacks;
-	public Queue<StackNode> forActor;
-	public Queue<StackNode> forActorDelayed;
+	public Queue<StackNode> forActor, forActorDelayed;
 	public Queue<ForShifterElement<StackNode, ParseForest>> forShifter;
 
-    public int stackNodeCount;
-    public int stackLinkCount;
-    public int parseNodeCount;
-    
-    public int ambiguities;
+    public int stackNodeCount, stackLinkCount, parseNodeCount;
+
+    public int ambiguousParseNodes, ambiguousTreeNodes;
     
     private final List<IParserObserver<StackNode, ParseForest>> observers;
 	
@@ -47,7 +41,8 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         this.stackLinkCount = 0;
         this.parseNodeCount = 0;
 
-        this.ambiguities = 0;
+        this.ambiguousParseNodes = 0; // Number of ambiguities in the parse forest
+        this.ambiguousTreeNodes = 0; // Number of ambiguities in the imploded AST (after applying post-parse filters), only available after imploding
 
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
             public int compare(StackNode stackNode1, StackNode stackNode2) {

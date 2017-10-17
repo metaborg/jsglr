@@ -57,7 +57,12 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     public void addDerivation(Parse<?, HybridParseForest> parse, ParseNode parseNode, Derivation derivation) {
         parse.notify(observer -> observer.addDerivation(parseNode));
         
+        boolean initNonAmbiguous = parseNode.isAmbiguous();
+        
         parseNode.addDerivation(derivation);
+        
+        if (initNonAmbiguous && parseNode.isAmbiguous())
+        		parse.ambiguousParseNodes++;
     }
     
     public CharacterNode createCharacterNode(Parse<?, HybridParseForest> parse) {

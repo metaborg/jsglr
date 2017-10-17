@@ -56,7 +56,12 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     public void addDerivation(Parse<?, BasicParseForest> parse, SymbolNode symbolNode, RuleNode ruleNode) {
         parse.notify(observer -> observer.addDerivation(symbolNode));
         
+        boolean initNonAmbiguous = symbolNode.isAmbiguous();
+        
         symbolNode.addDerivation(ruleNode);
+        
+        if (initNonAmbiguous && symbolNode.isAmbiguous())
+        		parse.ambiguousParseNodes++;
     }
     
     public TermNode createCharacterNode(Parse<?, BasicParseForest> parse) {

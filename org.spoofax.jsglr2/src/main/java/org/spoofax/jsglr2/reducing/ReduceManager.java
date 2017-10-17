@@ -1,9 +1,10 @@
-package org.spoofax.jsglr2.parser;
+package org.spoofax.jsglr2.reducing;
 
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;

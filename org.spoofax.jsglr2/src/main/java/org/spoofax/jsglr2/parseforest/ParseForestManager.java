@@ -35,14 +35,4 @@ public abstract class ParseForestManager<ParseForest extends AbstractParseForest
         return new Cover(startPosition, endPosition);
     }
     
-    // Represents the part of the input that a parse node covers
-    protected class Cover {
-        public Position startPosition, endPosition;
-        
-        public Cover(Position startPosition, Position endPosition) {
-            this.startPosition = startPosition;
-            this.endPosition = endPosition;
-        }
-    }
-    
 }

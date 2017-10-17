@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.parseforest.hybrid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.jsglr2.parseforest.Cover;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;

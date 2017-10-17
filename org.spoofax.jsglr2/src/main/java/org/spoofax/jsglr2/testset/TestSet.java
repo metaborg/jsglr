@@ -54,6 +54,12 @@ public class TestSet {
 		new TestSetMultipleInputs("/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms", "java")
 	);
 	
+	public static TestSet java8_unrolled = new TestSet(
+		"java8_unrolled",
+		new TestSetParseTableFromATerm("Java8_unrolled"),
+		new TestSetMultipleInputs("/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms", "java")
+	);
+	
 	public static TestSet greenMarl = new TestSet(
 		"greenmarl",
 		new TestSetParseTableFromATerm("GreenMarl"),
@@ -66,6 +72,6 @@ public class TestSet {
 		new TestSetSingleInput("WebDSL/built-in.app")
 	);
 	
-	public static List<TestSet> all = Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, csv, java8, greenMarl, webDSL);
+	public static List<TestSet> all = Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, csv, java8, java8_unrolled, greenMarl, webDSL);
 	
 }

@@ -20,8 +20,8 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> ex
     private StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> firstLinkIn;
     private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> otherLinksIn;
     
-	public HybridElkhoundStackNode(int stackNumber, IState state, int deterministicDepth) {
-		super(stackNumber, state, deterministicDepth);
+	public HybridElkhoundStackNode(int stackNumber, IState state, int offset, int deterministicDepth) {
+		super(stackNumber, state, deterministicDepth, offset);
 	}
     
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {

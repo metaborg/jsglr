@@ -10,8 +10,8 @@ public class BasicStackNode<ParseForest> extends AbstractBasicStackNode<ParseFor
 
     private final ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> linksOut = new ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>>(); // Directed to the initial stack node
 	
-	public BasicStackNode(int stackNumber, IState state) {
-		super(stackNumber, state);
+	public BasicStackNode(int stackNumber, IState state, int offset) {
+		super(stackNumber, state, offset);
 	}
 	
 	public List<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {

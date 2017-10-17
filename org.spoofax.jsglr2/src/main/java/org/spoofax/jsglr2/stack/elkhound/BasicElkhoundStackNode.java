@@ -15,8 +15,8 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest> ext
     // Directed from the initial stack node
     private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> linksIn = new ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
     
-	public BasicElkhoundStackNode(int stackNumber, IState state, int deterministicDepth) {
-		super(stackNumber, state, deterministicDepth);
+	public BasicElkhoundStackNode(int stackNumber, IState state, int offset, int deterministicDepth) {
+		super(stackNumber, state, deterministicDepth, offset);
 	}
     
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {

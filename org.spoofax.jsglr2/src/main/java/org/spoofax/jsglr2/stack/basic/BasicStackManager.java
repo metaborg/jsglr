@@ -5,8 +5,8 @@ import org.spoofax.jsglr2.parsetable.IState;
 
 public class BasicStackManager<ParseForest extends AbstractParseForest> extends AbstractBasicStackManager<BasicStackNode<ParseForest>, ParseForest> {
     
-	protected BasicStackNode<ParseForest> createStackNode(int stackNumber, IState state) {
-		return new BasicStackNode<ParseForest>(stackNumber, state);
+	protected BasicStackNode<ParseForest> createStackNode(int stackNumber, IState state, int offset) {
+		return new BasicStackNode<ParseForest>(stackNumber, state, offset);
 	}
     
 }

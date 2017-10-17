@@ -9,18 +9,18 @@ import org.spoofax.jsglr2.stack.StackManager;
 
 public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElkhoundStackNode<ParseForest>, ParseForest extends AbstractParseForest> extends StackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> {
     
-	protected abstract StackNode createStackNode(int stackNumber, IState state, int deterministicDepth);
+	protected abstract StackNode createStackNode(int stackNumber, IState state, int offset, int deterministicDepth);
 	
     public AbstractElkhoundStackNode<ParseForest> createInitialStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
-        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, 1);
+        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, 0, 1);
         
         parse.notify(observer -> observer.createStackNode(newStackNode));
                 
         return newStackNode;
     }
     
-    public AbstractElkhoundStackNode<ParseForest> createStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
-        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, 0);
+    public AbstractElkhoundStackNode<ParseForest> createStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state, int offset) {
+        AbstractElkhoundStackNode<ParseForest> newStackNode = createStackNode(parse.stackNodeCount++, state, offset, 0);
         
         parse.notify(observer -> observer.createStackNode(newStackNode));
                 

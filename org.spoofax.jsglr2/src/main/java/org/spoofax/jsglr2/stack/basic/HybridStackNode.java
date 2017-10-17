@@ -11,8 +11,8 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
     private StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> firstLinkOut;
     private ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> otherLinksOut;
 	
-	public HybridStackNode(int stackNumber, IState state) {
-		super(stackNumber, state);
+	public HybridStackNode(int stackNumber, IState state, int offset) {
+		super(stackNumber, state, offset);
 	}
 	
 	public Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {

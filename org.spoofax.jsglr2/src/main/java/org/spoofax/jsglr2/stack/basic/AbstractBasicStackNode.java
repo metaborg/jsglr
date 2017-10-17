@@ -6,8 +6,8 @@ import org.spoofax.jsglr2.stack.StackLink;
 
 public abstract class AbstractBasicStackNode<ParseForest> extends AbstractStackNode<ParseForest> {
 
-    public AbstractBasicStackNode(int stackNumber, IState state) {
-		super(stackNumber, state);
+    public AbstractBasicStackNode(int stackNumber, IState state, int offset) {
+		super(stackNumber, state, offset);
 	}
 	
 	public abstract Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut();

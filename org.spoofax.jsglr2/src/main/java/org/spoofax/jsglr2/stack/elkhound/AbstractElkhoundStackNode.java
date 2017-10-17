@@ -10,8 +10,8 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractPars
     
 	public int deterministicDepth;
 	
-	public AbstractElkhoundStackNode(int stackNumber, IState state, int deterministicDepth) {
-		super(stackNumber, state);
+	public AbstractElkhoundStackNode(int stackNumber, IState state, int offset, int deterministicDepth) {
+		super(stackNumber, state, offset);
         this.deterministicDepth = deterministicDepth;
 	}
     

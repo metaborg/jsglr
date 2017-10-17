@@ -69,7 +69,7 @@ public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<Par
         return newStackWithGotoState;
     }
     
-    private boolean isSkippableProduction(IProduction production) {
+    protected boolean isSkippableProduction(IProduction production) {
     		boolean skippableLayout = production.isLayout() && !production.isLayoutParent();
     		boolean skippableLexical = production.sort() == null && (production.isLexical() || (production.isLexicalRhs() && !production.isLiteral()));
     		

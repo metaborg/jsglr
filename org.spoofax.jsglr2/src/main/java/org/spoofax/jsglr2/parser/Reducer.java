@@ -62,12 +62,17 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
         reducer(parse, pathBegin, gotoState, reduce, parseNodes);
     }
     
+    /**
+     * Perform a reduction for the given reduce action and parse forests. The reduce action contains which production will be
+     * reduced and the parse forests represent the right hand side of this production. The reduced derivation will end up on
+     * a stack link from the given stack to a stack with the goto state. The latter can already exist or not and if such an
+     * active stack already exists, the link to it can also already exist. Based on the existence of the stack with the goto
+     * state and the link to it, different actions are performed.
+     */
     private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
         StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
         
         parse.notify(observer -> observer.reducer(reduce, parseForests, activeStackWithGotoState));
-        
-        Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
         
         if (activeStackWithGotoState != null) {
             StackLink<StackNode, ParseForest> directLink = stackManager.findDirectLink(activeStackWithGotoState, stack);
@@ -75,21 +80,10 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
             parse.notify(observer -> observer.directLinkFound(directLink));
             
             if (directLink != null) {
-                @SuppressWarnings("unchecked")
-                ParseNode parseNode = (ParseNode) directLink.parseForest;
-                
-                parseForestManager.addDerivation(parse, parseNode, derivation);
-                
-                if (reduce.isRejectProduction())
-                    stackManager.rejectStackLink(parse, directLink);
+            		reducerExistingStackWithDirectLink(parse, reduce, directLink, parseForests);
             } else {
-                ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
-                
-                StackLink<StackNode, ParseForest> link = stackManager.createStackLink(parse, activeStackWithGotoState, stack, parseNode);
-                
-                if (reduce.isRejectProduction())
-                    stackManager.rejectStackLink(parse, link);
-                
+            		StackLink<StackNode, ParseForest> link = reducerExistingStackWithoutDirectLink(parse, reduce, activeStackWithGotoState, stack, parseForests);
+            		
                 // Save the number of active stacks to prevent the for loop from processing active stacks that are added by doLimitedReductions.
                 // We can safely limit the loop by the current number of stacks since new stack are added at the end.
                 int size = parse.activeStacks.size();
@@ -103,10 +97,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
                 }
             }
         } else {
-            StackNode newStack = stackManager.createStackNode(parse, gotoState);
-            ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
-            
-            StackLink<StackNode, ParseForest> link = stackManager.createStackLink(parse, newStack, stack, parseNode);
+        		StackNode newStack = reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
             
             parse.activeStacks.add(newStack);
             
@@ -114,10 +105,59 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
                 parse.forActorDelayed.add(newStack);
             else
                 parse.forActor.add(newStack);
-            
-            if (reduce.isRejectProduction())
-                stackManager.rejectStackLink(parse, link);
         }
+    }
+    
+    /**
+     * Performs a reduction when an existing active stack is found with the required goto state and when there is a direct
+     * link found between this active stack and the stack from where the reduction started. This means the currently reduced
+     * derivation will be added as an alternative to the parse node on the link. This means the parse node is ambiguous.
+     */
+    protected void reducerExistingStackWithDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce, StackLink<StackNode, ParseForest> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
+		Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
+		
+    		@SuppressWarnings("unchecked")
+        ParseNode parseNode = (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
+    		
+        parseForestManager.addDerivation(parse, parseNode, derivation);
+        
+        if (reduce.isRejectProduction())
+            stackManager.rejectStackLink(parse, existingDirectLinkToActiveStateWithGoto);
+    }
+    
+    /**
+     * Performs a reduction when an existing active stack is found with the required goto state but when there is not already
+     * a direct link present between this active stack and the stack from where the reduction started. The link between these
+     * stacks is created and the currently reduced derivation is added as the first derivation for the parse node on the link.
+     */
+    protected StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
+    		Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
+        ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
+        
+        StackLink<StackNode, ParseForest> newDirectLinkToActiveStateWithGoto = stackManager.createStackLink(parse, existingActiveStackWithGotoState, stack, parseNode);
+        
+        if (reduce.isRejectProduction())
+            stackManager.rejectStackLink(parse, newDirectLinkToActiveStateWithGoto);
+        
+        return newDirectLinkToActiveStateWithGoto;
+    }
+    
+    /**
+     * Performs a reduction when no active stack is found with the required goto state. A new stack with the required goto
+     * state is created and a link between this stack and the stack from where the reduction started is created. The currently
+     * reduced derivation is added as the first derivation for the parse node on the link.
+     */
+    protected StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode stack, IState gotoState, ParseForest[] parseForests) {
+    		Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
+        ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
+        
+        StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState);
+		StackLink<StackNode, ParseForest> link = stackManager.createStackLink(parse, newStackWithGotoState, stack, parseNode);
+        
+        if (reduce.isRejectProduction())
+            stackManager.rejectStackLink(parse, link);
+        
+        return newStackWithGotoState;
     }
 
 }

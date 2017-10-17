@@ -51,17 +51,10 @@ public class ReducerElkhound<ParseForest extends AbstractParseForest, ParseNode 
     private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
     		parse.notify(observer -> observer.reducerElkhound(reduce, parseForests));
         
-        Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
-        ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
-        
-        AbstractElkhoundStackNode<ParseForest> newStack = stackManager.createStackNode(parse, gotoState);
-        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link = stackManager.createStackLink(parse, newStack, stack, parseNode);
+    		AbstractElkhoundStackNode<ParseForest> newStack = reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
         
         parse.activeStacks.add(newStack);
         parse.forActor.add(newStack);
-        
-        if (reduce.isRejectProduction())
-            stackManager.rejectStackLink(parse, link);
     }
 
 }

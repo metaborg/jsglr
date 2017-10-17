@@ -3,18 +3,16 @@ package org.spoofax.jsglr2.parseforest.hybrid;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.jsglr2.parseforest.Cover;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class HybridParseForestManager extends ParseForestManager<HybridParseForest, ParseNode, Derivation> {
 
-    public ParseNode createParseNode(Parse<?, HybridParseForest> parse, IProduction production, Derivation firstDerivation) {
-        Cover cover = getCover(parse, firstDerivation.parseForests);
-
-        ParseNode parseNode = new ParseNode(parse.parseNodeCount++, parse, cover.startPosition, cover.endPosition, production, firstDerivation);
+    public ParseNode createParseNode(Parse<?, HybridParseForest> parse, Position beginPosition, IProduction production, Derivation firstDerivation) {
+        ParseNode parseNode = new ParseNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production, firstDerivation);
         
         parse.notify(observer -> observer.createParseNode(parseNode, production));
         parse.notify(observer -> observer.addDerivation(parseNode));
@@ -45,7 +43,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
 		}
 	}
     
-    public Derivation createDerivation(Parse<?, HybridParseForest> parse, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
+    public Derivation createDerivation(Parse<?, HybridParseForest> parse, Position beginPosition, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         Derivation derivation = new Derivation(production, productionType, parseForests);
         
         int derivationNumber = parse.parseNodeCount++;

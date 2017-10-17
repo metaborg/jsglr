@@ -72,7 +72,7 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
      * state and the link to it, different actions are performed.
      */
     private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce, ParseForest[] parseForests) {
-        StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
+    		StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
         
         parse.notify(observer -> observer.reducer(reduce, parseForests, activeStackWithGotoState));
         

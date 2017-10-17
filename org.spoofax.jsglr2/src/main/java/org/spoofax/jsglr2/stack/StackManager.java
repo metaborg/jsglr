@@ -6,7 +6,6 @@ import java.util.List;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 
 public abstract class StackManager<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {

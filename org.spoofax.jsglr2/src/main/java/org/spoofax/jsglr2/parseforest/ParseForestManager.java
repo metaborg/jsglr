@@ -7,9 +7,9 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public abstract class ParseForestManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> {
 
-    abstract public ParseForest createParseNode(Parse<?, ParseForest> parse, IProduction production, Derivation firstDerivation);
+    abstract public ParseForest createParseNode(Parse<?, ParseForest> parse, Position beginPosition, IProduction production, Derivation firstDerivation);
     
-    abstract public Derivation createDerivation(Parse<?, ParseForest> parse, IProduction production, ProductionType productionType, ParseForest[] parseForests);
+    abstract public Derivation createDerivation(Parse<?, ParseForest> parse, Position beginPosition, IProduction production, ProductionType productionType, ParseForest[] parseForests);
     
     abstract public void addDerivation(Parse<?, ParseForest> parse, ParseNode parseNode, Derivation derivation);
     
@@ -18,21 +18,5 @@ public abstract class ParseForestManager<ParseForest extends AbstractParseForest
     abstract public ParseForest[] parseForestsArray(int length);
     
     abstract public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol);
-    
-    protected Cover getCover(Parse<?, ParseForest> parse, ParseForest[] parseNodes) {
-        Position startPosition, endPosition;
-        
-        if (parseNodes.length == 0)
-            startPosition = endPosition = parse.currentPosition();
-        else {
-            ParseForest firstParseNode = parseNodes[0];
-            ParseForest lastParseNode = parseNodes[parseNodes.length - 1];
-
-            startPosition = firstParseNode.startPosition;
-            endPosition = lastParseNode.endPosition;
-        }
-        
-        return new Cover(startPosition, endPosition);
-    }
     
 }

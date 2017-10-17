@@ -3,16 +3,16 @@ package org.spoofax.jsglr2.parseforest.basic;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.jsglr2.parseforest.Cover;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class BasicParseForestManager extends ParseForestManager<BasicParseForest, SymbolNode, RuleNode> {
 
-    public SymbolNode createParseNode(Parse<?, BasicParseForest> parse, IProduction production, RuleNode firstDerivation) {
-        SymbolNode symbolNode = new SymbolNode(parse.parseNodeCount++, parse, firstDerivation.startPosition, firstDerivation.endPosition, production);
+    public SymbolNode createParseNode(Parse<?, BasicParseForest> parse, Position beginPosition, IProduction production, RuleNode firstDerivation) {
+        SymbolNode symbolNode = new SymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
         
         parse.notify(observer -> observer.createParseNode(symbolNode, production));
         
@@ -44,10 +44,8 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
 		}
 	}
     
-    public RuleNode createDerivation(Parse<?, BasicParseForest> parse, IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
-        Cover cover = getCover(parse, parseForests);
-        
-        RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, cover.startPosition, cover.endPosition, production, productionType, parseForests);
+    public RuleNode createDerivation(Parse<?, BasicParseForest> parse, Position beginPosition, IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
+        RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production, productionType, parseForests);
         
         parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
                 

@@ -24,7 +24,7 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
      * derivation will be added as an alternative to the parse node on the link. This means the parse node is ambiguous.
      */
     public void reducerExistingStackWithDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce, StackLink<StackNode, ParseForest> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
-		Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
+		Derivation derivation = parseForestManager.createDerivation(parse, existingDirectLinkToActiveStateWithGoto.to.position, reduce.production(), reduce.productionType(), parseForests);
 		
     		@SuppressWarnings("unchecked")
         ParseNode parseNode = (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
@@ -41,8 +41,8 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
      * stacks is created and the currently reduced derivation is added as the first derivation for the parse node on the link.
      */
     public StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
-    		Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
-        ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
+    		Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(), reduce.productionType(), parseForests);
+        ParseForest parseNode = parseForestManager.createParseNode(parse, stack.position, reduce.production(), derivation);
         
         StackLink<StackNode, ParseForest> newDirectLinkToActiveStateWithGoto = stackManager.createStackLink(parse, existingActiveStackWithGotoState, stack, parseNode);
         
@@ -58,8 +58,8 @@ public class Reducer<StackNode extends AbstractStackNode<ParseForest>, ParseFore
      * reduced derivation is added as the first derivation for the parse node on the link.
      */
     public StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode stack, IState gotoState, ParseForest[] parseForests) {
-    		Derivation derivation = parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
-        ParseForest parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
+    		Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(), reduce.productionType(), parseForests);
+        ParseForest parseNode = parseForestManager.createParseNode(parse, stack.position, reduce.production(), derivation);
         
         StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState);
 		StackLink<StackNode, ParseForest> link = stackManager.createStackLink(parse, newStackWithGotoState, stack, parseNode);

@@ -8,10 +8,10 @@ public class Production implements IProduction {
 	private final String descriptor;
 	private final boolean isContextFree;
 	private final boolean isLayout;
-	private final boolean isLayoutParent;
 	private final boolean isLiteral;
 	private final boolean isLexical;
 	private final boolean isLexicalRhs;
+	private final boolean isSkippableInParseForest;
 	private final boolean isList;
 	private final boolean isOptional;
 	private final boolean isStringLiteral;
@@ -19,17 +19,17 @@ public class Production implements IProduction {
 	private final boolean isOperator;
 	private final ProductionAttributes attributes;
 	
-	public Production(int productionNumber, String sort, String startSymbolSort, String descriptor, Boolean isContextFree, Boolean isLayout, Boolean isLayoutParent, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
+	public Production(int productionNumber, String sort, String startSymbolSort, String descriptor, Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isSkippableInParseForest, Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
 		this.productionNumber = productionNumber;
 		this.sort = sort;
 		this.startSymbolSort = startSymbolSort;
 		this.descriptor = descriptor;
 		this.isContextFree = isContextFree;
 		this.isLayout = isLayout;
-		this.isLayoutParent = isLayoutParent;
 		this.isLiteral = isLiteral;
 		this.isLexical = isLexical;
 		this.isLexicalRhs = isLexicalRhs;
+		this.isSkippableInParseForest = isSkippableInParseForest;
 		this.isList = isList;
 		this.isOptional = isOptional;
 		this.isStringLiteral = isStringLiteral;
@@ -78,10 +78,6 @@ public class Production implements IProduction {
         return isLayout;
     }
     
-    public boolean isLayoutParent() {
-        return isLayoutParent;
-    }
-    
     public boolean isLiteral() {
         return isLiteral;
     }
@@ -93,6 +89,10 @@ public class Production implements IProduction {
     public boolean isLexicalRhs() {
         return isLexicalRhs;
     }
+
+	public boolean isSkippableInParseForest() {
+		return isSkippableInParseForest;
+	}
     
     public boolean isList() {
         return isList;

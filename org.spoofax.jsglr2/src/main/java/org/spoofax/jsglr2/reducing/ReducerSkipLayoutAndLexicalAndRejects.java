@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 
-public class ReducerSkipLayoutAndLexicalAndRejects<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends ReducerSkipLayoutAndLexical<StackNode, ParseForest, ParseNode, Derivation> {
+public class ReducerSkipLayoutAndLexicalAndRejects<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<StackNode, ParseForest, ParseNode, Derivation> {
 
     public ReducerSkipLayoutAndLexicalAndRejects(StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
     		super(stackManager, parseForestManager);
@@ -39,7 +39,7 @@ public class ReducerSkipLayoutAndLexicalAndRejects<StackNode extends AbstractSta
         } else {
 	        	ParseNode parseNode;
 	        	
-	    		if (isSkippableProduction(reduce.production()))
+	        	if (reduce.production().isSkippableInParseForest())
 	    			parseNode = null;
 	    		else {
 	        		Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(), reduce.productionType(), parseForests);
@@ -65,7 +65,7 @@ public class ReducerSkipLayoutAndLexicalAndRejects<StackNode extends AbstractSta
 	    } else {
 	    		ParseNode parseNode;
 	    	
-			if (isSkippableProduction(reduce.production()))
+	    		if (reduce.production().isSkippableInParseForest())
 				parseNode = null;
 			else {
 		    		Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(), reduce.productionType(), parseForests);

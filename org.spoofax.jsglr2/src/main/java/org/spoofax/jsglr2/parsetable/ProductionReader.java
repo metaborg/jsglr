@@ -43,9 +43,14 @@ public class ProductionReader {
 		boolean isNumberLiteral = getIsNumberLiteral(rhs);
 		boolean isOperator = getIsOperator(lhs, isLiteral);
 		
+		boolean skippableLayout = isLayout && !isLayoutParent;
+		boolean skippableLexical = sort == null && (isLexical || (isLexicalRhs && !isLiteral));
+		
+		boolean isSkippableInParseForest = skippableLayout || skippableLexical;
+		
 		boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
 		
-		return new Production(productionNumber, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLayoutParent, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
+		return new Production(productionNumber, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLiteral, isLexical, isLexicalRhs, isSkippableInParseForest, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
 	}
 	
 	private static String getSort(IStrategoAppl lhs) {

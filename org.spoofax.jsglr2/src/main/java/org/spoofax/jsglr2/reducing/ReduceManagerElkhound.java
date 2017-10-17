@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.reducing;
 
+import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -17,8 +18,8 @@ public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, Pars
 
     protected final AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager;
     
-    public ReduceManagerElkhound(IParseTable parseTable, AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
-        super(parseTable, stackManager, parseForestManager);
+    public ReduceManagerElkhound(IParseTable parseTable, AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager, ParseForestConstruction parseForestConstruction) {
+        super(parseTable, stackManager, parseForestManager, parseForestConstruction);
         
         this.stackManager = stackManager;
     }

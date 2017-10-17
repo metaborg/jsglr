@@ -38,6 +38,10 @@ public class JSGLR2Variants {
         Null, Basic, Hybrid
     }
     
+    public enum ParseForestConstruction {
+        Full, Optimized
+    }
+    
     public enum StackRepresentation {
     		Basic, Hybrid, BasicElkhound, HybridElkhound
     }
@@ -49,6 +53,11 @@ public class JSGLR2Variants {
     public static ParseForestRepresentation[] parseForestRepresentationVariants = new ParseForestRepresentation[]{
         ParseForestRepresentation.Basic,
         ParseForestRepresentation.Hybrid
+    };
+
+    public static ParseForestConstruction[] parseForestConstructionVariants = new ParseForestConstruction[]{
+    		ParseForestConstruction.Full,
+    		ParseForestConstruction.Optimized
     };
 
     public static StackRepresentation[] stackRepresentationVariants = new StackRepresentation[]{
@@ -65,11 +74,13 @@ public class JSGLR2Variants {
     
     public static class Variant {
         public ParseForestRepresentation parseForestRepresentation;
+        public ParseForestConstruction parseForestConstruction;
         public StackRepresentation stackRepresentation;
         public Reducing reducing;
         
-        public Variant(ParseForestRepresentation parseForestRepresentation, StackRepresentation stackRepresentation, Reducing reducing) {
-            this.parseForestRepresentation = parseForestRepresentation;
+        public Variant(ParseForestRepresentation parseForestRepresentation, ParseForestConstruction parseForestConstruction, StackRepresentation stackRepresentation, Reducing reducing) {
+	        	this.parseForestRepresentation = parseForestRepresentation;
+	        	this.parseForestConstruction = parseForestConstruction;
             this.stackRepresentation = stackRepresentation;
             this.reducing = reducing;
         }
@@ -79,21 +90,23 @@ public class JSGLR2Variants {
         }
         
         public String name() {
-        		return "ParseForestRepresentation:" + parseForestRepresentation + "/" + "StackRepresentation:" + stackRepresentation + "/" + "Reducing:" + reducing;
+        		return "ParseForestRepresentation:" + parseForestRepresentation + "/ParseForestConstruction:" + parseForestConstruction + "/StackRepresentation:" + stackRepresentation + "/Reducing:" + reducing;
         }
     }
     
     public static List<Variant> allVariants() {
         List<Variant> variants = new ArrayList<Variant>();
-        
+
         for (ParseForestRepresentation parseForestRepresentation : parseForestRepresentationVariants) {
-            for (StackRepresentation stackRepresentation : stackRepresentationVariants) {
-                for (Reducing reducing : reducingVariants) {
-                    Variant variant = new Variant(parseForestRepresentation, stackRepresentation, reducing);
-                    
-                    if (variant.isValid())
-                    		variants.add(variant);
-                }
+            for (ParseForestConstruction parseForestConstruction : parseForestConstructionVariants) {
+	            for (StackRepresentation stackRepresentation : stackRepresentationVariants) {
+	                for (Reducing reducing : reducingVariants) {
+	                    Variant variant = new Variant(parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
+	                    
+	                    if (variant.isValid())
+	                    		variants.add(variant);
+	                }
+	            }
             }
         }
         
@@ -117,7 +130,7 @@ public class JSGLR2Variants {
 	            		else
 	            			elkhoundStackManager = new BasicElkhoundStackManager<BasicParseForest>();
 	            		
-                    ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> elkhoundReducer = new ReduceManagerElkhound<BasicParseForest, SymbolNode, RuleNode>(parseTable, elkhoundStackManager, basicParseForestManager);
+                    ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> elkhoundReducer = new ReduceManagerElkhound<BasicParseForest, SymbolNode, RuleNode>(parseTable, elkhoundStackManager, basicParseForestManager, variant.parseForestConstruction);
                     
                     return new Parser<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, elkhoundStackManager, basicParseForestManager, elkhoundReducer);
                 } else {
@@ -129,7 +142,7 @@ public class JSGLR2Variants {
                         else
                     			basicStackManager = new HybridStackManager<BasicParseForest>();
                         	
-                        ReduceManager<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> basicReducer = new ReduceManager<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, basicStackManager, basicParseForestManager);
+                        ReduceManager<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> basicReducer = new ReduceManager<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, basicStackManager, basicParseForestManager, variant.parseForestConstruction);
                         
                         return new Parser<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, basicStackManager, basicParseForestManager, basicReducer);
                     	} else {
@@ -140,7 +153,7 @@ public class JSGLR2Variants {
                     		else
                     			elkhoundStackManager = new BasicElkhoundStackManager<BasicParseForest>();
                     		
-                        ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> basicReducer = new ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, elkhoundStackManager, basicParseForestManager);
+                        ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> basicReducer = new ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, elkhoundStackManager, basicParseForestManager, variant.parseForestConstruction);
                         
                         return new Parser<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(parseTable, elkhoundStackManager, basicParseForestManager, basicReducer);
                     }
@@ -162,7 +175,7 @@ public class JSGLR2Variants {
 	            		else
 	            			elkhoundStackManager = new BasicElkhoundStackManager<HybridParseForest>();
 	            		
-                    ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> elkhoundReducer = new ReduceManagerElkhound<HybridParseForest, ParseNode, Derivation>(parseTable, elkhoundStackManager, hybridParseForestManager);
+                    ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> elkhoundReducer = new ReduceManagerElkhound<HybridParseForest, ParseNode, Derivation>(parseTable, elkhoundStackManager, hybridParseForestManager, variant.parseForestConstruction);
                     
                     return new Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(parseTable, elkhoundStackManager, hybridParseForestManager, elkhoundReducer);
                 } else {
@@ -174,7 +187,7 @@ public class JSGLR2Variants {
                         else
                     			basicStackManager = new HybridStackManager<HybridParseForest>();
                         
-                        ReduceManager<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> hybridReducer = new ReduceManager<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(parseTable, basicStackManager, hybridParseForestManager);
+                        ReduceManager<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> hybridReducer = new ReduceManager<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(parseTable, basicStackManager, hybridParseForestManager, variant.parseForestConstruction);
                         
                         return new Parser<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(parseTable, basicStackManager, hybridParseForestManager, hybridReducer);
                     } else {
@@ -185,7 +198,7 @@ public class JSGLR2Variants {
 	                		else
 	                			elkhoundStackManager = new BasicElkhoundStackManager<HybridParseForest>();
 	                		
-                        ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> hybridReducer = new ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(parseTable, elkhoundStackManager, hybridParseForestManager);
+                        ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> hybridReducer = new ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(parseTable, elkhoundStackManager, hybridParseForestManager, variant.parseForestConstruction);
                         
                         return new Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(parseTable, elkhoundStackManager, hybridParseForestManager, hybridReducer);
                     }
@@ -193,15 +206,15 @@ public class JSGLR2Variants {
         }
     }
     
-    public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, StackRepresentation stackRepresentation, Reducing reducing) {
-    		return getParser(parseTable, new Variant(parseForestRepresentation, stackRepresentation, reducing));
+    public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, ParseForestConstruction parseForestConstruction, StackRepresentation stackRepresentation, Reducing reducing) {
+    		return getParser(parseTable, new Variant(parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing));
     }
     
     public static List<Parser<?, ?, ?, ?>> allParsers(IParseTable parseTable) {
         List<Parser<?, ?, ?, ?>> parsers = new ArrayList<Parser<?, ?, ?, ?>>();
         
         for (Variant variant : allVariants()) {
-            Parser<?, ?, ?, ?> parser = getParser(parseTable, variant.parseForestRepresentation, variant.stackRepresentation, variant.reducing);
+            Parser<?, ?, ?, ?> parser = getParser(parseTable, variant.parseForestRepresentation, variant.parseForestConstruction, variant.stackRepresentation, variant.reducing);
             
             parsers.add(parser);
         }
@@ -232,8 +245,8 @@ public class JSGLR2Variants {
         return new JSGLR2(parser, imploder);
     }
     
-    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, StackRepresentation stackRepresentation, Reducing reducing) {
-    		return getJSGLR2(parseTable, new Variant(parseForestRepresentation, stackRepresentation, reducing));
+    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParseForestRepresentation parseForestRepresentation, ParseForestConstruction parseForestConstruction, StackRepresentation stackRepresentation, Reducing reducing) {
+    		return getJSGLR2(parseTable, new Variant(parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing));
     }
     
     public static List<JSGLR2<?, ?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {

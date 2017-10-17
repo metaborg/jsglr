@@ -12,6 +12,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
 import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
@@ -59,7 +60,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
     public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
 		IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
 
-        parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, StackRepresentation.Basic, Reducing.Basic);
+        parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 		
 		actorObserver = new ActorObserver();
 		

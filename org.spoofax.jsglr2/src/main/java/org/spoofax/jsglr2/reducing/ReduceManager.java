@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.reducing;
 
+import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -19,11 +20,15 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
     protected final Reducer<StackNode, ParseForest, ParseNode, Derivation> reducer;
     
-    public ReduceManager(IParseTable parseTable, StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+    public ReduceManager(IParseTable parseTable, StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager, ParseForestConstruction parseForestConstruction) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<StackNode, ParseForest, ParseNode, Derivation>(stackManager, parseForestManager);
+        
+        if (parseForestConstruction == ParseForestConstruction.Optimized)
+    			this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<StackNode, ParseForest, ParseNode, Derivation>(stackManager, parseForestManager);
+        else
+        		this.reducer = new Reducer<StackNode, ParseForest, ParseNode, Derivation>(stackManager, parseForestManager);
     }
     
     public void doReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce) {

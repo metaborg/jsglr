@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.IReduceLookahead;
@@ -28,7 +29,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reducer = new ReduceManager<StackNode, ParseForest, ParseNode, Derivation>(parseTable, stackManager, parseForestManager);
+        this.reducer = new ReduceManager<StackNode, ParseForest, ParseNode, Derivation>(parseTable, stackManager, parseForestManager, ParseForestConstruction.Full);
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
     }
     

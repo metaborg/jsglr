@@ -8,6 +8,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
+import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
+import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
+import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
@@ -56,7 +60,7 @@ public class Main {
 			
 			@SuppressWarnings("unchecked")
 			Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> parser =
-				(Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>) JSGLR2Variants.getParser(parseTable, JSGLR2Variants.ParseForestRepresentation.Hybrid, JSGLR2Variants.StackRepresentation.BasicElkhound, JSGLR2Variants.Reducing.Elkhound);
+				(Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>) JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.BasicElkhound, Reducing.Elkhound);
 			
 			ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();
 			

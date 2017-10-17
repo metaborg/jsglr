@@ -16,7 +16,7 @@ public interface IProduction {
     
     boolean isLayout();
     
-    boolean isLayoutTop();
+    boolean isLayoutParent();
     
     boolean isLiteral();
     

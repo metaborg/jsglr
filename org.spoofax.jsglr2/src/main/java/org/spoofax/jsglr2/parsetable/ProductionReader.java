@@ -33,7 +33,7 @@ public class ProductionReader {
 		String startSymbolSort = getStartSymbolSort(lhs, rhs);
 		String descriptor = lhs.toString() + " -> " + rhs.toString();
 		boolean isLayout = getIsLayout(lhs);
-		boolean isLayoutTop = getIsLayoutTop(lhs);
+		boolean isLayoutParent = getIsLayoutParent(lhs);
 		boolean isLiteral = getIsLiteral(lhs);
 		boolean isLexical = getIsLexical(lhs);
 		boolean isLexicalRhs = getIsLexicalRhs(rhs);
@@ -45,7 +45,7 @@ public class ProductionReader {
 		
 		boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
 		
-		return new Production(productionNumber, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLayoutTop, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
+		return new Production(productionNumber, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLayoutParent, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
 	}
 	
 	private static String getSort(IStrategoAppl lhs) {
@@ -135,7 +135,7 @@ public class ProductionReader {
 		return "layout".equals(((IStrategoAppl) details).getConstructor().getName());
 	}
 
-	private static boolean getIsLayoutTop(IStrategoTerm lhs) {
+	private static boolean getIsLayoutParent(IStrategoTerm lhs) {
 		return getIsLayout(lhs) && "cf".equals(((IStrategoAppl) lhs).getConstructor().getName());
 	}
 

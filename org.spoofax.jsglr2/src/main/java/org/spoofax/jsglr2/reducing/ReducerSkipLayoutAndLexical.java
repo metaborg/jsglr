@@ -4,14 +4,15 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 
-public class ReducerSkipLayout<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<StackNode, ParseForest, ParseNode, Derivation> {
+public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> extends Reducer<StackNode, ParseForest, ParseNode, Derivation> {
 
-    public ReducerSkipLayout(StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+    public ReducerSkipLayoutAndLexical(StackManager<StackNode, ParseForest> stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
     		super(stackManager, parseForestManager);
     }
     
@@ -22,7 +23,6 @@ public class ReducerSkipLayout<StackNode extends AbstractStackNode<ParseForest>,
     		
     		if (parseNode != null) {
     			Derivation derivation = parseForestManager.createDerivation(parse, existingDirectLinkToActiveStateWithGoto.to.position, reduce.production(), reduce.productionType(), parseForests);
-    			
         		parseForestManager.addDerivation(parse, parseNode, derivation);
     		}
         
@@ -34,9 +34,9 @@ public class ReducerSkipLayout<StackNode extends AbstractStackNode<ParseForest>,
     public StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
     		ParseNode parseNode;
     	
-    		if (reduce.production().isLayout() && !reduce.production().isLayoutTop()) {
+    		if (isSkippableProduction(reduce.production()))
     			parseNode = null;
-    		} else {
+    		else {
         		Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(), reduce.productionType(), parseForests);
             parseNode = parseForestManager.createParseNode(parse, stack.position, reduce.production(), derivation);		
     		}
@@ -53,9 +53,9 @@ public class ReducerSkipLayout<StackNode extends AbstractStackNode<ParseForest>,
     public StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode stack, IState gotoState, ParseForest[] parseForests) {
     		ParseNode parseNode;
     	
-		if (reduce.production().isLayout() && !reduce.production().isLayoutTop()) {
+		if (isSkippableProduction(reduce.production()))
 			parseNode = null;
-		} else {
+		else {
 	    		Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(), reduce.productionType(), parseForests);
 	        parseNode = parseForestManager.createParseNode(parse, stack.position, reduce.production(), derivation);		
 		}
@@ -67,6 +67,13 @@ public class ReducerSkipLayout<StackNode extends AbstractStackNode<ParseForest>,
             stackManager.rejectStackLink(parse, link);
         
         return newStackWithGotoState;
+    }
+    
+    private boolean isSkippableProduction(IProduction production) {
+    		boolean skippableLayout = production.isLayout() && !production.isLayoutParent();
+    		boolean skippableLexical = production.sort() == null && (production.isLexical() || (production.isLexicalRhs() && !production.isLiteral()));
+    		
+    		return skippableLayout || skippableLexical;
     }
     
 }

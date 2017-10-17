@@ -23,7 +23,7 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reducer = new ReducerSkipLayout<StackNode, ParseForest, ParseNode, Derivation>(stackManager, parseForestManager);
+        this.reducer = new ReducerSkipLayoutAndLexical<StackNode, ParseForest, ParseNode, Derivation>(stackManager, parseForestManager);
     }
     
     public void doReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce) {

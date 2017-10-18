@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.characters.Characters;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.ActiveStacks;
+import org.spoofax.jsglr2.stack.IActiveStacks;
 
 public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
 
@@ -23,7 +25,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 	public int currentChar;
 	
 	public StackNode acceptingStack;
-	public Queue<StackNode> activeStacks;
+	public IActiveStacks<StackNode> activeStacks;
 	public Queue<StackNode> forActor;
 	public Queue<StackNode> forActorDelayed;
 	public Queue<ForShifterElement<StackNode, ParseForest>> forShifter;
@@ -50,7 +52,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         };
         
         this.acceptingStack = null;
-        this.activeStacks = new ArrayDeque<StackNode>();
+        this.activeStacks = new ActiveStacks<ParseForest, StackNode>();
         this.forActor = new ArrayDeque<StackNode>();
         this.forActorDelayed = new PriorityQueue<StackNode>(stackNodePriorityComparator);
         this.forShifter = new ArrayDeque<ForShifterElement<StackNode, ParseForest>>();
@@ -79,7 +81,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 		if (currentChar > 256)
 		    throw new ParseException("Unicode not supported");
 		
-		if (Characters.isNewLine(currentChar)) {
+		if (ICharacters.isNewLine(currentChar)) {
 		    currentLine++;
 		    currentColumn = 1;
 		} else {
@@ -90,7 +92,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 	}
 	
 	private int getChar(int position) {
-		return position < inputLength ? inputString.charAt(position) : Characters.EOF;
+		return position < inputLength ? inputString.charAt(position) : ICharacters.EOF;
 	}
 	
 	public String getPart(int begin, int end) {
@@ -99,6 +101,19 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 	
 	public String getLookahead(int length) {
 	    return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
+	}
+	
+	public boolean hasNextActorStack() {
+		return !forActor.isEmpty() || !forActorDelayed.isEmpty();
+	}
+	
+	public StackNode getNextActorStack() {
+		// First return all actors in forActor
+		if (!forActor.isEmpty())
+			return forActor.remove();
+		
+		// Then return actors from forActorDelayed
+		return forActorDelayed.remove();
 	}
     
     public void notify(IParserNotification<StackNode, ParseForest> notification) {

@@ -30,6 +30,7 @@ public class ProductionReader {
 		ProductionAttributes attributes = readProductionAttributes(attributesTerm); // Attributes stored in a separate term
 		
 		String sort = getSort(lhs);
+		String descriptor = lhs.toString();
 		boolean isLayout = getIsLayout(lhs);
 		boolean isLiteral = getIsLiteral(lhs);
 		boolean isLexical = getIsLexical(lhs);
@@ -42,7 +43,7 @@ public class ProductionReader {
 		
 		boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
 		
-		return new Production(productionNumber, sort, isContextFree, isLayout, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
+		return new Production(productionNumber, sort, descriptor, isContextFree, isLayout, isLiteral, isLexical, isLexicalRhs, isList, isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes);
 	}
 	
 	private static String getSort(IStrategoAppl lhs) {

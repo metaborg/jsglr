@@ -19,7 +19,7 @@ public class LiteralsTest extends BaseTest implements WithJSGLR1, WithGrammar {
 
     @Test
     public void testLowerCaseLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("sensitive", "Literal(CaseSensitive)");
+        testSuccessByExpansions("sensitive", "Literal(CaseSensitive)");
     }
 
     @Test
@@ -29,12 +29,12 @@ public class LiteralsTest extends BaseTest implements WithJSGLR1, WithGrammar {
 
     @Test
     public void testLowerCaseLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("insensitive", "Literal(CaseInsensitive)");
+        testSuccessByExpansions("insensitive", "Literal(CaseInsensitive)");
     }
 
     @Test
     public void testMixedLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("insenSitive", "Literal(CaseInsensitive)");
+        testSuccessByExpansions("insenSitive", "Literal(CaseInsensitive)");
     }
   
 }

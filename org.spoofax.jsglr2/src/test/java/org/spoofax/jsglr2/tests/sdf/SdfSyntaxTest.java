@@ -19,7 +19,7 @@ public class SdfSyntaxTest extends BaseTest implements WithJSGLR1, WithGrammar {
 
     @Test
     public void identifier() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("x", "\"x\"");
+        testSuccessByExpansions("x", "\"x\"");
     }
   
 }

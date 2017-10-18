@@ -23,9 +23,8 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.Reduce;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.actions.Shift;
-import org.spoofax.jsglr2.characters.Characters;
 import org.spoofax.jsglr2.characters.ICharacters;
-import org.spoofax.jsglr2.characters.RangesCharacterSet;
+import org.spoofax.jsglr2.characters.SingleRangeCharacterSet;
 import org.spoofax.jsglr2.characters.SingleCharacter;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
@@ -129,13 +128,12 @@ public class ParseTableReader {
 				int productionNumber = javaInt(productionNumbersTerm);
 				
 				productionNumbers.add(productionNumber);
-			} else {
-				int productionNumberRangeFrom = intAt(productionNumbersTerm, 0);
-				int productionNumberRangeTo = intAt(productionNumbersTerm, 1);
-				
-				for (int productionNumber = productionNumberRangeFrom; productionNumber <= productionNumberRangeTo; productionNumber++)
-					productionNumbers.add(productionNumber);
 			}
+			
+			// productionNumbersTermproductionNumbersTerm can also be a range representing character classes.
+			// That is a remainder of parse table generation (representing transitions between states).
+			// We can ignore them here since parsing only looks up gotos after a reduction and than uses
+			// the production that is used for the reduction the retrieve the goto action, not a character.
 		}
 		
 		int[] res = new int[productionNumbers.size()];
@@ -173,15 +171,15 @@ public class ParseTableReader {
 	}
     
     private static ICharacters readCharacters(IStrategoList charactersTermList) {
-        Characters characters = null;
+        ICharacters characters = null;
         
         for (IStrategoTerm charactersTerm : charactersTermList) {
-            Characters charactersForTerm;
+        		ICharacters charactersForTerm;
             
             if (isTermInt(charactersTerm))
                 charactersForTerm = new SingleCharacter(javaInt(charactersTerm));
             else
-                charactersForTerm = new RangesCharacterSet(intAt(charactersTerm, 0), intAt(charactersTerm, 1));
+                charactersForTerm = new SingleRangeCharacterSet(intAt(charactersTerm, 0), intAt(charactersTerm, 1));
             
             if (characters == null)
                 characters = charactersForTerm;

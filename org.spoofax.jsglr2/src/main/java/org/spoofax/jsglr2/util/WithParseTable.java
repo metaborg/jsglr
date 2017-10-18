@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.util;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -29,8 +28,7 @@ public interface WithParseTable {
     }
 	
 	default IStrategoTerm parseTableTerm(String filename) throws ParseError, IOException {
-		ClassLoader classLoader = getClass().getClassLoader();
-  		InputStream inputStream = new FileInputStream(classLoader.getResource(filename).getFile());
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filename);
   		
   		return getTermReader().parseFromStream(inputStream);
 	}

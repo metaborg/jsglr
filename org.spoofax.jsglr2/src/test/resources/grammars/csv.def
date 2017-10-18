@@ -1,0 +1,27 @@
+definition
+
+module csv
+
+exports 
+
+  context-free restrictions
+    LAYOUT? -/- [\ ]
+
+  context-free start-symbols
+    Start
+
+  context-free syntax
+    CSV         -> Start 
+    {Row "\n"}* -> CSV  {cons("Document")}
+    {Cell ","}* -> Row  {cons("Row")}
+    INT         -> Cell {cons("Int")}
+    STRING      -> Cell {cons("String")}
+
+  lexical syntax
+    "-"? [0-9]+           -> INT           
+    "\"" StringChar* "\"" -> STRING        
+    ~[\"\n]               -> StringChar    
+    "\\\""                -> StringChar    
+    BackSlashChar         -> StringChar    
+    "\\"                  -> BackSlashChar 
+    [\ \t]                -> LAYOUT   

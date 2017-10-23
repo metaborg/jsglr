@@ -86,7 +86,10 @@ public class JSGLR2Variants {
         }
         
         public boolean isValid() {
-        		return reducing != Reducing.Elkhound || (stackRepresentation == StackRepresentation.BasicElkhound || stackRepresentation == StackRepresentation.HybridElkhound);
+        		boolean validElkhound = reducing != Reducing.Elkhound || (stackRepresentation == StackRepresentation.BasicElkhound || stackRepresentation == StackRepresentation.HybridElkhound);
+        		boolean validParseForest = parseForestRepresentation != ParseForestRepresentation.Null || parseForestConstruction == ParseForestConstruction.Full;
+        	
+        		return validElkhound && validParseForest;
         }
         
         public String name() {
@@ -115,7 +118,7 @@ public class JSGLR2Variants {
     
     public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, Variant variant) {
         if (!variant.isValid())
-            throw new IllegalStateException("Invalid parser variant (Elkhound reducing requires Elkhound stack)");
+            throw new IllegalStateException("Invalid parser variant");
         
         switch (variant.parseForestRepresentation) {
             default:

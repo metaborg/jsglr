@@ -24,8 +24,6 @@ import org.spoofax.jsglr2.actions.Reduce;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.actions.Shift;
 import org.spoofax.jsglr2.characters.ICharacters;
-import org.spoofax.jsglr2.characters.SingleRangeCharacterSet;
-import org.spoofax.jsglr2.characters.SingleCharacter;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
@@ -177,14 +175,15 @@ public class ParseTableReader {
         		ICharacters charactersForTerm;
             
             if (isTermInt(charactersTerm))
-                charactersForTerm = new SingleCharacter(javaInt(charactersTerm));
+							charactersForTerm = ICharacters.factory().fromSingle(javaInt(charactersTerm));
             else
-                charactersForTerm = new SingleRangeCharacterSet(intAt(charactersTerm, 0), intAt(charactersTerm, 1));
-            
+							charactersForTerm = ICharacters.factory()
+									.fromRange(intAt(charactersTerm, 0), intAt(charactersTerm, 1));
+
             if (characters == null)
                 characters = charactersForTerm;
             else
-                characters = characters.union(charactersForTerm);
+							characters = ICharacters.factory().union(characters, charactersForTerm);
         }
         
         return characters;

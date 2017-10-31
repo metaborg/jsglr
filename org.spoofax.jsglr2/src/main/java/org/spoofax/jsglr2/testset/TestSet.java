@@ -51,13 +51,13 @@ public class TestSet {
 	public static TestSet java8 = new TestSet(
 		"java8",
 		new TestSetParseTableFromATerm("Java8"),
-		new TestSetMultipleInputs("/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms", "java")
+		new TestSetMultipleInputs("/Users/Michael/Development/spoofax-releng/mb-rep/org.spoofax.terms", "java")
 	);
 	
 	public static TestSet java8_unrolled = new TestSet(
 		"java8_unrolled",
 		new TestSetParseTableFromATerm("Java8_unrolled"),
-		new TestSetMultipleInputs("/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms", "java")
+		new TestSetMultipleInputs("/Users/Michael/Development/spoofax-releng/mb-rep/org.spoofax.terms", "java")
 	);
 	
 	public static TestSet greenMarl = new TestSet(

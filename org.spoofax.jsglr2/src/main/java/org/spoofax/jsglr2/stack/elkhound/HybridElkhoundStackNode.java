@@ -8,7 +8,6 @@ import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> extends AbstractElkhoundStackNode<ParseForest> {
@@ -27,9 +26,9 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> ex
     
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {
         if (otherLinksOut == null)
-        		return new SingleElementIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkOut);
+        		return Collections.singleton(firstLinkOut);
 	    else
-	        return new SingleElementWithListIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkOut, otherLinksOut);
+	        return new SingleElementWithListIterable<>(firstLinkOut, otherLinksOut);
     }
     
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut() {
@@ -37,13 +36,14 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> ex
     }
     
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksIn() {
-	    	if (firstLinkIn == null)
-	    		return Collections.emptyList();
-	    	else if (otherLinksIn == null)
-	    		return new SingleElementIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkIn);
-	    else
-	        return new SingleElementWithListIterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>(firstLinkIn, otherLinksIn);
-    }
+			if (firstLinkIn == null) {
+				return Collections.emptyList();
+			} else if (otherLinksIn == null) {
+				return Collections.singleton(firstLinkIn);
+			} else {
+				return new SingleElementWithListIterable<>(firstLinkIn, otherLinksIn);
+			}
+		}
     
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link, Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
         link.to.addInLink(link);

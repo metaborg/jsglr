@@ -1,11 +1,12 @@
 package org.spoofax.jsglr2.stack.basic;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {
@@ -16,14 +17,16 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
 	public HybridStackNode(int stackNumber, IState state, Position position) {
 		super(stackNumber, state, position);
 	}
-	
+
 	public Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {
-		if (otherLinksOut == null)
-	    		return new SingleElementIterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>>(firstLinkOut);
-	    else
-	        return new SingleElementWithListIterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>>(firstLinkOut, otherLinksOut);
+		if (otherLinksOut == null) {
+			return Collections.singleton(firstLinkOut);
+		} else {
+			// TODO: return Stream.concat(Stream.of(firstLinkOut), otherLinksOut.stream());
+			return new SingleElementWithListIterable<>(firstLinkOut, otherLinksOut);
+		}
 	}
-    
+
     public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link) {
     		if (firstLinkOut == null)
     			firstLinkOut = link;

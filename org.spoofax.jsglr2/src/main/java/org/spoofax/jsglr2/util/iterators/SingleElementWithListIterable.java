@@ -5,9 +5,22 @@ import java.util.List;
 
 public class SingleElementWithListIterable<T> implements Iterable<T> {
 
+    /*
+     * TODO: generalize tail argument; move to appropriate place
+     */
+    public static final <T> Iterable<T> of(T head, List<T> tail) {
+//        final Iterator<T> iterator =
+//                Stream.concat(Stream.of(head), tail.stream()).iterator();
+//
+//        return () -> iterator;
+
+        return new SingleElementWithListIterable<>(head, tail);
+    }
+
     private T element;
     private List<T> list;
-    
+
+    @Deprecated
     public SingleElementWithListIterable(T element, List<T> list) {
         this.element = element;
         this.list = list;

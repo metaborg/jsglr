@@ -30,13 +30,13 @@ public class ParseNode extends HybridParseForest {
 	    otherDerivations.add(derivation);
 	}
 
-	public Iterable<Derivation> getDerivations() {
-		if (otherDerivations == null) {
-			return Collections.singleton(firstDerivation);
-		} else {
-			return new SingleElementWithListIterable<>(firstDerivation, otherDerivations);
-		}
-	}
+    public Iterable<Derivation> getDerivations() {
+        if (otherDerivations == null) {
+            return Collections.singleton(firstDerivation);
+        } else {
+            return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
+        }
+    }
 
 	public List<Derivation> getPreferredAvoidedDerivations() {
         if (!isAmbiguous())

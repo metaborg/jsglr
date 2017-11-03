@@ -28,7 +28,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> ex
         if (otherLinksOut == null)
         		return Collections.singleton(firstLinkOut);
 	    else
-	        return new SingleElementWithListIterable<>(firstLinkOut, otherLinksOut);
+	        return SingleElementWithListIterable.of(firstLinkOut, otherLinksOut);
     }
     
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut() {
@@ -41,7 +41,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> ex
 			} else if (otherLinksIn == null) {
 				return Collections.singleton(firstLinkIn);
 			} else {
-				return new SingleElementWithListIterable<>(firstLinkIn, otherLinksIn);
+				return SingleElementWithListIterable.of(firstLinkIn, otherLinksIn);
 			}
 		}
     

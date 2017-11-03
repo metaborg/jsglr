@@ -17,8 +17,6 @@ public class JSGLR2Java8Benchmark extends JSGLR2Benchmark {
     }
 
     public static void main(String[] args) throws RunnerException {
-        System.out.println(JSGLR2Java8CharacterClassBenchmark.class.getSimpleName());
-
         /*
             @Param({"false", "true"})
             public boolean implode;
@@ -44,7 +42,7 @@ public class JSGLR2Java8Benchmark extends JSGLR2Benchmark {
                 .warmupIterations(10)
                 .warmupTime(TimeValue.seconds(1))
                 .measurementIterations(10)
-                .param("implode", "false")
+                //.param("implode", "false")
                 .param("parseForestRepresentation", "Hybrid")
                 .param("parseForestConstruction", "Optimized")
                 .param("stackRepresentation", "HybridElkhound")

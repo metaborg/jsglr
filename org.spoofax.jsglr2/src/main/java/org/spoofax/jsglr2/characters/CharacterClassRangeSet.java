@@ -28,8 +28,8 @@ public final class CharacterClassRangeSet implements ICharacters {
   }
 
   protected CharacterClassRangeSet(final ImmutableRangeSet<Integer> rangeSet) {
-    assert !rangeSet.isEmpty() && rangeSet.span().lowerEndpoint() >= 0;
-    assert !rangeSet.isEmpty() && rangeSet.span().upperEndpoint() <= EOF;
+    assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint() >= 0;
+    assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint() <= EOF;
 
     this.rangeSet = rangeSet;
     // this.cachedBitSet = convertToBitSet(rangeSet);

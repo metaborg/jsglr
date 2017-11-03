@@ -49,7 +49,7 @@ public class JSGLR2Java8Benchmark extends JSGLR2Benchmark {
                 .param("parseForestConstruction", "Optimized")
                 .param("stackRepresentation", "HybridElkhound")
                 .param("reducing", "Elkhound")
-                .forks(1)
+                .forks(0)
                 .build();
         // @formatter:on
 

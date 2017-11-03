@@ -17,6 +17,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>io.usethesource</groupId>
+			<artifactId>capsule</artifactId>
+			<version>0.6.1</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.spoofax.terms</artifactId>
 			<version>${metaborg-version}</version>

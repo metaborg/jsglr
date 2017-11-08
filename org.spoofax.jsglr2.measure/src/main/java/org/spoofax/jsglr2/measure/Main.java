@@ -35,20 +35,24 @@ public class Main {
 		new File(reportPath).mkdirs();
 		
 		for (TestSet testSet : TestSet.all) {
-			measure(testSet);
+			JSGLR2Variants.Variant variantElkhound = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.BasicElkhound, Reducing.Elkhound);
+			JSGLR2Variants.Variant variantOptimzedParseForest = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.BasicElkhound, Reducing.Elkhound);
+
+			measure(testSet, variantElkhound, "elkhound");
+			measure(testSet, variantOptimzedParseForest, "optimizedParseForest");
 		}
 		
 		System.out.println("Done");
 	}
 	
-	private static void measure(TestSet testSet) throws ParseTableReadException, IOException, ParseException {
+	private static void measure(TestSet testSet, JSGLR2Variants.Variant variant, String postfix) throws ParseTableReadException, IOException, ParseException {
 		System.out.println(" - Testset '" + testSet.name + "'");
 		
 		TestSetReader testSetReader = new MeasureTestsetReader(testSet);
 		
 		IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
 		
-		String filename = reportPath + testSet.name + ".csv";
+		String filename = reportPath + testSet.name + "_" + postfix + ".csv";
 		
 		PrintWriter out = new PrintWriter(filename);
 		
@@ -60,7 +64,7 @@ public class Main {
 			
 			@SuppressWarnings("unchecked")
 			Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> parser =
-				(Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>) JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.BasicElkhound, Reducing.Elkhound);
+				(Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>) JSGLR2Variants.getParser(parseTable, variant);
 			
 			ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();
 			

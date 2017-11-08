@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.testset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 public class TestSet {
 
@@ -47,17 +48,22 @@ public class TestSet {
 			return String.join("\n", Collections.nCopies(n, "1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\""));
 		}, 1000, 2000, 4000)
 	);
-	
+
+	private static final String JAVA_8_BENCHMARK_INPUT_PATH_STRING =
+			System.getProperty(
+					String.format("%s.%s", TestSet.class.getCanonicalName(), "javaInputPath"),
+					"/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms");
+
 	public static TestSet java8 = new TestSet(
 		"java8",
 		new TestSetParseTableFromATerm("Java8"),
-		new TestSetMultipleInputs("/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms", "java")
+		new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java")
 	);
 	
 	public static TestSet java8_unrolled = new TestSet(
 		"java8_unrolled",
 		new TestSetParseTableFromATerm("Java8_unrolled"),
-		new TestSetMultipleInputs("/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms", "java")
+		new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java")
 	);
 	
 	public static TestSet greenMarl = new TestSet(

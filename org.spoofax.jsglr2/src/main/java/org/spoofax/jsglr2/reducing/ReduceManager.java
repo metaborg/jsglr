@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.reducing;
 
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
-import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -64,8 +63,8 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
     }
     
     protected void reducePath(Parse<StackNode, ParseForest> parse, ParseForest[] parseNodes, StackNode pathBegin, IReduce reduce) {
-        IGoto gotoAction = pathBegin.state.getGoto(reduce.production().productionNumber());
-        IState gotoState = parseTable.getState(gotoAction.gotoState());
+        int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber()).get();
+        IState gotoState = parseTable.getState(gotoId);
         
         reducer(parse, pathBegin, gotoState, reduce, parseNodes);
     }

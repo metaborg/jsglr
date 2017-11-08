@@ -1,14 +1,14 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.util.iterators.SingleElementIterable;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ParseNode extends HybridParseForest {
 
@@ -29,15 +29,16 @@ public class ParseNode extends HybridParseForest {
 	    
 	    otherDerivations.add(derivation);
 	}
-	
-	public Iterable<Derivation> getDerivations() {
-	    if (otherDerivations == null)
-	        return new SingleElementIterable<Derivation>(firstDerivation); // Michael: JDK contains Collections/Arrays.something for single element iterable
-	    else
-	        return new SingleElementWithListIterable<Derivation>(firstDerivation, otherDerivations);
-	}
-    
-    public List<Derivation> getPreferredAvoidedDerivations() {
+
+    public Iterable<Derivation> getDerivations() {
+        if (otherDerivations == null) {
+            return Collections.singleton(firstDerivation);
+        } else {
+            return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
+        }
+    }
+
+	public List<Derivation> getPreferredAvoidedDerivations() {
         if (!isAmbiguous())
             return Arrays.asList(firstDerivation);
         else {

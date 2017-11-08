@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.reducing;
 
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
-import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -44,8 +43,8 @@ public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, Pars
     }
     
     private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> pathBegin, IReduce reduce) {
-        IGoto gotoAction = pathBegin.state.getGoto(reduce.production().productionNumber());
-        IState gotoState = parseTable.getState(gotoAction.gotoState());
+        int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber()).get();
+        IState gotoState = parseTable.getState(gotoId);
         
         reducerElkhound(parse, pathBegin, gotoState, reduce, parseNodes);
     }

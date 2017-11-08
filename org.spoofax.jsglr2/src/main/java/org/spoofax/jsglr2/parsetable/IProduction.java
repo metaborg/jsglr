@@ -3,7 +3,9 @@ package org.spoofax.jsglr2.parsetable;
 public interface IProduction {
 
     int productionNumber();
-    
+
+    ProductionType productionType();
+
     String sort();
     
     String startSymbolSort();
@@ -36,5 +38,9 @@ public interface IProduction {
     boolean isNumberLiteral();
     
     boolean isOperator();
-    
+
+    static boolean typeMatchesReject(IProduction production) {
+        return production.productionType() == ProductionType.REJECT;
+    }
+
 }

@@ -19,14 +19,16 @@ public class Reduce extends Action implements IReduce {
 
         /*
          * NOTE: according to Eduardo, the type of the action and of the production should match for types REJECT /
-         * PREFER / AVOID at least. There seems to be a bug in the parse table generator.
+         * PREFER / AVOID at least. There seems to be a bug in the parse table generator. If this bug is fixed the
+         * asserts below should succeed (they are failing now).
+         *
+         * assert !(productionType == ProductionType.REJECT || productionType == ProductionType.PREFER || productionType
+         * == ProductionType.AVOID) || productionType == production.productionType();
+         * 
+         * assert !(production.productionType() == ProductionType.REJECT || production.productionType() ==
+         * ProductionType.PREFER || production.productionType() == ProductionType.AVOID) || production.productionType()
+         * == productionType;
          */
-        assert !(productionType == ProductionType.REJECT || productionType == ProductionType.PREFER
-            || productionType == ProductionType.AVOID) || productionType == production.productionType();
-
-        assert !(production.productionType() == ProductionType.REJECT
-            || production.productionType() == ProductionType.PREFER
-            || production.productionType() == ProductionType.AVOID) || production.productionType() == productionType;
     }
 
     public IProduction production() {

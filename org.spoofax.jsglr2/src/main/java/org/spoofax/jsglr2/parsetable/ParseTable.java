@@ -12,14 +12,17 @@ public class ParseTable implements IParseTable {
         this.startStateNumber = startStateNumber;
     }
 
+    @Override
     public IProduction[] productions() {
         return productions;
     }
 
+    @Override
     public IState startState() {
         return states[startStateNumber];
     }
 
+    @Override
     public IState getState(int stateNumber) {
         return states[stateNumber];
     }

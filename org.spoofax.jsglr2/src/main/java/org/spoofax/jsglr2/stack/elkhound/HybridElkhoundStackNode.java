@@ -25,6 +25,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         super(stackNumber, state, position, deterministicDepth);
     }
 
+    @Override
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {
         if(otherLinksOut == null)
             return Collections.singleton(firstLinkOut);
@@ -32,10 +33,12 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
             return SingleElementWithListIterable.of(firstLinkOut, otherLinksOut);
     }
 
+    @Override
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut() {
         return firstLinkOut;
     }
 
+    @Override
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksIn() {
         if(firstLinkIn == null) {
             return Collections.emptyList();
@@ -46,6 +49,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         }
     }
 
+    @Override
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(
         StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link,
         Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
@@ -73,6 +77,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         return link;
     }
 
+    @Override
     protected void addInLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
         if(firstLinkIn == null)
             firstLinkIn = link;
@@ -84,6 +89,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         }
     }
 
+    @Override
     public boolean allOutLinksRejected() {
         if(firstLinkOut == null || !firstLinkOut.isRejected())
             return false;

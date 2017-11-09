@@ -23,18 +23,22 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         super(stackNumber, state, position, deterministicDepth);
     }
 
+    @Override
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {
         return linksOut;
     }
 
+    @Override
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut() {
         return linksOut.get(0);
     }
 
+    @Override
     public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksIn() {
         return linksIn;
     }
 
+    @Override
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(
         StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link,
         Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
@@ -56,10 +60,12 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         return link;
     }
 
+    @Override
     protected void addInLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
         linksIn.add(link);
     }
 
+    @Override
     public boolean allOutLinksRejected() {
         if(linksOut.isEmpty())
             return false;

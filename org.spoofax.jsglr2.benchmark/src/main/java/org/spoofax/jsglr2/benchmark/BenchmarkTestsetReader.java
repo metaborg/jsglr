@@ -39,6 +39,7 @@ public class BenchmarkTestsetReader extends TestSetReader {
         return basePath() + "/grammars";
     }
 
+    @Override
     public void setupParseTableFile(String parseTableName) throws IOException {
         new File(basePath() + "/parsetables").mkdirs();
 
@@ -57,6 +58,7 @@ public class BenchmarkTestsetReader extends TestSetReader {
         Files.copy(defResourceInJar, Paths.get(destinationInTargetDir), StandardCopyOption.REPLACE_EXISTING);
     }
 
+    @Override
     protected String getFileAsString(String filename) throws IOException {
         InputStream inputStream = getClass().getResourceAsStream("/samples/" + filename);
 

@@ -12,18 +12,22 @@ public class CharacterClassFactory implements ICharacterClassFactory<CharacterCl
     private CharacterClassFactory() {
     }
 
+    @Override
     public CharacterClassRangeSet fromEmpty() {
         return CharacterClassRangeSet.EMPTY_CONSTANT;
     }
 
+    @Override
     public CharacterClassRangeSet fromSingle(int character) {
         return CharacterClassRangeSet.EMPTY_CONSTANT.update(rangeSet -> rangeSet.add(Range.singleton(character)));
     }
 
+    @Override
     public CharacterClassRangeSet fromRange(int from, int to) {
         return CharacterClassRangeSet.EMPTY_CONSTANT.update(rangeSet -> rangeSet.add(Range.closed(from, to)));
     }
 
+    @Override
     public CharacterClassRangeSet union(ICharacters a, ICharacters b) {
         if(!(a instanceof CharacterClassRangeSet && b instanceof CharacterClassRangeSet)) {
             throw new IllegalArgumentException(

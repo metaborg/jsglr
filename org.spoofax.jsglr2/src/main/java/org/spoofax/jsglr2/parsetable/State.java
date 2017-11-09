@@ -32,14 +32,17 @@ public final class State implements IState {
         this.productionToGoto = tmpProductionToGoto.freeze();
     }
 
+    @Override
     public int stateNumber() {
         return stateNumber;
     }
 
+    @Override
     public IAction[] actions() {
         return actions;
     }
 
+    @Override
     public boolean isRejectable() {
         return rejectable;
     }
@@ -48,6 +51,7 @@ public final class State implements IState {
         this.rejectable = true;
     }
 
+    @Override
     public Iterable<IAction> applicableActions(int character) {
         // // NOTE: simple code
         // final Iterator<IAction> iterator = Stream.of(actions)
@@ -60,6 +64,7 @@ public final class State implements IState {
         return () -> new Iterator<IAction>() {
             int index = 0;
 
+            @Override
             public boolean hasNext() {
                 // skip non-applicable actions
                 while(index < actions.length && !actions[index].appliesTo(character)) {
@@ -68,6 +73,7 @@ public final class State implements IState {
                 return index < actions.length;
             }
 
+            @Override
             public IAction next() {
                 if(!hasNext()) {
                     throw new NoSuchElementException();
@@ -77,6 +83,7 @@ public final class State implements IState {
         };
     }
 
+    @Override
     public Iterable<IReduce> applicableReduceActions(Parse parse) {
         // // NOTE: simple code
         // final Iterator<IReduce> iterator = Stream.of(actions)
@@ -92,6 +99,7 @@ public final class State implements IState {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 
+            @Override
             public boolean hasNext() {
                 while(index < actions.length && !(actions[index].appliesTo(parse.currentChar)
                     && (actions[index].actionType() == ActionType.REDUCE
@@ -102,6 +110,7 @@ public final class State implements IState {
                 return index < actions.length;
             }
 
+            @Override
             public IReduce next() {
                 if(!hasNext()) {
                     throw new NoSuchElementException();
@@ -111,11 +120,13 @@ public final class State implements IState {
         };
     }
 
+    @Override
     public Optional<Integer> getGotoId(int productionId) {
         assert productionToGoto.get(productionId).size() <= 1;
         return productionToGoto.get(productionId).findFirst();
     }
 
+    @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof State))
             return false;

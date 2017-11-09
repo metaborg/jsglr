@@ -20,14 +20,17 @@ public class RuleNode extends BasicParseForest implements IDerivation<BasicParse
         this.parseForests = parseForests;
     }
 
+    @Override
     public String descriptor() {
         return production.descriptor();
     }
 
+    @Override
     public IProduction production() {
         return production;
     }
 
+    @Override
     public BasicParseForest[] parseForests() {
         return parseForests;
     }

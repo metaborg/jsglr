@@ -31,14 +31,17 @@ public class Reduce extends Action implements IReduce {
          */
     }
 
+    @Override
     public IProduction production() {
         return production;
     }
 
+    @Override
     public ProductionType productionType() {
         return productionType;
     }
 
+    @Override
     public int arity() {
         return arity;
     }

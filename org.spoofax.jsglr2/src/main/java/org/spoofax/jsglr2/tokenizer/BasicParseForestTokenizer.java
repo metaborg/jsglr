@@ -7,10 +7,12 @@ import org.spoofax.jsglr2.parsetable.IProduction;
 
 public class BasicParseForestTokenizer extends Tokenizer<BasicParseForest, SymbolNode, RuleNode> {
 
+    @Override
     protected IProduction parseNodeProduction(SymbolNode symbolNode) {
         return symbolNode.production;
     }
 
+    @Override
     protected Iterable<RuleNode> parseNodeDerivations(SymbolNode symbolNode) {
         return symbolNode.getDerivations();
     }

@@ -25,14 +25,17 @@ public class SingleElementWithListIterable<T> implements Iterable<T> {
         this.list = list;
     }
 
+    @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int cursor = 0;
 
+            @Override
             public boolean hasNext() {
                 return cursor < list.size() + 1;
             }
 
+            @Override
             public T next() {
                 cursor++;
 

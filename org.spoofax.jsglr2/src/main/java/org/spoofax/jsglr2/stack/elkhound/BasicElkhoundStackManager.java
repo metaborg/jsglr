@@ -7,6 +7,7 @@ import org.spoofax.jsglr2.parsetable.IState;
 public class BasicElkhoundStackManager<ParseForest extends AbstractParseForest>
     extends AbstractElkhoundStackManager<AbstractElkhoundStackNode<ParseForest>, ParseForest> {
 
+    @Override
     protected BasicElkhoundStackNode<ParseForest> createStackNode(int stackNumber, IState state, Position position,
         int deterministicDepth) {
         return new BasicElkhoundStackNode<ParseForest>(stackNumber, state, position, deterministicDepth);

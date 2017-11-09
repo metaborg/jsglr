@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class HybridParseForestManager extends ParseForestManager<HybridParseForest, ParseNode, Derivation> {
 
+    @Override
     public ParseNode createParseNode(Parse<?, HybridParseForest> parse, Position beginPosition, IProduction production,
         Derivation firstDerivation) {
         ParseNode parseNode = new ParseNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
@@ -22,6 +23,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return parseNode;
     }
 
+    @Override
     public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol) {
         ParseNode topNode = (ParseNode) parseForest;
         List<Derivation> result = new ArrayList<Derivation>();
@@ -46,6 +48,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         }
     }
 
+    @Override
     public Derivation createDerivation(Parse<?, HybridParseForest> parse, Position beginPosition,
         IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         Derivation derivation = new Derivation(production, productionType, parseForests);
@@ -57,6 +60,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return derivation;
     }
 
+    @Override
     public void addDerivation(Parse<?, HybridParseForest> parse, ParseNode parseNode, Derivation derivation) {
         parse.notify(observer -> observer.addDerivation(parseNode));
 
@@ -68,6 +72,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
             parse.ambiguousParseNodes++;
     }
 
+    @Override
     public CharacterNode createCharacterNode(Parse<?, HybridParseForest> parse) {
         CharacterNode characterNode =
             new CharacterNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
@@ -77,6 +82,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return characterNode;
     }
 
+    @Override
     public HybridParseForest[] parseForestsArray(int length) {
         return new HybridParseForest[length];
     }

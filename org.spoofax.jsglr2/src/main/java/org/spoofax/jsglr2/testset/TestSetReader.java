@@ -59,14 +59,17 @@ public abstract class TestSetReader implements WithGrammar {
 
     public abstract void setupParseTableFile(String name) throws IOException;
 
+    @Override
     public TermReader getTermReader() {
         return termReader;
     }
 
+    @Override
     public IStrategoTerm getParseTableTerm() {
         return parseTableTerm;
     }
 
+    @Override
     public void setParseTableTerm(IStrategoTerm parseTableTerm) {
         this.parseTableTerm = parseTableTerm;
     }

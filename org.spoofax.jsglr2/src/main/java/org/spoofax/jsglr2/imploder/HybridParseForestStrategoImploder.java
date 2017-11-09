@@ -16,14 +16,17 @@ public class HybridParseForestStrategoImploder<StackNode extends AbstractStackNo
         super(new HybridParseForestTokenizer());
     }
 
+    @Override
     protected IProduction parseNodeProduction(ParseNode parseNode) {
         return parseNode.production;
     }
 
+    @Override
     protected Derivation parseNodeOnlyDerivation(ParseNode parseNode) {
         return parseNode.getOnlyDerivation();
     }
 
+    @Override
     protected List<Derivation> parseNodePreferredAvoidedDerivations(ParseNode parseNode) {
         return parseNode.getPreferredAvoidedDerivations();
     }

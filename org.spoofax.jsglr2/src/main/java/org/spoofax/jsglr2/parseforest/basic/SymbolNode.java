@@ -72,6 +72,7 @@ public class SymbolNode extends BasicParseForest {
         return derivations.size() > 1;
     }
 
+    @Override
     public String descriptor() {
         return production.descriptor();
     }

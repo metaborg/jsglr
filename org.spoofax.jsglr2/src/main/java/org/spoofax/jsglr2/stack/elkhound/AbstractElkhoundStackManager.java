@@ -14,6 +14,7 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
     protected abstract StackNode createStackNode(int stackNumber, IState state, Position position,
         int deterministicDepth);
 
+    @Override
     public AbstractElkhoundStackNode<ParseForest>
         createInitialStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
         AbstractElkhoundStackNode<ParseForest> newStackNode =
@@ -24,6 +25,7 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
         return newStackNode;
     }
 
+    @Override
     public AbstractElkhoundStackNode<ParseForest>
         createStackNode(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, IState state) {
         AbstractElkhoundStackNode<ParseForest> newStackNode =
@@ -34,6 +36,7 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
         return newStackNode;
     }
 
+    @Override
     public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> createStackLink(
         Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, AbstractElkhoundStackNode<ParseForest> from,
         AbstractElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
@@ -70,6 +73,7 @@ public abstract class AbstractElkhoundStackManager<StackNode extends AbstractElk
             lastStackNode);
     }
 
+    @Override
     protected Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>
         stackLinksOut(AbstractElkhoundStackNode<ParseForest> stack) {
         return stack.getLinksOut();

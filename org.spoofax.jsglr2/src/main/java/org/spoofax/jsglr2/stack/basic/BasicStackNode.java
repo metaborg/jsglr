@@ -17,10 +17,12 @@ public class BasicStackNode<ParseForest> extends AbstractBasicStackNode<ParseFor
         super(stackNumber, state, position);
     }
 
+    @Override
     public List<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {
         return linksOut;
     }
 
+    @Override
     public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>
         addOutLink(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link) {
         linksOut.add(link);
@@ -28,6 +30,7 @@ public class BasicStackNode<ParseForest> extends AbstractBasicStackNode<ParseFor
         return link;
     }
 
+    @Override
     public boolean allOutLinksRejected() {
         if(linksOut.isEmpty())
             return false;

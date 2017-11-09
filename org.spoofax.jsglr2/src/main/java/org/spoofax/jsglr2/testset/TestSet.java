@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.testset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 public class TestSet {
 

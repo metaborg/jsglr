@@ -10,6 +10,7 @@ public abstract class Action implements IAction {
         this.characters = characters;
     }
 
+    @Override
     public ICharacters characters() {
         return characters;
     }

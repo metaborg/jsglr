@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class BasicParseForestManager extends ParseForestManager<BasicParseForest, SymbolNode, RuleNode> {
 
+    @Override
     public SymbolNode createParseNode(Parse<?, BasicParseForest> parse, Position beginPosition, IProduction production,
         RuleNode firstDerivation) {
         SymbolNode symbolNode =
@@ -23,6 +24,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return symbolNode;
     }
 
+    @Override
     public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol) {
         SymbolNode topNode = (SymbolNode) parseForest;
         List<RuleNode> result = new ArrayList<RuleNode>();
@@ -47,6 +49,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         }
     }
 
+    @Override
     public RuleNode createDerivation(Parse<?, BasicParseForest> parse, Position beginPosition, IProduction production,
         ProductionType productionType, BasicParseForest[] parseForests) {
         RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
@@ -57,6 +60,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return ruleNode;
     }
 
+    @Override
     public void addDerivation(Parse<?, BasicParseForest> parse, SymbolNode symbolNode, RuleNode ruleNode) {
         parse.notify(observer -> observer.addDerivation(symbolNode));
 
@@ -68,6 +72,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
             parse.ambiguousParseNodes++;
     }
 
+    @Override
     public TermNode createCharacterNode(Parse<?, BasicParseForest> parse) {
         TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
 
@@ -76,6 +81,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return termNode;
     }
 
+    @Override
     public BasicParseForest[] parseForestsArray(int length) {
         return new BasicParseForest[length];
     }

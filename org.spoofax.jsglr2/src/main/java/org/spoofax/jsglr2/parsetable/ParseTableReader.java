@@ -56,7 +56,7 @@ public class ParseTableReader {
         Production[] productions = new Production[257 + productionsCount];
 
         for(IStrategoTerm numberedProductionTerm : productionsTermList) {
-            Production production = ProductionReader.read((IStrategoNamed) numberedProductionTerm);
+            Production production = ProductionReader.read(numberedProductionTerm);
 
             productions[production.productionNumber()] = production;
         }

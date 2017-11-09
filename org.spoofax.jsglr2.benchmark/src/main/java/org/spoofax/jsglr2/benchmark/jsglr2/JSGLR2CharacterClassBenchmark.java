@@ -102,6 +102,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
             return res;
         }
 
+        @Override
         public void execute(Blackhole bh) {
             for(ICharacters characterClass : list())
                 bh.consume(characterClass);
@@ -117,10 +118,12 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
         public Iterable<ICharacters> iterable() {
             return new Iterable<ICharacters>() {
+                @Override
                 public Iterator<ICharacters> iterator() {
                     return new Iterator<ICharacters>() {
                         int i = 0;
 
+                        @Override
                         public boolean hasNext() {
                             if(i < characterClasses.length) {
                                 if(characterClasses[i].containsCharacter(character))
@@ -135,6 +138,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
                             return false;
                         }
 
+                        @Override
                         public ICharacters next() {
                             return characterClasses[i++];
                         }
@@ -143,6 +147,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
             };
         }
 
+        @Override
         public void execute(Blackhole bh) {
             for(ICharacters characterClass : iterable())
                 bh.consume(characterClass);
@@ -156,6 +161,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
             super(characterClasses, character);
         }
 
+        @Override
         public void execute(Blackhole bh) {
             for(ICharacters characterClass : characterClasses) {
                 if(characterClass.containsCharacter(character))
@@ -170,6 +176,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
         public List<StateApplicableActions> stateApplicableActions = new ArrayList<StateApplicableActions>();
 
+        @Override
         public void actor(StackNode stack, int currentChar, Iterable<IAction> applicableActions) {
             ICharacters[] characterClasses = new ICharacters[stack.state.actions().length];
 

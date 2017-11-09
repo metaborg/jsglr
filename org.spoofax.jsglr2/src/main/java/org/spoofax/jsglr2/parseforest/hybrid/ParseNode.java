@@ -84,6 +84,7 @@ public class ParseNode extends HybridParseForest {
         return otherDerivations != null;
     }
 
+    @Override
     public String descriptor() {
         return production.descriptor();
     }

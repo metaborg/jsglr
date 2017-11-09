@@ -76,23 +76,28 @@ public class Tokens implements ITokens {
         return index;
     }
 
+    @Override
     public Iterator<IToken> iterator() {
         @SuppressWarnings("unchecked") Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
         return result;
     }
 
+    @Override
     public String getInput() {
         return input;
     }
 
+    @Override
     public int getTokenCount() {
         return tokens.size();
     }
 
+    @Override
     public IToken getTokenAt(int index) {
         return tokens.get(index);
     }
 
+    @Override
     public IToken getTokenAtOffset(int offset) {
         for(IToken token : tokens) {
             if(token.getStartOffset() == offset)
@@ -102,10 +107,12 @@ public class Tokens implements ITokens {
         return null;
     }
 
+    @Override
     public String getFilename() {
         return filename;
     }
 
+    @Override
     public String toString(IToken left, IToken right) {
         int startOffset = left.getStartOffset();
         int endOffset = right.getEndOffset();
@@ -116,14 +123,17 @@ public class Tokens implements ITokens {
             return "";
     }
 
+    @Override
     public String toString(int startOffset, int endOffset) {
         return input.substring(startOffset, endOffset + 1);
     }
 
+    @Override
     public boolean isAmbigous() {
         return false; // TODO: implement
     }
 
+    @Override
     public String toString() {
         return tokens.toString();
     }

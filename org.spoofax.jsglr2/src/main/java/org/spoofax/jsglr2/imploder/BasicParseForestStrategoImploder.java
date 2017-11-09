@@ -16,14 +16,17 @@ public class BasicParseForestStrategoImploder<StackNode extends AbstractStackNod
         super(new BasicParseForestTokenizer());
     }
 
+    @Override
     protected IProduction parseNodeProduction(SymbolNode symbolNode) {
         return symbolNode.production;
     }
 
+    @Override
     protected RuleNode parseNodeOnlyDerivation(SymbolNode symbolNode) {
         return symbolNode.getOnlyDerivation();
     }
 
+    @Override
     protected List<RuleNode> parseNodePreferredAvoidedDerivations(SymbolNode symbolNode) {
         return symbolNode.getPreferredAvoidedDerivations();
     }

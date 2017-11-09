@@ -53,6 +53,7 @@ public final class CharacterClassRangeSet implements ICharacters {
         }
     }
 
+    @Override
     public final boolean containsCharacter(int character) {
         if(useCachedBitSet) {
             final int wordIndex = character >> BITMAP_SEGMENT_SIZE;
@@ -123,6 +124,7 @@ public final class CharacterClassRangeSet implements ICharacters {
         return rangeSet.equals(that.rangeSet);
     }
 
+    @Override
     public String toString() {
         return rangeSet.toString();
     }

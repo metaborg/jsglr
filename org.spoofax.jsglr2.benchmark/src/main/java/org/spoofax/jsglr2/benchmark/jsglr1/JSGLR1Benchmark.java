@@ -40,6 +40,7 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
         jsglr1parse.setTreeBuilder(new NullTreeBuilder());
     }
 
+    @Override
     public IStrategoTerm getParseTableTerm() {
         return testSetReader.getParseTableTerm();
     }

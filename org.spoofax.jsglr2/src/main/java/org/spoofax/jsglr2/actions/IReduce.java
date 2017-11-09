@@ -5,6 +5,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public interface IReduce extends IAction {
 
+    @Override
     default ActionType actionType() {
         return ActionType.REDUCE;
     }

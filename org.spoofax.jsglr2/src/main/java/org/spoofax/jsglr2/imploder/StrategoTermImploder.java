@@ -17,6 +17,7 @@ public abstract class StrategoTermImploder<StackNode extends AbstractStackNode<P
         super(new TermTreeFactory(new TermFactory().getFactoryWithStorageType(MUTABLE)), tokenizer);
     }
 
+    @Override
     protected void tokenTreeBinding(IToken token, IStrategoTerm term) {
         token.setAstNode(term);
     }

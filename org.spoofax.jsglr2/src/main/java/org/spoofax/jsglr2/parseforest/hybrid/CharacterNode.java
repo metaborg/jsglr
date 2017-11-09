@@ -14,6 +14,7 @@ public class CharacterNode extends HybridParseForest {
         this.character = character;
     }
 
+    @Override
     public String descriptor() {
         return "'" + ICharacters.charToString(this.character) + "'";
     }

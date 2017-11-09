@@ -23,6 +23,7 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
         this.tokenizer = tokenizer;
     }
 
+    @Override
     public ImplodeResult<StackNode, ParseForest, Tree> implode(Parse<StackNode, ParseForest> parse,
         ParseForest parseForest) {
         Tokens tokens = new Tokens(parse.inputString, parse.filename);

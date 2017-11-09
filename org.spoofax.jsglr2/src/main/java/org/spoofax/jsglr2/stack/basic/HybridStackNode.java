@@ -17,6 +17,7 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
         super(stackNumber, state, position);
     }
 
+    @Override
     public Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {
         if(otherLinksOut == null) {
             return Collections.singleton(firstLinkOut);
@@ -25,6 +26,7 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
         }
     }
 
+    @Override
     public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>
         addOutLink(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link) {
         if(firstLinkOut == null)
@@ -39,6 +41,7 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
         return link;
     }
 
+    @Override
     public boolean allOutLinksRejected() {
         if(firstLinkOut == null || !firstLinkOut.isRejected())
             return false;

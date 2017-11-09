@@ -12,6 +12,7 @@ public class Shift extends Action implements IShift {
         this.shiftState = shiftState;
     }
 
+    @Override
     public int shiftState() {
         return shiftState;
     }

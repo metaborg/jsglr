@@ -10,10 +10,12 @@ public class Goto implements IGoto {
         this.gotoState = gotoState;
     }
 
+    @Override
     public int[] productions() {
         return productions;
     }
 
+    @Override
     public int gotoState() {
         return gotoState;
     }

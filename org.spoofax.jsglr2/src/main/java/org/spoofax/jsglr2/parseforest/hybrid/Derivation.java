@@ -16,10 +16,12 @@ public class Derivation implements IDerivation<HybridParseForest> {
         this.parseForests = parseForests;
     }
 
+    @Override
     public IProduction production() {
         return production;
     }
 
+    @Override
     public HybridParseForest[] parseForests() {
         return parseForests;
     }

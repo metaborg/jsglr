@@ -46,6 +46,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
                                      // only available after imploding
 
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
+            @Override
             public int compare(StackNode stackNode1, StackNode stackNode2) {
                 return 0; // TODO: implement priority (see P9707 Section 8.4)
             }

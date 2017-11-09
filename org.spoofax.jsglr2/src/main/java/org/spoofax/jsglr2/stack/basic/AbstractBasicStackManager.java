@@ -12,6 +12,7 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
 
     protected abstract StackNode createStackNode(int stackNumber, IState state, Position position);
 
+    @Override
     public AbstractBasicStackNode<ParseForest>
         createInitialStackNode(Parse<AbstractBasicStackNode<ParseForest>, ParseForest> parse, IState state) {
         AbstractBasicStackNode<ParseForest> newStackNode =
@@ -22,6 +23,7 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
         return newStackNode;
     }
 
+    @Override
     public AbstractBasicStackNode<ParseForest>
         createStackNode(Parse<AbstractBasicStackNode<ParseForest>, ParseForest> parse, IState state) {
         AbstractBasicStackNode<ParseForest> newStackNode =
@@ -32,6 +34,7 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
         return newStackNode;
     }
 
+    @Override
     public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> createStackLink(
         Parse<AbstractBasicStackNode<ParseForest>, ParseForest> parse, AbstractBasicStackNode<ParseForest> from,
         AbstractBasicStackNode<ParseForest> to, ParseForest parseNode) {
@@ -43,6 +46,7 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
         return link;
     }
 
+    @Override
     protected Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>>
         stackLinksOut(AbstractBasicStackNode<ParseForest> stack) {
         return stack.getLinksOut();

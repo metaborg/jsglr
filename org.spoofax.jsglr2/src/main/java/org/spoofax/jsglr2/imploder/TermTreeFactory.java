@@ -18,6 +18,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         this.termFactory = termFactory;
     }
 
+    @Override
     public IStrategoTerm createStringTerminal(String sort, String value, IToken leftToken, IToken rightToken) {
         IStrategoTerm stringTerminalTerm = termFactory.makeString(value);
 
@@ -26,6 +27,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return stringTerminalTerm;
     }
 
+    @Override
     public IStrategoTerm createNonTerminal(String sort, String constructor, List<IStrategoTerm> childASTs,
         IToken leftToken, IToken rightToken) {
         IStrategoConstructor constructorTerm =
@@ -37,6 +39,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return nonTerminalTerm;
     }
 
+    @Override
     public IStrategoTerm createList(String sort, List<IStrategoTerm> children, IToken leftToken, IToken rightToken) {
         IStrategoTerm listTerm = termFactory.makeList(toArray(children));
 
@@ -45,6 +48,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return listTerm;
     }
 
+    @Override
     public IStrategoTerm createOptional(String sort, List<IStrategoTerm> children, IToken leftToken,
         IToken rightToken) {
         String constructor = children == null || children.isEmpty() ? "None" : "Some";
@@ -52,6 +56,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return createNonTerminal(sort, constructor, children, leftToken, rightToken);
     }
 
+    @Override
     public IStrategoTerm createTuple(String sort, List<IStrategoTerm> children, IToken leftToken, IToken rightToken) {
         IStrategoTerm tupleTerm = termFactory.makeTuple(toArray(children));
 
@@ -60,6 +65,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return tupleTerm;
     }
 
+    @Override
     public IStrategoTerm createAmb(String sort, List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
         IStrategoTerm alternativesListTerm = createList(null, alternatives, leftToken, rightToken);
 

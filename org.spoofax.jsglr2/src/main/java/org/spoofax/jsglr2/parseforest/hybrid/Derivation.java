@@ -9,7 +9,7 @@ public class Derivation implements IDerivation<HybridParseForest> {
     public final IProduction production;
     public final ProductionType productionType;
     public final HybridParseForest[] parseForests;
-    
+
     public Derivation(IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         this.production = production;
         this.productionType = productionType;
@@ -19,9 +19,9 @@ public class Derivation implements IDerivation<HybridParseForest> {
     public IProduction production() {
         return production;
     }
-    
+
     public HybridParseForest[] parseForests() {
         return parseForests;
     }
-    
+
 }

@@ -11,15 +11,15 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public class JSGLR2Java8CharacterClassBenchmark extends JSGLR2CharacterClassBenchmark {
-    
+
     public JSGLR2Java8CharacterClassBenchmark() {
         super(TestSet.java8);
     }
 
-	public static void main(String[] args) throws RunnerException {
-		System.out.println(JSGLR2Java8CharacterClassBenchmark.class.getSimpleName());
+    public static void main(String[] args) throws RunnerException {
+        System.out.println(JSGLR2Java8CharacterClassBenchmark.class.getSimpleName());
 
-		// @formatter:off
+        // @formatter:off
 		Options opt = new OptionsBuilder()
 				.include(".*" + JSGLR2Java8CharacterClassBenchmark.class.getSimpleName() + ".(.*)")
 				.timeUnit(TimeUnit.NANOSECONDS)
@@ -33,7 +33,7 @@ public class JSGLR2Java8CharacterClassBenchmark extends JSGLR2CharacterClassBenc
 				.build();
 		// @formatter:on
 
-		new Runner(opt).run();
-	}
-    
+        new Runner(opt).run();
+    }
+
 }

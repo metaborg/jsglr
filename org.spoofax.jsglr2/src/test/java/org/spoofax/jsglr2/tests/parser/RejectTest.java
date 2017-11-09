@@ -11,24 +11,22 @@ import org.spoofax.jsglr2.util.WithGrammar;
 import org.spoofax.terms.ParseError;
 
 public class RejectTest extends BaseTest implements WithGrammar {
-	
-	public RejectTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-	    setupParseTableFromDefFile("reject");
-	}
-	
-	@Test
-	public void testReject() throws ParseError, ParseTableReadException, IOException {
-		testParseFailure("foo");
-	}
-	
-	@Test
-	public void testNestedReject() throws ParseError, ParseTableReadException, IOException {
-		testParseFailure("bar");
-	}
-	
-	@Test
-	public void testNonReject() throws ParseError, ParseTableReadException, IOException {
-		testSuccessByAstString("baz", "Id(\"baz\")");
-	}
-  
+
+    public RejectTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("reject");
+    }
+
+    @Test public void testReject() throws ParseError, ParseTableReadException, IOException {
+        testParseFailure("foo");
+    }
+
+    @Test public void testNestedReject() throws ParseError, ParseTableReadException, IOException {
+        testParseFailure("bar");
+    }
+
+    @Test public void testNonReject() throws ParseError, ParseTableReadException, IOException {
+        testSuccessByAstString("baz", "Id(\"baz\")");
+    }
+
 }

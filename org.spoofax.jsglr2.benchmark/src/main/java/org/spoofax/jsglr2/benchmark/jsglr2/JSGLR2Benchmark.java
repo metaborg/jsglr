@@ -23,49 +23,46 @@ import java.net.URISyntaxException;
 
 public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
-	protected IParser<?, ?> parser; // Just parsing
+    protected IParser<?, ?> parser; // Just parsing
     protected JSGLR2<?, ?, ?> jsglr2; // Parsing and imploding (including tokenization)
 
     protected JSGLR2Benchmark(TestSet testSet) {
-		super(testSet);
-	}
-    
-    @Param({"false", "true"})
-    public boolean implode;
-    
-    @Param({"Null", "Basic", "Hybrid"})
-    public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
-    
-    @Param({"Full", "Optimized"})
-    public JSGLR2Variants.ParseForestConstruction parseForestConstruction;
-    
-    @Param({"Basic", "Hybrid", "BasicElkhound", "HybridElkhound"})
-    public JSGLR2Variants.StackRepresentation stackRepresentation;
-    
-    @Param({"Basic", "Elkhound"})
-    public JSGLR2Variants.Reducing reducing;
-    
-    @Setup
-    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-        IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
-
-        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
-        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
+        super(testSet);
     }
 
-    @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
-        if (implode) {
-            if (parseForestRepresentation == JSGLR2Variants.ParseForestRepresentation.Null) {
+    @Param({ "false", "true" }) public boolean implode;
+
+    @Param({ "Null", "Basic", "Hybrid" }) public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
+
+    @Param({ "Full", "Optimized" }) public JSGLR2Variants.ParseForestConstruction parseForestConstruction;
+
+    @Param({ "Basic", "Hybrid", "BasicElkhound",
+        "HybridElkhound" }) public JSGLR2Variants.StackRepresentation stackRepresentation;
+
+    @Param({ "Basic", "Elkhound" }) public JSGLR2Variants.Reducing reducing;
+
+    @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
+        InvalidParseTableException, InterruptedException, URISyntaxException {
+        IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
+
+        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, parseForestConstruction,
+            stackRepresentation, reducing);
+        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, parseForestConstruction,
+            stackRepresentation, reducing);
+    }
+
+    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+        if(implode) {
+            if(parseForestRepresentation == JSGLR2Variants.ParseForestRepresentation.Null) {
                 throw new IllegalStateException("imploding requires a parse forest");
             }
 
-            for (Input input : inputs) {
+            for(Input input : inputs) {
                 final Object result = jsglr2.parseUnsafe(input.content, input.filename, null);
                 bh.consume(result);
             }
         } else {
-            for (Input input : inputs) {
+            for(Input input : inputs) {
                 final AbstractParseForest forest = parser.parseUnsafe(input.content, input.filename, null);
                 bh.consume(forest);
             }

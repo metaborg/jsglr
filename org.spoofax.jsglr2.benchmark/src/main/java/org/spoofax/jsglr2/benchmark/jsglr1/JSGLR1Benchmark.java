@@ -24,36 +24,35 @@ import org.spoofax.terms.ParseError;
 public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR1 {
 
     protected SGLR jsglr1parse;
-	protected SGLR jsglr1parseAndImplode;
-    
+    protected SGLR jsglr1parseAndImplode;
+
     protected JSGLR1Benchmark(TestSet testSet) {
-		super(testSet);
-	}
-    
-    @Param({"false", "true"})
-    public boolean implode;
-    
-    @Setup
-    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-    		jsglr1parseAndImplode = getJSGLR1();
-        
+        super(testSet);
+    }
+
+    @Param({ "false", "true" }) public boolean implode;
+
+    @Setup public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        jsglr1parseAndImplode = getJSGLR1();
+
         jsglr1parse = getJSGLR1();
         jsglr1parse.setTreeBuilder(new NullTreeBuilder());
     }
-    
+
     public IStrategoTerm getParseTableTerm() {
-    		return testSetReader.getParseTableTerm();
+        return testSetReader.getParseTableTerm();
     }
-    
-    @Benchmark
-    public void jsglr1default(Blackhole bh) throws ParseTableReadException, TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
-    		if (implode) { 
-    			for (Input input : inputs)
-    	            bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));
-		} else {
-			for (Input input : inputs)
-	            bh.consume(jsglr1parse.parse(input.content, null, null));
-		}
+
+    @Benchmark public void jsglr1default(Blackhole bh) throws ParseTableReadException, TokenExpectedException,
+        BadTokenException, ParseException, SGLRException, InterruptedException {
+        if(implode) {
+            for(Input input : inputs)
+                bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));
+        } else {
+            for(Input input : inputs)
+                bh.consume(jsglr1parse.parse(input.content, null, null));
+        }
     }
 
 }

@@ -18,20 +18,17 @@ public class JSGLR2Java8Benchmark extends JSGLR2Benchmark {
 
     public static void main(String[] args) throws RunnerException {
         /*
-            @Param({"false", "true"})
-            public boolean implode;
-
-            @Param({"Null", "Basic", "Hybrid"})
-            public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
-
-            @Param({"Full", "Optimized"})
-            public JSGLR2Variants.ParseForestConstruction parseForestConstruction;
-
-            @Param({"Basic", "Hybrid", "BasicElkhound", "HybridElkhound"})
-            public JSGLR2Variants.StackRepresentation stackRepresentation;
-
-            @Param({"Basic", "Elkhound"})
-            public JSGLR2Variants.Reducing reducing;
+         * @Param({"false", "true"}) public boolean implode;
+         * 
+         * @Param({"Null", "Basic", "Hybrid"}) public JSGLR2Variants.ParseForestRepresentation
+         * parseForestRepresentation;
+         * 
+         * @Param({"Full", "Optimized"}) public JSGLR2Variants.ParseForestConstruction parseForestConstruction;
+         * 
+         * @Param({"Basic", "Hybrid", "BasicElkhound", "HybridElkhound"}) public JSGLR2Variants.StackRepresentation
+         * stackRepresentation;
+         * 
+         * @Param({"Basic", "Elkhound"}) public JSGLR2Variants.Reducing reducing;
          */
 
         // @formatter:off

@@ -12,45 +12,46 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
 
     private StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> firstLinkOut;
     private ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> otherLinksOut;
-	
-	public HybridStackNode(int stackNumber, IState state, Position position) {
-		super(stackNumber, state, position);
-	}
 
-	public Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {
-		if (otherLinksOut == null) {
-			return Collections.singleton(firstLinkOut);
-		} else {
-			return SingleElementWithListIterable.of(firstLinkOut, otherLinksOut);
-		}
-	}
+    public HybridStackNode(int stackNumber, IState state, Position position) {
+        super(stackNumber, state, position);
+    }
 
-    public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link) {
-    		if (firstLinkOut == null)
-    			firstLinkOut = link;
-		else {
-			if (otherLinksOut == null)
-				otherLinksOut = new ArrayList<>();
-			
-			otherLinksOut.add(link);
-		}
-        
+    public Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {
+        if(otherLinksOut == null) {
+            return Collections.singleton(firstLinkOut);
+        } else {
+            return SingleElementWithListIterable.of(firstLinkOut, otherLinksOut);
+        }
+    }
+
+    public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>
+        addOutLink(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link) {
+        if(firstLinkOut == null)
+            firstLinkOut = link;
+        else {
+            if(otherLinksOut == null)
+                otherLinksOut = new ArrayList<>();
+
+            otherLinksOut.add(link);
+        }
+
         return link;
     }
-	
-	public boolean allOutLinksRejected() {
-        if (firstLinkOut == null || !firstLinkOut.isRejected())
+
+    public boolean allOutLinksRejected() {
+        if(firstLinkOut == null || !firstLinkOut.isRejected())
             return false;
-        		
-    		if (otherLinksOut == null)
-    			return true;
-    		
-        for (StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link : otherLinksOut) {
-            if (!link.isRejected())
+
+        if(otherLinksOut == null)
+            return true;
+
+        for(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link : otherLinksOut) {
+            if(!link.isRejected())
                 return false;
         }
-        
+
         return true;
     }
-	
+
 }

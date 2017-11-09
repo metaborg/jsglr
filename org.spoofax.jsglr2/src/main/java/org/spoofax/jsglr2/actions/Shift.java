@@ -4,16 +4,16 @@ import org.spoofax.jsglr2.characters.ICharacters;
 
 public class Shift extends Action implements IShift {
 
-	private final int shiftState;
-	
-	public Shift(ICharacters characters, int shiftState) {
-		super(characters);
-		
-		this.shiftState = shiftState;
-	}
-	
-	public int shiftState() {
-	    return shiftState;
-	}
-	
+    private final int shiftState;
+
+    public Shift(ICharacters characters, int shiftState) {
+        super(characters);
+
+        this.shiftState = shiftState;
+    }
+
+    public int shiftState() {
+        return shiftState;
+    }
+
 }

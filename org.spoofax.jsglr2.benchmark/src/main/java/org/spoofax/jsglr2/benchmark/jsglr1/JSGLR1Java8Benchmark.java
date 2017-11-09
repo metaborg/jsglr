@@ -11,15 +11,14 @@ import org.spoofax.jsglr2.testset.TestSet;
 import java.util.concurrent.TimeUnit;
 
 public class JSGLR1Java8Benchmark extends JSGLR1Benchmark {
-    
+
     public JSGLR1Java8Benchmark() {
         super(TestSet.java8);
     }
 
     public static void main(String[] args) throws RunnerException {
         /*
-            @Param({"false", "true"})
-            public boolean implode;
+         * @Param({"false", "true"}) public boolean implode;
          */
 
         // @formatter:off

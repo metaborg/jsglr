@@ -4,14 +4,14 @@ import org.spoofax.jsglr2.characters.ICharacters;
 
 public abstract class Action implements IAction {
 
-	private final ICharacters characters;
-	
-	public Action(ICharacters characters) {
-		this.characters = characters;
-	}
-    
+    private final ICharacters characters;
+
+    public Action(ICharacters characters) {
+        this.characters = characters;
+    }
+
     public ICharacters characters() {
         return characters;
     }
-	
+
 }

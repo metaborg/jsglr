@@ -10,12 +10,12 @@ public interface IState {
 
     int stateNumber();
 
-	IAction[] actions();
-    
+    IAction[] actions();
+
     boolean isRejectable();
-    
+
     Iterable<IAction> applicableActions(int character);
-    
+
     Iterable<IReduce> applicableReduceActions(Parse parse);
 
     Optional<Integer> getGotoId(int productionId);

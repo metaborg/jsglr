@@ -12,19 +12,18 @@ import org.spoofax.jsglr2.util.WithJSGLR1;
 import org.spoofax.terms.ParseError;
 
 public class OptionalsTest extends BaseTest implements WithGrammar {
-	
-	public OptionalsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-		setupParseTableFromDefFile("optionals");
-	}
 
-    @Test
-    public void testEmpty() throws ParseError, ParseTableReadException, IOException {
+    public OptionalsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("optionals");
+    }
+
+    @Test public void testEmpty() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("", "None");
     }
-    
-    @Test
-    public void testSingleX() throws ParseError, ParseTableReadException, IOException {
+
+    @Test public void testSingleX() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("X", "Some(X)");
     }
-  
+
 }

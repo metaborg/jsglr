@@ -11,14 +11,14 @@ import org.spoofax.jsglr2.util.WithGrammar;
 import org.spoofax.terms.ParseError;
 
 public class KernelTest extends BaseTestWithJSGLR1 implements WithGrammar {
-	
-	public KernelTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-	    setupParseTableFromDefFile("kernel");
-	}
-    
-    @Test
-    public void oneX() throws ParseError, ParseTableReadException, IOException {
+
+    public KernelTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("kernel");
+    }
+
+    @Test public void oneX() throws ParseError, ParseTableReadException, IOException {
         // testParseSuccessByJSGLR("\"x\""); TODO: implement kernel constructors
     }
-  
+
 }

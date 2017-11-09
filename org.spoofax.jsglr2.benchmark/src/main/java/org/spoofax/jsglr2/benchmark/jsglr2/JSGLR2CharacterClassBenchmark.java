@@ -33,180 +33,176 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
-	IParser<?, ?> parser;
-	ActorObserver actorObserver;
+    IParser<?, ?> parser;
+    ActorObserver actorObserver;
 
-	protected JSGLR2CharacterClassBenchmark(TestSet testSet) {
-		super(testSet);
-	}
-
-	public enum CharacterClassRepresentation {
-		Bitset
-    }
-	public enum ApplicableActionsRepresentation {
-		List, Iterable, ForLoop
+    protected JSGLR2CharacterClassBenchmark(TestSet testSet) {
+        super(testSet);
     }
 
-	@Param
-    public CharacterClassRepresentation characterClassRepresentation;
+    public enum CharacterClassRepresentation {
+        Bitset
+    }
 
-	@Param
-    public ApplicableActionsRepresentation applicableActionsRepresentation;
+    public enum ApplicableActionsRepresentation {
+        List, Iterable, ForLoop
+    }
 
-	@Setup
-    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-		IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
+    @Param public CharacterClassRepresentation characterClassRepresentation;
 
-        parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
+    @Param public ApplicableActionsRepresentation applicableActionsRepresentation;
 
-		actorObserver = new ActorObserver();
+    @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
+        InvalidParseTableException, InterruptedException, URISyntaxException {
+        IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
 
-		parser.attachObserver(actorObserver);
+        parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
+            StackRepresentation.Basic, Reducing.Basic);
 
-		try {
-			for (Input input : inputs)
-				parser.parseUnsafe(
-				    input.content,
-				    input.filename,
-	                null
-				);
-		} catch (ParseException e) {
-			throw new IllegalStateException("setup of benchmark should not fail");
-		}
-	}
+        actorObserver = new ActorObserver();
 
-	abstract class StateApplicableActions {
+        parser.attachObserver(actorObserver);
 
-		final ICharacters[] characterClasses; // Represent the character classes of the actions in the state
-		final int character;
+        try {
+            for(Input input : inputs)
+                parser.parseUnsafe(input.content, input.filename, null);
+        } catch(ParseException e) {
+            throw new IllegalStateException("setup of benchmark should not fail");
+        }
+    }
 
-		protected StateApplicableActions(ICharacters[] characterClasses, int character) {
-			this.characterClasses = characterClasses;
-			this.character = character;
-		}
+    abstract class StateApplicableActions {
 
-		abstract public void execute(Blackhole bh);
+        final ICharacters[] characterClasses; // Represent the character classes of the actions in the state
+        final int character;
 
-	}
+        protected StateApplicableActions(ICharacters[] characterClasses, int character) {
+            this.characterClasses = characterClasses;
+            this.character = character;
+        }
 
-	class StateApplicableActionsList extends StateApplicableActions {
+        abstract public void execute(Blackhole bh);
 
-		public StateApplicableActionsList(ICharacters[] characterClasses, int character) {
-			super(characterClasses, character);
-		}
+    }
 
-		private Iterable<ICharacters> list() {
-			List<ICharacters> res = new ArrayList<ICharacters>();
+    class StateApplicableActionsList extends StateApplicableActions {
 
-			for (ICharacters characterClass : characterClasses) {
-				if (characterClass.containsCharacter(character))
-					res.add(characterClass);
-			}
+        public StateApplicableActionsList(ICharacters[] characterClasses, int character) {
+            super(characterClasses, character);
+        }
 
-			return res;
-		}
+        private Iterable<ICharacters> list() {
+            List<ICharacters> res = new ArrayList<ICharacters>();
 
-		public void execute(Blackhole bh) {
-			for (ICharacters characterClass : list())
-				bh.consume(characterClass);
-		}
+            for(ICharacters characterClass : characterClasses) {
+                if(characterClass.containsCharacter(character))
+                    res.add(characterClass);
+            }
 
-	}
+            return res;
+        }
 
-	class StateApplicableActionsIterable extends StateApplicableActions {
+        public void execute(Blackhole bh) {
+            for(ICharacters characterClass : list())
+                bh.consume(characterClass);
+        }
 
-		public StateApplicableActionsIterable(ICharacters[] characterClasses, int character) {
-			super(characterClasses, character);
-		}
+    }
 
-		public Iterable<ICharacters> iterable() {
-			return new Iterable<ICharacters>() {
-				public Iterator<ICharacters> iterator() {
-					return new Iterator<ICharacters>() {
-						int i = 0;
+    class StateApplicableActionsIterable extends StateApplicableActions {
 
-						public boolean hasNext() {
-							if (i < characterClasses.length) {
-								if (characterClasses[i].containsCharacter(character))
-									return true;
-								else {
-									i++;
+        public StateApplicableActionsIterable(ICharacters[] characterClasses, int character) {
+            super(characterClasses, character);
+        }
 
-									return hasNext();
-								}
-							}
+        public Iterable<ICharacters> iterable() {
+            return new Iterable<ICharacters>() {
+                public Iterator<ICharacters> iterator() {
+                    return new Iterator<ICharacters>() {
+                        int i = 0;
 
-							return false;
-						}
+                        public boolean hasNext() {
+                            if(i < characterClasses.length) {
+                                if(characterClasses[i].containsCharacter(character))
+                                    return true;
+                                else {
+                                    i++;
 
-						public ICharacters next() {
-							return characterClasses[i++];
-						}
-					};
-				}
-			};
-		}
+                                    return hasNext();
+                                }
+                            }
 
-		public void execute(Blackhole bh) {
-			for (ICharacters characterClass : iterable())
-				bh.consume(characterClass);
-		}
+                            return false;
+                        }
 
-	}
+                        public ICharacters next() {
+                            return characterClasses[i++];
+                        }
+                    };
+                }
+            };
+        }
 
-	class StateApplicableActionsForLoop extends StateApplicableActions {
+        public void execute(Blackhole bh) {
+            for(ICharacters characterClass : iterable())
+                bh.consume(characterClass);
+        }
 
-		public StateApplicableActionsForLoop(ICharacters[] characterClasses, int character) {
-			super(characterClasses, character);
-		}
+    }
 
-		public void execute(Blackhole bh) {
-			for (ICharacters characterClass : characterClasses) {
-				if (characterClass.containsCharacter(character))
-					bh.consume(characterClass);
-			}
-		}
+    class StateApplicableActionsForLoop extends StateApplicableActions {
 
-	}
+        public StateApplicableActionsForLoop(ICharacters[] characterClasses, int character) {
+            super(characterClasses, character);
+        }
 
-	class ActorObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> extends BenchmarkParserObserver<StackNode, ParseForest> {
+        public void execute(Blackhole bh) {
+            for(ICharacters characterClass : characterClasses) {
+                if(characterClass.containsCharacter(character))
+                    bh.consume(characterClass);
+            }
+        }
 
-		public List<StateApplicableActions> stateApplicableActions = new ArrayList<StateApplicableActions>();
+    }
 
-		public void actor(StackNode stack, int currentChar, Iterable<IAction> applicableActions) {
-			ICharacters[] characterClasses = new ICharacters[stack.state.actions().length];
+    class ActorObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
+        extends BenchmarkParserObserver<StackNode, ParseForest> {
 
-			for (int i = 0; i < stack.state.actions().length; i++) {
-				ICharacters characterClass = stack.state.actions()[i].characters();
-				characterClasses[i] = characterClass;
-			}
+        public List<StateApplicableActions> stateApplicableActions = new ArrayList<StateApplicableActions>();
 
-			StateApplicableActions stateApplicableActionsForActor;
+        public void actor(StackNode stack, int currentChar, Iterable<IAction> applicableActions) {
+            ICharacters[] characterClasses = new ICharacters[stack.state.actions().length];
 
-			switch (applicableActionsRepresentation) {
-				case List:
-					stateApplicableActionsForActor = new StateApplicableActionsList(characterClasses, currentChar);
-					break;
-				case Iterable:
-					stateApplicableActionsForActor = new StateApplicableActionsIterable(characterClasses, currentChar);
-					break;
-				case ForLoop:
-					stateApplicableActionsForActor = new StateApplicableActionsForLoop(characterClasses, currentChar);
-					break;
-				default:
-					stateApplicableActionsForActor = null;
-					break;
-			}
+            for(int i = 0; i < stack.state.actions().length; i++) {
+                ICharacters characterClass = stack.state.actions()[i].characters();
+                characterClasses[i] = characterClass;
+            }
 
-			stateApplicableActions.add(stateApplicableActionsForActor);
-		}
+            StateApplicableActions stateApplicableActionsForActor;
 
-	}
+            switch(applicableActionsRepresentation) {
+                case List:
+                    stateApplicableActionsForActor = new StateApplicableActionsList(characterClasses, currentChar);
+                    break;
+                case Iterable:
+                    stateApplicableActionsForActor = new StateApplicableActionsIterable(characterClasses, currentChar);
+                    break;
+                case ForLoop:
+                    stateApplicableActionsForActor = new StateApplicableActionsForLoop(characterClasses, currentChar);
+                    break;
+                default:
+                    stateApplicableActionsForActor = null;
+                    break;
+            }
 
-	@Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
-		for (StateApplicableActions stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
-			stateApplicableActions.execute(bh);
+            stateApplicableActions.add(stateApplicableActionsForActor);
+        }
+
+    }
+
+    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+        for(StateApplicableActions stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
+            stateApplicableActions.execute(bh);
     }
 
 }

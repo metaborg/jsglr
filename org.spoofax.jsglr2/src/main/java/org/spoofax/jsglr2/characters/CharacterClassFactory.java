@@ -7,39 +7,37 @@ import com.google.common.collect.TreeRangeSet;
 
 public class CharacterClassFactory implements ICharacterClassFactory<CharacterClassRangeSet> {
 
-  public static final CharacterClassFactory INSTANCE = new CharacterClassFactory();
+    public static final CharacterClassFactory INSTANCE = new CharacterClassFactory();
 
-  private CharacterClassFactory() {
-  }
-
-  public CharacterClassRangeSet fromEmpty() {
-    return CharacterClassRangeSet.EMPTY_CONSTANT;
-  }
-
-  public CharacterClassRangeSet fromSingle(int character) {
-    return CharacterClassRangeSet.EMPTY_CONSTANT
-        .update(rangeSet -> rangeSet.add(Range.singleton(character)));
-  }
-
-  public CharacterClassRangeSet fromRange(int from, int to) {
-    return CharacterClassRangeSet.EMPTY_CONSTANT
-        .update(rangeSet -> rangeSet.add(Range.closed(from, to)));
-  }
-
-  public CharacterClassRangeSet union(ICharacters a, ICharacters b) {
-    if (!(a instanceof CharacterClassRangeSet && b instanceof CharacterClassRangeSet)) {
-      throw new IllegalArgumentException(
-          String.format("Expected arguments of type %s", CharacterClassRangeSet.class));
+    private CharacterClassFactory() {
     }
 
-    final CharacterClassRangeSet one = (CharacterClassRangeSet) a;
-    final CharacterClassRangeSet two = (CharacterClassRangeSet) b;
+    public CharacterClassRangeSet fromEmpty() {
+        return CharacterClassRangeSet.EMPTY_CONSTANT;
+    }
 
-    RangeSet<Integer> mutableRangeSet = TreeRangeSet.create();
-    mutableRangeSet.addAll(one.rangeSet);
-    mutableRangeSet.addAll(two.rangeSet);
+    public CharacterClassRangeSet fromSingle(int character) {
+        return CharacterClassRangeSet.EMPTY_CONSTANT.update(rangeSet -> rangeSet.add(Range.singleton(character)));
+    }
 
-    return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet));
-  }
+    public CharacterClassRangeSet fromRange(int from, int to) {
+        return CharacterClassRangeSet.EMPTY_CONSTANT.update(rangeSet -> rangeSet.add(Range.closed(from, to)));
+    }
+
+    public CharacterClassRangeSet union(ICharacters a, ICharacters b) {
+        if(!(a instanceof CharacterClassRangeSet && b instanceof CharacterClassRangeSet)) {
+            throw new IllegalArgumentException(
+                String.format("Expected arguments of type %s", CharacterClassRangeSet.class));
+        }
+
+        final CharacterClassRangeSet one = (CharacterClassRangeSet) a;
+        final CharacterClassRangeSet two = (CharacterClassRangeSet) b;
+
+        RangeSet<Integer> mutableRangeSet = TreeRangeSet.create();
+        mutableRangeSet.addAll(one.rangeSet);
+        mutableRangeSet.addAll(two.rangeSet);
+
+        return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet));
+    }
 
 }

@@ -9,24 +9,24 @@ package org.spoofax.jsglr2.characters;
  */
 public interface ICharacters {
 
-  int EOF = 256;
+    int EOF = 256;
 
-  static CharacterClassFactory factory() {
-    return CharacterClassFactory.INSTANCE;
-  }
-
-  boolean containsCharacter(int character);
-
-  static String charToString(int character) {
-    if (character == EOF) {
-      return "EOF";
-    } else {
-      return String.valueOf(character);
+    static CharacterClassFactory factory() {
+        return CharacterClassFactory.INSTANCE;
     }
-  }
 
-  static boolean isNewLine(int character) {
-    return character != EOF && (char) character == '\n';
-  }
+    boolean containsCharacter(int character);
+
+    static String charToString(int character) {
+        if(character == EOF) {
+            return "EOF";
+        } else {
+            return String.valueOf(character);
+        }
+    }
+
+    static boolean isNewLine(int character) {
+        return character != EOF && (char) character == '\n';
+    }
 
 }

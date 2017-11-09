@@ -7,30 +7,31 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class ReduceLookahead extends Reduce implements IReduceLookahead {
 
-	private final ICharacters[] followRestriction;
-	
-	public ReduceLookahead(ICharacters characters, IProduction production, ProductionType productionType, int arity, ICharacters[] followRestriction) {
-		super(characters, production, productionType, arity);
+    private final ICharacters[] followRestriction;
 
-		this.followRestriction = followRestriction;
-	}
-    
+    public ReduceLookahead(ICharacters characters, IProduction production, ProductionType productionType, int arity,
+        ICharacters[] followRestriction) {
+        super(characters, production, productionType, arity);
+
+        this.followRestriction = followRestriction;
+    }
+
     public boolean allowsLookahead(String lookahead) {
-        if (lookahead.length() != followRestriction.length)
+        if(lookahead.length() != followRestriction.length)
             return true;
-        
-        for (int i = 0; i < followRestriction.length; i++) {
-            if (!followRestriction[i].containsCharacter(lookahead.charAt(i)))
+
+        for(int i = 0; i < followRestriction.length; i++) {
+            if(!followRestriction[i].containsCharacter(lookahead.charAt(i)))
                 return true;
         }
-        
+
         return false;
     }
-    
+
     public boolean allowsLookahead(Parse parse) {
         String lookahead = parse.getLookahead(followRestriction.length);
-        
+
         return allowsLookahead(lookahead);
     }
-	
+
 }

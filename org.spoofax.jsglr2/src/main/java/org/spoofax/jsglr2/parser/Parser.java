@@ -63,7 +63,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
                 parse.next();
             }
 
-            if (!parse.activeStacks.isEmpty())
+            if(!parse.activeStacks.isEmpty())
                 parseEOF(parse);
 
             ParseResult<StackNode, ParseForest, ?> result;
@@ -153,7 +153,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         StateApplicableActions stateApplicableActions) {
         Iterable<IAction> applicableActions = stateApplicableActions.get(stack.state);
 
-        notify(observer -> observer.actor(stack, parse.currentChar, applicableActions));
+        notify(observer -> observer.actor(stack, parse, applicableActions));
 
         for(IAction action : applicableActions)
             switch(action.actionType()) {

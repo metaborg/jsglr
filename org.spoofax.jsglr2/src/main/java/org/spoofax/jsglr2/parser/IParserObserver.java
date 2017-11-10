@@ -27,7 +27,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
     public void forActorStacks(Queue<StackNode> forActor, Queue<StackNode> forActorDelayed);
 
-    public void actor(StackNode stack, int currentChar, Iterable<IAction> applicableActions);
+    public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions);
 
     public void skipRejectedStack(StackNode stack);
 

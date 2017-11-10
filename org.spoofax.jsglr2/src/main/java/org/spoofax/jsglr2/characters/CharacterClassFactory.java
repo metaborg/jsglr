@@ -1,47 +1,57 @@
 package org.spoofax.jsglr2.characters;
 
-import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
-import com.google.common.collect.TreeRangeSet;
 
-public class CharacterClassFactory implements ICharacterClassFactory<CharacterClassRangeSet> {
+public class CharacterClassFactory implements ICharacterClassFactory {
 
     public static final CharacterClassFactory INSTANCE = new CharacterClassFactory();
 
     private CharacterClassFactory() {
     }
 
-    @Override
-    public CharacterClassRangeSet fromEmpty() {
+    @Override public ICharacters fromEmpty() {
         return CharacterClassRangeSet.EMPTY_CONSTANT;
     }
 
-    @Override
-    public CharacterClassRangeSet fromSingle(int character) {
-        return CharacterClassRangeSet.EMPTY_CONSTANT.update(rangeSet -> rangeSet.add(Range.singleton(character)));
+    @Override public ICharacters fromEOF() {
+        return CharactersEOF.INSTANCE;
     }
 
-    @Override
-    public CharacterClassRangeSet fromRange(int from, int to) {
-        return CharacterClassRangeSet.EMPTY_CONSTANT.update(rangeSet -> rangeSet.add(Range.closed(from, to)));
+    @Override public ICharacters fromSingle(int character) {
+        return new CharactersSingle(character);
     }
 
-    @Override
-    public CharacterClassRangeSet union(ICharacters a, ICharacters b) {
-        if(!(a instanceof CharacterClassRangeSet && b instanceof CharacterClassRangeSet)) {
-            throw new IllegalArgumentException(
-                String.format("Expected arguments of type %s", CharacterClassRangeSet.class));
+    @Override public ICharacters fromRange(int from, int to) {
+        return CharacterClassRangeSet.EMPTY_CONSTANT
+            .updateRangeSet(rangeSet -> rangeSet.add(Range.closed((byte) (from - 128), (byte) (to - 128))));
+    }
+
+    @Override public ICharacters union(ICharacters a, ICharacters b) {
+        boolean aIsRangeSet = a instanceof CharacterClassRangeSet;
+        boolean bIsRangeSet = b instanceof CharacterClassRangeSet;
+
+        if(aIsRangeSet || bIsRangeSet) {
+            CharacterClassRangeSet rangeSet;
+            ICharacters other;
+
+            if(aIsRangeSet) {
+                rangeSet = (CharacterClassRangeSet) a;
+                other = b;
+            } else {
+                rangeSet = (CharacterClassRangeSet) b;
+                other = a;
+            }
+
+            return other.rangeSetUnion(rangeSet);
+        } else {
+            CharacterClassRangeSet result = CharacterClassRangeSet.EMPTY_CONSTANT;
+
+            result = a.rangeSetUnion(result);
+            result = b.rangeSetUnion(result);
+
+            return result;
         }
-
-        final CharacterClassRangeSet one = (CharacterClassRangeSet) a;
-        final CharacterClassRangeSet two = (CharacterClassRangeSet) b;
-
-        RangeSet<Integer> mutableRangeSet = TreeRangeSet.create();
-        mutableRangeSet.addAll(one.rangeSet);
-        mutableRangeSet.addAll(two.rangeSet);
-
-        return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet));
     }
+
 
 }

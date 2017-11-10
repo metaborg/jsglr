@@ -1,16 +1,9 @@
 package org.spoofax.jsglr2.parsetable;
 
-import io.usethesource.capsule.Set;
-import io.usethesource.capsule.util.stream.CapsuleCollectors;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoNamed;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.actions.*;
-import org.spoofax.jsglr2.characters.ICharacters;
-import org.spoofax.terms.ParseError;
-import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.io.binary.TermReader;
+import static org.spoofax.terms.Term.intAt;
+import static org.spoofax.terms.Term.isTermInt;
+import static org.spoofax.terms.Term.javaInt;
+import static org.spoofax.terms.Term.termAt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +12,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.spoofax.terms.Term.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.actions.Accept;
+import org.spoofax.jsglr2.actions.Goto;
+import org.spoofax.jsglr2.actions.IAction;
+import org.spoofax.jsglr2.actions.IGoto;
+import org.spoofax.jsglr2.actions.IReduce;
+import org.spoofax.jsglr2.actions.Reduce;
+import org.spoofax.jsglr2.actions.ReduceLookahead;
+import org.spoofax.jsglr2.actions.Shift;
+import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.terms.ParseError;
+import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.io.binary.TermReader;
+
+import io.usethesource.capsule.Set;
+import io.usethesource.capsule.util.stream.CapsuleCollectors;
 
 public class ParseTableReader {
 
@@ -164,16 +175,28 @@ public class ParseTableReader {
         ICharacters characters = null;
 
         for(IStrategoTerm charactersTerm : charactersTermList) {
-            ICharacters charactersForTerm;
+            ICharacters charactersForTerm = null;
 
-            if(isTermInt(charactersTerm))
-                charactersForTerm = ICharacters.factory().fromSingle(javaInt(charactersTerm));
-            else
-                charactersForTerm = ICharacters.factory().fromRange(intAt(charactersTerm, 0), intAt(charactersTerm, 1));
+            if(isTermInt(charactersTerm)) {
+                int singleCharacter = javaInt(charactersTerm);
+
+                if(singleCharacter == ICharacters.EOF_INT)
+                    charactersForTerm = ICharacters.factory().fromEOF();
+                else if(singleCharacter < ICharacters.EOF_INT)
+                    charactersForTerm = ICharacters.factory().fromSingle(singleCharacter);
+            } else {
+                int from = intAt(charactersTerm, 0);
+                int to = intAt(charactersTerm, 1);
+
+                charactersForTerm = ICharacters.factory().fromRange(from, Math.min(to, ICharacters.EOF_INT - 1));
+
+                if(to == ICharacters.EOF_INT)
+                    charactersForTerm = ICharacters.factory().union(charactersForTerm, ICharacters.factory().fromEOF());
+            }
 
             if(characters == null)
                 characters = charactersForTerm;
-            else
+            else if(charactersForTerm != null)
                 characters = ICharacters.factory().union(characters, charactersForTerm);
         }
 

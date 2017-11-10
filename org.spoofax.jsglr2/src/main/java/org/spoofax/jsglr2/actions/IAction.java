@@ -8,8 +8,12 @@ public interface IAction {
 
     ICharacters characters();
 
-    public default boolean appliesTo(int character) {
+    public default boolean appliesTo(byte character) {
         return characters().containsCharacter(character);
+    }
+
+    public default boolean appliesToEOF() {
+        return characters().containsEOF();
     }
 
     static boolean typeMatchesShift(IAction action) {

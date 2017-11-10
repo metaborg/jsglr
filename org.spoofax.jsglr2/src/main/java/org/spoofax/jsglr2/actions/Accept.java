@@ -5,7 +5,7 @@ import org.spoofax.jsglr2.characters.ICharacters;
 public class Accept extends Action implements IAccept {
 
     public Accept() {
-        super(ICharacters.factory().fromSingle(ICharacters.EOF));
+        super(ICharacters.eof());
     }
 
 }

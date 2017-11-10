@@ -1,13 +1,15 @@
 package org.spoofax.jsglr2.characters;
 
-public interface ICharacterClassFactory<T extends ICharacters> {
+public interface ICharacterClassFactory {
 
-    T fromEmpty();
+    ICharacters fromEmpty();
 
-    T fromSingle(int character);
+    ICharacters fromEOF();
 
-    T fromRange(int from, int to);
+    ICharacters fromSingle(int character);
 
-    T union(ICharacters one, ICharacters two);
+    ICharacters fromRange(int from, int to);
+
+    ICharacters union(ICharacters one, ICharacters two);
 
 }

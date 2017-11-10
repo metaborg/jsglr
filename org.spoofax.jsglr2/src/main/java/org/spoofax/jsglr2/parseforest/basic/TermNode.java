@@ -6,17 +6,16 @@ import org.spoofax.jsglr2.parser.Position;
 
 public class TermNode extends BasicParseForest {
 
-    public final int character;
+    public final byte character;
 
-    public TermNode(int nodeNumber, Parse parse, Position position, int character) {
+    public TermNode(int nodeNumber, Parse parse, Position position, byte character) {
         super(nodeNumber, parse, position,
             ICharacters.isNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;
     }
 
-    @Override
-    public String descriptor() {
-        return "'" + ICharacters.charToString(this.character) + "'";
+    @Override public String descriptor() {
+        return "'" + ICharacters.byteToString(this.character) + "'";
     }
 
 }

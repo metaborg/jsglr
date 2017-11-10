@@ -6,7 +6,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class Reduce extends Action implements IReduce {
 
-    private final IProduction production;
+    protected final IProduction production;
     private final ProductionType productionType;
     private final int arity;
 
@@ -31,18 +31,15 @@ public class Reduce extends Action implements IReduce {
          */
     }
 
-    @Override
-    public IProduction production() {
+    @Override public IProduction production() {
         return production;
     }
 
-    @Override
-    public ProductionType productionType() {
+    @Override public ProductionType productionType() {
         return productionType;
     }
 
-    @Override
-    public int arity() {
+    @Override public int arity() {
         return arity;
     }
 

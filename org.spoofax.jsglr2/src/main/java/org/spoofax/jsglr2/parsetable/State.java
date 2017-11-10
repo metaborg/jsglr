@@ -1,13 +1,18 @@
 package org.spoofax.jsglr2.parsetable;
 
-import io.usethesource.capsule.BinaryRelation;
-import org.spoofax.jsglr2.actions.*;
-import org.spoofax.jsglr2.parser.Parse;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.IntStream;
+
+import org.spoofax.jsglr2.actions.ActionType;
+import org.spoofax.jsglr2.actions.IAction;
+import org.spoofax.jsglr2.actions.IGoto;
+import org.spoofax.jsglr2.actions.IReduce;
+import org.spoofax.jsglr2.actions.IReduceLookahead;
+import org.spoofax.jsglr2.parser.Parse;
+
+import io.usethesource.capsule.BinaryRelation;
 
 public final class State implements IState {
 
@@ -32,18 +37,15 @@ public final class State implements IState {
         this.productionToGoto = tmpProductionToGoto.freeze();
     }
 
-    @Override
-    public int stateNumber() {
+    @Override public int stateNumber() {
         return stateNumber;
     }
 
-    @Override
-    public IAction[] actions() {
+    @Override public IAction[] actions() {
         return actions;
     }
 
-    @Override
-    public boolean isRejectable() {
+    @Override public boolean isRejectable() {
         return rejectable;
     }
 
@@ -51,9 +53,8 @@ public final class State implements IState {
         this.rejectable = true;
     }
 
-    @Override
-    public Iterable<IAction> applicableActions(int character) {
-        // // NOTE: simple code
+    @Override public Iterable<IAction> applicableActions(byte character) {
+        // NOTE: simple code
         // final Iterator<IAction> iterator = Stream.of(actions)
         // .filter(action -> action.appliesTo(character))
         // .iterator();
@@ -64,8 +65,7 @@ public final class State implements IState {
         return () -> new Iterator<IAction>() {
             int index = 0;
 
-            @Override
-            public boolean hasNext() {
+            @Override public boolean hasNext() {
                 // skip non-applicable actions
                 while(index < actions.length && !actions[index].appliesTo(character)) {
                     index++;
@@ -73,8 +73,7 @@ public final class State implements IState {
                 return index < actions.length;
             }
 
-            @Override
-            public IAction next() {
+            @Override public IAction next() {
                 if(!hasNext()) {
                     throw new NoSuchElementException();
                 }
@@ -83,8 +82,7 @@ public final class State implements IState {
         };
     }
 
-    @Override
-    public Iterable<IReduce> applicableReduceActions(Parse parse) {
+    @Override public Iterable<IReduce> applicableReduceActions(Parse parse) {
         // // NOTE: simple code
         // final Iterator<IReduce> iterator = Stream.of(actions)
         // .filter(action -> action.appliesTo(parse.currentChar))
@@ -99,8 +97,7 @@ public final class State implements IState {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 
-            @Override
-            public boolean hasNext() {
+            @Override public boolean hasNext() {
                 while(index < actions.length && !(actions[index].appliesTo(parse.currentChar)
                     && (actions[index].actionType() == ActionType.REDUCE
                         || actions[index].actionType() == ActionType.REDUCE_LOOKAHEAD
@@ -110,8 +107,7 @@ public final class State implements IState {
                 return index < actions.length;
             }
 
-            @Override
-            public IReduce next() {
+            @Override public IReduce next() {
                 if(!hasNext()) {
                     throw new NoSuchElementException();
                 }
@@ -120,14 +116,33 @@ public final class State implements IState {
         };
     }
 
-    @Override
-    public Optional<Integer> getGotoId(int productionId) {
+    @Override public Iterable<IAction> applicableActionsEOF() {
+        return () -> new Iterator<IAction>() {
+            int index = 0;
+
+            @Override public boolean hasNext() {
+                // skip non-applicable actions
+                while(index < actions.length && !actions[index].appliesToEOF()) {
+                    index++;
+                }
+                return index < actions.length;
+            }
+
+            @Override public IAction next() {
+                if(!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return actions[index++];
+            }
+        };
+    }
+
+    @Override public Optional<Integer> getGotoId(int productionId) {
         assert productionToGoto.get(productionId).size() <= 1;
         return productionToGoto.get(productionId).findFirst();
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if(!(obj instanceof State))
             return false;
 

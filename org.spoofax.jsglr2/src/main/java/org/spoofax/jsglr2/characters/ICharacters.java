@@ -1,24 +1,43 @@
 package org.spoofax.jsglr2.characters;
 
 /**
- * Index 0 - 255: ASCII characters
+ * ASCII characters: integer representation [0, 255], byte representation [-128, 127]
  *
- * Index 256: End-of-file marker (EOF)
- *
- * TODO: represent EOF as a constant ICharacters instead of an int?
+ * End-of-file marker (EOF): integer representation 256, byte presentation n.a.
  */
 public interface ICharacters {
 
-    int EOF = 256;
+    /*
+     * Constructing character classes uses integer representation [0, 255], checking character membership in a class
+     * uses byte representation [-128, 127]
+     */
+
+    int EOF_INT = 256;
 
     static CharacterClassFactory factory() {
         return CharacterClassFactory.INSTANCE;
     }
 
-    boolean containsCharacter(int character);
+    static CharactersEOF eof() {
+        return CharactersEOF.INSTANCE;
+    }
 
-    static String charToString(int character) {
-        if(character == EOF) {
+    boolean containsCharacter(byte character);
+
+    boolean containsEOF();
+
+    CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet);
+
+    static byte charToByte(char c) {
+        return (byte) (c - 128);
+    }
+
+    static String byteToString(byte b) {
+        return "" + (char) (((int) b) + 128);
+    }
+
+    static String intToString(int character) {
+        if(character == EOF_INT) {
             return "EOF";
         } else {
             return String.valueOf(character);
@@ -26,7 +45,11 @@ public interface ICharacters {
     }
 
     static boolean isNewLine(int character) {
-        return character != EOF && (char) character == '\n';
+        return character != EOF_INT && (char) character == '\n';
+    }
+
+    static boolean isNewLine(byte character) {
+        return (char) (((int) character) + 128) == '\n';
     }
 
 }

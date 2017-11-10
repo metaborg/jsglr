@@ -16,21 +16,19 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
         this.followRestriction = followRestriction;
     }
 
-    @Override
-    public boolean allowsLookahead(String lookahead) {
+    @Override public boolean allowsLookahead(String lookahead) {
         if(lookahead.length() != followRestriction.length)
             return true;
 
         for(int i = 0; i < followRestriction.length; i++) {
-            if(!followRestriction[i].containsCharacter(lookahead.charAt(i)))
+            if(!followRestriction[i].containsCharacter(ICharacters.charToByte(lookahead.charAt(i))))
                 return true;
         }
 
         return false;
     }
 
-    @Override
-    public boolean allowsLookahead(Parse parse) {
+    @Override public boolean allowsLookahead(Parse parse) {
         String lookahead = parse.getLookahead(followRestriction.length);
 
         return allowsLookahead(lookahead);

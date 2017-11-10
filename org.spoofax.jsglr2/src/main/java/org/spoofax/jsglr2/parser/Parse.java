@@ -19,7 +19,8 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     final public String inputString;
     final public int inputLength;
 
-    public int currentOffset, currentLine, currentColumn, currentChar;
+    public byte currentChar; // Current ASCII char in range [-128, 127] corresponding to ASCII [0, 255]
+    public int currentOffset, currentLine, currentColumn;
 
     public StackNode acceptingStack;
     public IActiveStacks<StackNode> activeStacks;
@@ -46,8 +47,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
                                      // only available after imploding
 
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
-            @Override
-            public int compare(StackNode stackNode1, StackNode stackNode2) {
+            @Override public int compare(StackNode stackNode1, StackNode stackNode2) {
                 return 0; // TODO: implement priority (see P9707 Section 8.4)
             }
         };
@@ -61,7 +61,9 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         this.currentOffset = 0;
         this.currentLine = 1;
         this.currentColumn = 1;
-        this.currentChar = getChar(currentOffset);
+
+        if(inputLength > 0)
+            this.currentChar = getChar(currentOffset);
 
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>(observers);
     }
@@ -74,26 +76,28 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         return currentOffset < inputLength;
     }
 
-    public int next() throws ParseException {
+    public void next() throws ParseException {
         currentOffset++;
 
-        currentChar = getChar(currentOffset);
+        if(currentOffset < inputLength) {
+            currentChar = getChar(currentOffset);
 
-        if(currentChar > 256)
-            throw new ParseException("Unicode not supported");
-
-        if(ICharacters.isNewLine(currentChar)) {
-            currentLine++;
-            currentColumn = 1;
-        } else {
-            currentColumn++;
+            if(ICharacters.isNewLine(currentChar)) {
+                currentLine++;
+                currentColumn = 1;
+            } else {
+                currentColumn++;
+            }
         }
-
-        return currentChar;
     }
 
-    private int getChar(int position) {
-        return position < inputLength ? inputString.charAt(position) : ICharacters.EOF;
+    private byte getChar(int position) {
+        char c = inputString.charAt(position);
+
+        if(c > 255)
+            throw new IllegalStateException("Unicode not supported");
+
+        return ICharacters.charToByte(c);
     }
 
     public String getPart(int begin, int end) {

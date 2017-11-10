@@ -46,8 +46,8 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
     }
 
-    @Override
-    public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
+    @Override public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename,
+        String startSymbol) {
         Parse<StackNode, ParseForest> parse = new Parse<StackNode, ParseForest>(inputString, filename, observers);
 
         notify(observer -> observer.parseStart(parse));
@@ -57,13 +57,14 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         parse.activeStacks.add(initialStackNode);
 
         try {
-            parseCharacter(parse);
-
             while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
-                parse.next();
-
                 parseCharacter(parse);
+
+                parse.next();
             }
+
+            if (!parse.activeStacks.isEmpty())
+                parseEOF(parse);
 
             ParseResult<StackNode, ParseForest, ?> result;
 
@@ -84,7 +85,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
             } else {
                 ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure(parse,
                     new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
-                        + "/'" + ICharacters.charToString(parse.currentChar) + "', position: "
+                        + "/'" + ICharacters.intToString(parse.currentChar) + "', position: "
                         + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
                         + parse.inputLength + "])"));
 
@@ -103,9 +104,28 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         }
     }
 
+    private interface StateApplicableActions {
+        Iterable<IAction> get(IState state);
+    }
+
     private void parseCharacter(Parse<StackNode, ParseForest> parse) {
         notify(observer -> observer.parseCharacter(parse.currentChar, parse.activeStacks));
 
+        parseCharacterOrEOF(parse, state -> {
+            return state.applicableActions(parse.currentChar);
+        });
+    }
+
+    private void parseEOF(Parse<StackNode, ParseForest> parse) {
+        notify(observer -> observer.parseCharacter(ICharacters.EOF_INT, parse.activeStacks));
+
+        parseCharacterOrEOF(parse, state -> {
+            return state.applicableActionsEOF();
+        });
+    }
+
+    private void parseCharacterOrEOF(Parse<StackNode, ParseForest> parse,
+        StateApplicableActions stateApplicableActions) {
         parse.forActor.clear();
         parse.forActorDelayed.clear();
 
@@ -119,7 +139,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
             StackNode stack = parse.getNextActorStack();
 
             if(!stack.allOutLinksRejected())
-                actor(stack, parse);
+                actor(stack, parse, stateApplicableActions);
             else
                 notify(observer -> observer.skipRejectedStack(stack));
 
@@ -129,8 +149,9 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         shifter(parse);
     }
 
-    private void actor(StackNode stack, Parse<StackNode, ParseForest> parse) {
-        Iterable<IAction> applicableActions = stack.state.applicableActions(parse.currentChar);
+    private void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
+        StateApplicableActions stateApplicableActions) {
+        Iterable<IAction> applicableActions = stateApplicableActions.get(stack.state);
 
         notify(observer -> observer.actor(stack, parse.currentChar, applicableActions));
 
@@ -197,8 +218,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         parse.forShifter.add(forShifterElement);
     }
 
-    @Override
-    public void attachObserver(IParserObserver<StackNode, ParseForest> observer) {
+    @Override public void attachObserver(IParserObserver<StackNode, ParseForest> observer) {
         observers.add(observer);
     }
 

@@ -145,4 +145,23 @@ public final class CharacterClassRangeSet implements ICharacters {
         return union(other);
     }
 
+    @Override public String toString() {
+        List<String> ranges = new ArrayList<>();
+
+        rangeSet.asRanges().forEach(range -> {
+            byte from = range.lowerEndpoint();
+            byte to = range.upperEndpoint();
+
+            if(from != to)
+                ranges.add("" + ICharacters.byteToString(from) + "-" + ICharacters.byteToString(to));
+            else
+                ranges.add("" + ICharacters.byteToString(from));
+        });
+
+        if(containsEOF)
+            ranges.add("EOF");
+
+        return "{" + StringUtils.join(ranges, ",") + "}";
+    }
+
 }

@@ -16,4 +16,8 @@ public class Shift extends Action implements IShift {
         return shiftState;
     }
 
+    @Override public String toString() {
+        return characters().toString() + "->SHIFT(" + shiftState + ")";
+    }
+
 }

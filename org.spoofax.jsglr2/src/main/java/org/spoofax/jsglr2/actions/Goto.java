@@ -18,4 +18,8 @@ public class Goto implements IGoto {
         return gotoState;
     }
 
+    @Override public String toString() {
+        return "GOTO(" + gotoState + ")";
+    }
+
 }

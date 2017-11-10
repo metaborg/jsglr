@@ -17,7 +17,7 @@ public class CharactersEOF implements ICharacters {
     }
 
     @Override public String toString() {
-        return "[EOF]";
+        return "{EOF}";
     }
 
 }

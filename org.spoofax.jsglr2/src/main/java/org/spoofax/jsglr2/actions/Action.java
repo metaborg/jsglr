@@ -14,4 +14,8 @@ public abstract class Action implements IAction {
         return characters;
     }
 
+    @Override public String toString() {
+        return characters.toString() + "->" + actionType();
+    }
+
 }

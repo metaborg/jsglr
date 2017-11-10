@@ -23,7 +23,7 @@ public class CharactersSingle implements ICharacters {
     }
 
     @Override public String toString() {
-        return "[" + ICharacters.byteToString(character) + "]";
+        return "{" + ICharacters.byteToString(character) + "}";
     }
 
 }

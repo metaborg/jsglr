@@ -43,4 +43,8 @@ public class Reduce extends Action implements IReduce {
         return arity;
     }
 
+    @Override public String toString() {
+        return characters().toString() + "->REDUCE(" + production.productionNumber() + ")";
+    }
+
 }

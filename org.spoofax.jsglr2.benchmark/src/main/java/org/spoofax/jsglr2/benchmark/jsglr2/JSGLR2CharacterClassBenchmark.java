@@ -22,6 +22,7 @@ import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
@@ -74,9 +75,9 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
     abstract class StateApplicableActions {
 
         final ICharacters[] characterClasses; // Represent the character classes of the actions in the state
-        final int character;
+        final byte character;
 
-        protected StateApplicableActions(ICharacters[] characterClasses, int character) {
+        protected StateApplicableActions(ICharacters[] characterClasses, byte character) {
             this.characterClasses = characterClasses;
             this.character = character;
         }
@@ -87,7 +88,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     class StateApplicableActionsList extends StateApplicableActions {
 
-        public StateApplicableActionsList(ICharacters[] characterClasses, int character) {
+        public StateApplicableActionsList(ICharacters[] characterClasses, byte character) {
             super(characterClasses, character);
         }
 
@@ -102,8 +103,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
             return res;
         }
 
-        @Override
-        public void execute(Blackhole bh) {
+        @Override public void execute(Blackhole bh) {
             for(ICharacters characterClass : list())
                 bh.consume(characterClass);
         }
@@ -112,19 +112,17 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     class StateApplicableActionsIterable extends StateApplicableActions {
 
-        public StateApplicableActionsIterable(ICharacters[] characterClasses, int character) {
+        public StateApplicableActionsIterable(ICharacters[] characterClasses, byte character) {
             super(characterClasses, character);
         }
 
         public Iterable<ICharacters> iterable() {
             return new Iterable<ICharacters>() {
-                @Override
-                public Iterator<ICharacters> iterator() {
+                @Override public Iterator<ICharacters> iterator() {
                     return new Iterator<ICharacters>() {
                         int i = 0;
 
-                        @Override
-                        public boolean hasNext() {
+                        @Override public boolean hasNext() {
                             if(i < characterClasses.length) {
                                 if(characterClasses[i].containsCharacter(character))
                                     return true;
@@ -138,8 +136,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
                             return false;
                         }
 
-                        @Override
-                        public ICharacters next() {
+                        @Override public ICharacters next() {
                             return characterClasses[i++];
                         }
                     };
@@ -147,8 +144,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
             };
         }
 
-        @Override
-        public void execute(Blackhole bh) {
+        @Override public void execute(Blackhole bh) {
             for(ICharacters characterClass : iterable())
                 bh.consume(characterClass);
         }
@@ -157,12 +153,11 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     class StateApplicableActionsForLoop extends StateApplicableActions {
 
-        public StateApplicableActionsForLoop(ICharacters[] characterClasses, int character) {
+        public StateApplicableActionsForLoop(ICharacters[] characterClasses, byte character) {
             super(characterClasses, character);
         }
 
-        @Override
-        public void execute(Blackhole bh) {
+        @Override public void execute(Blackhole bh) {
             for(ICharacters characterClass : characterClasses) {
                 if(characterClass.containsCharacter(character))
                     bh.consume(characterClass);
@@ -176,8 +171,8 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
         public List<StateApplicableActions> stateApplicableActions = new ArrayList<StateApplicableActions>();
 
-        @Override
-        public void actor(StackNode stack, int currentChar, Iterable<IAction> applicableActions) {
+        @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
+            Iterable<IAction> applicableActions) {
             ICharacters[] characterClasses = new ICharacters[stack.state.actions().length];
 
             for(int i = 0; i < stack.state.actions().length; i++) {
@@ -189,13 +184,16 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
             switch(applicableActionsRepresentation) {
                 case List:
-                    stateApplicableActionsForActor = new StateApplicableActionsList(characterClasses, currentChar);
+                    stateApplicableActionsForActor =
+                        new StateApplicableActionsList(characterClasses, parse.currentChar);
                     break;
                 case Iterable:
-                    stateApplicableActionsForActor = new StateApplicableActionsIterable(characterClasses, currentChar);
+                    stateApplicableActionsForActor =
+                        new StateApplicableActionsIterable(characterClasses, parse.currentChar);
                     break;
                 case ForLoop:
-                    stateApplicableActionsForActor = new StateApplicableActionsForLoop(characterClasses, currentChar);
+                    stateApplicableActionsForActor =
+                        new StateApplicableActionsForLoop(characterClasses, parse.currentChar);
                     break;
                 default:
                     stateApplicableActionsForActor = null;

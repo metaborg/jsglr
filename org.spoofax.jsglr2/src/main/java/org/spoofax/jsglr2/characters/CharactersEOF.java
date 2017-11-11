@@ -8,15 +8,16 @@ public class CharactersEOF implements ICharacters {
         return false;
     }
 
-    public boolean containsEOF() {
+    public final boolean containsEOF() {
         return true;
     }
 
-    public CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
-        return rangeSet.updateEOF(true);
+    public final <C extends Number & Comparable<C>> CharacterClassRangeSet<C>
+        rangeSetUnion(CharacterClassRangeSet<C> rangeSet) {
+        return rangeSet.addEOF();
     }
 
-    @Override public String toString() {
+    @Override public final String toString() {
         return "{EOF}";
     }
 

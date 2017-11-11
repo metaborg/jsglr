@@ -3,21 +3,19 @@ package org.spoofax.jsglr2.characters;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
-public final class CharacterClassRangeSet implements ICharacters {
+public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> implements ICharacters {
 
     private static final int BITMAP_SEGMENT_SIZE = 6; // 2^6 = 64 = 1/4 * 256
 
-    static final CharacterClassRangeSet EMPTY_CONSTANT = new CharacterClassRangeSet();
-
-    protected ImmutableRangeSet<Byte> rangeSet; // Contains ranges in range [-128, 127]
+    protected ImmutableRangeSet<C> rangeSet; // Contains ranges in range [-128, 127]
     protected boolean containsEOF;
 
     private final boolean useCachedBitSet;
@@ -30,15 +28,19 @@ public final class CharacterClassRangeSet implements ICharacters {
         this(ImmutableRangeSet.copyOf(TreeRangeSet.create()), false);
     }
 
-    protected CharacterClassRangeSet(final ImmutableRangeSet<Byte> rangeSet, boolean containsEOF) {
-        assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint() >= -128;
-        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint() < (EOF_INT - 128);
+    protected CharacterClassRangeSet(final ImmutableRangeSet<C> rangeSet, boolean containsEOF) {
+        assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint().intValue() >= -128;
+        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint().intValue() < (EOF_INT - 128);
 
         this.rangeSet = rangeSet;
         this.containsEOF = containsEOF;
 
         this.useCachedBitSet = tryOptimize();
     }
+
+    protected abstract CharacterClassRangeSet<C> from(final ImmutableRangeSet<C> rangeSet, boolean containsEOF);
+
+    protected abstract C byteToInternalNumber(byte b);
 
     private final long wordAt(int wordIndex) {
         switch(wordIndex) {
@@ -62,22 +64,31 @@ public final class CharacterClassRangeSet implements ICharacters {
 
             return (word & (1L << character)) != 0;
         } else
-            return rangeSet.contains(character);
+            return rangeSet.contains(byteToInternalNumber(character));
     }
 
-    @Override public boolean containsEOF() {
+    @Override public final boolean containsEOF() {
         return containsEOF;
     }
 
-    protected final CharacterClassRangeSet updateRangeSet(Consumer<RangeSet<Byte>> transformer) {
-        final RangeSet<Byte> mutableRangeSet = TreeRangeSet.create(rangeSet);
-        transformer.accept(mutableRangeSet);
+    protected final CharacterClassRangeSet<C> addRange(byte from, byte to) {
+        final RangeSet<C> mutableRangeSet = TreeRangeSet.create(rangeSet);
 
-        return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
+        mutableRangeSet.add(Range.closed(byteToInternalNumber(from), byteToInternalNumber(to)));
+
+        return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
     }
 
-    protected final CharacterClassRangeSet updateEOF(boolean containsEOF) {
-        return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(rangeSet), containsEOF);
+    protected final CharacterClassRangeSet<C> addSingle(byte character) {
+        final RangeSet<C> mutableRangeSet = TreeRangeSet.create(rangeSet);
+
+        mutableRangeSet.add(Range.singleton(byteToInternalNumber(character)));
+
+        return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
+    }
+
+    protected final CharacterClassRangeSet<C> addEOF() {
+        return from(ImmutableRangeSet.copyOf(rangeSet), true);
     }
 
     public boolean tryOptimize() {
@@ -101,20 +112,22 @@ public final class CharacterClassRangeSet implements ICharacters {
         }
     }
 
-    private static final BitSet convertToBitSet(final RangeSet<Byte> rangeSet) {
+    private final BitSet convertToBitSet(final RangeSet<C> rangeSet) {
         if(rangeSet.isEmpty()) {
             return new BitSet();
         }
 
-        final BitSet bitSet = new BitSet(rangeSet.span().upperEndpoint() + 128);
+        final BitSet bitSet = new BitSet(rangeSet.span().upperEndpoint().intValue() + 128);
 
-        rangeSet.asRanges().forEach(range -> bitSet.set(range.lowerEndpoint() + 128, range.upperEndpoint() + 128 + 1));
+        rangeSet.asRanges().forEach(range -> {
+            bitSet.set(range.lowerEndpoint().intValue() + 128, range.upperEndpoint().intValue() + 128 + 1);
+        });
 
         return bitSet;
     }
 
     @Override public int hashCode() {
-        return rangeSet.hashCode();
+        return rangeSet.hashCode(); // TODO: add containsEOF
     }
 
     @Override public boolean equals(Object o) {
@@ -125,32 +138,24 @@ public final class CharacterClassRangeSet implements ICharacters {
             return false;
         }
 
-        CharacterClassRangeSet that = (CharacterClassRangeSet) o;
+        CharacterClassRangeSet<C> that = (CharacterClassRangeSet<C>) o;
 
-        return rangeSet.equals(that.rangeSet);
+        return rangeSet.equals(that.rangeSet); // TODO: add containsEOF
     }
 
-    public CharacterClassRangeSet union(CharacterClassRangeSet other) {
-        RangeSet<Byte> mutableRangeSet = TreeRangeSet.create();
-
-        mutableRangeSet.addAll(this.rangeSet);
-        mutableRangeSet.addAll(other.rangeSet);
-
-        boolean containsEOF = this.containsEOF || other.containsEOF;
-
-        return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
+    @Override public <C2 extends Number & Comparable<C2>> CharacterClassRangeSet<C2>
+        rangeSetUnion(CharacterClassRangeSet<C2> other) {
+        return other.union((CharacterClassRangeSet<C2>) this);
     }
 
-    @Override public CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet other) {
-        return union(other);
-    }
+    protected abstract CharacterClassRangeSet<C> union(CharacterClassRangeSet<C> other);
 
     @Override public String toString() {
-        List<String> ranges = new ArrayList<>();
+        final List<String> ranges = new ArrayList<>();
 
         rangeSet.asRanges().forEach(range -> {
-            byte from = range.lowerEndpoint();
-            byte to = range.upperEndpoint();
+            final byte from = range.lowerEndpoint().byteValue();
+            final byte to = range.upperEndpoint().byteValue();
 
             if(from != to)
                 ranges.add("" + ICharacters.byteToString(from) + "-" + ICharacters.byteToString(to));

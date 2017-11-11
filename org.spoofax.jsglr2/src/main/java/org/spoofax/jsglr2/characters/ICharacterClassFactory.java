@@ -4,11 +4,11 @@ public interface ICharacterClassFactory {
 
     ICharacters fromEmpty();
 
-    ICharacters fromEOF();
-
     ICharacters fromSingle(int character);
 
     ICharacters fromRange(int from, int to);
+
+    ICharacters fromEOF();
 
     ICharacters union(ICharacters one, ICharacters two);
 

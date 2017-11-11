@@ -14,8 +14,8 @@ public interface ICharacters {
 
     int EOF_INT = 256;
 
-    static CharacterClassFactory factory() {
-        return CharacterClassFactory.INSTANCE;
+    static RangeSetCharacterClassFactory factory() {
+        return ByteRangeSetCharacterClassFactory.INSTANCE;
     }
 
     static CharactersEOF eof() {
@@ -26,7 +26,7 @@ public interface ICharacters {
 
     boolean containsEOF();
 
-    CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet);
+    <C extends Number & Comparable<C>> CharacterClassRangeSet<C> rangeSetUnion(CharacterClassRangeSet<C> rangeSet);
 
     static byte charToByte(char c) {
         return (byte) (c - 128);
@@ -40,7 +40,7 @@ public interface ICharacters {
         if(character == EOF_INT) {
             return "EOF";
         } else {
-            return String.valueOf(character);
+            return "" + (char) character;
         }
     }
 

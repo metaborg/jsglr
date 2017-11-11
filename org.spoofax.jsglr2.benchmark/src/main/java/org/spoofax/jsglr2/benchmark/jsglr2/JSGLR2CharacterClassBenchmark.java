@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
@@ -117,30 +118,25 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
         }
 
         public Iterable<ICharacters> iterable() {
-            return new Iterable<ICharacters>() {
-                @Override public Iterator<ICharacters> iterator() {
-                    return new Iterator<ICharacters>() {
-                        int i = 0;
+            return () -> {
+                return new Iterator<ICharacters>() {
+                    int index = 0;
 
-                        @Override public boolean hasNext() {
-                            if(i < characterClasses.length) {
-                                if(characterClasses[i].containsCharacter(character))
-                                    return true;
-                                else {
-                                    i++;
-
-                                    return hasNext();
-                                }
-                            }
-
-                            return false;
+                    @Override public boolean hasNext() {
+                        while(index < characterClasses.length
+                            && !characterClasses[index].containsCharacter(character)) {
+                            index++;
                         }
+                        return index < characterClasses.length;
+                    }
 
-                        @Override public ICharacters next() {
-                            return characterClasses[i++];
+                    @Override public ICharacters next() {
+                        if(!hasNext()) {
+                            throw new NoSuchElementException();
                         }
-                    };
-                }
+                        return characterClasses[index++];
+                    }
+                };
             };
         }
 

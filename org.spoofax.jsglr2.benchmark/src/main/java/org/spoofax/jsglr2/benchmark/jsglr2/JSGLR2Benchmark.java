@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
@@ -17,9 +20,6 @@ import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
@@ -43,7 +43,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
-        IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
+        IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, parseForestConstruction,
             stackRepresentation, reducing);

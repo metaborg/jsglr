@@ -35,12 +35,22 @@ import io.usethesource.capsule.util.stream.CapsuleCollectors;
 
 public class ParseTableReader {
 
+    ICharacterClassFactory characterClassFactory;
+
+    public ParseTableReader() {
+        this.characterClassFactory = ICharacters.factory();
+    }
+
+    public ParseTableReader(ICharacterClassFactory characterClassFactory) {
+        this.characterClassFactory = characterClassFactory;
+    }
+
     /*
      * Reads a parse table from a term. The format consists of a tuple of 4: - version number (not used) - start state
      * number - list of productions (i.e. labels) - list of states - list of priorities (not used since priorities are
      * now encoded in the parse table itself and do not have to be implemented separately during parsing)
      */
-    public static IParseTable read(IStrategoTerm pt) throws ParseTableReadException {
+    public IParseTable read(IStrategoTerm pt) throws ParseTableReadException {
         int startStateNumber = intAt(pt, 1);
         IStrategoList productionsTermList = termAt(pt, 2);
         IStrategoNamed statesTerm = termAt(pt, 3);
@@ -53,7 +63,7 @@ public class ParseTableReader {
         return new ParseTable(productions, states, startStateNumber);
     }
 
-    public static IParseTable read(InputStream inputStream) throws ParseTableReadException, ParseError, IOException {
+    public IParseTable read(InputStream inputStream) throws ParseTableReadException, ParseError, IOException {
         TermFactory factory = new TermFactory();
         TermReader termReader = new TermReader(factory);
 
@@ -62,7 +72,7 @@ public class ParseTableReader {
         return read(parseTableTerm);
     }
 
-    private static Production[] readProductions(IStrategoList productionsTermList) throws ParseTableReadException {
+    private Production[] readProductions(IStrategoList productionsTermList) throws ParseTableReadException {
         int productionsCount = productionsTermList.getSubtermCount();
 
         Production[] productions = new Production[257 + productionsCount];
@@ -76,7 +86,7 @@ public class ParseTableReader {
         return productions;
     }
 
-    private static State[] readStates(IStrategoNamed statesTermNamed, IProduction[] productions)
+    private State[] readStates(IStrategoNamed statesTermNamed, IProduction[] productions)
         throws ParseTableReadException {
         IStrategoList statesTermList = termAt(statesTermNamed, 0);
         int stateCount = statesTermList.getSubtermCount();
@@ -100,7 +110,7 @@ public class ParseTableReader {
         return states;
     }
 
-    private static IGoto[] readGotos(IStrategoList gotosTermList) {
+    private IGoto[] readGotos(IStrategoList gotosTermList) {
         int gotoCount = gotosTermList.getSubtermCount();
 
         IGoto[] gotos = new IGoto[gotoCount];
@@ -121,7 +131,7 @@ public class ParseTableReader {
         return gotos;
     }
 
-    private static int[] readGotoProductions(IStrategoList productionsTermList) {
+    private int[] readGotoProductions(IStrategoList productionsTermList) {
         ArrayList<Integer> productionNumbers = new ArrayList<Integer>();
 
         for(IStrategoTerm productionNumbersTerm : productionsTermList) {
@@ -145,7 +155,7 @@ public class ParseTableReader {
         return res;
     }
 
-    private static IAction[] readActions(IStrategoList characterActionsTermList, IProduction[] productions)
+    private IAction[] readActions(IStrategoList characterActionsTermList, IProduction[] productions)
         throws ParseTableReadException {
         int actionCount = characterActionsTermList.getSubtermCount();
 
@@ -172,10 +182,8 @@ public class ParseTableReader {
         return res;
     }
 
-    private static ICharacters readCharacters(IStrategoList charactersTermList) {
+    private ICharacters readCharacters(IStrategoList charactersTermList) {
         ICharacters characters = null;
-
-        ICharacterClassFactory characterClassFactory = ICharacters.factory();
 
         for(IStrategoTerm charactersTerm : charactersTermList) {
             ICharacters charactersForTerm = null;
@@ -206,7 +214,7 @@ public class ParseTableReader {
         return characterClassFactory.optimize(characters);
     }
 
-    private static ICharacters[] readReduceLookaheadCharacters(IStrategoList list) throws ParseTableReadException {
+    private ICharacters[] readReduceLookaheadCharacters(IStrategoList list) throws ParseTableReadException {
         List<ICharacters> followRestrictionCharacters = new ArrayList<ICharacters>(); // The length of this list equals
                                                                                       // the length of the lookahead
 
@@ -227,7 +235,7 @@ public class ParseTableReader {
         return followRestrictionCharacters.toArray(new ICharacters[followRestrictionCharacters.size()]);
     }
 
-    private static List<IAction> readActionsForCharacters(IStrategoList actionsTermList, ICharacters characters,
+    private List<IAction> readActionsForCharacters(IStrategoList actionsTermList, ICharacters characters,
         IProduction[] productions) throws ParseTableReadException {
         int actionCount = actionsTermList.getSubtermCount();
 
@@ -269,7 +277,7 @@ public class ParseTableReader {
     // Mark states that are reachable by a reject production as rejectable
     // That means the parser transitions into such state by means of a goto action after there is reduced by the reject
     // production
-    private static void markRejectableStates(State[] states) {
+    private void markRejectableStates(State[] states) {
         final Set.Immutable<Integer> rejectProductionIdentifiers = Stream.of(states)
             .flatMap(state -> Stream.of(state.actions())).filter(IAction::typeMatchesReduceOrReduceLookahead)
             .map(IReduce.class::cast).map(IReduce::production).filter(IProduction::typeMatchesReject)

@@ -60,7 +60,7 @@ public abstract class BaseTest {
 
     protected IParseTable getParseTable() {
         try {
-            return ParseTableReader.read(getParseTableTerm());
+            return new ParseTableReader().read(getParseTableTerm());
         } catch(ParseTableReadException e) {
             e.printStackTrace();
 

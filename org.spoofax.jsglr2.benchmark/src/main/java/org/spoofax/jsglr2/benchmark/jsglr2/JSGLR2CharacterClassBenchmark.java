@@ -20,6 +20,8 @@ import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
+import org.spoofax.jsglr2.characters.ByteRangeSetCharacterClassFactory;
+import org.spoofax.jsglr2.characters.ICharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
@@ -42,21 +44,18 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
         super(testSet);
     }
 
-    public enum CharacterClassRepresentation {
-        Bitset
-    }
-
     public enum ApplicableActionsRepresentation {
         List, Iterable, ForLoop
     }
 
-    @Param public CharacterClassRepresentation characterClassRepresentation;
+    @Param({ "false", "true" }) public boolean optimized;
 
     @Param public ApplicableActionsRepresentation applicableActionsRepresentation;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
-        IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
+        ICharacterClassFactory characterClassFactory = new ByteRangeSetCharacterClassFactory(optimized);
+        IParseTable parseTable = new ParseTableReader(characterClassFactory).read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
             StackRepresentation.Basic, Reducing.Basic);

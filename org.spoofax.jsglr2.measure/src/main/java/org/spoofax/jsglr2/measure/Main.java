@@ -54,7 +54,7 @@ public class Main {
 
         TestSetReader testSetReader = new MeasureTestsetReader(testSet);
 
-        IParseTable parseTable = ParseTableReader.read(testSetReader.getParseTableTerm());
+        IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         String filename = reportPath + testSet.name + "_" + postfix + ".csv";
 

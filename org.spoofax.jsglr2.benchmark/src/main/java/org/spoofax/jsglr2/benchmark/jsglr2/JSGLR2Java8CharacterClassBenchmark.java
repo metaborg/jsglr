@@ -28,7 +28,6 @@ public class JSGLR2Java8CharacterClassBenchmark extends JSGLR2CharacterClassBenc
 				.warmupTime(TimeValue.seconds(1))
 				.measurementIterations(10)
 				.param("applicableActionsRepresentation", "ForLoop")
-				.param("characterClassRepresentation", "Bitset")
 				.forks(3)
 				.build();
 		// @formatter:on

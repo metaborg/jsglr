@@ -15,7 +15,7 @@ public interface ICharacters {
     int EOF_INT = 256;
 
     static RangeSetCharacterClassFactory factory() {
-        return ByteRangeSetCharacterClassFactory.INSTANCE;
+        return new ByteRangeSetCharacterClassFactory(true);
     }
 
     static CharactersEOF eof() {

@@ -34,7 +34,7 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 
     public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>
         standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
-        IParseTable parseTable = ParseTableReader.read(parseTableTerm);
+        IParseTable parseTable = new ParseTableReader().read(parseTableTerm);
 
         return standard(parseTable);
     }

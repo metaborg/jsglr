@@ -2,6 +2,12 @@ package org.spoofax.jsglr2.characters;
 
 public abstract class RangeSetCharacterClassFactory<C extends Number & Comparable<C>> extends CharacterClassFactory {
 
+    final private boolean optimize;
+
+    protected RangeSetCharacterClassFactory(boolean optimize) {
+        this.optimize = optimize;
+    }
+
     public ICharacters fromEmpty() {
         return emptyRangeSet();
     }
@@ -40,7 +46,7 @@ public abstract class RangeSetCharacterClassFactory<C extends Number & Comparabl
     }
 
     public ICharacters optimize(ICharacters characters) {
-        if(characters instanceof CharacterClassRangeSet)
+        if(characters instanceof CharacterClassRangeSet && optimize)
             return ((CharacterClassRangeSet) characters).optimized();
         else
             return characters;

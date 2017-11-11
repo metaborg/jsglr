@@ -12,4 +12,6 @@ public interface ICharacterClassFactory {
 
     ICharacters union(ICharacters one, ICharacters two);
 
+    ICharacters optimize(ICharacters characters);
+
 }

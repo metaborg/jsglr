@@ -24,6 +24,7 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.Reduce;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.actions.Shift;
+import org.spoofax.jsglr2.characters.ICharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
@@ -174,6 +175,8 @@ public class ParseTableReader {
     private static ICharacters readCharacters(IStrategoList charactersTermList) {
         ICharacters characters = null;
 
+        ICharacterClassFactory characterClassFactory = ICharacters.factory();
+
         for(IStrategoTerm charactersTerm : charactersTermList) {
             ICharacters charactersForTerm = null;
 
@@ -181,26 +184,26 @@ public class ParseTableReader {
                 int singleCharacter = javaInt(charactersTerm);
 
                 if(singleCharacter == ICharacters.EOF_INT)
-                    charactersForTerm = ICharacters.factory().fromEOF();
+                    charactersForTerm = characterClassFactory.fromEOF();
                 else if(singleCharacter < ICharacters.EOF_INT)
-                    charactersForTerm = ICharacters.factory().fromSingle(singleCharacter);
+                    charactersForTerm = characterClassFactory.fromSingle(singleCharacter);
             } else {
                 int from = intAt(charactersTerm, 0);
                 int to = intAt(charactersTerm, 1);
 
-                charactersForTerm = ICharacters.factory().fromRange(from, Math.min(to, ICharacters.EOF_INT - 1));
+                charactersForTerm = characterClassFactory.fromRange(from, Math.min(to, ICharacters.EOF_INT - 1));
 
                 if(to == ICharacters.EOF_INT)
-                    charactersForTerm = ICharacters.factory().union(charactersForTerm, ICharacters.factory().fromEOF());
+                    charactersForTerm = characterClassFactory.union(charactersForTerm, characterClassFactory.fromEOF());
             }
 
             if(characters == null)
                 characters = charactersForTerm;
             else if(charactersForTerm != null)
-                characters = ICharacters.factory().union(characters, charactersForTerm);
+                characters = characterClassFactory.union(characters, charactersForTerm);
         }
 
-        return characters;
+        return characterClassFactory.optimize(characters);
     }
 
     private static ICharacters[] readReduceLookaheadCharacters(IStrategoList list) throws ParseTableReadException {

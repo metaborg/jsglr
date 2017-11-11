@@ -172,8 +172,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
             ICharacters[] characterClasses = new ICharacters[stack.state.actions().length];
 
             for(int i = 0; i < stack.state.actions().length; i++) {
-                ICharacters characterClass = stack.state.actions()[i].characters();
-                characterClasses[i] = characterClass;
+                characterClasses[i] = stack.state.actions()[i].characters();
             }
 
             StateApplicableActions stateApplicableActionsForActor;

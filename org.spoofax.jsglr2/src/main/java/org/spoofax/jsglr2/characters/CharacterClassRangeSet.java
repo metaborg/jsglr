@@ -13,7 +13,7 @@ import com.google.common.collect.TreeRangeSet;
 
 public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> implements ICharacters {
 
-    private static final int BITMAP_SEGMENT_SIZE = 6; // 2^6 = 64 = 1/4 * 256
+    static final int BITMAP_SEGMENT_SIZE = 6; // 2^6 = 64 = 1/4 * 256
 
     protected ImmutableRangeSet<C> rangeSet; // Contains ranges in range [-128, 127]
     protected boolean containsEOF;
@@ -149,6 +149,12 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
     }
 
     protected abstract CharacterClassRangeSet<C> union(CharacterClassRangeSet<C> other);
+
+    public final ICharacters optimized() {
+        assert useCachedBitSet;
+
+        return new CharactersOptimized(word0, word1, word2, word3, containsEOF);
+    }
 
     @Override public String toString() {
         final List<String> ranges = new ArrayList<>();

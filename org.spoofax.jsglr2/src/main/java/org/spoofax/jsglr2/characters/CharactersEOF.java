@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.characters;
 
-public class CharactersEOF implements ICharacters {
+public final class CharactersEOF implements ICharacters {
 
     public static final CharactersEOF INSTANCE = new CharactersEOF();
 

@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.characters;
 
-public class CharactersSingle implements ICharacters {
+public final class CharactersSingle implements ICharacters {
 
     private final byte character; // Signed byte with range [-128, 127] representing ASCII [0, 255]
 

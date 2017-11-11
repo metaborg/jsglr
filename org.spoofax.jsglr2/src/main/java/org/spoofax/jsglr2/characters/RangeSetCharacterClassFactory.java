@@ -39,5 +39,12 @@ public abstract class RangeSetCharacterClassFactory<C extends Number & Comparabl
         }
     }
 
+    public ICharacters optimize(ICharacters characters) {
+        if(characters instanceof CharacterClassRangeSet)
+            return ((CharacterClassRangeSet) characters).optimized();
+        else
+            return characters;
+    }
+
 
 }

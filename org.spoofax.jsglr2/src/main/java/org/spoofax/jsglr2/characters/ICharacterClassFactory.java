@@ -8,8 +8,6 @@ public interface ICharacterClassFactory {
 
     ICharacters fromRange(int from, int to);
 
-    ICharacters fromEOF();
-
     ICharacters union(ICharacters one, ICharacters two);
 
     ICharacters optimize(ICharacters characters);

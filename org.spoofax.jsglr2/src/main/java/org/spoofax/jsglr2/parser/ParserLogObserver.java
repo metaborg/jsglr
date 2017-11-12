@@ -20,7 +20,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
-        log("Parse character '" + ICharacters.byteIntToString(character) + "' (active stacks: "
+        log("Parse character '" + ICharacters.intToString(character) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")");
     }
 
@@ -96,7 +96,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
         log("Create character node " + characterNode.nodeNumber + " for character '"
-            + ICharacters.byteIntToString(character) + "'");
+            + ICharacters.intToString(character) + "'");
     }
 
     @Override public void addDerivation(ParseForest parseNode) {

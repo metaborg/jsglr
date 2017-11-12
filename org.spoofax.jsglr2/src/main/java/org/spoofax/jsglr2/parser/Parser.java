@@ -85,7 +85,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
             } else {
                 ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure(parse,
                     new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
-                        + "/'" + ICharacters.byteIntToString(parse.currentChar) + "', position: "
+                        + "/'" + ICharacters.intToString(parse.currentChar) + "', position: "
                         + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
                         + parse.inputLength + "])"));
 
@@ -120,7 +120,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         notify(observer -> observer.parseCharacter(ICharacters.EOF_INT, parse.activeStacks));
 
         parseCharacterOrEOF(parse, state -> {
-            return state.applicableActionsEOF();
+            return state.applicableActions(ICharacters.EOF_INT);
         });
     }
 

@@ -15,7 +15,7 @@ public class TermNode extends BasicParseForest {
     }
 
     @Override public String descriptor() {
-        return "'" + ICharacters.byteIntToString(this.character) + "'";
+        return "'" + ICharacters.intToString(this.character) + "'";
     }
 
 }

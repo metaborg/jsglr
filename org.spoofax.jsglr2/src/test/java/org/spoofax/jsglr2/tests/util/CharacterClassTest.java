@@ -18,10 +18,9 @@ public class CharacterClassTest {
     ICharacters x = factory.fromSingle(120);
 
     private void testCharacterClass(ICharacters characters, Predicate<Integer> contains) {
-        for(int i = 0; i <= 255; i++) {
-            assertEquals("Character " + i + " ('" + ICharacters.byteIntToString(i) + "') for characters "
-                + characters.toString() + ":", contains.test(i),
-                characters.containsCharacter(ICharacters.charToInt((char) i)));
+        for(int i = 0; i <= ICharacters.EOF_INT; i++) {
+            assertEquals("Character " + i + " ('" + ICharacters.intToString(i) + "') for characters "
+                + characters.toString() + ":", contains.test(i), characters.containsCharacter(i));
         }
     }
 
@@ -30,8 +29,8 @@ public class CharacterClassTest {
             return 97 <= character && character <= 122;
         });
 
-        assertEquals(az.containsCharacter(ICharacters.charToInt('a')), true);
-        assertEquals(az.containsCharacter(ICharacters.charToInt('A')), false);
+        assertEquals(az.containsCharacter('a'), true);
+        assertEquals(az.containsCharacter('A'), false);
     }
 
     @Test public void testUppercaseCaseLettersRange() {
@@ -61,34 +60,30 @@ public class CharacterClassTest {
             return 65 <= character && character <= 90 || character == 120;
         });
 
-        assertEquals(characters.containsCharacter(ICharacters.charToInt('a')), false);
-        assertEquals(characters.containsCharacter(ICharacters.charToInt('B')), true);
-        assertEquals(characters.containsCharacter(ICharacters.charToInt('x')), true);
+        assertEquals(characters.containsCharacter('a'), false);
+        assertEquals(characters.containsCharacter('B'), true);
+        assertEquals(characters.containsCharacter('x'), true);
     }
 
     @Test public void testEOF() {
-        ICharacters characters = factory.fromEOF();
-
-        assertEquals(characters.containsEOF(), true);
+        ICharacters characters = factory.fromSingle(ICharacters.EOF_INT);
 
         testCharacterClass(characters, character -> {
-            return false;
+            return character == ICharacters.EOF_INT;
         });
     }
 
-    @Test public void testRangeEOFnion() {
-        ICharacters characters = factory.union(az, factory.fromEOF());
+    @Test public void testRangeEOFunion() {
+        ICharacters characters = factory.union(az, factory.fromSingle(ICharacters.EOF_INT));
 
         testCharacterClass(characters, character -> {
-            return 97 <= character && character <= 122;
+            return 97 <= character && character <= 122 || character == ICharacters.EOF_INT;
         });
-
-        assertEquals(characters.containsEOF(), true);
     }
 
     @Test public void testNewLineDetection() {
         char newLineChar = '\n';
-        int newLineInt = ICharacters.charToInt(newLineChar);
+        int newLineInt = newLineChar;
 
         assertEquals(ICharacters.isNewLine(newLineChar), true);
         assertEquals(ICharacters.isNewLine(newLineInt), true);

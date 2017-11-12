@@ -26,7 +26,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
     }
 
     @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
-        trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacters.byteIntToString(character)
+        trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacters.intToString(character)
             + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
     }
 
@@ -107,7 +107,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 
     @Override public void createCharacterNode(ParseForest parseNode, int character) {
         trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\""
-            + ICharacters.byteIntToString(character) + "\"" + ",\"startPosition\":" + parseNode.startPosition.offset
+            + ICharacters.intToString(character) + "\"" + ",\"startPosition\":" + parseNode.startPosition.offset
             + ",\"endPosition\":" + parseNode.endPosition.offset + "}");
     }
 

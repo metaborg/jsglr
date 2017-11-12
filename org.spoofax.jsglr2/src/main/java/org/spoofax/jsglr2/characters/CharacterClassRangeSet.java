@@ -15,25 +15,26 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
     static final int BITMAP_SEGMENT_SIZE = 6; // 2^6 = 64 = 1/4 * 256
 
-    protected ImmutableRangeSet<C> rangeSet; // Contains ranges in range [-128, 127]
-    protected boolean containsEOF;
+    protected ImmutableRangeSet<C> rangeSet; // Contains ranges in range [0, 255]
 
     private final boolean useCachedBitSet;
     private long word0; // [0, 63]
     private long word1; // [64, 127]
     private long word2; // [128, 191]
     private long word3; // [192, 255]
+    protected boolean containsEOF; // [256]
 
     protected CharacterClassRangeSet() {
         this(ImmutableRangeSet.copyOf(TreeRangeSet.create()), false);
     }
 
     protected CharacterClassRangeSet(final ImmutableRangeSet<C> rangeSet, boolean containsEOF) {
-        assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint().intValue() >= -128;
-        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint().intValue() < (EOF_INT - 128);
+        assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint().intValue() >= 0;
+        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint().intValue() <= EOF_INT;
 
         this.rangeSet = rangeSet;
-        this.containsEOF = containsEOF;
+        this.containsEOF =
+            (!rangeSet.isEmpty() && rangeSet.span().upperEndpoint().intValue() == EOF_INT) || containsEOF;
 
         this.useCachedBitSet = tryOptimize();
     }
@@ -44,13 +45,13 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
     private final long wordAt(int wordIndex) {
         switch(wordIndex) {
-            case -2:
-                return word0;
-            case -1:
-                return word1;
             case 0:
-                return word2;
+                return word0;
             case 1:
+                return word1;
+            case 2:
+                return word2;
+            case 3:
                 return word3;
             default:
                 return 0L;
@@ -59,16 +60,16 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
     @Override public final boolean containsCharacter(int character) {
         if(useCachedBitSet) {
-            final int wordIndex = character >> BITMAP_SEGMENT_SIZE;
-            final long word = wordAt(wordIndex);
+            if(character == ICharacters.EOF_INT)
+                return containsEOF;
+            else {
+                final int wordIndex = character >> BITMAP_SEGMENT_SIZE;
+                final long word = wordAt(wordIndex);
 
-            return (word & (1L << character)) != 0;
+                return (word & (1L << character)) != 0;
+            }
         } else
             return rangeSet.contains(intToInternalNumber(character));
-    }
-
-    @Override public final boolean containsEOF() {
-        return containsEOF;
     }
 
     protected final CharacterClassRangeSet<C> addRange(int from, int to) {
@@ -76,7 +77,7 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
         mutableRangeSet.add(Range.closed(intToInternalNumber(from), intToInternalNumber(to)));
 
-        return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
+        return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF || to == ICharacters.EOF_INT);
     }
 
     protected final CharacterClassRangeSet<C> addSingle(int character) {
@@ -84,11 +85,7 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
         mutableRangeSet.add(Range.singleton(intToInternalNumber(character)));
 
-        return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
-    }
-
-    protected final CharacterClassRangeSet<C> addEOF() {
-        return from(ImmutableRangeSet.copyOf(rangeSet), true);
+        return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF || character == ICharacters.EOF_INT);
     }
 
     public boolean tryOptimize() {
@@ -97,6 +94,7 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
             final long[] words = bitSet.toLongArray();
             switch(words.length) {
+                case 5:
                 case 4:
                     word3 = words[3];
                 case 3:
@@ -117,10 +115,10 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
             return new BitSet();
         }
 
-        final BitSet bitSet = new BitSet(rangeSet.span().upperEndpoint().intValue() + 128);
+        final BitSet bitSet = new BitSet(rangeSet.span().upperEndpoint().intValue());
 
         rangeSet.asRanges().forEach(range -> {
-            bitSet.set(range.lowerEndpoint().intValue() + 128, range.upperEndpoint().intValue() + 128 + 1);
+            bitSet.set(range.lowerEndpoint().intValue(), range.upperEndpoint().intValue() + 1);
         });
 
         return bitSet;
@@ -164,9 +162,9 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
             final int to = range.upperEndpoint().intValue();
 
             if(from != to)
-                ranges.add("" + ICharacters.byteIntToString(from) + "-" + ICharacters.byteIntToString(to));
+                ranges.add("" + ICharacters.intToString(from) + "-" + ICharacters.intToString(to));
             else
-                ranges.add("" + ICharacters.byteIntToString(from));
+                ranges.add("" + ICharacters.intToString(from));
         });
 
         if(containsEOF)

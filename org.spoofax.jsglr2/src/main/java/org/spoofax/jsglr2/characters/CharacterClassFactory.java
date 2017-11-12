@@ -6,8 +6,4 @@ public abstract class CharacterClassFactory implements ICharacterClassFactory {
         return new CharactersSingle(character);
     }
 
-    @Override public final ICharacters fromEOF() {
-        return CharactersEOF.INSTANCE;
-    }
-
 }

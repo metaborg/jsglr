@@ -189,20 +189,12 @@ public class ParseTableReader {
             ICharacters charactersForTerm = null;
 
             if(isTermInt(charactersTerm)) {
-                int singleCharacter = javaInt(charactersTerm);
-
-                if(singleCharacter == ICharacters.EOF_INT)
-                    charactersForTerm = characterClassFactory.fromEOF();
-                else if(singleCharacter < ICharacters.EOF_INT)
-                    charactersForTerm = characterClassFactory.fromSingle(singleCharacter);
+                charactersForTerm = characterClassFactory.fromSingle(javaInt(charactersTerm));
             } else {
                 int from = intAt(charactersTerm, 0);
                 int to = intAt(charactersTerm, 1);
 
-                charactersForTerm = characterClassFactory.fromRange(from, Math.min(to, ICharacters.EOF_INT - 1));
-
-                if(to == ICharacters.EOF_INT)
-                    charactersForTerm = characterClassFactory.union(charactersForTerm, characterClassFactory.fromEOF());
+                charactersForTerm = characterClassFactory.fromRange(from, to);
             }
 
             if(characters == null)

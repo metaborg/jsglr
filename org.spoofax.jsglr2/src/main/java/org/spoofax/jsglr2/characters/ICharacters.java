@@ -15,9 +15,7 @@ public interface ICharacters {
 
     int EOF_INT = 256;
 
-    static ICharacters eof() {
-        return factory().fromSingle(ICharacters.EOF_INT);
-    }
+    static final ICharacters EOF_SINGLETON = new CharactersClassOptimized(true);
 
     static RangeSetCharacterClassFactory factory() {
         return new ByteRangeSetCharacterClassFactory(true);

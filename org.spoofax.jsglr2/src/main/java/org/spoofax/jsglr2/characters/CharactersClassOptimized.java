@@ -2,11 +2,15 @@ package org.spoofax.jsglr2.characters;
 
 public final class CharactersClassOptimized implements ICharacters {
 
-    private final long word0; // [0, 63]
-    private final long word1; // [64, 127]
-    private final long word2; // [128, 191]
-    private final long word3; // [192, 255]
-    private final boolean containsEOF; // [256]
+    private long word0; // [0, 63]
+    private long word1; // [64, 127]
+    private long word2; // [128, 191]
+    private long word3; // [192, 255]
+    private boolean containsEOF; // [256]
+
+    public CharactersClassOptimized(boolean containsEOF) {
+        this.containsEOF = containsEOF;
+    }
 
     public CharactersClassOptimized(long word0, long word1, long word2, long word3, boolean containsEOF) {
         this.word0 = word0;

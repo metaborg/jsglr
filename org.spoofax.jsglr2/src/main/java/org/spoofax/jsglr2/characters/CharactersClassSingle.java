@@ -12,17 +12,13 @@ public final class CharactersClassSingle implements ICharacters {
         return containsCharacter == character;
     }
 
-    public final boolean containsEOF() {
-        return false;
-    }
-
     public final <C extends Number & Comparable<C>> CharacterClassRangeSet<C>
         rangeSetUnion(CharacterClassRangeSet<C> rangeSet) {
         return rangeSet.addSingle(containsCharacter);
     }
 
     @Override public final String toString() {
-        return "{EOF}";
+        return "{" + ICharacters.intToString(containsCharacter) + "}";
     }
 
 }

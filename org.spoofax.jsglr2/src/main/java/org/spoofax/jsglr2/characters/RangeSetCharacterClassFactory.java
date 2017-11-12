@@ -16,10 +16,7 @@ public abstract class RangeSetCharacterClassFactory<C extends Number & Comparabl
     protected abstract CharacterClassRangeSet<C> emptyRangeSet();
 
     @Override public final ICharacters fromSingle(int character) {
-        if(character == ICharacters.EOF_INT)
-            return emptyRangeSet().addSingle(ICharacters.EOF_INT);
-        else
-            return new CharactersClassSingle(character);
+        return new CharactersClassSingle(character);
     }
 
     @Override public final ICharacters fromRange(int from, int to) {

@@ -13,10 +13,6 @@ public interface ICharacters {
         return new IntegerRangeSetCharacterClassFactory(true);
     }
 
-    static ICharacters eof() {
-        return new CharactersSingle(EOF_INT);
-    }
-
     boolean containsCharacter(int character);
 
     <C extends Number & Comparable<C>> CharacterClassRangeSet<C> rangeSetUnion(CharacterClassRangeSet<C> rangeSet);

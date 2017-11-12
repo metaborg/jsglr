@@ -20,7 +20,7 @@ public final class CharactersClassOptimized implements ICharacters {
         this.containsEOF = containsEOF;
     }
 
-    public final boolean containsCharacter(byte character) {
+    public final boolean containsCharacter(int character) {
         final int wordIndex = character >> CharacterClassRangeSet.BITMAP_SEGMENT_SIZE;
         final long word;
 

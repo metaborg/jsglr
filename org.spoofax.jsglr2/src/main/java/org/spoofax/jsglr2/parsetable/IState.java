@@ -14,7 +14,7 @@ public interface IState {
 
     boolean isRejectable();
 
-    Iterable<IAction> applicableActions(byte character);
+    Iterable<IAction> applicableActions(int character);
 
     Iterable<IReduce> applicableReduceActions(Parse parse);
 

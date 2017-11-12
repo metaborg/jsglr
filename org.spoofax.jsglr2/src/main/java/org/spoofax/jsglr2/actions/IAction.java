@@ -8,7 +8,7 @@ public interface IAction {
 
     ICharacters characters();
 
-    public default boolean appliesTo(byte character) {
+    public default boolean appliesTo(int character) {
         return characters().containsCharacter(character);
     }
 

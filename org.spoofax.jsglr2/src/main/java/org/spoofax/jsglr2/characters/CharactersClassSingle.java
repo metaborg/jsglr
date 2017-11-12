@@ -2,13 +2,13 @@ package org.spoofax.jsglr2.characters;
 
 public final class CharactersClassSingle implements ICharacters {
 
-    private final byte containsCharacter;
+    private final int containsCharacter;
 
     public CharactersClassSingle(int containsCharacter) {
-        this.containsCharacter = (byte) (containsCharacter - 128);
+        this.containsCharacter = containsCharacter - 128;
     }
 
-    public final boolean containsCharacter(byte character) {
+    public final boolean containsCharacter(int character) {
         return containsCharacter == character;
     }
 

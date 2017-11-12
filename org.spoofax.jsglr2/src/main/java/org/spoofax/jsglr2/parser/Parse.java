@@ -19,7 +19,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     final public String inputString;
     final public int inputLength;
 
-    public byte currentChar; // Current ASCII char in range [-128, 127] corresponding to ASCII [0, 255]
+    public int currentChar; // Current ASCII char in range [-128, 127] corresponding to ASCII [0, 255]
     public int currentOffset, currentLine, currentColumn;
 
     public StackNode acceptingStack;
@@ -91,7 +91,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         }
     }
 
-    private byte getChar(int position) {
+    private int getChar(int position) {
         char c = inputString.charAt(position);
 
         if(c > 255)

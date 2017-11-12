@@ -20,9 +20,9 @@ import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
+import org.spoofax.jsglr2.characters.ByteRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacters;
-import org.spoofax.jsglr2.characters.ByteRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
@@ -75,9 +75,9 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
     abstract class StateApplicableActions {
 
         final ICharacters[] characterClasses; // Represent the character classes of the actions in the state
-        final byte character;
+        final int character;
 
-        protected StateApplicableActions(ICharacters[] characterClasses, byte character) {
+        protected StateApplicableActions(ICharacters[] characterClasses, int character) {
             this.characterClasses = characterClasses;
             this.character = character;
         }
@@ -88,7 +88,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     class StateApplicableActionsList extends StateApplicableActions {
 
-        public StateApplicableActionsList(ICharacters[] characterClasses, byte character) {
+        public StateApplicableActionsList(ICharacters[] characterClasses, int character) {
             super(characterClasses, character);
         }
 
@@ -112,7 +112,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     class StateApplicableActionsIterable extends StateApplicableActions {
 
-        public StateApplicableActionsIterable(ICharacters[] characterClasses, byte character) {
+        public StateApplicableActionsIterable(ICharacters[] characterClasses, int character) {
             super(characterClasses, character);
         }
 
@@ -148,7 +148,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     class StateApplicableActionsForLoop extends StateApplicableActions {
 
-        public StateApplicableActionsForLoop(ICharacters[] characterClasses, byte character) {
+        public StateApplicableActionsForLoop(ICharacters[] characterClasses, int character) {
             super(characterClasses, character);
         }
 

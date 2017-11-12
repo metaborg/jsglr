@@ -57,7 +57,7 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
         }
     }
 
-    @Override public final boolean containsCharacter(int character) {
+    @Override public final boolean containsCharacter(byte character) {
         if(useCachedBitSet) {
             final int wordIndex = character >> BITMAP_SEGMENT_SIZE;
             final long word = wordAt(wordIndex);
@@ -157,8 +157,8 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
         final List<String> ranges = new ArrayList<>();
 
         rangeSet.asRanges().forEach(range -> {
-            final int from = range.lowerEndpoint().intValue();
-            final int to = range.upperEndpoint().intValue();
+            final byte from = range.lowerEndpoint().byteValue();
+            final byte to = range.upperEndpoint().byteValue();
 
             if(from != to)
                 ranges.add("" + ICharacters.numberToChar(from) + "-" + ICharacters.numberToChar(to));

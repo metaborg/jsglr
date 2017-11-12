@@ -6,9 +6,9 @@ import org.spoofax.jsglr2.parser.Position;
 
 public class CharacterNode extends HybridParseForest {
 
-    public final int character;
+    public final byte character;
 
-    public CharacterNode(int nodeNumber, Parse parse, Position position, int character) {
+    public CharacterNode(int nodeNumber, Parse parse, Position position, byte character) {
         super(nodeNumber, parse, position,
             ICharacters.isNumberNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;

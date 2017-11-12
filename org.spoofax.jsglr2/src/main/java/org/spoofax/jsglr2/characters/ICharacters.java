@@ -19,18 +19,18 @@ public interface ICharacters {
         return new IntegerRangeSetCharacterClassFactory(true);
     }
 
-    boolean containsCharacter(int character);
+    boolean containsCharacter(byte character);
 
     boolean containsEOF();
 
     <C extends Number & Comparable<C>> CharacterClassRangeSet<C> rangeSetUnion(CharacterClassRangeSet<C> rangeSet);
 
-    static int charToNumber(char c) {
-        return ((int) c) - 128;
+    static byte charToNumber(char c) {
+        return (byte) (c - 128);
     }
 
-    static char numberToChar(int i) {
-        return (char) (i + 128);
+    static char numberToChar(byte b) {
+        return (char) (((int) b) + 128);
     }
 
     static String intToString(int character) {
@@ -45,7 +45,7 @@ public interface ICharacters {
         return character != EOF_INT && ((char) character) == '\n';
     }
 
-    static boolean isNumberNewLine(int character) {
+    static boolean isNumberNewLine(byte character) {
         return numberToChar(character) == '\n';
     }
 

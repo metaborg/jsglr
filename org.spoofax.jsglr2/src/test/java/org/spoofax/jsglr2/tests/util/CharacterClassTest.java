@@ -19,9 +19,9 @@ public class CharacterClassTest {
 
     private void testCharacterClass(ICharacters characters, Predicate<Integer> contains) {
         for(int i = 0; i <= 255; i++) {
-            assertEquals("Character " + i + " ('" + ICharacters.intToString(i) + "') for characters "
+            assertEquals("Character " + i + " ('" + ICharacters.byteIntToString(i) + "') for characters "
                 + characters.toString() + ":", contains.test(i),
-                characters.containsCharacter(ICharacters.charToByte((char) i)));
+                characters.containsCharacter(ICharacters.charToInt((char) i)));
         }
     }
 
@@ -30,8 +30,8 @@ public class CharacterClassTest {
             return 97 <= character && character <= 122;
         });
 
-        assertEquals(az.containsCharacter(ICharacters.charToByte('a')), true);
-        assertEquals(az.containsCharacter(ICharacters.charToByte('A')), false);
+        assertEquals(az.containsCharacter(ICharacters.charToInt('a')), true);
+        assertEquals(az.containsCharacter(ICharacters.charToInt('A')), false);
     }
 
     @Test public void testUppercaseCaseLettersRange() {
@@ -61,9 +61,9 @@ public class CharacterClassTest {
             return 65 <= character && character <= 90 || character == 120;
         });
 
-        assertEquals(characters.containsCharacter(ICharacters.charToByte('a')), false);
-        assertEquals(characters.containsCharacter(ICharacters.charToByte('B')), true);
-        assertEquals(characters.containsCharacter(ICharacters.charToByte('x')), true);
+        assertEquals(characters.containsCharacter(ICharacters.charToInt('a')), false);
+        assertEquals(characters.containsCharacter(ICharacters.charToInt('B')), true);
+        assertEquals(characters.containsCharacter(ICharacters.charToInt('x')), true);
     }
 
     @Test public void testEOF() {
@@ -88,10 +88,10 @@ public class CharacterClassTest {
 
     @Test public void testNewLineDetection() {
         char newLineChar = '\n';
-        byte newLineByte = ICharacters.charToByte(newLineChar);
+        int newLineInt = ICharacters.charToInt(newLineChar);
 
         assertEquals(ICharacters.isNewLine(newLineChar), true);
-        assertEquals(ICharacters.isNewLine(newLineByte), true);
+        assertEquals(ICharacters.isNewLine(newLineInt), true);
     }
 
 }

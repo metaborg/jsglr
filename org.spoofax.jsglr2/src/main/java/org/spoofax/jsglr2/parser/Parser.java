@@ -85,7 +85,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
             } else {
                 ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure(parse,
                     new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
-                        + "/'" + ICharacters.intToString(parse.currentChar) + "', position: "
+                        + "/'" + ICharacters.byteIntToString(parse.currentChar) + "', position: "
                         + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
                         + parse.inputLength + "])"));
 

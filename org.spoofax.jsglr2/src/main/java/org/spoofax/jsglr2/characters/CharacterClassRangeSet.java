@@ -40,7 +40,7 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
     protected abstract CharacterClassRangeSet<C> from(final ImmutableRangeSet<C> rangeSet, boolean containsEOF);
 
-    protected abstract C byteToInternalNumber(byte b);
+    protected abstract C intToInternalNumber(int b);
 
     private final long wordAt(int wordIndex) {
         switch(wordIndex) {
@@ -57,32 +57,32 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
         }
     }
 
-    @Override public final boolean containsCharacter(byte character) {
+    @Override public final boolean containsCharacter(int character) {
         if(useCachedBitSet) {
             final int wordIndex = character >> BITMAP_SEGMENT_SIZE;
             final long word = wordAt(wordIndex);
 
             return (word & (1L << character)) != 0;
         } else
-            return rangeSet.contains(byteToInternalNumber(character));
+            return rangeSet.contains(intToInternalNumber(character));
     }
 
     @Override public final boolean containsEOF() {
         return containsEOF;
     }
 
-    protected final CharacterClassRangeSet<C> addRange(byte from, byte to) {
+    protected final CharacterClassRangeSet<C> addRange(int from, int to) {
         final RangeSet<C> mutableRangeSet = TreeRangeSet.create(rangeSet);
 
-        mutableRangeSet.add(Range.closed(byteToInternalNumber(from), byteToInternalNumber(to)));
+        mutableRangeSet.add(Range.closed(intToInternalNumber(from), intToInternalNumber(to)));
 
         return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
     }
 
-    protected final CharacterClassRangeSet<C> addSingle(byte character) {
+    protected final CharacterClassRangeSet<C> addSingle(int character) {
         final RangeSet<C> mutableRangeSet = TreeRangeSet.create(rangeSet);
 
-        mutableRangeSet.add(Range.singleton(byteToInternalNumber(character)));
+        mutableRangeSet.add(Range.singleton(intToInternalNumber(character)));
 
         return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
     }
@@ -160,13 +160,13 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
         final List<String> ranges = new ArrayList<>();
 
         rangeSet.asRanges().forEach(range -> {
-            final byte from = range.lowerEndpoint().byteValue();
-            final byte to = range.upperEndpoint().byteValue();
+            final int from = range.lowerEndpoint().intValue();
+            final int to = range.upperEndpoint().intValue();
 
             if(from != to)
-                ranges.add("" + ICharacters.byteToString(from) + "-" + ICharacters.byteToString(to));
+                ranges.add("" + ICharacters.byteIntToString(from) + "-" + ICharacters.byteIntToString(to));
             else
-                ranges.add("" + ICharacters.byteToString(from));
+                ranges.add("" + ICharacters.byteIntToString(from));
         });
 
         if(containsEOF)

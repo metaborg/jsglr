@@ -2,13 +2,13 @@ package org.spoofax.jsglr2.characters;
 
 public final class CharactersSingle implements ICharacters {
 
-    private final byte character; // Signed byte with range [-128, 127] representing ASCII [0, 255]
+    private final int character; // Signed byte with range [-128, 127] representing ASCII [0, 255]
 
     public CharactersSingle(int character) {
-        this.character = (byte) (character - 128);
+        this.character = character - 128;
     }
 
-    public final boolean containsCharacter(byte character) {
+    public final boolean containsCharacter(int character) {
         return this.character == character;
     }
 
@@ -22,7 +22,7 @@ public final class CharactersSingle implements ICharacters {
     }
 
     @Override public final String toString() {
-        return "{" + ICharacters.byteToString(character) + "}";
+        return "{" + ICharacters.byteIntToString(character) + "}";
     }
 
 }

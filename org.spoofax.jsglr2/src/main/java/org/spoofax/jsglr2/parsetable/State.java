@@ -53,7 +53,7 @@ public final class State implements IState {
         this.rejectable = true;
     }
 
-    @Override public Iterable<IAction> applicableActions(byte character) {
+    @Override public Iterable<IAction> applicableActions(int character) {
         // NOTE: simple code
         // final Iterator<IAction> iterator = Stream.of(actions)
         // .filter(action -> action.appliesTo(character))

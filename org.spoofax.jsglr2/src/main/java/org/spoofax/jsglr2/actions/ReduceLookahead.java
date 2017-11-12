@@ -21,7 +21,7 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
             return true;
 
         for(int i = 0; i < followRestriction.length; i++) {
-            if(!followRestriction[i].containsCharacter(ICharacters.charToByte(lookahead.charAt(i))))
+            if(!followRestriction[i].containsCharacter(ICharacters.charToInt(lookahead.charAt(i))))
                 return true;
         }
 

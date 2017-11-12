@@ -22,18 +22,18 @@ public interface ICharacters {
         return CharactersEOF.INSTANCE;
     }
 
-    boolean containsCharacter(byte character);
+    boolean containsCharacter(int character);
 
     boolean containsEOF();
 
     <C extends Number & Comparable<C>> CharacterClassRangeSet<C> rangeSetUnion(CharacterClassRangeSet<C> rangeSet);
 
-    static byte charToByte(char c) {
-        return (byte) (c - 128);
+    static int charToInt(char c) {
+        return c - 128;
     }
 
-    static String byteToString(byte b) {
-        return "" + (char) (((int) b) + 128);
+    static String byteIntToString(int i) {
+        return "" + (char) (i + 128);
     }
 
     static String intToString(int character) {

@@ -4,7 +4,7 @@ public final class CharactersEOF implements ICharacters {
 
     public static final CharactersEOF INSTANCE = new CharactersEOF();
 
-    public boolean containsCharacter(byte character) {
+    public boolean containsCharacter(int character) {
         return false;
     }
 

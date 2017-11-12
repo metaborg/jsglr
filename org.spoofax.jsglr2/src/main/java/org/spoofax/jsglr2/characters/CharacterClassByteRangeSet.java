@@ -20,8 +20,8 @@ public final class CharacterClassByteRangeSet extends CharacterClassRangeSet<Byt
         return new CharacterClassByteRangeSet(rangeSet, containsEOF);
     }
 
-    protected final Byte byteToInternalNumber(byte b) {
-        return b;
+    protected final Byte intToInternalNumber(int i) {
+        return (byte) i;
     }
 
     protected final CharacterClassRangeSet<Byte> union(CharacterClassRangeSet<Byte> other) {

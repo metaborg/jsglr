@@ -12,6 +12,10 @@ public interface IAction {
         return characters().containsCharacter(character);
     }
 
+    public default boolean appliesToEOF() {
+        return characters().containsEOF();
+    }
+
     static boolean typeMatchesShift(IAction action) {
         return action.actionType() == ActionType.SHIFT;
     }

@@ -21,7 +21,7 @@ public final class CharacterClassIntegerRangeSet extends CharacterClassRangeSet<
     }
 
     protected final Integer intToInternalNumber(int i) {
-        return i;
+        return i - 128;
     }
 
     protected final CharacterClassRangeSet<Integer> union(CharacterClassRangeSet<Integer> other) {

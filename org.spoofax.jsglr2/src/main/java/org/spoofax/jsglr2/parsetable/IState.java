@@ -18,6 +18,8 @@ public interface IState {
 
     Iterable<IReduce> applicableReduceActions(Parse parse);
 
+    Iterable<IAction> applicableActionsEOF();
+
     Optional<Integer> getGotoId(int productionId);
 
 }

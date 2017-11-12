@@ -116,6 +116,27 @@ public final class State implements IState {
         };
     }
 
+    @Override public Iterable<IAction> applicableActionsEOF() {
+        return () -> new Iterator<IAction>() {
+            int index = 0;
+
+            @Override public boolean hasNext() {
+                // skip non-applicable actions
+                while(index < actions.length && !actions[index].appliesToEOF()) {
+                    index++;
+                }
+                return index < actions.length;
+            }
+
+            @Override public IAction next() {
+                if(!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return actions[index++];
+            }
+        };
+    }
+
     @Override public Optional<Integer> getGotoId(int productionId) {
         assert productionToGoto.get(productionId).size() <= 1;
         return productionToGoto.get(productionId).findFirst();

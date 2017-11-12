@@ -10,12 +10,12 @@ public class CharacterNode extends HybridParseForest {
 
     public CharacterNode(int nodeNumber, Parse parse, Position position, int character) {
         super(nodeNumber, parse, position,
-            ICharacters.isNewLine(character) ? position.nextLine() : position.nextColumn());
+            ICharacters.isNumberNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;
     }
 
     @Override public String descriptor() {
-        return "'" + ICharacters.intToString(this.character) + "'";
+        return "'" + ICharacters.numberToChar(this.character) + "'";
     }
 
 }

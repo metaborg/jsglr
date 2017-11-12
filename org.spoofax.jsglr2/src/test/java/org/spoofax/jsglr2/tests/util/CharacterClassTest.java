@@ -19,8 +19,11 @@ public class CharacterClassTest {
 
     private void testCharacterClass(ICharacters characters, Predicate<Integer> contains) {
         for(int i = 0; i <= ICharacters.EOF_INT; i++) {
+            boolean expected = i < ICharacters.EOF_INT
+                ? characters.containsCharacter(ICharacters.charToNumber((char) i)) : characters.containsEOF();
+
             assertEquals("Character " + i + " ('" + ICharacters.intToString(i) + "') for characters "
-                + characters.toString() + ":", contains.test(i), characters.containsCharacter(i));
+                + characters.toString() + ":", contains.test(i), expected);
         }
     }
 
@@ -29,8 +32,8 @@ public class CharacterClassTest {
             return 97 <= character && character <= 122;
         });
 
-        assertEquals(az.containsCharacter('a'), true);
-        assertEquals(az.containsCharacter('A'), false);
+        assertEquals(az.containsCharacter(ICharacters.charToNumber('a')), true);
+        assertEquals(az.containsCharacter(ICharacters.charToNumber('A')), false);
     }
 
     @Test public void testUppercaseCaseLettersRange() {
@@ -60,9 +63,9 @@ public class CharacterClassTest {
             return 65 <= character && character <= 90 || character == 120;
         });
 
-        assertEquals(characters.containsCharacter('a'), false);
-        assertEquals(characters.containsCharacter('B'), true);
-        assertEquals(characters.containsCharacter('x'), true);
+        assertEquals(characters.containsCharacter(ICharacters.charToNumber('a')), false);
+        assertEquals(characters.containsCharacter(ICharacters.charToNumber('B')), true);
+        assertEquals(characters.containsCharacter(ICharacters.charToNumber('x')), true);
     }
 
     @Test public void testEOF() {
@@ -87,6 +90,9 @@ public class CharacterClassTest {
 
         assertEquals(ICharacters.isNewLine(newLineChar), true);
         assertEquals(ICharacters.isNewLine(newLineInt), true);
+
+        assertEquals(ICharacters.isNumberNewLine(ICharacters.charToNumber(newLineChar)), true);
+        assertEquals(ICharacters.isNumberNewLine(ICharacters.charToNumber((char) newLineInt)), true);
     }
 
 }

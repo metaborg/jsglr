@@ -30,11 +30,10 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
     protected CharacterClassRangeSet(final ImmutableRangeSet<C> rangeSet, boolean containsEOF) {
         assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint().intValue() >= 0;
-        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint().intValue() <= EOF_INT;
+        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint().intValue() < EOF_INT;
 
         this.rangeSet = rangeSet;
-        this.containsEOF =
-            (!rangeSet.isEmpty() && rangeSet.span().upperEndpoint().intValue() == EOF_INT) || containsEOF;
+        this.containsEOF = containsEOF;
 
         this.useCachedBitSet = tryOptimize();
     }
@@ -59,15 +58,14 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
     }
 
     @Override public final boolean containsCharacter(int character) {
-        if(useCachedBitSet) {
-            if(character == ICharacters.EOF_INT)
-                return containsEOF;
-            else {
-                final int wordIndex = character >> BITMAP_SEGMENT_SIZE;
-                final long word = wordAt(wordIndex);
+        if(character == ICharacters.EOF_INT)
+            return containsEOF;
 
-                return (word & (1L << character)) != 0;
-            }
+        if(useCachedBitSet) {
+            final int wordIndex = character >> BITMAP_SEGMENT_SIZE;
+            final long word = wordAt(wordIndex);
+
+            return (word & (1L << character)) != 0;
         } else
             return rangeSet.contains(intToInternalNumber(character));
     }
@@ -75,7 +73,7 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
     protected final CharacterClassRangeSet<C> addRange(int from, int to) {
         final RangeSet<C> mutableRangeSet = TreeRangeSet.create(rangeSet);
 
-        mutableRangeSet.add(Range.closed(intToInternalNumber(from), intToInternalNumber(to)));
+        mutableRangeSet.add(Range.closed(intToInternalNumber(from), intToInternalNumber(Math.min(255, to))));
 
         return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF || to == ICharacters.EOF_INT);
     }
@@ -83,7 +81,8 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
     protected final CharacterClassRangeSet<C> addSingle(int character) {
         final RangeSet<C> mutableRangeSet = TreeRangeSet.create(rangeSet);
 
-        mutableRangeSet.add(Range.singleton(intToInternalNumber(character)));
+        if(character < ICharacters.EOF_INT)
+            mutableRangeSet.add(Range.singleton(intToInternalNumber(character)));
 
         return from(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF || character == ICharacters.EOF_INT);
     }
@@ -94,7 +93,6 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
             final long[] words = bitSet.toLongArray();
             switch(words.length) {
-                case 5:
                 case 4:
                     word3 = words[3];
                 case 3:

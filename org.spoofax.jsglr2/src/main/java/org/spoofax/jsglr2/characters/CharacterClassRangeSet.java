@@ -147,10 +147,10 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
     protected abstract CharacterClassRangeSet<C> union(CharacterClassRangeSet<C> other);
 
-    public final CharactersOptimized optimized() {
+    public final CharactersClassOptimized optimized() {
         assert rangeSet.isEmpty() || useCachedBitSet;
 
-        return new CharactersOptimized(word0, word1, word2, word3, containsEOF);
+        return new CharactersClassOptimized(word0, word1, word2, word3, containsEOF);
     }
 
     @Override public String toString() {

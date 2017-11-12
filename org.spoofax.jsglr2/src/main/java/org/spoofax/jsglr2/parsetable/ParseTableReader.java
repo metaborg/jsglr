@@ -253,7 +253,7 @@ public class ParseTableReader {
                     action = new ReduceLookahead(characters, production, productionType, arity, followRestriction);
                 }
             } else if(actionTermAppl.getName().equals("accept")) { // Accept
-                action = new Accept(characters);
+                action = new Accept();
             } else if(actionTermAppl.getName().equals("shift")) { // Shift
                 int shiftState = intAt(actionTermAppl, 0);
 

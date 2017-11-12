@@ -4,8 +4,10 @@ import org.spoofax.jsglr2.characters.ICharacters;
 
 public class Accept extends Action implements IAccept {
 
-    public Accept(ICharacters characters) {
-        super(characters);
+    // TODO: this can be a singleton
+
+    public Accept() {
+        super(ICharacters.eof());
     }
 
 }

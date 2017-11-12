@@ -16,7 +16,7 @@ public interface ICharacters {
     int EOF_INT = 256;
 
     static RangeSetCharacterClassFactory factory() {
-        return new IntegerRangeSetCharacterClassFactory(true);
+        return new ByteRangeSetCharacterClassFactory(true);
     }
 
     boolean containsCharacter(byte character);

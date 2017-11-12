@@ -22,7 +22,7 @@ import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacters;
-import org.spoofax.jsglr2.characters.IntegerRangeSetCharacterClassFactory;
+import org.spoofax.jsglr2.characters.ByteRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
@@ -54,7 +54,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
-        ICharacterClassFactory characterClassFactory = new IntegerRangeSetCharacterClassFactory(optimized);
+        ICharacterClassFactory characterClassFactory = new ByteRangeSetCharacterClassFactory(optimized);
         IParseTable parseTable = new ParseTableReader(characterClassFactory).read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,

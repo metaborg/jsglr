@@ -9,7 +9,7 @@ public interface ICharacters {
 
     int EOF_INT = 256;
 
-    static final ICharacters EOF_SINGLETON = new CharactersClassOptimized(true);
+    static final ICharacters EOF_SINGLETON = new CharactersClassSingle(EOF_INT);
 
     static RangeSetCharacterClassFactory factory() {
         return new IntegerRangeSetCharacterClassFactory(true);

@@ -146,9 +146,9 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
 
     protected abstract CharacterClassRangeSet<C> union(CharacterClassRangeSet<C> other);
 
-    public final CharactersClassOptimized optimized() {
+    public final ICharacters optimized() {
         if(rangeSet.isEmpty())
-            return new CharactersClassOptimized(containsEOF);
+            return containsEOF ? EOF_SINGLETON : new CharactersClassOptimized(false);
         else
             return new CharactersClassOptimized(word0, word1, word2, word3, containsEOF);
     }

@@ -5,7 +5,7 @@ public final class CharactersClassSingle implements ICharacters {
     private final int containsCharacter;
 
     public CharactersClassSingle(int containsCharacter) {
-        this.containsCharacter = containsCharacter - 128;
+        this.containsCharacter = containsCharacter;
     }
 
     public final boolean containsCharacter(int character) {
@@ -18,7 +18,7 @@ public final class CharactersClassSingle implements ICharacters {
 
     public final <C extends Number & Comparable<C>> CharacterClassRangeSet<C>
         rangeSetUnion(CharacterClassRangeSet<C> rangeSet) {
-        return rangeSet.addSingle(((int) containsCharacter) + 128);
+        return rangeSet.addSingle(containsCharacter);
     }
 
     @Override public final String toString() {

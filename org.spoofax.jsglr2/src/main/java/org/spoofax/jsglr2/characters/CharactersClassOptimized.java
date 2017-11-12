@@ -25,27 +25,25 @@ public final class CharactersClassOptimized implements ICharacters {
         final long word;
 
         switch(wordIndex) {
-            case -2:
+            case 0:
                 word = word0;
                 break;
-            case -1:
+            case 1:
                 word = word1;
                 break;
-            case 0:
+            case 2:
                 word = word2;
                 break;
-            case 1:
+            case 3:
                 word = word3;
                 break;
+            case 4:
+                return containsEOF;
             default:
                 word = 0L;
         }
 
         return (word & (1L << character)) != 0;
-    }
-
-    public final boolean containsEOF() {
-        return containsEOF;
     }
 
     public final <C extends Number & Comparable<C>> CharacterClassRangeSet<C>

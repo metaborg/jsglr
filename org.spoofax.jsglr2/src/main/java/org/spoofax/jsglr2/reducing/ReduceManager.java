@@ -1,7 +1,10 @@
 package org.spoofax.jsglr2.reducing;
 
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
+import org.spoofax.jsglr2.actions.ActionType;
+import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
+import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
@@ -100,9 +103,15 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
                     StackNode activeStack = parse.activeStacks.get(i);
 
                     if(!activeStack.allOutLinksRejected() && !parse.forActor.contains(activeStack)
-                        && !parse.forActorDelayed.contains(activeStack))
-                        for(IReduce reduceAction : activeStack.state.applicableReduceActions(parse))
-                            doLimitedRedutions(parse, activeStack, reduceAction, link);
+                        && !parse.forActorDelayed.contains(activeStack)) {
+                        // Use for loop here rather than IState::applicableReduceActions since it is faster
+                        for(IAction action : activeStack.state.actions()) {
+                            if(action.actionType() == ActionType.REDUCE
+                                || action.actionType() == ActionType.REDUCE_LOOKAHEAD
+                                    && ((IReduceLookahead) action).allowsLookahead(parse))
+                                doLimitedRedutions(parse, activeStack, (IReduce) action, link);
+                        }
+                    }
                 }
             }
         } else {

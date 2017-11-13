@@ -131,40 +131,41 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
 
     private void actor(StackNode stack, Parse<StackNode, ParseForest> parse, int character) {
-        Iterable<IAction> applicableActions = stack.state.applicableActions(character);
+        notify(observer -> observer.actor(stack, parse, stack.state.applicableActions(character)));
 
-        notify(observer -> observer.actor(stack, parse, applicableActions));
+        // Use for loop here rather than IState::applicableActions since it is faster
+        for(IAction action : stack.state.actions()) {
+            if(action.appliesTo(character))
+                switch(action.actionType()) {
+                    case SHIFT:
+                        IShift shiftAction = (IShift) action;
+                        IState shiftState = parseTable.getState(shiftAction.shiftState());
 
-        for(IAction action : applicableActions)
-            switch(action.actionType()) {
-                case SHIFT:
-                    IShift shiftAction = (IShift) action;
-                    IState shiftState = parseTable.getState(shiftAction.shiftState());
+                        addForShifter(parse, stack, shiftState);
 
-                    addForShifter(parse, stack, shiftState);
+                        break;
+                    case REDUCE:
+                        IReduce reduceAction = (IReduce) action;
 
-                    break;
-                case REDUCE:
-                    IReduce reduceAction = (IReduce) action;
+                        reducer.doReductions(parse, stack, reduceAction);
 
-                    reducer.doReductions(parse, stack, reduceAction);
+                        break;
+                    case REDUCE_LOOKAHEAD:
+                        IReduceLookahead reduceLookaheadAction = (IReduceLookahead) action;
 
-                    break;
-                case REDUCE_LOOKAHEAD:
-                    IReduceLookahead reduceLookaheadAction = (IReduceLookahead) action;
+                        if(reduceLookaheadAction.allowsLookahead(parse)) {
+                            reducer.doReductions(parse, stack, reduceLookaheadAction);
+                        }
 
-                    if(reduceLookaheadAction.allowsLookahead(parse)) {
-                        reducer.doReductions(parse, stack, reduceLookaheadAction);
-                    }
+                        break;
+                    case ACCEPT:
+                        parse.acceptingStack = stack;
 
-                    break;
-                case ACCEPT:
-                    parse.acceptingStack = stack;
+                        notify(observer -> observer.accept(stack));
 
-                    notify(observer -> observer.accept(stack));
-
-                    break;
-            }
+                        break;
+                }
+        }
     }
 
     private void shifter(Parse<StackNode, ParseForest> parse) {

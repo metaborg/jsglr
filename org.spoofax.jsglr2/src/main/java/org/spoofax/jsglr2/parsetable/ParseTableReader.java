@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -275,23 +274,15 @@ public class ParseTableReader {
             .map(IReduce.class::cast).map(IReduce::production).filter(IProduction::typeMatchesReject)
             .map(IProduction::productionNumber).collect(CapsuleCollectors.toSet());
 
-        final Set.Immutable<Integer> gotoStateIdentifiers =
-            Stream.of(states).flatMap(state -> rejectProductionIdentifiers.stream().map(state::getGotoId))
-                .flatMap(ParseTableReader::optionalToStream).collect(CapsuleCollectors.toSet());
+        final Set.Immutable<Integer> rejectableStateIdentifiers = Stream.of(states)
+            .flatMap(state -> rejectProductionIdentifiers.stream().filter(rejectProductionIdentifier -> {
+                return state.hasGoto(rejectProductionIdentifier);
+            }).map(state::getGotoId)).collect(CapsuleCollectors.toSet());
 
         /*
          * A state for is marked as rejectable if it is reachable by at least one reject production.
          */
-        gotoStateIdentifiers.forEach(gotoId -> states[gotoId].markRejectable());
-    }
-
-    // TODO: move to Capsule stream utils
-    static final <T> Stream<T> optionalToStream(Optional<T> o) {
-        if(o.isPresent()) {
-            return Stream.of(o.get());
-        } else {
-            return Stream.empty();
-        }
+        rejectableStateIdentifiers.forEach(gotoId -> states[gotoId].markRejectable());
     }
 
 }

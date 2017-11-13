@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.parsetable;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.spoofax.jsglr2.actions.ActionType;
@@ -29,9 +28,12 @@ public final class State implements IState {
 
         final BinaryRelation.Transient<Integer, Integer> tmpProductionToGoto = BinaryRelation.Transient.of();
 
-        for(IGoto action : gotos) {
-            int gotoId = action.gotoState();
-            IntStream.of(action.productions()).forEach(productionId -> tmpProductionToGoto.__put(productionId, gotoId));
+        for(IGoto gotoAction : gotos) {
+            int gotoState = gotoAction.gotoState();
+
+            IntStream.of(gotoAction.productions()).forEach(productionId -> {
+                tmpProductionToGoto.__put(productionId, gotoState);
+            });
         }
 
         this.productionToGoto = tmpProductionToGoto.freeze();
@@ -116,9 +118,13 @@ public final class State implements IState {
         };
     }
 
-    @Override public Optional<Integer> getGotoId(int productionId) {
+    public boolean hasGoto(int productionId) {
+        return !productionToGoto.get(productionId).isEmpty();
+    }
+
+    @Override public int getGotoId(int productionId) {
         assert productionToGoto.get(productionId).size() <= 1;
-        return productionToGoto.get(productionId).findFirst();
+        return productionToGoto.get(productionId).findFirst().get();
     }
 
     @Override public boolean equals(Object obj) {

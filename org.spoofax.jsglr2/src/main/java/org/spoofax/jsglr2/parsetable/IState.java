@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parsetable;
 
-import java.util.Optional;
-
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parser.Parse;
@@ -18,6 +16,6 @@ public interface IState {
 
     Iterable<IReduce> applicableReduceActions(Parse parse);
 
-    Optional<Integer> getGotoId(int productionId);
+    int getGotoId(int productionId);
 
 }

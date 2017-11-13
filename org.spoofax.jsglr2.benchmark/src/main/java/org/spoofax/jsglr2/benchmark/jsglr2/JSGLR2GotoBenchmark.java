@@ -42,7 +42,7 @@ public abstract class JSGLR2GotoBenchmark extends BaseBenchmark {
         super(testSet);
     }
 
-    @Param({ "ForLoop", "JavaMap",
+    @Param({ "ForLoop", "JavaHashMap",
         "CapsuleImmutableBinaryRelation" }) public ProductionToGotoRepresentation representation;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,

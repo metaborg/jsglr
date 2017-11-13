@@ -55,22 +55,21 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
     protected void doReductionsHelper(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce,
         StackLink<StackNode, ParseForest> throughLink) {
         for(StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
-            if(throughLink == null || path.contains(throughLink))
-                reducePath(parse, path, reduce);
+            if(throughLink == null || path.contains(throughLink)) {
+                ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+                StackNode pathBegin = path.head();
+
+                int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber());
+                IState gotoState = parseTable.getState(gotoId);
+
+                reducer(parse, pathBegin, gotoState, reduce, stackManager.getParseForests(parseForestManager, path));
+            }
         }
-    }
-
-    protected void reducePath(Parse<StackNode, ParseForest> parse, StackPath<StackNode, ParseForest> path,
-        IReduce reduce) {
-        ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
-        StackNode pathBegin = path.head();
-
-        reducePath(parse, parseNodes, pathBegin, reduce);
     }
 
     protected void reducePath(Parse<StackNode, ParseForest> parse, ParseForest[] parseNodes, StackNode pathBegin,
         IReduce reduce) {
-        int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber()).get();
+        int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber());
         IState gotoState = parseTable.getState(gotoId);
 
         reducer(parse, pathBegin, gotoState, reduce, parseNodes);
@@ -83,7 +82,7 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
      * not and if such an active stack already exists, the link to it can also already exist. Based on the existence of
      * the stack with the goto state and the link to it, different actions are performed.
      */
-    private void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce,
+    protected void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce,
         ParseForest[] parseForests) {
         StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
 

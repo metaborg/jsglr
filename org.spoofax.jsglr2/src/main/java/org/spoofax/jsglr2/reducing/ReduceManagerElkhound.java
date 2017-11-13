@@ -35,43 +35,32 @@ public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, Pars
                 stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
 
             if(throughLink == null || deterministicPath.contains(throughLink)) {
+                AbstractElkhoundStackNode<ParseForest> pathBegin = deterministicPath.head();
+
+                int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber());
+                IState gotoState = parseTable.getState(gotoId);
+
                 if(parse.activeStacks.size() == 1)
-                    reduceElkhoundPath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Do
-                                                                                                                 // standard
-                                                                                                                 // LR
-                                                                                                                 // if
-                                                                                                                 // there
-                                                                                                                 // is
-                                                                                                                 // only
-                                                                                                                 // 1
-                                                                                                                 // active
-                                                                                                                 // stack
+                    // Do standard LR if there is only 1 active stack
+                    reducerElkhound(parse, pathBegin, gotoState, reduce, deterministicPath.parseForests);
                 else
-                    reducePath(parse, deterministicPath.parseForests, deterministicPath.head(), reduce); // Benefit from
-                                                                                                         // faster path
-                                                                                                         // retrieval,
-                                                                                                         // but still do
-                                                                                                         // extra checks
-                                                                                                         // since there
-                                                                                                         // are other
-                                                                                                         // active
-                                                                                                         // stacks
+                    // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
+                    reducer(parse, pathBegin, gotoState, reduce, deterministicPath.parseForests);
             }
         } else {
             // Fall back to regular GLR
             for(StackPath<AbstractElkhoundStackNode<ParseForest>, ParseForest> path : stackManager
                 .findAllPathsOfLength(stack, reduce.arity()))
-                if(throughLink == null || path.contains(throughLink))
-                    reducePath(parse, path, reduce);
+                if(throughLink == null || path.contains(throughLink)) {
+                    AbstractElkhoundStackNode<ParseForest> pathBegin = path.head();
+
+                    int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber());
+                    IState gotoState = parseTable.getState(gotoId);
+
+                    reducer(parse, pathBegin, gotoState, reduce,
+                        stackManager.getParseForests(parseForestManager, path));
+                }
         }
-    }
-
-    private void reduceElkhoundPath(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
-        ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> pathBegin, IReduce reduce) {
-        int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber()).get();
-        IState gotoState = parseTable.getState(gotoId);
-
-        reducerElkhound(parse, pathBegin, gotoState, reduce, parseNodes);
     }
 
     private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,

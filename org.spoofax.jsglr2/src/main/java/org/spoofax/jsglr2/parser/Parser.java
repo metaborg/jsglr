@@ -131,7 +131,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
 
     private void actor(StackNode stack, Parse<StackNode, ParseForest> parse, int character) {
-        Iterable<IAction> applicableActions = stack.state.applicableActions(parse.currentChar);
+        Iterable<IAction> applicableActions = stack.state.applicableActions(character);
 
         notify(observer -> observer.actor(stack, parse, applicableActions));
 

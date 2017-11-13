@@ -2,16 +2,12 @@ package org.spoofax.jsglr2.parsetable;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.stream.IntStream;
 
 import org.spoofax.jsglr2.actions.ActionType;
 import org.spoofax.jsglr2.actions.IAction;
-import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.parser.Parse;
-
-import io.usethesource.capsule.BinaryRelation;
 
 public final class State implements IState {
 
@@ -19,24 +15,13 @@ public final class State implements IState {
     private final IAction[] actions;
     private boolean rejectable;
 
-    final BinaryRelation.Immutable<Integer, Integer> productionToGoto;
+    final IProductionToGoto productionToGoto;
 
-    public State(int stateNumber, IGoto[] gotos, IAction[] actions) {
+    public State(int stateNumber, IAction[] actions, IProductionToGoto productionToGoto) {
         this.stateNumber = stateNumber;
         this.actions = actions;
+        this.productionToGoto = productionToGoto;
         this.rejectable = false;
-
-        final BinaryRelation.Transient<Integer, Integer> tmpProductionToGoto = BinaryRelation.Transient.of();
-
-        for(IGoto gotoAction : gotos) {
-            int gotoState = gotoAction.gotoState();
-
-            IntStream.of(gotoAction.productions()).forEach(productionId -> {
-                tmpProductionToGoto.__put(productionId, gotoState);
-            });
-        }
-
-        this.productionToGoto = tmpProductionToGoto.freeze();
     }
 
     @Override public int stateNumber() {
@@ -51,7 +36,7 @@ public final class State implements IState {
         return rejectable;
     }
 
-    public void markRejectable() {
+    @Override public void markRejectable() {
         this.rejectable = true;
     }
 
@@ -118,13 +103,12 @@ public final class State implements IState {
         };
     }
 
-    public boolean hasGoto(int productionId) {
-        return !productionToGoto.get(productionId).isEmpty();
+    @Override public boolean hasGoto(int productionId) {
+        return productionToGoto.contains(productionId);
     }
 
     @Override public int getGotoId(int productionId) {
-        assert productionToGoto.get(productionId).size() <= 1;
-        return productionToGoto.get(productionId).findFirst().get();
+        return productionToGoto.get(productionId);
     }
 
     @Override public boolean equals(Object obj) {

@@ -35,13 +35,16 @@ import io.usethesource.capsule.util.stream.CapsuleCollectors;
 public class ParseTableReader {
 
     ICharacterClassFactory characterClassFactory;
+    IStateFactory stateFactory;
 
     public ParseTableReader() {
         this.characterClassFactory = ICharacters.factory();
+        this.stateFactory = new StateFactory();
     }
 
     public ParseTableReader(ICharacterClassFactory characterClassFactory) {
         this.characterClassFactory = characterClassFactory;
+        this.stateFactory = new StateFactory();
     }
 
     /*
@@ -54,8 +57,8 @@ public class ParseTableReader {
         IStrategoList productionsTermList = termAt(pt, 2);
         IStrategoNamed statesTerm = termAt(pt, 3);
 
-        Production[] productions = readProductions(productionsTermList);
-        State[] states = readStates(statesTerm, productions);
+        IProduction[] productions = readProductions(productionsTermList);
+        IState[] states = readStates(statesTerm, productions);
 
         markRejectableStates(states);
 
@@ -85,12 +88,12 @@ public class ParseTableReader {
         return productions;
     }
 
-    private State[] readStates(IStrategoNamed statesTermNamed, IProduction[] productions)
+    private IState[] readStates(IStrategoNamed statesTermNamed, IProduction[] productions)
         throws ParseTableReadException {
         IStrategoList statesTermList = termAt(statesTermNamed, 0);
         int stateCount = statesTermList.getSubtermCount();
 
-        State[] states = new State[stateCount];
+        IState[] states = new IState[stateCount];
 
         for(IStrategoTerm stateTerm : statesTermList) {
             IStrategoNamed stateTermNamed = (IStrategoNamed) stateTerm;
@@ -103,7 +106,7 @@ public class ParseTableReader {
             IGoto[] gotos = readGotos(gotosTermList);
             IAction[] actions = readActions(actionsTermList, productions);
 
-            states[stateNumber] = new State(stateNumber, gotos, actions);
+            states[stateNumber] = stateFactory.from(stateNumber, gotos, actions);
         }
 
         return states;
@@ -268,7 +271,7 @@ public class ParseTableReader {
     // Mark states that are reachable by a reject production as rejectable
     // That means the parser transitions into such state by means of a goto action after there is reduced by the reject
     // production
-    private void markRejectableStates(State[] states) {
+    private void markRejectableStates(IState[] states) {
         final Set.Immutable<Integer> rejectProductionIdentifiers = Stream.of(states)
             .flatMap(state -> Stream.of(state.actions())).filter(IAction::typeMatchesReduceOrReduceLookahead)
             .map(IReduce.class::cast).map(IReduce::production).filter(IProduction::typeMatchesReject)

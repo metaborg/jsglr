@@ -12,9 +12,13 @@ public interface IState {
 
     boolean isRejectable();
 
+    void markRejectable();
+
     Iterable<IAction> applicableActions(int character);
 
     Iterable<IReduce> applicableReduceActions(Parse parse);
+
+    boolean hasGoto(int productionId);
 
     int getGotoId(int productionId);
 

@@ -47,6 +47,11 @@ public class ParseTableReader {
         this.stateFactory = new StateFactory();
     }
 
+    public ParseTableReader(IStateFactory stateFactory) {
+        this.characterClassFactory = ICharacters.factory();
+        this.stateFactory = stateFactory;
+    }
+
     /*
      * Reads a parse table from a term. The format consists of a tuple of 4: - version number (not used) - start state
      * number - list of productions (i.e. labels) - list of states - list of priorities (not used since priorities are

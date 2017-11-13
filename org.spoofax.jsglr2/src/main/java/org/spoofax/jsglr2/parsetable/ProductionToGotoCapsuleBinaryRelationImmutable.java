@@ -6,11 +6,11 @@ import org.spoofax.jsglr2.actions.IGoto;
 
 import io.usethesource.capsule.BinaryRelation;
 
-public class ProductionToGoto implements IProductionToGoto {
+public class ProductionToGotoCapsuleBinaryRelationImmutable implements IProductionToGoto {
 
-    final BinaryRelation.Immutable<Integer, Integer> productionToGoto;
+    private final BinaryRelation.Immutable<Integer, Integer> productionToGoto;
 
-    public ProductionToGoto(IGoto[] gotos) {
+    public ProductionToGotoCapsuleBinaryRelationImmutable(IGoto[] gotos) {
         final BinaryRelation.Transient<Integer, Integer> tmpProductionToGoto = BinaryRelation.Transient.of();
 
         for(IGoto gotoAction : gotos) {

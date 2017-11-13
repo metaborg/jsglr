@@ -8,7 +8,7 @@ public final class StateFactory implements IStateFactory {
     ProductionToGotoRepresentation productionToGotoType;
 
     public StateFactory() {
-        this(ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation);
+        this(ProductionToGotoRepresentation.JavaHashMap);
     }
 
     public StateFactory(ProductionToGotoRepresentation productionToGotoType) {
@@ -27,7 +27,6 @@ public final class StateFactory implements IStateFactory {
                 break;
             case JavaHashMap:
                 productionToGoto = new ProductionToGotoJavaHashMap(gotos);
-                break;
                 break;
             default:
                 productionToGoto = null;

@@ -59,20 +59,9 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
                 ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
                 StackNode pathBegin = path.head();
 
-                int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber());
-                IState gotoState = parseTable.getState(gotoId);
-
-                reducer(parse, pathBegin, gotoState, reduce, stackManager.getParseForests(parseForestManager, path));
+                reducer(parse, pathBegin, reduce, stackManager.getParseForests(parseForestManager, path));
             }
         }
-    }
-
-    protected void reducePath(Parse<StackNode, ParseForest> parse, ParseForest[] parseNodes, StackNode pathBegin,
-        IReduce reduce) {
-        int gotoId = pathBegin.state.getGotoId(reduce.production().productionNumber());
-        IState gotoState = parseTable.getState(gotoId);
-
-        reducer(parse, pathBegin, gotoState, reduce, parseNodes);
     }
 
     /**
@@ -82,11 +71,14 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
      * not and if such an active stack already exists, the link to it can also already exist. Based on the existence of
      * the stack with the goto state and the link to it, different actions are performed.
      */
-    protected void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IState gotoState, IReduce reduce,
+    protected void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce,
         ParseForest[] parseForests) {
+        int gotoId = stack.state.getGotoId(reduce.production().productionNumber());
+        IState gotoState = parseTable.getState(gotoId);
+
         StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
 
-        parse.notify(observer -> observer.reducer(reduce, parseForests, activeStackWithGotoState));
+        parse.notify(observer -> observer.reducer(stack, reduce, parseForests, activeStackWithGotoState));
 
         if(activeStackWithGotoState != null) {
             StackLink<StackNode, ParseForest> directLink = stackManager.findDirectLink(activeStackWithGotoState, stack);

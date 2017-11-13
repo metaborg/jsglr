@@ -67,13 +67,14 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
         StackLink<StackNode, ParseForest> link) {
     }
 
-    @Override public void reducer(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {
+    @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
+        StackNode activeStackWithGotoState) {
         log("Reduce by prodution " + reduce.production().productionNumber() + " (" + reduce.productionType().toString()
             + ") with parse nodes " + parseForestListToString(parseNodes) + ", using existing stack: "
             + (activeStackWithGotoState != null ? activeStackWithGotoState.stackNumber : "no"));
     }
 
-    @Override public void reducerElkhound(IReduce reduce, ParseForest[] parseNodes) {
+    @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
         log("Reduce (Elkhound) by prodution " + reduce.production().productionNumber() + " ("
             + reduce.productionType().toString() + ") with parse nodes " + parseForestListToString(parseNodes));
     }

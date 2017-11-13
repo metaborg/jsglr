@@ -56,10 +56,11 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
         StackLink<StackNode, ParseForest> link) {
     }
 
-    @Override public void reducer(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {
+    @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
+        StackNode activeStackWithGotoState) {
     }
 
-    @Override public void reducerElkhound(IReduce reduce, ParseForest[] parseNodes) {
+    @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
     }
 
     @Override public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {

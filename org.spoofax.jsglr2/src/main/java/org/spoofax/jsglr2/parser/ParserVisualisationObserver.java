@@ -74,13 +74,14 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
         StackLink<StackNode, ParseForest> link) {
     }
 
-    @Override public void reducer(IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {
+    @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
+        StackNode activeStackWithGotoState) {
         trace("{\"action\":\"reduce\",\"parseNodes\":" + parseForestListToString(parseNodes)
             + ",\"activeStackWithGotoState\":"
             + (activeStackWithGotoState != null ? activeStackWithGotoState.stackNumber : -1) + "}");
     }
 
-    @Override public void reducerElkhound(IReduce reduce, ParseForest[] parseNodes) {
+    @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
         trace("{\"action\":\"reduce\",\"parseNodes\":" + parseForestListToString(parseNodes)
             + ",\"activeStackWithGotoState\":-1}");
     }

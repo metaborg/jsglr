@@ -127,12 +127,13 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
         doLimitedReductions++;
     }
 
-    @Override public void reducer(IReduce reduce, ParseForest[] parseNodes,
-        AbstractElkhoundStackNode<ParseForest> activeStackWithGotoState) {
+    @Override public void reducer(AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
+        ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> activeStackWithGotoState) {
         reducers.add(new Reducer(reduce, parseNodes));
     }
 
-    @Override public void reducerElkhound(IReduce reduce, ParseForest[] parseNodes) {
+    @Override public void reducerElkhound(AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
+        ParseForest[] parseNodes) {
         reducersElkhound.add(new Reducer(reduce, parseNodes));
     }
 

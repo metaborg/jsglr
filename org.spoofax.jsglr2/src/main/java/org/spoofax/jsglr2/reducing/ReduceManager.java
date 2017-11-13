@@ -106,9 +106,10 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
                         && !parse.forActorDelayed.contains(activeStack)) {
                         // Use for loop here rather than IState::applicableReduceActions since it is faster
                         for(IAction action : activeStack.state.actions()) {
-                            if(action.actionType() == ActionType.REDUCE
+                            if((action.actionType() == ActionType.REDUCE
                                 || action.actionType() == ActionType.REDUCE_LOOKAHEAD
                                     && ((IReduceLookahead) action).allowsLookahead(parse))
+                                && action.appliesTo(parse.currentChar))
                                 doLimitedRedutions(parse, activeStack, (IReduce) action, link);
                         }
                     }

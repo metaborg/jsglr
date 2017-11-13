@@ -63,9 +63,6 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
                 parse.next();
             }
 
-            if(!parse.activeStacks.isEmpty())
-                parseCharacter(parse, ICharacters.EOF_INT);
-
             ParseResult<StackNode, ParseForest, ?> result;
 
             if(parse.acceptingStack != null) {

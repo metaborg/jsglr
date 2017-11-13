@@ -19,7 +19,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     final public String inputString;
     final public int inputLength;
 
-    public int currentChar; // Current ASCII char in range [0, 255]
+    public int currentChar; // Current ASCII char in range [0, 256]
     public int currentOffset, currentLine, currentColumn;
 
     public StackNode acceptingStack;
@@ -62,8 +62,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         this.currentLine = 1;
         this.currentColumn = 1;
 
-        if(inputLength > 0)
-            this.currentChar = getChar(currentOffset);
+        this.currentChar = getChar(currentOffset);
 
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>(observers);
     }
@@ -73,15 +72,14 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     }
 
     public boolean hasNext() {
-        return currentOffset < inputLength;
+        return currentOffset <= inputLength;
     }
 
     public void next() throws ParseException {
         currentOffset++;
+        currentChar = getChar(currentOffset);
 
         if(currentOffset < inputLength) {
-            currentChar = getChar(currentOffset);
-
             if(ICharacters.isNewLine(currentChar)) {
                 currentLine++;
                 currentColumn = 1;
@@ -92,12 +90,15 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     }
 
     private int getChar(int position) {
-        char c = inputString.charAt(position);
+        if(position < inputLength) {
+            char c = inputString.charAt(position);
 
-        if(c > 255)
-            throw new IllegalStateException("Unicode not supported");
+            if(c > 255)
+                throw new IllegalStateException("Unicode not supported");
 
-        return c;
+            return c;
+        } else
+            return ICharacters.EOF_INT;
     }
 
     public String getPart(int begin, int end) {

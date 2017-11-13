@@ -58,13 +58,13 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 
         try {
             while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
-                parseCharacter(parse);
+                parseCharacter(parse, parse.currentChar);
 
                 parse.next();
             }
 
             if(!parse.activeStacks.isEmpty())
-                parseEOF(parse);
+                parseCharacter(parse, ICharacters.EOF_INT);
 
             ParseResult<StackNode, ParseForest, ?> result;
 
@@ -104,28 +104,9 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         }
     }
 
-    private interface StateApplicableActions {
-        Iterable<IAction> get(IState state);
-    }
+    private void parseCharacter(Parse<StackNode, ParseForest> parse, int character) {
+        notify(observer -> observer.parseCharacter(character, parse.activeStacks));
 
-    private void parseCharacter(Parse<StackNode, ParseForest> parse) {
-        notify(observer -> observer.parseCharacter(parse.currentChar, parse.activeStacks));
-
-        parseCharacterOrEOF(parse, state -> {
-            return state.applicableActions(parse.currentChar);
-        });
-    }
-
-    private void parseEOF(Parse<StackNode, ParseForest> parse) {
-        notify(observer -> observer.parseCharacter(ICharacters.EOF_INT, parse.activeStacks));
-
-        parseCharacterOrEOF(parse, state -> {
-            return state.applicableActions(ICharacters.EOF_INT);
-        });
-    }
-
-    private void parseCharacterOrEOF(Parse<StackNode, ParseForest> parse,
-        StateApplicableActions stateApplicableActions) {
         parse.forActor.clear();
         parse.forActorDelayed.clear();
 
@@ -139,7 +120,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
             StackNode stack = parse.getNextActorStack();
 
             if(!stack.allOutLinksRejected())
-                actor(stack, parse, stateApplicableActions);
+                actor(stack, parse, character);
             else
                 notify(observer -> observer.skipRejectedStack(stack));
 
@@ -149,9 +130,8 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         shifter(parse);
     }
 
-    private void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
-        StateApplicableActions stateApplicableActions) {
-        Iterable<IAction> applicableActions = stateApplicableActions.get(stack.state);
+    private void actor(StackNode stack, Parse<StackNode, ParseForest> parse, int character) {
+        Iterable<IAction> applicableActions = stack.state.applicableActions(parse.currentChar);
 
         notify(observer -> observer.actor(stack, parse, applicableActions));
 

@@ -5,13 +5,13 @@ import org.spoofax.jsglr2.actions.IGoto;
 
 public final class StateFactory implements IStateFactory {
 
-    ProductionToGotoType productionToGotoType;
+    ProductionToGotoRepresentation productionToGotoType;
 
     public StateFactory() {
-        this(ProductionToGotoType.CapsuleBinaryRelation);
+        this(ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation);
     }
 
-    public StateFactory(ProductionToGotoType productionToGotoType) {
+    public StateFactory(ProductionToGotoRepresentation productionToGotoType) {
         this.productionToGotoType = productionToGotoType;
     }
 
@@ -19,14 +19,15 @@ public final class StateFactory implements IStateFactory {
         IProductionToGoto productionToGoto;
 
         switch(productionToGotoType) {
-            case CapsuleBinaryRelation:
+            case CapsuleImmutableBinaryRelation:
                 productionToGoto = new ProductionToGotoCapsuleBinaryRelationImmutable(gotos);
                 break;
             case ForLoop:
                 productionToGoto = new ProductionToGotoForLoop(gotos);
                 break;
-            case JavaMap:
-                productionToGoto = new ProductionToGotoJavaMap(gotos);
+            case JavaHashMap:
+                productionToGoto = new ProductionToGotoJavaHashMap(gotos);
+                break;
                 break;
             default:
                 productionToGoto = null;

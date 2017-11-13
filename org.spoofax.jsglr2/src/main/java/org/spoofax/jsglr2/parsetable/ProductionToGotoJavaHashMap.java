@@ -6,11 +6,11 @@ import java.util.stream.IntStream;
 
 import org.spoofax.jsglr2.actions.IGoto;
 
-public class ProductionToGotoJavaMap implements IProductionToGoto {
+public class ProductionToGotoJavaHashMap implements IProductionToGoto {
 
     private final Map<Integer, Integer> productionToGoto;
 
-    public ProductionToGotoJavaMap(IGoto[] gotos) {
+    public ProductionToGotoJavaHashMap(IGoto[] gotos) {
         productionToGoto = new HashMap<>();
 
         for(IGoto gotoAction : gotos) {

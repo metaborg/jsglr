@@ -26,7 +26,7 @@ import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.parsetable.IStateFactory;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.parsetable.ProductionToGotoType;
+import org.spoofax.jsglr2.parsetable.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.parsetable.StateFactory;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.testset.Input;
@@ -42,11 +42,8 @@ public abstract class JSGLR2GotoBenchmark extends BaseBenchmark {
         super(testSet);
     }
 
-    public enum Representation {
-        CapsuleImmutableBinaryRelation, ForLoop, JavaMap
-    }
-
-    @Param({ "ForLoop", "JavaMap", "CapsuleImmutableBinaryRelation" }) public Representation representation;
+    @Param({ "ForLoop", "JavaMap",
+        "CapsuleImmutableBinaryRelation" }) public ProductionToGotoRepresentation representation;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
@@ -54,13 +51,13 @@ public abstract class JSGLR2GotoBenchmark extends BaseBenchmark {
 
         switch(representation) {
             case CapsuleImmutableBinaryRelation:
-                stateFactory = new StateFactory(ProductionToGotoType.CapsuleBinaryRelation);
+                stateFactory = new StateFactory(ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation);
                 break;
             case ForLoop:
-                stateFactory = new StateFactory(ProductionToGotoType.ForLoop);
+                stateFactory = new StateFactory(ProductionToGotoRepresentation.ForLoop);
                 break;
-            case JavaMap:
-                stateFactory = new StateFactory(ProductionToGotoType.JavaMap);
+            case JavaHashMap:
+                stateFactory = new StateFactory(ProductionToGotoRepresentation.JavaHashMap);
                 break;
             default:
                 stateFactory = null;

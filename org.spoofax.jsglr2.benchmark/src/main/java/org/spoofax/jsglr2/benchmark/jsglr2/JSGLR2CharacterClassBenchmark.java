@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
@@ -20,9 +21,9 @@ import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.characters.IntegerRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.IntegerRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
@@ -45,7 +46,7 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
     }
 
     public enum ApplicableActionsRepresentation {
-        List, Iterable, ForLoop
+        List, Iterable, ForLoop, Lambda
     }
 
     @Param({ "false", "true" }) public boolean optimized;
@@ -161,6 +162,25 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
 
     }
 
+    class StateApplicableActionsLambda extends StateApplicableActions {
+
+        public StateApplicableActionsLambda(ICharacters[] characterClasses, int character) {
+            super(characterClasses, character);
+        }
+
+        private void forEach(Consumer<ICharacters> consumer) {
+            for(ICharacters characterClass : characterClasses) {
+                if(characterClass.containsCharacter(character))
+                    consumer.accept(characterClass);
+            }
+        }
+
+        @Override public void execute(Blackhole bh) {
+            forEach(characterClass -> bh.consume(characterClass));
+        }
+
+    }
+
     class ActorObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
         extends BenchmarkParserObserver<StackNode, ParseForest> {
 
@@ -188,6 +208,10 @@ public abstract class JSGLR2CharacterClassBenchmark extends BaseBenchmark {
                 case ForLoop:
                     stateApplicableActionsForActor =
                         new StateApplicableActionsForLoop(characterClasses, parse.currentChar);
+                    break;
+                case Lambda:
+                    stateApplicableActionsForActor =
+                        new StateApplicableActionsLambda(characterClasses, parse.currentChar);
                     break;
                 default:
                     stateApplicableActionsForActor = null;

@@ -104,24 +104,23 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     private void parseCharacter(Parse<StackNode, ParseForest> parse, int character) {
         notify(observer -> observer.parseCharacter(character, parse.activeStacks));
 
-        parse.forActor.clear();
-        parse.forActorDelayed.clear();
+        parse.forActorStacks.clear();
 
-        parse.activeStacks.addAllTo(parse.forActor);
+        parse.activeStacks.addAllTo(parse.forActorStacks);
 
         parse.forShifter.clear();
 
-        notify(observer -> observer.forActorStacks(parse.forActor, parse.forActorDelayed));
+        notify(observer -> observer.forActorStacks(parse.forActorStacks));
 
-        while(parse.hasNextActorStack()) {
-            StackNode stack = parse.getNextActorStack();
+        while(parse.forActorStacks.hasNext()) {
+            StackNode stack = parse.forActorStacks.getNext();
 
             if(!stack.allOutLinksRejected())
                 actor(stack, parse, character);
             else
                 notify(observer -> observer.skipRejectedStack(stack));
 
-            notify(observer -> observer.forActorStacks(parse.forActor, parse.forActorDelayed));
+            notify(observer -> observer.forActorStacks(parse.forActorStacks));
         }
 
         shifter(parse);

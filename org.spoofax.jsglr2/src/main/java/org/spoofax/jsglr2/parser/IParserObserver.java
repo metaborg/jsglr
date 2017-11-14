@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.parser;
 
 import java.util.List;
 import java.util.Queue;
+import java.util.Stack;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
@@ -25,7 +26,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
     public void rejectStackLink(StackLink<StackNode, ParseForest> link);
 
-    public void forActorStacks(Queue<StackNode> forActor, Queue<StackNode> forActorDelayed);
+    public void forActorStacks(IForActorStacks<StackNode> forActorStacks);
 
     public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions);
 

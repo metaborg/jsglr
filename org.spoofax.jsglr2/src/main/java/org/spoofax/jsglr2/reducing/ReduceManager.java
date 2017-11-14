@@ -102,8 +102,7 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
                 for(int i = 0; i < size; i++) {
                     StackNode activeStack = parse.activeStacks.get(i);
 
-                    if(!activeStack.allOutLinksRejected() && !parse.forActor.contains(activeStack)
-                        && !parse.forActorDelayed.contains(activeStack)) {
+                    if(!activeStack.allOutLinksRejected() && !parse.forActorStacks.contains(activeStack)) {
                         // Use for loop here rather than IState::applicableReduceActions since it is faster
                         for(IAction action : activeStack.state.actions()) {
                             if((action.actionType() == ActionType.REDUCE
@@ -119,11 +118,7 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
             StackNode newStack = reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
 
             parse.activeStacks.add(newStack);
-
-            if(newStack.state.isRejectable())
-                parse.forActorDelayed.add(newStack);
-            else
-                parse.forActor.add(newStack);
+            parse.forActorStacks.add(newStack);
         }
     }
 

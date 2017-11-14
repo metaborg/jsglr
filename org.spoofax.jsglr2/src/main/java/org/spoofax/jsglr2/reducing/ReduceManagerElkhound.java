@@ -67,7 +67,7 @@ public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, Pars
             reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
 
         parse.activeStacks.add(newStack);
-        parse.forActor.add(newStack);
+        parse.forActorStacks.add(newStack);
     }
 
 }

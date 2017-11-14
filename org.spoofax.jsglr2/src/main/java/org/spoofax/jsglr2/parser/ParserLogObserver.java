@@ -41,9 +41,8 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
         log("Reject link " + link.linkNumber);
     }
 
-    @Override public void forActorStacks(Queue<StackNode> forActor, Queue<StackNode> forActorDelayed) {
-        log("For actor: " + stackQueueToString(forActor) + ", for actor delayed: "
-            + stackQueueToString(forActorDelayed));
+    @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
+        log("For actor stacks: " + forActorStacks);
     }
 
     @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,

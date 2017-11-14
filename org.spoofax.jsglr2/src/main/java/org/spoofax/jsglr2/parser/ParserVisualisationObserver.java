@@ -48,9 +48,8 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
         trace("{\"action\":\"rejectStackLink\",\"linkNumber\":" + link.linkNumber + "}");
     }
 
-    @Override public void forActorStacks(Queue<StackNode> forActor, Queue<StackNode> forActorDelayed) {
-        trace("{\"action\":\"forActorStacks\",\"forActor\":" + stackQueueToString(forActor) + ",\"forActorDelayed\":"
-            + stackQueueToString(forActorDelayed) + "}");
+    @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
+        trace("{\"action\":\"forActorStacks\",\"forActor\":" + forActorStacks + "}");
     }
 
     @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,

@@ -6,6 +6,7 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.IForActorStacks;
 import org.spoofax.jsglr2.parser.IParserObserver;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFailure;
@@ -36,7 +37,7 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     @Override public void rejectStackLink(StackLink<StackNode, ParseForest> link) {
     }
 
-    @Override public void forActorStacks(Queue<StackNode> forActor, Queue<StackNode> forActorDelayed) {
+    @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
     }
 
     @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,

@@ -2,9 +2,7 @@ package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 
 import org.spoofax.jsglr2.characters.ICharacters;
@@ -24,7 +22,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 
     public StackNode acceptingStack;
     public IActiveStacks<StackNode> activeStacks;
-    public Queue<StackNode> forActor, forActorDelayed;
+    public IForActorStacks<StackNode> forActorStacks;
     public Queue<ForShifterElement<StackNode, ParseForest>> forShifter;
 
     public int stackNodeCount, stackLinkCount, parseNodeCount;
@@ -42,21 +40,16 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         this.stackLinkCount = 0;
         this.parseNodeCount = 0;
 
-        this.ambiguousParseNodes = 0; // Number of ambiguities in the parse forest
-        this.ambiguousTreeNodes = 0; // Number of ambiguities in the imploded AST (after applying post-parse filters),
-                                     // only available after imploding
+        // Number of ambiguities in the parse forest
+        this.ambiguousParseNodes = 0;
 
-        Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
-            @Override public int compare(StackNode stackNode1, StackNode stackNode2) {
-                return 0; // TODO: implement priority (see P9707 Section 8.4)
-            }
-        };
+        // Number of ambiguities in the imploded AST (after applying post-parse filters), only available after imploding
+        this.ambiguousTreeNodes = 0;
 
         this.acceptingStack = null;
-        this.activeStacks = new ActiveStacks<ParseForest, StackNode>();
-        this.forActor = new ArrayDeque<StackNode>();
-        this.forActorDelayed = new PriorityQueue<StackNode>(stackNodePriorityComparator);
-        this.forShifter = new ArrayDeque<ForShifterElement<StackNode, ParseForest>>();
+        this.activeStacks = new ActiveStacks<>();
+        this.forActorStacks = new ForActorStacks<>();
+        this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
         this.currentLine = 1;
@@ -64,7 +57,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 
         this.currentChar = getChar(currentOffset);
 
-        this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>(observers);
+        this.observers = new ArrayList<>(observers);
     }
 
     public Position currentPosition() {
@@ -107,19 +100,6 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 
     public String getLookahead(int length) {
         return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
-    }
-
-    public boolean hasNextActorStack() {
-        return !forActor.isEmpty() || !forActorDelayed.isEmpty();
-    }
-
-    public StackNode getNextActorStack() {
-        // First return all actors in forActor
-        if(!forActor.isEmpty())
-            return forActor.remove();
-
-        // Then return actors from forActorDelayed
-        return forActorDelayed.remove();
     }
 
     public void notify(IParserNotification<StackNode, ParseForest> notification) {

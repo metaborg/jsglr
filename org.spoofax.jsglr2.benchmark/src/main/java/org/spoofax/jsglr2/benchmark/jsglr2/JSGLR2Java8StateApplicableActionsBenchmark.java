@@ -10,18 +10,18 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.spoofax.jsglr2.testset.TestSet;
 
-public class JSGLR2Java8CharacterClassBenchmark extends JSGLR2CharacterClassBenchmark {
+public class JSGLR2Java8StateApplicableActionsBenchmark extends JSGLR2StateApplicableActionsBenchmark {
 
-    public JSGLR2Java8CharacterClassBenchmark() {
+    public JSGLR2Java8StateApplicableActionsBenchmark() {
         super(TestSet.java8);
     }
 
     public static void main(String[] args) throws RunnerException {
-        System.out.println(JSGLR2Java8CharacterClassBenchmark.class.getSimpleName());
+        System.out.println(JSGLR2Java8StateApplicableActionsBenchmark.class.getSimpleName());
 
         // @formatter:off
 		Options opt = new OptionsBuilder()
-				.include(".*" + JSGLR2Java8CharacterClassBenchmark.class.getSimpleName() + ".(.*)")
+				.include(".*" + JSGLR2Java8StateApplicableActionsBenchmark.class.getSimpleName() + ".(.*)")
 				.timeUnit(TimeUnit.NANOSECONDS)
 				.mode(Mode.AverageTime)
 				.warmupIterations(10)

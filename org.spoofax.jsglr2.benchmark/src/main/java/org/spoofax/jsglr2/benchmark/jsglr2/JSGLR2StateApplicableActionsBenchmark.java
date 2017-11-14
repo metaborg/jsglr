@@ -22,6 +22,7 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.characters.IntegerRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
@@ -77,14 +78,23 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
     abstract class ActorOnStateActions {
 
         final IState state;
+        final ICharacters[] characterClasses;
         final int character;
 
         protected ActorOnStateActions(IState state, int character) {
             this.state = state;
+
+            this.characterClasses = new ICharacters[state.actions().length];
+
+            for(int i = 0; i < state.actions().length; i++)
+                this.characterClasses[i] = state.actions()[i].characters();
+
             this.character = character;
         }
 
-        abstract public void iterateOverActions(Blackhole bh);
+        abstract public void iterateOverCharacterClasses(Blackhole bh);
+
+        abstract public void iterateOverApplicableActions(Blackhole bh);
 
     }
 
@@ -94,7 +104,18 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             super(state, character);
         }
 
-        private Iterable<IAction> list() {
+        private Iterable<ICharacters> charactersList() {
+            List<ICharacters> res = new ArrayList<ICharacters>();
+
+            for(ICharacters characterClass : characterClasses) {
+                if(characterClass.containsCharacter(character))
+                    res.add(characterClass);
+            }
+
+            return res;
+        }
+
+        private Iterable<IAction> actionsList() {
             List<IAction> res = new ArrayList<IAction>();
 
             for(IAction action : state.actions()) {
@@ -105,8 +126,13 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             return res;
         }
 
-        @Override public void iterateOverActions(Blackhole bh) {
-            for(IAction action : list())
+        @Override public void iterateOverCharacterClasses(Blackhole bh) {
+            for(ICharacters characterClass : charactersList())
+                bh.consume(characterClass);
+        }
+
+        @Override public void iterateOverApplicableActions(Blackhole bh) {
+            for(IAction action : actionsList())
                 bh.consume(action);
         }
 
@@ -118,7 +144,30 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             super(state, character);
         }
 
-        public Iterable<IAction> iterable() {
+        public Iterable<ICharacters> charactersFilterIterable() {
+            return () -> {
+                return new Iterator<ICharacters>() {
+                    int index = 0;
+
+                    @Override public boolean hasNext() {
+                        while(index < characterClasses.length
+                            && !characterClasses[index].containsCharacter(character)) {
+                            index++;
+                        }
+                        return index < characterClasses.length;
+                    }
+
+                    @Override public ICharacters next() {
+                        if(!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+                        return characterClasses[index++];
+                    }
+                };
+            };
+        }
+
+        public Iterable<IAction> actionsFilterIterable() {
             return () -> {
                 return new Iterator<IAction>() {
                     int index = 0;
@@ -140,8 +189,13 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             };
         }
 
-        @Override public void iterateOverActions(Blackhole bh) {
-            for(IAction action : iterable())
+        @Override public void iterateOverCharacterClasses(Blackhole bh) {
+            for(ICharacters characterClass : charactersFilterIterable())
+                bh.consume(characterClass);
+        }
+
+        @Override public void iterateOverApplicableActions(Blackhole bh) {
+            for(IAction action : actionsFilterIterable())
                 bh.consume(action);
         }
 
@@ -153,7 +207,14 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             super(state, character);
         }
 
-        @Override public void iterateOverActions(Blackhole bh) {
+        @Override public void iterateOverCharacterClasses(Blackhole bh) {
+            for(ICharacters characterClass : characterClasses) {
+                if(characterClass.containsCharacter(character))
+                    bh.consume(characterClass);
+            }
+        }
+
+        @Override public void iterateOverApplicableActions(Blackhole bh) {
             for(IAction action : state.actions()) {
                 if(action.appliesTo(character))
                     bh.consume(action);
@@ -168,6 +229,13 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             super(state, character);
         }
 
+        private void forEachCharacterClass(Consumer<ICharacters> consumer) {
+            for(ICharacters characterClass : characterClasses) {
+                if(characterClass.containsCharacter(character))
+                    consumer.accept(characterClass);
+            }
+        }
+
         private void forEachAction(Consumer<IAction> consumer) {
             for(IAction action : state.actions()) {
                 if(action.appliesTo(character))
@@ -175,8 +243,12 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             }
         }
 
-        @Override public void iterateOverActions(Blackhole bh) {
-            forEachAction(characterClass -> bh.consume(characterClass));
+        @Override public void iterateOverCharacterClasses(Blackhole bh) {
+            forEachCharacterClass(characterClass -> bh.consume(characterClass));
+        }
+
+        @Override public void iterateOverApplicableActions(Blackhole bh) {
+            forEachAction(action -> bh.consume(action));
         }
 
     }
@@ -214,9 +286,14 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     }
 
-    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark public void benchmarkCharacterClasses(Blackhole bh) throws ParseException {
         for(ActorOnStateActions stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
-            stateApplicableActions.iterateOverActions(bh);
+            stateApplicableActions.iterateOverCharacterClasses(bh);
+    }
+
+    @Benchmark public void benchmarkApplicableActions(Blackhole bh) throws ParseException {
+        for(ActorOnStateActions stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
+            stateApplicableActions.iterateOverApplicableActions(bh);
     }
 
 }

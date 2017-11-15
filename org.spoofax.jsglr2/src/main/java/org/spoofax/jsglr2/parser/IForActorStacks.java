@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
+import java.util.Iterator;
+
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 /*
@@ -9,7 +11,7 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
  * with a state that is rejectable last. In the original SGLR algorithm such stacks are in for-actor-delayed. The
  * rejectable stacks should be returned in a certain order (see P9707 Section 8.4).
  */
-public interface IForActorStacks<StackNode extends AbstractStackNode<?>> {
+public interface IForActorStacks<StackNode extends AbstractStackNode<?>> extends Iterable<StackNode> {
 
     void add(StackNode stack);
 
@@ -17,8 +19,11 @@ public interface IForActorStacks<StackNode extends AbstractStackNode<?>> {
 
     boolean contains(StackNode stack);
 
-    boolean hasNext();
-
-    StackNode getNext(); // Remove and get the next stack
+    /*
+     * This iterator should return the stacks in the correct order. First non-rejectable stacks and last rejectable
+     * stacks. Non-rejectable stacks added during a parse round still need to be returned before rejectable stacks. When
+     * only rejectable stacks are left, they should be returned with a certain order (see P9707 Section 8.4).
+     */
+    @Override public Iterator<StackNode> iterator();
 
 }

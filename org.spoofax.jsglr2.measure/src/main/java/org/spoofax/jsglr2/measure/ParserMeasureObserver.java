@@ -9,6 +9,7 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.IForActorStacks;
 import org.spoofax.jsglr2.parser.IParserObserver;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFailure;
@@ -91,8 +92,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
         stackLinksRejected.add(link);
     }
 
-    @Override public void forActorStacks(Queue<AbstractElkhoundStackNode<ParseForest>> forActor,
-        Queue<AbstractElkhoundStackNode<ParseForest>> forActorDelayed) {
+    @Override public void forActorStacks(IForActorStacks<AbstractElkhoundStackNode<ParseForest>> forActorStacks) {
     }
 
     @Override public void actor(AbstractElkhoundStackNode<ParseForest> stack,

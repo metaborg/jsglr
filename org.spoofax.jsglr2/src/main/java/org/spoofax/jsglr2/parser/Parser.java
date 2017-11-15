@@ -112,9 +112,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 
         notify(observer -> observer.forActorStacks(parse.forActorStacks));
 
-        while(parse.forActorStacks.hasNext()) {
-            StackNode stack = parse.forActorStacks.getNext();
-
+        for(StackNode stack : parse.forActorStacks) {
             if(!stack.allOutLinksRejected())
                 actor(stack, parse, character);
             else

@@ -30,11 +30,6 @@ public final class ForActorStacks<StackNode extends AbstractStackNode<?>> implem
             forActor.add(stack);
     }
 
-    @Override public void clear() {
-        forActor.clear();
-        forActorDelayed.clear();
-    }
-
     @Override public boolean contains(StackNode stack) {
         return forActor.contains(stack) || forActorDelayed.contains(stack);
     }

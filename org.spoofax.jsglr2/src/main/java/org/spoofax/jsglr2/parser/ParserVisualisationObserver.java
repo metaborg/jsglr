@@ -26,12 +26,15 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
         trace("{\"action\":\"start\",\"inputString\":\"" + parse.inputString + "\"}");
     }
 
-    @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
-        trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacters.intToString(character)
+    @Override public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
+        trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacters.intToString(parse.currentChar)
             + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
     }
 
     @Override public void addActiveStack(StackNode stack) {
+    }
+
+    @Override public void addForActorStack(StackNode stack) {
     }
 
     @Override public void findActiveStackWithState(IState state) {
@@ -57,6 +60,9 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 
     @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
         trace("{\"action\":\"forActorStacks\",\"forActor\":" + forActorStacks + "}");
+    }
+
+    @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
     }
 
     @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
@@ -92,7 +98,8 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
             + ",\"activeStackWithGotoState\":-1}");
     }
 
-    @Override public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {
+    @Override public void directLinkFound(Parse<StackNode, ParseForest> parse,
+        StackLink<StackNode, ParseForest> directLink) {
         trace("{\"action\":\"directLinkFound\",\"linkNumber\":" + (directLink != null ? directLink.linkNumber : -1)
             + "}");
     }

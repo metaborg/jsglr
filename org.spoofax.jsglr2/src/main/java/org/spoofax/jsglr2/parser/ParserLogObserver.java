@@ -20,12 +20,15 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
         log("\n  ---  Starting parse for input '" + parse.inputString + "'  ---\n");
     }
 
-    @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
-        log("Parse character '" + ICharacters.intToString(character) + "' (active stacks: "
+    @Override public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
+        log("Parse character '" + ICharacters.intToString(parse.currentChar) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")");
     }
 
     @Override public void addActiveStack(StackNode stack) {
+    }
+
+    @Override public void addForActorStack(StackNode stack) {
     }
 
     @Override public void findActiveStackWithState(IState state) {
@@ -50,6 +53,9 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 
     @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
         log("For actor stacks: " + forActorStacks);
+    }
+
+    @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
     }
 
     @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
@@ -85,7 +91,8 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
             + reduce.productionType().toString() + ") with parse nodes " + parseForestListToString(parseNodes));
     }
 
-    @Override public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {
+    @Override public void directLinkFound(Parse<StackNode, ParseForest> parse,
+        StackLink<StackNode, ParseForest> directLink) {
         log("Direct link " + (directLink != null ? directLink.linkNumber : "not") + " found");
     }
 

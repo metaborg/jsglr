@@ -16,9 +16,11 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
     public void parseStart(Parse<StackNode, ParseForest> parse);
 
-    public void parseCharacter(int character, Iterable<StackNode> activeStacks);
+    public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks);
 
     public void addActiveStack(StackNode stack);
+
+    public void addForActorStack(StackNode stack);
 
     public void findActiveStackWithState(IState state);
 
@@ -31,6 +33,8 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
     public void rejectStackLink(StackLink<StackNode, ParseForest> link);
 
     public void forActorStacks(IForActorStacks<StackNode> forActorStacks);
+
+    public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
 
     public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions);
 
@@ -47,7 +51,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
     public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
 
-    public void directLinkFound(StackLink<StackNode, ParseForest> directLink);
+    public void directLinkFound(Parse<StackNode, ParseForest> parse, StackLink<StackNode, ParseForest> directLink);
 
     public void accept(StackNode acceptingStack);
 

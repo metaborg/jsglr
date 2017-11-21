@@ -5,13 +5,18 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public final class ForActorStacks<StackNode extends AbstractStackNode<?>> implements IForActorStacks<StackNode> {
+public final class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    implements IForActorStacks<StackNode> {
 
-    final Queue<StackNode> forActor, forActorDelayed;
+    private final Parse<StackNode, ParseForest> parse;
+    private final Queue<StackNode> forActor, forActorDelayed;
 
-    public ForActorStacks() {
+    public ForActorStacks(Parse<StackNode, ParseForest> parse) {
+        this.parse = parse;
+
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
             @Override public int compare(StackNode stackNode1, StackNode stackNode2) {
                 return 0; // TODO: implement priority (see P9707 Section 8.4)
@@ -23,6 +28,8 @@ public final class ForActorStacks<StackNode extends AbstractStackNode<?>> implem
     }
 
     @Override public void add(StackNode stack) {
+        parse.notify(observer -> observer.addForActorStack(stack));
+
         if(stack.state.isRejectable())
             forActorDelayed.add(stack);
         else

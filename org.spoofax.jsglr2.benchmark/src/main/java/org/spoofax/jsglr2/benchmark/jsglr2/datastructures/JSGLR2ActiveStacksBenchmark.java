@@ -106,7 +106,8 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
 
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
-        @Override public void parseCharacter(int character, Iterable<StackNode> activeStackNodes) {
+        @Override public void parseCharacter(Parse<StackNode, ParseForest> parse,
+            Iterable<StackNode> activeStackNodes) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));
         }
 
@@ -114,7 +115,8 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
             operations.add(bh -> activeStacks.add(stack));
         }
 
-        @Override public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {
+        @Override public void directLinkFound(Parse<StackNode, ParseForest> parse,
+            StackLink<StackNode, ParseForest> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
                 // stacks (those that are not reject and not in for actor) need to be revisited

@@ -86,7 +86,7 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
         if(activeStackWithGotoState != null) {
             StackLink<StackNode, ParseForest> directLink = stackManager.findDirectLink(activeStackWithGotoState, stack);
 
-            parse.notify(observer -> observer.directLinkFound(directLink));
+            parse.notify(observer -> observer.directLinkFound(parse, directLink));
 
             if(directLink != null) {
                 reducer.reducerExistingStackWithDirectLink(parse, reduce, directLink, parseForests);

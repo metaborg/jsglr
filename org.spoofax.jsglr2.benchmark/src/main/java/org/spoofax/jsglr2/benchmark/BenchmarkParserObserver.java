@@ -23,10 +23,13 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     @Override public void parseStart(Parse<StackNode, ParseForest> parse) {
     }
 
-    @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
+    @Override public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
     }
 
     @Override public void addActiveStack(StackNode stack) {
+    }
+
+    @Override public void addForActorStack(StackNode stack) {
     }
 
     @Override public void findActiveStackWithState(IState state) {
@@ -45,6 +48,9 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
+    }
+
+    @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
     }
 
     @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
@@ -71,7 +77,8 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
     }
 
-    @Override public void directLinkFound(StackLink<StackNode, ParseForest> directLink) {
+    @Override public void directLinkFound(Parse<StackNode, ParseForest> parse,
+        StackLink<StackNode, ParseForest> directLink) {
     }
 
     @Override public void accept(StackNode acceptingStack) {

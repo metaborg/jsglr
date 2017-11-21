@@ -102,7 +102,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
 
     private void parseCharacter(Parse<StackNode, ParseForest> parse, int character) {
-        notify(observer -> observer.parseCharacter(character, parse.activeStacks));
+        notify(observer -> observer.parseCharacter(parse, parse.activeStacks));
 
         parse.activeStacks.addAllTo(parse.forActorStacks);
 

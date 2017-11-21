@@ -74,10 +74,14 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
         length += parse.inputLength;
     }
 
-    @Override public void parseCharacter(int character, Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
+    @Override public void parseCharacter(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
+        Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
     }
 
     @Override public void addActiveStack(AbstractElkhoundStackNode<ParseForest> stack) {
+    }
+
+    @Override public void addForActorStack(AbstractElkhoundStackNode<ParseForest> stack) {
     }
 
     @Override public void findActiveStackWithState(IState state) {
@@ -100,6 +104,10 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override public void forActorStacks(IForActorStacks<AbstractElkhoundStackNode<ParseForest>> forActorStacks) {
+    }
+
+    @Override public void handleForActorStack(AbstractElkhoundStackNode<ParseForest> stack,
+        IForActorStacks<AbstractElkhoundStackNode<ParseForest>> forActorStacks) {
     }
 
     @Override public void actor(AbstractElkhoundStackNode<ParseForest> stack,
@@ -144,7 +152,8 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
         reducersElkhound.add(new Reducer(reduce, parseNodes));
     }
 
-    @Override public void directLinkFound(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> directLink) {
+    @Override public void directLinkFound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
+        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> directLink) {
     }
 
     @Override public void accept(AbstractElkhoundStackNode<ParseForest> acceptingStack) {

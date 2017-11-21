@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.benchmark.jsglr2;
+package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
 import org.spoofax.jsglr2.testset.TestSet;
 

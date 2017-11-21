@@ -112,7 +112,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
         doReductions++;
 
         if(stack.deterministicDepth >= reduce.arity()) {
-            if(parse.activeStacks.size() == 1)
+            if(parse.activeStacks.isSingle())
                 doReductionsLR++;
             else
                 doReductionsDeterministicGLR++;

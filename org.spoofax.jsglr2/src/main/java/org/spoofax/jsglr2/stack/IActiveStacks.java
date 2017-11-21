@@ -7,13 +7,13 @@ public interface IActiveStacks<StackNode extends AbstractStackNode<?>> extends I
 
     public void add(StackNode stack);
 
-    public StackNode get(int i);
-
-    public int size();
+    public boolean isSingle();
 
     public boolean isEmpty();
 
     public StackNode findWithState(IState state);
+
+    public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks);
 
     public void addAllTo(IForActorStacks<StackNode> forActorStacks);
 

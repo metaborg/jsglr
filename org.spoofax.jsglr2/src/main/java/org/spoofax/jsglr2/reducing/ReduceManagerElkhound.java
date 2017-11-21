@@ -37,7 +37,7 @@ public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, Pars
             if(throughLink == null || deterministicPath.contains(throughLink)) {
                 AbstractElkhoundStackNode<ParseForest> pathBegin = deterministicPath.head();
 
-                if(parse.activeStacks.size() == 1)
+                if(parse.activeStacks.isSingle())
                     // Do standard LR if there is only 1 active stack
                     reducerElkhound(parse, pathBegin, reduce, deterministicPath.parseForests);
                 else

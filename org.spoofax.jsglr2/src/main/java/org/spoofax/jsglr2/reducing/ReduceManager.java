@@ -94,23 +94,14 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
                 StackLink<StackNode, ParseForest> link = reducer.reducerExistingStackWithoutDirectLink(parse, reduce,
                     activeStackWithGotoState, stack, parseForests);
 
-                // Save the number of active stacks to prevent the for loop from processing active stacks that are added
-                // by doLimitedReductions.
-                // We can safely limit the loop by the current number of stacks since new stack are added at the end.
-                int size = parse.activeStacks.size();
-
-                for(int i = 0; i < size; i++) {
-                    StackNode activeStack = parse.activeStacks.get(i);
-
-                    if(!activeStack.allOutLinksRejected() && !parse.forActorStacks.contains(activeStack)) {
-                        // Use for loop here rather than IState::applicableReduceActions since it is faster
-                        for(IAction action : activeStack.state.actions()) {
-                            if((action.actionType() == ActionType.REDUCE
-                                || action.actionType() == ActionType.REDUCE_LOOKAHEAD
-                                    && ((IReduceLookahead) action).allowsLookahead(parse))
-                                && action.appliesTo(parse.currentChar))
-                                doLimitedRedutions(parse, activeStack, (IReduce) action, link);
-                        }
+                for(StackNode activeStack : parse.activeStacks.forLimitedReductions(parse.forActorStacks)) {
+                    // Use for loop here rather than IState::applicableReduceActions since it is faster
+                    for(IAction action : activeStack.state.actions()) {
+                        if((action.actionType() == ActionType.REDUCE
+                            || action.actionType() == ActionType.REDUCE_LOOKAHEAD
+                                && ((IReduceLookahead) action).allowsLookahead(parse))
+                            && action.appliesTo(parse.currentChar))
+                            doLimitedRedutions(parse, activeStack, (IReduce) action, link);
                     }
                 }
             }

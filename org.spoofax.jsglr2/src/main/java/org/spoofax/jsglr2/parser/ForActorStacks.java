@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -34,21 +33,17 @@ public final class ForActorStacks<StackNode extends AbstractStackNode<?>> implem
         return forActor.contains(stack) || forActorDelayed.contains(stack);
     }
 
-    @Override public Iterator<StackNode> iterator() {
-        return new Iterator<StackNode>() {
-            @Override public boolean hasNext() {
-                return !forActor.isEmpty() || !forActorDelayed.isEmpty();
-            }
+    @Override public boolean nonEmpty() {
+        return !forActor.isEmpty() || !forActorDelayed.isEmpty();
+    }
 
-            @Override public StackNode next() {
-                // First return all actors in forActor
-                if(!forActor.isEmpty())
-                    return forActor.remove();
+    @Override public StackNode remove() {
+        // First return all actors in forActor
+        if(!forActor.isEmpty())
+            return forActor.remove();
 
-                // Then return actors from forActorDelayed
-                return forActorDelayed.remove();
-            }
-        };
+        // Then return actors from forActorDelayed
+        return forActorDelayed.remove();
     }
 
 }

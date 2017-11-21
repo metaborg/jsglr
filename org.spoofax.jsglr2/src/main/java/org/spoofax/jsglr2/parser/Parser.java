@@ -110,13 +110,15 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 
         notify(observer -> observer.forActorStacks(parse.forActorStacks));
 
-        for(StackNode stack : parse.forActorStacks) {
+        while(parse.forActorStacks.nonEmpty()) {
+            StackNode stack = parse.forActorStacks.remove();
+
+            notify(observer -> observer.handleForActorStack(stack, parse.forActorStacks));
+
             if(!stack.allOutLinksRejected())
                 actor(stack, parse, character);
             else
                 notify(observer -> observer.skipRejectedStack(stack));
-
-            notify(observer -> observer.forActorStacks(parse.forActorStacks));
         }
 
         shifter(parse);

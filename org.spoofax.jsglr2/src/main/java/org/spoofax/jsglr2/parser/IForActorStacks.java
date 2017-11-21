@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.Iterator;
-
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 /*
@@ -10,18 +8,19 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
  * by one and during a parse round new stacks can be added after reducing. Removing should return stacks in a certain
  * order (see also the iterator() method).
  */
-public interface IForActorStacks<StackNode extends AbstractStackNode<?>> extends Iterable<StackNode> {
+public interface IForActorStacks<StackNode extends AbstractStackNode<?>> {
 
     void add(StackNode stack);
 
     boolean contains(StackNode stack);
 
+    public boolean nonEmpty();
+
     /*
-     * This iterator should remove and return the stacks in the correct order. First non-rejectable stacks and last
-     * rejectable stacks. Non-rejectable stacks added during a parse round still need to be returned before rejectable
-     * stacks. When only rejectable stacks are left, they should be returned with a certain order (see P9707 Section
-     * 8.4).
+     * Remove and return the next stack in the correct order. First non-rejectable stacks and last rejectable stacks.
+     * Non-rejectable stacks added during a parse round still need to be returned before rejectable stacks. When only
+     * rejectable stacks are left, they should be removed and returned with a certain order (see P9707 Section 8.4).
      */
-    @Override public Iterator<StackNode> iterator();
+    public StackNode remove();
 
 }

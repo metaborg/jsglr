@@ -57,7 +57,10 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 
         this.currentChar = getChar(currentOffset);
 
-        this.observers = new ArrayList<>(observers);
+        if(!observers.isEmpty())
+            this.observers = observers;
+        else
+            this.observers = null;
     }
 
     public Position currentPosition() {
@@ -103,6 +106,9 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
     }
 
     public void notify(IParserNotification<StackNode, ParseForest> notification) {
+        if(observers == null)
+            return;
+
         for(IParserObserver<StackNode, ParseForest> observer : observers)
             notification.notify(observer);
     }

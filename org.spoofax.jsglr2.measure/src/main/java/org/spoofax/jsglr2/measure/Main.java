@@ -87,7 +87,7 @@ public class Main {
     private static void csvHeader(PrintWriter out) {
         List<String> cells = new ArrayList<String>();
 
-        for(Measurement measurement : measurements) {
+        for(Measurement measurement : Measurement.values()) {
             cells.add(measurement.name());
         }
 
@@ -114,7 +114,7 @@ public class Main {
                 parseNodesLayout.add(parseNode);
         }
 
-        for(Measurement measurement : measurements) {
+        for(Measurement measurement : Measurement.values()) {
             switch(measurement) {
                 case size:
                     cells.add("" + inputBatch.size);
@@ -211,15 +211,6 @@ public class Main {
         doLimitedReductions, doReductionsLR, doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers,
         reducersElkhound
     }
-
-    public static Measurement[] measurements = new Measurement[] { Measurement.size, Measurement.characters,
-        Measurement.stackNodes, Measurement.stackLinks, Measurement.stackLinksRejected,
-        Measurement.deterministicDepthResets, Measurement.parseNodes, Measurement.parseNodesAmbiguous,
-        Measurement.parseNodesContextFree, Measurement.parseNodesContextFreeAmbiguous, Measurement.parseNodesLexical,
-        Measurement.parseNodesLexicalAmbiguous, Measurement.parseNodesLayout, Measurement.parseNodesLayoutAmbiguous,
-        Measurement.characterNodes, Measurement.actors, Measurement.doReductions, Measurement.doLimitedReductions,
-        Measurement.doReductionsLR, Measurement.doReductionsDeterministicGLR,
-        Measurement.doReductionsNonDeterministicGLR, Measurement.reducers, Measurement.reducersElkhound };
 
     private static void csvLine(PrintWriter out, List<String> cells) {
         out.println(String.join(",", cells));

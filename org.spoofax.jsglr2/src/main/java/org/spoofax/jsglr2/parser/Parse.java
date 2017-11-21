@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
@@ -62,6 +62,8 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         else
             this.observers = null;
     }
+
+    public static Parse<?, ?> EMTPY = new Parse<>("", "", Collections.EMPTY_LIST);
 
     public Position currentPosition() {
         return new Position(currentOffset, currentLine, currentColumn);

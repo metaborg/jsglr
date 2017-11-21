@@ -12,6 +12,7 @@ import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFailure;
 import org.spoofax.jsglr2.parser.ParseSuccess;
 import org.spoofax.jsglr2.parsetable.IProduction;
+import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
@@ -23,6 +24,12 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
+    }
+
+    @Override public void addActiveStack(StackNode stack) {
+    }
+
+    @Override public void findActiveStackWithState(IState state) {
     }
 
     @Override public void createStackNode(StackNode stack) {

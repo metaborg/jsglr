@@ -2,12 +2,12 @@ package org.spoofax.jsglr2.parser;
 
 import java.util.List;
 import java.util.Queue;
-import java.util.Stack;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
+import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
@@ -17,6 +17,10 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
     public void parseStart(Parse<StackNode, ParseForest> parse);
 
     public void parseCharacter(int character, Iterable<StackNode> activeStacks);
+
+    public void addActiveStack(StackNode stack);
+
+    public void findActiveStackWithState(IState state);
 
     public void createStackNode(StackNode stack);
 

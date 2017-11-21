@@ -8,6 +8,7 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
+import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
@@ -22,6 +23,12 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
         log("Parse character '" + ICharacters.intToString(character) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")");
+    }
+
+    @Override public void addActiveStack(StackNode stack) {
+    }
+
+    @Override public void findActiveStackWithState(IState state) {
     }
 
     @Override public void createStackNode(StackNode stack) {

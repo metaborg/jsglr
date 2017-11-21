@@ -36,6 +36,8 @@ public class ActiveStacks<ParseForest extends AbstractParseForest, StackNode ext
     }
 
     @Override public StackNode findWithState(IState state) {
+        parse.notify(observer -> observer.findActiveStackWithState(state));
+
         for(StackNode stack : activeStacks)
             if(stack.state.stateNumber() == state.stateNumber())
                 return stack;

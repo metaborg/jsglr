@@ -24,6 +24,7 @@ import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
@@ -99,7 +100,7 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
 
         public List<ParseRound> parseRounds = new ArrayList<ParseRound>();
 
-        @Override public void parseCharacter(int character, Iterable<StackNode> activeStacks) {
+        @Override public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
             parseRounds.add(new ParseRound());
         }
 

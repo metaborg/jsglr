@@ -48,7 +48,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 
         this.acceptingStack = null;
         this.activeStacks = new ActiveStacks<>(this);
-        this.forActorStacks = new ForActorStacks<>();
+        this.forActorStacks = new ForActorStacks<>(this);
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;

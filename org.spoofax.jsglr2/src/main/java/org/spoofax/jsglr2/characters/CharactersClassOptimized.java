@@ -51,6 +51,24 @@ public final class CharactersClassOptimized implements ICharacters {
         throw new IllegalStateException();
     }
 
+    @Override public int hashCode() {
+        return (int) (word0 ^ word1 ^ word2 ^ word3 ^ Boolean.hashCode(containsEOF));
+    }
+
+    @Override public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CharactersClassOptimized that = (CharactersClassOptimized) o;
+
+        return word0 == that.word0 && word1 == that.word1 && word2 == that.word2 && word3 == that.word3
+            && containsEOF == that.containsEOF;
+    }
+
     @Override public final String toString() {
         return "{..optimized..}";
     }

@@ -122,23 +122,6 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
         return bitSet;
     }
 
-    @Override public int hashCode() {
-        return rangeSet.hashCode(); // TODO: add containsEOF
-    }
-
-    @Override public boolean equals(Object o) {
-        if(this == o) {
-            return true;
-        }
-        if(o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        CharacterClassRangeSet<C> that = (CharacterClassRangeSet<C>) o;
-
-        return rangeSet.equals(that.rangeSet); // TODO: add containsEOF
-    }
-
     @Override public <C2 extends Number & Comparable<C2>> CharacterClassRangeSet<C2>
         rangeSetUnion(CharacterClassRangeSet<C2> other) {
         return other.union((CharacterClassRangeSet<C2>) this);
@@ -151,6 +134,23 @@ public abstract class CharacterClassRangeSet<C extends Number & Comparable<C>> i
             return containsEOF ? EOF_SINGLETON : new CharactersClassOptimized(false);
         else
             return new CharactersClassOptimized(word0, word1, word2, word3, containsEOF);
+    }
+
+    @Override public int hashCode() {
+        return rangeSet.hashCode() ^ Boolean.hashCode(containsEOF);
+    }
+
+    @Override public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CharacterClassRangeSet<C> that = (CharacterClassRangeSet<C>) o;
+
+        return rangeSet.equals(that.rangeSet) && containsEOF == that.containsEOF;
     }
 
     @Override public String toString() {

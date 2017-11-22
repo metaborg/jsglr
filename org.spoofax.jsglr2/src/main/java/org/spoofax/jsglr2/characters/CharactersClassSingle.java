@@ -17,6 +17,23 @@ public final class CharactersClassSingle implements ICharacters {
         return rangeSet.addSingle(containsCharacter);
     }
 
+    @Override public int hashCode() {
+        return Integer.hashCode(containsCharacter);
+    }
+
+    @Override public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CharactersClassSingle that = (CharactersClassSingle) o;
+
+        return containsCharacter == that.containsCharacter;
+    }
+
     @Override public final String toString() {
         return "{" + ICharacters.intToString(containsCharacter) + "}";
     }

@@ -12,8 +12,7 @@ public final class CharactersClassSingle implements ICharacters {
         return containsCharacter == character;
     }
 
-    public final <C extends Number & Comparable<C>> CharacterClassRangeSet<C>
-        rangeSetUnion(CharacterClassRangeSet<C> rangeSet) {
+    public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
         return rangeSet.addSingle(containsCharacter);
     }
 

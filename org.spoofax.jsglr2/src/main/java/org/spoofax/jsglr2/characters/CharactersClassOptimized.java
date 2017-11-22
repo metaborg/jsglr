@@ -8,8 +8,8 @@ public final class CharactersClassOptimized implements ICharacters {
     private long word3; // [192, 255]
     private boolean containsEOF; // [256]
 
-    public CharactersClassOptimized(boolean containsEOF) {
-        this.containsEOF = containsEOF;
+    public CharactersClassOptimized() {
+        this.containsEOF = false;
     }
 
     public CharactersClassOptimized(long word0, long word1, long word2, long word3, boolean containsEOF) {
@@ -46,8 +46,7 @@ public final class CharactersClassOptimized implements ICharacters {
         return (word & (1L << character)) != 0;
     }
 
-    public final <C extends Number & Comparable<C>> CharacterClassRangeSet<C>
-        rangeSetUnion(CharacterClassRangeSet<C> rangeSet) {
+    public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
         throw new IllegalStateException();
     }
 

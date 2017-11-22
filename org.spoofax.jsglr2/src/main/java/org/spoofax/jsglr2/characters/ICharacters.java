@@ -11,20 +11,19 @@ public interface ICharacters {
 
     static final ICharacters EOF_SINGLETON = new CharactersClassSingle(EOF_INT);
 
-    static RangeSetCharacterClassFactory factory() {
-        return new IntegerRangeSetCharacterClassFactory(true);
+    static CharacterClassFactory factory() {
+        return new CharacterClassFactory(true);
     }
 
     boolean containsCharacter(int character);
 
-    <C extends Number & Comparable<C>> CharacterClassRangeSet<C> rangeSetUnion(CharacterClassRangeSet<C> rangeSet);
+    CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet);
 
     static String intToString(int character) {
-        if(character == EOF_INT) {
+        if(character == EOF_INT)
             return "EOF";
-        } else {
+        else
             return "" + (char) character;
-        }
     }
 
     static boolean isNewLine(int character) {

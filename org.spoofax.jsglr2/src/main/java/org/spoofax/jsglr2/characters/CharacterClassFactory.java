@@ -1,26 +1,23 @@
 package org.spoofax.jsglr2.characters;
 
-public abstract class RangeSetCharacterClassFactory<C extends Number & Comparable<C>>
-    implements ICharacterClassFactory {
+public final class CharacterClassFactory implements ICharacterClassFactory {
 
     final private boolean optimize;
 
-    protected RangeSetCharacterClassFactory(boolean optimize) {
+    protected CharacterClassFactory(boolean optimize) {
         this.optimize = optimize;
     }
 
-    public ICharacters fromEmpty() {
-        return emptyRangeSet();
+    public CharacterClassRangeSet fromEmpty() {
+        return CharacterClassRangeSet.EMPTY_CONSTANT;
     }
-
-    protected abstract CharacterClassRangeSet<C> emptyRangeSet();
 
     @Override public final ICharacters fromSingle(int character) {
         return new CharactersClassSingle(character);
     }
 
     @Override public final ICharacters fromRange(int from, int to) {
-        return emptyRangeSet().addRange(from, to);
+        return fromEmpty().addRange(from, to);
     }
 
     @Override public final ICharacters union(ICharacters a, ICharacters b) {
@@ -28,20 +25,20 @@ public abstract class RangeSetCharacterClassFactory<C extends Number & Comparabl
         boolean bIsRangeSet = b instanceof CharacterClassRangeSet;
 
         if(aIsRangeSet || bIsRangeSet) {
-            CharacterClassRangeSet<C> rangeSet;
+            CharacterClassRangeSet rangeSet;
             ICharacters other;
 
             if(aIsRangeSet) {
-                rangeSet = (CharacterClassRangeSet<C>) a;
+                rangeSet = (CharacterClassRangeSet) a;
                 other = b;
             } else {
-                rangeSet = (CharacterClassRangeSet<C>) b;
+                rangeSet = (CharacterClassRangeSet) b;
                 other = a;
             }
 
             return other.rangeSetUnion(rangeSet);
         } else {
-            CharacterClassRangeSet<C> result = emptyRangeSet();
+            CharacterClassRangeSet result = fromEmpty();
 
             result = a.rangeSetUnion(result);
             result = b.rangeSetUnion(result);

@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.characters;
 
-public final class CharacterClassFactory implements ICharacterClassFactory {
+public class CharacterClassFactory implements ICharacterClassFactory {
 
     final private boolean optimize;
 
@@ -47,7 +47,7 @@ public final class CharacterClassFactory implements ICharacterClassFactory {
         }
     }
 
-    public ICharacters optimize(ICharacters characters) {
+    public ICharacters finalize(ICharacters characters) {
         if(characters instanceof CharacterClassRangeSet && optimize)
             return ((CharacterClassRangeSet) characters).optimized();
         else

@@ -52,6 +52,11 @@ public class ParseTableReader {
         this.stateFactory = stateFactory;
     }
 
+    public ParseTableReader(ICharacterClassFactory characterClassFactory, IStateFactory stateFactory) {
+        this.characterClassFactory = characterClassFactory;
+        this.stateFactory = stateFactory;
+    }
+
     /*
      * Reads a parse table from a term. The format consists of a tuple of 4: - version number (not used) - start state
      * number - list of productions (i.e. labels) - list of states - list of priorities (not used since priorities are
@@ -210,7 +215,7 @@ public class ParseTableReader {
                 characters = characterClassFactory.union(characters, charactersForTerm);
         }
 
-        return characterClassFactory.optimize(characters);
+        return characterClassFactory.finalize(characters);
     }
 
     private ICharacters[] readReduceLookaheadCharacters(IStrategoList list) throws ParseTableReadException {

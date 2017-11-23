@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.parsetable;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IGoto;
 
-public final class StateFactory implements IStateFactory {
+public class StateFactory implements IStateFactory {
 
     ProductionToGotoRepresentation productionToGotoType;
 

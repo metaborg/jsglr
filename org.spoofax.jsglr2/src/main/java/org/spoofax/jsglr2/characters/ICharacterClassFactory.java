@@ -10,6 +10,10 @@ public interface ICharacterClassFactory {
 
     ICharacters union(ICharacters one, ICharacters two);
 
-    ICharacters optimize(ICharacters characters);
+    /*
+     * Character classes in the parse table can be composed by taking the union of multiple character classes. This
+     * method is called after these operations on the result, e.g. to do optimizations.
+     */
+    ICharacters finalize(ICharacters characters);
 
 }

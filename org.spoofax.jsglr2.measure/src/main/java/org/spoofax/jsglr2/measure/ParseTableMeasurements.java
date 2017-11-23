@@ -18,7 +18,7 @@ public class ParseTableMeasurements extends Measurements {
     public void measure() throws FileNotFoundException, ParseTableReadException {
         System.out.println(" * Parse table");
 
-        PrintWriter out = new PrintWriter(Main.reportPath + testSet.name + "_parsetable.csv");
+        PrintWriter out = new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsetable.csv");
 
         csvHeader(out);
 

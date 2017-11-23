@@ -46,13 +46,14 @@ public class ParsingMeasurements extends Measurements {
 
     private void measure(IParseTable parseTable, JSGLR2Variants.Variant variant, String postfix)
         throws ParseTableReadException, IOException, ParseException {
-        PrintWriter out = new PrintWriter(Main.reportPath + testSet.name + "_parsing_" + postfix + ".csv");
+        PrintWriter out =
+            new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");
 
         csvHeader(out);
 
         for(TestSetReader.InputBatch inputBatch : testSetReader.getInputBatches()) {
             if(inputBatch.size != -1)
-                System.out.println("   - Batch of size '" + inputBatch.size + "'");
+                System.out.println("   - Batch of size '" + inputBatch.size + "' (" + postfix + ")");
 
             @SuppressWarnings("unchecked") Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> parser =
                 (Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>) JSGLR2Variants

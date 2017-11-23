@@ -2,9 +2,9 @@ package org.spoofax.jsglr2.measure;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.spoofax.jsglr2.characters.ICharacterClassFactory;
-import org.spoofax.jsglr2.parsetable.IStateFactory;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.testset.TestSet;
@@ -22,14 +22,70 @@ public class ParseTableMeasurements extends Measurements {
 
         csvHeader(out);
 
-        ICharacterClassFactory characterClassFactory = new MeasureCharacterClassFactory();
-        IStateFactory stateFactory = new MeasureStateFactory();
+        MeasureCharacterClassFactory characterClassFactory = new MeasureCharacterClassFactory();
+        MeasureStateFactory stateFactory = new MeasureStateFactory();
 
         new ParseTableReader(characterClassFactory, stateFactory).read(testSetReader.getParseTableTerm());
 
-        // TODO: write results to CSV
+        csvResults(out, characterClassFactory, stateFactory);
 
         out.close();
+    }
+
+    protected static void csvResults(PrintWriter out, MeasureCharacterClassFactory characterClassFactory,
+        MeasureStateFactory stateFactory) {
+        List<String> cells = new ArrayList<String>();
+
+        for(ParseTableMeasurement measurement : ParseTableMeasurement.values()) {
+            switch(measurement) {
+                case states:
+                    cells.add("" + stateFactory.statesCount);
+                    break;
+                case characterClasses:
+                    cells.add("" + characterClassFactory.characterClassesUnique.size());
+                    break;
+                case characterClassesUnique:
+                    cells.add("" + characterClassFactory.characterClassesOptimizedUnique.size());
+                    break;
+                case gotos:
+                    cells.add("" + stateFactory.gotosCount);
+                    break;
+                case gotosPerStateAvg:
+                    cells.add("" + stateFactory.gotosAvgPerState());
+                    break;
+                case gotosPerStateMax:
+                    cells.add("" + stateFactory.gotosMaxPerState);
+                    break;
+                case actions:
+                    cells.add("" + stateFactory.actionsCount);
+                    break;
+                case actionsPerStateAvg:
+                    cells.add("" + stateFactory.actionsAvgPerState());
+                    break;
+                case actionsPerStateMax:
+                    cells.add("" + stateFactory.actionsMaxPerState);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        csvLine(out, cells);
+    }
+
+    public enum ParseTableMeasurement {
+        states, characterClasses, characterClassesUnique, gotos, gotosPerStateAvg, gotosPerStateMax, actions,
+        actionsPerStateAvg, actionsPerStateMax
+    }
+
+    private static void csvHeader(PrintWriter out) {
+        List<String> cells = new ArrayList<String>();
+
+        for(ParseTableMeasurement measurement : ParseTableMeasurement.values()) {
+            cells.add(measurement.name());
+        }
+
+        csvLine(out, cells);
     }
 
 }

@@ -194,4 +194,14 @@ public class ParsingMeasurements extends Measurements {
         reducersElkhound
     }
 
+    private static void csvHeader(PrintWriter out) {
+        List<String> cells = new ArrayList<String>();
+
+        for(ParsingMeasurement measurement : ParsingMeasurement.values()) {
+            cells.add(measurement.name());
+        }
+
+        csvLine(out, cells);
+    }
+
 }

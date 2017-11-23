@@ -20,9 +20,6 @@ public class JSGLR2Measurements {
 
         System.out.println("Starting measurments...\n");
 
-        System.out.println(String.format("%s.%s", JSGLR2Measurements.class.getCanonicalName(), "reportPath"));
-        System.out.println(REPORT_PATH);
-
         new File(REPORT_PATH).mkdirs();
 
         for(TestSet testSet : TestSet.all) {

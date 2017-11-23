@@ -52,9 +52,6 @@ public class ParsingMeasurements extends Measurements {
         csvHeader(out);
 
         for(TestSetReader.InputBatch inputBatch : testSetReader.getInputBatches()) {
-            if(inputBatch.size != -1)
-                System.out.println("   - Batch of size '" + inputBatch.size + "' (" + postfix + ")");
-
             @SuppressWarnings("unchecked") Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> parser =
                 (Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>) JSGLR2Variants
                     .getParser(parseTable, variant);
@@ -66,6 +63,12 @@ public class ParsingMeasurements extends Measurements {
             for(Input input : inputBatch.inputs) {
                 parser.parseUnsafe(input.content, input.filename, null);
             }
+
+            if(inputBatch.size != -1)
+                System.out.println(
+                    "   - Size: " + inputBatch.size + ", Characters: " + measureObserver.length + " (" + postfix + ")");
+            else
+                System.out.println("   - Characters: " + measureObserver.length + " (" + postfix + ")");
 
             csvResults(out, inputBatch, measureObserver);
         }

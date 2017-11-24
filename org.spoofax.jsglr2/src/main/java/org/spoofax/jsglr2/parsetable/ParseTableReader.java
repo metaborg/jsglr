@@ -24,8 +24,8 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.Reduce;
 import org.spoofax.jsglr2.actions.ReduceLookahead;
 import org.spoofax.jsglr2.actions.Shift;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
-import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.State;
@@ -42,7 +42,7 @@ public class ParseTableReader {
     IStateFactory stateFactory;
 
     public ParseTableReader() {
-        this.characterClassFactory = ICharacters.factory();
+        this.characterClassFactory = ICharacterClass.factory();
         this.stateFactory = IState.factory();
     }
 
@@ -52,7 +52,7 @@ public class ParseTableReader {
     }
 
     public ParseTableReader(IStateFactory stateFactory) {
-        this.characterClassFactory = ICharacters.factory();
+        this.characterClassFactory = ICharacterClass.factory();
         this.stateFactory = stateFactory;
     }
 
@@ -169,74 +169,29 @@ public class ParseTableReader {
         return productionIds;
     }
 
-    private ActionsPerCharacterClass[] readActions(IStrategoList characterActionsTermList, IProduction[] productions)
-        throws ParseTableReadException {
-        int characterClassesWithActionsCount = characterActionsTermList.size();
+    private ActionsPerCharacterClass[] readActions(IStrategoList characterClassActionsTermList,
+        IProduction[] productions) throws ParseTableReadException {
+        int characterClassesWithActionsCount = characterClassActionsTermList.size();
 
         List<ActionsPerCharacterClass> actionsPerCharacterClasses =
             new ArrayList<ActionsPerCharacterClass>(characterClassesWithActionsCount);
 
-        for(IStrategoTerm charactersActionsTerm : characterActionsTermList) {
-            IStrategoNamed charactersActionsTermNamed = (IStrategoNamed) charactersActionsTerm;
+        for(IStrategoTerm characterClassActionsTerm : characterClassActionsTermList) {
+            IStrategoNamed characterClassActionsTermNamed = (IStrategoNamed) characterClassActionsTerm;
 
-            IStrategoList charactersTermList = (IStrategoList) termAt(charactersActionsTermNamed, 0);
-            IStrategoList actionsTermList = (IStrategoList) termAt(charactersActionsTermNamed, 1);
+            IStrategoList characterClassTermList = (IStrategoList) termAt(characterClassActionsTermNamed, 0);
+            IStrategoList actionsTermList = (IStrategoList) termAt(characterClassActionsTermNamed, 1);
 
-            ICharacters characters = readCharacters(charactersTermList);
-            IAction[] actions = readActionsForCharacters(actionsTermList, productions);
+            ICharacterClass characterClass = readCharacterClass(characterClassTermList);
+            IAction[] actions = readActionsForCharacterClass(actionsTermList, productions);
 
-            actionsPerCharacterClasses.add(new ActionsPerCharacterClass(characters, actions));
+            actionsPerCharacterClasses.add(new ActionsPerCharacterClass(characterClass, actions));
         }
 
         return actionsPerCharacterClasses.toArray(new ActionsPerCharacterClass[actionsPerCharacterClasses.size()]);
     }
 
-    private ICharacters readCharacters(IStrategoList charactersTermList) {
-        ICharacters characters = null;
-
-        for(IStrategoTerm charactersTerm : charactersTermList) {
-            ICharacters charactersForTerm = null;
-
-            if(isTermInt(charactersTerm)) {
-                charactersForTerm = characterClassFactory.fromSingle(javaInt(charactersTerm));
-            } else {
-                int from = intAt(charactersTerm, 0);
-                int to = intAt(charactersTerm, 1);
-
-                charactersForTerm = characterClassFactory.fromRange(from, to);
-            }
-
-            if(characters == null)
-                characters = charactersForTerm;
-            else if(charactersForTerm != null)
-                characters = characterClassFactory.union(characters, charactersForTerm);
-        }
-
-        return characterClassFactory.finalize(characters);
-    }
-
-    private ICharacters[] readReduceLookaheadCharacters(IStrategoTerm followRestrictionTerm)
-        throws ParseTableReadException {
-        if("follow-restriction".equals(((IStrategoNamed) followRestrictionTerm).getName())) {
-            IStrategoList followRestrictionCharactersList = (IStrategoList) termAt(followRestrictionTerm, 0);
-
-            int lookaheadLength = followRestrictionCharactersList.size();
-
-            // The length of this list equals the length of the lookahead
-            ICharacters[] followRestrictionCharacters = new ICharacters[lookaheadLength];
-
-            for(int i = 0; i < lookaheadLength; i++) {
-                IStrategoTerm charactersTerm = followRestrictionCharactersList.getSubterm(i);
-
-                followRestrictionCharacters[i] = readCharacters((IStrategoList) charactersTerm.getSubterm(0));
-            }
-
-            return followRestrictionCharacters;
-        } else
-            throw new ParseTableReadException("invalid follow restriction");
-    }
-
-    private IAction[] readActionsForCharacters(IStrategoList actionsTermList, IProduction[] productions)
+    private IAction[] readActionsForCharacterClass(IStrategoList actionsTermList, IProduction[] productions)
         throws ParseTableReadException {
         int actionCount = actionsTermList.size();
 
@@ -256,8 +211,8 @@ public class ParseTableReader {
                 if(actionTermAppl.getConstructor().getArity() == 3) { // Reduce without lookahead
                     action = new Reduce(production, productionType, arity);
                 } else if(actionTermAppl.getConstructor().getArity() == 4) { // Reduce with lookahead
-                    ICharacters[] followRestriction =
-                        readReduceLookaheadCharacters(termAt((IStrategoList) termAt(actionTermAppl, 3), 0));
+                    ICharacterClass[] followRestriction =
+                        readReduceLookaheadFollowRestriction(termAt((IStrategoList) termAt(actionTermAppl, 3), 0));
 
                     action = new ReduceLookahead(production, productionType, arity, followRestriction);
                 }
@@ -277,6 +232,52 @@ public class ParseTableReader {
         return actions;
     }
 
+    private ICharacterClass readCharacterClass(IStrategoList characterClassTermList) {
+        ICharacterClass characterClass = null;
+
+        for(IStrategoTerm characterClassTerm : characterClassTermList) {
+            ICharacterClass characterClassForTerm = null;
+
+            if(isTermInt(characterClassTerm)) {
+                characterClassForTerm = characterClassFactory.fromSingle(javaInt(characterClassTerm));
+            } else {
+                int from = intAt(characterClassTerm, 0);
+                int to = intAt(characterClassTerm, 1);
+
+                characterClassForTerm = characterClassFactory.fromRange(from, to);
+            }
+
+            if(characterClass == null)
+                characterClass = characterClassForTerm;
+            else if(characterClassForTerm != null)
+                characterClass = characterClassFactory.union(characterClass, characterClassForTerm);
+        }
+
+        return characterClassFactory.finalize(characterClass);
+    }
+
+    private ICharacterClass[] readReduceLookaheadFollowRestriction(IStrategoTerm followRestrictionTerm)
+        throws ParseTableReadException {
+        if("follow-restriction".equals(((IStrategoNamed) followRestrictionTerm).getName())) {
+            IStrategoList followRestrictionCharacterClassList = (IStrategoList) termAt(followRestrictionTerm, 0);
+
+            int lookaheadLength = followRestrictionCharacterClassList.size();
+
+            // The length of this list equals the length of the lookahead
+            ICharacterClass[] followRestrictionCharacterClasses = new ICharacterClass[lookaheadLength];
+
+            for(int i = 0; i < lookaheadLength; i++) {
+                IStrategoTerm characterClassTerm = followRestrictionCharacterClassList.getSubterm(i);
+
+                followRestrictionCharacterClasses[i] =
+                    readCharacterClass((IStrategoList) characterClassTerm.getSubterm(0));
+            }
+
+            return followRestrictionCharacterClasses;
+        } else
+            throw new ParseTableReadException("invalid follow restriction");
+    }
+
     // Mark states that are reachable by a reject production as rejectable. "Reachable" means the parser could
     // transition into such state by means of a goto action after reducing a production.
     private void markRejectableStates(IState[] states) {
@@ -285,8 +286,8 @@ public class ParseTableReader {
                 .filter(IAction::typeMatchesReduceOrReduceLookahead).map(IReduce.class::cast).map(IReduce::production)
                 .filter(IProduction::typeMatchesReject).map(IProduction::id).collect(CapsuleCollectors.toSet());
 
-        final Set.Immutable<Integer> rejectableStateIds = Stream.of(states)
-            .flatMap(state -> rejectProductionIds.stream().filter(rejectProductionId -> {
+        final Set.Immutable<Integer> rejectableStateIds =
+            Stream.of(states).flatMap(state -> rejectProductionIds.stream().filter(rejectProductionId -> {
                 return ((State) state).hasGoto(rejectProductionId);
             }).map(state::getGotoId)).collect(CapsuleCollectors.toSet());
 

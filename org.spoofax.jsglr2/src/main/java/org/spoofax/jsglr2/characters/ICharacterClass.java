@@ -5,17 +5,17 @@ package org.spoofax.jsglr2.characters;
  *
  * End-of-file marker (EOF): integer representation 256
  */
-public interface ICharacters {
+public interface ICharacterClass {
 
     int EOF_INT = 256;
 
-    static final ICharacters EOF_SINGLETON = new CharactersClassSingle(EOF_INT);
+    static final ICharacterClass EOF_SINGLETON = new CharacterClassSingle(EOF_INT);
 
-    static CharacterClassFactory factory() {
+    static ICharacterClassFactory factory() {
         return new CharacterClassFactory(true);
     }
 
-    boolean containsCharacter(int character);
+    boolean contains(int character);
 
     CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet);
 

@@ -4,25 +4,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.spoofax.jsglr2.characters.CharacterClassFactory;
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 
 public class MeasureCharacterClassFactory extends CharacterClassFactory {
 
     public int characterClassesCount = 0;
 
-    public Set<ICharacters> characterClassesUnique = new HashSet<>();
-    public Set<ICharacters> characterClassesOptimizedUnique = new HashSet<>();
+    public Set<ICharacterClass> characterClassesUnique = new HashSet<>();
+    public Set<ICharacterClass> characterClassesOptimizedUnique = new HashSet<>();
 
     protected MeasureCharacterClassFactory() {
         super(true);
     }
 
-    @Override public ICharacters finalize(ICharacters characters) {
+    @Override public ICharacterClass finalize(ICharacterClass characters) {
         characterClassesCount++;
 
         characterClassesUnique.add(characters);
 
-        ICharacters optimized = super.finalize(characters);
+        ICharacterClass optimized = super.finalize(characters);
 
         characterClassesOptimizedUnique.add(characters);
 

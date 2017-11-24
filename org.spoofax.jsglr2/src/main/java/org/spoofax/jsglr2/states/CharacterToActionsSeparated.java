@@ -22,7 +22,7 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
 
         for(ActionsPerCharacterClass actionsPerCharacterClass : actionsPerCharacterClasses) {
             for(IAction action : actionsPerCharacterClass.actions)
-                actionPerCharacterClasses.add(new ActionForCharacterClass(actionsPerCharacterClass.characters, action));
+                actionPerCharacterClasses.add(new ActionForCharacterClass(actionsPerCharacterClass.characterClass, action));
         }
 
         actions = new ActionForCharacterClass[actionPerCharacterClasses.size()];

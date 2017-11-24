@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.ActiveStacks;
@@ -78,7 +78,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
         currentChar = getChar(currentOffset);
 
         if(currentOffset < inputLength) {
-            if(ICharacters.isNewLine(currentChar)) {
+            if(ICharacterClass.isNewLine(currentChar)) {
                 currentLine++;
                 currentColumn = 1;
             } else {
@@ -96,7 +96,7 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
 
             return c;
         } else
-            return ICharacters.EOF_INT;
+            return ICharacterClass.EOF_INT;
     }
 
     public String getPart(int begin, int end) {

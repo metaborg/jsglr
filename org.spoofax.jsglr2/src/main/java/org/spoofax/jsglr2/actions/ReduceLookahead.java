@@ -1,16 +1,16 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class ReduceLookahead extends Reduce implements IReduceLookahead {
 
-    private final ICharacters[] followRestriction;
+    private final ICharacterClass[] followRestriction;
 
     public ReduceLookahead(IProduction production, ProductionType productionType, int arity,
-        ICharacters[] followRestriction) {
+        ICharacterClass[] followRestriction) {
         super(production, productionType, arity);
 
         this.followRestriction = followRestriction;
@@ -21,7 +21,7 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
             return true;
 
         for(int i = 0; i < followRestriction.length; i++) {
-            if(!followRestriction[i].containsCharacter(lookahead.charAt(i)))
+            if(!followRestriction[i].contains(lookahead.charAt(i)))
                 return true;
         }
 

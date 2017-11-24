@@ -1,23 +1,23 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 
 public final class ActionsPerCharacterClass {
 
-    public final ICharacters characters;
+    public final ICharacterClass characterClass;
     public final IAction[] actions;
 
-    public ActionsPerCharacterClass(ICharacters characters, IAction[] actions) {
-        this.characters = characters;
+    public ActionsPerCharacterClass(ICharacterClass characterClass, IAction[] actions) {
+        this.characterClass = characterClass;
         this.actions = actions;
     }
 
     public final boolean appliesTo(int character) {
-        return characters.containsCharacter(character);
+        return characterClass.contains(character);
     }
 
     @Override public String toString() {
-        return characters.toString() + "->" + actions.toString();
+        return characterClass.toString() + "->" + actions.toString();
     }
 
 }

@@ -6,22 +6,22 @@ import java.util.function.Predicate;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 
 public class CharacterClassTest {
 
-    ICharacterClassFactory factory = ICharacters.factory();
+    ICharacterClassFactory factory = ICharacterClass.factory();
 
-    ICharacters AZ = factory.fromRange(65, 90);
-    ICharacters az = factory.fromRange(97, 122);
+    ICharacterClass AZ = factory.fromRange(65, 90);
+    ICharacterClass az = factory.fromRange(97, 122);
 
-    ICharacters x = factory.fromSingle(120);
+    ICharacterClass x = factory.fromSingle(120);
 
-    private void testCharacterClass(ICharacters characters, Predicate<Integer> contains) {
-        for(int i = 0; i <= ICharacters.EOF_INT; i++) {
-            boolean expected = characters.containsCharacter(i);
+    private void testCharacterClass(ICharacterClass characters, Predicate<Integer> contains) {
+        for(int i = 0; i <= ICharacterClass.EOF_INT; i++) {
+            boolean expected = characters.contains(i);
 
-            assertEquals("Character " + i + " ('" + ICharacters.intToString(i) + "') for characters "
+            assertEquals("Character " + i + " ('" + ICharacterClass.intToString(i) + "') for characters "
                 + characters.toString() + ":", contains.test(i), expected);
         }
     }
@@ -31,8 +31,8 @@ public class CharacterClassTest {
             return 97 <= character && character <= 122;
         });
 
-        assertEquals(az.containsCharacter('a'), true);
-        assertEquals(az.containsCharacter('A'), false);
+        assertEquals(az.contains('a'), true);
+        assertEquals(az.contains('A'), false);
     }
 
     @Test public void testUppercaseCaseLettersRange() {
@@ -42,7 +42,7 @@ public class CharacterClassTest {
     }
 
     @Test public void testLettersUnionRange() {
-        ICharacters letters = factory.union(az, AZ);
+        ICharacterClass letters = factory.union(az, AZ);
 
         testCharacterClass(letters, character -> {
             return 65 <= character && character <= 90 || 97 <= character && character <= 122;
@@ -56,30 +56,30 @@ public class CharacterClassTest {
     }
 
     @Test public void testSingletonRangeUnion() {
-        ICharacters characters = factory.union(x, AZ);
+        ICharacterClass characters = factory.union(x, AZ);
 
         testCharacterClass(characters, character -> {
             return 65 <= character && character <= 90 || character == 120;
         });
 
-        assertEquals(characters.containsCharacter('a'), false);
-        assertEquals(characters.containsCharacter('B'), true);
-        assertEquals(characters.containsCharacter('x'), true);
+        assertEquals(characters.contains('a'), false);
+        assertEquals(characters.contains('B'), true);
+        assertEquals(characters.contains('x'), true);
     }
 
     @Test public void testEOF() {
-        ICharacters characters = factory.fromSingle(ICharacters.EOF_INT);
+        ICharacterClass characters = factory.fromSingle(ICharacterClass.EOF_INT);
 
         testCharacterClass(characters, character -> {
-            return character == ICharacters.EOF_INT;
+            return character == ICharacterClass.EOF_INT;
         });
     }
 
     @Test public void testRangeEOFunion() {
-        ICharacters characters = factory.union(az, factory.fromSingle(ICharacters.EOF_INT));
+        ICharacterClass characters = factory.union(az, factory.fromSingle(ICharacterClass.EOF_INT));
 
         testCharacterClass(characters, character -> {
-            return 97 <= character && character <= 122 || character == ICharacters.EOF_INT;
+            return 97 <= character && character <= 122 || character == ICharacterClass.EOF_INT;
         });
     }
 
@@ -87,8 +87,8 @@ public class CharacterClassTest {
         char newLineChar = '\n';
         int newLineInt = newLineChar;
 
-        assertEquals(ICharacters.isNewLine(newLineChar), true);
-        assertEquals(ICharacters.isNewLine(newLineInt), true);
+        assertEquals(ICharacterClass.isNewLine(newLineChar), true);
+        assertEquals(ICharacterClass.isNewLine(newLineInt), true);
     }
 
 }

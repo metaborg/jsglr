@@ -12,21 +12,21 @@ public class CharacterClassFactory implements ICharacterClassFactory {
         return CharacterClassRangeSet.EMPTY_CONSTANT;
     }
 
-    @Override public final ICharacters fromSingle(int character) {
-        return new CharactersClassSingle(character);
+    @Override public final ICharacterClass fromSingle(int character) {
+        return new CharacterClassSingle(character);
     }
 
-    @Override public final ICharacters fromRange(int from, int to) {
+    @Override public final ICharacterClass fromRange(int from, int to) {
         return fromEmpty().addRange(from, to);
     }
 
-    @Override public final ICharacters union(ICharacters a, ICharacters b) {
+    @Override public final ICharacterClass union(ICharacterClass a, ICharacterClass b) {
         boolean aIsRangeSet = a instanceof CharacterClassRangeSet;
         boolean bIsRangeSet = b instanceof CharacterClassRangeSet;
 
         if(aIsRangeSet || bIsRangeSet) {
             CharacterClassRangeSet rangeSet;
-            ICharacters other;
+            ICharacterClass other;
 
             if(aIsRangeSet) {
                 rangeSet = (CharacterClassRangeSet) a;
@@ -47,11 +47,11 @@ public class CharacterClassFactory implements ICharacterClassFactory {
         }
     }
 
-    public ICharacters finalize(ICharacters characters) {
-        if(characters instanceof CharacterClassRangeSet && optimize)
-            return ((CharacterClassRangeSet) characters).optimized();
+    public ICharacterClass finalize(ICharacterClass characterClass) {
+        if(characterClass instanceof CharacterClassRangeSet && optimize)
+            return ((CharacterClassRangeSet) characterClass).optimized();
         else
-            return characters;
+            return characterClass;
     }
 
 

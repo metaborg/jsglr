@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 
@@ -10,12 +10,12 @@ public class CharacterNode extends HybridParseForest {
 
     public CharacterNode(int nodeNumber, Parse parse, Position position, int character) {
         super(nodeNumber, parse, position,
-            ICharacters.isNewLine(character) ? position.nextLine() : position.nextColumn());
+            ICharacterClass.isNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;
     }
 
     @Override public String descriptor() {
-        return "'" + ICharacters.intToString(this.character) + "'";
+        return "'" + ICharacterClass.intToString(this.character) + "'";
     }
 
 }

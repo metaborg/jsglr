@@ -22,7 +22,7 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.characters.IntegerRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
@@ -78,13 +78,13 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
     abstract class ActorOnStateActions {
 
         final IState state;
-        final ICharacters[] characterClasses;
+        final ICharacterClass[] characterClasses;
         final int character;
 
         protected ActorOnStateActions(IState state, int character) {
             this.state = state;
 
-            this.characterClasses = new ICharacters[state.actions().length];
+            this.characterClasses = new ICharacterClass[state.actions().length];
 
             for(int i = 0; i < state.actions().length; i++)
                 this.characterClasses[i] = state.actions()[i].characters();
@@ -104,11 +104,11 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             super(state, character);
         }
 
-        private Iterable<ICharacters> charactersList() {
-            List<ICharacters> res = new ArrayList<ICharacters>();
+        private Iterable<ICharacterClass> charactersList() {
+            List<ICharacterClass> res = new ArrayList<ICharacterClass>();
 
-            for(ICharacters characterClass : characterClasses) {
-                if(characterClass.containsCharacter(character))
+            for(ICharacterClass characterClass : characterClasses) {
+                if(characterClass.contains(character))
                     res.add(characterClass);
             }
 
@@ -127,7 +127,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         }
 
         @Override public void iterateOverCharacterClasses(Blackhole bh) {
-            for(ICharacters characterClass : charactersList())
+            for(ICharacterClass characterClass : charactersList())
                 bh.consume(characterClass);
         }
 
@@ -144,20 +144,20 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             super(state, character);
         }
 
-        public Iterable<ICharacters> charactersFilterIterable() {
+        public Iterable<ICharacterClass> charactersFilterIterable() {
             return () -> {
-                return new Iterator<ICharacters>() {
+                return new Iterator<ICharacterClass>() {
                     int index = 0;
 
                     @Override public boolean hasNext() {
                         while(index < characterClasses.length
-                            && !characterClasses[index].containsCharacter(character)) {
+                            && !characterClasses[index].contains(character)) {
                             index++;
                         }
                         return index < characterClasses.length;
                     }
 
-                    @Override public ICharacters next() {
+                    @Override public ICharacterClass next() {
                         if(!hasNext()) {
                             throw new NoSuchElementException();
                         }
@@ -190,7 +190,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         }
 
         @Override public void iterateOverCharacterClasses(Blackhole bh) {
-            for(ICharacters characterClass : charactersFilterIterable())
+            for(ICharacterClass characterClass : charactersFilterIterable())
                 bh.consume(characterClass);
         }
 
@@ -208,8 +208,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         }
 
         @Override public void iterateOverCharacterClasses(Blackhole bh) {
-            for(ICharacters characterClass : characterClasses) {
-                if(characterClass.containsCharacter(character))
+            for(ICharacterClass characterClass : characterClasses) {
+                if(characterClass.contains(character))
                     bh.consume(characterClass);
             }
         }
@@ -229,9 +229,9 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
             super(state, character);
         }
 
-        private void forEachCharacterClass(Consumer<ICharacters> consumer) {
-            for(ICharacters characterClass : characterClasses) {
-                if(characterClass.containsCharacter(character))
+        private void forEachCharacterClass(Consumer<ICharacterClass> consumer) {
+            for(ICharacterClass characterClass : characterClasses) {
+                if(characterClass.contains(character))
                     consumer.accept(characterClass);
             }
         }

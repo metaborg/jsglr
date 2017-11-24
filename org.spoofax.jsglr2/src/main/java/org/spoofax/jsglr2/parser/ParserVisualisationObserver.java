@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -27,7 +27,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
     }
 
     @Override public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
-        trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacters.intToString(parse.currentChar)
+        trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacterClass.intToString(parse.currentChar)
             + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
     }
 
@@ -121,7 +121,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 
     @Override public void createCharacterNode(ParseForest parseNode, int character) {
         trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\""
-            + ICharacters.intToString(character) + "\"" + ",\"startPosition\":" + parseNode.startPosition.offset
+            + ICharacterClass.intToString(character) + "\"" + ",\"startPosition\":" + parseNode.startPosition.offset
             + ",\"endPosition\":" + parseNode.endPosition.offset + "}");
     }
 

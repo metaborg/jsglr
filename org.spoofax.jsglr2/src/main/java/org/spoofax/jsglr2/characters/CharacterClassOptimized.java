@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.characters;
 
-public final class CharactersClassOptimized implements ICharacters {
+public final class CharacterClassOptimized implements ICharacterClass {
 
     private long word0; // [0, 63]
     private long word1; // [64, 127]
@@ -8,11 +8,11 @@ public final class CharactersClassOptimized implements ICharacters {
     private long word3; // [192, 255]
     private boolean containsEOF; // [256]
 
-    public CharactersClassOptimized() {
+    public CharacterClassOptimized() {
         this.containsEOF = false;
     }
 
-    public CharactersClassOptimized(long word0, long word1, long word2, long word3, boolean containsEOF) {
+    public CharacterClassOptimized(long word0, long word1, long word2, long word3, boolean containsEOF) {
         this.word0 = word0;
         this.word1 = word1;
         this.word2 = word2;
@@ -20,7 +20,7 @@ public final class CharactersClassOptimized implements ICharacters {
         this.containsEOF = containsEOF;
     }
 
-    public final boolean containsCharacter(int character) {
+    public final boolean contains(int character) {
         final int wordIndex = character >> CharacterClassRangeSet.BITMAP_SEGMENT_SIZE;
         final long word;
 
@@ -62,13 +62,16 @@ public final class CharactersClassOptimized implements ICharacters {
             return false;
         }
 
-        CharactersClassOptimized that = (CharactersClassOptimized) o;
+        CharacterClassOptimized that = (CharacterClassOptimized) o;
 
         return word0 == that.word0 && word1 == that.word1 && word2 == that.word2 && word3 == that.word3
             && containsEOF == that.containsEOF;
     }
 
     @Override public final String toString() {
+        // This is an optimized representation of character classes. If you want nice toString results, disable
+        // optimizing in CharacterClassFactory.
+
         return "{..optimized..}";
     }
 

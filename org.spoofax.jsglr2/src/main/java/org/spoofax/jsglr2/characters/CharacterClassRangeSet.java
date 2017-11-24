@@ -11,7 +11,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
-public final class CharacterClassRangeSet implements ICharacters {
+public final class CharacterClassRangeSet implements ICharacterClass {
 
     protected static final int BITMAP_SEGMENT_SIZE = 6; // 2^6 = 64 = 1/4 * 256
 
@@ -55,8 +55,8 @@ public final class CharacterClassRangeSet implements ICharacters {
         }
     }
 
-    @Override public final boolean containsCharacter(int character) {
-        if(character == ICharacters.EOF_INT)
+    @Override public final boolean contains(int character) {
+        if(character == ICharacterClass.EOF_INT)
             return containsEOF;
 
         if(useCachedBitSet) {
@@ -74,17 +74,17 @@ public final class CharacterClassRangeSet implements ICharacters {
         mutableRangeSet.add(Range.closed(from, Math.min(255, to)));
 
         return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet),
-            containsEOF || to == ICharacters.EOF_INT);
+            containsEOF || to == ICharacterClass.EOF_INT);
     }
 
     protected final CharacterClassRangeSet addSingle(int character) {
         final RangeSet<Integer> mutableRangeSet = TreeRangeSet.create(rangeSet);
 
-        if(character < ICharacters.EOF_INT)
+        if(character < ICharacterClass.EOF_INT)
             mutableRangeSet.add(Range.singleton(character));
 
         return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet),
-            containsEOF || character == ICharacters.EOF_INT);
+            containsEOF || character == ICharacterClass.EOF_INT);
     }
 
     private boolean tryOptimize() {
@@ -137,11 +137,11 @@ public final class CharacterClassRangeSet implements ICharacters {
         return new CharacterClassRangeSet(ImmutableRangeSet.copyOf(mutableRangeSet), containsEOF);
     }
 
-    public final ICharacters optimized() {
+    public final ICharacterClass optimized() {
         if(rangeSet.isEmpty())
-            return containsEOF ? EOF_SINGLETON : new CharactersClassOptimized();
+            return containsEOF ? EOF_SINGLETON : new CharacterClassOptimized();
         else
-            return new CharactersClassOptimized(word0, word1, word2, word3, containsEOF);
+            return new CharacterClassOptimized(word0, word1, word2, word3, containsEOF);
     }
 
     @Override public int hashCode() {
@@ -169,9 +169,9 @@ public final class CharacterClassRangeSet implements ICharacters {
             final int to = range.upperEndpoint().intValue();
 
             if(from != to)
-                ranges.add("" + ICharacters.intToString(from) + "-" + ICharacters.intToString(to));
+                ranges.add("" + ICharacterClass.intToString(from) + "-" + ICharacterClass.intToString(to));
             else
-                ranges.add("" + ICharacters.intToString(from));
+                ranges.add("" + ICharacterClass.intToString(from));
         });
 
         if(containsEOF)

@@ -1,6 +1,9 @@
 package org.spoofax.jsglr2.characters;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * ASCII characters: integer representation [0, 255]
@@ -37,16 +40,38 @@ public interface ICharacterClass {
     }
 
     static Comparator<ICharacterClass> comparator() {
-        return new Comparator<ICharacterClass>() {
-            @Override public int compare(ICharacterClass one, ICharacterClass two) {
-                if(one.max() < two.min())
-                    return -1;
-                else if(one.min() > two.max())
-                    return 1;
-                else
-                    return 0;
-            }
+        return (one, two) -> {
+            if(one.max() < two.min())
+                return -1;
+            else if(one.min() > two.max())
+                return 1;
+            else
+                return 0;
         };
+    }
+
+    static boolean disjointSortable(List<ICharacterClass> original) {
+        List<ICharacterClass> sorted = new ArrayList<>(original);
+
+        Collections.sort(sorted, comparator());
+
+        return disjointSorted(sorted);
+    }
+
+    /*
+     * Returns true if each character class only contains characters bigger than the characters in the previous
+     * character class.
+     */
+    static boolean disjointSorted(List<ICharacterClass> characterClasses) {
+        if(characterClasses.size() <= 1)
+            return true;
+
+        for(int i = 0; i < characterClasses.size() - 1; i++) {
+            if(comparator().compare(characterClasses.get(i), characterClasses.get(i + 1)) != -1)
+                return false;
+        }
+
+        return true;
     }
 
 }

@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.tests.util;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 import org.junit.Test;
@@ -16,6 +17,7 @@ public class CharacterClassTest {
     ICharacterClass az = factory.fromRange(97, 122);
 
     ICharacterClass x = factory.fromSingle(120);
+    ICharacterClass eof = factory.fromSingle(ICharacterClass.EOF_INT);
 
     private void testCharacterClass(ICharacterClass characters, Predicate<Integer> contains) {
         for(int i = 0; i <= ICharacterClass.EOF_INT; i++) {
@@ -100,6 +102,21 @@ public class CharacterClassTest {
         assertEquals(ICharacterClass.comparator().compare(x, AZ), 1);
         assertEquals(ICharacterClass.comparator().compare(x, az), 0);
         assertEquals(ICharacterClass.comparator().compare(az, x), 0);
+        assertEquals(ICharacterClass.comparator().compare(az, eof), -1);
+        assertEquals(ICharacterClass.comparator().compare(eof, az), 1);
+    }
+
+    @Test public void testDisjointSortanble() {
+        assertEquals(ICharacterClass.disjointSorted(Arrays.asList(AZ, az)), true);
+        assertEquals(ICharacterClass.disjointSorted(Arrays.asList(az, AZ)), false);
+        assertEquals(ICharacterClass.disjointSorted(Arrays.asList(AZ, AZ)), false);
+
+        assertEquals(ICharacterClass.disjointSortable(Arrays.asList(AZ, az)), true);
+        assertEquals(ICharacterClass.disjointSortable(Arrays.asList(az, AZ)), true);
+        assertEquals(ICharacterClass.disjointSortable(Arrays.asList(AZ, AZ)), false);
+
+        assertEquals(ICharacterClass.disjointSortable(Arrays.asList(az, x)), false);
+        assertEquals(ICharacterClass.disjointSortable(Arrays.asList(az, AZ, eof)), true);
     }
 
 }

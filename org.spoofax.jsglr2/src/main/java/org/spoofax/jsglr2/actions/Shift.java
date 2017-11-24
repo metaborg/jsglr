@@ -1,14 +1,10 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characters.ICharacters;
-
-public class Shift extends Action implements IShift {
+public class Shift implements IShift {
 
     private final int shiftState;
 
-    public Shift(ICharacters characters, int shiftState) {
-        super(characters);
-
+    public Shift(int shiftState) {
         this.shiftState = shiftState;
     }
 
@@ -17,7 +13,7 @@ public class Shift extends Action implements IShift {
     }
 
     @Override public String toString() {
-        return characters().toString() + "->SHIFT(" + shiftState + ")";
+        return "SHIFT(" + shiftState + ")";
     }
 
 }

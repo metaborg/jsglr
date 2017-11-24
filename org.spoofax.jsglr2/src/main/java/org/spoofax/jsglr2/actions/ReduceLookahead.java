@@ -9,9 +9,9 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
 
     private final ICharacters[] followRestriction;
 
-    public ReduceLookahead(ICharacters characters, IProduction production, ProductionType productionType, int arity,
+    public ReduceLookahead(IProduction production, ProductionType productionType, int arity,
         ICharacters[] followRestriction) {
-        super(characters, production, productionType, arity);
+        super(production, productionType, arity);
 
         this.followRestriction = followRestriction;
     }
@@ -35,8 +35,7 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
     }
 
     @Override public String toString() {
-        return characters().toString() + "->REDUCE_LOOKAHEAD(" + production.productionNumber() + "," + followRestriction
-            + ")";
+        return "REDUCE_LOOKAHEAD(" + production.productionNumber() + "," + followRestriction + ")";
     }
 
 }

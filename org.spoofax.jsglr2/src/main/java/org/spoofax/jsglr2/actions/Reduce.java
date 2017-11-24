@@ -1,18 +1,15 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
-public class Reduce extends Action implements IReduce {
+public class Reduce implements IReduce {
 
     protected final IProduction production;
     private final ProductionType productionType;
     private final int arity;
 
-    public Reduce(ICharacters characters, IProduction production, ProductionType productionType, int arity) {
-        super(characters);
-
+    public Reduce(IProduction production, ProductionType productionType, int arity) {
         this.production = production;
         this.productionType = productionType;
         this.arity = arity;
@@ -44,7 +41,7 @@ public class Reduce extends Action implements IReduce {
     }
 
     @Override public String toString() {
-        return characters().toString() + "->REDUCE(" + production.productionNumber() + ")";
+        return "REDUCE(" + production.productionNumber() + ")";
     }
 
 }

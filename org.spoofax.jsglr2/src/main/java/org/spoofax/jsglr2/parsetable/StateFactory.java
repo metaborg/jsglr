@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.parsetable;
 
-import org.spoofax.jsglr2.actions.IAction;
+import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IGoto;
 
 public class StateFactory implements IStateFactory {
@@ -15,7 +15,8 @@ public class StateFactory implements IStateFactory {
         this.productionToGotoType = productionToGotoType;
     }
 
-    public IState from(int stateNumber, IGoto[] gotos, IAction[] actions) {
+    public IState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
+        ICharacterToActions characterToActions = new CharacterToActionsSeparated(actionsPerCharacterClass);
         IProductionToGoto productionToGoto;
 
         switch(productionToGotoType) {
@@ -33,7 +34,7 @@ public class StateFactory implements IStateFactory {
                 break;
         }
 
-        return new State(stateNumber, actions, productionToGoto);
+        return new State(stateNumber, characterToActions, productionToGoto);
     }
 
 }

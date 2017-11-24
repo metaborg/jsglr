@@ -35,11 +35,14 @@ public class ParsingMeasurements extends Measurements {
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
+        JSGLR2Variants.Variant variantStandard = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid,
+            ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Basic);
         JSGLR2Variants.Variant variantElkhound = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Full, StackRepresentation.BasicElkhound, Reducing.Elkhound);
+            ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Elkhound);
         JSGLR2Variants.Variant variantOptimzedParseForest = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Optimized, StackRepresentation.BasicElkhound, Reducing.Elkhound);
+            ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Basic);
 
+        measure(parseTable, variantStandard, "standard");
         measure(parseTable, variantElkhound, "elkhound");
         measure(parseTable, variantOptimzedParseForest, "optimizedParseForest");
     }

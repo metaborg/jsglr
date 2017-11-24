@@ -54,13 +54,22 @@ public class ParseTableMeasurements extends Measurements {
                     cells.add("" + stateFactory.gotosCount);
                     break;
                 case gotosPerStateMax:
-                    cells.add("" + stateFactory.gotosMaxPerState);
+                    cells.add("" + stateFactory.gotosPerStateMax);
+                    break;
+                case actionGroups:
+                    cells.add("" + stateFactory.actionGroupsCount);
                     break;
                 case actions:
                     cells.add("" + stateFactory.actionsCount);
                     break;
+                case actionGroupsPerStateMax:
+                    cells.add("" + stateFactory.actionGroupsPerStateMax);
+                    break;
                 case actionsPerStateMax:
-                    cells.add("" + stateFactory.actionsMaxPerState);
+                    cells.add("" + stateFactory.actionsPerStateMax);
+                    break;
+                case actionsPerGroupMax:
+                    cells.add("" + stateFactory.actionsPerGroupMax);
                     break;
                 default:
                     break;
@@ -72,7 +81,7 @@ public class ParseTableMeasurements extends Measurements {
 
     public enum ParseTableMeasurement {
         states, characterClasses, characterClassesUnique, characterClassesOptimizedUnique, gotos, gotosPerStateMax,
-        actions, actionsPerStateMax
+        actionGroups, actions, actionGroupsPerStateMax, actionsPerStateMax, actionsPerGroupMax
     }
 
     private static void csvHeader(PrintWriter out) {

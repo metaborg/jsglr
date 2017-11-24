@@ -27,7 +27,6 @@ public class JSGLR2Java8StateApplicableActionsBenchmark extends JSGLR2StateAppli
 				.warmupIterations(10)
 				.warmupTime(TimeValue.seconds(1))
 				.measurementIterations(10)
-				.param("applicableActionsRepresentation", "ForLoop")
 				.forks(3)
 				.build();
 		// @formatter:on

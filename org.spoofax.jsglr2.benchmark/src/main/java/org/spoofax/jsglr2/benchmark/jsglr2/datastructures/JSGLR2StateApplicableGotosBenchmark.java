@@ -33,36 +33,21 @@ import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2GotoBenchmark extends BaseBenchmark {
+public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark {
 
     IParser<?, ?> parser;
     GotoObserver gotoObserver;
 
-    protected JSGLR2GotoBenchmark(TestSet testSet) {
+    protected JSGLR2StateApplicableGotosBenchmark(TestSet testSet) {
         super(testSet);
     }
 
-    @Param({ "ForLoop", "JavaHashMap",
-        "CapsuleImmutableBinaryRelation" }) public ProductionToGotoRepresentation representation;
+    @Param public ProductionToGotoRepresentation productionToGotoRepresentation;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
-        IStateFactory stateFactory;
-
-        switch(representation) {
-            case CapsuleImmutableBinaryRelation:
-                stateFactory = new StateFactory(ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation);
-                break;
-            case ForLoop:
-                stateFactory = new StateFactory(ProductionToGotoRepresentation.ForLoop);
-                break;
-            case JavaHashMap:
-                stateFactory = new StateFactory(ProductionToGotoRepresentation.JavaHashMap);
-                break;
-            default:
-                stateFactory = null;
-                break;
-        }
+        IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsPerCharacterClassRepresentation,
+            productionToGotoRepresentation);
 
         IParseTable parseTable = new ParseTableReader(stateFactory).read(testSetReader.getParseTableTerm());
 
@@ -110,9 +95,8 @@ public abstract class JSGLR2GotoBenchmark extends BaseBenchmark {
     }
 
     @Benchmark public void benchmark(Blackhole bh) throws ParseException {
-        for(GotoLookup gotoLookup : ((GotoObserver<?, ?>) gotoObserver).gotoLookups) {
+        for(GotoLookup gotoLookup : ((GotoObserver<?, ?>) gotoObserver).gotoLookups)
             bh.consume(gotoLookup.execute());
-        }
     }
 
 }

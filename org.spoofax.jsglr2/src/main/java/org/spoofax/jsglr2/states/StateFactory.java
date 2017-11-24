@@ -5,21 +5,41 @@ import org.spoofax.jsglr2.actions.IGoto;
 
 public class StateFactory implements IStateFactory {
 
-    ProductionToGotoRepresentation productionToGotoType;
+    private final ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation;
+    private final ProductionToGotoRepresentation productionToGotoRepresentation;
+
+    public static ActionsPerCharacterClassRepresentation defaultActionsPerCharacterClassRepresentation =
+        ActionsPerCharacterClassRepresentation.Separated;
+    public static ProductionToGotoRepresentation defaultProductionToGotoRepresentation =
+        ProductionToGotoRepresentation.JavaHashMap;
 
     public StateFactory() {
-        this(ProductionToGotoRepresentation.JavaHashMap);
+        this(defaultActionsPerCharacterClassRepresentation, defaultProductionToGotoRepresentation);
     }
 
-    public StateFactory(ProductionToGotoRepresentation productionToGotoType) {
-        this.productionToGotoType = productionToGotoType;
+    public StateFactory(ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation,
+        ProductionToGotoRepresentation productionToGotoType) {
+        this.actionsPerCharacterClassRepresentation = actionsPerCharacterClassRepresentation;
+        this.productionToGotoRepresentation = productionToGotoType;
     }
 
     public IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
-        ICharacterToActions characterToActions = new CharacterToActionsSeparated(actionsPerCharacterClass);
+        ICharacterToActions characterToActions;
         IProductionToGoto productionToGoto;
 
-        switch(productionToGotoType) {
+        switch(actionsPerCharacterClassRepresentation) {
+            case Grouped:
+                characterToActions = new CharacterToActionsGrouped(actionsPerCharacterClass);
+                break;
+            case Separated:
+                characterToActions = new CharacterToActionsSeparated(actionsPerCharacterClass);
+                break;
+            default:
+                characterToActions = null;
+                break;
+        }
+
+        switch(productionToGotoRepresentation) {
             case CapsuleImmutableBinaryRelation:
                 productionToGoto = new ProductionToGotoCapsuleBinaryRelationImmutable(gotos);
                 break;

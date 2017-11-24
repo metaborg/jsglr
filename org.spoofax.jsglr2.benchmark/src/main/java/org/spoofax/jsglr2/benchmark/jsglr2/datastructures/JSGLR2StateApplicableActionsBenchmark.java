@@ -3,10 +3,7 @@ package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.function.Consumer;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
@@ -21,9 +18,8 @@ import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
+import org.spoofax.jsglr2.characters.CharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacterClassFactory;
-import org.spoofax.jsglr2.characters.ICharacterClass;
-import org.spoofax.jsglr2.characters.IntegerRangeSetCharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
@@ -46,18 +42,11 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         super(testSet);
     }
 
-    public enum ActionsIteration {
-        List, FilterIterable, ForLoop, Lambda
-    }
-
-    @Param({ "false", "true" }) public boolean optimizedCharacterClasses;
-
-    @Param public ActionsIteration actionsIteration;
+    @Param({ "false", "true" }) public boolean optimizeCharacterClasses;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
-        ICharacterClassFactory characterClassFactory =
-            new IntegerRangeSetCharacterClassFactory(optimizedCharacterClasses);
+        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(optimizeCharacterClasses);
         IParseTable parseTable = new ParseTableReader(characterClassFactory).read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
@@ -75,180 +64,19 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         }
     }
 
-    abstract class ActorOnStateActions {
+    class ActorOnState {
 
         final IState state;
-        final ICharacterClass[] characterClasses;
         final int character;
 
-        protected ActorOnStateActions(IState state, int character) {
+        public ActorOnState(IState state, int character) {
             this.state = state;
-
-            this.characterClasses = new ICharacterClass[state.actions().length];
-
-            for(int i = 0; i < state.actions().length; i++)
-                this.characterClasses[i] = state.actions()[i].characters();
-
             this.character = character;
         }
 
-        abstract public void iterateOverCharacterClasses(Blackhole bh);
-
-        abstract public void iterateOverApplicableActions(Blackhole bh);
-
-    }
-
-    class ActorOnStateActionsList extends ActorOnStateActions {
-
-        public ActorOnStateActionsList(IState state, int character) {
-            super(state, character);
-        }
-
-        private Iterable<ICharacterClass> charactersList() {
-            List<ICharacterClass> res = new ArrayList<ICharacterClass>();
-
-            for(ICharacterClass characterClass : characterClasses) {
-                if(characterClass.contains(character))
-                    res.add(characterClass);
-            }
-
-            return res;
-        }
-
-        private Iterable<IAction> actionsList() {
-            List<IAction> res = new ArrayList<IAction>();
-
-            for(IAction action : state.actions()) {
-                if(action.appliesTo(character))
-                    res.add(action);
-            }
-
-            return res;
-        }
-
-        @Override public void iterateOverCharacterClasses(Blackhole bh) {
-            for(ICharacterClass characterClass : charactersList())
-                bh.consume(characterClass);
-        }
-
-        @Override public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : actionsList())
+        public void iterateOverApplicableActions(Blackhole bh) {
+            for(IAction action : state.getActions(character))
                 bh.consume(action);
-        }
-
-    }
-
-    class ActorOnStateActionsFilterIterable extends ActorOnStateActions {
-
-        public ActorOnStateActionsFilterIterable(IState state, int character) {
-            super(state, character);
-        }
-
-        public Iterable<ICharacterClass> charactersFilterIterable() {
-            return () -> {
-                return new Iterator<ICharacterClass>() {
-                    int index = 0;
-
-                    @Override public boolean hasNext() {
-                        while(index < characterClasses.length
-                            && !characterClasses[index].contains(character)) {
-                            index++;
-                        }
-                        return index < characterClasses.length;
-                    }
-
-                    @Override public ICharacterClass next() {
-                        if(!hasNext()) {
-                            throw new NoSuchElementException();
-                        }
-                        return characterClasses[index++];
-                    }
-                };
-            };
-        }
-
-        public Iterable<IAction> actionsFilterIterable() {
-            return () -> {
-                return new Iterator<IAction>() {
-                    int index = 0;
-
-                    @Override public boolean hasNext() {
-                        while(index < state.actions().length && !state.actions()[index].appliesTo(character)) {
-                            index++;
-                        }
-                        return index < state.actions().length;
-                    }
-
-                    @Override public IAction next() {
-                        if(!hasNext()) {
-                            throw new NoSuchElementException();
-                        }
-                        return state.actions()[index++];
-                    }
-                };
-            };
-        }
-
-        @Override public void iterateOverCharacterClasses(Blackhole bh) {
-            for(ICharacterClass characterClass : charactersFilterIterable())
-                bh.consume(characterClass);
-        }
-
-        @Override public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : actionsFilterIterable())
-                bh.consume(action);
-        }
-
-    }
-
-    class ActorOnStateActionsForLoop extends ActorOnStateActions {
-
-        public ActorOnStateActionsForLoop(IState state, int character) {
-            super(state, character);
-        }
-
-        @Override public void iterateOverCharacterClasses(Blackhole bh) {
-            for(ICharacterClass characterClass : characterClasses) {
-                if(characterClass.contains(character))
-                    bh.consume(characterClass);
-            }
-        }
-
-        @Override public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : state.actions()) {
-                if(action.appliesTo(character))
-                    bh.consume(action);
-            }
-        }
-
-    }
-
-    class StateApplicableActionsLambda extends ActorOnStateActions {
-
-        public StateApplicableActionsLambda(IState state, int character) {
-            super(state, character);
-        }
-
-        private void forEachCharacterClass(Consumer<ICharacterClass> consumer) {
-            for(ICharacterClass characterClass : characterClasses) {
-                if(characterClass.contains(character))
-                    consumer.accept(characterClass);
-            }
-        }
-
-        private void forEachAction(Consumer<IAction> consumer) {
-            for(IAction action : state.actions()) {
-                if(action.appliesTo(character))
-                    consumer.accept(action);
-            }
-        }
-
-        @Override public void iterateOverCharacterClasses(Blackhole bh) {
-            forEachCharacterClass(characterClass -> bh.consume(characterClass));
-        }
-
-        @Override public void iterateOverApplicableActions(Blackhole bh) {
-            forEachAction(action -> bh.consume(action));
         }
 
     }
@@ -256,43 +84,19 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
     class ActorObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
         extends BenchmarkParserObserver<StackNode, ParseForest> {
 
-        public List<ActorOnStateActions> stateApplicableActions = new ArrayList<ActorOnStateActions>();
+        public List<ActorOnState> stateApplicableActions = new ArrayList<ActorOnState>();
 
         @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
             Iterable<IAction> applicableActions) {
-            ActorOnStateActions stateApplicableActionsForActor;
-
-            switch(actionsIteration) {
-                case List:
-                    stateApplicableActionsForActor = new ActorOnStateActionsList(stack.state, parse.currentChar);
-                    break;
-                case FilterIterable:
-                    stateApplicableActionsForActor =
-                        new ActorOnStateActionsFilterIterable(stack.state, parse.currentChar);
-                    break;
-                case ForLoop:
-                    stateApplicableActionsForActor = new ActorOnStateActionsForLoop(stack.state, parse.currentChar);
-                    break;
-                case Lambda:
-                    stateApplicableActionsForActor = new StateApplicableActionsLambda(stack.state, parse.currentChar);
-                    break;
-                default:
-                    stateApplicableActionsForActor = null;
-                    break;
-            }
+            ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);
         }
 
     }
 
-    @Benchmark public void benchmarkCharacterClasses(Blackhole bh) throws ParseException {
-        for(ActorOnStateActions stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
-            stateApplicableActions.iterateOverCharacterClasses(bh);
-    }
-
-    @Benchmark public void benchmarkApplicableActions(Blackhole bh) throws ParseException {
-        for(ActorOnStateActions stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
+    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+        for(ActorOnState stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
             stateApplicableActions.iterateOverApplicableActions(bh);
     }
 

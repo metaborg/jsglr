@@ -4,7 +4,7 @@ public class CharacterClassFactory implements ICharacterClassFactory {
 
     final private boolean optimize;
 
-    protected CharacterClassFactory(boolean optimize) {
+    public CharacterClassFactory(boolean optimize) {
         this.optimize = optimize;
     }
 

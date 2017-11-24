@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.function.Predicate;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.characters.ICharacterClassFactory;
 import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characters.ICharacterClassFactory;
 
 public class CharacterClassTest {
 
@@ -89,6 +89,17 @@ public class CharacterClassTest {
 
         assertEquals(ICharacterClass.isNewLine(newLineChar), true);
         assertEquals(ICharacterClass.isNewLine(newLineInt), true);
+    }
+
+    @Test public void testComparisons() {
+        assertEquals(ICharacterClass.comparator().compare(AZ, az), -1);
+        assertEquals(ICharacterClass.comparator().compare(az, AZ), 1);
+        assertEquals(ICharacterClass.comparator().compare(az, az), 0);
+        assertEquals(ICharacterClass.comparator().compare(AZ, AZ), 0);
+        assertEquals(ICharacterClass.comparator().compare(AZ, x), -1);
+        assertEquals(ICharacterClass.comparator().compare(x, AZ), 1);
+        assertEquals(ICharacterClass.comparator().compare(x, az), 0);
+        assertEquals(ICharacterClass.comparator().compare(az, x), 0);
     }
 
 }

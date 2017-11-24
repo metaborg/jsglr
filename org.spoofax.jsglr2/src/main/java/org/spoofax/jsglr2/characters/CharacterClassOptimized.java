@@ -8,16 +8,24 @@ public final class CharacterClassOptimized implements ICharacterClass {
     private long word3; // [192, 255]
     private boolean containsEOF; // [256]
 
+    private int min, max;
+
     public CharacterClassOptimized() {
         this.containsEOF = false;
+        this.min = this.max = -1;
+
+        throw new IllegalStateException("empty character classes not allowed");
     }
 
-    public CharacterClassOptimized(long word0, long word1, long word2, long word3, boolean containsEOF) {
+    public CharacterClassOptimized(long word0, long word1, long word2, long word3, boolean containsEOF, int min,
+        int max) {
         this.word0 = word0;
         this.word1 = word1;
         this.word2 = word2;
         this.word3 = word3;
         this.containsEOF = containsEOF;
+        this.min = min;
+        this.max = max;
     }
 
     public final boolean contains(int character) {
@@ -44,6 +52,14 @@ public final class CharacterClassOptimized implements ICharacterClass {
         }
 
         return (word & (1L << character)) != 0;
+    }
+
+    public int min() {
+        return min;
+    }
+
+    public int max() {
+        return max;
     }
 
     public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {

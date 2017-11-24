@@ -12,6 +12,14 @@ public final class CharacterClassSingle implements ICharacterClass {
         return this.character == character;
     }
 
+    public int min() {
+        return character;
+    }
+
+    public int max() {
+        return character;
+    }
+
     public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
         return rangeSet.addSingle(character);
     }

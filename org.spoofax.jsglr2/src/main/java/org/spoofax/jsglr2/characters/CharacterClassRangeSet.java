@@ -16,6 +16,7 @@ public final class CharacterClassRangeSet implements ICharacterClass {
     protected static final int BITMAP_SEGMENT_SIZE = 6; // 2^6 = 64 = 1/4 * 256
 
     private ImmutableRangeSet<Integer> rangeSet; // Contains ranges in range [0, 255]
+    private int min, max;
 
     private final boolean useCachedBitSet;
     private long word0; // [0, 63]
@@ -31,8 +32,15 @@ public final class CharacterClassRangeSet implements ICharacterClass {
     }
 
     private CharacterClassRangeSet(final ImmutableRangeSet<Integer> rangeSet, boolean containsEOF) {
-        assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint().intValue() >= 0;
-        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint().intValue() < EOF_INT;
+        assert rangeSet.isEmpty() || rangeSet.span().lowerEndpoint() >= 0;
+        assert rangeSet.isEmpty() || rangeSet.span().upperEndpoint() < EOF_INT;
+
+        if(rangeSet.isEmpty()) {
+            this.min = this.max = containsEOF ? ICharacterClass.EOF_INT : -1;
+        } else {
+            this.min = rangeSet.span().lowerEndpoint();
+            this.max = Math.max(rangeSet.span().upperEndpoint(), containsEOF ? ICharacterClass.EOF_INT : -1);
+        }
 
         this.rangeSet = rangeSet;
         this.containsEOF = containsEOF;
@@ -66,6 +74,14 @@ public final class CharacterClassRangeSet implements ICharacterClass {
             return (word & (1L << character)) != 0;
         } else
             return rangeSet.contains(character);
+    }
+
+    public int min() {
+        return min;
+    }
+
+    public int max() {
+        return max;
     }
 
     protected final CharacterClassRangeSet addRange(int from, int to) {
@@ -113,10 +129,10 @@ public final class CharacterClassRangeSet implements ICharacterClass {
             return new BitSet();
         }
 
-        final BitSet bitSet = new BitSet(rangeSet.span().upperEndpoint().intValue());
+        final BitSet bitSet = new BitSet(rangeSet.span().upperEndpoint());
 
         rangeSet.asRanges().forEach(range -> {
-            bitSet.set(range.lowerEndpoint().intValue(), range.upperEndpoint().intValue() + 1);
+            bitSet.set(range.lowerEndpoint(), range.upperEndpoint() + 1);
         });
 
         return bitSet;
@@ -141,7 +157,7 @@ public final class CharacterClassRangeSet implements ICharacterClass {
         if(rangeSet.isEmpty())
             return containsEOF ? EOF_SINGLETON : new CharacterClassOptimized();
         else
-            return new CharacterClassOptimized(word0, word1, word2, word3, containsEOF);
+            return new CharacterClassOptimized(word0, word1, word2, word3, containsEOF, min, max);
     }
 
     @Override public int hashCode() {
@@ -165,8 +181,8 @@ public final class CharacterClassRangeSet implements ICharacterClass {
         final List<String> ranges = new ArrayList<>();
 
         rangeSet.asRanges().forEach(range -> {
-            final int from = range.lowerEndpoint().intValue();
-            final int to = range.upperEndpoint().intValue();
+            final int from = range.lowerEndpoint();
+            final int to = range.upperEndpoint();
 
             if(from != to)
                 ranges.add("" + ICharacterClass.intToString(from) + "-" + ICharacterClass.intToString(to));

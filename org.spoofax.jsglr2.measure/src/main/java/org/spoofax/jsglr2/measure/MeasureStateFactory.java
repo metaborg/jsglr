@@ -27,12 +27,4 @@ public class MeasureStateFactory extends StateFactory {
         return super.from(stateNumber, gotos, actions);
     }
 
-    public float gotosAvgPerState() {
-        return gotosCount / statesCount;
-    }
-
-    public float actionsAvgPerState() {
-        return actionsCount / statesCount;
-    }
-
 }

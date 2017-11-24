@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.stack.basic;
 
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 import java.util.ArrayList;

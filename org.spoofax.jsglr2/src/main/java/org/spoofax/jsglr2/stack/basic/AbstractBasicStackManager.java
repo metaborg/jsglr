@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.stack.basic;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.states.IState;
 
 public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicStackNode<ParseForest>, ParseForest extends AbstractParseForest>
     extends StackManager<AbstractBasicStackNode<ParseForest>, ParseForest> {

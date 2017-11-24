@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.stack;
 
 import org.spoofax.jsglr2.parser.IForActorStacks;
-import org.spoofax.jsglr2.parsetable.IState;
+import org.spoofax.jsglr2.states.IState;
 
 public interface IActiveStacks<StackNode extends AbstractStackNode<?>> extends Iterable<StackNode> {
 

@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.parsetable;
+package org.spoofax.jsglr2.states;
 
 public interface IProductionToGoto {
 

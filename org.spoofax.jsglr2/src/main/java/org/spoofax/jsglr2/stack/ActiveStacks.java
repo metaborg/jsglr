@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.IForActorStacks;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parsetable.IState;
+import org.spoofax.jsglr2.states.IState;
 
 public class ActiveStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IActiveStacks<StackNode> {

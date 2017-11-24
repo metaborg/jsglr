@@ -15,9 +15,9 @@ import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFailure;
 import org.spoofax.jsglr2.parser.ParseSuccess;
 import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.states.IState;
 
 public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     implements IParserObserver<AbstractElkhoundStackNode<ParseForest>, ParseForest> {

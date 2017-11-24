@@ -7,11 +7,11 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IParseTable;
-import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.StackPath;
+import org.spoofax.jsglr2.states.IState;
 
 public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> {
 

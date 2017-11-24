@@ -4,10 +4,10 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.states.IState;
 
 public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>
     extends Reducer<StackNode, ParseForest, ParseNode, Derivation> {

@@ -7,10 +7,10 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.states.IState;
 
 public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
 

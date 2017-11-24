@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.parsetable;
+package org.spoofax.jsglr2.states;
 
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IGoto;

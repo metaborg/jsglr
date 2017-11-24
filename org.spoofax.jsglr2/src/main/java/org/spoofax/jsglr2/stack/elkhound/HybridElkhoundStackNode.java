@@ -6,8 +6,8 @@ import java.util.Collections;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parsetable.IState;
 import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>

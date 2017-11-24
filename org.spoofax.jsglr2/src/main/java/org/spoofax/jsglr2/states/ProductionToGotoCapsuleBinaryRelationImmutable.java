@@ -14,22 +14,22 @@ public class ProductionToGotoCapsuleBinaryRelationImmutable implements IProducti
         final BinaryRelation.Transient<Integer, Integer> tmpProductionToGoto = BinaryRelation.Transient.of();
 
         for(IGoto gotoAction : gotos) {
-            int gotoState = gotoAction.gotoState();
+            int gotoStateId = gotoAction.gotoStateId();
 
             IntStream.of(gotoAction.productions()).forEach(productionId -> {
-                tmpProductionToGoto.__put(productionId, gotoState);
+                tmpProductionToGoto.__put(productionId, gotoStateId);
             });
         }
 
         productionToGoto = tmpProductionToGoto.freeze();
     }
 
-    @Override public boolean contains(int production) {
-        return productionToGoto.containsKey(production);
+    @Override public boolean contains(int productionId) {
+        return productionToGoto.containsKey(productionId);
     }
 
-    @Override public int get(int production) {
-        return productionToGoto.get(production).findFirst().get();
+    @Override public int get(int productionId) {
+        return productionToGoto.get(productionId).findFirst().get();
     }
 
 }

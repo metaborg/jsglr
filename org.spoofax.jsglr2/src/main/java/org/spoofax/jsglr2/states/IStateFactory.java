@@ -5,6 +5,6 @@ import org.spoofax.jsglr2.actions.IGoto;
 
 public interface IStateFactory {
 
-    IState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actions);
+    IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actions);
 
 }

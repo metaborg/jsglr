@@ -6,7 +6,11 @@ import org.spoofax.jsglr2.parser.Parse;
 
 public interface IState {
 
-    int stateNumber();
+    static StateFactory factory() {
+        return new StateFactory();
+    }
+
+    int id();
 
     boolean isRejectable();
 

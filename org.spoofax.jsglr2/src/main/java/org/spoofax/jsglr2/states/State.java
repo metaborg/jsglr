@@ -6,21 +6,21 @@ import org.spoofax.jsglr2.parser.Parse;
 
 public final class State implements IState {
 
-    private final int stateNumber;
+    private final int stateId;
     private boolean rejectable;
 
     final ICharacterToActions characterToActions;
     final IProductionToGoto productionToGoto;
 
-    public State(int stateNumber, ICharacterToActions characterToActions, IProductionToGoto productionToGoto) {
-        this.stateNumber = stateNumber;
+    public State(int stateId, ICharacterToActions characterToActions, IProductionToGoto productionToGoto) {
+        this.stateId = stateId;
         this.characterToActions = characterToActions;
         this.productionToGoto = productionToGoto;
         this.rejectable = false;
     }
 
-    @Override public int stateNumber() {
-        return stateNumber;
+    @Override public int id() {
+        return stateId;
     }
 
     @Override public boolean isRejectable() {
@@ -57,7 +57,7 @@ public final class State implements IState {
 
         State otherState = (State) obj;
 
-        return this.stateNumber == otherState.stateNumber;
+        return this.stateId == otherState.stateId;
     }
 
 }

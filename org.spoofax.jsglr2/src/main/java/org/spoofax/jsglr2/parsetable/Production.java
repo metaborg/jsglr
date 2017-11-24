@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.parsetable;
 
 public class Production implements IProduction {
 
-    private final int productionNumber;
+    private final int productionId;
     private final String sort;
     private final String startSymbolSort;
     private final String descriptor;
@@ -19,11 +19,11 @@ public class Production implements IProduction {
     private final boolean isOperator;
     private final ProductionAttributes attributes;
 
-    public Production(int productionNumber, String sort, String startSymbolSort, String descriptor,
+    public Production(int productionId, String sort, String startSymbolSort, String descriptor,
         Boolean isContextFree, Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs,
         Boolean isSkippableInParseForest, Boolean isList, Boolean isOptional, Boolean isStringLiteral,
         Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
-        this.productionNumber = productionNumber;
+        this.productionId = productionId;
         this.sort = sort;
         this.startSymbolSort = startSymbolSort;
         this.descriptor = descriptor;
@@ -41,8 +41,8 @@ public class Production implements IProduction {
         this.attributes = attributes;
     }
 
-    @Override public int productionNumber() {
-        return productionNumber;
+    @Override public int id() {
+        return productionId;
     }
 
     public static ProductionType typeFromInt(int productionType) {

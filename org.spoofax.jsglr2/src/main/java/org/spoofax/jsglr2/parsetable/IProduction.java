@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.parsetable;
 
 public interface IProduction {
 
-    int productionNumber();
+    int id();
 
     ProductionType productionType();
 

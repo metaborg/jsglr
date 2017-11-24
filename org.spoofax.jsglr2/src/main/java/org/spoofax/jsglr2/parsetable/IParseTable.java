@@ -4,8 +4,8 @@ import org.spoofax.jsglr2.states.IState;
 
 public interface IParseTable {
 
-    public IState startState();
+    public IState getStartState();
 
-    public IState getState(int stateNumber);
+    public IState getState(int stateId);
 
 }

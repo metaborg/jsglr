@@ -41,7 +41,7 @@ public class Reduce implements IReduce {
     }
 
     @Override public String toString() {
-        return "REDUCE(" + production.productionNumber() + ")";
+        return "REDUCE(" + production.id() + ")";
     }
 
 }

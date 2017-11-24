@@ -58,7 +58,7 @@ public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, Pars
 
     private void reducerElkhound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce, ParseForest[] parseForests) {
-        int gotoId = stack.state.getGotoId(reduce.production().productionNumber());
+        int gotoId = stack.state.getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
         parse.notify(observer -> observer.reducerElkhound(stack, reduce, parseForests));

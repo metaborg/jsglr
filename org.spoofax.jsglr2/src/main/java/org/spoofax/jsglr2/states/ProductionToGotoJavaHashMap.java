@@ -14,20 +14,20 @@ public class ProductionToGotoJavaHashMap implements IProductionToGoto {
         productionToGoto = new HashMap<>();
 
         for(IGoto gotoAction : gotos) {
-            int gotoState = gotoAction.gotoState();
+            int gotoStateId = gotoAction.gotoStateId();
 
             IntStream.of(gotoAction.productions()).forEach(productionId -> {
-                productionToGoto.put(productionId, gotoState);
+                productionToGoto.put(productionId, gotoStateId);
             });
         }
     }
 
-    @Override public boolean contains(int production) {
-        return productionToGoto.containsKey(production);
+    @Override public boolean contains(int productionId) {
+        return productionToGoto.containsKey(productionId);
     }
 
-    @Override public int get(int production) {
-        return productionToGoto.get(production);
+    @Override public int get(int productionId) {
+        return productionToGoto.get(productionId);
     }
 
 }

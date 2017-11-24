@@ -104,7 +104,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
             case REDUCE:
                 IReduce reduce = ((IReduce) action);
 
-                return "reduce(" + reduce.production().productionNumber() + "/" + reduce.productionType() + ")";
+                return "reduce(" + reduce.production().id() + "/" + reduce.productionType() + ")";
             case REDUCE_LOOKAHEAD:
                 return "reduce_la";
             case SHIFT:
@@ -128,7 +128,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
     default String forShifterElementToString(ForShifterElement<StackNode, ParseForest> forShifterElement) {
         return "{\"stack\":" + forShifterElement.stack.stackNumber + ",\"state\":"
-            + forShifterElement.state.stateNumber() + "}";
+            + forShifterElement.state.id() + "}";
     }
 
     default String parseForestListToString(ParseForest[] parseForests) {

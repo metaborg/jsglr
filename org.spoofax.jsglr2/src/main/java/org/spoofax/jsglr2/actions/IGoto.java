@@ -4,6 +4,6 @@ public interface IGoto {
 
     int[] productions();
 
-    int gotoState();
+    int gotoStateId();
 
 }

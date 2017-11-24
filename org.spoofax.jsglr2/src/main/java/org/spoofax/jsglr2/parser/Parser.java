@@ -52,7 +52,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 
         notify(observer -> observer.parseStart(parse));
 
-        StackNode initialStackNode = stackManager.createInitialStackNode(parse, parseTable.startState());
+        StackNode initialStackNode = stackManager.createInitialStackNode(parse, parseTable.getStartState());
 
         parse.activeStacks.add(initialStackNode);
 
@@ -132,7 +132,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
             switch(action.actionType()) {
                 case SHIFT:
                     IShift shiftAction = (IShift) action;
-                    IState shiftState = parseTable.getState(shiftAction.shiftState());
+                    IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
                     addForShifter(parse, stack, shiftState);
 

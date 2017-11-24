@@ -74,7 +74,7 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
      */
     protected void reducer(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce,
         ParseForest[] parseForests) {
-        int gotoId = stack.state.getGotoId(reduce.production().productionNumber());
+        int gotoId = stack.state.getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
         StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);

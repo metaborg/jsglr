@@ -7,6 +7,6 @@ public interface IShift extends IAction {
         return ActionType.SHIFT;
     }
 
-    int shiftState();
+    int shiftStateId();
 
 }

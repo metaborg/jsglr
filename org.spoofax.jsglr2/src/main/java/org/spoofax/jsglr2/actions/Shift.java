@@ -2,18 +2,18 @@ package org.spoofax.jsglr2.actions;
 
 public class Shift implements IShift {
 
-    private final int shiftState;
+    private final int shiftStateId;
 
-    public Shift(int shiftState) {
-        this.shiftState = shiftState;
+    public Shift(int shiftStateId) {
+        this.shiftStateId = shiftStateId;
     }
 
-    @Override public int shiftState() {
-        return shiftState;
+    @Override public int shiftStateId() {
+        return shiftStateId;
     }
 
     @Override public String toString() {
-        return "SHIFT(" + shiftState + ")";
+        return "SHIFT(" + shiftStateId + ")";
     }
 
 }

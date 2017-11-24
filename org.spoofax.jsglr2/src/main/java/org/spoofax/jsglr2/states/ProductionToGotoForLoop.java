@@ -10,21 +10,21 @@ public class ProductionToGotoForLoop implements IProductionToGoto {
         this.gotos = gotos;
     }
 
-    @Override public boolean contains(int production) {
+    @Override public boolean contains(int productionId) {
         for(IGoto gotoAction : gotos) {
-            for(int productionId : gotoAction.productions())
-                if(productionId == production)
+            for(int gotoActionProductionId : gotoAction.productions())
+                if(gotoActionProductionId == productionId)
                     return true;
         }
 
         return false;
     }
 
-    @Override public int get(int production) {
+    @Override public int get(int productionId) {
         for(IGoto gotoAction : gotos) {
-            for(int productionId : gotoAction.productions())
-                if(productionId == production)
-                    return gotoAction.gotoState();
+            for(int gotoActionProductionId : gotoAction.productions())
+                if(gotoActionProductionId == productionId)
+                    return gotoAction.gotoStateId();
         }
 
         throw new IllegalStateException();

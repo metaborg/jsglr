@@ -29,7 +29,6 @@ import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.State;
-import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
@@ -44,12 +43,12 @@ public class ParseTableReader {
 
     public ParseTableReader() {
         this.characterClassFactory = ICharacters.factory();
-        this.stateFactory = new StateFactory();
+        this.stateFactory = IState.factory();
     }
 
     public ParseTableReader(ICharacterClassFactory characterClassFactory) {
         this.characterClassFactory = characterClassFactory;
-        this.stateFactory = new StateFactory();
+        this.stateFactory = IState.factory();
     }
 
     public ParseTableReader(IStateFactory stateFactory) {
@@ -64,12 +63,12 @@ public class ParseTableReader {
 
     /*
      * Reads a parse table from a term. The format consists of a tuple of 5: (1) version number (not used), (2) start
-     * state number, (3) list of productions (i.e. labels), (4) list of states and (5) list of priorities (not used
-     * since priorities are now encoded in the parse table itself during parser generation and do not have to be
-     * implemented separately during parsing).
+     * state id, (3) list of productions (i.e. labels), (4) list of states and (5) list of priorities (not used since
+     * priorities are now encoded in the parse table itself during parser generation and do not have to be implemented
+     * separately during parsing).
      */
     public IParseTable read(IStrategoTerm pt) throws ParseTableReadException {
-        int startStateNumber = intAt(pt, 1);
+        int startStateId = intAt(pt, 1);
         IStrategoList productionsTermList = termAt(pt, 2);
         IStrategoList statesTermList = termAt(termAt(pt, 3), 0);
 
@@ -78,7 +77,7 @@ public class ParseTableReader {
 
         markRejectableStates(states);
 
-        return new ParseTable(states, startStateNumber);
+        return new ParseTable(states, startStateId);
     }
 
     public IParseTable read(InputStream inputStream) throws ParseTableReadException, ParseError, IOException {
@@ -90,14 +89,14 @@ public class ParseTableReader {
     }
 
     private Production[] readProductions(IStrategoList productionsTermList) throws ParseTableReadException {
-        int productionsCount = productionsTermList.getSubtermCount();
+        int productionCount = productionsTermList.getSubtermCount();
 
-        Production[] productions = new Production[257 + productionsCount];
+        Production[] productions = new Production[257 + productionCount];
 
-        for(IStrategoTerm numberedProductionTerm : productionsTermList) {
-            Production production = ProductionReader.read(numberedProductionTerm);
+        for(IStrategoTerm productionWithIdTerm : productionsTermList) {
+            Production production = ProductionReader.read(productionWithIdTerm);
 
-            productions[production.productionNumber()] = production;
+            productions[production.id()] = production;
         }
 
         return productions;
@@ -112,7 +111,7 @@ public class ParseTableReader {
         for(IStrategoTerm stateTerm : statesTermList) {
             IStrategoNamed stateTermNamed = (IStrategoNamed) stateTerm;
 
-            int stateNumber = intAt(stateTermNamed, 0);
+            int stateId = intAt(stateTermNamed, 0);
 
             IStrategoList gotosTermList = termAt(stateTermNamed, 1);
             IStrategoList actionsTermList = termAt(stateTermNamed, 2);
@@ -120,7 +119,9 @@ public class ParseTableReader {
             IGoto[] gotos = readGotos(gotosTermList);
             ActionsPerCharacterClass[] actions = readActions(actionsTermList, productions);
 
-            states[stateNumber] = stateFactory.from(stateNumber, gotos, actions);
+            IState state = stateFactory.from(stateId, gotos, actions);
+
+            states[state.id()] = state;
         }
 
         return states;
@@ -135,44 +136,44 @@ public class ParseTableReader {
             IStrategoNamed gotoTermNamed = (IStrategoNamed) gotosTermList.getSubterm(i);
 
             IStrategoList productionsTermList = termAt(gotoTermNamed, 0);
-            int[] productionNumbers = readGotoProductions(productionsTermList);
+            int[] productionIds = readGotoProductions(productionsTermList);
 
-            int gotoStateNumber = intAt(gotoTermNamed, 1);
+            int gotoStateId = intAt(gotoTermNamed, 1);
 
-            gotos[i] = new Goto(productionNumbers, gotoStateNumber);
+            gotos[i] = new Goto(productionIds, gotoStateId);
         }
 
         return gotos;
     }
 
     private int[] readGotoProductions(IStrategoList productionsTermList) {
-        int productionNumbersCount = productionsTermList.size();
+        int productionCount = productionsTermList.size();
 
-        int[] productionNumbers = new int[productionNumbersCount];
+        int[] productionIds = new int[productionCount];
 
-        for(int i = 0; i < productionNumbersCount; i++) {
-            IStrategoTerm productionNumbersTerm = productionsTermList.getSubterm(i);
+        for(int i = 0; i < productionCount; i++) {
+            IStrategoTerm productionIdsTerm = productionsTermList.getSubterm(i);
 
-            if(isTermInt(productionNumbersTerm)) {
-                int productionNumber = javaInt(productionNumbersTerm);
+            if(isTermInt(productionIdsTerm)) {
+                int productionId = javaInt(productionIdsTerm);
 
-                productionNumbers[i] = productionNumber;
+                productionIds[i] = productionId;
             }
 
-            // productionNumbersTerm can also be a range representing character classes. That is a remainder of parse
+            // productionIdsTerm can also be a range representing character classes. That is a remainder of parse
             // table generation (representing transitions between states). We can ignore them here since parsing only
             // looks up gotos after a reduction and than uses the production that is used for the reduction the retrieve
             // the goto action, not a character.
         }
 
-        return productionNumbers;
+        return productionIds;
     }
 
     private ActionsPerCharacterClass[] readActions(IStrategoList characterActionsTermList, IProduction[] productions)
         throws ParseTableReadException {
         int characterClassesWithActionsCount = characterActionsTermList.size();
 
-        List<ActionsPerCharacterClass> actionsForCharacterClasses =
+        List<ActionsPerCharacterClass> actionsPerCharacterClasses =
             new ArrayList<ActionsPerCharacterClass>(characterClassesWithActionsCount);
 
         for(IStrategoTerm charactersActionsTerm : characterActionsTermList) {
@@ -184,10 +185,10 @@ public class ParseTableReader {
             ICharacters characters = readCharacters(charactersTermList);
             IAction[] actions = readActionsForCharacters(actionsTermList, productions);
 
-            actionsForCharacterClasses.add(new ActionsPerCharacterClass(characters, actions));
+            actionsPerCharacterClasses.add(new ActionsPerCharacterClass(characters, actions));
         }
 
-        return actionsForCharacterClasses.toArray(new ActionsPerCharacterClass[actionsForCharacterClasses.size()]);
+        return actionsPerCharacterClasses.toArray(new ActionsPerCharacterClass[actionsPerCharacterClasses.size()]);
     }
 
     private ICharacters readCharacters(IStrategoList charactersTermList) {
@@ -247,10 +248,10 @@ public class ParseTableReader {
 
             if(actionTermAppl.getName().equals("reduce")) { // Reduce
                 int arity = intAt(actionTermAppl, 0);
-                int productionNumber = intAt(actionTermAppl, 1);
+                int productionId = intAt(actionTermAppl, 1);
                 ProductionType productionType = Production.typeFromInt(intAt(actionTermAppl, 2));
 
-                IProduction production = productions[productionNumber];
+                IProduction production = productions[productionId];
 
                 if(actionTermAppl.getConstructor().getArity() == 3) { // Reduce without lookahead
                     action = new Reduce(production, productionType, arity);
@@ -263,9 +264,9 @@ public class ParseTableReader {
             } else if(actionTermAppl.getName().equals("accept")) { // Accept
                 action = Accept.SINGLETON;
             } else if(actionTermAppl.getName().equals("shift")) { // Shift
-                int shiftState = intAt(actionTermAppl, 0);
+                int shiftStateId = intAt(actionTermAppl, 0);
 
-                action = new Shift(shiftState);
+                action = new Shift(shiftStateId);
             } else {
                 throw new IllegalStateException("invalid action type");
             }
@@ -279,18 +280,18 @@ public class ParseTableReader {
     // Mark states that are reachable by a reject production as rejectable. "Reachable" means the parser could
     // transition into such state by means of a goto action after reducing a production.
     private void markRejectableStates(IState[] states) {
-        final Set.Immutable<Integer> rejectProductionIdentifiers = Stream.of(states)
-            .flatMap(state -> Stream.of(((State) state).actions())).filter(IAction::typeMatchesReduceOrReduceLookahead)
-            .map(IReduce.class::cast).map(IReduce::production).filter(IProduction::typeMatchesReject)
-            .map(IProduction::productionNumber).collect(CapsuleCollectors.toSet());
+        final Set.Immutable<Integer> rejectProductionIds =
+            Stream.of(states).flatMap(state -> Stream.of(((State) state).actions()))
+                .filter(IAction::typeMatchesReduceOrReduceLookahead).map(IReduce.class::cast).map(IReduce::production)
+                .filter(IProduction::typeMatchesReject).map(IProduction::id).collect(CapsuleCollectors.toSet());
 
-        final Set.Immutable<Integer> rejectableStateIdentifiers = Stream.of(states)
-            .flatMap(state -> rejectProductionIdentifiers.stream().filter(rejectProductionIdentifier -> {
-                return ((State) state).hasGoto(rejectProductionIdentifier);
+        final Set.Immutable<Integer> rejectableStateIds = Stream.of(states)
+            .flatMap(state -> rejectProductionIds.stream().filter(rejectProductionId -> {
+                return ((State) state).hasGoto(rejectProductionId);
             }).map(state::getGotoId)).collect(CapsuleCollectors.toSet());
 
         // A state is marked as rejectable if it is reachable by at least one reject production.
-        rejectableStateIdentifiers.forEach(gotoId -> ((State) states[gotoId]).markRejectable());
+        rejectableStateIds.forEach(gotoId -> ((State) states[gotoId]).markRejectable());
     }
 
 }

@@ -35,7 +35,7 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
     }
 
     @Override public String toString() {
-        return "REDUCE_LOOKAHEAD(" + production.productionNumber() + "," + followRestriction + ")";
+        return "REDUCE_LOOKAHEAD(" + production.id() + "," + followRestriction + ")";
     }
 
 }

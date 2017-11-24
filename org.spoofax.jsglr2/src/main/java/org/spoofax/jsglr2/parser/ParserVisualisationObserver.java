@@ -42,7 +42,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 
     @Override public void createStackNode(StackNode stack) {
         trace("{\"action\":\"createStackNode\",\"stackNumber\":" + stack.stackNumber + ",\"stateNumber\":"
-            + stack.state.stateNumber() + "}");
+            + stack.state.id() + "}");
     }
 
     @Override public void createStackLink(StackLink<StackNode, ParseForest> link) {
@@ -76,7 +76,7 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 
     @Override public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement) {
         trace("{\"action\":\"addForShifter\",\"stack\":" + forShifterElement.stack.stackNumber + ", \"state\":"
-            + forShifterElement.state.stateNumber() + "}");
+            + forShifterElement.state.id() + "}");
     }
 
     @Override public void doReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce) {
@@ -110,12 +110,12 @@ public class ParserVisualisationObserver<StackNode extends AbstractStackNode<Par
 
     @Override public void createParseNode(ParseForest parseNode, IProduction production) {
         trace("{\"action\":\"createParseNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"production\":"
-            + production.productionNumber() + ",\"term\":\"" + escape(production.descriptor()) + "\"}");
+            + production.id() + ",\"term\":\"" + escape(production.descriptor()) + "\"}");
     }
 
     @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
         trace("{\"action\":\"createDerivation\",\"nodeNumber\":" + nodeNumber + ",\"production\":"
-            + production.productionNumber() + ",\"term\":\"" + escape(production.descriptor()) + "\",\"subTrees\":"
+            + production.id() + ",\"term\":\"" + escape(production.descriptor()) + "\",\"subTrees\":"
             + parseForestListToString(parseNodes) + "}");
     }
 

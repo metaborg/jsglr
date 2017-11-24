@@ -35,7 +35,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override public void createStackNode(StackNode stack) {
-        log("Create new stack with number " + stack.stackNumber + " for state " + stack.state.stateNumber());
+        log("Create new stack with number " + stack.stackNumber + " for state " + stack.state.id());
     }
 
     @Override public void createStackLink(StackLink<StackNode, ParseForest> link) {
@@ -81,13 +81,13 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
 
     @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
         StackNode activeStackWithGotoState) {
-        log("Reduce by prodution " + reduce.production().productionNumber() + " (" + reduce.productionType().toString()
+        log("Reduce by prodution " + reduce.production().id() + " (" + reduce.productionType().toString()
             + ") with parse nodes " + parseForestListToString(parseNodes) + ", using existing stack: "
             + (activeStackWithGotoState != null ? activeStackWithGotoState.stackNumber : "no"));
     }
 
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
-        log("Reduce (Elkhound) by prodution " + reduce.production().productionNumber() + " ("
+        log("Reduce (Elkhound) by prodution " + reduce.production().id() + " ("
             + reduce.productionType().toString() + ") with parse nodes " + parseForestListToString(parseNodes));
     }
 
@@ -101,7 +101,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override public void createParseNode(ParseForest parseNode, IProduction production) {
-        log("Create parse node " + parseNode.nodeNumber + " for production " + production.productionNumber());
+        log("Create parse node " + parseNode.nodeNumber + " for production " + production.id());
     }
 
     @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {

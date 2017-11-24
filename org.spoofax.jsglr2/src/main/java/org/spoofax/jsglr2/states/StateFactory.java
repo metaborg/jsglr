@@ -15,7 +15,7 @@ public class StateFactory implements IStateFactory {
         this.productionToGotoType = productionToGotoType;
     }
 
-    public IState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
+    public IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
         ICharacterToActions characterToActions = new CharacterToActionsSeparated(actionsPerCharacterClass);
         IProductionToGoto productionToGoto;
 
@@ -34,7 +34,7 @@ public class StateFactory implements IStateFactory {
                 break;
         }
 
-        return new State(stateNumber, characterToActions, productionToGoto);
+        return new State(stateId, characterToActions, productionToGoto);
     }
 
 }

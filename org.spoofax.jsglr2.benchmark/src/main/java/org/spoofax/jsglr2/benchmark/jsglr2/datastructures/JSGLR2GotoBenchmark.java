@@ -104,7 +104,7 @@ public abstract class JSGLR2GotoBenchmark extends BaseBenchmark {
 
         @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
             StackNode activeStackWithGotoState) {
-            gotoLookups.add(new GotoLookup(stack.state, reduce.production().productionNumber()));
+            gotoLookups.add(new GotoLookup(stack.state, reduce.production().id()));
         }
 
     }

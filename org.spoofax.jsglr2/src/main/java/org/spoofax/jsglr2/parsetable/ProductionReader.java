@@ -19,10 +19,10 @@ import org.spoofax.terms.TermVisitor;
 
 public class ProductionReader {
 
-    public static Production read(IStrategoTerm numberedProductionTerm) throws ParseTableReadException {
-        IStrategoAppl productionTerm = termAt(numberedProductionTerm, 0); // A tuple of the production right hand side,
-                                                                          // left hand side and attributes
-        int productionNumber = intAt(numberedProductionTerm, 1);
+    public static Production read(IStrategoTerm productionWithIdTerm) throws ParseTableReadException {
+        IStrategoAppl productionTerm = termAt(productionWithIdTerm, 0); // A tuple of the production right hand side,
+                                                                        // left hand side and attributes
+        int productionId = intAt(productionWithIdTerm, 1);
 
         IStrategoAppl lhs = termAt(productionTerm, 1);
         IStrategoList rhs = termAt(productionTerm, 0);
@@ -52,7 +52,7 @@ public class ProductionReader {
 
         boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
 
-        return new Production(productionNumber, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLiteral,
+        return new Production(productionId, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLiteral,
             isLexical, isLexicalRhs, isSkippableInParseForest, isList, isOptional, isStringLiteral, isNumberLiteral,
             isOperator, attributes);
     }

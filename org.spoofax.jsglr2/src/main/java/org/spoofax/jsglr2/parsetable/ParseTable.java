@@ -5,19 +5,19 @@ import org.spoofax.jsglr2.states.IState;
 public class ParseTable implements IParseTable {
 
     final private IState[] states;
-    final private int startStateNumber;
+    final private int startStateId;
 
-    public ParseTable(IState[] states, int startStateNumber) {
+    public ParseTable(IState[] states, int startStateId) {
         this.states = states;
-        this.startStateNumber = startStateNumber;
+        this.startStateId = startStateId;
     }
 
-    @Override public IState startState() {
-        return states[startStateNumber];
+    @Override public IState getStartState() {
+        return getState(startStateId);
     }
 
-    @Override public IState getState(int stateNumber) {
-        return states[stateNumber];
+    @Override public IState getState(int stateId) {
+        return states[stateId];
     }
 
 }

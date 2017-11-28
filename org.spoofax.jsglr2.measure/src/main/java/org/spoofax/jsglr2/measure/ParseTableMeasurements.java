@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.testset.TestSet;
@@ -23,9 +25,10 @@ public class ParseTableMeasurements extends Measurements {
         csvHeader(out);
 
         MeasureCharacterClassFactory characterClassFactory = new MeasureCharacterClassFactory();
+        IActionsFactory actionsFactory = new ActionsFactory();
         MeasureStateFactory stateFactory = new MeasureStateFactory();
 
-        new ParseTableReader(characterClassFactory, stateFactory).read(testSetReader.getParseTableTerm());
+        new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(testSetReader.getParseTableTerm());
 
         csvResults(out, characterClassFactory, stateFactory);
 

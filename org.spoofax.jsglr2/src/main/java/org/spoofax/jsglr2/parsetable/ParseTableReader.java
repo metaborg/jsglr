@@ -19,6 +19,7 @@ import org.spoofax.jsglr2.actions.Accept;
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.Goto;
 import org.spoofax.jsglr2.actions.IAction;
+import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.Reduce;
@@ -38,26 +39,31 @@ import io.usethesource.capsule.util.stream.CapsuleCollectors;
 
 public class ParseTableReader {
 
-    ICharacterClassFactory characterClassFactory;
-    IStateFactory stateFactory;
+    final ICharacterClassFactory characterClassFactory;
+    final IActionsFactory actionsFactory;
+    final IStateFactory stateFactory;
 
     public ParseTableReader() {
         this.characterClassFactory = ICharacterClass.factory();
+        this.actionsFactory = IAction.factory();
         this.stateFactory = IState.factory();
     }
 
     public ParseTableReader(ICharacterClassFactory characterClassFactory) {
         this.characterClassFactory = characterClassFactory;
+        this.actionsFactory = IAction.factory();
         this.stateFactory = IState.factory();
     }
 
     public ParseTableReader(IStateFactory stateFactory) {
         this.characterClassFactory = ICharacterClass.factory();
+        this.actionsFactory = IAction.factory();
         this.stateFactory = stateFactory;
     }
 
-    public ParseTableReader(ICharacterClassFactory characterClassFactory, IStateFactory stateFactory) {
+    public ParseTableReader(ICharacterClassFactory characterClassFactory, IActionsFactory actionsFactory, IStateFactory stateFactory) {
         this.characterClassFactory = characterClassFactory;
+        this.actionsFactory = actionsFactory;
         this.stateFactory = stateFactory;
     }
 
@@ -209,19 +215,19 @@ public class ParseTableReader {
                 IProduction production = productions[productionId];
 
                 if(actionTermAppl.getConstructor().getArity() == 3) { // Reduce without lookahead
-                    action = new Reduce(production, productionType, arity);
+                    action = actionsFactory.getReduce(production, productionType, arity);
                 } else if(actionTermAppl.getConstructor().getArity() == 4) { // Reduce with lookahead
                     ICharacterClass[] followRestriction =
                         readReduceLookaheadFollowRestriction(termAt((IStrategoList) termAt(actionTermAppl, 3), 0));
 
-                    action = new ReduceLookahead(production, productionType, arity, followRestriction);
+                    action = actionsFactory.getReduceLookahead(production, productionType, arity, followRestriction);
                 }
             } else if(actionTermAppl.getName().equals("accept")) { // Accept
-                action = Accept.SINGLETON;
+                action = actionsFactory.getAccept();
             } else if(actionTermAppl.getName().equals("shift")) { // Shift
                 int shiftStateId = intAt(actionTermAppl, 0);
 
-                action = new Shift(shiftStateId);
+                action = actionsFactory.getShift(shiftStateId);
             } else {
                 throw new IllegalStateException("invalid action type");
             }

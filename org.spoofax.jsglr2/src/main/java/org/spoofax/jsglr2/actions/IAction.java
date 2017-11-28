@@ -2,6 +2,10 @@ package org.spoofax.jsglr2.actions;
 
 public interface IAction {
 
+    static IActionsFactory factory() {
+        return new ActionsFactory();
+    }
+
     ActionType actionType();
 
     static boolean typeMatchesShift(IAction action) {

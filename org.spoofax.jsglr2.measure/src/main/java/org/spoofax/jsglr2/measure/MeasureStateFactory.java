@@ -15,11 +15,11 @@ public class MeasureStateFactory extends StateFactory {
     public int statesDisjointSortableCharacterClassesCount = 0;
 
     public int gotosCount = 0;
-    public int actionCharacterClasssCount = 0;
+    public int actionCharacterClassCount = 0;
     public int actionsCount = 0;
 
     public int gotosPerStateMax = 0;
-    public int actionCharacterClasssPerStateMax = 0;
+    public int actionCharacterClassPerStateMax = 0;
     public int actionsPerStateMax = 0;
     public int actionsPerCharacterClassMax = 0;
 
@@ -28,7 +28,7 @@ public class MeasureStateFactory extends StateFactory {
         statesCount++;
 
         gotosCount += gotos.length;
-        actionCharacterClasssCount += actionsPerCharacterClasses.length;
+        actionCharacterClassCount += actionsPerCharacterClasses.length;
 
         int actionsCount = 0;
 
@@ -48,8 +48,8 @@ public class MeasureStateFactory extends StateFactory {
         this.actionsCount += actionsCount;
 
         gotosPerStateMax = Math.max(gotosPerStateMax, gotos.length);
-        actionCharacterClasssPerStateMax =
-            Math.max(actionCharacterClasssPerStateMax, actionsPerCharacterClasses.length);
+        actionCharacterClassPerStateMax =
+            Math.max(actionCharacterClassPerStateMax, actionsPerCharacterClasses.length);
         actionsPerStateMax = Math.max(actionsPerStateMax, actionsCount);
 
         return super.from(stateNumber, gotos, actionsPerCharacterClasses);

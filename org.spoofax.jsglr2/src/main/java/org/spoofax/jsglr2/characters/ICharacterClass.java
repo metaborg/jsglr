@@ -17,7 +17,7 @@ public interface ICharacterClass {
     static final ICharacterClass EOF_SINGLETON = new CharacterClassSingle(EOF_INT);
 
     static ICharacterClassFactory factory() {
-        return new CharacterClassFactory(true);
+        return new CharacterClassFactory(true, true);
     }
 
     boolean contains(int character);

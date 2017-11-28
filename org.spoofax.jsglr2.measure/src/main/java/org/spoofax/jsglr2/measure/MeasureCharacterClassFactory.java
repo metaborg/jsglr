@@ -14,7 +14,7 @@ public class MeasureCharacterClassFactory extends CharacterClassFactory {
     public Set<ICharacterClass> characterClassesOptimizedUnique = new HashSet<>();
 
     protected MeasureCharacterClassFactory() {
-        super(true);
+        super(true, true);
     }
 
     @Override public ICharacterClass finalize(ICharacterClass characters) {

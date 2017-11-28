@@ -1,11 +1,21 @@
 package org.spoofax.jsglr2.characters;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CharacterClassFactory implements ICharacterClassFactory {
 
     final private boolean optimize;
+    final private boolean cache;
 
-    public CharacterClassFactory(boolean optimize) {
+    private Map<ICharacterClass, ICharacterClass> characterClassCache;
+    
+    public CharacterClassFactory(boolean optimize, boolean cache) {
         this.optimize = optimize;
+        this.cache = cache;
+        
+        if (cache)
+        		this.characterClassCache = new HashMap<>();
     }
 
     public CharacterClassRangeSet fromEmpty() {
@@ -48,10 +58,24 @@ public class CharacterClassFactory implements ICharacterClassFactory {
     }
 
     public ICharacterClass finalize(ICharacterClass characterClass) {
+    		ICharacterClass optimized;
+    	
         if(characterClass instanceof CharacterClassRangeSet && optimize)
-            return ((CharacterClassRangeSet) characterClass).optimized();
+        		optimized = ((CharacterClassRangeSet) characterClass).optimized();
         else
-            return characterClass;
+        		optimized = characterClass;
+        
+        if (cache) {
+        		ICharacterClass cached = characterClassCache.get(optimized);
+        		
+        		if (cached == null) {
+        			characterClassCache.put(optimized, optimized);
+
+            		return optimized;
+        		} else
+        			return cached;
+        } else
+        		return optimized;
     }
 
 

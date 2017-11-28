@@ -49,9 +49,11 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     @Param({ "false", "true" }) public boolean optimizeCharacterClasses;
 
+    @Param({ "false", "true" }) public boolean cacheCharacterClasses;
+
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
-        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(optimizeCharacterClasses);
+        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
         IStateFactory stateFactory = new StateFactory(actionsPerCharacterClassRepresentation,
             StateFactory.defaultProductionToGotoRepresentation);
 

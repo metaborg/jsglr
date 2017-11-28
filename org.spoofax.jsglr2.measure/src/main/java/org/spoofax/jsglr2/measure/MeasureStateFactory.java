@@ -1,13 +1,18 @@
 package org.spoofax.jsglr2.measure;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IGoto;
+import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.StateFactory;
 
 public class MeasureStateFactory extends StateFactory {
 
     public int statesCount = 0;
+    public int statesDisjointSortableCharacterClassesCount = 0;
 
     public int gotosCount = 0;
     public int actionCharacterClasssCount = 0;
@@ -27,12 +32,18 @@ public class MeasureStateFactory extends StateFactory {
 
         int actionsCount = 0;
 
+        List<ICharacterClass> characterClasses = new ArrayList<>(actionsPerCharacterClasses.length);
+
         for(ActionsPerCharacterClass actionsPerCharacterClass : actionsPerCharacterClasses) {
             actionsCount += actionsPerCharacterClass.actions.size();
 
             actionsPerCharacterClassMax =
                 Math.max(actionsPerCharacterClassMax, actionsPerCharacterClass.actions.size());
+
+            characterClasses.add(actionsPerCharacterClass.characterClass);
         }
+
+        statesDisjointSortableCharacterClassesCount += ICharacterClass.disjointSortable(characterClasses) ? 1 : 0;
 
         this.actionsCount += actionsCount;
 

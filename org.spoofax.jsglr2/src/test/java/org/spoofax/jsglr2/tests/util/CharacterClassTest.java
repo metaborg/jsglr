@@ -100,8 +100,8 @@ public class CharacterClassTest {
         assertEquals(ICharacterClass.comparator().compare(AZ, AZ), 0);
         assertEquals(ICharacterClass.comparator().compare(AZ, x), -1);
         assertEquals(ICharacterClass.comparator().compare(x, AZ), 1);
-        assertEquals(ICharacterClass.comparator().compare(x, az), 0);
-        assertEquals(ICharacterClass.comparator().compare(az, x), 0);
+        assertEquals(ICharacterClass.comparator().compare(x, az), 1);
+        assertEquals(ICharacterClass.comparator().compare(az, x), -1);
         assertEquals(ICharacterClass.comparator().compare(az, eof), -1);
         assertEquals(ICharacterClass.comparator().compare(eof, az), 1);
     }

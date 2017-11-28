@@ -41,12 +41,7 @@ public interface ICharacterClass {
 
     static Comparator<ICharacterClass> comparator() {
         return (one, two) -> {
-            if(one.max() < two.min())
-                return -1;
-            else if(one.min() > two.max())
-                return 1;
-            else
-                return 0;
+            return Integer.compare(one.min(), two.min());
         };
     }
 
@@ -63,11 +58,8 @@ public interface ICharacterClass {
      * character class.
      */
     static boolean disjointSorted(List<ICharacterClass> characterClasses) {
-        if(characterClasses.size() <= 1)
-            return true;
-
         for(int i = 0; i < characterClasses.size() - 1; i++) {
-            if(comparator().compare(characterClasses.get(i), characterClasses.get(i + 1)) != -1)
+            if(characterClasses.get(i).max() >= characterClasses.get(i + 1).min())
                 return false;
         }
 

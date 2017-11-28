@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.characters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.spoofax.jsglr2.util.Cache;
 
 public class CharacterClassFactory implements ICharacterClassFactory {

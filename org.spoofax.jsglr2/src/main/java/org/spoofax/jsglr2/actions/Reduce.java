@@ -44,4 +44,21 @@ public class Reduce implements IReduce {
         return "REDUCE(" + production.id() + ")";
     }
 
+    @Override public int hashCode() {
+        return production.hashCode() ^ productionType.hashCode() ^ arity;
+    }
+
+    @Override public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Reduce that = (Reduce) o;
+
+        return production.equals(that.production) && productionType.equals(that.productionType) && arity == that.arity;
+    }
+
 }

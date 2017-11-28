@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.actions;
 
+import java.util.Arrays;
+
 import org.spoofax.jsglr2.characters.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
@@ -36,6 +38,23 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
 
     @Override public String toString() {
         return "REDUCE_LOOKAHEAD(" + production.id() + "," + followRestriction + ")";
+    }
+
+    @Override public int hashCode() {
+        return super.hashCode() ^ followRestriction.hashCode();
+    }
+
+    @Override public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ReduceLookahead that = (ReduceLookahead) o;
+
+        return super.equals((Reduce) that) && Arrays.equals(followRestriction, that.followRestriction);
     }
 
 }

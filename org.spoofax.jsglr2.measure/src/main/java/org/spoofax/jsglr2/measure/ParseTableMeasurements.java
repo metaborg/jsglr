@@ -25,7 +25,7 @@ public class ParseTableMeasurements extends Measurements {
         csvHeader(out);
 
         MeasureCharacterClassFactory characterClassFactory = new MeasureCharacterClassFactory();
-        IActionsFactory actionsFactory = new ActionsFactory();
+        IActionsFactory actionsFactory = new ActionsFactory(true);
         MeasureStateFactory stateFactory = new MeasureStateFactory();
 
         new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(testSetReader.getParseTableTerm());

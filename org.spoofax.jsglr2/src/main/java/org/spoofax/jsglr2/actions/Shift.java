@@ -16,4 +16,21 @@ public class Shift implements IShift {
         return "SHIFT(" + shiftStateId + ")";
     }
 
+    @Override public int hashCode() {
+        return shiftStateId;
+    }
+
+    @Override public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Shift that = (Shift) o;
+
+        return shiftStateId == that.shiftStateId;
+    }
+
 }

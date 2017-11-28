@@ -15,6 +15,7 @@ import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
 import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
+import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
@@ -46,16 +47,18 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         super(testSet);
     }
 
-    @Param ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation;
-
     @Param({ "false", "true" }) public boolean optimizeCharacterClasses;
 
     @Param({ "false", "true" }) public boolean cacheCharacterClasses;
 
+    @Param({ "false", "true" }) public boolean cacheActions;
+
+    @Param ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation;
+
     @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
         InvalidParseTableException, InterruptedException, URISyntaxException {
         ICharacterClassFactory characterClassFactory = new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
-        IActionsFactory actionsFactory = IAction.factory();
+        IActionsFactory actionsFactory = new ActionsFactory(cacheActions);
         IStateFactory stateFactory = new StateFactory(actionsPerCharacterClassRepresentation,
             StateFactory.defaultProductionToGotoRepresentation);
 

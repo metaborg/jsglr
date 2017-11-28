@@ -31,12 +31,6 @@ public class TestSet {
             return String.join("+", Collections.nCopies(n, "x"));
         }, 4000, 8000, 16000, 32000, 64000));
 
-    public static TestSet csv =
-        new TestSet("csv", new TestSetParseTableFromGrammarDef("csv"), new TestSetSizedInput(n -> {
-            return String.join("\n", Collections.nCopies(n,
-                "1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\",1234567890,\"abcdefghij\""));
-        }, 1000, 2000, 4000));
-
     private static final String JAVA_8_BENCHMARK_INPUT_PATH_STRING =
         System.getProperty(String.format("%s.%s", TestSet.class.getCanonicalName(), "javaInputPath"),
             "/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms");
@@ -55,6 +49,6 @@ public class TestSet {
         new TestSet("webdsl", new TestSetParseTableFromATerm("WebDSL"), new TestSetSingleInput("WebDSL/built-in.app"));
 
     public static List<TestSet> all =
-        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, csv, java8, java8_unrolled, greenMarl, webDSL);
+        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, java8, java8_unrolled, greenMarl, webDSL);
 
 }

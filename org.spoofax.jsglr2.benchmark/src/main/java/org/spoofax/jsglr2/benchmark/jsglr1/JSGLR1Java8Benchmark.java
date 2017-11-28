@@ -16,25 +16,4 @@ public class JSGLR1Java8Benchmark extends JSGLR1Benchmark {
         super(TestSet.java8);
     }
 
-    public static void main(String[] args) throws RunnerException {
-        /*
-         * @Param({"false", "true"}) public boolean implode;
-         */
-
-        // @formatter:off
-        Options opt = new OptionsBuilder()
-                .include(".*" + JSGLR1Java8Benchmark.class.getSimpleName() + ".(.*)")
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(10)
-                .warmupTime(TimeValue.seconds(1))
-                .measurementIterations(10)
-                //.param("implode", "false")
-                .forks(0)
-                .build();
-        // @formatter:on
-
-        new Runner(opt).run();
-    }
-
 }

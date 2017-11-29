@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
 import org.spoofax.jsglr2.util.DisjointRanges;
+import org.spoofax.jsglr2.util.Range;
 
 public class DisjointRangesTest {
 
@@ -63,16 +64,16 @@ public class DisjointRangesTest {
             Arrays.asList(range(10, 14), range(15, 19), range(20, 30), range(31, 35), range(36, 40)));
     }
 
-    private List<DisjointRanges.Range> disjointCharacterClassRanges(ICharacterClass... characterClasses) {
+    private List<Range> disjointCharacterClassRanges(ICharacterClass... characterClasses) {
         return DisjointRanges.get(characterClasses, characterClassRange);
     }
 
-    private Function<ICharacterClass, DisjointRanges.Range> characterClassRange = (characterClass) -> {
+    private Function<ICharacterClass, Range> characterClassRange = (characterClass) -> {
         return range(characterClass.min(), characterClass.max());
     };
 
-    private DisjointRanges.Range range(int from, int to) {
-        return new DisjointRanges.Range(from, to);
+    private Range range(int from, int to) {
+        return new Range(from, to);
     }
 
 }

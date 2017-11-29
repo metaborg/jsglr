@@ -57,6 +57,19 @@ public class DisjointRangesTest {
         assertEquals(disjointCharacterClassRanges(CG, AE), Arrays.asList(range(65, 66), range(67, 69), range(70, 71)));
     }
 
+    @Test public void testTwoEqualStart() {
+        assertEquals(disjointCharacterClassRanges(factory.fromRange(10, 30), factory.fromRange(10, 20)),
+            Arrays.asList(range(10, 20), range(21, 30)));
+    }
+
+    @Test public void testHigherMaxThanMinIntermediate() {
+        // This example fires the max < min branch in the !mins.isEmpty() branch of DisjointRanges::get
+        
+        assertEquals(
+            disjointCharacterClassRanges(factory.fromRange(10, 20), factory.fromRange(15, 15), factory.fromSingle(30)),
+            Arrays.asList(range(10, 14), range(15, 15), range(16, 20), range(30, 30)));
+    }
+
     @Test public void testThree() {
         assertEquals(
             disjointCharacterClassRanges(factory.fromRange(10, 30), factory.fromRange(20, 40),

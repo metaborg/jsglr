@@ -38,21 +38,16 @@ public class DisjointRanges {
         while(!mins.isEmpty() || !maxs.isEmpty()) {
             int newRangeMin, newRangeMax;
 
-            if(!mins.isEmpty()) {
-                int min = mins.peek(), max = maxs.peek();
+            if(!mins.isEmpty() && maxs.peek() >= mins.peek()) {
+                newRangeMin = mins.poll();
 
-                if(max >= min) {
-                    newRangeMin = mins.poll();
+                if(mins.isEmpty())
+                    newRangeMax = maxs.peek();
+                else
+                    newRangeMax = Math.min(mins.peek() - 1, maxs.peek());
 
-                    if(mins.isEmpty())
-                        newRangeMax = maxs.peek();
-                    else
-                        newRangeMax = Math.min(mins.peek() - 1, maxs.peek());
-
-                    if(newRangeMax == maxs.peek())
-                        maxs.poll();
-                } else
-                    throw new IllegalStateException();
+                if(newRangeMax == maxs.peek())
+                    maxs.poll();
             } else {
                 newRangeMin = lastRange.to + 1;
                 newRangeMax = maxs.poll();

@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.reducing;
 
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
-import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -93,8 +92,8 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
                     activeStackWithGotoState, stack, parseForests);
 
                 for(StackNode activeStack : parse.activeStacks.forLimitedReductions(parse.forActorStacks)) {
-                    for(IAction action : activeStack.state.getReduceActions(parse))
-                        doLimitedRedutions(parse, activeStack, (IReduce) action, link);
+                    for(IReduce reduceAction : activeStack.state.getReduceActions(parse))
+                        doLimitedRedutions(parse, activeStack, reduceAction, link);
                 }
             }
         } else {

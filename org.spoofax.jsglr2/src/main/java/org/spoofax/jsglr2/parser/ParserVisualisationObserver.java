@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;

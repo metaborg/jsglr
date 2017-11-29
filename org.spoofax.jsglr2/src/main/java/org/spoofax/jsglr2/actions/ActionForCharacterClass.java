@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 
 public final class ActionForCharacterClass {
 

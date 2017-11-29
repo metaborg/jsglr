@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.actions;
 import java.util.Arrays;
 import java.util.List;
 
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 
 public final class ActionsPerCharacterClass {
 

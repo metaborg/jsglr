@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.characters;
+package org.spoofax.jsglr2.characterclasses;
 
 import org.spoofax.jsglr2.util.Cache;
 

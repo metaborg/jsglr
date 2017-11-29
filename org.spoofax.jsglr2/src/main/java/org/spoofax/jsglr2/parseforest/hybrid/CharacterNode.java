@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 

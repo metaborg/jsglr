@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.measure;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spoofax.jsglr2.characters.CharacterClassFactory;
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 
 public class MeasureCharacterClassFactory extends CharacterClassFactory {
 

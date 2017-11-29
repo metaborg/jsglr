@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.tests.util;
+package org.spoofax.jsglr2.tests.characterclasses;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.characters.ICharacterClass;
-import org.spoofax.jsglr2.characters.ICharacterClassFactory;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
 
 public class CharacterClassTest {
 

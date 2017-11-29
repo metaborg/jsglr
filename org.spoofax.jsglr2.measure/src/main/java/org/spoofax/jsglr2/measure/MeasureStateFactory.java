@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IGoto;
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.StateFactory;
 

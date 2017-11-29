@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.actions;
 
 import java.util.Arrays;
 
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;

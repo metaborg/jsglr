@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.characters;
+package org.spoofax.jsglr2.characterclasses;
 
 public final class CharacterClassOptimized implements ICharacterClass {
 

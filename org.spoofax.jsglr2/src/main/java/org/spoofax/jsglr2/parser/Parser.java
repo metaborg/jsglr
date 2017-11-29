@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.actions.IShift;
-import org.spoofax.jsglr2.characters.ICharacterClass;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parsetable.IParseTable;

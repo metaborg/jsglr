@@ -1,99 +1,150 @@
 package org.spoofax.jsglr2.states;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.util.DisjointRanges;
-import org.spoofax.jsglr2.util.Range;
 
 public final class CharacterToActionsDisjointSorted implements ICharacterToActions {
 
-    private final ActionsForRange[] actionsForSortedRanges;
+    private final ActionsForRange[] actionsForSortedDisjointRanges;
 
     public CharacterToActionsDisjointSorted(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
-        this.actionsForSortedRanges = disjointSort(actionsPerCharacterClasses);
+        this.actionsForSortedDisjointRanges = toDisjointSortedRanges(actionsPerCharacterClasses);
     }
 
-    public static ActionsForRange[] disjointSort(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
-        List<Range> disjointRanges = DisjointRanges.get(actionsPerCharacterClasses, actionsPerCharacterClass -> {
-            return new Range(actionsPerCharacterClass.characterClass.min(),
-                actionsPerCharacterClass.characterClass.max());
-        });
+    private ActionsForRange[] toDisjointSortedRanges(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
+        List<ActionsForRange> actionsForRanges = new ArrayList<>();
 
-        ActionsForRange[] res = new ActionsForRange[disjointRanges.size()];
+        int newRangeFromCharacter = -1;
+        Set<IAction> newRangeActions = null;
 
-        for(int i = 0; i < disjointRanges.size(); i++) {
-            Range range = disjointRanges.get(i);
-
-            List<ActionsPerCharacterClass> forRange = new ArrayList<>();
+        for(int character = 0; character <= ICharacterClass.EOF_INT; character++) {
+            Set<IAction> actionsForCharacter = null;
 
             for(ActionsPerCharacterClass actionsPerCharacterClass : actionsPerCharacterClasses) {
-                ICharacterClass characterClass = actionsPerCharacterClass.characterClass;
+                if(actionsPerCharacterClass.appliesTo(character)) {
+                    if(actionsForCharacter == null)
+                        actionsForCharacter = new HashSet<>();
 
-                if(characterClass.min() <= range.from && range.to <= characterClass.max())
-                    forRange.add(actionsPerCharacterClass);
+                    actionsForCharacter.addAll(actionsPerCharacterClass.actions);
+                }
             }
 
-            if(forRange.size() == 1)
-                res[i] = new SingleActionGroupForRange(range, forRange.get(0));
-            else
-                res[i] = new MultipleActionGroupsForRange(range,
-                    forRange.toArray(new ActionsPerCharacterClass[forRange.size()]));
+            if(actionsForCharacter == null || actionsForCharacter.isEmpty()) {
+                if(newRangeFromCharacter != -1) { // We now know the a range ended on the previous character
+                    actionsForRanges
+                        .add(new ActionsForRange(newRangeActions.toArray(new IAction[newRangeActions.size()]),
+                            newRangeFromCharacter, character - 1));
+
+                    newRangeFromCharacter = -1;
+                    newRangeActions = null;
+                }
+            } else {
+                if(newRangeFromCharacter != -1) {
+                    if(!actionsForCharacter.equals(newRangeActions)) { // Different actions, thus a range ended on the
+                                                                       // previous character and a new one starts at the
+                                                                       // current character
+                        actionsForRanges
+                            .add(new ActionsForRange(newRangeActions.toArray(new IAction[newRangeActions.size()]),
+                                newRangeFromCharacter, character - 1));
+
+                        newRangeFromCharacter = character;
+                        newRangeActions = actionsForCharacter;
+                    }
+                } else { // A new range starts at the current character
+                    newRangeFromCharacter = character;
+                    newRangeActions = actionsForCharacter;
+                }
+
+                if(character == ICharacterClass.EOF_INT && newRangeFromCharacter != -1) {
+                    actionsForRanges
+                        .add(new ActionsForRange(newRangeActions.toArray(new IAction[newRangeActions.size()]),
+                            newRangeFromCharacter, character));
+                }
+            }
         }
 
-        return res;
+        return actionsForRanges.toArray(new ActionsForRange[actionsForRanges.size()]);
     }
 
     @Override public IAction[] getActions() {
         List<IAction> res = new ArrayList<>();
 
-        for(ActionsForRange actionsForRange : actionsForSortedRanges) {
-            res.addAll(actionsForRange.getActions());
+        for(ActionsForRange actionsForRange : actionsForSortedDisjointRanges) {
+            for(IAction action : actionsForRange.getActions())
+                res.add(action);
         }
 
         return res.toArray(new IAction[res.size()]);
     }
 
     @Override public Iterable<IAction> getActions(int character) {
-        return getActionsBinarySearch(character, 0, actionsForSortedRanges.length - 1);
+        if(actionsForSortedDisjointRanges.length > 0)
+            return getActionsBinarySearch(character, 0, actionsForSortedDisjointRanges.length - 1);
+        else
+            return Collections.emptyList();
     }
 
     private Iterable<IAction> getActionsBinarySearch(int character, int low, int high) {
-        if(high <= low)
-            return actionsForSortedRanges[low].getActions(character);
-        else {
+        if(high <= low) {
+            ActionsForRange actionsForRange = actionsForSortedDisjointRanges[low];
+
+            if(actionsForRange.from <= character && character <= actionsForRange.to)
+                return actionsForRange.getActions();
+            else
+                return Collections.emptyList();
+        } else {
             int mid = (low + high) / 2;
 
-            if(character < actionsForSortedRanges[mid].range.from)
+            ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
+
+            if(actionsForMidRange.from <= character && character <= actionsForMidRange.to)
+                return actionsForMidRange.getActions();
+            else if(character < actionsForMidRange.from)
                 return getActionsBinarySearch(character, low, mid - 1);
-            else if(character > actionsForSortedRanges[mid].range.to)
+            else if(actionsForMidRange.to < character)
                 return getActionsBinarySearch(character, mid + 1, high);
             else
-                return actionsForSortedRanges[mid].getActions(character);
+                return Collections.emptyList();
         }
     }
 
     @Override public Iterable<IReduce> getReduceActions(Parse parse) {
-        return getReduceActionsBinarySearch(parse, 0, actionsForSortedRanges.length - 1);
+        if(actionsForSortedDisjointRanges.length > 0)
+            return getReduceActionsBinarySearch(parse, 0, actionsForSortedDisjointRanges.length - 1);
+        else
+            return Collections.emptyList();
     }
 
     private Iterable<IReduce> getReduceActionsBinarySearch(Parse parse, int low, int high) {
-        if(high <= low)
-            return actionsForSortedRanges[low].getReduceActions(parse);
-        else {
+        if(high <= low) {
+            ActionsForRange actionsForRange = actionsForSortedDisjointRanges[low];
+
+            if(actionsForRange.from <= parse.currentChar && parse.currentChar <= actionsForRange.to)
+                return actionsForRange.getReduceActions(parse);
+            else
+                return Collections.emptyList();
+        } else {
             int mid = (low + high) / 2;
 
-            if(parse.currentChar < actionsForSortedRanges[mid].range.from)
+            ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
+
+            if(actionsForMidRange.from <= parse.currentChar && parse.currentChar <= actionsForMidRange.to)
+                return actionsForMidRange.getReduceActions(parse);
+            else if(parse.currentChar < actionsForMidRange.from)
                 return getReduceActionsBinarySearch(parse, low, mid - 1);
-            else if(parse.currentChar > actionsForSortedRanges[mid].range.to)
+            else if(actionsForMidRange.to < parse.currentChar)
                 return getReduceActionsBinarySearch(parse, mid + 1, high);
             else
-                return actionsForSortedRanges[mid].getReduceActions(parse);
+                return Collections.emptyList();
         }
     }
 

@@ -9,7 +9,7 @@ public class StateFactory implements IStateFactory {
     private final ProductionToGotoRepresentation productionToGotoRepresentation;
 
     public static ActionsPerCharacterClassRepresentation defaultActionsPerCharacterClassRepresentation =
-        ActionsPerCharacterClassRepresentation.Separated;
+        ActionsPerCharacterClassRepresentation.DisjointSorted;
     public static ProductionToGotoRepresentation defaultProductionToGotoRepresentation =
         ProductionToGotoRepresentation.JavaHashMap;
 

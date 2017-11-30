@@ -28,8 +28,8 @@ public class StateFactory implements IStateFactory {
         IProductionToGoto productionToGoto;
 
         switch(actionsPerCharacterClassRepresentation) {
-            case Grouped:
-                characterToActions = new CharacterToActionsGrouped(actionsPerCharacterClass);
+            case DisjointSorted:
+                characterToActions = new CharacterToActionsDisjointSorted(actionsPerCharacterClass);
                 break;
             case Separated:
                 characterToActions = new CharacterToActionsSeparated(actionsPerCharacterClass);

@@ -2,7 +2,9 @@ package org.spoofax.jsglr2.states;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IAction;
@@ -32,7 +34,7 @@ class MultipleActionGroupsForRange extends ActionsForRange {
         if(!range.contains(character))
             return Collections.EMPTY_LIST;
 
-        List<IAction> actions = new ArrayList<>();
+        Set<IAction> actions = new HashSet<>();
 
         for(ActionsPerCharacterClass actionsPerCharacterClass : actionsPerCharacterClasses) {
             if(actionsPerCharacterClass.appliesTo(character))
@@ -80,7 +82,7 @@ class MultipleActionGroupsForRange extends ActionsForRange {
         if(!range.contains(parse.currentChar))
             return Collections.EMPTY_LIST;
 
-        List<IReduce> reduces = new ArrayList<>();
+        Set<IReduce> reduces = new HashSet<>();
 
         for(ActionsPerCharacterClass actionsPerCharacterClass : actionsPerCharacterClasses) {
             if(actionsPerCharacterClass.appliesTo(parse.currentChar))

@@ -93,66 +93,50 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
 
     @Override
     public Iterable<IAction> getActions(int character) {
-        if(actionsForSortedDisjointRanges.length > 0)
-            return getActionsBinarySearch(character, 0, actionsForSortedDisjointRanges.length - 1);
-        else
-            return Collections.emptyList();
-    }
+        if(actionsForSortedDisjointRanges.length > 0) {
+            int low = 0, high = actionsForSortedDisjointRanges.length - 1;
 
-    private Iterable<IAction> getActionsBinarySearch(int character, int low, int high) {
-        if(high <= low) {
-            ActionsForRange actionsForRange = actionsForSortedDisjointRanges[low];
+            while(low <= high) {
+                int mid = (low + high) / 2;
 
-            if(actionsForRange.from <= character && character <= actionsForRange.to)
-                return actionsForRange.getActions();
-            else
-                return Collections.emptyList();
-        } else {
-            int mid = (low + high) / 2;
+                ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
 
-            ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
-
-            if(actionsForMidRange.from <= character && character <= actionsForMidRange.to)
-                return actionsForMidRange.getActions();
-            else if(character < actionsForMidRange.from)
-                return getActionsBinarySearch(character, low, mid - 1);
-            else if(actionsForMidRange.to < character)
-                return getActionsBinarySearch(character, mid + 1, high);
-            else
-                return Collections.emptyList();
+                if(actionsForMidRange.from <= character && character <= actionsForMidRange.to)
+                    return actionsForMidRange.getActions();
+                else if(character < actionsForMidRange.from)
+                    high = mid - 1;
+                else if(actionsForMidRange.to < character)
+                    low = mid + 1;
+                else
+                    break;
+            }
         }
+
+        return Collections.emptyList();
     }
 
     @Override
     public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
-        if(actionsForSortedDisjointRanges.length > 0)
-            return getReduceActionsBinarySearch(parse, 0, actionsForSortedDisjointRanges.length - 1);
-        else
-            return Collections.emptyList();
-    }
+        if(actionsForSortedDisjointRanges.length > 0) {
+            int low = 0, high = actionsForSortedDisjointRanges.length - 1;
 
-    private Iterable<IReduce> getReduceActionsBinarySearch(Parse<?, ?> parse, int low, int high) {
-        if(high <= low) {
-            ActionsForRange actionsForRange = actionsForSortedDisjointRanges[low];
+            while(low <= high) {
+                int mid = (low + high) / 2;
 
-            if(actionsForRange.from <= parse.currentChar && parse.currentChar <= actionsForRange.to)
-                return actionsForRange.getReduceActions(parse);
-            else
-                return Collections.emptyList();
-        } else {
-            int mid = (low + high) / 2;
+                ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
 
-            ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
-
-            if(actionsForMidRange.from <= parse.currentChar && parse.currentChar <= actionsForMidRange.to)
-                return actionsForMidRange.getReduceActions(parse);
-            else if(parse.currentChar < actionsForMidRange.from)
-                return getReduceActionsBinarySearch(parse, low, mid - 1);
-            else if(actionsForMidRange.to < parse.currentChar)
-                return getReduceActionsBinarySearch(parse, mid + 1, high);
-            else
-                return Collections.emptyList();
+                if(actionsForMidRange.from <= parse.currentChar && parse.currentChar <= actionsForMidRange.to)
+                    return actionsForMidRange.getReduceActions(parse);
+                else if(parse.currentChar < actionsForMidRange.from)
+                    high = mid - 1;
+                else if(actionsForMidRange.to < parse.currentChar)
+                    low = mid + 1;
+                else
+                    break;
+            }
         }
+
+        return Collections.emptyList();
     }
 
 }

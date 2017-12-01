@@ -50,18 +50,6 @@ public class JSGLR2Variants {
         Basic, Elkhound
     }
 
-    public static ParseForestRepresentation[] parseForestRepresentationVariants =
-        new ParseForestRepresentation[] { ParseForestRepresentation.Basic, ParseForestRepresentation.Hybrid };
-
-    public static ParseForestConstruction[] parseForestConstructionVariants =
-        new ParseForestConstruction[] { ParseForestConstruction.Full, ParseForestConstruction.Optimized };
-
-    public static StackRepresentation[] stackRepresentationVariants =
-        new StackRepresentation[] { StackRepresentation.Basic, StackRepresentation.Hybrid,
-            StackRepresentation.BasicElkhound, StackRepresentation.HybridElkhound };
-
-    public static Reducing[] reducingVariants = new Reducing[] { Reducing.Basic, Reducing.Elkhound };
-
     public static class Variant {
         public ParseForestRepresentation parseForestRepresentation;
         public ParseForestConstruction parseForestConstruction;
@@ -96,10 +84,10 @@ public class JSGLR2Variants {
     public static List<Variant> allVariants() {
         List<Variant> variants = new ArrayList<Variant>();
 
-        for(ParseForestRepresentation parseForestRepresentation : parseForestRepresentationVariants) {
-            for(ParseForestConstruction parseForestConstruction : parseForestConstructionVariants) {
-                for(StackRepresentation stackRepresentation : stackRepresentationVariants) {
-                    for(Reducing reducing : reducingVariants) {
+        for(ParseForestRepresentation parseForestRepresentation : ParseForestRepresentation.values()) {
+            for(ParseForestConstruction parseForestConstruction : ParseForestConstruction.values()) {
+                for(StackRepresentation stackRepresentation : StackRepresentation.values()) {
+                    for(Reducing reducing : Reducing.values()) {
                         Variant variant = new Variant(parseForestRepresentation, parseForestConstruction,
                             stackRepresentation, reducing);
 

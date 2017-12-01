@@ -18,7 +18,8 @@ public class LexicalTest extends BaseTest implements WithJSGLR1, WithGrammar {
         setupParseTableFromDefFile("lexical-id");
     }
 
-    @Test public void identifiers() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void identifiers() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("a", "\"a\")");
         testSuccessByExpansions("aaaaa", "\"aaaaa\")");
     }

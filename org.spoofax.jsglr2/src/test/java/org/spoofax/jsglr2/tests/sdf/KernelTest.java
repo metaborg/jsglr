@@ -17,7 +17,8 @@ public class KernelTest extends BaseTestWithJSGLR1 implements WithGrammar {
         setupParseTableFromDefFile("kernel");
     }
 
-    @Test public void oneX() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void oneX() throws ParseError, ParseTableReadException, IOException {
         // testParseSuccessByJSGLR("\"x\""); TODO: implement kernel constructors
     }
 

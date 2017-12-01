@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetReader;
@@ -29,13 +30,15 @@ public class MeasureTestsetReader extends TestSetReader {
         }
     }
 
-    @Override public IStrategoTerm parseTableTerm(String filename) throws ParseError, IOException {
+    @Override
+    public IStrategoTerm parseTableTerm(String filename) throws ParseError, IOException {
         InputStream inputStream = new FileInputStream(basePath() + "/" + filename);
 
         return getTermReader().parseFromStream(inputStream);
     }
 
-    @Override public String grammarsPath() {
+    @Override
+    public String grammarsPath() {
         return basePath() + "/grammars";
     }
 
@@ -49,7 +52,8 @@ public class MeasureTestsetReader extends TestSetReader {
         Files.copy(defResourceInJar, Paths.get(destinationInTargetDir), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    @Override public void setupDefFile(String grammarName) throws IOException {
+    @Override
+    public void setupDefFile(String grammarName) throws IOException {
         new File(basePath() + "/grammars").mkdirs();
 
         InputStream defResourceInJar = getClass().getResourceAsStream("/grammars/" + grammarName + ".def");

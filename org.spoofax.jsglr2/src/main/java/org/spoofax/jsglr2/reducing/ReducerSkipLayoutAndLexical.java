@@ -17,7 +17,8 @@ public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<Par
         super(stackManager, parseForestManager);
     }
 
-    @Override public void reducerExistingStackWithDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce,
+    @Override
+    public void reducerExistingStackWithDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce,
         StackLink<StackNode, ParseForest> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
         @SuppressWarnings("unchecked") ParseNode parseNode =
             (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
@@ -33,9 +34,9 @@ public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<Par
             stackManager.rejectStackLink(parse, existingDirectLinkToActiveStateWithGoto);
     }
 
-    @Override public StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(
-        Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode existingActiveStackWithGotoState,
-        StackNode stack, ParseForest[] parseForests) {
+    @Override
+    public StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(Parse<StackNode, ParseForest> parse,
+        IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
         ParseNode parseNode;
 
         if(reduce.production().isSkippableInParseForest())
@@ -55,8 +56,9 @@ public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<Par
         return newDirectLinkToActiveStateWithGoto;
     }
 
-    @Override public StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce,
-        StackNode stack, IState gotoState, ParseForest[] parseForests) {
+    @Override
+    public StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode stack,
+        IState gotoState, ParseForest[] parseForests) {
         ParseNode parseNode;
 
         if(reduce.production().isSkippableInParseForest())

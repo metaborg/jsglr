@@ -41,7 +41,8 @@ public class MultipleActionGroupsForRangeTest {
     IAction shift14 = actionsFactory.getShift(14);
     IAction shift15 = actionsFactory.getShift(15);
 
-    @Test public void test1() {
+    @Test
+    public void test1() {
         // @formatter:off
         ActionsPerCharacterClass[] actionsPerCharacterClasses =
             new ActionsPerCharacterClass[] {
@@ -53,7 +54,8 @@ public class MultipleActionGroupsForRangeTest {
         test(actionsPerCharacterClasses);
     }
 
-    @Test public void test2() {
+    @Test
+    public void test2() {
         // @formatter:off
         ActionsPerCharacterClass[] actionsPerCharacterClasses =
             new ActionsPerCharacterClass[] {

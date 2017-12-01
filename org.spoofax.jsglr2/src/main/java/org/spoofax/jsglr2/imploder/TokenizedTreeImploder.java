@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;

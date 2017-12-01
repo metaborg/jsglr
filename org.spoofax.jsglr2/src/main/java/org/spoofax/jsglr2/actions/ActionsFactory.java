@@ -23,26 +23,30 @@ public class ActionsFactory implements IActionsFactory {
         }
     }
 
+    @Override
     public IShift getShift(int shiftStateId) {
         IShift shift = new Shift(shiftStateId);
 
         return maybeCached(shiftCache, shift);
     }
 
-    @Override public IReduce getReduce(IProduction production, ProductionType productionType, int arity) {
+    @Override
+    public IReduce getReduce(IProduction production, ProductionType productionType, int arity) {
         IReduce reduce = new Reduce(production, productionType, arity);
 
         return maybeCached(reduceCache, reduce);
     }
 
-    @Override public IReduceLookahead getReduceLookahead(IProduction production, ProductionType productionType,
-        int arity, ICharacterClass[] followRestriction) {
+    @Override
+    public IReduceLookahead getReduceLookahead(IProduction production, ProductionType productionType, int arity,
+        ICharacterClass[] followRestriction) {
         IReduceLookahead reduceLookahead = new ReduceLookahead(production, productionType, arity, followRestriction);
 
         return maybeCached(reduceLookaheadCache, reduceLookahead);
     }
 
-    @Override public IAccept getAccept() {
+    @Override
+    public IAccept getAccept() {
         return Accept.SINGLETON;
     }
 

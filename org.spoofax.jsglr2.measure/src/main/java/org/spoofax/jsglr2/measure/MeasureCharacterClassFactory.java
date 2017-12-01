@@ -17,7 +17,8 @@ public class MeasureCharacterClassFactory extends CharacterClassFactory {
         super(true, true);
     }
 
-    @Override public ICharacterClass finalize(ICharacterClass characters) {
+    @Override
+    public ICharacterClass finalize(ICharacterClass characters) {
         characterClassesCount++;
 
         characterClassesUnique.add(characters);

@@ -23,11 +23,13 @@ public class ActionsForRange {
         return () -> new Iterator<IAction>() {
             int index = 0;
 
-            @Override public boolean hasNext() {
+            @Override
+            public boolean hasNext() {
                 return index < actions.length;
             }
 
-            @Override public IAction next() {
+            @Override
+            public IAction next() {
                 return actions[index++];
             }
         };
@@ -37,20 +39,23 @@ public class ActionsForRange {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 
-            @Override public boolean hasNext() {
+            @Override
+            public boolean hasNext() {
                 while(index < actions.length && !IReduce.isApplicableReduce(actions[index], parse)) {
                     index++;
                 }
                 return index < actions.length;
             }
 
-            @Override public IReduce next() {
+            @Override
+            public IReduce next() {
                 return (IReduce) actions[index++];
             }
         };
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "{" + ICharacterClass.intToString(from) + "," + ICharacterClass.intToString(to) + "}->"
             + Arrays.toString(actions);
     }

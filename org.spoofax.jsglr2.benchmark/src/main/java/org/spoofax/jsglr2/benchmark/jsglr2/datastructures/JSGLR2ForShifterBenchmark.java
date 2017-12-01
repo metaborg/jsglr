@@ -51,8 +51,9 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
 
     Collection<ForShifterElement<?, ?>> forShifter;
 
-    @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
-        InvalidParseTableException, InterruptedException, URISyntaxException {
+    @Setup
+    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
@@ -100,7 +101,8 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
 
         public List<ParseRound> parseRounds = new ArrayList<ParseRound>();
 
-        @Override public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
+        @Override
+        public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
             parseRounds.add(new ParseRound());
         }
 
@@ -108,13 +110,15 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
             return parseRounds.get(parseRounds.size() - 1);
         }
 
-        @Override public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement) {
+        @Override
+        public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement) {
             currentParseRound().forShifterElements.add(forShifterElement);
         }
 
     }
 
-    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark
+    public void benchmark(Blackhole bh) throws ParseException {
         for(ParseRound parseRound : ((ForShifterObserver<?, ?>) forShifterObserver).parseRounds) {
             forShifter.clear();
 

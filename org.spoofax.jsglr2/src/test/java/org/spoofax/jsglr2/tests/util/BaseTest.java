@@ -42,7 +42,8 @@ public abstract class BaseTest {
         this.astUtilities = new AstUtilities();
     }
 
-    @BeforeClass public static void setUpNativeSdf2Table() throws URISyntaxException, IOException {
+    @BeforeClass
+    public static void setUpNativeSdf2Table() throws URISyntaxException, IOException {
         Sdf2Table.setupSdf2TableInTargetDir();
     }
 

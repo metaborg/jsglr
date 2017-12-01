@@ -1,14 +1,14 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
-import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parsetable.IProduction;
+import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class ParseNode extends HybridParseForest {
 

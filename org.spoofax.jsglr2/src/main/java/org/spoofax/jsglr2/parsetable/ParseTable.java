@@ -12,11 +12,13 @@ public class ParseTable implements IParseTable {
         this.startStateId = startStateId;
     }
 
-    @Override public IState getStartState() {
+    @Override
+    public IState getStartState() {
         return getState(startStateId);
     }
 
-    @Override public IState getState(int stateId) {
+    @Override
+    public IState getState(int stateId) {
         return states[stateId];
     }
 

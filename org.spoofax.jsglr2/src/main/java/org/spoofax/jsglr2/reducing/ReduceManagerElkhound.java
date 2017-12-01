@@ -27,7 +27,8 @@ public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, Pars
         this.stackManager = stackManager;
     }
 
-    @Override protected void doReductionsHelper(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
+    @Override
+    protected void doReductionsHelper(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
         StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> throughLink) {
         if(stack.deterministicDepth >= reduce.arity()) {

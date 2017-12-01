@@ -46,8 +46,8 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
     }
 
-    @Override public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename,
-        String startSymbol) {
+    @Override
+    public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
         Parse<StackNode, ParseForest> parse = new Parse<StackNode, ParseForest>(inputString, filename, observers);
 
         notify(observer -> observer.parseStart(parse));
@@ -192,7 +192,8 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         parse.forShifter.add(forShifterElement);
     }
 
-    @Override public void attachObserver(IParserObserver<StackNode, ParseForest> observer) {
+    @Override
+    public void attachObserver(IParserObserver<StackNode, ParseForest> observer) {
         observers.add(observer);
     }
 

@@ -44,8 +44,9 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
     @Param public ProductionToGotoRepresentation productionToGotoRepresentation;
 
-    @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
-        InvalidParseTableException, InterruptedException, URISyntaxException {
+    @Setup
+    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
         IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsPerCharacterClassRepresentation,
             productionToGotoRepresentation);
 
@@ -87,14 +88,16 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
         public List<GotoLookup> gotoLookups = new ArrayList<GotoLookup>();
 
-        @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
+        @Override
+        public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
             StackNode activeStackWithGotoState) {
             gotoLookups.add(new GotoLookup(stack.state, reduce.production().id()));
         }
 
     }
 
-    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark
+    public void benchmark(Blackhole bh) throws ParseException {
         for(GotoLookup gotoLookup : ((GotoObserver<?, ?>) gotoObserver).gotoLookups)
             bh.consume(gotoLookup.execute());
     }

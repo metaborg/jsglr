@@ -17,11 +17,13 @@ public class OptionalsTest extends BaseTest implements WithGrammar {
         setupParseTableFromDefFile("optionals");
     }
 
-    @Test public void testEmpty() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testEmpty() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("", "None");
     }
 
-    @Test public void testSingleX() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testSingleX() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("X", "Some(X)");
     }
 

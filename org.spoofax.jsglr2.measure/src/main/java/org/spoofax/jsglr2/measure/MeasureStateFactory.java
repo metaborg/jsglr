@@ -23,8 +23,8 @@ public class MeasureStateFactory extends StateFactory {
     public int actionsPerStateMax = 0;
     public int actionsPerCharacterClassMax = 0;
 
-    @Override public IState from(int stateNumber, IGoto[] gotos,
-        ActionsPerCharacterClass[] actionsPerCharacterClasses) {
+    @Override
+    public IState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClasses) {
         statesCount++;
 
         gotosCount += gotos.length;
@@ -48,8 +48,7 @@ public class MeasureStateFactory extends StateFactory {
         this.actionsCount += actionsCount;
 
         gotosPerStateMax = Math.max(gotosPerStateMax, gotos.length);
-        actionCharacterClassPerStateMax =
-            Math.max(actionCharacterClassPerStateMax, actionsPerCharacterClasses.length);
+        actionCharacterClassPerStateMax = Math.max(actionCharacterClassPerStateMax, actionsPerCharacterClasses.length);
         actionsPerStateMax = Math.max(actionsPerStateMax, actionsCount);
 
         return super.from(stateNumber, gotos, actionsPerCharacterClasses);

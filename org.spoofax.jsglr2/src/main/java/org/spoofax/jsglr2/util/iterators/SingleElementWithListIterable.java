@@ -20,7 +20,8 @@ public class SingleElementWithListIterable<T> implements Iterable<T> {
     private T element;
     private List<T> list;
 
-    @Deprecated public SingleElementWithListIterable(T element, List<T> list) {
+    @Deprecated
+    public SingleElementWithListIterable(T element, List<T> list) {
         this.element = element;
         this.list = list;
     }

@@ -2,8 +2,8 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.List;
 
-import org.spoofax.jsglr2.parseforest.basic.RuleNode;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.RuleNode;
 import org.spoofax.jsglr2.parseforest.basic.SymbolNode;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;

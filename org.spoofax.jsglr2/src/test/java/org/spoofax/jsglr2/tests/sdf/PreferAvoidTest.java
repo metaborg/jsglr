@@ -17,19 +17,23 @@ public class PreferAvoidTest extends BaseTestWithJSGLR1 implements WithGrammar {
         setupParseTableFromDefFile("prefer-avoid");
     }
 
-    @Test public void testAvoid() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testAvoid() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("a x", "Avoid(amb([X2, X3]))");
     }
 
-    @Test public void testPrefer() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testPrefer() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("p x", "Prefer(X1)");
     }
 
-    @Test public void testAvoidByJSGLR1() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testAvoidByJSGLR1() throws ParseError, ParseTableReadException, IOException {
         testSuccessByJSGLR1("a x");
     }
 
-    @Test public void testPreferByJSGLR1() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testPreferByJSGLR1() throws ParseError, ParseTableReadException, IOException {
         testSuccessByJSGLR1("p x");
     }
 

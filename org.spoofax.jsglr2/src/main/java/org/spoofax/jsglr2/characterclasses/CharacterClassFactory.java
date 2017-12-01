@@ -8,28 +8,32 @@ public class CharacterClassFactory implements ICharacterClassFactory {
     final private boolean cache;
 
     private Cache<ICharacterClass> characterClassCache;
-    
+
     public CharacterClassFactory(boolean optimize, boolean cache) {
         this.optimize = optimize;
         this.cache = cache;
-        
-        if (cache)
-        		this.characterClassCache = new Cache<>();
+
+        if(cache)
+            this.characterClassCache = new Cache<>();
     }
 
+    @Override
     public CharacterClassRangeSet fromEmpty() {
         return CharacterClassRangeSet.EMPTY_CONSTANT;
     }
 
-    @Override public final ICharacterClass fromSingle(int character) {
+    @Override
+    public final ICharacterClass fromSingle(int character) {
         return new CharacterClassSingle(character);
     }
 
-    @Override public final ICharacterClass fromRange(int from, int to) {
+    @Override
+    public final ICharacterClass fromRange(int from, int to) {
         return fromEmpty().addRange(from, to);
     }
 
-    @Override public final ICharacterClass union(ICharacterClass a, ICharacterClass b) {
+    @Override
+    public final ICharacterClass union(ICharacterClass a, ICharacterClass b) {
         boolean aIsRangeSet = a instanceof CharacterClassRangeSet;
         boolean bIsRangeSet = b instanceof CharacterClassRangeSet;
 
@@ -56,18 +60,19 @@ public class CharacterClassFactory implements ICharacterClassFactory {
         }
     }
 
+    @Override
     public ICharacterClass finalize(ICharacterClass characterClass) {
-    		ICharacterClass optimized;
-    	
+        ICharacterClass optimized;
+
         if(characterClass instanceof CharacterClassRangeSet && optimize)
-        		optimized = ((CharacterClassRangeSet) characterClass).optimized();
+            optimized = ((CharacterClassRangeSet) characterClass).optimized();
         else
-        		optimized = characterClass;
-        
-        if (cache)
-        		return characterClassCache.cached(optimized);
+            optimized = characterClass;
+
+        if(cache)
+            return characterClassCache.cached(optimized);
         else
-        		return optimized;
+            return optimized;
     }
 
 

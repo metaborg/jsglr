@@ -8,19 +8,23 @@ public class Shift implements IShift {
         this.shiftStateId = shiftStateId;
     }
 
-    @Override public final int shiftStateId() {
+    @Override
+    public final int shiftStateId() {
         return shiftStateId;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "SHIFT(" + shiftStateId + ")";
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return shiftStateId;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if(this == o) {
             return true;
         }

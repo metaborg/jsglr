@@ -53,8 +53,9 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
 
     IActiveStacks activeStacks;
 
-    @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
-        InvalidParseTableException, InterruptedException, URISyntaxException {
+    @Setup
+    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
@@ -83,18 +84,22 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
 
     private IForActorStacks<?> emptyForActorStacks = new IForActorStacks() {
 
-        @Override public void add(AbstractStackNode stack) {
+        @Override
+        public void add(AbstractStackNode stack) {
         }
 
-        @Override public boolean contains(AbstractStackNode stack) {
+        @Override
+        public boolean contains(AbstractStackNode stack) {
             return false;
         }
 
-        @Override public boolean nonEmpty() {
+        @Override
+        public boolean nonEmpty() {
             return false;
         }
 
-        @Override public AbstractStackNode remove() {
+        @Override
+        public AbstractStackNode remove() {
             return null;
         }
 
@@ -109,17 +114,18 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
 
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
-        @Override public void parseCharacter(Parse<StackNode, ParseForest> parse,
-            Iterable<StackNode> activeStackNodes) {
+        @Override
+        public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStackNodes) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));
         }
 
-        @Override public void addActiveStack(StackNode stack) {
+        @Override
+        public void addActiveStack(StackNode stack) {
             operations.add(bh -> activeStacks.add(stack));
         }
 
-        @Override public void directLinkFound(Parse<StackNode, ParseForest> parse,
-            StackLink<StackNode, ParseForest> directLink) {
+        @Override
+        public void directLinkFound(Parse<StackNode, ParseForest> parse, StackLink<StackNode, ParseForest> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
                 // stacks (those that are not reject and not in for actor) need to be revisited
@@ -130,12 +136,13 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
             }
         }
 
-        @Override public void findActiveStackWithState(IState state) {
+        @Override
+        public void findActiveStackWithState(IState state) {
             operations.add(bh -> bh.consume(activeStacks.findWithState(state)));
         }
 
-        @Override public void shifter(ParseForest termNode,
-            Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
+        @Override
+        public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
             operations.add(bh -> activeStacks.clear());
         }
 
@@ -145,7 +152,8 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
 
     }
 
-    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark
+    public void benchmark(Blackhole bh) throws ParseException {
 
         for(ActiveStacksOperation activeStacksOperation : ((ActiveStacksObserver<?, ?>) activeStacksObserver).operations) {
             activeStacksOperation.execute(bh);

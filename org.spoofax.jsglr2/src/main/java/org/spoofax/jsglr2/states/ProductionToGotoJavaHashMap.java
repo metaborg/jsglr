@@ -22,11 +22,13 @@ public class ProductionToGotoJavaHashMap implements IProductionToGoto {
         }
     }
 
-    @Override public boolean contains(int productionId) {
+    @Override
+    public boolean contains(int productionId) {
         return productionToGoto.containsKey(productionId);
     }
 
-    @Override public int get(int productionId) {
+    @Override
+    public int get(int productionId) {
         return productionToGoto.get(productionId);
     }
 

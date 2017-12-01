@@ -16,7 +16,8 @@ public class WebDSLTest extends BaseTest implements WithParseTable {
         setupParseTable("WebDSL");
     }
 
-    @Test public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
         String sampleProgram = getFileAsString("WebDSL/built-in.app");
 
         testParseSuccess(sampleProgram);

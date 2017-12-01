@@ -23,6 +23,7 @@ public class StateFactory implements IStateFactory {
         this.productionToGotoRepresentation = productionToGotoType;
     }
 
+    @Override
     public IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
         ICharacterToActions characterToActions;
         IProductionToGoto productionToGoto;

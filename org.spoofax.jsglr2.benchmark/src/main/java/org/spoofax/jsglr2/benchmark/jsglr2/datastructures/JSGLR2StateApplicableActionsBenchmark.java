@@ -55,15 +55,17 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     @Param ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation;
 
-    @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
-        InvalidParseTableException, InterruptedException, URISyntaxException {
-        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
+    @Setup
+    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        ICharacterClassFactory characterClassFactory =
+            new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
         IActionsFactory actionsFactory = new ActionsFactory(cacheActions);
         IStateFactory stateFactory = new StateFactory(actionsPerCharacterClassRepresentation,
             StateFactory.defaultProductionToGotoRepresentation);
 
-        IParseTable parseTable =
-            new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(testSetReader.getParseTableTerm());
+        IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
+            .read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
             StackRepresentation.Basic, Reducing.Basic);
@@ -102,8 +104,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
         public List<ActorOnState> stateApplicableActions = new ArrayList<ActorOnState>();
 
-        @Override public void actor(StackNode stack, Parse<StackNode, ParseForest> parse,
-            Iterable<IAction> applicableActions) {
+        @Override
+        public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions) {
             ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);
@@ -111,7 +113,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     }
 
-    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark
+    public void benchmark(Blackhole bh) throws ParseException {
         for(ActorOnState stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
             stateApplicableActions.iterateOverApplicableActions(bh);
     }

@@ -17,15 +17,18 @@ public class RejectTest extends BaseTest implements WithGrammar {
         setupParseTableFromDefFile("reject");
     }
 
-    @Test public void testReject() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testReject() throws ParseError, ParseTableReadException, IOException {
         testParseFailure("foo");
     }
 
-    @Test public void testNestedReject() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testNestedReject() throws ParseError, ParseTableReadException, IOException {
         testParseFailure("bar");
     }
 
-    @Test public void testNonReject() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testNonReject() throws ParseError, ParseTableReadException, IOException {
         testSuccessByAstString("baz", "Id(\"baz\")");
     }
 

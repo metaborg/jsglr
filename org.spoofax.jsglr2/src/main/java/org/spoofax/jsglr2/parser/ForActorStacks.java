@@ -18,7 +18,8 @@ public final class ForActorStacks<ParseForest extends AbstractParseForest, Stack
         this.parse = parse;
 
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
-            @Override public int compare(StackNode stackNode1, StackNode stackNode2) {
+            @Override
+            public int compare(StackNode stackNode1, StackNode stackNode2) {
                 return 0; // TODO: implement priority (see P9707 Section 8.4)
             }
         };
@@ -27,7 +28,8 @@ public final class ForActorStacks<ParseForest extends AbstractParseForest, Stack
         this.forActorDelayed = new PriorityQueue<StackNode>(stackNodePriorityComparator);
     }
 
-    @Override public void add(StackNode stack) {
+    @Override
+    public void add(StackNode stack) {
         parse.notify(observer -> observer.addForActorStack(stack));
 
         if(stack.state.isRejectable())
@@ -36,15 +38,18 @@ public final class ForActorStacks<ParseForest extends AbstractParseForest, Stack
             forActor.add(stack);
     }
 
-    @Override public boolean contains(StackNode stack) {
+    @Override
+    public boolean contains(StackNode stack) {
         return forActor.contains(stack) || forActorDelayed.contains(stack);
     }
 
-    @Override public boolean nonEmpty() {
+    @Override
+    public boolean nonEmpty() {
         return !forActor.isEmpty() || !forActorDelayed.isEmpty();
     }
 
-    @Override public StackNode remove() {
+    @Override
+    public StackNode remove() {
         // First return all actors in forActor
         if(!forActor.isEmpty())
             return forActor.remove();

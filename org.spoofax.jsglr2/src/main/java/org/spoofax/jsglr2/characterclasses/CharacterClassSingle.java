@@ -8,27 +8,33 @@ public final class CharacterClassSingle implements ICharacterClass {
         this.character = character;
     }
 
+    @Override
     public final boolean contains(int character) {
         return this.character == character;
     }
 
+    @Override
     public int min() {
         return character;
     }
 
+    @Override
     public int max() {
         return character;
     }
 
+    @Override
     public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
         return rangeSet.addSingle(character);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Integer.hashCode(character);
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if(this == o) {
             return true;
         }
@@ -41,7 +47,8 @@ public final class CharacterClassSingle implements ICharacterClass {
         return this.character == that.character;
     }
 
-    @Override public final String toString() {
+    @Override
+    public final String toString() {
         return "{" + ICharacterClass.intToString(character) + "}";
     }
 

@@ -57,7 +57,8 @@ public class ParseTableReader {
         this.stateFactory = stateFactory;
     }
 
-    public ParseTableReader(ICharacterClassFactory characterClassFactory, IActionsFactory actionsFactory, IStateFactory stateFactory) {
+    public ParseTableReader(ICharacterClassFactory characterClassFactory, IActionsFactory actionsFactory,
+        IStateFactory stateFactory) {
         this.characterClassFactory = characterClassFactory;
         this.actionsFactory = actionsFactory;
         this.stateFactory = stateFactory;

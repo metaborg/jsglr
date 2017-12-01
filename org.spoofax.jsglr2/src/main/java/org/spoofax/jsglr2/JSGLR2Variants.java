@@ -8,10 +8,10 @@ import org.spoofax.jsglr2.imploder.BasicParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.HybridParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.NullParseForestStrategoImploder;
-import org.spoofax.jsglr2.parseforest.basic.RuleNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForestManager;
+import org.spoofax.jsglr2.parseforest.basic.RuleNode;
 import org.spoofax.jsglr2.parseforest.basic.SymbolNode;
 import org.spoofax.jsglr2.parseforest.empty.NullParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
@@ -24,12 +24,12 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.ReduceManagerElkhound;
 import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.stack.basic.AbstractBasicStackNode;
 import org.spoofax.jsglr2.stack.basic.BasicStackManager;
 import org.spoofax.jsglr2.stack.basic.HybridStackManager;
-import org.spoofax.jsglr2.stack.basic.AbstractBasicStackNode;
-import org.spoofax.jsglr2.stack.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.stack.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.HybridElkhoundStackManager;
 
 public class JSGLR2Variants {

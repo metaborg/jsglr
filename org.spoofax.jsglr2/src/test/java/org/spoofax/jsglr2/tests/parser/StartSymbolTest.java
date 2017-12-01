@@ -17,11 +17,13 @@ public class StartSymbolTest extends BaseTest implements WithGrammar {
         setupParseTableFromDefFile("start-symbol");
     }
 
-    @Test public void withoutStartSymbol() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void withoutStartSymbol() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions(null, "foo", "amb([\"foo\", Id(\"foo\")])");
     }
 
-    @Test public void withStartSymbol() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void withStartSymbol() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("Start", "foo", "Id(\"foo\")");
     }
 

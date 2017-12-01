@@ -17,14 +17,16 @@ public class Java8Test extends BaseTestWithJSGLR1 implements WithParseTable {
         setupParseTable("Java8");
     }
 
-    @Test public void testSampleProgramByExpectedAST() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testSampleProgramByExpectedAST() throws ParseError, ParseTableReadException, IOException {
         String sampleProgram = getFileAsString("Java/sampleProgram.txt");
         IStrategoTerm expectedAST = getFileAsAST("Java/sampleProgram.ast");
 
         testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
 
-    @Test public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
         String sampleProgram = getFileAsString("Java/sampleProgram.txt");
 
         testSuccessByJSGLR1(sampleProgram);

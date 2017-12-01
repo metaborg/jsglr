@@ -63,7 +63,8 @@ public final class CharacterClassRangeSet implements ICharacterClass {
         }
     }
 
-    @Override public final boolean contains(int character) {
+    @Override
+    public final boolean contains(int character) {
         if(character == ICharacterClass.EOF_INT)
             return containsEOF;
 
@@ -76,10 +77,12 @@ public final class CharacterClassRangeSet implements ICharacterClass {
             return rangeSet.contains(character);
     }
 
+    @Override
     public int min() {
         return min;
     }
 
+    @Override
     public int max() {
         return max;
     }
@@ -138,7 +141,8 @@ public final class CharacterClassRangeSet implements ICharacterClass {
         return bitSet;
     }
 
-    @Override public CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet other) {
+    @Override
+    public CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet other) {
         return union(other);
     }
 
@@ -160,11 +164,13 @@ public final class CharacterClassRangeSet implements ICharacterClass {
             return new CharacterClassOptimized(word0, word1, word2, word3, containsEOF, min, max);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return rangeSet.hashCode() ^ Boolean.hashCode(containsEOF);
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if(this == o) {
             return true;
         }
@@ -177,7 +183,8 @@ public final class CharacterClassRangeSet implements ICharacterClass {
         return rangeSet.equals(that.rangeSet) && containsEOF == that.containsEOF;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         final List<String> ranges = new ArrayList<>();
 
         rangeSet.asRanges().forEach(range -> {

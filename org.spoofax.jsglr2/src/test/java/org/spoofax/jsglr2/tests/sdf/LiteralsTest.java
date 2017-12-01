@@ -18,19 +18,23 @@ public class LiteralsTest extends BaseTest implements WithJSGLR1, WithGrammar {
         setupParseTableFromDefFile("literals");
     }
 
-    @Test public void testLowerCaseLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testLowerCaseLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("sensitive", "Literal(CaseSensitive)");
     }
 
-    @Test public void testMixedLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testMixedLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
         testParseFailure("senSitive");
     }
 
-    @Test public void testLowerCaseLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testLowerCaseLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("insensitive", "Literal(CaseInsensitive)");
     }
 
-    @Test public void testMixedLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void testMixedLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("insenSitive", "Literal(CaseInsensitive)");
     }
 

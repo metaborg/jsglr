@@ -23,7 +23,8 @@ public final class ActionsPerCharacterClass {
         return characterClass.contains(character);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return characterClass.toString() + "->" + actions.toString();
     }
 

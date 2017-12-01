@@ -17,15 +17,18 @@ public class SumNonAmbiguousTest extends BaseTestWithJSGLR1 implements WithGramm
         setupParseTableFromDefFile("sum-nonambiguous");
     }
 
-    @Test public void one() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void one() throws ParseError, ParseTableReadException, IOException {
         testSuccessByJSGLR1("x");
     }
 
-    @Test public void two() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void two() throws ParseError, ParseTableReadException, IOException {
         testSuccessByJSGLR1("x+x");
     }
 
-    @Test public void three() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void three() throws ParseError, ParseTableReadException, IOException {
         testSuccessByJSGLR1("x+x+x");
     }
 

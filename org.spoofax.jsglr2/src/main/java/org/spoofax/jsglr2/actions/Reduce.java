@@ -6,8 +6,8 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 public class Reduce implements IReduce {
 
     protected final IProduction production;
-    private final ProductionType productionType;
-    private final int arity;
+    protected final ProductionType productionType;
+    protected final int arity;
 
     public Reduce(IProduction production, ProductionType productionType, int arity) {
         this.production = production;
@@ -28,27 +28,33 @@ public class Reduce implements IReduce {
          */
     }
 
-    @Override public IProduction production() {
+    @Override
+    public IProduction production() {
         return production;
     }
 
-    @Override public ProductionType productionType() {
+    @Override
+    public ProductionType productionType() {
         return productionType;
     }
 
-    @Override public int arity() {
+    @Override
+    public int arity() {
         return arity;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "REDUCE(" + production.id() + ")";
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return production.hashCode() ^ productionType.hashCode() ^ arity;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if(this == o) {
             return true;
         }

@@ -17,7 +17,8 @@ public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>
         super(stackManager, parseForestManager);
     }
 
-    @Override public void reducerExistingStackWithDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce,
+    @Override
+    public void reducerExistingStackWithDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce,
         StackLink<StackNode, ParseForest> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
         @SuppressWarnings("unchecked") ParseNode parseNode =
             (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
@@ -33,9 +34,9 @@ public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>
         }
     }
 
-    @Override public StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(
-        Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode existingActiveStackWithGotoState,
-        StackNode stack, ParseForest[] parseForests) {
+    @Override
+    public StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(Parse<StackNode, ParseForest> parse,
+        IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
         StackLink<StackNode, ParseForest> newDirectLinkToActiveStateWithGoto;
 
         if(reduce.isRejectProduction()) {
@@ -56,8 +57,9 @@ public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>
         return newDirectLinkToActiveStateWithGoto;
     }
 
-    @Override public StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce,
-        StackNode stack, IState gotoState, ParseForest[] parseForests) {
+    @Override
+    public StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode stack,
+        IState gotoState, ParseForest[] parseForests) {
         StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState);
 
         StackLink<StackNode, ParseForest> link;

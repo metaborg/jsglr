@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.util;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;

@@ -28,7 +28,8 @@ public abstract class BaseBenchmark {
         this.testSetReader = new BenchmarkTestsetReader(testSet);
     }
 
-    @Setup public void setupInputs() throws IOException {
+    @Setup
+    public void setupInputs() throws IOException {
         if(n == -1)
             inputs = testSetReader.getInputs();
         else

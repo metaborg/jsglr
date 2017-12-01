@@ -28,6 +28,7 @@ public final class CharacterClassOptimized implements ICharacterClass {
         this.max = max;
     }
 
+    @Override
     public final boolean contains(int character) {
         final int wordIndex = character >> CharacterClassRangeSet.BITMAP_SEGMENT_SIZE;
         final long word;
@@ -54,23 +55,28 @@ public final class CharacterClassOptimized implements ICharacterClass {
         return (word & (1L << character)) != 0;
     }
 
+    @Override
     public int min() {
         return min;
     }
 
+    @Override
     public int max() {
         return max;
     }
 
+    @Override
     public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
         throw new IllegalStateException();
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return (int) (word0 ^ word1 ^ word2 ^ word3 ^ Boolean.hashCode(containsEOF));
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if(this == o) {
             return true;
         }
@@ -84,7 +90,8 @@ public final class CharacterClassOptimized implements ICharacterClass {
             && containsEOF == that.containsEOF;
     }
 
-    @Override public final String toString() {
+    @Override
+    public final String toString() {
         // This is an optimized representation of character classes. If you want nice toString results, disable
         // optimizing in CharacterClassFactory.
 

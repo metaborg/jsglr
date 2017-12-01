@@ -79,7 +79,8 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
         return actionsForRanges.toArray(new ActionsForRange[actionsForRanges.size()]);
     }
 
-    @Override public IAction[] getActions() {
+    @Override
+    public IAction[] getActions() {
         List<IAction> res = new ArrayList<>();
 
         for(ActionsForRange actionsForRange : actionsForSortedDisjointRanges) {
@@ -90,7 +91,8 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
         return res.toArray(new IAction[res.size()]);
     }
 
-    @Override public Iterable<IAction> getActions(int character) {
+    @Override
+    public Iterable<IAction> getActions(int character) {
         if(actionsForSortedDisjointRanges.length > 0)
             return getActionsBinarySearch(character, 0, actionsForSortedDisjointRanges.length - 1);
         else
@@ -121,7 +123,8 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
         }
     }
 
-    @Override public Iterable<IReduce> getReduceActions(Parse parse) {
+    @Override
+    public Iterable<IReduce> getReduceActions(Parse parse) {
         if(actionsForSortedDisjointRanges.length > 0)
             return getReduceActionsBinarySearch(parse, 0, actionsForSortedDisjointRanges.length - 1);
         else

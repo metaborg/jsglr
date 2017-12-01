@@ -24,11 +24,13 @@ public class ProductionToGotoCapsuleBinaryRelationImmutable implements IProducti
         productionToGoto = tmpProductionToGoto.freeze();
     }
 
-    @Override public boolean contains(int productionId) {
+    @Override
+    public boolean contains(int productionId) {
         return productionToGoto.containsKey(productionId);
     }
 
-    @Override public int get(int productionId) {
+    @Override
+    public int get(int productionId) {
         return productionToGoto.get(productionId).findFirst().get();
     }
 

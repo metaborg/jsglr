@@ -41,8 +41,9 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
     @Param({ "Basic", "Elkhound" }) public JSGLR2Variants.Reducing reducing;
 
-    @Setup public void parserSetup() throws ParseError, ParseTableReadException, IOException,
-        InvalidParseTableException, InterruptedException, URISyntaxException {
+    @Setup
+    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, parseForestConstruction,
@@ -51,7 +52,8 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
             stackRepresentation, reducing);
     }
 
-    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark
+    public void benchmark(Blackhole bh) throws ParseException {
         if(implode) {
             if(parseForestRepresentation == JSGLR2Variants.ParseForestRepresentation.Null) {
                 throw new IllegalStateException("imploding requires a parse forest");

@@ -19,11 +19,13 @@ public final class State implements IState {
         this.rejectable = false;
     }
 
-    @Override public int id() {
+    @Override
+    public int id() {
         return stateId;
     }
 
-    @Override public boolean isRejectable() {
+    @Override
+    public boolean isRejectable() {
         return rejectable;
     }
 
@@ -35,11 +37,13 @@ public final class State implements IState {
         return characterToActions.getActions();
     }
 
-    @Override public Iterable<IAction> getActions(int character) {
+    @Override
+    public Iterable<IAction> getActions(int character) {
         return characterToActions.getActions(character);
     }
 
-    @Override public Iterable<IReduce> getReduceActions(Parse parse) {
+    @Override
+    public Iterable<IReduce> getReduceActions(Parse parse) {
         return characterToActions.getReduceActions(parse);
     }
 
@@ -47,11 +51,13 @@ public final class State implements IState {
         return productionToGoto.contains(productionId);
     }
 
-    @Override public int getGotoId(int productionId) {
+    @Override
+    public int getGotoId(int productionId) {
         return productionToGoto.get(productionId);
     }
 
-    @Override public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if(!(obj instanceof State))
             return false;
 

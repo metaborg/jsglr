@@ -17,11 +17,13 @@ public class CommentsTest extends BaseTest implements WithGrammar {
         setupParseTableFromDefFile("comments");
     }
 
-    @Test public void oneX() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void oneX() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("x", "Xs([X])");
     }
 
-    @Test public void twoXs() throws ParseError, ParseTableReadException, IOException {
+    @Test
+    public void twoXs() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("x x", "Xs([X, X])");
         testSuccessByExpansions("x x // x", "Xs([X, X])");
         testSuccessByExpansions("x /* x */ x", "Xs([X, X])");

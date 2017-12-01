@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.benchmark.jsglr1;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
@@ -32,7 +33,8 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
 
     @Param({ "false", "true" }) public boolean implode;
 
-    @Setup public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+    @Setup
+    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {
         jsglr1parseAndImplode = getJSGLR1();
 
@@ -45,8 +47,9 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
         return testSetReader.getParseTableTerm();
     }
 
-    @Benchmark public void jsglr1default(Blackhole bh) throws ParseTableReadException, TokenExpectedException,
-        BadTokenException, ParseException, SGLRException, InterruptedException {
+    @Benchmark
+    public void jsglr1default(Blackhole bh) throws ParseTableReadException, TokenExpectedException, BadTokenException,
+        ParseException, SGLRException, InterruptedException {
         if(implode) {
             for(Input input : inputs)
                 bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));

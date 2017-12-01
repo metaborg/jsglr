@@ -149,7 +149,8 @@ public abstract class TestSetReader implements WithGrammar {
 
     protected abstract String getFileAsString(String filename) throws IOException;
 
-    @SuppressWarnings("resource") protected String inputStreamAsString(InputStream inputStream) throws IOException {
+    @SuppressWarnings("resource")
+    protected String inputStreamAsString(InputStream inputStream) throws IOException {
         Scanner s = new Scanner(inputStream).useDelimiter("\\A");
 
         return s.hasNext() ? s.next() : "";

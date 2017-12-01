@@ -28,7 +28,8 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
         actionPerCharacterClasses.toArray(actions);
     }
 
-    @Override public IAction[] getActions() {
+    @Override
+    public IAction[] getActions() {
         IAction[] res = new IAction[actions.length];
 
         for(int i = 0; i < actions.length; i++)
@@ -37,28 +38,33 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
         return res;
     }
 
-    @Override public Iterable<IAction> getActions(int character) {
+    @Override
+    public Iterable<IAction> getActions(int character) {
         return () -> new Iterator<IAction>() {
             int index = 0;
 
-            @Override public boolean hasNext() {
+            @Override
+            public boolean hasNext() {
                 while(index < actions.length && !actions[index].appliesTo(character)) {
                     index++;
                 }
                 return index < actions.length;
             }
 
-            @Override public IAction next() {
+            @Override
+            public IAction next() {
                 return actions[index++].action;
             }
         };
     }
 
-    @Override public Iterable<IReduce> getReduceActions(Parse parse) {
+    @Override
+    public Iterable<IReduce> getReduceActions(Parse parse) {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 
-            @Override public boolean hasNext() {
+            @Override
+            public boolean hasNext() {
                 while(index < actions.length && !(actions[index].appliesTo(parse.currentChar)
                     && IReduce.isApplicableReduce(actions[index].action, parse))) {
                     index++;
@@ -66,7 +72,8 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
                 return index < actions.length;
             }
 
-            @Override public IReduce next() {
+            @Override
+            public IReduce next() {
                 return (IReduce) actions[index++].action;
             }
         };

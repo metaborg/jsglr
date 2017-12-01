@@ -85,17 +85,18 @@ public class JSGLR2Variants {
         List<Variant> variants = new ArrayList<Variant>();
 
         for(ParseForestRepresentation parseForestRepresentation : ParseForestRepresentation.values()) {
-            for(ParseForestConstruction parseForestConstruction : ParseForestConstruction.values()) {
-                for(StackRepresentation stackRepresentation : StackRepresentation.values()) {
-                    for(Reducing reducing : Reducing.values()) {
-                        Variant variant = new Variant(parseForestRepresentation, parseForestConstruction,
-                            stackRepresentation, reducing);
+            if(parseForestRepresentation != ParseForestRepresentation.Null)
+                for(ParseForestConstruction parseForestConstruction : ParseForestConstruction.values()) {
+                    for(StackRepresentation stackRepresentation : StackRepresentation.values()) {
+                        for(Reducing reducing : Reducing.values()) {
+                            Variant variant = new Variant(parseForestRepresentation, parseForestConstruction,
+                                stackRepresentation, reducing);
 
-                        if(variant.isValid())
-                            variants.add(variant);
+                            if(variant.isValid())
+                                variants.add(variant);
+                        }
                     }
                 }
-            }
         }
 
         return variants;

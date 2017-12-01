@@ -127,7 +127,6 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
     private void actor(StackNode stack, Parse<ParseForest, StackNode> parse, int character) {
         notify(observer -> observer.actor(stack, parse, stack.state.getActions(character)));
 
-        // Use for loop here rather than IState::applicableActions since it is faster
         for(IAction action : stack.state.getActions(character)) {
             switch(action.actionType()) {
                 case SHIFT:

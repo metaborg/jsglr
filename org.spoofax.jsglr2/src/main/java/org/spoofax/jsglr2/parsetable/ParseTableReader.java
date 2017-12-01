@@ -15,6 +15,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.actions.ActionType;
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.Goto;
 import org.spoofax.jsglr2.actions.IAction;
@@ -284,10 +285,10 @@ public class ParseTableReader {
     // Mark states that are reachable by a reject production as rejectable. "Reachable" means the parser could
     // transition into such state by means of a goto action after reducing a production.
     private void markRejectableStates(IState[] states) {
-        final Set.Immutable<Integer> rejectProductionIds = Stream.of(states)
-            .flatMap(state -> Stream.of(((State) state).actions())).filter(IAction::typeMatchesReduceOrReduceLookahead)
-            .map(IReduce.class::cast).filter(IReduce::isRejectProduction).map(IReduce::production).map(IProduction::id)
-            .collect(CapsuleCollectors.toSet());
+        final Set.Immutable<Integer> rejectProductionIds =
+            Stream.of(states).flatMap(state -> Stream.of(((State) state).actions()))
+                .filter(this::isReduceOrReduceLookahead).map(IReduce.class::cast).filter(IReduce::isRejectProduction)
+                .map(IReduce::production).map(IProduction::id).collect(CapsuleCollectors.toSet());
 
         final Set.Immutable<Integer> rejectableStateIds =
             Stream.of(states).flatMap(state -> rejectProductionIds.stream().filter(rejectProductionId -> {
@@ -296,6 +297,10 @@ public class ParseTableReader {
 
         // A state is marked as rejectable if it is reachable by at least one reject production.
         rejectableStateIds.forEach(gotoId -> ((State) states[gotoId]).markRejectable());
+    }
+
+    private boolean isReduceOrReduceLookahead(IAction action) {
+        return action.actionType() == ActionType.REDUCE || action.actionType() == ActionType.REDUCE_LOOKAHEAD;
     }
 
 }

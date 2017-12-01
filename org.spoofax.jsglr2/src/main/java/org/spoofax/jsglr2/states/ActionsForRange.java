@@ -21,7 +21,7 @@ public class ActionsForRange {
         this.to = to;
     }
 
-    public Iterable<IAction> getActions() {
+    public final Iterable<IAction> getActions() {
         return () -> new Iterator<IAction>() {
             int index = 0;
 
@@ -35,7 +35,7 @@ public class ActionsForRange {
         };
     }
 
-    public Iterable<IReduce> getReduceActions(Parse parse) {
+    public final Iterable<IReduce> getReduceActions(Parse parse) {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 

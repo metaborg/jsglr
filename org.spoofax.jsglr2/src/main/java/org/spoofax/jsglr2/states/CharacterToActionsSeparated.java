@@ -22,7 +22,8 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
 
         for(ActionsPerCharacterClass actionsPerCharacterClass : actionsPerCharacterClasses) {
             for(IAction action : actionsPerCharacterClass.actions)
-                actionPerCharacterClasses.add(new ActionForCharacterClass(actionsPerCharacterClass.characterClass, action));
+                actionPerCharacterClasses
+                    .add(new ActionForCharacterClass(actionsPerCharacterClass.characterClass, action));
         }
 
         actions = new ActionForCharacterClass[actionPerCharacterClasses.size()];
@@ -44,7 +45,6 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
             int index = 0;
 
             @Override public boolean hasNext() {
-                // skip non-applicable actions
                 while(index < actions.length && !actions[index].appliesTo(character)) {
                     index++;
                 }
@@ -65,7 +65,6 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
             int index = 0;
 
             @Override public boolean hasNext() {
-                // skip non-applicable actions
                 while(index < actions.length && !(actions[index].appliesTo(parse.currentChar)
                     && (actions[index].action.actionType() == ActionType.REDUCE
                         || (actions[index].action.actionType() == ActionType.REDUCE_LOOKAHEAD

@@ -23,8 +23,8 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
     private ActionsForRange[] toDisjointSortedRanges(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
         List<ActionsForRange> actionsForRanges = new ArrayList<>();
 
-        int newRangeFromCharacter = -1;
-        Set<IAction> newRangeActions = null;
+        int newRangeFromCharacter = -1; // Contains the start character for the next range that will be added
+        Set<IAction> newRangeActions = null; // Contains the actions for the next range that will be added
 
         for(int character = 0; character <= ICharacterClass.EOF_INT; character++) {
             Set<IAction> actionsForCharacter = null;
@@ -38,8 +38,12 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
                 }
             }
 
+            /*
+             * Based on the applicable actions for the current character and if a new range already started before: do
+             * nothing, create the range that was already started, start a new range or both of the latter.
+             */
             if(actionsForCharacter == null || actionsForCharacter.isEmpty()) {
-                if(newRangeFromCharacter != -1) { // We now know the a range ended on the previous character
+                if(newRangeFromCharacter != -1) { // A range ended on the previous character
                     actionsForRanges
                         .add(new ActionsForRange(newRangeActions.toArray(new IAction[newRangeActions.size()]),
                             newRangeFromCharacter, character - 1));

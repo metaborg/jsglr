@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -33,7 +34,7 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2ForActorStacksBenchmark extends BaseBenchmark {
 
-    IParser<BasicStackNode<BasicParseForest>, BasicParseForest> parser;
+    IParser<BasicParseForest, BasicStackNode<BasicParseForest>> parser;
     ForActorStacksObserver forActorStacksObserver;
 
     protected JSGLR2ForActorStacksBenchmark(TestSet testSet) {
@@ -54,7 +55,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends BaseBenchmark {
         InterruptedException, URISyntaxException {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        parser = (IParser<BasicStackNode<BasicParseForest>, BasicParseForest>) JSGLR2Variants.getParser(parseTable,
+        parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
             ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 
         forActorStacksObserver = new ForActorStacksObserver();
@@ -82,12 +83,12 @@ public abstract class JSGLR2ForActorStacksBenchmark extends BaseBenchmark {
         void execute(Blackhole bh);
     }
 
-    class ForActorStacksObserver extends BenchmarkParserObserver<BasicStackNode<BasicParseForest>, BasicParseForest> {
+    class ForActorStacksObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
 
         public List<ForActorStacksOperation> operations = new ArrayList<>();
 
         @Override
-        public void parseCharacter(Parse<BasicStackNode<BasicParseForest>, BasicParseForest> parse,
+        public void parseCharacter(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
             List<BasicStackNode<BasicParseForest>> activeStacksCopy = activeStacksCopy(parse);
 
@@ -112,8 +113,8 @@ public abstract class JSGLR2ForActorStacksBenchmark extends BaseBenchmark {
         }
 
         @Override
-        public void directLinkFound(Parse<BasicStackNode<BasicParseForest>, BasicParseForest> parse,
-            StackLink<BasicStackNode<BasicParseForest>, BasicParseForest> directLink) {
+        public void directLinkFound(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+            StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
                 // stacks (those that are not reject and not in for actor) need to be revisited
@@ -128,7 +129,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends BaseBenchmark {
         }
 
         private List<BasicStackNode<BasicParseForest>>
-            activeStacksCopy(Parse<BasicStackNode<BasicParseForest>, BasicParseForest> parse) {
+            activeStacksCopy(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse) {
             List<BasicStackNode<BasicParseForest>> activeStacksCopy = new ArrayList<BasicStackNode<BasicParseForest>>();
 
             for(BasicStackNode<BasicParseForest> activeStack : parse.activeStacks)

@@ -123,50 +123,50 @@ public class JSGLR2Variants {
                 BasicParseForestManager basicParseForestManager = new BasicParseForestManager();
 
                 if(variant.reducing == Reducing.Elkhound) {
-                    AbstractElkhoundStackManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest> elkhoundStackManager;
+                    AbstractElkhoundStackManager<BasicParseForest, AbstractElkhoundStackNode<BasicParseForest>> elkhoundStackManager;
 
                     if(variant.stackRepresentation == StackRepresentation.HybridElkhound)
                         elkhoundStackManager = new HybridElkhoundStackManager<BasicParseForest>();
                     else
                         elkhoundStackManager = new BasicElkhoundStackManager<BasicParseForest>();
 
-                    ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> elkhoundReducer =
+                    ReduceManager<BasicParseForest, SymbolNode, RuleNode, AbstractElkhoundStackNode<BasicParseForest>> elkhoundReducer =
                         new ReduceManagerElkhound<BasicParseForest, SymbolNode, RuleNode>(parseTable,
                             elkhoundStackManager, basicParseForestManager, variant.parseForestConstruction);
 
-                    return new Parser<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(
+                    return new Parser<BasicParseForest, SymbolNode, RuleNode, AbstractElkhoundStackNode<BasicParseForest>>(
                         parseTable, elkhoundStackManager, basicParseForestManager, elkhoundReducer);
                 } else {
                     if(variant.stackRepresentation == StackRepresentation.Basic
                         || variant.stackRepresentation == StackRepresentation.Hybrid) {
-                        StackManager<AbstractBasicStackNode<BasicParseForest>, BasicParseForest> basicStackManager;
+                        StackManager<BasicParseForest, AbstractBasicStackNode<BasicParseForest>> basicStackManager;
 
                         if(variant.stackRepresentation == StackRepresentation.Basic)
                             basicStackManager = new BasicStackManager<BasicParseForest>();
                         else
                             basicStackManager = new HybridStackManager<BasicParseForest>();
 
-                        ReduceManager<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> basicReducer =
-                            new ReduceManager<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(
+                        ReduceManager<BasicParseForest, SymbolNode, RuleNode, AbstractBasicStackNode<BasicParseForest>> basicReducer =
+                            new ReduceManager<BasicParseForest, SymbolNode, RuleNode, AbstractBasicStackNode<BasicParseForest>>(
                                 parseTable, basicStackManager, basicParseForestManager,
                                 variant.parseForestConstruction);
 
-                        return new Parser<AbstractBasicStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(
+                        return new Parser<BasicParseForest, SymbolNode, RuleNode, AbstractBasicStackNode<BasicParseForest>>(
                             parseTable, basicStackManager, basicParseForestManager, basicReducer);
                     } else {
-                        StackManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest> elkhoundStackManager;
+                        StackManager<BasicParseForest, AbstractElkhoundStackNode<BasicParseForest>> elkhoundStackManager;
 
                         if(variant.stackRepresentation == StackRepresentation.HybridElkhound)
                             elkhoundStackManager = new HybridElkhoundStackManager<BasicParseForest>();
                         else
                             elkhoundStackManager = new BasicElkhoundStackManager<BasicParseForest>();
 
-                        ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode> basicReducer =
-                            new ReduceManager<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(
+                        ReduceManager<BasicParseForest, SymbolNode, RuleNode, AbstractElkhoundStackNode<BasicParseForest>> basicReducer =
+                            new ReduceManager<BasicParseForest, SymbolNode, RuleNode, AbstractElkhoundStackNode<BasicParseForest>>(
                                 parseTable, elkhoundStackManager, basicParseForestManager,
                                 variant.parseForestConstruction);
 
-                        return new Parser<AbstractElkhoundStackNode<BasicParseForest>, BasicParseForest, SymbolNode, RuleNode>(
+                        return new Parser<BasicParseForest, SymbolNode, RuleNode, AbstractElkhoundStackNode<BasicParseForest>>(
                             parseTable, elkhoundStackManager, basicParseForestManager, basicReducer);
                     }
                 }
@@ -180,50 +180,50 @@ public class JSGLR2Variants {
                     hybridParseForestManager = new HybridParseForestManager();
 
                 if(variant.reducing == Reducing.Elkhound) {
-                    AbstractElkhoundStackManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest> elkhoundStackManager;
+                    AbstractElkhoundStackManager<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>> elkhoundStackManager;
 
                     if(variant.stackRepresentation == StackRepresentation.HybridElkhound)
                         elkhoundStackManager = new HybridElkhoundStackManager<HybridParseForest>();
                     else
                         elkhoundStackManager = new BasicElkhoundStackManager<HybridParseForest>();
 
-                    ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> elkhoundReducer =
+                    ReduceManager<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>> elkhoundReducer =
                         new ReduceManagerElkhound<HybridParseForest, ParseNode, Derivation>(parseTable,
                             elkhoundStackManager, hybridParseForestManager, variant.parseForestConstruction);
 
-                    return new Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(
+                    return new Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>>(
                         parseTable, elkhoundStackManager, hybridParseForestManager, elkhoundReducer);
                 } else {
                     if(variant.stackRepresentation == StackRepresentation.Basic
                         || variant.stackRepresentation == StackRepresentation.Hybrid) {
-                        StackManager<AbstractBasicStackNode<HybridParseForest>, HybridParseForest> basicStackManager;
+                        StackManager<HybridParseForest, AbstractBasicStackNode<HybridParseForest>> basicStackManager;
 
                         if(variant.stackRepresentation == StackRepresentation.Basic)
                             basicStackManager = new BasicStackManager<HybridParseForest>();
                         else
                             basicStackManager = new HybridStackManager<HybridParseForest>();
 
-                        ReduceManager<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> hybridReducer =
-                            new ReduceManager<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(
+                        ReduceManager<HybridParseForest, ParseNode, Derivation, AbstractBasicStackNode<HybridParseForest>> hybridReducer =
+                            new ReduceManager<HybridParseForest, ParseNode, Derivation, AbstractBasicStackNode<HybridParseForest>>(
                                 parseTable, basicStackManager, hybridParseForestManager,
                                 variant.parseForestConstruction);
 
-                        return new Parser<AbstractBasicStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(
+                        return new Parser<HybridParseForest, ParseNode, Derivation, AbstractBasicStackNode<HybridParseForest>>(
                             parseTable, basicStackManager, hybridParseForestManager, hybridReducer);
                     } else {
-                        StackManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest> elkhoundStackManager;
+                        StackManager<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>> elkhoundStackManager;
 
                         if(variant.stackRepresentation == StackRepresentation.HybridElkhound)
                             elkhoundStackManager = new HybridElkhoundStackManager<HybridParseForest>();
                         else
                             elkhoundStackManager = new BasicElkhoundStackManager<HybridParseForest>();
 
-                        ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> hybridReducer =
-                            new ReduceManager<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(
+                        ReduceManager<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>> hybridReducer =
+                            new ReduceManager<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>>(
                                 parseTable, elkhoundStackManager, hybridParseForestManager,
                                 variant.parseForestConstruction);
 
-                        return new Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>(
+                        return new Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>>(
                             parseTable, elkhoundStackManager, hybridParseForestManager, hybridReducer);
                     }
                 }

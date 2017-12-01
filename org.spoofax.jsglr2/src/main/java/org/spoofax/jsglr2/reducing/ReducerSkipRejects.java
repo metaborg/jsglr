@@ -10,16 +10,16 @@ import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.states.IState;
 
 public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>
-    extends Reducer<StackNode, ParseForest, ParseNode, Derivation> {
+    extends Reducer<ParseForest, ParseNode, Derivation, StackNode> {
 
-    public ReducerSkipRejects(StackManager<StackNode, ParseForest> stackManager,
+    public ReducerSkipRejects(StackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         super(stackManager, parseForestManager);
     }
 
     @Override
-    public void reducerExistingStackWithDirectLink(Parse<StackNode, ParseForest> parse, IReduce reduce,
-        StackLink<StackNode, ParseForest> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
+    public void reducerExistingStackWithDirectLink(Parse<ParseForest, StackNode> parse, IReduce reduce,
+        StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
         @SuppressWarnings("unchecked") ParseNode parseNode =
             (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
 
@@ -35,9 +35,9 @@ public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>
     }
 
     @Override
-    public StackLink<StackNode, ParseForest> reducerExistingStackWithoutDirectLink(Parse<StackNode, ParseForest> parse,
+    public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(Parse<ParseForest, StackNode> parse,
         IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
-        StackLink<StackNode, ParseForest> newDirectLinkToActiveStateWithGoto;
+        StackLink<ParseForest, StackNode> newDirectLinkToActiveStateWithGoto;
 
         if(reduce.isRejectProduction()) {
             newDirectLinkToActiveStateWithGoto =
@@ -58,11 +58,11 @@ public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>
     }
 
     @Override
-    public StackNode reducerNoExistingStack(Parse<StackNode, ParseForest> parse, IReduce reduce, StackNode stack,
+    public StackNode reducerNoExistingStack(Parse<ParseForest, StackNode> parse, IReduce reduce, StackNode stack,
         IState gotoState, ParseForest[] parseForests) {
         StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState);
 
-        StackLink<StackNode, ParseForest> link;
+        StackLink<ParseForest, StackNode> link;
 
         if(reduce.isRejectProduction()) {
             link = stackManager.createStackLink(parse, newStackWithGotoState, stack, null);

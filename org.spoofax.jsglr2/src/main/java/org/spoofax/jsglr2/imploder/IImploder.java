@@ -4,9 +4,9 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public interface IImploder<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
+public interface IImploder<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>, AbstractSyntaxTree> {
 
-    public ImplodeResult<StackNode, ParseForest, AbstractSyntaxTree> implode(Parse<StackNode, ParseForest> parse,
+    public ImplodeResult<ParseForest, StackNode, AbstractSyntaxTree> implode(Parse<ParseForest, StackNode> parse,
         ParseForest parseForest);
 
 }

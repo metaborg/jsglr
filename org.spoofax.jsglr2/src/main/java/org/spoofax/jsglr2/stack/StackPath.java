@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.stack;
 
-public abstract class StackPath<StackNode extends AbstractStackNode<ParseForest>, ParseForest> {
+public abstract class StackPath<ParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 
     public final int length;
 
@@ -12,6 +12,6 @@ public abstract class StackPath<StackNode extends AbstractStackNode<ParseForest>
 
     public abstract StackNode head();
 
-    public abstract boolean contains(StackLink<StackNode, ParseForest> link);
+    public abstract boolean contains(StackLink<ParseForest, StackNode> link);
 
 }

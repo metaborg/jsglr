@@ -12,11 +12,11 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.states.IState;
 
-public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
+public interface IParserObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 
-    public void parseStart(Parse<StackNode, ParseForest> parse);
+    public void parseStart(Parse<ParseForest, StackNode> parse);
 
-    public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks);
+    public void parseCharacter(Parse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks);
 
     public void addActiveStack(StackNode stack);
 
@@ -26,32 +26,32 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
     public void createStackNode(StackNode stack);
 
-    public void createStackLink(StackLink<StackNode, ParseForest> link);
+    public void createStackLink(StackLink<ParseForest, StackNode> link);
 
     public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack);
 
-    public void rejectStackLink(StackLink<StackNode, ParseForest> link);
+    public void rejectStackLink(StackLink<ParseForest, StackNode> link);
 
     public void forActorStacks(IForActorStacks<StackNode> forActorStacks);
 
     public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
 
-    public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions);
+    public void actor(StackNode stack, Parse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions);
 
     public void skipRejectedStack(StackNode stack);
 
-    public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement);
+    public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement);
 
-    public void doReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce);
+    public void doReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce);
 
-    public void doLimitedReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce,
-        StackLink<StackNode, ParseForest> link);
+    public void doLimitedReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+        StackLink<ParseForest, StackNode> link);
 
     public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
 
     public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
 
-    public void directLinkFound(Parse<StackNode, ParseForest> parse, StackLink<StackNode, ParseForest> directLink);
+    public void directLinkFound(Parse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink);
 
     public void accept(StackNode acceptingStack);
 
@@ -63,13 +63,13 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
     public void addDerivation(ParseForest parseNode);
 
-    public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode, ParseForest>> forShifter);
+    public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter);
 
     public void remark(String remark);
 
-    public void success(ParseSuccess<StackNode, ParseForest, ?> success);
+    public void success(ParseSuccess<ParseForest, StackNode, ?> success);
 
-    public void failure(ParseFailure<StackNode, ParseForest, ?> failure);
+    public void failure(ParseFailure<ParseForest, StackNode, ?> failure);
 
     default String stackQueueToString(Iterable<StackNode> stacks) {
         String res = "";
@@ -97,10 +97,10 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
         return "[" + res + "]";
     }
 
-    default String forShifterQueueToString(Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
+    default String forShifterQueueToString(Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
         String res = "";
 
-        for(ForShifterElement<StackNode, ParseForest> forShifterElement : forShifter) {
+        for(ForShifterElement<ParseForest, StackNode> forShifterElement : forShifter) {
             if(res.isEmpty())
                 res += forShifterElementToString(forShifterElement);
             else
@@ -110,7 +110,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
         return "[" + res + "]";
     }
 
-    default String forShifterElementToString(ForShifterElement<StackNode, ParseForest> forShifterElement) {
+    default String forShifterElementToString(ForShifterElement<ParseForest, StackNode> forShifterElement) {
         return "{\"stack\":" + forShifterElement.stack.stackNumber + ",\"state\":" + forShifterElement.state.id() + "}";
     }
 

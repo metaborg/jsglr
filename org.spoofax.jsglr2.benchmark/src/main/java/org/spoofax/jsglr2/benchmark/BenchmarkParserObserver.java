@@ -17,15 +17,15 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.states.IState;
 
-public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
-    implements IParserObserver<StackNode, ParseForest> {
+public class BenchmarkParserObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    implements IParserObserver<ParseForest, StackNode> {
 
     @Override
-    public void parseStart(Parse<StackNode, ParseForest> parse) {
+    public void parseStart(Parse<ParseForest, StackNode> parse) {
     }
 
     @Override
-    public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
+    public void parseCharacter(Parse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
     }
 
     @Override
@@ -45,7 +45,7 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override
-    public void createStackLink(StackLink<StackNode, ParseForest> link) {
+    public void createStackLink(StackLink<ParseForest, StackNode> link) {
     }
 
     @Override
@@ -53,7 +53,7 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override
-    public void rejectStackLink(StackLink<StackNode, ParseForest> link) {
+    public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
     }
 
     @Override
@@ -65,7 +65,7 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override
-    public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions) {
+    public void actor(StackNode stack, Parse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions) {
     }
 
     @Override
@@ -73,16 +73,16 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override
-    public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement) {
+    public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {
     }
 
     @Override
-    public void doReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce) {
+    public void doReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
     }
 
     @Override
-    public void doLimitedReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce,
-        StackLink<StackNode, ParseForest> link) {
+    public void doLimitedReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+        StackLink<ParseForest, StackNode> link) {
     }
 
     @Override
@@ -94,7 +94,7 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override
-    public void directLinkFound(Parse<StackNode, ParseForest> parse, StackLink<StackNode, ParseForest> directLink) {
+    public void directLinkFound(Parse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink) {
     }
 
     @Override
@@ -118,7 +118,7 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override
-    public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
+    public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
     }
 
     @Override
@@ -126,11 +126,11 @@ public class BenchmarkParserObserver<StackNode extends AbstractStackNode<ParseFo
     }
 
     @Override
-    public void success(ParseSuccess<StackNode, ParseForest, ?> success) {
+    public void success(ParseSuccess<ParseForest, StackNode, ?> success) {
     }
 
     @Override
-    public void failure(ParseFailure<StackNode, ParseForest, ?> failure) {
+    public void failure(ParseFailure<ParseForest, StackNode, ?> failure) {
         throw new IllegalStateException("Failing parses not allowed during benchmarks");
     }
 

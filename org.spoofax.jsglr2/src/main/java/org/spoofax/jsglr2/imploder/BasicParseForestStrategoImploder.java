@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.tokenizer.BasicParseForestTokenizer;
 
 public class BasicParseForestStrategoImploder<StackNode extends AbstractStackNode<BasicParseForest>>
-    extends StrategoTermImploder<StackNode, BasicParseForest, SymbolNode, RuleNode> {
+    extends StrategoTermImploder<BasicParseForest, SymbolNode, RuleNode, StackNode> {
 
     public BasicParseForestStrategoImploder() {
         super(new BasicParseForestTokenizer());

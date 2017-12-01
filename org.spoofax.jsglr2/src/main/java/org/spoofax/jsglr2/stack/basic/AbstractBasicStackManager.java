@@ -7,14 +7,14 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.states.IState;
 
-public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicStackNode<ParseForest>, ParseForest extends AbstractParseForest>
-    extends StackManager<AbstractBasicStackNode<ParseForest>, ParseForest> {
+public abstract class AbstractBasicStackManager<ParseForest extends AbstractParseForest, StackNode extends AbstractBasicStackNode<ParseForest>>
+    extends StackManager<ParseForest, AbstractBasicStackNode<ParseForest>> {
 
     protected abstract StackNode createStackNode(int stackNumber, IState state, Position position);
 
     @Override
     public AbstractBasicStackNode<ParseForest>
-        createInitialStackNode(Parse<AbstractBasicStackNode<ParseForest>, ParseForest> parse, IState state) {
+        createInitialStackNode(Parse<ParseForest, AbstractBasicStackNode<ParseForest>> parse, IState state) {
         AbstractBasicStackNode<ParseForest> newStackNode =
             createStackNode(parse.stackNodeCount++, state, parse.currentPosition());
 
@@ -25,7 +25,7 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
 
     @Override
     public AbstractBasicStackNode<ParseForest>
-        createStackNode(Parse<AbstractBasicStackNode<ParseForest>, ParseForest> parse, IState state) {
+        createStackNode(Parse<ParseForest, AbstractBasicStackNode<ParseForest>> parse, IState state) {
         AbstractBasicStackNode<ParseForest> newStackNode =
             createStackNode(parse.stackNodeCount++, state, parse.currentPosition());
 
@@ -35,10 +35,10 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
     }
 
     @Override
-    public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> createStackLink(
-        Parse<AbstractBasicStackNode<ParseForest>, ParseForest> parse, AbstractBasicStackNode<ParseForest> from,
+    public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> createStackLink(
+        Parse<ParseForest, AbstractBasicStackNode<ParseForest>> parse, AbstractBasicStackNode<ParseForest> from,
         AbstractBasicStackNode<ParseForest> to, ParseForest parseNode) {
-        StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link =
+        StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link =
             from.addOutLink(parse.stackLinkCount++, to, parseNode);
 
         parse.notify(observer -> observer.createStackLink(link));
@@ -47,7 +47,7 @@ public abstract class AbstractBasicStackManager<StackNode extends AbstractBasicS
     }
 
     @Override
-    protected Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>>
+    protected Iterable<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>>
         stackLinksOut(AbstractBasicStackNode<ParseForest> stack) {
         return stack.getLinksOut();
     }

@@ -12,7 +12,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 public class BasicParseForestManager extends ParseForestManager<BasicParseForest, SymbolNode, RuleNode> {
 
     @Override
-    public SymbolNode createParseNode(Parse<?, BasicParseForest> parse, Position beginPosition, IProduction production,
+    public SymbolNode createParseNode(Parse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         RuleNode firstDerivation) {
         SymbolNode symbolNode =
             new SymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
@@ -50,7 +50,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public RuleNode createDerivation(Parse<?, BasicParseForest> parse, Position beginPosition, IProduction production,
+    public RuleNode createDerivation(Parse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         ProductionType productionType, BasicParseForest[] parseForests) {
         RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
             production, productionType, parseForests);
@@ -61,7 +61,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public void addDerivation(Parse<?, BasicParseForest> parse, SymbolNode symbolNode, RuleNode ruleNode) {
+    public void addDerivation(Parse<BasicParseForest, ?> parse, SymbolNode symbolNode, RuleNode ruleNode) {
         parse.notify(observer -> observer.addDerivation(symbolNode));
 
         boolean initNonAmbiguous = symbolNode.isAmbiguous();
@@ -73,7 +73,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public TermNode createCharacterNode(Parse<?, BasicParseForest> parse) {
+    public TermNode createCharacterNode(Parse<BasicParseForest, ?> parse) {
         TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
 
         parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));

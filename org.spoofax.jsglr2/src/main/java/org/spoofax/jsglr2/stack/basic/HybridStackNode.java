@@ -10,15 +10,15 @@ import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {
 
-    private StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> firstLinkOut;
-    private ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> otherLinksOut;
+    private StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> firstLinkOut;
+    private ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> otherLinksOut;
 
     public HybridStackNode(int stackNumber, IState state, Position position) {
         super(stackNumber, state, position);
     }
 
     @Override
-    public Iterable<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {
+    public Iterable<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinksOut() {
         if(otherLinksOut == null) {
             return Collections.singleton(firstLinkOut);
         } else {
@@ -27,8 +27,8 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
     }
 
     @Override
-    public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>
-        addOutLink(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link) {
+    public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>
+        addOutLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link) {
         if(firstLinkOut == null)
             firstLinkOut = link;
         else {
@@ -49,7 +49,7 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
         if(otherLinksOut == null)
             return true;
 
-        for(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link : otherLinksOut) {
+        for(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link : otherLinksOut) {
             if(!link.isRejected())
                 return false;
         }

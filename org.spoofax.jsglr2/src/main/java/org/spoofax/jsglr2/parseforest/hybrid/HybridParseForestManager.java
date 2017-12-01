@@ -12,7 +12,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 public class HybridParseForestManager extends ParseForestManager<HybridParseForest, ParseNode, Derivation> {
 
     @Override
-    public ParseNode createParseNode(Parse<?, HybridParseForest> parse, Position beginPosition, IProduction production,
+    public ParseNode createParseNode(Parse<HybridParseForest, ?> parse, Position beginPosition, IProduction production,
         Derivation firstDerivation) {
         ParseNode parseNode = new ParseNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
             production, firstDerivation);
@@ -49,7 +49,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     }
 
     @Override
-    public Derivation createDerivation(Parse<?, HybridParseForest> parse, Position beginPosition,
+    public Derivation createDerivation(Parse<HybridParseForest, ?> parse, Position beginPosition,
         IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         Derivation derivation = new Derivation(production, productionType, parseForests);
 
@@ -61,7 +61,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     }
 
     @Override
-    public void addDerivation(Parse<?, HybridParseForest> parse, ParseNode parseNode, Derivation derivation) {
+    public void addDerivation(Parse<HybridParseForest, ?> parse, ParseNode parseNode, Derivation derivation) {
         parse.notify(observer -> observer.addDerivation(parseNode));
 
         boolean initNonAmbiguous = parseNode.isAmbiguous();
@@ -73,7 +73,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     }
 
     @Override
-    public CharacterNode createCharacterNode(Parse<?, HybridParseForest> parse) {
+    public CharacterNode createCharacterNode(Parse<HybridParseForest, ?> parse) {
         CharacterNode characterNode =
             new CharacterNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
 

@@ -12,8 +12,8 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
 import org.spoofax.jsglr2.tokenizer.Tokens;
 
-public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, Tree>
-    implements IImploder<StackNode, ParseForest, Tree> {
+public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, StackNode extends AbstractStackNode<ParseForest>, Tree>
+    implements IImploder<ParseForest, StackNode, Tree> {
 
     protected final ITreeFactory<Tree> treeFactory;
     protected final Tokenizer<ParseForest, ParseNode, Derivation> tokenizer;
@@ -25,7 +25,7 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
     }
 
     @Override
-    public ImplodeResult<StackNode, ParseForest, Tree> implode(Parse<StackNode, ParseForest> parse,
+    public ImplodeResult<ParseForest, StackNode, Tree> implode(Parse<ParseForest, StackNode> parse,
         ParseForest parseForest) {
         Tokens tokens = new Tokens(parse.inputString, parse.filename);
 
@@ -37,10 +37,10 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
 
         tokenTreeBinding(tokens.getTokenAt(0), tree);
 
-        return new ImplodeResult<StackNode, ParseForest, Tree>(parse, tree);
+        return new ImplodeResult<ParseForest, StackNode, Tree>(parse, tree);
     }
 
-    protected Tree implodeParseNode(Parse<?, ParseForest> parse, ParseNode parseNode, IToken leftToken,
+    protected Tree implodeParseNode(Parse<ParseForest, ?> parse, ParseNode parseNode, IToken leftToken,
         IToken rightToken) {
         IProduction production = parseNodeProduction(parseNode);
 
@@ -69,7 +69,7 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
         }
     }
 
-    protected Tree implodeDerivation(Parse<?, ParseForest> parse, Derivation derivation, IToken leftToken,
+    protected Tree implodeDerivation(Parse<ParseForest, ?> parse, Derivation derivation, IToken leftToken,
         IToken rightToken) {
         IProduction production = derivation.production();
 
@@ -90,7 +90,7 @@ public abstract class TokenizedTreeImploder<StackNode extends AbstractStackNode<
         return resultAst;
     }
 
-    protected void implodeChildParseNodes(Parse<?, ParseForest> parse, List<Tree> childASTs, Derivation derivation,
+    protected void implodeChildParseNodes(Parse<ParseForest, ?> parse, List<Tree> childASTs, Derivation derivation,
         IProduction production, IToken leftToken, IToken rightToken, List<ParseForest> nonAstLexicals) {
         ParseForest[] childParseForests = derivation.parseForests();
 

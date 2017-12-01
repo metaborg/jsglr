@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -39,7 +40,7 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmark {
 
-    IParser<BasicStackNode<BasicParseForest>, BasicParseForest> parser;
+    IParser<BasicParseForest, BasicStackNode<BasicParseForest>> parser;
     ActorObserver actorObserver;
 
     protected JSGLR2StateApplicableActionsBenchmark(TestSet testSet) {
@@ -67,7 +68,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
             .read(testSetReader.getParseTableTerm());
 
-        parser = (IParser<BasicStackNode<BasicParseForest>, BasicParseForest>) JSGLR2Variants.getParser(parseTable,
+        parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
             ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 
         actorObserver = new ActorObserver();
@@ -99,13 +100,13 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     }
 
-    class ActorObserver extends BenchmarkParserObserver<BasicStackNode<BasicParseForest>, BasicParseForest> {
+    class ActorObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
 
         public List<ActorOnState> stateApplicableActions = new ArrayList<ActorOnState>();
 
         @Override
         public void actor(BasicStackNode<BasicParseForest> stack,
-            Parse<BasicStackNode<BasicParseForest>, BasicParseForest> parse, Iterable<IAction> applicableActions) {
+            Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse, Iterable<IAction> applicableActions) {
             ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);

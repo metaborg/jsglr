@@ -20,57 +20,57 @@ import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 
-public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
+public class JSGLR2<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>, AbstractSyntaxTree> {
 
-    public IParser<StackNode, ParseForest> parser;
-    public IImploder<StackNode, ParseForest, AbstractSyntaxTree> imploder;
+    public IParser<ParseForest, StackNode> parser;
+    public IImploder<ParseForest, StackNode, AbstractSyntaxTree> imploder;
 
     @SuppressWarnings("unchecked")
-    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>
+    public static JSGLR2<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IStrategoTerm>
         standard(IParseTable parseTable) throws ParseTableReadException {
-        return (JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>) JSGLR2Variants
+        return (JSGLR2<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IStrategoTerm>) JSGLR2Variants
             .getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized,
                 StackRepresentation.HybridElkhound, Reducing.Elkhound);
     }
 
-    public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>
+    public static JSGLR2<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IStrategoTerm>
         standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         IParseTable parseTable = new ParseTableReader().read(parseTableTerm);
 
         return standard(parseTable);
     }
 
-    public JSGLR2(IParser<StackNode, ParseForest> parser,
-        IImploder<StackNode, ParseForest, AbstractSyntaxTree> imploder) {
+    public JSGLR2(IParser<ParseForest, StackNode> parser,
+        IImploder<ParseForest, StackNode, AbstractSyntaxTree> imploder) {
         this.parser = parser;
         this.imploder = imploder;
     }
 
     public AbstractSyntaxTree parse(String input, String filename, String startSymbol) {
-        ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);
+        ParseResult<ParseForest, StackNode, ?> parseResult = parser.parse(input, filename, startSymbol);
 
         if(!parseResult.isSuccess)
             return null;
 
-        ParseSuccess<StackNode, ParseForest, ?> parseSuccess = (ParseSuccess<StackNode, ParseForest, ?>) parseResult;
+        ParseSuccess<ParseForest, StackNode, ?> parseSuccess = (ParseSuccess<ParseForest, StackNode, ?>) parseResult;
 
-        ImplodeResult<StackNode, ParseForest, AbstractSyntaxTree> implodeResult =
+        ImplodeResult<ParseForest, StackNode, AbstractSyntaxTree> implodeResult =
             imploder.implode(parseSuccess.parse, parseSuccess.parseResult);
 
         return implodeResult.ast;
     }
 
     @SuppressWarnings("unchecked")
-    public JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree> parseResult(String input, String filename,
+    public JSGLR2Result<ParseForest, StackNode, AbstractSyntaxTree> parseResult(String input, String filename,
         String startSymbol) {
-        ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);
+        ParseResult<ParseForest, StackNode, ?> parseResult = parser.parse(input, filename, startSymbol);
 
         if(!parseResult.isSuccess)
-            return (JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree>) parseResult;
+            return (JSGLR2Result<ParseForest, StackNode, AbstractSyntaxTree>) parseResult;
 
-        ParseSuccess<StackNode, ParseForest, ?> parseSuccess = (ParseSuccess<StackNode, ParseForest, ?>) parseResult;
+        ParseSuccess<ParseForest, StackNode, ?> parseSuccess = (ParseSuccess<ParseForest, StackNode, ?>) parseResult;
 
-        ImplodeResult<StackNode, ParseForest, AbstractSyntaxTree> implodeResult =
+        ImplodeResult<ParseForest, StackNode, AbstractSyntaxTree> implodeResult =
             imploder.implode(parseSuccess.parse, parseSuccess.parseResult);
 
         return implodeResult;
@@ -81,17 +81,17 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
 
     public AbstractSyntaxTree parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        ParseResult<StackNode, ParseForest, ?> result = parser.parse(input, filename, startSymbol);
+        ParseResult<ParseForest, StackNode, ?> result = parser.parse(input, filename, startSymbol);
 
         if(result.isSuccess) {
-            ParseSuccess<StackNode, ParseForest, ?> success = (ParseSuccess<StackNode, ParseForest, ?>) result;
+            ParseSuccess<ParseForest, StackNode, ?> success = (ParseSuccess<ParseForest, StackNode, ?>) result;
 
-            ImplodeResult<StackNode, ParseForest, AbstractSyntaxTree> implodeResult =
+            ImplodeResult<ParseForest, StackNode, AbstractSyntaxTree> implodeResult =
                 imploder.implode(success.parse, success.parseResult);
 
             return implodeResult.ast;
         } else {
-            ParseFailure<StackNode, ParseForest, ?> failure = (ParseFailure<StackNode, ParseForest, ?>) result;
+            ParseFailure<ParseForest, StackNode, ?> failure = (ParseFailure<ParseForest, StackNode, ?>) result;
 
             throw failure.parseException;
         }

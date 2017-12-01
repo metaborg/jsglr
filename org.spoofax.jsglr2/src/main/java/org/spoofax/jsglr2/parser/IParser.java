@@ -3,15 +3,15 @@ package org.spoofax.jsglr2.parser;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public interface IParser<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
+public interface IParser<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 
-    public ParseResult<StackNode, ParseForest, ?> parse(String input, String filename, String startSymbol);
+    public ParseResult<ParseForest, StackNode, ?> parse(String input, String filename, String startSymbol);
 
-    public default ParseResult<StackNode, ParseForest, ?> parse(String input, String filename) {
+    public default ParseResult<ParseForest, StackNode, ?> parse(String input, String filename) {
         return parse(input, filename, null);
     }
 
-    public default ParseResult<StackNode, ParseForest, ?> parse(String input) {
+    public default ParseResult<ParseForest, StackNode, ?> parse(String input) {
         return parse(input, "");
     }
 
@@ -20,14 +20,14 @@ public interface IParser<StackNode extends AbstractStackNode<ParseForest>, Parse
      * otherwise.
      */
     public default ParseForest parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        ParseResult<StackNode, ParseForest, ?> result = parse(input, filename, startSymbol);
+        ParseResult<ParseForest, StackNode, ?> result = parse(input, filename, startSymbol);
 
         if(result.isSuccess) {
-            ParseSuccess<StackNode, ParseForest, ?> success = (ParseSuccess<StackNode, ParseForest, ?>) result;
+            ParseSuccess<ParseForest, StackNode, ?> success = (ParseSuccess<ParseForest, StackNode, ?>) result;
 
             return success.parseResult;
         } else {
-            ParseFailure<StackNode, ParseForest, ?> failure = (ParseFailure<StackNode, ParseForest, ?>) result;
+            ParseFailure<ParseForest, StackNode, ?> failure = (ParseFailure<ParseForest, StackNode, ?>) result;
 
             throw failure.parseException;
         }
@@ -41,6 +41,6 @@ public interface IParser<StackNode extends AbstractStackNode<ParseForest>, Parse
         return parseUnsafe(input, "");
     }
 
-    public void attachObserver(IParserObserver<StackNode, ParseForest> observer);
+    public void attachObserver(IParserObserver<ParseForest, StackNode> observer);
 
 }

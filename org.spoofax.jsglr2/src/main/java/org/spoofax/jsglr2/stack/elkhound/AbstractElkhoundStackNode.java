@@ -17,32 +17,32 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractPars
         this.deterministicDepth = deterministicDepth;
     }
 
-    public abstract Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut();
+    public abstract Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksOut();
 
-    public abstract StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut();
+    public abstract StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> getOnlyLinkOut();
 
-    public abstract Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksIn();
+    public abstract Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksIn();
 
-    public abstract StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(
-        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link,
-        Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse);
+    public abstract StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addOutLink(
+        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link,
+        Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse);
 
-    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(int linkNumber,
+    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addOutLink(int linkNumber,
         AbstractElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
-        Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
-        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link =
-            new StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>(linkNumber, this, parent, parseNode);
+        Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
+        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link =
+            new StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>(linkNumber, this, parent, parseNode);
 
         return addOutLink(link, parse);
     }
 
-    protected abstract void addInLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link);
+    protected abstract void addInLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link);
 
     public void resetDeterministicDepth(int deterministicDepth) {
         if(deterministicDepth != 0) {
             this.deterministicDepth = deterministicDepth;
 
-            for(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
+            for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(deterministicDepth + 1);
         }
     }

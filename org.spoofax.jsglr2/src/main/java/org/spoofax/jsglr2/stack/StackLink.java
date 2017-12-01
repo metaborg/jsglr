@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.stack;
 
-public class StackLink<StackNode extends AbstractStackNode<ParseForest>, ParseForest> {
+public class StackLink<ParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 
     public final int linkNumber;
     public final StackNode from; // Farthest away from initial stack node

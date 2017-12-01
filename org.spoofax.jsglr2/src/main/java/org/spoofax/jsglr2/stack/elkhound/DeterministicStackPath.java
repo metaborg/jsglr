@@ -4,8 +4,8 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackPath;
 
-public class DeterministicStackPath<StackNode extends AbstractStackNode<ParseForest>, ParseForest>
-    extends StackPath<StackNode, ParseForest> {
+public class DeterministicStackPath<ParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    extends StackPath<ParseForest, StackNode> {
 
     public final ParseForest[] parseForests;
     private final StackNode head;
@@ -27,9 +27,9 @@ public class DeterministicStackPath<StackNode extends AbstractStackNode<ParseFor
     }
 
     @Override
-    public boolean contains(StackLink<StackNode, ParseForest> link) {
-        // We can (possibly incorrect) return false here since this method is only called in a non-LR context and this
-        // type of path is only used in the LR/Elkhound context
+    public boolean contains(StackLink<ParseForest, StackNode> link) {
+        // We can (possibly theoretically incorrect) return false here since this method is only called in a non-LR
+        // context and this type of path is only used in the LR/Elkhound context
         return false;
     }
 

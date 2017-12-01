@@ -11,10 +11,10 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 public final class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IForActorStacks<StackNode> {
 
-    private final Parse<StackNode, ParseForest> parse;
+    private final Parse<ParseForest, StackNode> parse;
     private final Queue<StackNode> forActor, forActorDelayed;
 
-    public ForActorStacks(Parse<StackNode, ParseForest> parse) {
+    public ForActorStacks(Parse<ParseForest, StackNode> parse) {
         this.parse = parse;
 
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {

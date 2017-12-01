@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.stack;
 
-public class EmptyStackPath<StackNode extends AbstractStackNode<ParseForest>, ParseForest>
-    extends StackPath<StackNode, ParseForest> {
+public class EmptyStackPath<ParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    extends StackPath<ParseForest, StackNode> {
 
     private final StackNode stackNode;
 
@@ -21,7 +21,7 @@ public class EmptyStackPath<StackNode extends AbstractStackNode<ParseForest>, Pa
     }
 
     @Override
-    public boolean contains(StackLink<StackNode, ParseForest> link) {
+    public boolean contains(StackLink<ParseForest, StackNode> link) {
         return false;
     }
 

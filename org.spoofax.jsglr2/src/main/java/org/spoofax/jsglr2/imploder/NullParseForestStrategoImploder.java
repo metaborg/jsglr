@@ -6,10 +6,10 @@ import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 public class NullParseForestStrategoImploder<StackNode extends AbstractStackNode<HybridParseForest>>
-    implements IImploder<StackNode, HybridParseForest, IStrategoTerm> {
+    implements IImploder<HybridParseForest, StackNode, IStrategoTerm> {
 
     @Override
-    public ImplodeResult<StackNode, HybridParseForest, IStrategoTerm> implode(Parse<StackNode, HybridParseForest> parse,
+    public ImplodeResult<HybridParseForest, StackNode, IStrategoTerm> implode(Parse<HybridParseForest, StackNode> parse,
         HybridParseForest parseForest) {
         return null;
     }

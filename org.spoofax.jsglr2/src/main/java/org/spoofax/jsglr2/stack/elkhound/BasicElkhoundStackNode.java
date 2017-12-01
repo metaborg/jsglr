@@ -12,36 +12,36 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
     extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
-    private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> linksOut =
-        new ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
+    private ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> linksOut =
+        new ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>();
 
     // Directed from the initial stack node
-    private ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> linksIn =
-        new ArrayList<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
+    private ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> linksIn =
+        new ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>();
 
     public BasicElkhoundStackNode(int stackNumber, IState state, Position position, int deterministicDepth) {
         super(stackNumber, state, position, deterministicDepth);
     }
 
     @Override
-    public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksOut() {
+    public Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksOut() {
         return linksOut;
     }
 
     @Override
-    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> getOnlyLinkOut() {
+    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> getOnlyLinkOut() {
         return linksOut.get(0);
     }
 
     @Override
-    public Iterable<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> getLinksIn() {
+    public Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksIn() {
         return linksIn;
     }
 
     @Override
-    public StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> addOutLink(
-        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link,
-        Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
+    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addOutLink(
+        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link,
+        Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
         linksOut.add(link);
 
         link.to.addInLink(link);
@@ -53,7 +53,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
 
             parse.notify(observer -> observer.resetDeterministicDepth(this));
 
-            for(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> linkIn : getLinksIn())
+            for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(1);
         } // We do not handle the case > 2, since the case == 2 already adjusted deterministic depths
 
@@ -61,7 +61,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    protected void addInLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
+    protected void addInLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link) {
         linksIn.add(link);
     }
 
@@ -70,7 +70,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         if(linksOut.isEmpty())
             return false;
 
-        for(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link : linksOut) {
+        for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link : linksOut) {
             if(!link.isRejected())
                 return false;
         }

@@ -13,7 +13,7 @@ import org.spoofax.jsglr2.parsetable.ProductionType;
 public class NullParseForestManager extends ParseForestManager<HybridParseForest, ParseNode, Derivation> {
 
     @Override
-    public ParseNode createParseNode(Parse<?, HybridParseForest> parse, Position beginPosition, IProduction production,
+    public ParseNode createParseNode(Parse<HybridParseForest, ?> parse, Position beginPosition, IProduction production,
         Derivation firstDerivation) {
         return null;
     }
@@ -24,17 +24,17 @@ public class NullParseForestManager extends ParseForestManager<HybridParseForest
     }
 
     @Override
-    public Derivation createDerivation(Parse<?, HybridParseForest> parse, Position beginPosition,
+    public Derivation createDerivation(Parse<HybridParseForest, ?> parse, Position beginPosition,
         IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         return null;
     }
 
     @Override
-    public void addDerivation(Parse<?, HybridParseForest> parse, ParseNode parseNode, Derivation derivation) {
+    public void addDerivation(Parse<HybridParseForest, ?> parse, ParseNode parseNode, Derivation derivation) {
     }
 
     @Override
-    public CharacterNode createCharacterNode(Parse<?, HybridParseForest> parse) {
+    public CharacterNode createCharacterNode(Parse<HybridParseForest, ?> parse) {
         return null;
     }
 

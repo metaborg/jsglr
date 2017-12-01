@@ -20,16 +20,16 @@ import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.states.IState;
 
 public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
-    implements IParserObserver<AbstractElkhoundStackNode<ParseForest>, ParseForest> {
+    implements IParserObserver<ParseForest, AbstractElkhoundStackNode<ParseForest>> {
 
     public int length = 0;
-    Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse;
+    Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse;
 
     Set<AbstractElkhoundStackNode<ParseForest>> stackNodes = new HashSet<AbstractElkhoundStackNode<ParseForest>>();
-    Set<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> stackLinks =
-        new HashSet<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
-    Set<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>> stackLinksRejected =
-        new HashSet<StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest>>();
+    Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinks =
+        new HashSet<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>();
+    Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinksRejected =
+        new HashSet<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>();
 
     Set<Actor> actors = new HashSet<Actor>();
 
@@ -69,14 +69,14 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public void parseStart(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse) {
+    public void parseStart(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
         this.parse = parse;
 
         length += parse.inputLength;
     }
 
     @Override
-    public void parseCharacter(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
+    public void parseCharacter(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
         Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
     }
 
@@ -98,7 +98,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public void createStackLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
+    public void createStackLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link) {
         stackLinks.add(link);
     }
 
@@ -108,7 +108,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public void rejectStackLink(StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> link) {
+    public void rejectStackLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link) {
         stackLinksRejected.add(link);
     }
 
@@ -123,7 +123,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
 
     @Override
     public void actor(AbstractElkhoundStackNode<ParseForest> stack,
-        Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse, Iterable<IAction> applicableActions) {
+        Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse, Iterable<IAction> applicableActions) {
         actors.add(new Actor(stack, applicableActions));
     }
 
@@ -133,11 +133,11 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
 
     @Override
     public void
-        addForShifter(ForShifterElement<AbstractElkhoundStackNode<ParseForest>, ParseForest> forShifterElement) {
+        addForShifter(ForShifterElement<ParseForest, AbstractElkhoundStackNode<ParseForest>> forShifterElement) {
     }
 
     @Override
-    public void doReductions(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
+    public void doReductions(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce) {
         doReductions++;
 
@@ -152,9 +152,9 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public void doLimitedReductions(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
+    public void doLimitedReductions(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
-        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> throughLink) {
+        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> throughLink) {
         doLimitedReductions++;
     }
 
@@ -171,8 +171,8 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public void directLinkFound(Parse<AbstractElkhoundStackNode<ParseForest>, ParseForest> parse,
-        StackLink<AbstractElkhoundStackNode<ParseForest>, ParseForest> directLink) {
+    public void directLinkFound(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
+        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> directLink) {
     }
 
     @Override
@@ -199,7 +199,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
 
     @Override
     public void shifter(ParseForest termNode,
-        Queue<ForShifterElement<AbstractElkhoundStackNode<ParseForest>, ParseForest>> forShifter) {
+        Queue<ForShifterElement<ParseForest, AbstractElkhoundStackNode<ParseForest>>> forShifter) {
     }
 
     @Override
@@ -207,11 +207,11 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public void success(ParseSuccess<AbstractElkhoundStackNode<ParseForest>, ParseForest, ?> success) {
+    public void success(ParseSuccess<ParseForest, AbstractElkhoundStackNode<ParseForest>, ?> success) {
     }
 
     @Override
-    public void failure(ParseFailure<AbstractElkhoundStackNode<ParseForest>, ParseForest, ?> failure) {
+    public void failure(ParseFailure<ParseForest, AbstractElkhoundStackNode<ParseForest>, ?> failure) {
         throw new IllegalStateException("Failing parses not allowed during measurements");
     }
 

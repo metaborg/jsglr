@@ -55,8 +55,8 @@ public class ParsingMeasurements extends Measurements {
         csvHeader(out);
 
         for(TestSetReader.InputBatch inputBatch : testSetReader.getInputBatches()) {
-            @SuppressWarnings("unchecked") Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation> parser =
-                (Parser<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, ParseNode, Derivation>) JSGLR2Variants
+            @SuppressWarnings("unchecked") Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>> parser =
+                (Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>>) JSGLR2Variants
                     .getParser(parseTable, variant);
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();

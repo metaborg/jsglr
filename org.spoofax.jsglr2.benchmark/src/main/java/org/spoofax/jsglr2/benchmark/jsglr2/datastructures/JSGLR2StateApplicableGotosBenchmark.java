@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -34,7 +35,7 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark {
 
-    IParser<BasicStackNode<BasicParseForest>, BasicParseForest> parser;
+    IParser<BasicParseForest, BasicStackNode<BasicParseForest>> parser;
     GotoObserver gotoObserver;
 
     protected JSGLR2StateApplicableGotosBenchmark(TestSet testSet) {
@@ -52,7 +53,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
         IParseTable parseTable = new ParseTableReader(stateFactory).read(testSetReader.getParseTableTerm());
 
-        parser = (IParser<BasicStackNode<BasicParseForest>, BasicParseForest>) JSGLR2Variants.getParser(parseTable,
+        parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
             ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 
         gotoObserver = new GotoObserver();
@@ -83,7 +84,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
     }
 
-    class GotoObserver extends BenchmarkParserObserver<BasicStackNode<BasicParseForest>, BasicParseForest> {
+    class GotoObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
 
         public List<GotoLookup> gotoLookups = new ArrayList<GotoLookup>();
 

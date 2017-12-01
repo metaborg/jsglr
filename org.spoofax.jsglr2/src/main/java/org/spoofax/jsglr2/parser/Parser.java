@@ -17,38 +17,38 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.states.IState;
 
-public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>
-    implements IParser<StackNode, ParseForest> {
+public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
+    implements IParser<ParseForest, StackNode> {
 
     private final IParseTable parseTable;
-    private final StackManager<StackNode, ParseForest> stackManager;
+    private final StackManager<ParseForest, StackNode> stackManager;
     private final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
-    private final ReduceManager<StackNode, ParseForest, ParseNode, Derivation> reducer;
-    private final List<IParserObserver<StackNode, ParseForest>> observers;
+    private final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reducer;
+    private final List<IParserObserver<ParseForest, StackNode>> observers;
 
-    public Parser(IParseTable parseTable, StackManager<StackNode, ParseForest> stackManager,
+    public Parser(IParseTable parseTable, StackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reducer = new ReduceManager<StackNode, ParseForest, ParseNode, Derivation>(parseTable, stackManager,
+        this.reducer = new ReduceManager<ParseForest, ParseNode, Derivation, StackNode>(parseTable, stackManager,
             parseForestManager, ParseForestConstruction.Full);
-        this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
+        this.observers = new ArrayList<IParserObserver<ParseForest, StackNode>>();
     }
 
-    public Parser(IParseTable parseTable, StackManager<StackNode, ParseForest> stackManager,
+    public Parser(IParseTable parseTable, StackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ReduceManager<StackNode, ParseForest, ParseNode, Derivation> reducer) {
+        ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reducer) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
         this.reducer = reducer;
-        this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>();
+        this.observers = new ArrayList<IParserObserver<ParseForest, StackNode>>();
     }
 
     @Override
-    public ParseResult<StackNode, ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
-        Parse<StackNode, ParseForest> parse = new Parse<StackNode, ParseForest>(inputString, filename, observers);
+    public ParseResult<ParseForest, StackNode, ?> parse(String inputString, String filename, String startSymbol) {
+        Parse<ParseForest, StackNode> parse = new Parse<ParseForest, StackNode>(inputString, filename, observers);
 
         notify(observer -> observer.parseStart(parse));
 
@@ -63,7 +63,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
                 parse.next();
             }
 
-            ParseResult<StackNode, ParseForest, ?> result;
+            ParseResult<ParseForest, StackNode, ?> result;
 
             if(parse.acceptingStack != null) {
                 ParseForest parseForest =
@@ -74,13 +74,13 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
                 if(parseForest != null && parseForestWithStartSymbol == null)
                     throw new ParseException("invalid start symbol");
 
-                ParseSuccess<StackNode, ParseForest, ?> success = new ParseSuccess<>(parse, parseForestWithStartSymbol);
+                ParseSuccess<ParseForest, StackNode, ?> success = new ParseSuccess<>(parse, parseForestWithStartSymbol);
 
                 notify(observer -> observer.success(success));
 
                 result = success;
             } else {
-                ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure<>(parse,
+                ParseFailure<ParseForest, StackNode, ?> failure = new ParseFailure<>(parse,
                     new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
                         + "/'" + ICharacterClass.intToString(parse.currentChar) + "', position: "
                         + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
@@ -93,7 +93,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 
             return result;
         } catch(ParseException parseException) {
-            ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure<>(parse, parseException);
+            ParseFailure<ParseForest, StackNode, ?> failure = new ParseFailure<>(parse, parseException);
 
             notify(observer -> observer.failure(failure));
 
@@ -101,7 +101,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         }
     }
 
-    private void parseCharacter(Parse<StackNode, ParseForest> parse, int character) {
+    private void parseCharacter(Parse<ParseForest, StackNode> parse, int character) {
         notify(observer -> observer.parseCharacter(parse, parse.activeStacks));
 
         parse.activeStacks.addAllTo(parse.forActorStacks);
@@ -124,7 +124,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         shifter(parse);
     }
 
-    private void actor(StackNode stack, Parse<StackNode, ParseForest> parse, int character) {
+    private void actor(StackNode stack, Parse<ParseForest, StackNode> parse, int character) {
         notify(observer -> observer.actor(stack, parse, stack.state.getActions(character)));
 
         // Use for loop here rather than IState::applicableActions since it is faster
@@ -161,14 +161,14 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         }
     }
 
-    private void shifter(Parse<StackNode, ParseForest> parse) {
+    private void shifter(Parse<ParseForest, StackNode> parse) {
         parse.activeStacks.clear();
 
         ParseForest characterNode = parseForestManager.createCharacterNode(parse);
 
         notify(observer -> observer.shifter(characterNode, parse.forShifter));
 
-        for(ForShifterElement<StackNode, ParseForest> forShifterElement : parse.forShifter) {
+        for(ForShifterElement<ParseForest, StackNode> forShifterElement : parse.forShifter) {
             StackNode activeStackForState = parse.activeStacks.findWithState(forShifterElement.state);
 
             if(activeStackForState != null) {
@@ -183,9 +183,9 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         }
     }
 
-    private void addForShifter(Parse<StackNode, ParseForest> parse, StackNode stack, IState shiftState) {
-        ForShifterElement<StackNode, ParseForest> forShifterElement =
-            new ForShifterElement<StackNode, ParseForest>(stack, shiftState);
+    private void addForShifter(Parse<ParseForest, StackNode> parse, StackNode stack, IState shiftState) {
+        ForShifterElement<ParseForest, StackNode> forShifterElement =
+            new ForShifterElement<ParseForest, StackNode>(stack, shiftState);
 
         notify(observer -> observer.addForShifter(forShifterElement));
 
@@ -193,12 +193,12 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
 
     @Override
-    public void attachObserver(IParserObserver<StackNode, ParseForest> observer) {
+    public void attachObserver(IParserObserver<ParseForest, StackNode> observer) {
         observers.add(observer);
     }
 
-    private void notify(IParserNotification<StackNode, ParseForest> notification) {
-        for(IParserObserver<StackNode, ParseForest> observer : observers)
+    private void notify(IParserNotification<ParseForest, StackNode> notification) {
+        for(IParserObserver<ParseForest, StackNode> observer : observers)
             notification.notify(observer);
     }
 

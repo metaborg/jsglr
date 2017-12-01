@@ -13,16 +13,16 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.states.IState;
 
-public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
-    implements IParserObserver<StackNode, ParseForest> {
+public class ParserLogObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    implements IParserObserver<ParseForest, StackNode> {
 
     @Override
-    public void parseStart(Parse<StackNode, ParseForest> parse) {
+    public void parseStart(Parse<ParseForest, StackNode> parse) {
         log("\n  ---  Starting parse for input '" + parse.inputString + "'  ---\n");
     }
 
     @Override
-    public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
+    public void parseCharacter(Parse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
         log("Parse character '" + ICharacterClass.intToString(parse.currentChar) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")");
     }
@@ -45,7 +45,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override
-    public void createStackLink(StackLink<StackNode, ParseForest> link) {
+    public void createStackLink(StackLink<ParseForest, StackNode> link) {
         log("Create link " + link.linkNumber + " from stack " + link.from.stackNumber + " to stack "
             + link.to.stackNumber + " with parse node " + link.parseForest.nodeNumber);
     }
@@ -56,7 +56,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override
-    public void rejectStackLink(StackLink<StackNode, ParseForest> link) {
+    public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
         log("Reject link " + link.linkNumber);
     }
 
@@ -70,7 +70,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override
-    public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions) {
+    public void actor(StackNode stack, Parse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions) {
         log("Actor for stack " + stack.stackNumber + " (applicable actions: "
             + applicableActionsToString(applicableActions) + ")");
     }
@@ -81,17 +81,17 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override
-    public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement) {
+    public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {
         log("Add for shifter " + forShifterElementToString(forShifterElement));
     }
 
     @Override
-    public void doReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce) {
+    public void doReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
     }
 
     @Override
-    public void doLimitedReductions(Parse<StackNode, ParseForest> parse, StackNode stack, IReduce reduce,
-        StackLink<StackNode, ParseForest> link) {
+    public void doLimitedReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+        StackLink<ParseForest, StackNode> link) {
     }
 
     @Override
@@ -108,7 +108,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override
-    public void directLinkFound(Parse<StackNode, ParseForest> parse, StackLink<StackNode, ParseForest> directLink) {
+    public void directLinkFound(Parse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink) {
         log("Direct link " + (directLink != null ? directLink.linkNumber : "not") + " found");
     }
 
@@ -139,7 +139,7 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override
-    public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
+    public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
         log("Shifter for elements " + forShifterQueueToString(forShifter) + " with character node "
             + termNode.nodeNumber);
     }
@@ -150,12 +150,12 @@ public class ParserLogObserver<StackNode extends AbstractStackNode<ParseForest>,
     }
 
     @Override
-    public void success(ParseSuccess<StackNode, ParseForest, ?> success) {
+    public void success(ParseSuccess<ParseForest, StackNode, ?> success) {
         log("Parsing succeeded. Result: " + success.parseResult.toString());
     }
 
     @Override
-    public void failure(ParseFailure<StackNode, ParseForest, ?> failure) {
+    public void failure(ParseFailure<ParseForest, StackNode, ?> failure) {
         log("Parsing failed");
     }
 

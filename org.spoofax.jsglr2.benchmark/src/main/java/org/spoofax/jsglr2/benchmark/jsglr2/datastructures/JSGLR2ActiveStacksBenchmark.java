@@ -1,44 +1,27 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
-import org.spoofax.jsglr.client.InvalidParseTableException;
-import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
-import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
-import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
-import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.IForActorStacks;
-import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.IParseTable;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.ActiveStacks;
 import org.spoofax.jsglr2.stack.IActiveStacks;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.states.IState;
-import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
+public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBenchmark {
 
-    IParser<BasicParseForest, BasicStackNode<BasicParseForest>> parser;
     ActiveStacksObserver activeStacksObserver;
 
     protected JSGLR2ActiveStacksBenchmark(TestSet testSet) {
@@ -49,29 +32,15 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
         ArrayList
     }
 
-    @Param({ "ArrayList" }) public Representation representation;
+    @Param public Representation representation;
 
     IActiveStacks<BasicStackNode<BasicParseForest>> activeStacks;
 
-    @SuppressWarnings("unchecked")
-    @Setup
-    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
-        InterruptedException, URISyntaxException {
-        IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
-
-        parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
-            ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
-
+    @Override
+    public void postParserSetup() {
         activeStacksObserver = new ActiveStacksObserver();
 
         parser.attachObserver(activeStacksObserver);
-
-        try {
-            for(Input input : inputs)
-                parser.parseUnsafe(input.content, input.filename, null);
-        } catch(ParseException e) {
-            throw new IllegalStateException("setup of benchmark should not fail");
-        }
 
         switch(representation) {
             case ArrayList:

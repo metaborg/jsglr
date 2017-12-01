@@ -2,6 +2,9 @@ package org.spoofax.jsglr2.actions;
 
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 
+/*
+ * Basically a tuple of a character class and an action.
+ */
 public final class ActionForCharacterClass {
 
     public final ICharacterClass characterClass;

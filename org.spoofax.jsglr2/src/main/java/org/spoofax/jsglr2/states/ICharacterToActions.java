@@ -18,7 +18,7 @@ public interface ICharacterToActions {
     Iterable<IAction> getActions(int character);
 
     /*
-     * Returns reduce actions applicable to the given character.
+     * Returns reduce actions (possibly with lookahead) applicable to the given character.
      */
     Iterable<IReduce> getReduceActions(Parse parse);
 

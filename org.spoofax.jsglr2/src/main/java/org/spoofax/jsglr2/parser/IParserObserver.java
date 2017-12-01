@@ -89,28 +89,12 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
 
         for(IAction action : applicableActions) {
             if(res.isEmpty())
-                res += actionToString(action);
+                res += action.toString();
             else
-                res += "," + actionToString(action);
+                res += "," + action.toString();
         }
 
         return "[" + res + "]";
-    }
-
-    default String actionToString(IAction action) {
-        switch(action.actionType()) {
-            case ACCEPT:
-                return "accept";
-            case REDUCE:
-                IReduce reduce = ((IReduce) action);
-
-                return "reduce(" + reduce.production().id() + "/" + reduce.productionType() + ")";
-            case REDUCE_LOOKAHEAD:
-                return "reduce_la";
-            case SHIFT:
-                return "shift";
-        }
-        return null;
     }
 
     default String forShifterQueueToString(Queue<ForShifterElement<StackNode, ParseForest>> forShifter) {
@@ -127,8 +111,7 @@ public interface IParserObserver<StackNode extends AbstractStackNode<ParseForest
     }
 
     default String forShifterElementToString(ForShifterElement<StackNode, ParseForest> forShifterElement) {
-        return "{\"stack\":" + forShifterElement.stack.stackNumber + ",\"state\":"
-            + forShifterElement.state.id() + "}";
+        return "{\"stack\":" + forShifterElement.stack.stackNumber + ",\"state\":" + forShifterElement.state.id() + "}";
     }
 
     default String parseForestListToString(ParseForest[] parseForests) {

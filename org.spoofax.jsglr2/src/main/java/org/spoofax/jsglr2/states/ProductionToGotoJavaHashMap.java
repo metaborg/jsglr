@@ -16,7 +16,7 @@ public class ProductionToGotoJavaHashMap implements IProductionToGoto {
         for(IGoto gotoAction : gotos) {
             int gotoStateId = gotoAction.gotoStateId();
 
-            IntStream.of(gotoAction.productions()).forEach(productionId -> {
+            IntStream.of(gotoAction.productionIds()).forEach(productionId -> {
                 productionToGoto.put(productionId, gotoStateId);
             });
         }

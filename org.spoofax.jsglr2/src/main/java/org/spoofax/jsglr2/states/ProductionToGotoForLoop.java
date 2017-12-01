@@ -12,7 +12,7 @@ public class ProductionToGotoForLoop implements IProductionToGoto {
 
     @Override public boolean contains(int productionId) {
         for(IGoto gotoAction : gotos) {
-            for(int gotoActionProductionId : gotoAction.productions())
+            for(int gotoActionProductionId : gotoAction.productionIds())
                 if(gotoActionProductionId == productionId)
                     return true;
         }
@@ -22,7 +22,7 @@ public class ProductionToGotoForLoop implements IProductionToGoto {
 
     @Override public int get(int productionId) {
         for(IGoto gotoAction : gotos) {
-            for(int gotoActionProductionId : gotoAction.productions())
+            for(int gotoActionProductionId : gotoAction.productionIds())
                 if(gotoActionProductionId == productionId)
                     return gotoAction.gotoStateId();
         }

@@ -8,7 +8,7 @@ public class Shift implements IShift {
         this.shiftStateId = shiftStateId;
     }
 
-    @Override public int shiftStateId() {
+    @Override public final int shiftStateId() {
         return shiftStateId;
     }
 

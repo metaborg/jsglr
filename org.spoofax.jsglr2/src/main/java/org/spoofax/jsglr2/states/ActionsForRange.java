@@ -3,10 +3,8 @@ package org.spoofax.jsglr2.states;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.spoofax.jsglr2.actions.ActionType;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
 
@@ -35,17 +33,12 @@ public class ActionsForRange {
         };
     }
 
-    public final Iterable<IReduce> getReduceActions(Parse parse) {
+    public final Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 
-            private boolean actionApplies(IAction action) {
-                return action.actionType() == ActionType.REDUCE || (action.actionType() == ActionType.REDUCE_LOOKAHEAD
-                    && ((IReduceLookahead) action).allowsLookahead(parse));
-            }
-
             @Override public boolean hasNext() {
-                while(index < actions.length && !actionApplies(actions[index])) {
+                while(index < actions.length && !IReduce.isApplicableReduce(actions[index], parse)) {
                     index++;
                 }
                 return index < actions.length;

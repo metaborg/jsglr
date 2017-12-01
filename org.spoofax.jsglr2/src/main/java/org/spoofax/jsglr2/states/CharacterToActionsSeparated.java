@@ -3,14 +3,11 @@ package org.spoofax.jsglr2.states;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.spoofax.jsglr2.actions.ActionForCharacterClass;
-import org.spoofax.jsglr2.actions.ActionType;
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.parser.Parse;
 
 public final class CharacterToActionsSeparated implements ICharacterToActions {
@@ -52,9 +49,6 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
             }
 
             @Override public IAction next() {
-                if(!hasNext()) {
-                    throw new NoSuchElementException();
-                }
                 return actions[index++].action;
             }
         };
@@ -66,18 +60,13 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
 
             @Override public boolean hasNext() {
                 while(index < actions.length && !(actions[index].appliesTo(parse.currentChar)
-                    && (actions[index].action.actionType() == ActionType.REDUCE
-                        || (actions[index].action.actionType() == ActionType.REDUCE_LOOKAHEAD
-                            && ((IReduceLookahead) actions[index].action).allowsLookahead(parse))))) {
+                    && IReduce.isApplicableReduce(actions[index].action, parse))) {
                     index++;
                 }
                 return index < actions.length;
             }
 
             @Override public IReduce next() {
-                if(!hasNext()) {
-                    throw new NoSuchElementException();
-                }
                 return (IReduce) actions[index++].action;
             }
         };

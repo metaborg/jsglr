@@ -4,16 +4,16 @@ import java.util.Arrays;
 
 public class Goto implements IGoto {
 
-    private final int[] productions;
+    private final int[] productionIds;
     private final int gotoStateId;
 
-    public Goto(int[] productions, int gotoState) {
-        this.productions = productions;
+    public Goto(int[] productionIds, int gotoState) {
+        this.productionIds = productionIds;
         this.gotoStateId = gotoState;
     }
 
-    @Override public int[] productions() {
-        return productions;
+    @Override public int[] productionIds() {
+        return productionIds;
     }
 
     @Override public int gotoStateId() {
@@ -25,7 +25,7 @@ public class Goto implements IGoto {
     }
 
     @Override public int hashCode() {
-        return (int) productions.hashCode() ^ gotoStateId;
+        return (int) productionIds.hashCode() ^ gotoStateId;
     }
 
     @Override public boolean equals(Object o) {
@@ -38,7 +38,7 @@ public class Goto implements IGoto {
 
         Goto that = (Goto) o;
 
-        return gotoStateId == that.gotoStateId && Arrays.equals(productions, that.productions);
+        return gotoStateId == that.gotoStateId && Arrays.equals(productionIds, that.productionIds);
     }
 
 }

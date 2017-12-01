@@ -16,7 +16,7 @@ public class ProductionToGotoCapsuleBinaryRelationImmutable implements IProducti
         for(IGoto gotoAction : gotos) {
             int gotoStateId = gotoAction.gotoStateId();
 
-            IntStream.of(gotoAction.productions()).forEach(productionId -> {
+            IntStream.of(gotoAction.productionIds()).forEach(productionId -> {
                 tmpProductionToGoto.__put(productionId, gotoStateId);
             });
         }

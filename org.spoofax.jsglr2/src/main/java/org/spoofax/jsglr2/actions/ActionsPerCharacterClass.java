@@ -5,6 +5,10 @@ import java.util.List;
 
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 
+/*
+ * Groups a set of actions that are applicable to a single character class. This is the representation that maps
+ * one-on-one to the representation from the original ATerm parse table format.
+ */
 public final class ActionsPerCharacterClass {
 
     public final ICharacterClass characterClass;

@@ -25,6 +25,8 @@ public class Reduce implements IReduce {
          * assert !(production.productionType() == ProductionType.REJECT || production.productionType() ==
          * ProductionType.PREFER || production.productionType() == ProductionType.AVOID) || production.productionType()
          * == productionType;
+         * 
+         * Since this bug is not fixed yet, IProduction::productionType is not present in the interface.
          */
     }
 

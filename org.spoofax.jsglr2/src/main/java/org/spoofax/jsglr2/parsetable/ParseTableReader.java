@@ -284,10 +284,10 @@ public class ParseTableReader {
     // Mark states that are reachable by a reject production as rejectable. "Reachable" means the parser could
     // transition into such state by means of a goto action after reducing a production.
     private void markRejectableStates(IState[] states) {
-        final Set.Immutable<Integer> rejectProductionIds =
-            Stream.of(states).flatMap(state -> Stream.of(((State) state).actions()))
-                .filter(IAction::typeMatchesReduceOrReduceLookahead).map(IReduce.class::cast).map(IReduce::production)
-                .filter(IProduction::typeMatchesReject).map(IProduction::id).collect(CapsuleCollectors.toSet());
+        final Set.Immutable<Integer> rejectProductionIds = Stream.of(states)
+            .flatMap(state -> Stream.of(((State) state).actions())).filter(IAction::typeMatchesReduceOrReduceLookahead)
+            .map(IReduce.class::cast).filter(IReduce::isRejectProduction).map(IReduce::production).map(IProduction::id)
+            .collect(CapsuleCollectors.toSet());
 
         final Set.Immutable<Integer> rejectableStateIds =
             Stream.of(states).flatMap(state -> rejectProductionIds.stream().filter(rejectProductionId -> {

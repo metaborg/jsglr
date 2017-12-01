@@ -66,11 +66,6 @@ public class Production implements IProduction {
     }
 
     @Override
-    public ProductionType productionType() {
-        return attributes.type;
-    }
-
-    @Override
     public String sort() {
         return sort;
     }

@@ -118,6 +118,7 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
 
     }
 
+    @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
         for(ParseRound parseRound : forShifterObserver.parseRounds) {
             forShifter.clear();

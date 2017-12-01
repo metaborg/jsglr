@@ -113,6 +113,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     }
 
+    @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
         for(ActorOnState stateApplicableActions : actorObserver.stateApplicableActions)
             stateApplicableActions.iterateOverApplicableActions(bh);

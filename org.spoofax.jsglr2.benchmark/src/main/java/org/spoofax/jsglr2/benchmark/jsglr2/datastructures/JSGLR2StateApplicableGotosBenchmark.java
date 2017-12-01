@@ -95,6 +95,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
     }
 
+    @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
         for(GotoLookup gotoLookup : gotoObserver.gotoLookups)
             bh.consume(gotoLookup.execute());

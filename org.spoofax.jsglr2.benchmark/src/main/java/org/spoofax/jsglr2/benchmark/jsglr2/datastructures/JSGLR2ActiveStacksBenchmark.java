@@ -155,6 +155,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends BaseBenchmark {
 
     }
 
+    @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
 
         for(ActiveStacksOperation activeStacksOperation : activeStacksObserver.operations) {

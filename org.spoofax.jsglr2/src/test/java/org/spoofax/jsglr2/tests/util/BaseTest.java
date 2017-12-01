@@ -65,7 +65,7 @@ public abstract class BaseTest {
         } catch(ParseTableReadException e) {
             e.printStackTrace();
 
-            fail();
+            fail("ParseTableReadException: " + e.getMessage());
 
             return null;
         }

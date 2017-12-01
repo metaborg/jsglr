@@ -325,19 +325,11 @@ public class ProductionReader {
                         type = ProductionType.AVOID;
                         break;
                     case "bracket":
-                        type = ProductionType.BRACKET;
-                        isBracket = true;
+                        // Irrelevant during parsing/imploding thus we ignore it here.
                         break;
                     case "assoc":
-                        IStrategoNamed associativityAtttributeTermNamed =
-                            (IStrategoNamed) attributeTermNamed.getSubterm(0);
-                        String associativityName = associativityAtttributeTermNamed.getName();
-
-                        if(associativityName.equals("left") || associativityName.equals("assoc")) {
-                            type = ProductionType.LEFT_ASSOCIATIVE;
-                        } else if(associativityName.equals("right")) {
-                            type = ProductionType.RIGHT_ASSOCIATIVE;
-                        }
+                        // This attribute is used to indicate left/right/assoc associativity. Since this is irrelevant
+                        // during parsing/imploding we ignore it here.
                         break;
                     case "term":
                         if(attributeTermNamed.getSubterm(0) instanceof IStrategoNamed) {

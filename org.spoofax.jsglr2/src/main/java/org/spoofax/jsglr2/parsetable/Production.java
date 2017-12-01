@@ -48,18 +48,16 @@ public class Production implements IProduction {
 
     public static ProductionType typeFromInt(int productionType) {
         switch(productionType) {
+            /*
+             * During parsing we don't need the types 3 (BRACKET), 5 (LEFT_ASSOCIATIVE) and 6 (RIGHT_ASSOCIATIVE) and
+             * thus ignore them here.
+             */
             case 1:
                 return ProductionType.REJECT;
             case 2:
                 return ProductionType.PREFER;
-            case 3:
-                return ProductionType.BRACKET;
             case 4:
                 return ProductionType.AVOID;
-            case 5:
-                return ProductionType.LEFT_ASSOCIATIVE;
-            case 6:
-                return ProductionType.RIGHT_ASSOCIATIVE;
             default:
                 return ProductionType.NO_TYPE;
         }

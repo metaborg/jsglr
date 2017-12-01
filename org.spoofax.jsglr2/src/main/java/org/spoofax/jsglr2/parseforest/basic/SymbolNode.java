@@ -12,7 +12,7 @@ public class SymbolNode extends BasicParseForest {
     public final IProduction production;
     private final List<RuleNode> derivations;
 
-    public SymbolNode(int nodeNumber, Parse parse, Position startPosition, Position endPosition,
+    public SymbolNode(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition,
         IProduction production) {
         super(nodeNumber, parse, startPosition, endPosition);
         this.production = production;

@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -22,14 +21,14 @@ import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.states.ActionsPerCharacterClassRepresentation;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.IStateFactory;
@@ -40,7 +39,7 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmark {
 
-    IParser<?, ?> parser;
+    IParser<BasicStackNode<BasicParseForest>, BasicParseForest> parser;
     ActorObserver actorObserver;
 
     protected JSGLR2StateApplicableActionsBenchmark(TestSet testSet) {
@@ -55,6 +54,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     @Param ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation;
 
+    @SuppressWarnings("unchecked")
     @Setup
     public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {
@@ -67,8 +67,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
         IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
             .read(testSetReader.getParseTableTerm());
 
-        parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
-            StackRepresentation.Basic, Reducing.Basic);
+        parser = (IParser<BasicStackNode<BasicParseForest>, BasicParseForest>) JSGLR2Variants.getParser(parseTable,
+            ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 
         actorObserver = new ActorObserver();
 
@@ -99,13 +99,13 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     }
 
-    class ActorObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
-        extends BenchmarkParserObserver<StackNode, ParseForest> {
+    class ActorObserver extends BenchmarkParserObserver<BasicStackNode<BasicParseForest>, BasicParseForest> {
 
         public List<ActorOnState> stateApplicableActions = new ArrayList<ActorOnState>();
 
         @Override
-        public void actor(StackNode stack, Parse<StackNode, ParseForest> parse, Iterable<IAction> applicableActions) {
+        public void actor(BasicStackNode<BasicParseForest> stack,
+            Parse<BasicStackNode<BasicParseForest>, BasicParseForest> parse, Iterable<IAction> applicableActions) {
             ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);
@@ -113,9 +113,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends BaseBenchmar
 
     }
 
-    @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
-        for(ActorOnState stateApplicableActions : ((ActorObserver<?, ?>) actorObserver).stateApplicableActions)
+        for(ActorOnState stateApplicableActions : actorObserver.stateApplicableActions)
             stateApplicableActions.iterateOverApplicableActions(bh);
     }
 

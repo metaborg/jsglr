@@ -59,7 +59,7 @@ public final class CharacterToActionsSeparated implements ICharacterToActions {
     }
 
     @Override
-    public Iterable<IReduce> getReduceActions(Parse parse) {
+    public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 

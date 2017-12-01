@@ -74,13 +74,13 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
                 if(parseForest != null && parseForestWithStartSymbol == null)
                     throw new ParseException("invalid start symbol");
 
-                ParseSuccess<StackNode, ParseForest, ?> success = new ParseSuccess(parse, parseForestWithStartSymbol);
+                ParseSuccess<StackNode, ParseForest, ?> success = new ParseSuccess<>(parse, parseForestWithStartSymbol);
 
                 notify(observer -> observer.success(success));
 
                 result = success;
             } else {
-                ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure(parse,
+                ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure<>(parse,
                     new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
                         + "/'" + ICharacterClass.intToString(parse.currentChar) + "', position: "
                         + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
@@ -93,7 +93,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 
             return result;
         } catch(ParseException parseException) {
-            ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure(parse, parseException);
+            ParseFailure<StackNode, ParseForest, ?> failure = new ParseFailure<>(parse, parseException);
 
             notify(observer -> observer.failure(failure));
 

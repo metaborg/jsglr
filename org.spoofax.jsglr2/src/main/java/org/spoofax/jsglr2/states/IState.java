@@ -16,7 +16,7 @@ public interface IState {
 
     Iterable<IAction> getActions(int character);
 
-    Iterable<IReduce> getReduceActions(Parse parse);
+    Iterable<IReduce> getReduceActions(Parse<?, ?> parse);
 
     int getGotoId(int productionId);
 

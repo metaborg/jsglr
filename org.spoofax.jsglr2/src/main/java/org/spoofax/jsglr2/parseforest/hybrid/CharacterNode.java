@@ -8,7 +8,7 @@ public class CharacterNode extends HybridParseForest {
 
     public final int character;
 
-    public CharacterNode(int nodeNumber, Parse parse, Position position, int character) {
+    public CharacterNode(int nodeNumber, Parse<?, ?> parse, Position position, int character) {
         super(nodeNumber, parse, position,
             ICharacterClass.isNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;

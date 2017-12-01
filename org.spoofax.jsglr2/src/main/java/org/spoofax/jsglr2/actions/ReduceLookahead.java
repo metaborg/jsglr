@@ -19,7 +19,7 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
     }
 
     @Override
-    public boolean allowsLookahead(Parse parse) {
+    public boolean allowsLookahead(Parse<?, ?> parse) {
         String lookahead = parse.getLookahead(followRestriction.length);
 
         if(lookahead.length() != followRestriction.length)

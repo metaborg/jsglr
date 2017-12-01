@@ -43,7 +43,7 @@ public final class State implements IState {
     }
 
     @Override
-    public Iterable<IReduce> getReduceActions(Parse parse) {
+    public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
         return characterToActions.getReduceActions(parse);
     }
 

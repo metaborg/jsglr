@@ -63,7 +63,10 @@ public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest
             this.observers = null;
     }
 
-    public static Parse<?, ?> EMTPY = new Parse<>("", "", Collections.EMPTY_LIST);
+    public static <StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
+        Parse<StackNode, ParseForest> empty() {
+        return new Parse<StackNode, ParseForest>("", "", Collections.emptyList());
+    }
 
     public Position currentPosition() {
         return new Position(currentOffset, currentLine, currentColumn);

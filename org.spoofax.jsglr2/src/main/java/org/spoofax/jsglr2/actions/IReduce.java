@@ -23,7 +23,7 @@ public interface IReduce extends IAction {
         return productionType() == ProductionType.REJECT;
     }
 
-    static boolean isApplicableReduce(IAction action, Parse parse) {
+    static boolean isApplicableReduce(IAction action, Parse<?, ?> parse) {
         return action.actionType() == ActionType.REDUCE || (action.actionType() == ActionType.REDUCE_LOOKAHEAD
             && ((IReduceLookahead) action).allowsLookahead(parse));
     }

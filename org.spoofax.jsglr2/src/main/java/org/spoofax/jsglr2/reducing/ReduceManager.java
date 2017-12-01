@@ -56,10 +56,10 @@ public class ReduceManager<StackNode extends AbstractStackNode<ParseForest>, Par
         StackLink<StackNode, ParseForest> throughLink) {
         for(StackPath<StackNode, ParseForest> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
-                ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
                 StackNode pathBegin = path.head();
+                ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-                reducer(parse, pathBegin, reduce, stackManager.getParseForests(parseForestManager, path));
+                reducer(parse, pathBegin, reduce, parseNodes);
             }
         }
     }

@@ -124,14 +124,14 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
     }
 
     @Override
-    public Iterable<IReduce> getReduceActions(Parse parse) {
+    public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
         if(actionsForSortedDisjointRanges.length > 0)
             return getReduceActionsBinarySearch(parse, 0, actionsForSortedDisjointRanges.length - 1);
         else
             return Collections.emptyList();
     }
 
-    private Iterable<IReduce> getReduceActionsBinarySearch(Parse parse, int low, int high) {
+    private Iterable<IReduce> getReduceActionsBinarySearch(Parse<?, ?> parse, int low, int high) {
         if(high <= low) {
             ActionsForRange actionsForRange = actionsForSortedDisjointRanges[low];
 

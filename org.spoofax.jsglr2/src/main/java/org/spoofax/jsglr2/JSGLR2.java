@@ -25,6 +25,7 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     public IParser<StackNode, ParseForest> parser;
     public IImploder<StackNode, ParseForest, AbstractSyntaxTree> imploder;
 
+    @SuppressWarnings("unchecked")
     public static JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>
         standard(IParseTable parseTable) throws ParseTableReadException {
         return (JSGLR2<AbstractElkhoundStackNode<HybridParseForest>, HybridParseForest, IStrategoTerm>) JSGLR2Variants
@@ -59,6 +60,7 @@ public class JSGLR2<StackNode extends AbstractStackNode<ParseForest>, ParseFores
         return implodeResult.ast;
     }
 
+    @SuppressWarnings("unchecked")
     public JSGLR2Result<StackNode, ParseForest, AbstractSyntaxTree> parseResult(String input, String filename,
         String startSymbol) {
         ParseResult<StackNode, ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);

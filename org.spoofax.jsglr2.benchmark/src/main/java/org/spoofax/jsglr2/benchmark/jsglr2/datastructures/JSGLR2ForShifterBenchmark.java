@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -21,7 +20,7 @@ import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
 import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
@@ -29,14 +28,14 @@ import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
 
-    IParser<?, ?> parser;
+    IParser<BasicStackNode<BasicParseForest>, BasicParseForest> parser;
     ForShifterObserver forShifterObserver;
 
     protected JSGLR2ForShifterBenchmark(TestSet testSet) {
@@ -51,13 +50,14 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
 
     Collection<ForShifterElement<?, ?>> forShifter;
 
+    @SuppressWarnings("unchecked")
     @Setup
     public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
-            StackRepresentation.Basic, Reducing.Basic);
+        parser = (IParser<BasicStackNode<BasicParseForest>, BasicParseForest>) JSGLR2Variants.getParser(parseTable,
+            ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 
         forShifterObserver = new ForShifterObserver();
 
@@ -96,13 +96,13 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
         final List<ForShifterElement<?, ?>> forShifterElements = new ArrayList<ForShifterElement<?, ?>>();
     }
 
-    class ForShifterObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
-        extends BenchmarkParserObserver<StackNode, ParseForest> {
+    class ForShifterObserver extends BenchmarkParserObserver<BasicStackNode<BasicParseForest>, BasicParseForest> {
 
         public List<ParseRound> parseRounds = new ArrayList<ParseRound>();
 
         @Override
-        public void parseCharacter(Parse<StackNode, ParseForest> parse, Iterable<StackNode> activeStacks) {
+        public void parseCharacter(Parse<BasicStackNode<BasicParseForest>, BasicParseForest> parse,
+            Iterable<BasicStackNode<BasicParseForest>> activeStacks) {
             parseRounds.add(new ParseRound());
         }
 
@@ -111,15 +111,15 @@ public abstract class JSGLR2ForShifterBenchmark extends BaseBenchmark {
         }
 
         @Override
-        public void addForShifter(ForShifterElement<StackNode, ParseForest> forShifterElement) {
+        public void
+            addForShifter(ForShifterElement<BasicStackNode<BasicParseForest>, BasicParseForest> forShifterElement) {
             currentParseRound().forShifterElements.add(forShifterElement);
         }
 
     }
 
-    @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
-        for(ParseRound parseRound : ((ForShifterObserver<?, ?>) forShifterObserver).parseRounds) {
+        for(ParseRound parseRound : forShifterObserver.parseRounds) {
             forShifter.clear();
 
             for(ForShifterElement<?, ?> forShifterElement : parseRound.forShifterElements)

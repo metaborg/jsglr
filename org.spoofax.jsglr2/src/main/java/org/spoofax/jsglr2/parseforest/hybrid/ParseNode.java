@@ -16,8 +16,8 @@ public class ParseNode extends HybridParseForest {
     private final Derivation firstDerivation;
     private List<Derivation> otherDerivations;
 
-    public ParseNode(int nodeNumber, Parse parse, Position startPosition, Position endPosition, IProduction production,
-        Derivation firstDerivation) {
+    public ParseNode(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition,
+        IProduction production, Derivation firstDerivation) {
         super(nodeNumber, parse, startPosition, endPosition);
         this.production = production;
         this.firstDerivation = firstDerivation;

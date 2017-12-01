@@ -9,6 +9,6 @@ public interface IReduceLookahead extends IReduce {
         return ActionType.REDUCE_LOOKAHEAD;
     }
 
-    boolean allowsLookahead(Parse parse);
+    boolean allowsLookahead(Parse<?, ?> parse);
 
 }

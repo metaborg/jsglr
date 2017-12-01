@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -18,13 +17,13 @@ import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.ProductionToGotoRepresentation;
@@ -35,7 +34,7 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark {
 
-    IParser<?, ?> parser;
+    IParser<BasicStackNode<BasicParseForest>, BasicParseForest> parser;
     GotoObserver gotoObserver;
 
     protected JSGLR2StateApplicableGotosBenchmark(TestSet testSet) {
@@ -44,6 +43,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
     @Param public ProductionToGotoRepresentation productionToGotoRepresentation;
 
+    @SuppressWarnings("unchecked")
     @Setup
     public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {
@@ -52,8 +52,8 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
         IParseTable parseTable = new ParseTableReader(stateFactory).read(testSetReader.getParseTableTerm());
 
-        parser = JSGLR2Variants.getParser(parseTable, ParseForestRepresentation.Basic, ParseForestConstruction.Full,
-            StackRepresentation.Basic, Reducing.Basic);
+        parser = (IParser<BasicStackNode<BasicParseForest>, BasicParseForest>) JSGLR2Variants.getParser(parseTable,
+            ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 
         gotoObserver = new GotoObserver();
 
@@ -83,22 +83,20 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends BaseBenchmark 
 
     }
 
-    class GotoObserver<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
-        extends BenchmarkParserObserver<StackNode, ParseForest> {
+    class GotoObserver extends BenchmarkParserObserver<BasicStackNode<BasicParseForest>, BasicParseForest> {
 
         public List<GotoLookup> gotoLookups = new ArrayList<GotoLookup>();
 
         @Override
-        public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
-            StackNode activeStackWithGotoState) {
+        public void reducer(BasicStackNode<BasicParseForest> stack, IReduce reduce, BasicParseForest[] parseNodes,
+            BasicStackNode<BasicParseForest> activeStackWithGotoState) {
             gotoLookups.add(new GotoLookup(stack.state, reduce.production().id()));
         }
 
     }
 
-    @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
-        for(GotoLookup gotoLookup : ((GotoObserver<?, ?>) gotoObserver).gotoLookups)
+        for(GotoLookup gotoLookup : gotoObserver.gotoLookups)
             bh.consume(gotoLookup.execute());
     }
 

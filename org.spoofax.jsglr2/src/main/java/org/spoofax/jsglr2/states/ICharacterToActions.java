@@ -20,6 +20,6 @@ public interface ICharacterToActions {
     /*
      * Returns reduce actions (possibly with lookahead) applicable to the given character.
      */
-    Iterable<IReduce> getReduceActions(Parse parse);
+    Iterable<IReduce> getReduceActions(Parse<?, ?> parse);
 
 }

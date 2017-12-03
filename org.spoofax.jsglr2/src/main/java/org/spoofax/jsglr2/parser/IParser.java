@@ -5,13 +5,13 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 public interface IParser<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 
-    public ParseResult<ParseForest, StackNode, ?> parse(String input, String filename, String startSymbol);
+    public ParseResult<ParseForest, ?> parse(String input, String filename, String startSymbol);
 
-    public default ParseResult<ParseForest, StackNode, ?> parse(String input, String filename) {
+    public default ParseResult<ParseForest, ?> parse(String input, String filename) {
         return parse(input, filename, null);
     }
 
-    public default ParseResult<ParseForest, StackNode, ?> parse(String input) {
+    public default ParseResult<ParseForest, ?> parse(String input) {
         return parse(input, "");
     }
 
@@ -20,14 +20,14 @@ public interface IParser<ParseForest extends AbstractParseForest, StackNode exte
      * otherwise.
      */
     public default ParseForest parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        ParseResult<ParseForest, StackNode, ?> result = parse(input, filename, startSymbol);
+        ParseResult<ParseForest, ?> result = parse(input, filename, startSymbol);
 
         if(result.isSuccess) {
-            ParseSuccess<ParseForest, StackNode, ?> success = (ParseSuccess<ParseForest, StackNode, ?>) result;
+            ParseSuccess<ParseForest, ?> success = (ParseSuccess<ParseForest, ?>) result;
 
             return success.parseResult;
         } else {
-            ParseFailure<ParseForest, StackNode, ?> failure = (ParseFailure<ParseForest, StackNode, ?>) result;
+            ParseFailure<ParseForest, ?> failure = (ParseFailure<ParseForest, ?>) result;
 
             throw failure.parseException;
         }

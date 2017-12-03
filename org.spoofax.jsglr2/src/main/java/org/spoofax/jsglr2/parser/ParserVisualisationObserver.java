@@ -162,12 +162,12 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
     }
 
     @Override
-    public void success(ParseSuccess<ParseForest, StackNode, ?> success) {
+    public void success(ParseSuccess<ParseForest, ?> success) {
         trace("{\"action\":\"success\"}");
     }
 
     @Override
-    public void failure(ParseFailure<ParseForest, StackNode, ?> failure) {
+    public void failure(ParseFailure<ParseForest, ?> failure) {
         trace("{\"action\":\"failure\"}");
     }
 

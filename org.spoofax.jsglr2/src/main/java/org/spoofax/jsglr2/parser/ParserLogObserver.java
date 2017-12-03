@@ -150,12 +150,12 @@ public class ParserLogObserver<ParseForest extends AbstractParseForest, StackNod
     }
 
     @Override
-    public void success(ParseSuccess<ParseForest, StackNode, ?> success) {
+    public void success(ParseSuccess<ParseForest, ?> success) {
         log("Parsing succeeded. Result: " + success.parseResult.toString());
     }
 
     @Override
-    public void failure(ParseFailure<ParseForest, StackNode, ?> failure) {
+    public void failure(ParseFailure<ParseForest, ?> failure) {
         log("Parsing failed");
     }
 

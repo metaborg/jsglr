@@ -23,7 +23,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
     private final IParseTable parseTable;
     private final StackManager<ParseForest, StackNode> stackManager;
     private final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
-    private final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reducer;
+    private final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
     private final List<IParserObserver<ParseForest, StackNode>> observers;
 
     public Parser(IParseTable parseTable, StackManager<ParseForest, StackNode> stackManager,
@@ -31,7 +31,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reducer = new ReduceManager<ParseForest, ParseNode, Derivation, StackNode>(parseTable, stackManager,
+        this.reduceManager = new ReduceManager<ParseForest, ParseNode, Derivation, StackNode>(parseTable, stackManager,
             parseForestManager, ParseForestConstruction.Full);
         this.observers = new ArrayList<IParserObserver<ParseForest, StackNode>>();
     }
@@ -42,12 +42,12 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reducer = reducer;
+        this.reduceManager = reducer;
         this.observers = new ArrayList<IParserObserver<ParseForest, StackNode>>();
     }
 
     @Override
-    public ParseResult<ParseForest, StackNode, ?> parse(String inputString, String filename, String startSymbol) {
+    public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
         Parse<ParseForest, StackNode> parse = new Parse<ParseForest, StackNode>(inputString, filename, observers);
 
         notify(observer -> observer.parseStart(parse));
@@ -63,7 +63,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
                 parse.next();
             }
 
-            ParseResult<ParseForest, StackNode, ?> result;
+            ParseResult<ParseForest, ?> result;
 
             if(parse.acceptingStack != null) {
                 ParseForest parseForest =
@@ -74,13 +74,13 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
                 if(parseForest != null && parseForestWithStartSymbol == null)
                     throw new ParseException("invalid start symbol");
 
-                ParseSuccess<ParseForest, StackNode, ?> success = new ParseSuccess<>(parse, parseForestWithStartSymbol);
+                ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForestWithStartSymbol);
 
                 notify(observer -> observer.success(success));
 
                 result = success;
             } else {
-                ParseFailure<ParseForest, StackNode, ?> failure = new ParseFailure<>(parse,
+                ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse,
                     new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
                         + "/'" + ICharacterClass.intToString(parse.currentChar) + "', position: "
                         + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
@@ -93,7 +93,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
             return result;
         } catch(ParseException parseException) {
-            ParseFailure<ParseForest, StackNode, ?> failure = new ParseFailure<>(parse, parseException);
+            ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, parseException);
 
             notify(observer -> observer.failure(failure));
 
@@ -139,14 +139,14 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
                 case REDUCE:
                     IReduce reduceAction = (IReduce) action;
 
-                    reducer.doReductions(parse, stack, reduceAction);
+                    reduceManager.doReductions(parse, stack, reduceAction);
 
                     break;
                 case REDUCE_LOOKAHEAD:
                     IReduceLookahead reduceLookaheadAction = (IReduceLookahead) action;
 
                     if(reduceLookaheadAction.allowsLookahead(parse)) {
-                        reducer.doReductions(parse, stack, reduceLookaheadAction);
+                        reduceManager.doReductions(parse, stack, reduceLookaheadAction);
                     }
 
                     break;

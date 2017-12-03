@@ -6,11 +6,9 @@ import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
 import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.tokenizer.HybridParseForestTokenizer;
 
-public class HybridParseForestStrategoImploder<StackNode extends AbstractStackNode<HybridParseForest>>
-    extends StrategoTermImploder<HybridParseForest, ParseNode, Derivation, StackNode> {
+public class HybridParseForestStrategoImploder extends StrategoTermImploder<HybridParseForest, ParseNode, Derivation> {
 
     public HybridParseForestStrategoImploder() {
         super(new HybridParseForestTokenizer());

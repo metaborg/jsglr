@@ -67,9 +67,9 @@ public interface IParserObserver<ParseForest extends AbstractParseForest, StackN
 
     public void remark(String remark);
 
-    public void success(ParseSuccess<ParseForest, StackNode, ?> success);
+    public void success(ParseSuccess<ParseForest, ?> success);
 
-    public void failure(ParseFailure<ParseForest, StackNode, ?> failure);
+    public void failure(ParseFailure<ParseForest, ?> failure);
 
     default String stackQueueToString(Iterable<StackNode> stacks) {
         String res = "";

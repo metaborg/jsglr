@@ -207,11 +207,11 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public void success(ParseSuccess<ParseForest, AbstractElkhoundStackNode<ParseForest>, ?> success) {
+    public void success(ParseSuccess<ParseForest, ?> success) {
     }
 
     @Override
-    public void failure(ParseFailure<ParseForest, AbstractElkhoundStackNode<ParseForest>, ?> failure) {
+    public void failure(ParseFailure<ParseForest, ?> failure) {
         throw new IllegalStateException("Failing parses not allowed during measurements");
     }
 

@@ -242,20 +242,20 @@ public class JSGLR2Variants {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
         IParser<?, ?> parser = getParser(parseTable, variant);
-        IImploder<?, ?, IStrategoTerm> imploder;
+        IImploder<?, IStrategoTerm> imploder;
 
         switch(variant.parseForestRepresentation) {
             default:
             case Basic:
-                imploder = new BasicParseForestStrategoImploder<>();
+                imploder = new BasicParseForestStrategoImploder();
 
                 break;
             case Hybrid:
-                imploder = new HybridParseForestStrategoImploder<>();
+                imploder = new HybridParseForestStrategoImploder();
 
                 break;
             case Null:
-                imploder = new NullParseForestStrategoImploder<>();
+                imploder = new NullParseForestStrategoImploder();
 
                 break;
         }

@@ -77,7 +77,7 @@ public abstract class BaseTest {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
             Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
 
-            ParseResult<?, ?, ?> parseResult = parser.parse(inputString);
+            ParseResult<?, ?> parseResult = parser.parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' failed: ", true, parseResult.isSuccess);
         }
@@ -89,7 +89,7 @@ public abstract class BaseTest {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
             Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
 
-            ParseResult<?, ?, ?> parseResult = parser.parse(inputString);
+            ParseResult<?, ?> parseResult = parser.parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' failed: ", false, parseResult.isSuccess);
         }
@@ -99,7 +99,7 @@ public abstract class BaseTest {
         String inputString) {
         JSGLR2<?, ?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
 
-        ParseResult<?, ?, ?> parseResult = jsglr2.parser.parse(inputString, "", startSymbol);
+        ParseResult<?, ?> parseResult = jsglr2.parser.parse(inputString, "", startSymbol);
 
         assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess); // Fail here if
                                                                                                         // parsing

@@ -8,12 +8,11 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
 import org.spoofax.jsglr2.tokenizer.Tokens;
 
-public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, StackNode extends AbstractStackNode<ParseForest>, Tree>
-    implements IImploder<ParseForest, StackNode, Tree> {
+public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, Tree>
+    implements IImploder<ParseForest, Tree> {
 
     protected final ITreeFactory<Tree> treeFactory;
     protected final Tokenizer<ParseForest, ParseNode, Derivation> tokenizer;
@@ -25,8 +24,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
     }
 
     @Override
-    public ImplodeResult<ParseForest, StackNode, Tree> implode(Parse<ParseForest, StackNode> parse,
-        ParseForest parseForest) {
+    public ImplodeResult<ParseForest, Tree> implode(Parse<ParseForest, ?> parse, ParseForest parseForest) {
         Tokens tokens = new Tokens(parse.inputString, parse.filename);
 
         tokenizer.tokenize(tokens, parseForest);
@@ -37,7 +35,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
         tokenTreeBinding(tokens.getTokenAt(0), tree);
 
-        return new ImplodeResult<ParseForest, StackNode, Tree>(parse, tree);
+        return new ImplodeResult<>(parse, tree);
     }
 
     protected Tree implodeParseNode(Parse<ParseForest, ?> parse, ParseNode parseNode, IToken leftToken,

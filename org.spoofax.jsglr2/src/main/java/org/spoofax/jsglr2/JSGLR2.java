@@ -23,7 +23,7 @@ import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 public class JSGLR2<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>, AbstractSyntaxTree> {
 
     public IParser<ParseForest, StackNode> parser;
-    public IImploder<ParseForest, StackNode, AbstractSyntaxTree> imploder;
+    public IImploder<ParseForest, AbstractSyntaxTree> imploder;
 
     @SuppressWarnings("unchecked")
     public static JSGLR2<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IStrategoTerm>
@@ -40,37 +40,36 @@ public class JSGLR2<ParseForest extends AbstractParseForest, StackNode extends A
         return standard(parseTable);
     }
 
-    public JSGLR2(IParser<ParseForest, StackNode> parser,
-        IImploder<ParseForest, StackNode, AbstractSyntaxTree> imploder) {
+    public JSGLR2(IParser<ParseForest, StackNode> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
         this.parser = parser;
         this.imploder = imploder;
     }
 
     public AbstractSyntaxTree parse(String input, String filename, String startSymbol) {
-        ParseResult<ParseForest, StackNode, ?> parseResult = parser.parse(input, filename, startSymbol);
+        ParseResult<ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);
 
         if(!parseResult.isSuccess)
             return null;
 
-        ParseSuccess<ParseForest, StackNode, ?> parseSuccess = (ParseSuccess<ParseForest, StackNode, ?>) parseResult;
+        ParseSuccess<ParseForest, ?> parseSuccess = (ParseSuccess<ParseForest, ?>) parseResult;
 
-        ImplodeResult<ParseForest, StackNode, AbstractSyntaxTree> implodeResult =
+        ImplodeResult<ParseForest, AbstractSyntaxTree> implodeResult =
             imploder.implode(parseSuccess.parse, parseSuccess.parseResult);
 
         return implodeResult.ast;
     }
 
     @SuppressWarnings("unchecked")
-    public JSGLR2Result<ParseForest, StackNode, AbstractSyntaxTree> parseResult(String input, String filename,
+    public JSGLR2Result<ParseForest, AbstractSyntaxTree> parseResult(String input, String filename,
         String startSymbol) {
-        ParseResult<ParseForest, StackNode, ?> parseResult = parser.parse(input, filename, startSymbol);
+        ParseResult<ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);
 
         if(!parseResult.isSuccess)
-            return (JSGLR2Result<ParseForest, StackNode, AbstractSyntaxTree>) parseResult;
+            return (JSGLR2Result<ParseForest, AbstractSyntaxTree>) parseResult;
 
-        ParseSuccess<ParseForest, StackNode, ?> parseSuccess = (ParseSuccess<ParseForest, StackNode, ?>) parseResult;
+        ParseSuccess<ParseForest, ?> parseSuccess = (ParseSuccess<ParseForest, ?>) parseResult;
 
-        ImplodeResult<ParseForest, StackNode, AbstractSyntaxTree> implodeResult =
+        ImplodeResult<ParseForest, AbstractSyntaxTree> implodeResult =
             imploder.implode(parseSuccess.parse, parseSuccess.parseResult);
 
         return implodeResult;
@@ -81,17 +80,17 @@ public class JSGLR2<ParseForest extends AbstractParseForest, StackNode extends A
     }
 
     public AbstractSyntaxTree parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        ParseResult<ParseForest, StackNode, ?> result = parser.parse(input, filename, startSymbol);
+        ParseResult<ParseForest, ?> result = parser.parse(input, filename, startSymbol);
 
         if(result.isSuccess) {
-            ParseSuccess<ParseForest, StackNode, ?> success = (ParseSuccess<ParseForest, StackNode, ?>) result;
+            ParseSuccess<ParseForest, ?> success = (ParseSuccess<ParseForest, ?>) result;
 
-            ImplodeResult<ParseForest, StackNode, AbstractSyntaxTree> implodeResult =
+            ImplodeResult<ParseForest, AbstractSyntaxTree> implodeResult =
                 imploder.implode(success.parse, success.parseResult);
 
             return implodeResult.ast;
         } else {
-            ParseFailure<ParseForest, StackNode, ?> failure = (ParseFailure<ParseForest, StackNode, ?>) result;
+            ParseFailure<ParseForest, ?> failure = (ParseFailure<ParseForest, ?>) result;
 
             throw failure.parseException;
         }

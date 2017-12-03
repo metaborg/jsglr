@@ -240,7 +240,7 @@ public class JSGLR2Variants {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
+    public static JSGLR2<?, IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
         IParser<?, ?> parser = getParser(parseTable, variant);
         IImploder<?, IStrategoTerm> imploder;
 
@@ -263,18 +263,18 @@ public class JSGLR2Variants {
         return new JSGLR2(parser, imploder);
     }
 
-    public static JSGLR2<?, ?, IStrategoTerm> getJSGLR2(IParseTable parseTable,
+    public static JSGLR2<?, IStrategoTerm> getJSGLR2(IParseTable parseTable,
         ParseForestRepresentation parseForestRepresentation, ParseForestConstruction parseForestConstruction,
         StackRepresentation stackRepresentation, Reducing reducing) {
         return getJSGLR2(parseTable,
             new Variant(parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing));
     }
 
-    public static List<JSGLR2<?, ?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
-        List<JSGLR2<?, ?, IStrategoTerm>> jsglr2s = new ArrayList<JSGLR2<?, ?, IStrategoTerm>>();
+    public static List<JSGLR2<?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
+        List<JSGLR2<?, IStrategoTerm>> jsglr2s = new ArrayList<JSGLR2<?, IStrategoTerm>>();
 
         for(Variant variant : allVariants()) {
-            JSGLR2<?, ?, IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
+            JSGLR2<?, IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
 
             jsglr2s.add(jsglr2);
         }

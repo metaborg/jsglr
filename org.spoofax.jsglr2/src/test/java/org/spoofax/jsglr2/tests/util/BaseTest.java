@@ -97,7 +97,7 @@ public abstract class BaseTest {
 
     protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.Variant variant, String startSymbol,
         String inputString) {
-        JSGLR2<?, ?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
+        JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
 
         ParseResult<?, ?> parseResult = jsglr2.parser.parse(inputString, "", startSymbol);
 

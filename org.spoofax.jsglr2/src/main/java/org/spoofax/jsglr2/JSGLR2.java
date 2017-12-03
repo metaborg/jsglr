@@ -17,30 +17,28 @@ import org.spoofax.jsglr2.parser.ParseSuccess;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 
-public class JSGLR2<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>, AbstractSyntaxTree> {
+public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
 
-    public IParser<ParseForest, StackNode> parser;
+    public IParser<ParseForest, ?> parser;
     public IImploder<ParseForest, AbstractSyntaxTree> imploder;
 
     @SuppressWarnings("unchecked")
-    public static JSGLR2<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IStrategoTerm>
-        standard(IParseTable parseTable) throws ParseTableReadException {
-        return (JSGLR2<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IStrategoTerm>) JSGLR2Variants
-            .getJSGLR2(parseTable, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized,
-                StackRepresentation.HybridElkhound, Reducing.Elkhound);
+    public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IParseTable parseTable)
+        throws ParseTableReadException {
+        return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
+            ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
+            Reducing.Elkhound);
     }
 
-    public static JSGLR2<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IStrategoTerm>
-        standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
+    public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm)
+        throws ParseTableReadException {
         IParseTable parseTable = new ParseTableReader().read(parseTableTerm);
 
         return standard(parseTable);
     }
 
-    public JSGLR2(IParser<ParseForest, StackNode> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
+    public JSGLR2(IParser<ParseForest, ?> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
         this.parser = parser;
         this.imploder = imploder;
     }

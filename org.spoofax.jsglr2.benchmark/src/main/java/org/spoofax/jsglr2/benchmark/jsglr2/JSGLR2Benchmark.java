@@ -24,7 +24,7 @@ import org.spoofax.terms.ParseError;
 public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
     protected IParser<?, ?> parser; // Just parsing
-    protected JSGLR2<?, ?, ?> jsglr2; // Parsing and imploding (including tokenization)
+    protected JSGLR2<?, ?> jsglr2; // Parsing and imploding (including tokenization)
 
     protected JSGLR2Benchmark(TestSet testSet) {
         super(testSet);

@@ -63,20 +63,29 @@ public class ParseTableMeasurements extends Measurements {
                 case gotosPerStateMax:
                     cells.add("" + stateFactory.gotosPerStateMax);
                     break;
-                case actionCharacterClass:
-                    cells.add("" + stateFactory.actionCharacterClassCount);
+                case actionGroups:
+                    cells.add("" + stateFactory.actionGroupsCount);
+                    break;
+                case actionDisjointSortedRanges:
+                    cells.add("" + stateFactory.actionDisjointSortedRangesCount);
                     break;
                 case actions:
                     cells.add("" + stateFactory.actionsCount);
                     break;
-                case actionCharacterClassPerStateMax:
-                    cells.add("" + stateFactory.actionCharacterClassPerStateMax);
+                case actionGroupsPerStateMax:
+                    cells.add("" + stateFactory.actionGroupsPerStateMax);
+                    break;
+                case actionDisjointSortedRangesPerStateMax:
+                    cells.add("" + stateFactory.actionDisjointSortedRangesPerStateMax);
                     break;
                 case actionsPerStateMax:
                     cells.add("" + stateFactory.actionsPerStateMax);
                     break;
-                case actionsPerCharacterClassMax:
-                    cells.add("" + stateFactory.actionsPerCharacterClassMax);
+                case actionsPerGroupMax:
+                    cells.add("" + stateFactory.actionsPerGroupMax);
+                    break;
+                case actionsPerDisjointSortedRangeMax:
+                    cells.add("" + stateFactory.actionsPerDisjointSortedRangeMax);
                     break;
                 default:
                     break;
@@ -88,8 +97,9 @@ public class ParseTableMeasurements extends Measurements {
 
     public enum ParseTableMeasurement {
         states, characterClasses, characterClassesUnique, characterClassesOptimizedUnique,
-        statesDisjointSortableCharacterClasses, gotos, gotosPerStateMax, actionCharacterClass, actions,
-        actionCharacterClassPerStateMax, actionsPerStateMax, actionsPerCharacterClassMax
+        statesDisjointSortableCharacterClasses, gotos, gotosPerStateMax, actionGroups, actionDisjointSortedRanges,
+        actions, actionGroupsPerStateMax, actionDisjointSortedRangesPerStateMax, actionsPerStateMax, actionsPerGroupMax,
+        actionsPerDisjointSortedRangeMax
     }
 
     private static void csvHeader(PrintWriter out) {

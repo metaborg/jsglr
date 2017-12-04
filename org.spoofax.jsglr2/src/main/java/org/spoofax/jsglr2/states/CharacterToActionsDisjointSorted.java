@@ -20,7 +20,7 @@ public final class CharacterToActionsDisjointSorted implements ICharacterToActio
         this.actionsForSortedDisjointRanges = toDisjointSortedRanges(actionsPerCharacterClasses);
     }
 
-    private ActionsForRange[] toDisjointSortedRanges(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
+    public static ActionsForRange[] toDisjointSortedRanges(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
         List<ActionsForRange> actionsForRanges = new ArrayList<>();
 
         int newRangeFromCharacter = -1; // Contains the start character for the next range that will be added

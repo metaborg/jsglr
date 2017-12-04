@@ -20,7 +20,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
         AbstractElkhoundStackNode<ParseForest> newStackNode =
             createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), 1);
 
-        parse.notify(observer -> observer.createStackNode(newStackNode));
+        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
@@ -31,7 +31,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
         AbstractElkhoundStackNode<ParseForest> newStackNode =
             createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), 0);
 
-        parse.notify(observer -> observer.createStackNode(newStackNode));
+        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
@@ -43,7 +43,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link =
             from.addOutLink(parse.stackLinkCount++, to, parseNode, parse);
 
-        parse.notify(observer -> observer.createStackLink(link));
+        parse.observing.notify(observer -> observer.createStackLink(link));
 
         return link;
     }

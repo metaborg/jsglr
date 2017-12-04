@@ -17,7 +17,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         SymbolNode symbolNode =
             new SymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
 
-        parse.notify(observer -> observer.createParseNode(symbolNode, production));
+        parse.observing.notify(observer -> observer.createParseNode(symbolNode, production));
 
         addDerivation(parse, symbolNode, firstDerivation);
 
@@ -55,14 +55,14 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
             production, productionType, parseForests);
 
-        parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
+        parse.observing.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
 
         return ruleNode;
     }
 
     @Override
     public void addDerivation(Parse<BasicParseForest, ?> parse, SymbolNode symbolNode, RuleNode ruleNode) {
-        parse.notify(observer -> observer.addDerivation(symbolNode));
+        parse.observing.notify(observer -> observer.addDerivation(symbolNode));
 
         boolean initNonAmbiguous = symbolNode.isAmbiguous();
 
@@ -76,7 +76,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     public TermNode createCharacterNode(Parse<BasicParseForest, ?> parse) {
         TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
 
-        parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }

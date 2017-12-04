@@ -37,7 +37,7 @@ public class ReduceManager<ParseForest extends AbstractParseForest, ParseNode ex
         if(reduce.production().isCompletionOrRecovery())
             return;
 
-        parse.notify(observer -> observer.doReductions(parse, stack, reduce));
+        parse.observing.notify(observer -> observer.doReductions(parse, stack, reduce));
 
         doReductionsHelper(parse, stack, reduce, null);
     }
@@ -47,7 +47,7 @@ public class ReduceManager<ParseForest extends AbstractParseForest, ParseNode ex
         if(reduce.production().isCompletionOrRecovery())
             return;
 
-        parse.notify(observer -> observer.doLimitedReductions(parse, stack, reduce, throughLink));
+        parse.observing.notify(observer -> observer.doLimitedReductions(parse, stack, reduce, throughLink));
 
         doReductionsHelper(parse, stack, reduce, throughLink);
     }
@@ -78,12 +78,12 @@ public class ReduceManager<ParseForest extends AbstractParseForest, ParseNode ex
 
         StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
 
-        parse.notify(observer -> observer.reducer(stack, reduce, parseForests, activeStackWithGotoState));
+        parse.observing.notify(observer -> observer.reducer(stack, reduce, parseForests, activeStackWithGotoState));
 
         if(activeStackWithGotoState != null) {
             StackLink<ParseForest, StackNode> directLink = stackManager.findDirectLink(activeStackWithGotoState, stack);
 
-            parse.notify(observer -> observer.directLinkFound(parse, directLink));
+            parse.observing.notify(observer -> observer.directLinkFound(parse, directLink));
 
             if(directLink != null) {
                 reducer.reducerExistingStackWithDirectLink(parse, reduce, directLink, parseForests);

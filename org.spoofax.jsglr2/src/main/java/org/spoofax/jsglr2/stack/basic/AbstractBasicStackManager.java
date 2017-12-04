@@ -18,7 +18,7 @@ public abstract class AbstractBasicStackManager<ParseForest extends AbstractPars
         AbstractBasicStackNode<ParseForest> newStackNode =
             createStackNode(parse.stackNodeCount++, state, parse.currentPosition());
 
-        parse.notify(observer -> observer.createStackNode(newStackNode));
+        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
@@ -29,7 +29,7 @@ public abstract class AbstractBasicStackManager<ParseForest extends AbstractPars
         AbstractBasicStackNode<ParseForest> newStackNode =
             createStackNode(parse.stackNodeCount++, state, parse.currentPosition());
 
-        parse.notify(observer -> observer.createStackNode(newStackNode));
+        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
@@ -41,7 +41,7 @@ public abstract class AbstractBasicStackManager<ParseForest extends AbstractPars
         StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link =
             from.addOutLink(parse.stackLinkCount++, to, parseNode);
 
-        parse.notify(observer -> observer.createStackLink(link));
+        parse.observing.notify(observer -> observer.createStackLink(link));
 
         return link;
     }

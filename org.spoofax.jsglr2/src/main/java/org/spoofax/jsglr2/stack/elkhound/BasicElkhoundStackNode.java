@@ -51,7 +51,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         } else if(linksOut.size() == 2) { // The second link is added; this means non-determinism
             deterministicDepth = 0;
 
-            parse.notify(observer -> observer.resetDeterministicDepth(this));
+            parse.observing.notify(observer -> observer.resetDeterministicDepth(this));
 
             for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(1);

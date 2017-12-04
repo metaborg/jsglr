@@ -17,8 +17,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         ParseNode parseNode = new ParseNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
             production, firstDerivation);
 
-        parse.notify(observer -> observer.createParseNode(parseNode, production));
-        parse.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
         return parseNode;
     }
@@ -55,14 +55,15 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
 
         int derivationNumber = parse.parseNodeCount++;
 
-        parse.notify(observer -> observer.createDerivation(derivationNumber, production, derivation.parseForests));
+        parse.observing
+            .notify(observer -> observer.createDerivation(derivationNumber, production, derivation.parseForests));
 
         return derivation;
     }
 
     @Override
     public void addDerivation(Parse<HybridParseForest, ?> parse, ParseNode parseNode, Derivation derivation) {
-        parse.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
         boolean initNonAmbiguous = parseNode.isAmbiguous();
 
@@ -77,7 +78,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         CharacterNode characterNode =
             new CharacterNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
 
-        parse.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
+        parse.observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
 
         return characterNode;
     }

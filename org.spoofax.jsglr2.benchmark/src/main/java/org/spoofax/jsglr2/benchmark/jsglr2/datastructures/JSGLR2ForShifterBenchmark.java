@@ -38,7 +38,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
     public void postParserSetup() {
         forShifterObserver = new ForShifterObserver();
 
-        parser.attachObserver(forShifterObserver);
+        parser.observing().attachObserver(forShifterObserver);
 
         switch(representation) {
             case ArrayDequeue:

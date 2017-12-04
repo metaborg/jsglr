@@ -1,12 +1,11 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.List;
 import java.util.Queue;
 
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacks;
 import org.spoofax.jsglr2.stack.collections.ForActorStacks;
@@ -31,9 +30,9 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
 
     public int ambiguousParseNodes, ambiguousTreeNodes;
 
-    private final List<IParserObserver<ParseForest, StackNode>> observers;
+    public final ParserObserving<ParseForest, StackNode> observing;
 
-    public Parse(String inputString, String filename, List<IParserObserver<ParseForest, StackNode>> observers) {
+    public Parse(String inputString, String filename, ParserObserving<ParseForest, StackNode> observing) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
@@ -49,8 +48,8 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
         this.ambiguousTreeNodes = 0;
 
         this.acceptingStack = null;
-        this.activeStacks = new ActiveStacks<>(this);
-        this.forActorStacks = new ForActorStacks<>(this);
+        this.activeStacks = new ActiveStacks<>(observing);
+        this.forActorStacks = new ForActorStacks<>(observing);
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
@@ -59,15 +58,12 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
 
         this.currentChar = getChar(currentOffset);
 
-        if(!observers.isEmpty())
-            this.observers = observers;
-        else
-            this.observers = null;
+        this.observing = observing;
     }
 
     public static <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
         Parse<ParseForest, StackNode> empty() {
-        return new Parse<ParseForest, StackNode>("", "", Collections.emptyList());
+        return new Parse<>("", "", new ParserObserving<>());
     }
 
     public Position currentPosition() {
@@ -110,14 +106,6 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
 
     public String getLookahead(int length) {
         return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
-    }
-
-    public void notify(IParserNotification<ParseForest, StackNode> notification) {
-        if(observers == null)
-            return;
-
-        for(IParserObserver<ParseForest, StackNode> observer : observers)
-            notification.notify(observer);
     }
 
 }

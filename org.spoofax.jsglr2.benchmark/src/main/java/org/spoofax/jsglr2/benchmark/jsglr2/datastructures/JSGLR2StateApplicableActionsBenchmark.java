@@ -47,7 +47,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
     public void postParserSetup() {
         actorObserver = new ActorObserver();
 
-        parser.attachObserver(actorObserver);
+        parser.observing().attachObserver(actorObserver);
 
         try {
             for(Input input : inputs)

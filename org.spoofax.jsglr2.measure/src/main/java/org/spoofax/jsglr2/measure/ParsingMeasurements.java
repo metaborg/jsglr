@@ -61,7 +61,7 @@ public class ParsingMeasurements extends Measurements {
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();
 
-            parser.attachObserver(measureObserver);
+            parser.observing().attachObserver(measureObserver);
 
             for(Input input : inputBatch.inputs) {
                 parser.parseUnsafe(input.content, input.filename, null);

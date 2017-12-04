@@ -36,7 +36,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
     public void postParserSetup() {
         gotoObserver = new GotoObserver();
 
-        parser.attachObserver(gotoObserver);
+        parser.observing().attachObserver(gotoObserver);
 
         try {
             for(Input input : inputs)

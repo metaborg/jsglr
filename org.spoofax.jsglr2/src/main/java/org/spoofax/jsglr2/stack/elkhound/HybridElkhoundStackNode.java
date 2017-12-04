@@ -66,7 +66,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
 
             deterministicDepth = 0;
 
-            parse.notify(observer -> observer.resetDeterministicDepth(this));
+            parse.observing.notify(observer -> observer.resetDeterministicDepth(this));
 
             for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> linkIn : getLinksIn())
                 linkIn.from.resetDeterministicDepth(1);

@@ -23,7 +23,7 @@ public abstract class StackManager<ParseForest extends AbstractParseForest, Stac
     public void rejectStackLink(Parse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> link) {
         link.reject();
 
-        parse.notify(observer -> observer.rejectStackLink(link));
+        parse.observing.notify(observer -> observer.rejectStackLink(link));
     }
 
     public StackLink<ParseForest, StackNode> findDirectLink(StackNode from, StackNode to) {

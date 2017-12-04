@@ -6,24 +6,24 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.states.IState;
 
 public class ActiveStacks<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
     implements IActiveStacks<StackNode> {
 
-    private Parse<ParseForest, StackNode> parse;
+    private ParserObserving<ParseForest, StackNode> observing;
     private List<StackNode> activeStacks;
 
-    public ActiveStacks(Parse<ParseForest, StackNode> parse) {
-        this.parse = parse;
+    public ActiveStacks(ParserObserving<ParseForest, StackNode> observing) {
+        this.observing = observing;
         this.activeStacks = new ArrayList<StackNode>();
     }
 
     @Override
     public void add(StackNode stack) {
-        parse.notify(observer -> observer.addActiveStack(stack));
+        observing.notify(observer -> observer.addActiveStack(stack));
 
         activeStacks.add(stack);
     }
@@ -40,7 +40,7 @@ public class ActiveStacks<StackNode extends AbstractStackNode<ParseForest>, Pars
 
     @Override
     public StackNode findWithState(IState state) {
-        parse.notify(observer -> observer.findActiveStackWithState(state));
+        observing.notify(observer -> observer.findActiveStackWithState(state));
 
         for(StackNode stack : activeStacks)
             if(stack.state.id() == state.id())

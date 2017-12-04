@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.parser;
+package org.spoofax.jsglr2.parser.observing;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;

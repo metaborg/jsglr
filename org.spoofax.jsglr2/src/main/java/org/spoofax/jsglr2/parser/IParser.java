@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 public interface IParser<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
@@ -41,6 +42,6 @@ public interface IParser<ParseForest extends AbstractParseForest, StackNode exte
         return parseUnsafe(input, "");
     }
 
-    public void attachObserver(IParserObserver<ParseForest, StackNode> observer);
+    public ParserObserving<ParseForest, StackNode> observing();
 
 }

@@ -12,6 +12,7 @@ import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacks;
@@ -40,11 +41,11 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
     public void postParserSetup() {
         activeStacksObserver = new ActiveStacksObserver();
 
-        parser.attachObserver(activeStacksObserver);
+        parser.observing().attachObserver(activeStacksObserver);
 
         switch(representation) {
             case ArrayList:
-                activeStacks = new ActiveStacks<>(Parse.empty());
+                activeStacks = new ActiveStacks<>(new ParserObserving<>());
 
                 break;
             default:

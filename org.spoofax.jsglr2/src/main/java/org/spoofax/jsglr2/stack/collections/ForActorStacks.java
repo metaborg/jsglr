@@ -9,11 +9,11 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public final class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IForActorStacks<StackNode> {
 
     private final ParserObserving<ParseForest, StackNode> observing;
-    private final Queue<StackNode> forActor, forActorDelayed;
+    protected final Queue<StackNode> forActor, forActorDelayed;
 
     public ForActorStacks(ParserObserving<ParseForest, StackNode> observing) {
         this.observing = observing;

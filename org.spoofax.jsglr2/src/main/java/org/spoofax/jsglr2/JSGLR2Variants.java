@@ -127,9 +127,6 @@ public class JSGLR2Variants {
     }
 
     public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, Variant variant) {
-        if(!variant.isValid())
-            throw new IllegalStateException("Invalid parser variant");
-
         IActiveStacksFactory activeStacksFactory;
 
         switch(variant.activeStacksRepresentation) {
@@ -151,6 +148,15 @@ public class JSGLR2Variants {
                 forActorStacksFactory = null;
                 break;
         }
+
+        return getParser(parseTable, activeStacksFactory, forActorStacksFactory, variant);
+    }
+
+
+    public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
+        IForActorStacksFactory forActorStacksFactory, Variant variant) {
+        if(!variant.isValid())
+            throw new IllegalStateException("Invalid parser variant");
 
         switch(variant.parseForestRepresentation) {
             default:

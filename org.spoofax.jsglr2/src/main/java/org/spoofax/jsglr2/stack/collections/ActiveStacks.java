@@ -10,11 +10,11 @@ import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.states.IState;
 
-public class ActiveStacks<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>
+public class ActiveStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IActiveStacks<StackNode> {
 
     private ParserObserving<ParseForest, StackNode> observing;
-    private List<StackNode> activeStacks;
+    protected List<StackNode> activeStacks;
 
     public ActiveStacks(ParserObserving<ParseForest, StackNode> observing) {
         this.observing = observing;

@@ -60,9 +60,12 @@ public class ParsingMeasurements extends Measurements {
         csvHeader(out);
 
         for(TestSetReader.InputBatch inputBatch : testSetReader.getInputBatches()) {
+            MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
+            MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
+
             @SuppressWarnings("unchecked") Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>> parser =
                 (Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>>) JSGLR2Variants
-                    .getParser(parseTable, variant);
+                    .getParser(parseTable, measureActiveStacksFactory, measureForActorStacksFactory, variant);
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();
 
@@ -78,13 +81,15 @@ public class ParsingMeasurements extends Measurements {
             else
                 System.out.println("   - Characters: " + measureObserver.length + " (" + postfix + ")");
 
-            csvResults(out, inputBatch, measureObserver);
+            csvResults(out, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory, measureObserver);
         }
 
         out.close();
     }
 
     protected static void csvResults(PrintWriter out, TestSetReader.InputBatch inputBatch,
+        MeasureActiveStacksFactory measureActiveStacksFactory,
+        MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<HybridParseForest> measureObserver) {
         List<String> cells = new ArrayList<String>();
 
@@ -111,6 +116,51 @@ public class ParsingMeasurements extends Measurements {
                     break;
                 case characters:
                     cells.add("" + measureObserver.length);
+                    break;
+                case activeStacksAdds:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.adds);
+                    break;
+                case activeStacksMaxSize:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.maxSize);
+                    break;
+                case activeStacksIsSingleChecks:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.iSingleChecks);
+                    break;
+                case activeStacksIsEmptyChecks:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.isEmptyChecks);
+                    break;
+                case activeStacksFindsWithState:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.findsWithState);
+                    break;
+                case activeStacksForLimitedReductions:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.forLimitedReductions);
+                    break;
+                case activeStacksAddAllTo:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.addAllTo);
+                    break;
+                case activeStacksClears:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.clears);
+                    break;
+                case activeStacksIterators:
+                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.iterators);
+                    break;
+                case forActorAdds:
+                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorAdds);
+                    break;
+                case forActorDelayedAdds:
+                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedAdds);
+                    break;
+                case forActorMaxSize:
+                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorMaxSize);
+                    break;
+                case forActorDelayedMaxSize:
+                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedMaxSize);
+                    break;
+                case forActorContainsChecks:
+                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.containsChecks);
+                    break;
+                case forActorNonEmptyChecks:
+                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.nonEmptyChecks);
                     break;
                 case stackNodes:
                     cells.add("" + measureObserver.stackNodes.size());
@@ -194,12 +244,17 @@ public class ParsingMeasurements extends Measurements {
         return parseNodesAmbiguous;
     }
 
+
+
     public enum ParsingMeasurement {
-        size, characters, stackNodes, stackLinks, stackLinksRejected, deterministicDepthResets, parseNodes,
-        parseNodesAmbiguous, parseNodesContextFree, parseNodesContextFreeAmbiguous, parseNodesLexical,
-        parseNodesLexicalAmbiguous, parseNodesLayout, parseNodesLayoutAmbiguous, characterNodes, actors, doReductions,
-        doLimitedReductions, doReductionsLR, doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers,
-        reducersElkhound
+        size, characters, activeStacksAdds, activeStacksMaxSize, activeStacksIsSingleChecks, activeStacksIsEmptyChecks,
+        activeStacksFindsWithState, activeStacksForLimitedReductions, activeStacksAddAllTo, activeStacksClears,
+        activeStacksIterators, forActorAdds, forActorDelayedAdds, forActorMaxSize, forActorDelayedMaxSize,
+        forActorContainsChecks, forActorNonEmptyChecks, stackNodes, stackLinks, stackLinksRejected,
+        deterministicDepthResets, parseNodes, parseNodesAmbiguous, parseNodesContextFree,
+        parseNodesContextFreeAmbiguous, parseNodesLexical, parseNodesLexicalAmbiguous, parseNodesLayout,
+        parseNodesLayoutAmbiguous, characterNodes, actors, doReductions, doLimitedReductions, doReductionsLR,
+        doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers, reducersElkhound
     }
 
     private static void csvHeader(PrintWriter out) {

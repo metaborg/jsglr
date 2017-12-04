@@ -38,8 +38,8 @@ public class TestSet {
     public static TestSet java8 = new TestSet("java8", new TestSetParseTableFromATerm("Java8"),
         new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
-    public static TestSet java8_unrolled =
-        new TestSet("java8_unrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
+    public static TestSet java8unrolled =
+        new TestSet("java8unrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
             new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
     public static TestSet greenMarl = new TestSet("greenmarl", new TestSetParseTableFromATerm("GreenMarl"),
@@ -49,6 +49,6 @@ public class TestSet {
         new TestSet("webdsl", new TestSetParseTableFromATerm("WebDSL"), new TestSetSingleInput("WebDSL/built-in.app"));
 
     public static List<TestSet> all =
-        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, java8, java8_unrolled, greenMarl, webDSL);
+        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, java8, java8unrolled, greenMarl, webDSL);
 
 }

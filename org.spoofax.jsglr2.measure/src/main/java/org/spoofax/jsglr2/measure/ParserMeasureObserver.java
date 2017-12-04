@@ -9,13 +9,13 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.IForActorStacks;
 import org.spoofax.jsglr2.parser.IParserObserver;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFailure;
 import org.spoofax.jsglr2.parser.ParseSuccess;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.states.IState;
 

@@ -10,13 +10,13 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.IForActorStacks;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.stack.ActiveStacks;
-import org.spoofax.jsglr2.stack.IActiveStacks;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
+import org.spoofax.jsglr2.stack.collections.ActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.testset.TestSet;
 

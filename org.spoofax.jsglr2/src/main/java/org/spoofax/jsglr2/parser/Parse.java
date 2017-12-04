@@ -8,8 +8,10 @@ import java.util.Queue;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.ActiveStacks;
-import org.spoofax.jsglr2.stack.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.ActiveStacks;
+import org.spoofax.jsglr2.stack.collections.ForActorStacks;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class Parse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 

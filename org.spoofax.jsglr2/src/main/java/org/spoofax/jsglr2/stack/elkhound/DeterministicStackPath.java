@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.stack.elkhound;
 
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackPath;
+import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class DeterministicStackPath<ParseForest, StackNode extends AbstractStackNode<ParseForest>>
     extends StackPath<ParseForest, StackNode> {

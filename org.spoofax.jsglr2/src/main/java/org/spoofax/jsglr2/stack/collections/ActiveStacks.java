@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.stack;
+package org.spoofax.jsglr2.stack.collections;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.IForActorStacks;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.states.IState;
 
 public class ActiveStacks<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest>

@@ -1,4 +1,7 @@
-package org.spoofax.jsglr2.stack;
+package org.spoofax.jsglr2.stack.paths;
+
+import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.StackLink;
 
 public class EmptyStackPath<ParseForest, StackNode extends AbstractStackNode<ParseForest>>
     extends StackPath<ParseForest, StackNode> {

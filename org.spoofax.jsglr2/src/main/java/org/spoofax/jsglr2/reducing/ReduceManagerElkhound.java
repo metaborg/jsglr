@@ -7,10 +7,10 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackPath;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.stack.elkhound.DeterministicStackPath;
+import org.spoofax.jsglr2.stack.paths.StackPath;
 import org.spoofax.jsglr2.states.IState;
 
 public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>

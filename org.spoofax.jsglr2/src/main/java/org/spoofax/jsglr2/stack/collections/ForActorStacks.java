@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.parser;
+package org.spoofax.jsglr2.stack.collections;
 
 import java.util.ArrayDeque;
 import java.util.Comparator;
@@ -6,6 +6,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 public final class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>

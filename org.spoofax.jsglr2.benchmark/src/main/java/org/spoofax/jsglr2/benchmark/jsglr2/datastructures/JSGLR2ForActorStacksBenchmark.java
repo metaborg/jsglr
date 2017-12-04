@@ -8,12 +8,12 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.ForActorStacks;
-import org.spoofax.jsglr2.parser.IForActorStacks;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
+import org.spoofax.jsglr2.stack.collections.ForActorStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureBenchmark {

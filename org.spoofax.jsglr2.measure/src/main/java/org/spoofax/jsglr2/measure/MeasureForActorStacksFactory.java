@@ -10,14 +10,19 @@ public class MeasureForActorStacksFactory implements IForActorStacksFactory {
 
     MeasureForActorStacks<?, ?> measureForActorStacks = null;
 
+    @SuppressWarnings("unchecked")
     @Override
     public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
         IForActorStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
-        MeasureForActorStacks<ParseForest, StackNode> measureForActorStacks = new MeasureForActorStacks<>(observing);
+        if(measureForActorStacks == null) {
+            MeasureForActorStacks<ParseForest, StackNode> measureForActorStacks =
+                new MeasureForActorStacks<>(observing);
 
-        this.measureForActorStacks = measureForActorStacks;
+            this.measureForActorStacks = measureForActorStacks;
 
-        return measureForActorStacks;
+            return measureForActorStacks;
+        } else
+            return (MeasureForActorStacks<ParseForest, StackNode>) measureForActorStacks;
     }
 
 }

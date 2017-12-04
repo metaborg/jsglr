@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.actions.IReduceLookahead;
@@ -13,6 +12,10 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 import org.spoofax.jsglr2.states.IState;
 
 public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
@@ -22,31 +25,30 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
     private final StackManager<ParseForest, StackNode> stackManager;
     private final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
     private final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
+    private final IActiveStacksFactory activeStacksFactory;
+    private final IForActorStacksFactory forActorStacksFactory;
     private final ParserObserving<ParseForest, StackNode> observing;
 
-    public Parser(IParseTable parseTable, StackManager<ParseForest, StackNode> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
-        this.parseTable = parseTable;
-        this.stackManager = stackManager;
-        this.parseForestManager = parseForestManager;
-        this.reduceManager =
-            new ReduceManager<>(parseTable, stackManager, parseForestManager, ParseForestConstruction.Full);
-        this.observing = new ParserObserving<>();
-    }
-
-    public Parser(IParseTable parseTable, StackManager<ParseForest, StackNode> stackManager,
+    public Parser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
+        IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reducer) {
+        ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager) {
         this.parseTable = parseTable;
+        this.activeStacksFactory = activeStacksFactory;
+        this.forActorStacksFactory = forActorStacksFactory;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reduceManager = reducer;
+        this.reduceManager = reduceManager;
         this.observing = new ParserObserving<>();
     }
 
     @Override
     public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
-        Parse<ParseForest, StackNode> parse = new Parse<ParseForest, StackNode>(inputString, filename, observing);
+        IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
+        IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
+
+        Parse<ParseForest, StackNode> parse =
+            new Parse<ParseForest, StackNode>(inputString, filename, activeStacks, forActorStacks, observing);
 
         observing.notify(observer -> observer.parseStart(parse));
 

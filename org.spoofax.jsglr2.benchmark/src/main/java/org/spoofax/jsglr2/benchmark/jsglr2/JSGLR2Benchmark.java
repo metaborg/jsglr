@@ -32,6 +32,10 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
     @Param({ "false", "true" }) public boolean implode;
 
+    @Param({ "Array" }) public JSGLR2Variants.ActiveStacksRepresentation activeStacksRepresentation;
+
+    @Param({ "Array" }) public JSGLR2Variants.ForActorStacksRepresentation forActorStacksRepresentation;
+
     @Param({ "Null", "Basic", "Hybrid" }) public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
 
     @Param({ "Full", "Optimized" }) public JSGLR2Variants.ParseForestConstruction parseForestConstruction;
@@ -46,10 +50,10 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
         InterruptedException, URISyntaxException {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        parser = JSGLR2Variants.getParser(parseTable, parseForestRepresentation, parseForestConstruction,
-            stackRepresentation, reducing);
-        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, parseForestRepresentation, parseForestConstruction,
-            stackRepresentation, reducing);
+        parser = JSGLR2Variants.getParser(parseTable, activeStacksRepresentation, forActorStacksRepresentation,
+            parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
+        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, activeStacksRepresentation, forActorStacksRepresentation,
+            parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
     }
 
     @Benchmark

@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.JSGLR2Variants.ActiveStacksRepresentation;
+import org.spoofax.jsglr2.JSGLR2Variants.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
@@ -35,12 +37,15 @@ public class ParsingMeasurements extends Measurements {
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        JSGLR2Variants.Variant variantStandard = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Basic);
-        JSGLR2Variants.Variant variantElkhound = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Elkhound);
-        JSGLR2Variants.Variant variantOptimzedParseForest = new JSGLR2Variants.Variant(ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Basic);
+        JSGLR2Variants.Variant variantStandard = new JSGLR2Variants.Variant(ActiveStacksRepresentation.Array,
+            ForActorStacksRepresentation.Array, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+            StackRepresentation.HybridElkhound, Reducing.Basic);
+        JSGLR2Variants.Variant variantElkhound = new JSGLR2Variants.Variant(ActiveStacksRepresentation.Array,
+            ForActorStacksRepresentation.Array, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+            StackRepresentation.HybridElkhound, Reducing.Elkhound);
+        JSGLR2Variants.Variant variantOptimzedParseForest = new JSGLR2Variants.Variant(ActiveStacksRepresentation.Array,
+            ForActorStacksRepresentation.Array, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized,
+            StackRepresentation.HybridElkhound, Reducing.Basic);
 
         measure(parseTable, variantStandard, "standard");
         measure(parseTable, variantElkhound, "elkhound");

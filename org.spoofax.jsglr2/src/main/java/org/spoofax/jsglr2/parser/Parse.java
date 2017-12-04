@@ -7,8 +7,6 @@ import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.collections.ActiveStacks;
-import org.spoofax.jsglr2.stack.collections.ForActorStacks;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
@@ -32,7 +30,8 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
 
     public final ParserObserving<ParseForest, StackNode> observing;
 
-    public Parse(String inputString, String filename, ParserObserving<ParseForest, StackNode> observing) {
+    public Parse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+        IForActorStacks<StackNode> forActorStacks, ParserObserving<ParseForest, StackNode> observing) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
@@ -48,8 +47,8 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
         this.ambiguousTreeNodes = 0;
 
         this.acceptingStack = null;
-        this.activeStacks = new ActiveStacks<>(observing);
-        this.forActorStacks = new ForActorStacks<>(observing);
+        this.activeStacks = activeStacks;
+        this.forActorStacks = forActorStacks;
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
@@ -59,11 +58,6 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
         this.currentChar = getChar(currentOffset);
 
         this.observing = observing;
-    }
-
-    public static <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
-        Parse<ParseForest, StackNode> empty() {
-        return new Parse<>("", "", new ParserObserving<>());
     }
 
     public Position currentPosition() {

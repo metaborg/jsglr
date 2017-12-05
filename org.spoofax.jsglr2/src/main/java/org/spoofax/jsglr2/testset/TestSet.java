@@ -35,12 +35,11 @@ public class TestSet {
         System.getProperty(String.format("%s.%s", TestSet.class.getCanonicalName(), "javaInputPath"),
             "/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms");
 
-    public static TestSet java8 = new TestSet("java8", new TestSetParseTableFromATerm("Java8"),
+    public static TestSet java8 = new TestSet("java", new TestSetParseTableFromATerm("Java8"),
         new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
-    public static TestSet java8unrolled =
-        new TestSet("java8unrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
-            new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
+    public static TestSet java8unrolled = new TestSet("javaUnrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
+        new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
     public static TestSet greenMarl = new TestSet("greenmarl", new TestSetParseTableFromATerm("GreenMarl"),
         new TestSetSingleInput("GreenMarl/infomap.gm"));

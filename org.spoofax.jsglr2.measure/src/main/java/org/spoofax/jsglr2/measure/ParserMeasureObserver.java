@@ -68,6 +68,21 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
         }
     }
 
+    int stackNodesSingleLink() {
+        int res = 0;
+
+        for(AbstractElkhoundStackNode<?> stackNode : stackNodes) {
+            int linksOutCount = 0;
+
+            for(StackLink<?, ?> link : stackNode.getLinksOut())
+                linksOutCount++;
+
+            res += linksOutCount == 1 ? 1 : 0;
+        }
+
+        return res;
+    }
+
     @Override
     public void parseStart(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
         this.parse = parse;

@@ -93,11 +93,21 @@ public class ParsingMeasurements extends Measurements {
         ParserMeasureObserver<HybridParseForest> measureObserver) {
         List<String> cells = new ArrayList<String>();
 
+        int parseNodesSingleDerivation = 0;
+
         List<ParseNode> parseNodesContextFree = new ArrayList<ParseNode>();
         List<ParseNode> parseNodesLexical = new ArrayList<ParseNode>();
         List<ParseNode> parseNodesLayout = new ArrayList<ParseNode>();
 
         for(ParseNode parseNode : measureObserver.parseNodes) {
+            int derivationCount = 0;
+
+            for(Derivation derivation : parseNode.getDerivations())
+                derivationCount++;
+
+            if(derivationCount == 1)
+                parseNodesSingleDerivation++;
+
             if(parseNode.production.isContextFree())
                 parseNodesContextFree.add(parseNode);
 
@@ -165,6 +175,9 @@ public class ParsingMeasurements extends Measurements {
                 case stackNodes:
                     cells.add("" + measureObserver.stackNodes.size());
                     break;
+                case stackNodesSingleLink:
+                    cells.add("" + measureObserver.stackNodesSingleLink());
+                    break;
                 case stackLinks:
                     cells.add("" + measureObserver.stackLinks.size());
                     break;
@@ -176,6 +189,9 @@ public class ParsingMeasurements extends Measurements {
                     break;
                 case parseNodes:
                     cells.add("" + measureObserver.parseNodes.size());
+                    break;
+                case parseNodesSingleDerivation:
+                    cells.add("" + parseNodesSingleDerivation);
                     break;
                 case parseNodesAmbiguous:
                     cells.add("" + parseNodesAmbiguous(measureObserver.parseNodes));
@@ -250,11 +266,11 @@ public class ParsingMeasurements extends Measurements {
         size, characters, activeStacksAdds, activeStacksMaxSize, activeStacksIsSingleChecks, activeStacksIsEmptyChecks,
         activeStacksFindsWithState, activeStacksForLimitedReductions, activeStacksAddAllTo, activeStacksClears,
         activeStacksIterators, forActorAdds, forActorDelayedAdds, forActorMaxSize, forActorDelayedMaxSize,
-        forActorContainsChecks, forActorNonEmptyChecks, stackNodes, stackLinks, stackLinksRejected,
-        deterministicDepthResets, parseNodes, parseNodesAmbiguous, parseNodesContextFree,
-        parseNodesContextFreeAmbiguous, parseNodesLexical, parseNodesLexicalAmbiguous, parseNodesLayout,
-        parseNodesLayoutAmbiguous, characterNodes, actors, doReductions, doLimitedReductions, doReductionsLR,
-        doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers, reducersElkhound
+        forActorContainsChecks, forActorNonEmptyChecks, stackNodes, stackNodesSingleLink, stackLinks,
+        stackLinksRejected, deterministicDepthResets, parseNodes, parseNodesSingleDerivation, parseNodesAmbiguous,
+        parseNodesContextFree, parseNodesContextFreeAmbiguous, parseNodesLexical, parseNodesLexicalAmbiguous,
+        parseNodesLayout, parseNodesLayoutAmbiguous, characterNodes, actors, doReductions, doLimitedReductions,
+        doReductionsLR, doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers, reducersElkhound
     }
 
     private static void csvHeader(PrintWriter out) {

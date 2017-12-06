@@ -33,7 +33,7 @@ public class MeasureActiveStacks<ParseForest extends AbstractParseForest, StackN
     public boolean isSingle() {
         iSingleChecks++;
 
-        return super.isEmpty();
+        return super.isSingle();
     }
 
     @Override

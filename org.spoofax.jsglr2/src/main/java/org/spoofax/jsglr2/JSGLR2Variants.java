@@ -30,6 +30,7 @@ import org.spoofax.jsglr2.stack.basic.HybridStackManager;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
@@ -38,10 +39,6 @@ import org.spoofax.jsglr2.stack.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.HybridElkhoundStackManager;
 
 public class JSGLR2Variants {
-
-    public enum ForActorStacksRepresentation {
-        Array
-    }
 
     public enum ParseForestRepresentation {
         Null, Basic, Hybrid
@@ -125,17 +122,7 @@ public class JSGLR2Variants {
 
     public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, Variant variant) {
         IActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
-
-        IForActorStacksFactory forActorStacksFactory;
-
-        switch(variant.forActorStacksRepresentation) {
-            case Array:
-                forActorStacksFactory = new ForActorStacksFactory();
-                break;
-            default:
-                forActorStacksFactory = null;
-                break;
-        }
+        IForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
 
         return getParser(parseTable, activeStacksFactory, forActorStacksFactory, variant);
     }

@@ -18,6 +18,7 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
@@ -36,7 +37,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Param({ "ArrayList", "ArrayListHashMap",
         "LinkedHashMap" }) public ActiveStacksRepresentation activeStacksRepresentation;
 
-    @Param({ "Array" }) public JSGLR2Variants.ForActorStacksRepresentation forActorStacksRepresentation;
+    @Param({ "ArrayDeque", "LinkedHashMap" }) public ForActorStacksRepresentation forActorStacksRepresentation;
 
     @Param({ "Null", "Basic", "Hybrid" }) public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
 

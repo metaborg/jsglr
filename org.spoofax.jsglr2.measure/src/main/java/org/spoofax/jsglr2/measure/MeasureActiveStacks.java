@@ -5,12 +5,12 @@ import java.util.Iterator;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.collections.ActiveStacks;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksArrayList;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.states.IState;
 
 public class MeasureActiveStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
-    extends ActiveStacks<ParseForest, StackNode> {
+    extends ActiveStacksArrayList<ParseForest, StackNode> {
 
     long adds = 0, maxSize = 0, iSingleChecks = 0, isEmptyChecks = 0, findsWithState = 0, forLimitedReductions = 0,
         addAllTo = 0, clears = 0, iterators = 0;

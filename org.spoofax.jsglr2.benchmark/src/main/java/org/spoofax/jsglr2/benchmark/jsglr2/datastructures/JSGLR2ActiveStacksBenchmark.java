@@ -15,7 +15,7 @@ import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.stack.collections.ActiveStacks;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksArrayList;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.states.IState;
@@ -45,7 +45,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
 
         switch(representation) {
             case ArrayList:
-                activeStacks = new ActiveStacks<>(new ParserObserving<>());
+                activeStacks = new ActiveStacksArrayList<>(new ParserObserving<>());
 
                 break;
             default:

@@ -28,6 +28,7 @@ import org.spoofax.jsglr2.stack.basic.AbstractBasicStackNode;
 import org.spoofax.jsglr2.stack.basic.BasicStackManager;
 import org.spoofax.jsglr2.stack.basic.HybridStackManager;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
@@ -37,10 +38,6 @@ import org.spoofax.jsglr2.stack.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.stack.elkhound.HybridElkhoundStackManager;
 
 public class JSGLR2Variants {
-
-    public enum ActiveStacksRepresentation {
-        Array
-    }
 
     public enum ForActorStacksRepresentation {
         Array
@@ -127,20 +124,11 @@ public class JSGLR2Variants {
     }
 
     public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, Variant variant) {
-        IActiveStacksFactory activeStacksFactory;
-
-        switch(variant.activeStacksRepresentation) {
-            case Array:
-                activeStacksFactory = new ActiveStacksFactory();
-                break;
-            default:
-                activeStacksFactory = null;
-                break;
-        }
+        IActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
 
         IForActorStacksFactory forActorStacksFactory;
 
-        switch(variant.activeStacksRepresentation) {
+        switch(variant.forActorStacksRepresentation) {
             case Array:
                 forActorStacksFactory = new ForActorStacksFactory();
                 break;

@@ -7,7 +7,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.JSGLR2Variants.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variants.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
@@ -21,6 +20,7 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
@@ -40,7 +40,7 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark {
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
         parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
-            ActiveStacksRepresentation.Array, ForActorStacksRepresentation.Array, ParseForestRepresentation.Basic,
+            ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.Array, ParseForestRepresentation.Basic,
             ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
 
         postParserSetup();

@@ -3,10 +3,10 @@ package org.spoofax.jsglr2.measure;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.collections.ForActorStacks;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksArrayDeque;
 
 public class MeasureForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
-    extends ForActorStacks<ParseForest, StackNode> {
+    extends ForActorStacksArrayDeque<ParseForest, StackNode> {
 
     long forActorAdds = 0, forActorDelayedAdds = 0, forActorMaxSize = 0, forActorDelayedMaxSize = 0, containsChecks = 0,
         nonEmptyChecks = 0;

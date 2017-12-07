@@ -9,7 +9,7 @@ public class ForActorStacksFactory implements IForActorStacksFactory {
     @Override
     public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
         IForActorStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
-        return new ForActorStacks<>(observing);
+        return new ForActorStacksArrayDeque<>(observing);
     }
 
 }

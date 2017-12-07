@@ -13,7 +13,7 @@ import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.stack.collections.ForActorStacks;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksArrayDeque;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.testset.TestSet;
 
@@ -41,7 +41,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
 
         switch(representation) {
             case DequeuePriority:
-                forActorStacks = new ForActorStacks<>(new ParserObserving<>());
+                forActorStacks = new ForActorStacksArrayDeque<>(new ParserObserving<>());
 
                 break;
             default:

@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.stack.collections;
 
-import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -9,13 +8,13 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public abstract class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IForActorStacks<StackNode> {
 
     private final ParserObserving<ParseForest, StackNode> observing;
-    protected final Queue<StackNode> forActor, forActorDelayed;
+    protected final Queue<StackNode> forActorDelayed;
 
-    public ForActorStacks(ParserObserving<ParseForest, StackNode> observing) {
+    protected ForActorStacks(ParserObserving<ParseForest, StackNode> observing) {
         this.observing = observing;
 
         Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
@@ -25,9 +24,16 @@ public class ForActorStacks<ParseForest extends AbstractParseForest, StackNode e
             }
         };
 
-        this.forActor = new ArrayDeque<StackNode>();
         this.forActorDelayed = new PriorityQueue<StackNode>(stackNodePriorityComparator);
     }
+
+    protected abstract void forActorAdd(StackNode stack);
+
+    protected abstract boolean forActorContains(StackNode stack);
+
+    protected abstract boolean forActorNonEmpty();
+
+    protected abstract StackNode forActorRemove();
 
     @Override
     public void add(StackNode stack) {
@@ -36,24 +42,24 @@ public class ForActorStacks<ParseForest extends AbstractParseForest, StackNode e
         if(stack.state.isRejectable())
             forActorDelayed.add(stack);
         else
-            forActor.add(stack);
+            forActorAdd(stack);
     }
 
     @Override
     public boolean contains(StackNode stack) {
-        return forActor.contains(stack) || forActorDelayed.contains(stack);
+        return forActorContains(stack) || forActorDelayed.contains(stack);
     }
 
     @Override
     public boolean nonEmpty() {
-        return !forActor.isEmpty() || !forActorDelayed.isEmpty();
+        return forActorNonEmpty() || !forActorDelayed.isEmpty();
     }
 
     @Override
     public StackNode remove() {
         // First return all actors in forActor
-        if(!forActor.isEmpty())
-            return forActor.remove();
+        if(forActorNonEmpty())
+            return forActorRemove();
 
         // Then return actors from forActorDelayed
         return forActorDelayed.remove();

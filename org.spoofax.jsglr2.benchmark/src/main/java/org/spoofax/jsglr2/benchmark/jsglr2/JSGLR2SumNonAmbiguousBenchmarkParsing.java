@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import org.openjdk.jmh.annotations.Param;
 import org.spoofax.jsglr2.testset.TestSet;
 
-public class JSGLR2SumNonAmbiguousBenchmark extends JSGLR2Benchmark {
+public class JSGLR2SumNonAmbiguousBenchmarkParsing extends JSGLR2BenchmarkParsing {
 
-    public JSGLR2SumNonAmbiguousBenchmark() {
+    public JSGLR2SumNonAmbiguousBenchmarkParsing() {
         super(TestSet.sumNonAmbiguous);
     }
 

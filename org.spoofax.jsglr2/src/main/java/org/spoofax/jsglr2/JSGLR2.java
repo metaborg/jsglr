@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -29,9 +30,9 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
     public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IParseTable parseTable)
         throws ParseTableReadException {
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
-            ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-            ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
-            Reducing.Elkhound);
+            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
+                Reducing.Elkhound));
     }
 
     public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm)

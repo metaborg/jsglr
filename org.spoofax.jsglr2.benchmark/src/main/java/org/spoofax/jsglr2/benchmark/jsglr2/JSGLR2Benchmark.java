@@ -2,16 +2,19 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
+import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
+import org.spoofax.jsglr2.JSGLR2Variants.Variant;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
@@ -38,54 +41,86 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
         super(testSet);
     }
 
-    @Param({ "false", "true" }) public boolean implode;
+    abstract protected Variant variant();
 
-    @Param({ "Separated", "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation;
-
-    @Param({ "ForLoop", "CapsuleImmutableBinaryRelation",
-        "JavaHashMap" }) ProductionToGotoRepresentation productionToGotoRepresentation;
-
-    @Param({ "ArrayList", "ArrayListHashMap",
-        "LinkedHashMap" }) public ActiveStacksRepresentation activeStacksRepresentation;
-
-    @Param({ "ArrayDeque", "LinkedHashMap" }) public ForActorStacksRepresentation forActorStacksRepresentation;
-
-    @Param({ "Null", "Basic", "Hybrid" }) public ParseForestRepresentation parseForestRepresentation;
-
-    @Param({ "Full", "Optimized" }) public ParseForestConstruction parseForestConstruction;
-
-    @Param({ "Basic", "Hybrid", "BasicElkhound", "HybridElkhound" }) public StackRepresentation stackRepresentation;
-
-    @Param({ "Basic", "Elkhound" }) public Reducing reducing;
+    abstract protected boolean implode();
 
     @Setup
     public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {
-        IParseTable parseTable = new ParseTableReader(actionsForCharacterRepresentation, productionToGotoRepresentation)
-            .read(testSetReader.getParseTableTerm());
+        Variant variant = variant();
 
-        parser = JSGLR2Variants.getParser(parseTable, activeStacksRepresentation, forActorStacksRepresentation,
-            parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
-        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, activeStacksRepresentation, forActorStacksRepresentation,
-            parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
+        filterVariants(implode(), variant);
+
+        IParseTable parseTable = new ParseTableReader(variant.parseTable.actionsForCharacterRepresentation,
+            variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
+
+        parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+        jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+    }
+
+    //@formatter:off
+    static ParserVariant naiveParserVariant = new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
+    
+    static ParseTableVariant naiveTableVariant     = new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop);
+    static ParseTableVariant bestParseTableVariant = new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.JavaHashMap);
+    
+    static List<JSGLR2Variants.Variant> benchmarkParseVariants = Arrays.asList(
+        // Variants for parse table variants
+        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),                        naiveParserVariant),
+        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation), naiveParserVariant),
+        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.JavaHashMap),                    naiveParserVariant),
+        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.ForLoop),                        naiveParserVariant),
+        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation), naiveParserVariant),
+        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.JavaHashMap),                    naiveParserVariant),
+        
+        // Variants for parser variants
+        // - Data structures
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Basic,  Reducing.Basic)),
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Hybrid, Reducing.Basic)),
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.Basic,  Reducing.Basic)),
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.Hybrid, Reducing.Basic)),
+
+        // - Elkhound
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Basic)),
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Elkhound)),
+        
+        // - Parse forest construction
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid, Reducing.Basic)),
+
+        // - Best
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound)),
+
+        // - Naive
+        new Variant(naiveTableVariant, naiveParserVariant)
+    );
+    
+    static List<JSGLR2Variants.Variant> benchmarkParseAndImplodeVariants = Arrays.asList(
+        new Variant(naiveTableVariant, naiveParserVariant),
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid, Reducing.Basic)),
+        new Variant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound))
+    );
+    //@formatter:on
+
+    public static void filterVariants(boolean implode, Variant variant) {
+        if(!implode && !benchmarkParseVariants.contains(variant))
+            throw new IllegalStateException("this variant is not used for benchmarking");
+
+        if(implode && !benchmarkParseAndImplodeVariants.contains(variant))
+            throw new IllegalStateException("this variant is not used for benchmarking");
     }
 
     @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
-        if(implode) {
-            if(parseForestRepresentation == ParseForestRepresentation.Null) {
+        if(implode()) {
+            if(variant().parser.parseForestRepresentation == ParseForestRepresentation.Null)
                 throw new IllegalStateException("imploding requires a parse forest");
-            }
 
-            for(Input input : inputs) {
-                final Object result = jsglr2.parseUnsafe(input.content, input.filename, null);
-                bh.consume(result);
-            }
+            for(Input input : inputs)
+                bh.consume(jsglr2.parseUnsafe(input.content, input.filename, null));
         } else {
-            for(Input input : inputs) {
-                final AbstractParseForest forest = parser.parseUnsafe(input.content, input.filename, null);
-                bh.consume(forest);
-            }
+            for(Input input : inputs)
+                bh.consume(parser.parseUnsafe(input.content, input.filename, null));
         }
     }
 

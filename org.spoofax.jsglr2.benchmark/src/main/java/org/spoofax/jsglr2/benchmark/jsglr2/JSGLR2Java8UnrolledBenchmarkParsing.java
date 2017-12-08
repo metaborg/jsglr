@@ -2,9 +2,9 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import org.spoofax.jsglr2.testset.TestSet;
 
-public class JSGLR2Java8UnrolledBenchmark extends JSGLR2Benchmark {
+public class JSGLR2Java8UnrolledBenchmarkParsing extends JSGLR2BenchmarkParsing {
 
-    public JSGLR2Java8UnrolledBenchmark() {
+    public JSGLR2Java8UnrolledBenchmarkParsing() {
         super(TestSet.java8unrolled);
     }
 

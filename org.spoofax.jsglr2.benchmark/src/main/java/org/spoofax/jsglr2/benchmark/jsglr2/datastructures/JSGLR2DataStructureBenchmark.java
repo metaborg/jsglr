@@ -7,6 +7,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -40,8 +41,9 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark {
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
         parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
-            ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-            ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
+            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
+                Reducing.Basic));
 
         postParserSetup();
 

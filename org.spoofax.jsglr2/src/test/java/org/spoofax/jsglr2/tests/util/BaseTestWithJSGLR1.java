@@ -14,7 +14,7 @@ public abstract class BaseTestWithJSGLR1 extends BaseTest implements WithJSGLR1 
     protected void testSuccessByJSGLR1(String inputString) {
         IParseTable parseTable = getParseTable();
 
-        for(JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
+        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.allVariants()) {
             IStrategoTerm actualOutputAst = testSuccess(parseTable, variant, null, inputString);
 
             try {

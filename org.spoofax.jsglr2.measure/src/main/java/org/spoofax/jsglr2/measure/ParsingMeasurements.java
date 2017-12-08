@@ -37,14 +37,14 @@ public class ParsingMeasurements extends Measurements {
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        JSGLR2Variants.Variant variantStandard = new JSGLR2Variants.Variant(ActiveStacksRepresentation.ArrayList,
+        JSGLR2Variants.ParserVariant variantStandard = new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
             ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
             StackRepresentation.HybridElkhound, Reducing.Basic);
-        JSGLR2Variants.Variant variantElkhound = new JSGLR2Variants.Variant(ActiveStacksRepresentation.ArrayList,
+        JSGLR2Variants.ParserVariant variantElkhound = new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
             ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
             StackRepresentation.HybridElkhound, Reducing.Elkhound);
-        JSGLR2Variants.Variant variantOptimzedParseForest =
-            new JSGLR2Variants.Variant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+        JSGLR2Variants.ParserVariant variantOptimzedParseForest =
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
                 Reducing.Basic);
 
@@ -53,7 +53,7 @@ public class ParsingMeasurements extends Measurements {
         measure(parseTable, variantOptimzedParseForest, "optimizedParseForest");
     }
 
-    private void measure(IParseTable parseTable, JSGLR2Variants.Variant variant, String postfix)
+    private void measure(IParseTable parseTable, JSGLR2Variants.ParserVariant variant, String postfix)
         throws ParseTableReadException, IOException, ParseException {
         PrintWriter out =
             new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");

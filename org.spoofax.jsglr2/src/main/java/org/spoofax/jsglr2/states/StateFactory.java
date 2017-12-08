@@ -5,11 +5,11 @@ import org.spoofax.jsglr2.actions.IGoto;
 
 public class StateFactory implements IStateFactory {
 
-    private final ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation;
+    private final ActionsForCharacterRepresentation actionsPerCharacterClassRepresentation;
     private final ProductionToGotoRepresentation productionToGotoRepresentation;
 
-    public static ActionsPerCharacterClassRepresentation defaultActionsPerCharacterClassRepresentation =
-        ActionsPerCharacterClassRepresentation.DisjointSorted;
+    public static ActionsForCharacterRepresentation defaultActionsPerCharacterClassRepresentation =
+        ActionsForCharacterRepresentation.DisjointSorted;
     public static ProductionToGotoRepresentation defaultProductionToGotoRepresentation =
         ProductionToGotoRepresentation.JavaHashMap;
 
@@ -17,7 +17,7 @@ public class StateFactory implements IStateFactory {
         this(defaultActionsPerCharacterClassRepresentation, defaultProductionToGotoRepresentation);
     }
 
-    public StateFactory(ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation,
+    public StateFactory(ActionsForCharacterRepresentation actionsPerCharacterClassRepresentation,
         ProductionToGotoRepresentation productionToGotoType) {
         this.actionsPerCharacterClassRepresentation = actionsPerCharacterClassRepresentation;
         this.productionToGotoRepresentation = productionToGotoType;
@@ -25,15 +25,15 @@ public class StateFactory implements IStateFactory {
 
     @Override
     public IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
-        ICharacterToActions characterToActions;
+        IActionsForCharacter characterToActions;
         IProductionToGoto productionToGoto;
 
         switch(actionsPerCharacterClassRepresentation) {
             case DisjointSorted:
-                characterToActions = new CharacterToActionsDisjointSorted(actionsPerCharacterClass);
+                characterToActions = new ActionsForCharacterDisjointSorted(actionsPerCharacterClass);
                 break;
             case Separated:
-                characterToActions = new CharacterToActionsSeparated(actionsPerCharacterClass);
+                characterToActions = new ActionsForCharacterSeparated(actionsPerCharacterClass);
                 break;
             default:
                 characterToActions = null;

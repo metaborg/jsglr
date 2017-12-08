@@ -10,11 +10,11 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parser.Parse;
 
-public final class CharacterToActionsSeparated implements ICharacterToActions {
+public final class ActionsForCharacterSeparated implements IActionsForCharacter {
 
     private final ActionForCharacterClass[] actions;
 
-    public CharacterToActionsSeparated(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
+    public ActionsForCharacterSeparated(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
         List<ActionForCharacterClass> actionPerCharacterClasses = new ArrayList<>();
 
         for(ActionsPerCharacterClass actionsPerCharacterClass : actionsPerCharacterClasses) {

@@ -9,10 +9,10 @@ public final class State implements IState {
     private final int stateId;
     private boolean rejectable;
 
-    final ICharacterToActions characterToActions;
+    final IActionsForCharacter characterToActions;
     final IProductionToGoto productionToGoto;
 
-    public State(int stateId, ICharacterToActions characterToActions, IProductionToGoto productionToGoto) {
+    public State(int stateId, IActionsForCharacter characterToActions, IProductionToGoto productionToGoto) {
         this.stateId = stateId;
         this.characterToActions = characterToActions;
         this.productionToGoto = productionToGoto;

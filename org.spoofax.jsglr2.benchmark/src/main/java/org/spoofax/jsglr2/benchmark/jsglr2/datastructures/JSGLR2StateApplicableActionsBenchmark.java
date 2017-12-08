@@ -20,7 +20,7 @@ import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.states.ActionsPerCharacterClassRepresentation;
+import org.spoofax.jsglr2.states.ActionsForCharacterRepresentation;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.StateFactory;
@@ -41,7 +41,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     @Param({ "false", "true" }) public boolean cacheActions;
 
-    @Param ActionsPerCharacterClassRepresentation actionsPerCharacterClassRepresentation;
+    @Param ActionsForCharacterRepresentation actionsPerCharacterClassRepresentation;
 
     @Override
     public void postParserSetup() {

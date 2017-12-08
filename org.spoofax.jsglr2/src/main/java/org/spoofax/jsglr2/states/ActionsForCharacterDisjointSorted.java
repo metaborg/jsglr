@@ -12,11 +12,11 @@ import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parser.Parse;
 
-public final class CharacterToActionsDisjointSorted implements ICharacterToActions {
+public final class ActionsForCharacterDisjointSorted implements IActionsForCharacter {
 
     private final ActionsForRange[] actionsForSortedDisjointRanges;
 
-    public CharacterToActionsDisjointSorted(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
+    public ActionsForCharacterDisjointSorted(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
         this.actionsForSortedDisjointRanges = toDisjointSortedRanges(actionsPerCharacterClasses);
     }
 

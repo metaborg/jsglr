@@ -11,9 +11,9 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
-import org.spoofax.jsglr2.states.CharacterToActionsDisjointSorted;
-import org.spoofax.jsglr2.states.CharacterToActionsSeparated;
-import org.spoofax.jsglr2.states.ICharacterToActions;
+import org.spoofax.jsglr2.states.ActionsForCharacterDisjointSorted;
+import org.spoofax.jsglr2.states.ActionsForCharacterSeparated;
+import org.spoofax.jsglr2.states.IActionsForCharacter;
 
 public class MultipleActionGroupsForRangeTest {
 
@@ -69,8 +69,8 @@ public class MultipleActionGroupsForRangeTest {
     }
 
     public void test(ActionsPerCharacterClass[] actionsPerCharacterClasses) {
-        ICharacterToActions separated = new CharacterToActionsSeparated(actionsPerCharacterClasses);
-        ICharacterToActions disjointSorted = new CharacterToActionsDisjointSorted(actionsPerCharacterClasses);
+        IActionsForCharacter separated = new ActionsForCharacterSeparated(actionsPerCharacterClasses);
+        IActionsForCharacter disjointSorted = new ActionsForCharacterDisjointSorted(actionsPerCharacterClasses);
 
         for(int character = 0; character <= ICharacterClass.EOF_INT; character++) {
             Set<IAction> actionForSeparated = iterableToSet(separated.getActions(character));

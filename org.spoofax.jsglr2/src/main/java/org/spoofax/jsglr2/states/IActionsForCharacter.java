@@ -4,7 +4,7 @@ import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parser.Parse;
 
-public interface ICharacterToActions {
+public interface IActionsForCharacter {
 
     /*
      * Returns all actions. Only used during parse table loading for marking rejectable states, thus the implementation

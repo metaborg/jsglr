@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IGoto;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.states.ActionsForRange;
-import org.spoofax.jsglr2.states.CharacterToActionsDisjointSorted;
+import org.spoofax.jsglr2.states.ActionsForCharacterDisjointSorted;
 import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.StateFactory;
 
@@ -50,7 +50,7 @@ public class MeasureStateFactory extends StateFactory {
         statesDisjointSortableCharacterClassesCount += ICharacterClass.disjointSortable(characterClasses) ? 1 : 0;
 
         ActionsForRange[] actionsForSortedDisjointRanges =
-            CharacterToActionsDisjointSorted.toDisjointSortedRanges(actionsPerCharacterClasses);
+            ActionsForCharacterDisjointSorted.toDisjointSortedRanges(actionsPerCharacterClasses);
 
         actionDisjointSortedRangesCount += actionsForSortedDisjointRanges.length;
 

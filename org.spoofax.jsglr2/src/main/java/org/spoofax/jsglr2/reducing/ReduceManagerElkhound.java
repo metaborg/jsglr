@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.reducing;
 
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IParseTable;

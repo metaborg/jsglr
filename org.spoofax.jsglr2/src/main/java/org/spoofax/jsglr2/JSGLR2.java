@@ -1,13 +1,11 @@
 package org.spoofax.jsglr2;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
-import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
-import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -17,6 +15,8 @@ import org.spoofax.jsglr2.parser.ParseSuccess;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.reducing.Reducing;
+import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 

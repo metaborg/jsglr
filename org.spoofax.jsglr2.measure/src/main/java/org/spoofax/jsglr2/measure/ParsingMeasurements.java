@@ -7,12 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.JSGLR2Variants.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.JSGLR2Variants.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestConstruction;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseForestRepresentation;
-import org.spoofax.jsglr2.JSGLR2Variants.Reducing;
-import org.spoofax.jsglr2.JSGLR2Variants.StackRepresentation;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
@@ -21,6 +17,10 @@ import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.reducing.Reducing;
+import org.spoofax.jsglr2.stack.StackRepresentation;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
@@ -37,15 +37,16 @@ public class ParsingMeasurements extends Measurements {
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        JSGLR2Variants.Variant variantStandard = new JSGLR2Variants.Variant(ActiveStacksRepresentation.Array,
-            ForActorStacksRepresentation.Array, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+        JSGLR2Variants.Variant variantStandard = new JSGLR2Variants.Variant(ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
             StackRepresentation.HybridElkhound, Reducing.Basic);
-        JSGLR2Variants.Variant variantElkhound = new JSGLR2Variants.Variant(ActiveStacksRepresentation.Array,
-            ForActorStacksRepresentation.Array, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+        JSGLR2Variants.Variant variantElkhound = new JSGLR2Variants.Variant(ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
             StackRepresentation.HybridElkhound, Reducing.Elkhound);
-        JSGLR2Variants.Variant variantOptimzedParseForest = new JSGLR2Variants.Variant(ActiveStacksRepresentation.Array,
-            ForActorStacksRepresentation.Array, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized,
-            StackRepresentation.HybridElkhound, Reducing.Basic);
+        JSGLR2Variants.Variant variantOptimzedParseForest =
+            new JSGLR2Variants.Variant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
+                Reducing.Basic);
 
         measure(parseTable, variantStandard, "standard");
         measure(parseTable, variantElkhound, "elkhound");

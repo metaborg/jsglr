@@ -12,11 +12,15 @@ import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.reducing.Reducing;
+import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.testset.Input;
@@ -39,14 +43,13 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
     @Param({ "ArrayDeque", "LinkedHashMap" }) public ForActorStacksRepresentation forActorStacksRepresentation;
 
-    @Param({ "Null", "Basic", "Hybrid" }) public JSGLR2Variants.ParseForestRepresentation parseForestRepresentation;
+    @Param({ "Null", "Basic", "Hybrid" }) public ParseForestRepresentation parseForestRepresentation;
 
-    @Param({ "Full", "Optimized" }) public JSGLR2Variants.ParseForestConstruction parseForestConstruction;
+    @Param({ "Full", "Optimized" }) public ParseForestConstruction parseForestConstruction;
 
-    @Param({ "Basic", "Hybrid", "BasicElkhound",
-        "HybridElkhound" }) public JSGLR2Variants.StackRepresentation stackRepresentation;
+    @Param({ "Basic", "Hybrid", "BasicElkhound", "HybridElkhound" }) public StackRepresentation stackRepresentation;
 
-    @Param({ "Basic", "Elkhound" }) public JSGLR2Variants.Reducing reducing;
+    @Param({ "Basic", "Elkhound" }) public Reducing reducing;
 
     @Setup
     public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
@@ -62,7 +65,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Benchmark
     public void benchmark(Blackhole bh) throws ParseException {
         if(implode) {
-            if(parseForestRepresentation == JSGLR2Variants.ParseForestRepresentation.Null) {
+            if(parseForestRepresentation == ParseForestRepresentation.Null) {
                 throw new IllegalStateException("imploding requires a parse forest");
             }
 

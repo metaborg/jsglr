@@ -12,6 +12,7 @@ public abstract class AbstractStackNode<ParseForest> {
         this.state = state;
 	}
     
-    public abstract boolean allLinksRejected();
+	// True if non-empty and all out links are rejected
+    public abstract boolean allOutLinksRejected();
 	
 }

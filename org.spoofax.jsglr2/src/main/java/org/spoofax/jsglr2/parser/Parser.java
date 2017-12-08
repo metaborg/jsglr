@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
+import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.actions.IShift;
-import org.spoofax.jsglr2.actions.ReduceLookahead;
-import org.spoofax.jsglr2.characters.Characters;
+import org.spoofax.jsglr2.characters.ICharacters;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parsetable.IParseTable;
@@ -40,10 +40,10 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
     }
 	
 	public ParseResult<ParseForest> parse(String inputString, String filename) {
-		notify(observer -> observer.parseStart(inputString));
-		
 		Parse<StackNode, ParseForest> parse = new Parse<StackNode, ParseForest>(inputString, filename, observers);
         
+		notify(observer -> observer.parseStart(parse));
+		
 		StackNode initialStackNode = stackManager.createInitialStackNode(parse, parseTable.startState());
 
         parse.activeStacks.add(initialStackNode);
@@ -66,7 +66,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 				
 				result = success;
 			} else {
-				ParseFailure<ParseForest> failure = new ParseFailure<ParseForest>(parse, new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar + "/'" + Characters.charToString(parse.currentChar) + "', position: " + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/" + parse.inputLength + "])"));
+				ParseFailure<ParseForest> failure = new ParseFailure<ParseForest>(parse, new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar + "/'" + ICharacters.charToString(parse.currentChar) + "', position: " + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/" + parse.inputLength + "])"));
 				
 				notify(observer -> observer.failure(failure));
 				
@@ -87,25 +87,21 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 		notify(observer -> observer.parseCharacter(parse.currentChar, parse.activeStacks)); 
 		
 		parse.forActor.clear();
-		parse.forActor.addAll(parse.activeStacks);
 		parse.forActorDelayed.clear();
+		
+		parse.activeStacks.addAllTo(parse.forActor);
 		
 		parse.forShifter.clear();
 		
 		notify(observer -> observer.forActorStacks(parse.forActor, parse.forActorDelayed));
 		
-		while (!parse.forActor.isEmpty() || !parse.forActorDelayed.isEmpty()) {
-			if (parse.forActor.isEmpty())
-			    parse.forActor.add(parse.forActorDelayed.remove());
+		while (parse.hasNextActorStack()) {
+			StackNode stack = parse.getNextActorStack();
+			
+			if (!stack.allOutLinksRejected())
+				actor(stack, parse);
 			else
-				while (!parse.forActor.isEmpty()) {
-				    StackNode stack = parse.forActor.remove();
-					
-					if (!stack.allLinksRejected())
-						actor(stack, parse);
-					else
-					    notify(observer -> observer.skipRejectedStack(stack));
-				}
+			    notify(observer -> observer.skipRejectedStack(stack));
 	        
 	        notify(observer -> observer.forActorStacks(parse.forActor, parse.forActorDelayed));
 		}
@@ -116,7 +112,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 	private void actor(StackNode stack, Parse<StackNode, ParseForest> parse) {
 		Iterable<IAction> applicableActions = stack.state.applicableActions(parse.currentChar);
 		
-		notify(observer -> observer.actor(stack, applicableActions));
+		notify(observer -> observer.actor(stack, parse.currentChar, applicableActions));
 		
 		for (IAction action : applicableActions)
 			switch (action.actionType()) {
@@ -134,7 +130,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
                 
                 break;
             case REDUCE_LOOKAHEAD:
-                ReduceLookahead reduceLookaheadAction = (ReduceLookahead) action;
+                IReduceLookahead reduceLookaheadAction = (IReduceLookahead) action;
                 
                 if (reduceLookaheadAction.allowsLookahead(parse)) {
                     reducer.doReductions(parse, stack, reduceLookaheadAction);
@@ -158,7 +154,7 @@ public class Parser<StackNode extends AbstractStackNode<ParseForest>, ParseFores
 		notify(observer -> observer.shifter(characterNode, parse.forShifter));
 		
 		for (ForShifterElement<StackNode, ParseForest> forShifterElement : parse.forShifter) {
-		    StackNode activeStackForState = stackManager.findActiveStackWithState(parse, forShifterElement.state);
+		    StackNode activeStackForState = parse.activeStacks.findWithState(forShifterElement.state);
 			
 			if (activeStackForState != null) {
 			    stackManager.createStackLink(parse, activeStackForState, forShifterElement.stack, characterNode);

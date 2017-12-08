@@ -18,15 +18,15 @@ public class CommentsTest extends BaseTest implements WithGrammar {
     
     @Test
     public void oneX() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("x", "Xs([X])");
+        testSuccessByExpansions("x", "Xs([X])");
     }
     
     @Test
     public void twoXs() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("x x", "Xs([X, X])");
-        testParseSuccessByExpansions("x x // x", "Xs([X, X])");
-        testParseSuccessByExpansions("x /* x */ x", "Xs([X, X])");
-        testParseSuccessByExpansions("x /* \n */ x", "Xs([X, X])");
+        testSuccessByExpansions("x x", "Xs([X, X])");
+        testSuccessByExpansions("x x // x", "Xs([X, X])");
+        testSuccessByExpansions("x /* x */ x", "Xs([X, X])");
+        testSuccessByExpansions("x /* \n */ x", "Xs([X, X])");
     }
   
 }

@@ -5,38 +5,38 @@ import org.spoofax.jsglr2.actions.IGoto;
 
 public class StateFactory implements IStateFactory {
 
-    private final ActionsForCharacterRepresentation actionsPerCharacterClassRepresentation;
+    private final ActionsForCharacterRepresentation actionsForCharacterRepresentation;
     private final ProductionToGotoRepresentation productionToGotoRepresentation;
 
-    public static ActionsForCharacterRepresentation defaultActionsPerCharacterClassRepresentation =
+    public static ActionsForCharacterRepresentation defaultActionsForCharacterRepresentation =
         ActionsForCharacterRepresentation.DisjointSorted;
     public static ProductionToGotoRepresentation defaultProductionToGotoRepresentation =
         ProductionToGotoRepresentation.JavaHashMap;
 
     public StateFactory() {
-        this(defaultActionsPerCharacterClassRepresentation, defaultProductionToGotoRepresentation);
+        this(defaultActionsForCharacterRepresentation, defaultProductionToGotoRepresentation);
     }
 
-    public StateFactory(ActionsForCharacterRepresentation actionsPerCharacterClassRepresentation,
+    public StateFactory(ActionsForCharacterRepresentation actionsForCharacterRepresentation,
         ProductionToGotoRepresentation productionToGotoType) {
-        this.actionsPerCharacterClassRepresentation = actionsPerCharacterClassRepresentation;
+        this.actionsForCharacterRepresentation = actionsForCharacterRepresentation;
         this.productionToGotoRepresentation = productionToGotoType;
     }
 
     @Override
     public IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
-        IActionsForCharacter characterToActions;
+        IActionsForCharacter actionsForCharacter;
         IProductionToGoto productionToGoto;
 
-        switch(actionsPerCharacterClassRepresentation) {
+        switch(actionsForCharacterRepresentation) {
             case DisjointSorted:
-                characterToActions = new ActionsForCharacterDisjointSorted(actionsPerCharacterClass);
+                actionsForCharacter = new ActionsForCharacterDisjointSorted(actionsPerCharacterClass);
                 break;
             case Separated:
-                characterToActions = new ActionsForCharacterSeparated(actionsPerCharacterClass);
+                actionsForCharacter = new ActionsForCharacterSeparated(actionsPerCharacterClass);
                 break;
             default:
-                characterToActions = null;
+                actionsForCharacter = null;
                 break;
         }
 
@@ -55,7 +55,7 @@ public class StateFactory implements IStateFactory {
                 break;
         }
 
-        return new State(stateId, characterToActions, productionToGoto);
+        return new State(stateId, actionsForCharacter, productionToGoto);
     }
 
 }

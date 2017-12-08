@@ -9,12 +9,12 @@ public final class State implements IState {
     private final int stateId;
     private boolean rejectable;
 
-    final IActionsForCharacter characterToActions;
+    final IActionsForCharacter actionsForCharacter;
     final IProductionToGoto productionToGoto;
 
-    public State(int stateId, IActionsForCharacter characterToActions, IProductionToGoto productionToGoto) {
+    public State(int stateId, IActionsForCharacter actionsForCharacter, IProductionToGoto productionToGoto) {
         this.stateId = stateId;
-        this.characterToActions = characterToActions;
+        this.actionsForCharacter = actionsForCharacter;
         this.productionToGoto = productionToGoto;
         this.rejectable = false;
     }
@@ -34,17 +34,17 @@ public final class State implements IState {
     }
 
     public IAction[] actions() {
-        return characterToActions.getActions();
+        return actionsForCharacter.getActions();
     }
 
     @Override
     public Iterable<IAction> getActions(int character) {
-        return characterToActions.getActions(character);
+        return actionsForCharacter.getActions(character);
     }
 
     @Override
     public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
-        return characterToActions.getReduceActions(parse);
+        return actionsForCharacter.getReduceActions(parse);
     }
 
     public boolean hasGoto(int productionId) {

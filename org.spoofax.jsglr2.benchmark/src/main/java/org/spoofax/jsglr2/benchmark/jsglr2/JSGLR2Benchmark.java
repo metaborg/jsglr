@@ -23,6 +23,8 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
+import org.spoofax.jsglr2.states.ActionsForCharacterRepresentation;
+import org.spoofax.jsglr2.states.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
@@ -37,6 +39,11 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     }
 
     @Param({ "false", "true" }) public boolean implode;
+
+    @Param({ "Separated", "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation;
+
+    @Param({ "ForLoop", "CapsuleImmutableBinaryRelation",
+        "JavaHashMap" }) ProductionToGotoRepresentation productionToGotoRepresentation;
 
     @Param({ "ArrayList", "ArrayListHashMap",
         "LinkedHashMap" }) public ActiveStacksRepresentation activeStacksRepresentation;
@@ -54,7 +61,8 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     @Setup
     public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {
-        IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
+        IParseTable parseTable = new ParseTableReader(actionsForCharacterRepresentation, productionToGotoRepresentation)
+            .read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, activeStacksRepresentation, forActorStacksRepresentation,
             parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);

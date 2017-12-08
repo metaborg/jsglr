@@ -48,7 +48,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
 
     @Override
     protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
-        IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsPerCharacterClassRepresentation,
+        IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
             productionToGotoRepresentation);
 
         return new ParseTableReader(stateFactory).read(parseTableTerm);

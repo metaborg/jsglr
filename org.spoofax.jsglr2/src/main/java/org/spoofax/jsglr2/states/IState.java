@@ -10,6 +10,11 @@ public interface IState {
         return new StateFactory();
     }
 
+    static StateFactory factory(ActionsForCharacterRepresentation actionsForCharacterRepresentation,
+        ProductionToGotoRepresentation productionToGotoRepresentation) {
+        return new StateFactory(actionsForCharacterRepresentation, productionToGotoRepresentation);
+    }
+
     int id();
 
     boolean isRejectable();

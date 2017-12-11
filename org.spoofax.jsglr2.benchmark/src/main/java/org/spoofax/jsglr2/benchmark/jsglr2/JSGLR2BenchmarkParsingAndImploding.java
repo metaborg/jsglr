@@ -14,29 +14,28 @@ import org.spoofax.jsglr2.states.ActionsForCharacterRepresentation;
 import org.spoofax.jsglr2.states.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.testset.TestSet;
 
-public abstract class JSGLR2BenchmarkParsing extends JSGLR2Benchmark {
+public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark {
 
-    protected JSGLR2BenchmarkParsing(TestSet testSet) {
+    protected JSGLR2BenchmarkParsingAndImploding(TestSet testSet) {
         super(testSet);
     }
 
-    @Param({ "false" }) public boolean implode;
+    @Param({ "true" }) public boolean implode;
 
-    @Param({ "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation =
+    @Param({ "Separated", "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation =
         ActionsForCharacterRepresentation.DisjointSorted;
 
-    @Param({ "JavaHashMap" }) ProductionToGotoRepresentation productionToGotoRepresentation;
+    @Param({ "ForLoop", "JavaHashMap" }) ProductionToGotoRepresentation productionToGotoRepresentation;
 
-    @Param({ "ArrayList", "ArrayListHashMap",
-        "LinkedHashMap" }) public ActiveStacksRepresentation activeStacksRepresentation;
+    @Param({ "ArrayList" }) public ActiveStacksRepresentation activeStacksRepresentation;
 
-    @Param({ "ArrayDeque", "LinkedHashMap" }) public ForActorStacksRepresentation forActorStacksRepresentation;
+    @Param({ "ArrayDeque" }) public ForActorStacksRepresentation forActorStacksRepresentation;
 
     @Param({ "Basic", "Hybrid" }) public ParseForestRepresentation parseForestRepresentation;
 
     @Param({ "Full", "Optimized" }) public ParseForestConstruction parseForestConstruction;
 
-    @Param({ "Basic", "Hybrid", "BasicElkhound", "HybridElkhound" }) public StackRepresentation stackRepresentation;
+    @Param({ "Basic", "Hybrid", "HybridElkhound" }) public StackRepresentation stackRepresentation;
 
     @Param({ "Basic", "Elkhound" }) public Reducing reducing;
 

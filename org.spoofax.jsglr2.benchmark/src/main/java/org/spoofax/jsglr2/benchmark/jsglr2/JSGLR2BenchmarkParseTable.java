@@ -20,6 +20,8 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark {
         super(testSet);
     }
 
+    @Param({ "false" }) public boolean implode;
+
     @Param({ "Separated", "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation;
 
     @Param({ "ForLoop", "JavaHashMap" }) ProductionToGotoRepresentation productionToGotoRepresentation;
@@ -28,24 +30,31 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark {
 
     @Param({ "ArrayDeque" }) public ForActorStacksRepresentation forActorStacksRepresentation;
 
-    @Param({ "Null" }) public ParseForestRepresentation parseForestRepresentation;
+    @Param({ "Basic" }) public ParseForestRepresentation parseForestRepresentation;
 
     @Param({ "Full" }) public ParseForestConstruction parseForestConstruction;
 
-    @Param({ "Hybrid" }) public StackRepresentation stackRepresentation;
+    @Param({ "Basic" }) public StackRepresentation stackRepresentation;
 
     @Param({ "Basic" }) public Reducing reducing;
 
     @Override
     protected Variant variant() {
-        return new Variant(new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
-            new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
-                parseForestConstruction, stackRepresentation, reducing));
+        Variant variant =
+            new Variant(new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
+                new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
+                    parseForestConstruction, stackRepresentation, reducing));
+
+        if(variant.equals(new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
+            ProductionToGotoRepresentation.JavaHashMap), naiveParserVariant)))
+            throw new IllegalStateException("naive variant is only benchmarked once");
+        else
+            return variant;
     }
 
     @Override
     protected boolean implode() {
-        return false;
+        return implode;
     }
 
 }

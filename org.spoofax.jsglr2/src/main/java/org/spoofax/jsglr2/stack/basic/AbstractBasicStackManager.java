@@ -39,7 +39,7 @@ public abstract class AbstractBasicStackManager<ParseForest extends AbstractPars
         Parse<ParseForest, AbstractBasicStackNode<ParseForest>> parse, AbstractBasicStackNode<ParseForest> from,
         AbstractBasicStackNode<ParseForest> to, ParseForest parseNode) {
         StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link =
-            from.addOutLink(parse.stackLinkCount++, to, parseNode);
+            from.addLink(parse.stackLinkCount++, to, parseNode);
 
         parse.observing.notify(observer -> observer.createStackLink(link));
 
@@ -49,7 +49,7 @@ public abstract class AbstractBasicStackManager<ParseForest extends AbstractPars
     @Override
     protected Iterable<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>>
         stackLinksOut(AbstractBasicStackNode<ParseForest> stack) {
-        return stack.getLinksOut();
+        return stack.getLinks();
     }
 
 }

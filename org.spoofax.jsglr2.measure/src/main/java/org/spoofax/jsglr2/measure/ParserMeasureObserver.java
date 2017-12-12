@@ -74,7 +74,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
         for(AbstractElkhoundStackNode<?> stackNode : stackNodes) {
             int linksOutCount = 0;
 
-            for(StackLink<?, ?> link : stackNode.getLinksOut())
+            for(StackLink<?, ?> link : stackNode.getLinks())
                 linksOutCount++;
 
             res += linksOutCount == 1 ? 1 : 0;

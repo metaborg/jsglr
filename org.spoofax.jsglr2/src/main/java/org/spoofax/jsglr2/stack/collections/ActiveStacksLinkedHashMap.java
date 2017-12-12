@@ -71,7 +71,7 @@ public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, 
             @Override
             public boolean hasNext() {
                 while(current != null
-                    && !(!current.stack.allOutLinksRejected() && !forActorStacks.contains(current.stack)))
+                    && !(!current.stack.allLinksRejected() && !forActorStacks.contains(current.stack)))
                     current = current.prev;
 
                 return current != null;

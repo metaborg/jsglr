@@ -115,7 +115,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
             parse.observing.notify(observer -> observer.handleForActorStack(stack, parse.forActorStacks));
 
-            if(!stack.allOutLinksRejected())
+            if(!stack.allLinksRejected())
                 actor(stack, parse, character);
             else
                 parse.observing.notify(observer -> observer.skipRejectedStack(stack));

@@ -63,7 +63,7 @@ public class ActiveStacksArrayList<ParseForest extends AbstractParseForest, Stac
             @Override
             public boolean hasNext() {
                 // skip non-applicable actions
-                while(index < currentSize && !(!activeStacks.get(index).allOutLinksRejected()
+                while(index < currentSize && !(!activeStacks.get(index).allLinksRejected()
                     && !forActorStacks.contains(activeStacks.get(index)))) {
                     index++;
                 }

@@ -12,7 +12,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
     extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
-    private ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> linksOut =
+    private ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> links =
         new ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>();
 
     public BasicElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
@@ -20,26 +20,26 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksOut() {
-        return linksOut;
+    public Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinks() {
+        return links;
     }
 
     @Override
-    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> getOnlyLinkOut() {
-        return linksOut.get(0);
+    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> getOnlyLink() {
+        return links.get(0);
     }
 
     @Override
-    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addOutLink(
+    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addLink(
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link,
         Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
-        linksOut.add(link);
+        links.add(link);
 
         link.to.referenceCount++;
 
-        if(linksOut.size() == 1) { // This means the first link is just added.
+        if(links.size() == 1) { // This means the first link is just added.
             deterministicDepth = link.to.deterministicDepth + 1;
-        } else if(linksOut.size() == 2) { // The second link is added; this means non-determinism
+        } else if(links.size() == 2) { // The second link is added; this means non-determinism
             deterministicDepth = 0;
 
             if(referenceCount > 0) {
@@ -55,11 +55,11 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public boolean allOutLinksRejected() {
-        if(linksOut.isEmpty())
+    public boolean allLinksRejected() {
+        if(links.isEmpty())
             return false;
 
-        for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link : linksOut) {
+        for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link : links) {
             if(!link.isRejected())
                 return false;
         }

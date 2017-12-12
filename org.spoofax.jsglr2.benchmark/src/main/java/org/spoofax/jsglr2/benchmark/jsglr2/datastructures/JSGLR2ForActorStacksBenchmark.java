@@ -93,7 +93,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
 
                 operations.add(bh -> {
                     for(BasicStackNode<BasicParseForest> activeStack : activeStacksCopy)
-                        bh.consume(!activeStack.allOutLinksRejected() && !forActorStacks.contains(activeStack));
+                        bh.consume(!activeStack.allLinksRejected() && !forActorStacks.contains(activeStack));
                 });
             }
         }

@@ -11,17 +11,17 @@ public abstract class AbstractBasicStackNode<ParseForest> extends AbstractStackN
         super(stackNumber, state, position);
     }
 
-    public abstract Iterable<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinksOut();
+    public abstract Iterable<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinks();
 
     public abstract StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>
-        addOutLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link);
+        addLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link);
 
-    public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> addOutLink(int linkNumber,
+    public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> addLink(int linkNumber,
         AbstractBasicStackNode<ParseForest> parent, ParseForest parseNode) {
         StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link =
             new StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>(linkNumber, this, parent, parseNode);
 
-        return addOutLink(link);
+        return addLink(link);
     }
 
 }

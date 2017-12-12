@@ -40,7 +40,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
         Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse, AbstractElkhoundStackNode<ParseForest> from,
         AbstractElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link =
-            from.addOutLink(parse.stackLinkCount++, to, parseNode, parse);
+            from.addLink(parse.stackLinkCount++, to, parseNode, parse);
 
         parse.observing.notify(observer -> observer.createStackLink(link));
 
@@ -56,7 +56,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
         ParseForest[] parseForests = parseForestManager.parseForestsArray(length);
 
         for(int i = length - 1; i >= 0; i--) {
-            StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link = currentStackNode.getOnlyLinkOut();
+            StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link = currentStackNode.getOnlyLink();
 
             if(parseForests != null) {
                 parseForests[i] = link.parseForest;
@@ -75,7 +75,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
     @Override
     protected Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>
         stackLinksOut(AbstractElkhoundStackNode<ParseForest> stack) {
-        return stack.getLinksOut();
+        return stack.getLinks();
     }
 
 }

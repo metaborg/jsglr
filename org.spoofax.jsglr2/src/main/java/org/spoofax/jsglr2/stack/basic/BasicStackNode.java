@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.states.IState;
 public class BasicStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {
 
     // Directed to the initial stack node
-    private final ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> linksOut =
+    private final ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> links =
         new ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>>();
 
     public BasicStackNode(int stackNumber, IState state, Position position) {
@@ -18,24 +18,24 @@ public class BasicStackNode<ParseForest> extends AbstractBasicStackNode<ParseFor
     }
 
     @Override
-    public List<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinksOut() {
-        return linksOut;
+    public List<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinks() {
+        return links;
     }
 
     @Override
     public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>
-        addOutLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link) {
-        linksOut.add(link);
+        addLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link) {
+        links.add(link);
 
         return link;
     }
 
     @Override
-    public boolean allOutLinksRejected() {
-        if(linksOut.isEmpty())
+    public boolean allLinksRejected() {
+        if(links.isEmpty())
             return false;
 
-        for(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link : linksOut) {
+        for(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link : links) {
             if(!link.isRejected())
                 return false;
         }

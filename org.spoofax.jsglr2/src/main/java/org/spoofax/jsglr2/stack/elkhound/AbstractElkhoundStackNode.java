@@ -10,18 +10,20 @@ import org.spoofax.jsglr2.states.IState;
 public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractParseForest>
     extends AbstractStackNode<ParseForest> {
 
+    public boolean isRoot;
     public int deterministicDepth;
+    public int referenceCount;
 
-    public AbstractElkhoundStackNode(int stackNumber, IState state, Position position, int deterministicDepth) {
+    protected AbstractElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
         super(stackNumber, state, position);
-        this.deterministicDepth = deterministicDepth;
+        this.isRoot = isRoot;
+        this.deterministicDepth = isRoot ? 1 : 0;
+        this.referenceCount = 0;
     }
 
     public abstract Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksOut();
 
     public abstract StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> getOnlyLinkOut();
-
-    public abstract Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksIn();
 
     public abstract StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addOutLink(
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link,
@@ -36,15 +38,13 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractPars
         return addOutLink(link, parse);
     }
 
-    protected abstract void addInLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link);
-
-    public void resetDeterministicDepth(int deterministicDepth) {
-        if(deterministicDepth != 0) {
-            this.deterministicDepth = deterministicDepth;
-
-            for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> linkIn : getLinksIn())
-                linkIn.from.resetDeterministicDepth(deterministicDepth + 1);
-        }
+    public int resetDeterministicDepth() {
+        if(isRoot)
+            return 1;
+        else if(deterministicDepth == 0)
+            return 0;
+        else
+            return this.deterministicDepth = 1 + getOnlyLinkOut().to.resetDeterministicDepth();
     }
 
 }

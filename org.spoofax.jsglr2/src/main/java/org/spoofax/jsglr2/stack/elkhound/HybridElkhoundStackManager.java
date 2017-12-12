@@ -9,8 +9,8 @@ public class HybridElkhoundStackManager<ParseForest extends AbstractParseForest>
 
     @Override
     protected HybridElkhoundStackNode<ParseForest> createStackNode(int stackNumber, IState state, Position position,
-        int deterministicDepth) {
-        return new HybridElkhoundStackNode<ParseForest>(stackNumber, state, position, deterministicDepth);
+        boolean isRoot) {
+        return new HybridElkhoundStackNode<ParseForest>(stackNumber, state, position, isRoot);
     }
 
 }

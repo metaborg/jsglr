@@ -17,12 +17,8 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
     private StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> firstLinkOut;
     private ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> otherLinksOut;
 
-    // Directed from the initial stack node (to the future)
-    private StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> firstLinkIn;
-    private ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> otherLinksIn;
-
-    public HybridElkhoundStackNode(int stackNumber, IState state, Position position, int deterministicDepth) {
-        super(stackNumber, state, position, deterministicDepth);
+    public HybridElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
+        super(stackNumber, state, position, isRoot);
     }
 
     @Override
@@ -39,21 +35,10 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
     }
 
     @Override
-    public Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinksIn() {
-        if(firstLinkIn == null) {
-            return Collections.emptyList();
-        } else if(otherLinksIn == null) {
-            return Collections.singleton(firstLinkIn);
-        } else {
-            return SingleElementWithListIterable.of(firstLinkIn, otherLinksIn);
-        }
-    }
-
-    @Override
     public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addOutLink(
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link,
         Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
-        link.to.addInLink(link);
+        link.to.referenceCount++;
 
         if(firstLinkOut == null) { // This means where adding the first link now
             firstLinkOut = link;
@@ -66,27 +51,18 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
 
             deterministicDepth = 0;
 
-            parse.observing.notify(observer -> observer.resetDeterministicDepth(this));
+            if(referenceCount > 0) {
+                parse.observing.notify(observer -> observer.resetDeterministicDepth(this));
 
-            for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> linkIn : getLinksIn())
-                linkIn.from.resetDeterministicDepth(1);
+                for(AbstractElkhoundStackNode<ParseForest> stack : parse.activeStacks)
+                    if(stack != this)
+                        stack.resetDeterministicDepth();
+            }
         } else { // We do not handle the case > 2, since the case == 2 already adjusted deterministic depths
             otherLinksOut.add(link);
         }
 
         return link;
-    }
-
-    @Override
-    protected void addInLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link) {
-        if(firstLinkIn == null)
-            firstLinkIn = link;
-        else {
-            if(otherLinksIn == null)
-                otherLinksIn = new ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>();
-
-            otherLinksIn.add(link);
-        }
     }
 
     @Override

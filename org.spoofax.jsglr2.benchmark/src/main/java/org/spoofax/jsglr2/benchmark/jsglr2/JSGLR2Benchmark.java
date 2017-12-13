@@ -68,10 +68,8 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     static List<JSGLR2Variants.Variant> benchmarkParseVariants = Arrays.asList(
         // Variants for parse table variants
         new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),                        naiveParserVariant),
-        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation), naiveParserVariant),
         new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.JavaHashMap),                    naiveParserVariant),
         new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.ForLoop),                        naiveParserVariant),
-        new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.CapsuleImmutableBinaryRelation), naiveParserVariant),
         new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.JavaHashMap),                    naiveParserVariant),
         
         // Variants for parser variants

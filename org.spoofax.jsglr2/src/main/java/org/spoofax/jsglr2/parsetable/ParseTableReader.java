@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -32,9 +34,6 @@ import org.spoofax.jsglr2.states.State;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
-
-import io.usethesource.capsule.Set;
-import io.usethesource.capsule.util.stream.CapsuleCollectors;
 
 public class ParseTableReader {
 
@@ -294,15 +293,15 @@ public class ParseTableReader {
     // Mark states that are reachable by a reject production as rejectable. "Reachable" means the parser could
     // transition into such state by means of a goto action after reducing a production.
     private void markRejectableStates(IState[] states) {
-        final Set.Immutable<Integer> rejectProductionIds =
+        final Set<Integer> rejectProductionIds =
             Stream.of(states).flatMap(state -> Stream.of(((State) state).actions()))
                 .filter(this::isReduceOrReduceLookahead).map(IReduce.class::cast).filter(IReduce::isRejectProduction)
-                .map(IReduce::production).map(IProduction::id).collect(CapsuleCollectors.toSet());
+                .map(IReduce::production).map(IProduction::id).collect(Collectors.toSet());
 
-        final Set.Immutable<Integer> rejectableStateIds =
+        final Set<Integer> rejectableStateIds =
             Stream.of(states).flatMap(state -> rejectProductionIds.stream().filter(rejectProductionId -> {
                 return ((State) state).hasGoto(rejectProductionId);
-            }).map(state::getGotoId)).collect(CapsuleCollectors.toSet());
+            }).map(state::getGotoId)).collect(Collectors.toSet());
 
         // A state is marked as rejectable if it is reachable by at least one reject production.
         rejectableStateIds.forEach(gotoId -> ((State) states[gotoId]).markRejectable());

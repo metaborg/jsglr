@@ -41,9 +41,6 @@ public class StateFactory implements IStateFactory {
         }
 
         switch(productionToGotoRepresentation) {
-            case CapsuleImmutableBinaryRelation:
-                productionToGoto = new ProductionToGotoCapsuleBinaryRelationImmutable(gotos);
-                break;
             case ForLoop:
                 productionToGoto = new ProductionToGotoForLoop(gotos);
                 break;

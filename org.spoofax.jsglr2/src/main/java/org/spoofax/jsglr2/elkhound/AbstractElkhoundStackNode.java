@@ -33,7 +33,7 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractPars
         AbstractElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
         Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link =
-            new StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>(linkNumber, this, parent, parseNode);
+            new StackLink<>(linkNumber, this, parent, parseNode);
 
         return addLink(link, parse);
     }

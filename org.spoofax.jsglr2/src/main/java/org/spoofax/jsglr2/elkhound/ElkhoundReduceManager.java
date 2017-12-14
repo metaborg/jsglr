@@ -11,12 +11,12 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 import org.spoofax.jsglr2.states.IState;
 
-public class ReduceManagerElkhound<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>
+public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>
     extends ReduceManager<ParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<ParseForest>> {
 
     protected final AbstractElkhoundStackManager<ParseForest, AbstractElkhoundStackNode<ParseForest>> stackManager;
 
-    public ReduceManagerElkhound(IParseTable parseTable,
+    public ElkhoundReduceManager(IParseTable parseTable,
         AbstractElkhoundStackManager<ParseForest, AbstractElkhoundStackNode<ParseForest>> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {

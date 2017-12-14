@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
+import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -16,7 +17,6 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.states.IState;
 
 public class ParserMeasureObserver<ParseForest extends AbstractParseForest>

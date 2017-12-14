@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.stack.elkhound;
+package org.spoofax.jsglr2.elkhound;
 
 import java.util.ArrayList;
 import java.util.Collections;

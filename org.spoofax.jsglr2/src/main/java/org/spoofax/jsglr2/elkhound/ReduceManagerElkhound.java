@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.reducing;
+package org.spoofax.jsglr2.elkhound;
 
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -6,10 +6,8 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parsetable.IParseTable;
+import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackManager;
-import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
-import org.spoofax.jsglr2.stack.elkhound.DeterministicStackPath;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 import org.spoofax.jsglr2.states.IState;
 

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
@@ -21,7 +22,6 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.stack.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetReader;

@@ -74,7 +74,7 @@ public abstract class BaseTest {
     public void testParseSuccess(String inputString) {
         IParseTable parseTable = getParseTable();
 
-        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.allVariants()) {
+        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.testVariants()) {
             Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
@@ -86,7 +86,7 @@ public abstract class BaseTest {
     public void testParseFailure(String inputString) {
         IParseTable parseTable = getParseTable();
 
-        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.allVariants()) {
+        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.testVariants()) {
             Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
@@ -133,7 +133,7 @@ public abstract class BaseTest {
         boolean equalityByExpansions) {
         IParseTable parseTable = getParseTable();
 
-        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.allVariants()) {
+        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.testVariants()) {
             IStrategoTerm actualOutputAst = testSuccess(parseTable, variant, startSymbol, inputString);
 
             if(equalityByExpansions) {

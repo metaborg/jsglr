@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -176,6 +177,16 @@ public class JSGLR2Variants {
         }
 
         return variants;
+    }
+
+    public static List<ParserVariant> testVariants() {
+        //@formatter:off
+        return Arrays.asList(
+            new ParserVariant(ActiveStacksRepresentation.ArrayList,     ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic,  ParseForestConstruction.Full,      StackRepresentation.Basic,          Reducing.Basic),
+            new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid,         Reducing.Basic),
+            new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound)            
+        );
+        //@formatter:on
     }
 
     public static Parser<?, ?, ?, ?> getParser(IParseTable parseTable, ParserVariant variant) {

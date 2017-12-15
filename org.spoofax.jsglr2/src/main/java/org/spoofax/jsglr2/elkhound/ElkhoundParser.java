@@ -39,8 +39,6 @@ public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode e
             if(parse.activeStacks.isSingle()) {
                 ElkhoundStackNode singleActiveStack = parse.activeStacks.getSingle();
 
-                parse.activeStacks.clear();
-
                 if(!singleActiveStack.allLinksRejected()) {
                     Iterator<IAction> actionsIterator = singleActiveStack.state.getApplicableActions(parse).iterator();
 
@@ -48,6 +46,8 @@ public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode e
                         IAction firstAction = actionsIterator.next();
 
                         if(!actionsIterator.hasNext()) {
+                            parse.activeStacks.clear();
+
                             switch(firstAction.actionType()) {
                                 case SHIFT:
                                     // A single shift action applicable on a single active stack, we can thus directly
@@ -93,10 +93,6 @@ public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode e
                                     return;
                             }
                         } else {
-                            // Multiple actions applicable, thus we should take into account possible merges with the
-                            // single active stack we are operating on. Therefore, we add it back again to activeStacks.
-                            parse.activeStacks.add(singleActiveStack);
-
                             actor(singleActiveStack, parse, firstAction);
 
                             while(actionsIterator.hasNext())
@@ -112,12 +108,14 @@ public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode e
                         }
                     } else {
                         // The single active stack that was left has no applicable actions, thus parsing fails
+                        parse.activeStacks.clear();
                         return;
                     }
                 } else {
                     parse.observing.notify(observer -> observer.skipRejectedStack(singleActiveStack));
 
                     // The single active stack that was left is rejected, thus parsing fails
+                    parse.activeStacks.clear();
                     return;
                 }
             } else {

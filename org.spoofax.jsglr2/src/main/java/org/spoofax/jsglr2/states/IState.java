@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.states;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 
 public interface IState {
 
@@ -19,9 +19,9 @@ public interface IState {
 
     boolean isRejectable();
 
-    Iterable<IAction> getActions(int character);
+    Iterable<IAction> getApplicableActions(IParseInput parseInput);
 
-    Iterable<IReduce> getReduceActions(Parse<?, ?> parse);
+    Iterable<IReduce> getApplicableReduceActions(IParseInput parseInput);
 
     int getGotoId(int productionId);
 

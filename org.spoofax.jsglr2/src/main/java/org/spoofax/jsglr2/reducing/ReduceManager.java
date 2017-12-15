@@ -92,7 +92,7 @@ public class ReduceManager<ParseForest extends AbstractParseForest, ParseNode ex
                     activeStackWithGotoState, stack, parseForests);
 
                 for(StackNode activeStack : parse.activeStacks.forLimitedReductions(parse.forActorStacks)) {
-                    for(IReduce reduceAction : activeStack.state.getReduceActions(parse))
+                    for(IReduce reduceAction : activeStack.state.getApplicableReduceActions(parse))
                         doLimitedRedutions(parse, activeStack, reduceAction, link);
                 }
             }

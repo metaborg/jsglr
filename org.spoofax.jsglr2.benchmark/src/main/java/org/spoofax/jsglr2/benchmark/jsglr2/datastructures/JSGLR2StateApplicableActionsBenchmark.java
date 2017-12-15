@@ -79,7 +79,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         }
 
         public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : state.getActions(character))
+            for(IAction action : state.getApplicableActions(character))
                 bh.consume(action);
         }
 

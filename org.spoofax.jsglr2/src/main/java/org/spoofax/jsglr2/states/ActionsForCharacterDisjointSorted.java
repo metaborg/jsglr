@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 
 public final class ActionsForCharacterDisjointSorted implements IActionsForCharacter {
 
@@ -84,7 +84,7 @@ public final class ActionsForCharacterDisjointSorted implements IActionsForChara
         List<IAction> res = new ArrayList<>();
 
         for(ActionsForRange actionsForRange : actionsForSortedDisjointRanges) {
-            for(IAction action : actionsForRange.getActions())
+            for(IAction action : actionsForRange.actions)
                 res.add(action);
         }
 
@@ -92,7 +92,7 @@ public final class ActionsForCharacterDisjointSorted implements IActionsForChara
     }
 
     @Override
-    public Iterable<IAction> getActions(int character) {
+    public Iterable<IAction> getApplicableActions(IParseInput parseInput) {
         if(actionsForSortedDisjointRanges.length > 0) {
             int low = 0, high = actionsForSortedDisjointRanges.length - 1;
 
@@ -101,11 +101,13 @@ public final class ActionsForCharacterDisjointSorted implements IActionsForChara
 
                 ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
 
-                if(actionsForMidRange.from <= character && character <= actionsForMidRange.to)
-                    return actionsForMidRange.getActions();
-                else if(character < actionsForMidRange.from)
+                int currentChar = parseInput.getCurrentChar();
+
+                if(actionsForMidRange.from <= currentChar && currentChar <= actionsForMidRange.to)
+                    return actionsForMidRange.getApplicableActions(parseInput);
+                else if(currentChar < actionsForMidRange.from)
                     high = mid - 1;
-                else if(actionsForMidRange.to < character)
+                else if(actionsForMidRange.to < currentChar)
                     low = mid + 1;
                 else
                     break;
@@ -116,7 +118,7 @@ public final class ActionsForCharacterDisjointSorted implements IActionsForChara
     }
 
     @Override
-    public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
+    public Iterable<IReduce> getApplicableReduceActions(IParseInput parseInput) {
         if(actionsForSortedDisjointRanges.length > 0) {
             int low = 0, high = actionsForSortedDisjointRanges.length - 1;
 
@@ -125,11 +127,13 @@ public final class ActionsForCharacterDisjointSorted implements IActionsForChara
 
                 ActionsForRange actionsForMidRange = actionsForSortedDisjointRanges[mid];
 
-                if(actionsForMidRange.from <= parse.currentChar && parse.currentChar <= actionsForMidRange.to)
-                    return actionsForMidRange.getReduceActions(parse);
-                else if(parse.currentChar < actionsForMidRange.from)
+                int currentChar = parseInput.getCurrentChar();
+
+                if(actionsForMidRange.from <= currentChar && currentChar <= actionsForMidRange.to)
+                    return actionsForMidRange.getApplicableReduceActions(parseInput);
+                else if(currentChar < actionsForMidRange.from)
                     high = mid - 1;
-                else if(actionsForMidRange.to < parse.currentChar)
+                else if(actionsForMidRange.to < currentChar)
                     low = mid + 1;
                 else
                     break;

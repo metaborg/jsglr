@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.states;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 
 public interface IActionsForCharacter {
 
@@ -13,13 +13,14 @@ public interface IActionsForCharacter {
     IAction[] getActions();
 
     /*
-     * Returns actions applicable to the given character.
+     * Returns actions applicable to the given configuration (i.e. current character and lookahead).
      */
-    Iterable<IAction> getActions(int character);
+    Iterable<IAction> getApplicableActions(IParseInput parseInput);
 
     /*
-     * Returns reduce actions (possibly with lookahead) applicable to the given character.
+     * Returns reduce actions (possibly with lookahead) applicable to the given configuration (i.e. current character
+     * and lookahead).
      */
-    Iterable<IReduce> getReduceActions(Parse<?, ?> parse);
+    Iterable<IReduce> getApplicableReduceActions(IParseInput parseInput);
 
 }

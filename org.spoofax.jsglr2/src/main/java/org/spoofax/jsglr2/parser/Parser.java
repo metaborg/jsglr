@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.parser;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.actions.IReduceLookahead;
 import org.spoofax.jsglr2.actions.IShift;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -27,7 +26,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
     private final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
     private final IActiveStacksFactory activeStacksFactory;
     private final IForActorStacksFactory forActorStacksFactory;
-    private final ParserObserving<ParseForest, StackNode> observing;
+    protected final ParserObserving<ParseForest, StackNode> observing;
 
     public Parser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
         IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, StackNode> stackManager,
@@ -57,11 +56,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         parse.activeStacks.add(initialStackNode);
 
         try {
-            while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
-                parseCharacter(parse, parse.currentChar);
-
-                parse.next();
-            }
+            parseLoop(parse);
 
             ParseResult<ParseForest, ?> result;
 
@@ -101,7 +96,15 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         }
     }
 
-    private void parseCharacter(Parse<ParseForest, StackNode> parse, int character) {
+    protected void parseLoop(Parse<ParseForest, StackNode> parse) throws ParseException {
+        while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
+            parseCharacter(parse);
+
+            parse.next();
+        }
+    }
+
+    protected void parseCharacter(Parse<ParseForest, StackNode> parse) {
         observing.notify(observer -> observer.parseCharacter(parse, parse.activeStacks));
 
         parse.activeStacks.addAllTo(parse.forActorStacks);
@@ -116,7 +119,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
             parse.observing.notify(observer -> observer.handleForActorStack(stack, parse.forActorStacks));
 
             if(!stack.allLinksRejected())
-                actor(stack, parse, character);
+                actor(stack, parse);
             else
                 parse.observing.notify(observer -> observer.skipRejectedStack(stack));
         }
@@ -124,43 +127,39 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         shifter(parse);
     }
 
-    private void actor(StackNode stack, Parse<ParseForest, StackNode> parse, int character) {
-        observing.notify(observer -> observer.actor(stack, parse, stack.state.getActions(character)));
+    protected void actor(StackNode stack, Parse<ParseForest, StackNode> parse) {
+        observing.notify(observer -> observer.actor(stack, parse, stack.state.getApplicableActions(parse)));
 
-        for(IAction action : stack.state.getActions(character)) {
-            switch(action.actionType()) {
-                case SHIFT:
-                    IShift shiftAction = (IShift) action;
-                    IState shiftState = parseTable.getState(shiftAction.shiftStateId());
+        for(IAction action : stack.state.getApplicableActions(parse))
+            actor(stack, parse, action);
+    }
 
-                    addForShifter(parse, stack, shiftState);
+    protected void actor(StackNode stack, Parse<ParseForest, StackNode> parse, IAction action) {
+        switch(action.actionType()) {
+            case SHIFT:
+                IShift shiftAction = (IShift) action;
+                IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
-                    break;
-                case REDUCE:
-                    IReduce reduceAction = (IReduce) action;
+                addForShifter(parse, stack, shiftState);
 
-                    reduceManager.doReductions(parse, stack, reduceAction);
+                break;
+            case REDUCE:
+            case REDUCE_LOOKAHEAD: // Lookahead is checked while retrieving applicable actions from the state
+                IReduce reduceAction = (IReduce) action;
 
-                    break;
-                case REDUCE_LOOKAHEAD:
-                    IReduceLookahead reduceLookaheadAction = (IReduceLookahead) action;
+                reduceManager.doReductions(parse, stack, reduceAction);
 
-                    if(reduceLookaheadAction.allowsLookahead(parse)) {
-                        reduceManager.doReductions(parse, stack, reduceLookaheadAction);
-                    }
+                break;
+            case ACCEPT:
+                parse.acceptingStack = stack;
 
-                    break;
-                case ACCEPT:
-                    parse.acceptingStack = stack;
+                observing.notify(observer -> observer.accept(stack));
 
-                    observing.notify(observer -> observer.accept(stack));
-
-                    break;
-            }
+                break;
         }
     }
 
-    private void shifter(Parse<ParseForest, StackNode> parse) {
+    protected void shifter(Parse<ParseForest, StackNode> parse) {
         parse.activeStacks.clear();
 
         ParseForest characterNode = parseForestManager.createCharacterNode(parse);

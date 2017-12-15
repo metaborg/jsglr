@@ -10,7 +10,8 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class Parse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public class Parse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    implements IParseInput {
 
     final public String filename;
     final public String inputString;
@@ -98,6 +99,12 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
         return inputString.substring(begin, end);
     }
 
+    @Override
+    public int getCurrentChar() {
+        return currentChar;
+    }
+
+    @Override
     public String getLookahead(int length) {
         return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }

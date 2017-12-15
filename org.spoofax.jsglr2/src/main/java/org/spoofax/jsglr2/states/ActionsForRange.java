@@ -6,7 +6,7 @@ import java.util.Iterator;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 
 public class ActionsForRange {
 
@@ -19,12 +19,15 @@ public class ActionsForRange {
         this.to = to;
     }
 
-    public final Iterable<IAction> getActions() {
+    public final Iterable<IAction> getApplicableActions(IParseInput parseInput) {
         return () -> new Iterator<IAction>() {
             int index = 0;
 
             @Override
             public boolean hasNext() {
+                while(index < actions.length && !IAction.allowsLookahead(actions[index], parseInput)) {
+                    index++;
+                }
                 return index < actions.length;
             }
 
@@ -35,13 +38,13 @@ public class ActionsForRange {
         };
     }
 
-    public final Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
+    public final Iterable<IReduce> getApplicableReduceActions(IParseInput parseInput) {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 
             @Override
             public boolean hasNext() {
-                while(index < actions.length && !IReduce.isApplicableReduce(actions[index], parse)) {
+                while(index < actions.length && !IAction.isApplicableReduce(actions[index], parseInput)) {
                     index++;
                 }
                 return index < actions.length;

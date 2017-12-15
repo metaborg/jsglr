@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.states;
 
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 
 public final class State implements IState {
 
@@ -38,13 +38,13 @@ public final class State implements IState {
     }
 
     @Override
-    public Iterable<IAction> getActions(int character) {
-        return actionsForCharacter.getActions(character);
+    public Iterable<IAction> getApplicableActions(IParseInput parseInput) {
+        return actionsForCharacter.getApplicableActions(parseInput);
     }
 
     @Override
-    public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
-        return actionsForCharacter.getReduceActions(parse);
+    public Iterable<IReduce> getApplicableReduceActions(IParseInput parseInput) {
+        return actionsForCharacter.getApplicableReduceActions(parseInput);
     }
 
     public boolean hasGoto(int productionId) {

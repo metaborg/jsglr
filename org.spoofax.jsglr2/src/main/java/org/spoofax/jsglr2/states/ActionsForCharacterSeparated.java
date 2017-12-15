@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.actions.ActionForCharacterClass;
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 
 public final class ActionsForCharacterSeparated implements IActionsForCharacter {
 
@@ -39,13 +39,14 @@ public final class ActionsForCharacterSeparated implements IActionsForCharacter 
     }
 
     @Override
-    public Iterable<IAction> getActions(int character) {
+    public Iterable<IAction> getApplicableActions(IParseInput parseInput) {
         return () -> new Iterator<IAction>() {
             int index = 0;
 
             @Override
             public boolean hasNext() {
-                while(index < actions.length && !actions[index].appliesTo(character)) {
+                while(index < actions.length && !(actions[index].appliesTo(parseInput.getCurrentChar())
+                    && IAction.allowsLookahead(actions[index].action, parseInput))) {
                     index++;
                 }
                 return index < actions.length;
@@ -59,14 +60,14 @@ public final class ActionsForCharacterSeparated implements IActionsForCharacter 
     }
 
     @Override
-    public Iterable<IReduce> getReduceActions(Parse<?, ?> parse) {
+    public Iterable<IReduce> getApplicableReduceActions(IParseInput parseInput) {
         return () -> new Iterator<IReduce>() {
             int index = 0;
 
             @Override
             public boolean hasNext() {
-                while(index < actions.length && !(actions[index].appliesTo(parse.currentChar)
-                    && IReduce.isApplicableReduce(actions[index].action, parse))) {
+                while(index < actions.length && !(actions[index].appliesTo(parseInput.getCurrentChar())
+                    && IAction.isApplicableReduce(actions[index].action, parseInput))) {
                     index++;
                 }
                 return index < actions.length;

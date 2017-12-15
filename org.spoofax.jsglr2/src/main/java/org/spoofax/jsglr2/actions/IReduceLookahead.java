@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 
 public interface IReduceLookahead extends IReduce {
 
@@ -9,6 +9,6 @@ public interface IReduceLookahead extends IReduce {
         return ActionType.REDUCE_LOOKAHEAD;
     }
 
-    boolean allowsLookahead(Parse<?, ?> parse);
+    boolean allowsLookahead(IParseInput parseInput);
 
 }

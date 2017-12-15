@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.actions;
 import java.util.Arrays;
 
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.IParseInput;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
@@ -19,8 +19,8 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
     }
 
     @Override
-    public boolean allowsLookahead(Parse<?, ?> parse) {
-        String lookahead = parse.getLookahead(followRestriction.length);
+    public boolean allowsLookahead(IParseInput parseInput) {
+        String lookahead = parseInput.getLookahead(followRestriction.length);
 
         if(lookahead.length() != followRestriction.length)
             return true;

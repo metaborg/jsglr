@@ -14,6 +14,7 @@ import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parser.IParseInput;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.IParseTable;
@@ -71,15 +72,25 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
     class ActorOnState {
 
         final IState state;
-        final int character;
+        final IParseInput parseInput;
 
         public ActorOnState(IState state, int character) {
             this.state = state;
-            this.character = character;
+            this.parseInput = new IParseInput() {
+                @Override
+                public int getCurrentChar() {
+                    return character;
+                }
+
+                @Override
+                public String getLookahead(int length) {
+                    return "";
+                }
+            };
         }
 
         public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : state.getApplicableActions(character))
+            for(IAction action : state.getApplicableActions(parseInput))
                 bh.consume(action);
         }
 

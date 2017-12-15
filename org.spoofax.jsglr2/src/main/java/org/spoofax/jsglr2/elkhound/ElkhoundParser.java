@@ -11,7 +11,6 @@ import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parsetable.IParseTable;
-import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
@@ -20,15 +19,14 @@ import org.spoofax.jsglr2.states.IState;
 public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>>
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
 
-    private ElkhoundReduceManager<ParseForest, ParseNode, Derivation> elkhoundReduceManager;
+    private ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> elkhoundReduceManager;
 
-    @SuppressWarnings("unchecked")
     public ElkhoundParser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
         IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, ElkhoundStackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ElkhoundReduceManager<ParseForest, ParseNode, Derivation> elkhoundReduceManager) {
+        ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> elkhoundReduceManager) {
         super(parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
-            (ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode>) elkhoundReduceManager);
+            elkhoundReduceManager);
 
         this.elkhoundReduceManager = elkhoundReduceManager;
     }
@@ -78,9 +76,7 @@ public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode e
                                         parse.activeStacks.add(singleActiveStack);
 
                                         processForActorStacks(parse);
-
                                         shifter(parse);
-
                                         parse.next();
                                     }
 
@@ -99,10 +95,9 @@ public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode e
                                 actor(singleActiveStack, parse, actionsIterator.next());
 
                             // The forActorStacks collection could be filled with actions from the reductions that are
-                            // applied, so we need to process them
+                            // applied, so we need continue like regular (S)GLR, by processing the active stacks,
+                            // performing shifts and then proceed to the next character
                             processForActorStacks(parse);
-
-                            // And continue like regular (S)GLR, with shifter and then go to the next character
                             shifter(parse);
                             parse.next();
                         }

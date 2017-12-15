@@ -11,13 +11,13 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 import org.spoofax.jsglr2.states.IState;
 
-public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>
-    extends ReduceManager<ParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<ParseForest>> {
+public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>>
+    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
 
-    protected final AbstractElkhoundStackManager<ParseForest, AbstractElkhoundStackNode<ParseForest>> stackManager;
+    protected final AbstractElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager;
 
     public ElkhoundReduceManager(IParseTable parseTable,
-        AbstractElkhoundStackManager<ParseForest, AbstractElkhoundStackNode<ParseForest>> stackManager,
+        AbstractElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
@@ -26,15 +26,14 @@ public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, Pars
     }
 
     @Override
-    protected void doReductionsHelper(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
-        AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
-        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> throughLink) {
+    protected void doReductionsHelper(Parse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode stack,
+        IReduce reduce, StackLink<ParseForest, ElkhoundStackNode> throughLink) {
         if(stack.deterministicDepth >= reduce.arity()) {
-            DeterministicStackPath<ParseForest, AbstractElkhoundStackNode<ParseForest>> deterministicPath =
+            DeterministicStackPath<ParseForest, ElkhoundStackNode> deterministicPath =
                 stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
 
             if(throughLink == null || deterministicPath.contains(throughLink)) {
-                AbstractElkhoundStackNode<ParseForest> pathBegin = deterministicPath.head();
+                ElkhoundStackNode pathBegin = deterministicPath.head();
 
                 if(parse.activeStacks.isEmpty())
                     // Do LR if there are no other active stacks (the stack on which the current reduction is applied is
@@ -47,25 +46,24 @@ public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, Pars
             }
         } else {
             // Fall back to regular (S)GLR
-            for(StackPath<ParseForest, AbstractElkhoundStackNode<ParseForest>> path : stackManager
-                .findAllPathsOfLength(stack, reduce.arity()))
+            for(StackPath<ParseForest, ElkhoundStackNode> path : stackManager.findAllPathsOfLength(stack,
+                reduce.arity()))
                 if(throughLink == null || path.contains(throughLink)) {
-                    AbstractElkhoundStackNode<ParseForest> pathBegin = path.head();
+                    ElkhoundStackNode pathBegin = path.head();
 
                     reducer(parse, pathBegin, reduce, stackManager.getParseForests(parseForestManager, path));
                 }
         }
     }
 
-    private void reducerElkhound(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
-        AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce, ParseForest[] parseForests) {
+    private void reducerElkhound(Parse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode stack, IReduce reduce,
+        ParseForest[] parseForests) {
         int gotoId = stack.state.getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
         parse.observing.notify(observer -> observer.reducerElkhound(stack, reduce, parseForests));
 
-        AbstractElkhoundStackNode<ParseForest> newStack =
-            reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
+        ElkhoundStackNode newStack = reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
 
         parse.activeStacks.add(newStack);
         // We are doing LR and the new active stack is the only one, thus no need to add it to forActorStacks here for

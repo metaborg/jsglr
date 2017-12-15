@@ -8,16 +8,12 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.states.IState;
 
-public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractParseForest, StackNode extends AbstractElkhoundStackNode<ParseForest>>
-    extends StackManager<ParseForest, AbstractElkhoundStackNode<ParseForest>> {
-
-    protected abstract StackNode createStackNode(int stackNumber, IState state, Position position, boolean isRoot);
+public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractParseForest, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>>
+    extends StackManager<ParseForest, ElkhoundStackNode> {
 
     @Override
-    public AbstractElkhoundStackNode<ParseForest>
-        createInitialStackNode(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse, IState state) {
-        AbstractElkhoundStackNode<ParseForest> newStackNode =
-            createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), true);
+    public ElkhoundStackNode createInitialStackNode(Parse<ParseForest, ElkhoundStackNode> parse, IState state) {
+        ElkhoundStackNode newStackNode = createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), true);
 
         parse.observing.notify(observer -> observer.createStackNode(newStackNode));
 
@@ -25,10 +21,8 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
     }
 
     @Override
-    public AbstractElkhoundStackNode<ParseForest>
-        createStackNode(Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse, IState state) {
-        AbstractElkhoundStackNode<ParseForest> newStackNode =
-            createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), false);
+    public ElkhoundStackNode createStackNode(Parse<ParseForest, ElkhoundStackNode> parse, IState state) {
+        ElkhoundStackNode newStackNode = createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), false);
 
         parse.observing.notify(observer -> observer.createStackNode(newStackNode));
 
@@ -36,27 +30,24 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
     }
 
     @Override
-    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> createStackLink(
-        Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse, AbstractElkhoundStackNode<ParseForest> from,
-        AbstractElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
-        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link =
-            from.addLink(parse.stackLinkCount++, to, parseNode, parse);
+    public StackLink<ParseForest, ElkhoundStackNode> createStackLink(Parse<ParseForest, ElkhoundStackNode> parse,
+        ElkhoundStackNode from, ElkhoundStackNode to, ParseForest parseNode) {
+        StackLink<ParseForest, ElkhoundStackNode> link = addStackLink(parse, from, to, parseNode);
 
         parse.observing.notify(observer -> observer.createStackLink(link));
 
         return link;
     }
 
-    public DeterministicStackPath<ParseForest, AbstractElkhoundStackNode<ParseForest>> findDeterministicPathOfLength(
-        ParseForestManager<ParseForest, ?, ?> parseForestManager, AbstractElkhoundStackNode<ParseForest> stack,
-        int length) {
-        AbstractElkhoundStackNode<ParseForest> lastStackNode = stack;
-        AbstractElkhoundStackNode<ParseForest> currentStackNode = stack;
+    public DeterministicStackPath<ParseForest, ElkhoundStackNode> findDeterministicPathOfLength(
+        ParseForestManager<ParseForest, ?, ?> parseForestManager, ElkhoundStackNode stack, int length) {
+        ElkhoundStackNode lastStackNode = stack;
+        ElkhoundStackNode currentStackNode = stack;
 
         ParseForest[] parseForests = parseForestManager.parseForestsArray(length);
 
         for(int i = length - 1; i >= 0; i--) {
-            StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link = currentStackNode.getOnlyLink();
+            StackLink<ParseForest, ElkhoundStackNode> link = getOnlyLink(currentStackNode);
 
             if(parseForests != null) {
                 parseForests[i] = link.parseForest;
@@ -68,14 +59,16 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
                 currentStackNode = link.to;
         }
 
-        return new DeterministicStackPath<ParseForest, AbstractElkhoundStackNode<ParseForest>>(parseForests,
-            lastStackNode);
+        return new DeterministicStackPath<ParseForest, ElkhoundStackNode>(parseForests, lastStackNode);
     }
 
-    @Override
-    protected Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>
-        stackLinksOut(AbstractElkhoundStackNode<ParseForest> stack) {
-        return stack.getLinks();
-    }
+    protected abstract ElkhoundStackNode createStackNode(int stackNumber, IState state, Position position,
+        boolean isRoot);
+
+    protected abstract StackLink<ParseForest, ElkhoundStackNode> addStackLink(
+        Parse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode from, ElkhoundStackNode to,
+        ParseForest parseNode);
+
+    protected abstract StackLink<ParseForest, ElkhoundStackNode> getOnlyLink(ElkhoundStackNode stack);
 
 }

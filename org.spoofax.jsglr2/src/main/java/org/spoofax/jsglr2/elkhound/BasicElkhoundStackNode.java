@@ -12,27 +12,32 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
     extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
-    private ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> links =
-        new ArrayList<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>>();
+    private ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> links =
+        new ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>>();
 
     public BasicElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
         super(stackNumber, state, position, isRoot);
     }
 
-    @Override
-    public Iterable<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> getLinks() {
+    public Iterable<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> getLinks() {
         return links;
     }
 
-    @Override
-    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> getOnlyLink() {
+    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> getOnlyLink() {
         return links.get(0);
     }
 
     @Override
-    public StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> addLink(
-        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link,
-        Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
+    public BasicElkhoundStackNode<ParseForest> getOnlyLinkTo() {
+        return links.get(0).to;
+    }
+
+    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(int linkNumber,
+        BasicElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
+        Parse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse) {
+        StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link =
+            new StackLink<>(linkNumber, this, parent, parseNode);
+
         links.add(link);
 
         link.to.referenceCount++;
@@ -59,7 +64,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         if(links.isEmpty())
             return false;
 
-        for(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link : links) {
+        for(StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link : links) {
             if(!link.isRejected())
                 return false;
         }

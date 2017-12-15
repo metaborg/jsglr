@@ -59,9 +59,10 @@ public abstract class BaseTest {
         return parseTableTerm;
     }
 
-    protected IParseTable getParseTable() {
+    protected IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) {
         try {
-            return new ParseTableReader().read(getParseTableTerm());
+            return new ParseTableReader(variant.actionsForCharacterRepresentation,
+                variant.productionToGotoRepresentation).read(getParseTableTerm());
         } catch(ParseTableReadException e) {
             e.printStackTrace();
 
@@ -72,10 +73,9 @@ public abstract class BaseTest {
     }
 
     public void testParseSuccess(String inputString) {
-        IParseTable parseTable = getParseTable();
-
-        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.testVariants()) {
-            Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            IParseTable parseTable = getParseTable(variant.parseTable);
+            Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
 
@@ -84,10 +84,9 @@ public abstract class BaseTest {
     }
 
     public void testParseFailure(String inputString) {
-        IParseTable parseTable = getParseTable();
-
-        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.testVariants()) {
-            Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant);
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            IParseTable parseTable = getParseTable(variant.parseTable);
+            Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
 
@@ -95,8 +94,8 @@ public abstract class BaseTest {
         }
     }
 
-    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.ParserVariant variant, String startSymbol,
-        String inputString) {
+    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.ParserVariant variant,
+        String startSymbol, String inputString) {
         JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
 
         ParseResult<?, ?> parseResult = jsglr2.parser.parse(inputString, "", startSymbol);
@@ -131,10 +130,9 @@ public abstract class BaseTest {
 
     private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
-        IParseTable parseTable = getParseTable();
-
-        for(JSGLR2Variants.ParserVariant variant : JSGLR2Variants.testVariants()) {
-            IStrategoTerm actualOutputAst = testSuccess(parseTable, variant, startSymbol, inputString);
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            IParseTable parseTable = getParseTable(variant.parseTable);
+            IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.parser, startSymbol, inputString);
 
             if(equalityByExpansions) {
                 IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);

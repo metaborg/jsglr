@@ -47,11 +47,11 @@ public class ParseTableReader {
         this.stateFactory = IState.factory();
     }
 
-    public ParseTableReader(ActionsForCharacterRepresentation actionsPerCharacterRepresentation,
+    public ParseTableReader(ActionsForCharacterRepresentation actionsForCharacterRepresentation,
         ProductionToGotoRepresentation productionToGotoRepresentation) {
         this.characterClassFactory = ICharacterClass.factory();
         this.actionsFactory = IAction.factory();
-        this.stateFactory = IState.factory(actionsPerCharacterRepresentation, productionToGotoRepresentation);
+        this.stateFactory = IState.factory(actionsForCharacterRepresentation, productionToGotoRepresentation);
     }
 
     public ParseTableReader(ICharacterClassFactory characterClassFactory) {

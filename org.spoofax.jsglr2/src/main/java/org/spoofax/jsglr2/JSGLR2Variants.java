@@ -57,6 +57,10 @@ public class JSGLR2Variants {
             this.parser = parserVariant;
         }
 
+        public String name() {
+            return parseTable.name() + "/" + parser.name();
+        }
+
         @Override
         public boolean equals(Object o) {
             if(this == o) {
@@ -80,6 +84,11 @@ public class JSGLR2Variants {
             ProductionToGotoRepresentation productionToGotoRepresentation) {
             this.actionsForCharacterRepresentation = actionsForCharacterRepresentation;
             this.productionToGotoRepresentation = productionToGotoRepresentation;
+        }
+
+        public String name() {
+            return "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation
+                + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;
         }
 
         @Override
@@ -180,12 +189,13 @@ public class JSGLR2Variants {
         return variants;
     }
 
-    public static List<ParserVariant> testVariants() {
+    public static List<Variant> testVariants() {
         //@formatter:off
         return Arrays.asList(
-            new ParserVariant(ActiveStacksRepresentation.ArrayList,     ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic,  ParseForestConstruction.Full,      StackRepresentation.Basic,          Reducing.Basic),
-            new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid,         Reducing.Basic),
-            new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound)            
+            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.ArrayList,     ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic,  ParseForestConstruction.Full,      StackRepresentation.Basic,          Reducing.Basic)),
+            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.JavaHashMap), new ParserVariant(ActiveStacksRepresentation.ArrayList,     ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic,  ParseForestConstruction.Full,      StackRepresentation.Basic,          Reducing.Basic)),
+            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid,         Reducing.Basic)),
+            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound))            
         );
         //@formatter:on
     }

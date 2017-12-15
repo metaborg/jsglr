@@ -36,15 +36,17 @@ public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, Pars
             if(throughLink == null || deterministicPath.contains(throughLink)) {
                 AbstractElkhoundStackNode<ParseForest> pathBegin = deterministicPath.head();
 
-                if(parse.activeStacks.isSingle())
-                    // Do standard LR if there is only 1 active stack
+                if(parse.activeStacks.isEmpty())
+                    // Do LR if there are no other active stacks (the stack on which the current reduction is applied is
+                    // removed from the activeStacks collection in ElkhoundParser)
                     reducerElkhound(parse, pathBegin, reduce, deterministicPath.parseForests);
                 else
-                    // Benefit from faster path retrieval, but still do extra checks since there are other active stacks
+                    // Benefit from faster path retrieval, but still do regular (S)GLR reducing since there are other
+                    // active stacks
                     reducer(parse, pathBegin, reduce, deterministicPath.parseForests);
             }
         } else {
-            // Fall back to regular GLR
+            // Fall back to regular (S)GLR
             for(StackPath<ParseForest, AbstractElkhoundStackNode<ParseForest>> path : stackManager
                 .findAllPathsOfLength(stack, reduce.arity()))
                 if(throughLink == null || path.contains(throughLink)) {
@@ -66,7 +68,8 @@ public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, Pars
             reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
 
         parse.activeStacks.add(newStack);
-        parse.forActorStacks.add(newStack);
+        // We are doing LR and the new active stack is the only one, thus no need to add it to forActorStacks here for
+        // further processing
     }
 
 }

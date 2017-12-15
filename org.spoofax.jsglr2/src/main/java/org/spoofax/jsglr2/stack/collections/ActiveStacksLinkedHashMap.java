@@ -49,6 +49,11 @@ public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, 
     }
 
     @Override
+    public StackNode getSingle() {
+        return last.stack;
+    }
+
+    @Override
     public boolean isEmpty() {
         return last == null;
     }

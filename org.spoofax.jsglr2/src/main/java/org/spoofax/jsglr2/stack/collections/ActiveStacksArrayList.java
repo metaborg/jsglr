@@ -34,6 +34,11 @@ public class ActiveStacksArrayList<ParseForest extends AbstractParseForest, Stac
     }
 
     @Override
+    public StackNode getSingle() {
+        return activeStacks.get(0);
+    }
+
+    @Override
     public boolean isEmpty() {
         return activeStacks.isEmpty();
     }

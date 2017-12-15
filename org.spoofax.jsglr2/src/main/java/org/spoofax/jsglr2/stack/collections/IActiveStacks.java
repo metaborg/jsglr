@@ -9,6 +9,8 @@ public interface IActiveStacks<StackNode extends AbstractStackNode<?>> extends I
 
     public boolean isSingle();
 
+    public StackNode getSingle();
+
     public boolean isEmpty();
 
     public StackNode findWithState(IState state);

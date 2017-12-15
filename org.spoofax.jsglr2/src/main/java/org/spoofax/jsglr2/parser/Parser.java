@@ -20,10 +20,10 @@ import org.spoofax.jsglr2.states.IState;
 public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
     implements IParser<ParseForest, StackNode> {
 
-    private final IParseTable parseTable;
-    private final StackManager<ParseForest, StackNode> stackManager;
-    private final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
-    private final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
+    protected final IParseTable parseTable;
+    protected final StackManager<ParseForest, StackNode> stackManager;
+    protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
+    protected final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
     private final IActiveStacksFactory activeStacksFactory;
     private final IForActorStacksFactory forActorStacksFactory;
     protected final ParserObserving<ParseForest, StackNode> observing;
@@ -109,10 +109,14 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
         parse.activeStacks.addAllTo(parse.forActorStacks);
 
-        parse.forShifter.clear();
-
         observing.notify(observer -> observer.forActorStacks(parse.forActorStacks));
 
+        processForActorStacks(parse);
+
+        shifter(parse);
+    }
+
+    protected void processForActorStacks(Parse<ParseForest, StackNode> parse) {
         while(parse.forActorStacks.nonEmpty()) {
             StackNode stack = parse.forActorStacks.remove();
 
@@ -123,8 +127,6 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
             else
                 parse.observing.notify(observer -> observer.skipRejectedStack(stack));
         }
-
-        shifter(parse);
     }
 
     protected void actor(StackNode stack, Parse<ParseForest, StackNode> parse) {
@@ -179,6 +181,8 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
                 parse.activeStacks.add(newStack);
             }
         }
+
+        parse.forShifter.clear();
     }
 
     private void addForShifter(Parse<ParseForest, StackNode> parse, StackNode stack, IState shiftState) {

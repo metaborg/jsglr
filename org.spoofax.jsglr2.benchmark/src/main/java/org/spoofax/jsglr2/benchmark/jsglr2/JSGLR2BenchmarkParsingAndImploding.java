@@ -41,6 +41,9 @@ public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark
 
     @Override
     protected Variant variant() {
+        if(!implode)
+            throw new IllegalStateException("this variant is not used for benchmarking");
+
         return new Variant(new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
             new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
                 parseForestConstruction, stackRepresentation, reducing));

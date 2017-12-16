@@ -44,8 +44,12 @@ public class TestSet {
     public static TestSet greenMarl = new TestSet("greenmarl", new TestSetParseTableFromATerm("GreenMarl"),
         new TestSetSingleInput("GreenMarl/infomap.gm"));
 
-    public static TestSet webDSL =
-        new TestSet("webdsl", new TestSetParseTableFromATerm("WebDSL"), new TestSetSingleInput("WebDSL/built-in.app"));
+    private static final String WEBDSL_BENCHMARK_INPUT_PATH_STRING =
+        System.getProperty(String.format("%s.%s", TestSet.class.getCanonicalName(), "webDSLInputPath"),
+            "/Users/Jasper/Desktop/jsglr2benchmarks/webdsl");
+
+    public static TestSet webDSL = new TestSet("webdsl", new TestSetParseTableFromATerm("WebDSL"),
+        new TestSetMultipleInputs(WEBDSL_BENCHMARK_INPUT_PATH_STRING, "app"));
 
     public static List<TestSet> all =
         Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, java8, java8unrolled, greenMarl, webDSL);

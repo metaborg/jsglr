@@ -12,14 +12,15 @@ import org.spoofax.jsglr2.util.WithJSGLR1;
 import org.spoofax.terms.ParseError;
 
 public class SdfSyntaxTest extends BaseTest implements WithJSGLR1, WithGrammar {
-	
-	public SdfSyntaxTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-		setupParseTableFromDefFile("sdf-syntax");
-	}
+
+    public SdfSyntaxTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("sdf-syntax");
+    }
 
     @Test
     public void identifier() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("x", "\"x\"");
     }
-  
+
 }

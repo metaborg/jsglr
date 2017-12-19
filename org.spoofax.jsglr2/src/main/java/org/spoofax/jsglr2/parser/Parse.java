@@ -1,123 +1,112 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.characters.ICharacters;
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.ActiveStacks;
-import org.spoofax.jsglr2.stack.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class Parse<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest> {
+public class Parse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    implements IParseInput {
 
     final public String filename;
     final public String inputString;
-	final public int inputLength;
+    final public int inputLength;
 
-    public int currentOffset, currentLine, currentColumn, currentChar;
-	
-	public StackNode acceptingStack;
-	public IActiveStacks<StackNode> activeStacks;
-	public Queue<StackNode> forActor, forActorDelayed;
-	public Queue<ForShifterElement<StackNode, ParseForest>> forShifter;
+    public int currentChar; // Current ASCII char in range [0, 256]
+    public int currentOffset, currentLine, currentColumn;
+
+    public StackNode acceptingStack;
+    public IActiveStacks<StackNode> activeStacks;
+    public IForActorStacks<StackNode> forActorStacks;
+    public Queue<ForShifterElement<ParseForest, StackNode>> forShifter;
 
     public int stackNodeCount, stackLinkCount, parseNodeCount;
 
     public int ambiguousParseNodes, ambiguousTreeNodes;
-    
-    private final List<IParserObserver<StackNode, ParseForest>> observers;
-	
-	public Parse(String inputString, String filename, List<IParserObserver<StackNode, ParseForest>> observers) {
+
+    public final ParserObserving<ParseForest, StackNode> observing;
+
+    public Parse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+        IForActorStacks<StackNode> forActorStacks, ParserObserving<ParseForest, StackNode> observing) {
         this.filename = filename;
         this.inputString = inputString;
-		this.inputLength = inputString.length();
+        this.inputLength = inputString.length();
 
         this.stackNodeCount = 0;
         this.stackLinkCount = 0;
         this.parseNodeCount = 0;
 
-        this.ambiguousParseNodes = 0; // Number of ambiguities in the parse forest
-        this.ambiguousTreeNodes = 0; // Number of ambiguities in the imploded AST (after applying post-parse filters), only available after imploding
+        // Number of ambiguities in the parse forest
+        this.ambiguousParseNodes = 0;
 
-        Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
-            public int compare(StackNode stackNode1, StackNode stackNode2) {
-                return 0; // TODO: implement priority (see P9707 Section 8.4)
-            }
-        };
-        
+        // Number of ambiguities in the imploded AST (after applying post-parse filters), only available after imploding
+        this.ambiguousTreeNodes = 0;
+
         this.acceptingStack = null;
-        this.activeStacks = new ActiveStacks<ParseForest, StackNode>();
-        this.forActor = new ArrayDeque<StackNode>();
-        this.forActorDelayed = new PriorityQueue<StackNode>(stackNodePriorityComparator);
-        this.forShifter = new ArrayDeque<ForShifterElement<StackNode, ParseForest>>();
+        this.activeStacks = activeStacks;
+        this.forActorStacks = forActorStacks;
+        this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
         this.currentLine = 1;
         this.currentColumn = 1;
-		this.currentChar = getChar(currentOffset);
-		
-		this.observers = new ArrayList<IParserObserver<StackNode, ParseForest>>(observers);
-	}
-	
-	public Position currentPosition() {
-	    return new Position(currentOffset, currentLine, currentColumn);
-	}
-	
-	public boolean hasNext() {
-		return currentOffset < inputLength;
-	}
-	
-	public int next() throws ParseException {
-		currentOffset++;
-		
-		currentChar = getChar(currentOffset);
-		
-		if (currentChar > 256)
-		    throw new ParseException("Unicode not supported");
-		
-		if (ICharacters.isNewLine(currentChar)) {
-		    currentLine++;
-		    currentColumn = 1;
-		} else {
-		    currentColumn++;
-		}
-		
-		return currentChar;
-	}
-	
-	private int getChar(int position) {
-		return position < inputLength ? inputString.charAt(position) : ICharacters.EOF;
-	}
-	
-	public String getPart(int begin, int end) {
-		return inputString.substring(begin, end);
-	}
-	
-	public String getLookahead(int length) {
-	    return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
-	}
-	
-	public boolean hasNextActorStack() {
-		return !forActor.isEmpty() || !forActorDelayed.isEmpty();
-	}
-	
-	public StackNode getNextActorStack() {
-		// First return all actors in forActor
-		if (!forActor.isEmpty())
-			return forActor.remove();
-		
-		// Then return actors from forActorDelayed
-		return forActorDelayed.remove();
-	}
-    
-    public void notify(IParserNotification<StackNode, ParseForest> notification) {
-        for (IParserObserver<StackNode, ParseForest> observer : observers)
-            notification.notify(observer);
+
+        this.currentChar = getChar(currentOffset);
+
+        this.observing = observing;
+    }
+
+    public Position currentPosition() {
+        return new Position(currentOffset, currentLine, currentColumn);
+    }
+
+    public boolean hasNext() {
+        return currentOffset <= inputLength;
+    }
+
+    public void next() throws ParseException {
+        currentOffset++;
+        currentChar = getChar(currentOffset);
+
+        if(currentOffset < inputLength) {
+            if(ICharacterClass.isNewLine(currentChar)) {
+                currentLine++;
+                currentColumn = 1;
+            } else {
+                currentColumn++;
+            }
+        }
+    }
+
+    private int getChar(int position) {
+        if(position < inputLength) {
+            char c = inputString.charAt(position);
+
+            if(c > 255)
+                throw new IllegalStateException("Unicode not supported");
+
+            return c;
+        } else
+            return ICharacterClass.EOF_INT;
+    }
+
+    public String getPart(int begin, int end) {
+        return inputString.substring(begin, end);
+    }
+
+    @Override
+    public int getCurrentChar() {
+        return currentChar;
+    }
+
+    @Override
+    public String getLookahead(int length) {
+        return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 
 }

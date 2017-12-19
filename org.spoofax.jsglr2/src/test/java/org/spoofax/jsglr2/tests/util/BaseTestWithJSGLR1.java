@@ -12,21 +12,20 @@ import org.spoofax.jsglr2.util.WithJSGLR1;
 public abstract class BaseTestWithJSGLR1 extends BaseTest implements WithJSGLR1 {
 
     protected void testSuccessByJSGLR1(String inputString) {
-    		IParseTable parseTable = getParseTable();
-		
-		for (JSGLR2Variants.Variant variant : JSGLR2Variants.allVariants()) {
-			IStrategoTerm actualOutputAst = testSuccess(parseTable, variant, null, inputString);
-			
-			try {
-	            IStrategoTerm expectedOutputAst = (IStrategoTerm) getJSGLR1().parse(inputString, null, null).output;
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            IParseTable parseTable = getParseTable(variant.parseTable);
+            IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.parser, null, inputString);
 
-	            assertEqualTermExpansions(expectedOutputAst, actualOutputAst);
-	        } catch(SGLRException | InterruptedException | InvalidParseTableException e) {
-	            e.printStackTrace();
+            try {
+                IStrategoTerm expectedOutputAst = (IStrategoTerm) getJSGLR1().parse(inputString, null, null).output;
 
-	            fail();
-	        }
-		}
+                assertEqualTermExpansions(expectedOutputAst, actualOutputAst);
+            } catch(SGLRException | InterruptedException | InvalidParseTableException e) {
+                e.printStackTrace();
+
+                fail();
+            }
+        }
     }
-	
+
 }

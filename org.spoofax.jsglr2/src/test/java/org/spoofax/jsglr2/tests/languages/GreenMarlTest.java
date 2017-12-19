@@ -10,16 +10,17 @@ import org.spoofax.jsglr2.util.WithParseTable;
 import org.spoofax.terms.ParseError;
 
 public class GreenMarlTest extends BaseTestWithJSGLR1 implements WithParseTable {
-	
-	public GreenMarlTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
-	    setupParseTable("GreenMarl");
-	}
-    
+
+    public GreenMarlTest()
+        throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+        setupParseTable("GreenMarl");
+    }
+
     @Test
     public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
         String sampleProgram = getFileAsString("GreenMarl/infomap.gm");
-        
+
         testSuccessByJSGLR1(sampleProgram);
     }
-  
+
 }

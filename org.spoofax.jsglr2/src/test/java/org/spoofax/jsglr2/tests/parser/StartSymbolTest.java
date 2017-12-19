@@ -11,19 +11,20 @@ import org.spoofax.jsglr2.util.WithGrammar;
 import org.spoofax.terms.ParseError;
 
 public class StartSymbolTest extends BaseTest implements WithGrammar {
-	
-	public StartSymbolTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-	    setupParseTableFromDefFile("start-symbol");
-	}
-    
+
+    public StartSymbolTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("start-symbol");
+    }
+
     @Test
     public void withoutStartSymbol() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions(null, "foo", "amb([\"foo\", Id(\"foo\")])");
     }
-    
+
     @Test
     public void withStartSymbol() throws ParseError, ParseTableReadException, IOException {
-    		testSuccessByExpansions("Start", "foo", "Id(\"foo\")");
+        testSuccessByExpansions("Start", "foo", "Id(\"foo\")");
     }
-  
+
 }

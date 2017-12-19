@@ -9,10 +9,10 @@ public class SingleElementWithListIterable<T> implements Iterable<T> {
      * TODO: generalize tail argument; move to appropriate place
      */
     public static final <T> Iterable<T> of(T head, List<T> tail) {
-//        final Iterator<T> iterator =
-//                Stream.concat(Stream.of(head), tail.stream()).iterator();
-//
-//        return () -> iterator;
+        // final Iterator<T> iterator =
+        // Stream.concat(Stream.of(head), tail.stream()).iterator();
+        //
+        // return () -> iterator;
 
         return new SingleElementWithListIterable<>(head, tail);
     }
@@ -26,23 +26,26 @@ public class SingleElementWithListIterable<T> implements Iterable<T> {
         this.list = list;
     }
 
+    @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int cursor = 0;
-            
+
+            @Override
             public boolean hasNext() {
                 return cursor < list.size() + 1;
             }
 
+            @Override
             public T next() {
                 cursor++;
-                
-                if (cursor == 1)
+
+                if(cursor == 1)
                     return element;
                 else
                     return list.get(cursor - 2);
             }
         };
     }
-    
+
 }

@@ -14,7 +14,7 @@ public class OriginFilePrimitive extends AbstractOriginPrimitive {
 	@Override
 	protected IStrategoTerm call(IContext env, IStrategoTerm origin) {
 		ITermFactory factory = env.getFactory();
-		return factory.makeString(getLeftToken(origin).getTokenizer().getFilename());
+		return factory.makeString(getLeftToken(origin).getFilename());
 	}
 
 }

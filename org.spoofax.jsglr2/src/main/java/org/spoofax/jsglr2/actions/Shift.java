@@ -1,19 +1,40 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characters.ICharacters;
+public class Shift implements IShift {
 
-public class Shift extends Action implements IShift {
+    private final int shiftStateId;
 
-	private final int shiftState;
-	
-	public Shift(ICharacters characters, int shiftState) {
-		super(characters);
-		
-		this.shiftState = shiftState;
-	}
-	
-	public int shiftState() {
-	    return shiftState;
-	}
-	
+    public Shift(int shiftStateId) {
+        this.shiftStateId = shiftStateId;
+    }
+
+    @Override
+    public final int shiftStateId() {
+        return shiftStateId;
+    }
+
+    @Override
+    public String toString() {
+        return "SHIFT(" + shiftStateId + ")";
+    }
+
+    @Override
+    public int hashCode() {
+        return shiftStateId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Shift that = (Shift) o;
+
+        return shiftStateId == that.shiftStateId;
+    }
+
 }

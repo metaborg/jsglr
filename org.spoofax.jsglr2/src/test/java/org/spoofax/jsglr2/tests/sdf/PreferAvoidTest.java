@@ -11,10 +11,11 @@ import org.spoofax.jsglr2.util.WithGrammar;
 import org.spoofax.terms.ParseError;
 
 public class PreferAvoidTest extends BaseTestWithJSGLR1 implements WithGrammar {
-	
-	public PreferAvoidTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-		setupParseTableFromDefFile("prefer-avoid");
-	}
+
+    public PreferAvoidTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("prefer-avoid");
+    }
 
     @Test
     public void testAvoid() throws ParseError, ParseTableReadException, IOException {
@@ -35,5 +36,5 @@ public class PreferAvoidTest extends BaseTestWithJSGLR1 implements WithGrammar {
     public void testPreferByJSGLR1() throws ParseError, ParseTableReadException, IOException {
         testSuccessByJSGLR1("p x");
     }
-  
+
 }

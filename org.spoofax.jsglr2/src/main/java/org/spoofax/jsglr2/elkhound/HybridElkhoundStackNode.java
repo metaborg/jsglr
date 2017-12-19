@@ -21,6 +21,8 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         super(stackNumber, state, position, isRoot);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public Iterable<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> getLinks() {
         if(otherLinks == null)
             return Collections.singleton(firstLink);

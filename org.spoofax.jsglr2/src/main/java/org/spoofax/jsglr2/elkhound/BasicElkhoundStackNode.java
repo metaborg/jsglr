@@ -19,6 +19,8 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         super(stackNumber, state, position, isRoot);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public Iterable<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> getLinks() {
         return links;
     }

@@ -124,9 +124,9 @@ public interface IParserObserver<ParseForest extends AbstractParseForest, StackN
 
         for(ParseForest parseForest : parseForests) {
             if(res.isEmpty())
-                res += parseForest.nodeNumber;
+                res += parseForest != null ? parseForest.nodeNumber : "null";
             else
-                res += "," + parseForest.nodeNumber;
+                res += "," + (parseForest != null ? parseForest.nodeNumber : "null");
         }
 
         return "[" + res + "]";

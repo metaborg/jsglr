@@ -52,7 +52,8 @@ public class ParserLogObserver<ParseForest extends AbstractParseForest, StackNod
     @Override
     public void createStackLink(StackLink<ParseForest, StackNode> link) {
         log("Create link " + link.linkNumber + " from stack " + link.from.stackNumber + " to stack "
-            + link.to.stackNumber + " with parse node " + link.parseForest.nodeNumber);
+            + link.to.stackNumber + " with parse node "
+            + (link.parseForest != null ? link.parseForest.nodeNumber : "null"));
     }
 
     @Override

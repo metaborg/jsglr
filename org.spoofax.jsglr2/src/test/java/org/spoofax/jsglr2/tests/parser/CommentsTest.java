@@ -11,22 +11,23 @@ import org.spoofax.jsglr2.util.WithGrammar;
 import org.spoofax.terms.ParseError;
 
 public class CommentsTest extends BaseTest implements WithGrammar {
-	
-	public CommentsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-	    setupParseTableFromDefFile("comments");
-	}
-    
+
+    public CommentsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("comments");
+    }
+
     @Test
     public void oneX() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("x", "Xs([X])");
+        testSuccessByExpansions("x", "Xs([X])");
     }
-    
+
     @Test
     public void twoXs() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("x x", "Xs([X, X])");
-        testParseSuccessByExpansions("x x // x", "Xs([X, X])");
-        testParseSuccessByExpansions("x /* x */ x", "Xs([X, X])");
-        testParseSuccessByExpansions("x /* \n */ x", "Xs([X, X])");
+        testSuccessByExpansions("x x", "Xs([X, X])");
+        testSuccessByExpansions("x x // x", "Xs([X, X])");
+        testSuccessByExpansions("x /* x */ x", "Xs([X, X])");
+        testSuccessByExpansions("x /* \n */ x", "Xs([X, X])");
     }
-  
+
 }

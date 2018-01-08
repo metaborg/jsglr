@@ -1,13 +1,16 @@
 package org.spoofax.jsglr2.parser;
 
-public class ParseSuccess<ParseForest> extends ParseResult<ParseForest> {
+import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 
-	public final ParseForest parseResult;
-	
-	public ParseSuccess(Parse parse, ParseForest parseResult) {
-	    super(parse, true);
-	    
-		this.parseResult = parseResult;
-	}
-	
+public class ParseSuccess<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
+    extends ParseResult<ParseForest, AbstractSyntaxTree> {
+
+    public final ParseForest parseResult;
+
+    public ParseSuccess(Parse<ParseForest, ?> parse, ParseForest parseResult) {
+        super(parse, true);
+
+        this.parseResult = parseResult;
+    }
+
 }

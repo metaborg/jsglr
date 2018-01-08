@@ -7,13 +7,13 @@ import org.spoofax.jsglr2.parser.Position;
 public abstract class AbstractParseForest {
 
     public final int nodeNumber;
-    public final Parse<?, AbstractParseForest> parse;
-    
+    public final Parse<?, ?> parse;
+
     public Position startPosition, endPosition;
-    
+
     public IToken token, firstToken, lastToken;
 
-    protected AbstractParseForest(int nodeNumber, Parse<?, AbstractParseForest> parse, Position startPosition, Position endPosition) {
+    protected AbstractParseForest(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition) {
         this.nodeNumber = nodeNumber;
         this.parse = parse;
 
@@ -24,11 +24,11 @@ public abstract class AbstractParseForest {
         this.firstToken = null;
         this.lastToken = null;
     }
-    
+
     public String inputPart() {
         return parse.getPart(startPosition.offset, endPosition.offset);
     }
-    
+
     public abstract String descriptor();
 
 }

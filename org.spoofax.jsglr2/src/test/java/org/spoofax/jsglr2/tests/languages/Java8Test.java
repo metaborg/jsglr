@@ -11,24 +11,25 @@ import org.spoofax.jsglr2.util.WithParseTable;
 import org.spoofax.terms.ParseError;
 
 public class Java8Test extends BaseTestWithJSGLR1 implements WithParseTable {
-	
-	public Java8Test() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
-	    setupParseTable("Java8");
-	}
-    
+
+    public Java8Test()
+        throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException {
+        setupParseTable("Java8");
+    }
+
     @Test
     public void testSampleProgramByExpectedAST() throws ParseError, ParseTableReadException, IOException {
-        String sampleProgram = getFileAsString("MiniJava/sampleProgram.txt");
-        IStrategoTerm expectedAST = getFileAsAST("MiniJava/sampleProgram_Java8.ast");
-        
-        testParseSuccessByAstString(sampleProgram, expectedAST.toString());
+        String sampleProgram = getFileAsString("Java/sampleProgram.txt");
+        IStrategoTerm expectedAST = getFileAsAST("Java/sampleProgram.ast");
+
+        testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
-    
+
     @Test
     public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
-        String sampleProgram = getFileAsString("MiniJava/sampleProgram.txt");
-        
-        testParseSuccessByJSGLR(sampleProgram);
+        String sampleProgram = getFileAsString("Java/sampleProgram.txt");
+
+        testSuccessByJSGLR1(sampleProgram);
     }
-  
+
 }

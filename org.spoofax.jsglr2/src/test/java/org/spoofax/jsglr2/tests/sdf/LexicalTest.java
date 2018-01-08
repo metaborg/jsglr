@@ -12,15 +12,16 @@ import org.spoofax.jsglr2.util.WithJSGLR1;
 import org.spoofax.terms.ParseError;
 
 public class LexicalTest extends BaseTest implements WithJSGLR1, WithGrammar {
-	
-	public LexicalTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-		setupParseTableFromDefFile("lexical-id");
-	}
+
+    public LexicalTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("lexical-id");
+    }
 
     @Test
     public void identifiers() throws ParseError, ParseTableReadException, IOException {
-        testParseSuccessByExpansions("a", "\"a\")");
-        testParseSuccessByExpansions("aaaaa", "\"aaaaa\")");
+        testSuccessByExpansions("a", "\"a\")");
+        testSuccessByExpansions("aaaaa", "\"aaaaa\")");
     }
-  
+
 }

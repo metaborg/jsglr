@@ -4,3 +4,5 @@
 /.settings
 /META-INF
 /target
+/.idea
+/*.iml

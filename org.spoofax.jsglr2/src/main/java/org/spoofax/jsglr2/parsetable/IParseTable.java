@@ -1,11 +1,11 @@
 package org.spoofax.jsglr2.parsetable;
 
+import org.spoofax.jsglr2.states.IState;
+
 public interface IParseTable {
-	
-	public IProduction[] productions();
-	
-	public IState startState();
-	
-	public IState getState(int stateNumber);
-	
+
+    public IState getStartState();
+
+    public IState getState(int stateId);
+
 }

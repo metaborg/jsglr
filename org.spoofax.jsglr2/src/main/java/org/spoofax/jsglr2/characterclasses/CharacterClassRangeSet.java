@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -200,7 +198,7 @@ public final class CharacterClassRangeSet implements ICharacterClass {
         if(containsEOF)
             ranges.add("EOF");
 
-        return "{" + StringUtils.join(ranges, ",") + "}";
+        return "{" + String.join(",", ranges) + "}";
     }
 
 }

@@ -28,10 +28,17 @@
 			<version>${metaborg-version}</version>
 		</dependency>
 		
+        <dependency>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+          <scope>provided</scope>
+        </dependency>
+    
 	    <dependency>
 	      <groupId>org.metaborg</groupId>
 	      <artifactId>org.metaborg.spoofax.nativebundle</artifactId>
 	      <version>${metaborg-version}</version>
+          <scope>test</scope>
 	    </dependency>
 
 		<dependency>

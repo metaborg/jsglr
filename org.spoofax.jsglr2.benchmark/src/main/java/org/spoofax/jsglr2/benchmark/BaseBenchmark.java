@@ -19,22 +19,21 @@ import org.spoofax.jsglr2.testset.TestSetReader;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public abstract class BaseBenchmark {
 
-	protected TestSetReader testSetReader;
-	protected Iterable<Input> inputs;
-	
-	@Param({"-1"})
-	public int n; // Can be overwritten if the input has a dynamic size
+    protected TestSetReader testSetReader;
+    protected Iterable<Input> inputs;
 
-	protected BaseBenchmark(TestSet testSet) {
-		this.testSetReader = new BenchmarkTestsetReader(testSet);
-	}
-	
-	@Setup
-	public void setupInputs() throws IOException {
-		if (n == -1)
-			inputs = testSetReader.getInputs();
-		else
-			inputs = testSetReader.getInputsForSize(n);
-	}
+    @Param({ "-1" }) public int n; // Can be overwritten if the input has a dynamic size
+
+    protected BaseBenchmark(TestSet testSet) {
+        this.testSetReader = new BenchmarkTestsetReader(testSet);
+    }
+
+    @Setup
+    public void setupInputs() throws IOException {
+        if(n == -1)
+            inputs = testSetReader.getInputs();
+        else
+            inputs = testSetReader.getInputsForSize(n);
+    }
 
 }

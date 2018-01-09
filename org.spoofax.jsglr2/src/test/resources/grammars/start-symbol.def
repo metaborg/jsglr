@@ -1,0 +1,16 @@
+definition
+
+module start-symbol
+
+exports
+  context-free start-symbols
+    Start
+    
+  lexical start-symbols
+    ID
+
+  context-free syntax
+    ID -> Start {cons("Id")}
+
+  lexical syntax
+    [a-z]* -> ID

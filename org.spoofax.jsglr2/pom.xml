@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.metaborg</groupId>
 		<artifactId>parent.java</artifactId>
-		<version>2.4.0-SNAPSHOT</version>
+		<version>2.5.0-SNAPSHOT</version>
 		<relativePath>../../releng/parent/java</relativePath>
 	</parent>
 
@@ -28,10 +28,17 @@
 			<version>${metaborg-version}</version>
 		</dependency>
 		
+        <dependency>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+          <scope>provided</scope>
+        </dependency>
+    
 	    <dependency>
 	      <groupId>org.metaborg</groupId>
 	      <artifactId>org.metaborg.spoofax.nativebundle</artifactId>
 	      <version>${metaborg-version}</version>
+          <scope>test</scope>
 	    </dependency>
 
 		<dependency>

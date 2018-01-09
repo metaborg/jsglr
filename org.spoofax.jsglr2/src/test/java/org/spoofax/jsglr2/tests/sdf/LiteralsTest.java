@@ -12,10 +12,11 @@ import org.spoofax.jsglr2.util.WithJSGLR1;
 import org.spoofax.terms.ParseError;
 
 public class LiteralsTest extends BaseTest implements WithJSGLR1, WithGrammar {
-	
-	public LiteralsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-		setupParseTableFromDefFile("literals");
-	}
+
+    public LiteralsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("literals");
+    }
 
     @Test
     public void testLowerCaseLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
@@ -36,5 +37,5 @@ public class LiteralsTest extends BaseTest implements WithJSGLR1, WithGrammar {
     public void testMixedLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
         testSuccessByExpansions("insenSitive", "Literal(CaseInsensitive)");
     }
-  
+
 }

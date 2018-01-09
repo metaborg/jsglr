@@ -4,19 +4,20 @@ import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public interface IReduce extends IAction {
-    
-    default public ActionType actionType() {
+
+    @Override
+    default ActionType actionType() {
         return ActionType.REDUCE;
     }
 
     IProduction production();
-    
+
     ProductionType productionType();
-    
+
     int arity();
-    
-    default public boolean isRejectProduction() {
+
+    default boolean isRejectProduction() {
         return productionType() == ProductionType.REJECT;
     }
-    
+
 }

@@ -3,37 +3,44 @@ package org.spoofax.jsglr2.stack.basic;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.jsglr2.parsetable.IState;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.states.IState;
 
 public class BasicStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {
 
-    private final ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> linksOut = new ArrayList<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>>(); // Directed to the initial stack node
-	
-	public BasicStackNode(int stackNumber, IState state) {
-		super(stackNumber, state);
-	}
-	
-	public List<StackLink<AbstractBasicStackNode<ParseForest>, ParseForest>> getLinksOut() {
-		return linksOut;
-	}
-    
-    public StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> addOutLink(StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link) {
-        linksOut.add(link);
-        
+    // Directed to the initial stack node
+    private final ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> links =
+        new ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>>();
+
+    public BasicStackNode(int stackNumber, IState state, Position position) {
+        super(stackNumber, state, position);
+    }
+
+    @Override
+    public List<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinks() {
+        return links;
+    }
+
+    @Override
+    public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>
+        addLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link) {
+        links.add(link);
+
         return link;
     }
-	
-	public boolean allOutLinksRejected() {
-		if (linksOut.isEmpty())
-			return false;
-		
-		for (StackLink<AbstractBasicStackNode<ParseForest>, ParseForest> link : linksOut) {
-			if (!link.isRejected())
-				return false;
-		}
-		
-		return true;
-	}
-	
+
+    @Override
+    public boolean allLinksRejected() {
+        if(links.isEmpty())
+            return false;
+
+        for(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link : links) {
+            if(!link.isRejected())
+                return false;
+        }
+
+        return true;
+    }
+
 }

@@ -1,36 +1,61 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characters.ICharacters;
-import org.spoofax.jsglr2.parser.Parse;
+import java.util.Arrays;
+
+import org.spoofax.jsglr2.characterclasses.ICharacterClass;
+import org.spoofax.jsglr2.parser.IParseInput;
 import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class ReduceLookahead extends Reduce implements IReduceLookahead {
 
-	private final ICharacters[] followRestriction;
-	
-	public ReduceLookahead(ICharacters characters, IProduction production, ProductionType productionType, int arity, ICharacters[] followRestriction) {
-		super(characters, production, productionType, arity);
+    private final ICharacterClass[] followRestriction;
 
-		this.followRestriction = followRestriction;
-	}
-    
-    public boolean allowsLookahead(String lookahead) {
-        if (lookahead.length() != followRestriction.length)
+    public ReduceLookahead(IProduction production, ProductionType productionType, int arity,
+        ICharacterClass[] followRestriction) {
+        super(production, productionType, arity);
+
+        this.followRestriction = followRestriction;
+    }
+
+    @Override
+    public boolean allowsLookahead(IParseInput parseInput) {
+        String lookahead = parseInput.getLookahead(followRestriction.length);
+
+        if(lookahead.length() != followRestriction.length)
             return true;
-        
-        for (int i = 0; i < followRestriction.length; i++) {
-            if (!followRestriction[i].containsCharacter(lookahead.charAt(i)))
+
+        for(int i = 0; i < followRestriction.length; i++) {
+            if(!followRestriction[i].contains(lookahead.charAt(i)))
                 return true;
         }
-        
+
         return false;
     }
-    
-    public boolean allowsLookahead(Parse parse) {
-        String lookahead = parse.getLookahead(followRestriction.length);
-        
-        return allowsLookahead(lookahead);
+
+    @Override
+    public String toString() {
+        return "REDUCE_LOOKAHEAD(" + production.id() + "," + Arrays.toString(followRestriction) + ")";
     }
-	
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() ^ followRestriction.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ReduceLookahead that = (ReduceLookahead) o;
+
+        return production.equals(that.production) && productionType.equals(that.productionType) && arity == that.arity
+            && Arrays.equals(followRestriction, that.followRestriction);
+    }
+
 }

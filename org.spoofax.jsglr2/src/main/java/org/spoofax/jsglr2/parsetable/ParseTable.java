@@ -1,27 +1,25 @@
 package org.spoofax.jsglr2.parsetable;
 
+import org.spoofax.jsglr2.states.IState;
+
 public class ParseTable implements IParseTable {
 
-	final private IProduction[] productions;
-	final private IState[] states;
-	final private int startStateNumber;
-	
-	public ParseTable(IProduction[] productions, IState[] states, int startStateNumber) {
-		this.productions = productions;
-		this.states = states;
-		this.startStateNumber = startStateNumber;
-	}
-	
-	public IProduction[] productions() {
-		return productions;
-	}
-	
-	public IState startState() {
-		return states[startStateNumber];
-	}
-	
-	public IState getState(int stateNumber) {
-		return states[stateNumber];
-	}
+    final private IState[] states;
+    final private int startStateId;
+
+    public ParseTable(IState[] states, int startStateId) {
+        this.states = states;
+        this.startStateId = startStateId;
+    }
+
+    @Override
+    public IState getStartState() {
+        return getState(startStateId);
+    }
+
+    @Override
+    public IState getState(int stateId) {
+        return states[stateId];
+    }
 
 }

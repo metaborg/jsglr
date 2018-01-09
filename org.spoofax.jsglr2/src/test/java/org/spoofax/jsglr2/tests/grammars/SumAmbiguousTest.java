@@ -11,24 +11,25 @@ import org.spoofax.jsglr2.util.WithGrammar;
 import org.spoofax.terms.ParseError;
 
 public class SumAmbiguousTest extends BaseTestWithJSGLR1 implements WithGrammar {
-	
-	public SumAmbiguousTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException, InterruptedException, URISyntaxException {
-		setupParseTableFromDefFile("sum-ambiguous");
-	}
+
+    public SumAmbiguousTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
+        InterruptedException, URISyntaxException {
+        setupParseTableFromDefFile("sum-ambiguous");
+    }
 
     @Test
     public void one() throws ParseError, ParseTableReadException, IOException {
-    		testSuccessByJSGLR1("x");
+        testSuccessByJSGLR1("x");
     }
 
     @Test
     public void two() throws ParseError, ParseTableReadException, IOException {
-    		testSuccessByJSGLR1("x+x");
+        testSuccessByJSGLR1("x+x");
     }
 
     @Test
     public void three() throws ParseError, ParseTableReadException, IOException {
-    		testSuccessByJSGLR1("x+x+x");
+        testSuccessByJSGLR1("x+x+x");
     }
-  
+
 }

@@ -139,7 +139,6 @@ public final class CharacterClassRangeSet implements ICharacterClass {
         return bitSet;
     }
 
-    @Override
     public CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet other) {
         return union(other);
     }

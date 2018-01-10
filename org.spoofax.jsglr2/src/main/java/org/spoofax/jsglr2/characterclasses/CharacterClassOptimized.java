@@ -66,11 +66,6 @@ public final class CharacterClassOptimized implements ICharacterClass {
     }
 
     @Override
-    public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public int hashCode() {
         return (int) (word0 ^ word1 ^ word2 ^ word3 ^ Boolean.hashCode(containsEOF));
     }

@@ -26,8 +26,6 @@ public interface ICharacterClass {
 
     int max();
 
-    CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet);
-
     static String intToString(int character) {
         if(character == EOF_INT)
             return "EOF";

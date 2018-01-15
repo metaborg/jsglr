@@ -6,9 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IActionsFactory;
+import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
 import org.spoofax.jsglr2.parser.IParseInput;
@@ -18,7 +20,7 @@ import org.spoofax.jsglr2.states.IActionsForCharacter;
 
 public class MultipleActionGroupsForRangeTest {
 
-    ICharacterClassFactory characterClassFactory = ICharacterClass.factory();
+    ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
 
     ICharacterClass AZ = characterClassFactory.fromRange(65, 90);
     ICharacterClass az = characterClassFactory.fromRange(97, 122);
@@ -32,7 +34,7 @@ public class MultipleActionGroupsForRangeTest {
     ICharacterClass f = characterClassFactory.fromSingle(102);
     ICharacterClass gz = characterClassFactory.fromRange(103, 122);
 
-    IActionsFactory actionsFactory = IAction.factory();
+    IActionsFactory actionsFactory = new ActionsFactory(true);
 
     IAction shift1 = actionsFactory.getShift(1);
     IAction shift2 = actionsFactory.getShift(2);

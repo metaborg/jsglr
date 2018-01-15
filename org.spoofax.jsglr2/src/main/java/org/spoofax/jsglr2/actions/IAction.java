@@ -4,10 +4,6 @@ import org.spoofax.jsglr2.parser.IParseInput;
 
 public interface IAction {
 
-    static IActionsFactory factory() {
-        return new ActionsFactory(true);
-    }
-
     ActionType actionType();
 
     static boolean allowsLookahead(IAction action, IParseInput parseInput) {

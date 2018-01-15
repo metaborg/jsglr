@@ -16,11 +16,14 @@ import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parser.ParseResult;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
@@ -53,8 +56,9 @@ public abstract class BaseTest {
 
     protected IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) {
         try {
-            return new ParseTableReader(variant.actionsForCharacterRepresentation,
-                variant.productionToGotoRepresentation).read(getParseTableTerm());
+            return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
+                new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
+                    .read(getParseTableTerm());
         } catch(ParseTableReadException e) {
             e.printStackTrace();
 

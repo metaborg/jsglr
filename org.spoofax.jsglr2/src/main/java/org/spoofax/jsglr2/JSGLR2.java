@@ -2,6 +2,8 @@ package org.spoofax.jsglr2;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
+import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -20,15 +22,15 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
+import org.spoofax.jsglr2.states.StateFactory;
 
 public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
 
     public IParser<ParseForest, ?> parser;
     public IImploder<ParseForest, AbstractSyntaxTree> imploder;
 
-    @SuppressWarnings("unchecked")
-    public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IParseTable parseTable)
-        throws ParseTableReadException {
+    @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
+        standard(IParseTable parseTable) throws ParseTableReadException {
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
@@ -37,7 +39,9 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
 
     public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm)
         throws ParseTableReadException {
-        IParseTable parseTable = new ParseTableReader().read(parseTableTerm);
+        IParseTable parseTable =
+            new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory())
+                .read(parseTableTerm);
 
         return standard(parseTable);
     }
@@ -61,9 +65,8 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
         return implodeResult.ast;
     }
 
-    @SuppressWarnings("unchecked")
-    public JSGLR2Result<ParseForest, AbstractSyntaxTree> parseResult(String input, String filename,
-        String startSymbol) {
+    @SuppressWarnings("unchecked") public JSGLR2Result<ParseForest, AbstractSyntaxTree> parseResult(String input,
+        String filename, String startSymbol) {
         ParseResult<ParseForest, ?> parseResult = parser.parse(input, filename, startSymbol);
 
         if(!parseResult.isSuccess)

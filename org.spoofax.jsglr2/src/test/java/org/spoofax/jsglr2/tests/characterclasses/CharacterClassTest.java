@@ -6,12 +6,13 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import org.junit.Test;
+import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
 
 public class CharacterClassTest {
 
-    ICharacterClassFactory factory = ICharacterClass.factory();
+    ICharacterClassFactory factory = new CharacterClassFactory(true, true);
 
     ICharacterClass AZ = factory.fromRange(65, 90);
     ICharacterClass az = factory.fromRange(97, 122);

@@ -6,15 +6,6 @@ import org.spoofax.jsglr2.parser.IParseInput;
 
 public interface IState {
 
-    static StateFactory factory() {
-        return new StateFactory();
-    }
-
-    static StateFactory factory(ActionsForCharacterRepresentation actionsForCharacterRepresentation,
-        ProductionToGotoRepresentation productionToGotoRepresentation) {
-        return new StateFactory(actionsForCharacterRepresentation, productionToGotoRepresentation);
-    }
-
     int id();
 
     boolean isRejectable();

@@ -23,7 +23,6 @@ public final class CharacterClassSingle implements ICharacterClass {
         return character;
     }
 
-    @Override
     public final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet) {
         return rangeSet.addSingle(character);
     }

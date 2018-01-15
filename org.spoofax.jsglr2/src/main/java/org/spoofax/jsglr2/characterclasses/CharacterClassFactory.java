@@ -49,15 +49,24 @@ public class CharacterClassFactory implements ICharacterClassFactory {
                 other = a;
             }
 
-            return other.rangeSetUnion(rangeSet);
+            return rangeSetUnion(rangeSet, other);
         } else {
             CharacterClassRangeSet result = fromEmpty();
 
-            result = a.rangeSetUnion(result);
-            result = b.rangeSetUnion(result);
+            result = rangeSetUnion(result, a);
+            result = rangeSetUnion(result, b);
 
             return result;
         }
+    }
+
+    private final CharacterClassRangeSet rangeSetUnion(CharacterClassRangeSet rangeSet, ICharacterClass other) {
+        if(other instanceof CharacterClassRangeSet)
+            return ((CharacterClassRangeSet) other).rangeSetUnion(rangeSet);
+        else if(other instanceof CharacterClassSingle)
+            return ((CharacterClassSingle) other).rangeSetUnion(rangeSet);
+        else
+            throw new IllegalStateException();
     }
 
     @Override

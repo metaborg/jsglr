@@ -8,6 +8,11 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.datadependent.DataDependentParseForestManager;
+import org.spoofax.jsglr2.datadependent.DataDependentParseForestStrategoImploder;
+import org.spoofax.jsglr2.datadependent.DataDependentReduceManager;
+import org.spoofax.jsglr2.datadependent.DataDependentRuleNode;
+import org.spoofax.jsglr2.datadependent.DataDependentSymbolNode;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackManager;
 import org.spoofax.jsglr2.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.elkhound.BasicElkhoundStackNode;
@@ -372,6 +377,23 @@ public class JSGLR2Variants {
                         }
                     }
                 }
+            case DataDependent:
+                StackManager<BasicParseForest, AbstractBasicStackNode<BasicParseForest>> basicStackManager;
+                DataDependentParseForestManager ddParseForestManager = new DataDependentParseForestManager();
+
+                if(variant.stackRepresentation == StackRepresentation.Basic)
+                    basicStackManager = new BasicStackManager<BasicParseForest>();
+                else
+                    basicStackManager = new HybridStackManager<BasicParseForest>();
+
+                DataDependentReduceManager<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode, AbstractBasicStackNode<BasicParseForest>> ddReducer =
+                    new DataDependentReduceManager<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode, AbstractBasicStackNode<BasicParseForest>>(
+                        parseTable, basicStackManager, ddParseForestManager,
+                        variant.parseForestConstruction);
+
+                return new Parser<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode, AbstractBasicStackNode<BasicParseForest>>(
+                    parseTable, activeStacksFactory, forActorStacksFactory, basicStackManager,
+                    ddParseForestManager, ddReducer);
         }
     }
 
@@ -405,6 +427,10 @@ public class JSGLR2Variants {
                 imploder = new HybridParseForestStrategoImploder();
 
                 break;
+            case DataDependent:
+                imploder = new DataDependentParseForestStrategoImploder();
+
+                break;    
             case Null:
                 imploder = new NullParseForestStrategoImploder();
 

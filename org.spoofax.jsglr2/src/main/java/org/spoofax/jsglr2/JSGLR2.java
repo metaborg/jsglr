@@ -39,11 +39,10 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
 
     @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
         dataDependent(IParseTable parseTable) throws ParseTableReadException {
-        // TODO hook to data-dependent SGLR
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
-                Reducing.Elkhound));
+                ParseForestRepresentation.DataDependent, ParseForestConstruction.Optimized, StackRepresentation.Basic,
+                Reducing.DataDependent));
     }
 
     public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm)

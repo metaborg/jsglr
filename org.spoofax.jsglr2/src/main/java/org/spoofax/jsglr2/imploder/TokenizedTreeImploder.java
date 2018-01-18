@@ -3,11 +3,11 @@ package org.spoofax.jsglr2.imploder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
 import org.spoofax.jsglr2.tokenizer.Tokens;
 

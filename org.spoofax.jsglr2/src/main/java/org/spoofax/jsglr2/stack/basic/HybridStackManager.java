@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.stack.basic;
 
+import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.states.IState;
 
 public class HybridStackManager<ParseForest extends AbstractParseForest>
     extends AbstractBasicStackManager<ParseForest, HybridStackNode<ParseForest>> {

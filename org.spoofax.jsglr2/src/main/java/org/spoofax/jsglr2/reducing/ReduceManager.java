@@ -1,16 +1,16 @@
 package org.spoofax.jsglr2.reducing;
 
-import org.spoofax.jsglr2.actions.IReduce;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.paths.StackPath;
-import org.spoofax.jsglr2.states.IState;
 
 public class ReduceManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>> {
 

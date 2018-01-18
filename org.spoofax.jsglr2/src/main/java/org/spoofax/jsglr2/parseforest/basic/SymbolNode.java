@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.parseforest.basic;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parsetable.IProduction;
 
 public class SymbolNode extends BasicParseForest {
 

@@ -9,6 +9,7 @@ import static org.spoofax.terms.Term.termAt;
 
 import java.util.Iterator;
 
+import org.metaborg.parsetable.ProductionType;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;

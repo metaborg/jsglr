@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
 
 public class CharacterClassTest {
 
@@ -18,14 +18,24 @@ public class CharacterClassTest {
     ICharacterClass az = factory.fromRange(97, 122);
 
     ICharacterClass x = factory.fromSingle(120);
-    ICharacterClass eof = factory.fromSingle(ICharacterClass.EOF_INT);
+    ICharacterClass eof = factory.fromSingle(CharacterClassFactory.EOF_INT);
 
     private void testCharacterClass(ICharacterClass characters, Predicate<Integer> contains) {
-        for(int i = 0; i <= ICharacterClass.EOF_INT; i++) {
+        for(int i = 0; i <= CharacterClassFactory.EOF_INT; i++) {
             boolean expected = characters.contains(i);
 
-            assertEquals("Character " + i + " ('" + ICharacterClass.intToString(i) + "') for characters "
+            assertEquals("Character " + i + " ('" + CharacterClassFactory.intToString(i) + "') for characters "
                 + characters.toString() + ":", contains.test(i), expected);
+        }
+    }
+
+    private void testCharacterClass(ICharacterClass one, ICharacterClass two) {
+        for(int i = 0; i <= CharacterClassFactory.EOF_INT; i++) {
+            boolean expected = one.contains(i);
+            boolean actual = two.contains(i);
+
+            assertEquals("Character " + i + " ('" + CharacterClassFactory.intToString(i) + "') for characters "
+                + one.toString() + " vs. " + two.toString() + ":", actual, expected);
         }
     }
 
@@ -56,6 +66,20 @@ public class CharacterClassTest {
     }
 
     @Test
+    public void testLettersIntersectionRange() {
+        ICharacterClass letters = factory.intersection(az, AZ);
+
+        testCharacterClass(letters, factory.fromEmpty());
+    }
+
+    @Test
+    public void testLettersDifferenceRange() {
+        ICharacterClass letters = factory.intersection(az, AZ);
+
+        testCharacterClass(letters, factory.fromEmpty());
+    }
+
+    @Test
     public void testSingletonRange() {
         testCharacterClass(x, character -> {
             return character == 120;
@@ -77,20 +101,60 @@ public class CharacterClassTest {
 
     @Test
     public void testEOF() {
-        ICharacterClass characters = factory.fromSingle(ICharacterClass.EOF_INT);
+        ICharacterClass characters = factory.fromSingle(CharacterClassFactory.EOF_INT);
 
         testCharacterClass(characters, character -> {
-            return character == ICharacterClass.EOF_INT;
+            return character == CharacterClassFactory.EOF_INT;
         });
     }
 
     @Test
     public void testRangeEOFunion() {
-        ICharacterClass characters = factory.union(az, factory.fromSingle(ICharacterClass.EOF_INT));
+        ICharacterClass characters = factory.union(az, factory.fromSingle(CharacterClassFactory.EOF_INT));
 
         testCharacterClass(characters, character -> {
-            return 97 <= character && character <= 122 || character == ICharacterClass.EOF_INT;
+            return 97 <= character && character <= 122 || character == CharacterClassFactory.EOF_INT;
         });
+    }
+
+    @Test
+    public void testRangeEOFintersect() {
+        testCharacterClass(factory.intersection(factory.union(az, eof), eof), eof);
+        testCharacterClass(factory.intersection(eof, factory.union(az, eof)), eof);
+    }
+
+    @Test
+    public void testRangeEOFdifference() {
+        testCharacterClass(factory.difference(factory.union(az, eof), eof), az);
+        testCharacterClass(factory.difference(eof, factory.union(az, eof)), factory.fromEmpty());
+    }
+
+    @Test
+    public void testRangeIntersect() {
+        testCharacterClass(factory.intersection(factory.fromRange(10, 20), factory.fromSingle(15)),
+            factory.fromSingle(15));
+        testCharacterClass(factory.intersection(factory.fromSingle(15), factory.fromRange(10, 20)),
+            factory.fromSingle(15));
+
+        testCharacterClass(factory.intersection(factory.fromRange(10, 20), factory.fromRange(15, 25)),
+            factory.fromRange(15, 20));
+
+        testCharacterClass(factory.intersection(factory.fromRange(10, 20), factory.fromRange(20, 30)),
+            factory.fromSingle(20));
+        testCharacterClass(factory.intersection(factory.fromRange(10, 20), factory.fromSingle(20)),
+            factory.fromSingle(20));
+        testCharacterClass(factory.intersection(factory.fromSingle(20), factory.fromRange(10, 20)),
+            factory.fromSingle(20));
+    }
+
+    @Test
+    public void testRangeDifference() {
+        testCharacterClass(factory.difference(factory.fromRange(65, 75), factory.fromSingle(70)),
+            factory.union(factory.fromRange(65, 69), factory.fromRange(71, 75)));
+        testCharacterClass(factory.difference(factory.fromSingle(15), factory.fromRange(10, 20)), factory.fromEmpty());
+
+        testCharacterClass(factory.difference(factory.fromRange(65, 70), factory.fromSingle(70)),
+            factory.fromRange(65, 69));
     }
 
     @Test
@@ -98,8 +162,8 @@ public class CharacterClassTest {
         char newLineChar = '\n';
         int newLineInt = newLineChar;
 
-        assertEquals(ICharacterClass.isNewLine(newLineChar), true);
-        assertEquals(ICharacterClass.isNewLine(newLineInt), true);
+        assertEquals(CharacterClassFactory.isNewLine(newLineChar), true);
+        assertEquals(CharacterClassFactory.isNewLine(newLineInt), true);
     }
 
     @Test

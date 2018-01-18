@@ -2,11 +2,11 @@ package org.spoofax.jsglr2.tests.util;
 
 import static org.junit.Assert.fail;
 
+import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.util.WithJSGLR1;
 
 public abstract class BaseTestWithJSGLR1 extends BaseTest implements WithJSGLR1 {

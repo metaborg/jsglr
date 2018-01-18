@@ -1,9 +1,10 @@
 package org.spoofax.jsglr2;
 
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
@@ -15,7 +16,6 @@ import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.ParseFailure;
 import org.spoofax.jsglr2.parser.ParseResult;
 import org.spoofax.jsglr2.parser.ParseSuccess;
-import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.reducing.Reducing;
@@ -31,6 +31,15 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
 
     @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
         standard(IParseTable parseTable) throws ParseTableReadException {
+        return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
+            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
+                Reducing.Elkhound));
+    }
+
+    @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
+        dataDependent(IParseTable parseTable) throws ParseTableReadException {
+        // TODO hook to data-dependent SGLR
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,

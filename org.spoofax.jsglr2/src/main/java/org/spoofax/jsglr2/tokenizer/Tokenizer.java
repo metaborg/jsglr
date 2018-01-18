@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2.tokenizer;
 
+import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parsetable.IProduction;
 
 public abstract class Tokenizer<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>> {
 

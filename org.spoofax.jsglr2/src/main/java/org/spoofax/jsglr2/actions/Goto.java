@@ -2,6 +2,8 @@ package org.spoofax.jsglr2.actions;
 
 import java.util.Arrays;
 
+import org.metaborg.parsetable.actions.IGoto;
+
 public class Goto implements IGoto {
 
     private final int[] productionIds;

@@ -6,17 +6,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.IParseInput;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterDisjointSorted;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
+import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
+import org.metaborg.sdf2table.parsetable.query.IActionsForCharacter;
 import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
-import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IActionsFactory;
-import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
-import org.spoofax.jsglr2.parser.IParseInput;
-import org.spoofax.jsglr2.states.ActionsForCharacterDisjointSorted;
-import org.spoofax.jsglr2.states.ActionsForCharacterSeparated;
-import org.spoofax.jsglr2.states.IActionsForCharacter;
 
 public class MultipleActionGroupsForRangeTest {
 
@@ -75,7 +75,7 @@ public class MultipleActionGroupsForRangeTest {
         IActionsForCharacter separated = new ActionsForCharacterSeparated(actionsPerCharacterClasses);
         IActionsForCharacter disjointSorted = new ActionsForCharacterDisjointSorted(actionsPerCharacterClasses);
 
-        for(int character = 0; character <= ICharacterClass.EOF_INT; character++) {
+        for(int character = 0; character <= CharacterClassFactory.EOF_INT; character++) {
             IParseInput parseInput = new MockParseInput(character);
 
             Set<IAction> actionForSeparated = iterableToSet(separated.getApplicableActions(parseInput));

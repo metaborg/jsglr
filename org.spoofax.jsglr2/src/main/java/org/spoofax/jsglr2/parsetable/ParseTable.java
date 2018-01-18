@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.parsetable;
 
-import org.spoofax.jsglr2.states.IState;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IState;
 
 public class ParseTable implements IParseTable {
 

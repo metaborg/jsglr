@@ -1,8 +1,12 @@
 package org.spoofax.jsglr2.actions;
 
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.parsetable.ProductionType;
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.ProductionType;
+import org.metaborg.parsetable.actions.IAccept;
+import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.actions.IReduceLookahead;
+import org.metaborg.parsetable.actions.IShift;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
 
 public interface IActionsFactory {
 

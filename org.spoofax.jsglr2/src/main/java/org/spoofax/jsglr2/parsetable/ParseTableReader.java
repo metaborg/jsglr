@@ -13,20 +13,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.vfs2.FileObject;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.ProductionType;
+import org.metaborg.parsetable.actions.ActionType;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.actions.IGoto;
+import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
+import org.metaborg.sdf2table.io.ParseTableGenerator;
+import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.actions.ActionType;
-import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.actions.Goto;
-import org.spoofax.jsglr2.actions.IAction;
 import org.spoofax.jsglr2.actions.IActionsFactory;
-import org.spoofax.jsglr2.actions.IGoto;
-import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.characterclasses.ICharacterClassFactory;
-import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.State;
 import org.spoofax.terms.ParseError;
@@ -63,6 +68,20 @@ public class ParseTableReader {
         markRejectableStates(states);
 
         return new ParseTable(states, startStateId);
+    }
+
+    public IParseTable read(IStrategoTerm pt, FileObject persistedTable) throws Exception {
+
+        org.metaborg.sdf2table.parsetable.ParseTable parseTableFromSerializable;
+
+        ParseTableGenerator ptg = new ParseTableGenerator(persistedTable);
+
+        // read persisted normalized grammar
+        parseTableFromSerializable = ptg.getParseTable();
+
+        // TODO: markRejectableStates(states);
+
+        return parseTableFromSerializable;
     }
 
     public IParseTable read(InputStream inputStream) throws ParseTableReadException, ParseError, IOException {

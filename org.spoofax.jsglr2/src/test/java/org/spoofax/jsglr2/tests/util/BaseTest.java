@@ -13,14 +13,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parser.ParseResult;
 import org.spoofax.jsglr2.parser.Parser;
-import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.states.StateFactory;

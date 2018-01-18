@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.states.IState;
 
 public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IActiveStacks<StackNode> {

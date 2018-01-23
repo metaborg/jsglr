@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.stack.basic;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {

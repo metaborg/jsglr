@@ -27,25 +27,31 @@
 			<artifactId>org.spoofax.jsglr</artifactId>
 			<version>${metaborg-version}</version>
 		</dependency>
-		
-        <dependency>
-          <groupId>com.google.code.findbugs</groupId>
-          <artifactId>jsr305</artifactId>
-          <scope>provided</scope>
-        </dependency>
-    
-	    <dependency>
-	      <groupId>org.metaborg</groupId>
-	      <artifactId>org.metaborg.spoofax.nativebundle</artifactId>
-	      <version>${metaborg-version}</version>
-          <scope>test</scope>
-	    </dependency>
+
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>tableinterfaces</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>characterclasses</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

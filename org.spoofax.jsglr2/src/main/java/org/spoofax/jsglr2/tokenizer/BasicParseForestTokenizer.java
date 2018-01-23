@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2.tokenizer;
 
+import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.RuleNode;
 import org.spoofax.jsglr2.parseforest.basic.SymbolNode;
-import org.spoofax.jsglr2.parsetable.IProduction;
 
 public class BasicParseForestTokenizer extends Tokenizer<BasicParseForest, SymbolNode, RuleNode> {
 

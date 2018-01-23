@@ -3,11 +3,11 @@ package org.spoofax.jsglr2.parseforest.hybrid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class HybridParseForestManager extends ParseForestManager<HybridParseForest, ParseNode, Derivation> {
 

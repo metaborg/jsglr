@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.parseforest;
 
-import org.spoofax.jsglr2.parsetable.IProduction;
+import org.metaborg.parsetable.IProduction;
 
 public interface IDerivation<ParseForest> {
 

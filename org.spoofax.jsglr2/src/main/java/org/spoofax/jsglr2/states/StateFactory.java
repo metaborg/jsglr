@@ -1,7 +1,16 @@
 package org.spoofax.jsglr2.states;
 
-import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
-import org.spoofax.jsglr2.actions.IGoto;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IGoto;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterDisjointSorted;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
+import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
+import org.metaborg.sdf2table.parsetable.query.IActionsForCharacter;
+import org.metaborg.sdf2table.parsetable.query.IProductionToGoto;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoForLoop;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoJavaHashMap;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
 public class StateFactory implements IStateFactory {
 

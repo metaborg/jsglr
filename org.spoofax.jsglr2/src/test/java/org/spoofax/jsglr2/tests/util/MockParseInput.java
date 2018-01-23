@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.tests.util;
 
-import org.spoofax.jsglr2.parser.IParseInput;
+import org.metaborg.parsetable.IParseInput;
 
 public class MockParseInput implements IParseInput {
 

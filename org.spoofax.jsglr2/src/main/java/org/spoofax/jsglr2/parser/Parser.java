@@ -1,13 +1,14 @@
 package org.spoofax.jsglr2.parser;
 
-import org.spoofax.jsglr2.actions.IAction;
-import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.actions.IShift;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.actions.IShift;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackManager;
@@ -15,7 +16,6 @@ import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
-import org.spoofax.jsglr2.states.IState;
 
 public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
     implements IParser<ParseForest, StackNode> {
@@ -77,7 +77,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
             } else {
                 ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse,
                     new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
-                        + "/'" + ICharacterClass.intToString(parse.currentChar) + "', position: "
+                        + "/'" + CharacterClassFactory.intToString(parse.currentChar) + "', position: "
                         + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
                         + parse.inputLength + "])"));
 

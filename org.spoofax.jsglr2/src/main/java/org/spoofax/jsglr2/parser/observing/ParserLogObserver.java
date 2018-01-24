@@ -3,20 +3,21 @@ package org.spoofax.jsglr2.parser.observing;
 import java.util.Queue;
 import java.util.logging.Logger;
 
-import org.spoofax.jsglr2.actions.IAction;
-import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFailure;
 import org.spoofax.jsglr2.parser.ParseSuccess;
-import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.states.IState;
 
 public class ParserLogObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IParserObserver<ParseForest, StackNode> {
@@ -28,7 +29,7 @@ public class ParserLogObserver<ParseForest extends AbstractParseForest, StackNod
 
     @Override
     public void parseCharacter(Parse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
-        log("Parse character '" + ICharacterClass.intToString(parse.currentChar) + "' (active stacks: "
+        log("Parse character '" + CharacterClassFactory.intToString(parse.currentChar) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")");
     }
 
@@ -136,7 +137,7 @@ public class ParserLogObserver<ParseForest extends AbstractParseForest, StackNod
     @Override
     public void createCharacterNode(ParseForest characterNode, int character) {
         log("Create character node " + characterNode.nodeNumber + " for character '"
-            + ICharacterClass.intToString(character) + "'");
+            + CharacterClassFactory.intToString(character) + "'");
     }
 
     @Override

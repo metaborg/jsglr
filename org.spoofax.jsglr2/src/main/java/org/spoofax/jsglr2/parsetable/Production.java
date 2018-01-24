@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.parsetable;
 
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.ProductionType;
+
 public class Production implements IProduction {
 
     private final int productionId;

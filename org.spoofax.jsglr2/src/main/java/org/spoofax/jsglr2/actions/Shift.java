@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.actions;
 
+import org.metaborg.parsetable.actions.IShift;
+
 public class Shift implements IShift {
 
     private final int shiftStateId;

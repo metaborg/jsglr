@@ -7,20 +7,20 @@ import java.util.List;
 import java.util.Queue;
 import java.util.regex.Matcher;
 
-import org.spoofax.jsglr2.actions.IAction;
-import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFailure;
 import org.spoofax.jsglr2.parser.ParseSuccess;
-import org.spoofax.jsglr2.parsetable.IProduction;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.states.IState;
 
 public class ParserVisualisationObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IParserObserver<ParseForest, StackNode> {
@@ -34,7 +34,7 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
 
     @Override
     public void parseCharacter(Parse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
-        trace("{\"action\":\"parseCharacter\",\"character\":\"" + ICharacterClass.intToString(parse.currentChar)
+        trace("{\"action\":\"parseCharacter\",\"character\":\"" + CharacterClassFactory.intToString(parse.currentChar)
             + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
     }
 
@@ -146,7 +146,7 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
     @Override
     public void createCharacterNode(ParseForest parseNode, int character) {
         trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + parseNode.nodeNumber + ",\"character\":\""
-            + ICharacterClass.intToString(character) + "\"" + ",\"startPosition\":" + parseNode.startPosition.offset
+            + CharacterClassFactory.intToString(character) + "\"" + ",\"startPosition\":" + parseNode.startPosition.offset
             + ",\"endPosition\":" + parseNode.endPosition.offset + "}");
     }
 

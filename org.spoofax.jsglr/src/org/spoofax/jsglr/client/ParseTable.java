@@ -690,10 +690,10 @@ public class ParseTable implements Serializable {
 
         List<IStrategoTerm> action_terms = Lists.newArrayList();
 
-        for(CharacterClass cc : s_orig.actions().keySet()) {
+        for(CharacterClass cc : s_orig.actionsMapping().keySet()) {
 
             List<IStrategoTerm> actions = Lists.newArrayList();
-            for(org.metaborg.sdf2table.parsetable.Action a : s_orig.actions().get(cc)) {
+            for(org.metaborg.sdf2table.parsetable.Action a : s_orig.actionsMapping().get(cc)) {
                 actions.add(a.toAterm(factory, pt_generator.getParseTable()));
             }
             action_terms.add(factory.makeAppl(factory.makeConstructor("action", 2), cc.toStateAterm(factory),
@@ -716,7 +716,7 @@ public class ParseTable implements Serializable {
 
     public State getInitialState() {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getParseTable().initialState();
+            org.metaborg.sdf2table.parsetable.State s0 = (org.metaborg.sdf2table.parsetable.State) pt_generator.getParseTable().startState();
 
             State s = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
@@ -727,7 +727,7 @@ public class ParseTable implements Serializable {
 
     public State go(State s, int label) {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getParseTable().getState(s.go(label));
+            org.metaborg.sdf2table.parsetable.State s0 = (org.metaborg.sdf2table.parsetable.State) pt_generator.getParseTable().getState(s.go(label));
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;
@@ -741,7 +741,7 @@ public class ParseTable implements Serializable {
 
     public State getState(int s) {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = pt_generator.getParseTable().getState(s);
+            org.metaborg.sdf2table.parsetable.State s0 = (org.metaborg.sdf2table.parsetable.State) pt_generator.getParseTable().getState(s);
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;

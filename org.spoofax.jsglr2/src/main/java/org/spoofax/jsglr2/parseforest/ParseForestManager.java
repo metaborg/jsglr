@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2.parseforest;
 
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public abstract class ParseForestManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> {
 

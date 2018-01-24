@@ -1,8 +1,11 @@
 package org.spoofax.jsglr2.states;
 
-import org.spoofax.jsglr2.actions.IAction;
-import org.spoofax.jsglr2.actions.IReduce;
-import org.spoofax.jsglr2.parser.IParseInput;
+import org.metaborg.parsetable.IParseInput;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.sdf2table.parsetable.query.IActionsForCharacter;
+import org.metaborg.sdf2table.parsetable.query.IProductionToGoto;
 
 public final class State implements IState {
 

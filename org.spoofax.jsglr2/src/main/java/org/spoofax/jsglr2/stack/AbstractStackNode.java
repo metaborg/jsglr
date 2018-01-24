@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.stack;
 
+import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.states.IState;
 
 public abstract class AbstractStackNode<ParseForest> {
 

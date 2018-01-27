@@ -3,7 +3,8 @@ package org.spoofax.jsglr2.parser;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IParseInput;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -74,7 +75,7 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
         currentChar = getChar(currentOffset);
 
         if(currentOffset < inputLength) {
-            if(ICharacterClass.isNewLine(currentChar)) {
+            if(CharacterClassFactory.isNewLine(currentChar)) {
                 currentLine++;
                 currentColumn = 1;
             } else {
@@ -92,7 +93,7 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
 
             return c;
         } else
-            return ICharacterClass.EOF_INT;
+            return CharacterClassFactory.EOF_INT;
     }
 
     public String getPart(int begin, int end) {

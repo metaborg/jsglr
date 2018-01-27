@@ -3,10 +3,10 @@ package org.spoofax.jsglr2.stack.collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.states.IState;
 
 public class ActiveStacksArrayListHashMap<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     extends ActiveStacksArrayList<ParseForest, StackNode> {

@@ -22,10 +22,7 @@ public interface WithGrammar extends WithParseTable {
         String grammarDefPath = grammarsPath() + "/" + grammarName + ".def",
             parseTableTermPath = grammarsPath() + "/" + grammarName + ".tbl";
 
-        String sdf2tablePath = Sdf2Table.getPathInTargetDir();
-
-        String command =
-            sdf2tablePath + " -i " + grammarDefPath + " -o " + parseTableTermPath + " -m " + grammarName + " -t";
+        String command = "sdf2table -i " + grammarDefPath + " -o " + parseTableTermPath + " -m " + grammarName + " -t";
 
         Process sdf2tableProcess = Runtime.getRuntime().exec(command);
         int sdf2tableExitCode = sdf2tableProcess.waitFor();

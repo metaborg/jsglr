@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
+import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parsetable.IProduction;
-import org.spoofax.jsglr2.parsetable.ProductionType;
 
 public class Derivation implements IDerivation<HybridParseForest> {
 

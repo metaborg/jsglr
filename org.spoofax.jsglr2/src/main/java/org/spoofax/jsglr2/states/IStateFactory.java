@@ -1,7 +1,8 @@
 package org.spoofax.jsglr2.states;
 
-import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
-import org.spoofax.jsglr2.actions.IGoto;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IGoto;
+import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
 
 public interface IStateFactory {
 

@@ -77,7 +77,7 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
         if(currentOffset < inputLength) {
             if(CharacterClassFactory.isNewLine(currentChar)) {
                 currentLine++;
-                currentColumn = 1;
+                currentColumn = 0;
             } else {
                 currentColumn++;
             }

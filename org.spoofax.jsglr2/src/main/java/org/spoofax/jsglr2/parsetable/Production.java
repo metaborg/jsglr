@@ -44,8 +44,7 @@ public class Production implements IProduction {
         this.attributes = attributes;
     }
 
-    @Override
-    public int id() {
+    @Override public int id() {
         return productionId;
     }
 
@@ -66,98 +65,79 @@ public class Production implements IProduction {
         }
     }
 
-    @Override
-    public String sort() {
+    @Override public String sort() {
         return sort;
     }
 
-    @Override
-    public String startSymbolSort() {
+    @Override public String startSymbolSort() {
         return startSymbolSort;
     }
 
-    @Override
-    public String constructor() {
+    @Override public String constructor() {
         return attributes.constructor;
     }
 
-    @Override
-    public String descriptor() {
+    @Override public String descriptor() {
         return descriptor;
     }
 
-    @Override
-    public boolean isContextFree() {
+    @Override public boolean isContextFree() {
         return isContextFree;
     }
 
-    @Override
-    public boolean isLayout() {
+    @Override public boolean isLayout() {
         return isLayout;
     }
 
-    @Override
-    public boolean isLiteral() {
+    @Override public boolean isLiteral() {
         return isLiteral;
     }
 
-    @Override
-    public boolean isLexical() {
+    @Override public boolean isLexical() {
         return isLexical;
     }
 
-    @Override
-    public boolean isLexicalRhs() {
+    @Override public boolean isLexicalRhs() {
         return isLexicalRhs;
     }
 
-    @Override
-    public boolean isSkippableInParseForest() {
+    @Override public boolean isSkippableInParseForest() {
         return isSkippableInParseForest;
     }
 
-    @Override
-    public boolean isList() {
+    @Override public boolean isList() {
         return isList;
     }
 
-    @Override
-    public boolean isOptional() {
+    @Override public boolean isOptional() {
         return isOptional;
     }
 
-    @Override
-    public boolean isStringLiteral() {
+    @Override public boolean isStringLiteral() {
         return isStringLiteral;
     }
 
-    @Override
-    public boolean isNumberLiteral() {
+    @Override public boolean isNumberLiteral() {
         return isNumberLiteral;
     }
 
-    @Override
-    public boolean isOperator() {
+    @Override public boolean isOperator() {
         return isOperator;
     }
 
-    @Override
-    public boolean isCompletionOrRecovery() {
+    @Override public boolean isCompletionOrRecovery() {
         return attributes.isCompletionOrRecovery();
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return descriptor;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return productionId;
     }
 
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
         if(this == o) {
             return true;
         }
@@ -168,6 +148,10 @@ public class Production implements IProduction {
         Production that = (Production) o;
 
         return productionId == that.productionId;
+    }
+
+    @Override public boolean isIgnoreLayoutConstraint() {
+        return attributes.isIgnoreLayout;
     }
 
 }

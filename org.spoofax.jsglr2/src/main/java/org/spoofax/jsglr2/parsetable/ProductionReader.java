@@ -354,6 +354,7 @@ public class ProductionReader {
                                         isLiteralCompletion = true;
                                         break;
                                     case "ignore-layout":
+                                    case "no-lc" :
                                     case "ignore-indent":
                                         isIgnoreLayout = true;
                                         break;

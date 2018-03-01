@@ -5,12 +5,8 @@
  */
 package org.spoofax.interpreter.library.jsglr;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
@@ -18,8 +14,19 @@ import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.Disambiguator;
+import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.io.ParseTableManager;
+import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.spoofax.jsglr2.parsetable.ParseTableReadException;
+import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.states.StateFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 
@@ -27,7 +34,9 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 
 	private ParseTableManager parseTableManager;
 
-	private final Map<Integer, ParseTable> parseTables = new HashMap<Integer, ParseTable>();
+    private final ArrayList<ParseTable> v1parseTables = new ArrayList<>();
+
+    private final ArrayList<IParseTable> v2parseTables = new ArrayList<>();
 
     private final Map<IStrategoTerm, IStrategoInt> parseTableCache =
             new WeakHashMap<IStrategoTerm, IStrategoInt>();
@@ -35,6 +44,7 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 	private final Disambiguator filterSettings = new Disambiguator();
 
 	private final AtomicBoolean recoveryEnabled = new AtomicBoolean(false); // silly placeholder
+    private ParseTableReader parseTableReader = new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory());
 
 	public Disambiguator getFilterSettings() {
 		return filterSettings;
@@ -54,6 +64,7 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		add(new STRSGLR_clear_parse_error());
 		add(new STRSGLR_anno_location());
 		add(new STRSGLR_close_parse_table());
+		add(new STRSGLR2_parse_implode_stream_pt());
 		initFilterSettings();
 	}
 
@@ -253,20 +264,24 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 		return REGISTRY_NAME;
 	}
 
-	ParseTableManager getParseTableManager(ITermFactory factory) {
+    int addParseTable(ITermFactory factory, IStrategoTerm tableTerm) throws InvalidParseTableException, ParseTableReadException {
 		if(parseTableManager == null)
 			parseTableManager = new ParseTableManager(factory);
-		return parseTableManager;
+        ParseTable ptv1 = parseTableManager.loadFromTerm(tableTerm);
+        IParseTable ptv2 = parseTableReader.read(tableTerm);
+        assert v1parseTables.size() == v2parseTables.size();
+        int idx = v1parseTables.size();
+        v1parseTables.add(ptv1);
+        v2parseTables.add(ptv2);
+        return idx;
 	}
 
-	int addParseTable(ParseTable pt) {
-		int idx = parseTables.size();
-		parseTables.put(idx, pt);
-		return idx;
+    ParseTable getParseTable(int idx) {
+        return v1parseTables.get(idx);
 	}
 
-	ParseTable getParseTable(int idx) {
-		return parseTables.get(idx);
+    IParseTable getV2ParseTable(int idx) {
+        return v2parseTables.get(idx);
 	}
 
 	Map<IStrategoTerm, IStrategoInt> getParseTableCache() {
@@ -278,6 +293,6 @@ public class JSGLRLibrary extends AbstractStrategoOperatorRegistry {
 	}
 
 	public void removeParseTable(int index) {
-		parseTables.remove(index);
+        v1parseTables.set(index, null);
 	}
 }

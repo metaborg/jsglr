@@ -80,7 +80,7 @@ public class STRSGLR_parse_stream_pt extends JSGLRPrimitive {
 		return new Asfix2TreeBuilder(env.getFactory());
 	}
 
-	private String readFile(IOAgent io, int fd) throws IOException {
+	static String readFile(IOAgent io, int fd) throws IOException {
 		BufferedReader br = new BufferedReader(io.getReader(fd));
 		StringBuilder sb = new StringBuilder();
 		do {

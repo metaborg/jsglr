@@ -29,7 +29,7 @@ public class STRSGLR_parse_string_pt extends JSGLRPrimitive {
 
 	public final static String NAME = "STRSGLR_parse_string_pt";
 
-	private final static String INVALID = "";
+	final static String INVALID = "";
 
 	private SGLRException lastException;
 

@@ -30,7 +30,7 @@ public class STRSGLR2_parse_implode_stream_pt extends JSGLRPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 
-		if (!Tools.isTermString(tvars[0]))
+		if (!Tools.isTermInt(tvars[0]))
 			return false;
 		if (!Tools.isTermInt(tvars[1]))
 			return false;

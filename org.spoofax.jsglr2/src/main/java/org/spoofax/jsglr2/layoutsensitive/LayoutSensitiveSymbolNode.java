@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.parser.Position;
 
 public class LayoutSensitiveSymbolNode extends BasicParseForest {
 
-    public final IProduction production;
+    public final IProduction production; // left hand side non-terminal
     private final List<LayoutSensitiveRuleNode> derivations;
 
     public LayoutSensitiveSymbolNode(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition,
@@ -77,9 +77,26 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest {
         return derivations.size() > 1;
     }
 
-    @Override
-    public String descriptor() {
+    @Override public String descriptor() {
         return production.descriptor();
+    }
+
+    @Override public String toString() {
+        if(derivations.size() == 1) {
+            return derivations.get(0).toString();
+        }
+        String buf = "amb(";
+        int i = 0;
+        for(LayoutSensitiveRuleNode der : derivations) {
+            if(der == null) continue;
+            if(i != 0)
+                buf += ", ";
+            buf += der.toString();
+            i++;
+        }
+        buf += ")";
+
+        return buf;
     }
 
 }

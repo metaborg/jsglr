@@ -29,4 +29,9 @@ public class HybridParseForestStrategoImploder extends StrategoTermImploder<Hybr
         return parseNode.getPreferredAvoidedDerivations();
     }
 
+    @Override protected List<Derivation> longestMatchedDerivations(List<Derivation> derivations) {
+        // TODO remove derivations according to longest match criteria 
+        return derivations;
+    }
+
 }

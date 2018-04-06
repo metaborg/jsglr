@@ -55,7 +55,7 @@ public class ProductionReader {
 
         return new Production(productionId, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLiteral,
             isLexical, isLexicalRhs, isSkippableInParseForest, isList, isOptional, isStringLiteral, isNumberLiteral,
-            isOperator, attributes);
+            isOperator, attributes.isLongestMatch, attributes);
     }
 
     private static String getSort(IStrategoAppl lhs) {

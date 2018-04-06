@@ -14,19 +14,21 @@ public class BasicParseForestStrategoImploder extends StrategoTermImploder<Basic
         super(new BasicParseForestTokenizer());
     }
 
-    @Override
-    protected IProduction parseNodeProduction(SymbolNode symbolNode) {
+    @Override protected IProduction parseNodeProduction(SymbolNode symbolNode) {
         return symbolNode.production;
     }
 
-    @Override
-    protected RuleNode parseNodeOnlyDerivation(SymbolNode symbolNode) {
+    @Override protected RuleNode parseNodeOnlyDerivation(SymbolNode symbolNode) {
         return symbolNode.getOnlyDerivation();
     }
 
-    @Override
-    protected List<RuleNode> parseNodePreferredAvoidedDerivations(SymbolNode symbolNode) {
+    @Override protected List<RuleNode> parseNodePreferredAvoidedDerivations(SymbolNode symbolNode) {
         return symbolNode.getPreferredAvoidedDerivations();
+    }
+
+    @Override protected List<RuleNode> longestMatchedDerivations(List<RuleNode> derivations) {
+        // TODO remove derivations according to longest match criteria
+        return derivations;
     }
 
 }

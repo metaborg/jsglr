@@ -23,8 +23,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         this.tokenizer = tokenizer;
     }
 
-    @Override
-    public ImplodeResult<ParseForest, Tree> implode(Parse<ParseForest, ?> parse, ParseForest parseForest) {
+    @Override public ImplodeResult<ParseForest, Tree> implode(Parse<ParseForest, ?> parse, ParseForest parseForest) {
         Tokens tokens = new Tokens(parse.inputString, parse.filename);
 
         tokenizer.tokenize(tokens, parseForest);
@@ -43,21 +42,23 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         IProduction production = parseNodeProduction(parseNode);
 
         if(production.isContextFree()) {
-            List<Derivation> preferredAvoidedDerivations = parseNodePreferredAvoidedDerivations(parseNode);
+            List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
 
-            if(preferredAvoidedDerivations.size() > 1) {
+
+
+            if(filteredDerivations.size() > 1) {
                 parse.ambiguousTreeNodes++;
 
-                List<Tree> trees = new ArrayList<Tree>(preferredAvoidedDerivations.size());
+                List<Tree> trees = new ArrayList<Tree>(filteredDerivations.size());
 
-                for(Derivation derivation : preferredAvoidedDerivations)
+                for(Derivation derivation : filteredDerivations)
                     trees.add(implodeDerivation(parse, derivation, leftToken, rightToken));
 
                 String sort = production.sort();
 
                 return treeFactory.createAmb(sort, trees, leftToken, rightToken);
             } else
-                return implodeDerivation(parse, preferredAvoidedDerivations.get(0), leftToken, rightToken);
+                return implodeDerivation(parse, filteredDerivations.get(0), leftToken, rightToken);
         } else if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical() || production.isLexicalRhs()) {
@@ -65,6 +66,17 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         } else {
             throw new RuntimeException("invalid term type");
         }
+    }
+
+    protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
+        List<Derivation> result;
+        // TODO always filter prefer/avoid?
+        result = parseNodePreferredAvoidedDerivations(parseNode);
+        // TODO always filter longest-match?
+        if(result.size() != 1) {
+            result = longestMatchedDerivations(result);
+        }
+        return result;
     }
 
     protected Tree implodeDerivation(Parse<ParseForest, ?> parse, Derivation derivation, IToken leftToken,
@@ -171,5 +183,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
     protected abstract Derivation parseNodeOnlyDerivation(ParseNode parseNode);
 
     protected abstract List<Derivation> parseNodePreferredAvoidedDerivations(ParseNode parseNode);
+
+    protected abstract List<Derivation> longestMatchedDerivations(List<Derivation> derivations);
 
 }

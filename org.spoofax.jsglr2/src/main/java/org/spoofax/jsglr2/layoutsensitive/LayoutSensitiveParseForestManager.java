@@ -59,7 +59,8 @@ public class LayoutSensitiveParseForestManager
         Position rightPosition = null;
 
         for(BasicParseForest pf : parseForests) {
-            if(pf instanceof LayoutSensitiveSymbolNode && ((LayoutSensitiveSymbolNode) pf).getProduction().isLayout()) {
+            if(pf instanceof LayoutSensitiveSymbolNode && (((LayoutSensitiveSymbolNode) pf).getProduction().isLayout()
+                || ((LayoutSensitiveSymbolNode) pf).getProduction().isIgnoreLayoutConstraint())) {
                 continue;
             }
             if(pf instanceof LayoutSensitiveSymbolNode
@@ -79,7 +80,8 @@ public class LayoutSensitiveParseForestManager
                 }
 
                 if(currentStartPosition != null) {
-                    if(leftPosition == null && currentStartPosition.line > beginPosition.line && !currentStartPosition.equals(currentEndPosition)) {
+                    if(leftPosition == null && currentStartPosition.line > beginPosition.line
+                        && !currentStartPosition.equals(currentEndPosition)) {
                         leftPosition = currentStartPosition;
                     } else if(leftPosition != null && currentStartPosition.line > beginPosition.line
                         && currentStartPosition.column < leftPosition.column
@@ -129,10 +131,61 @@ public class LayoutSensitiveParseForestManager
 
         boolean initNonAmbiguous = symbolNode.isAmbiguous();
 
+        // TODO compare with other derivations and filter nodes according to longest-match nodes
+        int size = -1;
         symbolNode.addDerivation(ruleNode);
+
+
+        int currentLongestDerivation = 0;
+        boolean disambiguatedLongestMatch = false;
+
+        for(int i = 1; i < symbolNode.getDerivations().size(); i++) {
+            List<Position[]> list = symbolNode.getDerivations().get(i).longestMatchPos;
+
+            // FIXME: list of longest-match nodes should be the same?
+            if(size == -1) {
+                size = list.size();
+            } else if(size != list.size()) {
+                System.out.println("Number of longest match nodes differ");
+            }
+
+            for(int j = 0; j < list.size(); j++) {
+                Boolean secondNodeExpandsLonger = null;
+                if(symbolNode.getDerivations().get(currentLongestDerivation).longestMatchPos.size() > j) {
+                    secondNodeExpandsLonger = expandsLonger(
+                        symbolNode.getDerivations().get(currentLongestDerivation).longestMatchPos.get(j), list.get(j));
+                }
+                if(secondNodeExpandsLonger == null) {
+                    continue;
+                } else if(secondNodeExpandsLonger) {
+                    currentLongestDerivation = i;
+                    disambiguatedLongestMatch = true;
+                } else {
+                    disambiguatedLongestMatch = true;
+                }
+            }
+        }
+
+        if(disambiguatedLongestMatch) {
+            LayoutSensitiveRuleNode disambiguated = symbolNode.getDerivations().get(currentLongestDerivation);
+            symbolNode.getDerivations().clear();
+            symbolNode.addDerivation(disambiguated);
+        }
 
         if(initNonAmbiguous && symbolNode.isAmbiguous())
             parse.ambiguousParseNodes++;
+    }
+
+    private Boolean expandsLonger(Position[] pos1, Position[] pos2) {
+        assert (pos1[0].equals(pos2[0]));
+
+        if(pos2[1].line > pos1[1].line || (pos2[1].line == pos1[1].line && pos2[1].column > pos1[1].column)) {
+            return true;
+        } else if(pos1[1].line > pos2[1].line || (pos1[1].line == pos2[1].line && pos1[1].column > pos2[1].column)) {
+            return false;
+        }
+
+        return null;
     }
 
     @Override public TermNode createCharacterNode(Parse<BasicParseForest, ?> parse) {

@@ -20,6 +20,8 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
 
     public int currentChar; // Current ASCII char in range [0, 256]
     public int currentOffset, currentLine, currentColumn;
+    
+    private static final int TAB_SIZE = 8;
 
     public StackNode acceptingStack;
     public IActiveStacks<StackNode> activeStacks;
@@ -78,6 +80,8 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
             if(CharacterClassFactory.isNewLine(currentChar)) {
                 currentLine++;
                 currentColumn = 0;
+            } else if (CharacterClassFactory.isTab(currentChar)) {
+                currentColumn = (currentColumn / TAB_SIZE + 1) * TAB_SIZE;
             } else {
                 currentColumn++;
             }

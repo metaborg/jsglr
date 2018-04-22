@@ -33,9 +33,6 @@ public class LayoutSensitiveParseForestStrategoImploder
         // TODO remove derivations according to longest match criteria
         // get the derivations where longest match node expands the most
 
-
-
-        List<LayoutSensitiveRuleNode> longestMatchDerivations = Lists.newArrayList();
         // collect longestMatch nodes
 
         List<List<LayoutSensitiveRuleNode>> longestMatchNodes = Lists.newArrayList();
@@ -48,7 +45,6 @@ public class LayoutSensitiveParseForestStrategoImploder
         int size = -1;
 
         int currentLongestDerivation = 0;
-        derivations.toString();
         boolean disambiguatedLongestMatch = false;
 
         for(int i = 1; i < longestMatchNodes.size(); i++) {

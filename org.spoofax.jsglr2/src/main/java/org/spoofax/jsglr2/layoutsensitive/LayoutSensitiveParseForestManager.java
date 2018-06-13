@@ -127,14 +127,11 @@ public class LayoutSensitiveParseForestManager
 
     @Override public void addDerivation(Parse<BasicParseForest, ?> parse, LayoutSensitiveSymbolNode symbolNode,
         LayoutSensitiveRuleNode ruleNode) {
-        // parse.notify(observer -> observer.addDerivation(symbolNode));
 
         boolean initNonAmbiguous = symbolNode.isAmbiguous();
 
-        // TODO compare with other derivations and filter nodes according to longest-match nodes
         int size = -1;
         symbolNode.addDerivation(ruleNode);
-
 
         int currentLongestDerivation = 0;
         boolean disambiguatedLongestMatch = false;
@@ -160,8 +157,10 @@ public class LayoutSensitiveParseForestManager
                 } else if(secondNodeExpandsLonger) {
                     currentLongestDerivation = i;
                     disambiguatedLongestMatch = true;
+                    break;
                 } else {
                     disambiguatedLongestMatch = true;
+                    break;
                 }
             }
         }

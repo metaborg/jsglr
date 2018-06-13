@@ -30,51 +30,51 @@ public class LayoutSensitiveParseForestStrategoImploder
 
     @Override protected List<LayoutSensitiveRuleNode>
         longestMatchedDerivations(List<LayoutSensitiveRuleNode> derivations) {
-        // TODO remove derivations according to longest match criteria
-        // get the derivations where longest match node expands the most
-
-        // collect longestMatch nodes
-
-        List<List<LayoutSensitiveRuleNode>> longestMatchNodes = Lists.newArrayList();
-
-        for(LayoutSensitiveRuleNode rn : derivations) {
-            List<LayoutSensitiveRuleNode> currentLongestMatchNodes = collectLongestMatchNodes(rn);
-            longestMatchNodes.add(currentLongestMatchNodes);
-        }
-
-        int size = -1;
-
-        int currentLongestDerivation = 0;
-        boolean disambiguatedLongestMatch = false;
-
-        for(int i = 1; i < longestMatchNodes.size(); i++) {
-            List<LayoutSensitiveRuleNode> list = longestMatchNodes.get(i);
-
-            // FIXME: list of longest-match nodes should be the same?
-            if(size == -1) {
-                size = list.size();
-            } else if(size != list.size()) {
-                System.out.println("Number of longest match nodes differ");
-            }
-
-            for(int j = 0; j < list.size(); j++) {
-                Boolean secondNodeExpandsLonger =
-                    expandsLonger(longestMatchNodes.get(currentLongestDerivation).get(j), list.get(j));
-                if(secondNodeExpandsLonger == null) {
-                    continue;
-                } else if(secondNodeExpandsLonger) {
-                    currentLongestDerivation = i;
-                    disambiguatedLongestMatch = true;
-                } else {
-                    disambiguatedLongestMatch = true;
-                }
-            }            
-        }
-
-        if(disambiguatedLongestMatch) {
-            return Lists.newArrayList(derivations.get(currentLongestDerivation));
-        }
-
+//        // TODO remove derivations according to longest match criteria
+//        // get the derivations where longest match node expands the most
+//
+//        // collect longestMatch nodes
+//
+//        List<List<LayoutSensitiveRuleNode>> longestMatchNodes = Lists.newArrayList();
+//
+//        for(LayoutSensitiveRuleNode rn : derivations) {
+//            List<LayoutSensitiveRuleNode> currentLongestMatchNodes = collectLongestMatchNodes(rn);
+//            longestMatchNodes.add(currentLongestMatchNodes);
+//        }
+//
+//        int size = -1;
+//
+//        int currentLongestDerivation = 0;
+//        boolean disambiguatedLongestMatch = false;
+//
+//        for(int i = 1; i < longestMatchNodes.size(); i++) {
+//            List<LayoutSensitiveRuleNode> list = longestMatchNodes.get(i);
+//
+//            // FIXME: list of longest-match nodes should be the same?
+//            if(size == -1) {
+//                size = list.size();
+//            } else if(size != list.size()) {
+//                System.out.println("Number of longest match nodes differ");
+//            }
+//
+//            for(int j = 0; j < list.size(); j++) {
+//                Boolean secondNodeExpandsLonger =
+//                    expandsLonger(longestMatchNodes.get(currentLongestDerivation).get(j), list.get(j));
+//                if(secondNodeExpandsLonger == null) {
+//                    continue;
+//                } else if(secondNodeExpandsLonger) {
+//                    currentLongestDerivation = i;
+//                    disambiguatedLongestMatch = true;
+//                } else {
+//                    disambiguatedLongestMatch = true;
+//                }
+//            }            
+//        }
+//
+//        if(disambiguatedLongestMatch) {
+//            return Lists.newArrayList(derivations.get(currentLongestDerivation));
+//        }
+//
         return derivations;
     }
 

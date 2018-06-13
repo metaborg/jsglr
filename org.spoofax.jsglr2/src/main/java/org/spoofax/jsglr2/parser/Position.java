@@ -29,7 +29,7 @@ public class Position {
     }
     
     @Override public String toString() {
-        return "l: " + line + " c: " + column;
+        return "l: " + line + " c: " + column + " offset: " + offset;
     }
 
     @Override public boolean equals(Object obj) {
@@ -48,6 +48,8 @@ public class Position {
             return false;
         return true;
     }
+    
+    
     
     
 

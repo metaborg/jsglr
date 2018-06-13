@@ -14,23 +14,29 @@ import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.JSGLR2Variants.Variant;
+import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.states.ActionsForCharacterRepresentation;
-import org.spoofax.jsglr2.states.ProductionToGotoRepresentation;
+import org.spoofax.jsglr2.states.IStateFactory;
+import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
 public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
@@ -51,9 +57,17 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
         Variant variant = variant();
 
         filterVariants(implode(), variant);
-
-        IParseTable parseTable = new ParseTableReader(variant.parseTable.actionsForCharacterRepresentation,
-            variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
+        
+        IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
+            StateFactory.defaultProductionToGotoRepresentation);
+        
+        IActionsFactory actionsFactory = new ActionsFactory(true);
+        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
+        
+        IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(testSetReader.getParseTableTerm());
+        		
+        //IParseTable parseTable = new ParseTableReader(characterClassFactory, variant.parseTable.actionsForCharacterRepresentation,
+        //   variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, variant.parser);
         jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);

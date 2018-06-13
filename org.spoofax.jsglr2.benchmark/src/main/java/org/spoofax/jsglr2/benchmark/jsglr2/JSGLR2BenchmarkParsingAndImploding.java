@@ -10,9 +10,9 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.states.ActionsForCharacterRepresentation;
-import org.spoofax.jsglr2.states.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
 public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark {
 

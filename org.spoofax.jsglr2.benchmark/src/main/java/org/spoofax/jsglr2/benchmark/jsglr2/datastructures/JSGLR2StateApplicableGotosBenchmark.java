@@ -7,20 +7,24 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.actions.IReduce;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.IParseTable;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.states.IStateFactory;
-import org.spoofax.jsglr2.states.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.states.StateFactory;
+import org.spoofax.jsglr2.actions.IActionsFactory;
+import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
 public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStructureBenchmark {
 
@@ -50,8 +54,10 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
     protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
             productionToGotoRepresentation);
+        IActionsFactory actionsFactory = new ActionsFactory(true);
+        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
 
-        return new ParseTableReader(stateFactory).read(parseTableTerm);
+        return new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(parseTableTerm);
     }
 
     class GotoLookup {

@@ -10,9 +10,9 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.states.ActionsForCharacterRepresentation;
-import org.spoofax.jsglr2.states.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
 public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark {
 
@@ -44,7 +44,7 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark {
             new Variant(new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
                 new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
                     parseForestConstruction, stackRepresentation, reducing));
-
+        System.out.println("JSGLR2 PT Var: " + variant.name());
         if(variant.equals(new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
             ProductionToGotoRepresentation.JavaHashMap), naiveParserVariant)))
             throw new IllegalStateException("naive variant is only benchmarked once");

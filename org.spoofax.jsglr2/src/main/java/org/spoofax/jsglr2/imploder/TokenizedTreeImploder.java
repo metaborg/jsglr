@@ -154,9 +154,14 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         IToken rightToken) {
         String constructor = production.constructor();
 
-        if(production.isList())
-            return treeFactory.createList(production.sort(), childASTs, leftToken, rightToken);
-        else if(production.isOptional())
+        if(production.isList()) {
+        	Tree list = treeFactory.createList(production.sort(), childASTs, leftToken, rightToken);
+        	
+        	if(constructor == null)
+        		return list;
+        	else
+        		return treeFactory.createNonTerminal(production.sort(), constructor, Arrays.asList(list), leftToken, rightToken);
+        } else if(production.isOptional())
             return treeFactory.createOptional(production.sort(), childASTs, leftToken, rightToken);
         else if(constructor != null)
             return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);

@@ -116,7 +116,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
                 IProduction parseNodeProduction = parseNodeProduction(parseNode);
 
-                if(production.isList() && parseNodeProduction.isList()) {
+                if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null)) {
                     // Make sure lists are flattened
                     implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction,
                         childLeftToken, childRightToken, nonAstLexicals);

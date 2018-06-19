@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parsetable;
 
+import java.util.Objects;
+
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 
@@ -25,8 +27,8 @@ public class Production implements IProduction {
 
     public Production(int productionId, String sort, String startSymbolSort, String descriptor, Boolean isContextFree,
         Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isSkippableInParseForest,
-        Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, Boolean isLongestMatch,
-        ProductionAttributes attributes) {
+        Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator,
+        Boolean isLongestMatch, ProductionAttributes attributes) {
         this.productionId = productionId;
         this.sort = sort;
         this.startSymbolSort = startSymbolSort;
@@ -149,7 +151,14 @@ public class Production implements IProduction {
 
         Production that = (Production) o;
 
-        return productionId == that.productionId;
+        return productionId == that.productionId && Objects.equals(sort, that.sort)
+            && Objects.equals(startSymbolSort, that.startSymbolSort) && Objects.equals(descriptor, that.descriptor)
+            && isContextFree == that.isContextFree && isLayout == that.isLayout && isLiteral == that.isLiteral
+            && isLexical == that.isLexical && isLexicalRhs == that.isLexicalRhs
+            && isSkippableInParseForest == that.isSkippableInParseForest && isList == that.isList
+            && isOptional == that.isOptional && isStringLiteral == that.isStringLiteral
+            && isNumberLiteral == that.isNumberLiteral && isOperator == that.isOperator
+            && isLongestMatch == that.isLongestMatch && Objects.equals(attributes, that.attributes);
     }
 
     @Override public boolean isIgnoreLayoutConstraint() {

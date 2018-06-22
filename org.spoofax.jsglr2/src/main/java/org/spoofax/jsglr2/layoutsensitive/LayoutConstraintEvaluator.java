@@ -64,32 +64,13 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
     }
 
     private int evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
-        if(layoutConstraint instanceof ArithmeticLayoutConstraint) {
-            switch(((ArithmeticLayoutConstraint) layoutConstraint).getOp()) {
-                case ADD:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        + evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-                case DIV:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        / evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-                case MUL:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        * evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-                case SUB:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        - evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-            }
-        }
+        
         if(layoutConstraint instanceof NumericLayoutConstraint) {
-            ParseForest tree = selectCorrectTree(((NumericLayoutConstraint) layoutConstraint).getTree(), parseNodes);
+            ParseForest tree =  parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()]; //selectCorrectTree(((NumericLayoutConstraint) layoutConstraint).getTree(), parseNodes);
 
             if(tree instanceof LayoutSensitiveSymbolNode
                 && ((LayoutSensitiveSymbolNode) tree).getProduction().isIgnoreLayoutConstraint()) {
                 throw new NoValueLayoutException();
-            }
-
-            if(!(tree instanceof LayoutSensitiveSymbolNode)) {
-                System.out.println("");
             }
 
             switch(((NumericLayoutConstraint) layoutConstraint).getToken()) {
@@ -119,6 +100,23 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
                 case RIGHT:
                     // TODO implement this
                     throw new NoValueLayoutException();
+            }
+        }
+        
+        if(layoutConstraint instanceof ArithmeticLayoutConstraint) {
+            switch(((ArithmeticLayoutConstraint) layoutConstraint).getOp()) {
+                case ADD:
+                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
+                        + evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
+                case DIV:
+                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
+                        / evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
+                case MUL:
+                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
+                        * evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
+                case SUB:
+                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
+                        - evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
             }
         }
 

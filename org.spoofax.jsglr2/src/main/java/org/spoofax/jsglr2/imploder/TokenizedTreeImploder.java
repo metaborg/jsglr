@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.Parse;
@@ -70,12 +71,13 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
     protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
         List<Derivation> result;
+        // TODO always filter longest-match?
+        if(parseNode instanceof LayoutSensitiveSymbolNode) {
+            ((LayoutSensitiveSymbolNode) parseNode).filterLongestMatchDerivations();
+        }
         // TODO always filter prefer/avoid?
         result = parseNodePreferredAvoidedDerivations(parseNode);
-        // TODO always filter longest-match?
-        if(result.size() != 1) {
-            result = longestMatchedDerivations(result);
-        }
+        
         return result;
     }
 
@@ -115,7 +117,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
                 IProduction parseNodeProduction = parseNodeProduction(parseNode);
 
-                if(production.isList() && parseNodeProduction.isList()) {
+                if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null && parseNodePreferredAvoidedDerivations(parseNode).size() <= 1)) {
                     // Make sure lists are flattened
                     implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction,
                         childLeftToken, childRightToken, nonAstLexicals);

@@ -6,8 +6,12 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveRuleNode;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -41,8 +45,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         this.observing = new ParserObserving<>();
     }
 
-    @Override
-    public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
+    @Override public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
         IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
         IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
 
@@ -63,8 +66,9 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
             if(parse.acceptingStack != null) {
                 ParseForest parseForest =
                     stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
+
                 ParseForest parseForestWithStartSymbol =
-                    startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol) : parseForest;
+                    startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parse) : parseForest;
 
                 if(parseForest != null && parseForestWithStartSymbol == null)
                     throw new ParseException("invalid start symbol");
@@ -94,6 +98,28 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
             return failure;
         }
+    }
+
+    private void traverseTree(LayoutSensitiveRuleNode parseForest) {
+
+        if(parseForest.production.isLongestMatch()) {
+            System.out.println("");
+        }
+        
+        for(BasicParseForest pf : ((LayoutSensitiveRuleNode) parseForest).parseForests()) {
+            if(pf instanceof LayoutSensitiveRuleNode) {
+                traverseTree((LayoutSensitiveRuleNode) pf);
+            } else if(pf instanceof LayoutSensitiveSymbolNode) {
+                if(((LayoutSensitiveSymbolNode) pf).getDerivations().size() > 1) {
+                    System.out.println();
+                }
+                for(LayoutSensitiveRuleNode rn : ((LayoutSensitiveSymbolNode) pf).getDerivations()) {
+                    traverseTree(rn);
+                }
+            }
+        }
+
+
     }
 
     protected void parseLoop(Parse<ParseForest, StackNode> parse) throws ParseException {
@@ -194,8 +220,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         parse.forShifter.add(forShifterElement);
     }
 
-    @Override
-    public ParserObserving<ParseForest, StackNode> observing() {
+    @Override public ParserObserving<ParseForest, StackNode> observing() {
         return observing;
     }
 

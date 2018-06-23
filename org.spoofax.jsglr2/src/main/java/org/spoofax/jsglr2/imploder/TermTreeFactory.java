@@ -4,8 +4,10 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAt
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
@@ -73,6 +75,28 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
             createNonTerminal(null, "amb", Arrays.asList(alternativesListTerm), leftToken, rightToken);
 
         return ambTerm;
+    }
+
+    @Override
+    public IStrategoTerm concatLists(String sort, IStrategoTerm leftList, IStrategoTerm rightList, IToken leftToken,
+            IToken rightToken) {
+        final IStrategoTerm term;
+        if (leftList instanceof IStrategoList && rightList instanceof IStrategoList) {
+            IStrategoList list = (IStrategoList) rightList;
+            ListIterator<IStrategoTerm> it = Arrays.asList(leftList.getAllSubterms())
+                    .listIterator(leftList.getSubtermCount());
+            while (it.hasPrevious()) {
+                list = termFactory.makeListCons(it.previous(), list);
+            }
+            term = list;
+        } else {
+            term = termFactory.makeAppl(termFactory.makeConstructor("Conc", 2),
+                    new IStrategoTerm[] { leftList, rightList });
+        }
+
+        configure(term, sort, leftToken, rightToken);
+
+        return term;
     }
 
     private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {

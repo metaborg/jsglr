@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
@@ -114,21 +113,13 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
             if(parseNode != null) { // Can be null in the case of a layout subtree parse node that is not created
                 IToken childRightToken = rightTokenPerChild[i];
 
-                IProduction parseNodeProduction = parseNodeProduction(parseNode);
+                Tree childAST = implodeParseNode(parse, parseNode, childLeftToken, childRightToken);
 
-                if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null)) {
-                    // Make sure lists are flattened
-                    implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction,
-                        childLeftToken, childRightToken, nonAstLexicals);
-                } else {
-                    Tree childAST = implodeParseNode(parse, parseNode, childLeftToken, childRightToken);
+                if(childAST != null)
+                    childASTs.add(childAST);
 
-                    if(childAST != null)
-                        childASTs.add(childAST);
-
-                    if(childAST == null && parseNode.token != null)
-                        nonAstLexicals.add(parseNode);
-                }
+                if(childAST == null && parseNode.token != null)
+                    nonAstLexicals.add(parseNode);
 
                 if(parseNode.lastToken != null)
                     childLeftToken = parseNode.lastToken;
@@ -155,17 +146,17 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         IToken rightToken) {
         String constructor = production.constructor();
 
-        if(production.isList()) {
-        	Tree list = treeFactory.createList(production.sort(), childASTs, leftToken, rightToken);
-        	
-        	if(constructor == null)
-        		return list;
-        	else
-        		return treeFactory.createNonTerminal(production.sort(), constructor, Arrays.asList(list), leftToken, rightToken);
+        if(constructor != null)
+            return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);
+        else if (production.isList()) {
+            if (childASTs.size() == 2) {
+                return treeFactory.concatLists(production.sort(), childASTs.get(0), childASTs.get(1), leftToken, rightToken);
+            } else {
+                assert childASTs.size() == 0 || childASTs.size() == 1;
+                return treeFactory.createList(production.sort(), childASTs, leftToken, rightToken);
+            }
         } else if(production.isOptional())
             return treeFactory.createOptional(production.sort(), childASTs, leftToken, rightToken);
-        else if(constructor != null)
-            return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);
         else if(childASTs.size() == 1)
             return childASTs.get(0);
         else

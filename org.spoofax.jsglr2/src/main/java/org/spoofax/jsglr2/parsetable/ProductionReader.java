@@ -8,6 +8,7 @@ import static org.spoofax.terms.Term.javaString;
 import static org.spoofax.terms.Term.termAt;
 
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -40,7 +41,7 @@ public class ProductionReader {
         boolean isLiteral = getIsLiteral(lhs);
         boolean isLexical = getIsLexical(lhs);
         boolean isLexicalRhs = getIsLexicalRhs(rhs);
-        boolean isList = getIsList(lhs, attributes.isFlatten);
+        boolean isList = getIsList(lhs, rhs, attributes);
         boolean isOptional = getIsOptional(lhs);
         boolean isStringLiteral = getIsStringLiteral(rhs);
         boolean isNumberLiteral = getIsNumberLiteral(rhs);
@@ -82,17 +83,21 @@ public class ProductionReader {
     }
 
     private static String tryGetSort(IStrategoAppl appl) {
+        return tryGetSort(appl, true);
+    }
+
+    private static String tryGetSort(IStrategoAppl appl, boolean altCounts) {
         IStrategoConstructor cons = appl.getConstructor();
 
         if("sort".equals(cons.getName()))
             return javaString(termAt(appl, 0));
         else if("cf".equals(cons.getName()) || "lex".equals(cons.getName()))
-            return tryGetSort(applAt(appl, 0));
+            return tryGetSort(applAt(appl, 0), altCounts);
         else if("parameterized-sort".equals(cons.getName()))
             return getParameterizedSortName(appl);
         else if("char-class".equals(cons.getName()))
             return null;
-        else if("alt".equals(cons.getName()))
+        else if(altCounts && "alt".equals(cons.getName()))
             return getAltSortName(appl);
         else
             return null;
@@ -179,10 +184,90 @@ public class ProductionReader {
             return false;
     }
 
-    private static boolean getIsList(IStrategoAppl lhs, boolean isFlatten) {
+    private static boolean getIsList(IStrategoAppl lhs, IStrategoList rhs, ProductionAttributes attributes) {
         IStrategoConstructor constructor = getIterConstructor(lhs);
 
-        return getIsIterFun(constructor) || "seq".equals(constructor.getName()) || isFlatten;
+        return (getIsIterFun(constructor) && !isInjection(lhs, rhs, attributes))
+                || "seq".equals(constructor.getName())
+                || attributes.isFlatten;
+    }
+
+    /**
+     * Derived from <is-injection> in stratego/asfix/implode/injection, combined with @see isInsertion
+     * @return true if this production is an injection rule
+     */
+    private static boolean isInjection(IStrategoAppl lhs, IStrategoList rhs, ProductionAttributes attributes) {
+        if(attributes.isBracket) {
+            return true;
+        }
+        if(attributes.constructor == null && rhs.size() == 1) {
+            IStrategoAppl rhs1 = applAt(rhs, 0);
+            if(isInsertion(lhs, rhs1)) {
+                return false;
+            }
+            if("cf".equals(lhs.getName()) && "cf".equals(rhs1.getName())) {
+                IStrategoAppl lhs1 = applAt(lhs, 0);
+                IStrategoAppl rhs2 = applAt(rhs1, 0);
+                if("iter-star".equals(lhs1.getName()) && "iter".equals(rhs2.getName())
+                        && termAt(lhs1, 0).equals(termAt(rhs2, 0))) {
+                    return true;
+                }
+                if("iter-star-sep".equals(lhs1.getName()) && "iter-sep".equals(rhs2.getName())
+                        && termAt(lhs1, 0).equals(termAt(rhs2, 0)) && termAt(lhs1, 1).equals(termAt(rhs2, 1))) {
+                    return true;
+                }
+            }
+            if(!"lit".equals(rhs1.getName()) && isSortOrLitList(lhs)) {
+                return true;
+            }
+            if(tryGetSort(rhs1, false) != null && tryGetSort(lhs, true) != null) {
+                return true;
+            }
+            if("varsym".equals(rhs1.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Derived from <is-ins> in stratego/asfix/implode/constructor
+     * @return true if this production rules is a list insertion rule
+     */
+    private static boolean isInsertion(IStrategoAppl lhs, IStrategoAppl rhs) {
+        if("cf".equals(lhs.getName()) && "cf".equals(rhs.getName())) {
+            lhs = applAt(lhs, 0);
+            rhs = applAt(rhs, 0);
+        }
+        return ("iter".equals(lhs.getName()) || "iter-sep".equals(lhs.getName()))
+                && rhs.equals(applAt(lhs, 0));
+    }
+
+    /**
+     * Derived from an anonymous strategy in <is-injection>
+     * @return returns true for sorts and lists with literals
+     */
+    private static boolean isSortOrLitList(IStrategoAppl appl) {
+        IStrategoConstructor cons = appl.getConstructor();
+
+        switch(cons.getName()) {
+        case "sort":
+            return true;
+        case "cf":
+        case "lex":
+        case "iter":
+        case "iter-star":
+            return isSortOrLitList(applAt(appl, 0));
+        case "iter-sep":
+        case "iter-star-sep":
+            return "lit".equals(applAt(appl, 1).getName()) && isSortOrLitList(applAt(appl, 0));
+        case "parameterized-sort":
+            IStrategoList args = termAt(applAt(appl, 0), PARAMETRIZED_SORT_ARGS);
+            return StreamSupport.stream(iterable(args).spliterator(), false).map(t -> (IStrategoAppl) t)
+                    .allMatch(ProductionReader::isSortOrLitList);
+        default:
+            return false;
+        }
     }
 
     private static IStrategoConstructor getIterConstructor(IStrategoAppl lhs) {

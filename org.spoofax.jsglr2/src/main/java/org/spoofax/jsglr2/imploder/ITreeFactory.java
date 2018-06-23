@@ -18,4 +18,6 @@ public interface ITreeFactory<T> {
 
     public T createAmb(String sort, List<T> alternatives, IToken leftToken, IToken rightToken);
 
+    public T concatLists(String sort, T leftList, T rightList, IToken leftToken, IToken rightToken);
+
 }

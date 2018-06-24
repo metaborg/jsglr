@@ -78,11 +78,11 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override
-    public IStrategoTerm concatLists(String sort, IStrategoTerm leftList, IStrategoTerm rightList, IToken leftToken,
+    public IStrategoTerm concatLists(String sort, IStrategoTerm leftList, IStrategoTerm rightTerm, IToken leftToken,
             IToken rightToken) {
         final IStrategoTerm term;
-        if (leftList instanceof IStrategoList && rightList instanceof IStrategoList) {
-            IStrategoList list = (IStrategoList) rightList;
+        if (leftList instanceof IStrategoList) {
+            IStrategoList list = termFactory.makeList(rightTerm);
             ListIterator<IStrategoTerm> it = Arrays.asList(leftList.getAllSubterms())
                     .listIterator(leftList.getSubtermCount());
             while (it.hasPrevious()) {
@@ -91,7 +91,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
             term = list;
         } else {
             term = termFactory.makeAppl(termFactory.makeConstructor("Conc", 2),
-                    new IStrategoTerm[] { leftList, rightList });
+                    new IStrategoTerm[] { leftList, rightTerm });
         }
 
         configure(term, sort, leftToken, rightToken);

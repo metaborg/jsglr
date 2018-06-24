@@ -1,0 +1,7 @@
+module stratego/aterm/Explode
+
+rules
+
+  aterm-explode-annotated :
+
+    t{^as@[_ | _]} -> ((), <explode-aterm> t{})

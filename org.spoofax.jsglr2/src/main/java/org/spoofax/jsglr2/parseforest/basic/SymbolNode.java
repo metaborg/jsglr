@@ -77,4 +77,32 @@ public class SymbolNode extends BasicParseForest {
         return production.descriptor();
     }
 
+    @Override
+    public String toString() {
+        if (derivations.isEmpty())
+            return "";
+        else if (derivations.size() == 1)
+            return derivations.get(0).toString();
+        else {
+            StringBuilder s = new StringBuilder();
+            
+            s.append("amb(");
+            
+            boolean first = true;
+            
+            for (RuleNode derivation : getDerivations()) {
+                if (!first)
+                    s.append(", ");
+                
+                s.append(derivation);
+                
+                first = false;
+            }
+            
+            s.append(")");
+            
+            return s.toString();
+        }
+    }
+
 }

@@ -35,4 +35,23 @@ public class RuleNode extends BasicParseForest implements IDerivation<BasicParse
         return parseForests;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        
+        s.append(production.id());
+        s.append("(");
+        
+        for (int i = 0; i < parseForests.length; i++) {
+            if (i > 0)
+                s.append(", ");
+            
+            s.append(parseForests[i].toString());
+        }
+        
+        s.append(")");
+        
+        return s.toString();
+    }
+
 }

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.metaborg.parsetable.IProduction;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -78,23 +79,43 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override
-    public IStrategoTerm concatLists(String sort, IStrategoTerm leftList, IStrategoTerm rightTerm, IToken leftToken,
+    public IStrategoTerm concatLists(IProduction production, IStrategoTerm leftChild, IStrategoTerm rightChild, IToken leftToken,
             IToken rightToken) {
         final IStrategoTerm term;
-        if (leftList instanceof IStrategoList) {
-            IStrategoList list = termFactory.makeList(rightTerm);
-            ListIterator<IStrategoTerm> it = Arrays.asList(leftList.getAllSubterms())
-                    .listIterator(leftList.getSubtermCount());
-            while (it.hasPrevious()) {
-                list = termFactory.makeListCons(it.previous(), list);
-            }
-            term = list;
-        } else {
+        boolean consistent = leftChild instanceof IStrategoList == production.isListLeftChild()
+                && rightChild instanceof IStrategoList == production.isListRightChild();
+        if (!consistent) {
             term = termFactory.makeAppl(termFactory.makeConstructor("Conc", 2),
-                    new IStrategoTerm[] { leftList, rightTerm });
+                    new IStrategoTerm[] { leftChild, rightChild });
+        } else if (leftChild instanceof IStrategoList) {
+            if (rightChild instanceof IStrategoList) {
+                IStrategoList list = (IStrategoList) rightChild;
+                ListIterator<IStrategoTerm> it = Arrays.asList(leftChild.getAllSubterms())
+                        .listIterator(leftChild.getSubtermCount());
+                while (it.hasPrevious()) {
+                    list = termFactory.makeListCons(it.previous(), list);
+                }
+                term = list;
+            } else {
+                IStrategoList list = termFactory.makeList(rightChild);
+                ListIterator<IStrategoTerm> it = Arrays.asList(leftChild.getAllSubterms())
+                        .listIterator(leftChild.getSubtermCount());
+                while (it.hasPrevious()) {
+                    list = termFactory.makeListCons(it.previous(), list);
+                }
+                term = list;
+            }
+        } else {
+            if (rightChild instanceof IStrategoList) {
+                IStrategoList list = (IStrategoList) rightChild;
+                term = termFactory.makeListCons(leftChild, list);
+            } else {
+                // Not sure if this particular combination actually occurs in practice 
+                term = termFactory.makeList(leftChild, rightChild);
+            }
         }
 
-        configure(term, sort, leftToken, rightToken);
+        configure(term, production.sort(), leftToken, rightToken);
 
         return term;
     }

@@ -18,6 +18,8 @@ public class Production implements IProduction {
     private final boolean isLexicalRhs;
     private final boolean isSkippableInParseForest;
     private final boolean isList;
+    private final boolean isListLeftChild;
+    private final boolean isListRightChild;
     private final boolean isOptional;
     private final boolean isStringLiteral;
     private final boolean isNumberLiteral;
@@ -26,9 +28,10 @@ public class Production implements IProduction {
     private final ProductionAttributes attributes;
 
     public Production(int productionId, String sort, String startSymbolSort, String descriptor, Boolean isContextFree,
-        Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isSkippableInParseForest,
-        Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator,
-        Boolean isLongestMatch, ProductionAttributes attributes) {
+            Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs,
+            Boolean isSkippableInParseForest, Boolean isList, Boolean isListLeftChild, Boolean isListRightChild,
+            Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator,
+            Boolean isLongestMatch, ProductionAttributes attributes) {
         this.productionId = productionId;
         this.sort = sort;
         this.startSymbolSort = startSymbolSort;
@@ -40,6 +43,8 @@ public class Production implements IProduction {
         this.isLexicalRhs = isLexicalRhs;
         this.isSkippableInParseForest = isSkippableInParseForest;
         this.isList = isList;
+        this.isListLeftChild = isListLeftChild;
+        this.isListRightChild = isListRightChild;
         this.isOptional = isOptional;
         this.isStringLiteral = isStringLiteral;
         this.isNumberLiteral = isNumberLiteral;
@@ -111,6 +116,14 @@ public class Production implements IProduction {
 
     @Override public boolean isList() {
         return isList;
+    }
+
+    @Override public boolean isListLeftChild() {
+        return isListLeftChild;
+    }
+
+    @Override public boolean isListRightChild() {
+        return isListRightChild;
     }
 
     @Override public boolean isOptional() {

@@ -42,6 +42,9 @@ public class ProductionReader {
         boolean isLexical = getIsLexical(lhs);
         boolean isLexicalRhs = getIsLexicalRhs(rhs);
         boolean isList = getIsList(lhs, rhs, attributes);
+        byte isListChild = getIsListChild(isList, lhs, rhs);
+        boolean isListLeftChild = (isListChild & 2) != 0;
+        boolean isListRightChild = (isListChild & 1) != 0;
         boolean isOptional = getIsOptional(lhs);
         boolean isStringLiteral = getIsStringLiteral(rhs);
         boolean isNumberLiteral = getIsNumberLiteral(rhs);
@@ -55,8 +58,45 @@ public class ProductionReader {
         boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
 
         return new Production(productionId, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLiteral,
-            isLexical, isLexicalRhs, isSkippableInParseForest, isList, isOptional, isStringLiteral, isNumberLiteral,
-            isOperator, attributes.isLongestMatch, attributes);
+                isLexical, isLexicalRhs, isSkippableInParseForest, isList, isListLeftChild, isListRightChild,
+                isOptional, isStringLiteral, isNumberLiteral, isOperator, attributes.isLongestMatch, attributes);
+    }
+
+    /**
+     * @return byte with flags: 2 for the left child is a list and 1 for the right child is a list
+     */
+    private static byte getIsListChild(boolean isList, IStrategoTerm lhs, IStrategoList rhs) {
+        byte result = 0; // 00
+        if(!isList) {
+            return result;
+        }
+        if(rhs.getSubtermCount() != 3 && rhs.getSubtermCount() != 5) {
+            return result;
+        }
+        int childrenFound = 0;
+        for (IStrategoTerm rhsTerm : rhs) {
+            IStrategoAppl rhsAppl = (IStrategoAppl) rhsTerm;
+            if("lit".equals(rhsAppl.getName())
+                    || "cf(opt(layout))".equals(rhsAppl.toString())
+                    || "opt(layout)".equals(rhsAppl.toString())) {
+                continue;
+            }
+            childrenFound++;
+            if (rhsAppl.equals(lhs)) {
+                switch (childrenFound) {
+                case 1:
+                    result |= 2; // 10
+                    break;
+                case 2:
+                    result |= 1; // 01
+                    break;
+                default:
+                    result = 0;  // 00
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     private static String getSort(IStrategoAppl lhs) {

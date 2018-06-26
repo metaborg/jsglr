@@ -150,7 +150,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
             return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);
         else if (production.isList()) {
             if (childASTs.size() == 2) {
-                return treeFactory.concatLists(production.sort(), childASTs.get(0), childASTs.get(1), leftToken, rightToken);
+                return treeFactory.concatLists(production, childASTs.get(0), childASTs.get(1), leftToken, rightToken);
             } else {
                 assert childASTs.size() == 0 || childASTs.size() == 1;
                 return treeFactory.createList(production.sort(), childASTs, leftToken, rightToken);

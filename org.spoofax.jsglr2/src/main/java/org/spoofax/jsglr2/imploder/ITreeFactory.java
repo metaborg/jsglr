@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.List;
 
+import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 
 public interface ITreeFactory<T> {
@@ -18,6 +19,6 @@ public interface ITreeFactory<T> {
 
     public T createAmb(String sort, List<T> alternatives, IToken leftToken, IToken rightToken);
 
-    public T concatLists(String sort, T leftList, T rightList, IToken leftToken, IToken rightToken);
+    public T concatLists(IProduction production, T leftList, T rightList, IToken leftToken, IToken rightToken);
 
 }

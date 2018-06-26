@@ -89,4 +89,30 @@ public class ParseNode extends HybridParseForest {
         return production.descriptor();
     }
 
+    @Override
+    public String toString() {
+        if (otherDerivations == null)
+            return firstDerivation.toString();
+        else {
+            StringBuilder s = new StringBuilder();
+            
+            s.append("amb(");
+            
+            boolean first = true;
+            
+            for (Derivation derivation : getDerivations()) {
+                if (!first)
+                    s.append(", ");
+                
+                s.append(derivation);
+                
+                first = false;
+            }
+            
+            s.append(")");
+            
+            return s.toString();
+        }
+    }
+
 }

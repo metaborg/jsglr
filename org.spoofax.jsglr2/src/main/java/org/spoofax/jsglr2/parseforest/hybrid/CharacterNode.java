@@ -19,4 +19,9 @@ public class CharacterNode extends HybridParseForest {
         return "'" + CharacterClassFactory.intToString(this.character) + "'";
     }
 
+    @Override
+    public String toString() {
+        return "'" + CharacterClassFactory.intToString(this.character) + "'";
+    }
+
 }

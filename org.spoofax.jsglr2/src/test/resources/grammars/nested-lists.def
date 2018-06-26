@@ -1,0 +1,12 @@
+definition
+module nested-lists
+exports
+  lexical syntax
+    " " -> LAYOUT 
+
+  context-free start-symbols
+    Exp
+
+  context-free syntax
+    "x"            -> Exp   {cons("X")}
+    "m" {Exp ","}+ -> Exp   {cons("M")}

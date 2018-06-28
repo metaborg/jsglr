@@ -18,8 +18,8 @@ import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksArrayList;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.states.IState;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.metaborg.parsetable.IState;
 
 public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBenchmark {
 

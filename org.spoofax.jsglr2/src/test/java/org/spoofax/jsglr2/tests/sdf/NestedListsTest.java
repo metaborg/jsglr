@@ -50,13 +50,4 @@ public class NestedListsTest extends BaseTest implements WithJSGLR1, WithGrammar
         testSuccessByExpansions("m m x,x,x", "M(amb([" + list1 + "," + list2 + "," + list3 + "]))");
     }
 
-    @Test
-    public void testMMXXX2() throws ParseError, ParseTableReadException, IOException {
-        String list1 = "[[M([X()]),X()],X()]"; // One in inner list, two in outer list
-        String list2 = "[[M([X(),X()])],X()]"; // Two in inner list, one in outer list
-        String list3 = "[M([X(),X(),X()])]"; // All in inner list 
-        
-        testSuccessByExpansions("m m x,x,x", "M(amb([" + list1 + "," + list2 + "," + list3 + "]))");
-    }
-
 }

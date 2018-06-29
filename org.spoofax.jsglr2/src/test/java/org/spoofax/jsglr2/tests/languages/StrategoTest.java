@@ -42,13 +42,7 @@ public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
         testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
 
-    @Test
-    public void testMixByJSGLR1() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
-        setupParseTable("Stratego-Box");
-        String sampleProgram = getFileAsString("Stratego/mix-syntax.str");
-
-        testSuccessByJSGLR1(sampleProgram);
-    }
+    // testMixByJSGLR1 would fail because the JSGLR1 (Java-based) imploder is horrible with mix syntax
 
     @Test
     public void testMetaListVarByExpectedAST() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
@@ -59,12 +53,6 @@ public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
         testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
 
-    @Test
-    public void testMetaListVarByJSGLR1() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
-        setupParseTable("Stratego-Java-15");
-        String sampleProgram = getFileAsString("Stratego/meta-listvar.str");
-
-        testSuccessByJSGLR1(sampleProgram);
-    }
+    // testMetaListVarByJSGLR1 would fail without Martijn's fix. Better to just switch to JSGLR2
 
 }

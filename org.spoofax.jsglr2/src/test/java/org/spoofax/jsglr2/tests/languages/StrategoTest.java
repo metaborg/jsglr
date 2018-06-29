@@ -26,14 +26,6 @@ public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
     }
 
     @Test
-    public void testAmbByJSGLR1() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
-        setupParseTable("Stratego");
-        String sampleProgram = getFileAsString("Stratego/ambiguity-issue.str");
-
-        testSuccessByJSGLR1(sampleProgram);
-    }
-
-    @Test
     public void testMixByExpectedAST() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
         setupParseTable("Stratego-Box");
         String sampleProgram = getFileAsString("Stratego/mix-syntax.str");

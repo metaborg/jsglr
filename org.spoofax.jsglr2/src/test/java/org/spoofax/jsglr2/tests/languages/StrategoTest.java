@@ -10,6 +10,11 @@ import org.spoofax.jsglr2.tests.util.BaseTestWithJSGLR1;
 import org.spoofax.jsglr2.util.WithParseTable;
 import org.spoofax.terms.ParseError;
 
+/**
+* With these tests we compare against the AST produced by the parse-stratego tool.
+* This tool uses an older imploder called asfix, written in Stratego.
+* Asfix is more complete and bug-free than the JSGLR1 imploder in Java, so we don't compare against JSGLR1
+*/
 public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
 
     public StrategoTest()
@@ -34,8 +39,6 @@ public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
         testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
 
-    // testMixByJSGLR1 would fail because the JSGLR1 (Java-based) imploder is horrible with mix syntax
-
     @Test
     public void testMetaListVarByExpectedAST() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
         setupParseTable("Stratego-Java-15");
@@ -44,7 +47,5 @@ public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
 
         testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
-
-    // testMetaListVarByJSGLR1 would fail without Martijn's fix. Better to just switch to JSGLR2
 
 }

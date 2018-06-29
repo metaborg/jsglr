@@ -1,0 +1,9 @@
+module foo
+
+rules
+
+  bar:
+    _ -> |[ x_name.bar(e_bla*) ]|
+    with
+      x_name := "a"
+    ; e_bla* := [1]

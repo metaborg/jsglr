@@ -50,4 +50,21 @@ public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
         testSuccessByJSGLR1(sampleProgram);
     }
 
+    @Test
+    public void testMetaListVarByExpectedAST() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
+        setupParseTable("Stratego-Java-15");
+        String sampleProgram = getFileAsString("Stratego/meta-listvar.str");
+        IStrategoTerm expectedAST = getFileAsAST("Stratego/meta-listvar.aterm");
+
+        testSuccessByAstString(sampleProgram, expectedAST.toString());
+    }
+
+    @Test
+    public void testMetaListVarByJSGLR1() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
+        setupParseTable("Stratego-Java-15");
+        String sampleProgram = getFileAsString("Stratego/meta-listvar.str");
+
+        testSuccessByJSGLR1(sampleProgram);
+    }
+
 }

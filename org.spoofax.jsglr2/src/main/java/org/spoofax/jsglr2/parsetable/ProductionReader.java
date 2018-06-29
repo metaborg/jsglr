@@ -302,7 +302,7 @@ public class ProductionReader {
         case "iter-star-sep":
             return "lit".equals(applAt(appl, 1).getName()) && isSortOrLitList(applAt(appl, 0));
         case "parameterized-sort":
-            IStrategoList args = termAt(applAt(appl, 0), PARAMETRIZED_SORT_ARGS);
+            IStrategoList args = termAt(appl, PARAMETRIZED_SORT_ARGS);
             return StreamSupport.stream(iterable(args).spliterator(), false).map(t -> (IStrategoAppl) t)
                     .allMatch(ProductionReader::isSortOrLitList);
         default:

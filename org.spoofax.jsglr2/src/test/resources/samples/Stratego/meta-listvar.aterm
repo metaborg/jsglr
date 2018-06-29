@@ -1,0 +1,1 @@
+Module("foo",[Rules([RDefNoArgs("bar",Rule(Wld,ToMetaExpr(Invoke(Method(MethodName(AmbName(Id(meta-var("x_name"))),Id("bar"))),meta-listvar("e_bla*"))),[WithClause(Seq(Assign(Var("x_name"),NoAnnoList(Str("\"a\""))),Assign(Var(ListVar("e_bla*")),NoAnnoList(List([NoAnnoList(Int("1"))])))))]))])])

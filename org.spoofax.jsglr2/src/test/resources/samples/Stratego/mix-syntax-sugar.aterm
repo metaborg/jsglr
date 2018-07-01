@@ -1,0 +1,19 @@
+Module(
+  "raise-annotations"
+, [ Strategies(
+      [ RDefNoArgs(
+          "match-no-anno"
+        , RuleNoCond(
+            NoAnnoList(Op("NoAnnoList", [Var("pt")]))
+          , NoAnnoList(
+              Op(
+                "Anno"
+              , [Var("pt"), NoAnnoList(Op("Wld", []))]
+              )
+            )
+          )
+        )
+      ]
+    )
+  ]
+)

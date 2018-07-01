@@ -31,10 +31,19 @@ public class StrategoTest extends BaseTestWithJSGLR1 implements WithParseTable {
     }
 
     @Test
-    public void testMixByExpectedAST() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
+    public void testMixBoxByExpectedAST() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
         setupParseTable("Stratego-Box");
-        String sampleProgram = getFileAsString("Stratego/mix-syntax.str");
-        IStrategoTerm expectedAST = getFileAsAST("Stratego/mix-syntax.aterm");
+        String sampleProgram = getFileAsString("Stratego/mix-syntax-box.str");
+        IStrategoTerm expectedAST = getFileAsAST("Stratego/mix-syntax-box.aterm");
+
+        testSuccessByAstString(sampleProgram, expectedAST.toString());
+    }
+
+    @Test
+    public void testMixSugarByExpectedAST() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
+        setupParseTable("Stratego-Sugar-in-Stratego");
+        String sampleProgram = getFileAsString("Stratego/mix-syntax-sugar.str");
+        IStrategoTerm expectedAST = getFileAsAST("Stratego/mix-syntax-sugar.aterm");
 
         testSuccessByAstString(sampleProgram, expectedAST.toString());
     }

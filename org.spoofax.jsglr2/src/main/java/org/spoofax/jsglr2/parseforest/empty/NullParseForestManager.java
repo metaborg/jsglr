@@ -19,7 +19,7 @@ public class NullParseForestManager extends ParseForestManager<HybridParseForest
     }
 
     @Override
-    public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol) {
+    public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol, Parse<HybridParseForest, ?> parse) {
         return null;
     }
 

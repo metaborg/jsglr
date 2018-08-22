@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
+import java.util.Map;
 import java.util.Queue;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
@@ -11,12 +12,15 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
+import com.google.common.collect.Maps;
+
 public class Parse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IParseInput {
 
     final public String filename;
     final public String inputString;
     final public int inputLength;
+    final public Map<Integer, Object> longestMatchPos = Maps.newHashMap();
 
     public int currentChar; // Current ASCII char in range [0, 256]
     public int currentOffset, currentLine, currentColumn;

@@ -27,7 +27,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     }
 
     @Override
-    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol) {
+    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, Parse<BasicParseForest, ?> parse) {
         DataDependentSymbolNode topNode = (DataDependentSymbolNode) parseForest;
         List<DataDependentRuleNode> result = new ArrayList<DataDependentRuleNode>();
 

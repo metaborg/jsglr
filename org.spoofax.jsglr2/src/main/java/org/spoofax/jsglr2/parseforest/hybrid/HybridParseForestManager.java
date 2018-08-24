@@ -22,7 +22,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return parseNode;
     }
 
-    @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol) {
+    @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol, Parse<HybridParseForest, ?> parse) {
         ParseNode topNode = (ParseNode) parseForest;
         List<Derivation> result = new ArrayList<Derivation>();
 

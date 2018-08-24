@@ -25,7 +25,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol) {
+    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, Parse<BasicParseForest, ?> parse) {
         SymbolNode topNode = (SymbolNode) parseForest;
         List<RuleNode> result = new ArrayList<RuleNode>();
 

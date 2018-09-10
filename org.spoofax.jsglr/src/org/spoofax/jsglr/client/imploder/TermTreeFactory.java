@@ -196,13 +196,23 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
             case INT:
                 return createIntTerminal(getSort(oldNode), leftToken, ((IStrategoInt) oldNode).intValue());
             case APPL:
-                return createNonTerminal(getSort(oldNode), ((IStrategoAppl) oldNode).getName(), leftToken, rightToken,
-                    children, it.isCompletion(), it.isNestedCompletion(), it.isSinglePlaceholderCompletion());
+                if (it == null) {
+                    return createNonTerminal(getSort(oldNode), ((IStrategoAppl) oldNode).getName(), leftToken, rightToken,
+                            children, false, false, false);
+                } else {
+                    return createNonTerminal(getSort(oldNode), ((IStrategoAppl) oldNode).getName(), leftToken, rightToken,
+                        children, it.isCompletion(), it.isNestedCompletion(), it.isSinglePlaceholderCompletion());
+                }
             case LIST:
                 return createList(getElementSort(oldNode), leftToken, rightToken, children);
             case STRING:
-                return createStringTerminal(getSort(oldNode), leftToken, rightToken,
-                    ((IStrategoString) oldNode).stringValue(), !(((IStrategoString) oldNode).stringValue().equals(it.toString())));
+                if (it == null) {
+                    return createStringTerminal(getSort(oldNode), leftToken, rightToken,
+                            ((IStrategoString) oldNode).stringValue(), false);
+                } else {
+                    return createStringTerminal(getSort(oldNode), leftToken, rightToken,
+                        ((IStrategoString) oldNode).stringValue(), !(((IStrategoString) oldNode).stringValue().equals(it.toString())));
+                }
             case TUPLE:
                 return createTuple(getElementSort(oldNode), leftToken, rightToken, children);
             case REAL:

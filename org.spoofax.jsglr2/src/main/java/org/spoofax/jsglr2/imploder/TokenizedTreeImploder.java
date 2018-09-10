@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.Parse;
@@ -23,8 +24,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         this.tokenizer = tokenizer;
     }
 
-    @Override
-    public ImplodeResult<ParseForest, Tree> implode(Parse<ParseForest, ?> parse, ParseForest parseForest) {
+    @Override public ImplodeResult<ParseForest, Tree> implode(Parse<ParseForest, ?> parse, ParseForest parseForest) {
         Tokens tokens = new Tokens(parse.inputString, parse.filename);
 
         tokenizer.tokenize(tokens, parseForest);
@@ -43,21 +43,23 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         IProduction production = parseNodeProduction(parseNode);
 
         if(production.isContextFree()) {
-            List<Derivation> preferredAvoidedDerivations = parseNodePreferredAvoidedDerivations(parseNode);
+            List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
 
-            if(preferredAvoidedDerivations.size() > 1) {
+
+
+            if(filteredDerivations.size() > 1) {
                 parse.ambiguousTreeNodes++;
 
-                List<Tree> trees = new ArrayList<Tree>(preferredAvoidedDerivations.size());
+                List<Tree> trees = new ArrayList<Tree>(filteredDerivations.size());
 
-                for(Derivation derivation : preferredAvoidedDerivations)
+                for(Derivation derivation : filteredDerivations)
                     trees.add(implodeDerivation(parse, derivation, leftToken, rightToken));
 
                 String sort = production.sort();
 
                 return treeFactory.createAmb(sort, trees, leftToken, rightToken);
             } else
-                return implodeDerivation(parse, preferredAvoidedDerivations.get(0), leftToken, rightToken);
+                return implodeDerivation(parse, filteredDerivations.get(0), leftToken, rightToken);
         } else if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical() || production.isLexicalRhs()) {
@@ -65,6 +67,18 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         } else {
             throw new RuntimeException("invalid term type");
         }
+    }
+
+    protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
+        List<Derivation> result;
+        // TODO always filter longest-match?
+        if(parseNode instanceof LayoutSensitiveSymbolNode) {
+            ((LayoutSensitiveSymbolNode) parseNode).filterLongestMatchDerivations();
+        }
+        // TODO always filter prefer/avoid?
+        result = parseNodePreferredAvoidedDerivations(parseNode);
+        
+        return result;
     }
 
     protected Tree implodeDerivation(Parse<ParseForest, ?> parse, Derivation derivation, IToken leftToken,
@@ -103,7 +117,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
                 IProduction parseNodeProduction = parseNodeProduction(parseNode);
 
-                if(production.isList() && parseNodeProduction.isList()) {
+                if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null && parseNodePreferredAvoidedDerivations(parseNode).size() <= 1)) {
                     // Make sure lists are flattened
                     implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction,
                         childLeftToken, childRightToken, nonAstLexicals);
@@ -171,5 +185,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
     protected abstract Derivation parseNodeOnlyDerivation(ParseNode parseNode);
 
     protected abstract List<Derivation> parseNodePreferredAvoidedDerivations(ParseNode parseNode);
+
+    protected abstract List<Derivation> longestMatchedDerivations(List<Derivation> derivations);
 
 }

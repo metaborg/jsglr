@@ -24,6 +24,11 @@ import org.spoofax.jsglr2.imploder.BasicParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.HybridParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.NullParseForestStrategoImploder;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestStrategoImploder;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveReduceManager;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveRuleNode;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -394,6 +399,24 @@ public class JSGLR2Variants {
                 return new Parser<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode, AbstractBasicStackNode<BasicParseForest>>(
                     parseTable, activeStacksFactory, forActorStacksFactory, basicStackManager,
                     ddParseForestManager, ddReducer);
+                
+            case LayoutSensitive:
+                StackManager<BasicParseForest, AbstractBasicStackNode<BasicParseForest>> basicStackManagerLayoutSensitive;
+                LayoutSensitiveParseForestManager lsParseForestManager = new LayoutSensitiveParseForestManager();
+
+                if(variant.stackRepresentation == StackRepresentation.Basic)
+                    basicStackManagerLayoutSensitive = new BasicStackManager<BasicParseForest>();
+                else
+                    basicStackManagerLayoutSensitive = new HybridStackManager<BasicParseForest>();
+
+                LayoutSensitiveReduceManager<BasicParseForest, LayoutSensitiveSymbolNode, LayoutSensitiveRuleNode, AbstractBasicStackNode<BasicParseForest>> lsReducer =
+                    new LayoutSensitiveReduceManager<BasicParseForest, LayoutSensitiveSymbolNode, LayoutSensitiveRuleNode, AbstractBasicStackNode<BasicParseForest>>(
+                        parseTable, basicStackManagerLayoutSensitive, lsParseForestManager,
+                        variant.parseForestConstruction);
+
+                return new Parser<BasicParseForest, LayoutSensitiveSymbolNode, LayoutSensitiveRuleNode, AbstractBasicStackNode<BasicParseForest>>(
+                    parseTable, activeStacksFactory, forActorStacksFactory, basicStackManagerLayoutSensitive,
+                    lsParseForestManager, lsReducer);
         }
     }
 
@@ -430,7 +453,11 @@ public class JSGLR2Variants {
             case DataDependent:
                 imploder = new DataDependentParseForestStrategoImploder();
 
-                break;    
+                break; 
+            case LayoutSensitive:
+                imploder = new LayoutSensitiveParseForestStrategoImploder();
+
+                break;      
             case Null:
                 imploder = new NullParseForestStrategoImploder();
 

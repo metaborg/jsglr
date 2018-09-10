@@ -19,6 +19,6 @@ public abstract class ParseForestManager<ParseForest extends AbstractParseForest
 
     abstract public ParseForest[] parseForestsArray(int length);
 
-    abstract public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol);
+    abstract public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol, Parse<ParseForest, ?> parse);
 
 }

@@ -1,6 +1,8 @@
 package org.spoofax.jsglr.client;
 
-public interface IKeywordRecognizer {
+import java.io.Serializable;
+
+public interface IKeywordRecognizer extends Serializable {
 
     public boolean isKeyword(String literal);
     

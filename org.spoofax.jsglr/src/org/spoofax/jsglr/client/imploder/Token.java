@@ -115,10 +115,10 @@ public class Token implements IToken, Cloneable {
     public String getFilename() {
         return filename;
     }
-    
+
     /**
      * Gets the error message associated with this token, if any.
-     * 
+     *
      * Note that this message is independent from the token kind, which may also indicate an error.
      */
     public String getError() {
@@ -139,7 +139,7 @@ public class Token implements IToken, Cloneable {
     public ISimpleTerm getAstNode() {
         if(astNode == null) {
             ITokens tokens = getTokenizer();
-            
+
             // This is a hack. For jsglr1 the AST binding might not be done yet. For jsglr2 it is always done during imploding.
             if (tokens instanceof AbstractTokenizer)
                 ((AbstractTokenizer) getTokenizer()).initAstNodeBinding();

@@ -170,7 +170,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
     protected Tree createLexicalTerm(IProduction production, String lexicalString, IToken leftToken,
         IToken lexicalToken) {
-        Tree lexicalTerm = treeFactory.createStringTerminal(production.sort(), lexicalString, leftToken, lexicalToken);
+        Tree lexicalTerm = treeFactory.createStringTerminal(production.sort(), lexicalString, lexicalToken);
 
         if(lexicalToken != null) // Can be null, e.g. for empty string lexicals
             tokenTreeBinding(lexicalToken, lexicalTerm);

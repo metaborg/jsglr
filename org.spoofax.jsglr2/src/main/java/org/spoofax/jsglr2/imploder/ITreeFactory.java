@@ -6,7 +6,7 @@ import org.spoofax.jsglr.client.imploder.IToken;
 
 public interface ITreeFactory<T> {
 
-    public T createStringTerminal(String sort, String value, IToken leftToken, IToken rightToken);
+    public T createStringTerminal(String sort, String value, IToken token);
 
     public T createNonTerminal(String sort, String constructor, List<T> childASTs, IToken leftToken, IToken rightToken);
 

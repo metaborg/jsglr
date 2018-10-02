@@ -14,6 +14,8 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 
 public class Tokens implements ITokens {
 
+    private static final long serialVersionUID = 2054391299757162697L;
+    
     private final String filename;
     private final String input;
 

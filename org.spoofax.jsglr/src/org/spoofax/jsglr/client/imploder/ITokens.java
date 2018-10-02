@@ -1,6 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
-public interface ITokens extends Iterable<IToken> {
+import java.io.Serializable;
+
+public interface ITokens extends Iterable<IToken>, Serializable {
     
     public static final String ERROR_SKIPPED_REGION = "Syntax error, unexpected construct(s)";
     

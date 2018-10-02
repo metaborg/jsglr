@@ -3,6 +3,7 @@ package org.spoofax.jsglr.client;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,15 +14,17 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Recognizes keywords in a language without considering their context.
- * 
+ *
  * @see ParseTable#getKeywordRecognizer()
- * 
+ *
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class KeywordRecognizer implements IKeywordRecognizer {
-	
-	private final Set<String> keywords = new HashSet<String>();
-	
+
+	private static final long serialVersionUID = 7078477392176661390L;
+
+    private final Set<String> keywords = new HashSet<String>();
+
 	protected KeywordRecognizer(ParseTable table) {
 		if (table != null) {
 			IStrategoConstructor litFun = table.getFactory().makeConstructor("lit", 1);
@@ -38,15 +41,15 @@ public class KeywordRecognizer implements IKeywordRecognizer {
 			}
 		}
 	}
-	
+
 	public boolean isKeyword(String literal) {
 		return keywords.contains(literal.trim());
 	}
-	
+
 	/**
-	 * Determines whether the given string could possibly 
+	 * Determines whether the given string could possibly
 	 * be a keyword (as opposed to an operator).
-	 * 
+	 *
 	 * @see #isKeyword(String)
 	 */
 	public static boolean isPotentialKeyword(String literal) {
@@ -57,9 +60,9 @@ public class KeywordRecognizer implements IKeywordRecognizer {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * Determines whether the given character could possibly 
+	 * Determines whether the given character could possibly
 	 * be part of a keyword (as opposed to an operator).
 	 */
 	public static boolean isPotentialKeywordChar(char c) {

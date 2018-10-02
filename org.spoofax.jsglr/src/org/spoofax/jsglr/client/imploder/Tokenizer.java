@@ -24,6 +24,8 @@ import org.spoofax.terms.SimpleTermVisitor;
  */
 public class Tokenizer extends AbstractTokenizer {
 
+    private static final long serialVersionUID = -7507424974905643146L;
+
     private static final double EXPECTED_TOKENS_DIVIDER = 1.3;
 
     private final ArrayList<Token> tokens;

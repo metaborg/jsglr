@@ -19,10 +19,10 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override
-    public IStrategoTerm createStringTerminal(String sort, String value, IToken leftToken, IToken rightToken) {
+    public IStrategoTerm createStringTerminal(String sort, String value, IToken token) {
         IStrategoTerm stringTerminalTerm = termFactory.makeString(value);
 
-        configure(stringTerminalTerm, sort, leftToken, rightToken);
+        configure(stringTerminalTerm, sort, token, token);
 
         return stringTerminalTerm;
     }

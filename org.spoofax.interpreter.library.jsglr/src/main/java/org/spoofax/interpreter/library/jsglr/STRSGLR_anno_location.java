@@ -9,6 +9,7 @@ import java.util.LinkedList;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -92,7 +93,7 @@ public class STRSGLR_anno_location extends AbstractPrimitive {
 
 		private boolean isTreeLayout(IStrategoTerm t) {
 			return t.getTermType() == APPL
-					&& termAt(termAt(t, 0), 1).equals(layout);
+					&& termAt(Tools.<IStrategoTerm>termAt(t, 0), 1).equals(layout);
 		}
 
 		private IStrategoAppl makeTreeAppl(IStrategoTerm prod,
@@ -141,7 +142,7 @@ public class STRSGLR_anno_location extends AbstractPrimitive {
 					args = args.tail();
 				}
 			} else if (isTreeAmb(t)) {
-				scan(termAt(termAt(t, 0), 0));
+				scan(termAt(Tools.<IStrategoTerm>termAt(t, 0), 0));
 			} else {
 				System.err.println(NAME + ": unhandled tree - " + t);
 			}

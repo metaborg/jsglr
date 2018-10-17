@@ -16,10 +16,13 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.project.SimpleProjectService;
+import org.metaborg.meta.core.project.ILanguageSpec;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
+import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;
@@ -38,10 +41,10 @@ public class MainTest {
 
     @Test
     public void test() throws MetaborgException, IOException {
-    	final Spoofax spoofax = new Spoofax(new Module());
+    	final Spoofax spoofax = new Spoofax(new Module(), new SpoofaxExtensionModule());
+    	final SpoofaxMeta spoofaxMeta = new SpoofaxMeta(spoofax);
 
-    	final FileObject sdf3Location = spoofax.resourceService.resolve("zip://" + getTestResourcePath("sdf3.spoofax-language"));
-        IProject sdf3Project = ((ISimpleProjectService) spoofax.projectService).create(sdf3Location);
+    	final FileObject sdf3Location = spoofax.resolve("zip://" + getTestResourcePath("sdf3.spoofax-language"));
         
         final Set<ILanguageImpl> languageImpls = spoofax.scanLanguagesInDirectory(sdf3Location);
 
@@ -54,14 +57,17 @@ public class MainTest {
         ISpoofaxInputUnit inputUnit = spoofax.unitService.inputUnit(sdf3File, sdf3Text, sdf3Impl, null);
         
         final ISpoofaxParseUnit parseResult = spoofax.syntaxService.parse(inputUnit);
-        
-        final IContext context = spoofax.contextService.get(sdf3File, sdf3Project, sdf3Impl);
+
+        final FileObject directory = sdf3File.getParent();
+        final IProject project = ((ISimpleProjectService) spoofax.projectService).create(directory);
+        final ILanguageSpec languageSpec = spoofaxMeta.languageSpecService.get(project);
+        final IContext context = spoofax.contextService.get(directory, languageSpec, sdf3Impl);
         
         System.out.println("parsed: " +  parseResult.ast());
         
         try(IClosableLock lock = context.read()) {
             final HybridInterpreter runtime = spoofax.strategoRuntimeService.runtime(sdf3Component, context, false);
-            final IStrategoTerm resultTerm = spoofax.strategoCommon.invoke(runtime, parseResult.ast(), "debug");
+            final IStrategoTerm resultTerm = spoofax.strategoCommon.invoke(runtime, parseResult.ast(), "module-to-pp");
             System.out.println("after transform: " + resultTerm);
         }
         

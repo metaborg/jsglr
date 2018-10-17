@@ -13,7 +13,7 @@
 		<groupId>org.metaborg</groupId>
 		<artifactId>parent.java</artifactId>
 		<version>2.6.0-SNAPSHOT</version>
-		<relativePath>../../releng/parent/java</relativePath>
+		<relativePath/>
 	</parent>
 
 	<dependencies>
@@ -21,6 +21,11 @@
 		<dependency>
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.metaborg.spoofax.core</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.metaborg.spoofax.meta.core</artifactId>
 			<version>${metaborg-version}</version>
 		</dependency>
 

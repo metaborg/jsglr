@@ -1,0 +1,9 @@
+---
+id: org.metaborg:test:0.1.0-SNAPSHOT
+name: test
+language:
+  sdf:
+    pretty-print: test
+    sdf2table: java
+    placeholder:
+      prefix: "$"

@@ -2,13 +2,10 @@ package org.spoofax.jsglr2.integration.test;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.Set;
 
 import org.apache.commons.vfs2.FileObject;
 import org.junit.Test;
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageImpl;
@@ -17,6 +14,10 @@ import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.meta.core.project.ILanguageSpec;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.sdf2table.grammar.NormGrammar;
+import org.metaborg.sdf2table.io.GrammarReader;
+import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
@@ -25,6 +26,8 @@ import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
 import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.JSGLR2;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.strategoxt.HybridInterpreter;
 
 import com.google.common.collect.Iterables;
@@ -40,7 +43,7 @@ public class MainTest {
     }
 
     @Test
-    public void test() throws MetaborgException, IOException {
+    public void test() throws Exception {
     	final Spoofax spoofax = new Spoofax(new Module(), new SpoofaxExtensionModule());
     	final SpoofaxMeta spoofaxMeta = new SpoofaxMeta(spoofax);
 
@@ -63,15 +66,22 @@ public class MainTest {
         final ILanguageSpec languageSpec = spoofaxMeta.languageSpecService.get(project);
         final IContext context = spoofax.contextService.get(directory, languageSpec, sdf3Impl);
         
-        System.out.println("parsed: " +  parseResult.ast());
+        final IStrategoTerm sdf3Module = parseResult.ast();
         
         try(IClosableLock lock = context.read()) {
             final HybridInterpreter runtime = spoofax.strategoRuntimeService.runtime(sdf3Component, context, false);
-            final IStrategoTerm resultTerm = spoofax.strategoCommon.invoke(runtime, parseResult.ast(), "module-to-pp");
-            System.out.println("after transform: " + resultTerm);
+            final IStrategoTerm sdf3ModuleNormalized = spoofax.strategoCommon.invoke(runtime, sdf3Module, "module-to-normal-form");
+            
+            NormGrammar grammar = new GrammarReader().readGrammar(sdf3ModuleNormalized);
+            
+            IParseTable parseTable = new ParseTable(grammar, false, false, true);
+            
+            JSGLR2<HybridParseForest, IStrategoTerm> jsglr2 = JSGLR2.standard(parseTable);
+            
+            IStrategoTerm result = jsglr2.parse("1+2");
+            
+            assertEquals(result.toString(), "Add(Int(\"1\"),Int(\"2\"))");
         }
-        
-        assertEquals(true, true);
     }
     
     private String getTestResourcePath(String resource) {

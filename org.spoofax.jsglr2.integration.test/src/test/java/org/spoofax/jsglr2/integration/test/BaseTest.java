@@ -1,11 +1,10 @@
 package org.spoofax.jsglr2.integration.test;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Set;
 
 import org.apache.commons.vfs2.FileObject;
-import org.junit.Test;
+import org.junit.BeforeClass;
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageImpl;
@@ -26,14 +25,12 @@ import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
 import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.strategoxt.HybridInterpreter;
 
 import com.google.common.collect.Iterables;
 import com.google.inject.Singleton;
 
-public class MainTest {
+public class BaseTest {
 
     public static class Module extends SpoofaxModule {
         @Override protected void bindProject() {
@@ -42,50 +39,59 @@ public class MainTest {
         }
     }
 
-    @Test
-    public void test() throws Exception {
-    	final Spoofax spoofax = new Spoofax(new Module(), new SpoofaxExtensionModule());
-    	final SpoofaxMeta spoofaxMeta = new SpoofaxMeta(spoofax);
+    private static Spoofax spoofax;
+    private static SpoofaxMeta spoofaxMeta;
+    
+    private static ILanguageImpl sdf3Impl;
+    private static ILanguageComponent sdf3Component;
+    
+    private static IContext context;
+    
+    @BeforeClass
+    public static void setup() throws MetaborgException {
+        spoofax = new Spoofax(new Module(), new SpoofaxExtensionModule());
+        spoofaxMeta = new SpoofaxMeta(spoofax);
 
-    	final FileObject sdf3Location = spoofax.resolve("zip://" + getTestResourcePath("sdf3.spoofax-language"));
+        final FileObject sdf3Location = spoofax.resolve("zip://" + getTestResourcePath("sdf3.spoofax-language"));
         
         final Set<ILanguageImpl> languageImpls = spoofax.scanLanguagesInDirectory(sdf3Location);
 
-        final ILanguageImpl sdf3Impl = Iterables.get(languageImpls, 0);
-        final ILanguageComponent sdf3Component = Iterables.get(sdf3Impl.components(), 0);
+        sdf3Impl = Iterables.get(languageImpls, 0);
+        sdf3Component = Iterables.get(sdf3Impl.components(), 0);
         
-        final FileObject sdf3File = spoofax.resourceService.resolve(getTestResourcePath("test.sdf3"));
+        final FileObject testDirectory = spoofax.resourceService.resolve(getTestResourcePath("."));
+        final IProject testProject = ((ISimpleProjectService) spoofax.projectService).create(testDirectory);
+        final ILanguageSpec testLanguageSpec = spoofaxMeta.languageSpecService.get(testProject);
+        
+        context = spoofax.contextService.get(testDirectory, testLanguageSpec, sdf3Impl);
+    }
+
+    protected static IParseTable parseTableFromSDF3(String sdf3Resource) throws Exception {
+    	final FileObject sdf3File = spoofax.resourceService.resolve(getTestResourcePath(sdf3Resource));
         final String sdf3Text = spoofax.sourceTextService.text(sdf3File);
         
         ISpoofaxInputUnit inputUnit = spoofax.unitService.inputUnit(sdf3File, sdf3Text, sdf3Impl, null);
         
         final ISpoofaxParseUnit parseResult = spoofax.syntaxService.parse(inputUnit);
-
-        final FileObject directory = sdf3File.getParent();
-        final IProject project = ((ISimpleProjectService) spoofax.projectService).create(directory);
-        final ILanguageSpec languageSpec = spoofaxMeta.languageSpecService.get(project);
-        final IContext context = spoofax.contextService.get(directory, languageSpec, sdf3Impl);
-        
         final IStrategoTerm sdf3Module = parseResult.ast();
         
+        final IStrategoTerm sdf3ModuleNormalized = normalizeSDF3(sdf3Module);
+        
+        NormGrammar grammar = new GrammarReader().readGrammar(sdf3ModuleNormalized);
+        
+        return new ParseTable(grammar, false, false, true);
+    }
+    
+    private static IStrategoTerm normalizeSDF3(IStrategoTerm sdf3Module) throws MetaborgException {
         try(IClosableLock lock = context.read()) {
             final HybridInterpreter runtime = spoofax.strategoRuntimeService.runtime(sdf3Component, context, false);
-            final IStrategoTerm sdf3ModuleNormalized = spoofax.strategoCommon.invoke(runtime, sdf3Module, "module-to-normal-form");
             
-            NormGrammar grammar = new GrammarReader().readGrammar(sdf3ModuleNormalized);
-            
-            IParseTable parseTable = new ParseTable(grammar, false, false, true);
-            
-            JSGLR2<HybridParseForest, IStrategoTerm> jsglr2 = JSGLR2.standard(parseTable);
-            
-            IStrategoTerm result = jsglr2.parse("1+2");
-            
-            assertEquals(result.toString(), "Add(Int(\"1\"),Int(\"2\"))");
+            return spoofax.strategoCommon.invoke(runtime, sdf3Module, "module-to-normal-form");
         }
     }
     
-    private String getTestResourcePath(String resource) {
-    	return getClass().getClassLoader().getResource(resource).getPath();
+    private static String getTestResourcePath(String resource) {
+    	return BaseTest.class.getClassLoader().getResource(resource).getPath();
     }
 
 }

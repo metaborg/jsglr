@@ -25,12 +25,20 @@ import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
 import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
+import org.spoofax.jsglr2.tests.util.BaseTest;
 import org.strategoxt.HybridInterpreter;
 
 import com.google.common.collect.Iterables;
 import com.google.inject.Singleton;
 
-public class BaseTest {
+public abstract class BaseTestWithSpoofaxCoreSdf3 extends BaseTest {
+    
+    private String sdf3Resource;
+    
+    BaseTestWithSpoofaxCoreSdf3(String sdf3Resource) {
+        this.sdf3Resource = sdf3Resource;
+    }
 
     public static class Module extends SpoofaxModule {
         @Override protected void bindProject() {
@@ -66,7 +74,14 @@ public class BaseTest {
         context = spoofax.contextService.get(testDirectory, testLanguageSpec, sdf3Impl);
     }
 
-    protected static IParseTable parseTableFromSDF3(String sdf3Resource) throws Exception {
+    public IParseTable getParseTable(ParseTableVariant variant) throws Exception {
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3(sdf3Resource);
+        
+        // TODO: use the parse table variant in the parse table generator
+        return new ParseTable(normalizedGrammar, false, false, true);
+    }
+
+    protected static NormGrammar normalizedGrammarFromSDF3(String sdf3Resource) throws Exception {
     	final FileObject sdf3File = spoofax.resourceService.resolve(getTestResourcePath(sdf3Resource));
         final String sdf3Text = spoofax.sourceTextService.text(sdf3File);
         
@@ -77,9 +92,7 @@ public class BaseTest {
         
         final IStrategoTerm sdf3ModuleNormalized = normalizeSDF3(sdf3Module);
         
-        NormGrammar grammar = new GrammarReader().readGrammar(sdf3ModuleNormalized);
-        
-        return new ParseTable(grammar, false, false, true);
+        return new GrammarReader().readGrammar(sdf3ModuleNormalized);
     }
     
     private static IStrategoTerm normalizeSDF3(IStrategoTerm sdf3Module) throws MetaborgException {
@@ -90,8 +103,8 @@ public class BaseTest {
         }
     }
     
-    private static String getTestResourcePath(String resource) {
-    	return BaseTest.class.getClassLoader().getResource(resource).getPath();
+    protected static String getTestResourcePath(String resource) {
+    	return BaseTestWithSpoofaxCoreSdf3.class.getClassLoader().getResource(resource).getPath();
     }
 
 }

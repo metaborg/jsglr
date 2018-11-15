@@ -6,11 +6,11 @@ import java.net.URISyntaxException;
 import org.junit.Test;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.tests.util.BaseTestWithJSGLR1;
-import org.spoofax.jsglr2.util.WithGrammar;
+import org.spoofax.jsglr2.tests.util.BaseTestWithParseTableFromTermWithJSGLR1;
+import org.spoofax.jsglr2.util.WithLegacySdfGrammar;
 import org.spoofax.terms.ParseError;
 
-public class SumNonAmbiguousTest extends BaseTestWithJSGLR1 implements WithGrammar {
+public class SumNonAmbiguousTest extends BaseTestWithParseTableFromTermWithJSGLR1 implements WithLegacySdfGrammar {
 
     public SumNonAmbiguousTest() throws ParseError, InterruptedException, IOException, ParseTableReadException,
         InvalidParseTableException, URISyntaxException {

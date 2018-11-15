@@ -5,11 +5,11 @@ import java.net.URISyntaxException;
 
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.tests.util.BaseTest;
-import org.spoofax.jsglr2.util.WithGrammar;
+import org.spoofax.jsglr2.tests.util.BaseTestWithParseTableFromTerm;
+import org.spoofax.jsglr2.util.WithLegacySdfGrammar;
 import org.spoofax.terms.ParseError;
 
-public class IntersectionTest extends BaseTest implements WithGrammar {
+public class IntersectionTest extends BaseTestWithParseTableFromTerm implements WithLegacySdfGrammar {
 
     public IntersectionTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {

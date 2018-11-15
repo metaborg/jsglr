@@ -13,56 +13,40 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.parser.ParseResult;
 import org.spoofax.jsglr2.parser.Parser;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.util.AstUtilities;
+import org.spoofax.jsglr2.util.WithParseTable;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
-public abstract class BaseTest {
+public abstract class BaseTest implements WithParseTable {
 
     private TermReader termReader;
-    private IStrategoTerm parseTableTerm;
-
     protected AstUtilities astUtilities;
 
     protected BaseTest() {
         TermFactory termFactory = new TermFactory();
         this.termReader = new TermReader(termFactory);
-
+        
         this.astUtilities = new AstUtilities();
     }
 
     public TermReader getTermReader() {
         return termReader;
     }
-
-    public void setParseTableTerm(IStrategoTerm parseTableTerm) {
-        this.parseTableTerm = parseTableTerm;
-    }
-
-    public IStrategoTerm getParseTableTerm() {
-        return parseTableTerm;
-    }
-
-    protected IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) {
+    
+    protected IParseTable getParseTableFailOnException(JSGLR2Variants.ParseTableVariant variant) {
         try {
-            return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
-                new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
-                    .read(getParseTableTerm());
-        } catch(ParseTableReadException e) {
+            return getParseTable(variant);
+        } catch (Exception e) {
             e.printStackTrace();
 
-            fail("ParseTableReadException: " + e.getMessage());
+            fail("Exception during reading parse table: " + e.getMessage());
 
             return null;
         }
@@ -70,7 +54,7 @@ public abstract class BaseTest {
 
     public void testParseSuccess(String inputString) {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
-            IParseTable parseTable = getParseTable(variant.parseTable);
+            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
@@ -81,7 +65,7 @@ public abstract class BaseTest {
 
     public void testParseFailure(String inputString) {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
-            IParseTable parseTable = getParseTable(variant.parseTable);
+            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             Parser<?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
@@ -127,7 +111,7 @@ public abstract class BaseTest {
     private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
-            IParseTable parseTable = getParseTable(variant.parseTable);
+            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.parser, startSymbol, inputString);
 
             if(equalityByExpansions) {

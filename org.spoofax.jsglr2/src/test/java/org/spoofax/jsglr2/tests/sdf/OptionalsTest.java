@@ -6,11 +6,11 @@ import java.net.URISyntaxException;
 import org.junit.Test;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.tests.util.BaseTest;
-import org.spoofax.jsglr2.util.WithGrammar;
+import org.spoofax.jsglr2.tests.util.BaseTestWithParseTableFromTerm;
+import org.spoofax.jsglr2.util.WithLegacySdfGrammar;
 import org.spoofax.terms.ParseError;
 
-public class OptionalsTest extends BaseTest implements WithGrammar {
+public class OptionalsTest extends BaseTestWithParseTableFromTerm implements WithLegacySdfGrammar {
 
     public OptionalsTest() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
         InterruptedException, URISyntaxException {

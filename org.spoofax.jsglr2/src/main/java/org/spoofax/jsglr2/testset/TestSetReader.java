@@ -12,11 +12,11 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.util.WithGrammar;
+import org.spoofax.jsglr2.util.WithLegacySdfGrammar;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
-public abstract class TestSetReader implements WithGrammar {
+public abstract class TestSetReader implements WithLegacySdfGrammar {
 
     protected final TestSet testSet;
 

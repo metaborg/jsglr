@@ -1,0 +1,7 @@
+module lexical-id
+
+lexical start-symbols
+	Exp
+
+lexical syntax
+	Exp = [a-z]+

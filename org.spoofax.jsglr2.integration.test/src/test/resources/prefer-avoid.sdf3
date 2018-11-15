@@ -1,0 +1,26 @@
+module prefer-avoid
+
+lexical syntax
+	LAYOUT = [\ ] 
+
+context-free restrictions
+	LAYOUT? -/- [\ ]
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start.Prefer = "p" Prefer
+	Start.Avoid  = "a" Avoid 
+
+	Prefer = X1 {prefer}
+	Prefer = X2 
+	Prefer = X3  
+
+	Avoid = X1 {avoid}
+	Avoid = X2  
+	Avoid = X3   
+
+	X1.X1 = "x"
+	X2.X2 = "x"
+	X3.X3 = "x"

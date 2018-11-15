@@ -1,0 +1,8 @@
+module sum-ambiguous
+
+context-free start-symbols
+	Exp
+
+context-free syntax
+    Exp.Add = Exp "+" Exp
+    Exp.Term = "x"

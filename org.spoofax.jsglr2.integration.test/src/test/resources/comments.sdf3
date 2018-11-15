@@ -1,0 +1,28 @@
+module comments
+
+lexical syntax 
+	LAYOUT        = [\ \t\n\r]        
+	CommentChar   = [\*]   
+	LAYOUT        = "/*" InsideComment* "*/"        
+	InsideComment = ~[\*] 
+	InsideComment = CommentChar  
+	LAYOUT        = "//" ~[\n\r]* NewLineEOF        
+	NewLineEOF    = [\n\r]    
+	NewLineEOF    = EOF    
+    EOF           =
+
+lexical restrictions
+	CommentChar   -/- [\/]
+	EOF           -/- ~[]
+    
+context-free restrictions
+	LAYOUT?       -/- [\ \t\n\r]
+	LAYOUT?       -/- [\/].[\/]
+	LAYOUT?       -/- [\/].[\*]
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start.Xs = X+
+	X.X      = "x"

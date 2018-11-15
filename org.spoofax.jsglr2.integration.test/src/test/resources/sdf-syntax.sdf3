@@ -1,0 +1,8 @@
+module sdf-syntax
+
+start-symbols
+	Exp
+
+syntax
+	Exp.Add = Exp [\+] Exp {left}
+	Exp.Id = [a-z]

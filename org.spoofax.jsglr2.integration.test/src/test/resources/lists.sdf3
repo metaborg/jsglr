@@ -1,0 +1,18 @@
+module lists
+
+lexical syntax 
+	LAYOUT = [\ ]
+
+context-free restrictions
+	LAYOUT? -/- [\ ]
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start.ZeroOrMoreXs               = X*
+	Start.OneOrMoreXs                = X+
+	Start.ZeroOrMoreXsCommaSeparated = {X ","}*
+	Start.OneOrMoreXsCommaSeparated  = {X ","}+
+	
+	X.X = "x"

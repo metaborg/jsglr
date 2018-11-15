@@ -12,11 +12,11 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.util.WithLegacySdfGrammar;
+import org.spoofax.jsglr2.util.WithParseTableFromTerm;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
-public abstract class TestSetReader implements WithLegacySdfGrammar {
+public abstract class TestSetReader implements WithParseTableFromTerm {
 
     protected final TestSet testSet;
 
@@ -45,11 +45,8 @@ public abstract class TestSetReader implements WithLegacySdfGrammar {
                 setupParseTable(testSetParseTableFromATerm.name);
 
                 break;
-            case GRAMMAR_DEF:
-                TestSetParseTableFromGrammarDef testSetParseTableFromGrammarDef =
-                    (TestSetParseTableFromGrammarDef) testSet.parseTable;
-
-                setupParseTableFromDefFile(testSetParseTableFromGrammarDef.name);
+            case SDF3:
+                // TODO: integrate with SDF3
 
                 break;
             default:
@@ -58,21 +55,6 @@ public abstract class TestSetReader implements WithLegacySdfGrammar {
     }
 
     public abstract void setupParseTableFile(String name) throws IOException;
-
-    @Override
-    public TermReader getTermReader() {
-        return termReader;
-    }
-
-    @Override
-    public IStrategoTerm getParseTableTerm() {
-        return parseTableTerm;
-    }
-
-    @Override
-    public void setParseTableTerm(IStrategoTerm parseTableTerm) {
-        this.parseTableTerm = parseTableTerm;
-    }
 
     public Iterable<Input> getInputs() throws IOException {
         switch(testSet.input.type) {

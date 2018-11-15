@@ -17,17 +17,17 @@ public class TestSet {
     }
 
     public static TestSet lexical =
-        new TestSet("lexical", new TestSetParseTableFromGrammarDef("lexical-id"), new TestSetSizedInput(n -> {
+        new TestSet("lexical", new TestSetParseTableFromSDF3("lexical-id"), new TestSetSizedInput(n -> {
             return String.join("", Collections.nCopies(n, "a"));
         }, 10000, 50000, 100000));
 
     public static TestSet sumAmbiguous =
-        new TestSet("sumAmbiguous", new TestSetParseTableFromGrammarDef("sum-ambiguous"), new TestSetSizedInput(n -> {
+        new TestSet("sumAmbiguous", new TestSetParseTableFromSDF3("sum-ambiguous"), new TestSetSizedInput(n -> {
             return String.join("+", Collections.nCopies(n, "x"));
         }, 20, 40, 60, 80));
 
     public static TestSet sumNonAmbiguous = new TestSet("sumNonAmbiguous",
-        new TestSetParseTableFromGrammarDef("sum-nonambiguous"), new TestSetSizedInput(n -> {
+        new TestSetParseTableFromSDF3("sum-nonambiguous"), new TestSetSizedInput(n -> {
             return String.join("+", Collections.nCopies(n, "x"));
         }, 4000, 8000, 16000, 32000, 64000));
 

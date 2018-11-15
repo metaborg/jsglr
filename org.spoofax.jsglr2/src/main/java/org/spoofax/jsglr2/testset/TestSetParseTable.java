@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.testset;
 public abstract class TestSetParseTable {
 
     public enum Source {
-        ATERM, GRAMMAR_DEF
+        ATERM, SDF3
     }
 
     public final Source source;

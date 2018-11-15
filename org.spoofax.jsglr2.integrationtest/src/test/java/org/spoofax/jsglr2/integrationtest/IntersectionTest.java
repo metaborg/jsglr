@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integration.test;
+package org.spoofax.jsglr2.integrationtest;
 
 public class IntersectionTest extends BaseTestWithSpoofaxCoreSdf3 {
 

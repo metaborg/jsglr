@@ -1,14 +1,14 @@
-package org.spoofax.jsglr2.integration.test;
+package org.spoofax.jsglr2.integrationtest;
 
 import java.io.IOException;
 import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class SumNonAmbiguousTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class SumAmbiguousTest extends BaseTestWithSpoofaxCoreSdf3 {
 
-    public SumNonAmbiguousTest() {
-        super("sum-nonambiguous.sdf3");
+    public SumAmbiguousTest() {
+        super("sum-ambiguous.sdf3");
     }
 
     @Test
@@ -23,7 +23,7 @@ public class SumNonAmbiguousTest extends BaseTestWithSpoofaxCoreSdf3 {
 
     @Test
     public void three() throws ParseError, ParseTableReadException, IOException {
-        testSuccessByExpansions("x+x+x", "Add(Add(Term(),Term()),Term())");
+        testSuccessByExpansions("x+x+x", "amb([Add(Add(Term,Term),Term), Add(Term,Add(Term,Term))])");
     }
 
 }

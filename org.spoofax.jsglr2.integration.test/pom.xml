@@ -39,6 +39,7 @@
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.spoofax.jsglr2</artifactId>
 			<version>${metaborg-version}</version>
+			<type>test-jar</type>
 		</dependency>
 
 		<dependency>

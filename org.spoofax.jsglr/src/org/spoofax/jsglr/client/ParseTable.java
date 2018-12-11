@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.sdf2table.grammar.CharacterClass;
 import org.metaborg.sdf2table.io.IncrementalParseTableGenerator;
-import org.metaborg.sdf2table.io.ParseTableGenerator;
+import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.GoTo;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -64,7 +64,7 @@ public class ParseTable implements Serializable {
 
     private static final long serialVersionUID = -3372429249660900093L;
 
-    private final ParseTableGenerator pt_generator;
+    private final ParseTableIO pt_generator;
 
     private static SGLR layoutParser;
 
@@ -133,7 +133,7 @@ public class ParseTable implements Serializable {
         }
 
         if(dynamicPTgeneration && persistedTable != null) {
-            pt_generator = new ParseTableGenerator(persistedTable);
+            pt_generator = new ParseTableIO(persistedTable);
             gotoCache = new HashMap<Goto, Goto>();
             shiftCache = new HashMap<Shift, Shift>();
             reduceCache = new HashMap<Reduce, Reduce>();
@@ -781,7 +781,7 @@ public class ParseTable implements Serializable {
         return total;
     }
 
-    public ParseTableGenerator getPTgenerator() {
+    public ParseTableIO getPTgenerator() {
         return pt_generator;
     }
 

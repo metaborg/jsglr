@@ -15,7 +15,7 @@ import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.meta.core.project.ILanguageSpec;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.sdf2table.grammar.NormGrammar;
-import org.metaborg.sdf2table.io.GrammarReader;
+import org.metaborg.sdf2table.io.NormGrammarReader;
 import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.SpoofaxModule;
@@ -92,7 +92,7 @@ public abstract class BaseTestWithSpoofaxCoreSdf3 extends BaseTest {
         
         final IStrategoTerm sdf3ModuleNormalized = normalizeSDF3(sdf3Module);
         
-        return new GrammarReader().readGrammar(sdf3ModuleNormalized);
+        return new NormGrammarReader().readGrammar(sdf3ModuleNormalized);
     }
     
     private static IStrategoTerm normalizeSDF3(IStrategoTerm sdf3Module) throws MetaborgException {

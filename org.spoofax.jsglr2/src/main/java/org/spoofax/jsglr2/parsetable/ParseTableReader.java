@@ -24,7 +24,7 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
-import org.metaborg.sdf2table.io.ParseTableGenerator;
+import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -70,14 +70,10 @@ public class ParseTableReader {
         return new ParseTable(states, startStateId);
     }
 
-    public IParseTable read(IStrategoTerm pt, FileObject persistedTable) throws Exception {
+    public static IParseTable read(FileObject persistedTable) throws Exception {
+        ParseTableIO ptg = new ParseTableIO(persistedTable);
 
-        org.metaborg.sdf2table.parsetable.ParseTable parseTableFromSerializable;
-
-        ParseTableGenerator ptg = new ParseTableGenerator(persistedTable);
-
-        // read persisted normalized grammar
-        parseTableFromSerializable = ptg.getParseTable();
+        org.metaborg.sdf2table.parsetable.ParseTable parseTableFromSerializable = ptg.getParseTable();
 
         // TODO: markRejectableStates(states);
 

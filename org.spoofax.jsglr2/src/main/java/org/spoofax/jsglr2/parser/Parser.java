@@ -6,12 +6,8 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveRuleNode;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -98,28 +94,6 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
             return failure;
         }
-    }
-
-    private void traverseTree(LayoutSensitiveRuleNode parseForest) {
-
-        if(parseForest.production.isLongestMatch()) {
-            System.out.println("");
-        }
-        
-        for(BasicParseForest pf : ((LayoutSensitiveRuleNode) parseForest).parseForests()) {
-            if(pf instanceof LayoutSensitiveRuleNode) {
-                traverseTree((LayoutSensitiveRuleNode) pf);
-            } else if(pf instanceof LayoutSensitiveSymbolNode) {
-                if(((LayoutSensitiveSymbolNode) pf).getDerivations().size() > 1) {
-                    System.out.println();
-                }
-                for(LayoutSensitiveRuleNode rn : ((LayoutSensitiveSymbolNode) pf).getDerivations()) {
-                    traverseTree(rn);
-                }
-            }
-        }
-
-
     }
 
     protected void parseLoop(Parse<ParseForest, StackNode> parse) throws ParseException {

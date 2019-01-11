@@ -8,13 +8,13 @@ import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.TermNode;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class DataDependentParseForestManager extends ParseForestManager<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode> {
 
     @Override
-    public DataDependentSymbolNode createParseNode(Parse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
+    public DataDependentSymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         DataDependentRuleNode firstDerivation) {
         DataDependentSymbolNode symbolNode =
             new DataDependentSymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
@@ -27,7 +27,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     }
 
     @Override
-    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, Parse<BasicParseForest, ?> parse) {
+    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, AbstractParse<BasicParseForest, ?> parse) {
         DataDependentSymbolNode topNode = (DataDependentSymbolNode) parseForest;
         List<DataDependentRuleNode> result = new ArrayList<DataDependentRuleNode>();
 
@@ -52,7 +52,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     }
 
     @Override
-    public DataDependentRuleNode createDerivation(Parse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
+    public DataDependentRuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         ProductionType productionType, BasicParseForest[] parseForests) {
         DataDependentRuleNode ruleNode = new DataDependentRuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
             production, productionType, parseForests);
@@ -63,7 +63,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     }
 
     @Override
-    public void addDerivation(Parse<BasicParseForest, ?> parse, DataDependentSymbolNode symbolNode, DataDependentRuleNode ruleNode) {
+    public void addDerivation(AbstractParse<BasicParseForest, ?> parse, DataDependentSymbolNode symbolNode, DataDependentRuleNode ruleNode) {
         // parse.notify(observer -> observer.addDerivation(symbolNode));
 
         boolean initNonAmbiguous = symbolNode.isAmbiguous();
@@ -75,7 +75,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     }
 
     @Override
-    public TermNode createCharacterNode(Parse<BasicParseForest, ?> parse) {
+    public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
         TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));

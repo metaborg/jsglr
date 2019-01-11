@@ -22,9 +22,10 @@ import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
+public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>, Parse extends AbstractParse<ParseForest, StackNode>>
     implements IParser<ParseForest, StackNode> {
 
+    protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;
     protected final StackManager<ParseForest, StackNode> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
@@ -34,10 +35,11 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
     private final IForActorStacksFactory forActorStacksFactory;
     protected final ParserObserving<ParseForest, StackNode> observing;
 
-    public Parser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
+    public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
         IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager) {
+        this.parseFactory = parseFactory;
         this.parseTable = parseTable;
         this.activeStacksFactory = activeStacksFactory;
         this.forActorStacksFactory = forActorStacksFactory;
@@ -51,9 +53,8 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
     @Override public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
         IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
         IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
-
-        Parse<ParseForest, StackNode> parse =
-            new Parse<ParseForest, StackNode>(inputString, filename, activeStacks, forActorStacks, observing);
+        
+        Parse parse = parseFactory.get(inputString, filename, activeStacks, forActorStacks, observing);
 
         observing.notify(observer -> observer.parseStart(parse));
 
@@ -78,7 +79,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
             return failure(parse, failureHandler.failureType(parse));
     }
     
-    private ParseSuccess<ParseForest, ?> success(Parse<ParseForest, ?> parse, ParseForest parseForest) {
+    private ParseSuccess<ParseForest, ?> success(Parse parse, ParseForest parseForest) {
         ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForest);
         
         observing.notify(observer -> observer.success(success));
@@ -86,7 +87,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         return success;
     }
     
-    private ParseFailure<ParseForest, ?> failure(Parse<ParseForest, ?> parse, ParseFailureType failureType) {
+    private ParseFailure<ParseForest, ?> failure(Parse parse, ParseFailureType failureType) {
         ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, failureType);
         
         observing.notify(observer -> observer.failure(failure));
@@ -94,7 +95,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         return failure;
     }
 
-    protected void parseLoop(Parse<ParseForest, StackNode> parse) {
+    protected void parseLoop(Parse parse) {
         while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
             parseCharacter(parse);
 
@@ -107,7 +108,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
             failureHandler.onFailure(parse);
     }
 
-    protected void parseCharacter(Parse<ParseForest, StackNode> parse) {
+    protected void parseCharacter(Parse parse) {
         observing.notify(observer -> observer.parseCharacter(parse, parse.activeStacks));
 
         parse.activeStacks.addAllTo(parse.forActorStacks);
@@ -119,7 +120,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         shifter(parse);
     }
 
-    protected void processForActorStacks(Parse<ParseForest, StackNode> parse) {
+    protected void processForActorStacks(Parse parse) {
         while(parse.forActorStacks.nonEmpty()) {
             StackNode stack = parse.forActorStacks.remove();
 
@@ -132,14 +133,14 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         }
     }
 
-    protected void actor(StackNode stack, Parse<ParseForest, StackNode> parse) {
+    protected void actor(StackNode stack, Parse parse) {
         observing.notify(observer -> observer.actor(stack, parse, stack.state.getApplicableActions(parse)));
 
         for(IAction action : stack.state.getApplicableActions(parse))
             actor(stack, parse, action);
     }
 
-    protected void actor(StackNode stack, Parse<ParseForest, StackNode> parse, IAction action) {
+    protected void actor(StackNode stack, Parse parse, IAction action) {
         switch(action.actionType()) {
             case SHIFT:
                 IShift shiftAction = (IShift) action;
@@ -164,7 +165,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         }
     }
 
-    protected void shifter(Parse<ParseForest, StackNode> parse) {
+    protected void shifter(Parse parse) {
         parse.activeStacks.clear();
 
         ParseForest characterNode = parseForestManager.createCharacterNode(parse);
@@ -188,7 +189,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         parse.forShifter.clear();
     }
 
-    private void addForShifter(Parse<ParseForest, StackNode> parse, StackNode stack, IState shiftState) {
+    private void addForShifter(Parse parse, StackNode stack, IState shiftState) {
         ForShifterElement<ParseForest, StackNode> forShifterElement =
             new ForShifterElement<ParseForest, StackNode>(stack, shiftState);
 

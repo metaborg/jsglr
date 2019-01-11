@@ -7,7 +7,7 @@ import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.RuleNode;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
@@ -20,7 +20,7 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
     // longest-match positions
     // public Set<PositionInterval> longestMatchPos = Sets.newLinkedHashSet();
 
-    public LayoutSensitiveRuleNode(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position leftPosition,
+    public LayoutSensitiveRuleNode(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
         Position rightPosition, Position endPosition, IProduction production, ProductionType productionType,
         BasicParseForest[] parseForests) {
         super(nodeNumber, parse, startPosition, endPosition, production, productionType, parseForests);

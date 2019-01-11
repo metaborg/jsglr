@@ -6,13 +6,13 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class BasicParseForestManager extends ParseForestManager<BasicParseForest, SymbolNode, RuleNode> {
 
     @Override
-    public SymbolNode createParseNode(Parse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
+    public SymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         RuleNode firstDerivation) {
         SymbolNode symbolNode =
             new SymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
@@ -25,7 +25,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, Parse<BasicParseForest, ?> parse) {
+    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, AbstractParse<BasicParseForest, ?> parse) {
         SymbolNode topNode = (SymbolNode) parseForest;
         List<RuleNode> result = new ArrayList<RuleNode>();
 
@@ -50,7 +50,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public RuleNode createDerivation(Parse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
+    public RuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         ProductionType productionType, BasicParseForest[] parseForests) {
         RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
             production, productionType, parseForests);
@@ -61,7 +61,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public void addDerivation(Parse<BasicParseForest, ?> parse, SymbolNode symbolNode, RuleNode ruleNode) {
+    public void addDerivation(AbstractParse<BasicParseForest, ?> parse, SymbolNode symbolNode, RuleNode ruleNode) {
         // parse.notify(observer -> observer.addDerivation(symbolNode));
 
         boolean initNonAmbiguous = symbolNode.isAmbiguous();
@@ -73,7 +73,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override
-    public TermNode createCharacterNode(Parse<BasicParseForest, ?> parse) {
+    public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
         TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));

@@ -9,25 +9,27 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>>
-    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
+public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>, Parse extends AbstractParse<ParseForest, ElkhoundStackNode>>
+    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
 
-    public ElkhoundParser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, ElkhoundStackNode> stackManager,
+    public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
+        IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
+        StackManager<ParseForest, ElkhoundStackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> elkhoundReduceManager) {
-        super(parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
+        super(parseFactory, parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
             elkhoundReduceManager);
     }
 
-    @Override
-    protected void parseLoop(Parse<ParseForest, ElkhoundStackNode> parse) {
+    @Override protected void parseLoop(Parse parse) {
         while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
             if(parse.activeStacks.isSingle()) {
                 ElkhoundStackNode singleActiveStack = parse.activeStacks.getSingle();

@@ -15,7 +15,7 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -28,12 +28,12 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
     List<String> jsonTrace = new ArrayList<String>();
 
     @Override
-    public void parseStart(Parse<ParseForest, StackNode> parse) {
+    public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
         trace("{\"action\":\"start\",\"inputString\":\"" + parse.inputString + "\"}");
     }
 
     @Override
-    public void parseCharacter(Parse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
+    public void parseCharacter(AbstractParse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
         trace("{\"action\":\"parseCharacter\",\"character\":\"" + CharacterClassFactory.intToString(parse.currentChar)
             + "\",\"activeStacks\":" + stackQueueToString(activeStacks) + "}");
     }
@@ -82,7 +82,7 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
     }
 
     @Override
-    public void actor(StackNode stack, Parse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions) {
+    public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions) {
         trace("{\"action\":\"actor\",\"stackNumber\":" + stack.stackNumber + "}");
     }
 
@@ -98,11 +98,11 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
     }
 
     @Override
-    public void doReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
+    public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
     }
 
     @Override
-    public void doLimitedReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+    public void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> link) {
     }
 
@@ -120,7 +120,7 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
     }
 
     @Override
-    public void directLinkFound(Parse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink) {
+    public void directLinkFound(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink) {
         trace("{\"action\":\"directLinkFound\",\"linkNumber\":" + (directLink != null ? directLink.linkNumber : -1)
             + "}");
     }

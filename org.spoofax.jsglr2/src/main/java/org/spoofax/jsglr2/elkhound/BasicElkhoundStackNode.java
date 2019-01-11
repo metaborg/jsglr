@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
@@ -36,7 +36,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
 
     public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(int linkNumber,
         BasicElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
-        Parse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse) {
+        AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse) {
         StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link =
             new StackLink<>(linkNumber, this, parent, parseNode);
 

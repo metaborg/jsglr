@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
@@ -10,6 +9,7 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseFailureType;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManager;
@@ -57,49 +57,40 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
         parse.activeStacks.add(initialStackNode);
 
-        try {
-            parseLoop(parse);
+        parseLoop(parse);
 
-            ParseResult<ParseForest, ?> result;
+        if(parse.acceptingStack != null) {
+            ParseForest parseForest =
+                stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
 
-            if(parse.acceptingStack != null) {
-                ParseForest parseForest =
-                    stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
+            ParseForest parseForestWithStartSymbol =
+                startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parse) : parseForest;
 
-                ParseForest parseForestWithStartSymbol =
-                    startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parse) : parseForest;
+            if(parseForest != null && parseForestWithStartSymbol == null)
+                return failure(parse, ParseFailureType.InvalidStartSymbol);
+            else
+                return success(parse, parseForestWithStartSymbol);
+        } else
+            return failure(parse, ParseFailureType.Unknown);
+    }
+    
+    private ParseSuccess<ParseForest, ?> success(Parse<ParseForest, ?> parse, ParseForest parseForest) {
+        ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForest);
+        
+        observing.notify(observer -> observer.success(success));
 
-                if(parseForest != null && parseForestWithStartSymbol == null)
-                    throw new ParseException("invalid start symbol");
+        return success;
+    }
+    
+    private ParseFailure<ParseForest, ?> failure(Parse<ParseForest, ?> parse, ParseFailureType failureType) {
+        ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, failureType);
+        
+        observing.notify(observer -> observer.failure(failure));
 
-                ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForestWithStartSymbol);
-
-                observing.notify(observer -> observer.success(success));
-
-                result = success;
-            } else {
-                ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse,
-                    new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
-                        + "/'" + CharacterClassFactory.intToString(parse.currentChar) + "', position: "
-                        + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
-                        + parse.inputLength + "])"));
-
-                observing.notify(observer -> observer.failure(failure));
-
-                result = failure;
-            }
-
-            return result;
-        } catch(ParseException parseException) {
-            ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, parseException);
-
-            observing.notify(observer -> observer.failure(failure));
-
-            return failure;
-        }
+        return failure;
     }
 
-    protected void parseLoop(Parse<ParseForest, StackNode> parse) throws ParseException {
+    protected void parseLoop(Parse<ParseForest, StackNode> parse) {
         while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
             parseCharacter(parse);
 

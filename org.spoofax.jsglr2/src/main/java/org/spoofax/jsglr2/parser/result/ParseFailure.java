@@ -7,12 +7,16 @@ import org.spoofax.jsglr2.parser.ParseException;
 public class ParseFailure<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
     extends ParseResult<ParseForest, AbstractSyntaxTree> {
 
-    public final ParseException parseException;
+    public final ParseFailureType failureType;
 
-    public ParseFailure(Parse<ParseForest, ?> parse, ParseException parseException) {
+    public ParseFailure(Parse<ParseForest, ?> parse, ParseFailureType failureType) {
         super(parse, false);
 
-        this.parseException = parseException;
+        this.failureType = failureType;
+    }
+    
+    public ParseException exception() {
+        return new ParseException(failureType);
     }
 
 }

@@ -113,7 +113,7 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
         } else {
             ParseFailure<ParseForest, ?> failure = (ParseFailure<ParseForest, ?>) result;
 
-            throw failure.parseException;
+            throw failure.exception();
         }
     }
 

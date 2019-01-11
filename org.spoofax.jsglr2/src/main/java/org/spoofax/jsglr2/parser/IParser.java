@@ -33,7 +33,7 @@ public interface IParser<ParseForest extends AbstractParseForest, StackNode exte
         } else {
             ParseFailure<ParseForest, ?> failure = (ParseFailure<ParseForest, ?>) result;
 
-            throw failure.parseException;
+            throw failure.exception();
         }
     }
 

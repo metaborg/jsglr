@@ -76,7 +76,7 @@ public class Parse<ParseForest extends AbstractParseForest, StackNode extends Ab
         return currentOffset <= inputLength;
     }
 
-    public void next() throws ParseException {
+    public void next() {
         currentOffset++;
         currentChar = getChar(currentOffset);
 

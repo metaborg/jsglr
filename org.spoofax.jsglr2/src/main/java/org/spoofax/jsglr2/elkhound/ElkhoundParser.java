@@ -10,7 +10,6 @@ import org.metaborg.parsetable.actions.IShift;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
@@ -32,7 +31,7 @@ public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode e
     }
 
     @Override
-    protected void parseLoop(Parse<ParseForest, ElkhoundStackNode> parse) throws ParseException {
+    protected void parseLoop(Parse<ParseForest, ElkhoundStackNode> parse) {
         while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
             if(parse.activeStacks.isSingle()) {
                 ElkhoundStackNode singleActiveStack = parse.activeStacks.getSingle();

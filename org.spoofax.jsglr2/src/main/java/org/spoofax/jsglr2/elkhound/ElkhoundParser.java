@@ -18,16 +18,12 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>>
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
 
-    private ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> elkhoundReduceManager;
-
     public ElkhoundParser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
         IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, ElkhoundStackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> elkhoundReduceManager) {
         super(parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
             elkhoundReduceManager);
-
-        this.elkhoundReduceManager = elkhoundReduceManager;
     }
 
     @Override

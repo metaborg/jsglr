@@ -7,6 +7,8 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
+import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureType;
@@ -27,6 +29,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
     protected final StackManager<ParseForest, StackNode> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
     protected final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
+    protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
     private final IActiveStacksFactory activeStacksFactory;
     private final IForActorStacksFactory forActorStacksFactory;
     protected final ParserObserving<ParseForest, StackNode> observing;
@@ -41,6 +44,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
         this.reduceManager = reduceManager;
+        this.failureHandler = new DefaultParseFailureHandler<>();
         this.observing = new ParserObserving<>();
     }
 
@@ -71,7 +75,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
             else
                 return success(parse, parseForestWithStartSymbol);
         } else
-            return failure(parse, ParseFailureType.Unknown);
+            return failure(parse, failureHandler.failureType(parse));
     }
     
     private ParseSuccess<ParseForest, ?> success(Parse<ParseForest, ?> parse, ParseForest parseForest) {
@@ -96,6 +100,11 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
             parse.next();
         }
+        
+        if (parse.acceptingStack != null)
+            return;
+        else
+            failureHandler.onFailure(parse);
     }
 
     protected void parseCharacter(Parse<ParseForest, StackNode> parse) {

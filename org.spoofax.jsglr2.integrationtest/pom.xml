@@ -71,7 +71,7 @@
 	<build>
 		<testResources>
 			<testResource>
-				<directory>src/test/resources</directory>
+				<directory>../org.spoofax.jsglr2/src/test/resources/grammars</directory>
 			</testResource>
 		</testResources>
 

@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class SumNonAmbiguousTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class SumNonAmbiguousTest extends BaseTestWithSdf3ParseTables {
 
     public SumNonAmbiguousTest() {
         super("sum-nonambiguous.sdf3");

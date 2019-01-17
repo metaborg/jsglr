@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class LookaheadTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class LookaheadTest extends BaseTestWithSdf3ParseTables {
 
     public LookaheadTest() {
         super("lookahead.sdf3");

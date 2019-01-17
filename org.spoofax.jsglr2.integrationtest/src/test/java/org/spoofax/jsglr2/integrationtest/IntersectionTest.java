@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.integrationtest;
 
-public class IntersectionTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class IntersectionTest extends BaseTestWithSdf3ParseTables {
 
     public IntersectionTest() {
         super("intersection.sdf3");

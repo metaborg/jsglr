@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class LexicalTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class LexicalTest extends BaseTestWithSdf3ParseTables {
 
     public LexicalTest() {
         super("lexical-id.sdf3");

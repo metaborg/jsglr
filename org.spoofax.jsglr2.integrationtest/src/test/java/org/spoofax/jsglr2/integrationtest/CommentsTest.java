@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class CommentsTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class CommentsTest extends BaseTestWithSdf3ParseTables {
 
     public CommentsTest() {
         super("comments.sdf3");

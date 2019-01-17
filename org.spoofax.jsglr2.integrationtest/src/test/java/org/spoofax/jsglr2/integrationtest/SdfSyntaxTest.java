@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class SdfSyntaxTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class SdfSyntaxTest extends BaseTestWithSdf3ParseTables {
 
     public SdfSyntaxTest() {
         super("sdf-syntax.sdf3");

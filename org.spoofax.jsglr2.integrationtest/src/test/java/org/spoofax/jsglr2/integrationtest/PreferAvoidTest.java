@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.integrationtest;
 
 import org.junit.Test;
 
-public class PreferAvoidTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class PreferAvoidTest extends BaseTestWithSdf3ParseTables {
 
     public PreferAvoidTest() {
         super("prefer-avoid.sdf3");

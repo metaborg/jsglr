@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class OptionalsTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class OptionalsTest extends BaseTestWithSdf3ParseTables {
 
     public OptionalsTest(){
         super("optionals.sdf3");

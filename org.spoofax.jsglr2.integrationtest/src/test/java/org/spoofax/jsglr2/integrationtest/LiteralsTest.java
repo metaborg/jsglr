@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class LiteralsTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class LiteralsTest extends BaseTestWithSdf3ParseTables {
 
     public LiteralsTest() {
         super("literals.sdf3");

@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
-public class StartSymbolTest extends BaseTestWithSpoofaxCoreSdf3 {
+public class StartSymbolTest extends BaseTestWithSdf3ParseTables {
 
     public StartSymbolTest() {
         super("start-symbol.sdf3");

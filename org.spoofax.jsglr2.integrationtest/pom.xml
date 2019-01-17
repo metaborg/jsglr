@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.spoofax.jsglr2.integrationtest</artifactId>
 	<packaging>jar</packaging>
-	<description>Integreation tests for JSGRL2.</description>
+	<description>Integration tests for JSGRL2.</description>
 	<url>https://github.com/metaborg/jsglr</url>
 
 	<parent>
@@ -20,26 +20,14 @@
 
 		<dependency>
 			<groupId>org.metaborg</groupId>
-			<artifactId>org.metaborg.spoofax.core</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>org.metaborg.spoofax.meta.core</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>org.spoofax.terms</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.metaborg</groupId>
 			<artifactId>org.spoofax.jsglr2</artifactId>
 			<version>${metaborg-version}</version>
-			<type>test-jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.spoofax.jsglr2.integration</artifactId>
+			<version>${metaborg-version}</version>
 		</dependency>
 
 		<dependency>
@@ -54,24 +42,12 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>tableinterfaces</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>characterclasses</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
 		<testResources>
 			<testResource>
-				<directory>../org.spoofax.jsglr2/src/test/resources/grammars</directory>
+				<directory>../org.spoofax.jsglr2.integration/src/main/resources</directory>
 			</testResource>
 		</testResources>
 

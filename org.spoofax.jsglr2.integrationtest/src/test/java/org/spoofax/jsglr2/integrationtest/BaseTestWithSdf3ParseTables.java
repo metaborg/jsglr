@@ -4,13 +4,13 @@ import org.junit.BeforeClass;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
-import org.spoofax.jsglr2.tests.util.BaseTest;
+import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 
 public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
     
     private String sdf3Resource;
     
-    BaseTestWithSdf3ParseTables(String sdf3Resource) {
+    protected BaseTestWithSdf3ParseTables(String sdf3Resource) {
         this.sdf3Resource = sdf3Resource;
     }
 

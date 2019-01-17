@@ -8,7 +8,6 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
-import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.ForShifterElement;

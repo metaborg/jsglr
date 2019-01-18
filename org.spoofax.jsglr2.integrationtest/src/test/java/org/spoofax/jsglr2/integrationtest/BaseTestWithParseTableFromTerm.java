@@ -11,6 +11,10 @@ public abstract class BaseTestWithParseTableFromTerm extends BaseTest implements
         super();
     }
 
+    protected void setupParseTable(String parseTable) throws Exception {
+		setParseTableFromTermFile("parsetables/" + parseTable + ".tbl");
+	}
+	
     public void setParseTableTerm(IStrategoTerm parseTableTerm) {
         this.parseTableTerm = parseTableTerm;
     }

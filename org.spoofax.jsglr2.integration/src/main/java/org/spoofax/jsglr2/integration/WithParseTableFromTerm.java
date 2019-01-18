@@ -17,7 +17,7 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public interface WithParseTableFromTerm extends WithParseTable {
 
-    default IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) throws ParseTableReadException {
+    default IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) throws Exception {
         return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
             new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
                 .read(getParseTableTerm());
@@ -29,12 +29,7 @@ public interface WithParseTableFromTerm extends WithParseTable {
 
     void setParseTableTerm(IStrategoTerm parseTableTerm);
 
-    default void setupParseTable(String parseTableFilename)
-        throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
-        setupParseTableByFilename("parsetables/" + parseTableFilename + ".tbl");
-    }
-
-    default void setupParseTableByFilename(String parseTableFilename)
+    default void setParseTableFromTermFile(String parseTableFilename)
         throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
         IStrategoTerm parseTableTerm = parseTableTerm(parseTableFilename);
 

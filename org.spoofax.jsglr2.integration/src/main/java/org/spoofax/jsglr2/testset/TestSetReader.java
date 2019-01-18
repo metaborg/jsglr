@@ -43,7 +43,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
                 TestSetParseTableFromATerm testSetParseTableFromATerm = (TestSetParseTableFromATerm) testSet.parseTable;
 
                 setupParseTableFile(testSetParseTableFromATerm.name);
-                setupParseTable(testSetParseTableFromATerm.name);
+                setParseTableFromTermFile(testSetParseTableFromATerm.name);
 
                 break;
             case SDF3:

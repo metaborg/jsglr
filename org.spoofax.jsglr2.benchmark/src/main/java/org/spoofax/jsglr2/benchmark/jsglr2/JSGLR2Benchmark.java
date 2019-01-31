@@ -5,6 +5,11 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -32,11 +37,6 @@ import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
-import org.metaborg.parsetable.IParseTable;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
 public abstract class JSGLR2Benchmark extends BaseBenchmark {
 

@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.actions.ActionsFactory;

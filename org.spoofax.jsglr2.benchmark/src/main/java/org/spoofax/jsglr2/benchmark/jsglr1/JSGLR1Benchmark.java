@@ -16,10 +16,10 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
+import org.spoofax.jsglr2.integration.WithJSGLR1;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.spoofax.jsglr2.util.WithJSGLR1;
 import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR1 {
@@ -42,7 +42,6 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
         jsglr1parse.setTreeBuilder(new NullTreeBuilder());
     }
 
-    @Override
     public IStrategoTerm getParseTableTerm() {
         return testSetReader.getParseTableTerm();
     }

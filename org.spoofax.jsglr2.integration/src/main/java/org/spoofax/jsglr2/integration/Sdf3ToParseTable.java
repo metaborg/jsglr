@@ -16,6 +16,7 @@ import org.metaborg.meta.core.project.ILanguageSpec;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.sdf2table.grammar.NormGrammar;
 import org.metaborg.sdf2table.io.NormGrammarReader;
+import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.SpoofaxModule;
@@ -83,8 +84,7 @@ public class Sdf3ToParseTable {
         
         ParseTable parseTable = new ParseTable(normalizedGrammar, false, false, true);
 
-        // TODO: convert to term
-        return null;
+        return ParseTableIO.generateATerm(parseTable);
     }
 
     private NormGrammar normalizedGrammarFromSDF3(String sdf3Resource) throws Exception {

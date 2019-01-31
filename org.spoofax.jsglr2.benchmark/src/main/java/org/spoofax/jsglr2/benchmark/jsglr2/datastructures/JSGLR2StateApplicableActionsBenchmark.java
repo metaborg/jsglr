@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
@@ -27,8 +28,6 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.characterclasses.ICharacterClassFactory;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-
-
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataStructureBenchmark {
 
@@ -104,7 +103,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
         @Override
         public void actor(BasicStackNode<BasicParseForest> stack,
-            Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse, Iterable<IAction> applicableActions) {
+        		AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse, Iterable<IAction> applicableActions) {
             ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);

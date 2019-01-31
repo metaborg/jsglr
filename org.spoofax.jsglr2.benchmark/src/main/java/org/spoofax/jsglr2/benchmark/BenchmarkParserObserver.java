@@ -2,13 +2,13 @@ package org.spoofax.jsglr2.benchmark;
 
 import java.util.Queue;
 
-
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parser.ParseFailure;
-import org.spoofax.jsglr2.parser.ParseSuccess;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -22,11 +22,11 @@ public class BenchmarkParserObserver<ParseForest extends AbstractParseForest, St
     implements IParserObserver<ParseForest, StackNode> {
 
     @Override
-    public void parseStart(Parse<ParseForest, StackNode> parse) {
+    public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
     }
 
     @Override
-    public void parseCharacter(Parse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
+    public void parseCharacter(AbstractParse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {
     }
 
     @Override
@@ -66,7 +66,7 @@ public class BenchmarkParserObserver<ParseForest extends AbstractParseForest, St
     }
 
     @Override
-    public void actor(StackNode stack, Parse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions) {
+    public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions) {
     }
 
     @Override
@@ -78,11 +78,11 @@ public class BenchmarkParserObserver<ParseForest extends AbstractParseForest, St
     }
 
     @Override
-    public void doReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
+    public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
     }
 
     @Override
-    public void doLimitedReductions(Parse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+    public void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> link) {
     }
 
@@ -95,7 +95,7 @@ public class BenchmarkParserObserver<ParseForest extends AbstractParseForest, St
     }
 
     @Override
-    public void directLinkFound(Parse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink) {
+    public void directLinkFound(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink) {
     }
 
     @Override

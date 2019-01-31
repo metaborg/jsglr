@@ -1,18 +1,14 @@
 package org.spoofax.jsglr2.integration;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.states.StateFactory;
-import org.spoofax.terms.ParseError;
 import org.spoofax.terms.io.binary.TermReader;
 
 public interface WithParseTableFromTerm extends WithParseTable {
@@ -29,15 +25,16 @@ public interface WithParseTableFromTerm extends WithParseTable {
 
     void setParseTableTerm(IStrategoTerm parseTableTerm);
 
-    default void setParseTableFromTermFile(String parseTableFilename)
-        throws ParseError, ParseTableReadException, IOException, InvalidParseTableException {
+    default void setParseTableFromTermFile(String parseTableFilename) throws Exception {
         IStrategoTerm parseTableTerm = parseTableTerm(parseTableFilename);
 
         setParseTableTerm(parseTableTerm);
     }
 
-    default IStrategoTerm parseTableTerm(String filename) throws ParseError, IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filename);
+    public InputStream resourceInputStream(String resource) throws Exception;
+
+    default IStrategoTerm parseTableTerm(String filename) throws Exception {
+        InputStream inputStream = resourceInputStream(filename);
 
         return getTermReader().parseFromStream(inputStream);
     }

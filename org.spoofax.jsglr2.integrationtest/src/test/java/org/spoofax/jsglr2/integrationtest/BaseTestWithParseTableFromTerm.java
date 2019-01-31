@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import java.io.InputStream;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.WithParseTableFromTerm;
 
@@ -21,6 +23,10 @@ public abstract class BaseTestWithParseTableFromTerm extends BaseTest implements
 
     public IStrategoTerm getParseTableTerm() {
         return parseTableTerm;
+    }
+    
+    public InputStream resourceInputStream(String filename) throws Exception {
+        return getClass().getClassLoader().getResourceAsStream(filename);
     }
 
 }

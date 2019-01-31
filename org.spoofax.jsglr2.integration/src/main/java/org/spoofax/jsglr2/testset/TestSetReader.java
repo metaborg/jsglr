@@ -11,9 +11,16 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 import org.spoofax.jsglr2.integration.WithParseTableFromTerm;
+import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -36,28 +43,51 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
             e.printStackTrace();
         }
     }
+    
+    public IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) throws Exception {
+        return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
+            new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
+                .read(getParseTableTerm());
+    }
 
     private void setupTestSetParseTable() throws Exception {
         switch(testSet.parseTable.source) {
             case ATERM:
                 TestSetParseTableFromATerm testSetParseTableFromATerm = (TestSetParseTableFromATerm) testSet.parseTable;
 
-                setupParseTableFile(testSetParseTableFromATerm.name);
-                setParseTableFromTermFile(testSetParseTableFromATerm.name);
+                setParseTableFromTermFile("/parsetables/" + testSetParseTableFromATerm.name + ".tbl");
 
                 break;
             case SDF3:
                 TestSetParseTableFromSDF3 testSetParseTableFromSDF3 = (TestSetParseTableFromSDF3) testSet.parseTable;
+
+                Sdf3ToParseTable sdf3ToParseTable = new Sdf3ToParseTable(resource -> basePath() + resource);
                 
-                Sdf3ToParseTable sdf3ToParseTable = new Sdf3ToParseTable();
+                IStrategoTerm parseTableTerm = sdf3ToParseTable.getParseTableTerm(testSetParseTableFromSDF3.name + ".sdf3");
+                
+                this.parseTableTerm = parseTableTerm;
 
                 break;
             default:
                 throw new IllegalStateException("invalid parse table source");
         }
     }
+    
+    protected abstract String basePath();
 
-    public abstract void setupParseTableFile(String name) throws IOException;
+	public abstract InputStream resourceInputStream(String filename) throws Exception;
+
+    public TermReader getTermReader() {
+        return termReader;
+    }
+
+    public IStrategoTerm getParseTableTerm() {
+        return parseTableTerm;
+    }
+
+    public void setParseTableTerm(IStrategoTerm parseTableTerm) {
+    	this.parseTableTerm = parseTableTerm;
+    }
 
     public Iterable<Input> getInputs() throws IOException {
         switch(testSet.input.type) {
@@ -134,11 +164,12 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
 
     protected abstract String getFileAsString(String filename) throws IOException;
 
-    @SuppressWarnings("resource")
     protected String inputStreamAsString(InputStream inputStream) throws IOException {
-        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
-
-        return s.hasNext() ? s.next() : "";
+        try (Scanner s = new Scanner(inputStream)) {
+        	s.useDelimiter("\\A");
+        	
+        	return s.hasNext() ? s.next() : "";
+        }
     }
 
     protected List<Input> getSingleInput(String filename) throws IOException {

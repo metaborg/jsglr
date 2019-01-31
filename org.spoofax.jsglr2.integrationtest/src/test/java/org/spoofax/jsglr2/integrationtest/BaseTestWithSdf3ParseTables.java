@@ -18,7 +18,7 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
     
     @BeforeClass
     public static void setup() throws MetaborgException {
-        sdf3ToParseTable = new Sdf3ToParseTable();
+        sdf3ToParseTable = new Sdf3ToParseTable(resource -> BaseTestWithSdf3ParseTables.class.getClassLoader().getResource(resource).getPath());
     }
 
     public IParseTable getParseTable(ParseTableVariant variant) throws Exception {

@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.integration;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -46,18 +47,22 @@ public class Sdf3ToParseTable {
     
     private final IContext context;
     
-    public Sdf3ToParseTable() throws MetaborgException {
-        spoofax = new Spoofax(new SpoofaxSimpleProjectModule(), new SpoofaxExtensionModule());
+    private final Function<String, String> getResourcePath;
+    
+    public Sdf3ToParseTable(Function<String, String> getResourcePath) throws MetaborgException {
+    	this.getResourcePath = getResourcePath;
+        
+    	spoofax = new Spoofax(new SpoofaxSimpleProjectModule(), new SpoofaxExtensionModule());
         SpoofaxMeta spoofaxMeta = new SpoofaxMeta(spoofax);
         
-        final FileObject sdf3Location = spoofax.resolve("zip://" + getTestResourcePath("sdf3.spoofax-language"));
+        final FileObject sdf3Location = spoofax.resolve("zip:" + getResourcePath("sdf3.spoofax-language"));
         
         final Set<ILanguageImpl> languageImpls = spoofax.scanLanguagesInDirectory(sdf3Location);
 
         sdf3Impl = Iterables.get(languageImpls, 0);
         sdf3Component = Iterables.get(sdf3Impl.components(), 0);
         
-        final FileObject testDirectory = spoofax.resourceService.resolve(getTestResourcePath("grammars"));
+        final FileObject testDirectory = spoofax.resourceService.resolve(getResourcePath("grammars"));
         final IProject testProject = ((ISimpleProjectService) spoofax.projectService).create(testDirectory);
         final ILanguageSpec testLanguageSpec = spoofaxMeta.languageSpecService.get(testProject);
         
@@ -67,14 +72,23 @@ public class Sdf3ToParseTable {
     }
 
     public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
-        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource);
+    	NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource);
         
         // TODO: use the parse table variant in the parse table generator
-        return new ParseTable(normalizedGrammar, false, false, true);
+    	return new ParseTable(normalizedGrammar, false, false, true);
+    }
+
+    public IStrategoTerm getParseTableTerm(String sdf3Resource) throws Exception {
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource);
+        
+        ParseTable parseTable = new ParseTable(normalizedGrammar, false, false, true);
+
+        // TODO: convert to term
+        return null;
     }
 
     private NormGrammar normalizedGrammarFromSDF3(String sdf3Resource) throws Exception {
-    	final FileObject sdf3File = spoofax.resourceService.resolve(getTestResourcePath(sdf3Resource));
+    	final FileObject sdf3File = spoofax.resourceService.resolve(getResourcePath(sdf3Resource));
         final String sdf3Text = spoofax.sourceTextService.text(sdf3File);
         
         ISpoofaxInputUnit inputUnit = spoofax.unitService.inputUnit(sdf3File, sdf3Text, sdf3Impl, null);
@@ -95,8 +109,8 @@ public class Sdf3ToParseTable {
         }
     }
     
-    private String getTestResourcePath(String resource) {
-    	return Sdf3ToParseTable.class.getClassLoader().getResource(resource).getPath();
+    private String getResourcePath(String resource) {
+    	return getResourcePath.apply(resource);
     }
 
 }

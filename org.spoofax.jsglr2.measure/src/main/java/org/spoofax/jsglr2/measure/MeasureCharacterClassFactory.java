@@ -3,10 +3,12 @@ package org.spoofax.jsglr2.measure;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spoofax.jsglr2.characterclasses.CharacterClassFactory;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
 
 public class MeasureCharacterClassFactory extends CharacterClassFactory {
+
+    private static final long serialVersionUID = 5184928823095118233L;
 
     public int characterClassesCount = 0;
 

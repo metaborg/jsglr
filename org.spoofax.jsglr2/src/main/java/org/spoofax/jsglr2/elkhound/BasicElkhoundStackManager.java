@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.elkhound;
 
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
@@ -17,7 +17,7 @@ public class BasicElkhoundStackManager<ParseForest extends AbstractParseForest>
 
     @Override
     protected StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addStackLink(
-        Parse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse, BasicElkhoundStackNode<ParseForest> from,
+        AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse, BasicElkhoundStackNode<ParseForest> from,
         BasicElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
         return from.addLink(parse.stackLinkCount++, to, parseNode, parse);
     }

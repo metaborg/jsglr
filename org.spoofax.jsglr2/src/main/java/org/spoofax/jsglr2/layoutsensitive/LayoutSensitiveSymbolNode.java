@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
@@ -18,7 +18,7 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest {
     public List<PositionInterval> longestMatchPos = null;
     boolean filteredLongestMatch = false;
 
-    public LayoutSensitiveSymbolNode(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition,
+    public LayoutSensitiveSymbolNode(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
         IProduction production) {
         super(nodeNumber, parse, startPosition, endPosition);
         this.production = production;

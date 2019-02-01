@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
@@ -17,7 +17,7 @@ public class ParseNode extends HybridParseForest {
     private final Derivation firstDerivation;
     private List<Derivation> otherDerivations;
 
-    public ParseNode(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition,
+    public ParseNode(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
         IProduction production, Derivation firstDerivation) {
         super(nodeNumber, parse, startPosition, endPosition);
         this.production = production;

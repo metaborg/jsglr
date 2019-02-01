@@ -1,18 +1,19 @@
 package org.spoofax.jsglr2.parser;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveRuleNode;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
+import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseFailureType;
+import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackManager;
@@ -21,36 +22,39 @@ import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
+public class Parser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>, Parse extends AbstractParse<ParseForest, StackNode>>
     implements IParser<ParseForest, StackNode> {
 
+    protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;
     protected final StackManager<ParseForest, StackNode> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
     protected final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
+    protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
     private final IActiveStacksFactory activeStacksFactory;
     private final IForActorStacksFactory forActorStacksFactory;
     protected final ParserObserving<ParseForest, StackNode> observing;
 
-    public Parser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
+    public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
         IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager) {
+        this.parseFactory = parseFactory;
         this.parseTable = parseTable;
         this.activeStacksFactory = activeStacksFactory;
         this.forActorStacksFactory = forActorStacksFactory;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
         this.reduceManager = reduceManager;
+        this.failureHandler = new DefaultParseFailureHandler<>();
         this.observing = new ParserObserving<>();
     }
 
     @Override public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
         IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
         IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
-
-        Parse<ParseForest, StackNode> parse =
-            new Parse<ParseForest, StackNode>(inputString, filename, activeStacks, forActorStacks, observing);
+        
+        Parse parse = parseFactory.get(inputString, filename, activeStacks, forActorStacks, observing);
 
         observing.notify(observer -> observer.parseStart(parse));
 
@@ -58,79 +62,53 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
 
         parse.activeStacks.add(initialStackNode);
 
-        try {
-            parseLoop(parse);
+        parseLoop(parse);
 
-            ParseResult<ParseForest, ?> result;
+        if(parse.acceptingStack != null) {
+            ParseForest parseForest =
+                stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
 
-            if(parse.acceptingStack != null) {
-                ParseForest parseForest =
-                    stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
+            ParseForest parseForestWithStartSymbol =
+                startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parse) : parseForest;
 
-                ParseForest parseForestWithStartSymbol =
-                    startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parse) : parseForest;
-
-                if(parseForest != null && parseForestWithStartSymbol == null)
-                    throw new ParseException("invalid start symbol");
-
-                ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForestWithStartSymbol);
-
-                observing.notify(observer -> observer.success(success));
-
-                result = success;
-            } else {
-                ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse,
-                    new ParseException("unknown parse fail (file: " + parse.filename + ", char: " + parse.currentChar
-                        + "/'" + CharacterClassFactory.intToString(parse.currentChar) + "', position: "
-                        + parse.currentPosition().coordinatesToString() + " [" + parse.currentPosition().offset + "/"
-                        + parse.inputLength + "])"));
-
-                observing.notify(observer -> observer.failure(failure));
-
-                result = failure;
-            }
-
-            return result;
-        } catch(ParseException parseException) {
-            ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, parseException);
-
-            observing.notify(observer -> observer.failure(failure));
-
-            return failure;
-        }
+            if(parseForest != null && parseForestWithStartSymbol == null)
+                return failure(parse, ParseFailureType.InvalidStartSymbol);
+            else
+                return success(parse, parseForestWithStartSymbol);
+        } else
+            return failure(parse, failureHandler.failureType(parse));
     }
-
-    private void traverseTree(LayoutSensitiveRuleNode parseForest) {
-
-        if(parseForest.production.isLongestMatch()) {
-            System.out.println("");
-        }
+    
+    private ParseSuccess<ParseForest, ?> success(Parse parse, ParseForest parseForest) {
+        ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForest);
         
-        for(BasicParseForest pf : ((LayoutSensitiveRuleNode) parseForest).parseForests()) {
-            if(pf instanceof LayoutSensitiveRuleNode) {
-                traverseTree((LayoutSensitiveRuleNode) pf);
-            } else if(pf instanceof LayoutSensitiveSymbolNode) {
-                if(((LayoutSensitiveSymbolNode) pf).getDerivations().size() > 1) {
-                    System.out.println();
-                }
-                for(LayoutSensitiveRuleNode rn : ((LayoutSensitiveSymbolNode) pf).getDerivations()) {
-                    traverseTree(rn);
-                }
-            }
-        }
+        observing.notify(observer -> observer.success(success));
 
+        return success;
+    }
+    
+    private ParseFailure<ParseForest, ?> failure(Parse parse, ParseFailureType failureType) {
+        ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, failureType);
+        
+        observing.notify(observer -> observer.failure(failure));
 
+        return failure;
     }
 
-    protected void parseLoop(Parse<ParseForest, StackNode> parse) throws ParseException {
+    protected void parseLoop(Parse parse) {
         while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
             parseCharacter(parse);
 
             parse.next();
         }
+        
+        if (parse.acceptingStack != null)
+            return;
+        else
+            failureHandler.onFailure(parse);
     }
 
-    protected void parseCharacter(Parse<ParseForest, StackNode> parse) {
+    protected void parseCharacter(Parse parse) {
         observing.notify(observer -> observer.parseCharacter(parse, parse.activeStacks));
 
         parse.activeStacks.addAllTo(parse.forActorStacks);
@@ -142,7 +120,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         shifter(parse);
     }
 
-    protected void processForActorStacks(Parse<ParseForest, StackNode> parse) {
+    protected void processForActorStacks(Parse parse) {
         while(parse.forActorStacks.nonEmpty()) {
             StackNode stack = parse.forActorStacks.remove();
 
@@ -155,14 +133,14 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         }
     }
 
-    protected void actor(StackNode stack, Parse<ParseForest, StackNode> parse) {
+    protected void actor(StackNode stack, Parse parse) {
         observing.notify(observer -> observer.actor(stack, parse, stack.state.getApplicableActions(parse)));
 
         for(IAction action : stack.state.getApplicableActions(parse))
             actor(stack, parse, action);
     }
 
-    protected void actor(StackNode stack, Parse<ParseForest, StackNode> parse, IAction action) {
+    protected void actor(StackNode stack, Parse parse, IAction action) {
         switch(action.actionType()) {
             case SHIFT:
                 IShift shiftAction = (IShift) action;
@@ -187,7 +165,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         }
     }
 
-    protected void shifter(Parse<ParseForest, StackNode> parse) {
+    protected void shifter(Parse parse) {
         parse.activeStacks.clear();
 
         ParseForest characterNode = parseForestManager.createCharacterNode(parse);
@@ -211,7 +189,7 @@ public class Parser<ParseForest extends AbstractParseForest, ParseNode extends P
         parse.forShifter.clear();
     }
 
-    private void addForShifter(Parse<ParseForest, StackNode> parse, StackNode stack, IState shiftState) {
+    private void addForShifter(Parse parse, StackNode stack, IState shiftState) {
         ForShifterElement<ParseForest, StackNode> forShifterElement =
             new ForShifterElement<ParseForest, StackNode>(stack, shiftState);
 

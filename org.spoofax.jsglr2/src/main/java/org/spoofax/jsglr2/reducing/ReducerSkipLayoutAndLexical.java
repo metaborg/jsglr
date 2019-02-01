@@ -4,7 +4,7 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
@@ -18,7 +18,7 @@ public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<Par
     }
 
     @Override
-    public void reducerExistingStackWithDirectLink(Parse<ParseForest, StackNode> parse, IReduce reduce,
+    public void reducerExistingStackWithDirectLink(AbstractParse<ParseForest, StackNode> parse, IReduce reduce,
         StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
         @SuppressWarnings("unchecked") ParseNode parseNode =
             (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
@@ -35,7 +35,7 @@ public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<Par
     }
 
     @Override
-    public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(Parse<ParseForest, StackNode> parse,
+    public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(AbstractParse<ParseForest, StackNode> parse,
         IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
         ParseNode parseNode;
 
@@ -57,7 +57,7 @@ public class ReducerSkipLayoutAndLexical<StackNode extends AbstractStackNode<Par
     }
 
     @Override
-    public StackNode reducerNoExistingStack(Parse<ParseForest, StackNode> parse, IReduce reduce, StackNode stack,
+    public StackNode reducerNoExistingStack(AbstractParse<ParseForest, StackNode> parse, IReduce reduce, StackNode stack,
         IState gotoState, ParseForest[] parseForests) {
         ParseNode parseNode;
 

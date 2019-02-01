@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.elkhound;
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
@@ -12,7 +12,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
     extends StackManager<ParseForest, ElkhoundStackNode> {
 
     @Override
-    public ElkhoundStackNode createInitialStackNode(Parse<ParseForest, ElkhoundStackNode> parse, IState state) {
+    public ElkhoundStackNode createInitialStackNode(AbstractParse<ParseForest, ElkhoundStackNode> parse, IState state) {
         ElkhoundStackNode newStackNode = createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), true);
 
         parse.observing.notify(observer -> observer.createStackNode(newStackNode));
@@ -21,7 +21,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
     }
 
     @Override
-    public ElkhoundStackNode createStackNode(Parse<ParseForest, ElkhoundStackNode> parse, IState state) {
+    public ElkhoundStackNode createStackNode(AbstractParse<ParseForest, ElkhoundStackNode> parse, IState state) {
         ElkhoundStackNode newStackNode = createStackNode(parse.stackNodeCount++, state, parse.currentPosition(), false);
 
         parse.observing.notify(observer -> observer.createStackNode(newStackNode));
@@ -30,7 +30,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
     }
 
     @Override
-    public StackLink<ParseForest, ElkhoundStackNode> createStackLink(Parse<ParseForest, ElkhoundStackNode> parse,
+    public StackLink<ParseForest, ElkhoundStackNode> createStackLink(AbstractParse<ParseForest, ElkhoundStackNode> parse,
         ElkhoundStackNode from, ElkhoundStackNode to, ParseForest parseNode) {
         StackLink<ParseForest, ElkhoundStackNode> link = addStackLink(parse, from, to, parseNode);
 
@@ -66,7 +66,7 @@ public abstract class AbstractElkhoundStackManager<ParseForest extends AbstractP
         boolean isRoot);
 
     protected abstract StackLink<ParseForest, ElkhoundStackNode> addStackLink(
-        Parse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode from, ElkhoundStackNode to,
+        AbstractParse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode from, ElkhoundStackNode to,
         ParseForest parseNode);
 
     protected abstract StackLink<ParseForest, ElkhoundStackNode> getOnlyLink(ElkhoundStackNode stack);

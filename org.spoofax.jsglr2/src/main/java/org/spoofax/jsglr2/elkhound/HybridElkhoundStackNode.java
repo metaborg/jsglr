@@ -5,7 +5,7 @@ import java.util.Collections;
 
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
@@ -41,7 +41,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
 
     public StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addLink(int linkNumber,
         HybridElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
-        Parse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse) {
+        AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse) {
         StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> link =
             new StackLink<>(linkNumber, this, parent, parseNode);
 

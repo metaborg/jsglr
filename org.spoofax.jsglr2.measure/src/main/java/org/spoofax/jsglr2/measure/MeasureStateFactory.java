@@ -3,12 +3,12 @@ package org.spoofax.jsglr2.measure;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.jsglr2.actions.ActionsPerCharacterClass;
-import org.spoofax.jsglr2.actions.IGoto;
-import org.spoofax.jsglr2.characterclasses.ICharacterClass;
-import org.spoofax.jsglr2.states.ActionsForRange;
-import org.spoofax.jsglr2.states.ActionsForCharacterDisjointSorted;
-import org.spoofax.jsglr2.states.IState;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IGoto;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterDisjointSorted;
+import org.metaborg.sdf2table.parsetable.query.ActionsForRange;
+import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
 import org.spoofax.jsglr2.states.StateFactory;
 
 public class MeasureStateFactory extends StateFactory {

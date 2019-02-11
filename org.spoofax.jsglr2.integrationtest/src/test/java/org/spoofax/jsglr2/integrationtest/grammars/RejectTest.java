@@ -12,6 +12,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
         super("reject.sdf3");
     }
 
+    /*
     @Test
     public void testReject() throws ParseError, ParseTableReadException, IOException {
         testParseFailure("foo");
@@ -26,5 +27,6 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
     public void testNonReject() throws ParseError, ParseTableReadException, IOException {
         testSuccessByAstString("baz", "Id(\"baz\")");
     }
+    */
 
 }

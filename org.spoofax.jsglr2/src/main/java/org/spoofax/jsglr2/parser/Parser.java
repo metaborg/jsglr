@@ -55,6 +55,10 @@ public class Parser
     @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {
         Parse parse = parseFactory.get(inputString, filename, observing);
 
+        return parseInternal(startSymbol, parse);
+    }
+
+    protected ParseResult<ParseForest> parseInternal(String startSymbol, Parse parse) {
         observing.notify(observer -> observer.parseStart(parse));
 
         StackNode initialStackNode = stackManager.createInitialStackNode(parse, parseTable.getStartState());
@@ -100,9 +104,7 @@ public class Parser
             parse.next();
         }
 
-        if(parse.acceptingStack != null)
-            return;
-        else
+        if(parse.acceptingStack == null)
             failureHandler.onFailure(parse);
     }
 
@@ -166,7 +168,7 @@ public class Parser
     protected void shifter(Parse parse) {
         parse.activeStacks.clear();
 
-        ParseForest characterNode = parseForestManager.createCharacterNode(parse);
+        ParseForest characterNode = getCharacterNodeToShift(parse);
 
         observing.notify(observer -> observer.shifter(characterNode, parse.forShifter));
 
@@ -185,6 +187,10 @@ public class Parser
         }
 
         parse.forShifter.clear();
+    }
+
+    protected ParseForest getCharacterNodeToShift(Parse parse) {
+        return parseForestManager.createCharacterNode(parse);
     }
 
     private void addForShifter(Parse parse, StackNode stack, IState shiftState) {

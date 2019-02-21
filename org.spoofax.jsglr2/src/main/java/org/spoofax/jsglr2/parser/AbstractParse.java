@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.parsetable.IParseInput;
+import org.metaborg.parsetable.IActionQuery;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
@@ -14,7 +14,7 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 import com.google.common.collect.Maps;
 
-public abstract class AbstractParse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> implements IParseInput {
+public abstract class AbstractParse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> implements IActionQuery {
 
     final public String filename;
     final public String inputString;
@@ -108,12 +108,12 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
     }
 
     @Override
-    public int getCurrentChar() {
+    public int actionQueryCharacter() {
         return currentChar;
     }
 
     @Override
-    public String getLookahead(int length) {
+    public String actionQueryLookahead(int length) {
         return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 

@@ -21,7 +21,7 @@ import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.metaborg.parsetable.IParseInput;
+import org.metaborg.parsetable.IActionQuery;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
@@ -73,25 +73,25 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
     class ActorOnState {
 
         final IState state;
-        final IParseInput parseInput;
+        final IActionQuery actionQuery;
 
         public ActorOnState(IState state, int character) {
             this.state = state;
-            this.parseInput = new IParseInput() {
+            this.actionQuery = new IActionQuery() {
                 @Override
-                public int getCurrentChar() {
+                public int actionQueryCharacter() {
                     return character;
                 }
 
                 @Override
-                public String getLookahead(int length) {
+                public String actionQueryLookahead(int length) {
                     return "";
                 }
             };
         }
 
         public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : state.getApplicableActions(parseInput))
+            for(IAction action : state.getApplicableActions(actionQuery))
                 bh.consume(action);
         }
 

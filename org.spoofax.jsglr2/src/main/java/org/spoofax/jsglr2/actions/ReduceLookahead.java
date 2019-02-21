@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.actions;
 
 import java.util.Arrays;
 
-import org.metaborg.parsetable.IParseInput;
+import org.metaborg.parsetable.IActionQuery;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.metaborg.parsetable.actions.IReduceLookahead;
@@ -21,8 +21,8 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
     }
 
     @Override
-    public boolean allowsLookahead(IParseInput parseInput) {
-        String lookahead = parseInput.getLookahead(followRestriction.length);
+    public boolean allowsLookahead(IActionQuery actionQuery) {
+        String lookahead = actionQuery.actionQueryLookahead(followRestriction.length);
 
         if(lookahead.length() != followRestriction.length)
             return true;

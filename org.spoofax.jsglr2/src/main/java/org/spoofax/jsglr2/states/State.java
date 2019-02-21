@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.states;
 
-import org.metaborg.parsetable.IParseInput;
+import org.metaborg.parsetable.IActionQuery;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
@@ -41,13 +41,13 @@ public final class State implements IState {
     }
 
     @Override
-    public Iterable<IAction> getApplicableActions(IParseInput parseInput) {
-        return actionsForCharacter.getApplicableActions(parseInput);
+    public Iterable<IAction> getApplicableActions(IActionQuery actionQuery) {
+        return actionsForCharacter.getApplicableActions(actionQuery);
     }
 
     @Override
-    public Iterable<IReduce> getApplicableReduceActions(IParseInput parseInput) {
-        return actionsForCharacter.getApplicableReduceActions(parseInput);
+    public Iterable<IReduce> getApplicableReduceActions(IActionQuery actionQuery) {
+        return actionsForCharacter.getApplicableReduceActions(actionQuery);
     }
 
     public boolean hasGoto(int productionId) {

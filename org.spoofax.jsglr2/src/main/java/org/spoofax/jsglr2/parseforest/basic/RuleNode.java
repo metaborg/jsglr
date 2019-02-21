@@ -31,6 +31,11 @@ public class RuleNode extends BasicParseForest implements IDerivation<BasicParse
     }
 
     @Override
+    public ProductionType productionType() {
+        return productionType;
+    }
+
+    @Override
     public BasicParseForest[] parseForests() {
         return parseForests;
     }

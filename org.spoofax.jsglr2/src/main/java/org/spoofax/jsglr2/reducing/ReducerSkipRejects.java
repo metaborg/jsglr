@@ -3,14 +3,19 @@ package org.spoofax.jsglr2.reducing;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 
-public class ReducerSkipRejects<StackNode extends AbstractStackNode<ParseForest>, ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation>
-    extends Reducer<ParseForest, ParseNode, Derivation, StackNode> {
+public class ReducerSkipRejects<
+        ParseForest extends AbstractParseForest,
+        ParseNode extends ParseForest,
+        Derivation extends IDerivation<ParseForest>,
+        StackNode extends AbstractStackNode<ParseForest>
+        > extends Reducer<ParseForest, ParseNode, Derivation, StackNode> {
 
     public ReducerSkipRejects(StackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {

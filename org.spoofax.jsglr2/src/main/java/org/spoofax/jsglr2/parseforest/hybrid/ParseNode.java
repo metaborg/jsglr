@@ -1,17 +1,17 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
+import org.spoofax.jsglr2.parseforest.ISymbolNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class ParseNode extends HybridParseForest {
+public class ParseNode extends HybridParseForest implements ISymbolNode<HybridParseForest, Derivation> {
 
     public final IProduction production;
     private final Derivation firstDerivation;
@@ -40,43 +40,6 @@ public class ParseNode extends HybridParseForest {
         }
     }
 
-    public List<Derivation> getPreferredAvoidedDerivations() {
-        if(!isAmbiguous())
-            return Arrays.asList(firstDerivation);
-        else {
-            List<Derivation> preferred = null, avoided = null, other = null;
-
-            for(Derivation derivation : getDerivations()) {
-                switch(derivation.productionType) {
-                    case PREFER:
-                        if(preferred == null)
-                            preferred = new ArrayList<Derivation>();
-
-                        preferred.add(derivation);
-                        break;
-                    case AVOID:
-                        if(avoided == null)
-                            avoided = new ArrayList<Derivation>();
-
-                        avoided.add(derivation);
-                        break;
-                    default:
-                        if(other == null)
-                            other = new ArrayList<Derivation>();
-
-                        other.add(derivation);
-                }
-            }
-
-            if(preferred != null && !preferred.isEmpty())
-                return preferred;
-            else if(other != null && !other.isEmpty())
-                return other;
-            else
-                return avoided;
-        }
-    }
-
     public Derivation getOnlyDerivation() {
         return firstDerivation;
     }
@@ -89,7 +52,7 @@ public class ParseNode extends HybridParseForest {
     public String descriptor() {
         return production.descriptor();
     }
-    
+
     protected void prettyPrint(TreePrettyPrinter printer) {
     	printer.println("p" + production.id() + " : " + production.sort() + "{");
     	if (isAmbiguous()) {
@@ -99,9 +62,9 @@ public class ParseNode extends HybridParseForest {
     	} else {
     		printer.indent(2);
     	}
-    	
+
     	firstDerivation.prettyPrint(printer);
-    	
+
     	if (otherDerivations != null) {
     		for (Derivation derivation : otherDerivations)
     			derivation.prettyPrint(printer);

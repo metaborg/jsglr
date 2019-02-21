@@ -6,6 +6,7 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.sdf2table.grammar.LayoutConstraintAttribute;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -15,8 +16,12 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-public class LayoutSensitiveReduceManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
+public class LayoutSensitiveReduceManager<
+        ParseForest extends AbstractParseForest,
+        ParseNode extends ParseForest,
+        Derivation extends IDerivation<ParseForest>,
+        StackNode extends AbstractStackNode<ParseForest>
+        > extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
 
     LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
 

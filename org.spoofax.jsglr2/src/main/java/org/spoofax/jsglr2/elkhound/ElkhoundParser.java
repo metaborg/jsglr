@@ -8,17 +8,22 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class ElkhoundParser<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>, Parse extends AbstractParse<ParseForest, ElkhoundStackNode>>
-    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
+public class ElkhoundParser<
+        ParseForest extends AbstractParseForest,
+        ParseNode extends ParseForest,
+        Derivation extends IDerivation<ParseForest>,
+        ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
+        Parse extends AbstractParse<ParseForest, ElkhoundStackNode>
+        > extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
         IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,

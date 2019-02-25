@@ -30,7 +30,7 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
     public IImploder<ParseForest, AbstractSyntaxTree> imploder;
 
     @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
-        standard(IParseTable parseTable) throws ParseTableReadException {
+        standard(IParseTable parseTable) {
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
@@ -38,7 +38,7 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
     }
 
     @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
-        dataDependent(IParseTable parseTable) throws ParseTableReadException {
+        dataDependent(IParseTable parseTable) {
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.DataDependent, ParseForestConstruction.Optimized, StackRepresentation.Basic,
@@ -46,7 +46,7 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
     }
     
     @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
-    layoutSensitive(IParseTable parseTable) throws ParseTableReadException {
+    layoutSensitive(IParseTable parseTable) {
     return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
         new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
             ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Optimized, StackRepresentation.Basic,

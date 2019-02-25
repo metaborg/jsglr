@@ -17,14 +17,9 @@ public abstract class ForActorStacks<ParseForest extends AbstractParseForest, St
     protected ForActorStacks(ParserObserving<ParseForest, StackNode> observing) {
         this.observing = observing;
 
-        Comparator<StackNode> stackNodePriorityComparator = new Comparator<StackNode>() {
-            @Override
-            public int compare(StackNode stackNode1, StackNode stackNode2) {
-                return 0; // TODO: implement priority (see P9707 Section 8.4)
-            }
-        };
+        Comparator<StackNode> stackNodePriorityComparator = (StackNode stackNode1, StackNode stackNode2) -> 0;
 
-        this.forActorDelayed = new PriorityQueue<StackNode>(stackNodePriorityComparator);
+        this.forActorDelayed = new PriorityQueue<>(stackNodePriorityComparator);
     }
 
     protected abstract void forActorAdd(StackNode stack);

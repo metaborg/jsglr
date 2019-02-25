@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
+import org.spoofax.jsglr2.parseforest.basic.IBasicSymbolNode;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
@@ -11,7 +12,7 @@ import org.spoofax.jsglr2.parser.PositionInterval;
 
 import com.google.common.collect.Lists;
 
-public class LayoutSensitiveSymbolNode extends BasicParseForest {
+public class LayoutSensitiveSymbolNode extends BasicParseForest implements IBasicSymbolNode<BasicParseForest, LayoutSensitiveRuleNode> {
 
     public final IProduction production; // left hand side non-terminal
     private final List<LayoutSensitiveRuleNode> derivations;
@@ -25,10 +26,6 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest {
         this.derivations = new ArrayList<LayoutSensitiveRuleNode>();
     }
 
-    public void addDerivation(LayoutSensitiveRuleNode derivation) {
-        this.derivations.add(derivation);
-    }
-
     public IProduction getProduction() {
         return production;
     }
@@ -37,52 +34,8 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest {
         return derivations;
     }
 
-    public List<LayoutSensitiveRuleNode> getPreferredAvoidedDerivations() {
-        if(derivations.size() <= 1)
-            return derivations;
-        else {
-            List<LayoutSensitiveRuleNode> preferred = null, avoided = null, other = null;
-
-            for(LayoutSensitiveRuleNode derivation : derivations) {
-                switch(derivation.productionType) {
-                    case PREFER:
-                        if(preferred == null)
-                            preferred = new ArrayList<LayoutSensitiveRuleNode>();
-
-                        preferred.add(derivation);
-                        break;
-                    case AVOID:
-                        if(avoided == null)
-                            avoided = new ArrayList<LayoutSensitiveRuleNode>();
-
-                        avoided.add(derivation);
-                        break;
-                    default:
-                        if(other == null)
-                            other = new ArrayList<LayoutSensitiveRuleNode>();
-
-                        other.add(derivation);
-                }
-            }
-
-            if(preferred != null && !preferred.isEmpty())
-                return preferred;
-            else if(other != null && !other.isEmpty())
-                return other;
-            else
-                return avoided;
-        }
-    }
-
-    public LayoutSensitiveRuleNode getOnlyDerivation() {
-        return derivations.get(0);
-    }
-
-    public boolean isAmbiguous() {
-        return derivations.size() > 1;
-    }
-
-    @Override public String descriptor() {
+    @Override
+    public String descriptor() {
         return production.descriptor();
     }
 
@@ -134,10 +87,10 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest {
              derivations.clear();
              derivations.add(longestDerivation);
          }
-         
+
          longestMatchPos = longestMatchNodes.get(currentLongestDerivation);
     }
-    
+
     private Boolean expandsLonger(PositionInterval pos1, PositionInterval pos2) {
         assert (pos1.getStart().equals(pos2.getStart()));
 
@@ -160,7 +113,7 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest {
         } else {
             return longestMatchPos;
         }
-        
+
     }
 
     // @Override public String toString() {

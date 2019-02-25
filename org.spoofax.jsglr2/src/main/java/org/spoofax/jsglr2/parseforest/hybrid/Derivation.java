@@ -23,6 +23,11 @@ public class Derivation implements IDerivation<HybridParseForest> {
     }
 
     @Override
+    public ProductionType productionType() {
+        return productionType;
+    }
+
+    @Override
     public HybridParseForest[] parseForests() {
         return parseForests;
     }

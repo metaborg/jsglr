@@ -11,6 +11,7 @@ import org.metaborg.sdf2table.grammar.IProduction;
 import org.metaborg.sdf2table.grammar.Symbol;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -20,8 +21,12 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-public class DataDependentReduceManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, StackNode extends AbstractStackNode<ParseForest>>
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
+public class DataDependentReduceManager<
+        ParseForest extends AbstractParseForest,
+        ParseNode extends ParseForest,
+        Derivation extends IDerivation<ParseForest>,
+        StackNode extends AbstractStackNode<ParseForest>
+        > extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
    
 
     public DataDependentReduceManager(IParseTable parseTable, StackManager<ParseForest, StackNode> stackManager,

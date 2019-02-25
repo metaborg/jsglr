@@ -5,7 +5,10 @@ import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
-public abstract class ParseForestManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation> {
+public abstract class ParseForestManager<
+        ParseForest extends AbstractParseForest,
+        ParseNode extends ParseForest,
+        Derivation extends IDerivation<ParseForest>> {
 
     abstract public ParseNode createParseNode(AbstractParse<ParseForest, ?> parse, Position beginPosition,
         IProduction production, Derivation firstDerivation);

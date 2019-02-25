@@ -77,6 +77,10 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
         return production;
     }
 
+    public ProductionType productionType() {
+        return productionType;
+    }
+
     public BasicParseForest[] parseForests() {
         return parseForests;
     }

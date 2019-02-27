@@ -13,8 +13,8 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractPars
     public int deterministicDepth;
     public int referenceCount;
 
-    protected AbstractElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
-        super(stackNumber, state, position);
+    protected AbstractElkhoundStackNode(IState state, Position position, boolean isRoot) {
+        super(state, position);
         this.isRoot = isRoot;
         this.deterministicDepth = isRoot ? 1 : 0;
         this.referenceCount = 0;

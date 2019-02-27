@@ -6,8 +6,8 @@ import org.spoofax.jsglr2.parser.Position;
 
 public abstract class BasicParseForest extends AbstractParseForest {
 
-    protected BasicParseForest(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition) {
-        super(nodeNumber, parse, startPosition, endPosition);
+    protected BasicParseForest(AbstractParse<?, ?> parse, Position startPosition, Position endPosition) {
+        super(parse, startPosition, endPosition);
     }
 
 }

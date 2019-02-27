@@ -20,10 +20,10 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
     // longest-match positions
     // public Set<PositionInterval> longestMatchPos = Sets.newLinkedHashSet();
 
-    public LayoutSensitiveRuleNode(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
+    public LayoutSensitiveRuleNode(AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
         Position rightPosition, Position endPosition, IProduction production, ProductionType productionType,
         BasicParseForest[] parseForests) {
-        super(nodeNumber, parse, startPosition, endPosition, production, productionType, parseForests);
+        super(parse, startPosition, endPosition, production, productionType, parseForests);
         this.leftPosition = leftPosition;
         this.rightPosition = rightPosition;
 

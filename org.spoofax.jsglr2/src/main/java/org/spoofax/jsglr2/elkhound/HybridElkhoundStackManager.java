@@ -10,16 +10,15 @@ public class HybridElkhoundStackManager<ParseForest extends AbstractParseForest>
     extends AbstractElkhoundStackManager<ParseForest, HybridElkhoundStackNode<ParseForest>> {
 
     @Override
-    protected HybridElkhoundStackNode<ParseForest> createStackNode(int stackNumber, IState state, Position position,
-        boolean isRoot) {
-        return new HybridElkhoundStackNode<ParseForest>(stackNumber, state, position, isRoot);
+    protected HybridElkhoundStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {
+        return new HybridElkhoundStackNode<>(state, position, isRoot);
     }
 
     @Override
     protected StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addStackLink(
         AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse, HybridElkhoundStackNode<ParseForest> from,
         HybridElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
-        return from.addLink(parse.stackLinkCount++, to, parseNode, parse);
+        return from.addLink(to, parseNode, parse);
     }
 
     @Override

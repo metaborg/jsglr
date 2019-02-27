@@ -17,7 +17,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     public DataDependentSymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         DataDependentRuleNode firstDerivation) {
         DataDependentSymbolNode symbolNode =
-            new DataDependentSymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
+            new DataDependentSymbolNode(parse, beginPosition, parse.currentPosition(), production);
 
         // parse.notify(observer -> observer.createParseNode(symbolNode, production));
 
@@ -41,7 +41,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
         if(result.isEmpty())
             return null;
         else {
-            DataDependentSymbolNode filteredTopNode = new DataDependentSymbolNode(topNode.nodeNumber, topNode.parse, topNode.startPosition,
+            DataDependentSymbolNode filteredTopNode = new DataDependentSymbolNode(topNode.parse, topNode.startPosition,
                 topNode.endPosition, topNode.production);
 
             for(DataDependentRuleNode derivation : result)
@@ -54,7 +54,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     @Override
     public DataDependentRuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         ProductionType productionType, BasicParseForest[] parseForests) {
-        DataDependentRuleNode ruleNode = new DataDependentRuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
+        DataDependentRuleNode ruleNode = new DataDependentRuleNode(parse, beginPosition, parse.currentPosition(),
             production, productionType, parseForests);
 
         // parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
@@ -76,7 +76,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
 
     @Override
     public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
+        TermNode termNode = new TermNode(parse, parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 

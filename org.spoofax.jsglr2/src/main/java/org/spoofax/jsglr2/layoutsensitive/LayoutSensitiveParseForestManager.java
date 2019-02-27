@@ -17,8 +17,8 @@ public class LayoutSensitiveParseForestManager
 
     @Override public LayoutSensitiveSymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
         IProduction production, LayoutSensitiveRuleNode firstDerivation) {
-        LayoutSensitiveSymbolNode symbolNode = new LayoutSensitiveSymbolNode(parse.parseNodeCount++, parse,
-            beginPosition, parse.currentPosition(), production);
+        LayoutSensitiveSymbolNode symbolNode = new LayoutSensitiveSymbolNode(parse, beginPosition,
+            parse.currentPosition(), production);
 
         // parse.notify(observer -> observer.createParseNode(symbolNode, production));
 
@@ -41,7 +41,7 @@ public class LayoutSensitiveParseForestManager
         if(result.isEmpty())
             return null;
         else {
-            LayoutSensitiveSymbolNode filteredTopNode = new LayoutSensitiveSymbolNode(topNode.nodeNumber, topNode.parse,
+            LayoutSensitiveSymbolNode filteredTopNode = new LayoutSensitiveSymbolNode(topNode.parse,
                 topNode.startPosition, topNode.endPosition, topNode.production);
 
             for(LayoutSensitiveRuleNode derivation : result)
@@ -133,8 +133,8 @@ public class LayoutSensitiveParseForestManager
             }
         }
 
-        LayoutSensitiveRuleNode ruleNode = new LayoutSensitiveRuleNode(parse.parseNodeCount++, parse, beginPosition,
-            leftPosition, rightPosition, parse.currentPosition(), production, productionType, parseForests);
+        LayoutSensitiveRuleNode ruleNode = new LayoutSensitiveRuleNode(parse, beginPosition, leftPosition,
+            rightPosition, parse.currentPosition(), production, productionType, parseForests);
 
         // parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
 
@@ -178,7 +178,7 @@ public class LayoutSensitiveParseForestManager
     }
 
     @Override public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
+        TermNode termNode = new TermNode(parse, parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 

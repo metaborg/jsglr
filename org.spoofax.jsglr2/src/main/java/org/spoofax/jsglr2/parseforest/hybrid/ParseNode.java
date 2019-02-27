@@ -17,9 +17,9 @@ public class ParseNode extends HybridParseForest implements ISymbolNode<HybridPa
     private final Derivation firstDerivation;
     private List<Derivation> otherDerivations;
 
-    public ParseNode(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
-        IProduction production, Derivation firstDerivation) {
-        super(nodeNumber, parse, startPosition, endPosition);
+    public ParseNode(AbstractParse<?, ?> parse, Position startPosition, Position endPosition, IProduction production,
+        Derivation firstDerivation) {
+        super(parse, startPosition, endPosition);
         this.production = production;
         this.firstDerivation = firstDerivation;
         this.otherDerivations = null;

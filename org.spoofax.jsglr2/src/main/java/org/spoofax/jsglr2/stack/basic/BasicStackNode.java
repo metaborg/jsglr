@@ -10,11 +10,10 @@ import org.spoofax.jsglr2.stack.StackLink;
 public class BasicStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {
 
     // Directed to the initial stack node
-    private final ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> links =
-        new ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>>();
+    private final ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> links = new ArrayList<>();
 
-    public BasicStackNode(int stackNumber, IState state, Position position) {
-        super(stackNumber, state, position);
+    public BasicStackNode(IState state, Position position) {
+        super(state, position);
     }
 
     @Override

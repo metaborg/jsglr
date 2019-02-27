@@ -5,12 +5,10 @@ import org.spoofax.jsglr2.parser.Position;
 
 public abstract class AbstractStackNode<ParseForest> {
 
-    public final int stackNumber;
     public final IState state;
     public final Position position;
 
-    public AbstractStackNode(int stackNumber, IState state, Position position) {
-        this.stackNumber = stackNumber;
+    public AbstractStackNode(IState state, Position position) {
         this.state = state;
         this.position = position;
     }

@@ -13,8 +13,8 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
     private StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> firstLink;
     private ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> otherLinks;
 
-    public HybridStackNode(int stackNumber, IState state, Position position) {
-        super(stackNumber, state, position);
+    public HybridStackNode(IState state, Position position) {
+        super(state, position);
     }
 
     @Override

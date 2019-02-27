@@ -12,9 +12,8 @@ public class SymbolNode extends BasicParseForest implements IBasicSymbolNode<Bas
     public final IProduction production;
     private final List<RuleNode> derivations = new ArrayList<>();
 
-    public SymbolNode(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
-                      IProduction production) {
-        super(nodeNumber, parse, startPosition, endPosition);
+    public SymbolNode(AbstractParse<?, ?> parse, Position startPosition, Position endPosition, IProduction production) {
+        super(parse, startPosition, endPosition);
         this.production = production;
     }
 

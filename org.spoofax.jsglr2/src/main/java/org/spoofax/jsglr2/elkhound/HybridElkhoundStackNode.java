@@ -17,8 +17,8 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
     private StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> firstLink;
     private ArrayList<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> otherLinks;
 
-    public HybridElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
-        super(stackNumber, state, position, isRoot);
+    public HybridElkhoundStackNode(IState state, Position position, boolean isRoot) {
+        super(state, position, isRoot);
     }
 
     @Override
@@ -39,11 +39,11 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         return firstLink.to;
     }
 
-    public StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addLink(int linkNumber,
+    public StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addLink(
         HybridElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
         AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse) {
         StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> link =
-            new StackLink<>(linkNumber, this, parent, parseNode);
+            new StackLink<>(this, parent, parseNode);
 
         link.to.referenceCount++;
 

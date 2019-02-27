@@ -7,8 +7,8 @@ import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public abstract class HybridParseForest extends AbstractParseForest {
 
-    protected HybridParseForest(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition) {
-        super(nodeNumber, parse, startPosition, endPosition);
+    protected HybridParseForest(AbstractParse<?, ?> parse, Position startPosition, Position endPosition) {
+        super(parse, startPosition, endPosition);
     }
     
     @Override

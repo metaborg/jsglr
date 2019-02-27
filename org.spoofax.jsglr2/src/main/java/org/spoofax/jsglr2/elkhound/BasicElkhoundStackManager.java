@@ -10,16 +10,15 @@ public class BasicElkhoundStackManager<ParseForest extends AbstractParseForest>
     extends AbstractElkhoundStackManager<ParseForest, BasicElkhoundStackNode<ParseForest>> {
 
     @Override
-    protected BasicElkhoundStackNode<ParseForest> createStackNode(int stackNumber, IState state, Position position,
-        boolean isRoot) {
-        return new BasicElkhoundStackNode<ParseForest>(stackNumber, state, position, isRoot);
+    protected BasicElkhoundStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {
+        return new BasicElkhoundStackNode<>(state, position, isRoot);
     }
 
     @Override
     protected StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addStackLink(
         AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse, BasicElkhoundStackNode<ParseForest> from,
         BasicElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
-        return from.addLink(parse.stackLinkCount++, to, parseNode, parse);
+        return from.addLink(to, parseNode, parse);
     }
 
     @Override

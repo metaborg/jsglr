@@ -8,8 +8,8 @@ public class HybridStackManager<ParseForest extends AbstractParseForest>
     extends AbstractBasicStackManager<ParseForest, HybridStackNode<ParseForest>> {
 
     @Override
-    protected HybridStackNode<ParseForest> createStackNode(int stackNumber, IState state, Position position) {
-        return new HybridStackNode<ParseForest>(stackNumber, state, position);
+    protected HybridStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {
+        return new HybridStackNode<>(state, position);
     }
 
 }

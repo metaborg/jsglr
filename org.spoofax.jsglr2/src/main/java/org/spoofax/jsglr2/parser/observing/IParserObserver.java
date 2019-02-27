@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.parser.observing;
 
-import java.util.List;
 import java.util.Queue;
 
 import org.metaborg.parsetable.IProduction;

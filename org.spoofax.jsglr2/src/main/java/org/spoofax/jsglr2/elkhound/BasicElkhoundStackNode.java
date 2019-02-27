@@ -15,8 +15,8 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
     private ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> links =
         new ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>>();
 
-    public BasicElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
-        super(stackNumber, state, position, isRoot);
+    public BasicElkhoundStackNode(IState state, Position position, boolean isRoot) {
+        super(state, position, isRoot);
     }
 
     @Override
@@ -34,11 +34,11 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         return links.get(0).to;
     }
 
-    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(int linkNumber,
+    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(
         BasicElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
         AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse) {
         StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link =
-            new StackLink<>(linkNumber, this, parent, parseNode);
+            new StackLink<>(this, parent, parseNode);
 
         links.add(link);
 

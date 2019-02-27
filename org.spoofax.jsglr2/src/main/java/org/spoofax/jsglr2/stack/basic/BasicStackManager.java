@@ -8,8 +8,8 @@ public class BasicStackManager<ParseForest extends AbstractParseForest>
     extends AbstractBasicStackManager<ParseForest, BasicStackNode<ParseForest>> {
 
     @Override
-    protected BasicStackNode<ParseForest> createStackNode(int stackNumber, IState state, Position position) {
-        return new BasicStackNode<ParseForest>(stackNumber, state, position);
+    protected BasicStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {
+        return new BasicStackNode<>(state, position);
     }
 
 }

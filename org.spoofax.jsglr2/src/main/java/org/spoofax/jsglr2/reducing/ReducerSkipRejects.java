@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.stack.AbstractStackManager;
 
 public class ReducerSkipRejects<
         ParseForest extends AbstractParseForest,
@@ -17,8 +17,8 @@ public class ReducerSkipRejects<
         StackNode extends AbstractStackNode<ParseForest>
         > extends Reducer<ParseForest, ParseNode, Derivation, StackNode> {
 
-    public ReducerSkipRejects(StackManager<ParseForest, StackNode> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+    public ReducerSkipRejects(AbstractStackManager<ParseForest, StackNode> stackManager,
+                              ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         super(stackManager, parseForestManager);
     }
 

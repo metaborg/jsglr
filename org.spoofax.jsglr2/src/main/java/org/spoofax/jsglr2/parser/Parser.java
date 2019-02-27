@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
-import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
@@ -33,7 +33,7 @@ public class Parser<
 
     protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;
-    protected final StackManager<ParseForest, StackNode> stackManager;
+    protected final AbstractStackManager<ParseForest, StackNode> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
     protected final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
@@ -42,7 +42,7 @@ public class Parser<
     protected final ParserObserving<ParseForest, StackNode> observing;
 
     public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, StackManager<ParseForest, StackNode> stackManager,
+        IForActorStacksFactory forActorStacksFactory, AbstractStackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager) {
         this.parseFactory = parseFactory;

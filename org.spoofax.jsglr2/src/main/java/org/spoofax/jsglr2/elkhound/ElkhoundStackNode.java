@@ -6,21 +6,21 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractParseForest>
+public abstract class ElkhoundStackNode<ParseForest extends AbstractParseForest>
     extends AbstractStackNode<ParseForest> {
 
     public boolean isRoot;
     public int deterministicDepth;
     public int referenceCount;
 
-    protected AbstractElkhoundStackNode(IState state, Position position, boolean isRoot) {
+    protected ElkhoundStackNode(IState state, Position position, boolean isRoot) {
         super(state, position);
         this.isRoot = isRoot;
         this.deterministicDepth = isRoot ? 1 : 0;
         this.referenceCount = 0;
     }
 
-    public abstract AbstractElkhoundStackNode<ParseForest> getOnlyLinkTo();
+    public abstract ElkhoundStackNode<ParseForest> getOnlyLinkTo();
 
     public int resetDeterministicDepth() {
         if(isRoot)
@@ -31,7 +31,7 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends AbstractPars
             return this.deterministicDepth = 1 + getOnlyLinkTo().resetDeterministicDepth();
     }
 
-    public abstract <ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>>
+    public abstract <ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>>
         Iterable<StackLink<ParseForest, ElkhoundStackNode>> getLinks();
 
 }

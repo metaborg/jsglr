@@ -18,7 +18,7 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class DataDependentReduceManager<
@@ -29,7 +29,7 @@ public class DataDependentReduceManager<
         > extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
    
 
-    public DataDependentReduceManager(IParseTable parseTable, StackManager<ParseForest, StackNode> stackManager,
+    public DataDependentReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);

@@ -7,7 +7,7 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -48,7 +48,7 @@ public class ParserLogObserver<ParseForest extends AbstractParseForest, StackNod
     }
 
     @Override
-    public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
+    public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack) {
         log("Reset deterministic depth for stack " + id((StackNode) stack));
     }
 

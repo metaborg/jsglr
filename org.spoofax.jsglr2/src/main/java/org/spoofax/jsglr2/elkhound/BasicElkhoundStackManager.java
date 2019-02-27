@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
 public class BasicElkhoundStackManager<ParseForest extends AbstractParseForest>
-    extends AbstractElkhoundStackManager<ParseForest, BasicElkhoundStackNode<ParseForest>> {
+    extends ElkhoundStackManager<ParseForest, BasicElkhoundStackNode<ParseForest>> {
 
     @Override
     protected BasicElkhoundStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {

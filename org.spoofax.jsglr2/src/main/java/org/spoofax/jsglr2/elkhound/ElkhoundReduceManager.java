@@ -16,13 +16,13 @@ public class ElkhoundReduceManager<
         ParseForest extends AbstractParseForest,
         ParseNode extends ParseForest,
         Derivation extends IDerivation<ParseForest>,
-        ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>
+        ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>
         > extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
 
-    protected final AbstractElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager;
+    protected final ElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager;
 
     public ElkhoundReduceManager(IParseTable parseTable,
-        AbstractElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager,
+        ElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);

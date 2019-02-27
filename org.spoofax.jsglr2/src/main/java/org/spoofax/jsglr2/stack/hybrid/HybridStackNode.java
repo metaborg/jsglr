@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.stack.basic;
+package org.spoofax.jsglr2.stack.hybrid;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,19 +6,20 @@ import java.util.Collections;
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.StackNode;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {
+public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
 
-    private StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> firstLink;
-    private ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> otherLinks;
+    private StackLink<ParseForest, StackNode<ParseForest>> firstLink;
+    private ArrayList<StackLink<ParseForest, StackNode<ParseForest>>> otherLinks;
 
     public HybridStackNode(IState state, Position position) {
         super(state, position);
     }
 
     @Override
-    public Iterable<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinks() {
+    public Iterable<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {
         if(otherLinks == null) {
             return Collections.singleton(firstLink);
         } else {
@@ -27,8 +28,8 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
     }
 
     @Override
-    public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>
-        addLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link) {
+    public StackLink<ParseForest, StackNode<ParseForest>>
+        addLink(StackLink<ParseForest, StackNode<ParseForest>> link) {
         if(firstLink == null)
             firstLink = link;
         else {
@@ -49,7 +50,7 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
         if(otherLinks == null)
             return true;
 
-        for(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link : otherLinks) {
+        for(StackLink<ParseForest, StackNode<ParseForest>> link : otherLinks) {
             if(!link.isRejected())
                 return false;
         }

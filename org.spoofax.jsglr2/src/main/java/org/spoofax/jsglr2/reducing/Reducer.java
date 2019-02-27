@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackManager;
+import org.spoofax.jsglr2.stack.AbstractStackManager;
 
 public class Reducer<
         ParseForest extends AbstractParseForest,
@@ -16,11 +16,11 @@ public class Reducer<
         Derivation extends IDerivation<ParseForest>,
         StackNode extends AbstractStackNode<ParseForest>> {
 
-    protected final StackManager<ParseForest, StackNode> stackManager;
+    protected final AbstractStackManager<ParseForest, StackNode> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
 
-    public Reducer(StackManager<ParseForest, StackNode> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+    public Reducer(AbstractStackManager<ParseForest, StackNode> stackManager,
+                   ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
     }

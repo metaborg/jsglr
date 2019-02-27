@@ -2,11 +2,10 @@ package org.spoofax.jsglr2.benchmark;
 
 import java.util.Queue;
 
-import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
@@ -50,7 +49,7 @@ public class BenchmarkParserObserver<ParseForest extends AbstractParseForest, St
     }
 
     @Override
-    public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
+    public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack) {
     }
 
     @Override

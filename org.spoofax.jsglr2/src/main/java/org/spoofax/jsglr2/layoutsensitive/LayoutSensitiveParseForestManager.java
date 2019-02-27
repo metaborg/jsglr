@@ -169,12 +169,7 @@ public class LayoutSensitiveParseForestManager
         LayoutSensitiveRuleNode ruleNode) {
         // parse.notify(observer -> observer.addDerivation(symbolNode));
 
-        boolean initNonAmbiguous = symbolNode.isAmbiguous();
-
         symbolNode.addDerivation(ruleNode);
-
-        if(initNonAmbiguous && symbolNode.isAmbiguous())
-            parse.ambiguousParseNodes++;
     }
 
     @Override public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {

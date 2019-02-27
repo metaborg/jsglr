@@ -66,12 +66,7 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
     public void addDerivation(AbstractParse<BasicParseForest, ?> parse, DataDependentSymbolNode symbolNode, DataDependentRuleNode ruleNode) {
         // parse.notify(observer -> observer.addDerivation(symbolNode));
 
-        boolean initNonAmbiguous = symbolNode.isAmbiguous();
-
         symbolNode.addDerivation(ruleNode);
-
-        if(initNonAmbiguous && symbolNode.isAmbiguous())
-            parse.ambiguousParseNodes++;
     }
 
     @Override

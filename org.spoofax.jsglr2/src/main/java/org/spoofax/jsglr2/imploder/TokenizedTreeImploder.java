@@ -48,8 +48,6 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
 
             if(filteredDerivations.size() > 1) {
-                parse.ambiguousTreeNodes++;
-
                 List<Tree> trees = new ArrayList<Tree>(filteredDerivations.size());
 
                 for(Derivation derivation : filteredDerivations)

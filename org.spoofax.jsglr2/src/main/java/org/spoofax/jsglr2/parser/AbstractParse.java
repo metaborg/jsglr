@@ -31,8 +31,6 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
     public IForActorStacks<StackNode> forActorStacks;
     public Queue<ForShifterElement<ParseForest, StackNode>> forShifter;
 
-    public int ambiguousParseNodes, ambiguousTreeNodes;
-
     public final ParserObserving<ParseForest, StackNode> observing;
 
     public AbstractParse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
@@ -40,12 +38,6 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
-
-        // Number of ambiguities in the parse forest
-        this.ambiguousParseNodes = 0;
-
-        // Number of ambiguities in the imploded AST (after applying post-parse filters), only available after imploding
-        this.ambiguousTreeNodes = 0;
 
         this.acceptingStack = null;
         this.activeStacks = activeStacks;

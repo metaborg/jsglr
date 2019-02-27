@@ -14,9 +14,8 @@ public class DataDependentSymbolNode extends BasicParseForest implements IBasicS
     public final IProduction production;
     private final List<DataDependentRuleNode> derivations = new ArrayList<>();
 
-    public DataDependentSymbolNode(AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
-                                   IProduction production) {
-        super(parse, startPosition, endPosition);
+    public DataDependentSymbolNode(Position startPosition, Position endPosition, IProduction production) {
+        super(startPosition, endPosition);
         this.production = production;
     }
 

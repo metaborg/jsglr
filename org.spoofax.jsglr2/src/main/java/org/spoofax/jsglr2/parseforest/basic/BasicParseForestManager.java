@@ -14,8 +14,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     @Override
     public SymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         RuleNode firstDerivation) {
-        SymbolNode symbolNode =
-            new SymbolNode(parse, beginPosition, parse.currentPosition(), production);
+        SymbolNode symbolNode = new SymbolNode(beginPosition, parse.currentPosition(), production);
 
         // parse.notify(observer -> observer.createParseNode(symbolNode, production));
 
@@ -39,8 +38,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         if(result.isEmpty())
             return null;
         else {
-            SymbolNode filteredTopNode = new SymbolNode(topNode.parse, topNode.startPosition,
-                topNode.endPosition, topNode.production);
+            SymbolNode filteredTopNode = new SymbolNode(topNode.startPosition, topNode.endPosition, topNode.production);
 
             for(RuleNode derivation : result)
                 filteredTopNode.addDerivation(derivation);
@@ -52,8 +50,8 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     @Override
     public RuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
         ProductionType productionType, BasicParseForest[] parseForests) {
-        RuleNode ruleNode = new RuleNode(parse, beginPosition, parse.currentPosition(),
-            production, productionType, parseForests);
+        RuleNode ruleNode = new RuleNode(beginPosition, parse.currentPosition(), production, productionType,
+            parseForests);
 
         // parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
 
@@ -69,7 +67,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
 
     @Override
     public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        TermNode termNode = new TermNode(parse, parse.currentPosition(), parse.currentChar);
+        TermNode termNode = new TermNode(parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 

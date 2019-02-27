@@ -23,7 +23,7 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
     public LayoutSensitiveRuleNode(AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
         Position rightPosition, Position endPosition, IProduction production, ProductionType productionType,
         BasicParseForest[] parseForests) {
-        super(parse, startPosition, endPosition, production, productionType, parseForests);
+        super(startPosition, endPosition, production, productionType, parseForests);
         this.leftPosition = leftPosition;
         this.rightPosition = rightPosition;
 

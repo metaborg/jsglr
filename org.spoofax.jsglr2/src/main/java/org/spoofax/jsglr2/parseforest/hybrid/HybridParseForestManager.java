@@ -13,7 +13,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
 
     @Override public ParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, Position beginPosition,
         IProduction production, Derivation firstDerivation) {
-        ParseNode parseNode = new ParseNode(parse, beginPosition, parse.currentPosition(), production, firstDerivation);
+        ParseNode parseNode = new ParseNode(beginPosition, parse.currentPosition(), production, firstDerivation);
 
         // parse.notify(observer -> observer.createParseNode(parseNode, production));
         // parse.notify(observer -> observer.addDerivation(parseNode));
@@ -35,8 +35,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         if(result.isEmpty())
             return null;
         else {
-            ParseNode filteredTopNode = new ParseNode(topNode.parse, topNode.startPosition, topNode.endPosition,
-                topNode.production, result.get(0));
+            ParseNode filteredTopNode = new ParseNode(topNode.startPosition, topNode.endPosition, topNode.production,
+                result.get(0));
 
             for(int i = 1; i < result.size(); i++)
                 filteredTopNode.addDerivation(result.get(i));
@@ -61,7 +61,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     }
 
     @Override public CharacterNode createCharacterNode(AbstractParse<HybridParseForest, ?> parse) {
-        CharacterNode characterNode = new CharacterNode(parse, parse.currentPosition(), parse.currentChar);
+        CharacterNode characterNode = new CharacterNode(parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
 

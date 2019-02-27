@@ -8,8 +8,8 @@ public class TermNode extends BasicParseForest {
 
     public final int character;
 
-    public TermNode(AbstractParse<?, ?> parse, Position position, int character) {
-        super(parse, position, CharacterClassFactory.isNewLine(character) ? position.nextLine() : position.nextColumn());
+    public TermNode(Position position, int character) {
+        super(position, CharacterClassFactory.isNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;
     }
 

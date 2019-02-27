@@ -19,11 +19,11 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest implements IBasi
     public List<PositionInterval> longestMatchPos = null;
     boolean filteredLongestMatch = false;
 
-    public LayoutSensitiveSymbolNode(AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
+    public LayoutSensitiveSymbolNode(Position startPosition, Position endPosition,
         IProduction production) {
-        super(parse, startPosition, endPosition);
+        super(startPosition, endPosition);
         this.production = production;
-        this.derivations = new ArrayList<LayoutSensitiveRuleNode>();
+        this.derivations = new ArrayList<>();
     }
 
     public IProduction getProduction() {

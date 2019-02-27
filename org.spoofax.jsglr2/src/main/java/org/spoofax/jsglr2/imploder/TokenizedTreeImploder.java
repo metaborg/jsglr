@@ -61,7 +61,8 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         } else if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical() || production.isLexicalRhs()) {
-            return createLexicalTerm(production, parseNode.inputPart(), leftToken, parseNode.token);
+            return createLexicalTerm(production, parse.getPart(parseNode.startPosition.offset,
+                parseNode.endPosition.offset), leftToken, parseNode.token);
         } else {
             throw new RuntimeException("invalid term type");
         }

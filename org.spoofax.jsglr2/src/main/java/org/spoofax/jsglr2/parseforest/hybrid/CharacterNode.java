@@ -9,9 +9,8 @@ public class CharacterNode extends HybridParseForest {
 
     public final int character;
 
-    public CharacterNode(AbstractParse<?, ?> parse, Position position, int character) {
-        super(parse, position,
-            CharacterClassFactory.isNewLine(character) ? position.nextLine() : position.nextColumn());
+    public CharacterNode(Position position, int character) {
+        super(position, CharacterClassFactory.isNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;
     }
 

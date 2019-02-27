@@ -16,9 +16,9 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
 
     private long contextBitmap = 0L;
 
-    public DataDependentRuleNode(AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
+    public DataDependentRuleNode(Position startPosition, Position endPosition,
         IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
-        super(parse, startPosition, endPosition);
+        super(startPosition, endPosition);
         this.production = production;
         this.productionType = productionType;
         this.parseForests = parseForests;

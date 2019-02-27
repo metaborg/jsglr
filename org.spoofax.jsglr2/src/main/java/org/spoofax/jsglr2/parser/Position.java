@@ -2,32 +2,61 @@ package org.spoofax.jsglr2.parser;
 
 public class Position {
 
-    final public int offset, line, column;
+    /**
+     * The offset in the input string, starts counting at 0 (consistent with Java string indexing).
+     */
+    final public int offset;
 
+    /**
+     * The line number of the current offset, starts counting at 1 (consistent with IDE cursor position).
+     */
+    final public int line;
+
+    /**
+     * The column number of the current offset, starts counting at 1 (consistent with IDE cursor position).
+     */
+    final public int column;
+
+    /**
+     * Basic constructor.
+     */
     public Position(int offset, int line, int column) {
         this.offset = offset;
         this.line = line;
         this.column = column;
     }
-    
+
+    /**
+     * Clones a Position.
+     *
+     * @param p The Position to clone.
+     */
     public Position(Position p) {
         this.offset = p.offset;
         this.line = p.line;
         this.column = p.column;
     }
 
+    /**
+     * @return A new position that represents the position right of the current position.
+     */
     public Position nextColumn() {
         return new Position(offset + 1, line, column + 1);
     }
 
+    /**
+     * Should only be called when the character at the current position is a newline character.
+     *
+     * @return A new position that represents the first column on the line after the current position.
+     */
     public Position nextLine() {
         return new Position(offset + 1, line + 1, 1);
     }
 
     public String coordinatesToString() {
-        return "" + line + ":" + column;
+        return line + ":" + column;
     }
-    
+
     @Override public String toString() {
         return "l: " + line + " c: " + column + " offset: " + offset;
     }
@@ -57,6 +86,6 @@ public class Position {
             return false;
         return true;
     }
-    
+
 
 }

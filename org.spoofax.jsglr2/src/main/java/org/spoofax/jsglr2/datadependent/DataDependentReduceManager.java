@@ -68,7 +68,7 @@ public class DataDependentReduceManager<
         }
     }
 
-    private static final <ParseForest extends AbstractParseForest> boolean checkContexts(ParseForest pf,
+    private static <ParseForest extends AbstractParseForest> boolean checkContexts(ParseForest pf,
         Symbol symbol) {
         final ContextualSymbol contextualSymbol = (ContextualSymbol) symbol;
 

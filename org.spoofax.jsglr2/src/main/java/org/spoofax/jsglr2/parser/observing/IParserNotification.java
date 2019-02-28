@@ -5,6 +5,6 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 
 public interface IParserNotification<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 
-    public void notify(IParserObserver<ParseForest, StackNode> observer);
+    void notify(IParserObserver<ParseForest, StackNode> observer);
 
 }

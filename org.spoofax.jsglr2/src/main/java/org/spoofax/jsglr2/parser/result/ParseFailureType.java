@@ -7,7 +7,7 @@ public enum ParseFailureType {
     
     public final String message;
 
-    private ParseFailureType(String message) {
+    ParseFailureType(String message) {
         this.message = message;
     }
 

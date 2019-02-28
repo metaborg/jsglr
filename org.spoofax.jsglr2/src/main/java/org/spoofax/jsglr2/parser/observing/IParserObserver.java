@@ -18,61 +18,61 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public interface IParserObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
 
-    public void parseStart(AbstractParse<ParseForest, StackNode> parse);
+    void parseStart(AbstractParse<ParseForest, StackNode> parse);
 
-    public void parseCharacter(AbstractParse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks);
+    void parseCharacter(AbstractParse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks);
 
-    public void addActiveStack(StackNode stack);
+    void addActiveStack(StackNode stack);
 
-    public void addForActorStack(StackNode stack);
+    void addForActorStack(StackNode stack);
 
-    public void findActiveStackWithState(IState state);
+    void findActiveStackWithState(IState state);
 
-    public void createStackNode(StackNode stack);
+    void createStackNode(StackNode stack);
 
-    public void createStackLink(StackLink<ParseForest, StackNode> link);
+    void createStackLink(StackLink<ParseForest, StackNode> link);
 
-    public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack);
+    void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack);
 
-    public void rejectStackLink(StackLink<ParseForest, StackNode> link);
+    void rejectStackLink(StackLink<ParseForest, StackNode> link);
 
-    public void forActorStacks(IForActorStacks<StackNode> forActorStacks);
+    void forActorStacks(IForActorStacks<StackNode> forActorStacks);
 
-    public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
+    void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
 
-    public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions);
+    void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions);
 
-    public void skipRejectedStack(StackNode stack);
+    void skipRejectedStack(StackNode stack);
 
-    public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement);
+    void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement);
 
-    public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce);
+    void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce);
 
-    public void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> link);
+    void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+                             StackLink<ParseForest, StackNode> link);
 
-    public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
+    void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
 
-    public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
+    void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
 
-    public void directLinkFound(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink);
+    void directLinkFound(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink);
 
-    public void accept(StackNode acceptingStack);
+    void accept(StackNode acceptingStack);
 
-    public void createParseNode(ParseForest parseNode, IProduction production);
+    void createParseNode(ParseForest parseNode, IProduction production);
 
-    public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes);
+    void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes);
 
-    public void createCharacterNode(ParseForest characterNode, int character);
+    void createCharacterNode(ParseForest characterNode, int character);
 
-    public void addDerivation(ParseForest parseNode);
+    void addDerivation(ParseForest parseNode);
 
-    public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter);
+    void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter);
 
-    public void remark(String remark);
+    void remark(String remark);
 
-    public void success(ParseSuccess<ParseForest, ?> success);
+    void success(ParseSuccess<ParseForest, ?> success);
 
-    public void failure(ParseFailure<ParseForest, ?> failure);
+    void failure(ParseFailure<ParseForest, ?> failure);
 
 }

@@ -8,7 +8,7 @@ public class SingleElementWithListIterable<T> implements Iterable<T> {
     /*
      * TODO: generalize tail argument; move to appropriate place
      */
-    public static final <T> Iterable<T> of(T head, List<T> tail) {
+    public static <T> Iterable<T> of(T head, List<T> tail) {
         // final Iterator<T> iterator =
         // Stream.concat(Stream.of(head), tail.stream()).iterator();
         //

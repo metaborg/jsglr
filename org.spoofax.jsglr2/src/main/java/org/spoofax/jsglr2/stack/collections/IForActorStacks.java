@@ -14,13 +14,13 @@ public interface IForActorStacks<StackNode extends AbstractStackNode<?>> {
 
     boolean contains(StackNode stack);
 
-    public boolean nonEmpty();
+    boolean nonEmpty();
 
     /*
      * Remove and return the next stack in the correct order. First non-rejectable stacks and last rejectable stacks.
      * Non-rejectable stacks added during a parse round still need to be returned before rejectable stacks. When only
      * rejectable stacks are left, they should be removed and returned with a certain order (see P9707 Section 8.4).
      */
-    public StackNode remove();
+    StackNode remove();
 
 }

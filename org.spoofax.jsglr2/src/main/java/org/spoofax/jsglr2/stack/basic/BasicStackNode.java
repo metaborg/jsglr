@@ -17,21 +17,18 @@ public class BasicStackNode<ParseForest> extends StackNode<ParseForest> {
         super(state, position);
     }
 
-    @Override
-    public List<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {
+    @Override public List<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {
         return links;
     }
 
-    @Override
-    public StackLink<ParseForest, StackNode<ParseForest>>
+    @Override public StackLink<ParseForest, StackNode<ParseForest>>
         addLink(StackLink<ParseForest, StackNode<ParseForest>> link) {
         links.add(link);
 
         return link;
     }
 
-    @Override
-    public boolean allLinksRejected() {
+    @Override public boolean allLinksRejected() {
         if(links.isEmpty())
             return false;
 

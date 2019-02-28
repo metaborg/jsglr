@@ -18,22 +18,19 @@ public class ActiveStacksArrayListHashMap<ParseForest extends AbstractParseFores
         this.activeStacksMap = new HashMap<>();
     }
 
-    @Override
-    public void add(StackNode stack) {
+    @Override public void add(StackNode stack) {
         super.add(stack);
 
         activeStacksMap.put(stack.state.id(), stack);
     }
 
-    @Override
-    public StackNode findWithState(IState state) {
+    @Override public StackNode findWithState(IState state) {
         observing.notify(observer -> observer.findActiveStackWithState(state));
 
         return activeStacksMap.get(state.id());
     }
 
-    @Override
-    public void clear() {
+    @Override public void clear() {
         super.clear();
 
         activeStacksMap.clear();

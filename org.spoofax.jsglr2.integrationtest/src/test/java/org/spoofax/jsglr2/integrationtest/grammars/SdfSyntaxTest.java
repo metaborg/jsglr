@@ -10,8 +10,7 @@ public class SdfSyntaxTest extends BaseTestWithSdf3ParseTables {
         super("sdf-syntax.sdf3");
     }
 
-    @Test
-    public void identifier() throws ParseError {
+    @Test public void identifier() throws ParseError {
         testSuccessByExpansions("x", "\"x\"");
     }
 

@@ -21,7 +21,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return parseNode;
     }
 
-    @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol, AbstractParse<HybridParseForest, ?> parse) {
+    @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
+        AbstractParse<HybridParseForest, ?> parse) {
         ParseNode topNode = (ParseNode) parseForest;
         List<Derivation> result = new ArrayList<Derivation>();
 
@@ -35,8 +36,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         if(result.isEmpty())
             return null;
         else {
-            ParseNode filteredTopNode = new ParseNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production,
-                result.get(0));
+            ParseNode filteredTopNode =
+                new ParseNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production, result.get(0));
 
             for(int i = 1; i < result.size(); i++)
                 filteredTopNode.addDerivation(result.get(i));
@@ -54,7 +55,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return derivation;
     }
 
-    @Override public void addDerivation(AbstractParse<HybridParseForest, ?> parse, ParseNode parseNode, Derivation derivation) {
+    @Override public void addDerivation(AbstractParse<HybridParseForest, ?> parse, ParseNode parseNode,
+        Derivation derivation) {
         // parse.notify(observer -> observer.addDerivation(parseNode));
 
         parseNode.addDerivation(derivation);

@@ -12,30 +12,26 @@ public class RuleNode extends BasicParseForest implements IDerivation<BasicParse
     public final BasicParseForest[] parseForests;
 
     public RuleNode(Position startPosition, Position endPosition, IProduction production, ProductionType productionType,
-            BasicParseForest[] parseForests) {
+        BasicParseForest[] parseForests) {
         super(startPosition, endPosition);
         this.production = production;
         this.productionType = productionType;
         this.parseForests = parseForests;
     }
 
-    @Override
-    public String descriptor() {
+    @Override public String descriptor() {
         return production.descriptor();
     }
 
-    @Override
-    public IProduction production() {
+    @Override public IProduction production() {
         return production;
     }
 
-    @Override
-    public ProductionType productionType() {
+    @Override public ProductionType productionType() {
         return productionType;
     }
 
-    @Override
-    public BasicParseForest[] parseForests() {
+    @Override public BasicParseForest[] parseForests() {
         return parseForests;
     }
 

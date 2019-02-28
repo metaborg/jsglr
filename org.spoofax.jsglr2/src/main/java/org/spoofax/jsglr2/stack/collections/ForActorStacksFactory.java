@@ -19,8 +19,7 @@ public class ForActorStacksFactory implements IForActorStacksFactory {
         this.forActorStacksRepresentation = forActorStacksRepresentation;
     }
 
-    @Override
-    public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    @Override public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
         IForActorStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
         IForActorStacks<StackNode> forActorStacks;
 

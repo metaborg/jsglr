@@ -6,17 +6,15 @@ import org.spoofax.terms.ParseError;
 
 public class OptionalsTest extends BaseTestWithSdf3ParseTables {
 
-    public OptionalsTest(){
+    public OptionalsTest() {
         super("optionals.sdf3");
     }
 
-    @Test
-    public void testEmpty() throws ParseError {
+    @Test public void testEmpty() throws ParseError {
         testSuccessByExpansions("", "None");
     }
 
-    @Test
-    public void testSingleX() throws ParseError {
+    @Test public void testSingleX() throws ParseError {
         testSuccessByExpansions("X", "Some(X)");
     }
 

@@ -16,28 +16,29 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.reducing.ReduceManager;
+import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-public class DataDependentReduceManager<
-        ParseForest extends AbstractParseForest,
-        ParseNode extends ParseForest,
-        Derivation extends IDerivation<ParseForest>,
-        StackNode extends AbstractStackNode<ParseForest>
-        > extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
-   
+public class DataDependentReduceManager
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    ParseNode   extends ParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
+    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
+
 
     public DataDependentReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
-    }    
+    }
 
-    @Override
-    protected void doReductionsHelper(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> throughLink) {
+    @Override protected void doReductionsHelper(AbstractParse<ParseForest, StackNode> parse, StackNode stack,
+        IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
         for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
                 StackNode pathBegin = path.head();
@@ -58,7 +59,7 @@ public class DataDependentReduceManager<
                         }
                     }
                 }
-                
+
                 if(skipReduce) {
                     continue;
                 }
@@ -68,8 +69,7 @@ public class DataDependentReduceManager<
         }
     }
 
-    private static <ParseForest extends AbstractParseForest> boolean checkContexts(ParseForest pf,
-        Symbol symbol) {
+    private static <ParseForest extends AbstractParseForest> boolean checkContexts(ParseForest pf, Symbol symbol) {
         final ContextualSymbol contextualSymbol = (ContextualSymbol) symbol;
 
         final long contextBitmap = contextualSymbol.deepContexts();

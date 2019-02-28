@@ -25,8 +25,7 @@ public class AstUtilitiesTest {
         this.termReader = new TermReader(termFactory);
     }
 
-    @Test
-    public void testExpansionListExpansion() throws ParseError {
+    @Test public void testExpansionListExpansion() throws ParseError {
         List<List<String>> elements = Arrays.asList(Arrays.asList("a"), Arrays.asList("b1", "b2"), Arrays.asList("c"));
 
         List<List<String>> expectedExpansion =
@@ -37,8 +36,7 @@ public class AstUtilitiesTest {
         assertEquals(expectedExpansion, actualExpansion);
     }
 
-    @Test
-    public void testExpansionAmbApplTermExpansion() throws ParseError {
+    @Test public void testExpansionAmbApplTermExpansion() throws ParseError {
         IStrategoTerm ambiguousTem = termReader.parseFromString("Cons(\"a\",amb([\"b1\",\"b2\"]),\"c\")");
 
         List<IStrategoTerm> actualExpansion = astUtilities.expand(ambiguousTem);
@@ -48,8 +46,7 @@ public class AstUtilitiesTest {
         assertEquals(expectedExpansion, actualExpansion.toString());
     }
 
-    @Test
-    public void testExpansionAmbListTermExpansion() throws ParseError {
+    @Test public void testExpansionAmbListTermExpansion() throws ParseError {
         IStrategoTerm ambiguousTem = termReader.parseFromString("[\"a\",amb([\"b1\",\"b2\"]),\"c\"]");
 
         List<IStrategoTerm> actualExpansion = astUtilities.expand(ambiguousTem);
@@ -59,8 +56,7 @@ public class AstUtilitiesTest {
         assertEquals(expectedExpansion, actualExpansion.toString());
     }
 
-    @Test
-    public void testExpansionAmbTupleTermExpansion() throws ParseError {
+    @Test public void testExpansionAmbTupleTermExpansion() throws ParseError {
         IStrategoTerm ambiguousTem = termReader.parseFromString("(\"a\",amb([\"b1\",\"b2\"]),\"c\")");
 
         List<IStrategoTerm> actualExpansion = astUtilities.expand(ambiguousTem);
@@ -70,8 +66,7 @@ public class AstUtilitiesTest {
         assertEquals(expectedExpansion, actualExpansion.toString());
     }
 
-    @Test
-    public void testExpansionAmbNested() throws ParseError {
+    @Test public void testExpansionAmbNested() throws ParseError {
         IStrategoTerm ambiguousTem = termReader.parseFromString("amb([amb([\"a\",\"b\"]),\"c\"])");
 
         List<IStrategoTerm> actualExpansion = astUtilities.expand(ambiguousTem);
@@ -81,15 +76,13 @@ public class AstUtilitiesTest {
         assertEquals(expectedExpansion, actualExpansion.toString());
     }
 
-    @Test
-    public void testCountAmb() throws ParseError {
+    @Test public void testCountAmb() throws ParseError {
         IStrategoTerm ambiguousTem = termReader.parseFromString("amb([amb([\"a\",\"b\"]),\"c\"])");
 
         assertEquals(2, astUtilities.ambCount(ambiguousTem));
     }
 
-    @Test
-    public void testCountAmbShared() throws ParseError {
+    @Test public void testCountAmbShared() throws ParseError {
         IStrategoTerm termA = termFactory.makeString("A");
         IStrategoTerm termB = termFactory.makeString("B");
 
@@ -114,8 +107,7 @@ public class AstUtilitiesTest {
         assertEquals(2, astUtilities.ambCountShared(termAmbTop));
     }
 
-    @Test
-    public void testFlattenAmb() throws ParseError {
+    @Test public void testFlattenAmb() throws ParseError {
         IStrategoTerm termA = termFactory.makeString("A");
 
         IStrategoTerm term1 = termFactory.makeInt(1);

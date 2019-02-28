@@ -10,13 +10,11 @@ public class MockParseInput implements IActionQuery {
         this.character = character;
     }
 
-    @Override
-    public int actionQueryCharacter() {
+    @Override public int actionQueryCharacter() {
         return character;
     }
 
-    @Override
-    public String actionQueryLookahead(int length) {
+    @Override public String actionQueryLookahead(int length) {
         return "";
     }
 

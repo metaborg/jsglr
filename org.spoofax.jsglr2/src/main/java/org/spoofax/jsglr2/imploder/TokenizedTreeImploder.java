@@ -12,7 +12,12 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
 import org.spoofax.jsglr2.tokenizer.Tokens;
 
-public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, Tree>
+public abstract class TokenizedTreeImploder
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    ParseNode   extends ParseForest,
+    Derivation  extends IDerivation<ParseForest>, Tree>
+//@formatter:on
     implements IImploder<ParseForest, Tree> {
 
     protected final ITreeFactory<Tree> treeFactory;
@@ -24,7 +29,8 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         this.tokenizer = tokenizer;
     }
 
-    @Override public ImplodeResult<ParseForest, Tree> implode(AbstractParse<ParseForest, ?> parse, ParseForest parseForest) {
+    @Override public ImplodeResult<ParseForest, Tree> implode(AbstractParse<ParseForest, ?> parse,
+        ParseForest parseForest) {
         Tokens tokens = new Tokens(parse.inputString, parse.filename);
 
         tokenizer.tokenize(tokens, parseForest);
@@ -61,8 +67,9 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         } else if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical() || production.isLexicalRhs()) {
-            return createLexicalTerm(production, parse.getPart(parseNode.getStartPosition().offset,
-                parseNode.getEndPosition().offset), leftToken, parseNode.token);
+            return createLexicalTerm(production,
+                parse.getPart(parseNode.getStartPosition().offset, parseNode.getEndPosition().offset), leftToken,
+                parseNode.token);
         } else {
             throw new RuntimeException("invalid term type");
         }
@@ -76,7 +83,7 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         }
         // TODO always filter prefer/avoid?
         result = parseNodePreferredAvoidedDerivations(parseNode);
-        
+
         return result;
     }
 
@@ -101,8 +108,9 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
         return resultAst;
     }
 
-    protected void implodeChildParseNodes(AbstractParse<ParseForest, ?> parse, List<Tree> childASTs, Derivation derivation,
-        IProduction production, IToken leftToken, IToken rightToken, List<ParseForest> nonAstLexicals) {
+    protected void implodeChildParseNodes(AbstractParse<ParseForest, ?> parse, List<Tree> childASTs,
+        Derivation derivation, IProduction production, IToken leftToken, IToken rightToken,
+        List<ParseForest> nonAstLexicals) {
         ParseForest[] childParseForests = derivation.parseForests();
 
         IToken[] rightTokenPerChild = getRightTokensPerParseNode(childParseForests, rightToken);
@@ -116,7 +124,8 @@ public abstract class TokenizedTreeImploder<ParseForest extends AbstractParseFor
 
                 IProduction parseNodeProduction = parseNodeProduction(parseNode);
 
-                if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null && parseNodePreferredAvoidedDerivations(parseNode).size() <= 1)) {
+                if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null
+                    && parseNodePreferredAvoidedDerivations(parseNode).size() <= 1)) {
                     // Make sure lists are flattened
                     implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode), parseNodeProduction,
                         childLeftToken, childRightToken, nonAstLexicals);

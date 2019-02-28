@@ -16,13 +16,11 @@ public class SymbolNode extends BasicParseForest implements IBasicSymbolNode<Bas
         this.production = production;
     }
 
-    @Override
-    public String descriptor() {
+    @Override public String descriptor() {
         return production.descriptor();
     }
 
-    @Override
-    public List<RuleNode> getDerivations() {
+    @Override public List<RuleNode> getDerivations() {
         return derivations;
     }
 }

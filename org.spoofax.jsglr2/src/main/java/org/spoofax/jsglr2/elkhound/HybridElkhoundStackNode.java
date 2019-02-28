@@ -10,8 +10,7 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
-    extends ElkhoundStackNode<ParseForest> {
+public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest> extends ElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
     private StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> firstLink;
@@ -21,9 +20,8 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         super(state, position, isRoot);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Iterable<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> getLinks() {
+    @Override @SuppressWarnings("unchecked") public
+        Iterable<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> getLinks() {
         if(otherLinks == null)
             return Collections.singleton(firstLink);
         else
@@ -34,16 +32,14 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         return firstLink;
     }
 
-    @Override
-    public HybridElkhoundStackNode<ParseForest> getOnlyLinkTo() {
+    @Override public HybridElkhoundStackNode<ParseForest> getOnlyLinkTo() {
         return firstLink.to;
     }
 
     public StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addLink(
         HybridElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
         AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse) {
-        StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> link =
-            new StackLink<>(this, parent, parseNode);
+        StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
 
         link.to.referenceCount++;
 
@@ -72,8 +68,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         return link;
     }
 
-    @Override
-    public boolean allLinksRejected() {
+    @Override public boolean allLinksRejected() {
         if(firstLink == null || !firstLink.isRejected())
             return false;
 

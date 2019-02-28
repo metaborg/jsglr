@@ -1,9 +1,6 @@
 package org.spoofax.jsglr2.parsetable;
 
-import static org.spoofax.terms.Term.intAt;
-import static org.spoofax.terms.Term.isTermInt;
-import static org.spoofax.terms.Term.javaInt;
-import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.Term.*;
 
 import java.io.IOException;
 import java.io.InputStream;

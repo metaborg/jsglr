@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
@@ -11,8 +13,6 @@ import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
 public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark {
 
@@ -38,8 +38,7 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark {
 
     @Param({ "Basic" }) public Reducing reducing;
 
-    @Override
-    protected Variant variant() {
+    @Override protected Variant variant() {
         Variant variant =
             new Variant(new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
                 new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
@@ -52,8 +51,7 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark {
             return variant;
     }
 
-    @Override
-    protected boolean implode() {
+    @Override protected boolean implode() {
         return implode;
     }
 

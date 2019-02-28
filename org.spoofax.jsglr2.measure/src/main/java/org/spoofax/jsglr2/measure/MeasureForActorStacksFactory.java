@@ -10,9 +10,7 @@ public class MeasureForActorStacksFactory implements IForActorStacksFactory {
 
     MeasureForActorStacks<?, ?> measureForActorStacks = null;
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    @SuppressWarnings("unchecked") @Override public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
         IForActorStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
         if(measureForActorStacks == null) {
             MeasureForActorStacks<ParseForest, StackNode> measureForActorStacks =

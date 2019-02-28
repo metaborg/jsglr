@@ -29,8 +29,7 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
 
     @Param({ "false", "true" }) public boolean implode;
 
-    @Setup
-    public void prepare() throws ParseError, InvalidParseTableException {
+    @Setup public void prepare() throws ParseError, InvalidParseTableException {
         jsglr1parseAndImplode = getJSGLR1();
 
         jsglr1parse = getJSGLR1();
@@ -41,9 +40,8 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
         return testSetReader.getParseTableTerm();
     }
 
-    @Benchmark
-    public void jsglr1default(Blackhole bh) throws TokenExpectedException, BadTokenException,
-        ParseException, SGLRException, InterruptedException {
+    @Benchmark public void jsglr1default(Blackhole bh)
+        throws TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
         if(implode) {
             for(Input input : inputs)
                 bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));

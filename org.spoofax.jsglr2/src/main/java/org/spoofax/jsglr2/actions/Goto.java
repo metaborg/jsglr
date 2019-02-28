@@ -14,28 +14,23 @@ public class Goto implements IGoto {
         this.gotoStateId = gotoState;
     }
 
-    @Override
-    public int[] productionIds() {
+    @Override public int[] productionIds() {
         return productionIds;
     }
 
-    @Override
-    public int gotoStateId() {
+    @Override public int gotoStateId() {
         return gotoStateId;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "GOTO(" + gotoStateId + ")";
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return productionIds.hashCode() ^ gotoStateId;
     }
 
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
         if(this == o) {
             return true;
         }

@@ -5,7 +5,13 @@ import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 
-public abstract class Tokenizer<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>> {
+public abstract class Tokenizer
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    ParseNode   extends ParseForest,
+    Derivation  extends IDerivation<ParseForest>>
+//@formatter:on
+{
 
     public void tokenize(Tokens tokens, ParseForest parseForest) {
         tokens.makeStartToken(parseForest);

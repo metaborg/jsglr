@@ -1,11 +1,6 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import org.metaborg.sdf2table.grammar.layoutconstraints.ArithmeticLayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.BooleanLayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.ComparisonLayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintElement;
-import org.metaborg.sdf2table.grammar.layoutconstraints.ILayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.NumericLayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.*;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 
 public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> {
@@ -55,7 +50,7 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
         } catch(NoValueLayoutException e) {
             noValue = true;
         }
-        
+
         if(noValue) {
             return true;
         } else {
@@ -64,9 +59,11 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
     }
 
     private int evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
-        
+
         if(layoutConstraint instanceof NumericLayoutConstraint) {
-            ParseForest tree =  parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()]; //selectCorrectTree(((NumericLayoutConstraint) layoutConstraint).getTree(), parseNodes);
+            ParseForest tree = parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()]; // selectCorrectTree(((NumericLayoutConstraint)
+                                                                                                   // layoutConstraint).getTree(),
+                                                                                                   // parseNodes);
 
             if(tree instanceof LayoutSensitiveSymbolNode
                 && ((LayoutSensitiveSymbolNode) tree).getProduction().isIgnoreLayoutConstraint()) {
@@ -102,7 +99,7 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
                     throw new NoValueLayoutException();
             }
         }
-        
+
         if(layoutConstraint instanceof ArithmeticLayoutConstraint) {
             switch(((ArithmeticLayoutConstraint) layoutConstraint).getOp()) {
                 case ADD:

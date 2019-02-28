@@ -11,7 +11,12 @@ import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-public abstract class AbstractStackManager<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public abstract class AbstractStackManager
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
+{
 
     public abstract StackNode createInitialStackNode(AbstractParse<ParseForest, StackNode> parse, IState state);
 

@@ -14,7 +14,7 @@ public class ParseFailure<ParseForest extends AbstractParseForest, AbstractSynta
 
         this.failureType = failureType;
     }
-    
+
     public ParseException exception() {
         return new ParseException(failureType);
     }

@@ -13,18 +13,15 @@ public class EmptyStackPath<ParseForest, StackNode extends AbstractStackNode<Par
         this.stackNode = stackNode;
     }
 
-    @Override
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
         return true;
     }
 
-    @Override
-    public StackNode head() {
+    @Override public StackNode head() {
         return this.stackNode;
     }
 
-    @Override
-    public boolean contains(StackLink<ParseForest, StackNode> link) {
+    @Override public boolean contains(StackLink<ParseForest, StackNode> link) {
         return false;
     }
 

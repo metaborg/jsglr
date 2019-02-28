@@ -12,12 +12,14 @@ import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-public class ElkhoundReduceManager<
-        ParseForest extends AbstractParseForest,
-        ParseNode extends ParseForest,
-        Derivation extends IDerivation<ParseForest>,
-        ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>
-        > extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
+public class ElkhoundReduceManager
+//@formatter:off
+   <ParseForest       extends AbstractParseForest,
+    ParseNode         extends ParseForest,
+    Derivation        extends IDerivation<ParseForest>,
+    ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>>
+//@formatter:on
+    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
 
     protected final ElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager;
 
@@ -30,9 +32,8 @@ public class ElkhoundReduceManager<
         this.stackManager = stackManager;
     }
 
-    @Override
-    protected void doReductionsHelper(AbstractParse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode stack,
-        IReduce reduce, StackLink<ParseForest, ElkhoundStackNode> throughLink) {
+    @Override protected void doReductionsHelper(AbstractParse<ParseForest, ElkhoundStackNode> parse,
+        ElkhoundStackNode stack, IReduce reduce, StackLink<ParseForest, ElkhoundStackNode> throughLink) {
         if(stack.deterministicDepth >= reduce.arity()) {
             DeterministicStackPath<ParseForest, ElkhoundStackNode> deterministicPath =
                 stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
@@ -61,8 +62,8 @@ public class ElkhoundReduceManager<
         }
     }
 
-    private void reducerElkhound(AbstractParse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode stack, IReduce reduce,
-        ParseForest[] parseForests) {
+    private void reducerElkhound(AbstractParse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode stack,
+        IReduce reduce, ParseForest[] parseForests) {
         int gotoId = stack.state.getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 

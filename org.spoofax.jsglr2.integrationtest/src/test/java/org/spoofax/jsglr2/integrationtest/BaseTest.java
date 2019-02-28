@@ -1,9 +1,7 @@
 package org.spoofax.jsglr2.integrationtest;
 
 import static java.util.Collections.sort;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,18 +30,18 @@ public abstract class BaseTest implements WithParseTable {
     protected BaseTest() {
         TermFactory termFactory = new TermFactory();
         this.termReader = new TermReader(termFactory);
-        
+
         this.astUtilities = new AstUtilities();
     }
 
     public TermReader getTermReader() {
         return termReader;
     }
-    
+
     protected IParseTable getParseTableFailOnException(JSGLR2Variants.ParseTableVariant variant) {
         try {
             return getParseTable(variant);
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
 
             fail("Exception during reading parse table: " + e.getMessage());

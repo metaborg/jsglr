@@ -8,16 +8,19 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-public class ReduceManager<
-        ParseForest extends AbstractParseForest,
-        ParseNode extends ParseForest,
-        Derivation extends IDerivation<ParseForest>,
-        StackNode extends AbstractStackNode<ParseForest>> {
+public class ReduceManager
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    ParseNode   extends ParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
+{
 
     protected final IParseTable parseTable;
     protected final AbstractStackManager<ParseForest, StackNode> stackManager;

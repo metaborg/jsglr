@@ -15,8 +15,7 @@ public class MeasureForActorStacks<ParseForest extends AbstractParseForest, Stac
         super(observing);
     }
 
-    @Override
-    public void add(StackNode stack) {
+    @Override public void add(StackNode stack) {
         if(stack.state.isRejectable())
             forActorDelayedAdds++;
         else
@@ -28,22 +27,19 @@ public class MeasureForActorStacks<ParseForest extends AbstractParseForest, Stac
         forActorDelayedMaxSize = Math.max(forActorDelayedMaxSize, forActorDelayed.size());
     }
 
-    @Override
-    public boolean contains(StackNode stack) {
+    @Override public boolean contains(StackNode stack) {
         containsChecks++;
 
         return super.contains(stack);
     }
 
-    @Override
-    public boolean nonEmpty() {
+    @Override public boolean nonEmpty() {
         nonEmptyChecks++;
 
         return super.nonEmpty();
     }
 
-    @Override
-    public StackNode remove() {
+    @Override public StackNode remove() {
         return super.remove();
     }
 

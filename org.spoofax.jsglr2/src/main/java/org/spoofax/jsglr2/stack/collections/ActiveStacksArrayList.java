@@ -21,30 +21,25 @@ public class ActiveStacksArrayList<ParseForest extends AbstractParseForest, Stac
         this.activeStacks = new ArrayList<StackNode>();
     }
 
-    @Override
-    public void add(StackNode stack) {
+    @Override public void add(StackNode stack) {
         observing.notify(observer -> observer.addActiveStack(stack));
 
         activeStacks.add(stack);
     }
 
-    @Override
-    public boolean isSingle() {
+    @Override public boolean isSingle() {
         return activeStacks.size() == 1;
     }
 
-    @Override
-    public StackNode getSingle() {
+    @Override public StackNode getSingle() {
         return activeStacks.get(0);
     }
 
-    @Override
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
         return activeStacks.isEmpty();
     }
 
-    @Override
-    public StackNode findWithState(IState state) {
+    @Override public StackNode findWithState(IState state) {
         observing.notify(observer -> observer.findActiveStackWithState(state));
 
         for(StackNode stack : activeStacks)
@@ -54,8 +49,7 @@ public class ActiveStacksArrayList<ParseForest extends AbstractParseForest, Stac
         return null;
     }
 
-    @Override
-    public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks) {
+    @Override public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks) {
         return () -> new Iterator<StackNode>() {
 
             int index = 0;
@@ -65,8 +59,7 @@ public class ActiveStacksArrayList<ParseForest extends AbstractParseForest, Stac
             // added at the end.
             final int currentSize = activeStacks.size();
 
-            @Override
-            public boolean hasNext() {
+            @Override public boolean hasNext() {
                 // skip non-applicable actions
                 while(index < currentSize && !(!activeStacks.get(index).allLinksRejected()
                     && !forActorStacks.contains(activeStacks.get(index)))) {
@@ -75,8 +68,7 @@ public class ActiveStacksArrayList<ParseForest extends AbstractParseForest, Stac
                 return index < currentSize;
             }
 
-            @Override
-            public StackNode next() {
+            @Override public StackNode next() {
                 if(!hasNext()) {
                     throw new NoSuchElementException();
                 }
@@ -86,19 +78,16 @@ public class ActiveStacksArrayList<ParseForest extends AbstractParseForest, Stac
         };
     }
 
-    @Override
-    public void addAllTo(IForActorStacks<StackNode> other) {
+    @Override public void addAllTo(IForActorStacks<StackNode> other) {
         for(StackNode stack : activeStacks)
             other.add(stack);
     }
 
-    @Override
-    public void clear() {
+    @Override public void clear() {
         activeStacks.clear();
     }
 
-    @Override
-    public Iterator<StackNode> iterator() {
+    @Override public Iterator<StackNode> iterator() {
         return activeStacks.iterator();
     }
 

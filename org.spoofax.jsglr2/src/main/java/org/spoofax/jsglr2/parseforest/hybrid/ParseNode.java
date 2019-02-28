@@ -46,36 +46,35 @@ public class ParseNode extends HybridParseForest implements ISymbolNode<HybridPa
         return otherDerivations != null;
     }
 
-    @Override
-    public String descriptor() {
+    @Override public String descriptor() {
         return production.descriptor();
     }
 
     protected void prettyPrint(TreePrettyPrinter printer) {
-    	printer.println("p" + production.id() + " : " + production.sort() + "{");
-    	if (isAmbiguous()) {
-    		printer.indent(1);
-    		printer.println("amb[");
-    		printer.indent(1);
-    	} else {
-    		printer.indent(2);
-    	}
+        printer.println("p" + production.id() + " : " + production.sort() + "{");
+        if(isAmbiguous()) {
+            printer.indent(1);
+            printer.println("amb[");
+            printer.indent(1);
+        } else {
+            printer.indent(2);
+        }
 
-    	firstDerivation.prettyPrint(printer);
+        firstDerivation.prettyPrint(printer);
 
-    	if (otherDerivations != null) {
-    		for (Derivation derivation : otherDerivations)
-    			derivation.prettyPrint(printer);
-    	}
+        if(otherDerivations != null) {
+            for(Derivation derivation : otherDerivations)
+                derivation.prettyPrint(printer);
+        }
 
-    	if (isAmbiguous()) {
-    		printer.indent(-1);
-    		printer.println("]");
-    		printer.indent(-1);
-    	} else {
-    		printer.indent(-2);
-    	}
-    	printer.println("}");
+        if(isAmbiguous()) {
+            printer.indent(-1);
+            printer.println("]");
+            printer.indent(-1);
+        } else {
+            printer.indent(-2);
+        }
+        printer.println("}");
     }
 
 }

@@ -10,13 +10,11 @@ public class CommentsTest extends BaseTestWithSdf3ParseTables {
         super("comments.sdf3");
     }
 
-    @Test
-    public void oneX() throws ParseError {
+    @Test public void oneX() throws ParseError {
         testSuccessByExpansions("x", "Xs([X])");
     }
 
-    @Test
-    public void twoXs() throws ParseError {
+    @Test public void twoXs() throws ParseError {
         testSuccessByExpansions("x x", "Xs([X, X])");
         testSuccessByExpansions("x x // x", "Xs([X, X])");
         testSuccessByExpansions("x /* x */ x", "Xs([X, X])");

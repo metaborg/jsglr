@@ -10,18 +10,15 @@ public class SumNonAmbiguousTest extends BaseTestWithSdf3ParseTables {
         super("sum-nonambiguous.sdf3");
     }
 
-    @Test
-    public void one() throws ParseError {
+    @Test public void one() throws ParseError {
         testSuccessByExpansions("x", "Term()");
     }
 
-    @Test
-    public void two() throws ParseError {
+    @Test public void two() throws ParseError {
         testSuccessByExpansions("x+x", "Add(Term(),Term())");
     }
 
-    @Test
-    public void three() throws ParseError {
+    @Test public void three() throws ParseError {
         testSuccessByExpansions("x+x+x", "Add(Add(Term(),Term()),Term())");
     }
 

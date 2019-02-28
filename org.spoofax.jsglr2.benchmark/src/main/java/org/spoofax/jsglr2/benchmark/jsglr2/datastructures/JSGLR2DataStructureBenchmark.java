@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.IParseTable;
 import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Variants;
@@ -24,9 +27,6 @@ import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
-import org.metaborg.parsetable.IParseTable;
 
 public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark {
 
@@ -36,9 +36,7 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark {
         super(testSet);
     }
 
-    @SuppressWarnings("unchecked")
-    @Setup
-    public void parserSetup() throws ParseError, ParseTableReadException {
+    @SuppressWarnings("unchecked") @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
         parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
@@ -57,12 +55,13 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark {
     }
 
     protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
-    	IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
-                StateFactory.defaultProductionToGotoRepresentation);
+        IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
+            StateFactory.defaultProductionToGotoRepresentation);
         IActionsFactory actionsFactory = new ActionsFactory(true);
         ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
-        
-        return new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(testSetReader.getParseTableTerm());
+
+        return new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
+            .read(testSetReader.getParseTableTerm());
     }
 
     abstract protected void postParserSetup();

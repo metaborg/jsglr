@@ -1,5 +1,10 @@
 package org.spoofax.jsglr2.parser.observing;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
@@ -14,12 +19,11 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-
-public abstract class ParserObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public abstract class ParserObserver
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
     implements IParserObserver<ParseForest, StackNode> {
 
     private int parseNodeCount = 0;
@@ -54,98 +58,98 @@ public abstract class ParserObserver<ParseForest extends AbstractParseForest, St
         return stackLinkId.get(stackLink);
     }
 
-    @Override
-    public void parseStart(AbstractParse<ParseForest, StackNode> parse) {}
+    @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
+    }
 
-    @Override
-    public void parseCharacter(AbstractParse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks) {}
+    @Override public void parseCharacter(AbstractParse<ParseForest, StackNode> parse,
+        Iterable<StackNode> activeStacks) {
+    }
 
-    @Override
-    public void addActiveStack(StackNode stack) {}
+    @Override public void addActiveStack(StackNode stack) {
+    }
 
-    @Override
-    public void addForActorStack(StackNode stack) {}
+    @Override public void addForActorStack(StackNode stack) {
+    }
 
-    @Override
-    public void findActiveStackWithState(IState state) {}
+    @Override public void findActiveStackWithState(IState state) {
+    }
 
-    @Override
-    public void createStackNode(StackNode stack) {
+    @Override public void createStackNode(StackNode stack) {
         registerStackNode(stack);
     }
 
-    @Override
-    public void createStackLink(StackLink<ParseForest, StackNode> link) {
+    @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
         registerStackLink(link);
     }
 
-    @Override
-    public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack) {}
+    @Override public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack) {
+    }
 
-    @Override
-    public void rejectStackLink(StackLink<ParseForest, StackNode> link) {}
+    @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
+    }
 
-    @Override
-    public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {}
+    @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
+    }
 
-    @Override
-    public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {}
+    @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
+    }
 
-    @Override
-    public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions) {}
+    @Override public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse,
+        Iterable<IAction> applicableActions) {
+    }
 
-    @Override
-    public void skipRejectedStack(StackNode stack) {}
+    @Override public void skipRejectedStack(StackNode stack) {
+    }
 
-    @Override
-    public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {}
+    @Override public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {
+    }
 
-    @Override
-    public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {}
+    @Override public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
+    }
 
-    @Override
-    public void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> link) {}
+    @Override public void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack,
+        IReduce reduce, StackLink<ParseForest, StackNode> link) {
+    }
 
-    @Override
-    public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {}
+    @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
+        StackNode activeStackWithGotoState) {
+    }
 
-    @Override
-    public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {}
+    @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
+    }
 
-    @Override
-    public void directLinkFound(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink) {}
+    @Override public void directLinkFound(AbstractParse<ParseForest, StackNode> parse,
+        StackLink<ParseForest, StackNode> directLink) {
+    }
 
-    @Override
-    public void accept(StackNode acceptingStack) {}
+    @Override public void accept(StackNode acceptingStack) {
+    }
 
-    @Override
-    public void createParseNode(ParseForest parseNode, IProduction production) {
+    @Override public void createParseNode(ParseForest parseNode, IProduction production) {
         registerParseNode(parseNode);
     }
 
-    @Override
-    public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {}
+    @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
+    }
 
-    @Override
-    public void createCharacterNode(ParseForest characterNode, int character) {
+    @Override public void createCharacterNode(ParseForest characterNode, int character) {
         registerParseNode(characterNode);
     }
 
-    @Override
-    public void addDerivation(ParseForest parseNode) {}
+    @Override public void addDerivation(ParseForest parseNode) {
+    }
 
-    @Override
-    public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {}
+    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
+    }
 
-    @Override
-    public void remark(String remark) {}
+    @Override public void remark(String remark) {
+    }
 
-    @Override
-    public void success(ParseSuccess<ParseForest, ?> success) {}
+    @Override public void success(ParseSuccess<ParseForest, ?> success) {
+    }
 
-    @Override
-    public void failure(ParseFailure<ParseForest, ?> failure) {}
+    @Override public void failure(ParseFailure<ParseForest, ?> failure) {
+    }
 
     String stackQueueToString(Iterable<StackNode> stacks) {
         String res = "";
@@ -205,7 +209,7 @@ public abstract class ParserObserver<ParseForest extends AbstractParseForest, St
 
     String parseForestListToString(List<ParseForest> parseForestsList) {
         @SuppressWarnings("unchecked") ParseForest[] parseForestsArray =
-                (ParseForest[]) new Object[parseForestsList.size()];
+            (ParseForest[]) new Object[parseForestsList.size()];
 
         parseForestsList.toArray(parseForestsArray);
 

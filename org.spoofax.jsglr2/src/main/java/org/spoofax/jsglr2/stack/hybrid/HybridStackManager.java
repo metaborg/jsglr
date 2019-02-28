@@ -8,8 +8,7 @@ import org.spoofax.jsglr2.stack.StackManager;
 public class HybridStackManager<ParseForest extends AbstractParseForest>
     extends StackManager<ParseForest, HybridStackNode<ParseForest>> {
 
-    @Override
-    protected HybridStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {
+    @Override protected HybridStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {
         return new HybridStackNode<>(state, position);
     }
 

@@ -46,7 +46,7 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
     }
 
     public List<PositionInterval> getLongestMatchPositions() {
-//        System.out.println("getting positions for " + this);
+        // System.out.println("getting positions for " + this);
         List<PositionInterval> result = Lists.newArrayList();
         if(production.isLongestMatch()) {
             result.add(new PositionInterval(getStartPosition(), getEndPosition()));
@@ -56,7 +56,7 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
                 result.addAll(((LayoutSensitiveRuleNode) pf).getLongestMatchPositions());
             } else if(pf instanceof LayoutSensitiveSymbolNode) {
                 List<PositionInterval> positions = ((LayoutSensitiveSymbolNode) pf).getLongestMatchPositions();
-                
+
                 result.addAll(positions);
             }
         }

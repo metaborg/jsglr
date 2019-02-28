@@ -8,15 +8,20 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public interface IParserObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public interface IParserObserver
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
+{
 
     void parseStart(AbstractParse<ParseForest, StackNode> parse);
 
@@ -49,7 +54,7 @@ public interface IParserObserver<ParseForest extends AbstractParseForest, StackN
     void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce);
 
     void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
-                             StackLink<ParseForest, StackNode> link);
+        StackLink<ParseForest, StackNode> link);
 
     void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
 

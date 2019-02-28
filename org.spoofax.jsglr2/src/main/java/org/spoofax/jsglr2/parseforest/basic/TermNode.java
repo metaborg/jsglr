@@ -12,11 +12,10 @@ public class TermNode extends BasicParseForest {
         this.character = character;
     }
 
-    @Override
-    public String descriptor() {
+    @Override public String descriptor() {
         return "'" + CharacterClassFactory.intToString(this.character) + "'";
     }
-    
+
     @Override public String toString() {
         return "'" + CharacterClassFactory.intToString(this.character) + "'";
     }

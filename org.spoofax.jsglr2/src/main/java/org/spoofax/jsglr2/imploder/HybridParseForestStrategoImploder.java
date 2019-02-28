@@ -14,23 +14,20 @@ public class HybridParseForestStrategoImploder extends StrategoTermImploder<Hybr
         super(new HybridParseForestTokenizer());
     }
 
-    @Override
-    protected IProduction parseNodeProduction(ParseNode parseNode) {
+    @Override protected IProduction parseNodeProduction(ParseNode parseNode) {
         return parseNode.production;
     }
 
-    @Override
-    protected Derivation parseNodeOnlyDerivation(ParseNode parseNode) {
+    @Override protected Derivation parseNodeOnlyDerivation(ParseNode parseNode) {
         return parseNode.getOnlyDerivation();
     }
 
-    @Override
-    protected List<Derivation> parseNodePreferredAvoidedDerivations(ParseNode parseNode) {
+    @Override protected List<Derivation> parseNodePreferredAvoidedDerivations(ParseNode parseNode) {
         return parseNode.getPreferredAvoidedDerivations();
     }
 
     @Override protected List<Derivation> longestMatchedDerivations(List<Derivation> derivations) {
-        // TODO remove derivations according to longest match criteria 
+        // TODO remove derivations according to longest match criteria
         return derivations;
     }
 

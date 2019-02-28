@@ -6,8 +6,7 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 
 public class NullParseForestStrategoImploder implements IImploder<HybridParseForest, IStrategoTerm> {
 
-    @Override
-    public ImplodeResult<HybridParseForest, IStrategoTerm> implode(AbstractParse<HybridParseForest, ?> parse,
+    @Override public ImplodeResult<HybridParseForest, IStrategoTerm> implode(AbstractParse<HybridParseForest, ?> parse,
         HybridParseForest parseForest) {
         return null;
     }

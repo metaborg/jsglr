@@ -17,13 +17,15 @@ import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class ElkhoundParser<
-        ParseForest extends AbstractParseForest,
-        ParseNode extends ParseForest,
-        Derivation extends IDerivation<ParseForest>,
-        ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>,
-        Parse extends AbstractParse<ParseForest, ElkhoundStackNode>
-        > extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
+public class ElkhoundParser
+//@formatter:off
+   <ParseForest       extends AbstractParseForest,
+    ParseNode         extends ParseForest,
+    Derivation        extends IDerivation<ParseForest>,
+    ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>,
+    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>>
+//@formatter:on
+    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
         IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,

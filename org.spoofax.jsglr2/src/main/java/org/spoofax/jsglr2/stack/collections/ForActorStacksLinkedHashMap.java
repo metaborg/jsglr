@@ -30,8 +30,7 @@ public class ForActorStacksLinkedHashMap<ParseForest extends AbstractParseForest
         }
     }
 
-    @Override
-    protected void forActorAdd(StackNode stack) {
+    @Override protected void forActorAdd(StackNode stack) {
         Linked<StackNode> linkedStackNode = new Linked<>(stack, last);
 
         forActor.put(stack.state.id(), linkedStackNode);
@@ -39,18 +38,15 @@ public class ForActorStacksLinkedHashMap<ParseForest extends AbstractParseForest
         last = linkedStackNode;
     }
 
-    @Override
-    protected boolean forActorContains(StackNode stack) {
+    @Override protected boolean forActorContains(StackNode stack) {
         return forActor.containsKey(stack.state.id());
     }
 
-    @Override
-    protected boolean forActorNonEmpty() {
+    @Override protected boolean forActorNonEmpty() {
         return last != null;
     }
 
-    @Override
-    protected StackNode forActorRemove() {
+    @Override protected StackNode forActorRemove() {
         StackNode stack = last.stack;
 
         last = last.prev;

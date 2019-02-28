@@ -48,22 +48,23 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
     abstract protected boolean implode();
 
-    @Setup
-    public void parserSetup() throws ParseError, ParseTableReadException {
+    @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         Variant variant = variant();
 
         filterVariants(implode(), variant);
-        
+
         IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
             StateFactory.defaultProductionToGotoRepresentation);
-        
+
         IActionsFactory actionsFactory = new ActionsFactory(true);
         ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
-        
-        IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(testSetReader.getParseTableTerm());
-        		
-        //IParseTable parseTable = new ParseTableReader(characterClassFactory, variant.parseTable.actionsForCharacterRepresentation,
-        //   variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
+
+        IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
+            .read(testSetReader.getParseTableTerm());
+
+        // IParseTable parseTable = new ParseTableReader(characterClassFactory,
+        // variant.parseTable.actionsForCharacterRepresentation,
+        // variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, variant.parser);
         jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
@@ -126,8 +127,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
             throw new IllegalStateException("this variant is not used for benchmarking");
     }
 
-    @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
         if(implode()) {
             if(variant().parser.parseForestRepresentation == ParseForestRepresentation.Null)
                 throw new IllegalStateException("imploding requires a parse forest");

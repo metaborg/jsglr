@@ -7,7 +7,12 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public interface IParser<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public interface IParser
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
+{
 
     ParseResult<ParseForest, ?> parse(String input, String filename, String startSymbol);
 

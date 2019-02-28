@@ -32,8 +32,7 @@ public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, 
         }
     }
 
-    @Override
-    public void add(StackNode stack) {
+    @Override public void add(StackNode stack) {
         observing.notify(observer -> observer.addActiveStack(stack));
 
         Linked<StackNode> linkedStackNode = new Linked<>(stack, last);
@@ -43,23 +42,19 @@ public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, 
         last = linkedStackNode;
     }
 
-    @Override
-    public boolean isSingle() {
+    @Override public boolean isSingle() {
         return last != null && last.prev == null;
     }
 
-    @Override
-    public StackNode getSingle() {
+    @Override public StackNode getSingle() {
         return last.stack;
     }
 
-    @Override
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
         return last == null;
     }
 
-    @Override
-    public StackNode findWithState(IState state) {
+    @Override public StackNode findWithState(IState state) {
         observing.notify(observer -> observer.findActiveStackWithState(state));
 
         Linked<StackNode> linkedStackNode = activeStacks.get(state.id());
@@ -67,14 +62,12 @@ public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, 
         return linkedStackNode != null ? linkedStackNode.stack : null;
     }
 
-    @Override
-    public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks) {
+    @Override public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks) {
         return () -> new Iterator<StackNode>() {
 
             ActiveStacksLinkedHashMap.Linked<StackNode> current = last;
 
-            @Override
-            public boolean hasNext() {
+            @Override public boolean hasNext() {
                 while(current != null
                     && !(!current.stack.allLinksRejected() && !forActorStacks.contains(current.stack)))
                     current = current.prev;
@@ -82,8 +75,7 @@ public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, 
                 return current != null;
             }
 
-            @Override
-            public StackNode next() {
+            @Override public StackNode next() {
                 StackNode currentStack = current.stack;
 
                 current = current.prev;
@@ -94,31 +86,26 @@ public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, 
         };
     }
 
-    @Override
-    public void addAllTo(IForActorStacks<StackNode> other) {
+    @Override public void addAllTo(IForActorStacks<StackNode> other) {
         for(Linked<StackNode> linkedState = last; linkedState != null; linkedState = linkedState.prev)
             other.add(linkedState.stack);
     }
 
-    @Override
-    public void clear() {
+    @Override public void clear() {
         activeStacks.clear();
         last = null;
     }
 
-    @Override
-    public Iterator<StackNode> iterator() {
+    @Override public Iterator<StackNode> iterator() {
         return new Iterator<StackNode>() {
 
             ActiveStacksLinkedHashMap.Linked<StackNode> current = last;
 
-            @Override
-            public boolean hasNext() {
+            @Override public boolean hasNext() {
                 return current != null;
             }
 
-            @Override
-            public StackNode next() {
+            @Override public StackNode next() {
                 StackNode currentStack = current.stack;
 
                 current = current.prev;

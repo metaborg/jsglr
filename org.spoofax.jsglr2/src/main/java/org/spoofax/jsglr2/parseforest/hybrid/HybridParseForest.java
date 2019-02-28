@@ -9,16 +9,15 @@ public abstract class HybridParseForest extends AbstractParseForest {
     protected HybridParseForest(Position startPosition, Position endPosition) {
         super(startPosition, endPosition);
     }
-    
-    @Override
-    public String toString() {
-    	TreePrettyPrinter printer = new TreePrettyPrinter();
-    	
-    	prettyPrint(printer);
-    	
-    	return printer.get();
+
+    @Override public String toString() {
+        TreePrettyPrinter printer = new TreePrettyPrinter();
+
+        prettyPrint(printer);
+
+        return printer.get();
     }
-    
+
     abstract protected void prettyPrint(TreePrettyPrinter printer);
 
 }

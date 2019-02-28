@@ -16,20 +16,22 @@ import org.spoofax.jsglr2.parser.result.ParseFailureType;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
+import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class Parser<
-        ParseForest extends AbstractParseForest,
-        ParseNode extends ParseForest,
-        Derivation extends IDerivation<ParseForest>,
-        StackNode extends AbstractStackNode<ParseForest>,
-        Parse extends AbstractParse<ParseForest, StackNode>
-        > implements IParser<ParseForest, StackNode> {
+public class Parser
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    ParseNode   extends ParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    StackNode   extends AbstractStackNode<ParseForest>,
+    Parse       extends AbstractParse<ParseForest, StackNode>>
+//@formatter:on
+    implements IParser<ParseForest, StackNode> {
 
     protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;
@@ -41,8 +43,9 @@ public class Parser<
     private final IForActorStacksFactory forActorStacksFactory;
     protected final ParserObserving<ParseForest, StackNode> observing;
 
-    public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, AbstractStackManager<ParseForest, StackNode> stackManager,
+    public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
+        IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
+        AbstractStackManager<ParseForest, StackNode> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager) {
         this.parseFactory = parseFactory;
@@ -59,7 +62,7 @@ public class Parser<
     @Override public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
         IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
         IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
-        
+
         Parse parse = parseFactory.get(inputString, filename, activeStacks, forActorStacks, observing);
 
         observing.notify(observer -> observer.parseStart(parse));
@@ -71,11 +74,10 @@ public class Parser<
         parseLoop(parse);
 
         if(parse.acceptingStack != null) {
-            ParseForest parseForest =
-                stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
+            ParseForest parseForest = stackManager.findDirectLink(parse.acceptingStack, initialStackNode).parseForest;
 
-            ParseForest parseForestWithStartSymbol =
-                startSymbol != null ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parse) : parseForest;
+            ParseForest parseForestWithStartSymbol = startSymbol != null
+                ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parse) : parseForest;
 
             if(parseForest != null && parseForestWithStartSymbol == null)
                 return failure(parse, ParseFailureType.InvalidStartSymbol);
@@ -84,18 +86,18 @@ public class Parser<
         } else
             return failure(parse, failureHandler.failureType(parse));
     }
-    
+
     private ParseSuccess<ParseForest, ?> success(Parse parse, ParseForest parseForest) {
         ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForest);
-        
+
         observing.notify(observer -> observer.success(success));
 
         return success;
     }
-    
+
     private ParseFailure<ParseForest, ?> failure(Parse parse, ParseFailureType failureType) {
         ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, failureType);
-        
+
         observing.notify(observer -> observer.failure(failure));
 
         return failure;
@@ -107,8 +109,8 @@ public class Parser<
 
             parse.next();
         }
-        
-        if (parse.acceptingStack != null)
+
+        if(parse.acceptingStack != null)
             return;
         else
             failureHandler.onFailure(parse);

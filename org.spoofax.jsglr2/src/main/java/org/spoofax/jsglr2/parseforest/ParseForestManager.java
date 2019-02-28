@@ -5,10 +5,13 @@ import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
-public abstract class ParseForestManager<
-        ParseForest extends AbstractParseForest,
-        ParseNode extends ParseForest,
-        Derivation extends IDerivation<ParseForest>> {
+public abstract class ParseForestManager
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    ParseNode   extends ParseForest,
+    Derivation  extends IDerivation<ParseForest>>
+//@formatter:on
+{
 
     abstract public ParseNode createParseNode(AbstractParse<ParseForest, ?> parse, Position beginPosition,
         IProduction production, Derivation firstDerivation);
@@ -22,6 +25,7 @@ public abstract class ParseForestManager<
 
     abstract public ParseForest[] parseForestsArray(int length);
 
-    abstract public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol, AbstractParse<ParseForest, ?> parse);
+    abstract public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol,
+        AbstractParse<ParseForest, ?> parse);
 
 }

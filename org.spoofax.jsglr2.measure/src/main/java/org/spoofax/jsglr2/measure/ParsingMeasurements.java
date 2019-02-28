@@ -39,19 +39,22 @@ public class ParsingMeasurements extends Measurements {
     public void measure() throws ParseTableReadException, IOException, ParseException {
         System.out.println(" * Parsing");
 
-        IParseTable parseTable = new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
-                new StateFactory()).read(testSetReader.getParseTableTerm());
+        IParseTable parseTable =
+            new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory())
+                .read(testSetReader.getParseTableTerm());
 
-        JSGLR2Variants.ParserVariant variantStandard = new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
-            ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
-            StackRepresentation.HybridElkhound, Reducing.Basic);
-        JSGLR2Variants.ParserVariant variantElkhound = new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
-            ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
-            StackRepresentation.HybridElkhound, Reducing.Elkhound);
+        JSGLR2Variants.ParserVariant variantStandard =
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
+                ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+                StackRepresentation.HybridElkhound, Reducing.Basic);
+        JSGLR2Variants.ParserVariant variantElkhound =
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
+                ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+                StackRepresentation.HybridElkhound, Reducing.Elkhound);
         JSGLR2Variants.ParserVariant variantOptimzedParseForest =
-            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
-                Reducing.Basic);
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
+                ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid,
+                ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Basic);
 
         measure(parseTable, variantStandard, "standard");
         measure(parseTable, variantElkhound, "elkhound");

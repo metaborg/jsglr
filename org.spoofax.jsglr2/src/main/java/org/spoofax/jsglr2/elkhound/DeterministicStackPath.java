@@ -16,18 +16,15 @@ public class DeterministicStackPath<ParseForest, StackNode extends AbstractStack
         this.head = head;
     }
 
-    @Override
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
         return length == 0;
     }
 
-    @Override
-    public StackNode head() {
+    @Override public StackNode head() {
         return head;
     }
 
-    @Override
-    public boolean contains(StackLink<ParseForest, StackNode> link) {
+    @Override public boolean contains(StackLink<ParseForest, StackNode> link) {
         // We can (possibly theoretically incorrect) return false here since this method is only called in a non-LR
         // context and this type of path is only used in the LR/Elkhound context
         return false;

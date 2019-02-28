@@ -20,24 +20,20 @@ public class SingleElementWithListIterable<T> implements Iterable<T> {
     private T element;
     private List<T> list;
 
-    @Deprecated
-    public SingleElementWithListIterable(T element, List<T> list) {
+    @Deprecated public SingleElementWithListIterable(T element, List<T> list) {
         this.element = element;
         this.list = list;
     }
 
-    @Override
-    public Iterator<T> iterator() {
+    @Override public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int cursor = 0;
 
-            @Override
-            public boolean hasNext() {
+            @Override public boolean hasNext() {
                 return cursor < list.size() + 1;
             }
 
-            @Override
-            public T next() {
+            @Override public T next() {
                 cursor++;
 
                 if(cursor == 1)

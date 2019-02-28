@@ -17,34 +17,31 @@ public class Derivation implements IDerivation<HybridParseForest> {
         this.parseForests = parseForests;
     }
 
-    @Override
-    public IProduction production() {
+    @Override public IProduction production() {
         return production;
     }
 
-    @Override
-    public ProductionType productionType() {
+    @Override public ProductionType productionType() {
         return productionType;
     }
 
-    @Override
-    public HybridParseForest[] parseForests() {
+    @Override public HybridParseForest[] parseForests() {
         return parseForests;
     }
 
     protected void prettyPrint(TreePrettyPrinter printer) {
-    	printer.println("p" + production.id() + " : " + production.descriptor() + "{");
-    	printer.indent(2);
-    	
-    	for (HybridParseForest parseForest : parseForests) {
-    		if (parseForest != null) 
-    			parseForest.prettyPrint(printer);
-			else
-				printer.println("null");
-    	}
+        printer.println("p" + production.id() + " : " + production.descriptor() + "{");
+        printer.indent(2);
 
-    	printer.indent(-2);
-    	printer.println("}");
+        for(HybridParseForest parseForest : parseForests) {
+            if(parseForest != null)
+                parseForest.prettyPrint(printer);
+            else
+                printer.println("null");
+        }
+
+        printer.indent(-2);
+        printer.println("}");
     }
 
 }

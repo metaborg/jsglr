@@ -11,9 +11,8 @@ import org.spoofax.jsglr2.parser.Position;
 
 public class BasicParseForestManager extends ParseForestManager<BasicParseForest, SymbolNode, RuleNode> {
 
-    @Override
-    public SymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
-        RuleNode firstDerivation) {
+    @Override public SymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
+        IProduction production, RuleNode firstDerivation) {
         SymbolNode symbolNode = new SymbolNode(beginPosition, parse.currentPosition(), production);
 
         // parse.notify(observer -> observer.createParseNode(symbolNode, production));
@@ -23,8 +22,8 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return symbolNode;
     }
 
-    @Override
-    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, AbstractParse<BasicParseForest, ?> parse) {
+    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol,
+        AbstractParse<BasicParseForest, ?> parse) {
         SymbolNode topNode = (SymbolNode) parseForest;
         List<RuleNode> result = new ArrayList<RuleNode>();
 
@@ -38,7 +37,8 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         if(result.isEmpty())
             return null;
         else {
-            SymbolNode filteredTopNode = new SymbolNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production);
+            SymbolNode filteredTopNode =
+                new SymbolNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production);
 
             for(RuleNode derivation : result)
                 filteredTopNode.addDerivation(derivation);
@@ -47,26 +47,24 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         }
     }
 
-    @Override
-    public RuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
-        ProductionType productionType, BasicParseForest[] parseForests) {
-        RuleNode ruleNode = new RuleNode(beginPosition, parse.currentPosition(), production, productionType,
-            parseForests);
+    @Override public RuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
+        IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
+        RuleNode ruleNode =
+            new RuleNode(beginPosition, parse.currentPosition(), production, productionType, parseForests);
 
         // parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
 
         return ruleNode;
     }
 
-    @Override
-    public void addDerivation(AbstractParse<BasicParseForest, ?> parse, SymbolNode symbolNode, RuleNode ruleNode) {
+    @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, SymbolNode symbolNode,
+        RuleNode ruleNode) {
         // parse.notify(observer -> observer.addDerivation(symbolNode));
 
         symbolNode.addDerivation(ruleNode);
     }
 
-    @Override
-    public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
+    @Override public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
         TermNode termNode = new TermNode(parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
@@ -74,8 +72,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return termNode;
     }
 
-    @Override
-    public BasicParseForest[] parseForestsArray(int length) {
+    @Override public BasicParseForest[] parseForestsArray(int length) {
         return new BasicParseForest[length];
     }
 

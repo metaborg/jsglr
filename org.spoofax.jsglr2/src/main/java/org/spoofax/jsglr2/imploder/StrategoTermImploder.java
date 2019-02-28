@@ -9,15 +9,19 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
 import org.spoofax.terms.TermFactory;
 
-public abstract class StrategoTermImploder<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>>
+public abstract class StrategoTermImploder
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    ParseNode   extends ParseForest,
+    Derivation  extends IDerivation<ParseForest>>
+//@formatter:on
     extends TokenizedTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
 
     public StrategoTermImploder(Tokenizer<ParseForest, ParseNode, Derivation> tokenizer) {
         super(new TermTreeFactory(new TermFactory().getFactoryWithStorageType(MUTABLE)), tokenizer);
     }
 
-    @Override
-    protected void tokenTreeBinding(IToken token, IStrategoTerm term) {
+    @Override protected void tokenTreeBinding(IToken token, IStrategoTerm term) {
         token.setAstNode(term);
     }
 

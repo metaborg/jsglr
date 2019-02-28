@@ -10,8 +10,7 @@ public class KernelTest extends BaseTestWithSdf3ParseTables {
         super("kernel");
     }
 
-    @Test
-    public void oneX() throws ParseError {
+    @Test public void oneX() throws ParseError {
         // testParseSuccessByJSGLR("\"x\""); TODO: implement kernel constructors
     }
 

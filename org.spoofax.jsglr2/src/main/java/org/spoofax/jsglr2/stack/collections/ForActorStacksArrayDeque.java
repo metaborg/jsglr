@@ -18,23 +18,19 @@ public class ForActorStacksArrayDeque<ParseForest extends AbstractParseForest, S
         this.forActor = new ArrayDeque<StackNode>();
     }
 
-    @Override
-    protected void forActorAdd(StackNode stack) {
+    @Override protected void forActorAdd(StackNode stack) {
         forActor.add(stack);
     }
 
-    @Override
-    protected boolean forActorContains(StackNode stack) {
+    @Override protected boolean forActorContains(StackNode stack) {
         return forActor.contains(stack);
     }
 
-    @Override
-    protected boolean forActorNonEmpty() {
+    @Override protected boolean forActorNonEmpty() {
         return !forActor.isEmpty();
     }
 
-    @Override
-    protected StackNode forActorRemove() {
+    @Override protected StackNode forActorRemove() {
         return forActor.remove();
     }
 

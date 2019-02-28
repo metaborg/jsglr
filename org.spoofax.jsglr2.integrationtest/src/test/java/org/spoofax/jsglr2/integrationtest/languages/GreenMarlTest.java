@@ -9,11 +9,10 @@ import org.spoofax.terms.ParseError;
 public class GreenMarlTest extends BaseTestWithParseTableFromTermWithJSGLR1 {
 
     public GreenMarlTest() throws Exception {
-    	setupParseTable("GreenMarl");
+        setupParseTable("GreenMarl");
     }
 
-    @Test
-    public void testSampleProgramByJSGLR1() throws ParseError, IOException {
+    @Test public void testSampleProgramByJSGLR1() throws ParseError, IOException {
         String sampleProgram = getFileAsString("GreenMarl/infomap.gm");
 
         testSuccessByJSGLR1(sampleProgram);

@@ -3,6 +3,13 @@ package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.IActionQuery;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
@@ -20,13 +27,6 @@ import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.metaborg.parsetable.IActionQuery;
-import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IState;
-import org.metaborg.parsetable.actions.IAction;
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataStructureBenchmark {
 
@@ -44,8 +44,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     @Param ActionsForCharacterRepresentation actionsPerCharacterClassRepresentation;
 
-    @Override
-    public void postParserSetup() {
+    @Override public void postParserSetup() {
         actorObserver = new ActorObserver();
 
         parser.observing().attachObserver(actorObserver);
@@ -58,8 +57,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         }
     }
 
-    @Override
-    protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
+    @Override protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         ICharacterClassFactory characterClassFactory =
             new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
         IActionsFactory actionsFactory = new ActionsFactory(cacheActions);
@@ -77,13 +75,11 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         public ActorOnState(IState state, int character) {
             this.state = state;
             this.actionQuery = new IActionQuery() {
-                @Override
-                public int actionQueryCharacter() {
+                @Override public int actionQueryCharacter() {
                     return character;
                 }
 
-                @Override
-                public String actionQueryLookahead(int length) {
+                @Override public String actionQueryLookahead(int length) {
                     return "";
                 }
             };
@@ -100,9 +96,9 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
         public List<ActorOnState> stateApplicableActions = new ArrayList<ActorOnState>();
 
-        @Override
-        public void actor(BasicStackNode<BasicParseForest> stack,
-        		AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse, Iterable<IAction> applicableActions) {
+        @Override public void actor(BasicStackNode<BasicParseForest> stack,
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+            Iterable<IAction> applicableActions) {
             ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);
@@ -110,8 +106,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     }
 
-    @Benchmark
-    public void benchmark(Blackhole bh) {
+    @Benchmark public void benchmark(Blackhole bh) {
         for(ActorOnState stateApplicableActions : actorObserver.stateApplicableActions)
             stateApplicableActions.iterateOverApplicableActions(bh);
     }

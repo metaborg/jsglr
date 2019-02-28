@@ -10,8 +10,7 @@ public class LexicalTest extends BaseTestWithSdf3ParseTables {
         super("lexical-id.sdf3");
     }
 
-    @Test
-    public void identifiers() throws ParseError {
+    @Test public void identifiers() throws ParseError {
         testSuccessByExpansions("a", "\"a\")");
         testSuccessByExpansions("aaaaa", "\"aaaaa\")");
     }

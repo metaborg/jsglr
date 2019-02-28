@@ -10,24 +10,21 @@ public class LookaheadTest extends BaseTestWithSdf3ParseTables {
         super("lookahead.sdf3");
     }
 
-    @Test
-    public void oneCharFollowRestricted() throws ParseError {
+    @Test public void oneCharFollowRestricted() throws ParseError {
         testSuccessByExpansions("1[x]", "OneCharFollowRestricted(\"1[x]\")");
         testParseFailure("1[ax]");
         testParseFailure("1[abx]");
         testParseFailure("1[abcx]");
     }
 
-    @Test
-    public void twoCharFollowRestricted() throws ParseError {
+    @Test public void twoCharFollowRestricted() throws ParseError {
         testSuccessByExpansions("2[x]", "TwoCharFollowRestricted(\"2[x]\")");
         testSuccessByExpansions("2[ax]", "TwoCharFollowRestricted(\"2[ax]\")");
         testParseFailure("2[abx]");
         testParseFailure("2[abcx]");
     }
 
-    @Test
-    public void threeCharFollowRestricted() throws ParseError {
+    @Test public void threeCharFollowRestricted() throws ParseError {
         testSuccessByExpansions("3[x]", "ThreeCharFollowRestricted(\"3[x]\")");
         testSuccessByExpansions("3[ax]", "ThreeCharFollowRestricted(\"3[ax]\")");
         testSuccessByExpansions("3[abx]", "ThreeCharFollowRestricted(\"3[abx]\")");

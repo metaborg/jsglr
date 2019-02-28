@@ -8,27 +8,13 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.datadependent.DataDependentParseForestManager;
-import org.spoofax.jsglr2.datadependent.DataDependentParseForestStrategoImploder;
-import org.spoofax.jsglr2.datadependent.DataDependentReduceManager;
-import org.spoofax.jsglr2.datadependent.DataDependentRuleNode;
-import org.spoofax.jsglr2.datadependent.DataDependentSymbolNode;
-import org.spoofax.jsglr2.elkhound.ElkhoundStackManager;
-import org.spoofax.jsglr2.elkhound.BasicElkhoundStackManager;
-import org.spoofax.jsglr2.elkhound.BasicElkhoundStackNode;
-import org.spoofax.jsglr2.elkhound.ElkhoundParser;
-import org.spoofax.jsglr2.elkhound.ElkhoundReduceManager;
-import org.spoofax.jsglr2.elkhound.HybridElkhoundStackManager;
-import org.spoofax.jsglr2.elkhound.HybridElkhoundStackNode;
+import org.spoofax.jsglr2.datadependent.*;
+import org.spoofax.jsglr2.elkhound.*;
 import org.spoofax.jsglr2.imploder.BasicParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.HybridParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.NullParseForestStrategoImploder;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestStrategoImploder;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveReduceManager;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveRuleNode;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
+import org.spoofax.jsglr2.layoutsensitive.*;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -47,16 +33,11 @@ import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
-import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.StackNode;
+import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.basic.BasicStackManager;
+import org.spoofax.jsglr2.stack.collections.*;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 public class JSGLR2Variants {
 
@@ -73,8 +54,7 @@ public class JSGLR2Variants {
             return parseTable.name() + "/" + parser.name();
         }
 
-        @Override
-        public boolean equals(Object o) {
+        @Override public boolean equals(Object o) {
             if(this == o) {
                 return true;
             }
@@ -103,8 +83,7 @@ public class JSGLR2Variants {
                 + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;
         }
 
-        @Override
-        public boolean equals(Object o) {
+        @Override public boolean equals(Object o) {
             if(this == o) {
                 return true;
             }
@@ -156,8 +135,7 @@ public class JSGLR2Variants {
                 + "/Reducing:" + reducing;
         }
 
-        @Override
-        public boolean equals(Object o) {
+        @Override public boolean equals(Object o) {
             if(this == o) {
                 return true;
             }
@@ -241,8 +219,8 @@ public class JSGLR2Variants {
                                 variant.parseForestConstruction);
 
                         return new ElkhoundParser<BasicParseForest, SymbolNode, RuleNode, HybridElkhoundStackNode<BasicParseForest>, Parse<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>>>(
-                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                            basicParseForestManager, elkhoundReducer);
+                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                            elkhoundStackManager, basicParseForestManager, elkhoundReducer);
                     } else {
                         ElkhoundStackManager<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>> elkhoundStackManager =
                             new BasicElkhoundStackManager<BasicParseForest>();
@@ -253,8 +231,8 @@ public class JSGLR2Variants {
                                 variant.parseForestConstruction);
 
                         return new ElkhoundParser<BasicParseForest, SymbolNode, RuleNode, BasicElkhoundStackNode<BasicParseForest>, Parse<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>>>(
-                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                            basicParseForestManager, elkhoundReducer);
+                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                            elkhoundStackManager, basicParseForestManager, elkhoundReducer);
                     }
                 } else {
                     if(variant.stackRepresentation == StackRepresentation.Basic
@@ -285,8 +263,8 @@ public class JSGLR2Variants {
                                     variant.parseForestConstruction);
 
                             return new Parser<BasicParseForest, SymbolNode, RuleNode, HybridElkhoundStackNode<BasicParseForest>, Parse<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>>>(
-                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                                basicParseForestManager, basicReducer);
+                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                                elkhoundStackManager, basicParseForestManager, basicReducer);
                         } else {
                             ElkhoundStackManager<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>> elkhoundStackManager =
                                 new BasicElkhoundStackManager<BasicParseForest>();
@@ -297,8 +275,8 @@ public class JSGLR2Variants {
                                     variant.parseForestConstruction);
 
                             return new Parser<BasicParseForest, SymbolNode, RuleNode, BasicElkhoundStackNode<BasicParseForest>, Parse<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>>>(
-                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                                basicParseForestManager, basicReducer);
+                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                                elkhoundStackManager, basicParseForestManager, basicReducer);
                         }
                     }
                 }
@@ -322,8 +300,8 @@ public class JSGLR2Variants {
                                 variant.parseForestConstruction);
 
                         return new ElkhoundParser<HybridParseForest, ParseNode, Derivation, HybridElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>>>(
-                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                            hybridParseForestManager, elkhoundReducer);
+                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                            elkhoundStackManager, hybridParseForestManager, elkhoundReducer);
                     } else {
                         ElkhoundStackManager<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>> elkhoundStackManager =
                             new BasicElkhoundStackManager<HybridParseForest>();
@@ -334,8 +312,8 @@ public class JSGLR2Variants {
                                 variant.parseForestConstruction);
 
                         return new ElkhoundParser<HybridParseForest, ParseNode, Derivation, BasicElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>>>(
-                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                            hybridParseForestManager, elkhoundReducer);
+                            Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                            elkhoundStackManager, hybridParseForestManager, elkhoundReducer);
                     }
                 } else {
                     if(variant.stackRepresentation == StackRepresentation.Basic
@@ -366,8 +344,8 @@ public class JSGLR2Variants {
                                     variant.parseForestConstruction);
 
                             return new Parser<HybridParseForest, ParseNode, Derivation, HybridElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>>>(
-                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                                hybridParseForestManager, basicReducer);
+                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                                elkhoundStackManager, hybridParseForestManager, basicReducer);
                         } else {
                             ElkhoundStackManager<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>> elkhoundStackManager =
                                 new BasicElkhoundStackManager<HybridParseForest>();
@@ -378,8 +356,8 @@ public class JSGLR2Variants {
                                     variant.parseForestConstruction);
 
                             return new Parser<HybridParseForest, ParseNode, Derivation, BasicElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>>>(
-                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, elkhoundStackManager,
-                                hybridParseForestManager, basicReducer);
+                                Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                                elkhoundStackManager, hybridParseForestManager, basicReducer);
                         }
                     }
                 }
@@ -394,13 +372,12 @@ public class JSGLR2Variants {
 
                 DataDependentReduceManager<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode, StackNode<BasicParseForest>> ddReducer =
                     new DataDependentReduceManager<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode, StackNode<BasicParseForest>>(
-                        parseTable, basicStackManager, ddParseForestManager,
-                        variant.parseForestConstruction);
+                        parseTable, basicStackManager, ddParseForestManager, variant.parseForestConstruction);
 
                 return new Parser<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode, StackNode<BasicParseForest>, Parse<BasicParseForest, StackNode<BasicParseForest>>>(
                     Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, basicStackManager,
                     ddParseForestManager, ddReducer);
-                
+
             case LayoutSensitive:
                 AbstractStackManager<BasicParseForest, StackNode<BasicParseForest>> basicStackManagerLayoutSensitive;
                 LayoutSensitiveParseForestManager lsParseForestManager = new LayoutSensitiveParseForestManager();
@@ -416,8 +393,8 @@ public class JSGLR2Variants {
                         variant.parseForestConstruction);
 
                 return new Parser<BasicParseForest, LayoutSensitiveSymbolNode, LayoutSensitiveRuleNode, StackNode<BasicParseForest>, Parse<BasicParseForest, StackNode<BasicParseForest>>>(
-                    Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, basicStackManagerLayoutSensitive,
-                    lsParseForestManager, lsReducer);
+                    Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
+                    basicStackManagerLayoutSensitive, lsParseForestManager, lsReducer);
         }
     }
 
@@ -436,8 +413,8 @@ public class JSGLR2Variants {
         return parsers;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static JSGLR2<?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParserVariant variant) {
+    @SuppressWarnings({ "unchecked", "rawtypes" }) public static JSGLR2<?, IStrategoTerm>
+        getJSGLR2(IParseTable parseTable, ParserVariant variant) {
         IParser<?, ?> parser = getParser(parseTable, variant);
         IImploder<?, IStrategoTerm> imploder;
 
@@ -454,11 +431,11 @@ public class JSGLR2Variants {
             case DataDependent:
                 imploder = new DataDependentParseForestStrategoImploder();
 
-                break; 
+                break;
             case LayoutSensitive:
                 imploder = new LayoutSensitiveParseForestStrategoImploder();
 
-                break;      
+                break;
             case Null:
                 imploder = new NullParseForestStrategoImploder();
 

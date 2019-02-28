@@ -15,16 +15,16 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
 
     private long contextBitmap = 0L;
 
-    public DataDependentRuleNode(Position startPosition, Position endPosition,
-        IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
+    public DataDependentRuleNode(Position startPosition, Position endPosition, IProduction production,
+        ProductionType productionType, BasicParseForest[] parseForests) {
         super(startPosition, endPosition);
         this.production = production;
         this.productionType = productionType;
         this.parseForests = parseForests;
 
-        if (parseForests.length > 0) {
-            if (parseForests.length == 1) {
-                if (parseForests[0] instanceof DataDependentSymbolNode) {
+        if(parseForests.length > 0) {
+            if(parseForests.length == 1) {
+                if(parseForests[0] instanceof DataDependentSymbolNode) {
                     final DataDependentSymbolNode parseForest = (DataDependentSymbolNode) parseForests[0];
                     final ParseTableProduction onlyProduction = (ParseTableProduction) parseForest.production;
 
@@ -33,12 +33,12 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
                     contextBitmap |= onlyProduction.contextR();
 
                     // aggregation of recursive contextual tokens
-                    for (DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
+                    for(DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
                         contextBitmap |= (ruleNode.getContextBitmap());
                     }
                 }
             } else {
-                if (parseForests[0] instanceof DataDependentSymbolNode) {
+                if(parseForests[0] instanceof DataDependentSymbolNode) {
                     final DataDependentSymbolNode parseForest = (DataDependentSymbolNode) parseForests[0];
                     final ParseTableProduction leftmostProduction = (ParseTableProduction) parseForest.production;
 
@@ -46,20 +46,21 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
                     contextBitmap |= leftmostProduction.contextL();
 
                     // aggregation of recursive contextual tokens
-                    for (DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
+                    for(DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
                         contextBitmap |= (ruleNode.getContextBitmap());
                     }
                 }
 
-                if (parseForests[parseForests.length - 1] instanceof DataDependentSymbolNode) {
-                    final DataDependentSymbolNode parseForest = (DataDependentSymbolNode) parseForests[parseForests.length - 1];
+                if(parseForests[parseForests.length - 1] instanceof DataDependentSymbolNode) {
+                    final DataDependentSymbolNode parseForest =
+                        (DataDependentSymbolNode) parseForests[parseForests.length - 1];
                     final ParseTableProduction rightmostProduction = (ParseTableProduction) parseForest.production;
 
                     // introduction of contextual token
                     contextBitmap |= rightmostProduction.contextR();
 
                     // aggregation of recursive contextual tokens
-                    for (DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
+                    for(DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
                         contextBitmap |= (ruleNode.getContextBitmap());
                     }
                 }

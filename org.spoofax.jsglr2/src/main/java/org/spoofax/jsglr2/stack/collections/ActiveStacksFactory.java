@@ -18,8 +18,7 @@ public class ActiveStacksFactory implements IActiveStacksFactory {
         this.activeStacksRepresentation = activeStacksRepresentation;
     }
 
-    @Override
-    public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    @Override public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
         IActiveStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
         IActiveStacks<StackNode> activeStacks;
 

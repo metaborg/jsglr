@@ -13,13 +13,12 @@ public class CharacterNode extends HybridParseForest {
         this.character = character;
     }
 
-    @Override
-    public String descriptor() {
+    @Override public String descriptor() {
         return "'" + CharacterClassFactory.intToString(this.character) + "'";
     }
-    
+
     protected void prettyPrint(TreePrettyPrinter printer) {
-    	printer.println("'" + CharacterClassFactory.intToString(character) + "'");
+        printer.println("'" + CharacterClassFactory.intToString(character) + "'");
     }
 
 }

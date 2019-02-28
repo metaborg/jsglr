@@ -44,14 +44,14 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
                 ParseForestRepresentation.DataDependent, ParseForestConstruction.Optimized, StackRepresentation.Basic,
                 Reducing.DataDependent));
     }
-    
+
     @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
-    layoutSensitive(IParseTable parseTable) {
-    return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
-        new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-            ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Optimized, StackRepresentation.Basic,
-            Reducing.DataDependent));
-}
+        layoutSensitive(IParseTable parseTable) {
+        return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
+            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Optimized, StackRepresentation.Basic,
+                Reducing.DataDependent));
+    }
 
     public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm)
         throws ParseTableReadException {

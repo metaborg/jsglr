@@ -8,8 +8,7 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
-    extends ElkhoundStackNode<ParseForest> {
+public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest> extends ElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
     private ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> links =
@@ -19,9 +18,8 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         super(state, position, isRoot);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Iterable<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> getLinks() {
+    @Override @SuppressWarnings("unchecked") public
+        Iterable<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> getLinks() {
         return links;
     }
 
@@ -29,16 +27,14 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         return links.get(0);
     }
 
-    @Override
-    public BasicElkhoundStackNode<ParseForest> getOnlyLinkTo() {
+    @Override public BasicElkhoundStackNode<ParseForest> getOnlyLinkTo() {
         return links.get(0).to;
     }
 
     public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(
         BasicElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
         AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse) {
-        StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link =
-            new StackLink<>(this, parent, parseNode);
+        StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
 
         links.add(link);
 
@@ -61,8 +57,7 @@ public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest>
         return link;
     }
 
-    @Override
-    public boolean allLinksRejected() {
+    @Override public boolean allLinksRejected() {
         if(links.isEmpty())
             return false;
 

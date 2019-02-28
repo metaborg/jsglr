@@ -6,7 +6,12 @@ import java.util.List;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public class ParserObserving<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public class ParserObserving
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
+{
 
     private final List<IParserObserver<ParseForest, StackNode>> observers;
 

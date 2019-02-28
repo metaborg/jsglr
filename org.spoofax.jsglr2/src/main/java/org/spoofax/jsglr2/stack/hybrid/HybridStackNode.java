@@ -18,8 +18,7 @@ public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
         super(state, position);
     }
 
-    @Override
-    public Iterable<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {
+    @Override public Iterable<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {
         if(otherLinks == null) {
             return Collections.singleton(firstLink);
         } else {
@@ -27,8 +26,7 @@ public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
         }
     }
 
-    @Override
-    public StackLink<ParseForest, StackNode<ParseForest>>
+    @Override public StackLink<ParseForest, StackNode<ParseForest>>
         addLink(StackLink<ParseForest, StackNode<ParseForest>> link) {
         if(firstLink == null)
             firstLink = link;
@@ -42,8 +40,7 @@ public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
         return link;
     }
 
-    @Override
-    public boolean allLinksRejected() {
+    @Override public boolean allLinksRejected() {
         if(firstLink == null || !firstLink.isRejected())
             return false;
 

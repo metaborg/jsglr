@@ -29,7 +29,8 @@ public class Position {
     /**
      * Clones a Position.
      *
-     * @param p The Position to clone.
+     * @param p
+     *            The Position to clone.
      */
     public Position(Position p) {
         this.offset = p.offset;

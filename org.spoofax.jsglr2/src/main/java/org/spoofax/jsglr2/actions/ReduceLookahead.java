@@ -20,8 +20,7 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
         this.followRestriction = followRestriction;
     }
 
-    @Override
-    public boolean allowsLookahead(IActionQuery actionQuery) {
+    @Override public boolean allowsLookahead(IActionQuery actionQuery) {
         String lookahead = actionQuery.actionQueryLookahead(followRestriction.length);
 
         if(lookahead.length() != followRestriction.length)
@@ -35,18 +34,15 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
         return false;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "REDUCE_LOOKAHEAD(" + production.id() + "," + Arrays.toString(followRestriction) + ")";
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return super.hashCode() ^ followRestriction.hashCode();
     }
 
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
         if(this == o) {
             return true;
         }

@@ -39,8 +39,7 @@ public class CharacterClassTest {
         }
     }
 
-    @Test
-    public void testLowerCaseLettersRange() {
+    @Test public void testLowerCaseLettersRange() {
         testCharacterClass(az, character -> {
             return 97 <= character && character <= 122;
         });
@@ -49,15 +48,13 @@ public class CharacterClassTest {
         assertEquals(az.contains('A'), false);
     }
 
-    @Test
-    public void testUppercaseCaseLettersRange() {
+    @Test public void testUppercaseCaseLettersRange() {
         testCharacterClass(AZ, character -> {
             return 65 <= character && character <= 90;
         });
     }
 
-    @Test
-    public void testLettersUnionRange() {
+    @Test public void testLettersUnionRange() {
         ICharacterClass letters = factory.union(az, AZ);
 
         testCharacterClass(letters, character -> {
@@ -65,29 +62,25 @@ public class CharacterClassTest {
         });
     }
 
-    @Test
-    public void testLettersIntersectionRange() {
+    @Test public void testLettersIntersectionRange() {
         ICharacterClass letters = factory.intersection(az, AZ);
 
         testCharacterClass(letters, factory.fromEmpty());
     }
 
-    @Test
-    public void testLettersDifferenceRange() {
+    @Test public void testLettersDifferenceRange() {
         ICharacterClass letters = factory.intersection(az, AZ);
 
         testCharacterClass(letters, factory.fromEmpty());
     }
 
-    @Test
-    public void testSingletonRange() {
+    @Test public void testSingletonRange() {
         testCharacterClass(x, character -> {
             return character == 120;
         });
     }
 
-    @Test
-    public void testSingletonRangeUnion() {
+    @Test public void testSingletonRangeUnion() {
         ICharacterClass characters = factory.union(x, AZ);
 
         testCharacterClass(characters, character -> {
@@ -99,8 +92,7 @@ public class CharacterClassTest {
         assertEquals(characters.contains('x'), true);
     }
 
-    @Test
-    public void testEOF() {
+    @Test public void testEOF() {
         ICharacterClass characters = factory.fromSingle(CharacterClassFactory.EOF_INT);
 
         testCharacterClass(characters, character -> {
@@ -108,8 +100,7 @@ public class CharacterClassTest {
         });
     }
 
-    @Test
-    public void testRangeEOFunion() {
+    @Test public void testRangeEOFunion() {
         ICharacterClass characters = factory.union(az, factory.fromSingle(CharacterClassFactory.EOF_INT));
 
         testCharacterClass(characters, character -> {
@@ -117,20 +108,17 @@ public class CharacterClassTest {
         });
     }
 
-    @Test
-    public void testRangeEOFintersect() {
+    @Test public void testRangeEOFintersect() {
         testCharacterClass(factory.intersection(factory.union(az, eof), eof), eof);
         testCharacterClass(factory.intersection(eof, factory.union(az, eof)), eof);
     }
 
-    @Test
-    public void testRangeEOFdifference() {
+    @Test public void testRangeEOFdifference() {
         testCharacterClass(factory.difference(factory.union(az, eof), eof), az);
         testCharacterClass(factory.difference(eof, factory.union(az, eof)), factory.fromEmpty());
     }
 
-    @Test
-    public void testRangeIntersect() {
+    @Test public void testRangeIntersect() {
         testCharacterClass(factory.intersection(factory.fromRange(10, 20), factory.fromSingle(15)),
             factory.fromSingle(15));
         testCharacterClass(factory.intersection(factory.fromSingle(15), factory.fromRange(10, 20)),
@@ -147,8 +135,7 @@ public class CharacterClassTest {
             factory.fromSingle(20));
     }
 
-    @Test
-    public void testRangeDifference() {
+    @Test public void testRangeDifference() {
         testCharacterClass(factory.difference(factory.fromRange(65, 75), factory.fromSingle(70)),
             factory.union(factory.fromRange(65, 69), factory.fromRange(71, 75)));
         testCharacterClass(factory.difference(factory.fromSingle(15), factory.fromRange(10, 20)), factory.fromEmpty());
@@ -157,8 +144,7 @@ public class CharacterClassTest {
             factory.fromRange(65, 69));
     }
 
-    @Test
-    public void testNewLineDetection() {
+    @Test public void testNewLineDetection() {
         char newLineChar = '\n';
         int newLineInt = newLineChar;
 
@@ -166,8 +152,7 @@ public class CharacterClassTest {
         assertEquals(CharacterClassFactory.isNewLine(newLineInt), true);
     }
 
-    @Test
-    public void testComparisons() {
+    @Test public void testComparisons() {
         assertEquals(ICharacterClass.comparator().compare(AZ, az), -1);
         assertEquals(ICharacterClass.comparator().compare(az, AZ), 1);
         assertEquals(ICharacterClass.comparator().compare(az, az), 0);
@@ -180,8 +165,7 @@ public class CharacterClassTest {
         assertEquals(ICharacterClass.comparator().compare(eof, az), 1);
     }
 
-    @Test
-    public void testDisjointSortanble() {
+    @Test public void testDisjointSortanble() {
         assertEquals(ICharacterClass.disjointSorted(Arrays.asList(AZ, az)), true);
         assertEquals(ICharacterClass.disjointSorted(Arrays.asList(az, AZ)), false);
         assertEquals(ICharacterClass.disjointSorted(Arrays.asList(AZ, AZ)), false);

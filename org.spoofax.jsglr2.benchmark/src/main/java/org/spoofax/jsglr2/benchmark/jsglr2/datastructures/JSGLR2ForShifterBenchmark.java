@@ -1,11 +1,6 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
@@ -33,8 +28,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
 
     Collection<ForShifterElement<?, ?>> forShifter;
 
-    @Override
-    public void postParserSetup() {
+    @Override public void postParserSetup() {
         forShifterObserver = new ForShifterObserver();
 
         parser.observing().attachObserver(forShifterObserver);
@@ -69,8 +63,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
 
         public List<ParseRound> parseRounds = new ArrayList<ParseRound>();
 
-        @Override
-        public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        @Override public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStacks) {
             parseRounds.add(new ParseRound());
         }
@@ -79,16 +72,14 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
             return parseRounds.get(parseRounds.size() - 1);
         }
 
-        @Override
-        public void
+        @Override public void
             addForShifter(ForShifterElement<BasicParseForest, BasicStackNode<BasicParseForest>> forShifterElement) {
             currentParseRound().forShifterElements.add(forShifterElement);
         }
 
     }
 
-    @Benchmark
-    public void benchmark(Blackhole bh) {
+    @Benchmark public void benchmark(Blackhole bh) {
         for(ParseRound parseRound : forShifterObserver.parseRounds) {
             forShifter.clear();
 

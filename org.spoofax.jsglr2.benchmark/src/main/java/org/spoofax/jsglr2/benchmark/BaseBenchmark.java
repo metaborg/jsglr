@@ -3,13 +3,7 @@ package org.spoofax.jsglr2.benchmark;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetReader;
@@ -28,8 +22,7 @@ public abstract class BaseBenchmark {
         this.testSetReader = new BenchmarkTestsetReader(testSet);
     }
 
-    @Setup
-    public void setupInputs() throws IOException {
+    @Setup public void setupInputs() throws IOException {
         if(n == -1)
             inputs = testSetReader.getInputs();
         else

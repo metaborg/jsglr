@@ -14,7 +14,12 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 import com.google.common.collect.Maps;
 
-public abstract class AbstractParse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> implements IActionQuery {
+public abstract class AbstractParse
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    StackNode   extends AbstractStackNode<ParseForest>>
+//@formatter:on
+    implements IActionQuery {
 
     final public String filename;
     final public String inputString;
@@ -23,7 +28,7 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
 
     public int currentChar; // Current ASCII char in range [0, 256]
     public int currentOffset, currentLine, currentColumn;
-    
+
     private static final int TAB_SIZE = 8;
 
     public StackNode acceptingStack;
@@ -69,7 +74,7 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
             if(CharacterClassFactory.isNewLine(currentChar)) {
                 currentLine++;
                 currentColumn = 0;
-            } else if (CharacterClassFactory.isTab(currentChar)) {
+            } else if(CharacterClassFactory.isTab(currentChar)) {
                 currentColumn = (currentColumn / TAB_SIZE + 1) * TAB_SIZE;
             } else {
                 currentColumn++;
@@ -93,13 +98,11 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
         return inputString.substring(begin, end);
     }
 
-    @Override
-    public int actionQueryCharacter() {
+    @Override public int actionQueryCharacter() {
         return currentChar;
     }
 
-    @Override
-    public String actionQueryLookahead(int length) {
+    @Override public String actionQueryLookahead(int length) {
         return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 

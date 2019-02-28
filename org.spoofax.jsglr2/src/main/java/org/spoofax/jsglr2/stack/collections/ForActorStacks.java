@@ -31,8 +31,7 @@ public abstract class ForActorStacks<ParseForest extends AbstractParseForest, St
 
     protected abstract StackNode forActorRemove();
 
-    @Override
-    public void add(StackNode stack) {
+    @Override public void add(StackNode stack) {
         observing.notify(observer -> observer.addForActorStack(stack));
 
         if(stack.state.isRejectable())
@@ -41,18 +40,15 @@ public abstract class ForActorStacks<ParseForest extends AbstractParseForest, St
             forActorAdd(stack);
     }
 
-    @Override
-    public boolean contains(StackNode stack) {
+    @Override public boolean contains(StackNode stack) {
         return forActorContains(stack) || forActorDelayed.contains(stack);
     }
 
-    @Override
-    public boolean nonEmpty() {
+    @Override public boolean nonEmpty() {
         return forActorNonEmpty() || !forActorDelayed.isEmpty();
     }
 
-    @Override
-    public StackNode remove() {
+    @Override public StackNode remove() {
         // First return all actors in forActor
         if(forActorNonEmpty())
             return forActorRemove();

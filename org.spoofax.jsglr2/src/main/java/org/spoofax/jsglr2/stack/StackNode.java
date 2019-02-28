@@ -14,10 +14,9 @@ public abstract class StackNode<ParseForest> extends AbstractStackNode<ParseFore
     public abstract StackLink<ParseForest, StackNode<ParseForest>>
         addLink(StackLink<ParseForest, StackNode<ParseForest>> link);
 
-    public StackLink<ParseForest, StackNode<ParseForest>> addLink(
-            StackNode<ParseForest> parent, ParseForest parseNode) {
-        StackLink<ParseForest, StackNode<ParseForest>> link =
-            new StackLink<>(this, parent, parseNode);
+    public StackLink<ParseForest, StackNode<ParseForest>> addLink(StackNode<ParseForest> parent,
+        ParseForest parseNode) {
+        StackLink<ParseForest, StackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
 
         return addLink(link);
     }

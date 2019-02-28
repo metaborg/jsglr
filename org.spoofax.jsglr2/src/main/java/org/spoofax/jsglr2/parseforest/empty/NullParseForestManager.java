@@ -12,34 +12,30 @@ import org.spoofax.jsglr2.parser.Position;
 
 public class NullParseForestManager extends ParseForestManager<HybridParseForest, ParseNode, Derivation> {
 
-    @Override
-    public ParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, Position beginPosition, IProduction production,
-        Derivation firstDerivation) {
+    @Override public ParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, Position beginPosition,
+        IProduction production, Derivation firstDerivation) {
         return null;
     }
 
-    @Override
-    public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol, AbstractParse<HybridParseForest, ?> parse) {
+    @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
+        AbstractParse<HybridParseForest, ?> parse) {
         return null;
     }
 
-    @Override
-    public Derivation createDerivation(AbstractParse<HybridParseForest, ?> parse, Position beginPosition,
+    @Override public Derivation createDerivation(AbstractParse<HybridParseForest, ?> parse, Position beginPosition,
         IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         return null;
     }
 
-    @Override
-    public void addDerivation(AbstractParse<HybridParseForest, ?> parse, ParseNode parseNode, Derivation derivation) {
+    @Override public void addDerivation(AbstractParse<HybridParseForest, ?> parse, ParseNode parseNode,
+        Derivation derivation) {
     }
 
-    @Override
-    public CharacterNode createCharacterNode(AbstractParse<HybridParseForest, ?> parse) {
+    @Override public CharacterNode createCharacterNode(AbstractParse<HybridParseForest, ?> parse) {
         return null;
     }
 
-    @Override
-    public HybridParseForest[] parseForestsArray(int length) {
+    @Override public HybridParseForest[] parseForestsArray(int length) {
         return null;
     }
 

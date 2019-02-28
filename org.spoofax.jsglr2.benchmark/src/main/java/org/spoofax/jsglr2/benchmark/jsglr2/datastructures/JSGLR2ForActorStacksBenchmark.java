@@ -112,7 +112,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
     }
 
     @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
+    public void benchmark(Blackhole bh) {
 
         for(ForActorStacksOperation forActorStacksOperation : forActorStacksObserver.operations) {
             forActorStacksOperation.execute(bh);

@@ -42,8 +42,7 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark {
 
     @SuppressWarnings("unchecked")
     @Setup
-    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
-        InterruptedException, URISyntaxException {
+    public void parserSetup() throws ParseError, ParseTableReadException {
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
         parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,

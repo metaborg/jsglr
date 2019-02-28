@@ -89,7 +89,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
     }
 
     @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
+    public void benchmark(Blackhole bh) {
         for(GotoLookup gotoLookup : gotoObserver.gotoLookups)
             bh.consume(gotoLookup.execute());
     }

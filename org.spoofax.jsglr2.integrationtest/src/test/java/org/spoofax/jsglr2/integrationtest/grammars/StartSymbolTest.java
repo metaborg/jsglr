@@ -13,12 +13,12 @@ public class StartSymbolTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void withoutStartSymbol() throws ParseError, ParseTableReadException, IOException {
+    public void withoutStartSymbol() throws ParseError {
         testSuccessByExpansions(null, "foo", "amb([\"foo\", Id(\"foo\")])");
     }
 
     @Test
-    public void withStartSymbol() throws ParseError, ParseTableReadException, IOException {
+    public void withStartSymbol() throws ParseError {
         testSuccessByExpansions("Start", "foo", "Id(\"foo\")");
     }
 

@@ -90,7 +90,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
     }
 
     @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
+    public void benchmark(Blackhole bh) {
         for(ParseRound parseRound : forShifterObserver.parseRounds) {
             forShifter.clear();
 

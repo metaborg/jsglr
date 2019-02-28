@@ -13,12 +13,12 @@ public class CommentsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void oneX() throws ParseError, ParseTableReadException, IOException {
+    public void oneX() throws ParseError {
         testSuccessByExpansions("x", "Xs([X])");
     }
 
     @Test
-    public void twoXs() throws ParseError, ParseTableReadException, IOException {
+    public void twoXs() throws ParseError {
         testSuccessByExpansions("x x", "Xs([X, X])");
         testSuccessByExpansions("x x // x", "Xs([X, X])");
         testSuccessByExpansions("x /* x */ x", "Xs([X, X])");

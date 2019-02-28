@@ -14,7 +14,7 @@ public class WebDSLTest extends BaseTestWithParseTableFromTerm {
     }
 
     @Test
-    public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
+    public void testSampleProgramByJSGLR1() throws ParseError, IOException {
         String sampleProgram = getFileAsString("WebDSL/built-in.app");
 
         testParseSuccess(sampleProgram);

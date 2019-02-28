@@ -13,12 +13,12 @@ public class OptionalsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void testEmpty() throws ParseError, ParseTableReadException, IOException {
+    public void testEmpty() throws ParseError {
         testSuccessByExpansions("", "None");
     }
 
     @Test
-    public void testSingleX() throws ParseError, ParseTableReadException, IOException {
+    public void testSingleX() throws ParseError {
         testSuccessByExpansions("X", "Some(X)");
     }
 

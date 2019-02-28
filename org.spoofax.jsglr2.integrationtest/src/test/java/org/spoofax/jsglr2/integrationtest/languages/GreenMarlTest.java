@@ -14,7 +14,7 @@ public class GreenMarlTest extends BaseTestWithParseTableFromTermWithJSGLR1 {
     }
 
     @Test
-    public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
+    public void testSampleProgramByJSGLR1() throws ParseError, IOException {
         String sampleProgram = getFileAsString("GreenMarl/infomap.gm");
 
         testSuccessByJSGLR1(sampleProgram);

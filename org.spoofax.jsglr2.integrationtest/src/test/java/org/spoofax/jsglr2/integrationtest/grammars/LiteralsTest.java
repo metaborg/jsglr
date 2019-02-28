@@ -13,22 +13,22 @@ public class LiteralsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void testLowerCaseLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
+    public void testLowerCaseLiteralLowerCaseRequired() throws ParseError {
         testSuccessByExpansions("sensitive", "Literal(CaseSensitive)");
     }
 
     @Test
-    public void testMixedLiteralLowerCaseRequired() throws ParseError, ParseTableReadException, IOException {
+    public void testMixedLiteralLowerCaseRequired() throws ParseError {
         testParseFailure("senSitive");
     }
 
     @Test
-    public void testLowerCaseLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
+    public void testLowerCaseLiteralMixedAllowed() throws ParseError {
         testSuccessByExpansions("insensitive", "Literal(CaseInsensitive)");
     }
 
     @Test
-    public void testMixedLiteralMixedAllowed() throws ParseError, ParseTableReadException, IOException {
+    public void testMixedLiteralMixedAllowed() throws ParseError {
         testSuccessByExpansions("insenSitive", "Literal(CaseInsensitive)");
     }
 

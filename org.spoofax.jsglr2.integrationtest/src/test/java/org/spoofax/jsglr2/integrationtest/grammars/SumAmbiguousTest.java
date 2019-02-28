@@ -13,17 +13,17 @@ public class SumAmbiguousTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void one() throws ParseError, ParseTableReadException, IOException {
+    public void one() throws ParseError {
         testSuccessByExpansions("x", "Term()");
     }
 
     @Test
-    public void two() throws ParseError, ParseTableReadException, IOException {
+    public void two() throws ParseError {
         testSuccessByExpansions("x+x", "Add(Term(),Term())");
     }
 
     @Test
-    public void three() throws ParseError, ParseTableReadException, IOException {
+    public void three() throws ParseError {
         testSuccessByExpansions("x+x+x", "amb([Add(Add(Term,Term),Term), Add(Term,Add(Term,Term))])");
     }
 

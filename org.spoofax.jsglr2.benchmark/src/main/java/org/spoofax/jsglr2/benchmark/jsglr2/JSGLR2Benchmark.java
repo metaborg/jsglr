@@ -52,8 +52,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
     abstract protected boolean implode();
 
     @Setup
-    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
-        InterruptedException, URISyntaxException {
+    public void parserSetup() throws ParseError, ParseTableReadException {
         Variant variant = variant();
 
         filterVariants(implode(), variant);

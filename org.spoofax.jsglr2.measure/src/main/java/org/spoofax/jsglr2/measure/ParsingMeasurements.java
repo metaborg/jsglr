@@ -59,7 +59,7 @@ public class ParsingMeasurements extends Measurements {
     }
 
     private void measure(IParseTable parseTable, JSGLR2Variants.ParserVariant variant, String postfix)
-        throws ParseTableReadException, IOException, ParseException {
+        throws IOException, ParseException {
         PrintWriter out =
             new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");
 

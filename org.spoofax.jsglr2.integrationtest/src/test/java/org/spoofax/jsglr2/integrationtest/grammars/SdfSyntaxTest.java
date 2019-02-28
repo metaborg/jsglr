@@ -13,7 +13,7 @@ public class SdfSyntaxTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void identifier() throws ParseError, ParseTableReadException, IOException {
+    public void identifier() throws ParseError {
         testSuccessByExpansions("x", "\"x\"");
     }
 

@@ -25,7 +25,7 @@ public abstract class BaseTestWithParseTableFromTerm extends BaseTest implements
         return parseTableTerm;
     }
     
-    public InputStream resourceInputStream(String filename) throws Exception {
+    public InputStream resourceInputStream(String filename) {
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
 

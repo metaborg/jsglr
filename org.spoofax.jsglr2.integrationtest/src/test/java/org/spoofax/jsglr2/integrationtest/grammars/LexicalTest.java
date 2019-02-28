@@ -13,7 +13,7 @@ public class LexicalTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void identifiers() throws ParseError, ParseTableReadException, IOException {
+    public void identifiers() throws ParseError {
         testSuccessByExpansions("a", "\"a\")");
         testSuccessByExpansions("aaaaa", "\"aaaaa\")");
     }

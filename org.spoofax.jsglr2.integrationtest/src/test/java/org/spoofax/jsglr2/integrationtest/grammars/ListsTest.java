@@ -13,33 +13,33 @@ public class ListsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test
-    public void testEmpty() throws ParseError, ParseTableReadException, IOException {
+    public void testEmpty() throws ParseError {
         testSuccessByExpansions("", "amb([ZeroOrMoreXs([]),ZeroOrMoreXsCommaSeparated([])])");
     }
 
     @Test
-    public void testSingleX() throws ParseError, ParseTableReadException, IOException {
+    public void testSingleX() throws ParseError {
         testSuccessByExpansions("x",
             "amb([ZeroOrMoreXs([X]),ZeroOrMoreXsCommaSeparated([X]),OneOrMoreXs([X]),OneOrMoreXsCommaSeparated([X])])");
     }
 
     @Test
-    public void testTwoLayoutSeparatedXs() throws ParseError, ParseTableReadException, IOException {
+    public void testTwoLayoutSeparatedXs() throws ParseError {
         testSuccessByExpansions("x x", "amb([ZeroOrMoreXs([X, X]), OneOrMoreXs([X, X])])");
     }
 
     @Test
-    public void testTwoCommaSeparatedXs() throws ParseError, ParseTableReadException, IOException {
+    public void testTwoCommaSeparatedXs() throws ParseError {
         testSuccessByExpansions("x,x", "amb([ZeroOrMoreXsCommaSeparated([X, X]), OneOrMoreXsCommaSeparated([X, X])])");
     }
 
     @Test
-    public void testThreeLayoutSeparatedXs() throws ParseError, ParseTableReadException, IOException {
+    public void testThreeLayoutSeparatedXs() throws ParseError {
         testSuccessByExpansions("x x x", "amb([ZeroOrMoreXs([X, X, X]), OneOrMoreXs([X, X, X])])");
     }
 
     @Test
-    public void testThreeCommaSeparatedXs() throws ParseError, ParseTableReadException, IOException {
+    public void testThreeCommaSeparatedXs() throws ParseError {
         testSuccessByExpansions("x,x , x",
             "amb([ZeroOrMoreXsCommaSeparated([X, X, X]), OneOrMoreXsCommaSeparated([X, X, X])])");
     }

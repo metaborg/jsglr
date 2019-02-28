@@ -15,7 +15,7 @@ public class Java8Test extends BaseTestWithParseTableFromTermWithJSGLR1 {
     }
 
     @Test
-    public void testSampleProgramByExpectedAST() throws ParseError, ParseTableReadException, IOException {
+    public void testSampleProgramByExpectedAST() throws ParseError, IOException {
         String sampleProgram = getFileAsString("Java/sampleProgram.txt");
         IStrategoTerm expectedAST = getFileAsAST("Java/sampleProgram.ast");
 
@@ -23,7 +23,7 @@ public class Java8Test extends BaseTestWithParseTableFromTermWithJSGLR1 {
     }
 
     @Test
-    public void testSampleProgramByJSGLR1() throws ParseError, ParseTableReadException, IOException {
+    public void testSampleProgramByJSGLR1() throws ParseError, IOException {
         String sampleProgram = getFileAsString("Java/sampleProgram.txt");
 
         testSuccessByJSGLR1(sampleProgram);

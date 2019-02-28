@@ -128,7 +128,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
     }
 
     @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
+    public void benchmark(Blackhole bh) {
 
         for(ActiveStacksOperation activeStacksOperation : activeStacksObserver.operations) {
             activeStacksOperation.execute(bh);

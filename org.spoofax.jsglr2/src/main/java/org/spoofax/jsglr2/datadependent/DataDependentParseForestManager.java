@@ -41,8 +41,8 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
         if(result.isEmpty())
             return null;
         else {
-            DataDependentSymbolNode filteredTopNode = new DataDependentSymbolNode(topNode.startPosition,
-                topNode.endPosition, topNode.production);
+            DataDependentSymbolNode filteredTopNode = new DataDependentSymbolNode(topNode.getStartPosition(),
+                topNode.getEndPosition(), topNode.production);
 
             for(DataDependentRuleNode derivation : result)
                 filteredTopNode.addDerivation(derivation);

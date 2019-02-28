@@ -35,7 +35,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         if(result.isEmpty())
             return null;
         else {
-            ParseNode filteredTopNode = new ParseNode(topNode.startPosition, topNode.endPosition, topNode.production,
+            ParseNode filteredTopNode = new ParseNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production,
                 result.get(0));
 
             for(int i = 1; i < result.size(); i++)

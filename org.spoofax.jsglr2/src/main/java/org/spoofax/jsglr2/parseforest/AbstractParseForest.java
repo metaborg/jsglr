@@ -5,7 +5,7 @@ import org.spoofax.jsglr2.parser.Position;
 
 public abstract class AbstractParseForest {
 
-    public Position startPosition, endPosition;
+    private final Position startPosition, endPosition;
 
     public IToken token, firstToken, lastToken;
 
@@ -16,6 +16,14 @@ public abstract class AbstractParseForest {
         this.token = null;
         this.firstToken = null;
         this.lastToken = null;
+    }
+
+    public Position getStartPosition() {
+        return startPosition;
+    }
+
+    public Position getEndPosition() {
+        return endPosition;
     }
 
     public abstract String descriptor();

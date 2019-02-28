@@ -76,15 +76,15 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
             switch(((NumericLayoutConstraint) layoutConstraint).getToken()) {
                 case FIRST:
                     if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                        return tree.startPosition.column;
+                        return tree.getStartPosition().column;
                     } else {
-                        return tree.startPosition.line;
+                        return tree.getStartPosition().line;
                     }
                 case LAST:
                     if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                        return tree.endPosition.column;
+                        return tree.getEndPosition().column;
                     } else {
-                        return tree.endPosition.line;
+                        return tree.getEndPosition().line;
                     }
                 case LEFT:
                     if(tree instanceof LayoutSensitiveSymbolNode) {

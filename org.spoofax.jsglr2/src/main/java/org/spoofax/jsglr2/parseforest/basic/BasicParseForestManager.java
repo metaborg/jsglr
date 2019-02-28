@@ -38,7 +38,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         if(result.isEmpty())
             return null;
         else {
-            SymbolNode filteredTopNode = new SymbolNode(topNode.startPosition, topNode.endPosition, topNode.production);
+            SymbolNode filteredTopNode = new SymbolNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production);
 
             for(RuleNode derivation : result)
                 filteredTopNode.addDerivation(derivation);

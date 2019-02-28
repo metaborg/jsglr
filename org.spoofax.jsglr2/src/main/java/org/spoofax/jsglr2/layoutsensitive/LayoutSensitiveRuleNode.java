@@ -49,7 +49,7 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
 //        System.out.println("getting positions for " + this);
         List<PositionInterval> result = Lists.newArrayList();
         if(production.isLongestMatch()) {
-            result.add(new PositionInterval(startPosition, endPosition));
+            result.add(new PositionInterval(getStartPosition(), getEndPosition()));
         }
         for(BasicParseForest pf : parseForests) {
             if(pf instanceof LayoutSensitiveRuleNode) {

@@ -128,8 +128,8 @@ public class ParserVisualisationObserver<ParseForest extends AbstractParseForest
         super.createCharacterNode(characterNode, character);
 
         trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + id(characterNode) + ",\"character\":\""
-            + CharacterClassFactory.intToString(character) + "\"" + ",\"startPosition\":" + characterNode.startPosition.offset
-            + ",\"endPosition\":" + characterNode.endPosition.offset + "}");
+            + CharacterClassFactory.intToString(character) + "\"" + ",\"startPosition\":" + characterNode.getStartPosition().offset
+            + ",\"endPosition\":" + characterNode.getEndPosition().offset + "}");
     }
 
     @Override

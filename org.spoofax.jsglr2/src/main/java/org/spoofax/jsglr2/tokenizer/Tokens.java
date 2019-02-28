@@ -31,15 +31,15 @@ public class Tokens implements ITokens {
     }
 
     public void makeStartToken(AbstractParseForest parseForest) {
-        startToken = new Token(this, filename, 0, parseForest.startPosition.line, parseForest.startPosition.column,
-            parseForest.startPosition.offset, -1, TK_RESERVED);
+        startToken = new Token(this, filename, 0, parseForest.getStartPosition().line, parseForest.getStartPosition().column,
+            parseForest.getStartPosition().offset, -1, TK_RESERVED);
 
         addToken(startToken);
     }
 
     public void makeEndToken(AbstractParseForest parseForest) {
-        endToken = new Token(this, filename, tokens.size(), parseForest.endPosition.line,
-            parseForest.endPosition.column, parseForest.endPosition.offset, -1, TK_EOF);
+        endToken = new Token(this, filename, tokens.size(), parseForest.getEndPosition().line,
+            parseForest.getEndPosition().column, parseForest.getEndPosition().offset, -1, TK_EOF);
 
         addToken(endToken);
     }
@@ -62,8 +62,8 @@ public class Tokens implements ITokens {
         }
 
         IToken endToken =
-            new Token(this, filename, tokens.size(), parseForest.startPosition.line, parseForest.startPosition.column,
-                parseForest.startPosition.offset, parseForest.endPosition.offset - 1, tokenKind);
+            new Token(this, filename, tokens.size(), parseForest.getStartPosition().line, parseForest.getStartPosition().column,
+                parseForest.getStartPosition().offset, parseForest.getEndPosition().offset - 1, tokenKind);
 
         addToken(endToken);
 

@@ -41,8 +41,8 @@ public class LayoutSensitiveParseForestManager
         if(result.isEmpty())
             return null;
         else {
-            LayoutSensitiveSymbolNode filteredTopNode = new LayoutSensitiveSymbolNode(topNode.startPosition,
-                topNode.endPosition, topNode.production);
+            LayoutSensitiveSymbolNode filteredTopNode = new LayoutSensitiveSymbolNode(topNode.getStartPosition(),
+                topNode.getEndPosition(), topNode.production);
 
             for(LayoutSensitiveRuleNode derivation : result)
                 filteredTopNode.addDerivation(derivation);
@@ -64,10 +64,10 @@ public class LayoutSensitiveParseForestManager
                 continue;
             }
             if(pf instanceof LayoutSensitiveSymbolNode) {
-                Position currentStartPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().startPosition;
+                Position currentStartPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().getStartPosition();
                 Position currentLeftPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().leftPosition;
                 Position currentRightPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().rightPosition;
-                Position currentEndPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().endPosition;
+                Position currentEndPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().getEndPosition();
 
                 if(currentLeftPosition != null) {
                     leftPosition = leftMost(leftPosition, currentLeftPosition);
@@ -120,13 +120,13 @@ public class LayoutSensitiveParseForestManager
 
 
             } else if(pf instanceof TermNode) {
-                if(pf.startPosition.line > beginPosition.line && pf.startPosition.column < beginPosition.column) {
+                if(pf.getStartPosition().line > beginPosition.line && pf.getStartPosition().column < beginPosition.column) {
                     leftPosition =
-                        new Position(pf.startPosition.offset, pf.startPosition.line, pf.startPosition.column);
+                        new Position(pf.getStartPosition().offset, pf.getStartPosition().line, pf.getStartPosition().column);
                 }
-                if(pf.endPosition.line < parse.currentPosition().line
-                    && pf.endPosition.column > parse.currentPosition().column) {
-                    rightPosition = new Position(pf.endPosition.offset, pf.endPosition.line, pf.endPosition.column);
+                if(pf.getEndPosition().line < parse.currentPosition().line
+                    && pf.getEndPosition().column > parse.currentPosition().column) {
+                    rightPosition = new Position(pf.getEndPosition().offset, pf.getEndPosition().line, pf.getEndPosition().column);
                 }
             } else if(pf != null) {
                 System.err.println("Not a valid tree node.");
@@ -194,16 +194,16 @@ public class LayoutSensitiveParseForestManager
 //                    if(currentPosition != null && !rn.startPosition.equals(currentPosition)) {
 //                        System.err.println("StartPosition is different for trees that are part of an ambiguity.");
 //                    }
-                    if(rn.startPosition != null) {
-                        currentPosition = new Position(rn.startPosition);
+                    if(rn.getStartPosition() != null) {
+                        currentPosition = new Position(rn.getStartPosition());
                     }
                     break;
                 case LAST:
 //                    if(currentPosition != null && !rn.endPosition.equals(currentPosition)) {
 //                        System.err.println("EndPosition is different for trees that are part of an ambiguity.");
 //                    }
-                    if(rn.endPosition != null) {
-                        currentPosition = new Position(rn.endPosition);
+                    if(rn.getEndPosition() != null) {
+                        currentPosition = new Position(rn.getEndPosition());
                     }
                     break;
                 case RIGHT:

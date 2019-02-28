@@ -6,7 +6,11 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ISymbolNode;
 
-public interface IBasicSymbolNode<ParseForest extends AbstractParseForest, Derivation extends IDerivation<ParseForest>>
+public interface IBasicSymbolNode
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    Derivation  extends IDerivation<ParseForest>>
+//@formatter:on
     extends ISymbolNode<ParseForest, Derivation> {
 
     @Override default void addDerivation(Derivation derivation) {

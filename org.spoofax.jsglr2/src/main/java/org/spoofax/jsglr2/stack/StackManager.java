@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parser.Position;
 public abstract class StackManager
 //@formatter:off
    <ParseForest extends AbstractParseForest,
-    StackNode extends org.spoofax.jsglr2.stack.StackNode<ParseForest>>
+    StackNode   extends org.spoofax.jsglr2.stack.StackNode<ParseForest>>
 //@formatter:on
     extends AbstractStackManager<ParseForest, org.spoofax.jsglr2.stack.StackNode<ParseForest>> {
 

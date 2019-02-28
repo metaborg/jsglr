@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.parseforest;
 
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public abstract class AbstractParseForest {

@@ -6,7 +6,6 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.IBasicSymbolNode;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class DataDependentSymbolNode extends BasicParseForest implements IBasicSymbolNode<BasicParseForest, DataDependentRuleNode> {

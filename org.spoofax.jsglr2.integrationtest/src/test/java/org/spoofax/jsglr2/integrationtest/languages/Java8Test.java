@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithParseTableFromTermWithJSGLR1;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
 public class Java8Test extends BaseTestWithParseTableFromTermWithJSGLR1 {

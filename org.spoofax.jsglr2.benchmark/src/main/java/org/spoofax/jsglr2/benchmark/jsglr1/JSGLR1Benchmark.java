@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.benchmark.jsglr1;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
@@ -17,7 +14,6 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;

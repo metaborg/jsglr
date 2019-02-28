@@ -5,7 +5,6 @@ import org.metaborg.parsetable.ProductionType;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class DataDependentRuleNode extends BasicParseForest implements IDerivation<BasicParseForest> {

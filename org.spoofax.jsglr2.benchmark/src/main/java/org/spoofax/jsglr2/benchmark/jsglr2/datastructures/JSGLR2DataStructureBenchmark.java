@@ -1,11 +1,7 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.actions.ActionsFactory;

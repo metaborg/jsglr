@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class SymbolNode extends BasicParseForest implements IBasicSymbolNode<BasicParseForest, RuleNode> {

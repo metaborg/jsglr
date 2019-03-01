@@ -21,6 +21,7 @@ import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Parser;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.TermFactory;
@@ -157,8 +158,10 @@ public abstract class BaseTest implements WithParseTable {
             assertEquals("Start token incorrect:", new TokenDescriptor("", IToken.TK_RESERVED, 1, 1, 1, 0),
                 actualTokens.get(0));
 
-            int endLine = parseResult.parse.currentLine;
-            int endColumn = parseResult.parse.currentColumn;
+            Position endPosition = Position.atEnd(parseResult.parse.inputString);
+
+            int endLine = endPosition.line;
+            int endColumn = endPosition.column;
 
             // Check end token
             assertEquals("End token incorrect:",

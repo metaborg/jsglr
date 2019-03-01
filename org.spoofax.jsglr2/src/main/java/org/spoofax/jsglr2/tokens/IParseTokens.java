@@ -4,6 +4,7 @@ import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.Position;
 
 public interface IParseTokens extends ITokens {
 
@@ -11,9 +12,9 @@ public interface IParseTokens extends ITokens {
 
     IToken endToken();
 
-    void makeStartToken(AbstractParseForest parseForest);
+    void makeStartToken();
 
-    void makeEndToken(AbstractParseForest parseForest);
+    void makeEndToken(Position endPosition);
 
     IToken makeToken(AbstractParseForest parseForest, IProduction production);
 

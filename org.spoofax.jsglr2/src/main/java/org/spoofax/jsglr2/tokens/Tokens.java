@@ -10,6 +10,7 @@ import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.Position;
 
 public class Tokens implements IParseTokens {
 
@@ -37,16 +38,15 @@ public class Tokens implements IParseTokens {
         return endToken;
     }
 
-    public void makeStartToken(AbstractParseForest parseForest) {
-        startToken = new Token(this, filename, 0, parseForest.getStartPosition().line,
-            parseForest.getStartPosition().column, parseForest.getStartPosition().offset, -1, TK_RESERVED);
+    public void makeStartToken() {
+        startToken = new Token(this, filename, 0, 1, 1, 0, -1, TK_RESERVED);
 
         addToken(startToken);
     }
 
-    public void makeEndToken(AbstractParseForest parseForest) {
-        endToken = new Token(this, filename, tokens.size(), parseForest.getEndPosition().line,
-            parseForest.getEndPosition().column, parseForest.getEndPosition().offset, -1, TK_EOF);
+    public void makeEndToken(Position endPosition) {
+        endToken = new Token(this, filename, tokens.size(), endPosition.line, endPosition.column, endPosition.offset,
+            -1, TK_EOF);
 
         addToken(endToken);
     }
@@ -119,13 +119,13 @@ public class Tokens implements IParseTokens {
         int endOffset = right.getEndOffset();
 
         if(startOffset >= 0 && endOffset >= 0)
-            return toString(startOffset, endOffset);
+            return toString(startOffset, endOffset + 1);
         else
             return "";
     }
 
     @Override public String toString(int startOffset, int endOffset) {
-        return input.substring(startOffset, endOffset + 1);
+        return input.substring(startOffset, endOffset);
     }
 
     @Override public boolean isAmbigous() {

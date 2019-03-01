@@ -154,14 +154,16 @@ public abstract class BaseTest implements WithParseTable {
             }
 
             // Check start token
-            assertEquals(actualTokens.get(0), new TokenDescriptor("", IToken.TK_RESERVED, 1, 1, 1, 0));
+            assertEquals("Start token incorrect:", new TokenDescriptor("", IToken.TK_RESERVED, 1, 1, 1, 0),
+                actualTokens.get(0));
 
             int endLine = parseResult.parse.currentLine;
             int endColumn = parseResult.parse.currentColumn;
 
             // Check end token
-            assertEquals(actualTokens.get(actualTokens.size() - 1),
-                new TokenDescriptor("", IToken.TK_EOF, endLine, endColumn, endLine, -1));
+            assertEquals("End token incorrect:",
+                new TokenDescriptor("", IToken.TK_EOF, endLine, endColumn, endLine, -1),
+                actualTokens.get(actualTokens.size() - 1));
 
             List<TokenDescriptor> actualTokenWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 

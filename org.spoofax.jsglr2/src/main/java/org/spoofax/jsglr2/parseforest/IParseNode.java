@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public interface ISymbolNode<ParseForest extends AbstractParseForest, Derivation extends IDerivation<ParseForest>> {
+public interface IParseNode<ParseForest extends AbstractParseForest, Derivation extends IDerivation<ParseForest>> {
 
     void addDerivation(Derivation derivation);
 

@@ -5,16 +5,16 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.IBasicSymbolNode;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
 
-public class DataDependentSymbolNode extends BasicParseForest
-    implements IBasicSymbolNode<BasicParseForest, DataDependentRuleNode> {
+public class DataDependentParseNode extends BasicParseForest
+    implements IBasicParseNode<BasicParseForest, DataDependentDerivation> {
 
     public final IProduction production;
-    private final List<DataDependentRuleNode> derivations = new ArrayList<>();
+    private final List<DataDependentDerivation> derivations = new ArrayList<>();
 
-    public DataDependentSymbolNode(Position startPosition, Position endPosition, IProduction production) {
+    public DataDependentParseNode(Position startPosition, Position endPosition, IProduction production) {
         super(startPosition, endPosition);
         this.production = production;
     }
@@ -23,7 +23,7 @@ public class DataDependentSymbolNode extends BasicParseForest
         return production.descriptor();
     }
 
-    @Override public List<DataDependentRuleNode> getDerivations() {
+    @Override public List<DataDependentDerivation> getDerivations() {
         return derivations;
     }
 }

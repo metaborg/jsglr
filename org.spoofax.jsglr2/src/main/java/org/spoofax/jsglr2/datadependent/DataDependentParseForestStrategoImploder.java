@@ -7,26 +7,27 @@ import org.spoofax.jsglr2.imploder.StrategoTermImploder;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 
 public class DataDependentParseForestStrategoImploder
-    extends StrategoTermImploder<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode> {
+    extends StrategoTermImploder<BasicParseForest, DataDependentParseNode, DataDependentDerivation> {
 
     public DataDependentParseForestStrategoImploder() {
         super(new DataDependentParseForestTokenizer());
     }
 
-    @Override protected IProduction parseNodeProduction(DataDependentSymbolNode symbolNode) {
-        return symbolNode.production;
+    @Override protected IProduction parseNodeProduction(DataDependentParseNode parseNode) {
+        return parseNode.production;
     }
 
-    @Override protected DataDependentRuleNode parseNodeOnlyDerivation(DataDependentSymbolNode symbolNode) {
-        return symbolNode.getOnlyDerivation();
+    @Override protected DataDependentDerivation parseNodeOnlyDerivation(DataDependentParseNode parseNode) {
+        return parseNode.getOnlyDerivation();
     }
 
-    @Override protected List<DataDependentRuleNode>
-        parseNodePreferredAvoidedDerivations(DataDependentSymbolNode symbolNode) {
-        return symbolNode.getPreferredAvoidedDerivations();
+    @Override protected List<DataDependentDerivation>
+        parseNodePreferredAvoidedDerivations(DataDependentParseNode parseNode) {
+        return parseNode.getPreferredAvoidedDerivations();
     }
 
-    @Override protected List<DataDependentRuleNode> longestMatchedDerivations(List<DataDependentRuleNode> derivations) {
+    @Override protected List<DataDependentDerivation>
+        longestMatchedDerivations(List<DataDependentDerivation> derivations) {
         // TODO remove derivations according to longest match criteria
         return derivations;
     }

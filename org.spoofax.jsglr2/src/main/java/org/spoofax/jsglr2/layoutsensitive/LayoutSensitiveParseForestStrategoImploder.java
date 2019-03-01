@@ -7,27 +7,27 @@ import org.spoofax.jsglr2.imploder.StrategoTermImploder;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 
 public class LayoutSensitiveParseForestStrategoImploder
-    extends StrategoTermImploder<BasicParseForest, LayoutSensitiveSymbolNode, LayoutSensitiveRuleNode> {
+    extends StrategoTermImploder<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
     public LayoutSensitiveParseForestStrategoImploder() {
         super(new LayoutSensitiveParseForestTokenizer());
     }
 
-    @Override protected IProduction parseNodeProduction(LayoutSensitiveSymbolNode symbolNode) {
-        return symbolNode.production;
+    @Override protected IProduction parseNodeProduction(LayoutSensitiveParseNode parseNode) {
+        return parseNode.production;
     }
 
-    @Override protected LayoutSensitiveRuleNode parseNodeOnlyDerivation(LayoutSensitiveSymbolNode symbolNode) {
-        return symbolNode.getOnlyDerivation();
+    @Override protected LayoutSensitiveDerivation parseNodeOnlyDerivation(LayoutSensitiveParseNode parseNode) {
+        return parseNode.getOnlyDerivation();
     }
 
-    @Override protected List<LayoutSensitiveRuleNode>
-        parseNodePreferredAvoidedDerivations(LayoutSensitiveSymbolNode symbolNode) {
-        return symbolNode.getPreferredAvoidedDerivations();
+    @Override protected List<LayoutSensitiveDerivation>
+        parseNodePreferredAvoidedDerivations(LayoutSensitiveParseNode parseNode) {
+        return parseNode.getPreferredAvoidedDerivations();
     }
 
-    @Override protected List<LayoutSensitiveRuleNode>
-        longestMatchedDerivations(List<LayoutSensitiveRuleNode> derivations) {
+    @Override protected List<LayoutSensitiveDerivation>
+        longestMatchedDerivations(List<LayoutSensitiveDerivation> derivations) {
 
         return derivations;
     }

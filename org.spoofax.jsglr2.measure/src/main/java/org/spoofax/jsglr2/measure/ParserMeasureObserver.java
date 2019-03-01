@@ -10,7 +10,7 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
@@ -45,7 +45,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
 
     public int deterministicDepthResets = 0;
 
-    Set<ParseNode> parseNodes = new HashSet<ParseNode>();
+    Set<HybridParseNode> parseNodes = new HashSet<HybridParseNode>();
     Set<ParseForest> characterNodes = new HashSet<ParseForest>();
 
     class Actor {
@@ -175,7 +175,7 @@ public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
     }
 
     @Override public void createParseNode(ParseForest parseNode, IProduction production) {
-        parseNodes.add((ParseNode) parseNode);
+        parseNodes.add((HybridParseNode) parseNode);
     }
 
     @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {

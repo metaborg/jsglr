@@ -5,14 +5,14 @@ import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.Position;
 
-public class RuleNode extends BasicParseForest implements IDerivation<BasicParseForest> {
+public class BasicDerivation extends BasicParseForest implements IDerivation<BasicParseForest> {
 
     public final IProduction production;
     public final ProductionType productionType;
     public final BasicParseForest[] parseForests;
 
-    public RuleNode(Position startPosition, Position endPosition, IProduction production, ProductionType productionType,
-        BasicParseForest[] parseForests) {
+    public BasicDerivation(Position startPosition, Position endPosition, IProduction production,
+        ProductionType productionType, BasicParseForest[] parseForests) {
         super(startPosition, endPosition);
         this.production = production;
         this.productionType = productionType;

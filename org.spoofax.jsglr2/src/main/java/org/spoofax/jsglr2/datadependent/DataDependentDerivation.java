@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.Position;
 
-public class DataDependentRuleNode extends BasicParseForest implements IDerivation<BasicParseForest> {
+public class DataDependentDerivation extends BasicParseForest implements IDerivation<BasicParseForest> {
 
     public final IProduction production;
     public final ProductionType productionType;
@@ -15,7 +15,7 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
 
     private long contextBitmap = 0L;
 
-    public DataDependentRuleNode(Position startPosition, Position endPosition, IProduction production,
+    public DataDependentDerivation(Position startPosition, Position endPosition, IProduction production,
         ProductionType productionType, BasicParseForest[] parseForests) {
         super(startPosition, endPosition);
         this.production = production;
@@ -24,8 +24,8 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
 
         if(parseForests.length > 0) {
             if(parseForests.length == 1) {
-                if(parseForests[0] instanceof DataDependentSymbolNode) {
-                    final DataDependentSymbolNode parseForest = (DataDependentSymbolNode) parseForests[0];
+                if(parseForests[0] instanceof DataDependentParseNode) {
+                    final DataDependentParseNode parseForest = (DataDependentParseNode) parseForests[0];
                     final ParseTableProduction onlyProduction = (ParseTableProduction) parseForest.production;
 
                     // introduction of contextual token
@@ -33,35 +33,35 @@ public class DataDependentRuleNode extends BasicParseForest implements IDerivati
                     contextBitmap |= onlyProduction.contextR();
 
                     // aggregation of recursive contextual tokens
-                    for(DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
-                        contextBitmap |= (ruleNode.getContextBitmap());
+                    for(DataDependentDerivation derivation : parseForest.getDerivations()) {
+                        contextBitmap |= (derivation.getContextBitmap());
                     }
                 }
             } else {
-                if(parseForests[0] instanceof DataDependentSymbolNode) {
-                    final DataDependentSymbolNode parseForest = (DataDependentSymbolNode) parseForests[0];
+                if(parseForests[0] instanceof DataDependentParseNode) {
+                    final DataDependentParseNode parseForest = (DataDependentParseNode) parseForests[0];
                     final ParseTableProduction leftmostProduction = (ParseTableProduction) parseForest.production;
 
                     // introduction of contextual token
                     contextBitmap |= leftmostProduction.contextL();
 
                     // aggregation of recursive contextual tokens
-                    for(DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
-                        contextBitmap |= (ruleNode.getContextBitmap());
+                    for(DataDependentDerivation derivation : parseForest.getDerivations()) {
+                        contextBitmap |= (derivation.getContextBitmap());
                     }
                 }
 
-                if(parseForests[parseForests.length - 1] instanceof DataDependentSymbolNode) {
-                    final DataDependentSymbolNode parseForest =
-                        (DataDependentSymbolNode) parseForests[parseForests.length - 1];
+                if(parseForests[parseForests.length - 1] instanceof DataDependentParseNode) {
+                    final DataDependentParseNode parseForest =
+                        (DataDependentParseNode) parseForests[parseForests.length - 1];
                     final ParseTableProduction rightmostProduction = (ParseTableProduction) parseForest.production;
 
                     // introduction of contextual token
                     contextBitmap |= rightmostProduction.contextR();
 
                     // aggregation of recursive contextual tokens
-                    for(DataDependentRuleNode ruleNode : parseForest.getDerivations()) {
-                        contextBitmap |= (ruleNode.getContextBitmap());
+                    for(DataDependentDerivation derivation : parseForest.getDerivations()) {
+                        contextBitmap |= (derivation.getContextBitmap());
                     }
                 }
 

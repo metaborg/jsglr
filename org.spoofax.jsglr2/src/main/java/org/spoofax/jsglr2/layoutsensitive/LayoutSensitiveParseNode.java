@@ -5,21 +5,21 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.IBasicSymbolNode;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
 import com.google.common.collect.Lists;
 
-public class LayoutSensitiveSymbolNode extends BasicParseForest
-    implements IBasicSymbolNode<BasicParseForest, LayoutSensitiveRuleNode> {
+public class LayoutSensitiveParseNode extends BasicParseForest
+    implements IBasicParseNode<BasicParseForest, LayoutSensitiveDerivation> {
 
     public final IProduction production; // left hand side non-terminal
-    private final List<LayoutSensitiveRuleNode> derivations;
+    private final List<LayoutSensitiveDerivation> derivations;
     public List<PositionInterval> longestMatchPos = null;
     boolean filteredLongestMatch = false;
 
-    public LayoutSensitiveSymbolNode(Position startPosition, Position endPosition, IProduction production) {
+    public LayoutSensitiveParseNode(Position startPosition, Position endPosition, IProduction production) {
         super(startPosition, endPosition);
         this.production = production;
         this.derivations = new ArrayList<>();
@@ -29,7 +29,7 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest
         return production;
     }
 
-    public List<LayoutSensitiveRuleNode> getDerivations() {
+    public List<LayoutSensitiveDerivation> getDerivations() {
         return derivations;
     }
 
@@ -46,7 +46,7 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest
 
         List<List<PositionInterval>> longestMatchNodes = Lists.newArrayList();
 
-        for(LayoutSensitiveRuleNode derivation : derivations) {
+        for(LayoutSensitiveDerivation derivation : derivations) {
             longestMatchNodes.add(derivation.getLongestMatchPositions());
         }
 
@@ -81,7 +81,7 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest
         }
         //
         if(disambiguatedLongestMatch) {
-            LayoutSensitiveRuleNode longestDerivation = derivations.get(currentLongestDerivation);
+            LayoutSensitiveDerivation longestDerivation = derivations.get(currentLongestDerivation);
             derivations.clear();
             derivations.add(longestDerivation);
         }
@@ -120,7 +120,7 @@ public class LayoutSensitiveSymbolNode extends BasicParseForest
     // }
     // String buf = "amb(";
     // int i = 0;
-    // for(LayoutSensitiveRuleNode der : derivations) {
+    // for(LayoutSensitiveDerivation der : derivations) {
     // if(der == null)
     // continue;
     // if(i != 0)

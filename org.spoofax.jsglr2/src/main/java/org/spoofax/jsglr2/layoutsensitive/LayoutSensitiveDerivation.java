@@ -5,22 +5,22 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.RuleNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
 import com.google.common.collect.Lists;
 
-public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<BasicParseForest> {
+public class LayoutSensitiveDerivation extends BasicDerivation implements IDerivation<BasicParseForest> {
 
     public Position leftPosition, rightPosition;
 
     // longest-match positions
     // public Set<PositionInterval> longestMatchPos = Sets.newLinkedHashSet();
 
-    public LayoutSensitiveRuleNode(AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
+    public LayoutSensitiveDerivation(AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
         Position rightPosition, Position endPosition, IProduction production, ProductionType productionType,
         BasicParseForest[] parseForests) {
         super(startPosition, endPosition, production, productionType, parseForests);
@@ -33,13 +33,13 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
         // }
         //
         // for(BasicParseForest pf : parseForests) {
-        // if(pf instanceof LayoutSensitiveSymbolNode) {
-        // if(((LayoutSensitiveSymbolNode) pf).isAmbiguous()) {
+        // if(pf instanceof LayoutSensitiveParseNode) {
+        // if(((LayoutSensitiveParseNode) pf).isAmbiguous()) {
         // System.out.println();
         // }
-        // longestMatchPos.addAll(((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().longestMatchPos);
-        // } else if(pf instanceof LayoutSensitiveRuleNode) {
-        // longestMatchPos.addAll(((LayoutSensitiveRuleNode) pf).longestMatchPos);
+        // longestMatchPos.addAll(((LayoutSensitiveParseNode) pf).getOnlyDerivation().longestMatchPos);
+        // } else if(pf instanceof LayoutSensitiveDerivation) {
+        // longestMatchPos.addAll(((LayoutSensitiveDerivation) pf).longestMatchPos);
         // }
         // }
 
@@ -52,10 +52,10 @@ public class LayoutSensitiveRuleNode extends RuleNode implements IDerivation<Bas
             result.add(new PositionInterval(getStartPosition(), getEndPosition()));
         }
         for(BasicParseForest pf : parseForests) {
-            if(pf instanceof LayoutSensitiveRuleNode) {
-                result.addAll(((LayoutSensitiveRuleNode) pf).getLongestMatchPositions());
-            } else if(pf instanceof LayoutSensitiveSymbolNode) {
-                List<PositionInterval> positions = ((LayoutSensitiveSymbolNode) pf).getLongestMatchPositions();
+            if(pf instanceof LayoutSensitiveDerivation) {
+                result.addAll(((LayoutSensitiveDerivation) pf).getLongestMatchPositions());
+            } else if(pf instanceof LayoutSensitiveParseNode) {
+                List<PositionInterval> positions = ((LayoutSensitiveParseNode) pf).getLongestMatchPositions();
 
                 result.addAll(positions);
             }

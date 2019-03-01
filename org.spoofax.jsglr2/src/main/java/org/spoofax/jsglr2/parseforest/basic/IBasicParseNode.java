@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.ISymbolNode;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 
-public interface IBasicSymbolNode
+public interface IBasicParseNode
 //@formatter:off
    <ParseForest extends AbstractParseForest,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on
-    extends ISymbolNode<ParseForest, Derivation> {
+    extends IParseNode<ParseForest, Derivation> {
 
     @Override default void addDerivation(Derivation derivation) {
         this.getDerivations().add(derivation);

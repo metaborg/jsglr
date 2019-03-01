@@ -5,14 +5,14 @@ import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
 
 public class LayoutSensitiveParseForestTokenizer
-    extends Tokenizer<BasicParseForest, LayoutSensitiveSymbolNode, LayoutSensitiveRuleNode> {
+    extends Tokenizer<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
-    @Override protected IProduction parseNodeProduction(LayoutSensitiveSymbolNode symbolNode) {
-        return symbolNode.production;
+    @Override protected IProduction parseNodeProduction(LayoutSensitiveParseNode parseNode) {
+        return parseNode.production;
     }
 
-    @Override protected Iterable<LayoutSensitiveRuleNode> parseNodeDerivations(LayoutSensitiveSymbolNode symbolNode) {
-        return symbolNode.getDerivations();
+    @Override protected Iterable<LayoutSensitiveDerivation> parseNodeDerivations(LayoutSensitiveParseNode parseNode) {
+        return parseNode.getDerivations();
     }
 
 }

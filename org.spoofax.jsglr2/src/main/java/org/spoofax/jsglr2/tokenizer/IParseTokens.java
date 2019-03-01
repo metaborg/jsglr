@@ -8,9 +8,11 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 public interface IParseTokens extends ITokens {
 
     IToken startToken();
+
     IToken endToken();
 
     void makeStartToken(AbstractParseForest parseForest);
+
     void makeEndToken(AbstractParseForest parseForest);
 
     IToken makeToken(AbstractParseForest parseForest, IProduction production);

@@ -22,7 +22,7 @@ public final class TokenDescriptor {
     public static TokenDescriptor from(AbstractParse<?, ?> parse, IToken token) {
         String inputPart;
 
-        if (token.getStartOffset() >= 0 && token.getEndOffset() >= 0)
+        if(token.getStartOffset() >= 0 && token.getEndOffset() >= 0)
             inputPart = parse.getPart(token.getStartOffset(), token.getEndOffset() + 1);
         else
             inputPart = "";
@@ -42,7 +42,7 @@ public final class TokenDescriptor {
     }
 
     @Override public String toString() {
-        return "<'"  + token + "';" + kind + ";" + startLine + "," + startColumn + ";" + endLine + "," + endColumn + ">";
+        return "<'" + token + "';" + kind + ";" + startLine + "," + startColumn + ";" + endLine + "," + endColumn + ">";
     }
 
 }

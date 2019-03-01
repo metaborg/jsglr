@@ -13,9 +13,9 @@ import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
-import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Parser;
@@ -72,8 +72,8 @@ public class ParsingMeasurements extends Measurements {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
-            @SuppressWarnings("unchecked") Parser<HybridParseForest, ParseNode, Derivation, ElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, ElkhoundStackNode<HybridParseForest>>> parser =
-                (Parser<HybridParseForest, ParseNode, Derivation, ElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, ElkhoundStackNode<HybridParseForest>>>) JSGLR2Variants
+            @SuppressWarnings("unchecked") Parser<HybridParseForest, HybridParseNode, HybridDerivation, ElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, ElkhoundStackNode<HybridParseForest>>> parser =
+                (Parser<HybridParseForest, HybridParseNode, HybridDerivation, ElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, ElkhoundStackNode<HybridParseForest>>>) JSGLR2Variants
                     .getParser(parseTable, measureActiveStacksFactory, measureForActorStacksFactory, variant);
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();
@@ -104,14 +104,14 @@ public class ParsingMeasurements extends Measurements {
 
         int parseNodesSingleDerivation = 0;
 
-        List<ParseNode> parseNodesContextFree = new ArrayList<ParseNode>();
-        List<ParseNode> parseNodesLexical = new ArrayList<ParseNode>();
-        List<ParseNode> parseNodesLayout = new ArrayList<ParseNode>();
+        List<HybridParseNode> parseNodesContextFree = new ArrayList<HybridParseNode>();
+        List<HybridParseNode> parseNodesLexical = new ArrayList<HybridParseNode>();
+        List<HybridParseNode> parseNodesLayout = new ArrayList<HybridParseNode>();
 
-        for(ParseNode parseNode : measureObserver.parseNodes) {
+        for(HybridParseNode parseNode : measureObserver.parseNodes) {
             int derivationCount = 0;
 
-            for(Derivation derivation : parseNode.getDerivations())
+            for(HybridDerivation derivation : parseNode.getDerivations())
                 derivationCount++;
 
             if(derivationCount == 1)
@@ -258,10 +258,10 @@ public class ParsingMeasurements extends Measurements {
         csvLine(out, cells);
     }
 
-    private static int parseNodesAmbiguous(Collection<ParseNode> parseNodes) {
+    private static int parseNodesAmbiguous(Collection<HybridParseNode> parseNodes) {
         int parseNodesAmbiguous = 0;
 
-        for(ParseNode parseNode : parseNodes) {
+        for(HybridParseNode parseNode : parseNodes) {
             if(parseNode.isAmbiguous())
                 parseNodesAmbiguous++;
         }

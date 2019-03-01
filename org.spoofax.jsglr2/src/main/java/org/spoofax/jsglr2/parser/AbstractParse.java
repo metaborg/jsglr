@@ -11,10 +11,10 @@ import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-
-import com.google.common.collect.Maps;
 import org.spoofax.jsglr2.tokenizer.IParseTokens;
 import org.spoofax.jsglr2.tokenizer.Tokens;
+
+import com.google.common.collect.Maps;
 
 public abstract class AbstractParse
 //@formatter:off

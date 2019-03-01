@@ -5,14 +5,14 @@ import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
 
 public class DataDependentParseForestTokenizer
-    extends Tokenizer<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode> {
+    extends Tokenizer<BasicParseForest, DataDependentParseNode, DataDependentDerivation> {
 
-    @Override protected IProduction parseNodeProduction(DataDependentSymbolNode symbolNode) {
-        return symbolNode.production;
+    @Override protected IProduction parseNodeProduction(DataDependentParseNode parseNode) {
+        return parseNode.production;
     }
 
-    @Override protected Iterable<DataDependentRuleNode> parseNodeDerivations(DataDependentSymbolNode symbolNode) {
-        return symbolNode.getDerivations();
+    @Override protected Iterable<DataDependentDerivation> parseNodeDerivations(DataDependentParseNode parseNode) {
+        return parseNode.getDerivations();
     }
 
 }

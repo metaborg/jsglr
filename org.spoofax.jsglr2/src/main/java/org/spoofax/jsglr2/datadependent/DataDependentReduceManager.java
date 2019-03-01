@@ -78,21 +78,21 @@ public class DataDependentReduceManager
             return false;
         }
 
-        assert pf instanceof DataDependentSymbolNode;
-        final List<DataDependentRuleNode> derivations = ((DataDependentSymbolNode) pf).getDerivations();
+        assert pf instanceof DataDependentParseNode;
+        final List<DataDependentDerivation> derivations = ((DataDependentParseNode) pf).getDerivations();
 
         if(derivations.size() == 1) {
-            final DataDependentRuleNode ruleNode = derivations.get(0);
+            final DataDependentDerivation derivation = derivations.get(0);
 
-            final boolean hasDeepConflict = (ruleNode.getContextBitmap() & contextBitmap) != 0;
+            final boolean hasDeepConflict = (derivation.getContextBitmap() & contextBitmap) != 0;
 
             // check if bitmaps intersect
             return hasDeepConflict;
         } else {
-            for(Iterator<DataDependentRuleNode> iterator = derivations.iterator(); iterator.hasNext();) {
-                final DataDependentRuleNode ruleNode = iterator.next();
+            for(Iterator<DataDependentDerivation> iterator = derivations.iterator(); iterator.hasNext();) {
+                final DataDependentDerivation derivation = iterator.next();
 
-                final boolean hasDeepConflict = (ruleNode.getContextBitmap() & contextBitmap) != 0;
+                final boolean hasDeepConflict = (derivation.getContextBitmap() & contextBitmap) != 0;
 
                 // discard rule nodes where bitmaps intersect
                 if(hasDeepConflict) {

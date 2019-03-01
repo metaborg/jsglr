@@ -5,13 +5,13 @@ import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
-public class Derivation implements IDerivation<HybridParseForest> {
+public class HybridDerivation implements IDerivation<HybridParseForest> {
 
     public final IProduction production;
     public final ProductionType productionType;
     public final HybridParseForest[] parseForests;
 
-    public Derivation(IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
+    public HybridDerivation(IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         this.production = production;
         this.productionType = productionType;
         this.parseForests = parseForests;

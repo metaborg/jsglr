@@ -65,8 +65,8 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
                                                                                                    // layoutConstraint).getTree(),
                                                                                                    // parseNodes);
 
-            if(tree instanceof LayoutSensitiveSymbolNode
-                && ((LayoutSensitiveSymbolNode) tree).getProduction().isIgnoreLayoutConstraint()) {
+            if(tree instanceof LayoutSensitiveParseNode
+                && ((LayoutSensitiveParseNode) tree).getProduction().isIgnoreLayoutConstraint()) {
                 throw new NoValueLayoutException();
             }
 
@@ -84,13 +84,13 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
                         return tree.getEndPosition().line;
                     }
                 case LEFT:
-                    if(tree instanceof LayoutSensitiveSymbolNode) {
-                        if(((LayoutSensitiveSymbolNode) tree).getOnlyDerivation().leftPosition == null) {
+                    if(tree instanceof LayoutSensitiveParseNode) {
+                        if(((LayoutSensitiveParseNode) tree).getOnlyDerivation().leftPosition == null) {
                             throw new NoValueLayoutException();
                         } else if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                            return ((LayoutSensitiveSymbolNode) tree).getOnlyDerivation().leftPosition.column;
+                            return ((LayoutSensitiveParseNode) tree).getOnlyDerivation().leftPosition.column;
                         } else {
-                            return ((LayoutSensitiveSymbolNode) tree).getOnlyDerivation().leftPosition.line;
+                            return ((LayoutSensitiveParseNode) tree).getOnlyDerivation().leftPosition.line;
                         }
                     }
                     throw new NoValueLayoutException();
@@ -127,8 +127,8 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
 
         for(int i = 0; i < parseNodes.length; i++) {
             ParseForest current = parseNodes[i];
-            if(current == null || current instanceof LayoutSensitiveSymbolNode) {
-                if(current == null || ((LayoutSensitiveSymbolNode) current).getProduction().isLayout()) {
+            if(current == null || current instanceof LayoutSensitiveParseNode) {
+                if(current == null || ((LayoutSensitiveParseNode) current).getProduction().isLayout()) {
                     continue;
                 } else {
                     treeCount--;

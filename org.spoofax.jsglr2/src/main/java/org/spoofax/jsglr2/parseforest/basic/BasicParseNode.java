@@ -6,12 +6,12 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parser.Position;
 
-public class SymbolNode extends BasicParseForest implements IBasicSymbolNode<BasicParseForest, RuleNode> {
+public class BasicParseNode extends BasicParseForest implements IBasicParseNode<BasicParseForest, BasicDerivation> {
 
     public final IProduction production;
-    private final List<RuleNode> derivations = new ArrayList<>();
+    private final List<BasicDerivation> derivations = new ArrayList<>();
 
-    public SymbolNode(Position startPosition, Position endPosition, IProduction production) {
+    public BasicParseNode(Position startPosition, Position endPosition, IProduction production) {
         super(startPosition, endPosition);
         this.production = production;
     }
@@ -20,7 +20,7 @@ public class SymbolNode extends BasicParseForest implements IBasicSymbolNode<Bas
         return production.descriptor();
     }
 
-    @Override public List<RuleNode> getDerivations() {
+    @Override public List<BasicDerivation> getDerivations() {
         return derivations;
     }
 }

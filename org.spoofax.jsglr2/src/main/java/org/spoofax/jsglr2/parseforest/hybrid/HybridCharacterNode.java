@@ -4,11 +4,11 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
-public class CharacterNode extends HybridParseForest {
+public class HybridCharacterNode extends HybridParseForest {
 
     public final int character;
 
-    public CharacterNode(Position position, int character) {
+    public HybridCharacterNode(Position position, int character) {
         super(position, CharacterClassFactory.isNewLine(character) ? position.nextLine() : position.nextColumn());
         this.character = character;
     }

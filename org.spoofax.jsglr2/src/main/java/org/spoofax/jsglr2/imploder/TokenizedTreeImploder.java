@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveSymbolNode;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -74,8 +74,8 @@ public abstract class TokenizedTreeImploder
     protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
         List<Derivation> result;
         // TODO always filter longest-match?
-        if(parseNode instanceof LayoutSensitiveSymbolNode) {
-            ((LayoutSensitiveSymbolNode) parseNode).filterLongestMatchDerivations();
+        if(parseNode instanceof LayoutSensitiveParseNode) {
+            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
         }
         // TODO always filter prefer/avoid?
         result = parseNodePreferredAvoidedDerivations(parseNode);

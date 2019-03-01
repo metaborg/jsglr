@@ -5,32 +5,33 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.parseforest.ISymbolNode;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class ParseNode extends HybridParseForest implements ISymbolNode<HybridParseForest, Derivation> {
+public class HybridParseNode extends HybridParseForest implements IParseNode<HybridParseForest, HybridDerivation> {
 
     public final IProduction production;
-    private final Derivation firstDerivation;
-    private List<Derivation> otherDerivations;
+    private final HybridDerivation firstDerivation;
+    private List<HybridDerivation> otherDerivations;
 
-    public ParseNode(Position startPosition, Position endPosition, IProduction production, Derivation firstDerivation) {
+    public HybridParseNode(Position startPosition, Position endPosition, IProduction production,
+        HybridDerivation firstDerivation) {
         super(startPosition, endPosition);
         this.production = production;
         this.firstDerivation = firstDerivation;
         this.otherDerivations = null;
     }
 
-    public void addDerivation(Derivation derivation) {
+    public void addDerivation(HybridDerivation derivation) {
         if(otherDerivations == null)
-            otherDerivations = new ArrayList<Derivation>();
+            otherDerivations = new ArrayList<HybridDerivation>();
 
         otherDerivations.add(derivation);
     }
 
-    public Iterable<Derivation> getDerivations() {
+    public Iterable<HybridDerivation> getDerivations() {
         if(otherDerivations == null) {
             return Collections.singleton(firstDerivation);
         } else {
@@ -38,7 +39,7 @@ public class ParseNode extends HybridParseForest implements ISymbolNode<HybridPa
         }
     }
 
-    public Derivation getOnlyDerivation() {
+    public HybridDerivation getOnlyDerivation() {
         return firstDerivation;
     }
 
@@ -63,7 +64,7 @@ public class ParseNode extends HybridParseForest implements ISymbolNode<HybridPa
         firstDerivation.prettyPrint(printer);
 
         if(otherDerivations != null) {
-            for(Derivation derivation : otherDerivations)
+            for(HybridDerivation derivation : otherDerivations)
                 derivation.prettyPrint(printer);
         }
 

@@ -38,6 +38,24 @@ public class Position {
         this.column = p.column;
     }
 
+    public static Position atEnd(String string) {
+        String[] lines = string.split("\n");
+
+        int line = lines.length;
+        int column = lines[line - 1].length() + 1;
+
+        if (string.endsWith("\n")) {
+            line++;
+            column = 1;
+        }
+
+        return new Position(string.length(), line, column);
+    }
+
+    public static Position atOffset(String string, int offset) {
+        return atEnd(string.substring(0, offset));
+    }
+
     /**
      * @return A new position that represents the position right of the current position.
      */

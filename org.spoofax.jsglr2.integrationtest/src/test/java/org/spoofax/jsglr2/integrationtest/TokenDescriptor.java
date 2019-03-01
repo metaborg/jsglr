@@ -7,16 +7,14 @@ public final class TokenDescriptor {
 
     public final String token;
     public final int kind;
-    public final int startLine, startColumn;
-    public final int endLine, endColumn;
+    public final int offset, line, column;
 
-    public TokenDescriptor(String token, int kind, int startLine, int startColumn, int endLine, int endColumn) {
+    public TokenDescriptor(String token, int kind, int offset, int line, int column) {
         this.token = token;
         this.kind = kind;
-        this.startLine = startLine;
-        this.startColumn = startColumn;
-        this.endLine = endLine;
-        this.endColumn = endColumn;
+        this.offset = offset;
+        this.line = line;
+        this.column = column;
     }
 
     public static TokenDescriptor from(AbstractParse<?, ?> parse, IToken token) {
@@ -27,8 +25,8 @@ public final class TokenDescriptor {
         else
             inputPart = "";
 
-        return new TokenDescriptor(inputPart, token.getKind(), token.getLine(), token.getColumn(), token.getEndLine(),
-            token.getEndColumn());
+        return new TokenDescriptor(inputPart, token.getKind(), token.getStartOffset(), token.getLine(),
+            token.getColumn());
     }
 
     @Override public boolean equals(Object obj) {
@@ -37,12 +35,12 @@ public final class TokenDescriptor {
 
         TokenDescriptor other = (TokenDescriptor) obj;
 
-        return kind == other.kind && startLine == other.startLine && startColumn == other.startColumn
-            && endLine == other.endLine && endColumn == other.endColumn;
+        return token.equals(other.token) && kind == other.kind && offset == other.offset && line == other.line
+            && column == other.column;
     }
 
     @Override public String toString() {
-        return "<'" + token + "';" + kind + ";" + startLine + "," + startColumn + ";" + endLine + "," + endColumn + ">";
+        return "<'" + token.replace("\n", "\\n") + "';" + kind + ";" + offset + ";" + line + "," + column + ">";
     }
 
 }

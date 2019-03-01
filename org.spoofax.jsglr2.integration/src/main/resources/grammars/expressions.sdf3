@@ -1,7 +1,7 @@
 module expressions
 
 lexical syntax
-	LAYOUT        = [\ ]
+	LAYOUT        = [\ \n]
 	LAYOUT        = "/*" InsideComment* "*/"
 	InsideComment = ~[\*]
 	InsideComment = CommentChar
@@ -17,14 +17,14 @@ lexical restrictions
 	INT           -/- [0-9]
 
 context-free restrictions
-	LAYOUT?       -/- [\ ]
+	LAYOUT?       -/- [\ \n]
 	LAYOUT?       -/- [\/].[\*]
 
 context-free start-symbols
 	Start
 
 context-free syntax
-	Start   = Exp
+	Start   = Exp+
 	Exp.Var = ID
 	Exp.Int = INT
 	Exp.Add = <<Exp> + <Exp>>

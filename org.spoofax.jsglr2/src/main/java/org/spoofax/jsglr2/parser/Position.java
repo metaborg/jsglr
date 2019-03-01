@@ -44,7 +44,7 @@ public class Position {
         int line = lines.length;
         int column = lines[line - 1].length() + 1;
 
-        if (string.endsWith("\n")) {
+        if(string.endsWith("\n")) {
             line++;
             column = 1;
         }

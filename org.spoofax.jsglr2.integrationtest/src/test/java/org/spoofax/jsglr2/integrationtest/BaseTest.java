@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -18,11 +19,18 @@ import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.imploder.ImplodeResult;
+import org.spoofax.jsglr2.incremental.EditorUpdate;
+import org.spoofax.jsglr2.incremental.IncrementalParser;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.integration.WithParseTable;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
@@ -103,6 +111,11 @@ public abstract class BaseTest implements WithParseTable {
         testSuccess(inputString, expectedOutputAstString, null, true);
     }
 
+    protected void testIncrementalSuccessByExpansions(String inputString, EditorUpdate[] updates,
+        String[] expectedOutputAstStrings) {
+        testIncrementalSuccess(inputString, updates, expectedOutputAstStrings, null, true);
+    }
+
     protected void testSuccessByAstString(String startSymbol, String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, startSymbol, false);
     }
@@ -127,11 +140,64 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
+    private void testIncrementalSuccess(String inputString, EditorUpdate[] updates, String[] expectedOutputAstStrings,
+        String startSymbol, boolean equalityByExpansions) {
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            if(variant.parser.parseForestRepresentation != ParseForestRepresentation.Incremental)
+                continue;
+            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
+            JSGLR2<IncrementalParseForest, IStrategoTerm> jsglr2 =
+                (JSGLR2<IncrementalParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+            jsglr2.parser.observing().attachObserver(new org.spoofax.jsglr2.parser.observing.ParserLogObserver<>());
+
+            IStrategoTerm actualOutputAst;
+            IncrementalParseForest previousParseForest = null;
+            for(int i = 0; i < expectedOutputAstStrings.length; i++) {
+                ParseResult<IncrementalParseForest, ?> result;
+                if(i == 0) {
+                    result = jsglr2.parser.parse(inputString, "", startSymbol);
+                } else {
+                    result = ((IncrementalParser) jsglr2.parser).incrementalParse(singletonList(updates[i - 1]),
+                        previousParseForest, "", startSymbol);
+                }
+                if(result.isSuccess) {
+                    ParseSuccess<IncrementalParseForest, ?> success = (ParseSuccess<IncrementalParseForest, ?>) result;
+
+                    ImplodeResult<IncrementalParseForest, IStrategoTerm> implodeResult =
+                        jsglr2.imploder.implode(success.parse, success.parseResult);
+                    previousParseForest = success.parseResult;
+
+                    assertNotNull("Variant '" + variant.name() + "' failed imploding at update " + i + ": ",
+                        implodeResult);
+                    actualOutputAst = implodeResult.ast;
+                } else {
+                    fail("Variant '" + variant.name() + "' failed parsing at update " + i + ": "
+                        + ((ParseFailure) result).failureType);
+                    return;
+                }
+                if(equalityByExpansions) {
+                    IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstStrings[i]);
+
+                    assertEqualTermExpansions(
+                        "Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ", expectedOutputAst,
+                        actualOutputAst);
+                } else {
+                    assertEquals(expectedOutputAstStrings[i], actualOutputAst.toString());
+                }
+            }
+
+        }
+    }
+
     protected void assertEqualTermExpansions(IStrategoTerm expected, IStrategoTerm actual) {
+        assertEqualTermExpansions(null, expected, actual);
+    }
+
+    protected void assertEqualTermExpansions(String message, IStrategoTerm expected, IStrategoTerm actual) {
         List<String> expectedExpansion = toSortedStringList(this.astUtilities.expand(expected));
         List<String> actualExpansion = toSortedStringList(this.astUtilities.expand(actual));
 
-        assertEquals(expectedExpansion, actualExpansion);
+        assertEquals(message, expectedExpansion, actualExpansion);
 
     }
 

@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
 import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.states.State;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public class IncrementalDerivation implements IDerivation<IncrementalParseForest> {
@@ -13,10 +13,10 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
     public final ProductionType productionType;
     public final IncrementalParseForest[] parseForests;
     public IncrementalParseNode parent;
-    public final State state;
+    public final IState state;
 
     public IncrementalDerivation(IProduction production, ProductionType productionType,
-        IncrementalParseForest[] parseForests, State state) {
+        IncrementalParseForest[] parseForests, IState state) {
 
         this.production = production;
         this.productionType = productionType;

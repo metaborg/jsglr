@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
-import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
@@ -9,12 +8,10 @@ public abstract class IncrementalParseForest extends AbstractParseForest {
     private final Position extent;
     public IncrementalDerivation parent;
     public int childIndex = -1;
-    public final IState state;
 
-    protected IncrementalParseForest(Position extent, IState state) {
+    protected IncrementalParseForest(Position extent) {
         super(null, null);
         this.extent = extent;
-        this.state = state;
     }
 
     @Override public Position getStartPosition() {

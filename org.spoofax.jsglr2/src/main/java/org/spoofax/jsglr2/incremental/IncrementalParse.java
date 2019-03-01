@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
 import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
@@ -23,6 +24,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
     private final List<EditorUpdate> editorUpdates;
     private final IncrementalParseForest previous;
+    public IState state;
     boolean multipleStates;
     IncrementalParseForest shiftLookAhead;
     IncrementalParseForest reducerLookAhead;
@@ -40,7 +42,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         this.editorUpdates = editorUpdates;
         if(previous == null) {
             // TODO this only works when starting with a clean slate
-            previous = new IncrementalParseNode(null, getDerivationFromUpdate(editorUpdates.get(0)), NO_STATE);
+            previous = new IncrementalParseNode(null, getDerivationFromUpdate(editorUpdates.get(0)));
         }
         this.previous = previous;
         this.shiftLookAhead = previous;
@@ -134,7 +136,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(editorUpdate.insterted.length());
         char[] chars = editorUpdate.insterted.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            parseForests[i] = new IncrementalCharacterNode(chars[i], null);
+            parseForests[i] = new IncrementalCharacterNode(chars[i]);
         }
         return new IncrementalDerivation(null, null, parseForests, NO_STATE);
     }

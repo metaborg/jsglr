@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
@@ -17,8 +16,8 @@ public class IncrementalParseNode extends IncrementalParseForest
     private final IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
 
-    public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation, IState state) {
-        super(firstDerivation.getExtent(), state);
+    public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation) {
+        super(firstDerivation.getExtent());
         this.production = production;
         this.firstDerivation = firstDerivation;
         firstDerivation.parent = this;

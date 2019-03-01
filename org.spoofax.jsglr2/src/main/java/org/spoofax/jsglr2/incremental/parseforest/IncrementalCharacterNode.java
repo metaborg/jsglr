@@ -1,20 +1,17 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public class IncrementalCharacterNode extends IncrementalParseForest {
 
-    public static final IncrementalCharacterNode EOF_NODE =
-        new IncrementalCharacterNode(CharacterClassFactory.EOF_INT, IncrementalParse.NO_STATE);
+    public static final IncrementalCharacterNode EOF_NODE = new IncrementalCharacterNode(CharacterClassFactory.EOF_INT);
 
     public final int character;
 
-    public IncrementalCharacterNode(int character, IState state) {
-        super(CharacterClassFactory.isNewLine(character) ? new Position(1, 2, 1) : new Position(1, 1, 1), state);
+    public IncrementalCharacterNode(int character) {
+        super(CharacterClassFactory.isNewLine(character) ? new Position(1, 2, 1) : new Position(1, 1, 1));
         this.character = character;
     }
 

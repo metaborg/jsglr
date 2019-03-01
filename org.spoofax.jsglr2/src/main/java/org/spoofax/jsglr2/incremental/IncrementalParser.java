@@ -62,6 +62,8 @@ public class IncrementalParser
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {
+        parse.state = stack.state;
+
         while(getActions(stack, parse, parse.reducerLookAhead).size() == 0
             && parse.reducerLookAhead instanceof IncrementalParseNode)
             parse.reducerLookAhead = parse.reducerLookAhead.leftBreakdown();
@@ -97,7 +99,8 @@ public class IncrementalParser
             return IncrementalCharacterNode.EOF_NODE;
 
         while(!parse.shiftLookAhead.isTerminal()) {
-            if(!parse.multipleStates && parse.forShifter.peek().state.id() == parse.shiftLookAhead.state.id())
+            if(!parse.multipleStates && parse.forShifter.peek().state
+                .id() == ((IncrementalParseNode) parse.shiftLookAhead).getOnlyDerivation().state.id())
                 break;
             parse.shiftLookAhead = parse.shiftLookAhead.leftBreakdown();
         }

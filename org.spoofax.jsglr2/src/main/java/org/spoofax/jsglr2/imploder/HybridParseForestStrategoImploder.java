@@ -6,13 +6,12 @@ import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
-import org.spoofax.jsglr2.tokenizer.HybridParseForestTokenizer;
 
 public class HybridParseForestStrategoImploder
     extends StrategoTermImploder<HybridParseForest, HybridParseNode, HybridDerivation> {
 
     public HybridParseForestStrategoImploder() {
-        super(new HybridParseForestTokenizer());
+        super();
     }
 
     @Override protected IProduction parseNodeProduction(HybridParseNode parseNode) {

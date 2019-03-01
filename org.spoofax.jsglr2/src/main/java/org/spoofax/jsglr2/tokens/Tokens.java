@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.tokenizer;
+package org.spoofax.jsglr2.tokens;
 
 import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;

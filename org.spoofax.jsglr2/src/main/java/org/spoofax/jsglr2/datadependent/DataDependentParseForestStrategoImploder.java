@@ -10,7 +10,7 @@ public class DataDependentParseForestStrategoImploder
     extends StrategoTermImploder<BasicParseForest, DataDependentParseNode, DataDependentDerivation> {
 
     public DataDependentParseForestStrategoImploder() {
-        super(new DataDependentParseForestTokenizer());
+        super();
     }
 
     @Override protected IProduction parseNodeProduction(DataDependentParseNode parseNode) {

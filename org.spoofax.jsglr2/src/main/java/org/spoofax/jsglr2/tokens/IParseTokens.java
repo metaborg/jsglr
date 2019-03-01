@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.tokenizer;
+package org.spoofax.jsglr2.tokens;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;

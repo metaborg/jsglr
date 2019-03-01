@@ -10,7 +10,7 @@ public class LayoutSensitiveParseForestStrategoImploder
     extends StrategoTermImploder<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
     public LayoutSensitiveParseForestStrategoImploder() {
-        super(new LayoutSensitiveParseForestTokenizer());
+        super();
     }
 
     @Override protected IProduction parseNodeProduction(LayoutSensitiveParseNode parseNode) {

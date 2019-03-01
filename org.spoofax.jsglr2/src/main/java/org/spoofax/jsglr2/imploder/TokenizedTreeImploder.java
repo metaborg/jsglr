@@ -9,7 +9,6 @@ import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.tokenizer.Tokenizer;
 
 public abstract class TokenizedTreeImploder
 //@formatter:off
@@ -21,12 +20,9 @@ public abstract class TokenizedTreeImploder
     implements IImploder<ParseForest, Tree> {
 
     protected final ITreeFactory<Tree> treeFactory;
-    protected final Tokenizer<ParseForest, ParseNode, Derivation> tokenizer;
 
-    public TokenizedTreeImploder(ITreeFactory<Tree> treeFactory,
-        Tokenizer<ParseForest, ParseNode, Derivation> tokenizer) {
+    public TokenizedTreeImploder(ITreeFactory<Tree> treeFactory) {
         this.treeFactory = treeFactory;
-        this.tokenizer = tokenizer;
     }
 
     @Override public ImplodeResult<ParseForest, Tree> implode(AbstractParse<ParseForest, ?> parse,

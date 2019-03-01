@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.integrationtest;
 
 import static java.util.Collections.sort;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -13,7 +14,9 @@ import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
+import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.parser.Parser;
@@ -128,6 +131,38 @@ public abstract class BaseTest implements WithParseTable {
 
         assertEquals(expectedExpansion, actualExpansion);
 
+    }
+
+    protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
+            JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+
+            JSGLR2Result<?, ?> parseResult = jsglr2.parseResult(inputString, "", null);
+
+            assertTrue("Variant '" + variant.name() + "' failed: ", parseResult.isSuccess);
+
+            List<TokenDescriptor> actualTokens = new ArrayList<>();
+
+            for(IToken token : parseResult.parse.tokens) {
+                actualTokens.add(TokenDescriptor.from(parseResult.parse, token));
+            }
+
+            // Check start token
+            assertEquals(actualTokens.get(0), new TokenDescriptor("", IToken.TK_RESERVED, 1, 1, 1, 0));
+
+            int endLine = parseResult.parse.currentLine;
+            int endColumn = parseResult.parse.currentColumn;
+
+            // Check end token
+            assertEquals(actualTokens.get(actualTokens.size() - 1),
+                new TokenDescriptor("", IToken.TK_EOF, endLine, endColumn, endLine, -1));
+
+            List<TokenDescriptor> actualTokenWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
+
+            // Check input tokens
+            assertThat(actualTokenWithoutStartAndEnd, is(expectedTokens));
+        }
     }
 
     private List<String> toSortedStringList(List<IStrategoTerm> astExpansion) {

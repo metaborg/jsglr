@@ -68,13 +68,13 @@ public class Tokens implements IParseTokens {
             tokenKind = IToken.TK_KEYWORD;
         }
 
-        IToken endToken = new Token(this, filename, tokens.size(), parseForest.getStartPosition().line,
+        IToken token = new Token(this, filename, tokens.size(), parseForest.getStartPosition().line,
             parseForest.getStartPosition().column, parseForest.getStartPosition().offset,
             parseForest.getEndPosition().offset - 1, tokenKind);
 
-        addToken(endToken);
+        addToken(token);
 
-        return endToken;
+        return token;
     }
 
     public int addToken(IToken token) {

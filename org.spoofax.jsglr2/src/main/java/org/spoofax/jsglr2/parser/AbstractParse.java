@@ -13,6 +13,8 @@ import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 import com.google.common.collect.Maps;
+import org.spoofax.jsglr2.tokenizer.IParseTokens;
+import org.spoofax.jsglr2.tokenizer.Tokens;
 
 public abstract class AbstractParse
 //@formatter:off
@@ -24,6 +26,9 @@ public abstract class AbstractParse
     final public String filename;
     final public String inputString;
     final public int inputLength;
+
+    final public IParseTokens tokens;
+
     final public Map<Integer, Object> longestMatchPos = Maps.newHashMap();
 
     public int currentChar; // Current ASCII char in range [0, 256]
@@ -43,6 +48,8 @@ public abstract class AbstractParse
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
+
+        this.tokens = new Tokens(inputString, filename);
 
         this.acceptingStack = null;
         this.activeStacks = activeStacks;

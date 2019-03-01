@@ -15,8 +15,7 @@ public class Parse
 
     public static <ParseForest_ extends AbstractParseForest, StackNode_ extends AbstractStackNode<ParseForest_>>
         ParseFactory<ParseForest_, StackNode_, Parse<ParseForest_, StackNode_>> factory() {
-        return (inputString, filename, activeStacks, forActorStacks, observing) -> new Parse<>(inputString, filename,
-            activeStacks, forActorStacks, observing);
+        return Parse::new;
     }
 
     public Parse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,

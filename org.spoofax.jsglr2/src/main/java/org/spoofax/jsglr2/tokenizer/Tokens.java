@@ -8,18 +8,17 @@ import java.util.Iterator;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 
-public class Tokens implements ITokens {
+public class Tokens implements IParseTokens {
 
     private static final long serialVersionUID = 2054391299757162697L;
 
     private final String filename;
     private final String input;
 
-    public IToken startToken, endToken;
+    private IToken startToken, endToken;
 
     private final ArrayList<IToken> tokens;
 
@@ -27,7 +26,15 @@ public class Tokens implements ITokens {
         this.input = input;
         this.filename = filename;
 
-        this.tokens = new ArrayList<IToken>();
+        this.tokens = new ArrayList<>();
+    }
+
+    public IToken startToken() {
+        return startToken;
+    }
+
+    public IToken endToken() {
+        return endToken;
     }
 
     public void makeStartToken(AbstractParseForest parseForest) {
@@ -79,8 +86,7 @@ public class Tokens implements ITokens {
     }
 
     @Override public Iterator<IToken> iterator() {
-        @SuppressWarnings("unchecked") Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
-        return result;
+        return tokens.iterator();
     }
 
     @Override public String getInput() {

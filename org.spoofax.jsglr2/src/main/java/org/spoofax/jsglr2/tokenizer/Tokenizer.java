@@ -13,7 +13,7 @@ public abstract class Tokenizer
 //@formatter:on
 {
 
-    public void tokenize(Tokens tokens, ParseForest parseForest) {
+    public void tokenize(IParseTokens tokens, ParseForest parseForest) {
         tokens.makeStartToken(parseForest);
 
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
@@ -23,7 +23,7 @@ public abstract class Tokenizer
         tokens.makeEndToken(parseForest);
     }
 
-    protected TokenizationCover tokenizeParseNode(Tokens tokens, ParseNode parseNode) {
+    protected TokenizationCover tokenizeParseNode(IParseTokens tokens, ParseNode parseNode) {
         TokenizationCover result = null;
 
         if(parseNode != null && parseNode.getStartPosition().offset < parseNode.getEndPosition().offset) {
@@ -60,7 +60,7 @@ public abstract class Tokenizer
         return result;
     }
 
-    protected TokenizationCover tokenizeDerivation(Tokens tokens, Derivation derivation, IProduction production) {
+    protected TokenizationCover tokenizeDerivation(IParseTokens tokens, Derivation derivation, IProduction production) {
         IToken firstToken = null, lastToken = null;
 
         for(ParseForest parseForest : derivation.parseForests()) {

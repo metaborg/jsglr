@@ -10,13 +10,13 @@ import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.tokenizer.Tokenizer;
-import org.spoofax.jsglr2.tokenizer.Tokens;
 
 public abstract class TokenizedTreeImploder
 //@formatter:off
    <ParseForest extends AbstractParseForest,
     ParseNode   extends ParseForest,
-    Derivation  extends IDerivation<ParseForest>, Tree>
+    Derivation  extends IDerivation<ParseForest>,
+    Tree>
 //@formatter:on
     implements IImploder<ParseForest, Tree> {
 
@@ -31,15 +31,13 @@ public abstract class TokenizedTreeImploder
 
     @Override public ImplodeResult<ParseForest, Tree> implode(AbstractParse<ParseForest, ?> parse,
         ParseForest parseForest) {
-        Tokens tokens = new Tokens(parse.inputString, parse.filename);
-
-        tokenizer.tokenize(tokens, parseForest);
+        tokenizer.tokenize(parse.tokens, parseForest);
 
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        Tree tree = implodeParseNode(parse, topParseNode, tokens.startToken, tokens.endToken);
+        Tree tree = implodeParseNode(parse, topParseNode, parse.tokens.startToken(), parse.tokens.endToken());
 
-        tokenTreeBinding(tokens.getTokenAt(0), tree);
+        tokenTreeBinding(parse.tokens.getTokenAt(0), tree);
 
         return new ImplodeResult<>(parse, tree);
     }
@@ -50,8 +48,6 @@ public abstract class TokenizedTreeImploder
 
         if(production.isContextFree()) {
             List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
-
-
 
             if(filteredDerivations.size() > 1) {
                 List<Tree> trees = new ArrayList<Tree>(filteredDerivations.size());

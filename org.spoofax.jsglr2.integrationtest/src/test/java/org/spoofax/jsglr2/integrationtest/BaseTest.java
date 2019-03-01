@@ -16,6 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.WithParseTable;
+import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.util.AstUtilities;
@@ -57,7 +58,7 @@ public abstract class BaseTest implements WithParseTable {
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' failed: ", true, parseResult.isSuccess);
+            assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess);
         }
     }
 
@@ -68,7 +69,7 @@ public abstract class BaseTest implements WithParseTable {
 
             ParseResult<?, ?> parseResult = parser.parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' failed: ", false, parseResult.isSuccess);
+            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess);
         }
     }
 
@@ -76,18 +77,22 @@ public abstract class BaseTest implements WithParseTable {
         String startSymbol, String inputString) {
         JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
 
-        ParseResult<?, ?> parseResult = jsglr2.parser.parse(inputString, "", startSymbol);
+        try {
 
-        assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess); // Fail here if
-                                                                                                        // parsing
-                                                                                                        // failed
+            IStrategoTerm result = jsglr2.parseUnsafe(inputString, "", startSymbol);
 
-        IStrategoTerm result = jsglr2.parse(inputString, "", startSymbol);
+            // Fail here if imploding or tokenization failed
+            assertNotNull("Variant '" + variant.name() + "' failed imploding: ", result);
 
-        assertNotNull("Variant '" + variant.name() + "' failed imploding: ", result); // Fail here if imploding or
-                                                                                      // tokenization failed
+            return result;
 
-        return result;
+        } catch(ParseException e) {
+
+            // Fail here if parsing failed
+            fail("Variant '" + variant.name() + "' failed parsing: " + e.failureType);
+
+        }
+        return null;
     }
 
     protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {

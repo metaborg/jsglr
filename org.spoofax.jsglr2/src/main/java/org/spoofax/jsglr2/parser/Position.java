@@ -41,15 +41,18 @@ public class Position {
     public static Position atEnd(String string) {
         String[] lines = string.split("\n");
 
-        int line = lines.length;
-        int column = lines[line - 1].length() + 1;
+        if (lines.length > 0) {
+            int line = lines.length;
+            int column = lines[line - 1].length() + 1;
 
-        if(string.endsWith("\n")) {
-            line++;
-            column = 1;
-        }
+            if(string.endsWith("\n")) {
+                line++;
+                column = 1;
+            }
 
-        return new Position(string.length(), line, column);
+            return new Position(string.length(), line, column);
+        } else
+            return new Position(string.length(), 2, 1);
     }
 
     public static Position atOffset(String string, int offset) {

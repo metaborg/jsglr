@@ -14,8 +14,8 @@ public interface IDerivation<ParseForest extends AbstractParseForest> extends IP
     default int width() {
         int width = 0;
 
-        for (ParseForest parseForest : parseForests()) {
-            if (parseForest != null)
+        for(ParseForest parseForest : parseForests()) {
+            if(parseForest != null)
                 width += parseForest.width();
         }
 

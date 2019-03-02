@@ -41,7 +41,7 @@ public class Position {
     public static Position atEnd(String string) {
         String[] lines = string.split("\n");
 
-        if (lines.length > 0) {
+        if(lines.length > 0) {
             int line = lines.length;
             int column = lines[line - 1].length() + 1;
 

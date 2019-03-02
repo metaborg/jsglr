@@ -86,25 +86,24 @@ public abstract class TokenizedTreeImploder
                 return result;
             } else
                 return implodeDerivation(parse, filteredDerivations.get(0), startPosition, parentLeftToken);
-        } else if(production.isLayout() || production.isLiteral()) {
+        } else {
             Position endPosition = startPosition.step(parse.inputString, parseNode.width());
 
             IToken token =
                 parseNode.width() > 0 ? parse.tokens.makeToken(startPosition, endPosition, production) : null;
 
-            return new SubTree<>(null, endPosition, token, token);
-        } else if(production.isLexical() || production.isLexicalRhs()) {
-            Position endPosition = startPosition.step(parse.inputString, parseNode.width());
+            Tree tree;
 
-            IToken token =
-                parseNode.width() > 0 ? parse.tokens.makeToken(startPosition, endPosition, production) : null;
-
-            Tree tree =
-                createLexicalTerm(production, parse.tokens.toString(startPosition.offset, endPosition.offset), token);
+            if(production.isLayout() || production.isLiteral()) {
+                tree = null;
+            } else if(production.isLexical() || production.isLexicalRhs()) {
+                tree = createLexicalTerm(production, parse.tokens.toString(startPosition.offset, endPosition.offset),
+                    token);
+            } else {
+                throw new RuntimeException("invalid term type");
+            }
 
             return new SubTree<>(tree, endPosition, token, token);
-        } else {
-            throw new RuntimeException("invalid term type");
         }
     }
 
@@ -155,21 +154,15 @@ public abstract class TokenizedTreeImploder
             if(parseNode != null) { // Can be null in the case of a layout subtree parse node that is not created
                 IProduction parseNodeProduction = parseNodeProduction(parseNode);
 
+                SubTree<Tree> subTree;
+
                 if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null
                     && parseNodePreferredAvoidedDerivations(parseNode).size() <= 1)) {
                     // Make sure lists are flattened
-                    SubTree<Tree> listSubTree =
-                        implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode),
-                            parseNodeProduction, unboundTokens, pivotPosition, pivotToken);
-
-                    if(result.leftToken == null)
-                        result.leftToken = listSubTree.leftToken;
-                    if(listSubTree.rightToken != null)
-                        result.rightToken = listSubTree.rightToken;
-
-                    pivotPosition = listSubTree.endPosition;
+                    subTree = implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode),
+                        parseNodeProduction, unboundTokens, pivotPosition, pivotToken);
                 } else {
-                    SubTree<Tree> subTree = implodeParseNode(parseNode, parse, pivotPosition, pivotToken);
+                    subTree = implodeParseNode(parseNode, parse, pivotPosition, pivotToken);
 
                     if(subTree.tree != null)
                         childASTs.add(subTree.tree);
@@ -183,20 +176,20 @@ public abstract class TokenizedTreeImploder
                         if(subTree.rightToken != null)
                             unboundTokens.add(subTree.rightToken);
                     }
-
-                    // Set the parent tree left and right token as the outermost non-layout left and right child tokens
-                    if(!parseNodeProduction.isLayout()) {
-                        if(result.leftToken == null)
-                            result.leftToken = subTree.leftToken;
-
-                        if(subTree.rightToken != null) {
-                            result.rightToken = subTree.rightToken;
-                            pivotToken = subTree.rightToken;
-                        }
-                    }
-
-                    pivotPosition = subTree.endPosition;
                 }
+
+                // Set the parent tree left and right token from the outermost non-layout left and right child tokens
+                if(!parseNodeProduction.isLayout()) {
+                    if(result.leftToken == null)
+                        result.leftToken = subTree.leftToken;
+
+                    if(subTree.rightToken != null) {
+                        result.rightToken = subTree.rightToken;
+                        pivotToken = subTree.rightToken;
+                    }
+                }
+
+                pivotPosition = subTree.endPosition;
             }
         }
 

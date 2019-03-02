@@ -70,7 +70,7 @@ public class ExpressionsTest extends BaseTestWithSdf3ParseTables {
         testTokens("x\nx", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 0, 1, 1),
-            new TokenDescriptor("\n", IToken.TK_LAYOUT,     1, 2, 0),
+            new TokenDescriptor("\n", IToken.TK_LAYOUT,     1, 1, 2),
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 2, 2, 1)
         //@formatter:on
         ));
@@ -80,9 +80,9 @@ public class ExpressionsTest extends BaseTestWithSdf3ParseTables {
         testTokens("x\nx\n", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 0, 1, 1),
-            new TokenDescriptor("\n", IToken.TK_LAYOUT,     1, 2, 0),
+            new TokenDescriptor("\n", IToken.TK_LAYOUT,     1, 1, 2),
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 2, 2, 1),
-            new TokenDescriptor("\n", IToken.TK_LAYOUT,     3, 3, 0)
+            new TokenDescriptor("\n", IToken.TK_LAYOUT,     3, 2, 2)
         //@formatter:on
         ));
     }

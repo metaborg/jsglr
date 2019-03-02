@@ -75,6 +75,15 @@ public class Position {
         return new Position(offset + 1, line + 1, 1);
     }
 
+    /**
+     * Step from the current position in the given string by the given width.
+     *
+     * @return A new position that presents the position after the step in the given string.
+     */
+    public Position step(String string, int width) {
+        return atEnd(string.substring(0, offset + width));
+    }
+
     public String coordinatesToString() {
         return line + ":" + column;
     }

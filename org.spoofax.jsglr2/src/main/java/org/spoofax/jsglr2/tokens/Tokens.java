@@ -9,7 +9,6 @@ import java.util.Iterator;
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.Token;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.Position;
 
 public class Tokens implements IParseTokens {
@@ -45,13 +44,13 @@ public class Tokens implements IParseTokens {
     }
 
     public void makeEndToken(Position endPosition) {
-        endToken = new Token(this, filename, tokens.size(), endPosition.line, endPosition.column, endPosition.offset,
-            -1, TK_EOF);
+        endToken = new Token(this, filename, tokens.size(), endPosition.line, endPosition.column - 1,
+            endPosition.offset, -1, TK_EOF);
 
         addToken(endToken);
     }
 
-    public IToken makeToken(AbstractParseForest parseForest, IProduction production) {
+    public IToken makeToken(Position startPosition, Position endPosition, IProduction production) {
         int tokenKind;
 
         if(production.isLayout()) {
@@ -68,9 +67,8 @@ public class Tokens implements IParseTokens {
             tokenKind = IToken.TK_KEYWORD;
         }
 
-        IToken token = new Token(this, filename, tokens.size(), parseForest.getStartPosition().line,
-            parseForest.getStartPosition().column, parseForest.getStartPosition().offset,
-            parseForest.getEndPosition().offset - 1, tokenKind);
+        IToken token = new Token(this, filename, tokens.size(), startPosition.line, startPosition.column,
+            startPosition.offset, endPosition.offset - 1, tokenKind);
 
         addToken(token);
 

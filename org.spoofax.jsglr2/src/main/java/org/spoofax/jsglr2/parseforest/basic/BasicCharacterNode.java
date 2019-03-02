@@ -1,9 +1,10 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
+import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parser.Position;
 
-public class BasicCharacterNode extends BasicParseForest {
+public class BasicCharacterNode extends BasicParseForest implements ICharacterNode {
 
     public final int character;
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public interface IParseNode<ParseForest extends AbstractParseForest, Derivation extends IDerivation<ParseForest>> {
+public interface IParseNode<ParseForest extends AbstractParseForest, Derivation extends IDerivation<ParseForest>> extends IParseForestWidth {
 
     void addDerivation(Derivation derivation);
 
@@ -50,4 +50,9 @@ public interface IParseNode<ParseForest extends AbstractParseForest, Derivation 
     Derivation getOnlyDerivation();
 
     boolean isAmbiguous();
+
+    default int width() {
+        return getOnlyDerivation().width();
+    }
+
 }

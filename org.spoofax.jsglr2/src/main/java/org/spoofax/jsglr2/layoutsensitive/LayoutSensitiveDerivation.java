@@ -44,7 +44,7 @@ public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest implem
         // if(((LayoutSensitiveParseNode) pf).isAmbiguous()) {
         // System.out.println();
         // }
-        // longestMatchPos.addAll(((LayoutSensitiveParseNode) pf).getOnlyDerivation().longestMatchPos);
+        // longestMatchPos.addAll(((LayoutSensitiveParseNode) pf).getFirstDerivation().longestMatchPos);
         // } else if(pf instanceof LayoutSensitiveDerivation) {
         // longestMatchPos.addAll(((LayoutSensitiveDerivation) pf).longestMatchPos);
         // }

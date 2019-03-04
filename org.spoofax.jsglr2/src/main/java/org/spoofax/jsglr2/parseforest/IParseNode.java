@@ -21,7 +21,7 @@ public interface IParseNode
 
     default List<Derivation> getPreferredAvoidedDerivations() {
         if(!isAmbiguous())
-            return Collections.singletonList(getOnlyDerivation());
+            return Collections.singletonList(getFirstDerivation());
         else {
             List<Derivation> preferred = null, avoided = null, other = null;
 
@@ -56,12 +56,12 @@ public interface IParseNode
         }
     }
 
-    Derivation getOnlyDerivation();
+    Derivation getFirstDerivation();
 
     boolean isAmbiguous();
 
     default int width() {
-        return getOnlyDerivation().width();
+        return getFirstDerivation().width();
     }
 
     default String descriptor() {

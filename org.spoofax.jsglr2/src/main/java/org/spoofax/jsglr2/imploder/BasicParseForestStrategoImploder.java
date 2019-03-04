@@ -19,7 +19,7 @@ public class BasicParseForestStrategoImploder
     }
 
     @Override protected BasicDerivation parseNodeOnlyDerivation(BasicParseNode parseNode) {
-        return parseNode.getOnlyDerivation();
+        return parseNode.getFirstDerivation();
     }
 
     @Override protected List<BasicDerivation> parseNodePreferredAvoidedDerivations(BasicParseNode parseNode) {

@@ -39,7 +39,7 @@ public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
 
     public void filterLongestMatchDerivations() {
         filteredLongestMatch = true;
-        longestMatchPos = getOnlyDerivation().getLongestMatchPositions();
+        longestMatchPos = getFirstDerivation().getLongestMatchPositions();
         if(derivations.size() <= 1) {
             return;
         }

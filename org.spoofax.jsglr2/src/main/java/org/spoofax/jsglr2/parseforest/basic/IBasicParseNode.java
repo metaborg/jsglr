@@ -19,7 +19,7 @@ public interface IBasicParseNode
 
     @Override List<Derivation> getDerivations();
 
-    @Override default Derivation getOnlyDerivation() {
+    @Override default Derivation getFirstDerivation() {
         return getDerivations().get(0);
     }
 

@@ -17,7 +17,7 @@ public class LayoutSensitiveParseForestStrategoImploder
     }
 
     @Override protected LayoutSensitiveDerivation parseNodeOnlyDerivation(LayoutSensitiveParseNode parseNode) {
-        return parseNode.getOnlyDerivation();
+        return parseNode.getFirstDerivation();
     }
 
     @Override protected List<LayoutSensitiveDerivation>

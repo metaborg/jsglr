@@ -43,7 +43,7 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
         }
     }
 
-    public HybridDerivation getOnlyDerivation() {
+    public HybridDerivation getFirstDerivation() {
         return firstDerivation;
     }
 

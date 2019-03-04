@@ -17,7 +17,7 @@ public class DataDependentParseForestStrategoImploder
     }
 
     @Override protected DataDependentDerivation parseNodeOnlyDerivation(DataDependentParseNode parseNode) {
-        return parseNode.getOnlyDerivation();
+        return parseNode.getFirstDerivation();
     }
 
     @Override protected List<DataDependentDerivation>

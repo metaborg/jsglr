@@ -19,7 +19,7 @@ public class HybridParseForestStrategoImploder
     }
 
     @Override protected HybridDerivation parseNodeOnlyDerivation(HybridParseNode parseNode) {
-        return parseNode.getOnlyDerivation();
+        return parseNode.getFirstDerivation();
     }
 
     @Override protected List<HybridDerivation> parseNodePreferredAvoidedDerivations(HybridParseNode parseNode) {

@@ -64,10 +64,10 @@ public class LayoutSensitiveParseForestManager
                 continue;
             }
             if(pf instanceof LayoutSensitiveParseNode) {
-                Position currentStartPosition = ((LayoutSensitiveParseNode) pf).getOnlyDerivation().getStartPosition();
-                Position currentLeftPosition = ((LayoutSensitiveParseNode) pf).getOnlyDerivation().leftPosition;
-                Position currentRightPosition = ((LayoutSensitiveParseNode) pf).getOnlyDerivation().rightPosition;
-                Position currentEndPosition = ((LayoutSensitiveParseNode) pf).getOnlyDerivation().getEndPosition();
+                Position currentStartPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().getStartPosition();
+                Position currentLeftPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().leftPosition;
+                Position currentRightPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().rightPosition;
+                Position currentEndPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().getEndPosition();
 
                 if(currentLeftPosition != null) {
                     leftPosition = leftMost(leftPosition, currentLeftPosition);

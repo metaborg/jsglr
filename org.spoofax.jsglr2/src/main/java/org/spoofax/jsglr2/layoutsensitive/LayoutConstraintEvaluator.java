@@ -85,12 +85,12 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
                     }
                 case LEFT:
                     if(tree instanceof LayoutSensitiveParseNode) {
-                        if(((LayoutSensitiveParseNode) tree).getOnlyDerivation().leftPosition == null) {
+                        if(((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition == null) {
                             throw new NoValueLayoutException();
                         } else if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                            return ((LayoutSensitiveParseNode) tree).getOnlyDerivation().leftPosition.column;
+                            return ((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition.column;
                         } else {
-                            return ((LayoutSensitiveParseNode) tree).getOnlyDerivation().leftPosition.line;
+                            return ((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition.line;
                         }
                     }
                     throw new NoValueLayoutException();

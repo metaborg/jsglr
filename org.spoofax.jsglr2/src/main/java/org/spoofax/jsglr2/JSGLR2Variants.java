@@ -10,10 +10,9 @@ import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.datadependent.*;
 import org.spoofax.jsglr2.elkhound.*;
-import org.spoofax.jsglr2.imploder.BasicParseForestStrategoImploder;
-import org.spoofax.jsglr2.imploder.HybridParseForestStrategoImploder;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.NullParseForestStrategoImploder;
+import org.spoofax.jsglr2.imploder.StrategoTermImploder;
 import org.spoofax.jsglr2.layoutsensitive.*;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -418,29 +417,10 @@ public class JSGLR2Variants {
         IParser<?, ?> parser = getParser(parseTable, variant);
         IImploder<?, IStrategoTerm> imploder;
 
-        switch(variant.parseForestRepresentation) {
-            default:
-            case Basic:
-                imploder = new BasicParseForestStrategoImploder();
-
-                break;
-            case Hybrid:
-                imploder = new HybridParseForestStrategoImploder();
-
-                break;
-            case DataDependent:
-                imploder = new DataDependentParseForestStrategoImploder();
-
-                break;
-            case LayoutSensitive:
-                imploder = new LayoutSensitiveParseForestStrategoImploder();
-
-                break;
-            case Null:
-                imploder = new NullParseForestStrategoImploder();
-
-                break;
-        }
+        if(variant.parseForestRepresentation == ParseForestRepresentation.Null)
+            imploder = new NullParseForestStrategoImploder();
+        else
+            imploder = new StrategoTermImploder();
 
         return new JSGLR2(parser, imploder);
     }

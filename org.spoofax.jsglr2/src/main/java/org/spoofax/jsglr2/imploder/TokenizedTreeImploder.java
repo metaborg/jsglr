@@ -8,13 +8,14 @@ import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public abstract class TokenizedTreeImploder
 //@formatter:off
    <ParseForest extends IParseForest,
-    ParseNode   extends ParseForest,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
     Tree>
 //@formatter:on
@@ -61,7 +62,7 @@ public abstract class TokenizedTreeImploder
 
     protected SubTree<Tree> implodeParseNode(ParseNode parseNode, AbstractParse<ParseForest, ?> parse,
         Position startPosition, IToken parentLeftToken) {
-        IProduction production = parseNodeProduction(parseNode);
+        IProduction production = parseNode.production();
 
         if(production.isContextFree()) {
             List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
@@ -114,7 +115,7 @@ public abstract class TokenizedTreeImploder
             ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
         }
         // TODO always filter prefer/avoid?
-        result = parseNodePreferredAvoidedDerivations(parseNode);
+        result = parseNode.getPreferredAvoidedDerivations();
 
         return result;
     }
@@ -152,14 +153,14 @@ public abstract class TokenizedTreeImploder
             @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
 
             if(parseNode != null) { // Can be null in the case of a layout subtree parse node that is not created
-                IProduction parseNodeProduction = parseNodeProduction(parseNode);
+                IProduction parseNodeProduction = parseNode.production();
 
                 SubTree<Tree> subTree;
 
                 if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null
-                    && parseNodePreferredAvoidedDerivations(parseNode).size() <= 1)) {
+                    && parseNode.getPreferredAvoidedDerivations().size() <= 1)) {
                     // Make sure lists are flattened
-                    subTree = implodeChildParseNodes(parse, childASTs, parseNodeOnlyDerivation(parseNode),
+                    subTree = implodeChildParseNodes(parse, childASTs, parseNode.getFirstDerivation(),
                         parseNodeProduction, unboundTokens, pivotPosition, pivotToken);
                 } else {
                     subTree = implodeParseNode(parseNode, parse, pivotPosition, pivotToken);
@@ -224,13 +225,5 @@ public abstract class TokenizedTreeImploder
     }
 
     protected abstract void tokenTreeBinding(IToken token, Tree tree);
-
-    protected abstract IProduction parseNodeProduction(ParseNode parseNode);
-
-    protected abstract Derivation parseNodeOnlyDerivation(ParseNode parseNode);
-
-    protected abstract List<Derivation> parseNodePreferredAvoidedDerivations(ParseNode parseNode);
-
-    protected abstract List<Derivation> longestMatchedDerivations(List<Derivation> derivations);
 
 }

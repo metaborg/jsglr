@@ -6,12 +6,13 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.terms.TermFactory;
 
-public abstract class StrategoTermImploder
+public class StrategoTermImploder
 //@formatter:off
    <ParseForest extends IParseForest,
-    ParseNode   extends ParseForest,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on
     extends TokenizedTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {

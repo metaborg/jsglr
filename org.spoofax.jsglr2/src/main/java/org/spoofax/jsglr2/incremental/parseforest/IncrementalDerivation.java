@@ -4,11 +4,10 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public class IncrementalDerivation implements IDerivation<IncrementalParseForest> {
-    private final Position extent;
+    private final int width;
     public final IProduction production;
     public final ProductionType productionType;
     public final IncrementalParseForest[] parseForests;
@@ -22,20 +21,20 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
         this.productionType = productionType;
         this.parseForests = parseForests;
         this.state = state;
-        Position extent = new Position(1, 1, 1);
+        int width = 0;
         for(int i = 0; i < parseForests.length; i++) {
             IncrementalParseForest parseForest = parseForests[i];
             if(parseForest == null)
                 continue; // Skippable parse nodes are null
             parseForest.parent = this;
             parseForest.childIndex = i;
-            extent = extent.add(parseForest.getExtent());
+            width += parseForest.width();
         }
-        this.extent = extent;
+        this.width = width;
     }
 
-    public Position getExtent() {
-        return extent;
+    @Override public int width() {
+        return width;
     }
 
     @Override public IProduction production() {

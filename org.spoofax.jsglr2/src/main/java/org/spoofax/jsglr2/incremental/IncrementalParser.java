@@ -49,7 +49,7 @@ public class IncrementalParser
         this.incrementalParseFactory = incrementalParseFactory;
     }
 
-    public ParseResult<IncrementalParseForest, ?> incrementalParse(List<EditorUpdate> editorUpdates,
+    public ParseResult<IncrementalParseForest> incrementalParse(List<EditorUpdate> editorUpdates,
         IncrementalParseForest previousVersion, String filename, String startSymbol) {
 
         IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
@@ -85,7 +85,7 @@ public class IncrementalParser
             stack.state().getApplicableActions(parse).forEach(actions::add);
             return actions;
         } else {
-            IProduction production = ((IncrementalParseNode) lookAhead).getOnlyDerivation().production;
+            IProduction production = ((IncrementalParseNode) lookAhead).getFirstDerivation().production;
             return production == null ? Collections.emptyList()
                 : Collections.singletonList(new Shift(stack.state().getGotoId(production.id())));
         }
@@ -100,7 +100,7 @@ public class IncrementalParser
 
         while(!parse.shiftLookAhead.isTerminal()) {
             if(!parse.multipleStates && parse.forShifter.peek().state
-                .id() == ((IncrementalParseNode) parse.shiftLookAhead).getOnlyDerivation().state.id())
+                .id() == ((IncrementalParseNode) parse.shiftLookAhead).getFirstDerivation().state.id())
                 break;
             parse.shiftLookAhead = parse.shiftLookAhead.leftBreakdown();
         }

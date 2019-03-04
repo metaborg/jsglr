@@ -17,10 +17,14 @@ public class IncrementalParseNode extends IncrementalParseForest
     private List<IncrementalDerivation> otherDerivations;
 
     public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation) {
-        super(firstDerivation.getExtent());
+        super(firstDerivation.width());
         this.production = production;
         this.firstDerivation = firstDerivation;
         firstDerivation.parent = this;
+    }
+
+    public IProduction production() {
+        return production;
     }
 
     @Override public String descriptor() {
@@ -43,7 +47,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         }
     }
 
-    @Override public IncrementalDerivation getOnlyDerivation() {
+    @Override public IncrementalDerivation getFirstDerivation() {
         return firstDerivation;
     }
 
@@ -52,7 +56,7 @@ public class IncrementalParseNode extends IncrementalParseForest
     }
 
     @Override public IncrementalParseForest leftBreakdown() {
-        IncrementalParseForest[] children = getOnlyDerivation().parseForests();
+        IncrementalParseForest[] children = getFirstDerivation().parseForests();
         if(children.length > 0) {
             IncrementalParseForest result = children[0]; // should be from previous version
             return result.isFragile() ? result.leftBreakdown() : result;

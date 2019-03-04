@@ -38,7 +38,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         IActiveStacks<StackNode> activeStacks, IForActorStacks<StackNode> forActorStacks,
         ParserObserving<IncrementalParseForest, StackNode> observing) {
 
-        super("<no input string available for incremental parse>", filename, activeStacks, forActorStacks, observing);
+        super("<<<<<<<<<<<<<<<<<<<", filename, activeStacks, forActorStacks, observing);
         this.editorUpdates = editorUpdates;
         if(previous == null) {
             // TODO this only works when starting with a clean slate
@@ -76,7 +76,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     // @formatter:on
 
     @Override public String getPart(int begin, int end) {
-        return "<not implemented for incremental>"; // TODO
+        return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"; // TODO
 
         // return CharacterClassFactory.intToString(character);
 
@@ -116,10 +116,8 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     @Override public void next() {
-        Position extent = shiftLookAhead.getExtent();
-        currentOffset += extent.offset;
-        currentLine += extent.line - 1;
-        currentColumn = extent.line > 1 ? extent.column : currentColumn + extent.column;
+        int width = shiftLookAhead.width();
+        currentOffset += width;
         // TODO for all editor updates, and correctly
         // EditorUpdate editorUpdate = editorUpdates.get(0);
         // if(editorUpdate.deleted.getStart().offset == currentOffset) {

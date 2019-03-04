@@ -153,7 +153,7 @@ public abstract class BaseTest implements WithParseTable {
             IStrategoTerm actualOutputAst;
             IncrementalParseForest previousParseForest = null;
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
-                ParseResult<IncrementalParseForest, ?> result;
+                ParseResult<IncrementalParseForest> result;
                 if(i == 0) {
                     result = jsglr2.parser.parse(inputString, "", startSymbol);
                 } else {
@@ -161,10 +161,10 @@ public abstract class BaseTest implements WithParseTable {
                         previousParseForest, "", startSymbol);
                 }
                 if(result.isSuccess) {
-                    ParseSuccess<IncrementalParseForest, ?> success = (ParseSuccess<IncrementalParseForest, ?>) result;
+                    ParseSuccess<IncrementalParseForest> success = (ParseSuccess<IncrementalParseForest>) result;
 
-                    ImplodeResult<IncrementalParseForest, IStrategoTerm> implodeResult =
-                        jsglr2.imploder.implode(success.parse, success.parseResult);
+                    ImplodeResult<IStrategoTerm> implodeResult =
+                        jsglr2.imploder.implode(inputString, "", success.parseResult);
                     previousParseForest = success.parseResult;
 
                     assertNotNull("Variant '" + variant.name() + "' failed imploding at update " + i + ": ",

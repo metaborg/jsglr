@@ -3,11 +3,11 @@ package org.spoofax.jsglr2.stack.collections;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public class ForActorStacksArrayDeque<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ForActorStacksArrayDeque<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
     extends ForActorStacks<ParseForest, StackNode> {
 
     protected final Queue<StackNode> forActor;

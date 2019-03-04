@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.util.TreePrettyPrinter;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridParseNode extends HybridParseForest implements IParseNode<HybridParseForest, HybridDerivation> {

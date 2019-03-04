@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.reducing;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -15,7 +15,7 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class ReduceManager
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends AbstractStackNode<ParseForest>>

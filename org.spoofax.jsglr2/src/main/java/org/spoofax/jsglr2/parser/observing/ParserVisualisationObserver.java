@@ -11,7 +11,7 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -22,7 +22,7 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class ParserVisualisationObserver
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     StackNode   extends AbstractStackNode<ParseForest>>
 //@formatter:on
     extends ParserObserver<ParseForest, StackNode> {

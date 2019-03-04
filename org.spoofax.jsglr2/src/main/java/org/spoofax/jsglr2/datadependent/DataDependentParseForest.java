@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.datadependent;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 
-public abstract class DataDependentParseForest extends AbstractParseForest {
+public abstract class DataDependentParseForest implements IParseForest {
 }

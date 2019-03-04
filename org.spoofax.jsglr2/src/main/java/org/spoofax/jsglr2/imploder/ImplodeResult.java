@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.imploder;
 
 import org.spoofax.jsglr2.JSGLR2Result;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 
-public class ImplodeResult<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
+public class ImplodeResult<ParseForest extends IParseForest, AbstractSyntaxTree>
     extends JSGLR2Result<ParseForest, AbstractSyntaxTree> {
 
     public final AbstractSyntaxTree ast;

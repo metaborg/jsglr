@@ -2,13 +2,13 @@ package org.spoofax.jsglr2.parseforest.basic;
 
 import java.util.List;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
 public interface IBasicParseNode
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on
     extends IParseNode<ParseForest, Derivation> {

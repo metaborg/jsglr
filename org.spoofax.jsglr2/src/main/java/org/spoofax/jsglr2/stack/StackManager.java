@@ -1,13 +1,13 @@
 package org.spoofax.jsglr2.stack;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public abstract class StackManager
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     StackNode   extends org.spoofax.jsglr2.stack.StackNode<ParseForest>>
 //@formatter:on
     extends AbstractStackManager<ParseForest, org.spoofax.jsglr2.stack.StackNode<ParseForest>> {

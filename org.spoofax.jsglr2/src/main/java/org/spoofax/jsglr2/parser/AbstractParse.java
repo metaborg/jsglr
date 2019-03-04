@@ -6,7 +6,7 @@ import java.util.Queue;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IActionQuery;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
@@ -18,7 +18,7 @@ import com.google.common.collect.Maps;
 
 public abstract class AbstractParse
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     StackNode   extends AbstractStackNode<ParseForest>>
 //@formatter:on
     implements IActionQuery {

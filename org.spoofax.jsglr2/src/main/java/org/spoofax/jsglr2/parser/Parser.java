@@ -5,8 +5,8 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
@@ -25,7 +25,7 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 public class Parser
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends AbstractStackNode<ParseForest>,

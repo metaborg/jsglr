@@ -3,11 +3,11 @@ package org.spoofax.jsglr2.stack.collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public class ForActorStacksLinkedHashMap<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ForActorStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
     extends ForActorStacks<ParseForest, StackNode> {
 
     protected Map<Integer, Linked<StackNode>> forActor;

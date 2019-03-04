@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
@@ -13,7 +13,7 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public abstract class AbstractStackManager
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     StackNode   extends AbstractStackNode<ParseForest>>
 //@formatter:on
 {

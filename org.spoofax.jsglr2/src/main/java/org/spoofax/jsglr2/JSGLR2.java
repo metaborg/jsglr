@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
@@ -24,7 +24,7 @@ import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.states.StateFactory;
 
-public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
+public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
 
     public IParser<ParseForest, ?> parser;
     public IImploder<ParseForest, AbstractSyntaxTree> imploder;

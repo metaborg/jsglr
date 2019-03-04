@@ -4,13 +4,13 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.terms.TermFactory;
 
 public abstract class StrategoTermImploder
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on

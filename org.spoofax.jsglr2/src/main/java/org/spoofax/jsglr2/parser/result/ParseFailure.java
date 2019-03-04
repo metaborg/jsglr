@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.parser.result;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseException;
 
-public class ParseFailure<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
+public class ParseFailure<ParseForest extends IParseForest, AbstractSyntaxTree>
     extends ParseResult<ParseForest, AbstractSyntaxTree> {
 
     public final ParseFailureType failureType;

@@ -5,7 +5,6 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.sdf2table.grammar.LayoutConstraintAttribute;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;

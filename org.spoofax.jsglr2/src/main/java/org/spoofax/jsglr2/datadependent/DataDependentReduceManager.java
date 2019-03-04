@@ -10,8 +10,8 @@ import org.metaborg.sdf2table.deepconflicts.ContextualSymbol;
 import org.metaborg.sdf2table.grammar.IProduction;
 import org.metaborg.sdf2table.grammar.Symbol;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -23,7 +23,7 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class DataDependentReduceManager
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends AbstractStackNode<ParseForest>>
@@ -69,7 +69,7 @@ public class DataDependentReduceManager
         }
     }
 
-    private static <ParseForest extends AbstractParseForest> boolean checkContexts(ParseForest pf, Symbol symbol) {
+    private static <ParseForest extends IParseForest> boolean checkContexts(ParseForest pf, Symbol symbol) {
         final ContextualSymbol contextualSymbol = (ContextualSymbol) symbol;
 
         final long contextBitmap = contextualSymbol.deepContexts();

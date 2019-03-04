@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.parser.Position;
 
 public abstract class ParseForestManager
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on

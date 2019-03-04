@@ -7,8 +7,8 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseFactory;
@@ -19,7 +19,7 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 public class ElkhoundParser
 //@formatter:off
-   <ParseForest       extends AbstractParseForest,
+   <ParseForest       extends IParseForest,
     ParseNode         extends ParseForest,
     Derivation        extends IDerivation<ParseForest>,
     ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>,

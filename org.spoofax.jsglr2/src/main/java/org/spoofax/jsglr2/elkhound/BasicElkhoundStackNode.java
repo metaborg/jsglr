@@ -3,12 +3,12 @@ package org.spoofax.jsglr2.elkhound;
 import java.util.ArrayList;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class BasicElkhoundStackNode<ParseForest extends AbstractParseForest> extends ElkhoundStackNode<ParseForest> {
+public class BasicElkhoundStackNode<ParseForest extends IParseForest> extends ElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
     private ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> links =

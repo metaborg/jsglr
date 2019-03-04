@@ -9,7 +9,7 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -19,7 +19,7 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class ParserMeasureObserver<ParseForest extends AbstractParseForest>
+public class ParserMeasureObserver<ParseForest extends IParseForest>
     implements IParserObserver<ParseForest, ElkhoundStackNode<ParseForest>> {
 
     public int length = 0;

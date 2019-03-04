@@ -11,7 +11,8 @@ import org.spoofax.jsglr2.parser.PositionInterval;
 
 import com.google.common.collect.Lists;
 
-public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest implements IDerivation<LayoutSensitiveParseForest> {
+public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest
+    implements IDerivation<LayoutSensitiveParseForest> {
 
     public final IProduction production;
     public final ProductionType productionType;
@@ -24,7 +25,7 @@ public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest implem
 
     public LayoutSensitiveDerivation(AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
         Position rightPosition, Position endPosition, IProduction production, ProductionType productionType,
-                                     LayoutSensitiveParseForest[] parseForests) {
+        LayoutSensitiveParseForest[] parseForests) {
         super(startPosition, endPosition);
 
         this.production = production;

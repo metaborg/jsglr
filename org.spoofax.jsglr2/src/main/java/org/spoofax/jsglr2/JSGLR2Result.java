@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 
-public abstract class JSGLR2Result<ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
+public abstract class JSGLR2Result<ParseForest extends IParseForest, AbstractSyntaxTree> {
 
     public final AbstractParse<ParseForest, ?> parse;
     public final boolean isSuccess;

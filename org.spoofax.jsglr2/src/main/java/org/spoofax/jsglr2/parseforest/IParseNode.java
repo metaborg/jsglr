@@ -8,7 +8,7 @@ import org.metaborg.parsetable.IProduction;
 
 public interface IParseNode
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on
     extends IParseForest {

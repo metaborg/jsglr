@@ -4,11 +4,11 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public abstract class ForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public abstract class ForActorStacks<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IForActorStacks<StackNode> {
 
     private final ParserObserving<ParseForest, StackNode> observing;

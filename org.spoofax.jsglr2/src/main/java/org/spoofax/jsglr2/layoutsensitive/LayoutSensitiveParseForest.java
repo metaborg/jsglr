@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.Position;
 
-public abstract class LayoutSensitiveParseForest extends AbstractParseForest {
+public abstract class LayoutSensitiveParseForest implements IParseForest {
 
     private final Position startPosition, endPosition;
 

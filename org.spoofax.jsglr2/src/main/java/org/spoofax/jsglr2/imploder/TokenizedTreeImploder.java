@@ -6,14 +6,14 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public abstract class TokenizedTreeImploder
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     Tree>

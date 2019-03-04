@@ -370,8 +370,7 @@ public class JSGLR2Variants {
                 else
                     basicStackManager = new HybridStackManager<DataDependentParseForest>();
 
-                DataDependentReduceManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation,
-                        StackNode<DataDependentParseForest>> ddReducer =
+                DataDependentReduceManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode<DataDependentParseForest>> ddReducer =
                     new DataDependentReduceManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode<DataDependentParseForest>>(
                         parseTable, basicStackManager, ddParseForestManager, variant.parseForestConstruction);
 
@@ -388,8 +387,7 @@ public class JSGLR2Variants {
                 else
                     basicStackManagerLayoutSensitive = new HybridStackManager<LayoutSensitiveParseForest>();
 
-                LayoutSensitiveReduceManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation,
-                        StackNode<LayoutSensitiveParseForest>> lsReducer =
+                LayoutSensitiveReduceManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode<LayoutSensitiveParseForest>> lsReducer =
                     new LayoutSensitiveReduceManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode<LayoutSensitiveParseForest>>(
                         parseTable, basicStackManagerLayoutSensitive, lsParseForestManager,
                         variant.parseForestConstruction);

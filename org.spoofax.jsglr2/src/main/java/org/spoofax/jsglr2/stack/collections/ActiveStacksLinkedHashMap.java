@@ -5,11 +5,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
-public class ActiveStacksLinkedHashMap<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
     implements IActiveStacks<StackNode> {
 
     private ParserObserving<ParseForest, StackNode> observing;

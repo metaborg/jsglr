@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.stack.collections;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 
@@ -19,7 +19,7 @@ public class ForActorStacksFactory implements IForActorStacksFactory {
         this.forActorStacksRepresentation = forActorStacksRepresentation;
     }
 
-    @Override public <ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+    @Override public <ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
         IForActorStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
         IForActorStacks<StackNode> forActorStacks;
 

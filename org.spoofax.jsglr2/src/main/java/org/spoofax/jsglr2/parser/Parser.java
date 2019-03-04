@@ -59,7 +59,7 @@ public class Parser
         this.observing = new ParserObserving<>();
     }
 
-    @Override public ParseResult<ParseForest, ?> parse(String inputString, String filename, String startSymbol) {
+    @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {
         IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
         IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
 
@@ -87,16 +87,16 @@ public class Parser
             return failure(parse, failureHandler.failureType(parse));
     }
 
-    private ParseSuccess<ParseForest, ?> success(Parse parse, ParseForest parseForest) {
-        ParseSuccess<ParseForest, ?> success = new ParseSuccess<>(parse, parseForest);
+    private ParseSuccess<ParseForest> success(Parse parse, ParseForest parseForest) {
+        ParseSuccess<ParseForest> success = new ParseSuccess<>(parse, parseForest);
 
         observing.notify(observer -> observer.success(success));
 
         return success;
     }
 
-    private ParseFailure<ParseForest, ?> failure(Parse parse, ParseFailureType failureType) {
-        ParseFailure<ParseForest, ?> failure = new ParseFailure<>(parse, failureType);
+    private ParseFailure<ParseForest> failure(Parse parse, ParseFailureType failureType) {
+        ParseFailure<ParseForest> failure = new ParseFailure<>(parse, failureType);
 
         observing.notify(observer -> observer.failure(failure));
 
@@ -198,8 +198,7 @@ public class Parser
     }
 
     private void addForShifter(Parse parse, StackNode stack, IState shiftState) {
-        ForShifterElement<ParseForest, StackNode> forShifterElement =
-            new ForShifterElement<ParseForest, StackNode>(stack, shiftState);
+        ForShifterElement<ParseForest, StackNode> forShifterElement = new ForShifterElement<>(stack, shiftState);
 
         observing.notify(observer -> observer.addForShifter(forShifterElement));
 

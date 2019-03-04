@@ -145,10 +145,10 @@ public abstract class ParserObserver
     @Override public void remark(String remark) {
     }
 
-    @Override public void success(ParseSuccess<ParseForest, ?> success) {
+    @Override public void success(ParseSuccess<ParseForest> success) {
     }
 
-    @Override public void failure(ParseFailure<ParseForest, ?> failure) {
+    @Override public void failure(ParseFailure<ParseForest> failure) {
     }
 
     String stackQueueToString(Iterable<StackNode> stacks) {

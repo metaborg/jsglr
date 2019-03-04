@@ -14,13 +14,13 @@ public interface IParser
 //@formatter:on
 {
 
-    ParseResult<ParseForest, ?> parse(String input, String filename, String startSymbol);
+    ParseResult<ParseForest> parse(String input, String filename, String startSymbol);
 
-    default ParseResult<ParseForest, ?> parse(String input, String filename) {
+    default ParseResult<ParseForest> parse(String input, String filename) {
         return parse(input, filename, null);
     }
 
-    default ParseResult<ParseForest, ?> parse(String input) {
+    default ParseResult<ParseForest> parse(String input) {
         return parse(input, "");
     }
 
@@ -29,14 +29,14 @@ public interface IParser
      * otherwise.
      */
     default ParseForest parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        ParseResult<ParseForest, ?> result = parse(input, filename, startSymbol);
+        ParseResult<ParseForest> result = parse(input, filename, startSymbol);
 
         if(result.isSuccess) {
-            ParseSuccess<ParseForest, ?> success = (ParseSuccess<ParseForest, ?>) result;
+            ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;
 
             return success.parseResult;
         } else {
-            ParseFailure<ParseForest, ?> failure = (ParseFailure<ParseForest, ?>) result;
+            ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) result;
 
             throw failure.exception();
         }

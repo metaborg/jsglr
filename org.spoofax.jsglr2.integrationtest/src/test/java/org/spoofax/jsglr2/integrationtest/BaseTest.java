@@ -60,7 +60,7 @@ public abstract class BaseTest implements WithParseTable {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             Parser<?, ?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
-            ParseResult<?, ?> parseResult = parser.parse(inputString);
+            ParseResult<?> parseResult = parser.parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess);
         }
@@ -71,7 +71,7 @@ public abstract class BaseTest implements WithParseTable {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             Parser<?, ?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
-            ParseResult<?, ?> parseResult = parser.parse(inputString);
+            ParseResult<?> parseResult = parser.parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess);
         }
@@ -144,14 +144,14 @@ public abstract class BaseTest implements WithParseTable {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
 
-            JSGLR2Result<?, ?> parseResult = jsglr2.parseResult(inputString, "", null);
+            JSGLR2Result<?, ?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
 
-            assertTrue("Variant '" + variant.name() + "' failed: ", parseResult.isSuccess);
+            assertTrue("Variant '" + variant.name() + "' failed: ", jsglr2Result.isSuccess);
 
             List<TokenDescriptor> actualTokens = new ArrayList<>();
 
-            for(IToken token : parseResult.parse.tokens) {
-                actualTokens.add(TokenDescriptor.from(parseResult.parse, token));
+            for(IToken token : jsglr2Result.tokens) {
+                actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 
             TokenDescriptor expectedBeginToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1);
@@ -159,7 +159,7 @@ public abstract class BaseTest implements WithParseTable {
 
             assertEquals("Start token incorrect:", expectedBeginToken, actualBeginToken);
 
-            Position endPosition = Position.atEnd(parseResult.parse.inputString);
+            Position endPosition = Position.atEnd(inputString);
 
             int endLine = endPosition.line;
             int endColumn = endPosition.column;

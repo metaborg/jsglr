@@ -4,8 +4,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseException;
 
-public class ParseFailure<ParseForest extends IParseForest, AbstractSyntaxTree>
-    extends ParseResult<ParseForest, AbstractSyntaxTree> {
+public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<ParseForest> {
 
     public final ParseFailureType failureType;
 

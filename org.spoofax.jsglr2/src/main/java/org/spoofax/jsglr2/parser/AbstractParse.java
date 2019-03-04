@@ -11,8 +11,6 @@ import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.tokens.IParseTokens;
-import org.spoofax.jsglr2.tokens.Tokens;
 
 import com.google.common.collect.Maps;
 
@@ -26,8 +24,6 @@ public abstract class AbstractParse
     final public String filename;
     final public String inputString;
     final public int inputLength;
-
-    final public IParseTokens tokens;
 
     final public Map<Integer, Object> longestMatchPos = Maps.newHashMap();
 
@@ -48,8 +44,6 @@ public abstract class AbstractParse
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
-
-        this.tokens = new Tokens(inputString, filename);
 
         this.acceptingStack = null;
         this.activeStacks = activeStacks;

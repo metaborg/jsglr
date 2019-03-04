@@ -33,7 +33,7 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
         standard(IParseTable parseTable) {
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
+                ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound,
                 Reducing.Elkhound));
     }
 
@@ -41,7 +41,7 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
         dataDependent(IParseTable parseTable) {
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.DataDependent, ParseForestConstruction.Optimized, StackRepresentation.Basic,
+                ParseForestRepresentation.DataDependent, ParseForestConstruction.Full, StackRepresentation.Basic,
                 Reducing.DataDependent));
     }
 
@@ -49,7 +49,7 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
         layoutSensitive(IParseTable parseTable) {
         return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Optimized, StackRepresentation.Basic,
+                ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Full, StackRepresentation.Basic,
                 Reducing.DataDependent));
     }
 

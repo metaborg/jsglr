@@ -7,13 +7,12 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
 
 public class DataDependentParseForestManager
     extends ParseForestManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation> {
 
     @Override public DataDependentParseNode createParseNode(AbstractParse<DataDependentParseForest, ?> parse,
-        Position beginPosition, IProduction production, DataDependentDerivation firstDerivation) {
+        IProduction production, DataDependentDerivation firstDerivation) {
         DataDependentParseNode parseNode = new DataDependentParseNode(production);
 
         // parse.notify(observer -> observer.createParseNode(parseNode, production));
@@ -48,8 +47,7 @@ public class DataDependentParseForestManager
     }
 
     @Override public DataDependentDerivation createDerivation(AbstractParse<DataDependentParseForest, ?> parse,
-        Position beginPosition, IProduction production, ProductionType productionType,
-        DataDependentParseForest[] parseForests) {
+        IProduction production, ProductionType productionType, DataDependentParseForest[] parseForests) {
         DataDependentDerivation derivation = new DataDependentDerivation(production, productionType, parseForests);
 
         // parse.notify(observer -> observer.createDerivation(derivation.nodeNumber, production, parseForests));

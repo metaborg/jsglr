@@ -1,12 +1,11 @@
 package org.spoofax.jsglr2.stack;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parser.Position;
 
 public abstract class StackNode<ParseForest> extends AbstractStackNode<ParseForest> {
 
-    public StackNode(IState state, Position position) {
-        super(state, position);
+    public StackNode(IState state) {
+        super(state);
     }
 
     public abstract Iterable<StackLink<ParseForest, StackNode<ParseForest>>> getLinks();

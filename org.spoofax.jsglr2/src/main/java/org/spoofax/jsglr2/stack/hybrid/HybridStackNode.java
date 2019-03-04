@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackNode;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
@@ -14,8 +13,8 @@ public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
     private StackLink<ParseForest, StackNode<ParseForest>> firstLink;
     private ArrayList<StackLink<ParseForest, StackNode<ParseForest>>> otherLinks;
 
-    public HybridStackNode(IState state, Position position) {
-        super(state, position);
+    public HybridStackNode(IState state) {
+        super(state);
     }
 
     @Override public Iterable<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {

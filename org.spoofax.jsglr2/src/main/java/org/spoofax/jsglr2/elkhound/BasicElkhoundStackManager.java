@@ -3,15 +3,13 @@ package org.spoofax.jsglr2.elkhound;
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
 public class BasicElkhoundStackManager<ParseForest extends IParseForest>
     extends ElkhoundStackManager<ParseForest, BasicElkhoundStackNode<ParseForest>> {
 
-    @Override protected BasicElkhoundStackNode<ParseForest> createStackNode(IState state, Position position,
-        boolean isRoot) {
-        return new BasicElkhoundStackNode<>(state, position, isRoot);
+    @Override protected BasicElkhoundStackNode<ParseForest> createStackNode(IState state, boolean isRoot) {
+        return new BasicElkhoundStackNode<>(state, isRoot);
     }
 
     @Override protected StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addStackLink(

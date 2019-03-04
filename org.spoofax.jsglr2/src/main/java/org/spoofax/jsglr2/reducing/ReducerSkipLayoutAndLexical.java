@@ -32,8 +32,7 @@ public class ReducerSkipLayoutAndLexical
 
         if(parseNode != null) {
             Derivation derivation =
-                parseForestManager.createDerivation(parse, existingDirectLinkToActiveStateWithGoto.to.position,
-                    reduce.production(), reduce.productionType(), parseForests);
+                parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
             parseForestManager.addDerivation(parse, parseNode, derivation);
         }
 
@@ -49,9 +48,9 @@ public class ReducerSkipLayoutAndLexical
         if(reduce.production().isSkippableInParseForest())
             parseNode = null;
         else {
-            Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(),
-                reduce.productionType(), parseForests);
-            parseNode = parseForestManager.createParseNode(parse, stack.position, reduce.production(), derivation);
+            Derivation derivation =
+                parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
+            parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
         }
 
         StackLink<ParseForest, StackNode> newDirectLinkToActiveStateWithGoto =
@@ -70,9 +69,9 @@ public class ReducerSkipLayoutAndLexical
         if(reduce.production().isSkippableInParseForest())
             parseNode = null;
         else {
-            Derivation derivation = parseForestManager.createDerivation(parse, stack.position, reduce.production(),
-                reduce.productionType(), parseForests);
-            parseNode = parseForestManager.createParseNode(parse, stack.position, reduce.production(), derivation);
+            Derivation derivation =
+                parseForestManager.createDerivation(parse, reduce.production(), reduce.productionType(), parseForests);
+            parseNode = parseForestManager.createParseNode(parse, reduce.production(), derivation);
         }
 
         StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState);

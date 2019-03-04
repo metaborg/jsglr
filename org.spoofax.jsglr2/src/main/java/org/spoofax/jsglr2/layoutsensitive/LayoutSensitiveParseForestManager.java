@@ -14,9 +14,11 @@ public class LayoutSensitiveParseForestManager
     extends ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
     @Override public LayoutSensitiveParseNode createParseNode(AbstractParse<LayoutSensitiveParseForest, ?> parse,
-        Position beginPosition, IProduction production, LayoutSensitiveDerivation firstDerivation) {
+        IProduction production, LayoutSensitiveDerivation firstDerivation) {
+
+        // TODO @udesou Please verify that this has the same effect as storing positions on the stack
         LayoutSensitiveParseNode parseNode =
-            new LayoutSensitiveParseNode(beginPosition, parse.currentPosition(), production);
+            new LayoutSensitiveParseNode(firstDerivation.getStartPosition(), parse.currentPosition(), production);
 
         // parse.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -51,8 +53,14 @@ public class LayoutSensitiveParseForestManager
     }
 
     @Override public LayoutSensitiveDerivation createDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
-        Position beginPosition, IProduction production, ProductionType productionType,
-        LayoutSensitiveParseForest[] parseForests) {
+        IProduction production, ProductionType productionType, LayoutSensitiveParseForest[] parseForests) {
+
+        // TODO @udesou Please verify that this has the same effect as storing positions on the stack
+        Position beginPosition = parseForests.length == 0
+            // If this derivation corresponds with an epsilon production, use current parse position as startPosition
+            ? parse.currentPosition()
+            // Else, just use the start position of the first child node
+            : parseForests[0].getStartPosition();
 
         // FIXME since EndPosition is wrong, right is also wrong
         Position leftPosition = null;

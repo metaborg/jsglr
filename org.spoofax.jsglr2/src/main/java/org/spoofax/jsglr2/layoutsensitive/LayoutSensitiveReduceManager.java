@@ -18,7 +18,7 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class LayoutSensitiveReduceManager
 //@formatter:off
-   <ParseForest extends AbstractParseForest,
+   <ParseForest extends LayoutSensitiveParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends AbstractStackNode<ParseForest>>

@@ -16,9 +16,7 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
     private final HybridDerivation firstDerivation;
     private List<HybridDerivation> otherDerivations;
 
-    public HybridParseNode(Position startPosition, Position endPosition, IProduction production,
-        HybridDerivation firstDerivation) {
-        super(startPosition, endPosition);
+    public HybridParseNode(IProduction production, HybridDerivation firstDerivation) {
         this.production = production;
         this.firstDerivation = firstDerivation;
         this.otherDerivations = null;

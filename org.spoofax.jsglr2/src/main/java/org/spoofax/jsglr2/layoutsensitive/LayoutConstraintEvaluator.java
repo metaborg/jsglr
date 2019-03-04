@@ -1,9 +1,8 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
 import org.metaborg.sdf2table.grammar.layoutconstraints.*;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 
-public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> {
+public class LayoutConstraintEvaluator<ParseForest extends LayoutSensitiveParseForest> {
 
     public boolean evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
 

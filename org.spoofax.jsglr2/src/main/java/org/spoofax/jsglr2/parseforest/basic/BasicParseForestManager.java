@@ -13,7 +13,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
 
     @Override public BasicParseNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
         IProduction production, BasicDerivation firstDerivation) {
-        BasicParseNode parseNode = new BasicParseNode(beginPosition, parse.currentPosition(), production);
+        BasicParseNode parseNode = new BasicParseNode(production);
 
         // parse.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -37,8 +37,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         if(result.isEmpty())
             return null;
         else {
-            BasicParseNode filteredTopNode =
-                new BasicParseNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production);
+            BasicParseNode filteredTopNode = new BasicParseNode(topNode.production);
 
             for(BasicDerivation derivation : result)
                 filteredTopNode.addDerivation(derivation);
@@ -65,7 +64,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     }
 
     @Override public BasicCharacterNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        BasicCharacterNode termNode = new BasicCharacterNode(parse.currentPosition(), parse.currentChar);
+        BasicCharacterNode termNode = new BasicCharacterNode(parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 

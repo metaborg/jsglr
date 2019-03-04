@@ -14,8 +14,7 @@ public class DataDependentParseForestManager
 
     @Override public DataDependentParseNode createParseNode(AbstractParse<DataDependentParseForest, ?> parse,
         Position beginPosition, IProduction production, DataDependentDerivation firstDerivation) {
-        DataDependentParseNode parseNode =
-            new DataDependentParseNode(beginPosition, parse.currentPosition(), production);
+        DataDependentParseNode parseNode = new DataDependentParseNode(production);
 
         // parse.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -39,8 +38,7 @@ public class DataDependentParseForestManager
         if(result.isEmpty())
             return null;
         else {
-            DataDependentParseNode filteredTopNode =
-                new DataDependentParseNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production);
+            DataDependentParseNode filteredTopNode = new DataDependentParseNode(topNode.production);
 
             for(DataDependentDerivation derivation : result)
                 filteredTopNode.addDerivation(derivation);
@@ -52,8 +50,7 @@ public class DataDependentParseForestManager
     @Override public DataDependentDerivation createDerivation(AbstractParse<DataDependentParseForest, ?> parse,
         Position beginPosition, IProduction production, ProductionType productionType,
         DataDependentParseForest[] parseForests) {
-        DataDependentDerivation derivation = new DataDependentDerivation(beginPosition, parse.currentPosition(),
-            production, productionType, parseForests);
+        DataDependentDerivation derivation = new DataDependentDerivation(production, productionType, parseForests);
 
         // parse.notify(observer -> observer.createDerivation(derivation.nodeNumber, production, parseForests));
 
@@ -68,8 +65,7 @@ public class DataDependentParseForestManager
     }
 
     @Override public DataDependentCharacterNode createCharacterNode(AbstractParse<DataDependentParseForest, ?> parse) {
-        DataDependentCharacterNode characterNode =
-            new DataDependentCharacterNode(parse.currentPosition(), parse.currentChar);
+        DataDependentCharacterNode characterNode = new DataDependentCharacterNode(parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 

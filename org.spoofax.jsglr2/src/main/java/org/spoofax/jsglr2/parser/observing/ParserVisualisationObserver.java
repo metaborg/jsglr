@@ -118,9 +118,7 @@ public class ParserVisualisationObserver
         super.createCharacterNode(characterNode, character);
 
         trace("{\"action\":\"createCharacterNode\",\"nodeNumber\":" + id(characterNode) + ",\"character\":\""
-            + CharacterClassFactory.intToString(character) + "\"" + ",\"startPosition\":"
-            + characterNode.getStartPosition().offset + ",\"endPosition\":" + characterNode.getEndPosition().offset
-            + "}");
+            + CharacterClassFactory.intToString(character) + "\"" + "}");
     }
 
     @Override public void addDerivation(ParseForest parseNode) {

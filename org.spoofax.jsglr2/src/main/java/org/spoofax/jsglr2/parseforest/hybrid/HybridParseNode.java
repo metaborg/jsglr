@@ -24,6 +24,10 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
         this.otherDerivations = null;
     }
 
+    public IProduction production() {
+        return production;
+    }
+
     public void addDerivation(HybridDerivation derivation) {
         if(otherDerivations == null)
             otherDerivations = new ArrayList<HybridDerivation>();
@@ -45,37 +49,6 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
 
     public boolean isAmbiguous() {
         return otherDerivations != null;
-    }
-
-    @Override public String descriptor() {
-        return production.descriptor();
-    }
-
-    protected void prettyPrint(TreePrettyPrinter printer) {
-        printer.println("p" + production.id() + " : " + production.sort() + "{");
-        if(isAmbiguous()) {
-            printer.indent(1);
-            printer.println("amb[");
-            printer.indent(1);
-        } else {
-            printer.indent(2);
-        }
-
-        firstDerivation.prettyPrint(printer);
-
-        if(otherDerivations != null) {
-            for(HybridDerivation derivation : otherDerivations)
-                derivation.prettyPrint(printer);
-        }
-
-        if(isAmbiguous()) {
-            printer.indent(-1);
-            printer.println("]");
-            printer.indent(-1);
-        } else {
-            printer.indent(-2);
-        }
-        printer.println("}");
     }
 
 }

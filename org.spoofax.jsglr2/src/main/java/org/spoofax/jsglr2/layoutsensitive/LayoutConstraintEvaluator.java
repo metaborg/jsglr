@@ -66,7 +66,7 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
                                                                                                    // parseNodes);
 
             if(tree instanceof LayoutSensitiveParseNode
-                && ((LayoutSensitiveParseNode) tree).getProduction().isIgnoreLayoutConstraint()) {
+                && ((LayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
                 throw new NoValueLayoutException();
             }
 
@@ -128,7 +128,7 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
         for(int i = 0; i < parseNodes.length; i++) {
             ParseForest current = parseNodes[i];
             if(current == null || current instanceof LayoutSensitiveParseNode) {
-                if(current == null || ((LayoutSensitiveParseNode) current).getProduction().isLayout()) {
+                if(current == null || ((LayoutSensitiveParseNode) current).production().isLayout()) {
                     continue;
                 } else {
                     treeCount--;

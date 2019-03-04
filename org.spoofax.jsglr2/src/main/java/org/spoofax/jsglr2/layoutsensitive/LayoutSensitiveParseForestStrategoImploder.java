@@ -4,10 +4,9 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.imploder.StrategoTermImploder;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 
 public class LayoutSensitiveParseForestStrategoImploder
-    extends StrategoTermImploder<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
+    extends StrategoTermImploder<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
     public LayoutSensitiveParseForestStrategoImploder() {
         super();

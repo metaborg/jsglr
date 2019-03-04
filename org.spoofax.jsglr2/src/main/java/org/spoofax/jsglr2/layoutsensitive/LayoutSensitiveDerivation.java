@@ -5,15 +5,17 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
 import com.google.common.collect.Lists;
 
-public class LayoutSensitiveDerivation extends BasicDerivation implements IDerivation<BasicParseForest> {
+public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest implements IDerivation<LayoutSensitiveParseForest> {
+
+    public final IProduction production;
+    public final ProductionType productionType;
+    public final LayoutSensitiveParseForest[] parseForests;
 
     public Position leftPosition, rightPosition;
 
@@ -22,8 +24,13 @@ public class LayoutSensitiveDerivation extends BasicDerivation implements IDeriv
 
     public LayoutSensitiveDerivation(AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
         Position rightPosition, Position endPosition, IProduction production, ProductionType productionType,
-        BasicParseForest[] parseForests) {
-        super(startPosition, endPosition, production, productionType, parseForests);
+                                     LayoutSensitiveParseForest[] parseForests) {
+        super(startPosition, endPosition);
+
+        this.production = production;
+        this.productionType = productionType;
+        this.parseForests = parseForests;
+
         this.leftPosition = leftPosition;
         this.rightPosition = rightPosition;
 
@@ -45,13 +52,25 @@ public class LayoutSensitiveDerivation extends BasicDerivation implements IDeriv
 
     }
 
+    @Override public IProduction production() {
+        return production;
+    }
+
+    @Override public ProductionType productionType() {
+        return productionType;
+    }
+
+    @Override public LayoutSensitiveParseForest[] parseForests() {
+        return parseForests;
+    }
+
     public List<PositionInterval> getLongestMatchPositions() {
         // System.out.println("getting positions for " + this);
         List<PositionInterval> result = Lists.newArrayList();
         if(production.isLongestMatch()) {
             result.add(new PositionInterval(getStartPosition(), getEndPosition()));
         }
-        for(BasicParseForest pf : parseForests) {
+        for(LayoutSensitiveParseForest pf : parseForests) {
             if(pf instanceof LayoutSensitiveDerivation) {
                 result.addAll(((LayoutSensitiveDerivation) pf).getLongestMatchPositions());
             } else if(pf instanceof LayoutSensitiveParseNode) {

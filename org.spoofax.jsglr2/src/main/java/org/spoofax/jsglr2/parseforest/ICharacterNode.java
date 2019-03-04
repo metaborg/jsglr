@@ -1,9 +1,17 @@
 package org.spoofax.jsglr2.parseforest;
 
-public interface ICharacterNode extends IParseForestWidth {
+import org.metaborg.characterclasses.CharacterClassFactory;
+
+public interface ICharacterNode extends IParseForest {
+
+    int character();
 
     default int width() {
         return 1;
+    }
+
+    default String descriptor() {
+        return "'" + CharacterClassFactory.intToString(character()) + "'";
     }
 
 }

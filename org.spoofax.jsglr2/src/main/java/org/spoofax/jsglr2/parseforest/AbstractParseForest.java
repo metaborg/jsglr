@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.parseforest;
 
 import org.spoofax.jsglr2.parser.Position;
 
-public abstract class AbstractParseForest implements IParseForestWidth {
+public abstract class AbstractParseForest implements IParseForest {
 
     private final Position startPosition, endPosition;
 
@@ -18,7 +18,5 @@ public abstract class AbstractParseForest implements IParseForestWidth {
     public Position getEndPosition() {
         return endPosition;
     }
-
-    public abstract String descriptor();
 
 }

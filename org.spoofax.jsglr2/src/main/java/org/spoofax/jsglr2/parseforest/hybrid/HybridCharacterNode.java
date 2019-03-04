@@ -14,12 +14,8 @@ public class HybridCharacterNode extends HybridParseForest implements ICharacter
         this.character = character;
     }
 
-    @Override public String descriptor() {
-        return "'" + CharacterClassFactory.intToString(this.character) + "'";
-    }
-
-    protected void prettyPrint(TreePrettyPrinter printer) {
-        printer.println("'" + CharacterClassFactory.intToString(character) + "'");
+    @Override public int character() {
+        return character;
     }
 
 }

@@ -362,37 +362,39 @@ public class JSGLR2Variants {
                     }
                 }
             case DataDependent:
-                AbstractStackManager<BasicParseForest, StackNode<BasicParseForest>> basicStackManager;
+                AbstractStackManager<DataDependentParseForest, StackNode<DataDependentParseForest>> basicStackManager;
                 DataDependentParseForestManager ddParseForestManager = new DataDependentParseForestManager();
 
                 if(variant.stackRepresentation == StackRepresentation.Basic)
-                    basicStackManager = new BasicStackManager<BasicParseForest>();
+                    basicStackManager = new BasicStackManager<DataDependentParseForest>();
                 else
-                    basicStackManager = new HybridStackManager<BasicParseForest>();
+                    basicStackManager = new HybridStackManager<DataDependentParseForest>();
 
-                DataDependentReduceManager<BasicParseForest, DataDependentParseNode, DataDependentDerivation, StackNode<BasicParseForest>> ddReducer =
-                    new DataDependentReduceManager<BasicParseForest, DataDependentParseNode, DataDependentDerivation, StackNode<BasicParseForest>>(
+                DataDependentReduceManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation,
+                        StackNode<DataDependentParseForest>> ddReducer =
+                    new DataDependentReduceManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode<DataDependentParseForest>>(
                         parseTable, basicStackManager, ddParseForestManager, variant.parseForestConstruction);
 
-                return new Parser<BasicParseForest, DataDependentParseNode, DataDependentDerivation, StackNode<BasicParseForest>, Parse<BasicParseForest, StackNode<BasicParseForest>>>(
+                return new Parser<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode<DataDependentParseForest>, Parse<DataDependentParseForest, StackNode<DataDependentParseForest>>>(
                     Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory, basicStackManager,
                     ddParseForestManager, ddReducer);
 
             case LayoutSensitive:
-                AbstractStackManager<BasicParseForest, StackNode<BasicParseForest>> basicStackManagerLayoutSensitive;
+                AbstractStackManager<LayoutSensitiveParseForest, StackNode<LayoutSensitiveParseForest>> basicStackManagerLayoutSensitive;
                 LayoutSensitiveParseForestManager lsParseForestManager = new LayoutSensitiveParseForestManager();
 
                 if(variant.stackRepresentation == StackRepresentation.Basic)
-                    basicStackManagerLayoutSensitive = new BasicStackManager<BasicParseForest>();
+                    basicStackManagerLayoutSensitive = new BasicStackManager<LayoutSensitiveParseForest>();
                 else
-                    basicStackManagerLayoutSensitive = new HybridStackManager<BasicParseForest>();
+                    basicStackManagerLayoutSensitive = new HybridStackManager<LayoutSensitiveParseForest>();
 
-                LayoutSensitiveReduceManager<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode<BasicParseForest>> lsReducer =
-                    new LayoutSensitiveReduceManager<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode<BasicParseForest>>(
+                LayoutSensitiveReduceManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation,
+                        StackNode<LayoutSensitiveParseForest>> lsReducer =
+                    new LayoutSensitiveReduceManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode<LayoutSensitiveParseForest>>(
                         parseTable, basicStackManagerLayoutSensitive, lsParseForestManager,
                         variant.parseForestConstruction);
 
-                return new Parser<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode<BasicParseForest>, Parse<BasicParseForest, StackNode<BasicParseForest>>>(
+                return new Parser<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode<LayoutSensitiveParseForest>, Parse<LayoutSensitiveParseForest, StackNode<LayoutSensitiveParseForest>>>(
                     Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
                     basicStackManagerLayoutSensitive, lsParseForestManager, lsReducer);
         }

@@ -6,15 +6,13 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.basic.BasicCharacterNode;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class DataDependentParseForestManager
-    extends ParseForestManager<BasicParseForest, DataDependentParseNode, DataDependentDerivation> {
+    extends ParseForestManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation> {
 
-    @Override public DataDependentParseNode createParseNode(AbstractParse<BasicParseForest, ?> parse,
+    @Override public DataDependentParseNode createParseNode(AbstractParse<DataDependentParseForest, ?> parse,
         Position beginPosition, IProduction production, DataDependentDerivation firstDerivation) {
         DataDependentParseNode parseNode =
             new DataDependentParseNode(beginPosition, parse.currentPosition(), production);
@@ -26,8 +24,8 @@ public class DataDependentParseForestManager
         return parseNode;
     }
 
-    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol,
-        AbstractParse<BasicParseForest, ?> parse) {
+    @Override public DataDependentParseForest filterStartSymbol(DataDependentParseForest parseForest,
+        String startSymbol, AbstractParse<DataDependentParseForest, ?> parse) {
         DataDependentParseNode topNode = (DataDependentParseNode) parseForest;
         List<DataDependentDerivation> result = new ArrayList<DataDependentDerivation>();
 
@@ -51,9 +49,9 @@ public class DataDependentParseForestManager
         }
     }
 
-    @Override public DataDependentDerivation createDerivation(AbstractParse<BasicParseForest, ?> parse,
+    @Override public DataDependentDerivation createDerivation(AbstractParse<DataDependentParseForest, ?> parse,
         Position beginPosition, IProduction production, ProductionType productionType,
-        BasicParseForest[] parseForests) {
+        DataDependentParseForest[] parseForests) {
         DataDependentDerivation derivation = new DataDependentDerivation(beginPosition, parse.currentPosition(),
             production, productionType, parseForests);
 
@@ -62,23 +60,24 @@ public class DataDependentParseForestManager
         return derivation;
     }
 
-    @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, DataDependentParseNode parseNode,
-        DataDependentDerivation derivation) {
+    @Override public void addDerivation(AbstractParse<DataDependentParseForest, ?> parse,
+        DataDependentParseNode parseNode, DataDependentDerivation derivation) {
         // parse.notify(observer -> observer.addDerivation(parseNode));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public BasicCharacterNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        BasicCharacterNode termNode = new BasicCharacterNode(parse.currentPosition(), parse.currentChar);
+    @Override public DataDependentCharacterNode createCharacterNode(AbstractParse<DataDependentParseForest, ?> parse) {
+        DataDependentCharacterNode characterNode =
+            new DataDependentCharacterNode(parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
-        return termNode;
+        return characterNode;
     }
 
-    @Override public BasicParseForest[] parseForestsArray(int length) {
-        return new BasicParseForest[length];
+    @Override public DataDependentParseForest[] parseForestsArray(int length) {
+        return new DataDependentParseForest[length];
     }
 
 }

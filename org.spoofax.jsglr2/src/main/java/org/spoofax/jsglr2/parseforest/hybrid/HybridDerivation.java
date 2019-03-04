@@ -29,19 +29,4 @@ public class HybridDerivation implements IDerivation<HybridParseForest> {
         return parseForests;
     }
 
-    protected void prettyPrint(TreePrettyPrinter printer) {
-        printer.println("p" + production.id() + " : " + production.descriptor() + "{");
-        printer.indent(2);
-
-        for(HybridParseForest parseForest : parseForests) {
-            if(parseForest != null)
-                parseForest.prettyPrint(printer);
-            else
-                printer.println("null");
-        }
-
-        printer.indent(-2);
-        printer.println("}");
-    }
-
 }

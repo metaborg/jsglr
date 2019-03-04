@@ -4,10 +4,9 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.imploder.StrategoTermImploder;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 
 public class DataDependentParseForestStrategoImploder
-    extends StrategoTermImploder<BasicParseForest, DataDependentParseNode, DataDependentDerivation> {
+    extends StrategoTermImploder<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation> {
 
     public DataDependentParseForestStrategoImploder() {
         super();

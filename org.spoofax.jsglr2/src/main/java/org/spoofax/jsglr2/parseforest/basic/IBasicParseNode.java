@@ -26,4 +26,5 @@ public interface IBasicParseNode
     @Override default boolean isAmbiguous() {
         return getDerivations().size() > 1;
     }
+
 }

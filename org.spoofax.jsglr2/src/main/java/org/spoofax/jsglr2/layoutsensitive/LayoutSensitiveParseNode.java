@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
 import com.google.common.collect.Lists;
 
-public class LayoutSensitiveParseNode extends BasicParseForest
-    implements IBasicParseNode<BasicParseForest, LayoutSensitiveDerivation> {
+public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
+    implements IBasicParseNode<LayoutSensitiveParseForest, LayoutSensitiveDerivation> {
 
     public final IProduction production; // left hand side non-terminal
     private final List<LayoutSensitiveDerivation> derivations;
+
     public List<PositionInterval> longestMatchPos = null;
     boolean filteredLongestMatch = false;
 
@@ -25,7 +25,7 @@ public class LayoutSensitiveParseNode extends BasicParseForest
         this.derivations = new ArrayList<>();
     }
 
-    public IProduction getProduction() {
+    @Override public IProduction production() {
         return production;
     }
 

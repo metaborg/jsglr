@@ -7,15 +7,13 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintSelector;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.basic.BasicCharacterNode;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class LayoutSensitiveParseForestManager
-    extends ParseForestManager<BasicParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
+    extends ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
-    @Override public LayoutSensitiveParseNode createParseNode(AbstractParse<BasicParseForest, ?> parse,
+    @Override public LayoutSensitiveParseNode createParseNode(AbstractParse<LayoutSensitiveParseForest, ?> parse,
         Position beginPosition, IProduction production, LayoutSensitiveDerivation firstDerivation) {
         LayoutSensitiveParseNode parseNode =
             new LayoutSensitiveParseNode(beginPosition, parse.currentPosition(), production);
@@ -27,8 +25,8 @@ public class LayoutSensitiveParseForestManager
         return parseNode;
     }
 
-    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol,
-        AbstractParse<BasicParseForest, ?> parse) {
+    @Override public LayoutSensitiveParseForest filterStartSymbol(LayoutSensitiveParseForest parseForest,
+        String startSymbol, AbstractParse<LayoutSensitiveParseForest, ?> parse) {
         LayoutSensitiveParseNode topNode = (LayoutSensitiveParseNode) parseForest;
         List<LayoutSensitiveDerivation> result = new ArrayList<LayoutSensitiveDerivation>();
 
@@ -52,17 +50,17 @@ public class LayoutSensitiveParseForestManager
         }
     }
 
-    @Override public LayoutSensitiveDerivation createDerivation(AbstractParse<BasicParseForest, ?> parse,
+    @Override public LayoutSensitiveDerivation createDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
         Position beginPosition, IProduction production, ProductionType productionType,
-        BasicParseForest[] parseForests) {
+        LayoutSensitiveParseForest[] parseForests) {
 
         // FIXME since EndPosition is wrong, right is also wrong
         Position leftPosition = null;
         Position rightPosition = null;
 
-        for(BasicParseForest pf : parseForests) {
-            if(pf instanceof LayoutSensitiveParseNode && (((LayoutSensitiveParseNode) pf).getProduction().isLayout()
-                || ((LayoutSensitiveParseNode) pf).getProduction().isIgnoreLayoutConstraint())) {
+        for(LayoutSensitiveParseForest pf : parseForests) {
+            if(pf instanceof LayoutSensitiveParseNode && (((LayoutSensitiveParseNode) pf).production().isLayout()
+                || ((LayoutSensitiveParseNode) pf).production().isIgnoreLayoutConstraint())) {
                 continue;
             }
             if(pf instanceof LayoutSensitiveParseNode) {
@@ -122,7 +120,7 @@ public class LayoutSensitiveParseForestManager
                 // }
 
 
-            } else if(pf instanceof BasicCharacterNode) {
+            } else if(pf instanceof LayoutSensitiveCharacterNode) {
                 if(pf.getStartPosition().line > beginPosition.line
                     && pf.getStartPosition().column < beginPosition.column) {
                     leftPosition = new Position(pf.getStartPosition().offset, pf.getStartPosition().line,
@@ -170,26 +168,28 @@ public class LayoutSensitiveParseForestManager
         return p1;
     }
 
-    @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, LayoutSensitiveParseNode parseNode,
-        LayoutSensitiveDerivation derivation) {
+    @Override public void addDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
+        LayoutSensitiveParseNode parseNode, LayoutSensitiveDerivation derivation) {
         // parse.notify(observer -> observer.addDerivation(parseNode));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public BasicCharacterNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        BasicCharacterNode termNode = new BasicCharacterNode(parse.currentPosition(), parse.currentChar);
+    @Override public LayoutSensitiveCharacterNode
+        createCharacterNode(AbstractParse<LayoutSensitiveParseForest, ?> parse) {
+        LayoutSensitiveCharacterNode termNode =
+            new LayoutSensitiveCharacterNode(parse.currentPosition(), parse.currentChar);
 
         // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }
 
-    @Override public BasicParseForest[] parseForestsArray(int length) {
-        return new BasicParseForest[length];
+    @Override public LayoutSensitiveParseForest[] parseForestsArray(int length) {
+        return new LayoutSensitiveParseForest[length];
     }
 
-    private Position verifyPositionAmbiguities(ConstraintSelector selector, BasicParseForest pf) {
+    private Position verifyPositionAmbiguities(ConstraintSelector selector, LayoutSensitiveParseForest pf) {
         // For trees in an ambiguity such that left and right are different, take the one with smallest and largest
         // column, respectively
         Position currentPosition = null;

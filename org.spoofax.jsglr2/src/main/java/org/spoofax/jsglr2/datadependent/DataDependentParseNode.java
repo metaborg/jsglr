@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
 
-public class DataDependentParseNode extends BasicParseForest
-    implements IBasicParseNode<BasicParseForest, DataDependentDerivation> {
+public class DataDependentParseNode extends DataDependentParseForest
+    implements IBasicParseNode<DataDependentParseForest, DataDependentDerivation> {
 
     public final IProduction production;
     private final List<DataDependentDerivation> derivations = new ArrayList<>();
@@ -19,11 +18,12 @@ public class DataDependentParseNode extends BasicParseForest
         this.production = production;
     }
 
-    @Override public String descriptor() {
-        return production.descriptor();
+    @Override public IProduction production() {
+        return production;
     }
 
     @Override public List<DataDependentDerivation> getDerivations() {
         return derivations;
     }
+
 }

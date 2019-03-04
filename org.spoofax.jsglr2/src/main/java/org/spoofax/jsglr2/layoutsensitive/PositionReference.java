@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
@@ -26,7 +25,7 @@ public class PositionReference {
         return (PositionInterval) result;
     }
 
-    public void updatePosition(PositionInterval newValue, Parse<BasicParseForest, ?> parse) {
+    public void updatePosition(PositionInterval newValue, Parse<LayoutSensitiveParseForest, ?> parse) {
         parse.longestMatchPos.put(addr, newValue);
     }
 }

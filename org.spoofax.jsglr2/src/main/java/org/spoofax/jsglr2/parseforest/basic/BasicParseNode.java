@@ -16,11 +16,12 @@ public class BasicParseNode extends BasicParseForest implements IBasicParseNode<
         this.production = production;
     }
 
-    @Override public String descriptor() {
-        return production.descriptor();
+    @Override public IProduction production() {
+        return production;
     }
 
     @Override public List<BasicDerivation> getDerivations() {
         return derivations;
     }
+
 }

@@ -4,19 +4,18 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.Position;
 
-public class DataDependentDerivation extends BasicParseForest implements IDerivation<BasicParseForest> {
+public class DataDependentDerivation extends DataDependentParseForest implements IDerivation<DataDependentParseForest> {
 
     public final IProduction production;
     public final ProductionType productionType;
-    public final BasicParseForest[] parseForests;
+    public final DataDependentParseForest[] parseForests;
 
     private long contextBitmap = 0L;
 
     public DataDependentDerivation(Position startPosition, Position endPosition, IProduction production,
-        ProductionType productionType, BasicParseForest[] parseForests) {
+        ProductionType productionType, DataDependentParseForest[] parseForests) {
         super(startPosition, endPosition);
         this.production = production;
         this.productionType = productionType;
@@ -69,10 +68,6 @@ public class DataDependentDerivation extends BasicParseForest implements IDeriva
         }
     }
 
-    public String descriptor() {
-        return production.descriptor();
-    }
-
     public IProduction production() {
         return production;
     }
@@ -81,7 +76,7 @@ public class DataDependentDerivation extends BasicParseForest implements IDeriva
         return productionType;
     }
 
-    public BasicParseForest[] parseForests() {
+    public DataDependentParseForest[] parseForests() {
         return parseForests;
     }
 

@@ -4,8 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public interface IParseNode<ParseForest extends AbstractParseForest, Derivation extends IDerivation<ParseForest>>
-    extends IParseForestWidth {
+import org.metaborg.parsetable.IProduction;
+
+public interface IParseNode
+//@formatter:off
+   <ParseForest extends AbstractParseForest,
+    Derivation  extends IDerivation<ParseForest>>
+//@formatter:on
+    extends IParseForest {
+
+    IProduction production();
 
     void addDerivation(Derivation derivation);
 
@@ -54,6 +62,10 @@ public interface IParseNode<ParseForest extends AbstractParseForest, Derivation 
 
     default int width() {
         return getOnlyDerivation().width();
+    }
+
+    default String descriptor() {
+        return production().descriptor();
     }
 
 }

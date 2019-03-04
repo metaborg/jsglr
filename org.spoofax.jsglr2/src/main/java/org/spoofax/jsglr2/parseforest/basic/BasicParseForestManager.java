@@ -50,7 +50,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     @Override public BasicDerivation createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
         IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
         BasicDerivation derivation =
-            new BasicDerivation(beginPosition, parse.currentPosition(), production, productionType, parseForests);
+            new BasicDerivation(production, productionType, parseForests);
 
         // parse.notify(observer -> observer.createDerivation(derivation.nodeNumber, production, parseForests));
 

@@ -193,10 +193,10 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
     @Override public void remark(String remark) {
     }
 
-    @Override public void success(ParseSuccess<ParseForest, ?> success) {
+    @Override public void success(ParseSuccess<ParseForest> success) {
     }
 
-    @Override public void failure(ParseFailure<ParseForest, ?> failure) {
+    @Override public void failure(ParseFailure<ParseForest> failure) {
         throw new IllegalStateException("Failing parses not allowed during measurements");
     }
 

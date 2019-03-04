@@ -103,10 +103,10 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void remark(String remark) {
     }
 
-    @Override public void success(ParseSuccess<ParseForest, ?> success) {
+    @Override public void success(ParseSuccess<ParseForest> success) {
     }
 
-    @Override public void failure(ParseFailure<ParseForest, ?> failure) {
+    @Override public void failure(ParseFailure<ParseForest> failure) {
         throw new IllegalStateException("Failing parses not allowed during benchmarks");
     }
 

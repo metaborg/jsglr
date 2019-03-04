@@ -134,11 +134,11 @@ public class ParserVisualisationObserver
         trace("{\"action\":\"remark\",\"remark\":\"" + remark + "\"}");
     }
 
-    @Override public void success(ParseSuccess<ParseForest, ?> success) {
+    @Override public void success(ParseSuccess<ParseForest> success) {
         trace("{\"action\":\"success\"}");
     }
 
-    @Override public void failure(ParseFailure<ParseForest, ?> failure) {
+    @Override public void failure(ParseFailure<ParseForest> failure) {
         trace("{\"action\":\"failure\"}");
     }
 

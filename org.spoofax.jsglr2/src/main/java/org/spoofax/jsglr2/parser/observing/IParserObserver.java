@@ -76,8 +76,8 @@ public interface IParserObserver
 
     void remark(String remark);
 
-    void success(ParseSuccess<ParseForest, ?> success);
+    void success(ParseSuccess<ParseForest> success);
 
-    void failure(ParseFailure<ParseForest, ?> failure);
+    void failure(ParseFailure<ParseForest> failure);
 
 }

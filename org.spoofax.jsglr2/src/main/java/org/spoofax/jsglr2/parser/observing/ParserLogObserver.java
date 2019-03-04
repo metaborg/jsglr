@@ -127,11 +127,11 @@ public class ParserLogObserver
         log(remark);
     }
 
-    @Override public void success(ParseSuccess<ParseForest, ?> success) {
+    @Override public void success(ParseSuccess<ParseForest> success) {
         log("Parsing succeeded. Result: " + success.parseResult.toString());
     }
 
-    @Override public void failure(ParseFailure<ParseForest, ?> failure) {
+    @Override public void failure(ParseFailure<ParseForest> failure) {
         log("Parsing failed");
     }
 

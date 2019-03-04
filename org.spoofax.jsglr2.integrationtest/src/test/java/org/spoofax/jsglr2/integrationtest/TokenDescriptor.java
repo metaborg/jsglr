@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.integrationtest;
 
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr2.parser.AbstractParse;
 
 public final class TokenDescriptor {
 
@@ -17,11 +16,11 @@ public final class TokenDescriptor {
         this.column = column;
     }
 
-    public static TokenDescriptor from(AbstractParse<?, ?> parse, IToken token) {
+    public static TokenDescriptor from(String inputString, IToken token) {
         String inputPart;
 
         if(token.getStartOffset() >= 0 && token.getEndOffset() >= 0)
-            inputPart = parse.getPart(token.getStartOffset(), token.getEndOffset() + 1);
+            inputPart = inputString.substring(token.getStartOffset(), token.getEndOffset() + 1);
         else
             inputPart = "";
 

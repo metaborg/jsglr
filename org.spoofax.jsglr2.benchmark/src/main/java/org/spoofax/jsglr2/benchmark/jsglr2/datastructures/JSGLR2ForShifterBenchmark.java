@@ -56,12 +56,12 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
     }
 
     class ParseRound {
-        final List<ForShifterElement<?, ?>> forShifterElements = new ArrayList<ForShifterElement<?, ?>>();
+        final List<ForShifterElement<?, ?>> forShifterElements = new ArrayList<>();
     }
 
     class ForShifterObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
 
-        public List<ParseRound> parseRounds = new ArrayList<ParseRound>();
+        public List<ParseRound> parseRounds = new ArrayList<>();
 
         @Override public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStacks) {

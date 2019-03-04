@@ -94,7 +94,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
 
         private List<BasicStackNode<BasicParseForest>>
             activeStacksCopy(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse) {
-            List<BasicStackNode<BasicParseForest>> activeStacksCopy = new ArrayList<BasicStackNode<BasicParseForest>>();
+            List<BasicStackNode<BasicParseForest>> activeStacksCopy = new ArrayList<>();
 
             for(BasicStackNode<BasicParseForest> activeStack : parse.activeStacks)
                 activeStacksCopy.add(activeStack);

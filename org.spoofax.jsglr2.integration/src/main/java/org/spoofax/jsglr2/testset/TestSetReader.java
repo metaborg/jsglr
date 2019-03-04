@@ -130,7 +130,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
                 if(testSizedInput.sizes == null)
                     throw new IllegalStateException("invalid input type (sizes missing)");
 
-                List<InputBatch> result = new ArrayList<InputBatch>();
+                List<InputBatch> result = new ArrayList<>();
 
                 for(int size : testSizedInput.sizes) {
                     result.add(new InputBatch(testSizedInput.get(size), size));
@@ -174,7 +174,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     }
 
     protected List<Input> getMultipleInputs(String path, String extension) throws IOException {
-        List<Input> inputs = new ArrayList<Input>();
+        List<Input> inputs = new ArrayList<>();
 
         for(File file : filesInPath(new File(path))) {
             if(file.getName().endsWith("." + extension)) {
@@ -188,7 +188,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     }
 
     private Set<File> filesInPath(File path) {
-        Set<File> acc = new HashSet<File>();
+        Set<File> acc = new HashSet<>();
 
         filesInPath(path, acc);
 

@@ -16,7 +16,7 @@ public class ForActorStacksLinkedHashMap<ParseForest extends IParseForest, Stack
     public ForActorStacksLinkedHashMap(ParserObserving<ParseForest, StackNode> observing) {
         super(observing);
 
-        this.forActor = new HashMap<Integer, Linked<StackNode>>();
+        this.forActor = new HashMap<>();
         this.last = null;
     }
 

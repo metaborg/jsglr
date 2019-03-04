@@ -24,7 +24,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
         AbstractParse<HybridParseForest, ?> parse) {
         HybridParseNode topNode = (HybridParseNode) parseForest;
-        List<HybridDerivation> result = new ArrayList<HybridDerivation>();
+        List<HybridDerivation> result = new ArrayList<>();
 
         for(HybridDerivation derivation : topNode.getDerivations()) {
             String derivationStartSymbol = derivation.production.startSymbolSort();

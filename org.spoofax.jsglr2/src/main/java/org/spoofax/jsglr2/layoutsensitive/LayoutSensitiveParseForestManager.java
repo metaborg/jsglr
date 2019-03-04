@@ -28,7 +28,7 @@ public class LayoutSensitiveParseForestManager
     @Override public LayoutSensitiveParseForest filterStartSymbol(LayoutSensitiveParseForest parseForest,
         String startSymbol, AbstractParse<LayoutSensitiveParseForest, ?> parse) {
         LayoutSensitiveParseNode topNode = (LayoutSensitiveParseNode) parseForest;
-        List<LayoutSensitiveDerivation> result = new ArrayList<LayoutSensitiveDerivation>();
+        List<LayoutSensitiveDerivation> result = new ArrayList<>();
 
         for(LayoutSensitiveDerivation derivation : topNode.getDerivations()) {
             String derivationStartSymbol = derivation.production.startSymbolSort();

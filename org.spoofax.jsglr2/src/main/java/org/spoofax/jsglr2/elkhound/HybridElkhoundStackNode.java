@@ -48,7 +48,7 @@ public class HybridElkhoundStackNode<ParseForest extends IParseForest> extends E
 
             deterministicDepth = link.to.deterministicDepth + 1;
         } else if(otherLinks == null) { // The second link is added; at this point we detect non-determinism
-            otherLinks = new ArrayList<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>>();
+            otherLinks = new ArrayList<>();
 
             otherLinks.add(link);
 

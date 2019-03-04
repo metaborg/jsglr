@@ -25,13 +25,11 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
     public int length = 0;
     AbstractParse<ParseForest, ElkhoundStackNode<ParseForest>> parse;
 
-    Set<ElkhoundStackNode<ParseForest>> stackNodes = new HashSet<ElkhoundStackNode<ParseForest>>();
-    Set<StackLink<ParseForest, ElkhoundStackNode<ParseForest>>> stackLinks =
-        new HashSet<StackLink<ParseForest, ElkhoundStackNode<ParseForest>>>();
-    Set<StackLink<ParseForest, ElkhoundStackNode<ParseForest>>> stackLinksRejected =
-        new HashSet<StackLink<ParseForest, ElkhoundStackNode<ParseForest>>>();
+    Set<ElkhoundStackNode<ParseForest>> stackNodes = new HashSet<>();
+    Set<StackLink<ParseForest, ElkhoundStackNode<ParseForest>>> stackLinks = new HashSet<>();
+    Set<StackLink<ParseForest, ElkhoundStackNode<ParseForest>>> stackLinksRejected = new HashSet<>();
 
-    Set<Actor> actors = new HashSet<Actor>();
+    Set<Actor> actors = new HashSet<>();
 
     public int doReductions = 0;
     public int doLimitedReductions = 0;
@@ -40,13 +38,13 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
     public int doReductionsDeterministicGLR = 0;
     public int doReductionsNonDeterministicGLR = 0;
 
-    Set<Reducer> reducers = new HashSet<Reducer>();
-    Set<Reducer> reducersElkhound = new HashSet<Reducer>();
+    Set<Reducer> reducers = new HashSet<>();
+    Set<Reducer> reducersElkhound = new HashSet<>();
 
     public int deterministicDepthResets = 0;
 
-    Set<HybridParseNode> parseNodes = new HashSet<HybridParseNode>();
-    Set<ParseForest> characterNodes = new HashSet<ParseForest>();
+    Set<HybridParseNode> parseNodes = new HashSet<>();
+    Set<ParseForest> characterNodes = new HashSet<>();
 
     class Actor {
         public ElkhoundStackNode<ParseForest> stack;

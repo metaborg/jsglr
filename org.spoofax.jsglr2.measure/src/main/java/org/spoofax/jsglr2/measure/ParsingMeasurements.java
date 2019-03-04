@@ -76,7 +76,7 @@ public class ParsingMeasurements extends Measurements {
                 (Parser<HybridParseForest, HybridParseNode, HybridDerivation, ElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, ElkhoundStackNode<HybridParseForest>>>) JSGLR2Variants
                     .getParser(parseTable, measureActiveStacksFactory, measureForActorStacksFactory, variant);
 
-            ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();
+            ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<>();
 
             parser.observing().attachObserver(measureObserver);
 
@@ -100,13 +100,13 @@ public class ParsingMeasurements extends Measurements {
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<HybridParseForest> measureObserver) {
-        List<String> cells = new ArrayList<String>();
+        List<String> cells = new ArrayList<>();
 
         int parseNodesSingleDerivation = 0;
 
-        List<HybridParseNode> parseNodesContextFree = new ArrayList<HybridParseNode>();
-        List<HybridParseNode> parseNodesLexical = new ArrayList<HybridParseNode>();
-        List<HybridParseNode> parseNodesLayout = new ArrayList<HybridParseNode>();
+        List<HybridParseNode> parseNodesContextFree = new ArrayList<>();
+        List<HybridParseNode> parseNodesLexical = new ArrayList<>();
+        List<HybridParseNode> parseNodesLayout = new ArrayList<>();
 
         for(HybridParseNode parseNode : measureObserver.parseNodes) {
             int derivationCount = 0;
@@ -283,7 +283,7 @@ public class ParsingMeasurements extends Measurements {
     }
 
     private static void csvHeader(PrintWriter out) {
-        List<String> cells = new ArrayList<String>();
+        List<String> cells = new ArrayList<>();
 
         for(ParsingMeasurement measurement : ParsingMeasurement.values()) {
             cells.add(measurement.name());

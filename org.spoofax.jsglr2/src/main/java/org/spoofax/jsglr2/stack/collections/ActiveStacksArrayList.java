@@ -18,7 +18,7 @@ public class ActiveStacksArrayList<ParseForest extends IParseForest, StackNode e
 
     public ActiveStacksArrayList(ParserObserving<ParseForest, StackNode> observing) {
         this.observing = observing;
-        this.activeStacks = new ArrayList<StackNode>();
+        this.activeStacks = new ArrayList<>();
     }
 
     @Override public void add(StackNode stack) {

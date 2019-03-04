@@ -25,7 +25,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol,
         AbstractParse<BasicParseForest, ?> parse) {
         BasicParseNode topNode = (BasicParseNode) parseForest;
-        List<BasicDerivation> result = new ArrayList<BasicDerivation>();
+        List<BasicDerivation> result = new ArrayList<>();
 
         for(BasicDerivation derivation : topNode.getDerivations()) {
             String derivationStartSymbol = derivation.production.startSymbolSort();

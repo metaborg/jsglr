@@ -16,7 +16,7 @@ public class ParserObserving
     private final List<IParserObserver<ParseForest, StackNode>> observers;
 
     public ParserObserving() {
-        this.observers = new ArrayList<IParserObserver<ParseForest, StackNode>>();
+        this.observers = new ArrayList<>();
     }
 
     public void notify(IParserNotification<ParseForest, StackNode> notification) {

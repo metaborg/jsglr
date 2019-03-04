@@ -170,8 +170,7 @@ public class ParseTableReader {
         IProduction[] productions) throws ParseTableReadException {
         int characterClassesWithActionsCount = characterClassActionsTermList.size();
 
-        List<ActionsPerCharacterClass> actionsPerCharacterClasses =
-            new ArrayList<ActionsPerCharacterClass>(characterClassesWithActionsCount);
+        List<ActionsPerCharacterClass> actionsPerCharacterClasses = new ArrayList<>(characterClassesWithActionsCount);
 
         for(IStrategoTerm characterClassActionsTerm : characterClassActionsTermList) {
             IStrategoNamed characterClassActionsTermNamed = (IStrategoNamed) characterClassActionsTerm;

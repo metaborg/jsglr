@@ -18,7 +18,7 @@ public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNo
 
     public ActiveStacksLinkedHashMap(ParserObserving<ParseForest, StackNode> observing) {
         this.observing = observing;
-        this.activeStacks = new HashMap<Integer, Linked<StackNode>>();
+        this.activeStacks = new HashMap<>();
         this.last = null;
     }
 

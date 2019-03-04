@@ -26,7 +26,7 @@ public class DataDependentParseForestManager
     @Override public DataDependentParseForest filterStartSymbol(DataDependentParseForest parseForest,
         String startSymbol, AbstractParse<DataDependentParseForest, ?> parse) {
         DataDependentParseNode topNode = (DataDependentParseNode) parseForest;
-        List<DataDependentDerivation> result = new ArrayList<DataDependentDerivation>();
+        List<DataDependentDerivation> result = new ArrayList<>();
 
         for(DataDependentDerivation derivation : topNode.getDerivations()) {
             String derivationStartSymbol = derivation.production.startSymbolSort();

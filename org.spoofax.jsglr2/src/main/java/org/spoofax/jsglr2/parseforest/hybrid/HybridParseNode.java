@@ -26,7 +26,7 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
 
     public void addDerivation(HybridDerivation derivation) {
         if(otherDerivations == null)
-            otherDerivations = new ArrayList<HybridDerivation>();
+            otherDerivations = new ArrayList<>();
 
         otherDerivations.add(derivation);
     }

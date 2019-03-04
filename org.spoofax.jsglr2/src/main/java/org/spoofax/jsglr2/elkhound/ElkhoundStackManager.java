@@ -65,7 +65,7 @@ public abstract class ElkhoundStackManager
                 currentStackNode = link.to;
         }
 
-        return new DeterministicStackPath<ParseForest, ElkhoundStackNode>(parseForests, lastStackNode);
+        return new DeterministicStackPath<>(parseForests, lastStackNode);
     }
 
     protected abstract StackLink<ParseForest, ElkhoundStackNode> addStackLink(

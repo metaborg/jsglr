@@ -35,10 +35,9 @@ public class ReduceManager
         this.parseForestManager = parseForestManager;
 
         if(parseForestConstruction == ParseForestConstruction.Optimized)
-            this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<ParseForest, ParseNode, Derivation, StackNode>(
-                stackManager, parseForestManager);
+            this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<>(stackManager, parseForestManager);
         else
-            this.reducer = new Reducer<ParseForest, ParseNode, Derivation, StackNode>(stackManager, parseForestManager);
+            this.reducer = new Reducer<>(stackManager, parseForestManager);
     }
 
     public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {

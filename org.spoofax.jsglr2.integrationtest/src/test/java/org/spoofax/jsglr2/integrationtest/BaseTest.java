@@ -177,7 +177,7 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     private List<String> toSortedStringList(List<IStrategoTerm> astExpansion) {
-        List<String> result = new ArrayList<String>(astExpansion.size());
+        List<String> result = new ArrayList<>(astExpansion.size());
 
         for(IStrategoTerm ast : astExpansion) {
             result.add(ast.toString());

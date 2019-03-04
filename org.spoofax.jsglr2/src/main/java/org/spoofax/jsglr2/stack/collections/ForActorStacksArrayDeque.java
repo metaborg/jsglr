@@ -15,7 +15,7 @@ public class ForActorStacksArrayDeque<ParseForest extends IParseForest, StackNod
     public ForActorStacksArrayDeque(ParserObserving<ParseForest, StackNode> observing) {
         super(observing);
 
-        this.forActor = new ArrayDeque<StackNode>();
+        this.forActor = new ArrayDeque<>();
     }
 
     @Override protected void forActorAdd(StackNode stack) {

@@ -13,8 +13,7 @@ public class MeasureActiveStacksFactory implements IActiveStacksFactory {
     @SuppressWarnings("unchecked") @Override public <ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
         IActiveStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
         if(this.measureActiveStacks == null) {
-            MeasureActiveStacks<ParseForest, StackNode> measureActiveStacks =
-                new MeasureActiveStacks<ParseForest, StackNode>(observing);
+            MeasureActiveStacks<ParseForest, StackNode> measureActiveStacks = new MeasureActiveStacks<>(observing);
 
             this.measureActiveStacks = measureActiveStacks;
 

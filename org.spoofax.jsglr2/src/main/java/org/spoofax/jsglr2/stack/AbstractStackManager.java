@@ -41,9 +41,9 @@ public abstract class AbstractStackManager
     }
 
     public List<StackPath<ParseForest, StackNode>> findAllPathsOfLength(StackNode stack, int length) {
-        List<StackPath<ParseForest, StackNode>> paths = new ArrayList<StackPath<ParseForest, StackNode>>();
+        List<StackPath<ParseForest, StackNode>> paths = new ArrayList<>();
 
-        StackPath<ParseForest, StackNode> pathsOrigin = new EmptyStackPath<ParseForest, StackNode>(stack);
+        StackPath<ParseForest, StackNode> pathsOrigin = new EmptyStackPath<>(stack);
 
         findAllPathsOfLength(pathsOrigin, length, paths);
 
@@ -58,8 +58,7 @@ public abstract class AbstractStackManager
             StackNode lastStackNode = path.head();
 
             for(StackLink<ParseForest, StackNode> linkOut : stackLinksOut(lastStackNode)) {
-                StackPath<ParseForest, StackNode> extendedPath =
-                    new NonEmptyStackPath<ParseForest, StackNode>(linkOut, path);
+                StackPath<ParseForest, StackNode> extendedPath = new NonEmptyStackPath<>(linkOut, path);
 
                 findAllPathsOfLength(extendedPath, length - 1, paths);
             }

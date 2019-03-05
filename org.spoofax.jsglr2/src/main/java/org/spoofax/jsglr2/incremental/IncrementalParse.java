@@ -118,8 +118,8 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         EditorUpdate editorUpdate = editorUpdates.get(0);
         IncrementalParseForest currentForest = previous;
         int currentOffset = 0;
-        int deletedStartOffset = editorUpdate.deleted.getStart().offset;
-        int deletedEndOffset = editorUpdate.deleted.getEnd().offset;
+        int deletedStartOffset = editorUpdate.deletedStart;
+        int deletedEndOffset = editorUpdate.deletedEnd;
 
         while(!currentForest.isTerminal()) {
             while(!currentForest.isTerminal() && deletedStartOffset <= currentOffset + currentForest.width()) {

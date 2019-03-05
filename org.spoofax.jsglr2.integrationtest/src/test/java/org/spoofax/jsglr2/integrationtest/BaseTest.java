@@ -159,8 +159,8 @@ public abstract class BaseTest implements WithParseTable {
                     result = jsglr2.parser.parse(inputString, "", startSymbol);
                 } else {
                     EditorUpdate update = updates[i - 1];
-                    inputString = inputString.substring(0, update.deleted.getStart().offset) + update.insterted
-                        + inputString.substring(update.deleted.getEnd().offset);
+                    inputString = inputString.substring(0, update.deletedStart) + update.insterted
+                        + inputString.substring(update.deletedEnd);
                     result = ((IncrementalParser) jsglr2.parser).incrementalParse(singletonList(update),
                         previousParseForest, "", startSymbol);
                 }

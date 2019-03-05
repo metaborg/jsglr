@@ -1,13 +1,13 @@
 package org.spoofax.jsglr2.incremental;
 
-import org.spoofax.jsglr2.parser.PositionInterval;
-
 public class EditorUpdate {
-    public final PositionInterval deleted;
+    public final int deletedStart;
+    public final int deletedEnd;
     public final String insterted;
 
-    public EditorUpdate(PositionInterval deleted, String insterted) {
-        this.deleted = deleted;
+    public EditorUpdate(int deletedStart, int deletedEnd, String insterted) {
+        this.deletedStart = deletedStart;
+        this.deletedEnd = deletedEnd;
         this.insterted = insterted;
     }
 }

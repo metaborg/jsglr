@@ -82,7 +82,6 @@ public class IncrementalParseNode extends IncrementalParseForest
         if(otherDerivations != null) {
             for(IncrementalDerivation derivation : otherDerivations) {
                 derivation.prettyPrint(printer);
-                printer.println("");
             }
         }
 
@@ -93,7 +92,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         } else {
             printer.indent(-2);
         }
-        printer.print("}");
+        printer.println("}");
     }
 
     @Override public String getSource() {

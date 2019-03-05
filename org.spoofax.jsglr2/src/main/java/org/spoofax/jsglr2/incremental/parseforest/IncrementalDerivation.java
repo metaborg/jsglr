@@ -56,13 +56,12 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
         for(IncrementalParseForest parseForest : parseForests) {
             if(parseForest != null) {
                 parseForest.prettyPrint(printer);
-                printer.println("");
             } else
                 printer.println("null");
         }
 
         printer.indent(-2);
-        printer.print("}");
+        printer.println("}");
     }
 
 

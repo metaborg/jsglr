@@ -24,7 +24,7 @@ public class IncrementalCharacterNode extends IncrementalParseForest implements 
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {
-        printer.print(descriptor());
+        printer.println(descriptor());
     }
 
     @Override public String getSource() {

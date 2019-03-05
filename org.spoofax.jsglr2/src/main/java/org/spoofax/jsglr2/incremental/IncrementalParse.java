@@ -40,7 +40,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         IForActorStacks<StackNode> forActorStacks, ParserObserving<IncrementalParseForest, StackNode> observing) {
 
         super(inputString, filename, activeStacks, forActorStacks, observing);
-        initParse(new IncrementalParseNode(null, getDerivationFromString(inputString)), observing);
+        initParse(getParseNodeFromString(inputString), observing);
     }
 
     private void initParse(IncrementalParseForest updatedTree,
@@ -103,14 +103,15 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         currentChar = actionQueryCharacter();
     }
 
-    private IncrementalDerivation getDerivationFromString(String inputString) {
+    private IncrementalParseNode getParseNodeFromString(String inputString) {
         IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(inputString.length());
 
         char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
+            // TODO should we use the IncrementalParseForestManager for this?
             parseForests[i] = new IncrementalCharacterNode(chars[i]);
         }
-        return new IncrementalDerivation(null, null, parseForests, NO_STATE);
+        return newParseNodeFromChildren(parseForests);
     }
 
     private IncrementalParseForest processUpdates(List<EditorUpdate> editorUpdates, IncrementalParseForest previous) {
@@ -131,28 +132,21 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
                 currentForest = currentForest.popLookAhead();
             }
         }
-        // `currentParent` now holds the terminal node after which a new string is inserted
-        IncrementalDerivation oldParent = currentForest.parent;
-        int oldIndex = currentForest.childIndex;
-        IncrementalDerivation derivation = getDerivationFromUpdate(currentForest, editorUpdate);
-        // Replace the character node with a parse node that contains one character node per inserted character
-        oldParent.parseForests[oldIndex] = new IncrementalParseNode(null, derivation);
-        oldParent.parseForests[oldIndex].parent = oldParent;
-        oldParent.parseForests[oldIndex].childIndex = oldIndex;
+
+        // `currentForest` now holds the terminal node after which a new string is inserted
+        // Remember the node after this, so we can start deleting from there
+        IncrementalParseForest nextNode = currentForest.popLookAhead();
+
+        replaceForestWithNewChildren(currentForest,
+            convertToCharacterNodes((IncrementalCharacterNode) currentForest, editorUpdate));
 
         currentOffset += 1;
-        currentForest = oldParent.parent.popLookAhead();
+        currentForest = nextNode;
         while(currentOffset < deletedEndOffset) {
             while(deletedEndOffset < currentOffset + currentForest.width())
                 currentForest = currentForest.leftBreakdown();
             while(deletedEndOffset >= currentOffset + currentForest.width()) {
-                oldParent = currentForest.parent;
-                oldIndex = currentForest.childIndex;
-                oldParent.parseForests[oldIndex] = new IncrementalParseNode(null,
-                    new IncrementalDerivation(null, null, new IncrementalParseForest[0], null));
-                oldParent.parseForests[oldIndex].parent = oldParent;
-                oldParent.parseForests[oldIndex].childIndex = oldIndex;
-
+                replaceForestWithNewChildren(currentForest, parseForestManager.parseForestsArray(0));
                 currentOffset += currentForest.width();
                 currentForest = currentForest.popLookAhead();
             }
@@ -160,16 +154,30 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         return previous;
     }
 
-    private IncrementalDerivation getDerivationFromUpdate(IncrementalParseForest originalLookahead,
+    private void replaceForestWithNewChildren(IncrementalParseForest currentForest,
+        IncrementalParseForest[] newChildren) {
+        IncrementalDerivation oldParent = currentForest.parent;
+        int oldIndex = currentForest.childIndex;
+        oldParent.parseForests[oldIndex] = newParseNodeFromChildren(newChildren);
+        oldParent.parseForests[oldIndex].parent = oldParent;
+        oldParent.parseForests[oldIndex].childIndex = oldIndex;
+    }
+
+    private IncrementalParseNode newParseNodeFromChildren(IncrementalParseForest[] newChildren) {
+        // TODO should we use the IncrementalParseForestManager for this?
+        return new IncrementalParseNode(null, new IncrementalDerivation(null, null, newChildren, NO_STATE));
+    }
+
+    private IncrementalParseForest[] convertToCharacterNodes(IncrementalCharacterNode originalLookahead,
         EditorUpdate editorUpdate) {
-        IncrementalParseForest[] parseForests =
-            parseForestManager.parseForestsArray(editorUpdate.insterted.length() + 1);
-        parseForests[0] = originalLookahead;
+        IncrementalParseForest[] children = parseForestManager.parseForestsArray(editorUpdate.insterted.length() + 1);
+        children[0] = originalLookahead;
 
         char[] chars = editorUpdate.insterted.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            parseForests[i + 1] = new IncrementalCharacterNode(chars[i]);
+            // TODO should we use the IncrementalParseForestManager for this?
+            children[i + 1] = new IncrementalCharacterNode(chars[i]);
         }
-        return new IncrementalDerivation(null, null, parseForests, NO_STATE);
+        return children;
     }
 }

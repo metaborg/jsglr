@@ -36,9 +36,11 @@ public abstract class IncrementalParseForest implements IParseForest {
     }
 
     public IncrementalParseForest rightSibling() {
-        if(parent == null || childIndex + 1 == parent.parseForests().length) {
+        if(parent == null)
             return IncrementalCharacterNode.EOF_NODE;
-        } else
+        else if(childIndex + 1 == parent.parseForests().length)
+            return null;
+        else
             return parent.parseForests()[childIndex + 1];
     }
 

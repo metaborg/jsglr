@@ -148,6 +148,7 @@ public abstract class BaseTest implements WithParseTable {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             JSGLR2<IncrementalParseForest, IStrategoTerm> jsglr2 =
                 (JSGLR2<IncrementalParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+            // TODO remove observer later again
             jsglr2.parser.observing().attachObserver(new org.spoofax.jsglr2.parser.observing.ParserLogObserver<>());
 
             IStrategoTerm actualOutputAst;
@@ -157,7 +158,10 @@ public abstract class BaseTest implements WithParseTable {
                 if(i == 0) {
                     result = jsglr2.parser.parse(inputString, "", startSymbol);
                 } else {
-                    result = ((IncrementalParser) jsglr2.parser).incrementalParse(singletonList(updates[i - 1]),
+                    EditorUpdate update = updates[i - 1];
+                    inputString = inputString.substring(0, update.deleted.getStart().offset) + update.insterted
+                        + inputString.substring(update.deleted.getEnd().offset);
+                    result = ((IncrementalParser) jsglr2.parser).incrementalParse(singletonList(update),
                         previousParseForest, "", startSymbol);
                 }
                 if(result.isSuccess) {

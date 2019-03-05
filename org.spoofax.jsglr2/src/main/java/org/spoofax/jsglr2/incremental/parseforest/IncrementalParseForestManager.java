@@ -20,7 +20,7 @@ public class IncrementalParseForestManager
         List<IncrementalDerivation> result = new ArrayList<>();
 
         for(IncrementalDerivation derivation : topNode.getDerivations()) {
-            String derivationStartSymbol = derivation.production.startSymbolSort();
+            String derivationStartSymbol = derivation.production().startSymbolSort();
 
             if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
                 result.add(derivation);
@@ -29,7 +29,7 @@ public class IncrementalParseForestManager
         if(result.isEmpty())
             return null;
         else {
-            IncrementalParseNode filteredTopNode = new IncrementalParseNode(topNode.production, result.get(0));
+            IncrementalParseNode filteredTopNode = new IncrementalParseNode(topNode.production(), result.get(0));
 
             for(int i = 1; i < result.size(); i++)
                 filteredTopNode.addDerivation(result.get(i));

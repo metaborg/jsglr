@@ -8,11 +8,12 @@ import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public class IncrementalDerivation implements IDerivation<IncrementalParseForest> {
     private final int width;
-    public final IProduction production;
-    public final ProductionType productionType;
+    private final IProduction production;
+    private final ProductionType productionType;
     public final IncrementalParseForest[] parseForests;
     public IncrementalParseNode parent;
     public final IState state;
+    private boolean changed;
 
     public IncrementalDerivation(IProduction production, ProductionType productionType,
         IncrementalParseForest[] parseForests, IState state) {
@@ -38,19 +39,26 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
     }
 
     @Override public IProduction production() {
-        return production;
+        return changed ? null : production;
     }
 
     @Override public ProductionType productionType() {
-        return productionType;
+        return changed ? null : productionType;
     }
 
     @Override public IncrementalParseForest[] parseForests() {
         return parseForests;
     }
 
+    public void markChanged() {
+        this.changed = true;
+    }
+
     protected void prettyPrint(TreePrettyPrinter printer) {
-        printer.println("p" + production.id() + " : " + production.descriptor() + "{");
+        if(production == null)
+            printer.println("p null : {");
+        else
+            printer.println("p" + production.id() + " : " + production.descriptor() + "{");
         printer.indent(2);
 
         for(IncrementalParseForest parseForest : parseForests) {

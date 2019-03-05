@@ -15,14 +15,14 @@ public class LexicalTest extends BaseTestWithSdf3ParseTables {
 
     @Test public void identifiers() throws ParseError {
         testSuccessByExpansions("a", "\"a\")");
-        testSuccessByExpansions("aaaaa", "\"aaaaa\")");
+        testSuccessByExpansions("abcde", "\"abcde\")");
     }
 
     @Test public void incrementalIdentifiers() throws ParseError {
         testIncrementalSuccessByExpansions("a",
             new EditorUpdate[] {
                 new EditorUpdate(new PositionInterval(new Position(1, 1, 2), new Position(1, 1, 2)), "bcde"),
-                new EditorUpdate(new PositionInterval(new Position(2, 1, 3), new Position(3, 1, 5)), "fghij") },
+                new EditorUpdate(new PositionInterval(new Position(2, 1, 3), new Position(4, 1, 5)), "fghij") },
             new String[] { "\"a\"", "\"abcde\"", "\"abfghije\"" });
     }
 

@@ -12,7 +12,7 @@ import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 public class IncrementalParseNode extends IncrementalParseForest
     implements IParseNode<IncrementalParseForest, IncrementalDerivation> {
 
-    public final IProduction production;
+    private final IProduction production;
     private final IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
 

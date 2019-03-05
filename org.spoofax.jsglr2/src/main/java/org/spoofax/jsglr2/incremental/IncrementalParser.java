@@ -62,7 +62,7 @@ public class IncrementalParser
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {
-        parse.state = stack.state;
+        parse.state = stack.state();
 
         while(getActions(stack, parse, parse.reducerLookAhead).size() == 0
             && parse.reducerLookAhead instanceof IncrementalParseNode)
@@ -85,7 +85,7 @@ public class IncrementalParser
             stack.state().getApplicableActions(parse).forEach(actions::add);
             return actions;
         } else {
-            IProduction production = ((IncrementalParseNode) lookAhead).getFirstDerivation().production;
+            IProduction production = ((IncrementalParseNode) lookAhead).getFirstDerivation().production();
             return production == null ? Collections.emptyList()
                 : Collections.singletonList(new Shift(stack.state().getGotoId(production.id())));
         }

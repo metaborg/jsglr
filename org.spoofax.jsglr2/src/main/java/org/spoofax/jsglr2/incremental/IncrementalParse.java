@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.incremental;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
@@ -12,8 +11,6 @@ import org.metaborg.sdf2table.parsetable.query.ProductionToGotoForLoop;
 import org.spoofax.jsglr2.incremental.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseFactory;
-import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parser.PositionInterval;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
@@ -22,13 +19,10 @@ import org.spoofax.jsglr2.states.State;
 
 public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode> {
 
-    private final List<EditorUpdate> editorUpdates;
-    private final IncrementalParseForest previous;
     public IState state;
     boolean multipleStates;
     IncrementalParseForest shiftLookAhead;
     IncrementalParseForest reducerLookAhead;
-    Position currentPosition = new Position(0, 1, 1);
 
     private IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();
     public static State NO_STATE = new State(-1, new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]),
@@ -38,29 +32,26 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         IActiveStacks<StackNode> activeStacks, IForActorStacks<StackNode> forActorStacks,
         ParserObserving<IncrementalParseForest, StackNode> observing) {
 
-        super("<<<<<<<<<<<<<<<<<<<", filename, activeStacks, forActorStacks, observing);
-        this.editorUpdates = editorUpdates;
-        if(previous == null) {
-            // TODO this only works when starting with a clean slate
-            previous = new IncrementalParseNode(null, getDerivationFromUpdate(editorUpdates.get(0)));
-        }
-        this.previous = previous;
-        this.shiftLookAhead = previous;
-        this.reducerLookAhead = previous;
-        this.multipleStates = false;
-        this.currentChar = actionQueryCharacter();
-
-        observing.notify(
-            observer -> observer.createCharacterNode(IncrementalCharacterNode.EOF_NODE, CharacterClassFactory.EOF_INT));
+        super("<no input string available for incremental parsing>", filename, activeStacks, forActorStacks, observing);
+        initParse(processUpdates(editorUpdates, previous), observing);
     }
 
     public IncrementalParse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks, ParserObserving<IncrementalParseForest, StackNode> observing) {
 
-        this(
-            Collections.singletonList(
-                new EditorUpdate(new PositionInterval(new Position(0, 1, 1), new Position(0, 1, 1)), inputString)),
-            null, filename, activeStacks, forActorStacks, observing);
+        super(inputString, filename, activeStacks, forActorStacks, observing);
+        initParse(new IncrementalParseNode(null, getDerivationFromString(inputString)), observing);
+    }
+
+    private void initParse(IncrementalParseForest updatedTree,
+        ParserObserving<IncrementalParseForest, StackNode> observing) {
+        this.shiftLookAhead = updatedTree;
+        this.reducerLookAhead = this.shiftLookAhead;
+        this.multipleStates = false;
+        this.currentChar = actionQueryCharacter();
+
+        observing.notify(
+            observer -> observer.createCharacterNode(IncrementalCharacterNode.EOF_NODE, CharacterClassFactory.EOF_INT));
     }
 
     // @formatter:off
@@ -76,17 +67,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     // @formatter:on
 
     @Override public String getPart(int begin, int end) {
-        return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"; // TODO
-
-        // return CharacterClassFactory.intToString(character);
-
-        // StringBuilder sb = new StringBuilder();
-        // for(IncrementalDerivation derivation : getDerivations()) {
-        // for(IncrementalParseForest incrementalParseForest : derivation.parseForests()) {
-        // sb.append(incrementalParseForest.inputPart());
-        // }
-        // }
-        // return sb.toString();
+        return null; // TODO remove getPart from AbstractParse
     }
 
     @Override public int actionQueryCharacter() {
@@ -116,25 +97,78 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     @Override public void next() {
-        int width = shiftLookAhead.width();
-        currentOffset += width;
-        // TODO for all editor updates, and correctly
-        // EditorUpdate editorUpdate = editorUpdates.get(0);
-        // if(editorUpdate.deleted.getStart().offset == currentOffset) {
-        // IncrementalDerivation derivation = getDerivationFromUpdate(editorUpdate);
-        // shiftLookAhead.parent.parent.addDerivation(derivation);
-        // shiftLookAhead = derivation.parseForests()[0];
-        // } else
+        currentOffset += shiftLookAhead.width();
         shiftLookAhead = shiftLookAhead.popLookAhead();
         reducerLookAhead = shiftLookAhead;
         currentChar = actionQueryCharacter();
     }
 
-    private IncrementalDerivation getDerivationFromUpdate(EditorUpdate editorUpdate) {
-        IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(editorUpdate.insterted.length());
-        char[] chars = editorUpdate.insterted.toCharArray();
+    private IncrementalDerivation getDerivationFromString(String inputString) {
+        IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(inputString.length());
+
+        char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
             parseForests[i] = new IncrementalCharacterNode(chars[i]);
+        }
+        return new IncrementalDerivation(null, null, parseForests, NO_STATE);
+    }
+
+    private IncrementalParseForest processUpdates(List<EditorUpdate> editorUpdates, IncrementalParseForest previous) {
+        // TODO for all editor updates (currently only checking first update)
+        EditorUpdate editorUpdate = editorUpdates.get(0);
+        IncrementalParseForest currentForest = previous;
+        int currentOffset = 0;
+        int deletedStartOffset = editorUpdate.deleted.getStart().offset;
+        int deletedEndOffset = editorUpdate.deleted.getEnd().offset;
+
+        while(!currentForest.isTerminal()) {
+            while(!currentForest.isTerminal() && deletedStartOffset <= currentOffset + currentForest.width()) {
+                ((IncrementalParseNode) currentForest).getDerivations().forEach(IncrementalDerivation::markChanged);
+                currentForest = currentForest.leftBreakdown();
+            }
+            while(deletedStartOffset > currentOffset + currentForest.width()) {
+                currentOffset += currentForest.width();
+                currentForest = currentForest.popLookAhead();
+            }
+        }
+        // `currentParent` now holds the terminal node after which a new string is inserted
+        IncrementalDerivation oldParent = currentForest.parent;
+        int oldIndex = currentForest.childIndex;
+        IncrementalDerivation derivation = getDerivationFromUpdate(currentForest, editorUpdate);
+        // Replace the character node with a parse node that contains one character node per inserted character
+        oldParent.parseForests[oldIndex] = new IncrementalParseNode(null, derivation);
+        oldParent.parseForests[oldIndex].parent = oldParent;
+        oldParent.parseForests[oldIndex].childIndex = oldIndex;
+
+        currentOffset += 1;
+        currentForest = oldParent.parent.popLookAhead();
+        while(currentOffset < deletedEndOffset) {
+            while(deletedEndOffset < currentOffset + currentForest.width())
+                currentForest = currentForest.leftBreakdown();
+            while(deletedEndOffset >= currentOffset + currentForest.width()) {
+                oldParent = currentForest.parent;
+                oldIndex = currentForest.childIndex;
+                oldParent.parseForests[oldIndex] = new IncrementalParseNode(null,
+                    new IncrementalDerivation(null, null, new IncrementalParseForest[0], null));
+                oldParent.parseForests[oldIndex].parent = oldParent;
+                oldParent.parseForests[oldIndex].childIndex = oldIndex;
+
+                currentOffset += currentForest.width();
+                currentForest = currentForest.popLookAhead();
+            }
+        }
+        return previous;
+    }
+
+    private IncrementalDerivation getDerivationFromUpdate(IncrementalParseForest originalLookahead,
+        EditorUpdate editorUpdate) {
+        IncrementalParseForest[] parseForests =
+            parseForestManager.parseForestsArray(editorUpdate.insterted.length() + 1);
+        parseForests[0] = originalLookahead;
+
+        char[] chars = editorUpdate.insterted.toCharArray();
+        for(int i = 0; i < chars.length; i++) {
+            parseForests[i + 1] = new IncrementalCharacterNode(chars[i]);
         }
         return new IncrementalDerivation(null, null, parseForests, NO_STATE);
     }

@@ -8,9 +8,9 @@ import java.util.NoSuchElementException;
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ActiveStacksArrayList<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ActiveStacksArrayList<ParseForest extends IParseForest, StackNode extends IStackNode>
     implements IActiveStacks<StackNode> {
 
     protected ParserObserving<ParseForest, StackNode> observing;
@@ -43,7 +43,7 @@ public class ActiveStacksArrayList<ParseForest extends IParseForest, StackNode e
         observing.notify(observer -> observer.findActiveStackWithState(state));
 
         for(StackNode stack : activeStacks)
-            if(stack.state.id() == state.id())
+            if(stack.state().id() == state.id())
                 return stack;
 
         return null;

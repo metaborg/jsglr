@@ -16,14 +16,14 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class ParserVisualisationObserver
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode>
 //@formatter:on
     extends ParserObserver<ParseForest, StackNode> {
 
@@ -42,7 +42,7 @@ public class ParserVisualisationObserver
     @Override public void createStackNode(StackNode stack) {
         super.createStackNode(stack);
 
-        trace("{\"action\":\"createStackNode\",\"stackNumber\":" + id(stack) + ",\"stateNumber\":" + stack.state.id()
+        trace("{\"action\":\"createStackNode\",\"stackNumber\":" + id(stack) + ",\"stateNumber\":" + stack.state().id()
             + "}");
     }
 
@@ -71,7 +71,7 @@ public class ParserVisualisationObserver
         trace("{\"action\":\"skipRejectedStack\",\"stackNumber\":" + id(stack) + "}");
     }
 
-    @Override public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {
+    @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
         trace("{\"action\":\"addForShifter\",\"stack\":" + id(forShifterElement.stack) + ", \"state\":"
             + forShifterElement.state.id() + "}");
     }
@@ -125,7 +125,7 @@ public class ParserVisualisationObserver
         trace("{\"action\":\"addDerivation\",\"parseNode\":" + id(parseNode) + "}");
     }
 
-    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
+    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
         trace("{\"action\":\"shifter\",\"characterNode\":" + id(termNode) + ",\"elements\":"
             + forShifterQueueToString(forShifter) + "}");
     }

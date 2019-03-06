@@ -6,9 +6,9 @@ import java.util.Map;
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ActiveStacksArrayListHashMap<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ActiveStacksArrayListHashMap<ParseForest extends IParseForest, StackNode extends IStackNode>
     extends ActiveStacksArrayList<ParseForest, StackNode> {
 
     protected Map<Integer, StackNode> activeStacksMap;
@@ -21,7 +21,7 @@ public class ActiveStacksArrayListHashMap<ParseForest extends IParseForest, Stac
     @Override public void add(StackNode stack) {
         super.add(stack);
 
-        activeStacksMap.put(stack.state.id(), stack);
+        activeStacksMap.put(stack.state().id(), stack);
     }
 
     @Override public StackNode findWithState(IState state) {

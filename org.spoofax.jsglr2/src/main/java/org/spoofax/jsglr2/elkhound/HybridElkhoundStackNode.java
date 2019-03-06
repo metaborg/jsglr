@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridElkhoundStackNode<ParseForest extends IParseForest> extends ElkhoundStackNode<ParseForest> {
+public class HybridElkhoundStackNode<ParseForest extends IParseForest> extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
     private StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> firstLink;
@@ -57,7 +57,7 @@ public class HybridElkhoundStackNode<ParseForest extends IParseForest> extends E
             if(referenceCount > 0) {
                 parse.observing.notify(observer -> observer.resetDeterministicDepth(this));
 
-                for(ElkhoundStackNode<ParseForest> stack : parse.activeStacks)
+                for(AbstractElkhoundStackNode<ParseForest> stack : parse.activeStacks)
                     if(stack != this)
                         stack.resetDeterministicDepth();
             }

@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.stack.collections;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class ActiveStacksFactory implements IActiveStacksFactory {
 
@@ -18,8 +18,8 @@ public class ActiveStacksFactory implements IActiveStacksFactory {
         this.activeStacksRepresentation = activeStacksRepresentation;
     }
 
-    @Override public <ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
-        IActiveStacks<StackNode> get(ParserObserving<ParseForest, StackNode> observing) {
+    @Override public <ParseForest extends IParseForest, StackNode extends IStackNode> IActiveStacks<StackNode>
+        get(ParserObserving<ParseForest, StackNode> observing) {
         IActiveStacks<StackNode> activeStacks;
 
         switch(activeStacksRepresentation) {

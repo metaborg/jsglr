@@ -7,20 +7,20 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
+import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class ParserLogObserver
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode>
 //@formatter:on
     extends ParserObserver<ParseForest, StackNode> {
 
@@ -37,7 +37,7 @@ public class ParserLogObserver
     @Override public void createStackNode(StackNode stack) {
         super.createStackNode(stack);
 
-        log("Create new stack with number " + id(stack) + " for state " + stack.state.id());
+        log("Create new stack with number " + id(stack) + " for state " + stack.state().id());
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
@@ -47,7 +47,7 @@ public class ParserLogObserver
             + " with parse node " + (link.parseForest != null ? id(link.parseForest) : "null"));
     }
 
-    @Override public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack) {
+    @Override public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
         log("Reset deterministic depth for stack " + id((StackNode) stack));
     }
 
@@ -69,7 +69,7 @@ public class ParserLogObserver
         log("Skipping stack " + id(stack) + " since all links to it are rejected");
     }
 
-    @Override public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {
+    @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
         log("Add for shifter " + forShifterElementToString(forShifterElement));
     }
 
@@ -119,7 +119,7 @@ public class ParserLogObserver
         log("Add derivation to parse node '" + id(parseNode));
     }
 
-    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
+    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
         log("Shifter for elements " + forShifterQueueToString(forShifter) + " with character node " + id(termNode));
     }
 

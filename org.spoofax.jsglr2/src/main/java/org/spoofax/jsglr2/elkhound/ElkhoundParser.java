@@ -22,16 +22,16 @@ public class ElkhoundParser
    <ParseForest       extends IParseForest,
     ParseNode         extends ParseForest,
     Derivation        extends IDerivation<ParseForest>,
-    ElkhoundStackNode extends org.spoofax.jsglr2.elkhound.ElkhoundStackNode<ParseForest>,
+    ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
     Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>>
 //@formatter:on
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
         IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
-        AbstractStackManager<ParseForest, ElkhoundStackNode> stackManager,
+        AbstractStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> elkhoundReduceManager) {
+        ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> elkhoundReduceManager) {
         super(parseFactory, parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
             elkhoundReduceManager);
     }

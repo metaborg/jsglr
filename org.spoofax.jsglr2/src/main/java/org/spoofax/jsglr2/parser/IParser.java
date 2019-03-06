@@ -5,12 +5,12 @@ import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public interface IParser
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode>
 //@formatter:on
 {
 

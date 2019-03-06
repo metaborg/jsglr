@@ -6,18 +6,18 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
+import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode extends IStackNode<ParseForest>>
     implements IParserObserver<ParseForest, StackNode> {
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
@@ -42,7 +42,7 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
     }
 
-    @Override public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack) {
+    @Override public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
     }
 
     @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {

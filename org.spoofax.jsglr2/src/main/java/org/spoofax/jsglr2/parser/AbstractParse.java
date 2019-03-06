@@ -8,7 +8,7 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IActionQuery;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
@@ -17,7 +17,7 @@ import com.google.common.collect.Maps;
 public abstract class AbstractParse
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode>
 //@formatter:on
     implements IActionQuery {
 
@@ -35,7 +35,7 @@ public abstract class AbstractParse
     public StackNode acceptingStack;
     public IActiveStacks<StackNode> activeStacks;
     public IForActorStacks<StackNode> forActorStacks;
-    public Queue<ForShifterElement<ParseForest, StackNode>> forShifter;
+    public Queue<ForShifterElement<StackNode>> forShifter;
 
     public final ParserObserving<ParseForest, StackNode> observing;
 

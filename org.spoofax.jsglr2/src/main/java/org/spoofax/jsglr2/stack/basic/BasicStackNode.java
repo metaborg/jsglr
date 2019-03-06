@@ -5,24 +5,24 @@ import java.util.List;
 
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackNode;
 
-public class BasicStackNode<ParseForest> extends StackNode<ParseForest> {
+public class BasicStackNode<ParseForest> extends AbstractStackNode<ParseForest, BasicStackNode<ParseForest>> {
 
     // Directed to the initial stack node
-    private final ArrayList<StackLink<ParseForest, StackNode<ParseForest>>> links = new ArrayList<>();
+    private final ArrayList<StackLink<ParseForest, BasicStackNode<ParseForest>>> links = new ArrayList<>();
 
     public BasicStackNode(IState state, Position position) {
         super(state, position);
     }
 
-    @Override public List<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {
+    @Override public List<StackLink<ParseForest, BasicStackNode<ParseForest>>> getLinks() {
         return links;
     }
 
-    @Override public StackLink<ParseForest, StackNode<ParseForest>>
-        addLink(StackLink<ParseForest, StackNode<ParseForest>> link) {
+    @Override public StackLink<ParseForest, BasicStackNode<ParseForest>>
+        addLink(StackLink<ParseForest, BasicStackNode<ParseForest>> link) {
         links.add(link);
 
         return link;
@@ -32,7 +32,7 @@ public class BasicStackNode<ParseForest> extends StackNode<ParseForest> {
         if(links.isEmpty())
             return false;
 
-        for(StackLink<ParseForest, StackNode<ParseForest>> link : links) {
+        for(StackLink<ParseForest, BasicStackNode<ParseForest>> link : links) {
             if(!link.isRejected())
                 return false;
         }

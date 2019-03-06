@@ -14,18 +14,19 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 public abstract class AbstractStackManager
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode,
+    Parse       extends AbstractParse<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    public abstract StackNode createInitialStackNode(AbstractParse<ParseForest, StackNode> parse, IState state);
+    public abstract StackNode createInitialStackNode(Parse parse, IState state);
 
-    public abstract StackNode createStackNode(AbstractParse<ParseForest, StackNode> parse, IState state);
+    public abstract StackNode createStackNode(Parse parse, IState state);
 
-    public abstract StackLink<ParseForest, StackNode> createStackLink(AbstractParse<ParseForest, StackNode> parse,
-        StackNode from, StackNode to, ParseForest parseNode);
+    public abstract StackLink<ParseForest, StackNode> createStackLink(Parse parse, StackNode from, StackNode to,
+        ParseForest parseNode);
 
-    public void rejectStackLink(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> link) {
+    public void rejectStackLink(Parse parse, StackLink<ParseForest, StackNode> link) {
         link.reject();
 
         parse.observing.notify(observer -> observer.rejectStackLink(link));

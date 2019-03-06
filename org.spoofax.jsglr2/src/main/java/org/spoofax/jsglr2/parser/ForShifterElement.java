@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public final class ForShifterElement<ParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public final class ForShifterElement<StackNode extends IStackNode> {
 
     public final StackNode stack;
     public final IState state;

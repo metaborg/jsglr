@@ -5,20 +5,20 @@ import java.util.Collections;
 
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackNode;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
+public class HybridStackNode<ParseForest> extends AbstractStackNode<ParseForest, HybridStackNode<ParseForest>> {
 
-    private StackLink<ParseForest, StackNode<ParseForest>> firstLink;
-    private ArrayList<StackLink<ParseForest, StackNode<ParseForest>>> otherLinks;
+    private StackLink<ParseForest, HybridStackNode<ParseForest>> firstLink;
+    private ArrayList<StackLink<ParseForest, HybridStackNode<ParseForest>>> otherLinks;
 
     public HybridStackNode(IState state, Position position) {
         super(state, position);
     }
 
-    @Override public Iterable<StackLink<ParseForest, StackNode<ParseForest>>> getLinks() {
+    @Override public Iterable<StackLink<ParseForest, HybridStackNode<ParseForest>>> getLinks() {
         if(otherLinks == null) {
             return Collections.singleton(firstLink);
         } else {
@@ -26,8 +26,8 @@ public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
         }
     }
 
-    @Override public StackLink<ParseForest, StackNode<ParseForest>>
-        addLink(StackLink<ParseForest, StackNode<ParseForest>> link) {
+    @Override public StackLink<ParseForest, HybridStackNode<ParseForest>>
+        addLink(StackLink<ParseForest, HybridStackNode<ParseForest>> link) {
         if(firstLink == null)
             firstLink = link;
         else {
@@ -47,7 +47,7 @@ public class HybridStackNode<ParseForest> extends StackNode<ParseForest> {
         if(otherLinks == null)
             return true;
 
-        for(StackLink<ParseForest, StackNode<ParseForest>> link : otherLinks) {
+        for(StackLink<ParseForest, HybridStackNode<ParseForest>> link : otherLinks) {
             if(!link.isRejected())
                 return false;
         }

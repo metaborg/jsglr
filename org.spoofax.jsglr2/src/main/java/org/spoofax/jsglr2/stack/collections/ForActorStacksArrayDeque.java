@@ -5,9 +5,9 @@ import java.util.Queue;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ForActorStacksArrayDeque<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ForActorStacksArrayDeque<ParseForest extends IParseForest, StackNode extends IStackNode>
     extends ForActorStacks<ParseForest, StackNode> {
 
     protected final Queue<StackNode> forActor;

@@ -6,9 +6,9 @@ import java.util.Queue;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public abstract class ForActorStacks<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public abstract class ForActorStacks<ParseForest extends IParseForest, StackNode extends IStackNode>
     implements IForActorStacks<StackNode> {
 
     private final ParserObserving<ParseForest, StackNode> observing;
@@ -34,7 +34,7 @@ public abstract class ForActorStacks<ParseForest extends IParseForest, StackNode
     @Override public void add(StackNode stack) {
         observing.notify(observer -> observer.addForActorStack(stack));
 
-        if(stack.state.isRejectable())
+        if(stack.state().isRejectable())
             forActorDelayed.add(stack);
         else
             forActorAdd(stack);

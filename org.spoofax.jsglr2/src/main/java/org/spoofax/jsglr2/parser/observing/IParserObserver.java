@@ -6,20 +6,20 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
+import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public interface IParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode>
 //@formatter:on
 {
 
@@ -37,7 +37,7 @@ public interface IParserObserver
 
     void createStackLink(StackLink<ParseForest, StackNode> link);
 
-    void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack);
+    void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack);
 
     void rejectStackLink(StackLink<ParseForest, StackNode> link);
 
@@ -49,7 +49,7 @@ public interface IParserObserver
 
     void skipRejectedStack(StackNode stack);
 
-    void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement);
+    void addForShifter(ForShifterElement<StackNode> forShifterElement);
 
     void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce);
 
@@ -72,7 +72,7 @@ public interface IParserObserver
 
     void addDerivation(ParseForest parseNode);
 
-    void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter);
+    void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 
     void remark(String remark);
 

@@ -7,9 +7,9 @@ import java.util.Map;
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends IStackNode>
     implements IActiveStacks<StackNode> {
 
     private ParserObserving<ParseForest, StackNode> observing;
@@ -37,7 +37,7 @@ public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNo
 
         Linked<StackNode> linkedStackNode = new Linked<>(stack, last);
 
-        activeStacks.put(stack.state.id(), linkedStackNode);
+        activeStacks.put(stack.state().id(), linkedStackNode);
 
         last = linkedStackNode;
     }

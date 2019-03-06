@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.stack.collections;
 
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 /*
  * Collection of stacks that the parser operates on during a parse round. At the start of each round it is filled with
@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.stack.AbstractStackNode;
  * by one and during a parse round new stacks can be added after reducing. Removing should return stacks in a certain
  * order (see also the iterator() method).
  */
-public interface IForActorStacks<StackNode extends AbstractStackNode<?>> {
+public interface IForActorStacks<StackNode extends IStackNode> {
 
     void add(StackNode stack);
 

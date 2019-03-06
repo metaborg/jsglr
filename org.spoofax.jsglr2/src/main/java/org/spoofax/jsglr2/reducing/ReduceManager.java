@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
@@ -18,16 +18,17 @@ public class ReduceManager
    <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode,
+    Parse       extends AbstractParse<ParseForest, StackNode>>
 //@formatter:on
 {
 
     protected final IParseTable parseTable;
-    protected final AbstractStackManager<ParseForest, StackNode> stackManager;
+    protected final AbstractStackManager<ParseForest, StackNode, Parse> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
-    protected final Reducer<ParseForest, ParseNode, Derivation, StackNode> reducer;
+    protected final Reducer<ParseForest, ParseNode, Derivation, StackNode, Parse> reducer;
 
-    public ReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode> stackManager,
+    public ReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         this.parseTable = parseTable;
@@ -40,7 +41,7 @@ public class ReduceManager
             this.reducer = new Reducer<>(stackManager, parseForestManager);
     }
 
-    public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
+    public void doReductions(Parse parse, StackNode stack, IReduce reduce) {
         if(reduce.production().isCompletionOrRecovery())
             return;
 
@@ -49,7 +50,7 @@ public class ReduceManager
         doReductionsHelper(parse, stack, reduce, null);
     }
 
-    private void doLimitedRedutions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+    private void doLimitedRedutions(Parse parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> throughLink) {
         if(reduce.production().isCompletionOrRecovery())
             return;
@@ -59,7 +60,7 @@ public class ReduceManager
         doReductionsHelper(parse, stack, reduce, throughLink);
     }
 
-    protected void doReductionsHelper(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+    protected void doReductionsHelper(Parse parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> throughLink) {
         for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
@@ -78,9 +79,8 @@ public class ReduceManager
      * not and if such an active stack already exists, the link to it can also already exist. Based on the existence of
      * the stack with the goto state and the link to it, different actions are performed.
      */
-    protected void reducer(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
-        ParseForest[] parseForests) {
-        int gotoId = stack.state.getGotoId(reduce.production().id());
+    protected void reducer(Parse parse, StackNode stack, IReduce reduce, ParseForest[] parseForests) {
+        int gotoId = stack.state().getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
         StackNode activeStackWithGotoState = parse.activeStacks.findWithState(gotoState);
@@ -99,7 +99,7 @@ public class ReduceManager
                     activeStackWithGotoState, stack, parseForests);
 
                 for(StackNode activeStack : parse.activeStacks.forLimitedReductions(parse.forActorStacks)) {
-                    for(IReduce reduceAction : activeStack.state.getApplicableReduceActions(parse))
+                    for(IReduce reduceAction : activeStack.state().getApplicableReduceActions(parse))
                         doLimitedRedutions(parse, activeStack, reduceAction, link);
                 }
             }

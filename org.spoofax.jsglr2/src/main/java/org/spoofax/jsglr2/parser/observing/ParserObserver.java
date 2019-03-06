@@ -9,20 +9,20 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.elkhound.ElkhoundStackNode;
+import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public abstract class ParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode>
 //@formatter:on
     implements IParserObserver<ParseForest, StackNode> {
 
@@ -82,7 +82,7 @@ public abstract class ParserObserver
         registerStackLink(link);
     }
 
-    @Override public void resetDeterministicDepth(ElkhoundStackNode<ParseForest> stack) {
+    @Override public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
     }
 
     @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
@@ -101,7 +101,7 @@ public abstract class ParserObserver
     @Override public void skipRejectedStack(StackNode stack) {
     }
 
-    @Override public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {
+    @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
     }
 
     @Override public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
@@ -139,7 +139,7 @@ public abstract class ParserObserver
     @Override public void addDerivation(ParseForest parseNode) {
     }
 
-    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
+    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
     @Override public void remark(String remark) {
@@ -177,10 +177,10 @@ public abstract class ParserObserver
         return "[" + res + "]";
     }
 
-    String forShifterQueueToString(Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
+    String forShifterQueueToString(Queue<ForShifterElement<StackNode>> forShifter) {
         String res = "";
 
-        for(ForShifterElement<ParseForest, StackNode> forShifterElement : forShifter) {
+        for(ForShifterElement<StackNode> forShifterElement : forShifter) {
             if(res.isEmpty())
                 res += forShifterElementToString(forShifterElement);
             else
@@ -190,7 +190,7 @@ public abstract class ParserObserver
         return "[" + res + "]";
     }
 
-    String forShifterElementToString(ForShifterElement<ParseForest, StackNode> forShifterElement) {
+    String forShifterElementToString(ForShifterElement<StackNode> forShifterElement) {
         return "{\"stack\":" + id(forShifterElement.stack) + ",\"state\":" + forShifterElement.state.id() + "}";
     }
 

@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2.stack.collections;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public interface IActiveStacks<StackNode extends AbstractStackNode<?>> extends Iterable<StackNode> {
+public interface IActiveStacks<StackNode extends IStackNode> extends Iterable<StackNode> {
 
     void add(StackNode stack);
 

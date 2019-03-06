@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
@@ -26,19 +26,21 @@ public class DataDependentReduceManager
    <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
-    StackNode   extends AbstractStackNode<ParseForest>>
+    StackNode   extends IStackNode,
+    Parse       extends AbstractParse<ParseForest, StackNode>>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode> {
+    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> {
 
 
-    public DataDependentReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode> stackManager,
+    public DataDependentReduceManager(IParseTable parseTable,
+        AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }
 
-    @Override protected void doReductionsHelper(AbstractParse<ParseForest, StackNode> parse, StackNode stack,
-        IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+    @Override protected void doReductionsHelper(Parse parse, StackNode stack, IReduce reduce,
+        StackLink<ParseForest, StackNode> throughLink) {
         for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
                 StackNode pathBegin = path.head();

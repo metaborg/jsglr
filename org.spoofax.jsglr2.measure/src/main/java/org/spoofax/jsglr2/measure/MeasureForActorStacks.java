@@ -2,10 +2,10 @@ package org.spoofax.jsglr2.measure;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksArrayDeque;
 
-public class MeasureForActorStacks<ParseForest extends IParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class MeasureForActorStacks<ParseForest extends IParseForest, StackNode extends IStackNode>
     extends ForActorStacksArrayDeque<ParseForest, StackNode> {
 
     long forActorAdds = 0, forActorDelayedAdds = 0, forActorMaxSize = 0, forActorDelayedMaxSize = 0, containsChecks = 0,
@@ -16,7 +16,7 @@ public class MeasureForActorStacks<ParseForest extends IParseForest, StackNode e
     }
 
     @Override public void add(StackNode stack) {
-        if(stack.state.isRejectable())
+        if(stack.state().isRejectable())
             forActorDelayedAdds++;
         else
             forActorAdds++;

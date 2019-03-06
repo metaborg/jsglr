@@ -6,16 +6,19 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class HybridElkhoundStackManager<ParseForest extends IParseForest>
-    extends ElkhoundStackManager<ParseForest, HybridElkhoundStackNode<ParseForest>> {
+public class HybridElkhoundStackManager
+//@formatter:off
+   <ParseForest extends IParseForest,
+    Parse       extends AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>>>
+//@formatter:on
+    extends ElkhoundStackManager<ParseForest, HybridElkhoundStackNode<ParseForest>, Parse> {
 
     @Override protected HybridElkhoundStackNode<ParseForest> createStackNode(IState state, Position position,
         boolean isRoot) {
         return new HybridElkhoundStackNode<>(state, position, isRoot);
     }
 
-    @Override protected StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addStackLink(
-        AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse,
+    @Override protected StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addStackLink(Parse parse,
         HybridElkhoundStackNode<ParseForest> from, HybridElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
         return from.addLink(to, parseNode, parse);
     }

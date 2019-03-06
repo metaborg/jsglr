@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
@@ -28,16 +28,16 @@ public class Parser
    <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
-    StackNode   extends AbstractStackNode<ParseForest>,
+    StackNode   extends IStackNode,
     Parse       extends AbstractParse<ParseForest, StackNode>>
 //@formatter:on
     implements IParser<ParseForest, StackNode> {
 
     protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;
-    protected final AbstractStackManager<ParseForest, StackNode> stackManager;
+    protected final AbstractStackManager<ParseForest, StackNode, Parse> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
-    protected final ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager;
+    protected final ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
     private final IActiveStacksFactory activeStacksFactory;
     private final IForActorStacksFactory forActorStacksFactory;
@@ -45,9 +45,9 @@ public class Parser
 
     public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
         IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
-        AbstractStackManager<ParseForest, StackNode> stackManager,
+        AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ReduceManager<ParseForest, ParseNode, Derivation, StackNode> reduceManager) {
+        ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> reduceManager) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;
         this.activeStacksFactory = activeStacksFactory;
@@ -142,9 +142,9 @@ public class Parser
     }
 
     protected void actor(StackNode stack, Parse parse) {
-        observing.notify(observer -> observer.actor(stack, parse, stack.state.getApplicableActions(parse)));
+        observing.notify(observer -> observer.actor(stack, parse, stack.state().getApplicableActions(parse)));
 
-        for(IAction action : stack.state.getApplicableActions(parse))
+        for(IAction action : stack.state().getApplicableActions(parse))
             actor(stack, parse, action);
     }
 
@@ -180,7 +180,7 @@ public class Parser
 
         observing.notify(observer -> observer.shifter(characterNode, parse.forShifter));
 
-        for(ForShifterElement<ParseForest, StackNode> forShifterElement : parse.forShifter) {
+        for(ForShifterElement<StackNode> forShifterElement : parse.forShifter) {
             StackNode activeStackForState = parse.activeStacks.findWithState(forShifterElement.state);
 
             if(activeStackForState != null) {
@@ -198,7 +198,7 @@ public class Parser
     }
 
     private void addForShifter(Parse parse, StackNode stack, IState shiftState) {
-        ForShifterElement<ParseForest, StackNode> forShifterElement = new ForShifterElement<>(stack, shiftState);
+        ForShifterElement<StackNode> forShifterElement = new ForShifterElement<>(stack, shiftState);
 
         observing.notify(observer -> observer.addForShifter(forShifterElement));
 

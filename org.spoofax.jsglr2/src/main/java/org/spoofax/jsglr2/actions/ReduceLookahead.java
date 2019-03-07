@@ -6,7 +6,6 @@ import org.metaborg.parsetable.IActionQuery;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.metaborg.parsetable.actions.IReduceLookahead;
-import org.metaborg.parsetable.actions.Reduce;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 
 public class ReduceLookahead extends Reduce implements IReduceLookahead {

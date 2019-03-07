@@ -29,7 +29,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.sdf2table.grammar.CharacterClass;
 import org.metaborg.sdf2table.io.IncrementalParseTableGenerator;
 import org.metaborg.sdf2table.io.ParseTableIO;
-import org.metaborg.sdf2table.parsetable.GoTo;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -683,7 +682,7 @@ public class ParseTable implements Serializable {
         }
         List<Goto> gotos = Lists.newArrayList();
 
-        for(GoTo g : s_orig.gotos()) {
+        for(org.metaborg.sdf2table.parsetable.Goto g : s_orig.gotos()) {
             // TODO create the structure directly without generating an ATerm
             gotos.add(parseGoto(g.toAterm(factory)));
         }

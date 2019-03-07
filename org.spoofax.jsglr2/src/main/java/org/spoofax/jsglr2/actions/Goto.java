@@ -23,7 +23,7 @@ public class Goto implements IGoto {
     }
 
     @Override public String toString() {
-        return "GOTO(" + gotoStateId + ")";
+        return "goto(" + gotoStateId + ")";
     }
 
     @Override public int hashCode() {

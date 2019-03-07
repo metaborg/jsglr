@@ -9,6 +9,10 @@ public class Accept implements IAccept {
     public Accept() {
     }
 
+    @Override public String toString() {
+        return "accept()";
+    }
+
     @Override public int hashCode() {
         return 0;
     }

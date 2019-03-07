@@ -15,7 +15,7 @@ public class Shift implements IShift {
     }
 
     @Override public String toString() {
-        return "SHIFT(" + shiftStateId + ")";
+        return "shift(" + shiftStateId + ")";
     }
 
     @Override public int hashCode() {

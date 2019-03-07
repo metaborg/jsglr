@@ -2,11 +2,9 @@ package org.spoofax.jsglr2.actions;
 
 import java.util.Arrays;
 
-import org.metaborg.parsetable.IActionQuery;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.metaborg.parsetable.actions.IReduceLookahead;
-import org.metaborg.parsetable.actions.Reduce;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 
 public class ReduceLookahead extends Reduce implements IReduceLookahead {
@@ -20,22 +18,9 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
         this.followRestriction = followRestriction;
     }
 
-    @Override public boolean allowsLookahead(IActionQuery actionQuery) {
-        String lookahead = actionQuery.actionQueryLookahead(followRestriction.length);
-
-        if(lookahead.length() != followRestriction.length)
-            return true;
-
-        for(int i = 0; i < followRestriction.length; i++) {
-            if(!followRestriction[i].contains(lookahead.charAt(i)))
-                return true;
-        }
-
-        return false;
-    }
-
     @Override public String toString() {
-        return "REDUCE_LOOKAHEAD(" + production.id() + "," + Arrays.toString(followRestriction) + ")";
+        return "reduce(" + arity + "," + production.id() + "," + productionType + ",follow-restriction"
+            + Arrays.toString(followRestriction) + ")";
     }
 
     @Override public int hashCode() {
@@ -54,6 +39,10 @@ public class ReduceLookahead extends Reduce implements IReduceLookahead {
 
         return production.equals(that.production) && productionType.equals(that.productionType) && arity == that.arity
             && Arrays.equals(followRestriction, that.followRestriction);
+    }
+
+    @Override public ICharacterClass[] lookahead() {
+        return followRestriction;
     }
 
 }

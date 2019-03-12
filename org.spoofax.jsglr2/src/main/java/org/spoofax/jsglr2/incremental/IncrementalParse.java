@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.incremental;
 
 import java.util.List;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
@@ -49,9 +48,6 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         this.reducerLookAhead = this.shiftLookAhead;
         this.multipleStates = false;
         this.currentChar = actionQueryCharacter();
-
-        observing.notify(
-            observer -> observer.createCharacterNode(IncrementalCharacterNode.EOF_NODE, CharacterClassFactory.EOF_INT));
     }
 
     // @formatter:off

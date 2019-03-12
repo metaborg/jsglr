@@ -34,18 +34,17 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         ParserObserving<IncrementalParseForest, StackNode> observing) {
 
         super("<no input string available for incremental parsing>", filename, activeStacks, forActorStacks, observing);
-        initParse(processUpdates(editorUpdates, previous), observing);
+        initParse(processUpdates(editorUpdates, previous));
     }
 
     public IncrementalParse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks, ParserObserving<IncrementalParseForest, StackNode> observing) {
 
         super(inputString, filename, activeStacks, forActorStacks, observing);
-        initParse(getParseNodeFromString(inputString), observing);
+        initParse(getParseNodeFromString(inputString));
     }
 
-    private void initParse(IncrementalParseForest updatedTree,
-        ParserObserving<IncrementalParseForest, StackNode> observing) {
+    private void initParse(IncrementalParseForest updatedTree) {
         this.shiftLookAhead = updatedTree;
         this.reducerLookAhead = this.shiftLookAhead;
         this.multipleStates = false;

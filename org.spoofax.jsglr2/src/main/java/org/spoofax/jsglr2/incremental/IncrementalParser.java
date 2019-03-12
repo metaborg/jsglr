@@ -9,7 +9,7 @@ import java.util.List;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
-import org.spoofax.jsglr2.actions.Shift;
+import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
@@ -86,10 +86,12 @@ public class IncrementalParser
             return actions;
         } else {
             IProduction production = ((IncrementalParseNode) lookAhead).getFirstDerivation().production();
-            return production == null ? Collections.emptyList()
-                : Collections.singletonList(new Shift(stack.state().getGotoId(production.id())));
+            try {
+                return Collections.singletonList(new GotoShift(stack.state().getGotoId(production.id())));
+            } catch(NullPointerException e) { // Can be thrown inside getGotoId or because production == null
+                return Collections.emptyList();
+            }
         }
-
     }
 
     @Override protected IncrementalParseForest getCharacterNodeToShift(Parse parse) {

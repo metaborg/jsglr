@@ -1,6 +1,8 @@
 package org.spoofax.jsglr2.incremental;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IGoto;
@@ -110,7 +112,38 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         return newParseNodeFromChildren(parseForests);
     }
 
+    // Recursive, "functional" version
     private IncrementalParseForest processUpdates(List<EditorUpdate> editorUpdates, IncrementalParseForest previous) {
+        // TODO for all editor updates (currently only checking first update)
+        EditorUpdate editorUpdate = editorUpdates.get(0);
+        return processUpdates(previous, 0, editorUpdate.deletedStart, editorUpdate.deletedEnd, editorUpdate.inserted);
+    }
+
+    private IncrementalParseForest processUpdates(IncrementalParseForest currentForest, int currentOffset,
+        int deletedStartOffset, int deletedEndOffset, String inserted) {
+        if(currentForest instanceof IncrementalCharacterNode) {
+            if(currentOffset == deletedStartOffset - 1)
+                return newParseNodeFromChildren(
+                    convertToCharacterNodes((IncrementalCharacterNode) currentForest, inserted));
+            if(deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset)
+                return null;
+            return currentForest;
+        }
+        IncrementalParseForest[] parseForests =
+            ((IncrementalParseNode) currentForest).getFirstDerivation().parseForests();
+        for(int i = 0; i < parseForests.length; i++) {
+            IncrementalParseForest parseForest = parseForests[i];
+            if(deletedStartOffset <= currentOffset + parseForest.width() && currentOffset < deletedEndOffset) {
+                parseForests[i] =
+                    processUpdates(parseForest, currentOffset, deletedStartOffset, deletedEndOffset, inserted);
+            }
+            currentOffset += parseForest.width();
+        }
+        return newParseNodeFromChildren(parseForests);
+    }
+
+    // Imperative version
+    private IncrementalParseForest processUpdatesI(List<EditorUpdate> editorUpdates, IncrementalParseForest previous) {
         // TODO for all editor updates (currently only checking first update)
         EditorUpdate editorUpdate = editorUpdates.get(0);
         IncrementalParseForest currentForest = previous;
@@ -133,7 +166,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         // Remember the node after this, so we can start deleting from there
         IncrementalParseForest nextNode = currentForest.popLookAhead();
 
-        replaceForestWithNewChildren(currentForest,
+        replaceForestWithNewChildrenImp(currentForest,
             convertToCharacterNodes((IncrementalCharacterNode) currentForest, editorUpdate.inserted));
 
         currentOffset += 1;
@@ -142,7 +175,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
             while(deletedEndOffset < currentOffset + currentForest.width())
                 currentForest = currentForest.leftBreakdown();
             while(deletedEndOffset >= currentOffset + currentForest.width()) {
-                replaceForestWithNewChildren(currentForest, parseForestManager.parseForestsArray(0));
+                replaceForestWithNewChildrenImp(currentForest, parseForestManager.parseForestsArray(0));
                 currentOffset += currentForest.width();
                 currentForest = currentForest.popLookAhead();
             }
@@ -150,7 +183,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         return previous;
     }
 
-    private void replaceForestWithNewChildren(IncrementalParseForest currentForest,
+    private void replaceForestWithNewChildrenImp(IncrementalParseForest currentForest,
         IncrementalParseForest[] newChildren) {
         IncrementalDerivation oldParent = currentForest.parent;
         int oldIndex = currentForest.childIndex;
@@ -161,7 +194,11 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
     private IncrementalParseNode newParseNodeFromChildren(IncrementalParseForest[] newChildren) {
         // TODO should we use the IncrementalParseForestManager for this?
-        return new IncrementalParseNode(null, new IncrementalDerivation(null, null, newChildren, NO_STATE));
+        IncrementalParseForest[] filtered =
+            Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
+        if(filtered.length == 0 && newChildren.length != 0) // Only return null if length _changed_
+            return null;
+        return new IncrementalParseNode(null, new IncrementalDerivation(null, null, filtered, NO_STATE));
     }
 
     private IncrementalParseForest[] convertToCharacterNodes(IncrementalCharacterNode originalLookahead,

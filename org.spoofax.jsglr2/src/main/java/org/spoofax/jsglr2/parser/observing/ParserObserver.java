@@ -60,12 +60,15 @@ public abstract class ParserObserver
     }
 
     protected int id(ParseForest parseNode) {
-        if (parseNodeId.containsKey(parseNode))
-        return parseNodeId.get(parseNode);
-        else {
+        if(!parseNodeId.containsKey(parseNode)) {
+            System.err.println("Registering with id: " + parseNodeCount);
             System.err.println(parseNode);
-            return -1;
+            if(parseNode instanceof IParseNode)
+                createParseNode(parseNode, ((IParseNode) parseNode).production());
+            else
+                createCharacterNode(parseNode, ((ICharacterNode) parseNode).character());
         }
+        return parseNodeId.get(parseNode);
     }
 
     protected int id(StackNode stackNode) {

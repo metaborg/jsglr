@@ -1,0 +1,15 @@
+module intersection
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start = AandB 
+	AandB = A 
+	AandB = AminB {reject}
+	AminB = A 
+	AminB = B {reject}
+	A.One   = "1"
+	A.Two   = "2"
+	B.Two   = "2"
+	B.Three = "3"

@@ -1,0 +1,9 @@
+module literals
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start.Literal           = Literal
+	Literal.CaseSensitive   = "sensitive"
+	Literal.CaseInsensitive = 'insensitive'

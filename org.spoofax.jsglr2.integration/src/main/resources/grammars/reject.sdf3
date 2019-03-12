@@ -1,0 +1,16 @@
+module reject
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start.Id = ID
+    
+lexical syntax
+	ID      = [a-z]+
+	ID      = "foo" {reject}
+	KEYWORD = "bar"
+	ID      = KEYWORD {reject}
+
+lexical restrictions
+	ID -/- [a-z]

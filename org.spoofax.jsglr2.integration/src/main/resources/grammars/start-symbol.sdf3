@@ -1,0 +1,13 @@
+module start-symbol
+
+context-free start-symbols
+	Start
+    
+lexical start-symbols
+	ID
+
+context-free syntax
+	Start.Id = ID
+
+lexical syntax
+	ID = [a-z]*

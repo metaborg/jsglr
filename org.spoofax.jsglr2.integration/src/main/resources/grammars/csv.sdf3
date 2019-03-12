@@ -1,0 +1,23 @@
+module csv 
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start        = CSV
+	CSV.Document = {Row "\n"}*
+    Row.Row      = {Cell ","}*
+    Cell.Int     = INT
+    Cell.String  = STRING
+
+lexical syntax
+	INT           = "-"? [0-9]+           
+    STRING        = "\"" StringChar* "\""        
+    StringChar    = ~[\"\n]    
+    StringChar    = "\\\""    
+    StringChar    = BackSlashChar    
+    BackSlashChar = "\\" 
+    LAYOUT        = [\ \t]
+
+context-free restrictions
+	LAYOUT? -/- [\ ]

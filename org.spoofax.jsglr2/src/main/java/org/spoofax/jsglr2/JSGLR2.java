@@ -13,9 +13,9 @@ import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parser.ParseFailure;
-import org.spoofax.jsglr2.parser.ParseResult;
-import org.spoofax.jsglr2.parser.ParseSuccess;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.reducing.Reducing;
@@ -113,7 +113,7 @@ public class JSGLR2<ParseForest extends AbstractParseForest, AbstractSyntaxTree>
         } else {
             ParseFailure<ParseForest, ?> failure = (ParseFailure<ParseForest, ?>) result;
 
-            throw failure.parseException;
+            throw failure.exception();
         }
     }
 

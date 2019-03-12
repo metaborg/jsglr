@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -86,7 +87,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
         @Override
-        public void parseCharacter(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));
         }
@@ -97,7 +98,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
         }
 
         @Override
-        public void directLinkFound(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        public void directLinkFound(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active

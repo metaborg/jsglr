@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public class SymbolNode extends BasicParseForest {
@@ -12,7 +12,7 @@ public class SymbolNode extends BasicParseForest {
     public final IProduction production;
     private final List<RuleNode> derivations;
 
-    public SymbolNode(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition,
+    public SymbolNode(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition,
         IProduction production) {
         super(nodeNumber, parse, startPosition, endPosition);
         this.production = production;

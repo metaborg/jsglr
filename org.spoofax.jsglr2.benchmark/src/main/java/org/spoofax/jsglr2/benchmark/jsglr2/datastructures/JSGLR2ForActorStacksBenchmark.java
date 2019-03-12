@@ -8,6 +8,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -58,7 +59,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
         public List<ForActorStacksOperation> operations = new ArrayList<>();
 
         @Override
-        public void parseCharacter(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
             List<BasicStackNode<BasicParseForest>> activeStacksCopy = activeStacksCopy(parse);
 
@@ -83,7 +84,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
         }
 
         @Override
-        public void directLinkFound(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        public void directLinkFound(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
@@ -99,7 +100,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
         }
 
         private List<BasicStackNode<BasicParseForest>>
-            activeStacksCopy(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse) {
+            activeStacksCopy(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse) {
             List<BasicStackNode<BasicParseForest>> activeStacksCopy = new ArrayList<BasicStackNode<BasicParseForest>>();
 
             for(BasicStackNode<BasicParseForest> activeStack : parse.activeStacks)

@@ -1,19 +1,19 @@
 package org.spoofax.jsglr2.parseforest;
 
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
 public abstract class AbstractParseForest {
 
     public final int nodeNumber;
-    public final Parse<?, ?> parse;
+    public final AbstractParse<?, ?> parse;
 
     public Position startPosition, endPosition;
 
     public IToken token, firstToken, lastToken;
 
-    protected AbstractParseForest(int nodeNumber, Parse<?, ?> parse, Position startPosition, Position endPosition) {
+    protected AbstractParseForest(int nodeNumber, AbstractParse<?, ?> parse, Position startPosition, Position endPosition) {
         this.nodeNumber = nodeNumber;
         this.parse = parse;
 

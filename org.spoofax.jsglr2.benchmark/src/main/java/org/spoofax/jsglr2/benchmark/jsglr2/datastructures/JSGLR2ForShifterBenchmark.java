@@ -12,6 +12,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -71,7 +72,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
         public List<ParseRound> parseRounds = new ArrayList<ParseRound>();
 
         @Override
-        public void parseCharacter(Parse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStacks) {
             parseRounds.add(new ParseRound());
         }

@@ -11,24 +11,22 @@
   <parent>
     <groupId>org.metaborg</groupId>
     <artifactId>parent.java</artifactId>
-    <version>2.5.1</version>
+    <version>2.6.0-SNAPSHOT</version>
     <relativePath>../../releng/parent/java</relativePath>
   </parent>
   
   <dependencies>
     <dependency>
       <groupId>org.metaborg</groupId>
-      <artifactId>org.spoofax.jsglr2</artifactId>
-      <version>2.5.1</version>
+      <artifactId>org.spoofax.jsglr2.integration</artifactId>
+      <version>${metaborg-version}</version>
     </dependency>
   </dependencies>
   
   <build>
-    <sourceDirectory>src/main/java</sourceDirectory>
-    <!-- Use resources of main jsglr2 project -->
     <resources>
       <resource>
-        <directory>../org.spoofax.jsglr2/src/test/resources</directory>
+        <directory>../org.spoofax.jsglr2.integration/src/main/resources</directory>
       </resource>
     </resources>
     
@@ -47,6 +45,52 @@
           <mainClass>org.spoofax.jsglr2.measure.JSGLR2Measurements</mainClass>
         </configuration>
       </plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<!-- Required to add a dependency on the Spoofax plugin, otherwise unpacking 
+				will fail with a class cast exception on archivers. Fix from: http://maven.40175.n5.nabble.com/Problems-with-register-new-archive-type-td4574906.html -->
+			<dependencies>
+				<dependency>
+					<groupId>org.metaborg</groupId>
+					<artifactId>spoofax-maven-plugin</artifactId>
+					<version>${metaborg-version}</version>
+				</dependency>
+				<!-- SDF3 -->
+				<dependency>
+					<groupId>org.metaborg</groupId>
+					<artifactId>org.metaborg.meta.lang.template</artifactId>
+					<version>${metaborg-version}</version>
+					<type>spoofax-language</type>
+				</dependency>
+			</dependencies>
+			<executions>
+				<execution>
+					<id>copy-spoofax-meta-languages</id>
+					<phase>compile</phase>
+					<goals>
+						<goal>copy</goal>
+					</goals>
+					<configuration>
+						<artifactItems>
+							<!-- SDF3 -->
+							<artifactItem>
+								<groupId>org.metaborg</groupId>
+								<artifactId>org.metaborg.meta.lang.template</artifactId>
+								<version>${metaborg-version}</version>
+								<type>spoofax-language</type>
+								<destFileName>sdf3.spoofax-language</destFileName>
+							</artifactItem>
+						</artifactItems>
+						<outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+					</configuration>
+				</execution>
+			</executions>
+			<configuration>
+				<overWriteReleases>true</overWriteReleases>
+				<overWriteSnapshots>true</overWriteSnapshots>
+			</configuration>
+		</plugin>
     </plugins>
   </build>
 

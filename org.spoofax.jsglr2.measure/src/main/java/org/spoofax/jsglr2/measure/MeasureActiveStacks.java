@@ -2,12 +2,12 @@ package org.spoofax.jsglr2.measure;
 
 import java.util.Iterator;
 
+import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parseforest.AbstractParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksArrayList;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.states.IState;
 
 public class MeasureActiveStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
     extends ActiveStacksArrayList<ParseForest, StackNode> {
@@ -17,11 +17,9 @@ public class MeasureActiveStacks<ParseForest extends AbstractParseForest, StackN
 
     public MeasureActiveStacks(ParserObserving<ParseForest, StackNode> observing) {
         super(observing);
-
     }
 
-    @Override
-    public void add(StackNode stack) {
+    @Override public void add(StackNode stack) {
         adds++;
 
         super.add(stack);
@@ -29,50 +27,43 @@ public class MeasureActiveStacks<ParseForest extends AbstractParseForest, StackN
         maxSize = Math.max(maxSize, activeStacks.size());
     }
 
-    @Override
-    public boolean isSingle() {
+    @Override public boolean isSingle() {
         iSingleChecks++;
 
         return super.isSingle();
     }
 
-    @Override
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
         isEmptyChecks++;
 
         return super.isEmpty();
     }
 
-    @Override
-    public StackNode findWithState(IState state) {
+    @Override public StackNode findWithState(IState state) {
         findsWithState++;
 
         return super.findWithState(state);
     }
 
-    @Override
-    public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks) {
+    @Override public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks) {
         forLimitedReductions++;
 
         return super.forLimitedReductions(forActorStacks);
     }
 
-    @Override
-    public void addAllTo(IForActorStacks<StackNode> other) {
+    @Override public void addAllTo(IForActorStacks<StackNode> other) {
         addAllTo++;
 
         super.addAllTo(other);
     }
 
-    @Override
-    public void clear() {
+    @Override public void clear() {
         clears++;
 
         super.clear();
     }
 
-    @Override
-    public Iterator<StackNode> iterator() {
+    @Override public Iterator<StackNode> iterator() {
         iterators++;
 
         return super.iterator();

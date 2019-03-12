@@ -1,0 +1,8 @@
+module optionals
+
+context-free start-symbols
+	Start
+
+context-free syntax
+    Start = X? 
+    X.X = "X"

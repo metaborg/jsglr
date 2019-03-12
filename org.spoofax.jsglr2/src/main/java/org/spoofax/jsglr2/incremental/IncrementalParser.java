@@ -64,15 +64,16 @@ public class IncrementalParser
     @Override protected void actor(StackNode stack, Parse parse) {
         parse.state = stack.state();
 
-        while(getActions(stack, parse, parse.reducerLookAhead).size() == 0
+        Collection<IAction> actions;
+        while((actions = getActions(stack, parse, parse.reducerLookAhead)).size() == 0
             && parse.reducerLookAhead instanceof IncrementalParseNode)
             parse.reducerLookAhead = parse.reducerLookAhead.leftBreakdown();
 
-        Collection<IAction> actions = getActions(stack, parse, parse.reducerLookAhead);
         if(actions.size() > 1)
             parse.multipleStates = true;
 
-        observing.notify(observer -> observer.actor(stack, parse, actions));
+        Collection<IAction> finalActions = actions;
+        observing.notify(observer -> observer.actor(stack, parse, finalActions));
 
         for(IAction action : actions)
             actor(stack, parse, action);

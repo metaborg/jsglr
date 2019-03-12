@@ -10,7 +10,10 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.parseforest.ICharacterNode;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -30,9 +33,15 @@ public abstract class ParserObserver
     private int stackNodeCount = 0;
     private int stackLinkCount = 0;
 
+    protected final Map<IDerivation<ParseForest>, Integer> derivationId = new HashMap<>();
     protected final Map<ParseForest, Integer> parseNodeId = new HashMap<>();
     protected final Map<StackNode, Integer> stackNodeId = new HashMap<>();
     protected final Map<StackLink<ParseForest, StackNode>, Integer> stackLinkId = new HashMap<>();
+
+    protected void registerDerivationNode(IDerivation<ParseForest> derivation) {
+        // use same count as parse nodes as they're in the same tree in the visualisation
+        derivationId.put(derivation, parseNodeCount++);
+    }
 
     protected void registerParseNode(ParseForest parseNode) {
         parseNodeId.put(parseNode, parseNodeCount++);
@@ -44,6 +53,10 @@ public abstract class ParserObserver
 
     protected void registerStackLink(StackLink<ParseForest, StackNode> stackLink) {
         stackLinkId.put(stackLink, stackLinkCount++);
+    }
+
+    protected int id(IDerivation<ParseForest> derivation) {
+        return derivationId.get(derivation);
     }
 
     protected int id(ParseForest parseNode) {
@@ -59,6 +72,13 @@ public abstract class ParserObserver
     }
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
+        parseNodeCount = 0;
+        stackNodeCount = 0;
+        stackLinkCount = 0;
+        derivationId.clear();
+        parseNodeId.clear();
+        stackNodeId.clear();
+        stackLinkId.clear();
     }
 
     @Override public void parseCharacter(AbstractParse<ParseForest, StackNode> parse,
@@ -129,7 +149,9 @@ public abstract class ParserObserver
         registerParseNode(parseNode);
     }
 
-    @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
+    @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
+        ParseForest[] parseNodes) {
+        registerDerivationNode(derivation);
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {

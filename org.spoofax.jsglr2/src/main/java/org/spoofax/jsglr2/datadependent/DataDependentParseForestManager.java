@@ -16,7 +16,7 @@ public class DataDependentParseForestManager
         Position beginPosition, IProduction production, DataDependentDerivation firstDerivation) {
         DataDependentParseNode parseNode = new DataDependentParseNode(production);
 
-        // parse.notify(observer -> observer.createParseNode(parseNode, production));
+        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
         addDerivation(parse, parseNode, firstDerivation);
 
@@ -52,14 +52,14 @@ public class DataDependentParseForestManager
         DataDependentParseForest[] parseForests) {
         DataDependentDerivation derivation = new DataDependentDerivation(production, productionType, parseForests);
 
-        // parse.notify(observer -> observer.createDerivation(derivation.nodeNumber, production, parseForests));
+        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
 
     @Override public void addDerivation(AbstractParse<DataDependentParseForest, ?> parse,
         DataDependentParseNode parseNode, DataDependentDerivation derivation) {
-        // parse.notify(observer -> observer.addDerivation(parseNode));
+        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
         parseNode.addDerivation(derivation);
     }
@@ -67,7 +67,7 @@ public class DataDependentParseForestManager
     @Override public DataDependentCharacterNode createCharacterNode(AbstractParse<DataDependentParseForest, ?> parse) {
         DataDependentCharacterNode characterNode = new DataDependentCharacterNode(parse.currentChar);
 
-        // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        // parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return characterNode;
     }

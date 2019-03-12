@@ -15,7 +15,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         IProduction production, BasicDerivation firstDerivation) {
         BasicParseNode parseNode = new BasicParseNode(production);
 
-        // parse.notify(observer -> observer.createParseNode(parseNode, production));
+        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
         addDerivation(parse, parseNode, firstDerivation);
 
@@ -50,14 +50,14 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
         BasicDerivation derivation = new BasicDerivation(production, productionType, parseForests);
 
-        // parse.notify(observer -> observer.createDerivation(derivation.nodeNumber, production, parseForests));
+        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
 
     @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, BasicParseNode parseNode,
         BasicDerivation derivation) {
-        // parse.notify(observer -> observer.addDerivation(parseNode));
+        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
         parseNode.addDerivation(derivation);
     }
@@ -65,7 +65,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
     @Override public BasicCharacterNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
         BasicCharacterNode termNode = new BasicCharacterNode(parse.currentChar);
 
-        // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        // parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }

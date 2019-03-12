@@ -15,8 +15,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         IProduction production, HybridDerivation firstDerivation) {
         HybridParseNode parseNode = new HybridParseNode(production, firstDerivation);
 
-        // parse.notify(observer -> observer.createParseNode(parseNode, production));
-        // parse.notify(observer -> observer.addDerivation(parseNode));
+        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
+        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
         return parseNode;
     }
@@ -50,14 +50,14 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         HybridParseForest[] parseForests) {
         HybridDerivation derivation = new HybridDerivation(production, productionType, parseForests);
 
-        // parse.notify(observer -> observer.createDerivation(production, derivation.parseForests));
+        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
 
     @Override public void addDerivation(AbstractParse<HybridParseForest, ?> parse, HybridParseNode parseNode,
         HybridDerivation derivation) {
-        // parse.notify(observer -> observer.addDerivation(parseNode));
+        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
         parseNode.addDerivation(derivation);
     }
@@ -65,7 +65,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     @Override public HybridCharacterNode createCharacterNode(AbstractParse<HybridParseForest, ?> parse) {
         HybridCharacterNode characterNode = new HybridCharacterNode(parse.currentChar);
 
-        // parse.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
+        // parse.observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
 
         return characterNode;
     }

@@ -11,6 +11,7 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -30,6 +31,8 @@ public class ParserVisualisationObserver
     List<String> jsonTrace = new ArrayList<>();
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
+        super.parseStart(parse);
+        jsonTrace.clear();
         trace("{\"action\":\"start\",\"inputString\":\"" + parse.inputString + "\"}");
     }
 
@@ -59,7 +62,8 @@ public class ParserVisualisationObserver
     }
 
     @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
-        trace("{\"action\":\"forActorStacks\",\"forActor\":" + forActorStacks + "}");
+        // TODO forActorStacks has no proper toString, luckily this is not needed for visualisation
+        // trace("{\"action\":\"forActorStacks\",\"forActor\":" + forActorStacks + "}");
     }
 
     @Override public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse,
@@ -108,8 +112,11 @@ public class ParserVisualisationObserver
             + ",\"term\":\"" + escape(production.descriptor()) + "\"}");
     }
 
-    @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
-        trace("{\"action\":\"createDerivation\",\"nodeNumber\":" + nodeNumber + ",\"production\":" + production.id()
+    @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
+        ParseForest[] parseNodes) {
+        super.createDerivation(derivation, production, parseNodes);
+
+        trace("{\"action\":\"createDerivation\",\"nodeNumber\":" + id(derivation) + ",\"production\":" + production.id()
             + ",\"term\":\"" + escape(production.descriptor()) + "\",\"subTrees\":"
             + parseForestListToString(parseNodes) + "}");
     }

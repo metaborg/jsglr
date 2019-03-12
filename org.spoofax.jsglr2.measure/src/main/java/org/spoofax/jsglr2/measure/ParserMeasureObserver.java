@@ -9,6 +9,7 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -175,7 +176,8 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
         parseNodes.add((HybridParseNode) parseNode);
     }
 
-    @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
+    @Override public void createDerivation(IDerivation<ParseForest> derivationNode, IProduction production,
+        ParseForest[] parseNodes) {
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {

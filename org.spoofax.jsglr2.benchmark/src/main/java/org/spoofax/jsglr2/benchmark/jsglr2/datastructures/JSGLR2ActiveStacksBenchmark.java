@@ -105,7 +105,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
         }
 
         @Override public void shifter(BasicParseForest termNode,
-            Queue<ForShifterElement<BasicParseForest, BasicStackNode<BasicParseForest>>> forShifter) {
+            Queue<ForShifterElement<BasicStackNode<BasicParseForest>>> forShifter) {
             operations.add(bh -> activeStacks.clear());
         }
 

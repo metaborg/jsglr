@@ -8,6 +8,7 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -25,6 +26,7 @@ public class ParserLogObserver
     extends ParserObserver<ParseForest, StackNode> {
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
+        super.parseStart(parse);
         log("\n  ---  Starting parse for input '" + parse.inputString + "'  ---\n");
     }
 
@@ -104,7 +106,8 @@ public class ParserLogObserver
         log("Create parse node " + id(parseNode) + " for production " + production.id());
     }
 
-    @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
+    @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
+        ParseForest[] parseNodes) {
         log("Create derivation with parse nodes " + parseForestListToString(parseNodes));
     }
 
@@ -116,7 +119,7 @@ public class ParserLogObserver
     }
 
     @Override public void addDerivation(ParseForest parseNode) {
-        log("Add derivation to parse node '" + id(parseNode));
+        log("Add derivation to parse node " + id(parseNode));
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {

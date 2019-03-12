@@ -7,6 +7,7 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -17,7 +18,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode extends IStackNode<ParseForest>>
+public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode extends IStackNode>
     implements IParserObserver<ParseForest, StackNode> {
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
@@ -61,7 +62,7 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void skipRejectedStack(StackNode stack) {
     }
 
-    @Override public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement) {
+    @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
     }
 
     @Override public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
@@ -88,7 +89,8 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void createParseNode(ParseForest parseNode, IProduction production) {
     }
 
-    @Override public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes) {
+    @Override public void createDerivation(IDerivation<ParseForest> derivationNode, IProduction production,
+        ParseForest[] parseNodes) {
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
@@ -97,7 +99,7 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void addDerivation(ParseForest parseNode) {
     }
 
-    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
+    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
     @Override public void remark(String remark) {

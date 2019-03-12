@@ -7,6 +7,7 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -66,7 +67,7 @@ public interface IParserObserver
 
     void createParseNode(ParseForest parseNode, IProduction production);
 
-    void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes);
+    void createDerivation(IDerivation<ParseForest> derivationNode, IProduction production, ParseForest[] parseNodes);
 
     void createCharacterNode(ParseForest characterNode, int character);
 

@@ -134,7 +134,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         IncrementalParseForest nextNode = currentForest.popLookAhead();
 
         replaceForestWithNewChildren(currentForest,
-            convertToCharacterNodes((IncrementalCharacterNode) currentForest, editorUpdate));
+            convertToCharacterNodes((IncrementalCharacterNode) currentForest, editorUpdate.inserted));
 
         currentOffset += 1;
         currentForest = nextNode;
@@ -165,11 +165,11 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     private IncrementalParseForest[] convertToCharacterNodes(IncrementalCharacterNode originalLookahead,
-        EditorUpdate editorUpdate) {
-        IncrementalParseForest[] children = parseForestManager.parseForestsArray(editorUpdate.inserted.length() + 1);
+        String inserted) {
+        IncrementalParseForest[] children = parseForestManager.parseForestsArray(inserted.length() + 1);
         children[0] = originalLookahead;
 
-        char[] chars = editorUpdate.inserted.toCharArray();
+        char[] chars = inserted.toCharArray();
         for(int i = 0; i < chars.length; i++) {
             // TODO should we use the IncrementalParseForestManager for this?
             children[i + 1] = new IncrementalCharacterNode(chars[i]);

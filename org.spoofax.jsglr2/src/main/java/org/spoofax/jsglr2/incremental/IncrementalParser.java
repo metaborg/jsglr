@@ -98,12 +98,14 @@ public class IncrementalParser
     @Override protected IncrementalParseForest getCharacterNodeToShift(Parse parse) {
         parse.multipleStates = parse.forShifter.size() > 1;
 
-        if(parse.forShifter.size() == 0) // This should only happen when the parser has already accepted
+        if(parse.forShifter.size() == 0) // This should only happen when the parser has already accepted or has failed
             return IncrementalCharacterNode.EOF_NODE;
 
+        int forShifterState = parse.forShifter.peek().state.id();
+
         while(!parse.shiftLookAhead.isTerminal()) {
-            if(!parse.multipleStates && parse.forShifter.peek().state
-                .id() == ((IncrementalParseNode) parse.shiftLookAhead).getFirstDerivation().state.id())
+            if(!parse.multipleStates
+                && forShifterState == ((IncrementalParseNode) parse.shiftLookAhead).getFirstDerivation().state.id())
                 break;
             parse.shiftLookAhead = parse.shiftLookAhead.leftBreakdown();
         }

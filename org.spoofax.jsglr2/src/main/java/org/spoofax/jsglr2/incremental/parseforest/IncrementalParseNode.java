@@ -65,10 +65,11 @@ public class IncrementalParseNode extends IncrementalParseForest
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {
+        String type = parent == null ? "r" : "p";
         if(production == null)
-            printer.println("p null {");
+            printer.println(type + " null {");
         else
-            printer.println("p" + production.id() + " : " + production.sort() + "{");
+            printer.println(type + production.id() + " : " + production.sort() + "{");
         if(isAmbiguous()) {
             printer.indent(1);
             printer.println("amb[");

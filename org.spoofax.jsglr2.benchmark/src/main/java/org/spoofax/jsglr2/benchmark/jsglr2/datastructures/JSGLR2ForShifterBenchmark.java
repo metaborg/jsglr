@@ -26,7 +26,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
 
     @Param public Representation representation;
 
-    Collection<ForShifterElement<?, ?>> forShifter;
+    Collection<ForShifterElement<?>> forShifter;
 
     @Override public void postParserSetup() {
         forShifterObserver = new ForShifterObserver();
@@ -56,7 +56,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
     }
 
     class ParseRound {
-        final List<ForShifterElement<?, ?>> forShifterElements = new ArrayList<>();
+        final List<ForShifterElement<?>> forShifterElements = new ArrayList<>();
     }
 
     class ForShifterObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
@@ -73,7 +73,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
         }
 
         @Override public void
-            addForShifter(ForShifterElement<BasicParseForest, BasicStackNode<BasicParseForest>> forShifterElement) {
+            addForShifter(ForShifterElement<BasicStackNode<BasicParseForest>> forShifterElement) {
             currentParseRound().forShifterElements.add(forShifterElement);
         }
 
@@ -83,10 +83,10 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
         for(ParseRound parseRound : forShifterObserver.parseRounds) {
             forShifter.clear();
 
-            for(ForShifterElement<?, ?> forShifterElement : parseRound.forShifterElements)
+            for(ForShifterElement<?> forShifterElement : parseRound.forShifterElements)
                 forShifter.add(forShifterElement);
 
-            for(ForShifterElement<?, ?> forShifterElement : forShifter)
+            for(ForShifterElement<?> forShifterElement : forShifter)
                 bh.consume(forShifterElement);
         }
     }

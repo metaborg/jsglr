@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.TokenDescriptor;
 import org.spoofax.terms.ParseError;
@@ -85,6 +86,11 @@ public class ExpressionsTest extends BaseTestWithSdf3ParseTables {
             new TokenDescriptor("\n", IToken.TK_LAYOUT,     3, 2, 2)
         //@formatter:on
         ));
+    }
+
+    @Test public void changingIdentifier() throws ParseError {
+        testIncrementalSuccessByExpansions("abc + def", new EditorUpdate[] { new EditorUpdate(1, 2, "g") },
+            new String[] { "[Add(Var(\"abc\"),Var(\"def\"))]", "[Add(Var(\"agc\"),Var(\"def\"))]" });
     }
 
 }

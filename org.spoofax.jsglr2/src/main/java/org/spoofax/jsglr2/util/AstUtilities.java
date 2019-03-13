@@ -1,14 +1,8 @@
 package org.spoofax.jsglr2.util;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
+import static org.spoofax.interpreter.terms.IStrategoTerm.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -25,7 +19,7 @@ public class AstUtilities {
     }
 
     public List<IStrategoTerm> expand(IStrategoTerm ast) {
-        List<IStrategoTerm> result = new ArrayList<IStrategoTerm>();
+        List<IStrategoTerm> result = new ArrayList<>();
 
         switch(ast.getTermType()) {
             case APPL:
@@ -62,8 +56,7 @@ public class AstUtilities {
     }
 
     private List<List<IStrategoTerm>> expandSubterms(IStrategoTerm astWithSubAsts) {
-        List<List<IStrategoTerm>> expandedSubAsts =
-            new ArrayList<List<IStrategoTerm>>(astWithSubAsts.getSubtermCount());
+        List<List<IStrategoTerm>> expandedSubAsts = new ArrayList<>(astWithSubAsts.getSubtermCount());
 
         for(IStrategoTerm subAst : astWithSubAsts.getAllSubterms()) {
             expandedSubAsts.add(expand(subAst));
@@ -79,7 +72,7 @@ public class AstUtilities {
         if(elements.isEmpty())
             return Arrays.asList(Arrays.asList());
         else {
-            ArrayList<List<T>> results = new ArrayList<List<T>>();
+            ArrayList<List<T>> results = new ArrayList<>();
 
             List<T> head = elements.get(0);
             List<List<T>> tail = elements.subList(1, elements.size());
@@ -88,7 +81,7 @@ public class AstUtilities {
 
             for(T headElement : head) {
                 for(List<T> tailExpansion : tailExpansions) {
-                    List<T> result = new ArrayList<T>();
+                    List<T> result = new ArrayList<>();
 
                     result.add(headElement);
                     result.addAll(tailExpansion);
@@ -134,7 +127,7 @@ public class AstUtilities {
     }
 
     public int ambCountShared(IStrategoTerm ast) {
-        Set<IStrategoAppl> ambs = new HashSet<IStrategoAppl>();
+        Set<IStrategoAppl> ambs = new HashSet<>();
 
         ambCountShared(ast, ambs);
 
@@ -176,7 +169,7 @@ public class AstUtilities {
                 IStrategoConstructor constructor = appl.getConstructor();
 
                 if("amb".equals(constructor.getName())) {
-                    List<IStrategoTerm> flattenSubAsts = new ArrayList<IStrategoTerm>();
+                    List<IStrategoTerm> flattenSubAsts = new ArrayList<>();
 
                     for(IStrategoTerm subAst : appl.getSubterm(0).getAllSubterms()) {
                         IStrategoTerm flattenSubAst = ambFlatten(subAst);

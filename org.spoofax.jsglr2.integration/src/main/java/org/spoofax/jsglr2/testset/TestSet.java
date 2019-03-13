@@ -26,8 +26,8 @@ public class TestSet {
             return String.join("+", Collections.nCopies(n, "x"));
         }, 20, 40, 60, 80));
 
-    public static TestSet sumNonAmbiguous = new TestSet("sumNonAmbiguous",
-        new TestSetParseTableFromSDF3("sum-nonambiguous"), new TestSetSizedInput(n -> {
+    public static TestSet sumNonAmbiguous =
+        new TestSet("sumNonAmbiguous", new TestSetParseTableFromSDF3("sum-nonambiguous"), new TestSetSizedInput(n -> {
             return String.join("+", Collections.nCopies(n, "x"));
         }, 4000, 8000, 16000, 32000, 64000));
 

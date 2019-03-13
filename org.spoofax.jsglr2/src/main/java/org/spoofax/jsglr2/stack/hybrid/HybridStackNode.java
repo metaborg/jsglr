@@ -1,24 +1,24 @@
-package org.spoofax.jsglr2.stack.basic;
+package org.spoofax.jsglr2.stack.hybrid;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import org.metaborg.parsetable.IState;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseForest> {
+public class HybridStackNode<ParseForest> extends AbstractStackNode<ParseForest, HybridStackNode<ParseForest>> {
 
-    private StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> firstLink;
-    private ArrayList<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> otherLinks;
+    private StackLink<ParseForest, HybridStackNode<ParseForest>> firstLink;
+    private ArrayList<StackLink<ParseForest, HybridStackNode<ParseForest>>> otherLinks;
 
-    public HybridStackNode(int stackNumber, IState state, Position position) {
-        super(stackNumber, state, position);
+    public HybridStackNode(IState state, Position position) {
+        super(state, position);
     }
 
-    @Override
-    public Iterable<StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>> getLinks() {
+    @Override public Iterable<StackLink<ParseForest, HybridStackNode<ParseForest>>> getLinks() {
         if(otherLinks == null) {
             return Collections.singleton(firstLink);
         } else {
@@ -26,9 +26,8 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
         }
     }
 
-    @Override
-    public StackLink<ParseForest, AbstractBasicStackNode<ParseForest>>
-        addLink(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link) {
+    @Override public StackLink<ParseForest, HybridStackNode<ParseForest>>
+        addLink(StackLink<ParseForest, HybridStackNode<ParseForest>> link) {
         if(firstLink == null)
             firstLink = link;
         else {
@@ -41,15 +40,14 @@ public class HybridStackNode<ParseForest> extends AbstractBasicStackNode<ParseFo
         return link;
     }
 
-    @Override
-    public boolean allLinksRejected() {
+    @Override public boolean allLinksRejected() {
         if(firstLink == null || !firstLink.isRejected())
             return false;
 
         if(otherLinks == null)
             return true;
 
-        for(StackLink<ParseForest, AbstractBasicStackNode<ParseForest>> link : otherLinks) {
+        for(StackLink<ParseForest, HybridStackNode<ParseForest>> link : otherLinks) {
             if(!link.isRejected())
                 return false;
         }

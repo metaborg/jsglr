@@ -19,22 +19,19 @@ public class SingleElementIteratorsTest {
         return result;
     }
 
-    @Test
-    public void testSingleElementWithEmptyList() {
+    @Test public void testSingleElementWithEmptyList() {
         Iterable<String> singleElementWithListIterable = SingleElementWithListIterable.of("a", Arrays.asList());
 
         assertEquals(concat(singleElementWithListIterable), "a");
     }
 
-    @Test
-    public void testSingleElementWithSingleElementList() {
+    @Test public void testSingleElementWithSingleElementList() {
         Iterable<String> singleElementWithListIterable = SingleElementWithListIterable.of("a", Arrays.asList("b"));
 
         assertEquals(concat(singleElementWithListIterable), "ab");
     }
 
-    @Test
-    public void testSingleElementWithMultipleElementList() {
+    @Test public void testSingleElementWithMultipleElementList() {
         Iterable<String> singleElementWith2ListIterable =
             SingleElementWithListIterable.of("a", Arrays.asList("b", "c"));
         Iterable<String> singleElementWith3ListIterable =

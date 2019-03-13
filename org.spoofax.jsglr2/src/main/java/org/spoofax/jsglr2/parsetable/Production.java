@@ -24,7 +24,8 @@ public class Production implements IProduction {
 
     public Production(int productionId, String sort, String startSymbolSort, String descriptor, Boolean isContextFree,
         Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isSkippableInParseForest,
-        Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator, ProductionAttributes attributes) {
+        Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator,
+        ProductionAttributes attributes) {
         this.productionId = productionId;
         this.sort = sort;
         this.startSymbolSort = startSymbolSort;

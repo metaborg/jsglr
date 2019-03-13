@@ -9,27 +9,25 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
-public class BasicParseForestManager extends ParseForestManager<BasicParseForest, SymbolNode, RuleNode> {
+public class BasicParseForestManager extends ParseForestManager<BasicParseForest, BasicParseNode, BasicDerivation> {
 
-    @Override
-    public SymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
-        RuleNode firstDerivation) {
-        SymbolNode symbolNode =
-            new SymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
+    @Override public BasicParseNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
+        IProduction production, BasicDerivation firstDerivation) {
+        BasicParseNode parseNode = new BasicParseNode(production);
 
-        // parse.notify(observer -> observer.createParseNode(symbolNode, production));
+        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
-        addDerivation(parse, symbolNode, firstDerivation);
+        addDerivation(parse, parseNode, firstDerivation);
 
-        return symbolNode;
+        return parseNode;
     }
 
-    @Override
-    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, AbstractParse<BasicParseForest, ?> parse) {
-        SymbolNode topNode = (SymbolNode) parseForest;
-        List<RuleNode> result = new ArrayList<RuleNode>();
+    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol,
+        AbstractParse<BasicParseForest, ?> parse) {
+        BasicParseNode topNode = (BasicParseNode) parseForest;
+        List<BasicDerivation> result = new ArrayList<>();
 
-        for(RuleNode derivation : topNode.getDerivations()) {
+        for(BasicDerivation derivation : topNode.getDerivations()) {
             String derivationStartSymbol = derivation.production.startSymbolSort();
 
             if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
@@ -39,50 +37,40 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         if(result.isEmpty())
             return null;
         else {
-            SymbolNode filteredTopNode = new SymbolNode(topNode.nodeNumber, topNode.parse, topNode.startPosition,
-                topNode.endPosition, topNode.production);
+            BasicParseNode filteredTopNode = new BasicParseNode(topNode.production);
 
-            for(RuleNode derivation : result)
+            for(BasicDerivation derivation : result)
                 filteredTopNode.addDerivation(derivation);
 
             return filteredTopNode;
         }
     }
 
-    @Override
-    public RuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
-        ProductionType productionType, BasicParseForest[] parseForests) {
-        RuleNode ruleNode = new RuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
-            production, productionType, parseForests);
+    @Override public BasicDerivation createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
+        IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
+        BasicDerivation derivation = new BasicDerivation(production, productionType, parseForests);
 
-        // parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
+        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
-        return ruleNode;
+        return derivation;
     }
 
-    @Override
-    public void addDerivation(AbstractParse<BasicParseForest, ?> parse, SymbolNode symbolNode, RuleNode ruleNode) {
-        // parse.notify(observer -> observer.addDerivation(symbolNode));
+    @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, BasicParseNode parseNode,
+        BasicDerivation derivation) {
+        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
-        boolean initNonAmbiguous = symbolNode.isAmbiguous();
-
-        symbolNode.addDerivation(ruleNode);
-
-        if(initNonAmbiguous && symbolNode.isAmbiguous())
-            parse.ambiguousParseNodes++;
+        parseNode.addDerivation(derivation);
     }
 
-    @Override
-    public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
+    @Override public BasicCharacterNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
+        BasicCharacterNode termNode = new BasicCharacterNode(parse.currentChar);
 
-        // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        // parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }
 
-    @Override
-    public BasicParseForest[] parseForestsArray(int length) {
+    @Override public BasicParseForest[] parseForestsArray(int length) {
         return new BasicParseForest[length];
     }
 

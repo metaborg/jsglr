@@ -4,7 +4,7 @@ public class PositionInterval {
 
     private Position start;
     private Position end;
-    
+
     public Position getStart() {
         return start;
     }
@@ -54,7 +54,7 @@ public class PositionInterval {
             return false;
         return true;
     }
-    
+
     @Override public String toString() {
         // TODO Auto-generated method stub
         return start + ", " + end;

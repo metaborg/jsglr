@@ -8,7 +8,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.characterclasses.ICharacterClassFactory;
-import org.metaborg.parsetable.IParseInput;
+import org.metaborg.parsetable.IActionQuery;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterDisjointSorted;
@@ -44,8 +44,7 @@ public class MultipleActionGroupsForRangeTest {
     IAction shift14 = actionsFactory.getShift(14);
     IAction shift15 = actionsFactory.getShift(15);
 
-    @Test
-    public void test1() {
+    @Test public void test1() {
         // @formatter:off
         ActionsPerCharacterClass[] actionsPerCharacterClasses =
             new ActionsPerCharacterClass[] {
@@ -57,8 +56,7 @@ public class MultipleActionGroupsForRangeTest {
         test(actionsPerCharacterClasses);
     }
 
-    @Test
-    public void test2() {
+    @Test public void test2() {
         // @formatter:off
         ActionsPerCharacterClass[] actionsPerCharacterClasses =
             new ActionsPerCharacterClass[] {
@@ -76,10 +74,10 @@ public class MultipleActionGroupsForRangeTest {
         IActionsForCharacter disjointSorted = new ActionsForCharacterDisjointSorted(actionsPerCharacterClasses);
 
         for(int character = 0; character <= CharacterClassFactory.EOF_INT; character++) {
-            IParseInput parseInput = new MockParseInput(character);
+            IActionQuery actionQuery = new MockParseInput(character);
 
-            Set<IAction> actionForSeparated = iterableToSet(separated.getApplicableActions(parseInput));
-            Set<IAction> actionForDisjointSorted = iterableToSet(disjointSorted.getApplicableActions(parseInput));
+            Set<IAction> actionForSeparated = iterableToSet(separated.getApplicableActions(actionQuery));
+            Set<IAction> actionForDisjointSorted = iterableToSet(disjointSorted.getApplicableActions(actionQuery));
 
             assertEquals("Action sets not equal for character " + character, actionForSeparated,
                 actionForDisjointSorted);

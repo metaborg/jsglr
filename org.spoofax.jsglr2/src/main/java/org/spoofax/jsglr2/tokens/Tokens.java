@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.tokenizer;
+package org.spoofax.jsglr2.tokens;
 
 import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
@@ -8,18 +8,17 @@ import java.util.Iterator;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.Token;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parser.Position;
 
-public class Tokens implements ITokens {
+public class Tokens implements IParseTokens {
 
     private static final long serialVersionUID = 2054391299757162697L;
-    
+
     private final String filename;
     private final String input;
 
-    public IToken startToken, endToken;
+    private IToken startToken, endToken;
 
     private final ArrayList<IToken> tokens;
 
@@ -27,24 +26,31 @@ public class Tokens implements ITokens {
         this.input = input;
         this.filename = filename;
 
-        this.tokens = new ArrayList<IToken>();
+        this.tokens = new ArrayList<>();
     }
 
-    public void makeStartToken(AbstractParseForest parseForest) {
-        startToken = new Token(this, filename, 0, parseForest.startPosition.line, parseForest.startPosition.column,
-            parseForest.startPosition.offset, -1, TK_RESERVED);
+    public IToken startToken() {
+        return startToken;
+    }
+
+    public IToken endToken() {
+        return endToken;
+    }
+
+    public void makeStartToken() {
+        startToken = new Token(this, filename, 0, 1, 1, 0, -1, TK_RESERVED);
 
         addToken(startToken);
     }
 
-    public void makeEndToken(AbstractParseForest parseForest) {
-        endToken = new Token(this, filename, tokens.size(), parseForest.endPosition.line,
-            parseForest.endPosition.column, parseForest.endPosition.offset, -1, TK_EOF);
+    public void makeEndToken(Position endPosition) {
+        endToken = new Token(this, filename, tokens.size(), endPosition.line, endPosition.column - 1,
+            endPosition.offset, -1, TK_EOF);
 
         addToken(endToken);
     }
 
-    public IToken makeToken(AbstractParseForest parseForest, IProduction production) {
+    public IToken makeToken(Position startPosition, Position endPosition, IProduction production) {
         int tokenKind;
 
         if(production.isLayout()) {
@@ -61,13 +67,12 @@ public class Tokens implements ITokens {
             tokenKind = IToken.TK_KEYWORD;
         }
 
-        IToken endToken =
-            new Token(this, filename, tokens.size(), parseForest.startPosition.line, parseForest.startPosition.column,
-                parseForest.startPosition.offset, parseForest.endPosition.offset - 1, tokenKind);
+        IToken token = new Token(this, filename, tokens.size(), startPosition.line, startPosition.column,
+            startPosition.offset, endPosition.offset - 1, tokenKind);
 
-        addToken(endToken);
+        addToken(token);
 
-        return endToken;
+        return token;
     }
 
     public int addToken(IToken token) {
@@ -78,29 +83,23 @@ public class Tokens implements ITokens {
         return index;
     }
 
-    @Override
-    public Iterator<IToken> iterator() {
-        @SuppressWarnings("unchecked") Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
-        return result;
+    @Override public Iterator<IToken> iterator() {
+        return tokens.iterator();
     }
 
-    @Override
-    public String getInput() {
+    @Override public String getInput() {
         return input;
     }
 
-    @Override
-    public int getTokenCount() {
+    @Override public int getTokenCount() {
         return tokens.size();
     }
 
-    @Override
-    public IToken getTokenAt(int index) {
+    @Override public IToken getTokenAt(int index) {
         return tokens.get(index);
     }
 
-    @Override
-    public IToken getTokenAtOffset(int offset) {
+    @Override public IToken getTokenAtOffset(int offset) {
         for(IToken token : tokens) {
             if(token.getStartOffset() == offset)
                 return token;
@@ -109,34 +108,29 @@ public class Tokens implements ITokens {
         return null;
     }
 
-    @Override
-    public String getFilename() {
+    @Override public String getFilename() {
         return filename;
     }
 
-    @Override
-    public String toString(IToken left, IToken right) {
+    @Override public String toString(IToken left, IToken right) {
         int startOffset = left.getStartOffset();
         int endOffset = right.getEndOffset();
 
         if(startOffset >= 0 && endOffset >= 0)
-            return toString(startOffset, endOffset);
+            return toString(startOffset, endOffset + 1);
         else
             return "";
     }
 
-    @Override
-    public String toString(int startOffset, int endOffset) {
-        return input.substring(startOffset, endOffset + 1);
+    @Override public String toString(int startOffset, int endOffset) {
+        return input.substring(startOffset, endOffset);
     }
 
-    @Override
-    public boolean isAmbigous() {
+    @Override public boolean isAmbigous() {
         return false; // TODO: implement
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return tokens.toString();
     }
 

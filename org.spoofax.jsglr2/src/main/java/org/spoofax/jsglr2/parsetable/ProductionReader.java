@@ -1,28 +1,19 @@
 package org.spoofax.jsglr2.parsetable;
 
 import static org.spoofax.terms.StrategoListIterator.iterable;
-import static org.spoofax.terms.Term.applAt;
-import static org.spoofax.terms.Term.intAt;
-import static org.spoofax.terms.Term.isTermAppl;
-import static org.spoofax.terms.Term.javaString;
-import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.Term.*;
 
 import java.util.Iterator;
 
 import org.metaborg.parsetable.ProductionType;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoNamed;
-import org.spoofax.interpreter.terms.IStrategoString;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.TermVisitor;
 
 public class ProductionReader {
 
     public static Production read(IStrategoTerm productionWithIdTerm) throws ParseTableReadException {
         IStrategoAppl productionTerm = termAt(productionWithIdTerm, 0); // A tuple of the production right hand side,
-                                                                        // left hand side and attributes
+        // left hand side and attributes
         int productionId = intAt(productionWithIdTerm, 1);
 
         IStrategoAppl lhs = termAt(productionTerm, 1);
@@ -30,7 +21,7 @@ public class ProductionReader {
         IStrategoAppl attributesTerm = termAt(productionTerm, 2);
 
         ProductionAttributes attributes = readProductionAttributes(attributesTerm); // Attributes stored in a separate
-                                                                                    // term
+        // term
 
         String sort = getSort(lhs);
         String startSymbolSort = getStartSymbolSort(lhs, rhs);
@@ -354,7 +345,7 @@ public class ProductionReader {
                                         isLiteralCompletion = true;
                                         break;
                                     case "ignore-layout":
-                                    case "no-lc" :
+                                    case "no-lc":
                                     case "ignore-indent":
                                         isIgnoreLayout = true;
                                         break;

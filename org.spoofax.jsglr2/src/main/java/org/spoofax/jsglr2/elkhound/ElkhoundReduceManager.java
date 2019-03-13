@@ -3,7 +3,8 @@ package org.spoofax.jsglr2.elkhound;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -11,13 +12,20 @@ import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, ParseNode extends ParseForest, Derivation, ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>>
-    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode> {
+public class ElkhoundReduceManager
+//@formatter:off
+   <ParseForest       extends IParseForest,
+    ParseNode         extends ParseForest,
+    Derivation        extends IDerivation<ParseForest>,
+    ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
+    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>>
+//@formatter:on
+    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
 
-    protected final AbstractElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager;
+    protected final ElkhoundStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager;
 
     public ElkhoundReduceManager(IParseTable parseTable,
-        AbstractElkhoundStackManager<ParseForest, ElkhoundStackNode> stackManager,
+        ElkhoundStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
@@ -25,9 +33,8 @@ public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, Pars
         this.stackManager = stackManager;
     }
 
-    @Override
-    protected void doReductionsHelper(AbstractParse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode stack,
-        IReduce reduce, StackLink<ParseForest, ElkhoundStackNode> throughLink) {
+    @Override protected void doReductionsHelper(Parse parse, ElkhoundStackNode stack, IReduce reduce,
+        StackLink<ParseForest, ElkhoundStackNode> throughLink) {
         if(stack.deterministicDepth >= reduce.arity()) {
             DeterministicStackPath<ParseForest, ElkhoundStackNode> deterministicPath =
                 stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
@@ -56,8 +63,7 @@ public class ElkhoundReduceManager<ParseForest extends AbstractParseForest, Pars
         }
     }
 
-    private void reducerElkhound(AbstractParse<ParseForest, ElkhoundStackNode> parse, ElkhoundStackNode stack, IReduce reduce,
-        ParseForest[] parseForests) {
+    private void reducerElkhound(Parse parse, ElkhoundStackNode stack, IReduce reduce, ParseForest[] parseForests) {
         int gotoId = stack.state.getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 

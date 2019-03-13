@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +11,6 @@ import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
-import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
@@ -51,23 +48,23 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
     abstract protected boolean implode();
 
-    @Setup
-    public void parserSetup() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
-        InterruptedException, URISyntaxException {
+    @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         Variant variant = variant();
 
         filterVariants(implode(), variant);
-        
+
         IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
             StateFactory.defaultProductionToGotoRepresentation);
-        
+
         IActionsFactory actionsFactory = new ActionsFactory(true);
         ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
-        
-        IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(testSetReader.getParseTableTerm());
-        		
-        //IParseTable parseTable = new ParseTableReader(characterClassFactory, variant.parseTable.actionsForCharacterRepresentation,
-        //   variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
+
+        IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
+            .read(testSetReader.getParseTableTerm());
+
+        // IParseTable parseTable = new ParseTableReader(characterClassFactory,
+        // variant.parseTable.actionsForCharacterRepresentation,
+        // variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, variant.parser);
         jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
@@ -130,8 +127,7 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
             throw new IllegalStateException("this variant is not used for benchmarking");
     }
 
-    @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark public void benchmark(Blackhole bh) throws ParseException {
         if(implode()) {
             if(variant().parser.parseForestRepresentation == ParseForestRepresentation.Null)
                 throw new IllegalStateException("imploding requires a parse forest");

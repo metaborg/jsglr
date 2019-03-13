@@ -1,14 +1,8 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import org.metaborg.sdf2table.grammar.layoutconstraints.ArithmeticLayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.BooleanLayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.ComparisonLayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintElement;
-import org.metaborg.sdf2table.grammar.layoutconstraints.ILayoutConstraint;
-import org.metaborg.sdf2table.grammar.layoutconstraints.NumericLayoutConstraint;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.metaborg.sdf2table.grammar.layoutconstraints.*;
 
-public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> {
+public class LayoutConstraintEvaluator<ParseForest extends LayoutSensitiveParseForest> {
 
     public boolean evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
 
@@ -55,7 +49,7 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
         } catch(NoValueLayoutException e) {
             noValue = true;
         }
-        
+
         if(noValue) {
             return true;
         } else {
@@ -64,36 +58,38 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
     }
 
     private int evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
-        
-        if(layoutConstraint instanceof NumericLayoutConstraint) {
-            ParseForest tree =  parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()]; //selectCorrectTree(((NumericLayoutConstraint) layoutConstraint).getTree(), parseNodes);
 
-            if(tree instanceof LayoutSensitiveSymbolNode
-                && ((LayoutSensitiveSymbolNode) tree).getProduction().isIgnoreLayoutConstraint()) {
+        if(layoutConstraint instanceof NumericLayoutConstraint) {
+            ParseForest tree = parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()]; // selectCorrectTree(((NumericLayoutConstraint)
+                                                                                                   // layoutConstraint).getTree(),
+                                                                                                   // parseNodes);
+
+            if(tree instanceof LayoutSensitiveParseNode
+                && ((LayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
                 throw new NoValueLayoutException();
             }
 
             switch(((NumericLayoutConstraint) layoutConstraint).getToken()) {
                 case FIRST:
                     if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                        return tree.startPosition.column;
+                        return tree.getStartPosition().column;
                     } else {
-                        return tree.startPosition.line;
+                        return tree.getStartPosition().line;
                     }
                 case LAST:
                     if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                        return tree.endPosition.column;
+                        return tree.getEndPosition().column;
                     } else {
-                        return tree.endPosition.line;
+                        return tree.getEndPosition().line;
                     }
                 case LEFT:
-                    if(tree instanceof LayoutSensitiveSymbolNode) {
-                        if(((LayoutSensitiveSymbolNode) tree).getOnlyDerivation().leftPosition == null) {
+                    if(tree instanceof LayoutSensitiveParseNode) {
+                        if(((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition == null) {
                             throw new NoValueLayoutException();
                         } else if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                            return ((LayoutSensitiveSymbolNode) tree).getOnlyDerivation().leftPosition.column;
+                            return ((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition.column;
                         } else {
-                            return ((LayoutSensitiveSymbolNode) tree).getOnlyDerivation().leftPosition.line;
+                            return ((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition.line;
                         }
                     }
                     throw new NoValueLayoutException();
@@ -102,7 +98,7 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
                     throw new NoValueLayoutException();
             }
         }
-        
+
         if(layoutConstraint instanceof ArithmeticLayoutConstraint) {
             switch(((ArithmeticLayoutConstraint) layoutConstraint).getOp()) {
                 case ADD:
@@ -130,8 +126,8 @@ public class LayoutConstraintEvaluator<ParseForest extends AbstractParseForest> 
 
         for(int i = 0; i < parseNodes.length; i++) {
             ParseForest current = parseNodes[i];
-            if(current == null || current instanceof LayoutSensitiveSymbolNode) {
-                if(current == null || ((LayoutSensitiveSymbolNode) current).getProduction().isLayout()) {
+            if(current == null || current instanceof LayoutSensitiveParseNode) {
+                if(current == null || ((LayoutSensitiveParseNode) current).production().isLayout()) {
                     continue;
                 } else {
                     treeCount--;

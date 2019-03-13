@@ -1,85 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.spoofax.jsglr2</artifactId>
-	<packaging>jar</packaging>
-	<description>2nd generation Java implementation of the scannerless generalized LR parser</description>
-	<url>https://github.com/metaborg/jsglr</url>
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.spoofax.jsglr2</artifactId>
+    <packaging>jar</packaging>
+    <description>2nd generation Java implementation of the scannerless generalized LR parser</description>
+    <url>https://github.com/metaborg/jsglr</url>
 
-	<parent>
-		<groupId>org.metaborg</groupId>
-		<artifactId>parent.java</artifactId>
-		<version>2.6.0-SNAPSHOT</version>
-		<relativePath>../../releng/parent/java</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.metaborg</groupId>
+        <artifactId>parent.java</artifactId>
+        <version>2.6.0-SNAPSHOT</version>
+        <relativePath>../../releng/parent/java</relativePath>
+    </parent>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>org.spoofax.terms</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.spoofax.terms</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>org.spoofax.jsglr</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.spoofax.jsglr</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>tableinterfaces</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>tableinterfaces</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>characterclasses</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>characterclasses</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skipTests>false</skipTests>
-					<useFile>false</useFile>
-					<trimStackTrace>false</trimStackTrace>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>false</skipTests>
+                    <useFile>false</useFile>
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<developers>
-		<developer>
-			<name>Jasper Denkers</name>
-			<email>jasperdenkers@gmail.com</email>
-			<organization>Delft University of Technology</organization>
-			<organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <name>Jasper Denkers</name>
+            <email>jasperdenkers@gmail.com</email>
+            <organization>Delft University of Technology</organization>
+            <organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
-		<developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
-		<url>https://github.com/metaborg/jsglr</url>
-	</scm>
+    <scm>
+        <connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
+        <developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
+        <url>https://github.com/metaborg/jsglr</url>
+    </scm>
 </project>

@@ -1,111 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>org.spoofax.jsglr2.measure</artifactId>
-  <packaging>jar</packaging>
-  <description>Measuring with JSGLR2</description>
-  <url>https://github.com/metaborg/jsglr</url>
-  
-  <parent>
-    <groupId>org.metaborg</groupId>
-    <artifactId>parent.java</artifactId>
-    <version>2.6.0-SNAPSHOT</version>
-    <relativePath>../../releng/parent/java</relativePath>
-  </parent>
-  
-  <dependencies>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.spoofax.jsglr2.integration</artifactId>
-      <version>${metaborg-version}</version>
-    </dependency>
-  </dependencies>
-  
-  <build>
-    <resources>
-      <resource>
-        <directory>../org.spoofax.jsglr2.integration/src/main/resources</directory>
-      </resource>
-    </resources>
-    
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>org.spoofax.jsglr2.measure.JSGLR2Measurements</mainClass>
-        </configuration>
-      </plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-dependency-plugin</artifactId>
-			<!-- Required to add a dependency on the Spoofax plugin, otherwise unpacking 
-				will fail with a class cast exception on archivers. Fix from: http://maven.40175.n5.nabble.com/Problems-with-register-new-archive-type-td4574906.html -->
-			<dependencies>
-				<dependency>
-					<groupId>org.metaborg</groupId>
-					<artifactId>spoofax-maven-plugin</artifactId>
-					<version>${metaborg-version}</version>
-				</dependency>
-				<!-- SDF3 -->
-				<dependency>
-					<groupId>org.metaborg</groupId>
-					<artifactId>org.metaborg.meta.lang.template</artifactId>
-					<version>${metaborg-version}</version>
-					<type>spoofax-language</type>
-				</dependency>
-			</dependencies>
-			<executions>
-				<execution>
-					<id>copy-spoofax-meta-languages</id>
-					<phase>compile</phase>
-					<goals>
-						<goal>copy</goal>
-					</goals>
-					<configuration>
-						<artifactItems>
-							<!-- SDF3 -->
-							<artifactItem>
-								<groupId>org.metaborg</groupId>
-								<artifactId>org.metaborg.meta.lang.template</artifactId>
-								<version>${metaborg-version}</version>
-								<type>spoofax-language</type>
-								<destFileName>sdf3.spoofax-language</destFileName>
-							</artifactItem>
-						</artifactItems>
-						<outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-					</configuration>
-				</execution>
-			</executions>
-			<configuration>
-				<overWriteReleases>true</overWriteReleases>
-				<overWriteSnapshots>true</overWriteSnapshots>
-			</configuration>
-		</plugin>
-    </plugins>
-  </build>
-
-  <developers>
-    <developer>
-      <name>Jasper Denkers</name>
-      <email>jasperdenkers@gmail.com</email>
-      <organization>Delft University of Technology</organization>
-      <organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
-    <developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.spoofax.jsglr2.measure</artifactId>
+    <packaging>jar</packaging>
+    <description>Measuring with JSGLR2</description>
     <url>https://github.com/metaborg/jsglr</url>
-  </scm>
+
+    <parent>
+        <groupId>org.metaborg</groupId>
+        <artifactId>parent.java</artifactId>
+        <version>2.6.0-SNAPSHOT</version>
+        <relativePath>../../releng/parent/java</relativePath>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.spoofax.jsglr2.integration</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>../org.spoofax.jsglr2.integration/src/main/resources</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.spoofax.jsglr2.measure.JSGLR2Measurements</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <!-- Required to add a dependency on the Spoofax plugin, otherwise unpacking
+                    will fail with a class cast exception on archivers. Fix from: http://maven.40175.n5.nabble.com/Problems-with-register-new-archive-type-td4574906.html -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.metaborg</groupId>
+                        <artifactId>spoofax-maven-plugin</artifactId>
+                        <version>${metaborg-version}</version>
+                    </dependency>
+                    <!-- SDF3 -->
+                    <dependency>
+                        <groupId>org.metaborg</groupId>
+                        <artifactId>org.metaborg.meta.lang.template</artifactId>
+                        <version>${metaborg-version}</version>
+                        <type>spoofax-language</type>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>copy-spoofax-meta-languages</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- SDF3 -->
+                                <artifactItem>
+                                    <groupId>org.metaborg</groupId>
+                                    <artifactId>org.metaborg.meta.lang.template</artifactId>
+                                    <version>${metaborg-version}</version>
+                                    <type>spoofax-language</type>
+                                    <destFileName>sdf3.spoofax-language</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <overWriteReleases>true</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <developers>
+        <developer>
+            <name>Jasper Denkers</name>
+            <email>jasperdenkers@gmail.com</email>
+            <organization>Delft University of Technology</organization>
+            <organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
+        <developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
+        <url>https://github.com/metaborg/jsglr</url>
+    </scm>
 </project>

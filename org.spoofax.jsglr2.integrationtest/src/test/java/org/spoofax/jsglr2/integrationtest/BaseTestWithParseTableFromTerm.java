@@ -8,15 +8,15 @@ import org.spoofax.jsglr2.integration.WithParseTableFromTerm;
 public abstract class BaseTestWithParseTableFromTerm extends BaseTest implements WithParseTableFromTerm {
 
     private IStrategoTerm parseTableTerm;
-    
+
     protected BaseTestWithParseTableFromTerm() {
         super();
     }
 
     protected void setupParseTable(String parseTable) throws Exception {
-		setParseTableFromTermFile("parsetables/" + parseTable + ".tbl");
-	}
-	
+        setParseTableFromTermFile("parsetables/" + parseTable + ".tbl");
+    }
+
     public void setParseTableTerm(IStrategoTerm parseTableTerm) {
         this.parseTableTerm = parseTableTerm;
     }
@@ -24,8 +24,8 @@ public abstract class BaseTestWithParseTableFromTerm extends BaseTest implements
     public IStrategoTerm getParseTableTerm() {
         return parseTableTerm;
     }
-    
-    public InputStream resourceInputStream(String filename) throws Exception {
+
+    public InputStream resourceInputStream(String filename) {
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
 

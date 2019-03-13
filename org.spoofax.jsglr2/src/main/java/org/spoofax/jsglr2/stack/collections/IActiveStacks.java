@@ -1,24 +1,24 @@
 package org.spoofax.jsglr2.stack.collections;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public interface IActiveStacks<StackNode extends AbstractStackNode<?>> extends Iterable<StackNode> {
+public interface IActiveStacks<StackNode extends IStackNode> extends Iterable<StackNode> {
 
-    public void add(StackNode stack);
+    void add(StackNode stack);
 
-    public boolean isSingle();
+    boolean isSingle();
 
-    public StackNode getSingle();
+    StackNode getSingle();
 
-    public boolean isEmpty();
+    boolean isEmpty();
 
-    public StackNode findWithState(IState state);
+    StackNode findWithState(IState state);
 
-    public Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks);
+    Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks);
 
-    public void addAllTo(IForActorStacks<StackNode> forActorStacks);
+    void addAllTo(IForActorStacks<StackNode> forActorStacks);
 
-    public void clear();
+    void clear();
 
 }

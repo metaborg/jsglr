@@ -6,32 +6,29 @@ import java.util.List;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.TermNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 
-public class DataDependentParseForestManager extends ParseForestManager<BasicParseForest, DataDependentSymbolNode, DataDependentRuleNode> {
+public class DataDependentParseForestManager
+    extends ParseForestManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation> {
 
-    @Override
-    public DataDependentSymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
-        DataDependentRuleNode firstDerivation) {
-        DataDependentSymbolNode symbolNode =
-            new DataDependentSymbolNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(), production);
+    @Override public DataDependentParseNode createParseNode(AbstractParse<DataDependentParseForest, ?> parse,
+        Position beginPosition, IProduction production, DataDependentDerivation firstDerivation) {
+        DataDependentParseNode parseNode = new DataDependentParseNode(production);
 
-        // parse.notify(observer -> observer.createParseNode(symbolNode, production));
+        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
-        addDerivation(parse, symbolNode, firstDerivation);
+        addDerivation(parse, parseNode, firstDerivation);
 
-        return symbolNode;
+        return parseNode;
     }
 
-    @Override
-    public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, AbstractParse<BasicParseForest, ?> parse) {
-        DataDependentSymbolNode topNode = (DataDependentSymbolNode) parseForest;
-        List<DataDependentRuleNode> result = new ArrayList<DataDependentRuleNode>();
+    @Override public DataDependentParseForest filterStartSymbol(DataDependentParseForest parseForest,
+        String startSymbol, AbstractParse<DataDependentParseForest, ?> parse) {
+        DataDependentParseNode topNode = (DataDependentParseNode) parseForest;
+        List<DataDependentDerivation> result = new ArrayList<>();
 
-        for(DataDependentRuleNode derivation : topNode.getDerivations()) {
+        for(DataDependentDerivation derivation : topNode.getDerivations()) {
             String derivationStartSymbol = derivation.production.startSymbolSort();
 
             if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
@@ -41,51 +38,42 @@ public class DataDependentParseForestManager extends ParseForestManager<BasicPar
         if(result.isEmpty())
             return null;
         else {
-            DataDependentSymbolNode filteredTopNode = new DataDependentSymbolNode(topNode.nodeNumber, topNode.parse, topNode.startPosition,
-                topNode.endPosition, topNode.production);
+            DataDependentParseNode filteredTopNode = new DataDependentParseNode(topNode.production);
 
-            for(DataDependentRuleNode derivation : result)
+            for(DataDependentDerivation derivation : result)
                 filteredTopNode.addDerivation(derivation);
 
             return filteredTopNode;
         }
     }
 
-    @Override
-    public DataDependentRuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition, IProduction production,
-        ProductionType productionType, BasicParseForest[] parseForests) {
-        DataDependentRuleNode ruleNode = new DataDependentRuleNode(parse.parseNodeCount++, parse, beginPosition, parse.currentPosition(),
-            production, productionType, parseForests);
+    @Override public DataDependentDerivation createDerivation(AbstractParse<DataDependentParseForest, ?> parse,
+        Position beginPosition, IProduction production, ProductionType productionType,
+        DataDependentParseForest[] parseForests) {
+        DataDependentDerivation derivation = new DataDependentDerivation(production, productionType, parseForests);
 
-        // parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
+        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
-        return ruleNode;
+        return derivation;
     }
 
-    @Override
-    public void addDerivation(AbstractParse<BasicParseForest, ?> parse, DataDependentSymbolNode symbolNode, DataDependentRuleNode ruleNode) {
-        // parse.notify(observer -> observer.addDerivation(symbolNode));
+    @Override public void addDerivation(AbstractParse<DataDependentParseForest, ?> parse,
+        DataDependentParseNode parseNode, DataDependentDerivation derivation) {
+        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
-        boolean initNonAmbiguous = symbolNode.isAmbiguous();
-
-        symbolNode.addDerivation(ruleNode);
-
-        if(initNonAmbiguous && symbolNode.isAmbiguous())
-            parse.ambiguousParseNodes++;
+        parseNode.addDerivation(derivation);
     }
 
-    @Override
-    public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
+    @Override public DataDependentCharacterNode createCharacterNode(AbstractParse<DataDependentParseForest, ?> parse) {
+        DataDependentCharacterNode characterNode = new DataDependentCharacterNode(parse.currentChar);
 
-        // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        // parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
-        return termNode;
+        return characterNode;
     }
 
-    @Override
-    public BasicParseForest[] parseForestsArray(int length) {
-        return new BasicParseForest[length];
+    @Override public DataDependentParseForest[] parseForestsArray(int length) {
+        return new DataDependentParseForest[length];
     }
 
 }

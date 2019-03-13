@@ -13,9 +13,9 @@ import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
-import org.spoofax.jsglr2.parseforest.hybrid.Derivation;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.ParseNode;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Parser;
@@ -39,19 +39,22 @@ public class ParsingMeasurements extends Measurements {
     public void measure() throws ParseTableReadException, IOException, ParseException {
         System.out.println(" * Parsing");
 
-        IParseTable parseTable = new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
-                new StateFactory()).read(testSetReader.getParseTableTerm());
+        IParseTable parseTable =
+            new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory())
+                .read(testSetReader.getParseTableTerm());
 
-        JSGLR2Variants.ParserVariant variantStandard = new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
-            ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
-            StackRepresentation.HybridElkhound, Reducing.Basic);
-        JSGLR2Variants.ParserVariant variantElkhound = new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
-            ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
-            StackRepresentation.HybridElkhound, Reducing.Elkhound);
+        JSGLR2Variants.ParserVariant variantStandard =
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
+                ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+                StackRepresentation.HybridElkhound, Reducing.Basic);
+        JSGLR2Variants.ParserVariant variantElkhound =
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
+                ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
+                StackRepresentation.HybridElkhound, Reducing.Elkhound);
         JSGLR2Variants.ParserVariant variantOptimzedParseForest =
-            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound,
-                Reducing.Basic);
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
+                ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid,
+                ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Basic);
 
         measure(parseTable, variantStandard, "standard");
         measure(parseTable, variantElkhound, "elkhound");
@@ -59,7 +62,7 @@ public class ParsingMeasurements extends Measurements {
     }
 
     private void measure(IParseTable parseTable, JSGLR2Variants.ParserVariant variant, String postfix)
-        throws ParseTableReadException, IOException, ParseException {
+        throws IOException, ParseException {
         PrintWriter out =
             new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");
 
@@ -69,11 +72,11 @@ public class ParsingMeasurements extends Measurements {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
-            @SuppressWarnings("unchecked") Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>> parser =
-                (Parser<HybridParseForest, ParseNode, Derivation, AbstractElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) JSGLR2Variants
+            @SuppressWarnings("unchecked") Parser<HybridParseForest, HybridParseNode, HybridDerivation, AbstractElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>> parser =
+                (Parser<HybridParseForest, HybridParseNode, HybridDerivation, AbstractElkhoundStackNode<HybridParseForest>, Parse<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) JSGLR2Variants
                     .getParser(parseTable, measureActiveStacksFactory, measureForActorStacksFactory, variant);
 
-            ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<HybridParseForest>();
+            ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<>();
 
             parser.observing().attachObserver(measureObserver);
 
@@ -97,18 +100,18 @@ public class ParsingMeasurements extends Measurements {
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<HybridParseForest> measureObserver) {
-        List<String> cells = new ArrayList<String>();
+        List<String> cells = new ArrayList<>();
 
         int parseNodesSingleDerivation = 0;
 
-        List<ParseNode> parseNodesContextFree = new ArrayList<ParseNode>();
-        List<ParseNode> parseNodesLexical = new ArrayList<ParseNode>();
-        List<ParseNode> parseNodesLayout = new ArrayList<ParseNode>();
+        List<HybridParseNode> parseNodesContextFree = new ArrayList<>();
+        List<HybridParseNode> parseNodesLexical = new ArrayList<>();
+        List<HybridParseNode> parseNodesLayout = new ArrayList<>();
 
-        for(ParseNode parseNode : measureObserver.parseNodes) {
+        for(HybridParseNode parseNode : measureObserver.parseNodes) {
             int derivationCount = 0;
 
-            for(Derivation derivation : parseNode.getDerivations())
+            for(HybridDerivation derivation : parseNode.getDerivations())
                 derivationCount++;
 
             if(derivationCount == 1)
@@ -255,10 +258,10 @@ public class ParsingMeasurements extends Measurements {
         csvLine(out, cells);
     }
 
-    private static int parseNodesAmbiguous(Collection<ParseNode> parseNodes) {
+    private static int parseNodesAmbiguous(Collection<HybridParseNode> parseNodes) {
         int parseNodesAmbiguous = 0;
 
-        for(ParseNode parseNode : parseNodes) {
+        for(HybridParseNode parseNode : parseNodes) {
             if(parseNode.isAmbiguous())
                 parseNodesAmbiguous++;
         }
@@ -280,7 +283,7 @@ public class ParsingMeasurements extends Measurements {
     }
 
     private static void csvHeader(PrintWriter out) {
-        List<String> cells = new ArrayList<String>();
+        List<String> cells = new ArrayList<>();
 
         for(ParsingMeasurement measurement : ParsingMeasurement.values()) {
             cells.add(measurement.name());

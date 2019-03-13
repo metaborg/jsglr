@@ -1,9 +1,7 @@
 package org.spoofax.jsglr2.integrationtest.grammars;
 
-import java.io.IOException;
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.terms.ParseError;
 
 public class KernelTest extends BaseTestWithSdf3ParseTables {
@@ -12,8 +10,7 @@ public class KernelTest extends BaseTestWithSdf3ParseTables {
         super("kernel");
     }
 
-    @Test
-    public void oneX() throws ParseError, ParseTableReadException, IOException {
+    @Test public void oneX() throws ParseError {
         // testParseSuccessByJSGLR("\"x\""); TODO: implement kernel constructors
     }
 

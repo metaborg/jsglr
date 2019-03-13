@@ -17,22 +17,17 @@ public abstract class IncrementalParseForest implements IParseForest {
         return this instanceof IncrementalCharacterNode;
     }
 
-    public boolean isFragile() {
-        return true; // TODO Right now, everything is fragile :D
-    }
-
     public IncrementalParseForest leftBreakdown() {
         return this; // Default implementation for non-breakdown-able parse forests (like character nodes)
     }
 
     public IncrementalParseForest popLookAhead() {
         if(this == IncrementalCharacterNode.EOF_NODE)
-            return null; // cannot pop lookahead if lookahead == eos
+            return null; // cannot pop lookahead if current lookahead == EOF
         IncrementalParseForest res = this;
-        while(res.rightSibling() == null)
-            res = res.parent.parent;
-        IncrementalParseForest result = res.rightSibling(); // from previous version?
-        return result.isFragile() ? result.leftBreakdown() : result;
+        while(res.rightSibling() == null) // from previous version?
+            res = res.parent.parent; // from previous version?
+        return res.rightSibling(); // from previous version?
     }
 
     public IncrementalParseForest rightSibling() {

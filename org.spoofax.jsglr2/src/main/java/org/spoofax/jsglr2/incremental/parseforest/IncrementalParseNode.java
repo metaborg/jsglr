@@ -58,8 +58,7 @@ public class IncrementalParseNode extends IncrementalParseForest
     @Override public IncrementalParseForest leftBreakdown() {
         IncrementalParseForest[] children = getFirstDerivation().parseForests();
         if(children.length > 0) {
-            IncrementalParseForest result = children[0]; // should be from previous version
-            return result.isFragile() ? result.leftBreakdown() : result;
+            return children[0]; // should be from previous version
         } else
             return popLookAhead();
     }

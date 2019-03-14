@@ -9,6 +9,8 @@ import java.util.List;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
@@ -35,6 +37,7 @@ public class IncrementalParser
 // @formatter:on
     extends Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse> {
 
+    private static final ILogger logger = LoggerUtils.logger(IncrementalParser.class);
     private final IncrementalParseFactory<StackNode, Parse> incrementalParseFactory;
 
     public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, Parse> parseFactory,
@@ -49,6 +52,13 @@ public class IncrementalParser
         this.incrementalParseFactory = incrementalParseFactory;
     }
 
+    @Override public ParseResult<IncrementalParseForest> parse(String inputString, String filename,
+        String startSymbol) {
+        ParseResult<IncrementalParseForest> result = super.parse(inputString, filename, startSymbol);
+        logger.info(result.isSuccess ? "Parse success!" : "Parse failure!");
+        return result;
+    }
+
     public ParseResult<IncrementalParseForest> incrementalParse(List<EditorUpdate> editorUpdates,
         IncrementalParseForest previousVersion, String filename, String startSymbol) {
 
@@ -58,7 +68,9 @@ public class IncrementalParser
         Parse parse = incrementalParseFactory.get(editorUpdates, previousVersion, filename, activeStacks,
             forActorStacks, observing);
 
-        return parseInternal(startSymbol, parse);
+        ParseResult<IncrementalParseForest> result = parseInternal(startSymbol, parse);
+        logger.info(result.isSuccess ? "Incremental parse success!" : "Incremental parse failure!");
+        return result;
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {

@@ -21,7 +21,7 @@ public abstract class IncrementalParseForest implements IParseForest {
         return this; // Default implementation for non-breakdown-able parse forests (like character nodes)
     }
 
-    public IncrementalParseForest popLookAhead() {
+    public IncrementalParseForest popLookahead() {
         if(this == IncrementalCharacterNode.EOF_NODE)
             return null; // cannot pop lookahead if current lookahead == EOF
         IncrementalParseForest res = this;

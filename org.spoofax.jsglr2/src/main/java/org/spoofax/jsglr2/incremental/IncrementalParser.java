@@ -77,9 +77,9 @@ public class IncrementalParser
         parse.state = stack.state();
 
         Collection<IAction> actions;
-        while((actions = getActions(stack, parse, parse.reducerLookAhead)).size() == 0
-            && parse.reducerLookAhead instanceof IncrementalParseNode)
-            parse.reducerLookAhead = parse.reducerLookAhead.leftBreakdown();
+        while((actions = getActions(stack, parse, parse.reducerLookahead)).size() == 0
+            && parse.reducerLookahead instanceof IncrementalParseNode)
+            parse.reducerLookahead = parse.reducerLookahead.leftBreakdown();
 
         if(actions.size() > 1)
             parse.multipleStates = true;
@@ -89,16 +89,16 @@ public class IncrementalParser
 
         for(IAction action : actions)
             actor(stack, parse, action);
-        // TODO case Accept, if reducerLookAhead != EOF then abort parsing and return error? (should never happen)
+        // TODO case Accept, if reducerLookahead != EOF then abort parsing and return error? (should never happen)
     }
 
-    private Collection<IAction> getActions(StackNode stack, Parse parse, IncrementalParseForest lookAhead) {
-        if(lookAhead.isTerminal()) {
+    private Collection<IAction> getActions(StackNode stack, Parse parse, IncrementalParseForest lookahead) {
+        if(lookahead.isTerminal()) {
             LinkedList<IAction> actions = new LinkedList<>();
             stack.state().getApplicableActions(parse).forEach(actions::add);
             return actions;
         } else {
-            IProduction production = ((IncrementalParseNode) lookAhead).getFirstDerivation().production();
+            IProduction production = ((IncrementalParseNode) lookahead).getFirstDerivation().production();
             try {
                 return Collections.singletonList(new GotoShift(stack.state().getGotoId(production.id())));
             } catch(NullPointerException e) { // Can be thrown inside getGotoId or because production == null
@@ -115,14 +115,14 @@ public class IncrementalParser
 
         int forShifterState = parse.forShifter.peek().state.id();
 
-        while(!parse.shiftLookAhead.isTerminal()) {
-            IncrementalParseNode shiftLookAhead = (IncrementalParseNode) parse.shiftLookAhead;
-            if(!parse.multipleStates && !shiftLookAhead.isAmbiguous()
-                && forShifterState == shiftLookAhead.getFirstDerivation().state.id())
+        while(!parse.shiftLookahead.isTerminal()) {
+            IncrementalParseNode shiftLookahead = (IncrementalParseNode) parse.shiftLookahead;
+            if(!parse.multipleStates && !shiftLookahead.isAmbiguous()
+                && forShifterState == shiftLookahead.getFirstDerivation().state.id())
                 break;
-            parse.shiftLookAhead = parse.shiftLookAhead.leftBreakdown();
+            parse.shiftLookahead = parse.shiftLookahead.leftBreakdown();
         }
 
-        return parse.shiftLookAhead;
+        return parse.shiftLookahead;
     }
 }

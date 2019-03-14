@@ -60,7 +60,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         if(children.length > 0) {
             return children[0]; // should be from previous version
         } else
-            return popLookAhead();
+            return popLookahead();
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {

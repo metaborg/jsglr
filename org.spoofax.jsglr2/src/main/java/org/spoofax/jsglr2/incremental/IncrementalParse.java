@@ -22,8 +22,8 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
     public IState state;
     boolean multipleStates;
-    IncrementalParseForest shiftLookAhead;
-    IncrementalParseForest reducerLookAhead;
+    IncrementalParseForest shiftLookahead;
+    IncrementalParseForest reducerLookahead;
 
     private IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();
     public static State NO_STATE = new State(-1, new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]),
@@ -45,8 +45,8 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     private void initParse(IncrementalParseForest updatedTree) {
-        this.shiftLookAhead = updatedTree;
-        this.reducerLookAhead = this.shiftLookAhead;
+        this.shiftLookahead = updatedTree;
+        this.reducerLookahead = this.shiftLookahead;
         this.multipleStates = false;
         this.currentChar = actionQueryCharacter();
     }
@@ -68,8 +68,8 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     @Override public int actionQueryCharacter() {
-        if(reducerLookAhead instanceof IncrementalCharacterNode) {
-            return ((IncrementalCharacterNode) reducerLookAhead).character;
+        if(reducerLookahead instanceof IncrementalCharacterNode) {
+            return ((IncrementalCharacterNode) reducerLookahead).character;
         } else {
             return -1; // TODO not implemented if lookahead is a non-terminal
         }
@@ -77,26 +77,26 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
     @Override public String actionQueryLookahead(int length) {
         char[] chars = new char[length];
-        IncrementalParseForest lookAhead = this.reducerLookAhead;
-        while(!lookAhead.isTerminal())
-            lookAhead = lookAhead.leftBreakdown();
+        IncrementalParseForest lookahead = this.reducerLookahead;
+        while(!lookahead.isTerminal())
+            lookahead = lookahead.leftBreakdown();
         for(int i = 0; i < length; i++) {
-            lookAhead = lookAhead.popLookAhead();
-            while(!lookAhead.isTerminal())
-                lookAhead = lookAhead.leftBreakdown();
-            chars[i] = (char) ((IncrementalCharacterNode) lookAhead).character;
+            lookahead = lookahead.popLookahead();
+            while(!lookahead.isTerminal())
+                lookahead = lookahead.leftBreakdown();
+            chars[i] = (char) ((IncrementalCharacterNode) lookahead).character;
         }
         return new String(chars);
     }
 
     @Override public boolean hasNext() {
-        return shiftLookAhead != null; // null is the lookahead of the EOF node
+        return shiftLookahead != null; // null is the lookahead of the EOF node
     }
 
     @Override public void next() {
-        currentOffset += shiftLookAhead.width();
-        shiftLookAhead = shiftLookAhead.popLookAhead();
-        reducerLookAhead = shiftLookAhead;
+        currentOffset += shiftLookahead.width();
+        shiftLookahead = shiftLookahead.popLookahead();
+        reducerLookahead = shiftLookahead;
         currentChar = actionQueryCharacter();
     }
 
@@ -157,13 +157,13 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
             }
             while(deletedStartOffset > currentOffset + currentForest.width()) {
                 currentOffset += currentForest.width();
-                currentForest = currentForest.popLookAhead();
+                currentForest = currentForest.popLookahead();
             }
         }
 
         // `currentForest` now holds the terminal node after which a new string is inserted
         // Remember the node after this, so we can start deleting from there
-        IncrementalParseForest nextNode = currentForest.popLookAhead();
+        IncrementalParseForest nextNode = currentForest.popLookahead();
 
         replaceForestWithNewChildrenImp(currentForest,
             convertToCharacterNodes((IncrementalCharacterNode) currentForest, editorUpdate.inserted));
@@ -176,7 +176,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
             while(deletedEndOffset >= currentOffset + currentForest.width()) {
                 replaceForestWithNewChildrenImp(currentForest, parseForestManager.parseForestsArray(0));
                 currentOffset += currentForest.width();
-                currentForest = currentForest.popLookAhead();
+                currentForest = currentForest.popLookahead();
             }
         }
         return previous;

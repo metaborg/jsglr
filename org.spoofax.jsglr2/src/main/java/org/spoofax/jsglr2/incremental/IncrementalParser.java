@@ -116,8 +116,9 @@ public class IncrementalParser
         int forShifterState = parse.forShifter.peek().state.id();
 
         while(!parse.shiftLookAhead.isTerminal()) {
-            if(!parse.multipleStates
-                && forShifterState == ((IncrementalParseNode) parse.shiftLookAhead).getFirstDerivation().state.id())
+            IncrementalParseNode shiftLookAhead = (IncrementalParseNode) parse.shiftLookAhead;
+            if(!parse.multipleStates && !shiftLookAhead.isAmbiguous()
+                && forShifterState == shiftLookAhead.getFirstDerivation().state.id())
                 break;
             parse.shiftLookAhead = parse.shiftLookAhead.leftBreakdown();
         }

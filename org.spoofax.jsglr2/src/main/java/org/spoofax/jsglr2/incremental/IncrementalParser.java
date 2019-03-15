@@ -100,7 +100,10 @@ public class IncrementalParser
         } else {
             IProduction production = ((IncrementalParseNode) lookahead).getFirstDerivation().production();
             try {
-                return Collections.singletonList(new GotoShift(stack.state().getGotoId(production.id())));
+                // Only allow shifting the subtree if the saved state matches the current state
+                if(stack.state().id() == ((IncrementalParseNode) lookahead).getFirstDerivation().state.id())
+                    return Collections.singletonList(new GotoShift(stack.state().getGotoId(production.id())));
+                return Collections.emptyList();
             } catch(NullPointerException e) { // Can be thrown inside getGotoId or because production == null
                 return Collections.emptyList();
             }

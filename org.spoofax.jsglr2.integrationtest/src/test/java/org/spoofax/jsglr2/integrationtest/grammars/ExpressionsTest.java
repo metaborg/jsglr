@@ -93,4 +93,16 @@ public class ExpressionsTest extends BaseTestWithSdf3ParseTables {
             new String[] { "[Add(Var(\"abc\"),Var(\"def\"))]", "[Add(Var(\"agc\"),Var(\"def\"))]" });
     }
 
+    @Test public void reusingSubtreesNoLayout() {
+        testIncrementalSuccessByExpansions("xx+x x+x", new EditorUpdate[] { new EditorUpdate(1, 2, "y"), },
+                new String[] { "[Add(Var(\"xx\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]",
+                        "[Add(Var(\"xy\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]" });
+    }
+
+    @Test public void reusingSubtreesWithLayout() {
+        testIncrementalSuccessByExpansions("xx + x x + x", new EditorUpdate[] { new EditorUpdate(1, 2, "y"), },
+            new String[] { "[Add(Var(\"xx\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]",
+                "[Add(Var(\"xy\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]" });
+    }
+
 }

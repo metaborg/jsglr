@@ -77,9 +77,9 @@ public class IncrementalParser
         parse.state = stack.state();
 
         Collection<IAction> actions;
-        while((actions = getActions(stack, parse, parse.reducerLookahead)).size() == 0
-            && parse.reducerLookahead instanceof IncrementalParseNode)
-            parse.reducerLookahead = parse.reducerLookahead.leftBreakdown();
+        while((actions = getActions(stack, parse, parse.reducerLookahead.get())).size() == 0
+            && !parse.reducerLookahead.get().isTerminal())
+            parse.reducerLookahead.leftBreakdown();
 
         if(actions.size() > 1)
             parse.multipleStates = true;
@@ -113,19 +113,34 @@ public class IncrementalParser
     @Override protected IncrementalParseForest getCharacterNodeToShift(Parse parse) {
         parse.multipleStates = parse.forShifter.size() > 1;
 
-        if(parse.forShifter.size() == 0) // This should only happen when the parser has already accepted or has failed
+        // This should only happen when the parser has already accepted or has failed
+        if(parse.forShifter.size() == 0) {
+            // If the lookahead has no yield, the actor will have called leftBreakdown on the reducerLookahead.
+            // This should also happen for the shiftLookahead, so that the lock-step property does not break.
+            while(parse.shiftLookahead.get().width() <= 0)
+                parse.shiftLookahead.leftBreakdown();
             return IncrementalCharacterNode.EOF_NODE;
+        }
 
         int forShifterState = parse.forShifter.peek().state.id();
 
-        while(!parse.shiftLookahead.isTerminal()) {
-            IncrementalParseNode shiftLookahead = (IncrementalParseNode) parse.shiftLookahead;
-            if(!parse.multipleStates && !shiftLookahead.isAmbiguous()
-                && forShifterState == shiftLookahead.getFirstDerivation().state.id())
-                break;
-            parse.shiftLookahead = parse.shiftLookahead.leftBreakdown();
+        while(!parse.shiftLookahead.get().isTerminal()) {
+            IncrementalParseNode shiftLookahead = (IncrementalParseNode) parse.shiftLookahead.get();
+            try {
+                // forShifterState is the state being shifted to.
+                // In the shiftLookahead, the state is stored _before_ shifting.
+                // If goto(stored_state, stored_production) == forShifterState, then shift subtree.
+                if(!parse.multipleStates && !shiftLookahead.isAmbiguous()
+                    && forShifterState == shiftLookahead.getFirstDerivation().state
+                        .getGotoId(shiftLookahead.production().id()))
+                    break;
+            } catch(NullPointerException ignored) {
+                // NPE can be thrown when the shiftLookahead does not have a state and/or valid goto.
+                // In that case, we just need to continue breaking down the tree
+            }
+            parse.shiftLookahead.leftBreakdown();
         }
 
-        return parse.shiftLookahead;
+        return parse.shiftLookahead.get();
     }
 }

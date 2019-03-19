@@ -11,7 +11,6 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
     private final IProduction production;
     private final ProductionType productionType;
     public final IncrementalParseForest[] parseForests;
-    public IncrementalParseNode parent;
     public final IState state;
     private boolean changed;
 
@@ -23,12 +22,9 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
         this.parseForests = parseForests;
         this.state = state;
         int width = 0;
-        for(int i = 0; i < parseForests.length; i++) {
-            IncrementalParseForest parseForest = parseForests[i];
+        for(IncrementalParseForest parseForest : parseForests) {
             if(parseForest == null)
                 continue; // Skippable parse nodes are null
-            parseForest.parent = this;
-            parseForest.childIndex = i;
             width += parseForest.width();
         }
         this.width = width;

@@ -5,8 +5,6 @@ import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public abstract class IncrementalParseForest implements IParseForest {
     private final int width;
-    public IncrementalDerivation parent;
-    public int childIndex = -1;
 
     protected IncrementalParseForest(int width) {
         super();
@@ -15,28 +13,6 @@ public abstract class IncrementalParseForest implements IParseForest {
 
     public boolean isTerminal() {
         return this instanceof IncrementalCharacterNode;
-    }
-
-    public IncrementalParseForest leftBreakdown() {
-        return this; // Default implementation for non-breakdown-able parse forests (like character nodes)
-    }
-
-    public IncrementalParseForest popLookahead() {
-        if(this == IncrementalCharacterNode.EOF_NODE)
-            return null; // cannot pop lookahead if current lookahead == EOF
-        IncrementalParseForest res = this;
-        while(res.rightSibling() == null) // from previous version?
-            res = res.parent.parent; // from previous version?
-        return res.rightSibling(); // from previous version?
-    }
-
-    public IncrementalParseForest rightSibling() {
-        if(parent == null)
-            return IncrementalCharacterNode.EOF_NODE;
-        else if(childIndex + 1 == parent.parseForests().length)
-            return null;
-        else
-            return parent.parseForests()[childIndex + 1];
     }
 
     @Override public int width() {
@@ -48,10 +24,12 @@ public abstract class IncrementalParseForest implements IParseForest {
 
         prettyPrint(printer);
 
-        return printer.get();
+        return printer.get().trim();
     }
 
     abstract protected void prettyPrint(TreePrettyPrinter printer);
 
-    public abstract String getSource();
+    public abstract String getYield();
+
+    public abstract String getYield(int length);
 }

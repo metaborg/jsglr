@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
+import static org.spoofax.jsglr2.incremental.IncrementalParse.NO_STATE;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +22,10 @@ public class IncrementalParseNode extends IncrementalParseForest
         super(firstDerivation.width());
         this.production = production;
         this.firstDerivation = firstDerivation;
-        firstDerivation.parent = this;
+    }
+
+    public IncrementalParseNode(IncrementalParseForest... parseForests) {
+        this(null, new IncrementalDerivation(null, null, parseForests, NO_STATE));
     }
 
     public IProduction production() {
@@ -36,7 +41,6 @@ public class IncrementalParseNode extends IncrementalParseForest
             otherDerivations = new ArrayList<>();
 
         otherDerivations.add(derivation);
-        derivation.parent = this;
     }
 
     @Override public Iterable<IncrementalDerivation> getDerivations() {
@@ -55,20 +59,11 @@ public class IncrementalParseNode extends IncrementalParseForest
         return otherDerivations != null;
     }
 
-    @Override public IncrementalParseForest leftBreakdown() {
-        IncrementalParseForest[] children = getFirstDerivation().parseForests();
-        if(children.length > 0) {
-            return children[0]; // should be from previous version
-        } else
-            return popLookahead();
-    }
-
     @Override protected void prettyPrint(TreePrettyPrinter printer) {
-        String type = parent == null ? "r" : "p";
         if(production == null)
-            printer.println(type + " null {");
+            printer.println("p null {");
         else
-            printer.println(type + production.id() + " : " + production.sort() + "{");
+            printer.println("p" + production.id() + " : " + production.sort() + "{");
         if(isAmbiguous()) {
             printer.indent(1);
             printer.println("amb[");
@@ -95,10 +90,26 @@ public class IncrementalParseNode extends IncrementalParseForest
         printer.println("}");
     }
 
-    @Override public String getSource() {
-        StringBuilder sb = new StringBuilder();
+    @Override public String getYield() {
+        StringBuilder sb = new StringBuilder(width());
         for(IncrementalParseForest parseForest : firstDerivation.parseForests) {
-            sb.append(parseForest.getSource());
+            sb.append(parseForest.getYield());
+        }
+        return sb.toString();
+    }
+
+    @Override public String getYield(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        int offset = 0;
+        for(IncrementalParseForest parseForest : firstDerivation.parseForests) {
+            int width = parseForest.width();
+            if(offset + width <= length) {
+                sb.append(parseForest.getYield());
+                offset += width;
+            } else {
+                sb.append(parseForest.getYield(length - offset));
+                break;
+            }
         }
         return sb.toString();
     }

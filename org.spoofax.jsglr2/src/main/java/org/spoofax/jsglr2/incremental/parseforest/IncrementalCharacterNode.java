@@ -4,9 +4,11 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
+import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+
 public class IncrementalCharacterNode extends IncrementalParseForest implements ICharacterNode {
 
-    public static final IncrementalCharacterNode EOF_NODE = new IncrementalCharacterNode(CharacterClassFactory.EOF_INT);
+    public static final IncrementalCharacterNode EOF_NODE = new IncrementalCharacterNode(EOF_INT);
 
     public final int character;
 
@@ -20,14 +22,18 @@ public class IncrementalCharacterNode extends IncrementalParseForest implements 
     }
 
     @Override public String descriptor() {
-        return "'" + getSource() + "'";
+        return "'" + (character == EOF_INT ? "EOF" : getYield()) + "'";
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {
         printer.println(descriptor());
     }
 
-    @Override public String getSource() {
-        return CharacterClassFactory.intToString(character);
+    @Override public String getYield() {
+        return character == EOF_INT ? "" + (char) character : CharacterClassFactory.intToString(character);
+    }
+
+    @Override public String getYield(int length) {
+        return length > 0 ? getYield() : "";
     }
 }

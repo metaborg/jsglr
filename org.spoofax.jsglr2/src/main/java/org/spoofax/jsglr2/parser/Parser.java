@@ -101,7 +101,8 @@ public class Parser
         while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
             parseCharacter(parse);
 
-            parse.next();
+            if(!parse.activeStacks.isEmpty())
+                parse.next();
         }
 
         if(parse.acceptingStack == null)

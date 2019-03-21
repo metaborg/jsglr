@@ -23,7 +23,7 @@ import org.spoofax.jsglr2.states.State;
 public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode> {
 
     public IState state;
-    boolean multipleStates;
+    public boolean multipleStates; // TODO this should not be public, but still end up in the ReduceManager
     ILookaheadStack shiftLookahead;
     ILookaheadStack reducerLookahead;
 

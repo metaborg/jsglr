@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.integrationtest.grammars;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -40,14 +39,14 @@ public class LookaheadIncrementalTest extends BaseTestWithSdf3ParseTables {
                 "OneCharFollowRestricted(\"1[x]\")", });
     }
 
-    @Ignore @Test public void incrementalTwoCharFollowRestricted() throws ParseError {
+    @Test public void incrementalTwoCharFollowRestricted() throws ParseError {
         testIncrementalSuccessByExpansions("2[ax]",
             new EditorUpdate[] { new EditorUpdate(3, 3, "b"), new EditorUpdate(3, 4, "") },
             new String[] { "TwoCharFollowRestricted(\"2[ax]\")", "TwoCharPrefix(\"2[abx]\")",
                 "TwoCharFollowRestricted(\"2[ax]\")", });
     }
 
-    @Ignore @Test public void incrementalThreeCharFollowRestricted() throws ParseError {
+    @Test public void incrementalThreeCharFollowRestricted() throws ParseError {
         testIncrementalSuccessByExpansions("3[abx]",
             new EditorUpdate[] { new EditorUpdate(4, 4, "c"), new EditorUpdate(4, 5, "") },
             new String[] { "ThreeCharFollowRestricted(\"3[abx]\")", "ThreeCharPrefix(\"3[abcx]\")",

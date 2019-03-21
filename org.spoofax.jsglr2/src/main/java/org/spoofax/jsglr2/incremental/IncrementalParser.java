@@ -1,13 +1,14 @@
 package org.spoofax.jsglr2.incremental;
 
 
+import static org.spoofax.jsglr2.incremental.IncrementalParse.NO_STATE;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -74,10 +75,13 @@ public class IncrementalParser
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {
-        Collection<IAction> actions;
-        while((actions = getActions(stack, parse, parse.reducerLookahead.get())).size() == 0
-            && !parse.reducerLookahead.get().isTerminal() && parse.forShifter.isEmpty())
+        Collection<IAction> actions =
+            lookaheadHasNoState(parse.reducerLookahead.get()) ? Collections.emptyList() : getActions(stack, parse);
+        while(!parse.reducerLookahead.get().isTerminal() && (lookaheadHasNoState(parse.reducerLookahead.get())
+            || actions.size() == 0 && parse.forShifter.isEmpty())) {
             parse.reducerLookahead.leftBreakdown();
+            actions = getActions(stack, parse);
+        }
 
         if(actions.size() > 1)
             parse.multipleStates = true;
@@ -90,21 +94,31 @@ public class IncrementalParser
         // TODO case Accept, if reducerLookahead != EOF then abort parsing and return error? (should never happen)
     }
 
-    private Collection<IAction> getActions(StackNode stack, Parse parse, IncrementalParseForest lookahead) {
+    private boolean lookaheadHasNoState(IncrementalParseForest lookahead) {
+        return !lookahead.isTerminal()
+            && ((IncrementalParseNode) lookahead).getFirstDerivation().state.equals(NO_STATE);
+    }
+
+    // Inside this method, we can assume that the lookahead is a valid subtree of the previous parse.
+    // Else, the loop in `actor` will have broken it down
+    private Collection<IAction> getActions(StackNode stack, Parse parse) {
+        IncrementalParseForest lookahead = parse.reducerLookahead.get();
         if(lookahead.isTerminal()) {
             LinkedList<IAction> actions = new LinkedList<>();
             stack.state().getApplicableActions(parse).forEach(actions::add);
             return actions;
         } else {
-            IProduction production = ((IncrementalParseNode) lookahead).getFirstDerivation().production();
-            if(production == null) // Force break down if production == null (TODO maybe move to actor?)
-                return Collections.emptyList();
             LinkedList<IAction> actions = new LinkedList<>();
+
             // Get reduce actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
             stack.state().getApplicableReduceActions(parse).forEach(actions::add);
+
             // Only allow shifting the subtree if the saved state matches the current state
-            if(stack.state().id() == ((IncrementalParseNode) lookahead).getFirstDerivation().state.id()) {
-                actions.add(new GotoShift(stack.state().getGotoId(production.id())));
+            // TODO if lookahead.width() == 0 && production matches, there is a duplicate action
+            for(IncrementalDerivation derivation : ((IncrementalParseNode) lookahead).getDerivations()) {
+                if(stack.state().id() == derivation.state.id()) {
+                    actions.add(new GotoShift(stack.state().getGotoId(derivation.production().id())));
+                }
             }
             return actions;
         }
@@ -131,7 +145,7 @@ public class IncrementalParser
                 // forShifterState is the state being shifted to.
                 // In the shiftLookahead, the state is stored _before_ shifting.
                 // If goto(stored_state, stored_production) == forShifterState, then shift subtree.
-                if(!parse.multipleStates && !shiftLookahead.isAmbiguous()
+                if(!parse.multipleStates && !shiftLookahead.isAmbiguous() && !lookaheadHasNoState(shiftLookahead)
                     && forShifterState == shiftLookahead.getFirstDerivation().state
                         .getGotoId(shiftLookahead.production().id()))
                     break;

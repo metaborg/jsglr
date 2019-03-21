@@ -83,9 +83,8 @@ public class ReduceManager
     protected void reducer(Parse parse, StackNode stack, IReduce reduce, ParseForest[] parseForests) {
         // TODO this is the ugliest way ever to get the current state into the IncrementalParseForestManager.
         if(parse instanceof IncrementalParse)
-            // ((IncrementalParse) parse).state = ((IncrementalParse) parse).multipleStates
-            // ? IncrementalParse.NO_STATE : stack.state();
-            ((IncrementalParse) parse).state = stack.state();
+            ((IncrementalParse) parse).state =
+                ((IncrementalParse) parse).multipleStates ? IncrementalParse.NO_STATE : stack.state();
         int gotoId = stack.state().getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 

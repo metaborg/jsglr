@@ -74,11 +74,9 @@ public class IncrementalParser
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {
-        parse.state = stack.state();
-
         Collection<IAction> actions;
         while((actions = getActions(stack, parse, parse.reducerLookahead.get())).size() == 0
-            && !parse.reducerLookahead.get().isTerminal())
+            && !parse.reducerLookahead.get().isTerminal() && parse.forShifter.isEmpty())
             parse.reducerLookahead.leftBreakdown();
 
         if(actions.size() > 1)
@@ -99,14 +97,16 @@ public class IncrementalParser
             return actions;
         } else {
             IProduction production = ((IncrementalParseNode) lookahead).getFirstDerivation().production();
-            try {
-                // Only allow shifting the subtree if the saved state matches the current state
-                if(stack.state().id() == ((IncrementalParseNode) lookahead).getFirstDerivation().state.id())
-                    return Collections.singletonList(new GotoShift(stack.state().getGotoId(production.id())));
+            if(production == null) // Force break down if production == null (TODO maybe move to actor?)
                 return Collections.emptyList();
-            } catch(NullPointerException e) { // Can be thrown inside getGotoId or because production == null
-                return Collections.emptyList();
+            LinkedList<IAction> actions = new LinkedList<>();
+            // Get reduce actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
+            stack.state().getApplicableReduceActions(parse).forEach(actions::add);
+            // Only allow shifting the subtree if the saved state matches the current state
+            if(stack.state().id() == ((IncrementalParseNode) lookahead).getFirstDerivation().state.id()) {
+                actions.add(new GotoShift(stack.state().getGotoId(production.id())));
             }
+            return actions;
         }
     }
 
@@ -122,6 +122,7 @@ public class IncrementalParser
             return IncrementalCharacterNode.EOF_NODE;
         }
 
+        // Only used if forShifter.size() == 1, because multipleStates == false in that case
         int forShifterState = parse.forShifter.peek().state.id();
 
         while(!parse.shiftLookahead.get().isTerminal()) {

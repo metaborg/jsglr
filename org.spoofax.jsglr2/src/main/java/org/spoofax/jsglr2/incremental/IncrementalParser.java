@@ -61,14 +61,18 @@ public class IncrementalParser
     @Override public ParseResult<IncrementalParseForest> parse(String inputString, String filename,
         String startSymbol) {
         ParseResult<IncrementalParseForest> result;
+        long begin = System.currentTimeMillis();
+        IncrementalParseForest previous = null;
 
         if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
-            IncrementalParseForest previous = cache.get(filename);
+            previous = cache.get(filename);
             result = incrementalParse(diff.diff(oldString.get(filename), inputString), previous, filename, startSymbol);
         } else
             result = super.parse(inputString, filename, startSymbol);
 
-        logger.info(result.isSuccess ? "Parse success!" : "Parse failure!");
+        long time = System.currentTimeMillis() - begin;
+        logger.info((previous == null ? "Clean" : "Incremental") + " parse "
+            + (result.isSuccess ? "success" : "failure") + "! (" + time + " ms)");
 
         if(result.isSuccess && !filename.equals("")) {
             oldString.put(filename, inputString);

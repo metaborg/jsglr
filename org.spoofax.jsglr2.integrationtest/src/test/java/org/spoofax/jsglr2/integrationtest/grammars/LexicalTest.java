@@ -19,8 +19,15 @@ public class LexicalTest extends BaseTestWithSdf3ParseTables {
     @Test public void incrementalIdentifiers() throws ParseError {
         testIncrementalSuccessByExpansions("a",
             new EditorUpdate[] { new EditorUpdate(1, 1, "bcde"), new EditorUpdate(2, 4, "fghij"),
-                new EditorUpdate(0, 0, "xyz") },
-            new String[] { "\"a\"", "\"abcde\"", "\"abfghije\"", "\"xyzabfghije\"" });
+                new EditorUpdate(8, 8, ""), new EditorUpdate(8, 8, "klm"), new EditorUpdate(0, 0, "xyz") },
+            new String[] { "\"a\"", "\"abcde\"", "\"abfghije\"", "\"abfghije\"", "\"abfghijeklm\"",
+                "\"xyzabfghijeklm\"" });
+    }
+
+    @Test public void incrementalIdentifiers2() throws ParseError {
+        testIncrementalSuccessByExpansions(
+            new String[] { "a", "abcde", "abfghije", "abfghije", "abfghijeklm", "xyzabfghijeklm" }, new String[] {
+                "\"a\"", "\"abcde\"", "\"abfghije\"", "\"abfghije\"", "\"abfghijeklm\"", "\"xyzabfghijeklm\"" });
     }
 
 }

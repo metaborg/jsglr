@@ -111,6 +111,10 @@ public abstract class BaseTest implements WithParseTable {
         testSuccess(inputString, expectedOutputAstString, null, true);
     }
 
+    protected void testIncrementalSuccessByExpansions(String[] inputStrings, String[] expectedOutputAstStrings) {
+        testIncrementalSuccess(inputStrings, expectedOutputAstStrings, null, true);
+    }
+
     protected void testIncrementalSuccessByExpansions(String inputString, EditorUpdate[] updates,
         String[] expectedOutputAstStrings) {
         testIncrementalSuccess(inputString, updates, expectedOutputAstStrings, null, true);
@@ -137,6 +141,50 @@ public abstract class BaseTest implements WithParseTable {
             } else {
                 assertEquals(expectedOutputAstString, actualOutputAst.toString());
             }
+        }
+    }
+
+    private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
+        boolean equalityByExpansions) {
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            if(variant.parser.parseForestRepresentation != ParseForestRepresentation.Incremental)
+                continue;
+            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
+            JSGLR2<IncrementalParseForest, IStrategoTerm> jsglr2 =
+                (JSGLR2<IncrementalParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+            // TODO remove observer later again
+            jsglr2.parser.observing().attachObserver(new org.spoofax.jsglr2.parser.observing.ParserLogObserver<>());
+
+            IStrategoTerm actualOutputAst;
+            String filename = "" + System.nanoTime();
+            for(int i = 0; i < expectedOutputAstStrings.length; i++) {
+                String inputString = inputStrings[i];
+                ParseResult<IncrementalParseForest> result = jsglr2.parser.parse(inputString, filename, startSymbol);
+                if(result.isSuccess) {
+                    ParseSuccess<IncrementalParseForest> success = (ParseSuccess<IncrementalParseForest>) result;
+
+                    ImplodeResult<IStrategoTerm> implodeResult =
+                        jsglr2.imploder.implode(inputString, filename, success.parseResult);
+
+                    assertNotNull("Variant '" + variant.name() + "' failed imploding at update " + i + ": ",
+                        implodeResult);
+                    actualOutputAst = implodeResult.ast;
+                } else {
+                    fail("Variant '" + variant.name() + "' failed parsing at update " + i + ": "
+                        + ((ParseFailure) result).failureType);
+                    return;
+                }
+                if(equalityByExpansions) {
+                    IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstStrings[i]);
+
+                    assertEqualTermExpansions(
+                        "Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ", expectedOutputAst,
+                        actualOutputAst);
+                } else {
+                    assertEquals(expectedOutputAstStrings[i], actualOutputAst.toString());
+                }
+            }
+
         }
     }
 

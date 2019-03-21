@@ -3,16 +3,14 @@ package org.spoofax.jsglr2.incremental;
 
 import static org.spoofax.jsglr2.incremental.IncrementalParse.NO_STATE;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
+import org.spoofax.jsglr2.incremental.diff.SingleDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
@@ -21,6 +19,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -40,6 +39,9 @@ public class IncrementalParser
 
     private static final ILogger logger = LoggerUtils.logger(IncrementalParser.class);
     private final IncrementalParseFactory<StackNode, Parse> incrementalParseFactory;
+    private final HashMap<String, IncrementalParseForest> cache = new HashMap<>();
+    private final HashMap<String, String> oldString = new HashMap<>();
+    private final SingleDiff diff;
 
     public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, Parse> parseFactory,
         IncrementalParseFactory<StackNode, Parse> incrementalParseFactory, IParseTable parseTable,
@@ -51,12 +53,28 @@ public class IncrementalParser
         super(parseFactory, parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
             reduceManager);
         this.incrementalParseFactory = incrementalParseFactory;
+        // TODO different diffing types, probably based on:
+        // https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
+        this.diff = new SingleDiff();
     }
 
     @Override public ParseResult<IncrementalParseForest> parse(String inputString, String filename,
         String startSymbol) {
-        ParseResult<IncrementalParseForest> result = super.parse(inputString, filename, startSymbol);
+        ParseResult<IncrementalParseForest> result;
+
+        if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
+            IncrementalParseForest previous = cache.get(filename);
+            result = incrementalParse(diff.diff(oldString.get(filename), inputString), previous, filename, startSymbol);
+        } else
+            result = super.parse(inputString, filename, startSymbol);
+
         logger.info(result.isSuccess ? "Parse success!" : "Parse failure!");
+
+        if(result.isSuccess && !filename.equals("")) {
+            oldString.put(filename, inputString);
+            cache.put(filename, (IncrementalParseForest) ((ParseSuccess) result).parseResult);
+        }
+
         return result;
     }
 

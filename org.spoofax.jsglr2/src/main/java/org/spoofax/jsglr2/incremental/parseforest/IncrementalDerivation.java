@@ -49,7 +49,7 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
         if(production == null)
             printer.println("d null : {");
         else
-            printer.println("d" + production.id() + " : " + production.descriptor() + "{ (s" + state.id() + ")");
+            printer.println("d" + production.id() + " : " + production.toString() + " { (s" + state.id() + ")");
         printer.indent(2);
 
         for(IncrementalParseForest parseForest : parseForests) {

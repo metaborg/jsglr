@@ -7,8 +7,10 @@ import java.util.Queue;
 
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.sdf2table.parsetable.Reduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -202,6 +204,8 @@ public abstract class ParserObserver
                 res += action.toString();
             else
                 res += "," + action.toString();
+            if(action.actionType() == ActionType.REDUCE)
+                res += "[" + ((Reduce) action).production().toString() + "]";
         }
 
         return "[" + res + "]";

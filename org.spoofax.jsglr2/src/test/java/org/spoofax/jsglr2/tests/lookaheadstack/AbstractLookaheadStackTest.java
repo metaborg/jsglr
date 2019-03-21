@@ -1,6 +1,8 @@
 package org.spoofax.jsglr2.tests.lookaheadstack;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
@@ -80,6 +82,24 @@ public abstract class AbstractLookaheadStackTest {
         assertPoppingEOF(stack);
 
         assertPoppingRoot(root);
+    }
+
+    @Test public void testLookaheadQuery() {
+        IncrementalCharacterNode node1 = new IncrementalCharacterNode(97);
+        IncrementalCharacterNode node2 = new IncrementalCharacterNode(98);
+        IncrementalCharacterNode node3 = new IncrementalCharacterNode(99);
+        IncrementalCharacterNode node4 = new IncrementalCharacterNode(100);
+        IncrementalParseNode parseNode1 = new IncrementalParseNode(node1, node2);
+        IncrementalParseNode parseNode2 = new IncrementalParseNode(node3, node4);
+        IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2);
+
+        ILookaheadStack stack = getStack(root);
+        assertEquals('a', stack.actionQueryCharacter());
+        assertEquals("b", stack.actionQueryLookahead(1));
+        assertEquals("bc", stack.actionQueryLookahead(2));
+        assertEquals("bcd", stack.actionQueryLookahead(3));
+        assertEquals("bcd" + (char) EOF_INT, stack.actionQueryLookahead(4));
+        assertEquals("bcd" + (char) EOF_INT, stack.actionQueryLookahead(5));
     }
 
     private void assertPoppingRoot(IncrementalParseNode root) {

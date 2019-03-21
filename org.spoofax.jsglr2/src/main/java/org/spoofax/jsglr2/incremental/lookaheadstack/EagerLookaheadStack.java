@@ -54,7 +54,7 @@ public class EagerLookaheadStack implements ILookaheadStack {
         int stackIndex = stack.size() - 1;
         while(width > 0 && stackIndex >= 0) {
             IncrementalParseForest parseForest = stack.get(stackIndex);
-            sb.append(parseForest.width() >= width ? parseForest.getYield() : parseForest.getYield(width));
+            sb.append(parseForest.width() <= width ? parseForest.getYield() : parseForest.getYield(width));
             width -= parseForest.width();
             stackIndex--;
         }

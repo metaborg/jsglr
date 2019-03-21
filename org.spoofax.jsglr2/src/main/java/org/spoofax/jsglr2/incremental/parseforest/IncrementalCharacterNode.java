@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
+import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
-
-import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
 
 public class IncrementalCharacterNode extends IncrementalParseForest implements ICharacterNode {
 
@@ -22,7 +22,7 @@ public class IncrementalCharacterNode extends IncrementalParseForest implements 
     }
 
     @Override public String descriptor() {
-        return "'" + (character == EOF_INT ? "EOF" : getYield()) + "'";
+        return "'" + (character == EOF_INT ? "EOF" : character < 32 ? "\\" + character : getYield()) + "'";
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {

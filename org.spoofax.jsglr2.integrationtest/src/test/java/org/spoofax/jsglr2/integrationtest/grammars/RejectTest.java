@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.integrationtest.grammars;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -12,7 +13,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
     }
 
 
-    @Test public void testReject() throws ParseError {
+    @Ignore @Test public void testReject() throws ParseError {
         testSuccessByAstString("foo", "Foo");
     }
 
@@ -24,7 +25,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
         testSuccessByAstString("baz", "Id(\"baz\")");
     }
 
-    @Test public void incrementalReject() throws ParseError {
+    @Ignore @Test public void incrementalReject() throws ParseError {
         testIncrementalSuccessByExpansions("foo",
             new EditorUpdate[] { new EditorUpdate(2, 3, "r"), new EditorUpdate(2, 3, "o") },
             new String[] { "Foo", "Id(\"for\")", "Foo" });

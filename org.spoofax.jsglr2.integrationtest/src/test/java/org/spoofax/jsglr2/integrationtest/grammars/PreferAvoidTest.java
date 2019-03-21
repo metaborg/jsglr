@@ -19,9 +19,8 @@ public class PreferAvoidTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void testIncrementalPreferAvoid() {
-        // TODO leading space not necessary, but tree updater is still broken
-        testIncrementalSuccessByExpansions(" p x ",
-            new EditorUpdate[] { new EditorUpdate(1, 2, "a"), new EditorUpdate(1, 2, "p") },
+        testIncrementalSuccessByExpansions("p x",
+            new EditorUpdate[] { new EditorUpdate(0, 1, "a"), new EditorUpdate(0, 1, "p") },
             new String[] { "Prefer(X1)", "Avoid(amb([X2,X3]))", "Prefer(X1)" });
     }
 }

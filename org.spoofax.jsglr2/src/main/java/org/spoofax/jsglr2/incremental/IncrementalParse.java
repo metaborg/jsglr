@@ -90,17 +90,6 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         currentChar = actionQueryCharacter();
     }
 
-    private IncrementalParseNode getParseNodeFromString(String inputString) {
-        IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(inputString.length());
-
-        char[] chars = inputString.toCharArray();
-        for(int i = 0; i < chars.length; i++) {
-            // TODO should we use the IncrementalParseForestManager for this?
-            parseForests[i] = new IncrementalCharacterNode(chars[i]);
-        }
-        return newParseNodeFromChildren(parseForests);
-    }
-
     // Recursively processes the tree until the update site has been found
     private IncrementalParseForest processUpdates(List<EditorUpdate> editorUpdates, IncrementalParseForest previous) {
         // TODO for all editor updates (currently only checking first update)
@@ -111,29 +100,47 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     private IncrementalParseForest processUpdates(IncrementalParseForest currentForest, int currentOffset,
         int deletedStartOffset, int deletedEndOffset, String inserted) {
         if(currentForest instanceof IncrementalCharacterNode) {
-            // TODO this breaks when deletedStartOffset == 0
-            if(currentOffset == deletedStartOffset - 1)
-                return newParseNodeFromChildren(
-                    convertToCharacterNodes((IncrementalCharacterNode) currentForest, inserted));
-            if(deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset)
+            // If there is nothing to delete
+            if(deletedStartOffset == deletedEndOffset) {
+                // Insert-after strategy (can also be applied in the general case, but gives less subtree re-use)
+                // If insert position is begin of string, prepend to first character
+                if(deletedStartOffset == 0 && currentOffset == deletedEndOffset)
+                    return newParseNodeFromChildren(getParseNodeFromString(inserted), currentForest);
+                // If insert position is NOT begin of string, append to previous character
+                if(deletedStartOffset != 0 && currentOffset == deletedStartOffset - 1)
+                    return newParseNodeFromChildren(currentForest, getParseNodeFromString(inserted));
+                // If none of the cases applies, just return original character node
+                return currentForest;
+            }
+            // In-place replace strategy
+            // Replace first deleted character with the inserted string
+            if(deletedStartOffset == currentOffset)
+                return getParseNodeFromString(inserted);
+            // Delete all other characters
+            if(deletedStartOffset < currentOffset && currentOffset < deletedEndOffset)
                 return null;
+            // If none of the cases applies, just return original character node
             return currentForest;
         }
         IncrementalParseForest[] parseForests =
             ((IncrementalParseNode) currentForest).getFirstDerivation().parseForests();
         for(int i = 0; i < parseForests.length; i++) {
             IncrementalParseForest parseForest = parseForests[i];
-            if(deletedStartOffset <= currentOffset + parseForest.width() && currentOffset < deletedEndOffset) {
+            int nextOffset = currentOffset + parseForest.width(); // == start offset of right sibling subtree
+            // Optimization: if current subtree falls completely within [deletedStart + 1, deletedEnd], delete it
+            if(deletedStartOffset < currentOffset && nextOffset <= deletedEndOffset)
+                parseForests[i] = null;
+            // If current subtree overlaps with the to-be-deleted range, recurse
+            else if(deletedStartOffset <= nextOffset && currentOffset <= deletedEndOffset)
                 parseForests[i] =
                     processUpdates(parseForest, currentOffset, deletedStartOffset, deletedEndOffset, inserted);
-            }
-            currentOffset += parseForest.width();
+            currentOffset = nextOffset;
         }
         return newParseNodeFromChildren(parseForests);
     }
 
-    private IncrementalParseNode newParseNodeFromChildren(IncrementalParseForest[] newChildren) {
-        // TODO should we use the IncrementalParseForestManager for this?
+    private IncrementalParseNode newParseNodeFromChildren(IncrementalParseForest... newChildren) {
+        // TODO should we use the IncrementalParseForestManager for creating nodes?
         IncrementalParseForest[] filtered =
             Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
         if(filtered.length == 0 && newChildren.length != 0) // Only return null if length _changed_
@@ -141,16 +148,15 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         return new IncrementalParseNode(null, new IncrementalDerivation(null, null, filtered, NO_STATE));
     }
 
-    private IncrementalParseForest[] convertToCharacterNodes(IncrementalCharacterNode originalLookahead,
-        String inserted) {
-        IncrementalParseForest[] children = parseForestManager.parseForestsArray(inserted.length() + 1);
-        children[0] = originalLookahead;
+    private IncrementalParseNode getParseNodeFromString(String inputString) {
+        IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(inputString.length());
 
-        char[] chars = inserted.toCharArray();
+        char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            // TODO should we use the IncrementalParseForestManager for this?
-            children[i + 1] = new IncrementalCharacterNode(chars[i]);
+            // TODO should we use the IncrementalParseForestManager for creating nodes?
+            parseForests[i] = new IncrementalCharacterNode(chars[i]);
         }
-        return children;
+        return newParseNodeFromChildren(parseForests);
     }
+
 }

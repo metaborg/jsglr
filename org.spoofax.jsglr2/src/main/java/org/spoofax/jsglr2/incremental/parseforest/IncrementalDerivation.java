@@ -12,7 +12,6 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
     private final ProductionType productionType;
     public final IncrementalParseForest[] parseForests;
     public final IState state;
-    private boolean changed;
 
     public IncrementalDerivation(IProduction production, ProductionType productionType,
         IncrementalParseForest[] parseForests, IState state) {
@@ -35,19 +34,15 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
     }
 
     @Override public IProduction production() {
-        return changed ? null : production;
+        return production;
     }
 
     @Override public ProductionType productionType() {
-        return changed ? null : productionType;
+        return productionType;
     }
 
     @Override public IncrementalParseForest[] parseForests() {
         return parseForests;
-    }
-
-    public void markChanged() {
-        this.changed = true;
     }
 
     protected void prettyPrint(TreePrettyPrinter printer) {

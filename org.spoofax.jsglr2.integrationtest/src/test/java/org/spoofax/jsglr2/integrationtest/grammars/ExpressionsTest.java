@@ -95,14 +95,22 @@ public class ExpressionsTest extends BaseTestWithSdf3ParseTables {
 
     @Test public void reusingSubtreesNoLayout() {
         testIncrementalSuccessByExpansions("xx+x x+x", new EditorUpdate[] { new EditorUpdate(1, 2, "y"), },
-                new String[] { "[Add(Var(\"xx\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]",
-                        "[Add(Var(\"xy\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]" });
+            new String[] { "[Add(Var(\"xx\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]",
+                "[Add(Var(\"xy\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]" });
     }
 
     @Test public void reusingSubtreesWithLayout() {
         testIncrementalSuccessByExpansions("xx + x x + x", new EditorUpdate[] { new EditorUpdate(1, 2, "y"), },
             new String[] { "[Add(Var(\"xx\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]",
                 "[Add(Var(\"xy\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]" });
+    }
+
+    @Test public void incrementalAmbiguity() {
+        testIncrementalSuccessByExpansions("x+x",
+            new EditorUpdate[] { new EditorUpdate(1, 1, "+x"), new EditorUpdate(1, 3, "") },
+            new String[] { "[Add(Var(\"x\"),Var(\"x\"))]",
+                "[amb([Add(Var(\"x\"),Add(Var(\"x\"),Var(\"x\"))),Add(Add(Var(\"x\"),Var(\"x\")),Var(\"x\"))])]",
+                "[Add(Var(\"x\"),Var(\"x\"))]" });
     }
 
 }

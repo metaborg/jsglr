@@ -97,16 +97,12 @@ public abstract class AbstractParse
             return CharacterClassFactory.EOF_INT;
     }
 
-    public String getPart(int begin, int end) {
-        return inputString.substring(begin, end);
-    }
-
     @Override public int actionQueryCharacter() {
         return currentChar;
     }
 
     @Override public String actionQueryLookahead(int length) {
-        return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
+        return inputString.substring(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 
 }

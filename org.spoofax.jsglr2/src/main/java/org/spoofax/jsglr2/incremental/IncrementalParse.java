@@ -65,10 +65,6 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
     // @formatter:on
 
-    @Override public String getPart(int begin, int end) {
-        return null; // TODO remove getPart from AbstractParse
-    }
-
     @Override public int actionQueryCharacter() {
         return reducerLookahead.actionQueryCharacter();
     }

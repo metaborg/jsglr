@@ -92,7 +92,8 @@ public class IncrementalParser
             forActorStacks, observing);
 
         ParseResult<IncrementalParseForest> result = parseInternal(startSymbol, parse);
-        logger.info(result.isSuccess ? "Incremental parse success!" : "Incremental parse failure!");
+        // Commented out because the `incrementalParse` method is not called externally, and `parse` already logs
+        // logger.info(result.isSuccess ? "Incremental parse success!" : "Incremental parse failure!");
         return result;
     }
 

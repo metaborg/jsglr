@@ -89,6 +89,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     // Recursively processes the tree until the update site has been found
     private IncrementalParseForest processUpdates(List<EditorUpdate> editorUpdates, IncrementalParseForest previous) {
         // TODO for all editor updates (currently only checking first update)
+        // TODO what if everything is deleted?
         EditorUpdate editorUpdate = editorUpdates.get(0);
         return processUpdates(previous, 0, editorUpdate.deletedStart, editorUpdate.deletedEnd, editorUpdate.inserted);
     }

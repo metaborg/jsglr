@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -25,6 +28,7 @@ import org.spoofax.jsglr2.states.StateFactory;
 
 public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
 
+    private static Map<IParseTable, JSGLR2<?, IStrategoTerm>> incrementalJSGLR2map = new HashMap<>();
     public final IParser<ParseForest, ?> parser;
     public final IImploder<ParseForest, AbstractSyntaxTree> imploder;
 
@@ -50,10 +54,14 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
     }
 
     public static JSGLR2<?, IStrategoTerm> incremental(IParseTable parseTable) {
-        return JSGLR2Variants.getJSGLR2(parseTable,
-            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.Basic));
+        if(!incrementalJSGLR2map.containsKey(parseTable))
+            incrementalJSGLR2map.put(parseTable,
+                JSGLR2Variants.getJSGLR2(parseTable,
+                    new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                        ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Basic,
+                        Reducing.Basic)));
+        System.err.println("Parsermap size:" + incrementalJSGLR2map.size());
+        return incrementalJSGLR2map.get(parseTable);
     }
 
     public static JSGLR2<?, IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {

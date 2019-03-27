@@ -9,6 +9,7 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.SingleDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
@@ -20,22 +21,24 @@ import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.reducing.ReduceManager;
+import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.StackManagerFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 public class IncrementalParser
 // @formatter:off
-   <ParseNode extends IncrementalParseNode,
-    Derivation extends IncrementalDerivation,
-    StackNode extends IStackNode,
-    Parse extends IncrementalParse<StackNode>>
+   <ParseNode     extends IncrementalParseNode,
+    Derivation    extends IncrementalDerivation,
+    StackNode     extends IStackNode,
+    Parse         extends IncrementalParse<StackNode>,
+    StackManager  extends AbstractStackManager<IncrementalParseForest, StackNode, Parse>,
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<
+                              IncrementalParseForest, ParseNode, Derivation, StackNode, Parse>>
 // @formatter:on
-    extends Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse> {
+    extends Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> {
 
     private static final ILogger logger = LoggerUtils.logger(IncrementalParser.class);
     private final IncrementalParseFactory<StackNode, Parse> incrementalParseFactory;
@@ -45,13 +48,12 @@ public class IncrementalParser
 
     public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, Parse> parseFactory,
         IncrementalParseFactory<StackNode, Parse> incrementalParseFactory, IParseTable parseTable,
-        IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
-        AbstractStackManager<IncrementalParseForest, StackNode, Parse> stackManager,
+        StackManagerFactory<IncrementalParseForest, StackNode, Parse, StackManager> stackManagerFactory,
         ParseForestManager<IncrementalParseForest, ParseNode, Derivation> parseForestManager,
-        ReduceManager<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse> reduceManager) {
+        ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory,
+        JSGLR2Variants.ParserVariant variant) {
 
-        super(parseFactory, parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
-            reduceManager);
+        super(parseFactory, parseTable, stackManagerFactory, parseForestManager, reduceManagerFactory, variant);
         this.incrementalParseFactory = incrementalParseFactory;
         // TODO different diffing types, probably based on:
         // https://en.wikipedia.org/wiki/Longest_common_subsequence_problem

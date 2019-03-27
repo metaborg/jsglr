@@ -7,15 +7,16 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
+import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
+import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
+import org.spoofax.jsglr2.stack.StackManagerFactory;
 
 public class ElkhoundParser
 //@formatter:off
@@ -23,17 +24,19 @@ public class ElkhoundParser
     ParseNode         extends ParseForest,
     Derivation        extends IDerivation<ParseForest>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>>
+    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>,
+    StackManager      extends AbstractStackManager<ParseForest, ElkhoundStackNode, Parse>,
+    ReduceManager     extends org.spoofax.jsglr2.reducing.ReduceManager<
+                                  ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse>>
 //@formatter:on
-    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
+    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> {
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
-        IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
-        AbstractStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager,
+        StackManagerFactory<ParseForest, ElkhoundStackNode, Parse, StackManager> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ElkhoundReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> elkhoundReduceManager) {
-        super(parseFactory, parseTable, activeStacksFactory, forActorStacksFactory, stackManager, parseForestManager,
-            elkhoundReduceManager);
+        ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> elkhoundReduceManager,
+        JSGLR2Variants.ParserVariant variant) {
+        super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManager, variant);
     }
 
     @Override protected void parseLoop(Parse parse) {

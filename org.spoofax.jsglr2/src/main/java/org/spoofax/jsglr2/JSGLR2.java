@@ -10,7 +10,6 @@ import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -26,35 +25,31 @@ import org.spoofax.jsglr2.states.StateFactory;
 
 public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
 
-    public IParser<ParseForest, ?> parser;
-    public IImploder<ParseForest, AbstractSyntaxTree> imploder;
+    public final IParser<ParseForest, ?> parser;
+    public final IImploder<ParseForest, AbstractSyntaxTree> imploder;
 
-    @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
-        standard(IParseTable parseTable) {
-        return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
+    public static JSGLR2<?, IStrategoTerm> standard(IParseTable parseTable) {
+        return JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound,
                 Reducing.Elkhound));
     }
 
-    @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
-        dataDependent(IParseTable parseTable) {
-        return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
+    public static JSGLR2<?, IStrategoTerm> dataDependent(IParseTable parseTable) {
+        return JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.DataDependent, ParseForestConstruction.Full, StackRepresentation.Basic,
                 Reducing.DataDependent));
     }
 
-    @SuppressWarnings("unchecked") public static JSGLR2<HybridParseForest, IStrategoTerm>
-        layoutSensitive(IParseTable parseTable) {
-        return (JSGLR2<HybridParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable,
+    public static JSGLR2<?, IStrategoTerm> layoutSensitive(IParseTable parseTable) {
+        return JSGLR2Variants.getJSGLR2(parseTable,
             new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Full, StackRepresentation.Basic,
                 Reducing.DataDependent));
     }
 
-    public static JSGLR2<HybridParseForest, IStrategoTerm> standard(IStrategoTerm parseTableTerm)
-        throws ParseTableReadException {
+    public static JSGLR2<?, IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         IParseTable parseTable =
             new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory())
                 .read(parseTableTerm);

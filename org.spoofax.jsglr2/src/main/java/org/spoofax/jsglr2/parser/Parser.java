@@ -5,6 +5,7 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
+import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -15,46 +16,48 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureType;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.reducing.ReduceManager;
+import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
+import org.spoofax.jsglr2.stack.StackManagerFactory;
+import org.spoofax.jsglr2.stack.collections.*;
 
 public class Parser
 //@formatter:off
-   <ParseForest extends IParseForest,
-    ParseNode   extends ParseForest,
-    Derivation  extends IDerivation<ParseForest>,
-    StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+   <ParseForest   extends IParseForest,
+    ParseNode     extends ParseForest,
+    Derivation    extends IDerivation<ParseForest>,
+    StackNode     extends IStackNode,
+    Parse         extends AbstractParse<ParseForest, StackNode>,
+    StackManager  extends AbstractStackManager<ParseForest, StackNode, Parse>,
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<
+                              ParseForest, ParseNode, Derivation, StackNode, Parse>>
 //@formatter:on
     implements IParser<ParseForest, StackNode> {
 
     protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;
-    protected final AbstractStackManager<ParseForest, StackNode, Parse> stackManager;
+    protected final StackManager stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
-    protected final ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> reduceManager;
+    protected final ReduceManager reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
     private final IActiveStacksFactory activeStacksFactory;
     private final IForActorStacksFactory forActorStacksFactory;
     protected final ParserObserving<ParseForest, StackNode> observing;
 
     public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
-        IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
-        AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
+        StackManagerFactory<ParseForest, StackNode, Parse, StackManager> stackManagerFactory,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> reduceManager) {
+        ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory,
+        JSGLR2Variants.ParserVariant variant) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;
-        this.activeStacksFactory = activeStacksFactory;
-        this.forActorStacksFactory = forActorStacksFactory;
-        this.stackManager = stackManager;
+        this.activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
+        this.forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
+        this.stackManager = stackManagerFactory.get();
         this.parseForestManager = parseForestManager;
-        this.reduceManager = reduceManager;
+        this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager,
+            variant.parseForestConstruction);
         this.failureHandler = new DefaultParseFailureHandler<>();
         this.observing = new ParserObserving<>();
     }

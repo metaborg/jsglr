@@ -7,6 +7,7 @@ import java.util.*;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.jsglr2.JSGLR2Variants;
@@ -78,7 +79,7 @@ public class IncrementalParser
 
         if(result.isSuccess && !filename.equals("")) {
             oldString.put(filename, inputString);
-            cache.put(filename, (IncrementalParseForest) ((ParseSuccess) result).parseResult);
+            cache.put(filename, ((ParseSuccess<IncrementalParseForest>) result).parseResult);
         }
 
         return result;
@@ -138,13 +139,23 @@ public class IncrementalParser
             // Get reduce actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
             stack.state().getApplicableReduceActions(parse).forEach(actions::add);
 
+            IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
+
             // Only allow shifting the subtree if the saved state matches the current state
-            // TODO if lookahead.width() == 0 && production matches, there is a duplicate action
-            for(IncrementalDerivation derivation : ((IncrementalParseNode) lookahead).getDerivations()) {
+            for(IncrementalDerivation derivation : lookaheadNode.getDerivations()) {
                 if(stack.state().id() == derivation.state.id()) {
                     actions.add(new GotoShift(stack.state().getGotoId(derivation.production().id())));
                 }
             }
+
+            // If lookahead.width() == 0 && production of lookahead matches the GotoShift, there is a duplicate action
+            if(!lookaheadNode.isAmbiguous() && lookaheadNode.width() == 0 && actions.size() == 2
+                && stack.state()
+                    .getGotoId(((IReduce) actions.getFirst()).production().id()) == ((GotoShift) actions.getLast())
+                        .shiftStateId()) {
+                actions.removeFirst();
+            }
+
             return actions;
         }
     }

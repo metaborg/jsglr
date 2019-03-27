@@ -19,8 +19,8 @@ import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.WithParseTable;
+import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.util.AstUtilities;
@@ -58,7 +58,7 @@ public abstract class BaseTest implements WithParseTable {
     public void testParseSuccess(String inputString) {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            Parser<?, ?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+            IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
@@ -69,7 +69,7 @@ public abstract class BaseTest implements WithParseTable {
     public void testParseFailure(String inputString) {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            Parser<?, ?, ?, ?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+            IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?> parseResult = parser.parse(inputString);
 

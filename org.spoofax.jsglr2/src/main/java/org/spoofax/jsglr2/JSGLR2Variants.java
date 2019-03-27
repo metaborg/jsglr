@@ -8,37 +8,26 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.datadependent.*;
-import org.spoofax.jsglr2.elkhound.*;
+import org.spoofax.jsglr2.datadependent.DataDependentParseForestManager;
+import org.spoofax.jsglr2.elkhound.ElkhoundParser;
 import org.spoofax.jsglr2.imploder.IImploder;
-import org.spoofax.jsglr2.imploder.NullParseForestStrategoImploder;
+import org.spoofax.jsglr2.imploder.NullStrategoImploder;
 import org.spoofax.jsglr2.imploder.StrategoTermImploder;
-import org.spoofax.jsglr2.layoutsensitive.*;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
-import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForestManager;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
 import org.spoofax.jsglr2.parseforest.empty.NullParseForestManager;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
-import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Parser;
-import org.spoofax.jsglr2.reducing.ReduceManager;
+import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.reducing.Reducing;
-import org.spoofax.jsglr2.stack.AbstractStackManager;
+import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.StackManagerFactory;
 import org.spoofax.jsglr2.stack.StackRepresentation;
-import org.spoofax.jsglr2.stack.basic.BasicStackManager;
-import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.stack.collections.*;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 
 public class JSGLR2Variants {
 
@@ -191,278 +180,121 @@ public class JSGLR2Variants {
         //@formatter:on
     }
 
-    public static Parser<?, ?, ?, ?, ?> getParser(IParseTable parseTable, ParserVariant variant) {
-        IActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
-        IForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
 
-        return getParser(parseTable, activeStacksFactory, forActorStacksFactory, variant);
-    }
-
-
-    public static Parser<?, ?, ?, ?, ?> getParser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, ParserVariant variant) {
+    public static IParser<?, ?> getParser(IParseTable parseTable, ParserVariant variant) {
         if(!variant.isValid())
             throw new IllegalStateException("Invalid parser variant");
 
         switch(variant.parseForestRepresentation) {
             default:
             case Basic:
-                ParseForestManager<BasicParseForest, BasicParseNode, BasicDerivation> basicParseForestManager =
-                    new BasicParseForestManager();
-
-                switch(variant.reducing) {
-                    case Elkhound:
-                        switch(variant.stackRepresentation) {
-                            case BasicElkhound:
-                                ElkhoundStackManager<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>>> elkhoundBasicStackManager =
-                                    new BasicElkhoundStackManager<>();
-
-                                ElkhoundReduceManager<BasicParseForest, BasicParseNode, BasicDerivation, BasicElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>>> basicElkhoundReducer =
-                                    new ElkhoundReduceManager<>(parseTable, elkhoundBasicStackManager,
-                                        basicParseForestManager, variant.parseForestConstruction);
-
-                                return new ElkhoundParser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, elkhoundBasicStackManager, basicParseForestManager,
-                                    basicElkhoundReducer);
-                            case HybridElkhound:
-                                ElkhoundStackManager<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>>> elkhoundHybridStackManager =
-                                    new HybridElkhoundStackManager<>();
-
-                                ElkhoundReduceManager<BasicParseForest, BasicParseNode, BasicDerivation, HybridElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>>> hybridElkhoundReducer =
-                                    new ElkhoundReduceManager<>(parseTable, elkhoundHybridStackManager,
-                                        basicParseForestManager, variant.parseForestConstruction);
-
-                                return new ElkhoundParser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, elkhoundHybridStackManager, basicParseForestManager,
-                                    hybridElkhoundReducer);
-                            default:
-                                throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
-                        }
-                    case Basic:
-                        switch(variant.stackRepresentation) {
-                            case Basic:
-                                AbstractStackManager<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>>> basicStackManager =
-                                    new BasicStackManager<>();
-
-                                ReduceManager<BasicParseForest, BasicParseNode, BasicDerivation, BasicStackNode<BasicParseForest>, AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>>> basicReduceManager =
-                                    new ReduceManager<>(parseTable, basicStackManager, basicParseForestManager,
-                                        variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, basicStackManager, basicParseForestManager,
-                                    basicReduceManager);
-                            case Hybrid:
-                                AbstractStackManager<BasicParseForest, HybridStackNode<BasicParseForest>, AbstractParse<BasicParseForest, HybridStackNode<BasicParseForest>>> hybridStackManager =
-                                    new HybridStackManager<>();
-
-                                ReduceManager<BasicParseForest, BasicParseNode, BasicDerivation, HybridStackNode<BasicParseForest>, AbstractParse<BasicParseForest, HybridStackNode<BasicParseForest>>> hybridReduceManager =
-                                    new ReduceManager<>(parseTable, hybridStackManager, basicParseForestManager,
-                                        variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, hybridStackManager, basicParseForestManager,
-                                    hybridReduceManager);
-                            case BasicElkhound:
-                                ElkhoundStackManager<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>>> elkhoundStackManager =
-                                    new BasicElkhoundStackManager<>();
-
-                                ReduceManager<BasicParseForest, BasicParseNode, BasicDerivation, BasicElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, BasicElkhoundStackNode<BasicParseForest>>> basicElkhoundReduceManager =
-                                    new ReduceManager<>(parseTable, elkhoundStackManager, basicParseForestManager,
-                                        variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, elkhoundStackManager, basicParseForestManager,
-                                    basicElkhoundReduceManager);
-                            case HybridElkhound:
-                                ElkhoundStackManager<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>>> elkhoundHybridStackManager =
-                                    new HybridElkhoundStackManager<>();
-
-                                ReduceManager<BasicParseForest, BasicParseNode, BasicDerivation, HybridElkhoundStackNode<BasicParseForest>, AbstractParse<BasicParseForest, HybridElkhoundStackNode<BasicParseForest>>> hybridElkhoundReduceManager =
-                                    new ReduceManager<>(parseTable, elkhoundHybridStackManager, basicParseForestManager,
-                                        variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, elkhoundHybridStackManager, basicParseForestManager,
-                                    hybridElkhoundReduceManager);
-                            default:
-                                throw new IllegalStateException();
-                        }
-                    default:
-                        throw new IllegalStateException(
-                            "Only Elkhound or basic reducing possible with basic parse forest representation");
-                }
+                return getParser(parseTable, variant, new BasicParseForestManager());
             case Null:
+                return getParser(parseTable, variant, new NullParseForestManager());
             case Hybrid:
-                ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation> hybridParseForestManager;
+                return getParser(parseTable, variant, new HybridParseForestManager());
 
-                if(variant.parseForestRepresentation == ParseForestRepresentation.Null)
-                    hybridParseForestManager = new NullParseForestManager();
-                else
-                    hybridParseForestManager = new HybridParseForestManager();
-
-                switch(variant.reducing) {
-                    case Elkhound:
-                        switch(variant.stackRepresentation) {
-                            case BasicElkhound:
-                                ElkhoundStackManager<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>>> basicElkhoundStackManager =
-                                    new BasicElkhoundStackManager<>();
-
-                                ElkhoundReduceManager<HybridParseForest, HybridParseNode, HybridDerivation, BasicElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>>> basicElkhoundReducer =
-                                    new ElkhoundReduceManager<>(parseTable, basicElkhoundStackManager,
-                                        hybridParseForestManager, variant.parseForestConstruction);
-
-                                return new ElkhoundParser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, basicElkhoundStackManager, hybridParseForestManager,
-                                    basicElkhoundReducer);
-                            case HybridElkhound:
-                                ElkhoundStackManager<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>>> hybridElkhoundStackManager =
-                                    new HybridElkhoundStackManager<>();
-
-                                ElkhoundReduceManager<HybridParseForest, HybridParseNode, HybridDerivation, HybridElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>>> hybridElkhoundReducer =
-                                    new ElkhoundReduceManager<>(parseTable, hybridElkhoundStackManager,
-                                        hybridParseForestManager, variant.parseForestConstruction);
-
-                                return new ElkhoundParser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, hybridElkhoundStackManager, hybridParseForestManager,
-                                    hybridElkhoundReducer);
-                            default:
-                                throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
-                        }
-                    case Basic:
-                        switch(variant.stackRepresentation) {
-                            case Basic:
-                                AbstractStackManager<HybridParseForest, BasicStackNode<HybridParseForest>, AbstractParse<HybridParseForest, BasicStackNode<HybridParseForest>>> basicStackManager =
-                                    new BasicStackManager<>();
-
-                                ReduceManager<HybridParseForest, HybridParseNode, HybridDerivation, BasicStackNode<HybridParseForest>, AbstractParse<HybridParseForest, BasicStackNode<HybridParseForest>>> basicReducer =
-                                    new ReduceManager<>(parseTable, basicStackManager, hybridParseForestManager,
-                                        variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, basicStackManager, hybridParseForestManager, basicReducer);
-                            case Hybrid:
-                                AbstractStackManager<HybridParseForest, HybridStackNode<HybridParseForest>, AbstractParse<HybridParseForest, HybridStackNode<HybridParseForest>>> hybridStackManager =
-                                    new HybridStackManager<>();
-
-                                ReduceManager<HybridParseForest, HybridParseNode, HybridDerivation, HybridStackNode<HybridParseForest>, AbstractParse<HybridParseForest, HybridStackNode<HybridParseForest>>> hybridReducer =
-                                    new ReduceManager<>(parseTable, hybridStackManager, hybridParseForestManager,
-                                        variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, hybridStackManager, hybridParseForestManager, hybridReducer);
-                            case BasicElkhound:
-                                ElkhoundStackManager<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>>> basicElkhoundStackManager =
-                                    new BasicElkhoundStackManager<>();
-
-                                ReduceManager<HybridParseForest, HybridParseNode, HybridDerivation, BasicElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, BasicElkhoundStackNode<HybridParseForest>>> basicElkhoundReducer =
-                                    new ReduceManager<>(parseTable, basicElkhoundStackManager, hybridParseForestManager,
-                                        variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, basicElkhoundStackManager, hybridParseForestManager,
-                                    basicElkhoundReducer);
-                            case HybridElkhound:
-                                ElkhoundStackManager<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>>> hybridElkhoundStackManager =
-                                    new HybridElkhoundStackManager<>();
-
-                                ReduceManager<HybridParseForest, HybridParseNode, HybridDerivation, HybridElkhoundStackNode<HybridParseForest>, AbstractParse<HybridParseForest, HybridElkhoundStackNode<HybridParseForest>>> hybridElkhoundReducer =
-                                    new ReduceManager<>(parseTable, hybridElkhoundStackManager,
-                                        hybridParseForestManager, variant.parseForestConstruction);
-
-                                return new Parser<>(Parse.factory(), parseTable, activeStacksFactory,
-                                    forActorStacksFactory, hybridElkhoundStackManager, hybridParseForestManager,
-                                    hybridElkhoundReducer);
-                            default:
-                                throw new IllegalStateException();
-                        }
-                    default:
-                        throw new IllegalStateException(
-                            "Only Elkhound or basic reducing possible with basic parse forest representation");
-                }
             case DataDependent:
                 DataDependentParseForestManager dataDependentParseForestManager = new DataDependentParseForestManager();
 
                 switch(variant.stackRepresentation) {
                     case Basic:
-                        AbstractStackManager<DataDependentParseForest, BasicStackNode<DataDependentParseForest>, AbstractParse<DataDependentParseForest, BasicStackNode<DataDependentParseForest>>> basicStackManager =
-                            new BasicStackManager<>();
-
-                        DataDependentReduceManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, BasicStackNode<DataDependentParseForest>, AbstractParse<DataDependentParseForest, BasicStackNode<DataDependentParseForest>>> basicDataDependentReducer =
-                            new DataDependentReduceManager<>(parseTable, basicStackManager,
-                                dataDependentParseForestManager, variant.parseForestConstruction);
-
-                        return new Parser<>(Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
-                            basicStackManager, dataDependentParseForestManager, basicDataDependentReducer);
+                        return new Parser<>(Parse.factory(), parseTable, StackManagerFactory.basicStackManagerFactory(),
+                            dataDependentParseForestManager, ReduceManagerFactory.dataDependentReduceManagerFactory(),
+                            variant);
                     case Hybrid:
-                        AbstractStackManager<DataDependentParseForest, HybridStackNode<DataDependentParseForest>, AbstractParse<DataDependentParseForest, HybridStackNode<DataDependentParseForest>>> hybridStackManager =
-                            new HybridStackManager<>();
-
-                        DataDependentReduceManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, HybridStackNode<DataDependentParseForest>, AbstractParse<DataDependentParseForest, HybridStackNode<DataDependentParseForest>>> hybridDataDependentReducer =
-                            new DataDependentReduceManager<>(parseTable, hybridStackManager,
-                                dataDependentParseForestManager, variant.parseForestConstruction);
-
-                        return new Parser<>(Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
-                            hybridStackManager, dataDependentParseForestManager, hybridDataDependentReducer);
+                        return new Parser<>(Parse.factory(), parseTable,
+                            StackManagerFactory.hybridStackManagerFactory(), dataDependentParseForestManager,
+                            ReduceManagerFactory.dataDependentReduceManagerFactory(), variant);
                     default:
                         throw new IllegalStateException();
                 }
+
             case LayoutSensitive:
                 LayoutSensitiveParseForestManager layoutSensitiveParseForestManager =
                     new LayoutSensitiveParseForestManager();
 
                 switch(variant.stackRepresentation) {
                     case Basic:
-                        AbstractStackManager<LayoutSensitiveParseForest, BasicStackNode<LayoutSensitiveParseForest>, AbstractParse<LayoutSensitiveParseForest, BasicStackNode<LayoutSensitiveParseForest>>> basicStackManager =
-                            new BasicStackManager<>();
-
-                        LayoutSensitiveReduceManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, BasicStackNode<LayoutSensitiveParseForest>, AbstractParse<LayoutSensitiveParseForest, BasicStackNode<LayoutSensitiveParseForest>>> basicLayoutSensitiveReducer =
-                            new LayoutSensitiveReduceManager<>(parseTable, basicStackManager,
-                                layoutSensitiveParseForestManager, variant.parseForestConstruction);
-
-                        return new Parser<>(Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
-                            basicStackManager, layoutSensitiveParseForestManager, basicLayoutSensitiveReducer);
+                        return new Parser<>(Parse.factory(), parseTable, StackManagerFactory.basicStackManagerFactory(),
+                            layoutSensitiveParseForestManager,
+                            ReduceManagerFactory.layoutSensitiveReduceManagerFactory(), variant);
                     case Hybrid:
-                        AbstractStackManager<LayoutSensitiveParseForest, HybridStackNode<LayoutSensitiveParseForest>, AbstractParse<LayoutSensitiveParseForest, HybridStackNode<LayoutSensitiveParseForest>>> hybridStackManager =
-                            new HybridStackManager<>();
-
-                        LayoutSensitiveReduceManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, HybridStackNode<LayoutSensitiveParseForest>, AbstractParse<LayoutSensitiveParseForest, HybridStackNode<LayoutSensitiveParseForest>>> hybridLayoutSensitiveReducer =
-                            new LayoutSensitiveReduceManager<>(parseTable, hybridStackManager,
-                                layoutSensitiveParseForestManager, variant.parseForestConstruction);
-
-                        return new Parser<>(Parse.factory(), parseTable, activeStacksFactory, forActorStacksFactory,
-                            hybridStackManager, layoutSensitiveParseForestManager, hybridLayoutSensitiveReducer);
+                        return new Parser<>(Parse.factory(), parseTable,
+                            StackManagerFactory.hybridStackManagerFactory(), layoutSensitiveParseForestManager,
+                            ReduceManagerFactory.layoutSensitiveReduceManagerFactory(), variant);
                     default:
                         throw new IllegalStateException();
                 }
         }
     }
 
-    public static List<Parser<?, ?, ?, ?, ?>> allParsers(IParseTable parseTable) {
-        List<Parser<?, ?, ?, ?, ?>> parsers = new ArrayList<>();
+    private static <ParseForest extends IParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, PFM extends ParseForestManager<ParseForest, ParseNode, Derivation>>
+        IParser<?, ?> getParser(IParseTable parseTable, ParserVariant variant, PFM parseForestManager) {
+        switch(variant.reducing) {
+            case Elkhound:
+                switch(variant.stackRepresentation) {
+                    case BasicElkhound:
+                        return new ElkhoundParser<>(Parse.factory(), parseTable,
+                            StackManagerFactory.basicElkhoundStackManagerFactory(), parseForestManager,
+                            ReduceManagerFactory.elkhoundReduceManagerFactory(), variant);
+                    case HybridElkhound:
+                        return new ElkhoundParser<>(Parse.factory(), parseTable,
+                            StackManagerFactory.hybridElkhoundStackManagerFactory(), parseForestManager,
+                            ReduceManagerFactory.elkhoundReduceManagerFactory(), variant);
+                    default:
+                        throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
+                }
+            case Basic:
+                switch(variant.stackRepresentation) {
+                    case Basic:
+                        return new Parser<>(Parse.factory(), parseTable, StackManagerFactory.basicStackManagerFactory(),
+                            parseForestManager, ReduceManagerFactory.reduceManagerFactory(), variant);
+                    case Hybrid:
+                        return new Parser<>(Parse.factory(), parseTable,
+                            StackManagerFactory.hybridStackManagerFactory(), parseForestManager,
+                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                    case BasicElkhound:
+                        return new Parser<>(Parse.factory(), parseTable,
+                            StackManagerFactory.basicElkhoundStackManagerFactory(), parseForestManager,
+                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                    case HybridElkhound:
+                        return new Parser<>(Parse.factory(), parseTable,
+                            StackManagerFactory.hybridElkhoundStackManagerFactory(), parseForestManager,
+                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                    default:
+                        throw new IllegalStateException();
+                }
+            default:
+                throw new IllegalStateException(
+                    "Only Elkhound or basic reducing possible with basic parse forest representation");
+        }
+    }
+
+    public static List<IParser<?, ?>> allParsers(IParseTable parseTable) {
+        List<IParser<?, ?>> parsers = new ArrayList<>();
 
         for(ParserVariant variant : allVariants()) {
-            Parser<?, ?, ?, ?, ?> parser = getParser(parseTable,
+            parsers.add(getParser(parseTable,
                 new ParserVariant(variant.activeStacksRepresentation, variant.forActorStacksRepresentation,
                     variant.parseForestRepresentation, variant.parseForestConstruction, variant.stackRepresentation,
-                    variant.reducing));
-
-            parsers.add(parser);
+                    variant.reducing)));
         }
 
         return parsers;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" }) public static JSGLR2<?, IStrategoTerm>
-        getJSGLR2(IParseTable parseTable, ParserVariant variant) {
-        IParser<?, ?> parser = getParser(parseTable, variant);
-        IImploder<?, IStrategoTerm> imploder;
+    public static JSGLR2<?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParserVariant variant) {
+        @SuppressWarnings("unchecked") IParser<IParseForest, IStackNode> parser =
+            (IParser<IParseForest, IStackNode>) getParser(parseTable, variant);
 
+        IImploder<IParseForest, IStrategoTerm> imploder;
         if(variant.parseForestRepresentation == ParseForestRepresentation.Null)
-            imploder = new NullParseForestStrategoImploder();
+            imploder = new NullStrategoImploder<>();
         else
-            imploder = new StrategoTermImploder();
+            imploder = new StrategoTermImploder<>();
 
-        return new JSGLR2(parser, imploder);
+        return new JSGLR2<>(parser, imploder);
     }
 
     public static List<JSGLR2<?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {

@@ -24,8 +24,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
     public IState state;
     public boolean multipleStates; // TODO this should not be public, but still end up in the ReduceManager
-    ILookaheadStack shiftLookahead;
-    ILookaheadStack reducerLookahead;
+    ILookaheadStack lookahead;
 
     private IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();
     public static State NO_STATE = new State(-1, new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]),
@@ -47,10 +46,9 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     private void initParse(IncrementalParseForest updatedTree) {
-        this.shiftLookahead = new EagerLookaheadStack(updatedTree); // TODO switch types between Lazy and Eager
-        this.reducerLookahead = new EagerLookaheadStack(updatedTree);
+        this.lookahead = new EagerLookaheadStack(updatedTree); // TODO switch types between Lazy and Eager
         this.multipleStates = false;
-        this.currentChar = reducerLookahead.actionQueryCharacter();
+        this.currentChar = lookahead.actionQueryCharacter();
     }
 
     // @formatter:off
@@ -70,20 +68,17 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     @Override public String actionQueryLookahead(int length) {
-        return reducerLookahead.actionQueryLookahead(length);
+        return lookahead.actionQueryLookahead(length);
     }
 
     @Override public boolean hasNext() {
-        return shiftLookahead.get() != null; // null is the lookahead of the EOF node
+        return lookahead.get() != null; // null is the lookahead of the EOF node
     }
 
     @Override public void next() {
-        currentOffset += shiftLookahead.get().width();
-        shiftLookahead.popLookahead();
-        reducerLookahead.popLookahead();
-        assert shiftLookahead.get() == reducerLookahead.get() : "Lock-step property is broken\nReduce lookahead:\n"
-            + reducerLookahead.get() + "\nShift lookahead:\n" + shiftLookahead.get();
-        currentChar = reducerLookahead.actionQueryCharacter();
+        currentOffset += lookahead.get().width();
+        lookahead.popLookahead();
+        currentChar = lookahead.actionQueryCharacter();
     }
 
     // Recursively processes the tree until the update site has been found

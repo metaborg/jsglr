@@ -105,10 +105,10 @@ public class IncrementalParser
 
     @Override protected void actor(StackNode stack, Parse parse) {
         Collection<IAction> actions =
-            lookaheadHasNoState(parse.reducerLookahead.get()) ? Collections.emptyList() : getActions(stack, parse);
-        while(!parse.reducerLookahead.get().isTerminal() && (lookaheadHasNoState(parse.reducerLookahead.get())
-            || actions.size() == 0 && parse.forShifter.isEmpty())) {
-            parse.reducerLookahead.leftBreakdown();
+            lookaheadHasNoState(parse.lookahead.get()) ? Collections.emptyList() : getActions(stack, parse);
+        while(!parse.lookahead.get().isTerminal()
+            && (lookaheadHasNoState(parse.lookahead.get()) || actions.size() == 0 && parse.forShifter.isEmpty())) {
+            parse.lookahead.leftBreakdown();
             actions = getActions(stack, parse);
         }
 
@@ -122,6 +122,7 @@ public class IncrementalParser
             actor(stack, parse, action);
     }
 
+    // Terminal nodes never have state
     private boolean lookaheadHasNoState(IncrementalParseForest lookahead) {
         return !lookahead.isTerminal()
             && ((IncrementalParseNode) lookahead).getFirstDerivation().state.equals(NO_STATE);
@@ -130,7 +131,7 @@ public class IncrementalParser
     // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.
     // Else, the loop in `actor` will have broken it down
     private Collection<IAction> getActions(StackNode stack, Parse parse) {
-        IncrementalParseForest lookahead = parse.reducerLookahead.get();
+        IncrementalParseForest lookahead = parse.lookahead.get();
         if(lookahead.isTerminal()) {
             LinkedList<IAction> actions = new LinkedList<>();
             stack.state().getApplicableActions(parse).forEach(actions::add);
@@ -189,35 +190,6 @@ public class IncrementalParser
     @Override protected IncrementalParseForest getCharacterNodeToShift(Parse parse) {
         parse.multipleStates = parse.forShifter.size() > 1;
 
-        // This should only happen when the parser has already accepted or has failed
-        if(parse.forShifter.size() == 0) {
-            // If the lookahead has no yield, the actor will have called leftBreakdown on the reducerLookahead.
-            // This should also happen for the shiftLookahead, so that the lock-step property does not break.
-            while(parse.shiftLookahead.get().width() <= 0)
-                parse.shiftLookahead.leftBreakdown();
-            return IncrementalCharacterNode.EOF_NODE;
-        }
-
-        // Only used if forShifter.size() == 1, because multipleStates == false in that case
-        int forShifterState = parse.forShifter.peek().state.id();
-
-        while(!parse.shiftLookahead.get().isTerminal()) {
-            IncrementalParseNode shiftLookahead = (IncrementalParseNode) parse.shiftLookahead.get();
-            try {
-                // forShifterState is the state being shifted to.
-                // In the shiftLookahead, the state is stored _before_ shifting.
-                // If goto(stored_state, stored_production) == forShifterState, then shift subtree.
-                if(!parse.multipleStates && !shiftLookahead.isAmbiguous() && !lookaheadHasNoState(shiftLookahead)
-                    && forShifterState == shiftLookahead.getFirstDerivation().state
-                        .getGotoId(shiftLookahead.production().id()))
-                    break;
-            } catch(NullPointerException ignored) {
-                // NPE can be thrown when the shiftLookahead does not have a state and/or valid goto.
-                // In that case, we just need to continue breaking down the tree
-            }
-            parse.shiftLookahead.leftBreakdown();
-        }
-
-        return parse.shiftLookahead.get();
+        return parse.lookahead.get();
     }
 }

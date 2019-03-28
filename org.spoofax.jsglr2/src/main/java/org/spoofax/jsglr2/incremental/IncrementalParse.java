@@ -84,8 +84,10 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     // Recursively processes the tree until the update site has been found
     private IncrementalParseForest processUpdates(List<EditorUpdate> editorUpdates, IncrementalParseForest previous) {
         // TODO for all editor updates (currently only checking first update)
-        // TODO what if everything is deleted?
         EditorUpdate editorUpdate = editorUpdates.get(0);
+        // If everything is deleted, then just return the inserted string
+        if (editorUpdate.deletedStart == 0 && editorUpdate.deletedEnd == previous.width())
+            return getParseNodeFromString(editorUpdate.inserted);
         return processUpdates(previous, 0, editorUpdate.deletedStart, editorUpdate.deletedEnd, editorUpdate.inserted);
     }
 
@@ -132,12 +134,12 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     }
 
     private IncrementalParseNode newParseNodeFromChildren(IncrementalParseForest... newChildren) {
-        // TODO should we use the IncrementalParseForestManager for creating nodes?
         IncrementalParseForest[] filtered =
             Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
-        if(filtered.length == 0 && newChildren.length != 0) // Only return null if length _changed_
+        if(filtered.length == 0)
             return null;
-        return new IncrementalParseNode(null, new IncrementalDerivation(null, null, filtered, NO_STATE));
+        // TODO should we use the IncrementalParseForestManager for creating nodes?
+        return new IncrementalParseNode(filtered);
     }
 
     private IncrementalParseNode getParseNodeFromString(String inputString) {
@@ -148,7 +150,8 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
             // TODO should we use the IncrementalParseForestManager for creating nodes?
             parseForests[i] = new IncrementalCharacterNode(chars[i]);
         }
-        return newParseNodeFromChildren(parseForests);
+        // TODO should we use the IncrementalParseForestManager for creating nodes?
+        return new IncrementalParseNode(parseForests);
     }
 
 }

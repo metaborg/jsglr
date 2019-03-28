@@ -120,7 +120,6 @@ public class IncrementalParser
 
         for(IAction action : actions)
             actor(stack, parse, action);
-        // TODO case Accept, if reducerLookahead != EOF then abort parsing and return error? (should never happen)
     }
 
     private boolean lookaheadHasNoState(IncrementalParseForest lookahead) {

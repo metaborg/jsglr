@@ -50,7 +50,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         this.shiftLookahead = new EagerLookaheadStack(updatedTree); // TODO switch types between Lazy and Eager
         this.reducerLookahead = new EagerLookaheadStack(updatedTree);
         this.multipleStates = false;
-        this.currentChar = actionQueryCharacter();
+        this.currentChar = reducerLookahead.actionQueryCharacter();
     }
 
     // @formatter:off
@@ -66,7 +66,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     // @formatter:on
 
     @Override public int actionQueryCharacter() {
-        return reducerLookahead.actionQueryCharacter();
+        return currentChar;
     }
 
     @Override public String actionQueryLookahead(int length) {
@@ -83,7 +83,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         reducerLookahead.popLookahead();
         assert shiftLookahead.get() == reducerLookahead.get() : "Lock-step property is broken\nReduce lookahead:\n"
             + reducerLookahead.get() + "\nShift lookahead:\n" + shiftLookahead.get();
-        currentChar = actionQueryCharacter();
+        currentChar = reducerLookahead.actionQueryCharacter();
     }
 
     // Recursively processes the tree until the update site has been found

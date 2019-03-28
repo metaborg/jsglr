@@ -16,7 +16,7 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.SingleDiff;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
+import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
@@ -104,10 +104,11 @@ public class IncrementalParser
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {
-        Collection<IAction> actions =
-            lookaheadHasNoState(parse.lookahead.get()) ? Collections.emptyList() : getActions(stack, parse);
-        while(!parse.lookahead.get().isTerminal()
-            && (lookaheadHasNoState(parse.lookahead.get()) || actions.size() == 0 && parse.forShifter.isEmpty())) {
+        Collection<IAction> actions = getActions(stack, parse);
+        // Break down lookahead until it is a terminal or until there is something to be shifted
+        // Break down lookahead if it has no state or if there are no actions for it
+        while(!parse.lookahead.get().isTerminal() && parse.forShifter.isEmpty()
+            && (lookaheadHasNoState(parse.lookahead) || actions.size() == 0)) {
             parse.lookahead.leftBreakdown();
             actions = getActions(stack, parse);
         }
@@ -122,10 +123,8 @@ public class IncrementalParser
             actor(stack, parse, action);
     }
 
-    // Terminal nodes never have state
-    private boolean lookaheadHasNoState(IncrementalParseForest lookahead) {
-        return !lookahead.isTerminal()
-            && ((IncrementalParseNode) lookahead).getFirstDerivation().state.equals(NO_STATE);
+    private boolean lookaheadHasNoState(ILookaheadStack lookahead) {
+        return ((IncrementalParseNode) lookahead.get()).getFirstDerivation().state.equals(NO_STATE);
     }
 
     // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.

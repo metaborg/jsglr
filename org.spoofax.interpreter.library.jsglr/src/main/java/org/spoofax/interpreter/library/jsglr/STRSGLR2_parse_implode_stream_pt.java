@@ -64,7 +64,7 @@ public class STRSGLR2_parse_implode_stream_pt extends JSGLRPrimitive {
 	}
 
 	private static IStrategoTerm doParse(String input, String startSymbol, IParseTable pt, String path) {
-		JSGLR2<HybridParseForest, IStrategoTerm> parser = JSGLR2.standard(pt);
+		JSGLR2<?, IStrategoTerm> parser = JSGLR2.standard(pt);
 
 		return parser.parse(input, path, startSymbol);
 	}

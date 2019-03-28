@@ -25,7 +25,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
         testSuccessByAstString("baz", "Id(\"baz\")");
     }
 
-    @Ignore @Test public void incrementalReject() throws ParseError {
+    @Test public void incrementalReject() throws ParseError {
         testIncrementalSuccessByExpansions("foo",
             new EditorUpdate[] { new EditorUpdate(2, 3, "r"), new EditorUpdate(2, 3, "o") },
             new String[] { "Foo", "Id(\"for\")", "Foo" });

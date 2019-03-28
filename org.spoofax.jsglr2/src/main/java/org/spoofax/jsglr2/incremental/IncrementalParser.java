@@ -4,10 +4,13 @@ package org.spoofax.jsglr2.incremental;
 import static org.spoofax.jsglr2.incremental.IncrementalParse.NO_STATE;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.jsglr2.JSGLR2Variants;
@@ -125,7 +128,7 @@ public class IncrementalParser
             && ((IncrementalParseNode) lookahead).getFirstDerivation().state.equals(NO_STATE);
     }
 
-    // Inside this method, we can assume that the lookahead is a valid subtree of the previous parse.
+    // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.
     // Else, the loop in `actor` will have broken it down
     private Collection<IAction> getActions(StackNode stack, Parse parse) {
         IncrementalParseForest lookahead = parse.reducerLookahead.get();
@@ -136,28 +139,52 @@ public class IncrementalParser
         } else {
             LinkedList<IAction> actions = new LinkedList<>();
 
-            // Get reduce actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
-            stack.state().getApplicableReduceActions(parse).forEach(actions::add);
+            // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
+            stack.state().getApplicableActions(parse).forEach(actions::add);
+
+            // Split in shift and reduce actions
+            List<IShift> shiftActions = actions.stream().filter(a -> a.actionType() == ActionType.SHIFT)
+                .map(a -> ((IShift) a)).collect(Collectors.toList());
+            List<IReduce> reduceActions = actions.stream()
+                .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
+                .map(a -> ((IReduce) a)).collect(Collectors.toList());
+
+            // By default, only return the reduce actions
+            actions.clear();
+            actions.addAll(reduceActions);
 
             IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
 
             // Only allow shifting the subtree if the saved state matches the current state
+            boolean hasGotoShift = false;
             for(IncrementalDerivation derivation : lookaheadNode.getDerivations()) {
                 if(stack.state().id() == derivation.state.id()) {
                     actions.add(new GotoShift(stack.state().getGotoId(derivation.production().id())));
+                    hasGotoShift = true;
                 }
             }
 
-            // If lookahead.width() == 0 && production of lookahead matches the GotoShift, there is a duplicate action
-            if(!lookaheadNode.isAmbiguous() && lookaheadNode.width() == 0 && actions.size() == 2
-                && stack.state()
-                    .getGotoId(((IReduce) actions.getFirst()).production().id()) == ((GotoShift) actions.getLast())
-                        .shiftStateId()) {
-                actions.removeFirst();
+            // If we don't have a GotoShift action, but do have regular shift actions, we should break down further
+            if(!hasGotoShift && !shiftActions.isEmpty()) {
+                return Collections.emptyList(); // Return no actions, to trigger breakdown
+            }
+
+            // If lookahead has null yield and the production of lookahead matches the state of the GotoShift,
+            // there is a duplicate action that can be removed (this is an optimization to avoid multipleStates == true)
+            if(!lookaheadNode.isAmbiguous() && lookaheadNode.width() == 0 && actions.size() == 2 && hasGotoShift
+                && nullReduceMatchesGotoShift(stack, (IReduce) actions.getFirst(), (GotoShift) actions.getLast())) {
+                actions.removeFirst(); // Removes the unnecessary reduce action
             }
 
             return actions;
         }
+    }
+
+    // If the lookahead has null yield, there are always at least two valid actions:
+    // Either reduce a production with arity 0, or shift the already-existing null-yield subtree.
+    // This method returns whether the Goto state of the Reduce action matches the state of the GotoShift action.
+    private boolean nullReduceMatchesGotoShift(StackNode stack, IReduce reduceAction, GotoShift gotoShiftAction) {
+        return stack.state().getGotoId(reduceAction.production().id()) == gotoShiftAction.shiftStateId();
     }
 
     @Override protected IncrementalParseForest getCharacterNodeToShift(Parse parse) {

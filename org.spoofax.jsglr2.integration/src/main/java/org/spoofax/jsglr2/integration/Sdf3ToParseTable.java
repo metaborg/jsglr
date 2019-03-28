@@ -6,6 +6,8 @@ import java.util.function.Function;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
+import org.metaborg.core.editor.IEditorRegistry;
+import org.metaborg.core.editor.NullEditorRegistry;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
@@ -38,6 +40,10 @@ public class Sdf3ToParseTable {
         @Override protected void bindProject() {
             bind(SimpleProjectService.class).in(Singleton.class);
             bind(IProjectService.class).to(SimpleProjectService.class);
+        }
+
+        @Override protected void bindEditor() {
+            bind(IEditorRegistry.class).to(NullEditorRegistry.class).in(Singleton.class);
         }
     }
 

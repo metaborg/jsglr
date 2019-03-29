@@ -29,14 +29,10 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public abstract class BaseTest implements WithParseTable {
 
-    private TermReader termReader;
-    protected AstUtilities astUtilities;
+    private TermReader termReader = new TermReader(new TermFactory());
+    protected AstUtilities astUtilities = new AstUtilities();
 
     protected BaseTest() {
-        TermFactory termFactory = new TermFactory();
-        this.termReader = new TermReader(termFactory);
-
-        this.astUtilities = new AstUtilities();
     }
 
     public TermReader getTermReader() {

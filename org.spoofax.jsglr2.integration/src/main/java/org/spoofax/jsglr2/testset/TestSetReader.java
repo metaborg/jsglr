@@ -57,10 +57,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
 
                 Sdf3ToParseTable sdf3ToParseTable = new Sdf3ToParseTable(resource -> basePath() + resource);
 
-                IStrategoTerm parseTableTerm =
-                    sdf3ToParseTable.getParseTableTerm(testSetParseTableFromSDF3.name + ".sdf3");
-
-                this.parseTableTerm = parseTableTerm;
+                this.parseTableTerm = sdf3ToParseTable.getParseTableTerm(testSetParseTableFromSDF3.name + ".sdf3");
 
                 break;
             default:

@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.TokenDescriptor;
 import org.spoofax.terms.ParseError;
@@ -89,25 +88,24 @@ public class ExpressionsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void changingIdentifier() throws ParseError {
-        testIncrementalSuccessByExpansions("abc + def", new EditorUpdate[] { new EditorUpdate(1, 2, "g") },
+        testIncrementalSuccessByExpansions(new String[] { "abc + def", "agc + def" },
             new String[] { "[Add(Var(\"abc\"),Var(\"def\"))]", "[Add(Var(\"agc\"),Var(\"def\"))]" });
     }
 
     @Test public void reusingSubtreesNoLayout() {
-        testIncrementalSuccessByExpansions("xx+x x+x", new EditorUpdate[] { new EditorUpdate(1, 2, "y"), },
+        testIncrementalSuccessByExpansions(new String[] { "xx+x x+x", "xy+x x+x" },
             new String[] { "[Add(Var(\"xx\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]",
                 "[Add(Var(\"xy\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]" });
     }
 
     @Test public void reusingSubtreesWithLayout() {
-        testIncrementalSuccessByExpansions("xx + x x + x", new EditorUpdate[] { new EditorUpdate(1, 2, "y"), },
+        testIncrementalSuccessByExpansions(new String[] { "xx + x x + x", "xy + x x + x" },
             new String[] { "[Add(Var(\"xx\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]",
                 "[Add(Var(\"xy\"),Var(\"x\")),Add(Var(\"x\"),Var(\"x\"))]" });
     }
 
     @Test public void incrementalAmbiguity() {
-        testIncrementalSuccessByExpansions("x+x",
-            new EditorUpdate[] { new EditorUpdate(1, 1, "+x"), new EditorUpdate(1, 3, "") },
+        testIncrementalSuccessByExpansions(new String[] { "x+x", "x+x+x", "x+x" },
             new String[] { "[Add(Var(\"x\"),Var(\"x\"))]",
                 "[amb([Add(Var(\"x\"),Add(Var(\"x\"),Var(\"x\"))),Add(Add(Var(\"x\"),Var(\"x\")),Var(\"x\"))])]",
                 "[Add(Var(\"x\"),Var(\"x\"))]" });

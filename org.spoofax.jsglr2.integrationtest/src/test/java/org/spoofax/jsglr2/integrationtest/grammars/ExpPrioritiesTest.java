@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.integrationtest.grammars;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
 
@@ -40,22 +39,10 @@ public class ExpPrioritiesTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void changingPriorities() {
-        // @formatter:off
-        testIncrementalSuccessByExpansions("x+x+x",
-            new EditorUpdate[] {
-                new EditorUpdate(1, 2, "*"),
-                new EditorUpdate(3, 4, "*"),
-                new EditorUpdate(1, 2, "+"),
-                new EditorUpdate(3, 4, "+")
-            },
-            new String[] {
-                "Add(Add(Term(),Term()),Term())",
-                "Add(Mult(Term(),Term()),Term())",
-                "Mult(Mult(Term(),Term()),Term())",
-                "Add(Term(),Mult(Term(),Term()))",
-                "Add(Add(Term(),Term()),Term())"
-            });
-        // @formatter:on
+        testIncrementalSuccessByExpansions(new String[] { "x+x+x", "x*x+x", "x*x*x", "x+x*x", "x+x+x" },
+            new String[] { "Add(Add(Term(),Term()),Term())", "Add(Mult(Term(),Term()),Term())",
+                "Mult(Mult(Term(),Term()),Term())", "Add(Term(),Mult(Term(),Term()))",
+                "Add(Add(Term(),Term()),Term())" });
     }
 
     @Test public void largerPrioritiesTest() {

@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.integrationtest.grammars;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
 
@@ -33,24 +32,19 @@ public class LookaheadIncrementalTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void incrementalOneCharFollowRestricted() throws ParseError {
-        testIncrementalSuccessByExpansions("1[x]",
-            new EditorUpdate[] { new EditorUpdate(2, 2, "a"), new EditorUpdate(2, 3, "") },
-            new String[] { "OneCharFollowRestricted(\"1[x]\")", "OneCharPrefix(\"1[ax]\")",
-                "OneCharFollowRestricted(\"1[x]\")", });
+        testIncrementalSuccessByExpansions(new String[] { "1[x]", "1[ax]", "1[x]" }, new String[] {
+            "OneCharFollowRestricted(\"1[x]\")", "OneCharPrefix(\"1[ax]\")", "OneCharFollowRestricted(\"1[x]\")" });
     }
 
     @Test public void incrementalTwoCharFollowRestricted() throws ParseError {
-        testIncrementalSuccessByExpansions("2[ax]",
-            new EditorUpdate[] { new EditorUpdate(3, 3, "b"), new EditorUpdate(3, 4, "") },
-            new String[] { "TwoCharFollowRestricted(\"2[ax]\")", "TwoCharPrefix(\"2[abx]\")",
-                "TwoCharFollowRestricted(\"2[ax]\")", });
+        testIncrementalSuccessByExpansions(new String[] { "2[ax]", "2[abx]", "2[ax]" }, new String[] {
+            "TwoCharFollowRestricted(\"2[ax]\")", "TwoCharPrefix(\"2[abx]\")", "TwoCharFollowRestricted(\"2[ax]\")" });
     }
 
     @Test public void incrementalThreeCharFollowRestricted() throws ParseError {
-        testIncrementalSuccessByExpansions("3[abx]",
-            new EditorUpdate[] { new EditorUpdate(4, 4, "c"), new EditorUpdate(4, 5, "") },
+        testIncrementalSuccessByExpansions(new String[] { "3[abx]", "3[abcx]", "3[abx]" },
             new String[] { "ThreeCharFollowRestricted(\"3[abx]\")", "ThreeCharPrefix(\"3[abcx]\")",
-                "ThreeCharFollowRestricted(\"3[abx]\")", });
+                "ThreeCharFollowRestricted(\"3[abx]\")" });
     }
 
 }

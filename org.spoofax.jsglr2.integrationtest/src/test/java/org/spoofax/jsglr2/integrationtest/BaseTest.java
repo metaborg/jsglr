@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -20,8 +19,6 @@ import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
-import org.spoofax.jsglr2.incremental.EditorUpdate;
-import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -115,11 +112,6 @@ public abstract class BaseTest implements WithParseTable {
         testIncrementalSuccess(inputStrings, expectedOutputAstStrings, null, true);
     }
 
-    protected void testIncrementalSuccessByExpansions(String inputString, EditorUpdate[] updates,
-        String[] expectedOutputAstStrings) {
-        testIncrementalSuccess(inputString, updates, expectedOutputAstStrings, null, true);
-    }
-
     protected void testSuccessByAstString(String startSymbol, String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, startSymbol, false);
     }
@@ -165,59 +157,6 @@ public abstract class BaseTest implements WithParseTable {
 
                     ImplodeResult<IStrategoTerm> implodeResult =
                         jsglr2.imploder.implode(inputString, filename, success.parseResult);
-
-                    assertNotNull("Variant '" + variant.name() + "' failed imploding at update " + i + ": ",
-                        implodeResult);
-                    actualOutputAst = implodeResult.ast;
-                } else {
-                    fail("Variant '" + variant.name() + "' failed parsing at update " + i + ": "
-                        + ((ParseFailure) result).failureType);
-                    return;
-                }
-                if(equalityByExpansions) {
-                    IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstStrings[i]);
-
-                    assertEqualTermExpansions(
-                        "Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ", expectedOutputAst,
-                        actualOutputAst);
-                } else {
-                    assertEquals(expectedOutputAstStrings[i], actualOutputAst.toString());
-                }
-            }
-
-        }
-    }
-
-    private void testIncrementalSuccess(String inputString, EditorUpdate[] updates, String[] expectedOutputAstStrings,
-        String startSymbol, boolean equalityByExpansions) {
-        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
-            if(variant.parser.parseForestRepresentation != ParseForestRepresentation.Incremental)
-                continue;
-            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            JSGLR2<IncrementalParseForest, IStrategoTerm> jsglr2 =
-                (JSGLR2<IncrementalParseForest, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
-            // TODO remove observer later again
-            jsglr2.parser.observing().attachObserver(new org.spoofax.jsglr2.parser.observing.ParserLogObserver<>());
-
-            IStrategoTerm actualOutputAst;
-            IncrementalParseForest previousParseForest = null;
-            for(int i = 0; i < expectedOutputAstStrings.length; i++) {
-                ParseResult<IncrementalParseForest> result;
-                if(i == 0) {
-                    result = jsglr2.parser.parse(inputString, "", startSymbol);
-                } else {
-                    EditorUpdate update = updates[i - 1];
-                    inputString = inputString.substring(0, update.deletedStart) + update.inserted
-                        + inputString.substring(update.deletedEnd);
-                    result = ((IncrementalParser) jsglr2.parser).incrementalParse(singletonList(update),
-                        previousParseForest, "", startSymbol);
-                }
-                if(result.isSuccess) {
-                    ParseSuccess<IncrementalParseForest> success = (ParseSuccess<IncrementalParseForest>) result;
-
-                    ImplodeResult<IStrategoTerm> implodeResult =
-                        jsglr2.imploder.implode(inputString, "", success.parseResult);
-                    previousParseForest = success.parseResult;
 
                     assertNotNull("Variant '" + variant.name() + "' failed imploding at update " + i + ": ",
                         implodeResult);

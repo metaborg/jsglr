@@ -116,8 +116,9 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
             // If none of the cases applies, just return original character node
             return currentForest;
         }
+        // Use a shallow copy of the current children, else the old children array will be modified
         IncrementalParseForest[] parseForests =
-            ((IncrementalParseNode) currentForest).getFirstDerivation().parseForests();
+            ((IncrementalParseNode) currentForest).getFirstDerivation().parseForests().clone();
         for(int i = 0; i < parseForests.length; i++) {
             IncrementalParseForest parseForest = parseForests[i];
             int nextOffset = currentOffset + parseForest.width(); // == start offset of right sibling subtree

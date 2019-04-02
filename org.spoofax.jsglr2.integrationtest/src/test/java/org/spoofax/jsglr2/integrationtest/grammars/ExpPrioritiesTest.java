@@ -65,4 +65,10 @@ public class ExpPrioritiesTest extends BaseTestWithSdf3ParseTables {
                 "Add(Add(Mult(Mult(Mult(Term,Term),Term),Term),Term),Term)" });
     }
 
+    @Test public void nothingChangedTest() {
+        testIncrementalSuccessByExpansions(new String[] { "x*x+x*x+x*x", "x*x+x*x+x*x" },
+            new String[] { "Add(Add(Mult(Term,Term),Mult(Term,Term)),Mult(Term,Term))",
+                "Add(Add(Mult(Term,Term),Mult(Term,Term)),Mult(Term,Term))" });
+    }
+
 }

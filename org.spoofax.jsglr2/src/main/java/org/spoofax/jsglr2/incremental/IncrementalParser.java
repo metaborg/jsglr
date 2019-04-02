@@ -107,8 +107,9 @@ public class IncrementalParser
         Collection<IAction> actions = getActions(stack, parse);
         // Break down lookahead until it is a terminal or until there is something to be shifted
         // Break down lookahead if it has no state or if there are no actions for it
-        while(!parse.lookahead.get().isTerminal() && parse.forShifter.isEmpty()
-            && (lookaheadHasNoState(parse.lookahead) || actions.size() == 0)) {
+        // TODO Maybe: break down lookahead if parse.multipleStates?
+        while(!parse.lookahead.get().isTerminal()
+            && (lookaheadHasNoState(parse.lookahead) || actions.size() == 0 && parse.forShifter.isEmpty())) {
             parse.lookahead.leftBreakdown();
             actions = getActions(stack, parse);
         }

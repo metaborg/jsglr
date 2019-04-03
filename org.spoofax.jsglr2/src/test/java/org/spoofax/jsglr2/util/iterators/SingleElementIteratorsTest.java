@@ -1,11 +1,10 @@
-package org.spoofax.jsglr2.tests.util.iterators;
+package org.spoofax.jsglr2.util.iterators;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class SingleElementIteratorsTest {
 

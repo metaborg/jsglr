@@ -1,9 +1,8 @@
-package org.spoofax.jsglr2.tests.parser;
+package org.spoofax.jsglr2.parser;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.parser.Position;
 
 public class PositionTest {
 

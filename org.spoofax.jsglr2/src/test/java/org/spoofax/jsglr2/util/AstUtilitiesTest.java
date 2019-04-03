@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.tests.util;
+package org.spoofax.jsglr2.util;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;

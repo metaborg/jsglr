@@ -124,9 +124,5 @@ public class Position {
         return column == other.column && line == other.line && offset == other.offset;
     }
 
-    public Position add(Position extent) {
-        return new Position(offset + extent.offset - 1, line + extent.line - 1,
-            extent.line > 1 ? extent.column : column + extent.column - 1);
-    }
 
 }

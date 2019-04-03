@@ -17,8 +17,6 @@ import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.metaborg.util.log.ILogger;
-import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.SingleDiff;
@@ -50,7 +48,6 @@ public class IncrementalParser
 // @formatter:on
     extends Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> {
 
-    private static final ILogger logger = LoggerUtils.logger(IncrementalParser.class);
     private final IncrementalParseFactory<StackNode, Parse> incrementalParseFactory;
     private final HashMap<String, IncrementalParseForest> cache = new HashMap<>();
     private final HashMap<String, String> oldString = new HashMap<>();
@@ -72,19 +69,13 @@ public class IncrementalParser
 
     @Override public ParseResult<IncrementalParseForest> parse(String inputString, String filename,
         String startSymbol) {
-        ParseResult<IncrementalParseForest> result;
-        long begin = System.currentTimeMillis();
-        IncrementalParseForest previous = null;
 
+        final ParseResult<IncrementalParseForest> result;
         if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
-            previous = cache.get(filename);
-            result = incrementalParse(diff.diff(oldString.get(filename), inputString), previous, filename, startSymbol);
+            List<EditorUpdate> updates = diff.diff(oldString.get(filename), inputString);
+            result = incrementalParse(updates, cache.get(filename), filename, startSymbol);
         } else
             result = super.parse(inputString, filename, startSymbol);
-
-        long time = System.currentTimeMillis() - begin;
-        logger.info((previous == null ? "Clean" : "Incremental") + " parse "
-            + (result.isSuccess ? "success" : "failure") + "! (" + time + " ms)");
 
         if(result.isSuccess && !filename.equals("")) {
             oldString.put(filename, inputString);
@@ -103,10 +94,7 @@ public class IncrementalParser
         Parse parse = incrementalParseFactory.get(editorUpdates, previousVersion, filename, activeStacks,
             forActorStacks, observing);
 
-        ParseResult<IncrementalParseForest> result = parseInternal(startSymbol, parse);
-        // Commented out because the `incrementalParse` method is not called externally, and `parse` already logs
-        // logger.info(result.isSuccess ? "Incremental parse success!" : "Incremental parse failure!");
-        return result;
+        return parseInternal(startSymbol, parse);
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {

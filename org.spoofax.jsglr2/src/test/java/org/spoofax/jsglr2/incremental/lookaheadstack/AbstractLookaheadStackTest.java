@@ -1,11 +1,10 @@
-package org.spoofax.jsglr2.tests.lookaheadstack;
+package org.spoofax.jsglr2.incremental.lookaheadstack;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
 
 import org.junit.Test;
-import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;

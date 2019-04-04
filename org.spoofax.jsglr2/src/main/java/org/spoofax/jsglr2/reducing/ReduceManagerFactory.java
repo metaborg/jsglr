@@ -15,6 +15,15 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 
+/*
+Implementation note: in theory, this factory is an unnecessary bypass for the constructors of ReduceManagers.
+It is unnecessary, because after the factory has been created and passed to the Parser, the factory is only used once.
+However, using this factory prevents the duplication of the new StackManager in JSGLR2Variants.getParser.
+This duplication would either mean
+- having to extract the new StackManager as a variable and having to explicitly write all type parameters, or
+- constructing two new StackManagers instead.
+Having a ReduceManagerFactory was preferred over these other two options.
+*/
 public interface ReduceManagerFactory
 //@formatter:off
    <ParseForest   extends IParseForest,

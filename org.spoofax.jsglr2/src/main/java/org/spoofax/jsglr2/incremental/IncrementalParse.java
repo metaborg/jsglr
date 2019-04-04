@@ -36,12 +36,11 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
     public static State NO_STATE = new State(-1, new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]),
         new ProductionToGotoForLoop(new IGoto[0]));
 
-    public IncrementalParse(List<EditorUpdate> editorUpdates, IncrementalParseForest previous, String filename,
-        IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
+    public IncrementalParse(List<EditorUpdate> editorUpdates, IncrementalParseForest previous, String inputString,
+        String filename, IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
         ParserObserving<IncrementalParseForest, StackNode> observing) {
 
-        super("<no input string available for incremental parsing>", filename, activeStacksFactory,
-            forActorStacksFactory, observing);
+        super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
         initParse(processUpdates(editorUpdates, previous));
     }
 
@@ -63,8 +62,9 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
         ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
         ForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
-        return (editorUpdates, previousVersion, filename, observing) -> new IncrementalParse<>(editorUpdates,
-            previousVersion, filename, activeStacksFactory, forActorStacksFactory, observing);
+        return (editorUpdates, previousVersion, inputString, filename, observing) -> new IncrementalParse<>(
+            editorUpdates, previousVersion, inputString, filename, activeStacksFactory, forActorStacksFactory,
+            observing);
     }
 
     public static <StackNode_ extends IStackNode>

@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 
 public interface IncrementalParseFactory<StackNode extends IStackNode, Parse extends IncrementalParse<StackNode>> {
 
-    Parse get(List<EditorUpdate> editorUpdates, IncrementalParseForest previousVersion, String filename,
-        ParserObserving<IncrementalParseForest, StackNode> observing);
+    Parse get(List<EditorUpdate> editorUpdates, IncrementalParseForest previousVersion, String inputString,
+        String filename, ParserObserving<IncrementalParseForest, StackNode> observing);
 
 }

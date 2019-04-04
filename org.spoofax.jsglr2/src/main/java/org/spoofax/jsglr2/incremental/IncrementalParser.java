@@ -26,13 +26,10 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
-import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class IncrementalParser
 // @formatter:off
@@ -63,30 +60,21 @@ public class IncrementalParser
         this.diff = new SingleDiff();
     }
 
-    @Override public ParseResult<IncrementalParseForest> parse(String inputString, String filename,
-        String startSymbol) {
-
-        final ParseResult<IncrementalParseForest> result;
+    @Override protected Parse getParse(String inputString, String filename) {
         if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
             List<EditorUpdate> updates = diff.diff(oldString.get(filename), inputString);
-            result = incrementalParse(updates, cache.get(filename), filename, startSymbol);
+            return incrementalParseFactory.get(updates, cache.get(filename), inputString, filename, observing);
         } else
-            result = super.parse(inputString, filename, startSymbol);
-
-        if(result.isSuccess && !filename.equals("")) {
-            oldString.put(filename, inputString);
-            cache.put(filename, ((ParseSuccess<IncrementalParseForest>) result).parseResult);
-        }
-
-        return result;
+            return super.getParse(inputString, filename);
     }
 
-    public ParseResult<IncrementalParseForest> incrementalParse(List<EditorUpdate> editorUpdates,
-        IncrementalParseForest previousVersion, String filename, String startSymbol) {
-
-        Parse parse = incrementalParseFactory.get(editorUpdates, previousVersion, filename, observing);
-
-        return parseInternal(startSymbol, parse);
+    @Override protected ParseSuccess<IncrementalParseForest> success(Parse parse, IncrementalParseForest parseForest) {
+        // On success, save result (if filename != "")
+        if(!parse.filename.equals("")) {
+            oldString.put(parse.filename, parse.inputString);
+            cache.put(parse.filename, parseForest);
+        }
+        return super.success(parse, parseForest);
     }
 
     @Override protected void actor(StackNode stack, Parse parse) {

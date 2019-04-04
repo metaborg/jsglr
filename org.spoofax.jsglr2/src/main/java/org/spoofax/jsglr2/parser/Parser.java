@@ -53,12 +53,8 @@ public class Parser
     }
 
     @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {
-        Parse parse = parseFactory.get(inputString, filename, observing);
+        Parse parse = getParse(inputString, filename);
 
-        return parseInternal(startSymbol, parse);
-    }
-
-    protected ParseResult<ParseForest> parseInternal(String startSymbol, Parse parse) {
         observing.notify(observer -> observer.parseStart(parse));
 
         StackNode initialStackNode = stackManager.createInitialStackNode(parse, parseTable.getStartState());
@@ -81,7 +77,11 @@ public class Parser
             return failure(parse, failureHandler.failureType(parse));
     }
 
-    private ParseSuccess<ParseForest> success(Parse parse, ParseForest parseForest) {
+    protected Parse getParse(String inputString, String filename) {
+        return parseFactory.get(inputString, filename, observing);
+    }
+
+    protected ParseSuccess<ParseForest> success(Parse parse, ParseForest parseForest) {
         ParseSuccess<ParseForest> success = new ParseSuccess<>(parse, parseForest);
 
         observing.notify(observer -> observer.success(success));
@@ -89,7 +89,7 @@ public class Parser
         return success;
     }
 
-    private ParseFailure<ParseForest> failure(Parse parse, ParseFailureType failureType) {
+    protected ParseFailure<ParseForest> failure(Parse parse, ParseFailureType failureType) {
         ParseFailure<ParseForest> failure = new ParseFailure<>(parse, failureType);
 
         observing.notify(observer -> observer.failure(failure));

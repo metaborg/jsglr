@@ -199,11 +199,11 @@ public class JSGLR2Variants {
 
                 switch(variant.stackRepresentation) {
                     case Basic:
-                        return new Parser<>(Parse.factory(), parseTable, StackManagerFactory.basicStackManagerFactory(),
-                            dataDependentParseForestManager, ReduceManagerFactory.dataDependentReduceManagerFactory(),
-                            variant);
+                        return new Parser<>(Parse.factory(variant), parseTable,
+                            StackManagerFactory.basicStackManagerFactory(), dataDependentParseForestManager,
+                            ReduceManagerFactory.dataDependentReduceManagerFactory(), variant);
                     case Hybrid:
-                        return new Parser<>(Parse.factory(), parseTable,
+                        return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridStackManagerFactory(), dataDependentParseForestManager,
                             ReduceManagerFactory.dataDependentReduceManagerFactory(), variant);
                     default:
@@ -216,11 +216,11 @@ public class JSGLR2Variants {
 
                 switch(variant.stackRepresentation) {
                     case Basic:
-                        return new Parser<>(Parse.factory(), parseTable, StackManagerFactory.basicStackManagerFactory(),
-                            layoutSensitiveParseForestManager,
+                        return new Parser<>(Parse.factory(variant), parseTable,
+                            StackManagerFactory.basicStackManagerFactory(), layoutSensitiveParseForestManager,
                             ReduceManagerFactory.layoutSensitiveReduceManagerFactory(), variant);
                     case Hybrid:
-                        return new Parser<>(Parse.factory(), parseTable,
+                        return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridStackManagerFactory(), layoutSensitiveParseForestManager,
                             ReduceManagerFactory.layoutSensitiveReduceManagerFactory(), variant);
                     default:
@@ -235,11 +235,11 @@ public class JSGLR2Variants {
             case Elkhound:
                 switch(variant.stackRepresentation) {
                     case BasicElkhound:
-                        return new ElkhoundParser<>(Parse.factory(), parseTable,
+                        return new ElkhoundParser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.basicElkhoundStackManagerFactory(), parseForestManager,
                             ReduceManagerFactory.elkhoundReduceManagerFactory(), variant);
                     case HybridElkhound:
-                        return new ElkhoundParser<>(Parse.factory(), parseTable,
+                        return new ElkhoundParser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridElkhoundStackManagerFactory(), parseForestManager,
                             ReduceManagerFactory.elkhoundReduceManagerFactory(), variant);
                     default:
@@ -248,18 +248,19 @@ public class JSGLR2Variants {
             case Basic:
                 switch(variant.stackRepresentation) {
                     case Basic:
-                        return new Parser<>(Parse.factory(), parseTable, StackManagerFactory.basicStackManagerFactory(),
-                            parseForestManager, ReduceManagerFactory.reduceManagerFactory(), variant);
+                        return new Parser<>(Parse.factory(variant), parseTable,
+                            StackManagerFactory.basicStackManagerFactory(), parseForestManager,
+                            ReduceManagerFactory.reduceManagerFactory(), variant);
                     case Hybrid:
-                        return new Parser<>(Parse.factory(), parseTable,
+                        return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridStackManagerFactory(), parseForestManager,
                             ReduceManagerFactory.reduceManagerFactory(), variant);
                     case BasicElkhound:
-                        return new Parser<>(Parse.factory(), parseTable,
+                        return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.basicElkhoundStackManagerFactory(), parseForestManager,
                             ReduceManagerFactory.reduceManagerFactory(), variant);
                     case HybridElkhound:
-                        return new Parser<>(Parse.factory(), parseTable,
+                        return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridElkhoundStackManagerFactory(), parseForestManager,
                             ReduceManagerFactory.reduceManagerFactory(), variant);
                     default:

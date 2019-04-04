@@ -20,7 +20,6 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
-import org.spoofax.jsglr2.stack.collections.*;
 
 public class Parser
 //@formatter:off
@@ -41,8 +40,6 @@ public class Parser
     protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
     protected final ReduceManager reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
-    private final IActiveStacksFactory activeStacksFactory;
-    private final IForActorStacksFactory forActorStacksFactory;
     protected final ParserObserving<ParseForest, StackNode> observing;
 
     public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
@@ -52,8 +49,6 @@ public class Parser
         JSGLR2Variants.ParserVariant variant) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;
-        this.activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
-        this.forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
         this.stackManager = stackManagerFactory.get();
         this.parseForestManager = parseForestManager;
         this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager,
@@ -63,10 +58,7 @@ public class Parser
     }
 
     @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {
-        IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
-        IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
-
-        Parse parse = parseFactory.get(inputString, filename, activeStacks, forActorStacks, observing);
+        Parse parse = parseFactory.get(inputString, filename, observing);
 
         observing.notify(observer -> observer.parseStart(parse));
 

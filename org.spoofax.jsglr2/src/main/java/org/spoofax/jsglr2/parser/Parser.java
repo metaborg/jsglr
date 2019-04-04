@@ -18,7 +18,6 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackManagerFactory;
 
 public class Parser
 //@formatter:off
@@ -42,12 +41,11 @@ public class Parser
     protected final ParserObserving<ParseForest, StackNode> observing;
 
     public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
-        StackManagerFactory<ParseForest, StackNode, Parse, StackManager> stackManagerFactory,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;
-        this.stackManager = stackManagerFactory.get();
+        this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
         this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager);
         this.failureHandler = new DefaultParseFailureHandler<>();

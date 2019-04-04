@@ -15,7 +15,6 @@ import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
-import org.spoofax.jsglr2.stack.StackManagerFactory;
 
 public class ElkhoundParser
 //@formatter:off
@@ -31,10 +30,9 @@ public class ElkhoundParser
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> {
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
-        StackManagerFactory<ParseForest, ElkhoundStackNode, Parse, StackManager> stackManagerFactory,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory) {
-        super(parseFactory, parseTable, stackManagerFactory, parseForestManager, elkhoundReduceManagerFactory);
+        super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory);
     }
 
     @Override protected void parseLoop(Parse parse) {

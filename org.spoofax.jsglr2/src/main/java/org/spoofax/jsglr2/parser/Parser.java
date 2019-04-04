@@ -5,7 +5,6 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -45,14 +44,12 @@ public class Parser
     public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
         StackManagerFactory<ParseForest, StackNode, Parse, StackManager> stackManagerFactory,
         ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
-        ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory,
-        JSGLR2Variants.ParserVariant variant) {
+        ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManagerFactory.get();
         this.parseForestManager = parseForestManager;
-        this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager,
-            variant.parseForestConstruction);
+        this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager);
         this.failureHandler = new DefaultParseFailureHandler<>();
         this.observing = new ParserObserving<>();
     }

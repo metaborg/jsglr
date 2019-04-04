@@ -201,11 +201,11 @@ public class JSGLR2Variants {
                     case Basic:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.basicStackManagerFactory(), dataDependentParseForestManager,
-                            ReduceManagerFactory.dataDependentReduceManagerFactory(), variant);
+                            ReduceManagerFactory.dataDependentReduceManagerFactory(variant));
                     case Hybrid:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridStackManagerFactory(), dataDependentParseForestManager,
-                            ReduceManagerFactory.dataDependentReduceManagerFactory(), variant);
+                            ReduceManagerFactory.dataDependentReduceManagerFactory(variant));
                     default:
                         throw new IllegalStateException();
                 }
@@ -218,11 +218,11 @@ public class JSGLR2Variants {
                     case Basic:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.basicStackManagerFactory(), layoutSensitiveParseForestManager,
-                            ReduceManagerFactory.layoutSensitiveReduceManagerFactory(), variant);
+                            ReduceManagerFactory.layoutSensitiveReduceManagerFactory(variant));
                     case Hybrid:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridStackManagerFactory(), layoutSensitiveParseForestManager,
-                            ReduceManagerFactory.layoutSensitiveReduceManagerFactory(), variant);
+                            ReduceManagerFactory.layoutSensitiveReduceManagerFactory(variant));
                     default:
                         throw new IllegalStateException();
                 }
@@ -237,11 +237,11 @@ public class JSGLR2Variants {
                     case BasicElkhound:
                         return new ElkhoundParser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.basicElkhoundStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.elkhoundReduceManagerFactory(), variant);
+                            ReduceManagerFactory.elkhoundReduceManagerFactory(variant));
                     case HybridElkhound:
                         return new ElkhoundParser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridElkhoundStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.elkhoundReduceManagerFactory(), variant);
+                            ReduceManagerFactory.elkhoundReduceManagerFactory(variant));
                     default:
                         throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
                 }
@@ -250,19 +250,19 @@ public class JSGLR2Variants {
                     case Basic:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.basicStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                            ReduceManagerFactory.reduceManagerFactory(variant));
                     case Hybrid:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                            ReduceManagerFactory.reduceManagerFactory(variant));
                     case BasicElkhound:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.basicElkhoundStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                            ReduceManagerFactory.reduceManagerFactory(variant));
                     case HybridElkhound:
                         return new Parser<>(Parse.factory(variant), parseTable,
                             StackManagerFactory.hybridElkhoundStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                            ReduceManagerFactory.reduceManagerFactory(variant));
                     default:
                         throw new IllegalStateException();
                 }

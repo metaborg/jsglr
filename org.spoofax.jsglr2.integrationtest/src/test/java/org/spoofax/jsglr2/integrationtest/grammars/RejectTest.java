@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.integrationtest.grammars;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
@@ -12,7 +11,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
     }
 
 
-    @Ignore @Test public void testReject() throws ParseError {
+    @Test public void testReject() throws ParseError {
         testSuccessByAstString("foo", "Foo");
     }
 

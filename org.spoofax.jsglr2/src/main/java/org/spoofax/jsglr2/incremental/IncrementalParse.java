@@ -12,7 +12,6 @@ import org.metaborg.sdf2table.parsetable.query.ProductionToGotoForLoop;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
@@ -153,8 +152,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
             Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
         if(filtered.length == 0)
             return null;
-        // TODO should we use the IncrementalParseForestManager for creating nodes?
-        return new IncrementalParseNode(filtered);
+        return parseForestManager.createChangedParseNode(this, filtered);
     }
 
     private IncrementalParseNode getParseNodeFromString(String inputString) {
@@ -162,11 +160,9 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
         char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            // TODO should we use the IncrementalParseForestManager for creating nodes?
-            parseForests[i] = new IncrementalCharacterNode(chars[i]);
+            parseForests[i] = parseForestManager.createCharacterNode(this, chars[i]);
         }
-        // TODO should we use the IncrementalParseForestManager for creating nodes?
-        return new IncrementalParseNode(parseForests);
+        return parseForestManager.createChangedParseNode(this, parseForests);
     }
 
 }

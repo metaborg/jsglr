@@ -49,6 +49,17 @@ public class IncrementalParseForestManager
         return parseNode;
     }
 
+    public IncrementalParseNode createChangedParseNode(AbstractParse<IncrementalParseForest, ?> parse,
+        IncrementalParseForest... children) {
+        IncrementalParseNode parseNode = new IncrementalParseNode(children);
+
+        parse.observing.notify(observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, children));
+        parse.observing.notify(observer -> observer.createParseNode(parseNode, null));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+
+        return parseNode;
+    }
+
     @Override public IncrementalDerivation createDerivation(AbstractParse<IncrementalParseForest, ?> parse,
         Position ignored, IProduction production, ProductionType productionType,
         IncrementalParseForest[] parseForests) {
@@ -71,7 +82,11 @@ public class IncrementalParseForestManager
     }
 
     @Override public IncrementalParseForest createCharacterNode(AbstractParse<IncrementalParseForest, ?> parse) {
-        IncrementalCharacterNode characterNode = new IncrementalCharacterNode(parse.currentChar);
+        return createCharacterNode(parse, parse.currentChar);
+    }
+
+    public IncrementalParseForest createCharacterNode(AbstractParse<IncrementalParseForest, ?> parse, int currentChar) {
+        IncrementalCharacterNode characterNode = new IncrementalCharacterNode(currentChar);
 
         parse.observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
 

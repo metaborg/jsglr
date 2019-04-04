@@ -54,10 +54,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <!-- Required to add a dependency on the Spoofax plugin, otherwise unpacking
                     will fail with a class cast exception on archivers. Fix from: http://maven.40175.n5.nabble.com/Problems-with-register-new-archive-type-td4574906.html -->

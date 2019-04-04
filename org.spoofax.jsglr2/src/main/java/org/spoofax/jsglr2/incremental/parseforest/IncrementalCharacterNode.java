@@ -17,6 +17,10 @@ public class IncrementalCharacterNode extends IncrementalParseForest implements 
         this.character = character;
     }
 
+    @Override public boolean isTerminal() {
+        return true;
+    }
+
     @Override public int character() {
         return character;
     }

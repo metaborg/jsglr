@@ -107,7 +107,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
     private IncrementalParseForest processUpdates(IncrementalParseForest currentForest, int currentOffset,
         int deletedStartOffset, int deletedEndOffset, String inserted) {
-        if(currentForest instanceof IncrementalCharacterNode) {
+        if(currentForest.isTerminal()) {
             // If there is nothing to delete
             if(deletedStartOffset == deletedEndOffset) {
                 // Insert-after strategy (can also be applied in the general case, but gives less subtree re-use)

@@ -11,9 +11,7 @@ public abstract class IncrementalParseForest implements IParseForest {
         this.width = width;
     }
 
-    public boolean isTerminal() {
-        return this instanceof IncrementalCharacterNode;
-    }
+    public abstract boolean isTerminal();
 
     @Override public int width() {
         return width;

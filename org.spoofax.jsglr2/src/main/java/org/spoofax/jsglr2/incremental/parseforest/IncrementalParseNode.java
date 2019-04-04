@@ -28,6 +28,10 @@ public class IncrementalParseNode extends IncrementalParseForest
         this(null, new IncrementalDerivation(null, null, parseForests, NO_STATE));
     }
 
+    @Override public boolean isTerminal() {
+        return false;
+    }
+
     public IProduction production() {
         return production;
     }

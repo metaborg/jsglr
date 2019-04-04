@@ -155,7 +155,7 @@ public class IncrementalParser
         return stack.state().getGotoId(reduceAction.production().id()) == gotoShiftAction.shiftStateId();
     }
 
-    @Override protected IncrementalParseForest getCharacterNodeToShift(Parse parse) {
+    @Override protected IncrementalParseForest getNodeToShift(Parse parse) {
         parse.multipleStates = parse.forShifter.size() > 1;
 
         return parse.lookahead.get();

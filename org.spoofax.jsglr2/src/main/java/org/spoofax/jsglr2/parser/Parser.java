@@ -169,7 +169,7 @@ public class Parser
     protected void shifter(Parse parse) {
         parse.activeStacks.clear();
 
-        ParseForest characterNode = getCharacterNodeToShift(parse);
+        ParseForest characterNode = getNodeToShift(parse);
 
         observing.notify(observer -> observer.shifter(characterNode, parse.forShifter));
 
@@ -190,7 +190,7 @@ public class Parser
         parse.forShifter.clear();
     }
 
-    protected ParseForest getCharacterNodeToShift(Parse parse) {
+    protected ParseForest getNodeToShift(Parse parse) {
         return parseForestManager.createCharacterNode(parse);
     }
 

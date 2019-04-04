@@ -17,7 +17,6 @@ import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.SingleDiff;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
@@ -32,7 +31,6 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackManagerFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
@@ -55,12 +53,10 @@ public class IncrementalParser
 
     public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, Parse> parseFactory,
         IncrementalParseFactory<StackNode, Parse> incrementalParseFactory, IParseTable parseTable,
-        StackManagerFactory<IncrementalParseForest, StackNode, Parse, StackManager> stackManagerFactory,
-        ParseForestManager<IncrementalParseForest, ParseNode, Derivation> parseForestManager,
-        ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory,
-        JSGLR2Variants.ParserVariant variant) {
+        StackManager stackManager, ParseForestManager<IncrementalParseForest, ParseNode, Derivation> parseForestManager,
+        ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory) {
 
-        super(parseFactory, parseTable, stackManagerFactory, parseForestManager, reduceManagerFactory, variant);
+        super(parseFactory, parseTable, stackManager, parseForestManager, reduceManagerFactory);
         this.incrementalParseFactory = incrementalParseFactory;
         // TODO different diffing types, probably based on:
         // https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
@@ -88,11 +84,7 @@ public class IncrementalParser
     public ParseResult<IncrementalParseForest> incrementalParse(List<EditorUpdate> editorUpdates,
         IncrementalParseForest previousVersion, String filename, String startSymbol) {
 
-        IActiveStacks<StackNode> activeStacks = activeStacksFactory.get(observing);
-        IForActorStacks<StackNode> forActorStacks = forActorStacksFactory.get(observing);
-
-        Parse parse = incrementalParseFactory.get(editorUpdates, previousVersion, filename, activeStacks,
-            forActorStacks, observing);
+        Parse parse = incrementalParseFactory.get(editorUpdates, previousVersion, filename, observing);
 
         return parseInternal(startSymbol, parse);
     }

@@ -9,15 +9,21 @@ import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
 import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
 import org.metaborg.sdf2table.parsetable.query.ProductionToGotoForLoop;
+import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
-import org.spoofax.jsglr2.incremental.parseforest.*;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
+import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 import org.spoofax.jsglr2.states.State;
 
 public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode> {
@@ -31,17 +37,18 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         new ProductionToGotoForLoop(new IGoto[0]));
 
     public IncrementalParse(List<EditorUpdate> editorUpdates, IncrementalParseForest previous, String filename,
-        IActiveStacks<StackNode> activeStacks, IForActorStacks<StackNode> forActorStacks,
+        IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
         ParserObserving<IncrementalParseForest, StackNode> observing) {
 
-        super("<no input string available for incremental parsing>", filename, activeStacks, forActorStacks, observing);
+        super("<no input string available for incremental parsing>", filename, activeStacksFactory,
+            forActorStacksFactory, observing);
         initParse(processUpdates(editorUpdates, previous));
     }
 
-    public IncrementalParse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
-        IForActorStacks<StackNode> forActorStacks, ParserObserving<IncrementalParseForest, StackNode> observing) {
+    public IncrementalParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
+        IForActorStacksFactory forActorStacksFactory, ParserObserving<IncrementalParseForest, StackNode> observing) {
 
-        super(inputString, filename, activeStacks, forActorStacks, observing);
+        super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
         initParse(getParseNodeFromString(inputString));
     }
 
@@ -51,17 +58,24 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         this.currentChar = lookahead.actionQueryCharacter();
     }
 
-    // @formatter:off
-    public static <StackNode_ extends IStackNode>
-        IncrementalParseFactory<StackNode_, IncrementalParse<StackNode_>> incrementalFactory() {
-        return IncrementalParse::new;
+    public static <StackNode_ extends IStackNode> IncrementalParseFactory<StackNode_, IncrementalParse<StackNode_>>
+        incrementalFactory(JSGLR2Variants.ParserVariant variant) {
+
+        ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
+        ForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
+        return (editorUpdates, previousVersion, filename, observing) -> new IncrementalParse<>(editorUpdates,
+            previousVersion, filename, activeStacksFactory, forActorStacksFactory, observing);
     }
 
     public static <StackNode_ extends IStackNode>
-        ParseFactory<IncrementalParseForest, StackNode_, IncrementalParse<StackNode_>> factory() {
-        return IncrementalParse::new;
+        ParseFactory<IncrementalParseForest, StackNode_, IncrementalParse<StackNode_>>
+        factory(JSGLR2Variants.ParserVariant variant) {
+
+        ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
+        ForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
+        return (inputString, filename, observing) -> new IncrementalParse<>(inputString, filename, activeStacksFactory,
+            forActorStacksFactory, observing);
     }
-    // @formatter:on
 
     @Override public int actionQueryCharacter() {
         return currentChar;
@@ -86,7 +100,7 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         // TODO for all editor updates (currently only checking first update)
         EditorUpdate editorUpdate = editorUpdates.get(0);
         // If everything is deleted, then just return the inserted string
-        if (editorUpdate.deletedStart == 0 && editorUpdate.deletedEnd == previous.width())
+        if(editorUpdate.deletedStart == 0 && editorUpdate.deletedEnd == previous.width())
             return getParseNodeFromString(editorUpdate.inserted);
         return processUpdates(previous, 0, editorUpdate.deletedStart, editorUpdate.deletedEnd, editorUpdate.inserted);
     }

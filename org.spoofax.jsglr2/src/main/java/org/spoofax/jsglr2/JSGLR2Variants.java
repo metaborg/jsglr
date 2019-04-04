@@ -244,15 +244,13 @@ public class JSGLR2Variants {
 
                 switch(variant.stackRepresentation) {
                     case Basic:
-                        return new IncrementalParser<>(IncrementalParse.factory(),
-                            IncrementalParse.incrementalFactory(), parseTable,
-                            StackManagerFactory.basicStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                        return new IncrementalParser<>(IncrementalParse.factory(variant),
+                            IncrementalParse.incrementalFactory(variant), parseTable, new BasicStackManager<>(),
+                            parseForestManager, ReduceManagerFactory.reduceManagerFactory(variant));
                     case Hybrid:
-                        return new IncrementalParser<>(IncrementalParse.factory(),
-                            IncrementalParse.incrementalFactory(), parseTable,
-                            StackManagerFactory.hybridStackManagerFactory(), parseForestManager,
-                            ReduceManagerFactory.reduceManagerFactory(), variant);
+                        return new IncrementalParser<>(IncrementalParse.factory(variant),
+                            IncrementalParse.incrementalFactory(variant), parseTable, new HybridStackManager<>(),
+                            parseForestManager, ReduceManagerFactory.reduceManagerFactory(variant));
                     default:
                         // TODO add Elkhound
                         throw new IllegalStateException();

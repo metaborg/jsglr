@@ -63,30 +63,15 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
     }
 
     public AbstractSyntaxTree parse(String input, String filename, String startSymbol) {
-        ParseResult<ParseForest> parseResult = parser.parse(input, filename, startSymbol);
-
-        if(!parseResult.isSuccess)
-            return null;
-
-        ParseSuccess<ParseForest> parseSuccess = (ParseSuccess<ParseForest>) parseResult;
-
-        ImplodeResult<AbstractSyntaxTree> implodeResult = imploder.implode(input, filename, parseSuccess.parseResult);
-
-        return implodeResult.ast;
+        return parseResult(input, filename, startSymbol).ast;
     }
 
-    public JSGLR2Result<ParseForest, AbstractSyntaxTree> parseResult(String input, String filename,
-        String startSymbol) {
-        ParseResult<ParseForest> parseResult = parser.parse(input, filename, startSymbol);
-
-        if(!parseResult.isSuccess)
-            return new JSGLR2Result<>(parseResult);
-
-        ParseSuccess<ParseForest> parseSuccess = (ParseSuccess<ParseForest>) parseResult;
-
-        ImplodeResult<AbstractSyntaxTree> implodeResult = imploder.implode(input, filename, parseSuccess.parseResult);
-
-        return new JSGLR2Result<>(parseResult, implodeResult);
+    public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String filename, String startSymbol) {
+        try {
+            return parseUnsafeResult(input, filename, startSymbol);
+        } catch(ParseException e) {
+            return new JSGLR2Result<>();
+        }
     }
 
     public AbstractSyntaxTree parse(String input) {
@@ -94,16 +79,22 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
     }
 
     public AbstractSyntaxTree parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        ParseResult<ParseForest> result = parser.parse(input, filename, startSymbol);
+        return parseUnsafeResult(input, filename, startSymbol).ast;
+    }
 
-        if(result.isSuccess) {
-            ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;
+    public JSGLR2Result<AbstractSyntaxTree> parseUnsafeResult(String input, String filename, String startSymbol)
+        throws ParseException {
+
+        ParseResult<ParseForest> parseResult = parser.parse(input, filename, startSymbol);
+
+        if(parseResult.isSuccess) {
+            ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;
 
             ImplodeResult<AbstractSyntaxTree> implodeResult = imploder.implode(input, filename, success.parseResult);
 
-            return implodeResult.ast;
+            return new JSGLR2Result<>(implodeResult);
         } else {
-            ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) result;
+            ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 
             throw failure.exception();
         }

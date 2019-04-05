@@ -140,7 +140,7 @@ public abstract class BaseTest implements WithParseTable {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
 
-            JSGLR2Result<?, ?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
+            JSGLR2Result<?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
 
             assertTrue("Variant '" + variant.name() + "' failed: ", jsglr2Result.isSuccess);
 

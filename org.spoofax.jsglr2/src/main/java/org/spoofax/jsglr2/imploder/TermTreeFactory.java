@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.imploder;
 
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

@@ -14,13 +14,15 @@ public abstract class ParseForestManager
 {
 
     /**
-     * @param stack The parse node will be added to the link _to_ this stack node.
+     * @param stack
+     *            The parse node will be added to the link _to_ this stack node.
      */
     abstract public ParseNode createParseNode(AbstractParse<ParseForest, ?> parse, IStackNode stack,
         IProduction production, Derivation firstDerivation);
 
     /**
-     * @param stack The derivation will be added to the parse node on the link _to_ this stack node.
+     * @param stack
+     *            The derivation will be added to the parse node on the link _to_ this stack node.
      */
     abstract public Derivation createDerivation(AbstractParse<ParseForest, ?> parse, IStackNode stack,
         IProduction production, ProductionType productionType, ParseForest[] parseForests);

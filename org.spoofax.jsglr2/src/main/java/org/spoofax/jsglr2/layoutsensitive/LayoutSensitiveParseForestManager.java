@@ -9,14 +9,15 @@ import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintSelector;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class LayoutSensitiveParseForestManager
     extends ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
     @Override public LayoutSensitiveParseNode createParseNode(AbstractParse<LayoutSensitiveParseForest, ?> parse,
-        Position beginPosition, IProduction production, LayoutSensitiveDerivation firstDerivation) {
+        IStackNode stack, IProduction production, LayoutSensitiveDerivation firstDerivation) {
         LayoutSensitiveParseNode parseNode =
-            new LayoutSensitiveParseNode(beginPosition, parse.currentPosition(), production);
+            new LayoutSensitiveParseNode(stack.position(), parse.currentPosition(), production);
 
         // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -51,8 +52,9 @@ public class LayoutSensitiveParseForestManager
     }
 
     @Override public LayoutSensitiveDerivation createDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
-        Position beginPosition, IProduction production, ProductionType productionType,
+        IStackNode stack, IProduction production, ProductionType productionType,
         LayoutSensitiveParseForest[] parseForests) {
+        Position beginPosition = stack.position();
 
         // FIXME since EndPosition is wrong, right is also wrong
         Position leftPosition = null;

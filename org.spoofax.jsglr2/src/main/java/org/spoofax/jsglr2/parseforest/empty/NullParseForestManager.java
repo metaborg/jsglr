@@ -8,11 +8,11 @@ import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class NullParseForestManager extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation> {
 
-    @Override public HybridParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, Position beginPosition,
+    @Override public HybridParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, IStackNode stack,
         IProduction production, HybridDerivation firstDerivation) {
         return null;
     }
@@ -22,9 +22,8 @@ public class NullParseForestManager extends ParseForestManager<HybridParseForest
         return null;
     }
 
-    @Override public HybridDerivation createDerivation(AbstractParse<HybridParseForest, ?> parse,
-        Position beginPosition, IProduction production, ProductionType productionType,
-        HybridParseForest[] parseForests) {
+    @Override public HybridDerivation createDerivation(AbstractParse<HybridParseForest, ?> parse, IStackNode stack,
+        IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         return null;
     }
 

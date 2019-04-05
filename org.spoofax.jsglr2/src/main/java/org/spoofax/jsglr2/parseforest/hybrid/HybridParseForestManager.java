@@ -7,11 +7,11 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class HybridParseForestManager extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation> {
 
-    @Override public HybridParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, Position beginPosition,
+    @Override public HybridParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, IStackNode stack,
         IProduction production, HybridDerivation firstDerivation) {
         HybridParseNode parseNode = new HybridParseNode(production, firstDerivation);
 
@@ -45,9 +45,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         }
     }
 
-    @Override public HybridDerivation createDerivation(AbstractParse<HybridParseForest, ?> parse,
-        Position beginPosition, IProduction production, ProductionType productionType,
-        HybridParseForest[] parseForests) {
+    @Override public HybridDerivation createDerivation(AbstractParse<HybridParseForest, ?> parse, IStackNode stack,
+        IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         HybridDerivation derivation = new HybridDerivation(production, productionType, parseForests);
 
         // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));

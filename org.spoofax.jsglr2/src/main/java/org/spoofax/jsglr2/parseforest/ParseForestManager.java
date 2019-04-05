@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.parseforest;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public abstract class ParseForestManager
 //@formatter:off
@@ -13,10 +13,10 @@ public abstract class ParseForestManager
 //@formatter:on
 {
 
-    abstract public ParseNode createParseNode(AbstractParse<ParseForest, ?> parse, Position beginPosition,
+    abstract public ParseNode createParseNode(AbstractParse<ParseForest, ?> parse, IStackNode stack,
         IProduction production, Derivation firstDerivation);
 
-    abstract public Derivation createDerivation(AbstractParse<ParseForest, ?> parse, Position beginPosition,
+    abstract public Derivation createDerivation(AbstractParse<ParseForest, ?> parse, IStackNode stack,
         IProduction production, ProductionType productionType, ParseForest[] parseForests);
 
     abstract public void addDerivation(AbstractParse<ParseForest, ?> parse, ParseNode parseNode, Derivation derivation);

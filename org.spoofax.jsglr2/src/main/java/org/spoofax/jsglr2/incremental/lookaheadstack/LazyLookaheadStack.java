@@ -9,15 +9,15 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 
 public class LazyLookaheadStack implements ILookaheadStack {
     /**
-     * The stack contains the parent and child index of the node that has been returned last time.
-     * When the stack is initialized, a mock root is created and pushed to the stack.
+     * The stack contains the parent and child index of the node that has been returned last time. When the stack is
+     * initialized, a mock root is created and pushed to the stack.
      */
     private final Stack<StackTuple> stack = new Stack<>();
     private IncrementalParseForest last;
 
     public LazyLookaheadStack(IncrementalParseForest root) {
         IncrementalParseNode ultraRoot = new IncrementalParseNode(root, IncrementalCharacterNode.EOF_NODE);
-        if (root.width() > 0) {
+        if(root.width() > 0) {
             stack.push(new StackTuple(ultraRoot, 0));
             last = root;
         } else {
@@ -26,8 +26,7 @@ public class LazyLookaheadStack implements ILookaheadStack {
         }
     }
 
-    @Override
-    public IncrementalParseForest get() {
+    @Override public IncrementalParseForest get() {
         return last;
     }
 
@@ -70,13 +69,11 @@ public class LazyLookaheadStack implements ILookaheadStack {
         }
     }
 
-    @Override
-    public int actionQueryCharacter() {
+    @Override public int actionQueryCharacter() {
         return 'a'; // TODO this is a pain in the nose. Hardcoded test result :see_no_evil:
     }
 
-    @Override
-    public String actionQueryLookahead(int length) {
+    @Override public String actionQueryLookahead(int length) {
         return ("bcd" + (char) 256).substring(0, Math.min(4, length)); // TODO this is a pain in the nose
     }
 

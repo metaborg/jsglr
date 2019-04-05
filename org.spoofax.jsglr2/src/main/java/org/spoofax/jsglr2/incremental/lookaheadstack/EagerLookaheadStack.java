@@ -15,7 +15,7 @@ public class EagerLookaheadStack implements ILookaheadStack {
 
     public EagerLookaheadStack(IncrementalParseForest root) {
         stack.push(IncrementalCharacterNode.EOF_NODE);
-        if (root.width() > 0)
+        if(root.width() > 0)
             stack.push(root);
     }
 
@@ -38,10 +38,9 @@ public class EagerLookaheadStack implements ILookaheadStack {
         stack.pop();
     }
 
-    @Override
-    public int actionQueryCharacter() {
-        for (int i = stack.size() - 1; i >= 0; i--) {
-            if (stack.get(i).width() <= 0)
+    @Override public int actionQueryCharacter() {
+        for(int i = stack.size() - 1; i >= 0; i--) {
+            if(stack.get(i).width() <= 0)
                 continue;
             return stack.get(i).getYield(1).charAt(0);
         }

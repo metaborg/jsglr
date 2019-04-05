@@ -13,27 +13,21 @@ public class EditorUpdate {
         this.inserted = inserted;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    @Override public boolean equals(Object o) {
+        if(this == o)
+            return true;
+        if(o == null || getClass() != o.getClass())
+            return false;
         EditorUpdate that = (EditorUpdate) o;
-        return deletedStart == that.deletedStart &&
-                deletedEnd == that.deletedEnd &&
-                inserted.equals(that.inserted);
+        return deletedStart == that.deletedStart && deletedEnd == that.deletedEnd && inserted.equals(that.inserted);
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return Objects.hash(deletedStart, deletedEnd, inserted);
     }
 
-    @Override
-    public String toString() {
-        return "EditorUpdate{" +
-                "deletedStart=" + deletedStart +
-                ", deletedEnd=" + deletedEnd +
-                ", inserted='" + inserted + '\'' +
-                '}';
+    @Override public String toString() {
+        return "EditorUpdate{" + "deletedStart=" + deletedStart + ", deletedEnd=" + deletedEnd + ", inserted='"
+            + inserted + '\'' + '}';
     }
 }

@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class IncrementalParseForestManager
     extends ParseForestManager<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation> {
@@ -39,7 +40,7 @@ public class IncrementalParseForestManager
     }
 
     @Override public IncrementalParseNode createParseNode(AbstractParse<IncrementalParseForest, ?> parse,
-        Position ignored, IProduction production, IncrementalDerivation firstDerivation) {
+        IStackNode stack, IProduction production, IncrementalDerivation firstDerivation) {
 
         IncrementalParseNode parseNode = new IncrementalParseNode(production, firstDerivation);
 
@@ -61,12 +62,14 @@ public class IncrementalParseForestManager
     }
 
     @Override public IncrementalDerivation createDerivation(AbstractParse<IncrementalParseForest, ?> parse,
-        Position ignored, IProduction production, ProductionType productionType,
+        IStackNode stack, IProduction production, ProductionType productionType,
         IncrementalParseForest[] parseForests) {
 
-        // TODO this cast is so ugly to get the state...
-        IncrementalDerivation derivation =
-            new IncrementalDerivation(production, productionType, parseForests, ((IncrementalParse) parse).state);
+        // TODO There should be a type parameter Parse, but that creates extra dependencies which make
+        // the big switch in JSGLR2Variants.getParser more verbose. Now, the parse forest can be created in a variable
+        // that can be passed to the Parser, but adding Parse as type parameter would require in-lining that variable.
+        IState state = ((IncrementalParse) parse).multipleStates ? IncrementalParse.NO_STATE : stack.state();
+        IncrementalDerivation derivation = new IncrementalDerivation(production, productionType, parseForests, state);
 
         parse.observing.notify(observer -> observer.createDerivation(derivation, production, derivation.parseForests));
 

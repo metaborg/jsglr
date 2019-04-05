@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.reducing;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
@@ -81,10 +80,6 @@ public class ReduceManager
      * the stack with the goto state and the link to it, different actions are performed.
      */
     protected void reducer(Parse parse, StackNode stack, IReduce reduce, ParseForest[] parseForests) {
-        // TODO this is the ugliest way ever to get the current state into the IncrementalParseForestManager.
-        if(parse instanceof IncrementalParse)
-            ((IncrementalParse) parse).state =
-                ((IncrementalParse) parse).multipleStates ? IncrementalParse.NO_STATE : stack.state();
         int gotoId = stack.state().getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 

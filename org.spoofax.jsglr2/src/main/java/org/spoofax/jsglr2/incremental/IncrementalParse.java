@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
 import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
@@ -27,8 +26,8 @@ import org.spoofax.jsglr2.states.State;
 
 public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode> {
 
-    public IState state;
-    public boolean multipleStates; // TODO this should not be public, but still end up in the ReduceManager
+    // TODO this should not be public, but still end up in the IncrementalParseForestManager
+    public boolean multipleStates;
     ILookaheadStack lookahead;
 
     private IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();

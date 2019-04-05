@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.incremental.lookaheadstack;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
@@ -106,8 +107,8 @@ public abstract class AbstractLookaheadStackTest {
     }
 
     private static void assertPoppingEOF(ILookaheadStack stack) {
-        assertPopLookahead(IncrementalCharacterNode.EOF_NODE, stack);
-        assertLeftBreakdown(IncrementalCharacterNode.EOF_NODE, stack);
+        assertPopLookahead(EOF_NODE, stack);
+        assertLeftBreakdown(EOF_NODE, stack);
         assertPopLookahead(null, stack);
     }
 

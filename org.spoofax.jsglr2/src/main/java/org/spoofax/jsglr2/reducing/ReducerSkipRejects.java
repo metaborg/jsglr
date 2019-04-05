@@ -33,9 +33,8 @@ public class ReducerSkipRejects
         if(reduce.isRejectProduction())
             stackManager.rejectStackLink(parse, existingDirectLinkToActiveStateWithGoto);
         else if(!existingDirectLinkToActiveStateWithGoto.isRejected()) {
-            Derivation derivation =
-                parseForestManager.createDerivation(parse, existingDirectLinkToActiveStateWithGoto.to.position(),
-                    reduce.production(), reduce.productionType(), parseForests);
+            Derivation derivation = parseForestManager.createDerivation(parse,
+                existingDirectLinkToActiveStateWithGoto.to, reduce.production(), reduce.productionType(), parseForests);
 
             parseForestManager.addDerivation(parse, parseNode, derivation);
         }
@@ -51,10 +50,9 @@ public class ReducerSkipRejects
 
             stackManager.rejectStackLink(parse, newDirectLinkToActiveStateWithGoto);
         } else {
-            Derivation derivation = parseForestManager.createDerivation(parse, stack.position(), reduce.production(),
+            Derivation derivation = parseForestManager.createDerivation(parse, stack, reduce.production(),
                 reduce.productionType(), parseForests);
-            ParseForest parseNode =
-                parseForestManager.createParseNode(parse, stack.position(), reduce.production(), derivation);
+            ParseForest parseNode = parseForestManager.createParseNode(parse, stack, reduce.production(), derivation);
 
             newDirectLinkToActiveStateWithGoto =
                 stackManager.createStackLink(parse, existingActiveStackWithGotoState, stack, parseNode);
@@ -74,10 +72,9 @@ public class ReducerSkipRejects
 
             stackManager.rejectStackLink(parse, link);
         } else {
-            Derivation derivation = parseForestManager.createDerivation(parse, stack.position(), reduce.production(),
+            Derivation derivation = parseForestManager.createDerivation(parse, stack, reduce.production(),
                 reduce.productionType(), parseForests);
-            ParseForest parseNode =
-                parseForestManager.createParseNode(parse, stack.position(), reduce.production(), derivation);
+            ParseForest parseNode = parseForestManager.createParseNode(parse, stack, reduce.production(), derivation);
 
             link = stackManager.createStackLink(parse, newStackWithGotoState, stack, parseNode);
         }

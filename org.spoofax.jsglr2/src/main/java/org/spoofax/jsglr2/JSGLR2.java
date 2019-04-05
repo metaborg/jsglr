@@ -62,6 +62,10 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
         this.imploder = imploder;
     }
 
+    public AbstractSyntaxTree parse(String input) {
+        return parse(input, "", null);
+    }
+
     public AbstractSyntaxTree parse(String input, String filename, String startSymbol) {
         return parseResult(input, filename, startSymbol).ast;
     }
@@ -72,10 +76,6 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
         } catch(ParseException e) {
             return new JSGLR2Result<>();
         }
-    }
-
-    public AbstractSyntaxTree parse(String input) {
-        return parse(input, "", null);
     }
 
     public AbstractSyntaxTree parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
@@ -98,10 +98,6 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
 
             throw failure.exception();
         }
-    }
-
-    public AbstractSyntaxTree parseUnsafe(String input) throws ParseException {
-        return parseUnsafe(input, "", null);
     }
 
 }

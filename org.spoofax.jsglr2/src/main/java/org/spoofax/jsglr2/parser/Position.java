@@ -76,12 +76,24 @@ public class Position {
     }
 
     /**
-     * Step from the current position in the given string by the given width.
+     * Step from the current position in the input string by the given width.
      *
      * @return A new position that presents the position after the step in the given string.
      */
-    public Position step(String string, int width) {
-        return atEnd(string.substring(0, offset + width));
+    public Position step(String inputString, int width) {
+        int offset = this.offset;
+        int line = this.line;
+        int column = this.column;
+        int end = Integer.min(inputString.length(), offset + width);
+        for (; offset < end; offset++) {
+            if (inputString.charAt(offset) == '\n') {
+                line++;
+                column = 1;
+            } else {
+                column++;
+            }
+        }
+        return new Position(offset, line, column);
     }
 
     public String coordinatesToString() {
@@ -109,13 +121,7 @@ public class Position {
         if(getClass() != obj.getClass())
             return false;
         Position other = (Position) obj;
-        if(column != other.column)
-            return false;
-        if(line != other.line)
-            return false;
-        if(offset != other.offset)
-            return false;
-        return true;
+        return column == other.column && line == other.line && offset == other.offset;
     }
 
 

@@ -10,11 +10,11 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
 
-public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
+public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStrategoTerm> {
 
     private final ITermFactory termFactory;
 
-    public TermTreeFactory(ITermFactory termFactory) {
+    public TokenizedTermTreeFactory(ITermFactory termFactory) {
         this.termFactory = termFactory;
     }
 

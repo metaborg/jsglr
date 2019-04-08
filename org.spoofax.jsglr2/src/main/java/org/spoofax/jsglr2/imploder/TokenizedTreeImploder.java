@@ -21,9 +21,9 @@ public abstract class TokenizedTreeImploder
 //@formatter:on
     implements IImploder<ParseForest, Tree> {
 
-    protected final ITreeFactory<Tree> treeFactory;
+    protected final ITokenizedTreeFactory<Tree> treeFactory;
 
-    public TokenizedTreeImploder(ITreeFactory<Tree> treeFactory) {
+    public TokenizedTreeImploder(ITokenizedTreeFactory<Tree> treeFactory) {
         this.treeFactory = treeFactory;
     }
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.spoofax.jsglr.client.imploder.IToken;
 
-public interface ITreeFactory<T> {
+public interface ITokenizedTreeFactory<T> {
 
     T createStringTerminal(String sort, String value, IToken token);
 

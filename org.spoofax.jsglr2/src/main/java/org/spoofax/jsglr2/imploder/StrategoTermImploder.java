@@ -12,7 +12,6 @@ import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 import org.spoofax.terms.TermFactory;
 
@@ -31,9 +30,7 @@ public class StrategoTermImploder
     @Override public ImplodeResult<IStrategoTerm> implode(String input, String filename, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        Position position = new Position(0, 1, 1);
-
-        SubTree tree = implodeParseNode(input, topParseNode, position);
+        SubTree tree = implodeParseNode(input, topParseNode, 0);
 
         Tokens tokens = new Tokens(input, filename);
         return new ImplodeResult<>(tokens, tokenizer.tokenize(tokens, tree));
@@ -44,30 +41,38 @@ public class StrategoTermImploder
         final IStrategoTerm tree;
         final List<SubTree> children;
         final IProduction production;
-        final Position startPosition;
-        final Position endPosition;
+        final String string; // Only set for lexical nodes.
+        final int width;
 
-        SubTree(IStrategoTerm tree, List<SubTree> children, IProduction production, Position startPosition,
-            Position endPosition) {
+        SubTree(IStrategoTerm tree, List<SubTree> children, IProduction production, String string, int width) {
             this.tree = tree;
             this.children = children;
             this.production = production;
-            this.startPosition = startPosition;
-            this.endPosition = endPosition;
+            this.string = string;
+            this.width = width;
         }
 
+        /** This constructor infers the width from the sum of widths of its children. */
         SubTree(IStrategoTerm tree, List<SubTree> children, IProduction production) {
-            this(tree, children, production, children.get(0).startPosition,
-                children.get(children.size() - 1).endPosition);
+            this(tree, children, production, null, sumWidth(children));
         }
 
-        SubTree(IStrategoTerm tree, IProduction production, Position startPosition, Position endPosition) {
-            this(tree, Collections.emptyList(), production, startPosition, endPosition);
+        /** This constructor corresponds to a terminal/lexical node without children. */
+        SubTree(IStrategoTerm tree, IProduction production, String string) {
+            this(tree, Collections.emptyList(), production, string, string.length());
+        }
+
+        private static int sumWidth(List<SubTree> children) {
+            int result = 0;
+            for(SubTree child : children) {
+                result += child.width;
+            }
+            return result;
         }
 
     }
 
-    protected SubTree implodeParseNode(String inputString, ParseNode parseNode, Position startPosition) {
+    protected SubTree implodeParseNode(String inputString, ParseNode parseNode, int startOffset) {
         IProduction production = parseNode.production();
 
         if(production.isContextFree()) {
@@ -78,21 +83,19 @@ public class StrategoTermImploder
                 List<SubTree> subTrees = new ArrayList<>(filteredDerivations.size());
 
                 for(Derivation derivation : filteredDerivations) {
-                    SubTree result = implodeDerivation(inputString, derivation, startPosition);
+                    SubTree result = implodeDerivation(inputString, derivation, startOffset);
                     trees.add(result.tree);
                     subTrees.add(result);
                 }
 
-                return new SubTree(treeFactory.createAmb(production.sort(), trees), subTrees, production);
+                return new SubTree(treeFactory.createAmb(production.sort(), trees), subTrees, null, null,
+                    subTrees.get(0).width);
             } else
-                return implodeDerivation(inputString, filteredDerivations.get(0), startPosition);
+                return implodeDerivation(inputString, filteredDerivations.get(0), startOffset);
         } else {
-            Position endPosition = startPosition.step(inputString, parseNode.width());
+            String substring = inputString.substring(startOffset, startOffset + parseNode.width());
 
-            IStrategoTerm tree =
-                createLexicalTerm(production, inputString.substring(startPosition.offset, endPosition.offset));
-
-            return new SubTree(tree, production, startPosition, endPosition);
+            return new SubTree(createLexicalTerm(production, substring), production, substring);
         }
     }
 
@@ -108,7 +111,7 @@ public class StrategoTermImploder
         return result;
     }
 
-    protected SubTree implodeDerivation(String inputString, Derivation derivation, Position startPosition) {
+    protected SubTree implodeDerivation(String inputString, Derivation derivation, int startOffset) {
         IProduction production = derivation.production();
 
         if(!production.isContextFree())
@@ -117,18 +120,16 @@ public class StrategoTermImploder
         List<IStrategoTerm> childASTs = new ArrayList<>();
         List<SubTree> subTrees = new ArrayList<>();
 
-        Position endPosition = implodeChildParseNodes(inputString, childASTs, subTrees, derivation,
-            derivation.production(), startPosition);
+        implodeChildParseNodes(inputString, childASTs, subTrees, derivation, derivation.production(), startOffset);
 
-        return new SubTree(createContextFreeTerm(derivation.production(), childASTs), subTrees, production,
-            startPosition, endPosition);
+        return new SubTree(createContextFreeTerm(derivation.production(), childASTs), subTrees, production);
     }
 
     // TODO make this thing iterative
-    protected Position implodeChildParseNodes(String inputString, List<IStrategoTerm> childASTs, List<SubTree> subTrees,
-        Derivation derivation, IProduction production, Position startPosition) {
+    protected int implodeChildParseNodes(String inputString, List<IStrategoTerm> childASTs, List<SubTree> subTrees,
+        Derivation derivation, IProduction production, int startOffset) {
 
-        Position pivotPosition = startPosition;
+        int pivotOffset = startOffset;
 
         for(ParseForest childParseForest : derivation.parseForests()) {
             if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
@@ -139,20 +140,20 @@ public class StrategoTermImploder
                 if(production.isList() && childProduction.isList() && childProduction.constructor() == null
                     && childParseNode.getPreferredAvoidedDerivations().size() <= 1) {
                     // Make sure lists are flattened
-                    pivotPosition = implodeChildParseNodes(inputString, childASTs, subTrees,
-                        childParseNode.getFirstDerivation(), childProduction, pivotPosition);
+                    pivotOffset = implodeChildParseNodes(inputString, childASTs, subTrees,
+                        childParseNode.getFirstDerivation(), childProduction, pivotOffset);
                 } else {
-                    SubTree subTree = implodeParseNode(inputString, childParseNode, pivotPosition);
+                    SubTree subTree = implodeParseNode(inputString, childParseNode, pivotOffset);
 
                     if(subTree.tree != null) {
                         childASTs.add(subTree.tree);
                     }
                     subTrees.add(subTree);
-                    pivotPosition = subTree.endPosition;
+                    pivotOffset += subTree.width;
                 }
             }
         }
-        return pivotPosition;
+        return pivotOffset;
     }
 
     protected IStrategoTerm createLexicalTerm(IProduction production, String substring) {

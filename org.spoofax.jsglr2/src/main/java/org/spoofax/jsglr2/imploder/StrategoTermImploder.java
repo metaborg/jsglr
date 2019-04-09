@@ -2,11 +2,10 @@ package org.spoofax.jsglr2.imploder;
 
 import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.metaborg.parsetable.IProduction;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -120,40 +119,50 @@ public class StrategoTermImploder
         List<IStrategoTerm> childASTs = new ArrayList<>();
         List<SubTree> subTrees = new ArrayList<>();
 
-        implodeChildParseNodes(inputString, childASTs, subTrees, derivation, derivation.production(), startOffset);
+        for(ParseForest childParseForest : getChildParseForests(derivation)) {
+            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
+                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-        return new SubTree(createContextFreeTerm(derivation.production(), childASTs), subTrees, production);
+                SubTree subTree = implodeParseNode(inputString, childParseNode, startOffset);
+
+                if(subTree.tree != null) {
+                    childASTs.add(subTree.tree);
+                }
+                subTrees.add(subTree);
+                startOffset += subTree.width;
+            }
+        }
+
+        return new SubTree(createContextFreeTerm(production, childASTs), subTrees, derivation.production());
     }
 
-    // TODO make this thing iterative
-    protected int implodeChildParseNodes(String inputString, List<IStrategoTerm> childASTs, List<SubTree> subTrees,
-        Derivation derivation, IProduction production, int startOffset) {
+    private Iterable<ParseForest> getChildParseForests(Derivation derivation) {
+        // Make sure lists are flattened
+        if(derivation.production().isList()) {
+            LinkedList<ParseForest> listQueueTodo = new LinkedList<>();
+            LinkedList<ParseForest> listQueueDone = new LinkedList<>();
+            Collections.addAll(listQueueTodo, derivation.parseForests());
 
-        int pivotOffset = startOffset;
+            // Check child parse forest from front to back
+            while(!listQueueTodo.isEmpty()) {
+                ParseForest childParseForest = listQueueTodo.removeFirst();
 
-        for(ParseForest childParseForest : derivation.parseForests()) {
-            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
                 @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
                 IProduction childProduction = childParseNode.production();
 
-                if(production.isList() && childProduction.isList() && childProduction.constructor() == null
+                // If child is also a list, add all its children to the front of the unprocessed list
+                if(childProduction.isList() && childProduction.constructor() == null
                     && childParseNode.getPreferredAvoidedDerivations().size() <= 1) {
-                    // Make sure lists are flattened
-                    pivotOffset = implodeChildParseNodes(inputString, childASTs, subTrees,
-                        childParseNode.getFirstDerivation(), childProduction, pivotOffset);
+                    listQueueTodo.addAll(0, Arrays.asList(childParseNode.getFirstDerivation().parseForests()));
                 } else {
-                    SubTree subTree = implodeParseNode(inputString, childParseNode, pivotOffset);
-
-                    if(subTree.tree != null) {
-                        childASTs.add(subTree.tree);
-                    }
-                    subTrees.add(subTree);
-                    pivotOffset += subTree.width;
+                    listQueueDone.add(childParseForest);
                 }
             }
+            return listQueueDone;
+        } else {
+            return Iterables2.from(derivation.parseForests());
         }
-        return pivotOffset;
     }
 
     protected IStrategoTerm createLexicalTerm(IProduction production, String substring) {

@@ -98,18 +98,6 @@ public class StrategoTermImploder
         }
     }
 
-    protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
-        List<Derivation> result;
-        // TODO always filter longest-match?
-        if(parseNode instanceof LayoutSensitiveParseNode) {
-            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
-        }
-        // TODO always filter prefer/avoid?
-        result = parseNode.getPreferredAvoidedDerivations();
-
-        return result;
-    }
-
     protected SubTree implodeDerivation(String inputString, Derivation derivation, int startOffset) {
         IProduction production = derivation.production();
 
@@ -136,7 +124,7 @@ public class StrategoTermImploder
         return new SubTree(createContextFreeTerm(production, childASTs), subTrees, derivation.production());
     }
 
-    private Iterable<ParseForest> getChildParseForests(Derivation derivation) {
+    protected Iterable<ParseForest> getChildParseForests(Derivation derivation) {
         // Make sure lists are flattened
         if(derivation.production().isList()) {
             LinkedList<ParseForest> listQueueTodo = new LinkedList<>();
@@ -152,17 +140,33 @@ public class StrategoTermImploder
                 IProduction childProduction = childParseNode.production();
 
                 // If child is also a list, add all its children to the front of the unprocessed list
-                if(childProduction.isList() && childProduction.constructor() == null
-                    && childParseNode.getPreferredAvoidedDerivations().size() <= 1) {
-                    listQueueTodo.addAll(0, Arrays.asList(childParseNode.getFirstDerivation().parseForests()));
-                } else {
-                    listQueueDone.add(childParseForest);
+                if(childProduction.isList() && childProduction.constructor() == null) {
+                    List<Derivation> filteredDerivations = applyDisambiguationFilters(childParseNode);
+                    if(filteredDerivations.size() <= 1) {
+                        listQueueTodo.addAll(0, Arrays.asList(filteredDerivations.get(0).parseForests()));
+                        continue;
+                    }
                 }
+
+                // Else, add child to processed list
+                listQueueDone.add(childParseForest);
             }
             return listQueueDone;
         } else {
             return Iterables2.from(derivation.parseForests());
         }
+    }
+
+    protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
+        List<Derivation> result;
+        // TODO always filter longest-match?
+        if(parseNode instanceof LayoutSensitiveParseNode) {
+            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
+        }
+        // TODO always filter prefer/avoid?
+        result = parseNode.getPreferredAvoidedDerivations();
+
+        return result;
     }
 
     protected IStrategoTerm createLexicalTerm(IProduction production, String substring) {

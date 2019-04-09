@@ -268,6 +268,8 @@ public class JSGLR2Variants {
                 return new TokenizedStrategoTermImploder<>();
             case SeparateRecursive:
                 return new StrategoTermImploder<>();
+            case SeparateIterative:
+                return new IterativeStrategoTermImploder<>();
         }
     }
 

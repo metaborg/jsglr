@@ -88,9 +88,11 @@ public abstract class TokenizedTreeImploder
             } else
                 return implodeDerivation(tokens, filteredDerivations.get(0), startPosition, parentLeftToken);
         } else {
-            Position endPosition = startPosition.step(tokens.getInput(), parseNode.width());
+            int width = parseNode.width();
 
-            IToken token = parseNode.width() > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
+            Position endPosition = startPosition.step(tokens.getInput(), width);
+
+            IToken token = width > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
 
             Tree tree;
 

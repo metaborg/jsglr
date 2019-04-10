@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.imploder;
+package org.spoofax.jsglr2.imploder.treefactory;
 
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
 

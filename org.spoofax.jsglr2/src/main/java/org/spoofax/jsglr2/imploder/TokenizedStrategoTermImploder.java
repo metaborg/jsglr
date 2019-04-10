@@ -4,6 +4,7 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.imploder.treefactory.TokenizedTermTreeFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;

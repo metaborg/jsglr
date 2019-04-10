@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.imploder;
+package org.spoofax.jsglr2.imploder.treefactory;
 
 import java.util.List;
 

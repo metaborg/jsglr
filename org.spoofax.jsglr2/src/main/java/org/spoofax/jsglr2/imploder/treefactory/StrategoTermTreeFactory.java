@@ -1,9 +1,12 @@
-package org.spoofax.jsglr2.imploder;
+package org.spoofax.jsglr2.imploder.treefactory;
+
+import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 
 import java.util.Collections;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.TermFactory;
 
 import com.google.common.collect.Iterables;
 
@@ -11,8 +14,8 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
 
     private final ITermFactory termFactory;
 
-    public StrategoTermTreeFactory(ITermFactory termFactory) {
-        this.termFactory = termFactory;
+    public StrategoTermTreeFactory() {
+        this.termFactory = new TermFactory().getFactoryWithStorageType(MUTABLE);
     }
 
     @Override public IStrategoTerm createStringTerminal(String sort, String value) {

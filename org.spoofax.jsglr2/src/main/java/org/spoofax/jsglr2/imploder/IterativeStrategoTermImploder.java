@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import static java.util.Collections.singletonList;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +15,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 public class IterativeStrategoTermImploder
 //@formatter:off
@@ -23,25 +25,25 @@ public class IterativeStrategoTermImploder
 //@formatter:on
     extends StrategoTermImploder<ParseForest, ParseNode, Derivation> {
 
-    // private class ListTuple {
-    // Derivation derivation;
-    // List<SubTree> subTrees;
-    //
-    // public ListTuple(Derivation derivation, List<SubTree> subTrees) {
-    // this.derivation = derivation;
-    // this.subTrees = subTrees;
-    // }
-    // }
-    //
-    // private class Tuple {
-    // ParseForest parseNode;
-    // SubTree subTree;
-    //
-    // public Tuple(ParseForest parseForest, SubTree subTree) {
-    // this.parseNode = parseForest;
-    // this.subTree = subTree;
-    // }
-    // }
+    private class ListTuple {
+        Derivation derivation;
+        List<SubTree> subTrees;
+
+        public ListTuple(Derivation derivation, List<SubTree> subTrees) {
+            this.derivation = derivation;
+            this.subTrees = subTrees;
+        }
+    }
+
+    private class Tuple {
+        ParseForest parseNode;
+        SubTree subTree;
+
+        public Tuple(ParseForest parseForest, SubTree subTree) {
+            this.parseNode = parseForest;
+            this.subTree = subTree;
+        }
+    }
 
     private class PseudoNode {
         final ParseNode parseNode;
@@ -49,21 +51,11 @@ public class IterativeStrategoTermImploder
         final int beginOffset;
         int pivotOffset;
 
-        public PseudoNode(ParseNode parseNode, List<Derivation> derivations, int beginOffset) {
+        PseudoNode(ParseNode parseNode, List<Derivation> derivations, int beginOffset) {
             this.parseNode = parseNode;
             this.derivations = derivations;
             this.beginOffset = beginOffset;
             this.pivotOffset = beginOffset;
-        }
-    }
-
-    private class Tuple {
-        List<SubTree> subTrees;
-        Derivation derivation;
-
-        public Tuple(List<SubTree> subTrees, Derivation derivation) {
-            this.subTrees = subTrees;
-            this.derivation = derivation;
         }
     }
 
@@ -228,48 +220,56 @@ public class IterativeStrategoTermImploder
      */
     // @formatter:on
 
-    @Override protected SubTree implodeParseNode(String inputString, ParseNode parseNode, int startOffset) {
-        LinkedList<LinkedList<LinkedList<ParseNode>>> inputStack = new LinkedList<>(
-            singletonList(new LinkedList<>(singletonList(new LinkedList<>(singletonList(parseNode))))));
-        LinkedList<PseudoNode> parseNodeStack = new LinkedList<>(
-            singletonList(new PseudoNode(parseNode, applyDisambiguationFilters(parseNode), startOffset)));
-        LinkedList<LinkedList<LinkedList<SubTree>>> outputStack =
-            new LinkedList<>(singletonList(new LinkedList<>(singletonList(new LinkedList<>()))));
+    @Override protected SubTree implodeParseNode(String inputString, ParseNode rootNode, int startOffset) {
+        // This stack contains the parse nodes that we still need to process
+        LinkedList<PseudoNode> parseNodeStack = new LinkedList<>();
+        // These stack elements contain: one list for each derivation, and per derivation: one list for all subtrees.
+        // The elements on the input stack are processed from the front,
+        // after which they are pushed to the back of the elements on the output stack.
+        LinkedList<LinkedList<LinkedList<ParseNode>>> inputStack = new LinkedList<>();
+        LinkedList<LinkedList<LinkedList<SubTree>>> outputStack = new LinkedList<>();
 
-        while(!inputStack.isEmpty()) {
+        parseNodeStack.add(new PseudoNode(rootNode, applyDisambiguationFilters(rootNode), startOffset));
+        inputStack.add(newNestedList(rootNode));
+        outputStack.add(newNestedList());
+
+        while(true) {
+            PseudoNode pseudoNode = parseNodeStack.getLast();
             LinkedList<LinkedList<ParseNode>> currentIn = inputStack.getLast();
             LinkedList<LinkedList<SubTree>> currentOut = outputStack.getLast();
-            if(currentIn.getFirst().isEmpty()) {
-                currentIn.removeFirst();
-                if(currentIn.isEmpty()) {
-                    inputStack.removeLast();
-                    if(inputStack.isEmpty())
+
+            if(currentIn.getFirst().isEmpty()) { // If we're finished with the current derivation
+                currentIn.removeFirst(); // Remove the current derivation
+                if(currentIn.isEmpty()) { // If the stack entry is now empty
+                    inputStack.removeLast(); // That means it's done, so remove it from the stack
+                    if(inputStack.isEmpty()) // If it was the last stack node, we're done
                         break;
-                    PseudoNode pseudoNode = parseNodeStack.removeLast();
-                    outputStack.removeLast();
-                    SubTree possiblyAmbiguousSubTree = createPossiblyAmbiguousSubTree(pseudoNode.parseNode,
-                        Iterables2.stream(Iterables2.zip(currentOut, pseudoNode.derivations, Tuple::new))
-                            .map(tuple -> createNonTerminalSubTree(tuple.derivation, tuple.subTrees))
-                            .collect(Collectors.toList()));
-                    outputStack.getLast().getLast().add(possiblyAmbiguousSubTree);
+                    parseNodeStack.removeLast(); // Also remove the current pseudo node
+                    outputStack.removeLast(); // Also remove `currentOut` from stack
+
+                    SubTree possiblyAmbiguousSubTree = // Merge resulting SubTrees from `currentOut` into one SubTree
+                        createPossiblyAmbiguousSubTree(pseudoNode.parseNode, Lists.newArrayList(
+                            Iterables2.zip(pseudoNode.derivations, currentOut, this::createNonTerminalSubTree)));
+                    outputStack.getLast().getLast().add(possiblyAmbiguousSubTree); // And add it to the output
                     parseNodeStack.getLast().pivotOffset += possiblyAmbiguousSubTree.width;
-                } else {
-                    currentOut.add(new LinkedList<>());
-                    parseNodeStack.getLast().pivotOffset = parseNodeStack.getLast().beginOffset;
+                } else { // If the stack entry is not yet empty, that means we're processing an alternate derivation
+                    currentOut.add(new LinkedList<>()); // Initialize a new derivation list in the output
+                    pseudoNode.pivotOffset = pseudoNode.beginOffset; // And reset the pivotOffset
                 }
             } else {
-                ParseNode parseNode1 = currentIn.getFirst().removeFirst();
-                IProduction production = parseNode1.production();
-                if(!production.isContextFree()) {
+                ParseNode parseNode = currentIn.getFirst().removeFirst(); // Process the next parse node
+                IProduction production = parseNode.production();
+                if(!production.isContextFree()) { // If the current parse node is a lexical node
                     SubTree lexicalSubTree =
-                        createLexicalSubTree(inputString, parseNode1, parseNodeStack.getLast().pivotOffset, production);
-                    currentOut.getLast().add(lexicalSubTree);
-                    parseNodeStack.getLast().pivotOffset += lexicalSubTree.width;
-                } else {
-                    List<Derivation> derivations = applyDisambiguationFilters(parseNode1);
+                        createLexicalSubTree(inputString, parseNode, pseudoNode.pivotOffset, production);
+                    currentOut.getLast().add(lexicalSubTree); // Add a new SubTree to the output
+                    pseudoNode.pivotOffset += lexicalSubTree.width;
+                } else { // If the current parse node is a context-free node
+                    // Then push it on top of the stacks
+                    List<Derivation> derivations = applyDisambiguationFilters(parseNode);
                     inputStack.add(getDerivationLists(derivations));
-                    parseNodeStack.add(new PseudoNode(parseNode1, derivations, parseNodeStack.getLast().pivotOffset));
-                    outputStack.add(new LinkedList<>(singletonList(new LinkedList<>())));
+                    parseNodeStack.add(new PseudoNode(parseNode, derivations, pseudoNode.pivotOffset));
+                    outputStack.add(newNestedList());
                 }
             }
         }
@@ -323,5 +323,9 @@ public class IterativeStrategoTermImploder
     @Override protected Iterable<ParseForest> getChildParseForests(Derivation derivation) {
         // Can be null in the case of a layout subtree parse node that is not created
         return Iterables.filter(super.getChildParseForests(derivation), Objects::nonNull);
+    }
+
+    @SafeVarargs private static <E> LinkedList<LinkedList<E>> newNestedList(E... elements) {
+        return new LinkedList<>(singletonList(new LinkedList<>(Arrays.asList(elements))));
     }
 }

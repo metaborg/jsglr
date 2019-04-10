@@ -273,18 +273,18 @@ public class JSGLR2Variants {
         }
     }
 
-    public static JSGLR2<?, IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
+    public static JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
         @SuppressWarnings("unchecked") final IParser<IParseForest, ?> parser =
             (IParser<IParseForest, ?>) getParser(parseTable, variant.parser);
 
-        return new JSGLR2<>(parser, getImploder(variant));
+        return new JSGLR2Implementation<>(parser, getImploder(variant));
     }
 
-    public static List<JSGLR2<?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
-        List<JSGLR2<?, IStrategoTerm>> jsglr2s = new ArrayList<>();
+    public static List<JSGLR2<IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
+        List<JSGLR2<IStrategoTerm>> jsglr2s = new ArrayList<>();
 
         for(Variant variant : allVariants()) {
-            JSGLR2<?, IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
+            JSGLR2<IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
 
             jsglr2s.add(jsglr2);
         }

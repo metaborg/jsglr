@@ -145,7 +145,7 @@ public class JSGLR2Variants {
     }
 
 
-    public static IParser<?, ?> getParser(IParseTable parseTable, ParserVariant variant) {
+    public static IParser<? extends IParseForest, ?> getParser(IParseTable parseTable, ParserVariant variant) {
         if(!variant.isValid())
             throw new IllegalStateException("Invalid parser variant");
 
@@ -259,9 +259,12 @@ public class JSGLR2Variants {
         return parsers;
     }
 
-    public static IImploder<?, ?> getImploder(Variant variant) {
+    public static <ParseForest extends IParseForest> IImploder<ParseForest, IStrategoTerm>
+        getImploder(Variant variant) {
+
         if(variant.parser.parseForestRepresentation == ParseForestRepresentation.Null)
             return new NullStrategoImploder<>();
+
         switch(variant.imploder) {
             default:
             case CombinedRecursive:
@@ -273,10 +276,7 @@ public class JSGLR2Variants {
         @SuppressWarnings("unchecked") final IParser<IParseForest, ?> parser =
             (IParser<IParseForest, ?>) getParser(parseTable, variant.parser);
 
-        @SuppressWarnings("unchecked") final IImploder<IParseForest, IStrategoTerm> imploder =
-            (IImploder<IParseForest, IStrategoTerm>) getImploder(variant);
-
-        return new JSGLR2<>(parser, imploder);
+        return new JSGLR2<>(parser, getImploder(variant));
     }
 
     public static List<JSGLR2<?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {

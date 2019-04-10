@@ -2,10 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import static java.util.Collections.singletonList;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IProduction;
@@ -222,36 +219,36 @@ public class IterativeStrategoTermImploder
 
     @Override protected SubTree implodeParseNode(String inputString, ParseNode rootNode, int startOffset) {
         // This stack contains the parse nodes that we still need to process
-        LinkedList<PseudoNode> parseNodeStack = new LinkedList<>();
+        Stack<PseudoNode> parseNodeStack = new Stack<>();
         // These stack elements contain: one list for each derivation, and per derivation: one list for all subtrees.
         // The elements on the input stack are processed from the front,
         // after which they are pushed to the back of the elements on the output stack.
-        LinkedList<LinkedList<LinkedList<ParseNode>>> inputStack = new LinkedList<>();
-        LinkedList<LinkedList<LinkedList<SubTree>>> outputStack = new LinkedList<>();
+        Stack<LinkedList<LinkedList<ParseNode>>> inputStack = new Stack<>();
+        Stack<LinkedList<LinkedList<SubTree>>> outputStack = new Stack<>();
 
         parseNodeStack.add(new PseudoNode(rootNode, applyDisambiguationFilters(rootNode), startOffset));
         inputStack.add(newNestedList(rootNode));
         outputStack.add(newNestedList());
 
         while(true) {
-            PseudoNode pseudoNode = parseNodeStack.getLast();
-            LinkedList<LinkedList<ParseNode>> currentIn = inputStack.getLast();
-            LinkedList<LinkedList<SubTree>> currentOut = outputStack.getLast();
+            PseudoNode pseudoNode = parseNodeStack.peek();
+            LinkedList<LinkedList<ParseNode>> currentIn = inputStack.peek();
+            LinkedList<LinkedList<SubTree>> currentOut = outputStack.peek();
 
             if(currentIn.getFirst().isEmpty()) { // If we're finished with the current derivation
                 currentIn.removeFirst(); // Remove the current derivation
                 if(currentIn.isEmpty()) { // If the stack entry is now empty
-                    inputStack.removeLast(); // That means it's done, so remove it from the stack
+                    inputStack.pop(); // That means it's done, so remove it from the stack
                     if(inputStack.isEmpty()) // If it was the last stack node, we're done
                         break;
-                    parseNodeStack.removeLast(); // Also remove the current pseudo node
-                    outputStack.removeLast(); // Also remove `currentOut` from stack
+                    parseNodeStack.pop(); // Also remove the current pseudo node
+                    outputStack.pop(); // Also remove `currentOut` from stack
 
                     SubTree possiblyAmbiguousSubTree = // Merge resulting SubTrees from `currentOut` into one SubTree
                         createPossiblyAmbiguousSubTree(pseudoNode.parseNode, Lists.newArrayList(
                             Iterables2.zip(pseudoNode.derivations, currentOut, this::createNonTerminalSubTree)));
-                    outputStack.getLast().getLast().add(possiblyAmbiguousSubTree); // And add it to the output
-                    parseNodeStack.getLast().pivotOffset += possiblyAmbiguousSubTree.width;
+                    outputStack.peek().getLast().add(possiblyAmbiguousSubTree); // And add it to the output
+                    parseNodeStack.peek().pivotOffset += possiblyAmbiguousSubTree.width;
                 } else { // If the stack entry is not yet empty, that means we're processing an alternate derivation
                     currentOut.add(new LinkedList<>()); // Initialize a new derivation list in the output
                     pseudoNode.pivotOffset = pseudoNode.beginOffset; // And reset the pivotOffset
@@ -273,7 +270,7 @@ public class IterativeStrategoTermImploder
                 }
             }
         }
-        return outputStack.getFirst().getFirst().getFirst();
+        return outputStack.peek().getFirst().getFirst();
     }
 
     private LinkedList<LinkedList<ParseNode>> getDerivationLists(List<Derivation> derivations) {

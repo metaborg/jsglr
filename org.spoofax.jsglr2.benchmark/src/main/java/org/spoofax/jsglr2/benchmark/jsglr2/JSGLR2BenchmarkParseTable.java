@@ -3,10 +3,11 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
-import org.spoofax.jsglr2.JSGLR2Variants.Variant;
 import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
+import org.spoofax.jsglr2.imploder.ImploderVariant;
+import org.spoofax.jsglr2.integration.IntegrationVariant;
+import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -41,14 +42,15 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<StringIn
 
     @Param({ "Basic" }) public Reducing reducing;
 
-    @Override protected Variant variant() {
-        Variant variant =
-            new Variant(new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
-                new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
-                    parseForestConstruction, stackRepresentation, reducing));
+    @Override protected IntegrationVariant variant() {
+        IntegrationVariant variant = new IntegrationVariant(
+            new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
+            new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
+                parseForestConstruction, stackRepresentation, reducing),
+            ImploderVariant.CombinedRecursive);
         System.out.println("JSGLR2 PT Var: " + variant.name());
-        if(variant.equals(new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
-            ProductionToGotoRepresentation.JavaHashMap), naiveParserVariant)))
+        if(variant.equals(new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
+            ProductionToGotoRepresentation.JavaHashMap), naiveParserVariant, ImploderVariant.CombinedRecursive)))
             throw new IllegalStateException("naive variant is only benchmarked once");
         else
             return variant;

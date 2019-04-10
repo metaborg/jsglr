@@ -4,9 +4,11 @@ import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
+import org.spoofax.jsglr2.JSGLR2Variants.Variant;
 import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
+import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -30,30 +32,30 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
 
     public static JSGLR2<?, IStrategoTerm> standard(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
-            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound,
-                Reducing.Elkhound));
+                Reducing.Elkhound), ImploderVariant.CombinedRecursive));
     }
 
     public static JSGLR2<?, IStrategoTerm> dataDependent(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
-            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.DataDependent, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.DataDependent));
+                Reducing.DataDependent), ImploderVariant.CombinedRecursive));
     }
 
     public static JSGLR2<?, IStrategoTerm> layoutSensitive(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
-            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.DataDependent));
+                Reducing.DataDependent), ImploderVariant.CombinedRecursive));
     }
 
     public static JSGLR2<?, IStrategoTerm> incremental(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
-            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.Basic));
+                Reducing.Basic), ImploderVariant.CombinedRecursive));
     }
 
     public static JSGLR2<?, IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {

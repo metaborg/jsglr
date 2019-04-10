@@ -57,7 +57,7 @@ public abstract class BaseTest implements WithParseTable {
     protected void testParseSuccess(String inputString) {
         for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+            IParser<?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
@@ -68,7 +68,7 @@ public abstract class BaseTest implements WithParseTable {
     protected void testParseFailure(String inputString) {
         for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+            IParser<?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?> parseResult = parser.parse(inputString);
 

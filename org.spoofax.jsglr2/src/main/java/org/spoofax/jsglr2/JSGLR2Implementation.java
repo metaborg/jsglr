@@ -9,13 +9,12 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
-class JSGLR2Implementation<ParseForest extends IParseForest, AbstractSyntaxTree>
-    implements JSGLR2<AbstractSyntaxTree> {
+class JSGLR2Implementation<ParseForest extends IParseForest, AbstractSyntaxTree> implements JSGLR2<AbstractSyntaxTree> {
 
-    private final IParser<ParseForest, ?> parser;
+    private final IParser<ParseForest> parser;
     private final IImploder<ParseForest, AbstractSyntaxTree> imploder;
 
-    JSGLR2Implementation(IParser<ParseForest, ?> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
+    JSGLR2Implementation(IParser<ParseForest> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
         this.parser = parser;
         this.imploder = imploder;
     }

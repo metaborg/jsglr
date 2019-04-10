@@ -49,6 +49,13 @@ public class JSGLR2<ParseForest extends IParseForest, AbstractSyntaxTree> {
                 Reducing.DataDependent));
     }
 
+    public static JSGLR2<?, IStrategoTerm> incremental(IParseTable parseTable) {
+        return JSGLR2Variants.getJSGLR2(parseTable,
+            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Basic,
+                Reducing.Basic));
+    }
+
     public static JSGLR2<?, IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         IParseTable parseTable =
             new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory())

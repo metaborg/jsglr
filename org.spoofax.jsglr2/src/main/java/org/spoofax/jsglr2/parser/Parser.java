@@ -53,7 +53,7 @@ public class Parser
     }
 
     @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {
-        Parse parse = parseFactory.get(inputString, filename, observing);
+        Parse parse = getParse(inputString, filename);
 
         observing.notify(observer -> observer.parseStart(parse));
 
@@ -77,7 +77,11 @@ public class Parser
             return failure(parse, failureHandler.failureType(parse));
     }
 
-    private ParseSuccess<ParseForest> success(Parse parse, ParseForest parseForest) {
+    protected Parse getParse(String inputString, String filename) {
+        return parseFactory.get(inputString, filename, observing);
+    }
+
+    protected ParseSuccess<ParseForest> success(Parse parse, ParseForest parseForest) {
         ParseSuccess<ParseForest> success = new ParseSuccess<>(parse, parseForest);
 
         observing.notify(observer -> observer.success(success));
@@ -85,7 +89,7 @@ public class Parser
         return success;
     }
 
-    private ParseFailure<ParseForest> failure(Parse parse, ParseFailureType failureType) {
+    protected ParseFailure<ParseForest> failure(Parse parse, ParseFailureType failureType) {
         ParseFailure<ParseForest> failure = new ParseFailure<>(parse, failureType);
 
         observing.notify(observer -> observer.failure(failure));
@@ -97,12 +101,11 @@ public class Parser
         while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
             parseCharacter(parse);
 
-            parse.next();
+            if(!parse.activeStacks.isEmpty())
+                parse.next();
         }
 
-        if(parse.acceptingStack != null)
-            return;
-        else
+        if(parse.acceptingStack == null)
             failureHandler.onFailure(parse);
     }
 
@@ -166,7 +169,7 @@ public class Parser
     protected void shifter(Parse parse) {
         parse.activeStacks.clear();
 
-        ParseForest characterNode = parseForestManager.createCharacterNode(parse);
+        ParseForest characterNode = getNodeToShift(parse);
 
         observing.notify(observer -> observer.shifter(characterNode, parse.forShifter));
 
@@ -185,6 +188,10 @@ public class Parser
         }
 
         parse.forShifter.clear();
+    }
+
+    protected ParseForest getNodeToShift(Parse parse) {
+        return parseForestManager.createCharacterNode(parse);
     }
 
     private void addForShifter(Parse parse, StackNode stack, IState shiftState) {

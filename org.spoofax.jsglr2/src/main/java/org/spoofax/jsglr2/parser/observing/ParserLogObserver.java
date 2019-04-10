@@ -103,7 +103,7 @@ public class ParserLogObserver
     @Override public void createParseNode(ParseForest parseNode, IProduction production) {
         super.createParseNode(parseNode, production);
 
-        log("Create parse node " + id(parseNode) + " for production " + production.id());
+        log("Create parse node " + id(parseNode) + " for production " + (production == null ? null : production.id()));
     }
 
     @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,

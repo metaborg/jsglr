@@ -267,9 +267,9 @@ public class JSGLR2Variants {
             case CombinedRecursive:
                 return new TokenizedStrategoTermImploder<>();
             case SeparateRecursive:
-                return new StrategoTermImploder<>();
+                return new StrategoTermImploder<>(new StrategoTermTokenizer());
             case SeparateIterative:
-                return new IterativeStrategoTermImploder<>();
+                return new IterativeStrategoTermImploder<>(new IterativeStrategoTermTokenizer());
         }
     }
 

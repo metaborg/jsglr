@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.imploder;
 
-import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
@@ -17,7 +16,10 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<Tree> {
             this.leftToken = leftToken;
             this.rightToken = rightToken;
             this.endPosition = endPosition;
-            storeTokensInTree(tree.tree, tree.production, leftToken, rightToken);
+            if(tree.tree != null && leftToken != null && rightToken != null) {
+                String sort = tree.production == null ? null : tree.production.sort();
+                configure(tree.tree, sort, leftToken, rightToken);
+            }
         }
 
     }
@@ -75,7 +77,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<Tree> {
         }
     }
 
-    protected abstract void storeTokensInTree(Tree tree, IProduction production, IToken leftToken, IToken rightToken);
+    protected abstract void configure(Tree term, String sort, IToken leftToken, IToken rightToken);
 
     protected abstract void tokenTreeBinding(IToken token, Tree term);
 

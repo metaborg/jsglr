@@ -1,0 +1,13 @@
+module exp-priorities
+
+context-free start-symbols
+	Exp
+
+context-free syntax
+    Exp.Add = Exp "+" Exp {left}
+    Exp.Mult = Exp "*" Exp {left}
+    Exp.Term = "x"
+
+context-free priorities
+
+    Exp.Mult > Exp.Add

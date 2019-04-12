@@ -146,21 +146,21 @@ public abstract class TokenizedTreeImploder
         Position pivotPosition = startPosition;
         IToken pivotToken = parentLeftToken;
 
-        for(ParseForest parseForest : derivation.parseForests()) {
-            @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
+        for(ParseForest childParseForest : derivation.parseForests()) {
+            @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-            if(parseNode != null) { // Can be null in the case of a layout subtree parse node that is not created
-                IProduction parseNodeProduction = parseNode.production();
+            if(childParseNode != null) { // Can be null in the case of a layout subtree parse node that is not created
+                IProduction childProduction = childParseNode.production();
 
                 SubTree<Tree> subTree;
 
-                if(production.isList() && (parseNodeProduction.isList() && parseNodeProduction.constructor() == null
-                    && parseNode.getPreferredAvoidedDerivations().size() <= 1)) {
+                if(production.isList() && (childProduction.isList() && childProduction.constructor() == null
+                    && childParseNode.getPreferredAvoidedDerivations().size() <= 1)) {
                     // Make sure lists are flattened
-                    subTree = implodeChildParseNodes(tokens, childASTs, parseNode.getFirstDerivation(),
-                        parseNodeProduction, unboundTokens, pivotPosition, pivotToken);
+                    subTree = implodeChildParseNodes(tokens, childASTs, childParseNode.getFirstDerivation(),
+                        childProduction, unboundTokens, pivotPosition, pivotToken);
                 } else {
-                    subTree = implodeParseNode(parseNode, tokens, pivotPosition, pivotToken);
+                    subTree = implodeParseNode(childParseNode, tokens, pivotPosition, pivotToken);
 
                     if(subTree.tree != null)
                         childASTs.add(subTree.tree);
@@ -177,7 +177,7 @@ public abstract class TokenizedTreeImploder
                 }
 
                 // Set the parent tree left and right token from the outermost non-layout left and right child tokens
-                if(!parseNodeProduction.isLayout()) {
+                if(!childProduction.isLayout()) {
                     if(result.leftToken == null)
                         result.leftToken = subTree.leftToken;
 

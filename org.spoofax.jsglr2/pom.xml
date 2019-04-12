@@ -54,20 +54,6 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>false</skipTests>
-                    <useFile>false</useFile>
-                    <trimStackTrace>false</trimStackTrace>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <developers>
         <developer>
             <name>Jasper Denkers</name>

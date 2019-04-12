@@ -1,0 +1,32 @@
+module lookahead-incremental
+
+lexical syntax
+	OneCharFollowRestricted         = PrefixOneCharFollowRestricted Letters Suffix
+	TwoCharFollowRestricted         = PrefixTwoCharFollowRestricted Letters Suffix
+	ThreeCharFollowRestricted       = PrefixThreeCharFollowRestricted Letters Suffix
+	OneCharPrefix                   = "1[a" Letters Suffix
+	TwoCharPrefix                   = "2[ab" Letters Suffix
+	ThreeCharPrefix                 = "3[abc" Letters Suffix
+
+	PrefixOneCharFollowRestricted   = "1["
+	PrefixTwoCharFollowRestricted   = "2["
+	PrefixThreeCharFollowRestricted = "3["
+	Letters = [a-z] [a-z]*
+	Suffix = "]"
+
+lexical restrictions
+	PrefixOneCharFollowRestricted -/- [a]
+	PrefixTwoCharFollowRestricted -/- [a] . [b]
+	PrefixThreeCharFollowRestricted -/- [a] . [b] . [c]
+	Letters -/- [a-z]
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start.OneCharFollowRestricted   = OneCharFollowRestricted
+	Start.TwoCharFollowRestricted   = TwoCharFollowRestricted
+	Start.ThreeCharFollowRestricted = ThreeCharFollowRestricted
+	Start.OneCharPrefix             = OneCharPrefix
+	Start.TwoCharPrefix             = TwoCharPrefix
+	Start.ThreeCharPrefix           = ThreeCharPrefix

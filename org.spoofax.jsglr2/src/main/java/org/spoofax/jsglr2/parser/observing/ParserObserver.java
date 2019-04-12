@@ -60,6 +60,13 @@ public abstract class ParserObserver
     }
 
     protected int id(ParseForest parseNode) {
+        // For incremental parsing, not all nodes are registered yet because they come from a previous parse
+        if(!parseNodeId.containsKey(parseNode)) {
+            if(parseNode instanceof IParseNode)
+                createParseNode(parseNode, ((IParseNode) parseNode).production());
+            else
+                createCharacterNode(parseNode, ((ICharacterNode) parseNode).character());
+        }
         return parseNodeId.get(parseNode);
     }
 
@@ -194,6 +201,8 @@ public abstract class ParserObserver
                 res += action.toString();
             else
                 res += "," + action.toString();
+            if(action instanceof IReduce)
+                res += "[" + ((IReduce) action).production().toString() + "]";
         }
 
         return "[" + res + "]";

@@ -7,11 +7,11 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class BasicParseForestManager extends ParseForestManager<BasicParseForest, BasicParseNode, BasicDerivation> {
 
-    @Override public BasicParseNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
+    @Override public BasicParseNode createParseNode(AbstractParse<BasicParseForest, ?> parse, IStackNode stack,
         IProduction production, BasicDerivation firstDerivation) {
         BasicParseNode parseNode = new BasicParseNode(production);
 
@@ -46,7 +46,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         }
     }
 
-    @Override public BasicDerivation createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
+    @Override public BasicDerivation createDerivation(AbstractParse<BasicParseForest, ?> parse, IStackNode stack,
         IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
         BasicDerivation derivation = new BasicDerivation(production, productionType, parseForests);
 

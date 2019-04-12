@@ -19,6 +19,7 @@ import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.WithParseTable;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Position;
@@ -29,14 +30,10 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public abstract class BaseTest implements WithParseTable {
 
-    private TermReader termReader;
-    protected AstUtilities astUtilities;
+    private static TermReader termReader = new TermReader(new TermFactory());
+    private static AstUtilities astUtilities = new AstUtilities();
 
     protected BaseTest() {
-        TermFactory termFactory = new TermFactory();
-        this.termReader = new TermReader(termFactory);
-
-        this.astUtilities = new AstUtilities();
     }
 
     public TermReader getTermReader() {
@@ -55,7 +52,7 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    public void testParseSuccess(String inputString) {
+    protected void testParseSuccess(String inputString) {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
@@ -66,7 +63,7 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    public void testParseFailure(String inputString) {
+    protected void testParseFailure(String inputString) {
         for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
@@ -77,34 +74,16 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.ParserVariant variant,
-        String startSymbol, String inputString) {
-        JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
-
-        try {
-
-            IStrategoTerm result = jsglr2.parseUnsafe(inputString, "", startSymbol);
-
-            // Fail here if imploding or tokenization failed
-            assertNotNull("Variant '" + variant.name() + "' failed imploding: ", result);
-
-            return result;
-
-        } catch(ParseException e) {
-
-            // Fail here if parsing failed
-            fail("Variant '" + variant.name() + "' failed parsing: " + e.failureType);
-
-        }
-        return null;
-    }
-
     protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, null, false);
     }
 
     protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, null, true);
+    }
+
+    protected void testIncrementalSuccessByExpansions(String[] inputStrings, String[] expectedOutputAstStrings) {
+        testIncrementalSuccess(inputStrings, expectedOutputAstStrings, null, true);
     }
 
     protected void testSuccessByAstString(String startSymbol, String inputString, String expectedOutputAstString) {
@@ -121,22 +100,94 @@ public abstract class BaseTest implements WithParseTable {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.parser, startSymbol, inputString);
 
-            if(equalityByExpansions) {
-                IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);
+            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
+                actualOutputAst, equalityByExpansions);
+        }
+    }
 
-                assertEqualTermExpansions(expectedOutputAst, actualOutputAst);
-            } else {
-                assertEquals(expectedOutputAstString, actualOutputAst.toString());
+    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.ParserVariant variant,
+        String startSymbol, String inputString) {
+        JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
+
+        return testSuccess("Variant '" + variant.name() + "' failed parsing: ",
+            "Variant '" + variant.name() + "' failed imploding: ", jsglr2, "", startSymbol, inputString);
+    }
+
+    private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage,
+        JSGLR2<?, IStrategoTerm> jsglr2, String filename, String startSymbol, String inputString) {
+        try {
+
+            IStrategoTerm result = jsglr2.parseUnsafe(inputString, filename, startSymbol);
+
+            // Fail here if imploding or tokenization failed
+            assertNotNull(implodeFailMessage, result);
+
+            return result;
+
+        } catch(ParseException e) {
+
+            // Fail here if parsing failed
+            fail(parseFailMessage + e.failureType);
+
+        }
+        return null;
+    }
+
+    private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
+        boolean equalityByExpansions) {
+        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+            if(variant.parser.parseForestRepresentation != ParseForestRepresentation.Incremental)
+                continue;
+
+            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
+            JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+
+            IStrategoTerm actualOutputAst;
+            String filename = "" + System.nanoTime(); // To ensure the results will be cached
+            for(int i = 0; i < expectedOutputAstStrings.length; i++) {
+                String inputString = inputStrings[i];
+                actualOutputAst = testSuccess("Variant '" + variant.name() + "' failed parsing at update " + i + ": ",
+                    "Variant '" + variant.name() + "' failed imploding at update " + i + ": ", jsglr2, filename,
+                    startSymbol, inputString);
+                assertEqualAST("Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ",
+                    expectedOutputAstStrings[i], actualOutputAst, equalityByExpansions);
             }
         }
     }
 
-    protected void assertEqualTermExpansions(IStrategoTerm expected, IStrategoTerm actual) {
-        List<String> expectedExpansion = toSortedStringList(this.astUtilities.expand(expected));
-        List<String> actualExpansion = toSortedStringList(this.astUtilities.expand(actual));
+    private void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,
+        boolean equalityByExpansions) {
+        if(equalityByExpansions) {
+            IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);
 
-        assertEquals(expectedExpansion, actualExpansion);
+            assertEqualTermExpansions(message, expectedOutputAst, actualOutputAst);
+        } else {
+            assertEquals(message, expectedOutputAstString, actualOutputAst.toString());
+        }
+    }
 
+    protected static void assertEqualTermExpansions(IStrategoTerm expected, IStrategoTerm actual) {
+        assertEqualTermExpansions(null, expected, actual);
+    }
+
+    protected static void assertEqualTermExpansions(String message, IStrategoTerm expected, IStrategoTerm actual) {
+        List<String> expectedExpansion = toSortedStringList(astUtilities.expand(expected));
+        List<String> actualExpansion = toSortedStringList(astUtilities.expand(actual));
+
+        assertEquals(message, expectedExpansion, actualExpansion);
+
+    }
+
+    private static List<String> toSortedStringList(List<IStrategoTerm> astExpansion) {
+        List<String> result = new ArrayList<>(astExpansion.size());
+
+        for(IStrategoTerm ast : astExpansion) {
+            result.add(ast.toString());
+        }
+
+        sort(result);
+
+        return result;
     }
 
     protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
@@ -144,7 +195,7 @@ public abstract class BaseTest implements WithParseTable {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
             JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
 
-            JSGLR2Result<?, ?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
+            JSGLR2Result<?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
 
             assertTrue("Variant '" + variant.name() + "' failed: ", jsglr2Result.isSuccess);
 
@@ -176,18 +227,6 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    private List<String> toSortedStringList(List<IStrategoTerm> astExpansion) {
-        List<String> result = new ArrayList<>(astExpansion.size());
-
-        for(IStrategoTerm ast : astExpansion) {
-            result.add(ast.toString());
-        }
-
-        sort(result);
-
-        return result;
-    }
-
     protected String getFileAsString(String filename) throws IOException {
         byte[] encoded =
             Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("samples/" + filename).getPath()));
@@ -198,7 +237,7 @@ public abstract class BaseTest implements WithParseTable {
     protected IStrategoTerm getFileAsAST(String filename) throws IOException {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("samples/" + filename);
 
-        return this.termReader.parseFromStream(inputStream);
+        return termReader.parseFromStream(inputStream);
     }
 
 }

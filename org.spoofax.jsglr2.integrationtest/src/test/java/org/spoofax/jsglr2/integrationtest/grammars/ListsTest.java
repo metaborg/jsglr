@@ -36,4 +36,11 @@ public class ListsTest extends BaseTestWithSdf3ParseTables {
             "amb([ZeroOrMoreXsCommaSeparated([X, X, X]), OneOrMoreXsCommaSeparated([X, X, X])])");
     }
 
+    @Test public void testIncrementalLayoutSeparatedXs() throws ParseError {
+        testIncrementalSuccessByExpansions(new String[] { "x x x", "x x x x", "x x x" },
+            new String[] { "amb([ZeroOrMoreXs([X, X, X]), OneOrMoreXs([X, X, X])])",
+                "amb([ZeroOrMoreXs([X, X, X, X]), OneOrMoreXs([X, X, X, X])])",
+                "amb([ZeroOrMoreXs([X, X, X]), OneOrMoreXs([X, X, X])])" });
+    }
+
 }

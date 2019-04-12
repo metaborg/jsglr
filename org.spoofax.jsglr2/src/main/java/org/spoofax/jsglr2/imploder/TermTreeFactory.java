@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -66,10 +66,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         IToken rightToken) {
         IStrategoTerm alternativesListTerm = createList(null, alternatives, leftToken, rightToken);
 
-        IStrategoTerm ambTerm =
-            createNonTerminal(null, "amb", Arrays.asList(alternativesListTerm), leftToken, rightToken);
-
-        return ambTerm;
+        return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
     }
 
     private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {

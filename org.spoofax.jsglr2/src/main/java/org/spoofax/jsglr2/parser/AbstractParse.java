@@ -10,7 +10,9 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 import com.google.common.collect.Maps;
 
@@ -39,15 +41,15 @@ public abstract class AbstractParse
 
     public final ParserObserving<ParseForest, StackNode> observing;
 
-    public AbstractParse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
-        IForActorStacks<StackNode> forActorStacks, ParserObserving<ParseForest, StackNode> observing) {
+    public AbstractParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
+        IForActorStacksFactory forActorStacksFactory, ParserObserving<ParseForest, StackNode> observing) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
 
         this.acceptingStack = null;
-        this.activeStacks = activeStacks;
-        this.forActorStacks = forActorStacks;
+        this.activeStacks = activeStacksFactory.get(observing);
+        this.forActorStacks = forActorStacksFactory.get(observing);
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
@@ -95,16 +97,12 @@ public abstract class AbstractParse
             return CharacterClassFactory.EOF_INT;
     }
 
-    public String getPart(int begin, int end) {
-        return inputString.substring(begin, end);
-    }
-
     @Override public int actionQueryCharacter() {
         return currentChar;
     }
 
     @Override public String actionQueryLookahead(int length) {
-        return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
+        return inputString.substring(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 
 }

@@ -31,9 +31,8 @@ public class ReducerSkipLayoutAndLexical
             (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
 
         if(parseNode != null) {
-            Derivation derivation =
-                parseForestManager.createDerivation(parse, existingDirectLinkToActiveStateWithGoto.to.position(),
-                    reduce.production(), reduce.productionType(), parseForests);
+            Derivation derivation = parseForestManager.createDerivation(parse,
+                existingDirectLinkToActiveStateWithGoto.to, reduce.production(), reduce.productionType(), parseForests);
             parseForestManager.addDerivation(parse, parseNode, derivation);
         }
 
@@ -48,9 +47,9 @@ public class ReducerSkipLayoutAndLexical
         if(reduce.production().isSkippableInParseForest())
             parseNode = null;
         else {
-            Derivation derivation = parseForestManager.createDerivation(parse, stack.position(), reduce.production(),
+            Derivation derivation = parseForestManager.createDerivation(parse, stack, reduce.production(),
                 reduce.productionType(), parseForests);
-            parseNode = parseForestManager.createParseNode(parse, stack.position(), reduce.production(), derivation);
+            parseNode = parseForestManager.createParseNode(parse, stack, reduce.production(), derivation);
         }
 
         StackLink<ParseForest, StackNode> newDirectLinkToActiveStateWithGoto =
@@ -69,9 +68,9 @@ public class ReducerSkipLayoutAndLexical
         if(reduce.production().isSkippableInParseForest())
             parseNode = null;
         else {
-            Derivation derivation = parseForestManager.createDerivation(parse, stack.position(), reduce.production(),
+            Derivation derivation = parseForestManager.createDerivation(parse, stack, reduce.production(),
                 reduce.productionType(), parseForests);
-            parseNode = parseForestManager.createParseNode(parse, stack.position(), reduce.production(), derivation);
+            parseNode = parseForestManager.createParseNode(parse, stack, reduce.production(), derivation);
         }
 
         StackNode newStackWithGotoState = stackManager.createStackNode(parse, gotoState);

@@ -19,13 +19,11 @@ import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.StateFactory;
-import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataStructureBenchmark {
@@ -48,13 +46,6 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         actorObserver = new ActorObserver();
 
         parser.observing().attachObserver(actorObserver);
-
-        try {
-            for(Input input : inputs)
-                parser.parseUnsafe(input.content, input.filename, null);
-        } catch(ParseException e) {
-            throw new IllegalStateException("setup of benchmark should not fail");
-        }
     }
 
     @Override protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {

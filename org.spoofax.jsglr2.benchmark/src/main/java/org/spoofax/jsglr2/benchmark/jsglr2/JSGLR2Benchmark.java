@@ -31,22 +31,23 @@ import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.StateFactory;
-import org.spoofax.jsglr2.testset.Input;
-import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetReader;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2Benchmark extends BaseBenchmark {
+public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
 
     protected IParser<?, ?> parser; // Just parsing
     protected JSGLR2<?, ?> jsglr2; // Parsing and imploding (including tokenization)
 
-    protected JSGLR2Benchmark(TestSet testSet) {
-        super(testSet);
+    public JSGLR2Benchmark(TestSetReader<Input> testSetReader) {
+        super(testSetReader);
     }
 
     abstract protected Variant variant();
 
     abstract protected boolean implode();
+
+    abstract protected Object action(Input input) throws ParseException;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         Variant variant = variant();
@@ -125,19 +126,14 @@ public abstract class JSGLR2Benchmark extends BaseBenchmark {
 
         if(implode && !benchmarkParseAndImplodeVariants.contains(variant))
             throw new IllegalStateException("this variant is not used for benchmarking");
+
+        if(implode && variant.parser.parseForestRepresentation == ParseForestRepresentation.Null)
+            throw new IllegalStateException("imploding requires a parse forest");
     }
 
     @Benchmark public void benchmark(Blackhole bh) throws ParseException {
-        if(implode()) {
-            if(variant().parser.parseForestRepresentation == ParseForestRepresentation.Null)
-                throw new IllegalStateException("imploding requires a parse forest");
-
-            for(Input input : inputs)
-                bh.consume(jsglr2.parseUnsafe(input.content, input.filename, null));
-        } else {
-            for(Input input : inputs)
-                bh.consume(parser.parseUnsafe(input.content, input.filename, null));
-        }
+        for(Input input : inputs)
+            bh.consume(action(input));
     }
 
 }

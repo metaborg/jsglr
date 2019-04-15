@@ -13,18 +13,19 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
+import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
-import org.spoofax.jsglr2.testset.Input;
+import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR1 {
+public abstract class JSGLR1Benchmark extends BaseBenchmark<StringInput> implements WithJSGLR1 {
 
     protected SGLR jsglr1parse;
     protected SGLR jsglr1parseAndImplode;
 
     protected JSGLR1Benchmark(TestSet testSet) {
-        super(testSet);
+        super(new BenchmarkStringInputTestSetReader(testSet));
     }
 
     @Param({ "false", "true" }) public boolean implode;
@@ -43,10 +44,10 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
     @Benchmark public void jsglr1default(Blackhole bh)
         throws TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
         if(implode) {
-            for(Input input : inputs)
+            for(StringInput input : inputs)
                 bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));
         } else {
-            for(Input input : inputs)
+            for(StringInput input : inputs)
                 bh.consume(jsglr1parse.parse(input.content, null, null));
         }
     }

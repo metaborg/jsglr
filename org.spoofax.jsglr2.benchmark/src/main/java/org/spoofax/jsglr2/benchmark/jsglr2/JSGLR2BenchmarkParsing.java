@@ -25,8 +25,7 @@ public abstract class JSGLR2BenchmarkParsing extends JSGLR2Benchmark<StringInput
 
     @Param({ "false" }) public boolean implode;
 
-    @Param({ "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation =
-        ActionsForCharacterRepresentation.DisjointSorted;
+    @Param({ "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation;
 
     @Param({ "JavaHashMap" }) ProductionToGotoRepresentation productionToGotoRepresentation;
 

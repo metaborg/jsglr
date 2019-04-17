@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.jsglr2.testset.testinput.TestInput;
 
@@ -33,6 +34,13 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
             new TestSetSizedInput.StringInputSet(n -> String.join("+", Collections.nCopies(n, "x")), 4000, 8000, 16000,
                 32000, 64000));
 
+
+    public static TestSet<String[], IncrementalStringInput> sumNonAmbiguousIncremental =
+        new TestSet<>("sumNonAmbiguousIncremental", new TestSetParseTableFromSDF3("sum-nonambiguous"),
+            new TestSetSizedInput.IncrementalStringInputSet(
+                n -> new String[] { String.join("+", Collections.nCopies(n, "x")),
+                    String.join("+", Collections.nCopies(n + 1, "x")), String.join("+", Collections.nCopies(n, "x")) },
+                4000, 8000, 16000, 32000, 64000));
 
     private static final String JAVA_8_BENCHMARK_INPUT_PATH_STRING =
         System.getProperty(TestSet.class.getCanonicalName() + ".javaInputPath",

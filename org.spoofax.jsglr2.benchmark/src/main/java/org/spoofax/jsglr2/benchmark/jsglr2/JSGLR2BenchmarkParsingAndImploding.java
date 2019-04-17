@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
@@ -56,7 +57,7 @@ public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark
         return implode;
     }
 
-    @Override protected Object action(StringInput input) throws ParseException {
+    @Override protected Object action(Blackhole bh, StringInput input) throws ParseException {
         return jsglr2.parseUnsafe(input.content, input.filename, null);
     }
 

@@ -43,12 +43,12 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
 
     abstract protected boolean implode();
 
-    abstract protected Object action(Input input) throws ParseException;
+    abstract protected Object action(Blackhole bh, Input input) throws ParseException;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         IntegrationVariant variant = variant();
 
-        filterVariants(implode(), variant);
+        // filterVariants(implode(), variant);
 
         IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
@@ -121,7 +121,7 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
 
     @Benchmark public void benchmark(Blackhole bh) throws ParseException {
         for(Input input : inputs)
-            bh.consume(action(input));
+            bh.consume(action(bh, input));
     }
 
 }

@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.testset;
 import java.util.Collections;
 import java.util.List;
 
+import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.jsglr2.testset.testinput.TestInput;
 
@@ -45,4 +46,13 @@ public abstract class TestSetSizedInput<ContentType, Input extends TestInput<Con
         }
     }
 
+    static class IncrementalStringInputSet extends TestSetSizedInput<String[], IncrementalStringInput> {
+        public IncrementalStringInputSet(InputForSize<String[]> inputForSize, int... sizes) {
+            super(inputForSize, sizes);
+        }
+
+        @Override protected IncrementalStringInput getInput(String filename, String[] input) {
+            return new IncrementalStringInput(filename, input);
+        }
+    }
 }

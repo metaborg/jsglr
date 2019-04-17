@@ -44,7 +44,7 @@ public interface JSGLR2<AbstractSyntaxTree> {
         return JSGLR2Variants.getJSGLR2(parseTable,
             new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.Basic), ImploderVariant.CombinedRecursive));
+                Reducing.Basic), ImploderVariant.SeparateRecursiveIncremental));
     }
 
     static JSGLR2<IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {

@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.elkhound.ElkhoundParser;
 import org.spoofax.jsglr2.elkhound.HybridElkhoundStackManager;
 import org.spoofax.jsglr2.imploder.*;
+import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
@@ -268,6 +269,8 @@ public class JSGLR2Variants {
                 return new TokenizedStrategoTermImploder<>();
             case SeparateRecursive:
                 return new StrategoTermImploder<>(new StrategoTermTokenizer());
+            case SeparateRecursiveIncremental:
+                return new IncrementalStrategoTermImploder<>(new StrategoTermTokenizer());
             case SeparateIterative:
                 return new IterativeStrategoTermImploder<>(new IterativeStrategoTermTokenizer());
         }

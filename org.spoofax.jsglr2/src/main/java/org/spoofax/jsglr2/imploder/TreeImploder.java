@@ -20,7 +20,7 @@ public class TreeImploder
     implements IImploder<ParseForest, Tree> {
 
     protected final ITreeFactory<Tree> treeFactory;
-    private ITokenizer<Tree> tokenizer;
+    protected ITokenizer<Tree> tokenizer;
 
     public TreeImploder(ITreeFactory<Tree> treeFactory, ITokenizer<Tree> tokenizer) {
         this.treeFactory = treeFactory;
@@ -88,7 +88,7 @@ public class TreeImploder
         return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, derivation.production());
     }
 
-    protected Iterable<ParseForest> getChildParseForests(Derivation derivation) {
+    protected List<ParseForest> getChildParseForests(Derivation derivation) {
         // Make sure lists are flattened
         if(derivation.production().isList()) {
             LinkedList<ParseForest> listQueueTodo = new LinkedList<>();
@@ -117,7 +117,7 @@ public class TreeImploder
             }
             return listQueueDone;
         } else {
-            return Iterables2.from(derivation.parseForests());
+            return Arrays.asList(derivation.parseForests());
         }
     }
 
@@ -161,15 +161,15 @@ public class TreeImploder
             return treeFactory.createTuple(production.sort(), childASTs);
     }
 
-    static class SubTree<Tree> {
+    protected static class SubTree<Tree> {
 
-        final Tree tree;
-        final List<SubTree<Tree>> children;
-        final IProduction production;
-        final String string; // Only set for lexical nodes.
-        final int width;
+        public final Tree tree;
+        public final List<SubTree<Tree>> children;
+        public final IProduction production;
+        public final String string; // Only set for lexical nodes.
+        public final int width;
 
-        SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, String string, int width) {
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, String string, int width) {
             this.tree = tree;
             this.children = children;
             this.production = production;
@@ -178,12 +178,12 @@ public class TreeImploder
         }
 
         /** This constructor infers the width from the sum of widths of its children. */
-        SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production) {
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production) {
             this(tree, children, production, null, sumWidth(children));
         }
 
         /** This constructor corresponds to a terminal/lexical node without children. */
-        SubTree(Tree tree, IProduction production, String string) {
+        public SubTree(Tree tree, IProduction production, String string) {
             this(tree, Collections.emptyList(), production, string, string.length());
         }
 

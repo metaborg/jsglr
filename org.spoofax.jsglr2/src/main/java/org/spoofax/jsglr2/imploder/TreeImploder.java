@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.imploder;
 import java.util.*;
 
 import org.metaborg.parsetable.IProduction;
-import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -122,6 +121,9 @@ public class TreeImploder
     }
 
     protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
+        if(!parseNode.isAmbiguous())
+            return Collections.singletonList(parseNode.getFirstDerivation());
+
         List<Derivation> result;
         // TODO always filter longest-match?
         if(parseNode instanceof LayoutSensitiveParseNode) {

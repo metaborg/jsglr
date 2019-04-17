@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
@@ -110,6 +111,9 @@ public abstract class TokenizedTreeImploder
     }
 
     protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
+        if(!parseNode.isAmbiguous())
+            return Collections.singletonList(parseNode.getFirstDerivation());
+
         List<Derivation> result;
         // TODO always filter longest-match?
         if(parseNode instanceof LayoutSensitiveParseNode) {

@@ -53,6 +53,10 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
         new TestSet<>("javaUnrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
             new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
+    public static TestSet<String[], IncrementalStringInput> java8incremental =
+        new TestSet<>("java8incremental", new TestSetParseTableFromATerm("Java8"),
+            new TestSetSingleInput.IncrementalStringInputSet("Java/200-classes-incremental.mjv"));
+
 
     public static TestSet<String, StringInput> greenMarl = new TestSet<>("greenmarl",
         new TestSetParseTableFromATerm("GreenMarl"), new TestSetSingleInput.StringInputSet("GreenMarl/infomap.gm"));

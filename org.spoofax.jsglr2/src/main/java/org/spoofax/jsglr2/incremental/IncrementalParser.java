@@ -69,6 +69,11 @@ public class IncrementalParser
             new ProcessUpdates<>((IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
     }
 
+    public void clearCache() {
+        cache.clear();
+        oldString.clear();
+    }
+
     @Override protected ParseState getParseState(String inputString, String filename) {
         IncrementalParseForest updatedTree = getUpdatedTree(inputString, filename);
         return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, filename), observing);

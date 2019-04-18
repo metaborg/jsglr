@@ -21,14 +21,13 @@ import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
-public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding
-    extends JSGLR2Benchmark<String[], IncrementalStringInput> {
+public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2Benchmark<String[], IncrementalStringInput> {
 
-    protected JSGLR2BenchmarkIncrementalParsingAndImploding(TestSet<String[], IncrementalStringInput> testSet) {
+    protected JSGLR2BenchmarkIncrementalParsing(TestSet<String[], IncrementalStringInput> testSet) {
         super(new BenchmarkTestSetReader<>(testSet));
     }
 
-    @Param({ "true" }) public boolean implode;
+    @Param({ "false" }) public boolean implode;
 
     @Param({ "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation;
 
@@ -46,10 +45,10 @@ public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding
 
     @Param({ "Basic" }) public Reducing reducing;
 
-    @Param({ "TokenizedRecursive", "RecursiveIncremental" }) public ImploderVariant imploder;
+    @Param({ "TokenizedRecursive" }) public ImploderVariant imploder;
 
     @Override protected IntegrationVariant variant() {
-        if(!implode)
+        if(implode)
             throw new IllegalStateException("this variant is not used for benchmarking");
 
         return new IntegrationVariant(
@@ -68,7 +67,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding
             ((IncrementalParser) jsglr2.parser).clearCache();
 
         for(String content : input.content) {
-            bh.consume(jsglr2.parseUnsafe(content, input.filename, null));
+            bh.consume(jsglr2.parser.parseUnsafe(content, input.filename, null));
         }
         return null;
     }

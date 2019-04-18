@@ -33,7 +33,7 @@ public abstract class TestSetSizedInput<ContentType, Input extends TestInput<Con
     }
 
     public List<Input> getInputs(int n) {
-        return Collections.singletonList(getInput("", get(n)));
+        return Collections.singletonList(getInput("size-" + n, get(n)));
     }
 
     static class StringInputSet extends TestSetSizedInput<String, StringInput> {

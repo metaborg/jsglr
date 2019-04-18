@@ -9,8 +9,8 @@ import java.util.*;
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 import org.spoofax.jsglr2.integration.WithParseTableFromTerm;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
@@ -38,7 +38,7 @@ public abstract class TestSetReader<Input> implements WithParseTableFromTerm {
         }
     }
 
-    public IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) throws Exception {
+    public IParseTable getParseTable(ParseTableVariant variant) throws Exception {
         return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
             new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
                 .read(getParseTableTerm());

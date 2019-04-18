@@ -28,7 +28,6 @@ import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
 import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
 import org.strategoxt.HybridInterpreter;
 
 import com.google.common.collect.Iterables;

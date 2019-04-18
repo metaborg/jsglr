@@ -9,16 +9,16 @@ import java.net.URISyntaxException;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetReader;
 
-public class BenchmarkTestsetReader extends TestSetReader {
+public abstract class BenchmarkTestSetReader<Input> extends TestSetReader<Input> {
 
-    public BenchmarkTestsetReader(TestSet testSet) {
+    public BenchmarkTestSetReader(TestSet testSet) {
         super(testSet);
     }
 
     @Override protected String basePath() {
         try {
             return new File(
-                BenchmarkTestsetReader.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
+                BenchmarkTestSetReader.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
                     .getParent()
                 + "/classes/";
         } catch(URISyntaxException e) {

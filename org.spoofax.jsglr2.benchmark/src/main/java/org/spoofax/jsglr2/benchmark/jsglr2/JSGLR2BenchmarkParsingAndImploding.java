@@ -6,24 +6,26 @@ import org.openjdk.jmh.annotations.Param;
 import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.JSGLR2Variants.Variant;
+import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
+import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
 
-public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark {
+public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark<StringInput> {
 
     protected JSGLR2BenchmarkParsingAndImploding(TestSet testSet) {
-        super(testSet);
+        super(new BenchmarkStringInputTestSetReader(testSet));
     }
 
     @Param({ "true" }) public boolean implode;
 
-    @Param({ "Separated", "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation =
-        ActionsForCharacterRepresentation.DisjointSorted;
+    @Param({ "Separated", "DisjointSorted" }) ActionsForCharacterRepresentation actionsForCharacterRepresentation;
 
     @Param({ "ForLoop", "JavaHashMap" }) ProductionToGotoRepresentation productionToGotoRepresentation;
 
@@ -50,6 +52,10 @@ public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark
 
     @Override protected boolean implode() {
         return implode;
+    }
+
+    @Override protected Object action(StringInput input) throws ParseException {
+        return jsglr2.parseUnsafe(input.content, input.filename, null);
     }
 
 }

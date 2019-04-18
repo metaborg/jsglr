@@ -4,22 +4,20 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
-import org.spoofax.jsglr2.testset.Input;
-import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetReader;
 
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-public abstract class BaseBenchmark {
+public abstract class BaseBenchmark<Input> {
 
-    protected TestSetReader testSetReader;
+    protected final TestSetReader<Input> testSetReader;
     protected Iterable<Input> inputs;
 
     @Param({ "-1" }) public int n; // Can be overwritten if the input has a dynamic size
 
-    protected BaseBenchmark(TestSet testSet) {
-        this.testSetReader = new BenchmarkTestsetReader(testSet);
+    protected BaseBenchmark(TestSetReader<Input> testSetReader) {
+        this.testSetReader = testSetReader;
     }
 
     @Setup public void setupInputs() throws IOException {

@@ -1,14 +1,11 @@
 package org.spoofax.jsglr2.imploder;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
-
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.TokenizedTermTreeFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.terms.TermFactory;
 
 public class TokenizedStrategoTermImploder
 //@formatter:off
@@ -19,7 +16,7 @@ public class TokenizedStrategoTermImploder
     extends TokenizedTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
 
     public TokenizedStrategoTermImploder() {
-        super(new TokenizedTermTreeFactory(new TermFactory().getFactoryWithStorageType(MUTABLE)));
+        super(new TokenizedTermTreeFactory());
     }
 
     @Override protected void tokenTreeBinding(IToken token, IStrategoTerm term) {

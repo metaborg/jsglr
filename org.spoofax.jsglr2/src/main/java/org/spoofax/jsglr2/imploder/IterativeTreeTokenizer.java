@@ -66,7 +66,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                 positionStack.push(pivotPosition);
                 outputStack.peek().add(new SubTree(tree, leftToken, rightToken, pivotPosition));
             } else {
-                TreeImploder.SubTree<Tree> tree = currentIn.getFirst();// Process the next input
+                TreeImploder.SubTree<Tree> tree = currentIn.getFirst(); // Process the next input
                 if(tree.children.size() == 0) {
                     if(tree.width > 0) {
                         Position endPosition = currentPos.step(tokens.getInput(), tree.width);
@@ -77,8 +77,6 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                         positionStack.push(endPosition);
                     } else {
                         currentOut.add(new SubTree(tree, null, null, currentPos));
-                        // positionStack.pop();
-                        // positionStack.push(currentPos);
                     }
                     currentIn.removeFirst();
                 } else {

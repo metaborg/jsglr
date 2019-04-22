@@ -1,10 +1,12 @@
 package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -21,9 +23,9 @@ public abstract class TokenizedTreeImploder
 //@formatter:on
     implements IImploder<ParseForest, Tree> {
 
-    protected final ITreeFactory<Tree> treeFactory;
+    protected final ITokenizedTreeFactory<Tree> treeFactory;
 
-    public TokenizedTreeImploder(ITreeFactory<Tree> treeFactory) {
+    public TokenizedTreeImploder(ITokenizedTreeFactory<Tree> treeFactory) {
         this.treeFactory = treeFactory;
     }
 
@@ -88,9 +90,11 @@ public abstract class TokenizedTreeImploder
             } else
                 return implodeDerivation(tokens, filteredDerivations.get(0), startPosition, parentLeftToken);
         } else {
-            Position endPosition = startPosition.step(tokens.getInput(), parseNode.width());
+            int width = parseNode.width();
 
-            IToken token = parseNode.width() > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
+            Position endPosition = startPosition.step(tokens.getInput(), width);
+
+            IToken token = width > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
 
             Tree tree;
 
@@ -107,6 +111,9 @@ public abstract class TokenizedTreeImploder
     }
 
     protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
+        if(!parseNode.isAmbiguous())
+            return Collections.singletonList(parseNode.getFirstDerivation());
+
         List<Derivation> result;
         // TODO always filter longest-match?
         if(parseNode instanceof LayoutSensitiveParseNode) {

@@ -6,15 +6,15 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
-public class StrategoTermImploder
+public class IterativeStrategoTermImploder
 //@formatter:off
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on
-    extends TreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
+    extends IterativeTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
 
-    public StrategoTermImploder(StrategoTermTokenizer tokenizer) {
+    public IterativeStrategoTermImploder(ITokenizer<IStrategoTerm> tokenizer) {
         super(new StrategoTermTreeFactory(), tokenizer);
     }
 

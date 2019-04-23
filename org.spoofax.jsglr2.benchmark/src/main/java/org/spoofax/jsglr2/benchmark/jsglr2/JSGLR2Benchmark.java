@@ -37,8 +37,8 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
 
-    protected IParser<?, ?> parser; // Just parsing
-    protected JSGLR2<?, ?> jsglr2; // Parsing and imploding (including tokenization)
+    protected IParser<?> parser; // Just parsing
+    protected JSGLR2<?> jsglr2; // Parsing and imploding (including tokenization)
 
     public JSGLR2Benchmark(TestSetReader<Input> testSetReader) {
         super(testSetReader);

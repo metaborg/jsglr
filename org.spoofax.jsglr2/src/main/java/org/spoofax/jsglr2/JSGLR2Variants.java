@@ -142,7 +142,7 @@ public class JSGLR2Variants {
     }
 
 
-    public static IParser<? extends IParseForest, ?> getParser(IParseTable parseTable, ParserVariant variant) {
+    public static IParser<? extends IParseForest> getParser(IParseTable parseTable, ParserVariant variant) {
         if(!variant.isValid())
             throw new IllegalStateException("Invalid parser variant");
 
@@ -208,7 +208,7 @@ public class JSGLR2Variants {
     }
 
     private static <ParseForest extends IParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, PFM extends ParseForestManager<ParseForest, ParseNode, Derivation>>
-        IParser<ParseForest, ?> getParser(IParseTable parseTable, ParserVariant variant, PFM parseForestManager) {
+        IParser<ParseForest> getParser(IParseTable parseTable, ParserVariant variant, PFM parseForestManager) {
         switch(variant.reducing) {
             case Elkhound:
                 switch(variant.stackRepresentation) {
@@ -246,8 +246,8 @@ public class JSGLR2Variants {
         }
     }
 
-    public static List<IParser<?, ?>> allParsers(IParseTable parseTable) {
-        List<IParser<?, ?>> parsers = new ArrayList<>();
+    public static List<IParser<?>> allParsers(IParseTable parseTable) {
+        List<IParser<?>> parsers = new ArrayList<>();
 
         for(Variant variant : allVariants()) {
             parsers.add(getParser(parseTable, variant.parser));
@@ -273,18 +273,18 @@ public class JSGLR2Variants {
         }
     }
 
-    public static JSGLR2<?, IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
-        @SuppressWarnings("unchecked") final IParser<IParseForest, ?> parser =
-            (IParser<IParseForest, ?>) getParser(parseTable, variant.parser);
+    public static JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
+        @SuppressWarnings("unchecked") final IParser<IParseForest> parser =
+            (IParser<IParseForest>) getParser(parseTable, variant.parser);
 
-        return new JSGLR2<>(parser, getImploder(variant));
+        return new JSGLR2Implementation<>(parser, getImploder(variant));
     }
 
-    public static List<JSGLR2<?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
-        List<JSGLR2<?, IStrategoTerm>> jsglr2s = new ArrayList<>();
+    public static List<JSGLR2<IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
+        List<JSGLR2<IStrategoTerm>> jsglr2s = new ArrayList<>();
 
         for(Variant variant : allVariants()) {
-            JSGLR2<?, IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
+            JSGLR2<IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
 
             jsglr2s.add(jsglr2);
         }

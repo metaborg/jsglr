@@ -1,16 +1,33 @@
 package org.spoofax.jsglr2;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.imploder.ImplodeResult;
+import org.spoofax.jsglr2.tokens.Tokens;
 
-public abstract class JSGLR2Result<ParseForest extends AbstractParseForest, AbstractSyntaxTree> {
+public final class JSGLR2Result<AbstractSyntaxTree> {
 
-    public final AbstractParse<ParseForest, ?> parse;
     public final boolean isSuccess;
+    public final Tokens tokens;
+    public final AbstractSyntaxTree ast;
 
-    protected JSGLR2Result(AbstractParse<ParseForest, ?> parse, boolean isSuccess) {
-        this.parse = parse;
-        this.isSuccess = isSuccess;
+    /**
+     * Constructs a result in the case that the parse failed. The fields `tokens` and `ast` are set to `null`.
+     */
+    JSGLR2Result() {
+        this.isSuccess = false;
+        this.tokens = null;
+        this.ast = null;
+    }
+
+    /**
+     * Constructs a result in the case that the parse succeeded.
+     * 
+     * @param implodeResult
+     *            The implode result.
+     */
+    JSGLR2Result(ImplodeResult<AbstractSyntaxTree> implodeResult) {
+        this.isSuccess = true;
+        this.tokens = implodeResult.tokens;
+        this.ast = implodeResult.ast;
     }
 
 }

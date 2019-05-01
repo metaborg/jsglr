@@ -1,0 +1,30 @@
+module expressions
+
+lexical syntax
+	LAYOUT        = [\ \n]
+	LAYOUT        = "/*" InsideComment* "*/"
+	InsideComment = ~[\*]
+	InsideComment = CommentChar
+	CommentChar   = [\*]
+
+	ID            = [a-zA-Z]+
+	INT           = [0-9]+
+
+lexical restrictions
+	CommentChar   -/- [\/]
+
+	ID            -/- [a-zA-Z]
+	INT           -/- [0-9]
+
+context-free restrictions
+	LAYOUT?       -/- [\ \n]
+	LAYOUT?       -/- [\/].[\*]
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start   = Exp+
+	Exp.Var = ID
+	Exp.Int = INT
+	Exp.Add = <<Exp> + <Exp>>

@@ -5,7 +5,8 @@ context-free start-symbols
 
 context-free syntax
 	Start.Id = ID
-    
+	Start.Foo = "foo"
+
 lexical syntax
 	ID      = [a-z]+
 	ID      = "foo" {reject}

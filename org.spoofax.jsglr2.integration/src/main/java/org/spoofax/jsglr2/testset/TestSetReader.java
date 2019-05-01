@@ -4,12 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
@@ -42,7 +37,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
             e.printStackTrace();
         }
     }
-    
+
     public IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) throws Exception {
         return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
             new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
@@ -61,20 +56,18 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
                 TestSetParseTableFromSDF3 testSetParseTableFromSDF3 = (TestSetParseTableFromSDF3) testSet.parseTable;
 
                 Sdf3ToParseTable sdf3ToParseTable = new Sdf3ToParseTable(resource -> basePath() + resource);
-                
-                IStrategoTerm parseTableTerm = sdf3ToParseTable.getParseTableTerm(testSetParseTableFromSDF3.name + ".sdf3");
-                
-                this.parseTableTerm = parseTableTerm;
+
+                this.parseTableTerm = sdf3ToParseTable.getParseTableTerm(testSetParseTableFromSDF3.name + ".sdf3");
 
                 break;
             default:
                 throw new IllegalStateException("invalid parse table source");
         }
     }
-    
+
     protected abstract String basePath();
 
-	public abstract InputStream resourceInputStream(String filename) throws Exception;
+    public abstract InputStream resourceInputStream(String filename) throws Exception;
 
     public TermReader getTermReader() {
         return termReader;
@@ -85,7 +78,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     }
 
     public void setParseTableTerm(IStrategoTerm parseTableTerm) {
-    	this.parseTableTerm = parseTableTerm;
+        this.parseTableTerm = parseTableTerm;
     }
 
     public Iterable<Input> getInputs() throws IOException {
@@ -134,7 +127,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
                 if(testSizedInput.sizes == null)
                     throw new IllegalStateException("invalid input type (sizes missing)");
 
-                List<InputBatch> result = new ArrayList<InputBatch>();
+                List<InputBatch> result = new ArrayList<>();
 
                 for(int size : testSizedInput.sizes) {
                     result.add(new InputBatch(testSizedInput.get(size), size));
@@ -164,10 +157,10 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     protected abstract String getFileAsString(String filename) throws IOException;
 
     protected String inputStreamAsString(InputStream inputStream) throws IOException {
-        try (Scanner s = new Scanner(inputStream)) {
-        	s.useDelimiter("\\A");
-        	
-        	return s.hasNext() ? s.next() : "";
+        try(Scanner s = new Scanner(inputStream)) {
+            s.useDelimiter("\\A");
+
+            return s.hasNext() ? s.next() : "";
         }
     }
 
@@ -178,7 +171,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     }
 
     protected List<Input> getMultipleInputs(String path, String extension) throws IOException {
-        List<Input> inputs = new ArrayList<Input>();
+        List<Input> inputs = new ArrayList<>();
 
         for(File file : filesInPath(new File(path))) {
             if(file.getName().endsWith("." + extension)) {
@@ -192,7 +185,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     }
 
     private Set<File> filesInPath(File path) {
-        Set<File> acc = new HashSet<File>();
+        Set<File> acc = new HashSet<>();
 
         filesInPath(path, acc);
 

@@ -4,26 +4,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
-    extends AbstractElkhoundStackNode<ParseForest> {
+public class HybridElkhoundStackNode<ParseForest extends IParseForest> extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
     private StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> firstLink;
     private ArrayList<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> otherLinks;
 
-    public HybridElkhoundStackNode(int stackNumber, IState state, Position position, boolean isRoot) {
-        super(stackNumber, state, position, isRoot);
+    public HybridElkhoundStackNode(IState state, Position position, boolean isRoot) {
+        super(state, position, isRoot);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Iterable<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> getLinks() {
+    @Override @SuppressWarnings("unchecked") public
+        Iterable<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> getLinks() {
         if(otherLinks == null)
             return Collections.singleton(firstLink);
         else
@@ -34,16 +32,14 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         return firstLink;
     }
 
-    @Override
-    public HybridElkhoundStackNode<ParseForest> getOnlyLinkTo() {
+    @Override public HybridElkhoundStackNode<ParseForest> getOnlyLinkTo() {
         return firstLink.to;
     }
 
-    public StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addLink(int linkNumber,
+    public StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addLink(
         HybridElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
         AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse) {
-        StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> link =
-            new StackLink<>(linkNumber, this, parent, parseNode);
+        StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
 
         link.to.referenceCount++;
 
@@ -52,7 +48,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
 
             deterministicDepth = link.to.deterministicDepth + 1;
         } else if(otherLinks == null) { // The second link is added; at this point we detect non-determinism
-            otherLinks = new ArrayList<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>>();
+            otherLinks = new ArrayList<>();
 
             otherLinks.add(link);
 
@@ -72,8 +68,7 @@ public class HybridElkhoundStackNode<ParseForest extends AbstractParseForest>
         return link;
     }
 
-    @Override
-    public boolean allLinksRejected() {
+    @Override public boolean allLinksRejected() {
         if(firstLink == null || !firstLink.isRejected())
             return false;
 

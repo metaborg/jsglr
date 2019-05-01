@@ -3,11 +3,11 @@ package org.spoofax.jsglr2.stack.collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ForActorStacksLinkedHashMap<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class ForActorStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends IStackNode>
     extends ForActorStacks<ParseForest, StackNode> {
 
     protected Map<Integer, Linked<StackNode>> forActor;
@@ -16,7 +16,7 @@ public class ForActorStacksLinkedHashMap<ParseForest extends AbstractParseForest
     public ForActorStacksLinkedHashMap(ParserObserving<ParseForest, StackNode> observing) {
         super(observing);
 
-        this.forActor = new HashMap<Integer, Linked<StackNode>>();
+        this.forActor = new HashMap<>();
         this.last = null;
     }
 
@@ -30,32 +30,28 @@ public class ForActorStacksLinkedHashMap<ParseForest extends AbstractParseForest
         }
     }
 
-    @Override
-    protected void forActorAdd(StackNode stack) {
+    @Override protected void forActorAdd(StackNode stack) {
         Linked<StackNode> linkedStackNode = new Linked<>(stack, last);
 
-        forActor.put(stack.state.id(), linkedStackNode);
+        forActor.put(stack.state().id(), linkedStackNode);
 
         last = linkedStackNode;
     }
 
-    @Override
-    protected boolean forActorContains(StackNode stack) {
-        return forActor.containsKey(stack.state.id());
+    @Override protected boolean forActorContains(StackNode stack) {
+        return forActor.containsKey(stack.state().id());
     }
 
-    @Override
-    protected boolean forActorNonEmpty() {
+    @Override protected boolean forActorNonEmpty() {
         return last != null;
     }
 
-    @Override
-    protected StackNode forActorRemove() {
+    @Override protected StackNode forActorRemove() {
         StackNode stack = last.stack;
 
         last = last.prev;
 
-        forActor.remove(stack.state.id());
+        forActor.remove(stack.state().id());
 
         return stack;
     }

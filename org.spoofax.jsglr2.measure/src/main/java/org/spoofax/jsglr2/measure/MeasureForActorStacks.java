@@ -1,11 +1,11 @@
 package org.spoofax.jsglr2.measure;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksArrayDeque;
 
-public class MeasureForActorStacks<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>>
+public class MeasureForActorStacks<ParseForest extends IParseForest, StackNode extends IStackNode>
     extends ForActorStacksArrayDeque<ParseForest, StackNode> {
 
     long forActorAdds = 0, forActorDelayedAdds = 0, forActorMaxSize = 0, forActorDelayedMaxSize = 0, containsChecks = 0,
@@ -15,9 +15,8 @@ public class MeasureForActorStacks<ParseForest extends AbstractParseForest, Stac
         super(observing);
     }
 
-    @Override
-    public void add(StackNode stack) {
-        if(stack.state.isRejectable())
+    @Override public void add(StackNode stack) {
+        if(stack.state().isRejectable())
             forActorDelayedAdds++;
         else
             forActorAdds++;
@@ -28,22 +27,19 @@ public class MeasureForActorStacks<ParseForest extends AbstractParseForest, Stac
         forActorDelayedMaxSize = Math.max(forActorDelayedMaxSize, forActorDelayed.size());
     }
 
-    @Override
-    public boolean contains(StackNode stack) {
+    @Override public boolean contains(StackNode stack) {
         containsChecks++;
 
         return super.contains(stack);
     }
 
-    @Override
-    public boolean nonEmpty() {
+    @Override public boolean nonEmpty() {
         nonEmptyChecks++;
 
         return super.nonEmpty();
     }
 
-    @Override
-    public StackNode remove() {
+    @Override public StackNode remove() {
         return super.remove();
     }
 

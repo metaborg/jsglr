@@ -3,6 +3,13 @@ package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.IActionQuery;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
@@ -12,7 +19,6 @@ import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
@@ -21,13 +27,6 @@ import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.metaborg.parsetable.IParseInput;
-import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IState;
-import org.metaborg.parsetable.actions.IAction;
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataStructureBenchmark {
 
@@ -45,8 +44,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     @Param ActionsForCharacterRepresentation actionsPerCharacterClassRepresentation;
 
-    @Override
-    public void postParserSetup() {
+    @Override public void postParserSetup() {
         actorObserver = new ActorObserver();
 
         parser.observing().attachObserver(actorObserver);
@@ -59,8 +57,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         }
     }
 
-    @Override
-    protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
+    @Override protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
         ICharacterClassFactory characterClassFactory =
             new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
         IActionsFactory actionsFactory = new ActionsFactory(cacheActions);
@@ -73,25 +70,23 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
     class ActorOnState {
 
         final IState state;
-        final IParseInput parseInput;
+        final IActionQuery actionQuery;
 
         public ActorOnState(IState state, int character) {
             this.state = state;
-            this.parseInput = new IParseInput() {
-                @Override
-                public int getCurrentChar() {
+            this.actionQuery = new IActionQuery() {
+                @Override public int actionQueryCharacter() {
                     return character;
                 }
 
-                @Override
-                public String getLookahead(int length) {
+                @Override public String actionQueryLookahead(int length) {
                     return "";
                 }
             };
         }
 
         public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : state.getApplicableActions(parseInput))
+            for(IAction action : state.getApplicableActions(actionQuery))
                 bh.consume(action);
         }
 
@@ -99,11 +94,11 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     class ActorObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
 
-        public List<ActorOnState> stateApplicableActions = new ArrayList<ActorOnState>();
+        public List<ActorOnState> stateApplicableActions = new ArrayList<>();
 
-        @Override
-        public void actor(BasicStackNode<BasicParseForest> stack,
-        		AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse, Iterable<IAction> applicableActions) {
+        @Override public void actor(BasicStackNode<BasicParseForest> stack,
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+            Iterable<IAction> applicableActions) {
             ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);
@@ -111,8 +106,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     }
 
-    @Benchmark
-    public void benchmark(Blackhole bh) throws ParseException {
+    @Benchmark public void benchmark(Blackhole bh) {
         for(ActorOnState stateApplicableActions : actorObserver.stateApplicableActions)
             stateApplicableActions.iterateOverApplicableActions(bh);
     }

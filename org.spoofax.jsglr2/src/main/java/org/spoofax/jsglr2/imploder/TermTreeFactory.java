@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -18,8 +18,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         this.termFactory = termFactory;
     }
 
-    @Override
-    public IStrategoTerm createStringTerminal(String sort, String value, IToken token) {
+    @Override public IStrategoTerm createStringTerminal(String sort, String value, IToken token) {
         IStrategoTerm stringTerminalTerm = termFactory.makeString(value);
 
         configure(stringTerminalTerm, sort, token, token);
@@ -27,8 +26,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return stringTerminalTerm;
     }
 
-    @Override
-    public IStrategoTerm createNonTerminal(String sort, String constructor, List<IStrategoTerm> childASTs,
+    @Override public IStrategoTerm createNonTerminal(String sort, String constructor, List<IStrategoTerm> childASTs,
         IToken leftToken, IToken rightToken) {
         IStrategoConstructor constructorTerm =
             termFactory.makeConstructor(constructor != null ? constructor : sort, childASTs.size());
@@ -39,8 +37,8 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return nonTerminalTerm;
     }
 
-    @Override
-    public IStrategoTerm createList(String sort, List<IStrategoTerm> children, IToken leftToken, IToken rightToken) {
+    @Override public IStrategoTerm createList(String sort, List<IStrategoTerm> children, IToken leftToken,
+        IToken rightToken) {
         IStrategoTerm listTerm = termFactory.makeList(toArray(children));
 
         configure(listTerm, sort, leftToken, rightToken);
@@ -48,16 +46,15 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return listTerm;
     }
 
-    @Override
-    public IStrategoTerm createOptional(String sort, List<IStrategoTerm> children, IToken leftToken,
+    @Override public IStrategoTerm createOptional(String sort, List<IStrategoTerm> children, IToken leftToken,
         IToken rightToken) {
         String constructor = children == null || children.isEmpty() ? "None" : "Some";
 
         return createNonTerminal(sort, constructor, children, leftToken, rightToken);
     }
 
-    @Override
-    public IStrategoTerm createTuple(String sort, List<IStrategoTerm> children, IToken leftToken, IToken rightToken) {
+    @Override public IStrategoTerm createTuple(String sort, List<IStrategoTerm> children, IToken leftToken,
+        IToken rightToken) {
         IStrategoTerm tupleTerm = termFactory.makeTuple(toArray(children));
 
         configure(tupleTerm, sort, leftToken, rightToken);
@@ -65,14 +62,11 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return tupleTerm;
     }
 
-    @Override
-    public IStrategoTerm createAmb(String sort, List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
+    @Override public IStrategoTerm createAmb(String sort, List<IStrategoTerm> alternatives, IToken leftToken,
+        IToken rightToken) {
         IStrategoTerm alternativesListTerm = createList(null, alternatives, leftToken, rightToken);
 
-        IStrategoTerm ambTerm =
-            createNonTerminal(null, "amb", Arrays.asList(alternativesListTerm), leftToken, rightToken);
-
-        return ambTerm;
+        return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
     }
 
     private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {

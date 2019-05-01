@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.parser.observing;
 
-import java.util.List;
 import java.util.Queue;
 
 import org.metaborg.parsetable.IProduction;
@@ -8,137 +7,78 @@ import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public interface IParserObserver<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public interface IParserObserver
+//@formatter:off
+   <ParseForest extends IParseForest,
+    StackNode   extends IStackNode>
+//@formatter:on
+{
 
-    public void parseStart(AbstractParse<ParseForest, StackNode> parse);
+    void parseStart(AbstractParse<ParseForest, StackNode> parse);
 
-    public void parseCharacter(AbstractParse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks);
+    void parseCharacter(AbstractParse<ParseForest, StackNode> parse, Iterable<StackNode> activeStacks);
 
-    public void addActiveStack(StackNode stack);
+    void addActiveStack(StackNode stack);
 
-    public void addForActorStack(StackNode stack);
+    void addForActorStack(StackNode stack);
 
-    public void findActiveStackWithState(IState state);
+    void findActiveStackWithState(IState state);
 
-    public void createStackNode(StackNode stack);
+    void createStackNode(StackNode stack);
 
-    public void createStackLink(StackLink<ParseForest, StackNode> link);
+    void createStackLink(StackLink<ParseForest, StackNode> link);
 
-    public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack);
+    void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack);
 
-    public void rejectStackLink(StackLink<ParseForest, StackNode> link);
+    void rejectStackLink(StackLink<ParseForest, StackNode> link);
 
-    public void forActorStacks(IForActorStacks<StackNode> forActorStacks);
+    void forActorStacks(IForActorStacks<StackNode> forActorStacks);
 
-    public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
+    void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
 
-    public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions);
+    void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse, Iterable<IAction> applicableActions);
 
-    public void skipRejectedStack(StackNode stack);
+    void skipRejectedStack(StackNode stack);
 
-    public void addForShifter(ForShifterElement<ParseForest, StackNode> forShifterElement);
+    void addForShifter(ForShifterElement<StackNode> forShifterElement);
 
-    public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce);
+    void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce);
 
-    public void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
+    void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> link);
 
-    public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
+    void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
 
-    public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
+    void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
 
-    public void directLinkFound(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink);
+    void directLinkFound(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> directLink);
 
-    public void accept(StackNode acceptingStack);
+    void accept(StackNode acceptingStack);
 
-    public void createParseNode(ParseForest parseNode, IProduction production);
+    void createParseNode(ParseForest parseNode, IProduction production);
 
-    public void createDerivation(int nodeNumber, IProduction production, ParseForest[] parseNodes);
+    void createDerivation(IDerivation<ParseForest> derivationNode, IProduction production, ParseForest[] parseNodes);
 
-    public void createCharacterNode(ParseForest characterNode, int character);
+    void createCharacterNode(ParseForest characterNode, int character);
 
-    public void addDerivation(ParseForest parseNode);
+    void addDerivation(ParseForest parseNode);
 
-    public void shifter(ParseForest termNode, Queue<ForShifterElement<ParseForest, StackNode>> forShifter);
+    void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 
-    public void remark(String remark);
+    void remark(String remark);
 
-    public void success(ParseSuccess<ParseForest, ?> success);
+    void success(ParseSuccess<ParseForest> success);
 
-    public void failure(ParseFailure<ParseForest, ?> failure);
-
-    default String stackQueueToString(Iterable<StackNode> stacks) {
-        String res = "";
-
-        for(StackNode stack : stacks) {
-            if(res.isEmpty())
-                res += stack.stackNumber;
-            else
-                res += "," + stack.stackNumber;
-        }
-
-        return "[" + res + "]";
-    }
-
-    default String applicableActionsToString(Iterable<IAction> applicableActions) {
-        String res = "";
-
-        for(IAction action : applicableActions) {
-            if(res.isEmpty())
-                res += action.toString();
-            else
-                res += "," + action.toString();
-        }
-
-        return "[" + res + "]";
-    }
-
-    default String forShifterQueueToString(Queue<ForShifterElement<ParseForest, StackNode>> forShifter) {
-        String res = "";
-
-        for(ForShifterElement<ParseForest, StackNode> forShifterElement : forShifter) {
-            if(res.isEmpty())
-                res += forShifterElementToString(forShifterElement);
-            else
-                res += "," + forShifterElementToString(forShifterElement);
-        }
-
-        return "[" + res + "]";
-    }
-
-    default String forShifterElementToString(ForShifterElement<ParseForest, StackNode> forShifterElement) {
-        return "{\"stack\":" + forShifterElement.stack.stackNumber + ",\"state\":" + forShifterElement.state.id() + "}";
-    }
-
-    default String parseForestListToString(ParseForest[] parseForests) {
-        String res = "";
-
-        for(ParseForest parseForest : parseForests) {
-            if(res.isEmpty())
-                res += parseForest != null ? parseForest.nodeNumber : "null";
-            else
-                res += "," + (parseForest != null ? parseForest.nodeNumber : "null");
-        }
-
-        return "[" + res + "]";
-    }
-
-    default String parseForestListToString(List<ParseForest> parseForestsList) {
-        @SuppressWarnings("unchecked") ParseForest[] parseForestsArray =
-            (ParseForest[]) new Object[parseForestsList.size()];
-
-        parseForestsList.toArray(parseForestsArray);
-
-        return parseForestListToString(parseForestsArray);
-    }
+    void failure(ParseFailure<ParseForest> failure);
 
 }

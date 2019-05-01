@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.benchmark.jsglr1;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
@@ -17,7 +14,6 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.testset.Input;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
@@ -33,9 +29,7 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
 
     @Param({ "false", "true" }) public boolean implode;
 
-    @Setup
-    public void prepare() throws ParseError, ParseTableReadException, IOException, InvalidParseTableException,
-        InterruptedException, URISyntaxException {
+    @Setup public void prepare() throws ParseError, InvalidParseTableException {
         jsglr1parseAndImplode = getJSGLR1();
 
         jsglr1parse = getJSGLR1();
@@ -46,9 +40,8 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark implements WithJSGLR
         return testSetReader.getParseTableTerm();
     }
 
-    @Benchmark
-    public void jsglr1default(Blackhole bh) throws ParseTableReadException, TokenExpectedException, BadTokenException,
-        ParseException, SGLRException, InterruptedException {
+    @Benchmark public void jsglr1default(Blackhole bh)
+        throws TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
         if(implode) {
             for(Input input : inputs)
                 bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));

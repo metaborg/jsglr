@@ -38,7 +38,7 @@ public class ParseTableMeasurements extends Measurements {
 
     protected static void csvResults(PrintWriter out, MeasureCharacterClassFactory characterClassFactory,
         MeasureStateFactory stateFactory) {
-        List<String> cells = new ArrayList<String>();
+        List<String> cells = new ArrayList<>();
 
         for(ParseTableMeasurement measurement : ParseTableMeasurement.values()) {
             switch(measurement) {
@@ -103,7 +103,7 @@ public class ParseTableMeasurements extends Measurements {
     }
 
     private static void csvHeader(PrintWriter out) {
-        List<String> cells = new ArrayList<String>();
+        List<String> cells = new ArrayList<>();
 
         for(ParseTableMeasurement measurement : ParseTableMeasurement.values()) {
             cells.add(measurement.name());

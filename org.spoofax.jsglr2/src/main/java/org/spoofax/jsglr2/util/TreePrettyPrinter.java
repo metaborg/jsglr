@@ -2,18 +2,18 @@ package org.spoofax.jsglr2.util;
 
 public class TreePrettyPrinter {
 
-	private int indent;
-	private StringBuilder builder;
-	
+    private int indent;
+    private StringBuilder builder;
+
     public TreePrettyPrinter() {
-    	this.indent = 0;
-    	this.builder = new StringBuilder();
+        this.indent = 0;
+        this.builder = new StringBuilder();
     }
-    
+
     public void indent(int delta) {
-    	assert(indent + delta >= 0);
-    	
-    	indent += delta;		
+        assert (indent + delta >= 0);
+
+        indent += delta;
     }
 
     public void print(String s) {
@@ -22,7 +22,7 @@ public class TreePrettyPrinter {
 
     public void print(String s, boolean indent) {
         printIndent(indent);
-        builder.append(s);    
+        builder.append(s);
     }
 
     public void println(String s) {
@@ -36,7 +36,7 @@ public class TreePrettyPrinter {
 
     private void printIndent(boolean printIndent) {
         if(printIndent) {
-        	for (int i = 0; i < indent; i++)
+            for(int i = 0; i < indent; i++)
                 builder.append(' ');
         }
     }

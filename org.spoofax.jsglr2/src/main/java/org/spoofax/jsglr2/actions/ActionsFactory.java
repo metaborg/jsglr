@@ -6,7 +6,6 @@ import org.metaborg.parsetable.actions.IAccept;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IReduceLookahead;
 import org.metaborg.parsetable.actions.IShift;
-import org.metaborg.parsetable.actions.Reduce;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.spoofax.jsglr2.util.Cache;
 
@@ -28,30 +27,26 @@ public class ActionsFactory implements IActionsFactory {
         }
     }
 
-    @Override
-    public IShift getShift(int shiftStateId) {
+    @Override public IShift getShift(int shiftStateId) {
         IShift shift = new Shift(shiftStateId);
 
         return maybeCached(shiftCache, shift);
     }
 
-    @Override
-    public IReduce getReduce(IProduction production, ProductionType productionType, int arity) {
+    @Override public IReduce getReduce(IProduction production, ProductionType productionType, int arity) {
         IReduce reduce = new Reduce(production, productionType, arity);
 
         return maybeCached(reduceCache, reduce);
     }
 
-    @Override
-    public IReduceLookahead getReduceLookahead(IProduction production, ProductionType productionType, int arity,
-        ICharacterClass[] followRestriction) {
+    @Override public IReduceLookahead getReduceLookahead(IProduction production, ProductionType productionType,
+        int arity, ICharacterClass[] followRestriction) {
         IReduceLookahead reduceLookahead = new ReduceLookahead(production, productionType, arity, followRestriction);
 
         return maybeCached(reduceLookaheadCache, reduceLookahead);
     }
 
-    @Override
-    public IAccept getAccept() {
+    @Override public IAccept getAccept() {
         return Accept.SINGLETON;
     }
 

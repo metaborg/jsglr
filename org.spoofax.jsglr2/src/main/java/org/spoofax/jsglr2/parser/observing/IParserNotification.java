@@ -1,10 +1,15 @@
 package org.spoofax.jsglr2.parser.observing;
 
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public interface IParserNotification<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public interface IParserNotification
+//@formatter:off
+   <ParseForest extends IParseForest,
+    StackNode   extends IStackNode>
+//@formatter:on
+{
 
-    public void notify(IParserObserver<ParseForest, StackNode> observer);
+    void notify(IParserObserver<ParseForest, StackNode> observer);
 
 }

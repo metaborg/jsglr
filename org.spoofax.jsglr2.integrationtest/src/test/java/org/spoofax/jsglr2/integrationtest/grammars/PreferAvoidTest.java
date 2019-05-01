@@ -9,14 +9,16 @@ public class PreferAvoidTest extends BaseTestWithSdf3ParseTables {
         super("prefer-avoid.sdf3");
     }
 
-    @Test
-    public void testAvoid() {
+    @Test public void testAvoid() {
         testSuccessByExpansions("a x", "Avoid(amb([X2, X3]))");
     }
 
-    @Test
-    public void testPrefer() {
+    @Test public void testPrefer() {
         testSuccessByExpansions("p x", "Prefer(X1)");
     }
 
+    @Test public void testIncrementalPreferAvoid() {
+        testIncrementalSuccessByExpansions(new String[] { "p x", "a x", "p x" },
+            new String[] { "Prefer(X1)", "Avoid(amb([X2,X3]))", "Prefer(X1)" });
+    }
 }

@@ -7,31 +7,31 @@ import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintSelector;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.TermNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class LayoutSensitiveParseForestManager
-    extends ParseForestManager<BasicParseForest, LayoutSensitiveSymbolNode, LayoutSensitiveRuleNode> {
+    extends ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
 
-    @Override public LayoutSensitiveSymbolNode createParseNode(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
-        IProduction production, LayoutSensitiveRuleNode firstDerivation) {
-        LayoutSensitiveSymbolNode symbolNode = new LayoutSensitiveSymbolNode(parse.parseNodeCount++, parse,
-            beginPosition, parse.currentPosition(), production);
+    @Override public LayoutSensitiveParseNode createParseNode(AbstractParse<LayoutSensitiveParseForest, ?> parse,
+        IStackNode stack, IProduction production, LayoutSensitiveDerivation firstDerivation) {
+        LayoutSensitiveParseNode parseNode =
+            new LayoutSensitiveParseNode(stack.position(), parse.currentPosition(), production);
 
-        // parse.notify(observer -> observer.createParseNode(symbolNode, production));
+        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
-        addDerivation(parse, symbolNode, firstDerivation);
+        addDerivation(parse, parseNode, firstDerivation);
 
-        return symbolNode;
+        return parseNode;
     }
 
-    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, AbstractParse<BasicParseForest, ?> parse) {
-        LayoutSensitiveSymbolNode topNode = (LayoutSensitiveSymbolNode) parseForest;
-        List<LayoutSensitiveRuleNode> result = new ArrayList<LayoutSensitiveRuleNode>();
+    @Override public LayoutSensitiveParseForest filterStartSymbol(LayoutSensitiveParseForest parseForest,
+        String startSymbol, AbstractParse<LayoutSensitiveParseForest, ?> parse) {
+        LayoutSensitiveParseNode topNode = (LayoutSensitiveParseNode) parseForest;
+        List<LayoutSensitiveDerivation> result = new ArrayList<>();
 
-        for(LayoutSensitiveRuleNode derivation : topNode.getDerivations()) {
+        for(LayoutSensitiveDerivation derivation : topNode.getDerivations()) {
             String derivationStartSymbol = derivation.production.startSymbolSort();
 
             if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
@@ -41,115 +41,120 @@ public class LayoutSensitiveParseForestManager
         if(result.isEmpty())
             return null;
         else {
-            LayoutSensitiveSymbolNode filteredTopNode = new LayoutSensitiveSymbolNode(topNode.nodeNumber, topNode.parse,
-                topNode.startPosition, topNode.endPosition, topNode.production);
+            LayoutSensitiveParseNode filteredTopNode =
+                new LayoutSensitiveParseNode(topNode.getStartPosition(), topNode.getEndPosition(), topNode.production);
 
-            for(LayoutSensitiveRuleNode derivation : result)
+            for(LayoutSensitiveDerivation derivation : result)
                 filteredTopNode.addDerivation(derivation);
 
             return filteredTopNode;
         }
     }
 
-    @Override public LayoutSensitiveRuleNode createDerivation(AbstractParse<BasicParseForest, ?> parse, Position beginPosition,
-        IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
+    @Override public LayoutSensitiveDerivation createDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
+        IStackNode stack, IProduction production, ProductionType productionType,
+        LayoutSensitiveParseForest[] parseForests) {
+        Position beginPosition = stack.position();
 
         // FIXME since EndPosition is wrong, right is also wrong
         Position leftPosition = null;
         Position rightPosition = null;
 
-        for(BasicParseForest pf : parseForests) {
-            if(pf instanceof LayoutSensitiveSymbolNode && (((LayoutSensitiveSymbolNode) pf).getProduction().isLayout()
-                || ((LayoutSensitiveSymbolNode) pf).getProduction().isIgnoreLayoutConstraint())) {
+        for(LayoutSensitiveParseForest pf : parseForests) {
+            if(pf instanceof LayoutSensitiveParseNode && (((LayoutSensitiveParseNode) pf).production().isLayout()
+                || ((LayoutSensitiveParseNode) pf).production().isIgnoreLayoutConstraint())) {
                 continue;
             }
-            if(pf instanceof LayoutSensitiveSymbolNode) {
-                Position currentStartPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().startPosition;
-                Position currentLeftPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().leftPosition;
-                Position currentRightPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().rightPosition;
-                Position currentEndPosition = ((LayoutSensitiveSymbolNode) pf).getOnlyDerivation().endPosition;
+            if(pf instanceof LayoutSensitiveParseNode) {
+                Position currentStartPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().getStartPosition();
+                Position currentLeftPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().leftPosition;
+                Position currentRightPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().rightPosition;
+                Position currentEndPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().getEndPosition();
 
                 if(currentLeftPosition != null) {
                     leftPosition = leftMost(leftPosition, currentLeftPosition);
                 }
-                
+
                 if(currentStartPosition.line > beginPosition.line && !currentStartPosition.equals(currentEndPosition)) {
                     leftPosition = leftMost(leftPosition, currentStartPosition);
                 }
-                
+
                 if(currentRightPosition != null) {
                     rightPosition = rightMost(rightPosition, currentRightPosition);
                 }
-                
-                if(currentEndPosition.line < parse.currentPosition().line && !currentStartPosition.equals(currentEndPosition)) {
+
+                if(currentEndPosition.line < parse.currentPosition().line
+                    && !currentStartPosition.equals(currentEndPosition)) {
                     rightPosition = rightMost(rightPosition, currentEndPosition);
                 }
-                
-                
-//                if(currentLeftPosition != null) {
-//                    if(leftPosition == null) {
-//                        leftPosition = currentLeftPosition;
-//                    } else if(leftPosition.column > currentLeftPosition.column
-//                        && beginPosition.line < currentLeftPosition.line) {
-//                        leftPosition = currentLeftPosition;
-//                    }
-//                }
-//
-//                if(currentStartPosition != null) {
-//                    if(leftPosition == null && currentStartPosition.line > beginPosition.line
-//                        ) {
-//                        leftPosition = currentStartPosition;
-//                    } else if(leftPosition != null && currentStartPosition.line > beginPosition.line
-//                        && currentStartPosition.column < leftPosition.column
-//                        && !currentStartPosition.equals(currentEndPosition)) {
-//                        leftPosition = currentStartPosition;
-//                    }
-//                }
-//
-//                if(rightPosition == null && currentRightPosition != null) {
-//                    rightPosition = currentRightPosition;
-//                }
-//                if(currentRightPosition != null && (rightPosition.column < currentRightPosition.column
-//                    && parse.currentPosition().line > currentRightPosition.line)) {
-//                    rightPosition = currentRightPosition;
-//                }
-//                if(currentEndPosition != null && (currentEndPosition.line < parse.currentPosition().line
-//                    && currentEndPosition.column > parse.currentPosition().column)) {
-//                    rightPosition = currentEndPosition;
-//                }
 
 
-            } else if(pf instanceof TermNode) {
-                if(pf.startPosition.line > beginPosition.line && pf.startPosition.column < beginPosition.column) {
-                    leftPosition =
-                        new Position(pf.startPosition.offset, pf.startPosition.line, pf.startPosition.column);
+                // if(currentLeftPosition != null) {
+                // if(leftPosition == null) {
+                // leftPosition = currentLeftPosition;
+                // } else if(leftPosition.column > currentLeftPosition.column
+                // && beginPosition.line < currentLeftPosition.line) {
+                // leftPosition = currentLeftPosition;
+                // }
+                // }
+                //
+                // if(currentStartPosition != null) {
+                // if(leftPosition == null && currentStartPosition.line > beginPosition.line
+                // ) {
+                // leftPosition = currentStartPosition;
+                // } else if(leftPosition != null && currentStartPosition.line > beginPosition.line
+                // && currentStartPosition.column < leftPosition.column
+                // && !currentStartPosition.equals(currentEndPosition)) {
+                // leftPosition = currentStartPosition;
+                // }
+                // }
+                //
+                // if(rightPosition == null && currentRightPosition != null) {
+                // rightPosition = currentRightPosition;
+                // }
+                // if(currentRightPosition != null && (rightPosition.column < currentRightPosition.column
+                // && parse.currentPosition().line > currentRightPosition.line)) {
+                // rightPosition = currentRightPosition;
+                // }
+                // if(currentEndPosition != null && (currentEndPosition.line < parse.currentPosition().line
+                // && currentEndPosition.column > parse.currentPosition().column)) {
+                // rightPosition = currentEndPosition;
+                // }
+
+
+            } else if(pf instanceof LayoutSensitiveCharacterNode) {
+                if(pf.getStartPosition().line > beginPosition.line
+                    && pf.getStartPosition().column < beginPosition.column) {
+                    leftPosition = new Position(pf.getStartPosition().offset, pf.getStartPosition().line,
+                        pf.getStartPosition().column);
                 }
-                if(pf.endPosition.line < parse.currentPosition().line
-                    && pf.endPosition.column > parse.currentPosition().column) {
-                    rightPosition = new Position(pf.endPosition.offset, pf.endPosition.line, pf.endPosition.column);
+                if(pf.getEndPosition().line < parse.currentPosition().line
+                    && pf.getEndPosition().column > parse.currentPosition().column) {
+                    rightPosition =
+                        new Position(pf.getEndPosition().offset, pf.getEndPosition().line, pf.getEndPosition().column);
                 }
             } else if(pf != null) {
                 System.err.println("Not a valid tree node.");
             }
         }
 
-        LayoutSensitiveRuleNode ruleNode = new LayoutSensitiveRuleNode(parse.parseNodeCount++, parse, beginPosition,
-            leftPosition, rightPosition, parse.currentPosition(), production, productionType, parseForests);
+        LayoutSensitiveDerivation derivation = new LayoutSensitiveDerivation(parse, beginPosition, leftPosition,
+            rightPosition, parse.currentPosition(), production, productionType, parseForests);
 
-        // parse.notify(observer -> observer.createDerivation(ruleNode.nodeNumber, production, parseForests));
+        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
-        return ruleNode;
+        return derivation;
     }
 
     private Position rightMost(Position p1, Position p2) {
         if(p1 == null) {
             return p2;
         }
-        
+
         if(p1.column < p2.column) {
             return p2;
-        } 
-        
+        }
+
         return p1;
     }
 
@@ -157,58 +162,55 @@ public class LayoutSensitiveParseForestManager
         if(p1 == null) {
             return p2;
         }
-        
+
         if(p1.column > p2.column) {
             return p2;
-        } 
-        
+        }
+
         return p1;
     }
 
-    @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, LayoutSensitiveSymbolNode symbolNode,
-        LayoutSensitiveRuleNode ruleNode) {
-        // parse.notify(observer -> observer.addDerivation(symbolNode));
+    @Override public void addDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
+        LayoutSensitiveParseNode parseNode, LayoutSensitiveDerivation derivation) {
+        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
-        boolean initNonAmbiguous = symbolNode.isAmbiguous();
-
-        symbolNode.addDerivation(ruleNode);
-
-        if(initNonAmbiguous && symbolNode.isAmbiguous())
-            parse.ambiguousParseNodes++;
+        parseNode.addDerivation(derivation);
     }
 
-    @Override public TermNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
-        TermNode termNode = new TermNode(parse.parseNodeCount++, parse, parse.currentPosition(), parse.currentChar);
+    @Override public LayoutSensitiveCharacterNode
+        createCharacterNode(AbstractParse<LayoutSensitiveParseForest, ?> parse) {
+        LayoutSensitiveCharacterNode termNode =
+            new LayoutSensitiveCharacterNode(parse.currentPosition(), parse.currentChar);
 
-        // parse.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        // parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }
 
-    @Override public BasicParseForest[] parseForestsArray(int length) {
-        return new BasicParseForest[length];
+    @Override public LayoutSensitiveParseForest[] parseForestsArray(int length) {
+        return new LayoutSensitiveParseForest[length];
     }
 
-    private Position verifyPositionAmbiguities(ConstraintSelector selector, BasicParseForest pf) {
+    private Position verifyPositionAmbiguities(ConstraintSelector selector, LayoutSensitiveParseForest pf) {
         // For trees in an ambiguity such that left and right are different, take the one with smallest and largest
         // column, respectively
         Position currentPosition = null;
-        for(LayoutSensitiveRuleNode rn : ((LayoutSensitiveSymbolNode) pf).getDerivations()) {
+        for(LayoutSensitiveDerivation rn : ((LayoutSensitiveParseNode) pf).getDerivations()) {
             switch(selector) {
                 case FIRST:
-//                    if(currentPosition != null && !rn.startPosition.equals(currentPosition)) {
-//                        System.err.println("StartPosition is different for trees that are part of an ambiguity.");
-//                    }
-                    if(rn.startPosition != null) {
-                        currentPosition = new Position(rn.startPosition);
+                    // if(currentPosition != null && !rn.startPosition.equals(currentPosition)) {
+                    // System.err.println("StartPosition is different for trees that are part of an ambiguity.");
+                    // }
+                    if(rn.getStartPosition() != null) {
+                        currentPosition = new Position(rn.getStartPosition());
                     }
                     break;
                 case LAST:
-//                    if(currentPosition != null && !rn.endPosition.equals(currentPosition)) {
-//                        System.err.println("EndPosition is different for trees that are part of an ambiguity.");
-//                    }
-                    if(rn.endPosition != null) {
-                        currentPosition = new Position(rn.endPosition);
+                    // if(currentPosition != null && !rn.endPosition.equals(currentPosition)) {
+                    // System.err.println("EndPosition is different for trees that are part of an ambiguity.");
+                    // }
+                    if(rn.getEndPosition() != null) {
+                        currentPosition = new Position(rn.getEndPosition());
                     }
                     break;
                 case RIGHT:

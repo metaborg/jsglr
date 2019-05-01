@@ -1,88 +1,47 @@
 package org.spoofax.jsglr2.stack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.metaborg.parsetable.IState;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
-import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
-import org.spoofax.jsglr2.stack.paths.StackPath;
+import org.spoofax.jsglr2.parser.Position;
 
-public abstract class StackManager<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> {
+public abstract class StackManager
+//@formatter:off
+   <ParseForest extends IParseForest,
+    StackNode   extends AbstractStackNode<ParseForest, StackNode>,
+    Parse       extends AbstractParse<ParseForest, StackNode>>
+//@formatter:on
+    extends AbstractStackManager<ParseForest, StackNode, Parse> {
 
-    public abstract StackNode createInitialStackNode(AbstractParse<ParseForest, StackNode> parse, IState state);
+    protected abstract StackNode createStackNode(IState state, Position position, boolean isRoot);
 
-    public abstract StackNode createStackNode(AbstractParse<ParseForest, StackNode> parse, IState state);
+    @Override public StackNode createInitialStackNode(Parse parse, IState state) {
+        StackNode newStackNode = createStackNode(state, parse.currentPosition(), true);
 
-    public abstract StackLink<ParseForest, StackNode> createStackLink(AbstractParse<ParseForest, StackNode> parse,
-        StackNode from, StackNode to, ParseForest parseNode);
+        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
 
-    public void rejectStackLink(AbstractParse<ParseForest, StackNode> parse, StackLink<ParseForest, StackNode> link) {
-        link.reject();
-
-        parse.observing.notify(observer -> observer.rejectStackLink(link));
+        return newStackNode;
     }
 
-    public StackLink<ParseForest, StackNode> findDirectLink(StackNode from, StackNode to) {
-        for(StackLink<ParseForest, StackNode> link : stackLinksOut(from)) {
-            if(link.to == to)
-                return link;
-        }
+    @Override public StackNode createStackNode(Parse parse, IState state) {
+        StackNode newStackNode = createStackNode(state, parse.currentPosition(), false);
 
-        return null;
+        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
+
+        return newStackNode;
     }
 
-    public List<StackPath<ParseForest, StackNode>> findAllPathsOfLength(StackNode stack, int length) {
-        List<StackPath<ParseForest, StackNode>> paths = new ArrayList<StackPath<ParseForest, StackNode>>();
+    @Override public StackLink<ParseForest, StackNode> createStackLink(Parse parse, StackNode from, StackNode to,
+        ParseForest parseNode) {
+        StackLink<ParseForest, StackNode> link = from.addLink(to, parseNode);
 
-        StackPath<ParseForest, StackNode> pathsOrigin = new EmptyStackPath<ParseForest, StackNode>(stack);
+        parse.observing.notify(observer -> observer.createStackLink(link));
 
-        findAllPathsOfLength(pathsOrigin, length, paths);
-
-        return paths;
+        return link;
     }
 
-    private void findAllPathsOfLength(StackPath<ParseForest, StackNode> path, int length,
-        List<StackPath<ParseForest, StackNode>> paths) {
-        if(length == 0)
-            paths.add(path);
-        else {
-            StackNode lastStackNode = path.head();
-
-            for(StackLink<ParseForest, StackNode> linkOut : stackLinksOut(lastStackNode)) {
-                StackPath<ParseForest, StackNode> extendedPath =
-                    new NonEmptyStackPath<ParseForest, StackNode>(linkOut, path);
-
-                findAllPathsOfLength(extendedPath, length - 1, paths);
-            }
-        }
-    }
-
-    protected abstract Iterable<StackLink<ParseForest, StackNode>> stackLinksOut(StackNode stack);
-
-    public ParseForest[] getParseForests(ParseForestManager<ParseForest, ?, ?> parseForestManager,
-        StackPath<ParseForest, StackNode> pathBegin) {
-        ParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
-
-        if(res != null) {
-            StackPath<ParseForest, StackNode> path = pathBegin;
-
-            for(int i = 0; i < pathBegin.length; i++) {
-                NonEmptyStackPath<ParseForest, StackNode> nonEmptyPath =
-                    (NonEmptyStackPath<ParseForest, StackNode>) path;
-
-                res[i] = nonEmptyPath.link.parseForest;
-
-                path = nonEmptyPath.tail;
-            }
-
-            return res;
-        }
-
-        return null;
+    @Override protected Iterable<StackLink<ParseForest, StackNode>> stackLinksOut(StackNode stack) {
+        return stack.getLinks();
     }
 
 }

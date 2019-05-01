@@ -28,8 +28,8 @@ public class MeasureStateFactory extends StateFactory {
     public int actionsPerGroupMax = 0;
     public int actionsPerDisjointSortedRangeMax = 0;
 
-    @Override
-    public IState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClasses) {
+    @Override public IState from(int stateNumber, IGoto[] gotos,
+        ActionsPerCharacterClass[] actionsPerCharacterClasses) {
         statesCount++;
 
         gotosCount += gotos.length;

@@ -2,15 +2,7 @@ package org.spoofax.jsglr2.states;
 
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IGoto;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterDisjointSorted;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
-import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
-import org.metaborg.sdf2table.parsetable.query.IActionsForCharacter;
-import org.metaborg.sdf2table.parsetable.query.IProductionToGoto;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoForLoop;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoJavaHashMap;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.sdf2table.parsetable.query.*;
 
 public class StateFactory implements IStateFactory {
 
@@ -32,8 +24,7 @@ public class StateFactory implements IStateFactory {
         this.productionToGotoRepresentation = productionToGotoType;
     }
 
-    @Override
-    public IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
+    @Override public IState from(int stateId, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClass) {
         IActionsForCharacter actionsForCharacter;
         IProductionToGoto productionToGoto;
 

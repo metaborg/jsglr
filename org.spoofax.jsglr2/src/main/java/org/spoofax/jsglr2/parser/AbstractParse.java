@@ -5,57 +5,51 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.parsetable.IParseInput;
-import org.spoofax.jsglr2.parseforest.AbstractParseForest;
+import org.metaborg.parsetable.IActionQuery;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackNode;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 import com.google.common.collect.Maps;
 
-public abstract class AbstractParse<ParseForest extends AbstractParseForest, StackNode extends AbstractStackNode<ParseForest>> implements IParseInput {
+public abstract class AbstractParse
+//@formatter:off
+   <ParseForest extends IParseForest,
+    StackNode   extends IStackNode>
+//@formatter:on
+    implements IActionQuery {
 
     final public String filename;
     final public String inputString;
     final public int inputLength;
+
     final public Map<Integer, Object> longestMatchPos = Maps.newHashMap();
 
     public int currentChar; // Current ASCII char in range [0, 256]
     public int currentOffset, currentLine, currentColumn;
-    
+
     private static final int TAB_SIZE = 8;
 
     public StackNode acceptingStack;
     public IActiveStacks<StackNode> activeStacks;
     public IForActorStacks<StackNode> forActorStacks;
-    public Queue<ForShifterElement<ParseForest, StackNode>> forShifter;
-
-    public int stackNodeCount, stackLinkCount, parseNodeCount;
-
-    public int ambiguousParseNodes, ambiguousTreeNodes;
+    public Queue<ForShifterElement<StackNode>> forShifter;
 
     public final ParserObserving<ParseForest, StackNode> observing;
 
-    public AbstractParse(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
-        IForActorStacks<StackNode> forActorStacks, ParserObserving<ParseForest, StackNode> observing) {
+    public AbstractParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
+        IForActorStacksFactory forActorStacksFactory, ParserObserving<ParseForest, StackNode> observing) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
 
-        this.stackNodeCount = 0;
-        this.stackLinkCount = 0;
-        this.parseNodeCount = 0;
-
-        // Number of ambiguities in the parse forest
-        this.ambiguousParseNodes = 0;
-
-        // Number of ambiguities in the imploded AST (after applying post-parse filters), only available after imploding
-        this.ambiguousTreeNodes = 0;
-
         this.acceptingStack = null;
-        this.activeStacks = activeStacks;
-        this.forActorStacks = forActorStacks;
+        this.activeStacks = activeStacksFactory.get(observing);
+        this.forActorStacks = forActorStacksFactory.get(observing);
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
@@ -83,7 +77,7 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
             if(CharacterClassFactory.isNewLine(currentChar)) {
                 currentLine++;
                 currentColumn = 0;
-            } else if (CharacterClassFactory.isTab(currentChar)) {
+            } else if(CharacterClassFactory.isTab(currentChar)) {
                 currentColumn = (currentColumn / TAB_SIZE + 1) * TAB_SIZE;
             } else {
                 currentColumn++;
@@ -103,18 +97,12 @@ public abstract class AbstractParse<ParseForest extends AbstractParseForest, Sta
             return CharacterClassFactory.EOF_INT;
     }
 
-    public String getPart(int begin, int end) {
-        return inputString.substring(begin, end);
-    }
-
-    @Override
-    public int getCurrentChar() {
+    @Override public int actionQueryCharacter() {
         return currentChar;
     }
 
-    @Override
-    public String getLookahead(int length) {
-        return getPart(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
+    @Override public String actionQueryLookahead(int length) {
+        return inputString.substring(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 
 }

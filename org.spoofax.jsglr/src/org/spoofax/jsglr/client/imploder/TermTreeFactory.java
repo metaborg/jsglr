@@ -252,7 +252,9 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
                 }
                 return result;
             } else {
-                return children.get(0);
+                IStrategoTerm result = children.get(0);
+                ImploderAttachment.get(result).pushInjection(sort);
+                return result;
             }
         } else {
             IStrategoTuple result = factory.makeTuple(toArray(children));

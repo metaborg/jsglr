@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -207,7 +208,7 @@ public abstract class TokenizedTreeImploder
         else if(constructor != null)
             return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);
         else if(childASTs.size() == 1)
-            return childASTs.get(0);
+            return treeFactory.createInjection(production.sort(), childASTs.get(0));
         else
             return treeFactory.createTuple(production.sort(), childASTs, leftToken, rightToken);
     }

@@ -71,6 +71,11 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
     }
 
+    @Override public IStrategoTerm createInjection(String sort, IStrategoTerm injected) {
+        ImploderAttachment.get(injected).pushInjection(sort);
+        return injected;
+    }
+
     private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {
         return children.toArray(new IStrategoTerm[children.size()]);
     }

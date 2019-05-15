@@ -252,7 +252,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 	}
 	
 	private static boolean isAmbiguous(ISimpleTerm tree) {
-		return getLeftToken(tree).getTokenizer().isAmbigous();
+		return getLeftToken(tree).getTokenizer().isAmbiguous();
 	}
 
 	protected static boolean isRangeOverlap(int start1, int end1, int start2, int end2) {

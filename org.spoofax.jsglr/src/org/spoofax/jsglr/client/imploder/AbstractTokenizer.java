@@ -57,7 +57,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 		return makeToken(endOffset, manager.getTokenKind(label), allowEmptyToken);
 	}
 
-	public boolean isAmbigous() {
+	public boolean isAmbiguous() {
 		return isAmbiguous;
 	}
 

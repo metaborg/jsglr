@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.imploder;
 
-import org.spoofax.jsglr2.tokens.Tokens;
+import org.spoofax.jsglr.client.imploder.ITokens;
 
 public class TokenizeResult {
 
-    public Tokens tokens;
+    public final ITokens tokens;
 
-    public TokenizeResult(Tokens tokens) {
+    public TokenizeResult(ITokens tokens) {
         this.tokens = tokens;
     }
 

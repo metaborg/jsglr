@@ -19,6 +19,7 @@ import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.tokens.StubTokenizer;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
+import org.spoofax.jsglr2.tokens.TreeTokens;
 
 public class JSGLR2Variant {
     public final ParserVariant parser;
@@ -52,6 +53,8 @@ public class JSGLR2Variant {
                 return new StrategoTermTokenizer();
             case Iterative:
                 return new IterativeStrategoTermTokenizer();
+            case TreeShaped:
+                return new TreeTokens.Tokenizer();
             default:
             case Null:
                 throw new IllegalStateException();

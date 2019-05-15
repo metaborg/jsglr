@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
@@ -77,7 +78,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
         }
     }
 
-    private List<Message> postProcessMessages(Collection<Message> originalMessages, Tokens tokens) {
+    private List<Message> postProcessMessages(Collection<Message> originalMessages, ITokens tokens) {
         List<Message> messages = new ArrayList<>();
 
         for(Message originalMessage : originalMessages) {

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
@@ -384,12 +385,57 @@ public abstract class BaseTest implements WithParseTable {
             IStrategoTerm rootAst = jsglr2Success.ast;
             String rootCons = isAppl(rootAst) ? toAppl(rootAst).getName() : isList(rootAst) ? "[]" : null;
 
-            testTokens(inputString, expectedTokens, jsglr2Success.tokens, "regular", rootCons);
+            ITokens actualTokens = jsglr2Success.tokens;
+            testTokens(inputString, expectedTokens, actualTokens, "regular", rootCons);
 
             if(expectedTokens != expectedAmbiguousTokens)
-                testTokens(inputString, expectedAmbiguousTokens, jsglr2Success.tokens.allTokens(), "ambiguous",
-                    rootCons);
+                testTokens(inputString, expectedAmbiguousTokens, actualTokens.allTokens(), "ambiguous", rootCons);
+
+            testTokenAtOffset(inputString, expectedAmbiguousTokens, actualTokens);
+
+            testTokenAfterBefore(inputString, expectedTokens, actualTokens);
         });
+    }
+
+    private void testTokenAtOffset(String inputString, List<TokenDescriptor> expectedAmbiguousTokens,
+        ITokens actualTokens) {
+        assertEquals(IToken.Kind.TK_RESERVED, actualTokens.getTokenAtOffset(0).getKind());
+        for(int i = 1; i < inputString.length(); i++) {
+            TokenDescriptor expectedToken = null;
+            for(TokenDescriptor t : expectedAmbiguousTokens) {
+                if(t.offset == i)
+                    expectedToken = t;
+                if(t.offset >= i)
+                    break;
+            }
+            if(expectedToken == null)
+                continue;
+            assertEquals(expectedToken, TokenDescriptor.from(inputString, actualTokens.getTokenAtOffset(i)),
+                "Token at offset " + i);
+        }
+        if(inputString.length() > 0)
+            assertEquals(IToken.Kind.TK_EOF, actualTokens.getTokenAtOffset(inputString.length()).getKind());
+    }
+
+    private void testTokenAfterBefore(String inputString, List<TokenDescriptor> expectedTokens, ITokens actualTokens) {
+        IToken actualToken = actualTokens.getTokenAtOffset(0); // start token
+        for(TokenDescriptor expectedToken : expectedTokens) {
+            actualToken = actualToken.getTokenAfter();
+            assertNotNull(actualToken, "Token " + expectedToken + " is null");
+            assertEquals(expectedToken, TokenDescriptor.from(inputString, actualToken), "TokenAfter");
+        }
+        actualToken = actualToken.getTokenAfter();
+        assertEquals(IToken.Kind.TK_EOF, actualToken.getKind());
+        assertNull(actualToken.getTokenAfter());
+        for(int i = expectedTokens.size() - 1; i >= 0; i--) {
+            TokenDescriptor expectedToken = expectedTokens.get(i);
+            actualToken = actualToken.getTokenBefore();
+            assertNotNull(actualToken, "Token " + expectedToken + " is null");
+            assertEquals(expectedToken, TokenDescriptor.from(inputString, actualToken), "TokenBefore");
+        }
+        actualToken = actualToken.getTokenBefore();
+        assertEquals(IToken.Kind.TK_RESERVED, actualToken.getKind());
+        assertNull(actualToken.getTokenBefore());
     }
 
     protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens, Iterable<IToken> tokens,

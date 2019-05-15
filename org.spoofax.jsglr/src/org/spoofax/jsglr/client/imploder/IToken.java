@@ -3,6 +3,7 @@ package org.spoofax.jsglr.client.imploder;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
@@ -91,4 +92,26 @@ public interface IToken extends Comparable<IToken>, Serializable {
     IToken getTokenAfter();
 
     IToken clone();
+
+    static Kind getTokenKind(IProduction production) {
+        if(production == null) {
+            return IToken.Kind.TK_STRING; // indicates a character/int terminal, e.g. 'x'
+        } else if(production.isLayout()) {
+            return IToken.Kind.TK_LAYOUT;
+        } else if(production.isLiteral()) {
+            if(production.isOperator())
+                return IToken.Kind.TK_OPERATOR;
+            else
+                return IToken.Kind.TK_KEYWORD;
+        } else if(production.isLexical()) {
+            if(production.isStringLiteral())
+                return IToken.Kind.TK_STRING;
+            else if(production.isNumberLiteral())
+                return IToken.Kind.TK_NUMBER;
+            else
+                return IToken.Kind.TK_IDENTIFIER;
+        } else {
+            throw new IllegalStateException("invalid production/token type");
+        }
+    }
 }

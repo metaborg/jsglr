@@ -2,16 +2,17 @@ package org.spoofax.jsglr2;
 
 import java.util.Collection;
 
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.tokens.Tokens;
 
 public class JSGLR2Success<AbstractSyntaxTree> extends JSGLR2Result<AbstractSyntaxTree> {
 
-    public final Tokens tokens;
+    public final ITokens tokens;
     public final AbstractSyntaxTree ast;
     private final boolean isAmbiguous;
 
-    JSGLR2Success(JSGLR2Request request, AbstractSyntaxTree ast, Tokens tokens, boolean isAmbiguous, Collection<Message> messages) {
+    JSGLR2Success(JSGLR2Request request, AbstractSyntaxTree ast, ITokens tokens, boolean isAmbiguous,
+        Collection<Message> messages) {
         super(request, messages);
         this.tokens = tokens;
         this.ast = ast;

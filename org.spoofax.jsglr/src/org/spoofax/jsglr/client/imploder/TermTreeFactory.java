@@ -335,5 +335,16 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         if(enableTokens)
             putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken, isBracket, isCompletion,
                 isNestedCompletion, isSinglePlaceholderCompletion);
+            if(term.getTermType() == LIST) {
+                IStrategoList sublist = (IStrategoList) term;
+                IToken lastRightToken;
+                while(!sublist.isEmpty()) {
+                    lastRightToken = getRightToken(sublist.head());
+                    sublist = sublist.tail();
+                    leftToken = sublist.isEmpty() ? lastRightToken : getLeftToken(sublist.head());
+                    putImploderAttachment(sublist, isListOrTuple, sort, leftToken, rightToken, isBracket, isCompletion,
+                        isNestedCompletion, isSinglePlaceholderCompletion);
+                }
+            }
     }
 }

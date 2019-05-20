@@ -29,9 +29,9 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override public IStrategoTerm createNonTerminal(String sort, String constructor, List<IStrategoTerm> childASTs,
-        IToken leftToken, IToken rightToken) {
+            IToken leftToken, IToken rightToken) {
         IStrategoConstructor constructorTerm =
-            termFactory.makeConstructor(constructor != null ? constructor : sort, childASTs.size());
+                termFactory.makeConstructor(constructor != null ? constructor : sort, childASTs.size());
         IStrategoTerm nonTerminalTerm = termFactory.makeAppl(constructorTerm, toArray(childASTs));
 
         configure(nonTerminalTerm, sort, leftToken, rightToken);
@@ -40,7 +40,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override public IStrategoTerm createList(String sort, List<IStrategoTerm> children, IToken leftToken,
-        IToken rightToken) {
+            IToken rightToken) {
         IStrategoTerm listTerm = termFactory.makeList(toArray(children));
 
         configure(listTerm, sort, leftToken, rightToken);
@@ -49,14 +49,14 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override public IStrategoTerm createOptional(String sort, List<IStrategoTerm> children, IToken leftToken,
-        IToken rightToken) {
+            IToken rightToken) {
         String constructor = children == null || children.isEmpty() ? "None" : "Some";
 
         return createNonTerminal(sort, constructor, children, leftToken, rightToken);
     }
 
     @Override public IStrategoTerm createTuple(String sort, List<IStrategoTerm> children, IToken leftToken,
-        IToken rightToken) {
+            IToken rightToken) {
         IStrategoTerm tupleTerm = termFactory.makeTuple(toArray(children));
 
         configure(tupleTerm, sort, leftToken, rightToken);
@@ -65,7 +65,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override public IStrategoTerm createAmb(String sort, List<IStrategoTerm> alternatives, IToken leftToken,
-        IToken rightToken) {
+            IToken rightToken) {
         IStrategoTerm alternativesListTerm = createList(null, alternatives, leftToken, rightToken);
 
         return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
@@ -78,7 +78,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
         // rightToken can be null, e.g. for an empty string lexical
         putImploderAttachment(term, false, sort, leftToken, rightToken != null ? rightToken : leftToken, false, false,
-            false, false);
+                false, false);
         if(term.getTermType() == IStrategoTerm.LIST) {
             IStrategoList sublist = (IStrategoList) term;
             IToken lastRightToken;
@@ -86,10 +86,9 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
                 lastRightToken = ImploderAttachment.getRightToken(sublist.head());
                 sublist = sublist.tail();
                 leftToken = sublist.isEmpty() ? lastRightToken : ImploderAttachment.getLeftToken(sublist.head());
+                // assuming rightToken is never null for lists
+                putImploderAttachment(sublist, false, sort, leftToken, rightToken, false, false, false, false);
             }
-            // assuming rightToken is never null for lists
-            putImploderAttachment(term, false, sort, leftToken, rightToken, false, false,
-                false, false);
         }
     }
 

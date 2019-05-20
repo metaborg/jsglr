@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
 public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 
@@ -77,6 +79,18 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         // rightToken can be null, e.g. for an empty string lexical
         putImploderAttachment(term, false, sort, leftToken, rightToken != null ? rightToken : leftToken, false, false,
             false, false);
+        if(term.getTermType() == IStrategoTerm.LIST) {
+            IStrategoList sublist = (IStrategoList) term;
+            IToken lastRightToken;
+            while(!sublist.isEmpty()) {
+                lastRightToken = ImploderAttachment.getRightToken(sublist.head());
+                sublist = sublist.tail();
+                leftToken = sublist.isEmpty() ? lastRightToken : ImploderAttachment.getLeftToken(sublist.head());
+            }
+            // assuming rightToken is never null for lists
+            putImploderAttachment(term, false, sort, leftToken, rightToken, false, false,
+                false, false);
+        }
     }
 
 }

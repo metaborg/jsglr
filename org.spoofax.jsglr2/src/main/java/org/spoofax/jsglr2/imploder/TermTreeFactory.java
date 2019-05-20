@@ -31,7 +31,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     @Override public IStrategoTerm createNonTerminal(String sort, String constructor, List<IStrategoTerm> childASTs,
         IToken leftToken, IToken rightToken) {
         IStrategoConstructor constructorTerm =
-                termFactory.makeConstructor(constructor != null ? constructor : sort, childASTs.size());
+            termFactory.makeConstructor(constructor != null ? constructor : sort, childASTs.size());
         IStrategoTerm nonTerminalTerm = termFactory.makeAppl(constructorTerm, toArray(childASTs));
 
         configure(nonTerminalTerm, sort, leftToken, rightToken);

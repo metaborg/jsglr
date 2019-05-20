@@ -77,7 +77,8 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 
     protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
         // rightToken can be null, e.g. for an empty string lexical
-        putImploderAttachment(term, false, sort, leftToken, rightToken != null ? rightToken : leftToken, false, false, false, false);
+        rightToken = rightToken != null ? rightToken : leftToken;
+        putImploderAttachment(term, false, sort, leftToken, rightToken, false, false, false, false);
         if(term.getTermType() == IStrategoTerm.LIST) {
             IStrategoList sublist = (IStrategoList) term;
             IToken lastRightToken;
@@ -85,7 +86,6 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
                 lastRightToken = ImploderAttachment.getRightToken(sublist.head());
                 sublist = sublist.tail();
                 leftToken = sublist.isEmpty() ? lastRightToken : ImploderAttachment.getLeftToken(sublist.head());
-                // assuming rightToken is never null for lists
                 putImploderAttachment(sublist, false, sort, leftToken, rightToken, false, false, false, false);
             }
         }

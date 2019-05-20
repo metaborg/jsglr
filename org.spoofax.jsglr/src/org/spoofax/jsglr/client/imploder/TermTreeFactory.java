@@ -333,6 +333,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         boolean isSinglePlaceholderCompletion) {
         assert isListOrTuple == (term.getTermType() == TUPLE || term.getTermType() == LIST);
         if(enableTokens)
+            rightToken = rightToken != null ? rightToken : leftToken;
             putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken, isBracket, isCompletion,
                 isNestedCompletion, isSinglePlaceholderCompletion);
             if(term.getTermType() == LIST) {

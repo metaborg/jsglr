@@ -26,8 +26,8 @@ public class IterativeTreeImploder
 //@formatter:on
     extends TreeImploder<ParseForest, ParseNode, Derivation, Tree> {
 
-    public IterativeTreeImploder(ITreeFactory<Tree> treeFactory, ITokenizer<Tree> tokenizer) {
-        super(treeFactory, tokenizer);
+    public IterativeTreeImploder(ITreeFactory<Tree> treeFactory) {
+        super(treeFactory);
     }
 
     private class PseudoNode {

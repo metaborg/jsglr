@@ -1,7 +1,8 @@
 package org.spoofax.jsglr2;
 
 import org.spoofax.jsglr2.imploder.IImploder;
-import org.spoofax.jsglr2.imploder.ImplodeResult;
+import org.spoofax.jsglr2.imploder.ITokenizer;
+import org.spoofax.jsglr2.imploder.TokenizeResult;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -9,15 +10,18 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
-public class JSGLR2Implementation<ParseForest extends IParseForest, AbstractSyntaxTree>
+public class JSGLR2Implementation<ParseForest extends IParseForest, ImplodeResult, AbstractSyntaxTree>
     implements JSGLR2<AbstractSyntaxTree> {
 
     public final IParser<ParseForest> parser;
-    public final IImploder<ParseForest, AbstractSyntaxTree> imploder;
+    public final IImploder<ParseForest, ImplodeResult> imploder;
+    public final ITokenizer<ImplodeResult, AbstractSyntaxTree> tokenizer;
 
-    JSGLR2Implementation(IParser<ParseForest> parser, IImploder<ParseForest, AbstractSyntaxTree> imploder) {
+    JSGLR2Implementation(IParser<ParseForest> parser, IImploder<ParseForest, ImplodeResult> imploder,
+        ITokenizer<ImplodeResult, AbstractSyntaxTree> tokenizer) {
         this.parser = parser;
         this.imploder = imploder;
+        this.tokenizer = tokenizer;
     }
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseUnsafeResult(String input, String filename,
@@ -28,9 +32,11 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, AbstractSynt
         if(parseResult.isSuccess) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;
 
-            ImplodeResult<AbstractSyntaxTree> implodeResult = imploder.implode(input, filename, success.parseResult);
+            ImplodeResult implodeResult = imploder.implode(input, filename, success.parseResult);
 
-            return new JSGLR2Result<>(implodeResult);
+            TokenizeResult<AbstractSyntaxTree> tokenizeResult = tokenizer.tokenize(input, filename, implodeResult);
+
+            return new JSGLR2Result<>(tokenizeResult);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 

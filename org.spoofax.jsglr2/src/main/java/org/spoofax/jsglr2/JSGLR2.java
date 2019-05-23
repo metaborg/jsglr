@@ -17,34 +17,35 @@ import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.states.StateFactory;
+import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
 public interface JSGLR2<AbstractSyntaxTree> {
     static JSGLR2<IStrategoTerm> standard(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
             new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound,
-                Reducing.Elkhound), ImploderVariant.CombinedRecursive));
+                Reducing.Elkhound), ImploderVariant.TokenizedRecursive, TokenizerVariant.Null));
     }
 
     static JSGLR2<IStrategoTerm> dataDependent(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
             new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.DataDependent, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.DataDependent), ImploderVariant.CombinedRecursive));
+                Reducing.DataDependent), ImploderVariant.TokenizedRecursive, TokenizerVariant.Null));
     }
 
     static JSGLR2<IStrategoTerm> layoutSensitive(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
             new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.DataDependent), ImploderVariant.CombinedRecursive));
+                Reducing.DataDependent), ImploderVariant.TokenizedRecursive, TokenizerVariant.Null));
     }
 
     static JSGLR2<IStrategoTerm> incremental(IParseTable parseTable) {
         return JSGLR2Variants.getJSGLR2(parseTable,
             new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.Basic), ImploderVariant.SeparateRecursiveIncremental));
+                Reducing.Basic), ImploderVariant.RecursiveIncremental, TokenizerVariant.Recursive));
     }
 
     static JSGLR2<IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {

@@ -30,20 +30,24 @@ import org.spoofax.jsglr2.stack.basic.BasicStackManager;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
+import org.spoofax.jsglr2.tokens.NullTokenizer;
+import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
 public class JSGLR2Variants {
 
     public static class Variant {
         public final ParserVariant parser;
         public final ImploderVariant imploder;
+        public final TokenizerVariant tokenizer;
 
-        public Variant(ParserVariant parserVariant, ImploderVariant imploderVariant) {
+        public Variant(ParserVariant parserVariant, ImploderVariant imploderVariant, TokenizerVariant tokenizer) {
             this.parser = parserVariant;
             this.imploder = imploderVariant;
+            this.tokenizer = tokenizer;
         }
 
         public String name() {
-            return parser.name() + "/" + imploder.name();
+            return parser.name() + "//Imploder:" + imploder.name() + "//Tokenizer:" + tokenizer.name();
         }
 
         @Override public boolean equals(Object o) {
@@ -54,7 +58,14 @@ public class JSGLR2Variants {
 
             Variant variant = (Variant) o;
 
-            return Objects.equals(parser, variant.parser) && imploder == variant.imploder;
+            return Objects.equals(parser, variant.parser) && imploder == variant.imploder
+                && tokenizer == variant.tokenizer;
+        }
+
+        public boolean isValid() {
+            return parser.isValid()
+                && (imploder == ImploderVariant.TokenizedRecursive && tokenizer == TokenizerVariant.Null
+                    || imploder != ImploderVariant.TokenizedRecursive && tokenizer != TokenizerVariant.Null);
         }
     }
 
@@ -130,7 +141,12 @@ public class JSGLR2Variants {
 
                                     if(parserVariant.isValid())
                                         for(ImploderVariant imploderVariant : ImploderVariant.values()) {
-                                            variants.add(new Variant(parserVariant, imploderVariant));
+                                            for(TokenizerVariant tokenizerVariant : TokenizerVariant.values()) {
+                                                Variant variant =
+                                                    new Variant(parserVariant, imploderVariant, tokenizerVariant);
+                                                if(variant.isValid())
+                                                    variants.add(variant);
+                                            }
                                         }
                                 }
                             }
@@ -257,22 +273,28 @@ public class JSGLR2Variants {
         return parsers;
     }
 
-    public static <ParseForest extends IParseForest> IImploder<ParseForest, IStrategoTerm>
+    private static <ParseForest extends IParseForest> IImploder<ParseForest, TreeImploder.SubTree<IStrategoTerm>>
         getImploder(Variant variant) {
-
-        if(variant.parser.parseForestRepresentation == ParseForestRepresentation.Null)
-            return new NullStrategoImploder<>();
-
         switch(variant.imploder) {
             default:
-            case CombinedRecursive:
-                return new TokenizedStrategoTermImploder<>();
-            case SeparateRecursive:
-                return new StrategoTermImploder<>(new StrategoTermTokenizer());
-            case SeparateRecursiveIncremental:
-                return new IncrementalStrategoTermImploder<>(new StrategoTermTokenizer());
-            case SeparateIterative:
-                return new IterativeStrategoTermImploder<>(new IterativeStrategoTermTokenizer());
+            case Recursive:
+                return new StrategoTermImploder<>();
+            case RecursiveIncremental:
+                return new IncrementalStrategoTermImploder<>();
+            case Iterative:
+                return new IterativeStrategoTermImploder<>();
+        }
+    }
+
+    private static ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm> getTokenizer(Variant variant) {
+        switch(variant.tokenizer) {
+            default:
+            case Null:
+                return (input, filename, implodeResult) -> new TokenizeResult<>(null, implodeResult.tree);
+            case Recursive:
+                return new StrategoTermTokenizer();
+            case Iterative:
+                return new IterativeStrategoTermTokenizer();
         }
     }
 
@@ -280,7 +302,13 @@ public class JSGLR2Variants {
         @SuppressWarnings("unchecked") final IParser<IParseForest> parser =
             (IParser<IParseForest>) getParser(parseTable, variant.parser);
 
-        return new JSGLR2Implementation<>(parser, getImploder(variant));
+        if(variant.parser.parseForestRepresentation == ParseForestRepresentation.Null)
+            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), new NullTokenizer<>());
+
+        if(variant.imploder == ImploderVariant.TokenizedRecursive)
+            return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new NullTokenizer<>());
+
+        return new JSGLR2Implementation<>(parser, getImploder(variant), getTokenizer(variant));
     }
 
     public static List<JSGLR2<IStrategoTerm>> allJSGLR2(IParseTable parseTable) {

@@ -26,14 +26,9 @@ public class LazyLookaheadStack implements ILookaheadStack {
      */
     public LazyLookaheadStack(IncrementalParseForest root, String inputString) {
         IncrementalParseNode ultraRoot = new IncrementalParseNode(root, IncrementalCharacterNode.EOF_NODE);
-        if(root.width() > 0) {
-            stack.push(new StackTuple(ultraRoot, 0));
-            last = root;
-        } else {
-            stack.push(new StackTuple(ultraRoot, 1));
-            last = IncrementalCharacterNode.EOF_NODE;
-        }
+        stack.push(new StackTuple(ultraRoot, 0));
 
+        this.last = root;
         this.inputString = inputString;
         this.inputLength = inputString.length();
     }

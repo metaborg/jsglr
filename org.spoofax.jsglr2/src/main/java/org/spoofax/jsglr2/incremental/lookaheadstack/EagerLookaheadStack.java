@@ -24,8 +24,7 @@ public class EagerLookaheadStack implements ILookaheadStack {
      */
     public EagerLookaheadStack(IncrementalParseForest root, String inputString) {
         stack.push(IncrementalCharacterNode.EOF_NODE);
-        if(root.width() > 0)
-            stack.push(root);
+        stack.push(root);
 
         this.inputString = inputString;
         this.inputLength = inputString.length();

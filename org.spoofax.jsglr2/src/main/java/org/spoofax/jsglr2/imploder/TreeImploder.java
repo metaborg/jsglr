@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.imploder;
 import java.util.*;
 
 import org.metaborg.parsetable.IProduction;
-import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -17,22 +16,18 @@ public class TreeImploder
     Derivation  extends IDerivation<ParseForest>,
     Tree>
 //@formatter:on
-    implements IImploder<ParseForest, Tree> {
+    implements IImploder<ParseForest, TreeImploder.SubTree<Tree>> {
 
     protected final ITreeFactory<Tree> treeFactory;
-    protected ITokenizer<Tree> tokenizer;
 
-    public TreeImploder(ITreeFactory<Tree> treeFactory, ITokenizer<Tree> tokenizer) {
+    public TreeImploder(ITreeFactory<Tree> treeFactory) {
         this.treeFactory = treeFactory;
-        this.tokenizer = tokenizer;
     }
 
-    @Override public ImplodeResult<Tree> implode(String input, String filename, ParseForest parseForest) {
+    @Override public SubTree<Tree> implode(String input, String filename, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        SubTree<Tree> tree = implodeParseNode(input, topParseNode, 0);
-
-        return tokenizer.tokenize(input, filename, tree);
+        return implodeParseNode(input, topParseNode, 0);
     }
 
     protected SubTree<Tree> implodeParseNode(String inputString, ParseNode parseNode, int startOffset) {
@@ -161,7 +156,7 @@ public class TreeImploder
             return treeFactory.createTuple(production.sort(), childASTs);
     }
 
-    protected static class SubTree<Tree> {
+    public static class SubTree<Tree> {
 
         public final Tree tree;
         public final List<SubTree<Tree>> children;

@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.imploder.incremental;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.imploder.StrategoTermTokenizer;
 import org.spoofax.jsglr2.imploder.treefactory.StrategoTermTreeFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -15,8 +14,8 @@ public class IncrementalStrategoTermImploder
 //@formatter:on
     extends IncrementalTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
 
-    public IncrementalStrategoTermImploder(StrategoTermTokenizer tokenizer) {
-        super(new StrategoTermTreeFactory(), tokenizer);
+    public IncrementalStrategoTermImploder() {
+        super(new StrategoTermTreeFactory());
     }
 
 }

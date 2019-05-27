@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.imploder.ITokenizer;
-import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -26,11 +24,11 @@ public abstract class IncrementalTreeImploder
     private Map<String, ParseNode> inputCache = new HashMap<>();
     private Map<String, SubTree<Tree>> outputCache = new HashMap<>();
 
-    public IncrementalTreeImploder(ITreeFactory<Tree> treeFactory, ITokenizer<Tree> tokenizer) {
-        super(treeFactory, tokenizer);
+    public IncrementalTreeImploder(ITreeFactory<Tree> treeFactory) {
+        super(treeFactory);
     }
 
-    @Override public ImplodeResult<Tree> implode(String inputString, String filename, ParseForest parseForest) {
+    @Override public SubTree<Tree> implode(String inputString, String filename, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
         final SubTree<Tree> tree;
@@ -44,7 +42,7 @@ public abstract class IncrementalTreeImploder
             outputCache.put(filename, tree);
         }
 
-        return tokenizer.tokenize(inputString, filename, tree);
+        return tree;
     }
 
     private SubTree<Tree> implodeParseNode(String inputString, ParseNode parseNode, ParseNode oldNode,

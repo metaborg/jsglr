@@ -14,8 +14,8 @@ public class IterativeStrategoTermImploder
 //@formatter:on
     extends IterativeTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
 
-    public IterativeStrategoTermImploder(ITokenizer<IStrategoTerm> tokenizer) {
-        super(new StrategoTermTreeFactory(), tokenizer);
+    public IterativeStrategoTermImploder() {
+        super(new StrategoTermTreeFactory());
     }
 
 }

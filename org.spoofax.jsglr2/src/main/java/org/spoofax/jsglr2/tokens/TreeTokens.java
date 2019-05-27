@@ -126,12 +126,26 @@ public class TreeTokens implements ITokens {
         this.endToken = new TreeToken(this, EMPTY_RANGE, TK_EOF, null, null);
     }
 
-    public static class Tokenizer implements ITokenizer<TreeImploder.SubTree<IStrategoTerm>> {
-        @Override public TokenizeResult tokenize(JSGLR2Request input, TreeImploder.SubTree<IStrategoTerm> tree) {
+    public static class Tokenizer extends AbstractTokenizer<TreeTokens> {
+        @Override public TokenizeResult<TreeTokens> tokenize(JSGLR2Request input,
+            TreeImploder.SubTree<IStrategoTerm> tree, TreeTokens previousResult) {
+
             TreeTokens tokens = new TreeTokens(input);
 
             TokenTree tokenTree = tokenizeInternal(tokens, tree, Position.START_POSITION);
-            TreeTokens.TokenTree res = new TokenTree(null,
+            finalize(tree, tokens, tokenTree);
+
+            return new TokenizeResult<>(tokens);
+        }
+
+    }
+
+    public static abstract class AbstractTokenizer<TokensResult extends TreeTokens>
+        implements ITokenizer<TreeImploder.SubTree<IStrategoTerm>, TokensResult> {
+
+        protected final void finalize(TreeImploder.SubTree<IStrategoTerm> tree, TreeTokens tokens,
+            TokenTree tokenTree) {
+            TokenTree res = new TokenTree(null,
                 new TokenTree[] { new TokenTree(null, tokens.startToken, EMPTY_RANGE), tokenTree,
                     new TokenTree(null, tokens.endToken, EMPTY_RANGE) },
                 tokens.startToken, tokens.endToken, tokenTree.positionRange);
@@ -146,11 +160,9 @@ public class TreeTokens implements ITokens {
             tokens.tree = res;
 
             tokens.bind(res.children[1]);
-
-            return new TokenizeResult(tokens);
         }
 
-        private TreeTokens.TokenTree tokenizeInternal(TreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
+        protected TreeTokens.TokenTree tokenizeInternal(TreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
             Position pivotPosition) {
             if(tree.production != null && !tree.production.isContextFree() || tree.isCharacterTerminal) {
                 if(tree.width > 0) {

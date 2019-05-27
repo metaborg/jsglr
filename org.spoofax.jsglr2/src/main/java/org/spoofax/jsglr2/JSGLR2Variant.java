@@ -20,6 +20,7 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.tokens.StubTokenizer;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 import org.spoofax.jsglr2.tokens.TreeTokens;
+import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeTokens;
 
 public class JSGLR2Variant {
     public final ParserVariant parser;
@@ -47,7 +48,7 @@ public class JSGLR2Variant {
         }
     }
 
-    private ITokenizer<TreeImploder.SubTree<IStrategoTerm>> getTokenizer() {
+    private ITokenizer<TreeImploder.SubTree<IStrategoTerm>, ?> getTokenizer() {
         switch(this.tokenizer) {
             case Recursive:
                 return new StrategoTermTokenizer();
@@ -55,6 +56,8 @@ public class JSGLR2Variant {
                 return new IterativeStrategoTermTokenizer();
             case TreeShaped:
                 return new TreeTokens.Tokenizer();
+            case IncrementalTreeShaped:
+                return new IncrementalTreeTokens.Tokenizer();
             default:
             case Null:
                 throw new IllegalStateException();
@@ -73,7 +76,8 @@ public class JSGLR2Variant {
             (IObservableParser<IParseForest, ?, ?, ?, ?>) this.parser.getParser(parseTable);
 
         if(this.parser.parseForestRepresentation == ParseForestRepresentation.Null)
-            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), (request, tree) -> null);
+            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(),
+                (request, tree, previousResult) -> null);
         else if(this.imploder == ImploderVariant.TokenizedRecursive)
             return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new StubTokenizer());
         else
@@ -205,7 +209,7 @@ public class JSGLR2Variant {
                     Reducing.Incremental,
                     false),
                 ImploderVariant.RecursiveIncremental,
-                TokenizerVariant.Recursive)),
+                TokenizerVariant.IncrementalTreeShaped)),
 
         recoveryIncremental(
             new JSGLR2Variant(

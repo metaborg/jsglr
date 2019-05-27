@@ -10,7 +10,6 @@ import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
-import org.spoofax.jsglr2.imploder.TokenizeResult;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -19,22 +18,30 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.tokens.Tokens;
 
-public class JSGLR2Implementation<ParseForest extends IParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>>
+public class JSGLR2Implementation
+// @formatter:off
+   <ParseForest extends IParseForest,
+    IntermediateResult,
+    ImploderCache,
+    AbstractSyntaxTree,
+    ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>,
+    TokensResult extends ITokens>
+// @formatter:on
     implements JSGLR2<AbstractSyntaxTree> {
 
     public final IObservableParser<ParseForest, ?, ?, ?, ?> parser;
     public final IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
-    public final ITokenizer<IntermediateResult> tokenizer;
+    public final ITokenizer<IntermediateResult, TokensResult> tokenizer;
 
     public final HashMap<JSGLR2Request.CachingKey, String> inputCache = new HashMap<>();
     public final HashMap<JSGLR2Request.CachingKey, ParseForest> parseForestCache = new HashMap<>();
     public final HashMap<JSGLR2Request.CachingKey, ImploderCache> imploderCacheCache = new HashMap<>();
+    public final HashMap<JSGLR2Request.CachingKey, TokensResult> tokensCache = new HashMap<>();
 
     JSGLR2Implementation(IObservableParser<ParseForest, ?, ?, ?, ?> parser,
         IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder,
-        ITokenizer<IntermediateResult> tokenizer) {
+        ITokenizer<IntermediateResult, TokensResult> tokenizer) {
         this.parser = parser;
         this.imploder = imploder;
         this.tokenizer = tokenizer;
@@ -45,32 +52,34 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
     }
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
-        String previousInput = request.hasFileName() && inputCache.containsKey(request.cachingKey())
-            ? inputCache.get(request.cachingKey()) : null;
-        ParseForest previousParseForest = request.hasFileName() && parseForestCache.containsKey(request.cachingKey())
-            ? parseForestCache.get(request.cachingKey()) : null;
+        String previousInput = request.hasFileName() ? inputCache.getOrDefault(request.cachingKey(), null) : null;
+        ParseForest previousParseForest =
+            request.hasFileName() ? parseForestCache.getOrDefault(request.cachingKey(), null) : null;
         ImploderCache previousImploderCache =
-            request.hasFileName() && imploderCacheCache.containsKey(request.cachingKey())
-                ? imploderCacheCache.get(request.cachingKey()) : null;
+            request.hasFileName() ? imploderCacheCache.getOrDefault(request.cachingKey(), null) : null;
+        TokensResult previousTokens =
+            request.hasFileName() ? tokensCache.getOrDefault(request.cachingKey(), null) : null;
 
         ParseResult<ParseForest> parseResult = parser.parse(request, previousInput, previousParseForest);
 
         if(parseResult.isSuccess()) {
-            ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;
+            ParseForest parseForest = ((ParseSuccess<ParseForest>) parseResult).parseResult;
 
-            ImplodeResult implodeResult = imploder.implode(request, success.parseResult, previousImploderCache);
+            ImplodeResult implodeResult = imploder.implode(request, parseForest, previousImploderCache);
 
-            TokenizeResult tokenizeResult = tokenizer.tokenize(request, implodeResult.intermediateResult());
+            TokensResult tokens =
+                tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
 
-            List<Message> messages = postProcessMessages(parseResult.messages, tokenizeResult.tokens);
+            List<Message> messages = postProcessMessages(parseResult.messages, tokens);
 
             if(request.hasFileName()) {
                 inputCache.put(request.cachingKey(), request.input);
-                parseForestCache.put(request.cachingKey(), success.parseResult);
+                parseForestCache.put(request.cachingKey(), parseForest);
                 imploderCacheCache.put(request.cachingKey(), implodeResult.resultCache());
+                tokensCache.put(request.cachingKey(), tokens);
             }
 
-            return new JSGLR2Success<>(request, implodeResult.ast(), tokenizeResult.tokens, implodeResult.isAmbiguous(), messages);
+            return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(), messages);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 

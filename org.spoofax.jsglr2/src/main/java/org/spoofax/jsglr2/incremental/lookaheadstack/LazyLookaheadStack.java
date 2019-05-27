@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.incremental.lookaheadstack;
 
+import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+
 import java.util.Stack;
 
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
@@ -13,9 +15,16 @@ public class LazyLookaheadStack implements ILookaheadStack {
      * initialized, a mock root is created and pushed to the stack.
      */
     private final Stack<StackTuple> stack = new Stack<>();
+    private final String inputString;
+    private final int inputLength;
+    private int position = 0;
     private IncrementalParseForest last;
 
-    public LazyLookaheadStack(IncrementalParseForest root) {
+    /**
+     * @param inputString
+     *            should be equal to the yield of the root.
+     */
+    public LazyLookaheadStack(IncrementalParseForest root, String inputString) {
         IncrementalParseNode ultraRoot = new IncrementalParseNode(root, IncrementalCharacterNode.EOF_NODE);
         if(root.width() > 0) {
             stack.push(new StackTuple(ultraRoot, 0));
@@ -24,6 +33,13 @@ public class LazyLookaheadStack implements ILookaheadStack {
             stack.push(new StackTuple(ultraRoot, 1));
             last = IncrementalCharacterNode.EOF_NODE;
         }
+
+        this.inputString = inputString;
+        this.inputLength = inputString.length();
+    }
+
+    public LazyLookaheadStack(IncrementalParseForest root) {
+        this(root, root.getYield());
     }
 
     @Override public IncrementalParseForest get() {
@@ -44,6 +60,7 @@ public class LazyLookaheadStack implements ILookaheadStack {
     }
 
     @Override public void popLookahead() {
+        position += last.width();
         if(stack.isEmpty())
             last = null;
         StackTuple res = stack.pop();
@@ -70,11 +87,17 @@ public class LazyLookaheadStack implements ILookaheadStack {
     }
 
     @Override public int actionQueryCharacter() {
-        return 'a'; // TODO this is a pain in the nose. Hardcoded test result :see_no_evil:
+        if(position < inputLength)
+            return inputString.charAt(position);
+        if(position == inputLength)
+            return EOF_INT;
+        else
+            return -1;
     }
 
     @Override public String actionQueryLookahead(int length) {
-        return ("bcd" + (char) 256).substring(0, Math.min(4, length)); // TODO this is a pain in the nose
+        return inputString.substring(position + 1, Math.min(position + 1 + length, inputLength))
+            + (position + 1 + length > inputLength ? (char) EOF_INT : "");
     }
 
     private final class StackTuple {

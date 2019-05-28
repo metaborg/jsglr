@@ -13,8 +13,10 @@ jargs="-Xmx2048m -Xss2000000k -jar target/org.spoofax.jsglr2.benchmark.jar -wi 2
 export PATH=/usr/lib/jvm/java-8-openjdk-amd64/bin/:$PATH
 
 # Note that the JMH matches on prefix. So .....Parsing will also match .....ParsingAndImploding
-for benchmark in "JSGLR2SumNonAmbiguousBenchmarkIncrementalParsing" ;
-do
+for benchmark in \
+    "JSGLR2SumNonAmbiguousBenchmarkIncrementalParsing" \
+    "JSGLR2Java8BenchmarkIncrementalParsing" \
+; do
     java $jargs -rff ${benchmark}-${timestamp}.csv ${benchmark} |& tee ${benchmark}-${timestamp}.log
 done
 

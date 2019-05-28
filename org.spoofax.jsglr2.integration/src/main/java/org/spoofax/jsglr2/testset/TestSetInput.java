@@ -11,6 +11,7 @@ public abstract class TestSetInput<ContentType, Input extends TestInput<ContentT
 
     public enum Type {
         SINGLE, // A single file from the org.spoofax.jsglr2.integration samples resources directory
+        INCREMENTAL, // Multiple revisions of a single file, from a folder in the same samples resources directory
         MULTIPLE, // All files with a certain extension from an absolute path
         SIZED // Custom input string of dynamic size based on given argument
     }

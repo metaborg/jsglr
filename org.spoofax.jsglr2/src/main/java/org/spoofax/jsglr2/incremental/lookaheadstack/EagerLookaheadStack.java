@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.incremental.lookaheadstack;
 
+import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+
 import java.util.Stack;
 
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
@@ -9,14 +11,27 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 public class EagerLookaheadStack implements ILookaheadStack {
     /**
      * The stack contains all subtrees that are yet to be popped. The top of the stack also contains the subtree that
-     * has been returned last time. The stack initially only contains EOF and the root (
+     * has been returned last time. The stack initially only contains EOF and the root.
      */
     private final Stack<IncrementalParseForest> stack = new Stack<>();
+    private final String inputString;
+    private final int inputLength;
+    private int position = 0;
+
+    /**
+     * @param inputString
+     *            should be equal to the yield of the root.
+     */
+    public EagerLookaheadStack(IncrementalParseForest root, String inputString) {
+        stack.push(IncrementalCharacterNode.EOF_NODE);
+        stack.push(root);
+
+        this.inputString = inputString;
+        this.inputLength = inputString.length();
+    }
 
     public EagerLookaheadStack(IncrementalParseForest root) {
-        stack.push(IncrementalCharacterNode.EOF_NODE);
-        if(root.width() > 0)
-            stack.push(root);
+        this(root, root.getYield());
     }
 
     @Override public void leftBreakdown() {
@@ -35,29 +50,21 @@ public class EagerLookaheadStack implements ILookaheadStack {
     }
 
     @Override public void popLookahead() {
-        stack.pop();
+        position += stack.pop().width();
     }
 
     @Override public int actionQueryCharacter() {
-        for(int i = stack.size() - 1; i >= 0; i--) {
-            if(stack.get(i).width() <= 0)
-                continue;
-            return stack.get(i).getYield(1).charAt(0);
-        }
-        return -1; // Should only happen when stack is empty, as EOF is always on the stack before that
+        if(position < inputLength)
+            return inputString.charAt(position);
+        if(position == inputLength)
+            return EOF_INT;
+        else
+            return -1;
     }
 
     @Override public String actionQueryLookahead(int length) {
-        int width = length + 1;
-        StringBuilder sb = new StringBuilder(width);
-        int stackIndex = stack.size() - 1;
-        while(width > 0 && stackIndex >= 0) {
-            IncrementalParseForest parseForest = stack.get(stackIndex);
-            sb.append(parseForest.width() <= width ? parseForest.getYield() : parseForest.getYield(width));
-            width -= parseForest.width();
-            stackIndex--;
-        }
-        return sb.substring(1);
+        return inputString.substring(position + 1, Math.min(position + 1 + length, inputLength))
+            + (position + 1 + length > inputLength ? (char) EOF_INT : "");
     }
 
     @Override public IncrementalParseForest get() {

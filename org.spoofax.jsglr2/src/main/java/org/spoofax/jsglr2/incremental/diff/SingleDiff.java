@@ -9,6 +9,7 @@ import org.spoofax.jsglr2.incremental.EditorUpdate;
  * Always returns a single EditorUpdate between the first and last change.
  */
 public class SingleDiff implements IStringDiff {
+
     @Override public List<EditorUpdate> diff(String oldString, String newString) {
         int begin = 0, endOld = oldString.length() - 1, endNew = newString.length() - 1;
         while(begin <= endOld && begin <= endNew && oldString.charAt(begin) == newString.charAt(begin))
@@ -19,4 +20,5 @@ public class SingleDiff implements IStringDiff {
         }
         return Collections.singletonList(new EditorUpdate(begin, endOld + 1, newString.substring(begin, endNew + 1)));
     }
+
 }

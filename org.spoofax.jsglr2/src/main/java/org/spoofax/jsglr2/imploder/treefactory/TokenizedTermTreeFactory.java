@@ -7,10 +7,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
 public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStrategoTerm> {
 
@@ -77,8 +79,18 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
 
     protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
         // rightToken can be null, e.g. for an empty string lexical
-        putImploderAttachment(term, false, sort, leftToken, rightToken != null ? rightToken : leftToken, false, false,
-            false, false);
+        rightToken = rightToken != null ? rightToken : leftToken;
+        putImploderAttachment(term, false, sort, leftToken, rightToken, false, false, false, false);
+        if(term.getTermType() == IStrategoTerm.LIST) {
+            IStrategoList sublist = (IStrategoList) term;
+            IToken lastRightToken;
+            while(!sublist.isEmpty()) {
+                lastRightToken = ImploderAttachment.getRightToken(sublist.head());
+                sublist = sublist.tail();
+                leftToken = sublist.isEmpty() ? lastRightToken : ImploderAttachment.getLeftToken(sublist.head());
+                putImploderAttachment(sublist, false, sort, leftToken, rightToken, false, false, false, false);
+            }
+        }
     }
 
 }

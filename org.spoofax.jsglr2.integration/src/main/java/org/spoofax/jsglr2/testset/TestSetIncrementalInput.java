@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.testset;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +27,8 @@ public class TestSetIncrementalInput extends TestSetInput<String[], IncrementalS
         List<String> inputs = new ArrayList<>();
         for(int i = 0;; i++) {
             try {
-                inputs.add(getFileAsString(directory + "/" + i + ".in"));
+                inputs.add(getFileAsString(
+                    directory + (directory.endsWith(File.separator) ? "" : File.separator) + i + ".in"));
             } catch(NullPointerException | IOException ignored) {
                 break;
             }

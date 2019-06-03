@@ -14,7 +14,7 @@ public class SingleDiff implements IStringDiff {
         int begin = 0, endOld = oldString.length() - 1, endNew = newString.length() - 1;
         while(begin <= endOld && begin <= endNew && oldString.charAt(begin) == newString.charAt(begin))
             begin++;
-        while(endOld > begin && endNew > begin && oldString.charAt(endOld) == newString.charAt(endNew)) {
+        while(endOld >= begin && endNew >= begin && oldString.charAt(endOld) == newString.charAt(endNew)) {
             endOld--;
             endNew--;
         }

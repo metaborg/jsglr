@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.incremental.diff;
 
+import static org.spoofax.jsglr2.incremental.EditorUpdate.Type.INSERTION;
+import static org.spoofax.jsglr2.incremental.EditorUpdate.Type.REPLACEMENT;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +47,7 @@ public class ProcessUpdates<StackNode extends IStackNode> {
      * guarantees are made for a consecutive insertion/deletion.
      */
     public IncrementalParseForest processUpdates(IncrementalParseForest previous, List<EditorUpdate> editorUpdates) {
-        // Optimization: f everything is deleted, then return a tree created from the inserted string
+        // Optimization: if everything is deleted/replaced: then return a tree created from the inserted string
         if(editorUpdates.size() == 1) {
             EditorUpdate editorUpdate = editorUpdates.get(0);
             if(editorUpdate.deletedStart == 0 && editorUpdate.deletedEnd == previous.width()) {
@@ -63,35 +66,36 @@ public class ProcessUpdates<StackNode extends IStackNode> {
             int deletedStartOffset = update.deletedStart;
             int deletedEndOffset = update.deletedEnd;
             String inserted = update.inserted;
+            EditorUpdate.Type type = update.type;
 
-            // If there is nothing to delete (it is an insertion)
-            if(deletedStartOffset == deletedEndOffset) {
-                // If insert position is begin of string, prepend to first character
+            // If it is an insertion (there is nothing to delete, deletedStart == deletedEnd)
+            if(type == INSERTION) {
+                // If insert position is begin of string: prepend to first character
                 if(deletedStartOffset == 0 && currentOffset == deletedEndOffset) {
                     updates.removeFirst();
                     return newParseNodeFromChildren(getParseNodeFromString(inserted), currentForest);
                 }
-                // If insert position is NOT begin of string, append to current character
+                // If insert position is NOT begin of string: append to current character
                 if(deletedStartOffset != 0 && currentOffset == deletedStartOffset - 1) {
                     updates.removeFirst();
                     return newParseNodeFromChildren(currentForest, getParseNodeFromString(inserted));
                 }
-                // If none of the cases applies, just return original character node
+                // If none of the cases applies: just return original character node
                 return currentForest;
             }
             // Replace first deleted character with the inserted string (if any)
-            if(deletedStartOffset == currentOffset && inserted.length() > 0) {
+            if(type == REPLACEMENT && currentOffset == deletedStartOffset) {
                 if(currentOffset == deletedEndOffset - 1)
                     updates.removeFirst();
                 return getParseNodeFromString(inserted);
             }
-            // Else, delete all characters within deletion range
+            // Else: delete all characters within deletion range
             if(deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset) {
                 if(currentOffset == deletedEndOffset - 1)
                     updates.removeFirst();
                 return null;
             }
-            // If none of the cases applies, just return original character node
+            // If none of the cases applies: just return original character node
             return currentForest;
         }
         // Use a shallow copy of the current children, else the old children array will be modified
@@ -100,7 +104,7 @@ public class ProcessUpdates<StackNode extends IStackNode> {
         for(int i = 0; i < parseForests.length; i++) {
             if(updates.isEmpty())
                 break;
-            // If the current subtree is after the previous to-be-deleted range, move to next update
+            // If the current subtree is after the previous to-be-deleted range: move to next update
             if(currentOffset >= updates.getFirst().deletedEnd && currentOffset > 0)
                 updates.removeFirst();
             if(updates.isEmpty())
@@ -110,20 +114,20 @@ public class ProcessUpdates<StackNode extends IStackNode> {
             int deletedStartOffset = update.deletedStart;
             int deletedEndOffset = update.deletedEnd;
             String inserted = update.inserted;
-            // TODO store update type (insertion/deletion/replacement) in EditorUpdate
-            boolean isReplacement = inserted.length() > 0 && deletedStartOffset < deletedEndOffset;
+            EditorUpdate.Type type = update.type;
 
             IncrementalParseForest parseForest = parseForests[i];
             int nextOffset = currentOffset + parseForest.width(); // == start offset of right sibling subtree
 
-            // Optimization: if current subtree starts exactly at deletedStart and it spans the subtree, replace it
-            if(deletedStartOffset == currentOffset && currentOffset < nextOffset && nextOffset <= deletedEndOffset
-                && isReplacement)
+            // Optimization: if current subtree starts exactly at deletedStart and it spans the subtree: replace it
+            if(type == REPLACEMENT && deletedStartOffset == currentOffset && nextOffset <= deletedEndOffset
+            // (also, it must be at least one character wide, else empty subtrees at the same position get replaced)
+                && currentOffset < nextOffset)
                 parseForests[i] = getParseNodeFromString(inserted);
-            // Optimization: if current subtree is a subrange within [deletedStart, deletedEnd], delete it
-            else if(deletedStartOffset <= currentOffset && nextOffset <= deletedEndOffset && isReplacement)
+            // Optimization: if current subtree is a subrange within [deletedStart, deletedEnd]: delete it
+            else if(type == REPLACEMENT && deletedStartOffset <= currentOffset && nextOffset <= deletedEndOffset)
                 parseForests[i] = null;
-            // If current subtree (partially) overlaps with the to-be-deleted range, recurse
+            // If current subtree (partially) overlaps with the to-be-deleted range: recurse
             else if(deletedStartOffset <= nextOffset && currentOffset <= deletedEndOffset)
                 parseForests[i] = processUpdates(parseForest, currentOffset, updates);
 

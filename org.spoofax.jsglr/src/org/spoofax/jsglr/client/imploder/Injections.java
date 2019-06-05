@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.metaborg.util.functions.Function1;
+import org.metaborg.util.functions.Function2;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -17,15 +17,11 @@ import com.google.common.collect.ImmutableList;
 public class Injections {
 
     private final ITermFactory factory;
-    private final Function1<String, String> mangle;
+    private final Function2<String, String, String> injName;
 
-    public Injections(ITermFactory factory) {
-        this(factory, x -> x);
-    }
-
-    public Injections(ITermFactory factory, Function1<String, String> mangle) {
+    public Injections(ITermFactory factory, Function2<String, String, String> injName) {
         this.factory = factory;
-        this.mangle = mangle;
+        this.injName = injName;
     }
 
     public IStrategoTerm explicate(final IStrategoTerm term) {
@@ -71,7 +67,7 @@ public class Injections {
         ImploderAttachment.get(result).clearInjections();
 
         for(String injection : injections) {
-            final String name = mangle.apply(sort) + "2" + mangle.apply(injection);
+            final String name = injName.apply(sort, injection);
             final IStrategoConstructor cons = factory.makeConstructor(name, 1);
             ImploderAttachment ia = ImploderAttachment.get(result);
             result = factory.makeAppl(cons, result);

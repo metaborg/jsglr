@@ -341,6 +341,10 @@ public class ImploderAttachment extends AbstractTermAttachment {
         return Collections.unmodifiableList(injections);
     }
 
+    public void clearInjections() {
+        injections.clear();
+    }
+
     /**
 	 * An inner class that fetches the first imploder atachment
 	 * in a tree.

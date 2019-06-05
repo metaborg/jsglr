@@ -1,12 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
-import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
-import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
+import static org.spoofax.interpreter.terms.IStrategoTerm.*;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
@@ -18,6 +12,7 @@ import static org.spoofax.terms.attachments.ParentAttachment.putParent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -26,13 +21,11 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ParentAttachment;
-import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.util.NotImplementedException;
 
 /**
@@ -227,41 +220,39 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         return isTermString(node) ? ((IStrategoString) node).stringValue() : null;
     }
 
-    public IStrategoTerm createInjection(String sort, IToken leftToken, IToken rightToken, List<IStrategoTerm> children,
+    public IStrategoTerm createInjection(String sort, IToken leftToken, IToken rightToken, IStrategoTerm injected,
         boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion, boolean isBracket) {
-        if(children.size() == 1) {
-            // tagging bracket nodes as completed and adding the brackets as part of the origin
-            if(isBracket) {
-                IStrategoTerm result = children.get(0);
-                if(result instanceof IStrategoAppl) {
-                    if(((IStrategoAppl) result).getConstructor().getName().equals("amb")) {
-                        IStrategoTerm ambList = result.getSubterm(0);
-                        configureAmbNodes(ambList, isBracket, isCompletion, isNestedCompletion,
-                            isSinglePlaceholderCompletion);
-                        return result;
-                    }
+        // tagging bracket nodes as completed and adding the brackets as part of the origin
+        if(isBracket) {
+            IStrategoTerm result = injected;
+            if(result instanceof IStrategoAppl) {
+                if(((IStrategoAppl) result).getConstructor().getName().equals("amb")) {
+                    IStrategoTerm ambList = result.getSubterm(0);
+                    configureAmbNodes(ambList, isBracket, isCompletion, isNestedCompletion,
+                        isSinglePlaceholderCompletion);
+                    return result;
                 }
-                IToken left = leftToken;
-                IToken right = rightToken;
-                if(ImploderAttachment.get(result).isCompletion()) {
-                    configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false,
-                        isBracket, true, false, isSinglePlaceholderCompletion);
-                } else {
-                    configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false,
-                        isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
-                }
-                return result;
-            } else {
-                IStrategoTerm result = children.get(0);
-                ImploderAttachment.get(result).pushInjection(sort);
-                return result;
             }
+            IToken left = leftToken;
+            IToken right = rightToken;
+            if(ImploderAttachment.get(result).isCompletion()) {
+                configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false,
+                    isBracket, true, false, isSinglePlaceholderCompletion);
+            } else {
+                configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false,
+                    isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
+            }
+            return result;
         } else {
-            IStrategoTuple result = factory.makeTuple(toArray(children));
-            IToken left = getLeftToken(children.get(0));
-            IToken right = getRightToken(children.get(children.size() - 1));
-            configure(result, null, left, right, true, false, isCompletion, isNestedCompletion,
-                isSinglePlaceholderCompletion);
+            IStrategoTerm result = injected;
+            // Lexical sorts are (sometimes?) treated as injections, resulting in
+            // bogus injections into themselves. Since we do not have any information
+            // here to check what sorts we are dealing with, we simply ignore
+            // injections where the sort names are equal
+            String injectedSort = ImploderAttachment.get(injected).getSort();
+            if(!Objects.equals(sort, injectedSort)) {
+                ImploderAttachment.get(result).pushInjection(sort);
+            }
             return result;
         }
     }

@@ -60,7 +60,7 @@ public interface ITreeFactory<TNode> extends ITreeInspector<TNode> {
 	/**
 	 * Create an injection node.
 	 */
-	TNode createInjection(String sort, IToken leftToken, IToken rightToken, List<TNode> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion, boolean isBracket);
+	TNode createInjection(String sort, IToken leftToken, IToken rightToken, TNode injected, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion, boolean isBracket);
 
 	void setEnableTokens(boolean enableTokens);
 }

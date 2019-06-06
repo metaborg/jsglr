@@ -1,10 +1,10 @@
-package org.spoofax.jsglr2.imploder;
+package org.spoofax.jsglr2.imploder.treefactory;
 
 import java.util.List;
 
 import org.spoofax.jsglr.client.imploder.IToken;
 
-public interface ITreeFactory<T> {
+public interface ITokenizedTreeFactory<T> {
 
     T createStringTerminal(String sort, String value, IToken token);
 

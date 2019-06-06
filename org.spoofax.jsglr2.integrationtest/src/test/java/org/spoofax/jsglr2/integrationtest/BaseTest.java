@@ -18,6 +18,8 @@ import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.integration.IntegrationVariant;
+import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
@@ -40,7 +42,7 @@ public abstract class BaseTest implements WithParseTable {
         return termReader;
     }
 
-    protected IParseTable getParseTableFailOnException(JSGLR2Variants.ParseTableVariant variant) {
+    protected IParseTable getParseTableFailOnException(ParseTableVariant variant) {
         try {
             return getParseTable(variant);
         } catch(Exception e) {
@@ -53,9 +55,9 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected void testParseSuccess(String inputString) {
-        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+            IParser<?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
@@ -64,9 +66,9 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected void testParseFailure(String inputString) {
-        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IParser<?, ?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+            IParser<?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
@@ -96,25 +98,25 @@ public abstract class BaseTest implements WithParseTable {
 
     private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
-        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.parser, startSymbol, inputString);
+            IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.jsglr2, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
                 actualOutputAst, equalityByExpansions);
         }
     }
 
-    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.ParserVariant variant,
-        String startSymbol, String inputString) {
-        JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
+    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.Variant variant, String startSymbol,
+        String inputString) {
+        JSGLR2<IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
 
         return testSuccess("Variant '" + variant.name() + "' failed parsing: ",
             "Variant '" + variant.name() + "' failed imploding: ", jsglr2, "", startSymbol, inputString);
     }
 
-    private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage,
-        JSGLR2<?, IStrategoTerm> jsglr2, String filename, String startSymbol, String inputString) {
+    private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage, JSGLR2<IStrategoTerm> jsglr2,
+        String filename, String startSymbol, String inputString) {
         try {
 
             IStrategoTerm result = jsglr2.parseUnsafe(inputString, filename, startSymbol);
@@ -135,12 +137,12 @@ public abstract class BaseTest implements WithParseTable {
 
     private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
         boolean equalityByExpansions) {
-        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             if(variant.parser.parseForestRepresentation != ParseForestRepresentation.Incremental)
                 continue;
 
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+            JSGLR2<IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.jsglr2);
 
             IStrategoTerm actualOutputAst;
             String filename = "" + System.nanoTime(); // To ensure the results will be cached
@@ -191,9 +193,9 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
-        for(JSGLR2Variants.Variant variant : JSGLR2Variants.testVariants()) {
+        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            JSGLR2<?, IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.parser);
+            JSGLR2<IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.jsglr2);
 
             JSGLR2Result<?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
 

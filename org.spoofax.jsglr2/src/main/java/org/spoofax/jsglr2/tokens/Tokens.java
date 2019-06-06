@@ -126,7 +126,7 @@ public class Tokens implements IParseTokens {
         return input.substring(startOffset, endOffset);
     }
 
-    @Override public boolean isAmbigous() {
+    @Override public boolean isAmbiguous() {
         return false; // TODO: implement
     }
 

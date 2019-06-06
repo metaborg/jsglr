@@ -336,7 +336,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
     public void pushInjection(String sort) {
         injections.push(sort);
     }
-    
+
     public List<String> getInjections() {
         return Collections.unmodifiableList(injections);
     }

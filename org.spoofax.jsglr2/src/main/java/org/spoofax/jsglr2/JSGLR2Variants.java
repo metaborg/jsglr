@@ -1,20 +1,17 @@
 package org.spoofax.jsglr2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.datadependent.DataDependentParseForestManager;
 import org.spoofax.jsglr2.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.elkhound.ElkhoundParser;
 import org.spoofax.jsglr2.elkhound.HybridElkhoundStackManager;
-import org.spoofax.jsglr2.imploder.IImploder;
-import org.spoofax.jsglr2.imploder.NullStrategoImploder;
-import org.spoofax.jsglr2.imploder.StrategoTermImploder;
+import org.spoofax.jsglr2.imploder.*;
+import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
@@ -28,79 +25,57 @@ import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.reducing.Reducing;
-import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.basic.BasicStackManager;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
+import org.spoofax.jsglr2.tokens.NullTokenizer;
+import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
 public class JSGLR2Variants {
 
     public static class Variant {
-        public ParseTableVariant parseTable;
-        public ParserVariant parser;
+        public final ParserVariant parser;
+        public final ImploderVariant imploder;
+        public final TokenizerVariant tokenizer;
 
-        public Variant(ParseTableVariant parseTableVariant, ParserVariant parserVariant) {
-            this.parseTable = parseTableVariant;
+        public Variant(ParserVariant parserVariant, ImploderVariant imploderVariant, TokenizerVariant tokenizer) {
             this.parser = parserVariant;
+            this.imploder = imploderVariant;
+            this.tokenizer = tokenizer;
         }
 
         public String name() {
-            return parseTable.name() + "/" + parser.name();
+            return parser.name() + "//Imploder:" + imploder.name() + "//Tokenizer:" + tokenizer.name();
         }
 
         @Override public boolean equals(Object o) {
-            if(this == o) {
+            if(this == o)
                 return true;
-            }
-            if(o == null || getClass() != o.getClass()) {
+            if(o == null || getClass() != o.getClass())
                 return false;
-            }
 
-            Variant that = (Variant) o;
+            Variant variant = (Variant) o;
 
-            return parseTable.equals(that.parseTable) && parser.equals(that.parser);
-        }
-    }
-
-    public static class ParseTableVariant {
-        public ActionsForCharacterRepresentation actionsForCharacterRepresentation;
-        public ProductionToGotoRepresentation productionToGotoRepresentation;
-
-        public ParseTableVariant(ActionsForCharacterRepresentation actionsForCharacterRepresentation,
-            ProductionToGotoRepresentation productionToGotoRepresentation) {
-            this.actionsForCharacterRepresentation = actionsForCharacterRepresentation;
-            this.productionToGotoRepresentation = productionToGotoRepresentation;
+            return Objects.equals(parser, variant.parser) && imploder == variant.imploder
+                && tokenizer == variant.tokenizer;
         }
 
-        public String name() {
-            return "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation
-                + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;
-        }
-
-        @Override public boolean equals(Object o) {
-            if(this == o) {
-                return true;
-            }
-            if(o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            ParseTableVariant that = (ParseTableVariant) o;
-
-            return actionsForCharacterRepresentation == that.actionsForCharacterRepresentation
-                && productionToGotoRepresentation == that.productionToGotoRepresentation;
+        public boolean isValid() {
+            return parser.isValid()
+                && (imploder == ImploderVariant.TokenizedRecursive && tokenizer == TokenizerVariant.Null
+                    || imploder != ImploderVariant.TokenizedRecursive && tokenizer != TokenizerVariant.Null);
         }
     }
 
     public static class ParserVariant {
-        public ActiveStacksRepresentation activeStacksRepresentation;
-        public ForActorStacksRepresentation forActorStacksRepresentation;
-        public ParseForestRepresentation parseForestRepresentation;
-        public ParseForestConstruction parseForestConstruction;
-        public StackRepresentation stackRepresentation;
-        public Reducing reducing;
+        public final ActiveStacksRepresentation activeStacksRepresentation;
+        public final ForActorStacksRepresentation forActorStacksRepresentation;
+        public final ParseForestRepresentation parseForestRepresentation;
+        public final ParseForestConstruction parseForestConstruction;
+        public final StackRepresentation stackRepresentation;
+        public final Reducing reducing;
 
         public ParserVariant(ActiveStacksRepresentation activeStacksRepresentation,
             ForActorStacksRepresentation forActorStacksRepresentation,
@@ -135,12 +110,10 @@ public class JSGLR2Variants {
         }
 
         @Override public boolean equals(Object o) {
-            if(this == o) {
+            if(this == o)
                 return true;
-            }
-            if(o == null || getClass() != o.getClass()) {
+            if(o == null || getClass() != o.getClass())
                 return false;
-            }
 
             ParserVariant that = (ParserVariant) o;
 
@@ -152,8 +125,8 @@ public class JSGLR2Variants {
         }
     }
 
-    public static List<ParserVariant> allVariants() {
-        List<ParserVariant> variants = new ArrayList<>();
+    public static List<Variant> allVariants() {
+        List<Variant> variants = new ArrayList<>();
 
         for(ActiveStacksRepresentation activeStacksRepresentation : ActiveStacksRepresentation.values()) {
             for(ForActorStacksRepresentation forActorStacksRepresentation : ForActorStacksRepresentation.values()) {
@@ -162,12 +135,19 @@ public class JSGLR2Variants {
                         for(ParseForestConstruction parseForestConstruction : ParseForestConstruction.values()) {
                             for(StackRepresentation stackRepresentation : StackRepresentation.values()) {
                                 for(Reducing reducing : Reducing.values()) {
-                                    ParserVariant variant = new ParserVariant(activeStacksRepresentation,
+                                    ParserVariant parserVariant = new ParserVariant(activeStacksRepresentation,
                                         forActorStacksRepresentation, parseForestRepresentation,
                                         parseForestConstruction, stackRepresentation, reducing);
 
-                                    if(variant.isValid())
-                                        variants.add(variant);
+                                    if(parserVariant.isValid())
+                                        for(ImploderVariant imploderVariant : ImploderVariant.values()) {
+                                            for(TokenizerVariant tokenizerVariant : TokenizerVariant.values()) {
+                                                Variant variant =
+                                                    new Variant(parserVariant, imploderVariant, tokenizerVariant);
+                                                if(variant.isValid())
+                                                    variants.add(variant);
+                                            }
+                                        }
                                 }
                             }
                         }
@@ -178,22 +158,8 @@ public class JSGLR2Variants {
         return variants;
     }
 
-    public static List<Variant> testVariants() {
-        //@formatter:off
-        return Arrays.asList(
-            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.ArrayList,     ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Basic,          Reducing.Basic)),
-            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.JavaHashMap), new ParserVariant(ActiveStacksRepresentation.ArrayList,     ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Basic,          Reducing.Basic)),
-            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.Hybrid,         Reducing.Basic)),
-            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Elkhound)),/*
-            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid,         Reducing.Basic)),
-            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound)),*/
-            new Variant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Incremental, ParseForestConstruction.Full,      StackRepresentation.Hybrid, Reducing.Basic))
-        );
-        //@formatter:on
-    }
 
-
-    public static IParser<?, ?> getParser(IParseTable parseTable, ParserVariant variant) {
+    public static IParser<? extends IParseForest> getParser(IParseTable parseTable, ParserVariant variant) {
         if(!variant.isValid())
             throw new IllegalStateException("Invalid parser variant");
 
@@ -259,7 +225,7 @@ public class JSGLR2Variants {
     }
 
     private static <ParseForest extends IParseForest, ParseNode extends ParseForest, Derivation extends IDerivation<ParseForest>, PFM extends ParseForestManager<ParseForest, ParseNode, Derivation>>
-        IParser<?, ?> getParser(IParseTable parseTable, ParserVariant variant, PFM parseForestManager) {
+        IParser<ParseForest> getParser(IParseTable parseTable, ParserVariant variant, PFM parseForestManager) {
         switch(variant.reducing) {
             case Elkhound:
                 switch(variant.stackRepresentation) {
@@ -297,37 +263,59 @@ public class JSGLR2Variants {
         }
     }
 
-    public static List<IParser<?, ?>> allParsers(IParseTable parseTable) {
-        List<IParser<?, ?>> parsers = new ArrayList<>();
+    public static List<IParser<?>> allParsers(IParseTable parseTable) {
+        List<IParser<?>> parsers = new ArrayList<>();
 
-        for(ParserVariant variant : allVariants()) {
-            parsers.add(getParser(parseTable,
-                new ParserVariant(variant.activeStacksRepresentation, variant.forActorStacksRepresentation,
-                    variant.parseForestRepresentation, variant.parseForestConstruction, variant.stackRepresentation,
-                    variant.reducing)));
+        for(Variant variant : allVariants()) {
+            parsers.add(getParser(parseTable, variant.parser));
         }
 
         return parsers;
     }
 
-    public static JSGLR2<?, IStrategoTerm> getJSGLR2(IParseTable parseTable, ParserVariant variant) {
-        @SuppressWarnings("unchecked") IParser<IParseForest, IStackNode> parser =
-            (IParser<IParseForest, IStackNode>) getParser(parseTable, variant);
-
-        IImploder<IParseForest, IStrategoTerm> imploder;
-        if(variant.parseForestRepresentation == ParseForestRepresentation.Null)
-            imploder = new NullStrategoImploder<>();
-        else
-            imploder = new StrategoTermImploder<>();
-
-        return new JSGLR2<>(parser, imploder);
+    private static <ParseForest extends IParseForest> IImploder<ParseForest, TreeImploder.SubTree<IStrategoTerm>>
+        getImploder(Variant variant) {
+        switch(variant.imploder) {
+            default:
+            case Recursive:
+                return new StrategoTermImploder<>();
+            case RecursiveIncremental:
+                return new IncrementalStrategoTermImploder<>();
+            case Iterative:
+                return new IterativeStrategoTermImploder<>();
+        }
     }
 
-    public static List<JSGLR2<?, IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
-        List<JSGLR2<?, IStrategoTerm>> jsglr2s = new ArrayList<>();
+    private static ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm> getTokenizer(Variant variant) {
+        switch(variant.tokenizer) {
+            default:
+            case Null:
+                return (input, filename, implodeResult) -> new TokenizeResult<>(null, implodeResult.tree);
+            case Recursive:
+                return new StrategoTermTokenizer();
+            case Iterative:
+                return new IterativeStrategoTermTokenizer();
+        }
+    }
 
-        for(ParserVariant variant : allVariants()) {
-            JSGLR2<?, IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
+    public static JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
+        @SuppressWarnings("unchecked") final IParser<IParseForest> parser =
+            (IParser<IParseForest>) getParser(parseTable, variant.parser);
+
+        if(variant.parser.parseForestRepresentation == ParseForestRepresentation.Null)
+            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), new NullTokenizer<>());
+
+        if(variant.imploder == ImploderVariant.TokenizedRecursive)
+            return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new NullTokenizer<>());
+
+        return new JSGLR2Implementation<>(parser, getImploder(variant), getTokenizer(variant));
+    }
+
+    public static List<JSGLR2<IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
+        List<JSGLR2<IStrategoTerm>> jsglr2s = new ArrayList<>();
+
+        for(Variant variant : allVariants()) {
+            JSGLR2<IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
 
             jsglr2s.add(jsglr2);
         }

@@ -5,7 +5,6 @@ import java.io.InputStream;
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.states.StateFactory;
@@ -13,7 +12,7 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public interface WithParseTableFromTerm extends WithParseTable {
 
-    default IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) throws Exception {
+    default IParseTable getParseTable(ParseTableVariant variant) throws Exception {
         return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
             new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
                 .read(getParseTableTerm());
@@ -31,7 +30,7 @@ public interface WithParseTableFromTerm extends WithParseTable {
         setParseTableTerm(parseTableTerm);
     }
 
-    public InputStream resourceInputStream(String resource) throws Exception;
+    InputStream resourceInputStream(String resource) throws Exception;
 
     default IStrategoTerm parseTableTerm(String filename) throws Exception {
         InputStream inputStream = resourceInputStream(filename);

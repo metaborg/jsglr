@@ -1,5 +1,6 @@
-package org.spoofax.jsglr2.imploder;
+package org.spoofax.jsglr2.imploder.treefactory;
 
+import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
 
 import java.util.Collections;
@@ -10,14 +11,15 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.terms.TermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
-public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
+public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStrategoTerm> {
 
     private final ITermFactory termFactory;
 
-    public TermTreeFactory(ITermFactory termFactory) {
-        this.termFactory = termFactory;
+    public TokenizedTermTreeFactory() {
+        this.termFactory = new TermFactory().getFactoryWithStorageType(MUTABLE);
     }
 
     @Override public IStrategoTerm createStringTerminal(String sort, String value, IToken token) {

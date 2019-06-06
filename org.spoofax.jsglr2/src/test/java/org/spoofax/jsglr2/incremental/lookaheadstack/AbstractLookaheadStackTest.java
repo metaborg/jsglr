@@ -23,6 +23,21 @@ public abstract class AbstractLookaheadStackTest {
         assertPoppingRoot(root);
     }
 
+    @Test public void testThreeChildrenNoYield() {
+        IncrementalParseNode node1 = new IncrementalParseNode();
+        IncrementalParseNode node2 = new IncrementalParseNode();
+        IncrementalParseNode node3 = new IncrementalParseNode();
+        IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
+
+        ILookaheadStack stack = getStack(root);
+        assertLeftBreakdown(node1, stack);
+        assertPopLookahead(node2, stack);
+        assertLeftBreakdown(node3, stack);
+        assertPoppingEOF(stack);
+
+        assertPoppingRoot(root);
+    }
+
     @Test public void testThreeChildren() {
         IncrementalCharacterNode node1 = new IncrementalCharacterNode(97);
         IncrementalCharacterNode node2 = new IncrementalCharacterNode(98);

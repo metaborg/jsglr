@@ -39,18 +39,18 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         ParserObserving<IncrementalParseForest, StackNode> observing) {
 
         super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
-        initParse(processUpdates(editorUpdates, previous));
+        initParse(processUpdates(editorUpdates, previous), inputString);
     }
 
     public IncrementalParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
         IForActorStacksFactory forActorStacksFactory, ParserObserving<IncrementalParseForest, StackNode> observing) {
 
         super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
-        initParse(getParseNodeFromString(inputString));
+        initParse(getParseNodeFromString(inputString), inputString);
     }
 
-    private void initParse(IncrementalParseForest updatedTree) {
-        this.lookahead = new EagerLookaheadStack(updatedTree); // TODO switch types between Lazy and Eager
+    private void initParse(IncrementalParseForest updatedTree, String inputString) {
+        this.lookahead = new EagerLookaheadStack(updatedTree, inputString); // TODO switch types between Lazy and Eager
         this.multipleStates = false;
         this.currentChar = lookahead.actionQueryCharacter();
     }

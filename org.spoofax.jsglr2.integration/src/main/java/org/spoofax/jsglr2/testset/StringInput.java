@@ -1,11 +1,11 @@
 package org.spoofax.jsglr2.testset;
 
-public class Input {
+public class StringInput {
 
     public String filename;
     public String content;
 
-    public Input(String filename, String content) {
+    public StringInput(String filename, String content) {
         this.filename = filename;
         this.content = content;
     }

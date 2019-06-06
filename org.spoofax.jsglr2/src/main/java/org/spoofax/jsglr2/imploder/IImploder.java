@@ -2,8 +2,8 @@ package org.spoofax.jsglr2.imploder;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 
-public interface IImploder<ParseForest extends IParseForest, AbstractSyntaxTree> {
+public interface IImploder<ParseForest extends IParseForest, Result> {
 
-    ImplodeResult<AbstractSyntaxTree> implode(String input, String filename, ParseForest parseForest);
+    Result implode(String input, String filename, ParseForest parseForest);
 
 }

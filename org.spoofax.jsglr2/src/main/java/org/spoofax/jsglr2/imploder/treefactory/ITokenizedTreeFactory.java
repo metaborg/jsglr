@@ -18,4 +18,6 @@ public interface ITokenizedTreeFactory<T> {
 
     T createAmb(String sort, List<T> alternatives, IToken leftToken, IToken rightToken);
 
+    T createInjection(String sort, T injected);
+
 }

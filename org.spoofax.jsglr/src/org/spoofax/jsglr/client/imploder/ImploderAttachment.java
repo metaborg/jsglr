@@ -4,6 +4,10 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
 import static org.spoofax.terms.Term.asJavaInt;
 import static org.spoofax.terms.Term.asJavaString;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -64,6 +68,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	
 	private final String sort;
+	private final LinkedList<String> injections;
 	
 	/**
 	 * Creates a new imploder attachment.
@@ -73,6 +78,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	protected ImploderAttachment(String sort, IToken leftToken, IToken rightToken, boolean isBracket, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
         assert leftToken != null && rightToken != null;
 		this.sort = sort;
+		this.injections = new LinkedList<>();
 		this.leftToken = leftToken;
 		this.rightToken = rightToken;
 		this.isCompletion = isCompletion;
@@ -324,6 +330,19 @@ public class ImploderAttachment extends AbstractTermAttachment {
 
     public void setBracket(boolean isBracket) {
         this.isBracket = isBracket;
+    }
+
+
+    public void pushInjection(String sort) {
+        injections.push(sort);
+    }
+
+    public List<String> getInjections() {
+        return Collections.unmodifiableList(injections);
+    }
+
+    public void clearInjections() {
+        injections.clear();
     }
 
     /**

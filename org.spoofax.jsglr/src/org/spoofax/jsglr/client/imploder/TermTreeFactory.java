@@ -245,12 +245,9 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
             return result;
         } else {
             IStrategoTerm result = injected;
-            // Lexical sorts are (sometimes?) treated as injections, resulting in
-            // bogus injections into themselves. Since we do not have any information
-            // here to check what sorts we are dealing with, we simply ignore
-            // injections where the sort names are equal
+            // Prevent bogus injections from empty sorts, or lexical sorts into themselves
             String injectedSort = ImploderAttachment.get(injected).getSort();
-            if(!Objects.equals(sort, injectedSort)) {
+            if(sort != null && !Objects.equals(sort, injectedSort)) {
                 ImploderAttachment.get(result).pushInjection(sort);
             }
             return result;

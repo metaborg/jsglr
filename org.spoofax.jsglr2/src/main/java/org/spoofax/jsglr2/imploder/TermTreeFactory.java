@@ -4,6 +4,7 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAt
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -72,7 +73,11 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override public IStrategoTerm createInjection(String sort, IStrategoTerm injected) {
-        ImploderAttachment.get(injected).pushInjection(sort);
+        // Prevent bogus injections from empty sorts, or lexical sorts into themselves
+        String injectedSort = ImploderAttachment.get(injected).getSort();
+        if(sort != null && !Objects.equals(sort, injectedSort)) {
+            ImploderAttachment.get(injected).pushInjection(sort);
+        }
         return injected;
     }
 

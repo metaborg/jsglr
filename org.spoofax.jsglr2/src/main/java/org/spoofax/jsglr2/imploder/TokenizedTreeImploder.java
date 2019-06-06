@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;

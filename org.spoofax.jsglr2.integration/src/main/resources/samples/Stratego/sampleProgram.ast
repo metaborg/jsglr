@@ -1,0 +1,10 @@
+Module(
+  "sampleProgram"
+, [ Strategies(
+      [SDefNoArgs(
+         "s"
+       , Match(As(Var("x"), NoAnnoList(List([]))))
+       )]
+    )
+  ]
+)

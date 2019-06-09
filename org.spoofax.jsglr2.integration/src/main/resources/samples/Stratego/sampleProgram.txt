@@ -1,0 +1,6 @@
+module sampleProgram
+
+strategies
+
+// This program can be problematic if the SGLR implementation does prefer/avoid different from the original JSGLR1
+s = ?x@[]

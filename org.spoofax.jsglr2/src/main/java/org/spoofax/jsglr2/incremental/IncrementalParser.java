@@ -52,8 +52,7 @@ public class IncrementalParser
 
         super(parseFactory, parseTable, stackManager, parseForestManager, reduceManagerFactory);
         this.incrementalParseFactory = incrementalParseFactory;
-        // TODO different diffing types, probably based on:
-        // https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
+        // TODO parametrize parser on diff algorithm for benchmarking
         this.diff = new JGitHistogramDiff();
     }
 

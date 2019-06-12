@@ -3,6 +3,8 @@ package org.spoofax.jsglr2.imploder;
 import java.util.*;
 
 import org.metaborg.parsetable.IProduction;
+import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
+import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -14,23 +16,26 @@ public class TreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    Tree>
+    Tree,
+    Input       extends ImplodeInput>
 //@formatter:on
     implements IImploder<ParseForest, TreeImploder.SubTree<Tree>> {
 
+    protected final IImplodeInputFactory<Input> inputFactory;
     protected final ITreeFactory<Tree> treeFactory;
 
-    public TreeImploder(ITreeFactory<Tree> treeFactory) {
+    public TreeImploder(IImplodeInputFactory<Input> inputFactory, ITreeFactory<Tree> treeFactory) {
+        this.inputFactory = inputFactory;
         this.treeFactory = treeFactory;
     }
 
     @Override public SubTree<Tree> implode(String input, String filename, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        return implodeParseNode(input, topParseNode, 0);
+        return implodeParseNode(inputFactory.get(input), topParseNode, 0);
     }
 
-    protected SubTree<Tree> implodeParseNode(String inputString, ParseNode parseNode, int startOffset) {
+    protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
         IProduction production = parseNode.production();
 
         if(production.isContextFree()) {
@@ -41,7 +46,7 @@ public class TreeImploder
                 List<SubTree<Tree>> subTrees = new ArrayList<>(filteredDerivations.size());
 
                 for(Derivation derivation : filteredDerivations) {
-                    SubTree<Tree> result = implodeDerivation(inputString, derivation, startOffset);
+                    SubTree<Tree> result = implodeDerivation(input, derivation, startOffset);
                     trees.add(result.tree);
                     subTrees.add(result);
                 }
@@ -49,15 +54,15 @@ public class TreeImploder
                 return new SubTree<>(treeFactory.createAmb(production.sort(), trees), subTrees, null, null,
                     subTrees.get(0).width);
             } else
-                return implodeDerivation(inputString, filteredDerivations.get(0), startOffset);
+                return implodeDerivation(input, filteredDerivations.get(0), startOffset);
         } else {
-            String substring = inputString.substring(startOffset, startOffset + parseNode.width());
+            String substring = input.inputString.substring(startOffset, startOffset + parseNode.width());
 
             return new SubTree<>(createLexicalTerm(production, substring), production, substring);
         }
     }
 
-    protected SubTree<Tree> implodeDerivation(String inputString, Derivation derivation, int startOffset) {
+    protected SubTree<Tree> implodeDerivation(Input input, Derivation derivation, int startOffset) {
         IProduction production = derivation.production();
 
         if(!production.isContextFree())
@@ -70,7 +75,7 @@ public class TreeImploder
             if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
                 @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-                SubTree<Tree> subTree = implodeParseNode(inputString, childParseNode, startOffset);
+                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
 
                 if(subTree.tree != null) {
                     childASTs.add(subTree.tree);

@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.imploder;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.StrategoTermTreeFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -12,10 +13,10 @@ public class StrategoTermImploder
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on
-    extends TreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
+    extends TreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm, ImplodeInput> {
 
     public StrategoTermImploder() {
-        super(new StrategoTermTreeFactory());
+        super(ImplodeInput::new, new StrategoTermTreeFactory());
     }
 
 }

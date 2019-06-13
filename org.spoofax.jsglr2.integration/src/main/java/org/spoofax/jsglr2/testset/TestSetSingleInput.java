@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class TestSetSingleInput<Input> extends TestSetInput<Input> {
+import org.spoofax.jsglr2.testset.testinput.StringInput;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
+
+public abstract class TestSetSingleInput<Input extends TestInput<String>> extends TestSetInput<String, Input> {
 
     public final String filename; // Path in the org.spoofax.jsglr2.integration/src/main/resources/samples directory
 

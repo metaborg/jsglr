@@ -3,15 +3,15 @@ package org.spoofax.jsglr2.measure;
 import java.io.PrintWriter;
 import java.util.List;
 
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public abstract class Measurements {
 
-    protected TestSet<StringInput> testSet;
-    protected MeasureTestSetReader<StringInput> testSetReader;
+    protected TestSet<String, StringInput> testSet;
+    protected MeasureTestSetReader<String, StringInput> testSetReader;
 
-    public Measurements(TestSet<StringInput> testSet) {
+    public Measurements(TestSet<String, StringInput> testSet) {
         this.testSet = testSet;
         this.testSetReader = new MeasureTestSetReader<>(testSet);
     }

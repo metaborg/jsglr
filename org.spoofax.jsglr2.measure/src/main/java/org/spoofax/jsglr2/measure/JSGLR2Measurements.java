@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import org.metaborg.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class JSGLR2Measurements {
 
@@ -23,7 +23,7 @@ public class JSGLR2Measurements {
 
         new File(REPORT_PATH).mkdirs();
 
-        for(TestSet<StringInput> testSet : TestSet.all) {
+        for(TestSet<String, StringInput> testSet : TestSet.all) {
             System.out.println(testSet.name);
 
             new ParseTableMeasurements(testSet).measure();

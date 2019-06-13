@@ -14,12 +14,12 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
-public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<StringInput> {
+public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<String, StringInput> {
 
-    protected JSGLR2BenchmarkParseTable(TestSet<StringInput> testSet) {
+    protected JSGLR2BenchmarkParseTable(TestSet<String, StringInput> testSet) {
         super(new BenchmarkTestSetReader<>(testSet));
     }
 

@@ -7,10 +7,12 @@ import java.net.URISyntaxException;
 
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetReader;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-public class BenchmarkTestSetReader<Input> extends TestSetReader<Input> {
+public class BenchmarkTestSetReader<ContentType, Input extends TestInput<ContentType>>
+    extends TestSetReader<ContentType, Input> {
 
-    public BenchmarkTestSetReader(TestSet<Input> testSet) {
+    public BenchmarkTestSetReader(TestSet<ContentType, Input> testSet) {
         super(testSet);
     }
 

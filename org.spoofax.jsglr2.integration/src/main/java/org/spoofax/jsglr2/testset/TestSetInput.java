@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
 
-public abstract class TestSetInput<Input> {
+import org.spoofax.jsglr2.testset.testinput.TestInput;
+
+public abstract class TestSetInput<ContentType, Input extends TestInput<ContentType>> {
 
     public enum Type {
         SINGLE, // A single file from the org.spoofax.jsglr2.integration samples resources directory
@@ -15,7 +17,7 @@ public abstract class TestSetInput<Input> {
 
     public final Type type;
 
-    protected abstract Input getInput(String filename, String input);
+    protected abstract Input getInput(String filename, ContentType input);
 
     public abstract List<Input> getInputs() throws IOException;
 

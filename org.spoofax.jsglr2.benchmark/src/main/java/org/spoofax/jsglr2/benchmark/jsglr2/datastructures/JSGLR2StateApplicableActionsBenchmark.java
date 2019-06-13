@@ -28,14 +28,14 @@ import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataStructureBenchmark {
 
     ActorObserver actorObserver;
 
-    protected JSGLR2StateApplicableActionsBenchmark(TestSet<StringInput> testSet) {
+    protected JSGLR2StateApplicableActionsBenchmark(TestSet<String, StringInput> testSet) {
         super(testSet);
     }
 

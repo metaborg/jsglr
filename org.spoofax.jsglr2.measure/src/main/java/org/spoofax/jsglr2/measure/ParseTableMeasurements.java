@@ -9,12 +9,12 @@ import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.actions.ActionsFactory;
 import org.metaborg.parsetable.actions.IActionsFactory;
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class ParseTableMeasurements extends Measurements {
 
-    public ParseTableMeasurements(TestSet<StringInput> testSet) {
+    public ParseTableMeasurements(TestSet<String, StringInput> testSet) {
         super(testSet);
     }
 

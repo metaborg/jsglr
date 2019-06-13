@@ -8,18 +8,20 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 import org.spoofax.jsglr2.integration.WithParseTableFromTerm;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
-public abstract class TestSetReader<Input> implements WithParseTableFromTerm {
+public abstract class TestSetReader<ContentType, Input extends TestInput<ContentType>>
+    implements WithParseTableFromTerm {
 
-    protected final TestSet<Input> testSet;
+    protected final TestSet<ContentType, Input> testSet;
 
     protected TermReader termReader;
 
     protected IStrategoTerm parseTableTerm;
 
-    protected TestSetReader(TestSet<Input> testSet) {
+    protected TestSetReader(TestSet<ContentType, Input> testSet) {
         this.testSet = testSet;
 
         this.termReader = new TermReader(new TermFactory());
@@ -78,7 +80,7 @@ public abstract class TestSetReader<Input> implements WithParseTableFromTerm {
 
     public Iterable<Input> getInputsForSize(int n) {
         if(testSet.input.type == TestSetInput.Type.SIZED) {
-            return ((TestSetSizedInput<Input>) testSet.input).getInputs(n);
+            return ((TestSetSizedInput<ContentType, Input>) testSet.input).getInputs(n);
         }
         throw new IllegalStateException("invalid input type (test set input should have a size)");
     }

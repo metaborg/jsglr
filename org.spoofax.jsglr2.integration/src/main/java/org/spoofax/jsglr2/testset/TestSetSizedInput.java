@@ -3,23 +3,27 @@ package org.spoofax.jsglr2.testset;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class TestSetSizedInput<Input> extends TestSetInput<Input> {
+import org.spoofax.jsglr2.testset.testinput.StringInput;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-    public interface InputForSize {
-        String get(int n);
+public abstract class TestSetSizedInput<ContentType, Input extends TestInput<ContentType>>
+    extends TestSetInput<ContentType, Input> {
+
+    public interface InputForSize<ContentType> {
+        ContentType get(int n);
     }
 
-    private final InputForSize inputForSize;
+    private final InputForSize<ContentType> inputForSize;
     public final int[] sizes;
 
-    public TestSetSizedInput(InputForSize inputForSize, int... sizes) {
+    public TestSetSizedInput(InputForSize<ContentType> inputForSize, int... sizes) {
         super(Type.SIZED);
 
         this.inputForSize = inputForSize;
         this.sizes = sizes;
     }
 
-    public String get(int n) {
+    public ContentType get(int n) {
         return inputForSize.get(n);
     }
 
@@ -31,8 +35,8 @@ public abstract class TestSetSizedInput<Input> extends TestSetInput<Input> {
         return Collections.singletonList(getInput("", get(n)));
     }
 
-    static class StringInputSet extends TestSetSizedInput<StringInput> {
-        public StringInputSet(InputForSize inputForSize, int... sizes) {
+    static class StringInputSet extends TestSetSizedInput<String, StringInput> {
+        public StringInputSet(InputForSize<String> inputForSize, int... sizes) {
             super(inputForSize, sizes);
         }
 

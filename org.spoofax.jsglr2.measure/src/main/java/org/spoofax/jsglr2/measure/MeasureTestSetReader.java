@@ -13,10 +13,12 @@ import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetInput;
 import org.spoofax.jsglr2.testset.TestSetReader;
 import org.spoofax.jsglr2.testset.TestSetSizedInput;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-public class MeasureTestSetReader<Input> extends TestSetReader<Input> {
+public class MeasureTestSetReader<ContentType, Input extends TestInput<ContentType>>
+    extends TestSetReader<ContentType, Input> {
 
-    public MeasureTestSetReader(TestSet<Input> testSet) {
+    public MeasureTestSetReader(TestSet<ContentType, Input> testSet) {
         super(testSet);
     }
 
@@ -37,7 +39,8 @@ public class MeasureTestSetReader<Input> extends TestSetReader<Input> {
 
     public Iterable<InputBatch> getInputBatches() throws IOException {
         if(testSet.input.type == TestSetInput.Type.SIZED) {
-            TestSetSizedInput<Input> testSizedInput = (TestSetSizedInput<Input>) testSet.input;
+            TestSetSizedInput<ContentType, Input> testSizedInput =
+                (TestSetSizedInput<ContentType, Input>) testSet.input;
 
             if(testSizedInput.sizes == null)
                 throw new IllegalStateException("invalid input type (sizes missing)");

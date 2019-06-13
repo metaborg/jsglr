@@ -22,15 +22,15 @@ import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringInput> {
+public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<String, StringInput> {
 
     protected IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> parser;
 
-    protected JSGLR2DataStructureBenchmark(TestSet<StringInput> testSet) {
+    protected JSGLR2DataStructureBenchmark(TestSet<String, StringInput> testSet) {
         super(new BenchmarkTestSetReader<>(testSet));
     }
 

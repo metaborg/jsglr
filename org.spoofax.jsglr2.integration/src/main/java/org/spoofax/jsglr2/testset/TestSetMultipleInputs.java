@@ -8,7 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class TestSetMultipleInputs<Input> extends TestSetInput<Input> {
+import org.spoofax.jsglr2.testset.testinput.StringInput;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
+
+public abstract class TestSetMultipleInputs<Input extends TestInput<String>> extends TestSetInput<String, Input> {
 
     public final String path; // Absolute path to search in
     public final String extension; // Extension for files to find in path

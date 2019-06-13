@@ -23,12 +23,12 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class ParsingMeasurements extends Measurements {
 
-    public ParsingMeasurements(TestSet<StringInput> testSet) {
+    public ParsingMeasurements(TestSet<String, StringInput> testSet) {
         super(testSet);
     }
 
@@ -59,7 +59,7 @@ public class ParsingMeasurements extends Measurements {
 
         csvHeader(out);
 
-        for(MeasureTestSetReader<StringInput>.InputBatch inputBatch : testSetReader.getInputBatches()) {
+        for(MeasureTestSetReader<String, StringInput>.InputBatch inputBatch : testSetReader.getInputBatches()) {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 

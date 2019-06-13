@@ -22,13 +22,14 @@ import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksArrayList;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBenchmark {
 
     ActiveStacksObserver activeStacksObserver;
 
-    protected JSGLR2ActiveStacksBenchmark(TestSet testSet) {
+    protected JSGLR2ActiveStacksBenchmark(TestSet<StringInput> testSet) {
         super(testSet);
     }
 

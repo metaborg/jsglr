@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
-import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
+import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
@@ -19,8 +19,8 @@ import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2BenchmarkParsing extends JSGLR2Benchmark<StringInput> {
 
-    protected JSGLR2BenchmarkParsing(TestSet testSet) {
-        super(new BenchmarkStringInputTestSetReader(testSet));
+    protected JSGLR2BenchmarkParsing(TestSet<StringInput> testSet) {
+        super(new BenchmarkTestSetReader<>(testSet));
     }
 
     @Param({ "false" }) public boolean implode;

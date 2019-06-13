@@ -28,7 +28,7 @@ import org.spoofax.jsglr2.testset.TestSet;
 
 public class ParsingMeasurements extends Measurements {
 
-    public ParsingMeasurements(TestSet testSet) {
+    public ParsingMeasurements(TestSet<StringInput> testSet) {
         super(testSet);
     }
 
@@ -59,7 +59,7 @@ public class ParsingMeasurements extends Measurements {
 
         csvHeader(out);
 
-        for(MeasureTestSetReader.InputBatch inputBatch : testSetReader.getInputBatches()) {
+        for(MeasureTestSetReader<StringInput>.InputBatch inputBatch : testSetReader.getInputBatches()) {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 

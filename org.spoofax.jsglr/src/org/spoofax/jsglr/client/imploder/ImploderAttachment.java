@@ -68,7 +68,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	
 	
 	private final String sort;
-	private final LinkedList<String> injections;
+	private LinkedList<String> injections;
 	
 	/**
 	 * Creates a new imploder attachment.
@@ -78,7 +78,6 @@ public class ImploderAttachment extends AbstractTermAttachment {
 	protected ImploderAttachment(String sort, IToken leftToken, IToken rightToken, boolean isBracket, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
         assert leftToken != null && rightToken != null;
 		this.sort = sort;
-		this.injections = new LinkedList<>();
 		this.leftToken = leftToken;
 		this.rightToken = rightToken;
 		this.isCompletion = isCompletion;
@@ -334,15 +333,18 @@ public class ImploderAttachment extends AbstractTermAttachment {
 
 
     public void pushInjection(String sort) {
+        if(injections == null) {
+            injections = new LinkedList<>();
+        }
         injections.push(sort);
     }
 
     public List<String> getInjections() {
-        return Collections.unmodifiableList(injections);
+        return injections == null ? Collections.emptyList() : Collections.unmodifiableList(injections);
     }
 
     public void clearInjections() {
-        injections.clear();
+        injections = null;
     }
 
     /**

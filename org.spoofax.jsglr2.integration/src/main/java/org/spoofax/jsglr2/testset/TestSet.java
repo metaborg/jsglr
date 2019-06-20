@@ -52,7 +52,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
     public static TestSet<String, StringInput> java8 = new TestSet<>("java", JAVA_8_PARSE_TABLE,
         new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
-    public static TestSet<String, StringInput> java8unrolled =
+    public static TestSet<String, StringInput> java8Unrolled =
         new TestSet<>("javaUnrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
             new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
@@ -81,6 +81,6 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
 
     public static List<TestSet<String, StringInput>> all =
-        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, java8, java8unrolled, greenMarl, webDSL);
+        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, java8, java8Unrolled, greenMarl, webDSL);
 
 }

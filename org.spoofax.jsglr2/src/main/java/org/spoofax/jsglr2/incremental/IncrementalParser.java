@@ -74,6 +74,13 @@ public class IncrementalParser
         oldString.clear();
     }
 
+    // TODO it is very ugly to have this method here. It's only used in benchmarking, but it should not exist in the
+    // regular implementation
+    public void addToCache(String filename, String oldInput, IncrementalParseForest oldResult) {
+        oldString.put(filename, oldInput);
+        cache.put(filename, oldResult);
+    }
+
     @Override protected ParseState getParseState(String inputString, String filename) {
         IncrementalParseForest updatedTree = getUpdatedTree(inputString, filename);
         return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, filename), observing);

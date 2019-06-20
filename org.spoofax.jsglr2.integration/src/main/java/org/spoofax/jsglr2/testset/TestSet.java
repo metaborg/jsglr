@@ -7,6 +7,7 @@ import java.util.List;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.jsglr2.testset.testinput.TestInput;
+import org.spoofax.jsglr2.testset.testinput.TestSetIncrementalGitInput;
 
 public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
@@ -34,7 +35,6 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
             new TestSetSizedInput.StringInputSet(n -> String.join("+", Collections.nCopies(n, "x")), 4000, 8000, 16000,
                 32000, 64000));
 
-
     public static TestSet<String[], IncrementalStringInput> sumNonAmbiguousIncremental =
         new TestSet<>("sumNonAmbiguousIncremental", new TestSetParseTableFromSDF3("sum-nonambiguous"),
             new TestSetSizedInput.IncrementalStringInputSet(
@@ -42,24 +42,35 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
                     String.join("+", Collections.nCopies(n + 1, "x")), String.join("+", Collections.nCopies(n, "x")) },
                 4000, 8000, 16000, 32000, 64000));
 
+
     private static final String JAVA_8_BENCHMARK_INPUT_PATH_STRING =
         System.getProperty(TestSet.class.getCanonicalName() + ".javaInputPath",
             "/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms");
 
-    public static TestSet<String, StringInput> java8 = new TestSet<>("java", new TestSetParseTableFromATerm("Java8"),
+    private static final TestSetParseTableFromATerm JAVA_8_PARSE_TABLE = new TestSetParseTableFromATerm("Java8");
+
+    public static TestSet<String, StringInput> java8 = new TestSet<>("java", JAVA_8_PARSE_TABLE,
         new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
     public static TestSet<String, StringInput> java8unrolled =
         new TestSet<>("javaUnrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
             new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
-    public static TestSet<String[], IncrementalStringInput> java8incremental = new TestSet<>("java8incremental",
-        new TestSetParseTableFromATerm("Java8"), new TestSetIncrementalInput("Java/IncrementalParser.java/"));
+    public static TestSet<String[], IncrementalStringInput> java8Incremental = new TestSet<>("java8Incremental",
+        JAVA_8_PARSE_TABLE, new TestSetIncrementalInput("Java/IncrementalParser.java/"));
+
+    public static final TestSet<String[], IncrementalStringInput> java8IncrementalGit = new TestSet<>(
+        "java8Incremental", JAVA_8_PARSE_TABLE, new TestSetIncrementalGitInput("/home/maarten/tmp/mb-rep", "java", 50));
+
 
 
     public static TestSet<String, StringInput> greenMarl = new TestSet<>("greenmarl",
         new TestSetParseTableFromATerm("GreenMarl"), new TestSetSingleInput.StringInputSet("GreenMarl/infomap.gm"));
 
+
+    public static final TestSet<String[], IncrementalStringInput> ocamlIncrementalGit =
+        new TestSet<>("OCaml-incremental-git", new TestSetParseTableFromATerm("OCaml"),
+            new TestSetIncrementalGitInput("/home/maarten/tmp/google-drive-ocamlfuse", "ml", 50));
 
     private static final String WEBDSL_BENCHMARK_INPUT_PATH_STRING = System.getProperty(
         TestSet.class.getCanonicalName() + ".webDSLInputPath", "/Users/Jasper/Desktop/jsglr2benchmarks/webdsl");

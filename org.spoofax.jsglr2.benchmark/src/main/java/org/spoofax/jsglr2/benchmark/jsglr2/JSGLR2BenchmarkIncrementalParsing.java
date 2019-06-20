@@ -1,13 +1,18 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
@@ -47,6 +52,24 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2Benchmark<
 
     @Param({ "TokenizedRecursive" }) public ImploderVariant imploder;
 
+    @Param({ "-1" }) public int i;
+
+    Map<IncrementalStringInput, String> prevString = new HashMap<>();
+    Map<IncrementalStringInput, IncrementalParseForest> prevResult = new HashMap<>();
+
+    @Setup public void setupCache() throws ParseException {
+        if(i > 0) {
+            for(IncrementalStringInput input : inputs) {
+                if(jsglr2.parser instanceof IncrementalParser) {
+                    String content = input.content[i - 1];
+                    prevString.put(input, content);
+                    prevResult.put(input,
+                        ((IncrementalParseForest) jsglr2.parser.parseUnsafe(content, input.filename, null)));
+                }
+            }
+        }
+    }
+
     @Override protected IntegrationVariant variant() {
         if(implode)
             throw new IllegalStateException("this variant is not used for benchmarking");
@@ -63,8 +86,15 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2Benchmark<
     }
 
     @Override protected Object action(Blackhole bh, IncrementalStringInput input) throws ParseException {
-        if(jsglr2.parser instanceof IncrementalParser)
-            ((IncrementalParser) jsglr2.parser).clearCache();
+        if(jsglr2.parser instanceof IncrementalParser) {
+            IncrementalParser parser = (IncrementalParser) jsglr2.parser;
+            parser.clearCache();
+            if(i > 0)
+                parser.addToCache(input.filename, prevString.get(input), prevResult.get(input));
+        }
+
+        if(i >= 0)
+            return jsglr2.parser.parseUnsafe(input.content[i], input.filename, null);
 
         for(String content : input.content) {
             bh.consume(jsglr2.parser.parseUnsafe(content, input.filename, null));

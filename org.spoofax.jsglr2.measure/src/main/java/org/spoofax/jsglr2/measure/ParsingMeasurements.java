@@ -16,7 +16,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
-import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
@@ -25,9 +25,8 @@ import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.states.StateFactory;
-import org.spoofax.jsglr2.testset.Input;
+import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.spoofax.jsglr2.testset.TestSetReader;
 
 public class ParsingMeasurements extends Measurements {
 
@@ -67,19 +66,19 @@ public class ParsingMeasurements extends Measurements {
 
         csvHeader(out);
 
-        for(TestSetReader.InputBatch inputBatch : testSetReader.getInputBatches()) {
+        for(MeasureTestSetReader.InputBatch inputBatch : testSetReader.getInputBatches()) {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
-            @SuppressWarnings("unchecked") IParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>> parser =
-                (IParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>) JSGLR2Variants
+            @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>> parser =
+                (IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>) JSGLR2Variants
                     .getParser(parseTable, variant);
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<>();
 
             parser.observing().attachObserver(measureObserver);
 
-            for(Input input : inputBatch.inputs) {
+            for(StringInput input : inputBatch.inputs) {
                 parser.parseUnsafe(input.content, input.filename, null);
             }
 
@@ -95,7 +94,7 @@ public class ParsingMeasurements extends Measurements {
         out.close();
     }
 
-    protected static void csvResults(PrintWriter out, TestSetReader.InputBatch inputBatch,
+    protected static void csvResults(PrintWriter out, MeasureTestSetReader.InputBatch inputBatch,
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<HybridParseForest> measureObserver) {

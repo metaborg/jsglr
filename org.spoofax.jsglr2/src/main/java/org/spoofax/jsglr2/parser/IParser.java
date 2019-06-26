@@ -1,18 +1,11 @@
 package org.spoofax.jsglr2.parser;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.IStackNode;
 
-public interface IParser
-//@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
-//@formatter:on
-{
+public interface IParser<ParseForest extends IParseForest> {
 
     ParseResult<ParseForest> parse(String input, String filename, String startSymbol);
 
@@ -49,7 +42,5 @@ public interface IParser
     default ParseForest parseUnsafe(String input) throws ParseException {
         return parseUnsafe(input, "");
     }
-
-    ParserObserving<ParseForest, StackNode> observing();
 
 }

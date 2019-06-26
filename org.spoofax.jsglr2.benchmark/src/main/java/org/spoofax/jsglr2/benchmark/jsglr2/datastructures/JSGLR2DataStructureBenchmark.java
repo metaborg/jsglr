@@ -10,10 +10,11 @@ import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
+import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
@@ -24,30 +25,31 @@ import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.StateFactory;
-import org.spoofax.jsglr2.testset.Input;
+import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark {
+public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringInput> {
 
-    protected IParser<BasicParseForest, BasicStackNode<BasicParseForest>> parser;
+    protected IObservableParser<BasicParseForest, BasicStackNode<BasicParseForest>> parser;
 
     protected JSGLR2DataStructureBenchmark(TestSet testSet) {
-        super(testSet);
+        super(new BenchmarkStringInputTestSetReader(testSet));
     }
 
     @SuppressWarnings("unchecked") @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
-        parser = (IParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
-            new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.Basic));
+        parser =
+            (IObservableParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
+                new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
+                    Reducing.Basic));
 
         postParserSetup();
 
         try {
-            for(Input input : inputs)
+            for(StringInput input : inputs)
                 parser.parseUnsafe(input.content, input.filename, null);
         } catch(ParseException e) {
             throw new IllegalStateException("setup of benchmark should not fail");

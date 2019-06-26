@@ -1,10 +1,10 @@
-package org.spoofax.jsglr2.imploder;
+package org.spoofax.jsglr2.imploder.treefactory;
 
 import java.util.List;
 
 import org.spoofax.jsglr.client.imploder.IToken;
 
-public interface ITreeFactory<T> {
+public interface ITokenizedTreeFactory<T> {
 
     T createStringTerminal(String sort, String value, IToken token);
 
@@ -17,5 +17,7 @@ public interface ITreeFactory<T> {
     T createTuple(String sort, List<T> children, IToken leftToken, IToken rightToken);
 
     T createAmb(String sort, List<T> alternatives, IToken leftToken, IToken rightToken);
+
+    T createInjection(String sort, T injected);
 
 }

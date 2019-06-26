@@ -67,7 +67,7 @@ public class Tokenizer extends AbstractTokenizer {
     }
 
     public void setStartOffset(int startOffset) {
-        assert isAmbigous() || this.startOffset >= getInput().length();
+        assert isAmbiguous() || this.startOffset >= getInput().length();
         if(this.startOffset == startOffset)
             return;
         this.startOffset = startOffset;
@@ -112,7 +112,7 @@ public class Tokenizer extends AbstractTokenizer {
     }
 
     public IToken getTokenAtOffset(int offset) {
-        assert isAmbigous() || getTokenCount() < 2
+        assert isAmbiguous() || getTokenCount() < 2
             || internalGetTokenAt(getTokenCount() - 1)
                 .getStartOffset() == internalGetTokenAt(getTokenCount() - 2).getEndOffset()
                     + 1 : "Unordered tokens at end of tokenizer";

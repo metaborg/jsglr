@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.testset;
 public class TestSetSizedInput extends TestSetInput {
 
     final InputForSize inputForSize;
-    final int[] sizes;
+    public final int[] sizes;
 
     public TestSetSizedInput(InputForSize inputForSize) {
         super(Type.SIZED);
@@ -23,8 +23,8 @@ public class TestSetSizedInput extends TestSetInput {
         String get(int n);
     }
 
-    public Input get(int n) {
-        return new Input("", inputForSize.get(n));
+    public String get(int n) {
+        return inputForSize.get(n);
     }
 
 }

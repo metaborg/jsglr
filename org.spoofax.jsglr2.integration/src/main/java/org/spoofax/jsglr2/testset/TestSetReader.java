@@ -9,8 +9,8 @@ import java.util.*;
 import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.actions.ActionsFactory;
+import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 import org.spoofax.jsglr2.integration.WithParseTableFromTerm;
 import org.spoofax.jsglr2.parsetable.ParseTableReader;
@@ -18,7 +18,7 @@ import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
-public abstract class TestSetReader implements WithParseTableFromTerm {
+public abstract class TestSetReader<Input> implements WithParseTableFromTerm {
 
     protected final TestSet testSet;
 
@@ -38,7 +38,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
         }
     }
 
-    public IParseTable getParseTable(JSGLR2Variants.ParseTableVariant variant) throws Exception {
+    public IParseTable getParseTable(ParseTableVariant variant) throws Exception {
         return new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true),
             new StateFactory(variant.actionsForCharacterRepresentation, variant.productionToGotoRepresentation))
                 .read(getParseTableTerm());
@@ -102,55 +102,11 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
             case SIZED:
                 TestSetSizedInput testSizedInput = (TestSetSizedInput) testSet.input;
 
-                return Arrays.asList(testSizedInput.get(n));
+                return Arrays.asList(getInput("", testSizedInput.get(n)));
             case SINGLE:
             case MULTIPLE:
             default:
                 throw new IllegalStateException("invalid input type (does have a size)");
-        }
-    }
-
-    public Iterable<InputBatch> getInputBatches() throws IOException {
-        switch(testSet.input.type) {
-            case SINGLE:
-                TestSetSingleInput testSetSingleInput = (TestSetSingleInput) testSet.input;
-
-                return Arrays.asList(new InputBatch(getSingleInput(testSetSingleInput.filename), -1));
-            case MULTIPLE:
-                TestSetMultipleInputs testSetMultipleInputs = (TestSetMultipleInputs) testSet.input;
-
-                return Arrays.asList(
-                    new InputBatch(getMultipleInputs(testSetMultipleInputs.path, testSetMultipleInputs.extension), -1));
-            case SIZED:
-                TestSetSizedInput testSizedInput = (TestSetSizedInput) testSet.input;
-
-                if(testSizedInput.sizes == null)
-                    throw new IllegalStateException("invalid input type (sizes missing)");
-
-                List<InputBatch> result = new ArrayList<>();
-
-                for(int size : testSizedInput.sizes) {
-                    result.add(new InputBatch(testSizedInput.get(size), size));
-                }
-
-                return result;
-            default:
-                throw new IllegalStateException("invalid input type (does have a size)");
-        }
-    }
-
-    public class InputBatch {
-        public Iterable<Input> inputs;
-        public int size;
-
-        public InputBatch(Iterable<Input> inputs, int size) {
-            this.inputs = inputs;
-            this.size = size;
-        }
-
-        public InputBatch(Input input, int size) {
-            this.inputs = Arrays.asList(input);
-            this.size = size;
         }
     }
 
@@ -165,7 +121,7 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     }
 
     protected List<Input> getSingleInput(String filename) throws IOException {
-        Input input = new Input(filename, getFileAsString(filename));
+        Input input = getInput(filename, getFileAsString(filename));
 
         return Arrays.asList(input);
     }
@@ -174,15 +130,18 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
         List<Input> inputs = new ArrayList<>();
 
         for(File file : filesInPath(new File(path))) {
-            if(file.getName().endsWith("." + extension)) {
+            String filename = file.getName();
+            if(filename.endsWith("." + extension)) {
                 String input = inputStreamAsString(new FileInputStream(file));
 
-                inputs.add(new Input(file.getName(), input));
+                inputs.add(getInput(filename, input));
             }
         }
 
         return inputs;
     }
+
+    protected abstract Input getInput(String filename, String input);
 
     private Set<File> filesInPath(File path) {
         Set<File> acc = new HashSet<>();
@@ -193,7 +152,10 @@ public abstract class TestSetReader implements WithParseTableFromTerm {
     }
 
     private Set<File> filesInPath(final File path, Set<File> acc) {
-        for(final File subPath : path.listFiles()) {
+        File[] files = path.listFiles();
+        if(files == null)
+            throw new IllegalStateException("Directory " + path + " not found!");
+        for(final File subPath : files) {
             if(subPath.isDirectory())
                 filesInPath(subPath, acc);
             else

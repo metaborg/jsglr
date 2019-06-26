@@ -1,10 +1,12 @@
 package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -19,15 +21,15 @@ public abstract class TokenizedTreeImploder
     Derivation  extends IDerivation<ParseForest>,
     Tree>
 //@formatter:on
-    implements IImploder<ParseForest, Tree> {
+    implements IImploder<ParseForest, TokenizeResult<Tree>> {
 
-    protected final ITreeFactory<Tree> treeFactory;
+    protected final ITokenizedTreeFactory<Tree> treeFactory;
 
-    public TokenizedTreeImploder(ITreeFactory<Tree> treeFactory) {
+    public TokenizedTreeImploder(ITokenizedTreeFactory<Tree> treeFactory) {
         this.treeFactory = treeFactory;
     }
 
-    @Override public ImplodeResult<Tree> implode(String input, String filename, ParseForest parseForest) {
+    @Override public TokenizeResult<Tree> implode(String input, String filename, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
         Tokens tokens = new Tokens(input, filename);
@@ -42,7 +44,7 @@ public abstract class TokenizedTreeImploder
         tokenTreeBinding(tokens.startToken(), tree.tree);
         tokenTreeBinding(tokens.endToken(), tree.tree);
 
-        return new ImplodeResult<>(tokens, tree.tree);
+        return new TokenizeResult<>(tokens, tree.tree);
     }
 
     static class SubTree<Tree> {
@@ -88,9 +90,11 @@ public abstract class TokenizedTreeImploder
             } else
                 return implodeDerivation(tokens, filteredDerivations.get(0), startPosition, parentLeftToken);
         } else {
-            Position endPosition = startPosition.step(tokens.getInput(), parseNode.width());
+            int width = parseNode.width();
 
-            IToken token = parseNode.width() > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
+            Position endPosition = startPosition.step(tokens.getInput(), width);
+
+            IToken token = width > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
 
             Tree tree;
 
@@ -107,6 +111,9 @@ public abstract class TokenizedTreeImploder
     }
 
     protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
+        if(!parseNode.isAmbiguous())
+            return Collections.singletonList(parseNode.getFirstDerivation());
+
         List<Derivation> result;
         // TODO always filter longest-match?
         if(parseNode instanceof LayoutSensitiveParseNode) {
@@ -207,7 +214,7 @@ public abstract class TokenizedTreeImploder
         else if(constructor != null)
             return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);
         else if(childASTs.size() == 1)
-            return childASTs.get(0);
+            return treeFactory.createInjection(production.sort(), childASTs.get(0));
         else
             return treeFactory.createTuple(production.sort(), childASTs, leftToken, rightToken);
     }

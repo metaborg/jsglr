@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.integrationtest;
 import org.junit.BeforeClass;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
-import org.spoofax.jsglr2.JSGLR2Variants.ParseTableVariant;
+import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 
 public abstract class BaseTestWithSdf3ParseTables extends BaseTest {

@@ -30,7 +30,7 @@ public class Parser
     ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<
                               ParseForest, ParseNode, Derivation, StackNode, Parse>>
 //@formatter:on
-    implements IParser<ParseForest, StackNode> {
+    implements IObservableParser<ParseForest, StackNode> {
 
     protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;

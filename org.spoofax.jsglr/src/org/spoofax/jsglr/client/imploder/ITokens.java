@@ -42,6 +42,6 @@ public interface ITokens extends Iterable<IToken>, Serializable {
      * @see Tokenizer#getTokenAfter(IToken)   Gets the next token with a matching offset.
      * @see Tokenizer#getTokenBefore(IToken)  Gets the previous token with a matching offset.
      */
-    boolean isAmbigous();
+    boolean isAmbiguous();
 
 }

@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.AbstractParseNode;
 import org.spoofax.jsglr.client.CycleParseNode;
@@ -517,7 +518,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		// Don't use tokens here in case tokenizer is disabled
 		IToken leftToken = rightToken.getStartOffset() == lastOffset ? rightToken : tokenizer.getTokenAtOffset(lastOffset);
 		String contents = tokenizer.toString(lastOffset, offset - 1);
-		assert disableTokens || tokenizer.isAmbigous()
+		assert disableTokens || tokenizer.isAmbiguous()
 			|| (contents.equals(tokenizer.toString(leftToken, rightToken)) && lastOffset == leftToken.getStartOffset());
 		
 		Object result = factory.createStringTerminal(sort, leftToken, rightToken, getPaddedLexicalValue(label, contents, lastOffset), label.isCaseInsensitive());
@@ -567,7 +568,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		    IToken left = getStartToken(prevToken);
 		    IToken right = tokenizer.currentToken();
 		    
-		    return factory.createInjection(label.getSort(), left, right, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion, label.isBracket());
+		    return factory.createInjection(label.getSort(), left, right, children.get(0), isCompletion, isNestedCompletion, isSinglePlaceholderCompletion, label.isBracket());
 		} else {
 			// Constructor-less application (tuple)
 			return createNode(label, TUPLE_CONSTRUCTOR, prevToken, children, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);

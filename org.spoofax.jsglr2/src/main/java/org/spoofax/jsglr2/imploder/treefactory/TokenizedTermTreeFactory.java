@@ -1,23 +1,26 @@
-package org.spoofax.jsglr2.imploder;
+package org.spoofax.jsglr2.imploder.treefactory;
 
+import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.terms.TermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
-public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
+public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStrategoTerm> {
 
     private final ITermFactory termFactory;
 
-    public TermTreeFactory(ITermFactory termFactory) {
-        this.termFactory = termFactory;
+    public TokenizedTermTreeFactory() {
+        this.termFactory = new TermFactory().getFactoryWithStorageType(MUTABLE);
     }
 
     @Override public IStrategoTerm createStringTerminal(String sort, String value, IToken token) {
@@ -69,6 +72,15 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         IStrategoTerm alternativesListTerm = createList(null, alternatives, leftToken, rightToken);
 
         return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
+    }
+
+    @Override public IStrategoTerm createInjection(String sort, IStrategoTerm injected) {
+        // Prevent bogus injections from empty sorts, or lexical sorts into themselves
+        String injectedSort = ImploderAttachment.get(injected).getSort();
+        if(sort != null && !Objects.equals(sort, injectedSort)) {
+            ImploderAttachment.get(injected).pushInjection(sort);
+        }
+        return injected;
     }
 
     private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {

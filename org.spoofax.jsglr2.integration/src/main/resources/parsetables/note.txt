@@ -1,0 +1,39 @@
+Using Iteration 29 of IncrementalParser.java/, which has 15476 internal nodes, and 8462 leaves (of which 8374 are reused)
+Java8_original - Original
+    Non-det.: 4835  Reused: 4325
+Java8_new - Dunno
+    Non-det.: 3426  Reused: 6655
+Java8_new2 - Dunno, but broken
+Java8_new3 - generated with Java version of sdf2table, without completions
+    Non-det.: 3428  Reused: 6655
+Java8_new4 - Same as Java8_new3, but manually removed insertion rules (instable table!)
+    Non-det.: 3154  Reused: 8107
+Java8_new5 - generated with C version of sdf2table, has completions but no recovery/insertion
+    cd ~/git/java-front/lang.java/src-gen/syntax/
+    ~/git/spoofax-releng/spoofax/org.metaborg.spoofax.nativebundle/src/main/resources/org/metaborg/spoofax/nativebundle/native/linux/sdf2table -c metaborg-java.sdf -t -m metaborg-java -o metaborg-java.tbl
+    Non-det.: 2676  Reused: 17637
+Java8_new6 - generated with C version of sdf2table, using Spoofax, yoinking file from target/metaborg/sdf.tbl
+    Non-det.: 4872  Reused: 22
+Java8 - generated with the `module-to-permissive*` rules in `org.metaborg.meta.lang.template/trans/generation/syntax/make-permissive.str` aliased to `id`, rebuilding SDF in a guest Eclipse and then building the Java grammar, yoinking file from target/metaborg/sdf.tbl
+    Non-det.: 3154  Reused: 8107
+Java8_SLR - generated with the `module-to-permissive*` rules in `org.metaborg.meta.lang.template/trans/generation/syntax/make-permissive.str` aliased to `id`, implementing SLR parse table generation, rebuilding SDF in a guest Eclipse and then building the Java grammar, yoinking file from target/metaborg/sdf.tbl
+    Non-det.: 3154  Reused: 8107
+
+For some reason, versions 5 and 6 are incorrect because some Java files do not parse?
+
+OCaml3.tbl - Using the sdf3 files from data-dependent-contextual-grammars, compiled to sdf(2) using the C version of sdf2table, then:
+    ~/git/spoofax-releng/spoofax/org.metaborg.spoofax.nativebundle/src/main/resources/org/metaborg/spoofax/nativebundle/native/linux/sdf2table -c ocaml.sdf -t -m ocaml -o OCaml.tbl
+OCaml2.tbl - Generated with C version of sdf2table, using Spoofax, yoinking file from target/metaborg/sdf.tbl
+OCaml.tbl - Generated with Java version of sdf2table, using Spoofax, yoinking file from target/metaborg/sdf.tbl
+
+The versions 2 and 3 of OCaml grammars are incorrect, same as for Java? Is there a mistake in the C version of sdf2table?
+
+
+
+bdiff Java8_new3.tbl Java8_new4.tbl |& less
+bdiff() (
+  f() (
+    od -An -tx1c -w1 -v "$1" | paste -d '' - -
+  )
+  diff <(f "$1") <(f "$2")
+)

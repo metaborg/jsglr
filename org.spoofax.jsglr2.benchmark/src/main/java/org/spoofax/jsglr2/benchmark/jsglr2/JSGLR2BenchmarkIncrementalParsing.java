@@ -1,6 +1,8 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
@@ -56,8 +58,24 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2Benchmark<
 
     Map<IncrementalStringInput, String> prevString = new HashMap<>();
     Map<IncrementalStringInput, IncrementalParseForest> prevResult = new HashMap<>();
+    Map<IncrementalStringInput, List<String>> uniqueInputs = new HashMap<>();
 
     @Setup public void setupCache() throws ParseException {
+        if(i == -2) {
+            for(IncrementalStringInput input : inputs) {
+                List<String> res = new ArrayList<>();
+                String prev = null;
+                for(String s : input.content) {
+                    if(s.length() == 0)
+                        continue;
+                    if(!s.equals(prev)) {
+                        res.add(s);
+                        prev = s;
+                    }
+                }
+                uniqueInputs.put(input, res);
+            }
+        }
         if(i > 0) {
             for(IncrementalStringInput input : inputs) {
                 if(jsglr2.parser instanceof IncrementalParser) {
@@ -95,6 +113,13 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2Benchmark<
 
         if(i >= 0)
             return jsglr2.parser.parseUnsafe(input.content[i], input.filename, null);
+
+        if(i == -2) {
+            for(String content : uniqueInputs.get(input)) {
+                bh.consume(jsglr2.parser.parseUnsafe(content, input.filename, null));
+            }
+            return null;
+        }
 
         for(String content : input.content) {
             bh.consume(jsglr2.parser.parseUnsafe(content, input.filename, null));

@@ -47,7 +47,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
         System.getProperty(TestSet.class.getCanonicalName() + ".javaInputPath",
             "/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms");
 
-    private static final TestSetParseTableFromATerm JAVA_8_PARSE_TABLE = new TestSetParseTableFromATerm("Java8");
+    private static final TestSetParseTableFromATerm JAVA_8_PARSE_TABLE = new TestSetParseTableFromATerm("Java8_SLR");
 
     public static TestSet<String, StringInput> java8 = new TestSet<>("java", JAVA_8_PARSE_TABLE,
         new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));

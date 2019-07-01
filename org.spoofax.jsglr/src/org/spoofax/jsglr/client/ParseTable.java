@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.sdf2table.grammar.CharacterClass;
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.metaborg.sdf2table.io.IncrementalParseTableGenerator;
 import org.metaborg.sdf2table.io.ParseTableIO;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -689,13 +689,13 @@ public class ParseTable implements Serializable {
 
         List<IStrategoTerm> action_terms = Lists.newArrayList();
 
-        for(CharacterClass cc : s_orig.actionsMapping().keySet()) {
+        for(ICharacterClass cc : s_orig.actionsMapping().keySet()) {
 
             List<IStrategoTerm> actions = Lists.newArrayList();
             for(org.metaborg.sdf2table.parsetable.Action a : s_orig.actionsMapping().get(cc)) {
                 actions.add(a.toAterm(factory, pt_generator.getParseTable()));
             }
-            action_terms.add(factory.makeAppl(factory.makeConstructor("action", 2), cc.toStateAterm(factory),
+            action_terms.add(factory.makeAppl(factory.makeConstructor("action", 2), cc.toAtermList(factory),
                 factory.makeList(actions)));
             // action_terms.add(action.toAterm(termFactory, this));
         }

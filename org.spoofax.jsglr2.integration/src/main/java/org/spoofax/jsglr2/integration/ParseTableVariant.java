@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.integration;
 
+import java.util.Objects;
+
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 
@@ -17,6 +19,10 @@ public class ParseTableVariant {
     public String name() {
         return "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation
             + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(actionsForCharacterRepresentation, productionToGotoRepresentation);
     }
 
     @Override public boolean equals(Object o) {

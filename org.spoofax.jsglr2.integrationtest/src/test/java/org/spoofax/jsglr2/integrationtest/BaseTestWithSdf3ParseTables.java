@@ -6,9 +6,13 @@ import org.metaborg.parsetable.IParseTable;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+
 public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
     private String sdf3Resource;
+    private static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
 
     protected BaseTestWithSdf3ParseTables(String sdf3Resource) {
         this.sdf3Resource = sdf3Resource;
@@ -22,7 +26,10 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
     }
 
     public IParseTable getParseTable(ParseTableVariant variant) throws Exception {
-        return sdf3ToParseTable.getParseTable(variant, sdf3Resource);
+        if(!parseTableTable.contains(sdf3Resource, variant)) {
+            parseTableTable.put(sdf3Resource, variant, sdf3ToParseTable.getParseTable(variant, sdf3Resource));
+        }
+        return parseTableTable.get(sdf3Resource, variant);
     }
 
 }

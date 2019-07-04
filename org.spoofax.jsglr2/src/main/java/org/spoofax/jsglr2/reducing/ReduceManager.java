@@ -50,7 +50,7 @@ public class ReduceManager
         doReductionsHelper(parse, stack, reduce, null);
     }
 
-    private void doLimitedRedutions(Parse parse, StackNode stack, IReduce reduce,
+    private void doLimitedReductions(Parse parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> throughLink) {
         if(reduce.production().isCompletionOrRecovery())
             return;
@@ -100,7 +100,7 @@ public class ReduceManager
 
                 for(StackNode activeStack : parse.activeStacks.forLimitedReductions(parse.forActorStacks)) {
                     for(IReduce reduceAction : activeStack.state().getApplicableReduceActions(parse))
-                        doLimitedRedutions(parse, activeStack, reduceAction, link);
+                        doLimitedReductions(parse, activeStack, reduceAction, link);
                 }
             }
         } else {

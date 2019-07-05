@@ -64,7 +64,7 @@ public interface JSGLR2<AbstractSyntaxTree> {
                 ParseForestRepresentation.LayoutSensitive,
                 ParseForestConstruction.standard(),
                 StackRepresentation.Basic,
-                Reducing.DataDependent
+                Reducing.LayoutSensitive
             ),
             ImploderVariant.standard(),
             TokenizerVariant.standard()

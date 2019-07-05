@@ -99,8 +99,17 @@ public class JSGLR2Variants {
             // Incremental parsing requires a full parse forest
             boolean validIncremental = parseForestRepresentation != ParseForestRepresentation.Incremental
                 || parseForestConstruction == ParseForestConstruction.Full;
+            boolean validLayoutSensitive = (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive
+                && reducing == Reducing.LayoutSensitive)
+                || (parseForestRepresentation != ParseForestRepresentation.LayoutSensitive
+                    && reducing != Reducing.LayoutSensitive);
+            boolean validDataDependent = (parseForestRepresentation == ParseForestRepresentation.DataDependent
+                && reducing == Reducing.DataDependent)
+                || (parseForestRepresentation != ParseForestRepresentation.DataDependent
+                    && reducing != Reducing.DataDependent);
 
-            return validElkhound && validParseForest && validIncremental;
+
+            return validElkhound && validParseForest && validIncremental && validLayoutSensitive && validDataDependent;
         }
 
         public String name() {
@@ -171,9 +180,11 @@ public class JSGLR2Variants {
                 return getParser(parseTable, variant, new NullParseForestManager());
             case Hybrid:
                 return getParser(parseTable, variant, new HybridParseForestManager());
-
             case DataDependent:
                 DataDependentParseForestManager dataDependentParseForestManager = new DataDependentParseForestManager();
+
+                if (variant.reducing != Reducing.DataDependent)
+                    throw new IllegalStateException();
 
                 switch(variant.stackRepresentation) {
                     case Basic:
@@ -187,11 +198,13 @@ public class JSGLR2Variants {
                     default:
                         throw new IllegalStateException();
                 }
-
             case LayoutSensitive:
                 LayoutSensitiveParseForestManager layoutSensitiveParseForestManager =
                     new LayoutSensitiveParseForestManager();
 
+                if (variant.reducing != Reducing.LayoutSensitive)
+                    throw new IllegalStateException();
+
                 switch(variant.stackRepresentation) {
                     case Basic:
                         return new Parser<>(Parse.factory(variant), parseTable, new BasicStackManager<>(),
@@ -204,7 +217,6 @@ public class JSGLR2Variants {
                     default:
                         throw new IllegalStateException();
                 }
-
             case Incremental:
                 IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();
 

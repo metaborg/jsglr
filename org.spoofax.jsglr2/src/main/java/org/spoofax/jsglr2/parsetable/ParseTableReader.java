@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.characterclasses.ICharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IProduction;
@@ -27,11 +28,12 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.actions.Goto;
 import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.states.IStateFactory;
 import org.spoofax.jsglr2.states.State;
-import org.spoofax.terms.ParseError;
+import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -40,6 +42,14 @@ public class ParseTableReader {
     final ICharacterClassFactory characterClassFactory;
     final IActionsFactory actionsFactory;
     final IStateFactory stateFactory;
+
+    public ParseTableReader() {
+        this(new CharacterClassFactory(), new ActionsFactory(), new StateFactory());
+    }
+
+    public ParseTableReader(IStateFactory stateFactory) {
+        this(new CharacterClassFactory(), new ActionsFactory(), stateFactory);
+    }
 
     public ParseTableReader(ICharacterClassFactory characterClassFactory, IActionsFactory actionsFactory,
         IStateFactory stateFactory) {
@@ -77,7 +87,7 @@ public class ParseTableReader {
         return parseTableFromSerializable;
     }
 
-    public IParseTable read(InputStream inputStream) throws ParseTableReadException, ParseError, IOException {
+    public IParseTable read(InputStream inputStream) throws ParseTableReadException, IOException {
         TermReader termReader = new TermReader(new TermFactory());
 
         IStrategoTerm parseTableTerm = termReader.parseFromStream(inputStream);

@@ -40,10 +40,11 @@ public class JSGLR2Variants {
         public final ImploderVariant imploder;
         public final TokenizerVariant tokenizer;
 
-        public Variant(ParserVariant parserVariant, ImploderVariant imploderVariant, TokenizerVariant tokenizer) {
+        public Variant(ParserVariant parserVariant, ImploderVariant imploderVariant,
+            TokenizerVariant tokenizerVariant) {
             this.parser = parserVariant;
             this.imploder = imploderVariant;
-            this.tokenizer = tokenizer;
+            this.tokenizer = tokenizerVariant;
         }
 
         public String name() {
@@ -157,7 +158,6 @@ public class JSGLR2Variants {
 
         return variants;
     }
-
 
     public static IParser<? extends IParseForest> getParser(IParseTable parseTable, ParserVariant variant) {
         if(!variant.isValid())

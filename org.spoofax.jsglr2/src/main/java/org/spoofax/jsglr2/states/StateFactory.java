@@ -9,13 +9,8 @@ public class StateFactory implements IStateFactory {
     private final ActionsForCharacterRepresentation actionsForCharacterRepresentation;
     private final ProductionToGotoRepresentation productionToGotoRepresentation;
 
-    public static ActionsForCharacterRepresentation defaultActionsForCharacterRepresentation =
-        ActionsForCharacterRepresentation.DisjointSorted;
-    public static ProductionToGotoRepresentation defaultProductionToGotoRepresentation =
-        ProductionToGotoRepresentation.JavaHashMap;
-
     public StateFactory() {
-        this(defaultActionsForCharacterRepresentation, defaultProductionToGotoRepresentation);
+        this(ActionsForCharacterRepresentation.standard(), ProductionToGotoRepresentation.standard());
     }
 
     public StateFactory(ActionsForCharacterRepresentation actionsForCharacterRepresentation,

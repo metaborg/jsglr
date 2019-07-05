@@ -24,8 +24,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
     }
 
-    @Override
-    public TokenizeResult<Tree> tokenize(String input, String filename, TreeImploder.SubTree<Tree> tree) {
+    @Override public TokenizeResult<Tree> tokenize(String input, String filename, TreeImploder.SubTree<Tree> tree) {
         Tokens tokens = new Tokens(input, filename);
         return new TokenizeResult<>(tokens, tokenize(tokens, tree));
     }

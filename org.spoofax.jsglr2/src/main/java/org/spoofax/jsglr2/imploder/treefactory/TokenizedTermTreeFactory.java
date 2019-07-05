@@ -12,8 +12,8 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.terms.TermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.terms.TermFactory;
 
 public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStrategoTerm> {
 

@@ -10,6 +10,7 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
@@ -52,8 +53,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         ICharacterClassFactory characterClassFactory =
             new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
         IActionsFactory actionsFactory = new ActionsFactory(cacheActions);
-        IStateFactory stateFactory = new StateFactory(actionsPerCharacterClassRepresentation,
-            StateFactory.defaultProductionToGotoRepresentation);
+        IStateFactory stateFactory =
+            new StateFactory(actionsPerCharacterClassRepresentation, ProductionToGotoRepresentation.standard());
 
         return new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(parseTableTerm);
     }

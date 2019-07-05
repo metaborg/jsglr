@@ -4,6 +4,9 @@ import java.util.Objects;
 
 import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.states.IStateFactory;
+import org.spoofax.jsglr2.states.StateFactory;
 
 // TODO move to SDF and use in StateFactory?
 public class ParseTableVariant {
@@ -19,6 +22,13 @@ public class ParseTableVariant {
     public String name() {
         return "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation
             + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;
+    }
+
+    public ParseTableReader parseTableReader() {
+        IStateFactory stateFactory =
+            new StateFactory(actionsForCharacterRepresentation, productionToGotoRepresentation);
+
+        return new ParseTableReader(stateFactory);
     }
 
     @Override public int hashCode() {

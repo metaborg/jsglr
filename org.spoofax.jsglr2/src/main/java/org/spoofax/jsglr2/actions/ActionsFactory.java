@@ -17,6 +17,10 @@ public class ActionsFactory implements IActionsFactory {
     private Cache<IReduce> reduceCache;
     private Cache<IReduceLookahead> reduceLookaheadCache;
 
+    public ActionsFactory() {
+        this(true);
+    }
+
     public ActionsFactory(boolean cache) {
         this.cache = cache;
 

@@ -72,8 +72,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
             return parseRounds.get(parseRounds.size() - 1);
         }
 
-        @Override public void
-            addForShifter(ForShifterElement<BasicStackNode<BasicParseForest>> forShifterElement) {
+        @Override public void addForShifter(ForShifterElement<BasicStackNode<BasicParseForest>> forShifterElement) {
             currentParseRound().forShifterElements.add(forShifterElement);
         }
 

@@ -100,8 +100,7 @@ public class ProcessUpdatesTest {
     @Test public void testReplaceMultipleWithGap() {
         IncrementalParseNode previous = node(node(node(0, 1), node(2)), node(3));
 
-        IncrementalParseNode expected =
-            node(node(node(node(0), node(4, 5)), node(2)), node(6, 7));
+        IncrementalParseNode expected = node(node(node(node(0), node(4, 5)), node(2)), node(6, 7));
 
         testUpdate(previous, expected, new EditorUpdate(1, 2, "\4\5"), new EditorUpdate(3, 4, "\6\7"));
     }
@@ -109,8 +108,7 @@ public class ProcessUpdatesTest {
     @Test public void testReplaceMultipleWithoutGap() {
         IncrementalParseNode previous = node(node(node(0, 1), node(2)), node(3));
 
-        IncrementalParseNode expected =
-                node(node(node(node(0), node(4, 5)), node(6, 7)), node(3));
+        IncrementalParseNode expected = node(node(node(node(0), node(4, 5)), node(6, 7)), node(3));
 
         testUpdate(previous, expected, new EditorUpdate(1, 2, "\4\5"), new EditorUpdate(2, 3, "\6\7"));
     }

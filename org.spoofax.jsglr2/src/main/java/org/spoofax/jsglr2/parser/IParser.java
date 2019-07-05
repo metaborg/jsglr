@@ -24,7 +24,7 @@ public interface IParser<ParseForest extends IParseForest> {
     default ParseForest parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
         ParseResult<ParseForest> result = parse(input, filename, startSymbol);
 
-        if(result.isSuccess) {
+        if(result.isSuccess()) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;
 
             return success.parseResult;
@@ -33,14 +33,6 @@ public interface IParser<ParseForest extends IParseForest> {
 
             throw failure.exception();
         }
-    }
-
-    default ParseForest parseUnsafe(String input, String filename) throws ParseException {
-        return parseUnsafe(input, filename, null);
-    }
-
-    default ParseForest parseUnsafe(String input) throws ParseException {
-        return parseUnsafe(input, "");
     }
 
 }

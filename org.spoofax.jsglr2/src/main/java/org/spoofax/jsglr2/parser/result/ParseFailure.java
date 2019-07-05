@@ -9,9 +9,13 @@ public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<
     public final ParseFailureType failureType;
 
     public ParseFailure(AbstractParse<ParseForest, ?> parse, ParseFailureType failureType) {
-        super(parse, false);
+        super(parse);
 
         this.failureType = failureType;
+    }
+
+    public boolean isSuccess() {
+        return false;
     }
 
     public ParseException exception() {

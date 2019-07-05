@@ -17,6 +17,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
+import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
@@ -61,7 +62,7 @@ public abstract class BaseTest implements WithParseTable {
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess);
+            assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess());
         }
     }
 
@@ -72,7 +73,7 @@ public abstract class BaseTest implements WithParseTable {
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess);
+            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
         }
     }
 
@@ -199,11 +200,13 @@ public abstract class BaseTest implements WithParseTable {
 
             JSGLR2Result<?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
 
-            assertTrue("Variant '" + variant.name() + "' failed: ", jsglr2Result.isSuccess);
+            assertTrue("Variant '" + variant.name() + "' failed: ", jsglr2Result.isSuccess());
+
+            JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
 
             List<TokenDescriptor> actualTokens = new ArrayList<>();
 
-            for(IToken token : jsglr2Result.tokens) {
+            for(IToken token : (jsglr2Success).tokens) {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 

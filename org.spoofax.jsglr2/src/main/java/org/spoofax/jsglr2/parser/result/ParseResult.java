@@ -6,11 +6,11 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 public abstract class ParseResult<ParseForest extends IParseForest> {
 
     public final AbstractParse<ParseForest, ?> parse;
-    public final boolean isSuccess;
 
-    protected ParseResult(AbstractParse<ParseForest, ?> parse, boolean isSuccess) {
+    ParseResult(AbstractParse<ParseForest, ?> parse) {
         this.parse = parse;
-        this.isSuccess = isSuccess;
     }
+
+    public abstract boolean isSuccess();
 
 }

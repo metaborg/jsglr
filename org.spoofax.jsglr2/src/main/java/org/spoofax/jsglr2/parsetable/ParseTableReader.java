@@ -256,7 +256,7 @@ public class ParseTableReader {
             if(characterClass == null)
                 characterClass = characterClassForTerm;
             else if(characterClassForTerm != null)
-                characterClass = characterClassFactory.union(characterClass, characterClassForTerm);
+                characterClass = characterClass.union(characterClassForTerm);
         }
 
         return characterClassFactory.finalize(characterClass);

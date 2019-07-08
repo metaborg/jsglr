@@ -183,7 +183,7 @@ public class JSGLR2Variants {
             case DataDependent:
                 DataDependentParseForestManager dataDependentParseForestManager = new DataDependentParseForestManager();
 
-                if (variant.reducing != Reducing.DataDependent)
+                if(variant.reducing != Reducing.DataDependent)
                     throw new IllegalStateException();
 
                 switch(variant.stackRepresentation) {
@@ -202,7 +202,7 @@ public class JSGLR2Variants {
                 LayoutSensitiveParseForestManager layoutSensitiveParseForestManager =
                     new LayoutSensitiveParseForestManager();
 
-                if (variant.reducing != Reducing.LayoutSensitive)
+                if(variant.reducing != Reducing.LayoutSensitive)
                     throw new IllegalStateException();
 
                 switch(variant.stackRepresentation) {

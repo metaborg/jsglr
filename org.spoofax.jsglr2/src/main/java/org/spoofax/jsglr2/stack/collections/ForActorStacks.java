@@ -1,12 +1,15 @@
 package org.spoofax.jsglr2.stack.collections;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
+
+import com.google.common.collect.Iterables;
 
 public abstract class ForActorStacks<ParseForest extends IParseForest, StackNode extends IStackNode>
     implements IForActorStacks<StackNode> {
@@ -30,6 +33,8 @@ public abstract class ForActorStacks<ParseForest extends IParseForest, StackNode
     protected abstract boolean forActorNonEmpty();
 
     protected abstract StackNode forActorRemove();
+
+    protected abstract Iterable<StackNode> forActorIterable();
 
     @Override public void add(StackNode stack) {
         observing.notify(observer -> observer.addForActorStack(stack));
@@ -55,6 +60,10 @@ public abstract class ForActorStacks<ParseForest extends IParseForest, StackNode
 
         // Then return actors from forActorDelayed
         return forActorDelayed.remove();
+    }
+
+    @Override public Iterator<StackNode> iterator() {
+        return Iterables.concat(forActorIterable(), forActorDelayed).iterator();
     }
 
 }

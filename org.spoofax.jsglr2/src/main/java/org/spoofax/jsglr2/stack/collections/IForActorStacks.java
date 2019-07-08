@@ -6,9 +6,9 @@ import org.spoofax.jsglr2.stack.IStackNode;
  * Collection of stacks that the parser operates on during a parse round. At the start of each round it is filled with
  * the collection of active stacks at the beginning of that round (see Parser::parseCharacter). Stacks are removed one
  * by one and during a parse round new stacks can be added after reducing. Removing should return stacks in a certain
- * order (see also the iterator() method).
+ * order (see also the remove() method).
  */
-public interface IForActorStacks<StackNode extends IStackNode> {
+public interface IForActorStacks<StackNode extends IStackNode> extends Iterable<StackNode> {
 
     void add(StackNode stack);
 

@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
@@ -68,6 +69,8 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
             @Override public BasicStackNode<BasicParseForest> remove() {
                 return null;
             }
+
+            @Override public Iterator<BasicStackNode<BasicParseForest>> iterator() { return null; }
 
         };
 

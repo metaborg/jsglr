@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.stack.collections;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -54,6 +55,24 @@ public class ForActorStacksLinkedHashMap<ParseForest extends IParseForest, Stack
         forActor.remove(stack.state().id());
 
         return stack;
+    }
+
+    @Override protected Iterable<StackNode> forActorIterable() {
+        return () -> new Iterator<StackNode>() {
+            Linked<StackNode> current = last;
+
+            @Override public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override public StackNode next() {
+                StackNode stackNode = current.stack;
+
+                current = current.prev;
+
+                return stackNode;
+            }
+        };
     }
 
 }

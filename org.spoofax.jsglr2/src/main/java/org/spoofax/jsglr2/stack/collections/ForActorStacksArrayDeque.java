@@ -34,4 +34,8 @@ public class ForActorStacksArrayDeque<ParseForest extends IParseForest, StackNod
         return forActor.remove();
     }
 
+    @Override protected Iterable<StackNode> forActorIterable() {
+        return forActor;
+    }
+
 }

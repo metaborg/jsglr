@@ -14,7 +14,9 @@ import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.observing.ParserLogObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -110,6 +112,8 @@ public class JSGLR2CLI implements Runnable {
         }
     }
 
+    @Option(names = { "--logging" }, negatable = true, description = "Log parser operations") boolean logging = false;
+
     @Option(names = { "-v", "--verbose" }, negatable = true, description = "Print stack traces") boolean verbose =
         false;
 
@@ -125,6 +129,12 @@ public class JSGLR2CLI implements Runnable {
             IParseTable parseTable = getParseTable();
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
                 (JSGLR2Implementation<?, ?, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant);
+
+            if(logging) {
+                IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
+
+                observableParser.observing().attachObserver(new ParserLogObserver<>(System.out::println));
+            }
 
             if(implode)
                 parseAndImplode(jsglr2);

@@ -45,18 +45,17 @@ public class ParserLogObserver
     @Override public void createStackNode(StackNode stack) {
         super.createStackNode(stack);
 
-        log("  Create new stack with number " + id(stack) + " for state " + stack.state().id());
+        log("    Create stack " + stackNodeString(stack));
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
         super.createStackLink(link);
 
-        log("    Create link " + id(link) + " from stack " + id(link.from) + " to stack " + id(link.to)
-            + " with parse node " + (link.parseForest != null ? id(link.parseForest) : "null"));
+        log("    Create link " + stackNodeString(link.to) + " <-- " + id(link) + " --- " + stackNodeString(link.from));
     }
 
     @Override public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
-        log("    Reset deterministic depth for stack " + id((StackNode) stack));
+        log("    Reset deterministic depth for stack " + stackNodeString((StackNode) stack));
     }
 
     @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
@@ -69,12 +68,12 @@ public class ParserLogObserver
 
     @Override public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse,
         Iterable<IAction> applicableActions) {
-        log("  Actor for stack " + id(stack) + " (applicable actions: " + applicableActionsToString(applicableActions)
-            + ")");
+        log("  Actor for stack " + stackNodeString(stack) + " (applicable actions: "
+            + applicableActionsToString(applicableActions) + ")");
     }
 
     @Override public void skipRejectedStack(StackNode stack) {
-        log("    Skipping stack " + id(stack) + " since all links to it are rejected");
+        log("    Skipping stack " + stackNodeString(stack) + " since all links to it are rejected");
     }
 
     @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
@@ -88,13 +87,13 @@ public class ParserLogObserver
     @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
         StackNode activeStackWithGotoState) {
         log("    Reduce by production " + reduce.production().id() + " (" + reduce.productionType().toString()
-            + ") with parse nodes " + parseForestListToString(parseNodes) + ", using existing stack: "
-            + (activeStackWithGotoState != null ? id(activeStackWithGotoState) : "no"));
+            + ") with parse nodes " + parseForestsToString(parseNodes) + ", using existing stack: "
+            + (activeStackWithGotoState != null ? stackNodeString(activeStackWithGotoState) : "no"));
     }
 
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
         log("    Reduce (Elkhound) by production " + reduce.production().id() + " ("
-            + reduce.productionType().toString() + ") with parse nodes " + parseForestListToString(parseNodes));
+            + reduce.productionType().toString() + ") with parse nodes " + parseForestsToString(parseNodes));
     }
 
     @Override public void directLinkFound(AbstractParse<ParseForest, StackNode> parse,
@@ -103,7 +102,7 @@ public class ParserLogObserver
     }
 
     @Override public void accept(StackNode acceptingStack) {
-        log("    Accept stack " + id(acceptingStack));
+        log("    Accept stack " + stackNodeString(acceptingStack));
     }
 
     @Override public void createParseNode(ParseForest parseNode, IProduction production) {
@@ -115,7 +114,7 @@ public class ParserLogObserver
 
     @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
         ParseForest[] parseNodes) {
-        log("    Create derivation with parse nodes " + parseForestListToString(parseNodes));
+        log("    Create derivation with parse nodes " + parseForestsToString(parseNodes));
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {

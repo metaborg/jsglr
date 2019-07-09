@@ -1,9 +1,11 @@
 package org.spoofax.jsglr2.parser.observing;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;
@@ -74,8 +76,13 @@ public abstract class ParserObserver
         return stackNodeId.get(stackNode);
     }
 
-    protected int id(StackLink<ParseForest, StackNode> stackLink) {
-        return stackLinkId.get(stackLink);
+    protected String stackNodeString(StackNode stackNode) {
+        return id(stackNode) + "[state=" + stackNode.state().id() + "]";
+    }
+
+    protected String id(StackLink<ParseForest, StackNode> stackLink) {
+        return stackLinkId.get(stackLink) + "[parseNode="
+            + (stackLink.parseForest != null ? id(stackLink.parseForest) : "null") + "]";
     }
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
@@ -181,70 +188,31 @@ public abstract class ParserObserver
     }
 
     String stackQueueToString(Iterable<StackNode> stacks) {
-        String res = "";
-
-        for(StackNode stack : stacks) {
-            if(res.isEmpty())
-                res += id(stack);
-            else
-                res += "," + id(stack);
-        }
-
-        return "[" + res + "]";
+        return StreamSupport.stream(stacks.spliterator(), false).map(this::id).map(Object::toString)
+            .collect(Collectors.joining(","));
     }
 
     String applicableActionsToString(Iterable<IAction> applicableActions) {
-        String res = "";
-
-        for(IAction action : applicableActions) {
-            if(res.isEmpty())
-                res += action.toString();
-            else
-                res += "," + action.toString();
+        return StreamSupport.stream(applicableActions.spliterator(), false).map(action -> {
             if(action instanceof IReduce)
-                res += "[" + ((IReduce) action).production().toString() + "]";
-        }
-
-        return "[" + res + "]";
+                return action.toString() + "[" + ((IReduce) action).production().toString() + "]";
+            else
+                return action.toString();
+        }).collect(Collectors.joining(","));
     }
 
     String forShifterQueueToString(Queue<ForShifterElement<StackNode>> forShifter) {
-        String res = "";
-
-        for(ForShifterElement<StackNode> forShifterElement : forShifter) {
-            if(res.isEmpty())
-                res += forShifterElementToString(forShifterElement);
-            else
-                res += "," + forShifterElementToString(forShifterElement);
-        }
-
-        return "[" + res + "]";
+        return StreamSupport.stream(forShifter.spliterator(), false).map(this::forShifterElementToString)
+            .collect(Collectors.joining(","));
     }
 
     String forShifterElementToString(ForShifterElement<StackNode> forShifterElement) {
         return "{\"stack\":" + id(forShifterElement.stack) + ",\"state\":" + forShifterElement.state.id() + "}";
     }
 
-    String parseForestListToString(ParseForest[] parseForests) {
-        String res = "";
-
-        for(ParseForest parseForest : parseForests) {
-            if(res.isEmpty())
-                res += parseForest != null ? id(parseForest) : "null";
-            else
-                res += "," + (parseForest != null ? id(parseForest) : "null");
-        }
-
-        return "[" + res + "]";
-    }
-
-    String parseForestListToString(List<ParseForest> parseForestsList) {
-        @SuppressWarnings("unchecked") ParseForest[] parseForestsArray =
-            (ParseForest[]) new Object[parseForestsList.size()];
-
-        parseForestsList.toArray(parseForestsArray);
-
-        return parseForestListToString(parseForestsArray);
+    String parseForestsToString(ParseForest[] parseForests) {
+        return Arrays.stream(parseForests).map(parseForest -> parseForest != null ? "" + id(parseForest) : "null")
+            .collect(Collectors.joining(","));
     }
 
 }

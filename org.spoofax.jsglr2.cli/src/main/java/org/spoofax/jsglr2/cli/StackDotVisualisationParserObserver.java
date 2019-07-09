@@ -5,40 +5,32 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.observing.ParserObserver;
-import org.spoofax.jsglr2.parser.result.ParseFailure;
-import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class ParserVisualisationObserver
+class StackDotVisualisationParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode>
 //@formatter:on
-    extends ParserObserver<ParseForest, StackNode> {
+    extends DotVisualisationParserObserver<ParseForest, StackNode> {
 
-    final private Consumer<String> outputConsumer;
     private Map<StackNode, Integer> stackNodeRank;
     private int maxStackNodeRank;
     private int[] offsetMaxStackNodeRank;
 
-    public ParserVisualisationObserver(Consumer<String> outputConsumer) {
-        this.outputConsumer = outputConsumer;
+    public StackDotVisualisationParserObserver(Consumer<String> outputConsumer) {
+        super(outputConsumer);
     }
-
-    StringBuilder sb;
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
         super.parseStart(parse);
-        sb = new StringBuilder();
         stackNodeRank = new HashMap<>();
         maxStackNodeRank = 0;
         offsetMaxStackNodeRank = new int[parse.inputLength + 1];
@@ -105,27 +97,7 @@ public class ParserVisualisationObserver
     @Override public void addDerivation(ParseForest parseNode) {
     }
 
-    private String stackNodeId(StackNode stack) {
-        return stackNodeId(id(stack));
-    }
-
-    private String stackNodeId(int id) {
-        return "stack_" + id;
-    }
-
-    private void append(String string) {
-        sb.append(string + "\n");
-    }
-
-    @Override public void success(ParseSuccess<ParseForest> success) {
-        output();
-    }
-
-    @Override public void failure(ParseFailure<ParseForest> failure) {
-        output();
-    }
-
-    private void output() {
+    void output() {
         String prefix = "digraph {\nrankdir = LR;\nedge [dir=\"back\"];\nnode [shape=plain];\n";
 
         for(int rank = 0; rank <= maxStackNodeRank; rank++) {
@@ -141,10 +113,6 @@ public class ParserVisualisationObserver
         }
 
         outputConsumer.accept(prefix + sb.toString() + "}");
-    }
-
-    private String escape(String string) {
-        return string.replaceAll("\"", Matcher.quoteReplacement("\\\""));
     }
 
 }

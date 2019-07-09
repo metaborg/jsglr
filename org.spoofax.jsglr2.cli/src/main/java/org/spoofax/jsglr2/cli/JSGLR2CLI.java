@@ -145,10 +145,10 @@ public class JSGLR2CLI implements Runnable {
             IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
 
             if(logging)
-                observableParser.observing().attachObserver(new ParserLogObserver<>(this::output));
+                observableParser.observing().attachObserver(new LogParserObserver<>(this::output));
 
             if(outputOptions.isDot())
-                observableParser.observing().attachObserver(new ParserVisualisationObserver<>(this::output));
+                observableParser.observing().attachObserver(new StackDotVisualisationParserObserver<>(this::output));
 
             if(implode)
                 parseAndImplode(jsglr2);

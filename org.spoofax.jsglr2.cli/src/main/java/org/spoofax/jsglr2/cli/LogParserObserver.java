@@ -19,7 +19,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class ParserLogObserver
+public class LogParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode>
@@ -28,7 +28,7 @@ public class ParserLogObserver
 
     final private Consumer<String> logger;
 
-    public ParserLogObserver(Consumer<String> logger) {
+    LogParserObserver(Consumer<String> logger) {
         this.logger = logger;
     }
 

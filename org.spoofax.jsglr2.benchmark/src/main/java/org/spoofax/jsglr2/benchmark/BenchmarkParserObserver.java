@@ -96,7 +96,7 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
     }
 
-    @Override public void addDerivation(ParseForest parseNode) {
+    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {

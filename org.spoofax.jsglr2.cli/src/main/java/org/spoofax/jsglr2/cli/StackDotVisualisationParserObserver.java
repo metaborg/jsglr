@@ -94,9 +94,6 @@ class StackDotVisualisationParserObserver
         super.createCharacterNode(characterNode, character);
     }
 
-    @Override public void addDerivation(ParseForest parseNode) {
-    }
-
     void output() {
         String prefix = "digraph {\nrankdir = LR;\nedge [dir=\"back\"];\nnode [shape=plain];\n";
 

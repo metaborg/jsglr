@@ -172,7 +172,7 @@ public class LayoutSensitiveParseForestManager
 
     @Override public void addDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
         LayoutSensitiveParseNode parseNode, LayoutSensitiveDerivation derivation) {
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }

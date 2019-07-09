@@ -125,8 +125,8 @@ public class LogParserObserver
             + CharacterClassFactory.intToString(character) + "'");
     }
 
-    @Override public void addDerivation(ParseForest parseNode) {
-        log("    Add derivation to parse node " + id(parseNode));
+    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
+        log("    Add derivation " + id(derivation) + " to parse node " + id(parseNode));
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {

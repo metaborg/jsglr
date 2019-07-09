@@ -71,7 +71,7 @@ public interface IParserObserver
 
     void createCharacterNode(ParseForest characterNode, int character);
 
-    void addDerivation(ParseForest parseNode);
+    void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation);
 
     void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 

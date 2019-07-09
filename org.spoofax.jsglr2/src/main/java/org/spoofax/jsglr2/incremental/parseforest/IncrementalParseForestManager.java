@@ -45,7 +45,7 @@ public class IncrementalParseForestManager
         IncrementalParseNode parseNode = new IncrementalParseNode(production, firstDerivation);
 
         parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, firstDerivation));
 
         return parseNode;
     }
@@ -56,7 +56,7 @@ public class IncrementalParseForestManager
 
         parse.observing.notify(observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, children));
         parse.observing.notify(observer -> observer.createParseNode(parseNode, null));
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, parseNode.getFirstDerivation()));
 
         return parseNode;
     }
@@ -79,7 +79,7 @@ public class IncrementalParseForestManager
     @Override public void addDerivation(AbstractParse<IncrementalParseForest, ?> parse, IncrementalParseNode parseNode,
         IncrementalDerivation derivation) {
 
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }

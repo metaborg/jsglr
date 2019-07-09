@@ -60,7 +60,7 @@ public class DataDependentParseForestManager
     @Override public void addDerivation(AbstractParse<DataDependentParseForest, ?> parse,
         DataDependentParseNode parseNode, DataDependentDerivation derivation) {
 
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }

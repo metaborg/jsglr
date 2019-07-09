@@ -16,7 +16,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         HybridParseNode parseNode = new HybridParseNode(production, firstDerivation);
 
         parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, firstDerivation));
 
         return parseNode;
     }
@@ -56,7 +56,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
 
     @Override public void addDerivation(AbstractParse<HybridParseForest, ?> parse, HybridParseNode parseNode,
         HybridDerivation derivation) {
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }

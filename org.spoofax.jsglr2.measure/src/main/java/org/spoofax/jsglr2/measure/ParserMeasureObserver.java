@@ -184,7 +184,7 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
         characterNodes.add(characterNode);
     }
 
-    @Override public void addDerivation(ParseForest parseNode) {
+    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
     }
 
     @Override public void shifter(ParseForest termNode,

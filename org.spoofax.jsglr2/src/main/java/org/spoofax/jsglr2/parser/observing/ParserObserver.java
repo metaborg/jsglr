@@ -172,7 +172,7 @@ public abstract class ParserObserver
         registerParseNode(characterNode);
     }
 
-    @Override public void addDerivation(ParseForest parseNode) {
+    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {

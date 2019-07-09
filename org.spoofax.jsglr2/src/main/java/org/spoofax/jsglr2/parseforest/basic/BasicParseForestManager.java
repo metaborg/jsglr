@@ -57,7 +57,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
 
     @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, BasicParseNode parseNode,
         BasicDerivation derivation) {
-        parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }

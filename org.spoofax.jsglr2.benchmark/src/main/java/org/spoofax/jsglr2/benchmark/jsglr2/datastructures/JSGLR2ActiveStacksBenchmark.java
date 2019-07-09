@@ -70,7 +70,9 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
                 return null;
             }
 
-            @Override public Iterator<BasicStackNode<BasicParseForest>> iterator() { return null; }
+            @Override public Iterator<BasicStackNode<BasicParseForest>> iterator() {
+                return null;
+            }
 
         };
 

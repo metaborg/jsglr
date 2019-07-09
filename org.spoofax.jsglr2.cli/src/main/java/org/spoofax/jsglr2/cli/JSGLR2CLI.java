@@ -16,7 +16,6 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.IParser;
-import org.spoofax.jsglr2.parser.observing.ParserLogObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -112,7 +111,21 @@ public class JSGLR2CLI implements Runnable {
         }
     }
 
-    @Option(names = { "--logging" }, negatable = true, description = "Log parser operations") boolean logging = false;
+    @Option(names = { "--logging" }, description = "Log parser operations") boolean logging = false;
+
+    @ArgGroup(validate = false, heading = "Output%n") OutputOptions outputOptions = new OutputOptions();
+
+    static class OutputOptions {
+        @Option(names = "--dot", required = true, description = "Visualization in DOT") boolean dot;
+
+        boolean isResult() {
+            return !dot;
+        }
+
+        boolean isDot() {
+            return dot;
+        }
+    }
 
     @Option(names = { "-v", "--verbose" }, negatable = true, description = "Print stack traces") boolean verbose =
         false;
@@ -129,12 +142,13 @@ public class JSGLR2CLI implements Runnable {
             IParseTable parseTable = getParseTable();
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
                 (JSGLR2Implementation<?, ?, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant);
+            IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
 
-            if(logging) {
-                IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
+            if(logging)
+                observableParser.observing().attachObserver(new ParserLogObserver<>(this::output));
 
-                observableParser.observing().attachObserver(new ParserLogObserver<>(System.out::println));
-            }
+            if(outputOptions.isDot())
+                observableParser.observing().attachObserver(new ParserVisualisationObserver<>(this::output));
 
             if(implode)
                 parseAndImplode(jsglr2);
@@ -154,11 +168,13 @@ public class JSGLR2CLI implements Runnable {
         if(result.isSuccess()) {
             ParseSuccess<?> success = (ParseSuccess<?>) result;
 
-            System.out.println(success.parseResult.toString());
+            if(outputOptions.isResult())
+                output(success.parseResult.toString());
         } else {
             ParseFailure<?> failure = (ParseFailure<?>) result;
 
-            System.out.println(failure.failureType.message);
+            if(outputOptions.isResult())
+                output(failure.failureType.message);
         }
     }
 
@@ -168,12 +184,18 @@ public class JSGLR2CLI implements Runnable {
         if(result.isSuccess()) {
             JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
 
-            System.out.println(success.ast.toString());
+            if(outputOptions.isResult())
+                output(success.ast.toString());
         } else {
             JSGLR2Failure<IStrategoTerm> failure = (JSGLR2Failure<IStrategoTerm>) result;
 
-            System.out.println(failure.parseFailure.failureType.message);
+            if(outputOptions.isResult())
+                output(failure.parseFailure.failureType.message);
         }
+    }
+
+    private void output(String output) {
+        System.out.println(output);
     }
 
     private IParseTable getParseTable() throws WrappedException {

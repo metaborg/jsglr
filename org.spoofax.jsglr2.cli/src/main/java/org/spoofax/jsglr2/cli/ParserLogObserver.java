@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.parser.observing;
+package org.spoofax.jsglr2.cli;
 
 import java.util.Queue;
 import java.util.function.Consumer;
@@ -12,6 +12,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;

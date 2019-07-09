@@ -187,12 +187,12 @@ public abstract class ParserObserver
     @Override public void failure(ParseFailure<ParseForest> failure) {
     }
 
-    String stackQueueToString(Iterable<StackNode> stacks) {
+    public String stackQueueToString(Iterable<StackNode> stacks) {
         return StreamSupport.stream(stacks.spliterator(), false).map(this::id).map(Object::toString)
             .collect(Collectors.joining(","));
     }
 
-    String applicableActionsToString(Iterable<IAction> applicableActions) {
+    public String applicableActionsToString(Iterable<IAction> applicableActions) {
         return StreamSupport.stream(applicableActions.spliterator(), false).map(action -> {
             if(action instanceof IReduce)
                 return action.toString() + "[" + ((IReduce) action).production().toString() + "]";
@@ -201,16 +201,16 @@ public abstract class ParserObserver
         }).collect(Collectors.joining(","));
     }
 
-    String forShifterQueueToString(Queue<ForShifterElement<StackNode>> forShifter) {
+    public String forShifterQueueToString(Queue<ForShifterElement<StackNode>> forShifter) {
         return StreamSupport.stream(forShifter.spliterator(), false).map(this::forShifterElementToString)
             .collect(Collectors.joining(","));
     }
 
-    String forShifterElementToString(ForShifterElement<StackNode> forShifterElement) {
+    public String forShifterElementToString(ForShifterElement<StackNode> forShifterElement) {
         return "{\"stack\":" + id(forShifterElement.stack) + ",\"state\":" + forShifterElement.state.id() + "}";
     }
 
-    String parseForestsToString(ParseForest[] parseForests) {
+    public String parseForestsToString(ParseForest[] parseForests) {
         return Arrays.stream(parseForests).map(parseForest -> parseForest != null ? "" + id(parseForest) : "null")
             .collect(Collectors.joining(","));
     }

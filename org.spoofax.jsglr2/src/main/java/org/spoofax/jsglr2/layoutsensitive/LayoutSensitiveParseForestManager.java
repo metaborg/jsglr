@@ -19,7 +19,7 @@ public class LayoutSensitiveParseForestManager
         LayoutSensitiveParseNode parseNode =
             new LayoutSensitiveParseNode(stack.position(), parse.currentPosition(), production);
 
-        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
+        parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
         addDerivation(parse, parseNode, firstDerivation);
 
@@ -141,7 +141,7 @@ public class LayoutSensitiveParseForestManager
         LayoutSensitiveDerivation derivation = new LayoutSensitiveDerivation(parse, beginPosition, leftPosition,
             rightPosition, parse.currentPosition(), production, productionType, parseForests);
 
-        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
+        parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
@@ -172,7 +172,7 @@ public class LayoutSensitiveParseForestManager
 
     @Override public void addDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
         LayoutSensitiveParseNode parseNode, LayoutSensitiveDerivation derivation) {
-        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
+        parse.observing.notify(observer -> observer.addDerivation(parseNode));
 
         parseNode.addDerivation(derivation);
     }
@@ -182,7 +182,7 @@ public class LayoutSensitiveParseForestManager
         LayoutSensitiveCharacterNode termNode =
             new LayoutSensitiveCharacterNode(parse.currentPosition(), parse.currentChar);
 
-        // parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }

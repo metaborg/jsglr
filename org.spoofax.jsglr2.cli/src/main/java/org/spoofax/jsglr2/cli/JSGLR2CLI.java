@@ -43,7 +43,7 @@ public class JSGLR2CLI implements Runnable {
     @Option(names = { "-im", "--implode" }, negatable = true,
         description = "Implode parse tree to AST") private boolean implode = true;
 
-    @ArgGroup(validate = false, heading = "Parser variant%n") ParserVariantOptions parserVariant =
+    @ArgGroup(exclusive = false, validate = false, heading = "Parser variant%n") ParserVariantOptions parserVariant =
         new ParserVariantOptions();
 
     static class ParserVariantOptions {
@@ -94,8 +94,8 @@ public class JSGLR2CLI implements Runnable {
         }
     }
 
-    @ArgGroup(validate = false, heading = "Parse table variant%n") ParseTableVariantOptions parseTableVariant =
-        new ParseTableVariantOptions();
+    @ArgGroup(exclusive = false, validate = false,
+        heading = "Parse table variant%n") ParseTableVariantOptions parseTableVariant = new ParseTableVariantOptions();
 
     static class ParseTableVariantOptions {
         @Option(names = { "--actionsForCharacters" },

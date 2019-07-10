@@ -22,11 +22,11 @@ abstract class DotVisualisationParserObserver
         this.outputConsumer = outputConsumer;
     }
 
-    StringBuilder sb;
+    StringBuilder dotStatements;
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
         super.parseStart(parse);
-        sb = new StringBuilder();
+        dotStatements = new StringBuilder();
     }
 
     String idNode(String name, int id, String label) {
@@ -35,11 +35,11 @@ abstract class DotVisualisationParserObserver
             + "<TR ROWSPAN=\"1\"><TD></TD><TD COLSPAN=\"1\" BORDER=\"1\" CELLPADDING=\"5\" PORT=\"p\">"
             + escapeHtml(label) + "</TD></TR>" + "</TABLE>";
 
-        return name + " [shape=plain,label=<" + html + ">];";
+        return name + " [shape=plain,label=<" + html + ">]";
     }
 
-    void append(String string) {
-        sb.append(string + "\n");
+    void dotStatement(String string) {
+        dotStatements.append(string + "\n");
     }
 
     @Override public void success(ParseSuccess<ParseForest> success) {

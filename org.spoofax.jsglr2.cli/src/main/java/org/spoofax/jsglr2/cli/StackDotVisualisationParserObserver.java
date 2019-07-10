@@ -53,7 +53,7 @@ class StackDotVisualisationParserObserver
         if(id(stack) == 0)
             rankStackNode(stack, 0);
 
-        append(idNode(stackNodeId(stack), id(stack), "" + stack.state().id()));
+        dotStatement(idNode(stackNodeId(stack), id(stack), "" + stack.state().id()) + ";");
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
@@ -62,8 +62,8 @@ class StackDotVisualisationParserObserver
         if(!stackNodeRank.containsKey(link.from))
             rankStackNode(link.from, stackNodeRank.get(link.to) + 1);
 
-        append(stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\"" + id(link.parseForest)
-            + ": " + escape(link.parseForest.descriptor()) + "\"];");
+        dotStatement(stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\""
+            + id(link.parseForest) + ": " + escape(link.parseForest.descriptor()) + "\"];");
     }
 
     String stackNodeId(StackNode stack) {
@@ -85,11 +85,11 @@ class StackDotVisualisationParserObserver
                     stackNodesForRank.add(entry.getKey());
             }
 
-            append("{rank=same; "
+            dotStatement("{rank=same; "
                 + stackNodesForRank.stream().map(id -> stackNodeId(id) + ";").collect(Collectors.joining()) + "}");
         }
 
-        outputConsumer.accept(prefix + sb.toString() + "}");
+        outputConsumer.accept(prefix + dotStatements + "}");
     }
 
 }

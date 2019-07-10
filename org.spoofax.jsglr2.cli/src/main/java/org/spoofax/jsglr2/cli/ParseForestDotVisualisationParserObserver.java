@@ -66,7 +66,7 @@ class ParseForestDotVisualisationParserObserver
     }
 
     void output() {
-        String prefix = "digraph {\nrankdir = TB;\n";
+        String prefix = "digraph {\nrankdir = BT;\n";
 
         outputConsumer.accept(prefix + dotStatements + "}");
     }

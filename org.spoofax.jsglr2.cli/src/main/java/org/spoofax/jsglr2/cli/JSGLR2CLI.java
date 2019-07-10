@@ -116,15 +116,16 @@ public class JSGLR2CLI implements Runnable {
     @ArgGroup(validate = false, heading = "Output%n") OutputOptions outputOptions = new OutputOptions();
 
     static class OutputOptions {
-        @Option(names = "--dot", required = true, description = "Visualization in DOT") boolean dot;
+        @Option(names = "--dot", required = true,
+            description = "Visualization in DOT: ${COMPLETION-CANDIDATES}") DotVisualization dot;
 
         boolean isResult() {
-            return !dot;
+            return dot == null;
         }
+    }
 
-        boolean isDot() {
-            return dot;
-        }
+    enum DotVisualization {
+        Stack, ParseForest
     }
 
     @Option(names = { "-v", "--verbose" }, negatable = true, description = "Print stack traces") boolean verbose =
@@ -147,8 +148,12 @@ public class JSGLR2CLI implements Runnable {
             if(logging)
                 observableParser.observing().attachObserver(new LogParserObserver<>(this::output));
 
-            if(outputOptions.isDot())
+            if(outputOptions.dot == DotVisualization.Stack)
                 observableParser.observing().attachObserver(new StackDotVisualisationParserObserver<>(this::output));
+
+            if(outputOptions.dot == DotVisualization.ParseForest)
+                observableParser.observing()
+                    .attachObserver(new ParseForestDotVisualisationParserObserver<>(this::output));
 
             if(implode)
                 parseAndImplode(jsglr2);

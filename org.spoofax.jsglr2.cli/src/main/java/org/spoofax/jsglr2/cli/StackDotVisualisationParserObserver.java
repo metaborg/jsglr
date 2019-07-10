@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.metaborg.parsetable.IProduction;
-import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -55,17 +53,7 @@ class StackDotVisualisationParserObserver
         if(id(stack) == 0)
             rankStackNode(stack, 0);
 
-        int innerGrid = 3;
-        int cellDimension = 10;
-        append(stackNodeId(stack)
-            + " [label=<<TABLE CELLSPACING=\"0\" CELLPADDING=\"0\" BORDER=\"0\" CELLBORDER=\"0\" FIXEDSIZE=\"TRUE\" WIDTH=\""
-            + ((1 + innerGrid) * cellDimension) + "\" HEIGHT=\"" + ((1 + innerGrid) * cellDimension)
-            + "\"><TR><TD WIDTH=\"" + cellDimension + "\" HEIGHT=\"" + cellDimension + "\"><FONT POINT-SIZE=\"10\">"
-            + id(stack) + "</FONT></TD><TD COLSPAN=\"" + innerGrid + "\" WIDTH=\"" + (innerGrid * cellDimension)
-            + "\" HEIGHT=\"" + cellDimension + "\"></TD></TR><TR ROWSPAN=\"" + innerGrid + "\"><TD WIDTH=\""
-            + cellDimension + "\" HEIGHT=\"" + (innerGrid * cellDimension) + "\"></TD><TD COLSPAN=\"" + innerGrid
-            + "\" WIDTH=\"" + (innerGrid * cellDimension) + "\" HEIGHT=\"" + (innerGrid * cellDimension)
-            + "\" BORDER=\"1\" PORT=\"stack\">" + stack.state().id() + "</TD></TR></TABLE>>];");
+        append(idNode(stackNodeId(stack), id(stack), "" + stack.state().id()));
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
@@ -74,28 +62,20 @@ class StackDotVisualisationParserObserver
         if(!stackNodeRank.containsKey(link.from))
             rankStackNode(link.from, stackNodeRank.get(link.to) + 1);
 
-        append(stackNodeId(link.to) + ":stack:e -> " + stackNodeId(link.from) + ":stack:w [label=\""
-            + id(link.parseForest) + ": " + escape(link.parseForest.descriptor()) + "\"];");
+        append(stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\"" + id(link.parseForest)
+            + ": " + escape(link.parseForest.descriptor()) + "\"];");
     }
 
-    @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
+    String stackNodeId(StackNode stack) {
+        return stackNodeId(id(stack));
     }
 
-    @Override public void createParseNode(ParseForest parseNode, IProduction production) {
-        super.createParseNode(parseNode, production);
-    }
-
-    @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
-        ParseForest[] parseNodes) {
-        super.createDerivation(derivation, production, parseNodes);
-    }
-
-    @Override public void createCharacterNode(ParseForest characterNode, int character) {
-        super.createCharacterNode(characterNode, character);
+    String stackNodeId(int id) {
+        return "stack_" + id;
     }
 
     void output() {
-        String prefix = "digraph {\nrankdir = LR;\nedge [dir=\"back\"];\nnode [shape=plain];\n";
+        String prefix = "digraph {\nrankdir = LR;\nedge [dir=\"back\"];\n";
 
         for(int rank = 0; rank <= maxStackNodeRank; rank++) {
             Collection<StackNode> stackNodesForRank = new ArrayList<>();

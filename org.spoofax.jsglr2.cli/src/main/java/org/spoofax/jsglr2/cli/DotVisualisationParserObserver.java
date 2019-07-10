@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.cli;
 
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -30,12 +29,13 @@ abstract class DotVisualisationParserObserver
         sb = new StringBuilder();
     }
 
-    String stackNodeId(StackNode stack) {
-        return stackNodeId(id(stack));
-    }
+    String idNode(String name, int id, String label) {
+        String html = "<TABLE CELLSPACING=\"0\" CELLPADDING=\"0\" BORDER=\"0\" CELLBORDER=\"0\">"
+            + "<TR><TD CELLPADDING=\"2\"><FONT POINT-SIZE=\"10\">" + id + "</FONT></TD><TD COLSPAN=\"1\"></TD></TR>"
+            + "<TR ROWSPAN=\"1\"><TD></TD><TD COLSPAN=\"1\" BORDER=\"1\" CELLPADDING=\"5\" PORT=\"p\">"
+            + escapeHtml(label) + "</TD></TR>" + "</TABLE>";
 
-    String stackNodeId(int id) {
-        return "stack_" + id;
+        return name + " [shape=plain,label=<" + html + ">];";
     }
 
     void append(String string) {
@@ -53,7 +53,11 @@ abstract class DotVisualisationParserObserver
     abstract void output();
 
     String escape(String string) {
-        return string.replaceAll("\"", Matcher.quoteReplacement("\\\""));
+        return string.replace("[", "\\[").replace("]", "\\]").replace("\"", "\\\"");
+    }
+
+    String escapeHtml(String string) {
+        return string.replace("<", "&lt;").replace(">", "&gt;");
     }
 
 }

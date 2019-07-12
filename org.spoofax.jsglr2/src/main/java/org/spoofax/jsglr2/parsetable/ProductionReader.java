@@ -5,37 +5,37 @@ import static org.spoofax.terms.Term.*;
 
 import java.util.Iterator;
 
+import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.TermVisitor;
 
 public class ProductionReader {
 
-    public static Production read(IStrategoTerm productionWithIdTerm) throws ParseTableReadException {
-        IStrategoAppl productionTerm = termAt(productionWithIdTerm, 0); // A tuple of the production right hand side,
-        // left hand side and attributes
+    public static IProduction read(IStrategoTerm productionWithIdTerm) throws ParseTableReadException {
         int productionId = intAt(productionWithIdTerm, 1);
 
-        IStrategoAppl lhs = termAt(productionTerm, 1);
-        IStrategoList rhs = termAt(productionTerm, 0);
+        // A tuple of the production right hand side, left hand side and attributes
+        IStrategoAppl productionTerm = termAt(productionWithIdTerm, 0);
+        IStrategoAppl lhsTerm = termAt(productionTerm, 1);
+        IStrategoList rhsTerm = termAt(productionTerm, 0);
         IStrategoAppl attributesTerm = termAt(productionTerm, 2);
 
-        ProductionAttributes attributes = readProductionAttributes(attributesTerm); // Attributes stored in a separate
-        // term
+        ProductionAttributes attributes = readProductionAttributes(attributesTerm);
 
-        String sort = getSort(lhs);
-        String startSymbolSort = getStartSymbolSort(lhs, rhs);
-        String descriptor = lhs.toString() + " -> " + rhs.toString();
-        boolean isLayout = getIsLayout(lhs);
-        boolean isLayoutParent = getIsLayoutParent(lhs, descriptor);
-        boolean isLiteral = getIsLiteral(lhs);
-        boolean isLexical = getIsLexical(lhs);
-        boolean isLexicalRhs = getIsLexicalRhs(rhs);
-        boolean isList = getIsList(lhs, attributes.isFlatten);
-        boolean isOptional = getIsOptional(lhs);
-        boolean isStringLiteral = getIsStringLiteral(rhs);
-        boolean isNumberLiteral = getIsNumberLiteral(rhs);
-        boolean isOperator = getIsOperator(lhs, isLiteral);
+        String sort = getSort(lhsTerm);
+        String startSymbolSort = getStartSymbolSort(lhsTerm, rhsTerm);
+        String descriptor = lhsTerm.toString() + " -> " + rhsTerm.toString();
+        boolean isLayout = getIsLayout(lhsTerm);
+        boolean isLayoutParent = getIsLayoutParent(lhsTerm, descriptor);
+        boolean isLiteral = getIsLiteral(lhsTerm);
+        boolean isLexical = getIsLexical(lhsTerm);
+        boolean isLexicalRhs = getIsLexicalRhs(rhsTerm);
+        boolean isList = getIsList(lhsTerm, attributes.isFlatten);
+        boolean isOptional = getIsOptional(lhsTerm);
+        boolean isStringLiteral = getIsStringLiteral(rhsTerm);
+        boolean isNumberLiteral = getIsNumberLiteral(rhsTerm);
+        boolean isOperator = getIsOperator(lhsTerm, isLiteral);
 
         boolean skippableLayout = isLayout && !isLayoutParent;
         boolean skippableLexical = sort == null && (isLexical || (isLexicalRhs && !isLiteral));

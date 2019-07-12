@@ -77,6 +77,14 @@ public class ParseTableReader {
         return new ParseTable(states, startStateId);
     }
 
+    public IParseTable read(InputStream inputStream) throws ParseTableReadException, IOException {
+        TermReader termReader = new TermReader(new TermFactory());
+
+        IStrategoTerm parseTableTerm = termReader.parseFromStream(inputStream);
+
+        return read(parseTableTerm);
+    }
+
     public static IParseTable read(FileObject persistedTable) throws Exception {
         ParseTableIO ptg = new ParseTableIO(persistedTable);
 
@@ -87,21 +95,13 @@ public class ParseTableReader {
         return parseTableFromSerializable;
     }
 
-    public IParseTable read(InputStream inputStream) throws ParseTableReadException, IOException {
-        TermReader termReader = new TermReader(new TermFactory());
-
-        IStrategoTerm parseTableTerm = termReader.parseFromStream(inputStream);
-
-        return read(parseTableTerm);
-    }
-
-    private Production[] readProductions(IStrategoList productionsTermList) throws ParseTableReadException {
+    private IProduction[] readProductions(IStrategoList productionsTermList) throws ParseTableReadException {
         int productionCount = productionsTermList.getSubtermCount();
 
-        Production[] productions = new Production[257 + productionCount];
+        IProduction[] productions = new Production[257 + productionCount];
 
         for(IStrategoTerm productionWithIdTerm : productionsTermList) {
-            Production production = ProductionReader.read(productionWithIdTerm);
+            IProduction production = ProductionReader.read(productionWithIdTerm);
 
             productions[production.id()] = production;
         }
@@ -185,8 +185,8 @@ public class ParseTableReader {
         for(IStrategoTerm characterClassActionsTerm : characterClassActionsTermList) {
             IStrategoNamed characterClassActionsTermNamed = (IStrategoNamed) characterClassActionsTerm;
 
-            IStrategoList characterClassTermList = (IStrategoList) termAt(characterClassActionsTermNamed, 0);
-            IStrategoList actionsTermList = (IStrategoList) termAt(characterClassActionsTermNamed, 1);
+            IStrategoList characterClassTermList = termAt(characterClassActionsTermNamed, 0);
+            IStrategoList actionsTermList = termAt(characterClassActionsTermNamed, 1);
 
             ICharacterClass characterClass = readCharacterClass(characterClassTermList);
             IAction[] actions = readActionsForCharacterClass(actionsTermList, productions);
@@ -218,7 +218,7 @@ public class ParseTableReader {
                     action = actionsFactory.getReduce(production, productionType, arity);
                 } else if(actionTermAppl.getConstructor().getArity() == 4) { // Reduce with lookahead
                     ICharacterClass[] followRestriction =
-                        readReduceLookaheadFollowRestriction(termAt((IStrategoList) termAt(actionTermAppl, 3), 0));
+                        readReduceLookaheadFollowRestriction(termAt(termAt(actionTermAppl, 3), 0));
 
                     action = actionsFactory.getReduceLookahead(production, productionType, arity, followRestriction);
                 }
@@ -242,7 +242,7 @@ public class ParseTableReader {
         ICharacterClass characterClass = null;
 
         for(IStrategoTerm characterClassTerm : characterClassTermList) {
-            ICharacterClass characterClassForTerm = null;
+            ICharacterClass characterClassForTerm;
 
             if(isTermInt(characterClassTerm)) {
                 characterClassForTerm = characterClassFactory.fromSingle(javaInt(characterClassTerm));
@@ -265,7 +265,7 @@ public class ParseTableReader {
     private ICharacterClass[] readReduceLookaheadFollowRestriction(IStrategoTerm followRestrictionTerm)
         throws ParseTableReadException {
         if("follow-restriction".equals(((IStrategoNamed) followRestrictionTerm).getName())) {
-            IStrategoList followRestrictionCharacterClassList = (IStrategoList) termAt(followRestrictionTerm, 0);
+            IStrategoList followRestrictionCharacterClassList = termAt(followRestrictionTerm, 0);
 
             int lookaheadLength = followRestrictionCharacterClassList.size();
 
@@ -292,10 +292,9 @@ public class ParseTableReader {
                 .filter(this::isReduceOrReduceLookahead).map(IReduce.class::cast).filter(IReduce::isRejectProduction)
                 .map(IReduce::production).map(IProduction::id).collect(Collectors.toSet());
 
-        final Set<Integer> rejectableStateIds =
-            Stream.of(states).flatMap(state -> rejectProductionIds.stream().filter(rejectProductionId -> {
-                return ((State) state).hasGoto(rejectProductionId);
-            }).map(state::getGotoId)).collect(Collectors.toSet());
+        final Set<Integer> rejectableStateIds = Stream.of(states)
+            .flatMap(state -> rejectProductionIds.stream().filter(((State) state)::hasGoto).map(state::getGotoId))
+            .collect(Collectors.toSet());
 
         // A state is marked as rejectable if it is reachable by at least one reject production.
         rejectableStateIds.forEach(gotoId -> ((State) states[gotoId]).markRejectable());

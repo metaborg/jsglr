@@ -43,6 +43,8 @@ public class ParseTableReader {
     final IActionsFactory actionsFactory;
     final IStateFactory stateFactory;
 
+    final CharacterClassReader characterClassReader;
+
     public ParseTableReader() {
         this(new CharacterClassFactory(), new ActionsFactory(), new StateFactory());
     }
@@ -56,6 +58,7 @@ public class ParseTableReader {
         this.characterClassFactory = characterClassFactory;
         this.actionsFactory = actionsFactory;
         this.stateFactory = stateFactory;
+        this.characterClassReader = new CharacterClassReader(characterClassFactory);
     }
 
     /*
@@ -188,7 +191,7 @@ public class ParseTableReader {
             IStrategoList characterClassTermList = termAt(characterClassActionsTermNamed, 0);
             IStrategoList actionsTermList = termAt(characterClassActionsTermNamed, 1);
 
-            ICharacterClass characterClass = readCharacterClass(characterClassTermList);
+            ICharacterClass characterClass = characterClassReader.read(characterClassTermList);
             IAction[] actions = readActionsForCharacterClass(actionsTermList, productions);
 
             actionsPerCharacterClasses.add(new ActionsPerCharacterClass(characterClass, actions));
@@ -238,30 +241,6 @@ public class ParseTableReader {
         return actions;
     }
 
-    private ICharacterClass readCharacterClass(IStrategoList characterClassTermList) {
-        ICharacterClass characterClass = null;
-
-        for(IStrategoTerm characterClassTerm : characterClassTermList) {
-            ICharacterClass characterClassForTerm;
-
-            if(isTermInt(characterClassTerm)) {
-                characterClassForTerm = characterClassFactory.fromSingle(javaInt(characterClassTerm));
-            } else {
-                int from = intAt(characterClassTerm, 0);
-                int to = intAt(characterClassTerm, 1);
-
-                characterClassForTerm = characterClassFactory.fromRange(from, to);
-            }
-
-            if(characterClass == null)
-                characterClass = characterClassForTerm;
-            else if(characterClassForTerm != null)
-                characterClass = characterClass.union(characterClassForTerm);
-        }
-
-        return characterClassFactory.finalize(characterClass);
-    }
-
     private ICharacterClass[] readReduceLookaheadFollowRestriction(IStrategoTerm followRestrictionTerm)
         throws ParseTableReadException {
         if("follow-restriction".equals(((IStrategoNamed) followRestrictionTerm).getName())) {
@@ -276,7 +255,7 @@ public class ParseTableReader {
                 IStrategoTerm characterClassTerm = followRestrictionCharacterClassList.getSubterm(i);
 
                 followRestrictionCharacterClasses[i] =
-                    readCharacterClass((IStrategoList) characterClassTerm.getSubterm(0));
+                    characterClassReader.read((IStrategoList) characterClassTerm.getSubterm(0));
             }
 
             return followRestrictionCharacterClasses;

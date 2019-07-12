@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.incremental;
 
+import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.size;
 import static org.metaborg.util.iterators.Iterables2.stream;
 import static org.spoofax.jsglr2.incremental.IncrementalParse.NO_STATE;
@@ -75,11 +76,15 @@ public class IncrementalParser
 
     @Override protected void actor(StackNode stack, Parse parse) {
         Iterable<IAction> actions = getActions(stack, parse);
-        // Break down lookahead until it is a terminal or until there is something to be shifted
-        // Break down lookahead if it has no state or if there are no actions for it
-        // Break down lookahead if there is more then one action for it
+        // Break down lookahead if it has no state or if there are no actions for it.
+        // Only break down if the lookahead is not a terminal.
+        // If there are no actions, do not break down if we already have something to shift.
+        // This node that we can shift should not be broken down anymore:
+        // - if we would, it would cause different shifts to be desynchronised;
+        // - if a break-down of this node would cause different actions, it would already have been broken down because
+        // that would mean that this node was created when the parser was in multiple states.
         while(!parse.lookahead.get().isTerminal()
-            && (lookaheadHasNoState(parse.lookahead) || size(actions) != 1 && parse.forShifter.isEmpty())) {
+            && (lookaheadHasNoState(parse.lookahead) || isEmpty(actions) && parse.forShifter.isEmpty())) {
             parse.lookahead.leftBreakdown();
             actions = getActions(stack, parse);
         }

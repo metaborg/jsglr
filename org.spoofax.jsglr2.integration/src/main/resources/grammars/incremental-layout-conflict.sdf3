@@ -1,0 +1,15 @@
+module incremental-layout-conflict
+
+context-free start-symbols
+
+	Start
+
+context-free syntax
+
+    Start.Unary = ID
+    Start.Binary = ID ID
+
+lexical syntax
+
+    ID = [A-Za-z]
+    LAYOUT = [\ \n\r\t]

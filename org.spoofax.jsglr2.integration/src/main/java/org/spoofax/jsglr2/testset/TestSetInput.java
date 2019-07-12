@@ -36,7 +36,9 @@ public abstract class TestSetInput<ContentType, Input extends TestInput<ContentT
         try(Scanner s = new Scanner(inputStream)) {
             s.useDelimiter("\\A");
 
-            return s.hasNext() ? s.next() : "";
+            // Replace all characters with codepoint value > 255 with a question mark to avoid parse failures,
+            // assuming that they only appear in places where any character is allowed (strings, comments, ...)
+            return s.hasNext() ? s.next().replaceAll("[^\\x00-\\xFF]", "?") : "";
         }
     }
 

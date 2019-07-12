@@ -65,8 +65,8 @@ public class IncrementalParseForestManager
         IStackNode stack, IProduction production, ProductionType productionType,
         IncrementalParseForest[] parseForests) {
 
-        // TODO There should be a type parameter Parse, but that creates extra dependencies which make
-        // the big switch in JSGLR2Variants.getParser more verbose. Now, the parse forest can be created in a variable
+        // TODO There should be a type parameter Parse to avoid the cast, but that creates extra dependencies which make
+        // the big switch in JSGLR2Variants.getParser more verbose. Now, the ParseForestManager is created in a variable
         // that can be passed to the Parser, but adding Parse as type parameter would require in-lining that variable.
         IState state = ((IncrementalParse) parse).multipleStates ? IncrementalParse.NO_STATE : stack.state();
         IncrementalDerivation derivation = new IncrementalDerivation(production, productionType, parseForests, state);

@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.integration;
 import java.util.Arrays;
 import java.util.List;
 
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;

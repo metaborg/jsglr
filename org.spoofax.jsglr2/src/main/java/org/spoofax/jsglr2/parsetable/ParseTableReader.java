@@ -23,7 +23,7 @@ import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.metaborg.sdf2table.io.ParseTableIO;
-import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
+import org.metaborg.parsetable.query.ActionsPerCharacterClass;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoNamed;

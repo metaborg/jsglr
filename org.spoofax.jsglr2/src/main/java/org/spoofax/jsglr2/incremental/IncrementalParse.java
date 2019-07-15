@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.incremental;
 import java.util.List;
 
 import org.metaborg.parsetable.actions.IGoto;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterSeparated;
-import org.metaborg.sdf2table.parsetable.query.ActionsPerCharacterClass;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoForLoop;
+import org.metaborg.parsetable.query.ActionsForCharacterSeparated;
+import org.metaborg.parsetable.query.ActionsPerCharacterClass;
+import org.metaborg.parsetable.query.ProductionToGotoForLoop;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;

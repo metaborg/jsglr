@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
-import org.metaborg.parsetable.IActionQuery;
+import org.metaborg.parsetable.query.IActionQuery;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;

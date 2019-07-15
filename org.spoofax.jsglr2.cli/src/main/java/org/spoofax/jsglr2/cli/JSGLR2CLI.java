@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.*;
 import org.spoofax.jsglr2.imploder.ImploderVariant;

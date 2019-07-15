@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.states;
 
 import org.metaborg.parsetable.IState;
 import org.metaborg.parsetable.actions.IGoto;
-import org.metaborg.sdf2table.parsetable.query.*;
+import org.metaborg.parsetable.query.*;
 
 public class StateFactory implements IStateFactory {
 

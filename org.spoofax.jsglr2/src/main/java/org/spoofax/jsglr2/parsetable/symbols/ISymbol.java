@@ -10,4 +10,8 @@ public interface ISymbol {
 
     public String descriptor();
 
+    public static String getSort(ISymbol symbol) {
+        return symbol instanceof ISortSymbol ? ((ISortSymbol) symbol).sort() : null;
+    }
+
 }

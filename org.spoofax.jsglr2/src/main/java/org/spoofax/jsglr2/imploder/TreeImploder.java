@@ -139,7 +139,7 @@ public class TreeImploder
     protected Tree createLexicalTerm(IProduction production, String substring) {
         if(production.isLayout() || production.isLiteral()) {
             return null;
-        } else if(production.isLexical() || production.isLexicalRhs()) {
+        } else if(production.isLexical()) {
             return treeFactory.createStringTerminal(production.sort(), substring);
         } else {
             throw new RuntimeException("invalid term type");

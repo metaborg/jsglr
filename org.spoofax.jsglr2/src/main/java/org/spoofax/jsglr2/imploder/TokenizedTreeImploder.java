@@ -100,7 +100,7 @@ public abstract class TokenizedTreeImploder
 
             if(production.isLayout() || production.isLiteral()) {
                 tree = null;
-            } else if(production.isLexical() || production.isLexicalRhs()) {
+            } else if(production.isLexical()) {
                 tree = createLexicalTerm(production, tokens.toString(startPosition.offset, endPosition.offset), token);
             } else {
                 throw new RuntimeException("invalid term type");

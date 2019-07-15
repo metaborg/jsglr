@@ -20,6 +20,12 @@ public class SymbolReader {
         IStrategoAppl symbolTermUnpacked = symbolTerm;
         SyntaxContext syntaxContext;
 
+        if ("varsym".equals(tryGetName(symbolTermUnpacked))) {
+            symbolTermUnpacked = applAt(symbolTermUnpacked, 0);
+
+            // TODO: what to do with varsym symbols/productions?
+        }
+
         switch(tryGetName(symbolTermUnpacked)) {
             case "cf":
                 symbolTermUnpacked = applAt(symbolTermUnpacked, 0);

@@ -1,161 +1,72 @@
 package org.spoofax.jsglr2.parsetable;
 
-import static org.spoofax.terms.StrategoListIterator.iterable;
 import static org.spoofax.terms.Term.*;
 
 import java.util.Iterator;
 
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr2.parsetable.symbols.ConcreteSyntaxContext;
+import org.spoofax.jsglr2.parsetable.symbols.ISortSymbol;
+import org.spoofax.jsglr2.parsetable.symbols.ISymbol;
+import org.spoofax.jsglr2.parsetable.symbols.SymbolReader;
 import org.spoofax.terms.TermVisitor;
 
 public class ProductionReader {
 
-    public static IProduction read(IStrategoTerm productionWithIdTerm) throws ParseTableReadException {
+    final CharacterClassReader characterClassReader;
+
+    public ProductionReader(CharacterClassReader characterClassReader) {
+        this.characterClassReader = characterClassReader;
+    }
+
+    public IProduction read(IStrategoTerm productionWithIdTerm) throws ParseTableReadException {
         int productionId = intAt(productionWithIdTerm, 1);
 
-        // A tuple of the production right hand side, left hand side and attributes
         IStrategoAppl productionTerm = termAt(productionWithIdTerm, 0);
         IStrategoAppl lhsTerm = termAt(productionTerm, 1);
         IStrategoList rhsTerm = termAt(productionTerm, 0);
         IStrategoAppl attributesTerm = termAt(productionTerm, 2);
 
-        ProductionAttributes attributes = readProductionAttributes(attributesTerm);
+        SymbolReader symbolReader = new SymbolReader(characterClassReader);
 
-        String sort = getSort(lhsTerm);
-        String startSymbolSort = getStartSymbolSort(lhsTerm, rhsTerm);
-        String descriptor = lhsTerm.toString() + " -> " + rhsTerm.toString();
-        boolean isLayout = getIsLayout(lhsTerm);
-        boolean isLayoutParent = getIsLayoutParent(lhsTerm, descriptor);
-        boolean isLiteral = getIsLiteral(lhsTerm);
-        boolean isLexical = getIsLexical(lhsTerm);
-        boolean isLexicalRhs = getIsLexicalRhs(rhsTerm);
-        boolean isList = getIsList(lhsTerm, attributes.isFlatten);
-        boolean isOptional = getIsOptional(lhsTerm);
+        ISymbol lhs = symbolReader.read(lhsTerm);
+        ISymbol[] rhs = new ISymbol[rhsTerm.size()];
+        for(int i = 0; i < rhsTerm.size(); i++)
+            rhs[i] = symbolReader.read((IStrategoAppl) rhsTerm.getSubterm(i));
+
         boolean isStringLiteral = getIsStringLiteral(rhsTerm);
         boolean isNumberLiteral = getIsNumberLiteral(rhsTerm);
-        boolean isOperator = getIsOperator(lhsTerm, isLiteral);
 
-        boolean skippableLayout = isLayout && !isLayoutParent;
-        boolean skippableLexical = sort == null && (isLexical || (isLexicalRhs && !isLiteral));
+        boolean isLexicalRhs = getIsLexicalRhs(rhsTerm);
+        boolean isLayout = lhs.concreteSyntaxContext() == ConcreteSyntaxContext.Layout;
+        boolean isLiteral = lhs.concreteSyntaxContext() == ConcreteSyntaxContext.Literal;
+        boolean isLexical = lhs.concreteSyntaxContext() == ConcreteSyntaxContext.Lexical;
+
+        boolean skippableLayout = isLayout && !getIsLayoutParent(lhsTerm, rhsTerm);
+        boolean skippableLexical = !(lhs instanceof ISortSymbol) && (isLexical || (isLexicalRhs && !isLiteral));
 
         boolean isSkippableInParseForest = skippableLayout || skippableLexical;
 
-        boolean isContextFree = !(isLayout || isLiteral || isLexical || isLexicalRhs);
+        ProductionAttributes attributes = readProductionAttributes(attributesTerm);
 
-        return new Production(productionId, sort, startSymbolSort, descriptor, isContextFree, isLayout, isLiteral,
-            isLexical, isLexicalRhs, isSkippableInParseForest, isList, isOptional, isStringLiteral, isNumberLiteral,
-            isOperator, attributes);
+        return new Production(productionId, lhs, rhs, isStringLiteral, isNumberLiteral, isLexicalRhs,
+            isSkippableInParseForest, attributes);
     }
 
-    private static String getSort(IStrategoAppl lhs) {
-        for(IStrategoTerm current = lhs; current.getSubtermCount() > 0 && isTermAppl(current); current =
-            termAt(current, 0)) {
-            String sort = tryGetSort((IStrategoAppl) current);
+    private boolean getIsLayoutParent(IStrategoTerm lhs, IStrategoTerm rhs) {
+        String descriptor = lhs.toString() + " -> " + rhs.toString();
 
-            if(sort != null)
-                return sort;
-        }
-
-        return null;
-    }
-
-    public static String tryGetFirstSort(IStrategoList lhs) {
-        for(IStrategoTerm current : lhs.getAllSubterms()) {
-            String sort = tryGetSort((IStrategoAppl) current);
-
-            if(sort != null)
-                return sort;
-        }
-
-        return null;
-    }
-
-    private static String tryGetSort(IStrategoAppl appl) {
-        IStrategoConstructor cons = appl.getConstructor();
-
-        if("sort".equals(cons.getName()))
-            return javaString(termAt(appl, 0));
-        else if("cf".equals(cons.getName()) || "lex".equals(cons.getName()))
-            return tryGetSort(applAt(appl, 0));
-        else if("parameterized-sort".equals(cons.getName()))
-            return getParameterizedSortName(appl);
-        else if("char-class".equals(cons.getName()))
-            return null;
-        else if("alt".equals(cons.getName()))
-            return getAltSortName(appl);
-        else
-            return null;
-    }
-
-    private static final int PARAMETRIZED_SORT_NAME = 0;
-    private static final int PARAMETRIZED_SORT_ARGS = 1;
-
-    private static String getParameterizedSortName(IStrategoAppl parameterizedSort) {
-        StringBuilder result = new StringBuilder();
-
-        result.append(((IStrategoNamed) termAt(parameterizedSort, PARAMETRIZED_SORT_NAME)).getName());
-        result.append('_');
-
-        IStrategoList args = termAt(parameterizedSort, PARAMETRIZED_SORT_ARGS);
-
-        for(IStrategoTerm arg : iterable(args)) {
-            result.append(((IStrategoNamed) arg).getName());
-        }
-
-        return result.toString();
-    }
-
-    private static final int ALT_SORT_LEFT = 0;
-    private static final int ALT_SORT_RIGHT = 1;
-
-    private static String getAltSortName(IStrategoAppl node) {
-        String left = getSort(applAt(node, ALT_SORT_LEFT));
-        String right = getSort(applAt(node, ALT_SORT_RIGHT));
-
-        return left + "_" + right + "0";
-    }
-
-    private static String getStartSymbolSort(IStrategoAppl lhs, IStrategoList rhs) {
-        if("<START>".equals(tryGetSort(lhs))) {
-            return tryGetFirstSort(rhs);
-        }
-
-        return null;
-    }
-
-    private static boolean getIsLayout(IStrategoTerm lhs) {
-        IStrategoTerm details = termAt(lhs, 0);
-
-        if(!isTermAppl(details))
-            return false;
-
-        if("opt".equals(((IStrategoAppl) details).getConstructor().getName()))
-            details = termAt(details, 0);
-
-        return "layout".equals(((IStrategoAppl) details).getConstructor().getName());
-    }
-
-    private static boolean getIsLayoutParent(IStrategoTerm lhs, String descriptor) {
-        return getIsLayout(lhs) && "cf".equals(((IStrategoAppl) lhs).getConstructor().getName())
+        return "cf".equals(((IStrategoAppl) lhs).getConstructor().getName())
             && !"cf(layout) -> [cf(layout),cf(layout)]".equals(descriptor)
             && !"cf(opt(layout)) -> []".equals(descriptor);
     }
 
-    private static boolean getIsLiteral(IStrategoAppl lhs) {
-        String constructorName = lhs.getConstructor().getName();
-
-        return "lit".equals(constructorName) || "cilit".equals(constructorName);
-    }
-
-    private static boolean getIsLexical(IStrategoAppl lhs) {
-        String constructorName = lhs.getConstructor().getName();
-
-        return "lex".equals(constructorName);
-    }
-
-    private static boolean getIsLexicalRhs(IStrategoList rhs) {
+    private boolean getIsLexicalRhs(IStrategoList rhs) {
         if(rhs.getSubtermCount() > 0) {
             boolean lexRhs = true;
 
@@ -170,75 +81,17 @@ public class ProductionReader {
             return false;
     }
 
-    private static boolean getIsList(IStrategoAppl lhs, boolean isFlatten) {
-        IStrategoConstructor constructor = getIterConstructor(lhs);
-
-        return getIsIterFun(constructor) || "seq".equals(constructor.getName()) || isFlatten;
-    }
-
-    private static IStrategoConstructor getIterConstructor(IStrategoAppl lhs) {
-        IStrategoAppl details = lhs;
-
-        if("varsym".equals(details.getConstructor().getName()))
-            details = termAt(details, 0);
-
-        if("cf".equals(details.getConstructor().getName()))
-            details = termAt(details, 0);
-
-        if("opt".equals(details.getConstructor().getName()))
-            details = termAt(details, 0);
-
-        return details.getConstructor();
-    }
-
-    private static boolean getIsIterFun(IStrategoConstructor constructor) {
-        String constructorName = constructor.getName();
-
-        return "iter".equals(constructorName) || "iter-star".equals(constructorName)
-            || "iter-plus".equals(constructorName) || "iter-sep".equals(constructorName)
-            || "iter-star-sep".equals(constructorName) || "iter-plus-sep".equals(constructorName);
-    }
-
-    private static boolean getIsOptional(IStrategoAppl lhs) {
-        if("opt".equals(lhs.getConstructor().getName()))
-            return true;
-
-        IStrategoTerm contents = termAt(lhs, 0);
-
-        return contents.getSubtermCount() == 1 && isTermAppl(contents)
-            && "opt".equals(((IStrategoAppl) contents).getConstructor().getName());
-    }
-
-    private static boolean getIsStringLiteral(IStrategoTerm rhs) {
+    private boolean getIsStringLiteral(IStrategoTerm rhs) {
         return topdownHasSpaces(rhs);
     }
 
-    private static boolean getIsNumberLiteral(IStrategoTerm rhs) {
+    private boolean getIsNumberLiteral(IStrategoTerm rhs) {
         IStrategoTerm range = getFirstRange(rhs);
 
         return range != null && intAt(range, 0) == '0' && intAt(range, 1) == '9';
     }
 
-    private static boolean getIsOperator(IStrategoAppl lhs, boolean isLiteral) {
-        // An operator literal is always a literal
-        if(!isLiteral)
-            return false;
-
-        IStrategoString lit = termAt(lhs, 0);
-        String contents = lit.stringValue();
-
-        // Operators are literals with all characters not being letters
-        for(int i = 0; i < contents.length(); i++) {
-            char c = contents.charAt(i);
-
-            if(Character.isLetter(c))
-                return false;
-        }
-
-        return true;
-    }
-
-    private static boolean topdownHasSpaces(IStrategoTerm term) {
+    private boolean topdownHasSpaces(IStrategoTerm term) {
         Iterator<IStrategoTerm> iterator = TermVisitor.tryGetListIterator(term);
 
         for(int i = 0, max = term.getSubtermCount(); i < max; i++) {
@@ -259,11 +112,11 @@ public class ProductionReader {
         return false;
     }
 
-    private static boolean isRangeAppl(IStrategoTerm child) {
+    private boolean isRangeAppl(IStrategoTerm child) {
         return isTermAppl(child) && ((IStrategoAppl) child).getName().equals("range");
     }
 
-    private static IStrategoTerm getFirstRange(IStrategoTerm term) {
+    private IStrategoTerm getFirstRange(IStrategoTerm term) {
         for(int i = 0; i < term.getSubtermCount(); i++) {
             IStrategoTerm child = termAt(term, i);
 
@@ -280,8 +133,7 @@ public class ProductionReader {
         return null;
     }
 
-    private static ProductionAttributes readProductionAttributes(IStrategoAppl attributesTerm)
-        throws ParseTableReadException {
+    private ProductionAttributes readProductionAttributes(IStrategoAppl attributesTerm) throws ParseTableReadException {
         if(attributesTerm.getName().equals("attrs")) {
             ProductionType type = ProductionType.NO_TYPE;
 

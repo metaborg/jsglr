@@ -44,6 +44,7 @@ public class ParseTableReader {
     final IStateFactory stateFactory;
 
     final CharacterClassReader characterClassReader;
+    final ProductionReader productionReader;
 
     public ParseTableReader() {
         this(new CharacterClassFactory(), new ActionsFactory(), new StateFactory());
@@ -59,6 +60,7 @@ public class ParseTableReader {
         this.actionsFactory = actionsFactory;
         this.stateFactory = stateFactory;
         this.characterClassReader = new CharacterClassReader(characterClassFactory);
+        this.productionReader = new ProductionReader(characterClassReader);
     }
 
     /*
@@ -104,7 +106,7 @@ public class ParseTableReader {
         IProduction[] productions = new Production[257 + productionCount];
 
         for(IStrategoTerm productionWithIdTerm : productionsTermList) {
-            IProduction production = ProductionReader.read(productionWithIdTerm);
+            IProduction production = productionReader.read(productionWithIdTerm);
 
             productions[production.id()] = production;
         }

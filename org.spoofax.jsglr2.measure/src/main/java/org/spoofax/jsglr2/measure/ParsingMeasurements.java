@@ -113,8 +113,7 @@ public class ParsingMeasurements extends Measurements {
             if(parseNode.production.isContextFree())
                 parseNodesContextFree.add(parseNode);
 
-            if(!parseNode.production.isLayout()
-                && (parseNode.production.isLexical() || parseNode.production.isLexicalRhs()))
+            if(!parseNode.production.isLayout() && parseNode.production.isLexical())
                 parseNodesLexical.add(parseNode);
 
             if(parseNode.production.isLayout())

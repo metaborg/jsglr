@@ -1,46 +1,36 @@
 package org.spoofax.jsglr2.parsetable;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.ProductionType;
+import org.spoofax.jsglr2.parsetable.symbols.ConcreteSyntaxContext;
+import org.spoofax.jsglr2.parsetable.symbols.ILiteralSymbol;
+import org.spoofax.jsglr2.parsetable.symbols.ISymbol;
+import org.spoofax.jsglr2.parsetable.symbols.SortCardinality;
 
 public class Production implements IProduction {
 
+    public final ISymbol lhs;
+    public final ISymbol[] rhs;
+
     private final int productionId;
-    private final String sort;
-    private final String startSymbolSort;
-    private final String descriptor;
-    private final boolean isContextFree;
-    private final boolean isLayout;
-    private final boolean isLiteral;
-    private final boolean isLexical;
-    private final boolean isLexicalRhs;
-    private final boolean isSkippableInParseForest;
-    private final boolean isList;
-    private final boolean isOptional;
     private final boolean isStringLiteral;
     private final boolean isNumberLiteral;
-    private final boolean isOperator;
+    private final boolean isLexicalRhs;
+    private final boolean isSkippableInParseForest;
     private final ProductionAttributes attributes;
 
-    public Production(int productionId, String sort, String startSymbolSort, String descriptor, Boolean isContextFree,
-        Boolean isLayout, Boolean isLiteral, Boolean isLexical, Boolean isLexicalRhs, Boolean isSkippableInParseForest,
-        Boolean isList, Boolean isOptional, Boolean isStringLiteral, Boolean isNumberLiteral, Boolean isOperator,
-        ProductionAttributes attributes) {
+    public Production(int productionId, ISymbol lhs, ISymbol[] rhs, Boolean isStringLiteral, Boolean isNumberLiteral,
+        Boolean isLexicalRhs, Boolean isSkippableInParseForest, ProductionAttributes attributes) {
         this.productionId = productionId;
-        this.sort = sort;
-        this.startSymbolSort = startSymbolSort;
-        this.descriptor = descriptor;
-        this.isContextFree = isContextFree;
-        this.isLayout = isLayout;
-        this.isLiteral = isLiteral;
-        this.isLexical = isLexical;
-        this.isLexicalRhs = isLexicalRhs;
-        this.isSkippableInParseForest = isSkippableInParseForest;
-        this.isList = isList;
-        this.isOptional = isOptional;
+        this.lhs = lhs;
+        this.rhs = rhs;
         this.isStringLiteral = isStringLiteral;
         this.isNumberLiteral = isNumberLiteral;
-        this.isOperator = isOperator;
+        this.isLexicalRhs = isLexicalRhs;
+        this.isSkippableInParseForest = isSkippableInParseForest;
         this.attributes = attributes;
     }
 
@@ -66,11 +56,20 @@ public class Production implements IProduction {
     }
 
     @Override public String sort() {
-        return sort;
+        return ISymbol.getSort(lhs);
     }
 
     @Override public String startSymbolSort() {
-        return startSymbolSort;
+        if("<START>".equals(sort())) {
+            for(ISymbol symbol : rhs) {
+                String sort = ISymbol.getSort(symbol);
+
+                if(sort != null)
+                    return sort;
+            }
+        }
+
+        return null;
     }
 
     @Override public String constructor() {
@@ -78,27 +77,23 @@ public class Production implements IProduction {
     }
 
     @Override public String descriptor() {
-        return descriptor;
+        return lhs.toString() + " = " + Arrays.stream(rhs).map(ISymbol::toString).collect(Collectors.joining(" "));
     }
 
     @Override public boolean isContextFree() {
-        return isContextFree;
+        return lhs.concreteSyntaxContext() == ConcreteSyntaxContext.ContextFree;
     }
 
     @Override public boolean isLayout() {
-        return isLayout;
+        return lhs.concreteSyntaxContext() == ConcreteSyntaxContext.Layout;
     }
 
     @Override public boolean isLiteral() {
-        return isLiteral;
+        return lhs.concreteSyntaxContext() == ConcreteSyntaxContext.Literal;
     }
 
     @Override public boolean isLexical() {
-        return isLexical;
-    }
-
-    @Override public boolean isLexicalRhs() {
-        return isLexicalRhs;
+        return lhs.concreteSyntaxContext() == ConcreteSyntaxContext.Lexical || (isLexicalRhs && !isLiteral());
     }
 
     @Override public boolean isSkippableInParseForest() {
@@ -106,11 +101,11 @@ public class Production implements IProduction {
     }
 
     @Override public boolean isList() {
-        return isList;
+        return lhs.cardinality() == SortCardinality.List || attributes.isFlatten;
     }
 
     @Override public boolean isOptional() {
-        return isOptional;
+        return lhs.cardinality() == SortCardinality.Optional;
     }
 
     @Override public boolean isStringLiteral() {
@@ -122,7 +117,7 @@ public class Production implements IProduction {
     }
 
     @Override public boolean isOperator() {
-        return isOperator;
+        return isLiteral() && ((ILiteralSymbol) lhs).isOperator();
     }
 
     @Override public boolean isCompletionOrRecovery() {
@@ -130,7 +125,7 @@ public class Production implements IProduction {
     }
 
     @Override public String toString() {
-        return descriptor;
+        return descriptor();
     }
 
     @Override public int hashCode() {

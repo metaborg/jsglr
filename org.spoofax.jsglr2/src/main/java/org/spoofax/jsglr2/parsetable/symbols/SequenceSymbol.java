@@ -6,7 +6,7 @@ public class SequenceSymbol extends NonTerminalSymbol implements ISequenceSymbol
         super(syntaxContext, SortCardinality.List);
     }
 
-    @Override public SortConcreteSyntaxContext concreteSyntaxContext() {
+    @Override public ConcreteSyntaxContext concreteSyntaxContext() {
         return null;
     }
 

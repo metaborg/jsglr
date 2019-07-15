@@ -15,8 +15,8 @@ abstract class Symbol implements ISymbol {
     @Override public String toString() {
         String s = descriptor();
 
-        if (syntaxContext() != null) {
-            switch (syntaxContext()) {
+        if(syntaxContext() != null) {
+            switch(syntaxContext()) {
                 case ContextFree:
                     s = s + "-CF";
                     break;

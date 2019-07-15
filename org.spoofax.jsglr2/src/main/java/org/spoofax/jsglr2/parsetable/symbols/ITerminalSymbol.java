@@ -8,6 +8,10 @@ public interface ITerminalSymbol extends ISymbol {
         return SyntaxContext.Lexical;
     }
 
+    default ConcreteSyntaxContext concreteSyntaxContext() {
+        return null;
+    }
+
     public ICharacterClass characterClass();
 
 }

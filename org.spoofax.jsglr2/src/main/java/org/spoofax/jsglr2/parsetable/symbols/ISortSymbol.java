@@ -4,8 +4,8 @@ public interface ISortSymbol extends INonTerminalSymbol {
 
     public String sort();
 
-    default SortConcreteSyntaxContext concreteSyntaxContext() {
-        return null;
+    default ConcreteSyntaxContext concreteSyntaxContext() {
+        return syntaxContext() != null ? syntaxContext().concreteSyntaxContext : ConcreteSyntaxContext.ContextFree;
     }
 
 }

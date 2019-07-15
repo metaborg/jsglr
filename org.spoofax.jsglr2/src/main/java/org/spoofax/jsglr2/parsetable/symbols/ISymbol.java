@@ -4,6 +4,8 @@ public interface ISymbol {
 
     public SyntaxContext syntaxContext();
 
+    public ConcreteSyntaxContext concreteSyntaxContext();
+
     public SortCardinality cardinality();
 
     public String descriptor();

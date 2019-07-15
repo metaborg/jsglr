@@ -11,7 +11,7 @@ public class AltSymbol extends NonTerminalSymbol implements IAltSymbol {
         this.second = second;
     }
 
-    @Override public SortConcreteSyntaxContext concreteSyntaxContext() {
+    @Override public ConcreteSyntaxContext concreteSyntaxContext() {
         return null;
     }
 

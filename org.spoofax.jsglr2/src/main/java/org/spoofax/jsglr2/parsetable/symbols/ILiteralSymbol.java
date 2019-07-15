@@ -4,8 +4,8 @@ public interface ILiteralSymbol extends INonTerminalSymbol {
 
     public String literal();
 
-    default SortConcreteSyntaxContext concreteSyntaxContext() {
-        return SortConcreteSyntaxContext.Literal;
+    default ConcreteSyntaxContext concreteSyntaxContext() {
+        return ConcreteSyntaxContext.Literal;
     }
 
 }

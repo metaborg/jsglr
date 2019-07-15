@@ -5,10 +5,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.actions.IActionsFactory;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.metaborg.parsetable.actions.ActionsFactory;
+import org.metaborg.parsetable.actions.IActionsFactory;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public class ParseTableMeasurements extends Measurements {

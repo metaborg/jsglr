@@ -4,9 +4,9 @@ import java.util.Objects;
 
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.states.IStateFactory;
-import org.spoofax.jsglr2.states.StateFactory;
+import org.metaborg.parsetable.ParseTableReader;
+import org.metaborg.parsetable.states.IStateFactory;
+import org.metaborg.parsetable.states.StateFactory;
 
 // TODO move to SDF and use in StateFactory?
 public class ParseTableVariant {

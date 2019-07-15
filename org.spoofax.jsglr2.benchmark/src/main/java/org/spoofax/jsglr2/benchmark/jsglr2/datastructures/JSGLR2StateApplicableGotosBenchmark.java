@@ -14,11 +14,11 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.states.IStateFactory;
-import org.spoofax.jsglr2.states.StateFactory;
+import org.metaborg.parsetable.states.IStateFactory;
+import org.metaborg.parsetable.states.StateFactory;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStructureBenchmark {

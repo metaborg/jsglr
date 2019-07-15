@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public class JSGLR2Measurements {

@@ -13,6 +13,17 @@ public class LiteralSymbol extends NonTerminalSymbol implements ILiteralSymbol {
         return literal;
     }
 
+    @Override public boolean isOperator() {
+        for(int i = 0; i < literal.length(); i++) {
+            char c = literal.charAt(i);
+
+            if(Character.isLetter(c))
+                return false;
+        }
+
+        return true;
+    }
+
     @Override public String descriptor() {
         return "\"" + literal + "\"";
     }

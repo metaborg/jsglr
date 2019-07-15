@@ -8,4 +8,6 @@ public interface ILiteralSymbol extends INonTerminalSymbol {
         return ConcreteSyntaxContext.Literal;
     }
 
+    public boolean isOperator();
+
 }

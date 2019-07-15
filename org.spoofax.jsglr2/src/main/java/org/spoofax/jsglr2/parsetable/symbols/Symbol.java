@@ -12,4 +12,22 @@ abstract class Symbol implements ISymbol {
         return cardinality;
     }
 
+    @Override public String toString() {
+        String s = descriptor();
+
+        if (syntaxContext() != null) {
+            switch (syntaxContext()) {
+                case ContextFree:
+                    s = s + "-CF";
+                    break;
+                case Lexical:
+                    s = s + "-LEX";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return s;
+    }
 }

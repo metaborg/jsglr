@@ -13,4 +13,8 @@ public class SortSymbol extends NonTerminalSymbol implements ISortSymbol {
         return sort;
     }
 
+    @Override public String descriptor() {
+        return sort;
+    }
+
 }

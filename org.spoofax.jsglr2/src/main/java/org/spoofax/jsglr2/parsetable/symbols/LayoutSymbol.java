@@ -6,4 +6,8 @@ public class LayoutSymbol extends NonTerminalSymbol implements ILayoutSymbol {
         super(syntaxContext, cardinality);
     }
 
+    @Override public String descriptor() {
+        return "LAYOUT";
+    }
+
 }

@@ -22,4 +22,8 @@ public class AltSymbol extends NonTerminalSymbol implements IAltSymbol {
     @Override public ISymbol second() {
         return second;
     }
+
+    @Override public String descriptor() {
+        return first.descriptor() + " | " + second.descriptor();
+    }
 }

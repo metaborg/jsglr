@@ -9,4 +9,8 @@ public class SequenceSymbol extends NonTerminalSymbol implements ISequenceSymbol
     @Override public SortConcreteSyntaxContext concreteSyntaxContext() {
         return null;
     }
+
+    @Override public String descriptor() {
+        return "seq";
+    }
 }

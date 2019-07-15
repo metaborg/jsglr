@@ -15,4 +15,8 @@ public class TerminalSymbol extends Symbol implements ITerminalSymbol {
         return characterClass;
     }
 
+    @Override public String descriptor() {
+        return "[...]";
+    }
+
 }

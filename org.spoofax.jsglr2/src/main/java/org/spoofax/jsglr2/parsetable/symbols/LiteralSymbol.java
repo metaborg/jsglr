@@ -13,4 +13,8 @@ public class LiteralSymbol extends NonTerminalSymbol implements ILiteralSymbol {
         return literal;
     }
 
+    @Override public String descriptor() {
+        return "\"" + literal + "\"";
+    }
+
 }

@@ -6,4 +6,6 @@ public interface ISymbol {
 
     public SortCardinality cardinality();
 
+    public String descriptor();
+
 }

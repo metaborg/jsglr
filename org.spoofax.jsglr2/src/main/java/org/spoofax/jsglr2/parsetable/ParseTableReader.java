@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.ICharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.IState;

@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parser.Position;
 

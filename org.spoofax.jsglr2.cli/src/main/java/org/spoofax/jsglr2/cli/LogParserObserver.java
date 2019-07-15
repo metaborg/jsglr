@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.cli;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;

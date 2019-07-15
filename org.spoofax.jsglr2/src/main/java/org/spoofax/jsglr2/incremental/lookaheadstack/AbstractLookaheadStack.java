@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.incremental.lookaheadstack;
 
-import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+import static org.metaborg.parsetable.characterclasses.CharacterClassFactory.EOF_INT;
 
 public abstract class AbstractLookaheadStack implements ILookaheadStack {
     protected final String inputString;

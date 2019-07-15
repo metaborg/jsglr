@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.incremental.lookaheadstack;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+import static org.metaborg.parsetable.characterclasses.CharacterClassFactory.EOF_INT;
 import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
 
 import org.junit.Test;

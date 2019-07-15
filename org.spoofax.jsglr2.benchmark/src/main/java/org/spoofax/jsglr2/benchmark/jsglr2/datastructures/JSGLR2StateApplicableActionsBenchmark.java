@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.ICharacterClassFactory;
 import org.metaborg.parsetable.IActionQuery;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IState;

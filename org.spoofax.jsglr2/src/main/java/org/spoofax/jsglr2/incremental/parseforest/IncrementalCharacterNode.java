@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
-import static org.metaborg.characterclasses.CharacterClassFactory.EOF_INT;
+import static org.metaborg.parsetable.characterclasses.CharacterClassFactory.EOF_INT;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 

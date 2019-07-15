@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.measure;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 
 public class MeasureCharacterClassFactory extends CharacterClassFactory {

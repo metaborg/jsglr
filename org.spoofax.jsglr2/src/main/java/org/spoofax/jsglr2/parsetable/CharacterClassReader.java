@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.parsetable;
 
 import static org.spoofax.terms.Term.*;
 
-import org.metaborg.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.ICharacterClassFactory;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;

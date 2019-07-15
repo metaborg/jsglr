@@ -61,6 +61,7 @@ public class SymbolReader {
             case "sort":
             case "parameterized-sort":
             case "lit":
+            case "cilit":
             case "layout":
                 return readNonTerminal(symbolTermUnpacked, syntaxContext, cardinality);
             case "char-class":
@@ -96,6 +97,7 @@ public class SymbolReader {
 
                 return new ParameterizedSortSymbol(syntaxContext, cardinality, sortBase, sortParameters);
             case "lit":
+            case "cilit":
                 String literal = javaString(termAt(nonTerminalTerm, 0));
                 return new LiteralSymbol(syntaxContext, cardinality, literal);
             case "layout":

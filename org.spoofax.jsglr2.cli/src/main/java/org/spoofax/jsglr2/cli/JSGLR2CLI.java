@@ -148,6 +148,8 @@ public class JSGLR2CLI implements Runnable {
         System.exit(exitCode);
     }
 
+    private OutputStream outputStream;
+
     public void run() {
         try {
             JSGLR2Variants.Variant variant = parserVariant.getVariant();
@@ -155,6 +157,8 @@ public class JSGLR2CLI implements Runnable {
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
                 (JSGLR2Implementation<?, ?, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant);
             IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
+
+            outputStream = outputStream();
 
             if(logging)
                 observableParser.observing().attachObserver(new LogParserObserver<>(this::output));
@@ -208,8 +212,8 @@ public class JSGLR2CLI implements Runnable {
     }
 
     private void output(String output) {
-        try(OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream())) {
-            outputStreamWriter.write(output);
+        try {
+            outputStream.write((output + "\n").getBytes(Charset.forName("UTF-8")));
         } catch(IOException e) {
             failOnWrappedException(new WrappedException("Writing output failed", e), verbose);
         }
@@ -217,7 +221,7 @@ public class JSGLR2CLI implements Runnable {
 
     private void outputDot(String dot) {
         try {
-            switch (outputOptions.dotFormat) {
+            switch(outputOptions.dotFormat) {
                 case Text:
                     output(dot);
                     break;
@@ -228,40 +232,44 @@ public class JSGLR2CLI implements Runnable {
                     outputDot(dot, "png");
                     break;
             }
-        } catch (WrappedException e) {
+        } catch(WrappedException e) {
             failOnWrappedException(e, verbose);
         }
     }
 
     private void outputDot(String dot, String format) throws WrappedException {
-        try(OutputStream outputStream = outputStream()) {
+        try {
             Process pr = Runtime.getRuntime().exec("dot -T" + format);
 
-            try (InputStream dotOutputStream = pr.getInputStream(); OutputStream input = pr.getOutputStream()) {
+            try(InputStream dotOutputStream = pr.getInputStream(); OutputStream input = pr.getOutputStream()) {
                 input.write(dot.getBytes(Charset.forName("UTF-8")));
                 input.close();
 
                 IOUtils.copy(dotOutputStream, outputStream);
 
-                if (!pr.waitFor(5, TimeUnit.SECONDS)) {
+                if(!pr.waitFor(5, TimeUnit.SECONDS)) {
                     int exitCode = pr.exitValue();
 
-                    if (exitCode == 0)
+                    if(exitCode == 0)
                         throw new WrappedException("DOT timed out");
                     else
                         throw new WrappedException("DOT exited with " + exitCode);
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch(IOException | InterruptedException e) {
             throw new WrappedException("Writing output failed", e);
         }
     }
 
-    private OutputStream outputStream() throws IOException {
-        if(outputOptions.outputFile != null)
-            return new FileOutputStream(outputOptions.outputFile);
-        else
-            return System.out;
+    private OutputStream outputStream() throws WrappedException {
+        try {
+            if(outputOptions.outputFile != null)
+                return new FileOutputStream(outputOptions.outputFile);
+            else
+                return System.out;
+        } catch(FileNotFoundException e) {
+            throw new WrappedException("Invalid output", e);
+        }
     }
 
     private IParseTable getParseTable() throws WrappedException {

@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.grammar.IProduction;
+import org.metaborg.parsetable.grammar.ISymbol;
 import org.metaborg.sdf2table.deepconflicts.ContextualProduction;
 import org.metaborg.sdf2table.deepconflicts.ContextualSymbol;
-import org.metaborg.sdf2table.grammar.IProduction;
-import org.metaborg.sdf2table.grammar.Symbol;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -50,11 +50,11 @@ public class DataDependentReduceManager
                 final IProduction production = ((ParseTableProduction) reduce.production()).getProduction();
 
                 if(production instanceof ContextualProduction) {
-                    final List<Symbol> rightHandSymbols = production.rightHand();
+                    final List<ISymbol> rightHandSymbols = production.rightHand();
 
                     for(int i = 0; i < rightHandSymbols.size(); i++) {
                         final ParseForest nextParseForest = parseNodes[i];
-                        final Symbol nextSymbol = rightHandSymbols.get(i);
+                        final ISymbol nextSymbol = rightHandSymbols.get(i);
 
                         if(nextSymbol instanceof ContextualSymbol && checkContexts(nextParseForest, nextSymbol)) {
                             skipReduce = true; // prohibit reduction
@@ -71,7 +71,7 @@ public class DataDependentReduceManager
         }
     }
 
-    private static <ParseForest extends IParseForest> boolean checkContexts(ParseForest pf, Symbol symbol) {
+    private static <ParseForest extends IParseForest> boolean checkContexts(ParseForest pf, ISymbol symbol) {
         final ContextualSymbol contextualSymbol = (ContextualSymbol) symbol;
 
         final long contextBitmap = contextualSymbol.deepContexts();

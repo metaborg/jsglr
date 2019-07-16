@@ -1,7 +1,10 @@
 package org.spoofax.jsglr2.cli;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
@@ -114,18 +117,26 @@ public class JSGLR2CLI implements Runnable {
         new OutputOptions();
 
     static class OutputOptions {
-        @Option(names = "--dot", required = true,
-            description = "Visualization in DOT: ${COMPLETION-CANDIDATES}") DotVisualization dot;
-
         boolean isParseResult() {
             return dot == null;
         }
 
         @Option(names = { "-o", "--output" }, required = false, description = "Output file") private File outputFile;
+
+        @Option(names = "--dot", required = true,
+            description = "Visualization in DOT: ${COMPLETION-CANDIDATES}") DotVisualization dot;
+
+        @Option(names = "--dot-format", required = false,
+            description = "DOT format: ${COMPLETION-CANDIDATES}") DotVisualizationFormat dotFormat =
+                DotVisualizationFormat.Text;
     }
 
     enum DotVisualization {
         Stack, ParseForest
+    }
+
+    enum DotVisualizationFormat {
+        Text, PDF, PNG
     }
 
     @Option(names = { "-v", "--verbose" }, negatable = true, description = "Print stack traces") boolean verbose =
@@ -149,11 +160,11 @@ public class JSGLR2CLI implements Runnable {
                 observableParser.observing().attachObserver(new LogParserObserver<>(this::output));
 
             if(outputOptions.dot == DotVisualization.Stack)
-                observableParser.observing().attachObserver(new StackDotVisualisationParserObserver<>(this::output));
+                observableParser.observing().attachObserver(new StackDotVisualisationParserObserver<>(this::outputDot));
 
             if(outputOptions.dot == DotVisualization.ParseForest)
                 observableParser.observing()
-                    .attachObserver(new ParseForestDotVisualisationParserObserver<>(this::output));
+                    .attachObserver(new ParseForestDotVisualisationParserObserver<>(this::outputDot));
 
             if(implode)
                 parseAndImplode(jsglr2);
@@ -197,14 +208,60 @@ public class JSGLR2CLI implements Runnable {
     }
 
     private void output(String output) {
-        if(outputOptions.outputFile != null)
-            try(FileWriter fileWriter = new FileWriter(outputOptions.outputFile)) {
-                fileWriter.write(output);
-            } catch(IOException e) {
-                failOnWrappedException(new WrappedException("Invalid output file", e), verbose);
+        try(OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream())) {
+            outputStreamWriter.write(output);
+        } catch(IOException e) {
+            failOnWrappedException(new WrappedException("Writing output failed", e), verbose);
+        }
+    }
+
+    private void outputDot(String dot) {
+        try {
+            switch (outputOptions.dotFormat) {
+                case Text:
+                    output(dot);
+                    break;
+                case PDF:
+                    outputDot(dot, "pdf");
+                    break;
+                case PNG:
+                    outputDot(dot, "png");
+                    break;
             }
+        } catch (WrappedException e) {
+            failOnWrappedException(e, verbose);
+        }
+    }
+
+    private void outputDot(String dot, String format) throws WrappedException {
+        try(OutputStream outputStream = outputStream()) {
+            Process pr = Runtime.getRuntime().exec("dot -T" + format);
+
+            try (InputStream dotOutputStream = pr.getInputStream(); OutputStream input = pr.getOutputStream()) {
+                input.write(dot.getBytes(Charset.forName("UTF-8")));
+                input.close();
+
+                IOUtils.copy(dotOutputStream, outputStream);
+
+                if (!pr.waitFor(5, TimeUnit.SECONDS)) {
+                    int exitCode = pr.exitValue();
+
+                    if (exitCode == 0)
+                        throw new WrappedException("DOT timed out");
+                    else
+                        throw new WrappedException("DOT exited with " + exitCode);
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new WrappedException("Writing output failed", e);
+        }
+    }
+
+    private OutputStream outputStream() throws IOException {
+        if(outputOptions.outputFile != null)
+            return new FileOutputStream(outputOptions.outputFile);
         else
-            System.out.println(output);
+            return System.out;
     }
 
     private IParseTable getParseTable() throws WrappedException {

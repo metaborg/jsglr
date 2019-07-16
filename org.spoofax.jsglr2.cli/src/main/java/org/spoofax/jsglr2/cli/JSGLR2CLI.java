@@ -1,11 +1,10 @@
 package org.spoofax.jsglr2.cli;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -19,8 +18,6 @@ import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.metaborg.parsetable.ParseTableReadException;
-import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
@@ -113,15 +110,18 @@ public class JSGLR2CLI implements Runnable {
 
     @Option(names = { "--logging" }, description = "Log parser operations") boolean logging = false;
 
-    @ArgGroup(validate = false, heading = "Output%n") OutputOptions outputOptions = new OutputOptions();
+    @ArgGroup(exclusive = false, validate = false, heading = "Output%n") OutputOptions outputOptions =
+        new OutputOptions();
 
     static class OutputOptions {
         @Option(names = "--dot", required = true,
             description = "Visualization in DOT: ${COMPLETION-CANDIDATES}") DotVisualization dot;
 
-        boolean isResult() {
+        boolean isParseResult() {
             return dot == null;
         }
+
+        @Option(names = { "-o", "--output" }, required = false, description = "Output file") private File outputFile;
     }
 
     enum DotVisualization {
@@ -160,10 +160,7 @@ public class JSGLR2CLI implements Runnable {
             else
                 parse(jsglr2.parser);
         } catch(WrappedException e) {
-            System.out.println(e.message);
-
-            if(verbose && e.exception != null)
-                e.exception.printStackTrace();
+            failOnWrappedException(e, verbose);
         }
     }
 
@@ -173,12 +170,12 @@ public class JSGLR2CLI implements Runnable {
         if(result.isSuccess()) {
             ParseSuccess<?> success = (ParseSuccess<?>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(success.parseResult.toString());
         } else {
             ParseFailure<?> failure = (ParseFailure<?>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(failure.failureType.message);
         }
     }
@@ -189,18 +186,25 @@ public class JSGLR2CLI implements Runnable {
         if(result.isSuccess()) {
             JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(success.ast.toString());
         } else {
             JSGLR2Failure<IStrategoTerm> failure = (JSGLR2Failure<IStrategoTerm>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(failure.parseFailure.failureType.message);
         }
     }
 
     private void output(String output) {
-        System.out.println(output);
+        if(outputOptions.outputFile != null)
+            try(FileWriter fileWriter = new FileWriter(outputOptions.outputFile)) {
+                fileWriter.write(output);
+            } catch(IOException e) {
+                failOnWrappedException(new WrappedException("Invalid output file", e), verbose);
+            }
+        else
+            System.out.println(output);
     }
 
     private IParseTable getParseTable() throws WrappedException {
@@ -214,6 +218,13 @@ public class JSGLR2CLI implements Runnable {
         } catch(ParseTableReadException e) {
             throw new WrappedException("Invalid parse table", e);
         }
+    }
+
+    private static void failOnWrappedException(WrappedException e, boolean verbose) {
+        System.out.println(e.message);
+
+        if(verbose && e.exception != null)
+            e.exception.printStackTrace();
     }
 
 }

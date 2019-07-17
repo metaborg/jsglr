@@ -1,8 +1,13 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import java.util.Arrays;
+
 import org.junit.BeforeClass;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.sdf2table.io.ParseTableIO;
+import org.metaborg.sdf2table.parsetable.ParseTable;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 
@@ -30,6 +35,16 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
             parseTableTable.put(sdf3Resource, variant, sdf3ToParseTable.getParseTable(variant, sdf3Resource));
         }
         return parseTableTable.get(sdf3Resource, variant);
+    }
+
+    @Override public Iterable<IParseTable> getParseTables(ParseTableVariant variant) throws Exception {
+        IParseTable parseTable = getParseTable(variant);
+        IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTable);
+        IParseTable parseTableSerializedDeserialized = variant.parseTableReader().read(parseTableTerm);
+
+        // Ensure that the parse table that directly comes from the generation behaves the same after
+        // serialization/deserialization to/from term format
+        return Arrays.asList(parseTable, parseTableSerializedDeserialized);
     }
 
 }

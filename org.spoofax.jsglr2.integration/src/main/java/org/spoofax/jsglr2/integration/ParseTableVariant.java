@@ -2,9 +2,9 @@ package org.spoofax.jsglr2.integration;
 
 import java.util.Objects;
 
+import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
-import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.states.IStateFactory;
 import org.metaborg.parsetable.states.StateFactory;
 

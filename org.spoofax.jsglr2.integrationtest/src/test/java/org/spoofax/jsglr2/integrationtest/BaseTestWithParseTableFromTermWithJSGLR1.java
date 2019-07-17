@@ -17,10 +17,11 @@ public abstract class BaseTestWithParseTableFromTermWithJSGLR1 extends BaseTestW
             IStrategoTerm expectedOutputAst = (IStrategoTerm) getJSGLR1().parse(inputString, null, null).output;
 
             for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
-                IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-                IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.jsglr2, null, inputString);
+                for(IParseTable parseTable : getParseTableFailOnException(variant.parseTable)) {
+                    IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.jsglr2, null, inputString);
 
-                assertEqualTermExpansions(expectedOutputAst, actualOutputAst);
+                    assertEqualTermExpansions(expectedOutputAst, actualOutputAst);
+                }
             }
         } catch(SGLRException | InterruptedException | InvalidParseTableException e) {
             e.printStackTrace();

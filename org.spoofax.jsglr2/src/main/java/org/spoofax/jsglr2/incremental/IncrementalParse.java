@@ -6,6 +6,7 @@ import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.parsetable.query.ActionsForCharacterSeparated;
 import org.metaborg.parsetable.query.ActionsPerCharacterClass;
 import org.metaborg.parsetable.query.ProductionToGotoForLoop;
+import org.metaborg.parsetable.states.State;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
@@ -19,11 +20,10 @@ import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
-import org.metaborg.parsetable.states.State;
 
 public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode> {
 
-    // TODO this should not be public, but still end up in the IncrementalParseForestManager
+    // TODO this should not be public but still end up in the IncrementalParseForestManager and IncrementalReduceManager
     public boolean multipleStates = false;
     ILookaheadStack lookahead;
 

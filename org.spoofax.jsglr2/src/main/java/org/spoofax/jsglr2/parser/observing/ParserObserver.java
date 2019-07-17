@@ -7,7 +7,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;

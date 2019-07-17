@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.parseforest.basic;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 
 public class BasicParseNode extends BasicParseForest implements IBasicParseNode<BasicParseForest, BasicDerivation> {
 

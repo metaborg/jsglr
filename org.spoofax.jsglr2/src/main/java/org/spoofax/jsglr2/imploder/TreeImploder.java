@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.*;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;

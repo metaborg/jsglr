@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.layoutsensitive;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.ProductionType;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintSelector;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;

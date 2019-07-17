@@ -6,7 +6,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr2.parser.Position;

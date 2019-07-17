@@ -4,7 +4,7 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;

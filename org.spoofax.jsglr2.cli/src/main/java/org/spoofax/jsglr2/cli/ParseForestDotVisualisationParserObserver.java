@@ -2,8 +2,7 @@ package org.spoofax.jsglr2.cli;
 
 import java.util.function.Consumer;
 
-import com.google.common.collect.Lists;
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;

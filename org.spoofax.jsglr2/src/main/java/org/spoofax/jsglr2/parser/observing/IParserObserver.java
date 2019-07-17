@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.parser.observing;
 
 import java.util.Queue;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;

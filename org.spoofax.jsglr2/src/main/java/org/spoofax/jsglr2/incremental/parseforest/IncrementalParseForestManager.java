@@ -3,9 +3,9 @@ package org.spoofax.jsglr2.incremental.parseforest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
-import org.metaborg.parsetable.ProductionType;
+import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;

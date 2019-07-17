@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.parseforest.empty;
 
-import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.ProductionType;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridCharacterNode;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;

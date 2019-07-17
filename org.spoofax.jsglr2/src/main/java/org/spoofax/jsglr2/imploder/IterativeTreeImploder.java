@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.input.ImplodeInput;

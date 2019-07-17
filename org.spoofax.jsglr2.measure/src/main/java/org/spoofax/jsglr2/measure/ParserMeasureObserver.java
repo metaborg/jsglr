@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;

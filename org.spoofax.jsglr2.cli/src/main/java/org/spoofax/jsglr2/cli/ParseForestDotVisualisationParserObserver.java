@@ -33,20 +33,20 @@ class ParseForestDotVisualisationParserObserver
     @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
         ParseForest[] parseNodes) {
         super.createDerivation(derivation, production, parseNodes);
-        dotStatement(derivationId(derivation) + " [label=\"" + escape(derivation.descriptor()) + "\"];");
+        dotStatement(idNode(derivationId(derivation), id(derivation), derivation.descriptor(), "white") + ";");
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
         super.createCharacterNode(characterNode, character);
 
-        dotStatement(idNode(parseNodeId(characterNode), id(characterNode), characterNode.descriptor()));
+        dotStatement(idNode(parseNodeId(characterNode), id(characterNode), characterNode.descriptor(), "white"));
     }
 
     @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
-        dotStatement(derivationId(derivation) + " -> " + parseNodeId(parseNode) + ":p:s [arrowhead = \"none\"];");
+        dotStatement(derivationId(derivation) + ":p:n -> " + parseNodeId(parseNode) + ":p:s [arrowhead = \"none\"];");
 
         for(ParseForest parseForest : derivation.parseForests())
-            dotStatement(parseNodeId(parseForest) + ":p:n -> " + derivationId(derivation) + ";");
+            dotStatement(parseNodeId(parseForest) + ":p:n -> " + derivationId(derivation) + ":p:s;");
     }
 
     String parseNodeId(ParseForest parseNode) {

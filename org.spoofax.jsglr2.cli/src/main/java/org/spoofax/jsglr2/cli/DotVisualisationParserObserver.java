@@ -29,13 +29,17 @@ abstract class DotVisualisationParserObserver
         dotStatements = new StringBuilder();
     }
 
-    String idNode(String name, int id, String label) {
+    String idNode(String name, int id, String label, String color) {
         String html = "<TABLE CELLSPACING=\"0\" CELLPADDING=\"0\" BORDER=\"0\" CELLBORDER=\"0\">"
             + "<TR><TD CELLPADDING=\"2\"><FONT POINT-SIZE=\"10\">" + id + "</FONT></TD><TD COLSPAN=\"1\"></TD></TR>"
-            + "<TR ROWSPAN=\"1\"><TD></TD><TD COLSPAN=\"1\" BORDER=\"1\" CELLPADDING=\"5\" PORT=\"p\">"
-            + escapeHtml(label) + "</TD></TR>" + "</TABLE>";
+            + "<TR ROWSPAN=\"1\"><TD></TD><TD COLSPAN=\"1\" BORDER=\"1\" CELLPADDING=\"5\" PORT=\"p\" BGCOLOR=\""
+            + color + "\">" + escapeHtml(label) + "</TD></TR>" + "</TABLE>";
 
         return name + " [shape=plain,label=<" + html + ">]";
+    }
+
+    String idNode(String name, int id, String label) {
+        return idNode(name, id, label, "gray");
     }
 
     void dotStatement(String string) {

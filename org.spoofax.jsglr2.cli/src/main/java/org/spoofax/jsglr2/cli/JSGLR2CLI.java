@@ -1,11 +1,13 @@
 package org.spoofax.jsglr2.cli;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -19,8 +21,6 @@ import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.metaborg.parsetable.ParseTableReadException;
-import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
@@ -113,19 +113,30 @@ public class JSGLR2CLI implements Runnable {
 
     @Option(names = { "--logging" }, description = "Log parser operations") boolean logging = false;
 
-    @ArgGroup(validate = false, heading = "Output%n") OutputOptions outputOptions = new OutputOptions();
+    @ArgGroup(exclusive = false, validate = false, heading = "Output%n") OutputOptions outputOptions =
+        new OutputOptions();
 
     static class OutputOptions {
+        boolean isParseResult() {
+            return dot == null;
+        }
+
+        @Option(names = { "-o", "--output" }, required = false, description = "Output file") private File outputFile;
+
         @Option(names = "--dot", required = true,
             description = "Visualization in DOT: ${COMPLETION-CANDIDATES}") DotVisualization dot;
 
-        boolean isResult() {
-            return dot == null;
-        }
+        @Option(names = "--dot-format", required = false,
+            description = "DOT format: ${COMPLETION-CANDIDATES}") DotVisualizationFormat dotFormat =
+                DotVisualizationFormat.Text;
     }
 
     enum DotVisualization {
         Stack, ParseForest
+    }
+
+    enum DotVisualizationFormat {
+        Text, PDF, PNG
     }
 
     @Option(names = { "-v", "--verbose" }, negatable = true, description = "Print stack traces") boolean verbose =
@@ -137,6 +148,8 @@ public class JSGLR2CLI implements Runnable {
         System.exit(exitCode);
     }
 
+    private OutputStream outputStream;
+
     public void run() {
         try {
             JSGLR2Variants.Variant variant = parserVariant.getVariant();
@@ -145,25 +158,24 @@ public class JSGLR2CLI implements Runnable {
                 (JSGLR2Implementation<?, ?, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant);
             IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
 
+            outputStream = outputStream();
+
             if(logging)
                 observableParser.observing().attachObserver(new LogParserObserver<>(this::output));
 
             if(outputOptions.dot == DotVisualization.Stack)
-                observableParser.observing().attachObserver(new StackDotVisualisationParserObserver<>(this::output));
+                observableParser.observing().attachObserver(new StackDotVisualisationParserObserver<>(this::outputDot));
 
             if(outputOptions.dot == DotVisualization.ParseForest)
                 observableParser.observing()
-                    .attachObserver(new ParseForestDotVisualisationParserObserver<>(this::output));
+                    .attachObserver(new ParseForestDotVisualisationParserObserver<>(this::outputDot));
 
             if(implode)
                 parseAndImplode(jsglr2);
             else
                 parse(jsglr2.parser);
         } catch(WrappedException e) {
-            System.out.println(e.message);
-
-            if(verbose && e.exception != null)
-                e.exception.printStackTrace();
+            failOnWrappedException(e, verbose);
         }
     }
 
@@ -173,12 +185,12 @@ public class JSGLR2CLI implements Runnable {
         if(result.isSuccess()) {
             ParseSuccess<?> success = (ParseSuccess<?>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(success.parseResult.toString());
         } else {
             ParseFailure<?> failure = (ParseFailure<?>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(failure.failureType.message);
         }
     }
@@ -189,18 +201,75 @@ public class JSGLR2CLI implements Runnable {
         if(result.isSuccess()) {
             JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(success.ast.toString());
         } else {
             JSGLR2Failure<IStrategoTerm> failure = (JSGLR2Failure<IStrategoTerm>) result;
 
-            if(outputOptions.isResult())
+            if(outputOptions.isParseResult())
                 output(failure.parseFailure.failureType.message);
         }
     }
 
     private void output(String output) {
-        System.out.println(output);
+        try {
+            outputStream.write((output + "\n").getBytes(Charset.forName("UTF-8")));
+        } catch(IOException e) {
+            failOnWrappedException(new WrappedException("Writing output failed", e), verbose);
+        }
+    }
+
+    private void outputDot(String dot) {
+        try {
+            switch(outputOptions.dotFormat) {
+                case Text:
+                    output(dot);
+                    break;
+                case PDF:
+                    outputDot(dot, "pdf");
+                    break;
+                case PNG:
+                    outputDot(dot, "png");
+                    break;
+            }
+        } catch(WrappedException e) {
+            failOnWrappedException(e, verbose);
+        }
+    }
+
+    private void outputDot(String dot, String format) throws WrappedException {
+        try {
+            Process pr = Runtime.getRuntime().exec("dot -T" + format);
+
+            try(InputStream dotOutputStream = pr.getInputStream(); OutputStream input = pr.getOutputStream()) {
+                input.write(dot.getBytes(Charset.forName("UTF-8")));
+                input.close();
+
+                IOUtils.copy(dotOutputStream, outputStream);
+
+                if(!pr.waitFor(5, TimeUnit.SECONDS)) {
+                    int exitCode = pr.exitValue();
+
+                    if(exitCode == 0)
+                        throw new WrappedException("DOT timed out");
+                    else
+                        throw new WrappedException("DOT exited with " + exitCode);
+                }
+            }
+        } catch(IOException | InterruptedException e) {
+            throw new WrappedException("Writing output failed", e);
+        }
+    }
+
+    private OutputStream outputStream() throws WrappedException {
+        try {
+            if(outputOptions.outputFile != null)
+                return new FileOutputStream(outputOptions.outputFile);
+            else
+                return System.out;
+        } catch(FileNotFoundException e) {
+            throw new WrappedException("Invalid output", e);
+        }
     }
 
     private IParseTable getParseTable() throws WrappedException {
@@ -214,6 +283,13 @@ public class JSGLR2CLI implements Runnable {
         } catch(ParseTableReadException e) {
             throw new WrappedException("Invalid parse table", e);
         }
+    }
+
+    private static void failOnWrappedException(WrappedException e, boolean verbose) {
+        System.out.println(e.message);
+
+        if(verbose && e.exception != null)
+            e.exception.printStackTrace();
     }
 
 }

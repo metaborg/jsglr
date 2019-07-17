@@ -115,6 +115,8 @@ public class LogParserObserver
 
     @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
         ParseForest[] parseNodes) {
+        super.createDerivation(derivation, production, parseNodes);
+
         log("    Create derivation with parse nodes " + parseForestsToString(parseNodes));
     }
 

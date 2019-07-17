@@ -65,7 +65,7 @@ public interface IParseNode
     }
 
     default String descriptor() {
-        return production().descriptor();
+        return production().lhs().toString();
     }
 
 }

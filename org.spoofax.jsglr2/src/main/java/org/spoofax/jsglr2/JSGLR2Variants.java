@@ -65,8 +65,7 @@ public class JSGLR2Variants {
 
         public boolean isValid() {
             return parser.isValid()
-                && (imploder == ImploderVariant.TokenizedRecursive && tokenizer == TokenizerVariant.Null
-                    || imploder != ImploderVariant.TokenizedRecursive && tokenizer != TokenizerVariant.Null);
+                && (imploder == ImploderVariant.TokenizedRecursive) == (tokenizer == TokenizerVariant.Null);
         }
     }
 
@@ -91,23 +90,21 @@ public class JSGLR2Variants {
         }
 
         public boolean isValid() {
+            // Elkhound reducing requires Elkhound stack, and the other way around (bi-implication)
             boolean validElkhound =
-                reducing != Reducing.Elkhound || (stackRepresentation == StackRepresentation.BasicElkhound
+                (reducing == Reducing.Elkhound) == (stackRepresentation == StackRepresentation.BasicElkhound
                     || stackRepresentation == StackRepresentation.HybridElkhound);
+            // PFR Null requires PFC Full (the implication N -> F is written as !N || F)
             boolean validParseForest = parseForestRepresentation != ParseForestRepresentation.Null
                 || parseForestConstruction == ParseForestConstruction.Full;
-            // Incremental parsing requires a full parse forest
-            boolean validIncremental = parseForestRepresentation != ParseForestRepresentation.Incremental
-                || parseForestConstruction == ParseForestConstruction.Full;
-            boolean validLayoutSensitive = (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive
-                && reducing == Reducing.LayoutSensitive)
-                || (parseForestRepresentation != ParseForestRepresentation.LayoutSensitive
-                    && reducing != Reducing.LayoutSensitive);
-            boolean validDataDependent = (parseForestRepresentation == ParseForestRepresentation.DataDependent
-                && reducing == Reducing.DataDependent)
-                || (parseForestRepresentation != ParseForestRepresentation.DataDependent
-                    && reducing != Reducing.DataDependent);
-
+            boolean validIncremental =
+                (parseForestRepresentation == ParseForestRepresentation.Incremental) == (reducing == Reducing.Incremental)
+                    // Incremental parsing requires a full parse forest
+                    && (reducing != Reducing.Incremental || parseForestConstruction == ParseForestConstruction.Full);
+            boolean validLayoutSensitive =
+                (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive) == (reducing == Reducing.LayoutSensitive);
+            boolean validDataDependent =
+                (parseForestRepresentation == ParseForestRepresentation.DataDependent) == (reducing == Reducing.DataDependent);
 
             return validElkhound && validParseForest && validIncremental && validLayoutSensitive && validDataDependent;
         }
@@ -219,6 +216,9 @@ public class JSGLR2Variants {
                 }
             case Incremental:
                 IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();
+
+                if(variant.reducing != Reducing.Incremental)
+                    throw new IllegalStateException();
 
                 switch(variant.stackRepresentation) {
                     case Basic:

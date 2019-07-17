@@ -83,7 +83,7 @@ public interface JSGLR2<AbstractSyntaxTree> {
                 ParseForestRepresentation.Incremental,
                 ParseForestConstruction.standard(),
                 StackRepresentation.Basic,
-                Reducing.Basic
+                Reducing.Incremental
             ),
             ImploderVariant.RecursiveIncremental,
             TokenizerVariant.Recursive

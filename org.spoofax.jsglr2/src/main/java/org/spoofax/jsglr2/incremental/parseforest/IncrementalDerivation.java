@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
 import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;

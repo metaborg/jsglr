@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.stack.hybrid;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;

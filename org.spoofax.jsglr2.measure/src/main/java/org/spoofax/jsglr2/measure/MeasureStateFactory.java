@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.measure;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.metaborg.parsetable.query.ActionsForCharacterDisjointSorted;

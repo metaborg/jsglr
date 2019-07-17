@@ -30,21 +30,24 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
             resource -> BaseTestWithSdf3ParseTables.class.getClassLoader().getResource(resource).getPath());
     }
 
-    public IParseTable getParseTable(ParseTableVariant variant) throws Exception {
+    public ParseTableWithOrigin getParseTable(ParseTableVariant variant) throws Exception {
         if(!parseTableTable.contains(sdf3Resource, variant)) {
             parseTableTable.put(sdf3Resource, variant, sdf3ToParseTable.getParseTable(variant, sdf3Resource));
         }
-        return parseTableTable.get(sdf3Resource, variant);
+        return new ParseTableWithOrigin(parseTableTable.get(sdf3Resource, variant), ParseTableOrigin.Sdf3Generation);
     }
 
-    @Override public Iterable<IParseTable> getParseTables(ParseTableVariant variant) throws Exception {
-        IParseTable parseTable = getParseTable(variant);
-        IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTable);
-        IParseTable parseTableSerializedDeserialized = variant.parseTableReader().read(parseTableTerm);
+    @Override public Iterable<ParseTableWithOrigin> getParseTables(ParseTableVariant variant) throws Exception {
+        ParseTableWithOrigin parseTableWithOrigin = getParseTable(variant);
+
+        IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTableWithOrigin.parseTable);
+
+        ParseTableWithOrigin parseTableWithOriginSerializedDeserialized =
+            new ParseTableWithOrigin(variant.parseTableReader().read(parseTableTerm), ParseTableOrigin.ATerm);
 
         // Ensure that the parse table that directly comes from the generation behaves the same after
         // serialization/deserialization to/from term format
-        return Arrays.asList(parseTable, parseTableSerializedDeserialized);
+        return Arrays.asList(parseTableWithOrigin, parseTableWithOriginSerializedDeserialized);
     }
 
 }

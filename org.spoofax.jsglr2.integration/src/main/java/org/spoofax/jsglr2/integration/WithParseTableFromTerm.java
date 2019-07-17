@@ -8,7 +8,11 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public interface WithParseTableFromTerm extends WithParseTable {
 
-    default IParseTable getParseTable(ParseTableVariant variant) throws Exception {
+    default ParseTableWithOrigin getParseTable(ParseTableVariant variant) throws Exception {
+        return new ParseTableWithOrigin(getParseTableFromTerm(variant), ParseTableOrigin.ATerm);
+    }
+
+    default IParseTable getParseTableFromTerm(ParseTableVariant variant) throws Exception {
         return variant.parseTableReader().read(getParseTableTerm());
     }
 

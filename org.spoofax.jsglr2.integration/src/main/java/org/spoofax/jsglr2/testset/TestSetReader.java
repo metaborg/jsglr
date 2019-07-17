@@ -34,7 +34,7 @@ public abstract class TestSetReader<Input> implements WithParseTableFromTerm {
         }
     }
 
-    public IParseTable getParseTable(ParseTableVariant variant) throws Exception {
+    public IParseTable getParseTableFromTerm(ParseTableVariant variant) throws Exception {
         return variant.parseTableReader().read(getParseTableTerm());
     }
 

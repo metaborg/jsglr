@@ -25,11 +25,11 @@ public class LayoutSensitiveReduceManager
 //@formatter:on
     extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> {
 
-    LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
+    private LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
 
     public LayoutSensitiveReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }

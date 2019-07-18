@@ -21,7 +21,7 @@ public class ReducerSkipLayoutAndLexicalAndRejects
     extends Reducer<ParseForest, ParseNode, Derivation, StackNode, Parse> {
 
     public ReducerSkipLayoutAndLexicalAndRejects(AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager) {
         super(stackManager, parseForestManager);
     }
 

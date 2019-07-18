@@ -9,10 +9,11 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class BasicParseForestManager extends ParseForestManager<BasicParseForest, BasicParseNode, BasicDerivation> {
+public class BasicParseForestManager<Parse extends AbstractParse<BasicParseForest, ?>>
+    extends ParseForestManager<BasicParseForest, BasicParseNode, BasicDerivation, Parse> {
 
-    @Override public BasicParseNode createParseNode(AbstractParse<BasicParseForest, ?> parse, IStackNode stack,
-        IProduction production, BasicDerivation firstDerivation) {
+    @Override public BasicParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,
+        BasicDerivation firstDerivation) {
         BasicParseNode parseNode = new BasicParseNode(production);
 
         parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
@@ -22,8 +23,7 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return parseNode;
     }
 
-    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol,
-        AbstractParse<BasicParseForest, ?> parse) {
+    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, Parse parse) {
         BasicParseNode topNode = (BasicParseNode) parseForest;
         List<BasicDerivation> result = new ArrayList<>();
 
@@ -46,8 +46,8 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         }
     }
 
-    @Override public BasicDerivation createDerivation(AbstractParse<BasicParseForest, ?> parse, IStackNode stack,
-        IProduction production, ProductionType productionType, BasicParseForest[] parseForests) {
+    @Override public BasicDerivation createDerivation(Parse parse, IStackNode stack, IProduction production,
+        ProductionType productionType, BasicParseForest[] parseForests) {
         BasicDerivation derivation = new BasicDerivation(production, productionType, parseForests);
 
         parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
@@ -55,14 +55,13 @@ public class BasicParseForestManager extends ParseForestManager<BasicParseForest
         return derivation;
     }
 
-    @Override public void addDerivation(AbstractParse<BasicParseForest, ?> parse, BasicParseNode parseNode,
-        BasicDerivation derivation) {
+    @Override public void addDerivation(Parse parse, BasicParseNode parseNode, BasicDerivation derivation) {
         parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public BasicCharacterNode createCharacterNode(AbstractParse<BasicParseForest, ?> parse) {
+    @Override public BasicCharacterNode createCharacterNode(Parse parse) {
         BasicCharacterNode termNode = new BasicCharacterNode(parse.currentChar);
 
         parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));

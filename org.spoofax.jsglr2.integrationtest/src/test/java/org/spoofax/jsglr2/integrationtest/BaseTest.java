@@ -220,7 +220,7 @@ public abstract class BaseTest implements WithParseTable {
         for(TestVariant variant : getTestVariants()) {
             JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
-            assertTrue("Variant '" + variant.name() + "' failed: ", jsglr2Result.isSuccess());
+            assertTrue("Variant '" + variant.name() + "' failed", jsglr2Result.isSuccess());
 
             JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
 
@@ -230,10 +230,10 @@ public abstract class BaseTest implements WithParseTable {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 
-            TokenDescriptor expectedBeginToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1);
-            TokenDescriptor actualBeginToken = actualTokens.get(0);
+            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1);
+            TokenDescriptor actualStartToken = actualTokens.get(0);
 
-            assertEquals("Start token incorrect:", expectedBeginToken, actualBeginToken);
+            assertEquals("Start token incorrect:", expectedStartToken, actualStartToken);
 
             Position endPosition = Position.atEnd(inputString);
 
@@ -244,9 +244,9 @@ public abstract class BaseTest implements WithParseTable {
                 new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1);
             TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
 
-            List<TokenDescriptor> actualTokenWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
+            List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 
-            assertThat(actualTokenWithoutStartAndEnd, is(expectedTokens));
+            assertThat(actualTokensWithoutStartAndEnd, is(expectedTokens));
 
             assertEquals("End token incorrect:", expectedEndToken, actualEndToken);
         }

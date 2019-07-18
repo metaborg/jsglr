@@ -61,10 +61,12 @@ public class Tokens implements IParseTokens {
             tokenKind = IToken.TK_NUMBER;
         } else if(production.isOperator()) {
             tokenKind = IToken.TK_OPERATOR;
+        } else if(production.isLiteral()) {
+            tokenKind = IToken.TK_KEYWORD;
         } else if(production.isLexical()) {
             tokenKind = IToken.TK_IDENTIFIER;
         } else {
-            tokenKind = IToken.TK_KEYWORD;
+            throw new IllegalStateException("invalid production/token type");
         }
 
         IToken token = new Token(this, filename, tokens.size(), startPosition.line, startPosition.column,

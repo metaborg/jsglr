@@ -1,24 +1,16 @@
 module expressions
 
 lexical syntax
-	LAYOUT        = [\ \n]
-	LAYOUT        = "/*" InsideComment* "*/"
-	InsideComment = ~[\*]
-	InsideComment = CommentChar
-	CommentChar   = [\*]
-
-	ID            = [a-zA-Z]+
-	INT           = [0-9]+
+	ID      = [a-zA-Z]+
+	INT     = [0-9]+
+	LAYOUT  = [\ \n]
 
 lexical restrictions
-	CommentChar   -/- [\/]
-
-	ID            -/- [a-zA-Z]
-	INT           -/- [0-9]
+	ID      -/- [a-zA-Z]
+	INT     -/- [0-9]
 
 context-free restrictions
-	LAYOUT?       -/- [\ \n]
-	LAYOUT?       -/- [\/].[\*]
+	LAYOUT? -/- [\ \n]
 
 context-free start-symbols
 	Start

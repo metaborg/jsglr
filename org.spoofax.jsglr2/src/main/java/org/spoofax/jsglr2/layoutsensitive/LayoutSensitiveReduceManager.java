@@ -25,7 +25,7 @@ public class LayoutSensitiveReduceManager
 //@formatter:on
     extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> {
 
-    LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
+    private LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
 
     public LayoutSensitiveReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, StackNode, Parse> stackManager,

@@ -90,7 +90,7 @@ public class IncrementalParser
         }
 
         if(size(actions) > 1)
-            parse.multipleStates = true;
+            parse.setMultipleStates(true);
 
         Iterable<IAction> finalActions = actions;
         observing.notify(observer -> observer.actor(stack, parse, finalActions));
@@ -157,7 +157,7 @@ public class IncrementalParser
     }
 
     @Override protected IncrementalParseForest getNodeToShift(Parse parse) {
-        parse.multipleStates = parse.forShifter.size() > 1;
+        parse.setMultipleStates(parse.forShifter.size() > 1);
 
         return parse.lookahead.get();
     }

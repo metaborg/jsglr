@@ -22,7 +22,7 @@ public class IncrementalReduceManager
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+    Parse       extends AbstractParse<ParseForest, StackNode> & IIncrementalParse>
 //@formatter:on
     extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> {
 
@@ -42,8 +42,7 @@ public class IncrementalReduceManager
             paths = paths.stream().filter(path -> path.contains(throughLink)).collect(Collectors.toList());
 
         if(paths.size() > 1)
-            // TODO this cast should not be necessary, but `Parse extends IncrementalParse<StackNode>` is not allowed
-            ((IncrementalParse) parse).multipleStates = true;
+            parse.setMultipleStates(true);
 
         for(StackPath<ParseForest, StackNode> path : paths) {
             StackNode pathBegin = path.head();

@@ -21,10 +21,10 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode> {
+public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode>
+    implements IIncrementalParse {
 
-    // TODO this should not be public but still end up in the IncrementalParseForestManager and IncrementalReduceManager
-    public boolean multipleStates = false;
+    private boolean multipleStates = false;
     ILookaheadStack lookahead;
 
     private final ProcessUpdates<StackNode> processUpdates = new ProcessUpdates<>(this);
@@ -89,4 +89,11 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         currentChar = lookahead.actionQueryCharacter();
     }
 
+    @Override public boolean isMultipleStates() {
+        return multipleStates;
+    }
+
+    @Override public void setMultipleStates(boolean multipleStates) {
+        this.multipleStates = multipleStates;
+    }
 }

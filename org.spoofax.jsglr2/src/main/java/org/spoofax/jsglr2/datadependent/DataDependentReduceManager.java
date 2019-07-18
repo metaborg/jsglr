@@ -5,11 +5,10 @@ import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
-
-import org.metaborg.sdf2table.grammar.IProduction;
-import org.metaborg.sdf2table.grammar.ISymbol;
 import org.metaborg.sdf2table.deepconflicts.ContextualProduction;
 import org.metaborg.sdf2table.deepconflicts.ContextualSymbol;
+import org.metaborg.sdf2table.grammar.IProduction;
+import org.metaborg.sdf2table.grammar.ISymbol;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;

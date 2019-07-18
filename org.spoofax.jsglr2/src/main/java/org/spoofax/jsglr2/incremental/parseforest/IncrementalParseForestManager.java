@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
-import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.productions.ProductionType;
+import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.incremental.IIncrementalParse;
 import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -68,7 +69,7 @@ public class IncrementalParseForestManager
         // TODO There should be a type parameter Parse to avoid the cast, but that creates extra dependencies which make
         // the big switch in JSGLR2Variants.getParser more verbose. Now, the ParseForestManager is created in a variable
         // that can be passed to the Parser, but adding Parse as type parameter would require in-lining that variable.
-        IState state = ((IncrementalParse) parse).multipleStates ? IncrementalParse.NO_STATE : stack.state();
+        IState state = ((IIncrementalParse) parse).isMultipleStates() ? IncrementalParse.NO_STATE : stack.state();
         IncrementalDerivation derivation = new IncrementalDerivation(production, productionType, parseForests, state);
 
         parse.observing.notify(observer -> observer.createDerivation(derivation, production, derivation.parseForests));

@@ -6,6 +6,7 @@ import org.spoofax.jsglr2.datadependent.DataDependentReduceManager;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.elkhound.ElkhoundReduceManager;
 import org.spoofax.jsglr2.elkhound.ElkhoundStackManager;
+import org.spoofax.jsglr2.incremental.IIncrementalParse;
 import org.spoofax.jsglr2.incremental.IncrementalReduceManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForest;
@@ -105,7 +106,7 @@ public interface ReduceManagerFactory
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
         StackManager extends AbstractStackManager<ParseForest, StackNode, Parse>,
-        Parse        extends AbstractParse<ParseForest, StackNode>>
+        Parse        extends AbstractParse<ParseForest, StackNode> & IIncrementalParse>
     //@formatter:on
     ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, IncrementalReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
         incrementalReduceManagerFactory(JSGLR2Variants.ParserVariant parserVariant) {

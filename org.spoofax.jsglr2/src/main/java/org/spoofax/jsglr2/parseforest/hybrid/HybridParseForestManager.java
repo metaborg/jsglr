@@ -9,10 +9,11 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class HybridParseForestManager extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation> {
+public class HybridParseForestManager<Parse extends AbstractParse<HybridParseForest, ?>>
+    extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation, Parse> {
 
-    @Override public HybridParseNode createParseNode(AbstractParse<HybridParseForest, ?> parse, IStackNode stack,
-        IProduction production, HybridDerivation firstDerivation) {
+    @Override public HybridParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,
+        HybridDerivation firstDerivation) {
         HybridParseNode parseNode = new HybridParseNode(production, firstDerivation);
 
         parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
@@ -22,7 +23,7 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
     }
 
     @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
-        AbstractParse<HybridParseForest, ?> parse) {
+        Parse parse) {
         HybridParseNode topNode = (HybridParseNode) parseForest;
         List<HybridDerivation> result = new ArrayList<>();
 
@@ -45,8 +46,8 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         }
     }
 
-    @Override public HybridDerivation createDerivation(AbstractParse<HybridParseForest, ?> parse, IStackNode stack,
-        IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
+    @Override public HybridDerivation createDerivation(Parse parse, IStackNode stack, IProduction production,
+        ProductionType productionType, HybridParseForest[] parseForests) {
         HybridDerivation derivation = new HybridDerivation(production, productionType, parseForests);
 
         parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
@@ -54,14 +55,13 @@ public class HybridParseForestManager extends ParseForestManager<HybridParseFore
         return derivation;
     }
 
-    @Override public void addDerivation(AbstractParse<HybridParseForest, ?> parse, HybridParseNode parseNode,
-        HybridDerivation derivation) {
+    @Override public void addDerivation(Parse parse, HybridParseNode parseNode, HybridDerivation derivation) {
         parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public HybridCharacterNode createCharacterNode(AbstractParse<HybridParseForest, ?> parse) {
+    @Override public HybridCharacterNode createCharacterNode(Parse parse) {
         HybridCharacterNode characterNode = new HybridCharacterNode(parse.currentChar);
 
         parse.observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));

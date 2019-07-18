@@ -37,7 +37,7 @@ public interface ReduceManagerFactory
 //@formatter:on
 {
     ReduceManager get(IParseTable parseTable, StackManager stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager);
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager);
 
     static
     //@formatter:off
@@ -45,8 +45,8 @@ public interface ReduceManagerFactory
         ParseNode    extends ParseForest,
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
-        StackManager extends AbstractStackManager<ParseForest, StackNode, Parse>,
-        Parse        extends AbstractParse<ParseForest, StackNode>>
+        Parse        extends AbstractParse<ParseForest, StackNode>,
+        StackManager extends AbstractStackManager<ParseForest, StackNode, Parse>>
     //@formatter:on
     ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
         reduceManagerFactory(JSGLR2Variants.ParserVariant parserVariant) {

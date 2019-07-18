@@ -30,7 +30,7 @@ public class ElkhoundParser
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> {
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
-        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory) {
         super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory);
     }

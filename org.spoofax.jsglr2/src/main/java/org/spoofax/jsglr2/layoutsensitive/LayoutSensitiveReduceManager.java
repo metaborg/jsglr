@@ -29,7 +29,7 @@ public class LayoutSensitiveReduceManager
 
     public LayoutSensitiveReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }

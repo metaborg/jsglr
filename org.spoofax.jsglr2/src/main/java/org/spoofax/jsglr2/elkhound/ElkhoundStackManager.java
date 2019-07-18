@@ -44,7 +44,7 @@ public abstract class ElkhoundStackManager
     }
 
     public DeterministicStackPath<ParseForest, ElkhoundStackNode> findDeterministicPathOfLength(
-        ParseForestManager<ParseForest, ?, ?> parseForestManager, ElkhoundStackNode stack, int length) {
+        ParseForestManager<ParseForest, ?, ?, Parse> parseForestManager, ElkhoundStackNode stack, int length) {
         ElkhoundStackNode lastStackNode = stack;
         ElkhoundStackNode currentStackNode = stack;
 

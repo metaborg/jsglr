@@ -25,11 +25,11 @@ public class ReduceManager
 
     protected final IParseTable parseTable;
     protected final AbstractStackManager<ParseForest, StackNode, Parse> stackManager;
-    protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
+    protected final ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager;
     protected final Reducer<ParseForest, ParseNode, Derivation, StackNode, Parse> reducer;
 
     public ReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;

@@ -28,7 +28,7 @@ public class IncrementalReduceManager
 
     public IncrementalReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }

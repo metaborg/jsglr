@@ -48,7 +48,8 @@ public class IncrementalParser
 
     public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, Parse> parseFactory,
         IncrementalParseFactory<StackNode, Parse> incrementalParseFactory, IParseTable parseTable,
-        StackManager stackManager, ParseForestManager<IncrementalParseForest, ParseNode, Derivation> parseForestManager,
+        StackManager stackManager,
+        ParseForestManager<IncrementalParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory) {
 
         super(parseFactory, parseTable, stackManager, parseForestManager, reduceManagerFactory);

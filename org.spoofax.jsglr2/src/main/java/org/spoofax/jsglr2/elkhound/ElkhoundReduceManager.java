@@ -26,7 +26,7 @@ public class ElkhoundReduceManager
 
     public ElkhoundReduceManager(IParseTable parseTable,
         ElkhoundStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
 

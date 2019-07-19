@@ -1,0 +1,10 @@
+module lists
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start = E
+
+	E.X = <x>
+	E.L = <l<E+>>

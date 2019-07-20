@@ -162,7 +162,7 @@ public abstract class TokenizedTreeImploder
                 SubTree<Tree> subTree;
 
                 if(production.isList() && (childProduction.isList() && childProduction.constructor() == null
-                    && childParseNode.getPreferredAvoidedDerivations().size() <= 1)) {
+                    && childParseNode.getPreferredAvoidedDerivations().size() <= 1) && !production.isLexical()) {
                     // Make sure lists are flattened
                     subTree = implodeChildParseNodes(tokens, childASTs, childParseNode.getFirstDerivation(),
                         childProduction, unboundTokens, pivotPosition, pivotToken);

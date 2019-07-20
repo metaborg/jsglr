@@ -161,8 +161,15 @@ public abstract class TokenizedTreeImploder
 
                 SubTree<Tree> subTree;
 
-                if(production.isList() && (childProduction.isList() && childProduction.constructor() == null
-                    && childParseNode.getPreferredAvoidedDerivations().size() <= 1) && !production.isLexical()) {
+                if(production.isList() && (
+                //@formatter:off
+                    // Constraints for flattening nested lists productions:
+                    childProduction.isList() && // The subtree is a list
+                    childProduction.constructor() == null && // The subtree has no constructor
+                    childParseNode.getPreferredAvoidedDerivations().size() <= 1) && // The subtree is not ambiguous
+                    !production.isLexical() // Not in lexical context; otherwist just implode as lexical token
+                //@formatter:on
+                ) {
                     // Make sure lists are flattened
                     subTree = implodeChildParseNodes(tokens, childASTs, childParseNode.getFirstDerivation(),
                         childProduction, unboundTokens, pivotPosition, pivotToken);

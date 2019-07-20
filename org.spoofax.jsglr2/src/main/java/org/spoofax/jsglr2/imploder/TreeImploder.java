@@ -51,7 +51,7 @@ public class TreeImploder
                     subTrees.add(result);
                 }
 
-                return new SubTree<>(treeFactory.createAmb(production.sort(), trees), subTrees, null, null,
+                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null,
                     subTrees.get(0).width);
             } else
                 return implodeDerivation(input, filteredDerivations.get(0), startOffset);
@@ -140,7 +140,7 @@ public class TreeImploder
         if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical()) {
-            return treeFactory.createStringTerminal(production.sort(), substring);
+            return treeFactory.createStringTerminal(production.lhs(), substring);
         } else {
             throw new RuntimeException("invalid term type");
         }
@@ -150,15 +150,15 @@ public class TreeImploder
         String constructor = production.constructor();
 
         if(production.isList())
-            return treeFactory.createList(production.sort(), childASTs);
+            return treeFactory.createList(childASTs);
         else if(production.isOptional())
-            return treeFactory.createOptional(production.sort(), childASTs);
+            return treeFactory.createOptional(production.lhs(), childASTs);
         else if(constructor != null)
-            return treeFactory.createNonTerminal(production.sort(), constructor, childASTs);
+            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
         else if(childASTs.size() == 1)
             return childASTs.get(0);
         else
-            return treeFactory.createTuple(production.sort(), childASTs);
+            return treeFactory.createTuple(childASTs);
     }
 
     public static class SubTree<Tree> {

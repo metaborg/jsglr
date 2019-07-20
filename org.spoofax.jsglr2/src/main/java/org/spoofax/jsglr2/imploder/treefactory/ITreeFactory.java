@@ -1,17 +1,19 @@
 package org.spoofax.jsglr2.imploder.treefactory;
 
+import org.metaborg.parsetable.symbols.ISymbol;
+
 public interface ITreeFactory<T> {
 
-    T createStringTerminal(String sort, String value);
+    T createStringTerminal(ISymbol symbol, String value);
 
-    T createNonTerminal(String sort, String constructor, Iterable<T> childASTs);
+    T createNonTerminal(ISymbol symbol, String constructor, Iterable<T> childASTs);
 
-    T createList(String sort, Iterable<T> children);
+    T createList(Iterable<T> children);
 
-    T createOptional(String sort, Iterable<T> children);
+    T createOptional(ISymbol symbol, Iterable<T> children);
 
-    T createTuple(String sort, Iterable<T> children);
+    T createTuple(Iterable<T> children);
 
-    T createAmb(String sort, Iterable<T> alternatives);
+    T createAmb(Iterable<T> alternatives);
 
 }

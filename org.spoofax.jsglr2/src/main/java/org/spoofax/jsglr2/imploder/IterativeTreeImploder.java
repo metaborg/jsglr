@@ -132,9 +132,8 @@ public class IterativeTreeImploder
     }
 
     private SubTree<Tree> createAmbiguousSubTree(ParseNode parseNode, List<SubTree<Tree>> subTrees) {
-        return new SubTree<>(
-            treeFactory.createAmb(parseNode.production().sort(), subTrees.stream().map(t -> t.tree)::iterator),
-            subTrees, null, null, subTrees.get(0).width);
+        return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null, null,
+            subTrees.get(0).width);
     }
 
     private SubTree<Tree> createNonTerminalSubTree(Derivation derivation, List<SubTree<Tree>> subTrees) {

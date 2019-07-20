@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -23,58 +24,60 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         this.termFactory = new TermFactory().getFactoryWithStorageType(MUTABLE);
     }
 
-    @Override public IStrategoTerm createStringTerminal(String sort, String value, IToken token) {
+    @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value, IToken token) {
         IStrategoTerm stringTerminalTerm = termFactory.makeString(value);
 
-        configure(stringTerminalTerm, sort, token, token);
+        configure(stringTerminalTerm, null, token, token);
 
         return stringTerminalTerm;
     }
 
-    @Override public IStrategoTerm createNonTerminal(String sort, String constructor, List<IStrategoTerm> childASTs,
+    @Override public IStrategoTerm createNonTerminal(ISymbol symbol, String constructor, List<IStrategoTerm> childASTs,
         IToken leftToken, IToken rightToken) {
         IStrategoConstructor constructorTerm =
-            termFactory.makeConstructor(constructor != null ? constructor : sort, childASTs.size());
+            termFactory.makeConstructor(constructor != null ? constructor : ISymbol.getSort(symbol), childASTs.size());
         IStrategoTerm nonTerminalTerm = termFactory.makeAppl(constructorTerm, toArray(childASTs));
 
-        configure(nonTerminalTerm, sort, leftToken, rightToken);
+        configure(nonTerminalTerm, ISymbol.getSort(symbol), leftToken, rightToken);
 
         return nonTerminalTerm;
     }
 
-    @Override public IStrategoTerm createList(String sort, List<IStrategoTerm> children, IToken leftToken,
+    @Override public IStrategoTerm createList(List<IStrategoTerm> children, IToken leftToken,
         IToken rightToken) {
         IStrategoTerm listTerm = termFactory.makeList(toArray(children));
 
-        configure(listTerm, sort, leftToken, rightToken);
+        configure(listTerm, null, leftToken, rightToken);
 
         return listTerm;
     }
 
-    @Override public IStrategoTerm createOptional(String sort, List<IStrategoTerm> children, IToken leftToken,
+    @Override public IStrategoTerm createOptional(ISymbol symbol, List<IStrategoTerm> children, IToken leftToken,
         IToken rightToken) {
         String constructor = children == null || children.isEmpty() ? "None" : "Some";
 
-        return createNonTerminal(sort, constructor, children, leftToken, rightToken);
+        return createNonTerminal(symbol, constructor, children, leftToken, rightToken);
     }
 
-    @Override public IStrategoTerm createTuple(String sort, List<IStrategoTerm> children, IToken leftToken,
+    @Override public IStrategoTerm createTuple(List<IStrategoTerm> children, IToken leftToken,
         IToken rightToken) {
         IStrategoTerm tupleTerm = termFactory.makeTuple(toArray(children));
 
-        configure(tupleTerm, sort, leftToken, rightToken);
+        configure(tupleTerm, null, leftToken, rightToken);
 
         return tupleTerm;
     }
 
-    @Override public IStrategoTerm createAmb(String sort, List<IStrategoTerm> alternatives, IToken leftToken,
+    @Override public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken,
         IToken rightToken) {
-        IStrategoTerm alternativesListTerm = createList(null, alternatives, leftToken, rightToken);
+        IStrategoTerm alternativesListTerm = createList(alternatives, leftToken, rightToken);
 
         return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
     }
 
-    @Override public IStrategoTerm createInjection(String sort, IStrategoTerm injected) {
+    @Override public IStrategoTerm createInjection(ISymbol symbol, IStrategoTerm injected) {
+        String sort = ISymbol.getSort(symbol);
+
         // Prevent bogus injections from empty sorts, or lexical sorts into themselves
         String injectedSort = ImploderAttachment.get(injected).getSort();
         if(sort != null && !Objects.equals(sort, injectedSort)) {

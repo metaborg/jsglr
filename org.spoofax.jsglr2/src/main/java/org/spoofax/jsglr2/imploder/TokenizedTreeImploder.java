@@ -82,9 +82,7 @@ public abstract class TokenizedTreeImploder
                         trees.add(implodeDerivation(tokens, derivation, startPosition, parentLeftToken).tree);
                 }
 
-                String sort = production.sort();
-
-                result.tree = treeFactory.createAmb(sort, trees, result.leftToken, result.rightToken);
+                result.tree = treeFactory.createAmb(trees, result.leftToken, result.rightToken);
 
                 return result;
             } else
@@ -215,19 +213,19 @@ public abstract class TokenizedTreeImploder
         String constructor = production.constructor();
 
         if(production.isList())
-            return treeFactory.createList(production.sort(), childASTs, leftToken, rightToken);
+            return treeFactory.createList(childASTs, leftToken, rightToken);
         else if(production.isOptional())
-            return treeFactory.createOptional(production.sort(), childASTs, leftToken, rightToken);
-        else if(constructor != null)
-            return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);
-        else if(childASTs.size() == 1)
-            return treeFactory.createInjection(production.sort(), childASTs.get(0));
+            return treeFactory.createOptional(production.lhs(), childASTs, leftToken, rightToken);
+        else if(constructor != null) {
+            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs, leftToken, rightToken);
+        } else if(childASTs.size() == 1)
+            return treeFactory.createInjection(production.lhs(), childASTs.get(0));
         else
-            return treeFactory.createTuple(production.sort(), childASTs, leftToken, rightToken);
+            return treeFactory.createTuple(childASTs, leftToken, rightToken);
     }
 
     protected Tree createLexicalTerm(IProduction production, String lexicalString, IToken lexicalToken) {
-        Tree lexicalTerm = treeFactory.createStringTerminal(production.sort(), lexicalString, lexicalToken);
+        Tree lexicalTerm = treeFactory.createStringTerminal(production.lhs(), lexicalString, lexicalToken);
 
         if(lexicalToken != null) // Can be null, e.g. for empty string lexicals
             tokenTreeBinding(lexicalToken, lexicalTerm);

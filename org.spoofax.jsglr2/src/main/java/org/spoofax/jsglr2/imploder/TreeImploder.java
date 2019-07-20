@@ -20,7 +20,7 @@ public class TreeImploder
     Tree,
     Input       extends ImplodeInput>
 //@formatter:on
-    implements IImploder<ParseForest, TreeImploder.SubTree<Tree>> {
+    extends AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>> {
 
     protected final IImplodeInputFactory<Input> inputFactory;
     protected final ITreeFactory<Tree> treeFactory;
@@ -62,22 +62,6 @@ public class TreeImploder
 
             return new SubTree<>(createLexicalTerm(production, substring), production, substring);
         }
-    }
-
-    protected ParseNode implodeInjection(ParseNode parseNode) {
-        for(Derivation derivation : parseNode.getDerivations()) {
-            if(derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
-                ParseNode injectedParseNode = (ParseNode) derivation.parseForests()[0];
-
-                // Meta variables are injected:
-                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
-                if(injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
-                    return injectedParseNode;
-                }
-            }
-        }
-
-        return parseNode;
     }
 
     protected SubTree<Tree> implodeDerivation(Input input, Derivation derivation, int startOffset) {
@@ -137,21 +121,6 @@ public class TreeImploder
         } else {
             return Arrays.asList(derivation.parseForests());
         }
-    }
-
-    protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
-        if(!parseNode.isAmbiguous())
-            return Collections.singletonList(parseNode.getFirstDerivation());
-
-        List<Derivation> result;
-        // TODO always filter longest-match?
-        if(parseNode instanceof LayoutSensitiveParseNode) {
-            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
-        }
-        // TODO always filter prefer/avoid?
-        result = parseNode.getPreferredAvoidedDerivations();
-
-        return result;
     }
 
     protected Tree createLexicalTerm(IProduction production, String substring) {

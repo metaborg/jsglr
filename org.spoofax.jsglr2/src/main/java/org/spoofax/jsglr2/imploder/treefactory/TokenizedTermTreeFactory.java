@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -30,6 +31,16 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         configure(stringTerminalTerm, null, token, token);
 
         return stringTerminalTerm;
+    }
+
+    @Override public IStrategoTerm createMetaVar(IMetaVarSymbol symbol, String value, IToken token) {
+        IStrategoTerm stringTerm = termFactory.makeString(value);
+        IStrategoTerm metaVarTerm = termFactory.makeAppl(symbol.metaVarCardinality().constructor, stringTerm);
+
+        configure(stringTerm, null, token, token);
+        configure(metaVarTerm, null, token, token);
+
+        return metaVarTerm;
     }
 
     @Override public IStrategoTerm createNonTerminal(ISymbol symbol, String constructor, List<IStrategoTerm> childASTs,

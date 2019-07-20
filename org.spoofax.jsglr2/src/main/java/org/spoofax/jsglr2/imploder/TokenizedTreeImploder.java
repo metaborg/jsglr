@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
@@ -225,7 +226,12 @@ public abstract class TokenizedTreeImploder
     }
 
     protected Tree createLexicalTerm(IProduction production, String lexicalString, IToken lexicalToken) {
-        Tree lexicalTerm = treeFactory.createStringTerminal(production.lhs(), lexicalString, lexicalToken);
+        Tree lexicalTerm;
+
+        if (production.lhs() instanceof IMetaVarSymbol)
+            lexicalTerm = treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), lexicalString, lexicalToken);
+        else
+            lexicalTerm = treeFactory.createStringTerminal(production.lhs(), lexicalString, lexicalToken);
 
         if(lexicalToken != null) // Can be null, e.g. for empty string lexicals
             tokenTreeBinding(lexicalToken, lexicalTerm);

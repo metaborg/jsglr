@@ -4,6 +4,7 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 
 import java.util.Collections;
 
+import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -21,6 +22,10 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
 
     @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value) {
         return termFactory.makeString(value);
+    }
+
+    @Override public IStrategoTerm createMetaVar(IMetaVarSymbol symbol, String value) {
+        return termFactory.makeAppl(symbol.metaVarCardinality().constructor, termFactory.makeString(value));
     }
 
     @Override public IStrategoTerm createNonTerminal(ISymbol symbol, String constructor,

@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.imploder;
 import java.util.*;
 
 import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
@@ -51,8 +52,7 @@ public class TreeImploder
                     subTrees.add(result);
                 }
 
-                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null,
-                    subTrees.get(0).width);
+                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null, subTrees.get(0).width);
             } else
                 return implodeDerivation(input, filteredDerivations.get(0), startOffset);
         } else {
@@ -140,7 +140,10 @@ public class TreeImploder
         if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical()) {
-            return treeFactory.createStringTerminal(production.lhs(), substring);
+            if(production.lhs() instanceof IMetaVarSymbol)
+                return treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
+            else
+                return treeFactory.createStringTerminal(production.lhs(), substring);
         } else {
             throw new RuntimeException("invalid term type");
         }

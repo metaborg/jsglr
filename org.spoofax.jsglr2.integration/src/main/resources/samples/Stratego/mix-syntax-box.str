@@ -1,0 +1,5 @@
+module stratego/aterm/PrettyPrintRules
+   
+strategies
+     
+ f : _ -> |[ ~*tail  ]|

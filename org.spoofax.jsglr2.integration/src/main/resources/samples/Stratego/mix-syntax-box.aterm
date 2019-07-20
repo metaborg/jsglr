@@ -1,0 +1,7 @@
+Module(
+  "stratego/aterm/PrettyPrintRules"
+, [ Strategies(
+      [RDefNoArgs("f", RuleNoCond(Wld(), ToTerm(FromTerm(Var("tail")))))]
+    )
+  ]
+)

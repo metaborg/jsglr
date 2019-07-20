@@ -65,6 +65,8 @@ public abstract class TokenizedTreeImploder
 
     protected SubTree<Tree> implodeParseNode(ParseNode parseNode, Tokens tokens, Position startPosition,
         IToken parentLeftToken) {
+        parseNode = implodeInjection(parseNode);
+
         IProduction production = parseNode.production();
 
         if(production.isContextFree()) {
@@ -107,6 +109,22 @@ public abstract class TokenizedTreeImploder
 
             return new SubTree<>(tree, endPosition, token, token);
         }
+    }
+
+    protected ParseNode implodeInjection(ParseNode parseNode) {
+        for(Derivation derivation : parseNode.getDerivations()) {
+            if(derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
+                ParseNode injectedParseNode = (ParseNode) derivation.parseForests()[0];
+
+                // Meta variables are injected:
+                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
+                if(injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
+                    return injectedParseNode;
+                }
+            }
+        }
+
+        return parseNode;
     }
 
     protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
@@ -228,7 +246,7 @@ public abstract class TokenizedTreeImploder
     protected Tree createLexicalTerm(IProduction production, String lexicalString, IToken lexicalToken) {
         Tree lexicalTerm;
 
-        if (production.lhs() instanceof IMetaVarSymbol)
+        if(production.lhs() instanceof IMetaVarSymbol)
             lexicalTerm = treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), lexicalString, lexicalToken);
         else
             lexicalTerm = treeFactory.createStringTerminal(production.lhs(), lexicalString, lexicalToken);

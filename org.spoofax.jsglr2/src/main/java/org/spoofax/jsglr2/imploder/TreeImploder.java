@@ -37,6 +37,8 @@ public class TreeImploder
     }
 
     protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
+        parseNode = implodeInjection(parseNode);
+
         IProduction production = parseNode.production();
 
         if(production.isContextFree()) {
@@ -60,6 +62,22 @@ public class TreeImploder
 
             return new SubTree<>(createLexicalTerm(production, substring), production, substring);
         }
+    }
+
+    protected ParseNode implodeInjection(ParseNode parseNode) {
+        for(Derivation derivation : parseNode.getDerivations()) {
+            if(derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
+                ParseNode injectedParseNode = (ParseNode) derivation.parseForests()[0];
+
+                // Meta variables are injected:
+                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
+                if(injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
+                    return injectedParseNode;
+                }
+            }
+        }
+
+        return parseNode;
     }
 
     protected SubTree<Tree> implodeDerivation(Input input, Derivation derivation, int startOffset) {

@@ -86,6 +86,10 @@ public class IterativeTreeImploder
                 }
             } else {
                 ParseNode parseNode = currentIn.getFirst().removeFirst(); // Process the next parse node
+
+                // TODO: process injections with implodeInjections. Is this the correct place?
+                // parseNode = implodeInjection(parseNode);
+
                 IProduction production = parseNode.production();
                 if(!production.isContextFree()) { // If the current parse node is a lexical node
                     SubTree<Tree> lexicalSubTree =

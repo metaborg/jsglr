@@ -21,11 +21,4 @@ public class StrategoBoxTest extends BaseTestWithParseTableFromTermWithJSGLR1 {
         testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
 
-    @Ignore @Test public void testMixSugarByExpectedAST() throws ParseError, IOException {
-        String sampleProgram = getFileAsString("Stratego/mix-syntax-sugar.str");
-        IStrategoTerm expectedAST = getFileAsAST("Stratego/mix-syntax-sugar.aterm");
-
-        testSuccessByAstString(sampleProgram, expectedAST.toString());
-    }
-
 }

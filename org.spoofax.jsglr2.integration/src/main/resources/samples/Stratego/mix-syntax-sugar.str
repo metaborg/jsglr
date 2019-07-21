@@ -1,6 +1,0 @@
-module raise-annotations
-
-strategies
-
-  match-no-anno :
-    |[ pt ]| -> |[ pt{^_} ]|

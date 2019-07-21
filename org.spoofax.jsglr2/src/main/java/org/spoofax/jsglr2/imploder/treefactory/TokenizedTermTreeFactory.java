@@ -54,8 +54,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         return nonTerminalTerm;
     }
 
-    @Override public IStrategoTerm createList(List<IStrategoTerm> children, IToken leftToken,
-        IToken rightToken) {
+    @Override public IStrategoTerm createList(List<IStrategoTerm> children, IToken leftToken, IToken rightToken) {
         IStrategoTerm listTerm = termFactory.makeList(toArray(children));
 
         configure(listTerm, null, leftToken, rightToken);
@@ -70,8 +69,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         return createNonTerminal(symbol, constructor, children, leftToken, rightToken);
     }
 
-    @Override public IStrategoTerm createTuple(List<IStrategoTerm> children, IToken leftToken,
-        IToken rightToken) {
+    @Override public IStrategoTerm createTuple(List<IStrategoTerm> children, IToken leftToken, IToken rightToken) {
         IStrategoTerm tupleTerm = termFactory.makeTuple(toArray(children));
 
         configure(tupleTerm, null, leftToken, rightToken);
@@ -79,8 +77,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         return tupleTerm;
     }
 
-    @Override public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken,
-        IToken rightToken) {
+    @Override public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
         IStrategoTerm alternativesListTerm = createList(alternatives, leftToken, rightToken);
 
         return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);

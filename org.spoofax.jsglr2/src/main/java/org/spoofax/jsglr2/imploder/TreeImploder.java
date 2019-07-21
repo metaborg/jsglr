@@ -48,14 +48,15 @@ public class TreeImploder
                 List<Tree> trees = new ArrayList<>(filteredDerivations.size());
                 List<SubTree<Tree>> subTrees = new ArrayList<>(filteredDerivations.size());
 
-                if (production.isList()) {
-                    for (List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
-                        SubTree<Tree> result = implodeListDerivation(input, production, derivationParseForests, startOffset);
+                if(production.isList()) {
+                    for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
+                        SubTree<Tree> result =
+                            implodeListDerivation(input, production, derivationParseForests, startOffset);
                         trees.add(result.tree);
                         subTrees.add(result);
                     }
                 } else {
-                    for (Derivation derivation : filteredDerivations) {
+                    for(Derivation derivation : filteredDerivations) {
                         SubTree<Tree> result = implodeDerivation(input, derivation, startOffset);
                         trees.add(result.tree);
                         subTrees.add(result);
@@ -98,7 +99,8 @@ public class TreeImploder
         return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, derivation.production());
     }
 
-    protected SubTree<Tree> implodeListDerivation(Input input, IProduction production, List<ParseForest> childParseForests, int startOffset) {
+    protected SubTree<Tree> implodeListDerivation(Input input, IProduction production,
+        List<ParseForest> childParseForests, int startOffset) {
         List<Tree> childASTs = new ArrayList<>();
         List<SubTree<Tree>> subTrees = new ArrayList<>();
 

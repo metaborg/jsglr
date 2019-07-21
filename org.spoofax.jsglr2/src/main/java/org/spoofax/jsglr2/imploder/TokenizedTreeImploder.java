@@ -76,14 +76,16 @@ public abstract class TokenizedTreeImploder
                 List<Tree> trees = new ArrayList<>(filteredDerivations.size());
                 SubTree<Tree> result = null;
 
-                if (production.isList()) {
-                    for (List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
+                if(production.isList()) {
+                    for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
                         if(result == null) {
-                            result = implodeListDerivation(tokens, production, derivationParseForests, startPosition, parentLeftToken);
+                            result = implodeListDerivation(tokens, production, derivationParseForests, startPosition,
+                                parentLeftToken);
 
                             trees.add(result.tree);
                         } else
-                            trees.add(implodeListDerivation(tokens, production, derivationParseForests, startPosition, parentLeftToken).tree);
+                            trees.add(implodeListDerivation(tokens, production, derivationParseForests, startPosition,
+                                parentLeftToken).tree);
                     }
                 } else {
                     for(Derivation derivation : filteredDerivations) {
@@ -132,8 +134,8 @@ public abstract class TokenizedTreeImploder
         List<Tree> childASTs = new ArrayList<>();
         List<IToken> unboundTokens = new ArrayList<>();
 
-        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, Arrays.asList(derivation.parseForests()), derivation.production(),
-            unboundTokens, startPosition, parentLeftToken);
+        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, Arrays.asList(derivation.parseForests()),
+            derivation.production(), unboundTokens, startPosition, parentLeftToken);
 
         subTree.tree = createContextFreeTerm(derivation.production(), childASTs, subTree.leftToken, subTree.rightToken);
 
@@ -143,13 +145,13 @@ public abstract class TokenizedTreeImploder
         return subTree;
     }
 
-    protected SubTree<Tree> implodeListDerivation(Tokens tokens, IProduction production, List<ParseForest> childParseForests, Position startPosition,
-        IToken parentLeftToken) {
+    protected SubTree<Tree> implodeListDerivation(Tokens tokens, IProduction production,
+        List<ParseForest> childParseForests, Position startPosition, IToken parentLeftToken) {
         List<Tree> childASTs = new ArrayList<>();
         List<IToken> unboundTokens = new ArrayList<>();
 
-        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, childParseForests, production,
-            unboundTokens, startPosition, parentLeftToken);
+        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, childParseForests, production, unboundTokens,
+            startPosition, parentLeftToken);
 
         subTree.tree = createContextFreeTerm(production, childASTs, subTree.leftToken, subTree.rightToken);
 
@@ -159,8 +161,9 @@ public abstract class TokenizedTreeImploder
         return subTree;
     }
 
-    protected SubTree<Tree> implodeChildParseNodes(Tokens tokens, List<Tree> childASTs, Iterable<ParseForest> childParseForests,
-        IProduction production, List<IToken> unboundTokens, Position startPosition, IToken parentLeftToken) {
+    protected SubTree<Tree> implodeChildParseNodes(Tokens tokens, List<Tree> childASTs,
+        Iterable<ParseForest> childParseForests, IProduction production, List<IToken> unboundTokens,
+        Position startPosition, IToken parentLeftToken) {
         SubTree<Tree> result = new SubTree<>(null, startPosition, parentLeftToken, null);
 
         Position pivotPosition = startPosition;
@@ -184,8 +187,9 @@ public abstract class TokenizedTreeImploder
                 //@formatter:on
                 )) {
                     // Make sure lists are flattened
-                    subTree = implodeChildParseNodes(tokens, childASTs, Arrays.asList(childParseNode.getFirstDerivation().parseForests()),
-                        childProduction, unboundTokens, pivotPosition, pivotToken);
+                    subTree = implodeChildParseNodes(tokens, childASTs,
+                        Arrays.asList(childParseNode.getFirstDerivation().parseForests()), childProduction,
+                        unboundTokens, pivotPosition, pivotToken);
                 } else {
                     subTree = implodeParseNode(childParseNode, tokens, pivotPosition, pivotToken);
 

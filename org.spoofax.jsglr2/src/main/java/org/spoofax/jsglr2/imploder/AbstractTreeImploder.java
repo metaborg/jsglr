@@ -23,20 +23,21 @@ public abstract class AbstractTreeImploder
     protected List<List<ParseForest>> implodeAmbiguousLists(List<Derivation> derivations) {
         List<List<ParseForest>> alternatives = new ArrayList<>();
 
-        for (Derivation derivation : derivations) {
-            if (derivation.parseForests().length == 1) {
+        for(Derivation derivation : derivations) {
+            if(derivation.parseForests().length == 1) {
                 alternatives.add(Arrays.asList(derivation.parseForests()[0]));
             } else {
                 List<ParseForest> subTrees = Arrays.asList(derivation.parseForests());
 
                 ParseNode head = (ParseNode) subTrees.get(0);
 
-                if (head.production().isList() && head.getPreferredAvoidedDerivations().size() > 1) {
+                if(head.production().isList() && head.getPreferredAvoidedDerivations().size() > 1) {
                     List<ParseForest> tail = subTrees.subList(1, subTrees.size());
 
-                    List<List<ParseForest>> headExpansions = implodeAmbiguousLists(head.getPreferredAvoidedDerivations());
+                    List<List<ParseForest>> headExpansions =
+                        implodeAmbiguousLists(head.getPreferredAvoidedDerivations());
 
-                    for (List<ParseForest> headExpansion : headExpansions) {
+                    for(List<ParseForest> headExpansion : headExpansions) {
                         List<ParseForest> headExpansionWithTail = new ArrayList<>(headExpansion);
                         headExpansionWithTail.addAll(tail);
                         alternatives.add(headExpansionWithTail);

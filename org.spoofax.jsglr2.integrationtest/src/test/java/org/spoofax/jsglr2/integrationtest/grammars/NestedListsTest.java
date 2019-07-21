@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.integrationtest.grammars;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;

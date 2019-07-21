@@ -173,12 +173,12 @@ public class TreeImploder
     protected Tree createContextFreeTerm(IProduction production, List<Tree> childASTs) {
         String constructor = production.constructor();
 
-        if(production.isList())
-            return treeFactory.createList(childASTs);
+        if(constructor != null)
+            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
         else if(production.isOptional())
             return treeFactory.createOptional(production.lhs(), childASTs);
-        else if(constructor != null)
-            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
+        else if(production.isList())
+            return treeFactory.createList(childASTs);
         else if(childASTs.size() == 1)
             return childASTs.get(0);
         else

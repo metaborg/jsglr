@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.integrationtest.languages;
 
 import java.io.IOException;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithParseTableFromTermWithJSGLR1;
@@ -14,7 +13,7 @@ public class StrategoBoxTest extends BaseTestWithParseTableFromTermWithJSGLR1 {
         setupParseTable("Stratego-Box");
     }
 
-    @Ignore @Test public void testMixBoxByExpectedAST() throws ParseError, IOException {
+    @Test public void testMixBoxByExpectedAST() throws ParseError, IOException {
         String sampleProgram = getFileAsString("Stratego/mix-syntax-box.str");
         IStrategoTerm expectedAST = getFileAsAST("Stratego/mix-syntax-box.aterm");
 

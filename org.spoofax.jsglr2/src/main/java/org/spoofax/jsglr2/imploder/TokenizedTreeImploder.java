@@ -11,7 +11,6 @@ import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
@@ -231,13 +230,13 @@ public abstract class TokenizedTreeImploder
         IToken rightToken) {
         String constructor = production.constructor();
 
-        if(production.isList())
-            return treeFactory.createList(childASTs, leftToken, rightToken);
+        if(constructor != null)
+            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs, leftToken, rightToken);
         else if(production.isOptional())
             return treeFactory.createOptional(production.lhs(), childASTs, leftToken, rightToken);
-        else if(constructor != null) {
-            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs, leftToken, rightToken);
-        } else if(childASTs.size() == 1)
+        else if(production.isList())
+            return treeFactory.createList(childASTs, leftToken, rightToken);
+        else if(childASTs.size() == 1)
             return treeFactory.createInjection(production.lhs(), childASTs.get(0));
         else
             return treeFactory.createTuple(childASTs, leftToken, rightToken);

@@ -48,10 +48,18 @@ public class TreeImploder
                 List<Tree> trees = new ArrayList<>(filteredDerivations.size());
                 List<SubTree<Tree>> subTrees = new ArrayList<>(filteredDerivations.size());
 
-                for(Derivation derivation : filteredDerivations) {
-                    SubTree<Tree> result = implodeDerivation(input, derivation, startOffset);
-                    trees.add(result.tree);
-                    subTrees.add(result);
+                if (production.isList()) {
+                    for (List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
+                        SubTree<Tree> result = implodeListDerivation(input, production, derivationParseForests, startOffset);
+                        trees.add(result.tree);
+                        subTrees.add(result);
+                    }
+                } else {
+                    for (Derivation derivation : filteredDerivations) {
+                        SubTree<Tree> result = implodeDerivation(input, derivation, startOffset);
+                        trees.add(result.tree);
+                        subTrees.add(result);
+                    }
                 }
 
                 return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null, subTrees.get(0).width);
@@ -90,12 +98,36 @@ public class TreeImploder
         return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, derivation.production());
     }
 
+    protected SubTree<Tree> implodeListDerivation(Input input, IProduction production, List<ParseForest> childParseForests, int startOffset) {
+        List<Tree> childASTs = new ArrayList<>();
+        List<SubTree<Tree>> subTrees = new ArrayList<>();
+
+        for(ParseForest childParseForest : getChildParseForests(production, childParseForests)) {
+            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
+                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+
+                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
+
+                if(subTree.tree != null) {
+                    childASTs.add(subTree.tree);
+                }
+                subTrees.add(subTree);
+                startOffset += subTree.width;
+            }
+        }
+
+        return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, production);
+    }
+
     protected List<ParseForest> getChildParseForests(Derivation derivation) {
+        return getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests()));
+    }
+
+    protected List<ParseForest> getChildParseForests(IProduction production, List<ParseForest> parseForests) {
         // Make sure lists are flattened
-        if(derivation.production().isList()) {
-            LinkedList<ParseForest> listQueueTodo = new LinkedList<>();
+        if(production.isList()) {
             LinkedList<ParseForest> listQueueDone = new LinkedList<>();
-            Collections.addAll(listQueueTodo, derivation.parseForests());
+            LinkedList<ParseForest> listQueueTodo = new LinkedList<>(parseForests);
 
             // Check child parse forest from front to back
             while(!listQueueTodo.isEmpty()) {
@@ -119,7 +151,7 @@ public class TreeImploder
             }
             return listQueueDone;
         } else {
-            return Arrays.asList(derivation.parseForests());
+            return parseForests;
         }
     }
 

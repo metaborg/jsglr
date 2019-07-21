@@ -30,22 +30,9 @@ public class NestedListsTest extends BaseTestWithSdf3ParseTables {
         testSuccessByExpansions("llxx", "L(amb([" + list1 + "," + list2 + "]))");
     }
 
-    /*
-     * testMMXXX1 fails and testMMXXX2 succeeds. However, it seems like it should be the other way around, i.e., no
-     * extra wrapping by a list term.
-     */
-
-    @Ignore @Test public void testMMXXX1() throws ParseError {
+    @Test public void testMMXXX() throws ParseError {
         String list1 = "[L([X()]),X(),X()]"; // One in inner list, two in outer list
         String list2 = "[L([X(),X()]),X()]"; // Two in inner list, one in outer list
-        String list3 = "[L([X(),X(),X()])]"; // All in inner list
-
-        testSuccessByExpansions("llxxx", "L(amb([" + list1 + "," + list2 + "," + list3 + "]))");
-    }
-
-    @Test public void testMMXXX2() throws ParseError {
-        String list1 = "[[L([X()]),X()],X()]"; // One in inner list, two in outer list
-        String list2 = "[[L([X(),X()])],X()]"; // Two in inner list, one in outer list
         String list3 = "[L([X(),X(),X()])]"; // All in inner list
 
         testSuccessByExpansions("llxxx", "L(amb([" + list1 + "," + list2 + "," + list3 + "]))");

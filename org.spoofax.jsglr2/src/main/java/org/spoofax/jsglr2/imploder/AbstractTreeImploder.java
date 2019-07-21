@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.imploder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,6 +19,36 @@ public abstract class AbstractTreeImploder
     Tree>
 //@formatter:on
     implements IImploder<ParseForest, Tree> {
+
+    protected List<List<ParseForest>> implodeAmbiguousLists(List<Derivation> derivations) {
+        List<List<ParseForest>> alternatives = new ArrayList<>();
+
+        for (Derivation derivation : derivations) {
+            if (derivation.parseForests().length == 1) {
+                alternatives.add(Arrays.asList(derivation.parseForests()[0]));
+            } else {
+                List<ParseForest> subTrees = Arrays.asList(derivation.parseForests());
+
+                ParseNode head = (ParseNode) subTrees.get(0);
+
+                if (head.production().isList() && head.getPreferredAvoidedDerivations().size() > 1) {
+                    List<ParseForest> tail = subTrees.subList(1, subTrees.size());
+
+                    List<List<ParseForest>> headExpansions = implodeAmbiguousLists(head.getPreferredAvoidedDerivations());
+
+                    for (List<ParseForest> headExpansion : headExpansions) {
+                        List<ParseForest> headExpansionWithTail = new ArrayList<>(headExpansion);
+                        headExpansionWithTail.addAll(tail);
+                        alternatives.add(headExpansionWithTail);
+                    }
+                } else {
+                    alternatives.add(subTrees);
+                }
+            }
+        }
+
+        return alternatives;
+    }
 
     protected ParseNode implodeInjection(ParseNode parseNode) {
         for(Derivation derivation : parseNode.getDerivations()) {

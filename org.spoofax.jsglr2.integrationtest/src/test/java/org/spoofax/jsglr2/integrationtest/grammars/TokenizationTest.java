@@ -78,6 +78,18 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
+    @Test public void keywordWithNumber() throws ParseError {
+        testTokens("x add2 x", Arrays.asList(
+        //@formatter:off
+            new TokenDescriptor("x",    IToken.TK_IDENTIFIER, 0, 1, 1),
+            new TokenDescriptor(" ",    IToken.TK_LAYOUT,     1, 1, 2),
+            new TokenDescriptor("add2", IToken.TK_KEYWORD,    2, 1, 3),
+            new TokenDescriptor(" ",    IToken.TK_LAYOUT,     6, 1, 7),
+            new TokenDescriptor("x",    IToken.TK_IDENTIFIER, 7, 1, 8)
+        //@formatter:on
+        ));
+    }
+
     @Test public void multipleLines() throws ParseError {
         testTokens("x;\nx", Arrays.asList(
         //@formatter:off

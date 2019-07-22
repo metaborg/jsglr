@@ -85,8 +85,8 @@ public class Position {
         int line = this.line;
         int column = this.column;
         int end = Integer.min(inputString.length(), offset + width);
-        for (; offset < end; offset++) {
-            if (inputString.charAt(offset) == '\n') {
+        for(; offset < end; offset++) {
+            if(inputString.charAt(offset) == '\n') {
                 line++;
                 column = 1;
             } else {

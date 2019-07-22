@@ -6,7 +6,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr2.parser.Position;
@@ -55,16 +55,20 @@ public class Tokens implements IParseTokens {
 
         if(production.isLayout()) {
             tokenKind = IToken.TK_LAYOUT;
-        } else if(production.isStringLiteral()) {
-            tokenKind = IToken.TK_STRING;
-        } else if(production.isNumberLiteral()) {
-            tokenKind = IToken.TK_NUMBER;
-        } else if(production.isOperator()) {
-            tokenKind = IToken.TK_OPERATOR;
+        } else if(production.isLiteral()) {
+            if(production.isOperator())
+                tokenKind = IToken.TK_OPERATOR;
+            else
+                tokenKind = IToken.TK_KEYWORD;
         } else if(production.isLexical()) {
-            tokenKind = IToken.TK_IDENTIFIER;
+            if(production.isStringLiteral())
+                tokenKind = IToken.TK_STRING;
+            else if(production.isNumberLiteral())
+                tokenKind = IToken.TK_NUMBER;
+            else
+                tokenKind = IToken.TK_IDENTIFIER;
         } else {
-            tokenKind = IToken.TK_KEYWORD;
+            throw new IllegalStateException("invalid production/token type");
         }
 
         IToken token = new Token(this, filename, tokens.size(), startPosition.line, startPosition.column,

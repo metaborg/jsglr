@@ -1,10 +1,11 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
@@ -66,6 +67,10 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
             }
 
             @Override public BasicStackNode<BasicParseForest> remove() {
+                return null;
+            }
+
+            @Override public Iterator<BasicStackNode<BasicParseForest>> iterator() {
                 return null;
             }
 

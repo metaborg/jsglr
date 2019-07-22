@@ -1,13 +1,13 @@
 package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -21,7 +21,7 @@ public abstract class TokenizedTreeImploder
     Derivation  extends IDerivation<ParseForest>,
     Tree>
 //@formatter:on
-    implements IImploder<ParseForest, TokenizeResult<Tree>> {
+    extends AbstractTreeImploder<ParseForest, ParseNode, Derivation, TokenizeResult<Tree>> {
 
     protected final ITokenizedTreeFactory<Tree> treeFactory;
 
@@ -64,6 +64,8 @@ public abstract class TokenizedTreeImploder
 
     protected SubTree<Tree> implodeParseNode(ParseNode parseNode, Tokens tokens, Position startPosition,
         IToken parentLeftToken) {
+        parseNode = implodeInjection(parseNode);
+
         IProduction production = parseNode.production();
 
         if(production.isContextFree()) {
@@ -73,18 +75,29 @@ public abstract class TokenizedTreeImploder
                 List<Tree> trees = new ArrayList<>(filteredDerivations.size());
                 SubTree<Tree> result = null;
 
-                for(Derivation derivation : filteredDerivations) {
-                    if(result == null) {
-                        result = implodeDerivation(tokens, derivation, startPosition, parentLeftToken);
+                if(production.isList()) {
+                    for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
+                        if(result == null) {
+                            result = implodeListDerivation(tokens, production, derivationParseForests, startPosition,
+                                parentLeftToken);
 
-                        trees.add(result.tree);
-                    } else
-                        trees.add(implodeDerivation(tokens, derivation, startPosition, parentLeftToken).tree);
+                            trees.add(result.tree);
+                        } else
+                            trees.add(implodeListDerivation(tokens, production, derivationParseForests, startPosition,
+                                parentLeftToken).tree);
+                    }
+                } else {
+                    for(Derivation derivation : filteredDerivations) {
+                        if(result == null) {
+                            result = implodeDerivation(tokens, derivation, startPosition, parentLeftToken);
+
+                            trees.add(result.tree);
+                        } else
+                            trees.add(implodeDerivation(tokens, derivation, startPosition, parentLeftToken).tree);
+                    }
                 }
 
-                String sort = production.sort();
-
-                result.tree = treeFactory.createAmb(sort, trees, result.leftToken, result.rightToken);
+                result.tree = treeFactory.createAmb(trees, result.leftToken, result.rightToken);
 
                 return result;
             } else
@@ -100,7 +113,7 @@ public abstract class TokenizedTreeImploder
 
             if(production.isLayout() || production.isLiteral()) {
                 tree = null;
-            } else if(production.isLexical() || production.isLexicalRhs()) {
+            } else if(production.isLexical()) {
                 tree = createLexicalTerm(production, tokens.toString(startPosition.offset, endPosition.offset), token);
             } else {
                 throw new RuntimeException("invalid term type");
@@ -108,21 +121,6 @@ public abstract class TokenizedTreeImploder
 
             return new SubTree<>(tree, endPosition, token, token);
         }
-    }
-
-    protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
-        if(!parseNode.isAmbiguous())
-            return Collections.singletonList(parseNode.getFirstDerivation());
-
-        List<Derivation> result;
-        // TODO always filter longest-match?
-        if(parseNode instanceof LayoutSensitiveParseNode) {
-            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
-        }
-        // TODO always filter prefer/avoid?
-        result = parseNode.getPreferredAvoidedDerivations();
-
-        return result;
     }
 
     protected SubTree<Tree> implodeDerivation(Tokens tokens, Derivation derivation, Position startPosition,
@@ -135,8 +133,8 @@ public abstract class TokenizedTreeImploder
         List<Tree> childASTs = new ArrayList<>();
         List<IToken> unboundTokens = new ArrayList<>();
 
-        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, derivation, derivation.production(),
-            unboundTokens, startPosition, parentLeftToken);
+        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, Arrays.asList(derivation.parseForests()),
+            derivation.production(), unboundTokens, startPosition, parentLeftToken);
 
         subTree.tree = createContextFreeTerm(derivation.production(), childASTs, subTree.leftToken, subTree.rightToken);
 
@@ -146,14 +144,31 @@ public abstract class TokenizedTreeImploder
         return subTree;
     }
 
-    protected SubTree<Tree> implodeChildParseNodes(Tokens tokens, List<Tree> childASTs, Derivation derivation,
-        IProduction production, List<IToken> unboundTokens, Position startPosition, IToken parentLeftToken) {
+    protected SubTree<Tree> implodeListDerivation(Tokens tokens, IProduction production,
+        List<ParseForest> childParseForests, Position startPosition, IToken parentLeftToken) {
+        List<Tree> childASTs = new ArrayList<>();
+        List<IToken> unboundTokens = new ArrayList<>();
+
+        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, childParseForests, production, unboundTokens,
+            startPosition, parentLeftToken);
+
+        subTree.tree = createContextFreeTerm(production, childASTs, subTree.leftToken, subTree.rightToken);
+
+        for(IToken token : unboundTokens)
+            tokenTreeBinding(token, subTree.tree);
+
+        return subTree;
+    }
+
+    protected SubTree<Tree> implodeChildParseNodes(Tokens tokens, List<Tree> childASTs,
+        Iterable<ParseForest> childParseForests, IProduction production, List<IToken> unboundTokens,
+        Position startPosition, IToken parentLeftToken) {
         SubTree<Tree> result = new SubTree<>(null, startPosition, parentLeftToken, null);
 
         Position pivotPosition = startPosition;
         IToken pivotToken = parentLeftToken;
 
-        for(ParseForest childParseForest : derivation.parseForests()) {
+        for(ParseForest childParseForest : childParseForests) {
             @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
             if(childParseNode != null) { // Can be null in the case of a layout subtree parse node that is not created
@@ -161,11 +176,19 @@ public abstract class TokenizedTreeImploder
 
                 SubTree<Tree> subTree;
 
-                if(production.isList() && (childProduction.isList() && childProduction.constructor() == null
-                    && childParseNode.getPreferredAvoidedDerivations().size() <= 1)) {
+                if(production.isList() && (
+                //@formatter:off
+                    // Constraints for flattening nested lists productions:
+                    childProduction.isList() && // The subtree is a list
+                    childProduction.constructor() == null && // The subtree has no constructor
+                    childParseNode.getPreferredAvoidedDerivations().size() <= 1 && // The subtree is not ambiguous
+                    !production.isLexical() // Not in lexical context; otherwise just implode as lexical token
+                //@formatter:on
+                )) {
                     // Make sure lists are flattened
-                    subTree = implodeChildParseNodes(tokens, childASTs, childParseNode.getFirstDerivation(),
-                        childProduction, unboundTokens, pivotPosition, pivotToken);
+                    subTree = implodeChildParseNodes(tokens, childASTs,
+                        Arrays.asList(childParseNode.getFirstDerivation().parseForests()), childProduction,
+                        unboundTokens, pivotPosition, pivotToken);
                 } else {
                     subTree = implodeParseNode(childParseNode, tokens, pivotPosition, pivotToken);
 
@@ -207,20 +230,25 @@ public abstract class TokenizedTreeImploder
         IToken rightToken) {
         String constructor = production.constructor();
 
-        if(production.isList())
-            return treeFactory.createList(production.sort(), childASTs, leftToken, rightToken);
+        if(constructor != null)
+            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs, leftToken, rightToken);
         else if(production.isOptional())
-            return treeFactory.createOptional(production.sort(), childASTs, leftToken, rightToken);
-        else if(constructor != null)
-            return treeFactory.createNonTerminal(production.sort(), constructor, childASTs, leftToken, rightToken);
+            return treeFactory.createOptional(production.lhs(), childASTs, leftToken, rightToken);
+        else if(production.isList())
+            return treeFactory.createList(childASTs, leftToken, rightToken);
         else if(childASTs.size() == 1)
-            return treeFactory.createInjection(production.sort(), childASTs.get(0));
+            return treeFactory.createInjection(production.lhs(), childASTs.get(0));
         else
-            return treeFactory.createTuple(production.sort(), childASTs, leftToken, rightToken);
+            return treeFactory.createTuple(childASTs, leftToken, rightToken);
     }
 
     protected Tree createLexicalTerm(IProduction production, String lexicalString, IToken lexicalToken) {
-        Tree lexicalTerm = treeFactory.createStringTerminal(production.sort(), lexicalString, lexicalToken);
+        Tree lexicalTerm;
+
+        if(production.lhs() instanceof IMetaVarSymbol)
+            lexicalTerm = treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), lexicalString, lexicalToken);
+        else
+            lexicalTerm = treeFactory.createStringTerminal(production.lhs(), lexicalString, lexicalToken);
 
         if(lexicalToken != null) // Can be null, e.g. for empty string lexicals
             tokenTreeBinding(lexicalToken, lexicalTerm);

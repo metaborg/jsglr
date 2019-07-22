@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
-import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
@@ -184,7 +184,7 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
         characterNodes.add(characterNode);
     }
 
-    @Override public void addDerivation(ParseForest parseNode) {
+    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
     }
 
     @Override public void shifter(ParseForest termNode,

@@ -11,7 +11,7 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReadException;
 
 import java.util.Map;
 

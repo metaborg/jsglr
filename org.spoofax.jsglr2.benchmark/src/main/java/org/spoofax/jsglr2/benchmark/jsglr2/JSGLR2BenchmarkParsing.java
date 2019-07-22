@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;

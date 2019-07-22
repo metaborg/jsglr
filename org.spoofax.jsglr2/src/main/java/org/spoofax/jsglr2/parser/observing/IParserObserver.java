@@ -2,8 +2,8 @@ package org.spoofax.jsglr2.parser.observing;
 
 import java.util.Queue;
 
-import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
@@ -71,7 +71,7 @@ public interface IParserObserver
 
     void createCharacterNode(ParseForest characterNode, int character);
 
-    void addDerivation(ParseForest parseNode);
+    void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation);
 
     void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 

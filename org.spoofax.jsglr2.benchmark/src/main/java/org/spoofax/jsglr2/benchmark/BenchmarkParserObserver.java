@@ -2,8 +2,8 @@ package org.spoofax.jsglr2.benchmark;
 
 import java.util.Queue;
 
-import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
@@ -96,7 +96,7 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
     }
 
-    @Override public void addDerivation(ParseForest parseNode) {
+    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {

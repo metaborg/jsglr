@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.datadependent;
 
-import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.ProductionType;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 

@@ -2,7 +2,10 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.*;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.symbols.IMetaVarSymbol;
+import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
+import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -14,23 +17,28 @@ public class TreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    Tree>
+    Tree,
+    Input       extends ImplodeInput>
 //@formatter:on
-    implements IImploder<ParseForest, TreeImploder.SubTree<Tree>> {
+    extends AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>> {
 
+    protected final IImplodeInputFactory<Input> inputFactory;
     protected final ITreeFactory<Tree> treeFactory;
 
-    public TreeImploder(ITreeFactory<Tree> treeFactory) {
+    public TreeImploder(IImplodeInputFactory<Input> inputFactory, ITreeFactory<Tree> treeFactory) {
+        this.inputFactory = inputFactory;
         this.treeFactory = treeFactory;
     }
 
     @Override public SubTree<Tree> implode(String input, String filename, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        return implodeParseNode(input, topParseNode, 0);
+        return implodeParseNode(inputFactory.get(input), topParseNode, 0);
     }
 
-    protected SubTree<Tree> implodeParseNode(String inputString, ParseNode parseNode, int startOffset) {
+    protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
+        parseNode = implodeInjection(parseNode);
+
         IProduction production = parseNode.production();
 
         if(production.isContextFree()) {
@@ -40,24 +48,32 @@ public class TreeImploder
                 List<Tree> trees = new ArrayList<>(filteredDerivations.size());
                 List<SubTree<Tree>> subTrees = new ArrayList<>(filteredDerivations.size());
 
-                for(Derivation derivation : filteredDerivations) {
-                    SubTree<Tree> result = implodeDerivation(inputString, derivation, startOffset);
-                    trees.add(result.tree);
-                    subTrees.add(result);
+                if(production.isList()) {
+                    for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
+                        SubTree<Tree> result =
+                            implodeListDerivation(input, production, derivationParseForests, startOffset);
+                        trees.add(result.tree);
+                        subTrees.add(result);
+                    }
+                } else {
+                    for(Derivation derivation : filteredDerivations) {
+                        SubTree<Tree> result = implodeDerivation(input, derivation, startOffset);
+                        trees.add(result.tree);
+                        subTrees.add(result);
+                    }
                 }
 
-                return new SubTree<>(treeFactory.createAmb(production.sort(), trees), subTrees, null, null,
-                    subTrees.get(0).width);
+                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null, subTrees.get(0).width);
             } else
-                return implodeDerivation(inputString, filteredDerivations.get(0), startOffset);
+                return implodeDerivation(input, filteredDerivations.get(0), startOffset);
         } else {
-            String substring = inputString.substring(startOffset, startOffset + parseNode.width());
+            String substring = input.inputString.substring(startOffset, startOffset + parseNode.width());
 
             return new SubTree<>(createLexicalTerm(production, substring), production, substring);
         }
     }
 
-    protected SubTree<Tree> implodeDerivation(String inputString, Derivation derivation, int startOffset) {
+    protected SubTree<Tree> implodeDerivation(Input input, Derivation derivation, int startOffset) {
         IProduction production = derivation.production();
 
         if(!production.isContextFree())
@@ -70,7 +86,7 @@ public class TreeImploder
             if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
                 @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-                SubTree<Tree> subTree = implodeParseNode(inputString, childParseNode, startOffset);
+                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
 
                 if(subTree.tree != null) {
                     childASTs.add(subTree.tree);
@@ -83,12 +99,37 @@ public class TreeImploder
         return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, derivation.production());
     }
 
+    protected SubTree<Tree> implodeListDerivation(Input input, IProduction production,
+        List<ParseForest> childParseForests, int startOffset) {
+        List<Tree> childASTs = new ArrayList<>();
+        List<SubTree<Tree>> subTrees = new ArrayList<>();
+
+        for(ParseForest childParseForest : getChildParseForests(production, childParseForests)) {
+            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
+                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+
+                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
+
+                if(subTree.tree != null) {
+                    childASTs.add(subTree.tree);
+                }
+                subTrees.add(subTree);
+                startOffset += subTree.width;
+            }
+        }
+
+        return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, production);
+    }
+
     protected List<ParseForest> getChildParseForests(Derivation derivation) {
+        return getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests()));
+    }
+
+    protected List<ParseForest> getChildParseForests(IProduction production, List<ParseForest> parseForests) {
         // Make sure lists are flattened
-        if(derivation.production().isList()) {
-            LinkedList<ParseForest> listQueueTodo = new LinkedList<>();
+        if(production.isList()) {
             LinkedList<ParseForest> listQueueDone = new LinkedList<>();
-            Collections.addAll(listQueueTodo, derivation.parseForests());
+            LinkedList<ParseForest> listQueueTodo = new LinkedList<>(parseForests);
 
             // Check child parse forest from front to back
             while(!listQueueTodo.isEmpty()) {
@@ -112,30 +153,18 @@ public class TreeImploder
             }
             return listQueueDone;
         } else {
-            return Arrays.asList(derivation.parseForests());
+            return parseForests;
         }
-    }
-
-    protected List<Derivation> applyDisambiguationFilters(ParseNode parseNode) {
-        if(!parseNode.isAmbiguous())
-            return Collections.singletonList(parseNode.getFirstDerivation());
-
-        List<Derivation> result;
-        // TODO always filter longest-match?
-        if(parseNode instanceof LayoutSensitiveParseNode) {
-            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
-        }
-        // TODO always filter prefer/avoid?
-        result = parseNode.getPreferredAvoidedDerivations();
-
-        return result;
     }
 
     protected Tree createLexicalTerm(IProduction production, String substring) {
         if(production.isLayout() || production.isLiteral()) {
             return null;
-        } else if(production.isLexical() || production.isLexicalRhs()) {
-            return treeFactory.createStringTerminal(production.sort(), substring);
+        } else if(production.isLexical()) {
+            if(production.lhs() instanceof IMetaVarSymbol)
+                return treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
+            else
+                return treeFactory.createStringTerminal(production.lhs(), substring);
         } else {
             throw new RuntimeException("invalid term type");
         }
@@ -144,16 +173,16 @@ public class TreeImploder
     protected Tree createContextFreeTerm(IProduction production, List<Tree> childASTs) {
         String constructor = production.constructor();
 
-        if(production.isList())
-            return treeFactory.createList(production.sort(), childASTs);
+        if(constructor != null)
+            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
         else if(production.isOptional())
-            return treeFactory.createOptional(production.sort(), childASTs);
-        else if(constructor != null)
-            return treeFactory.createNonTerminal(production.sort(), constructor, childASTs);
+            return treeFactory.createOptional(production.lhs(), childASTs);
+        else if(production.isList())
+            return treeFactory.createList(childASTs);
         else if(childASTs.size() == 1)
             return childASTs.get(0);
         else
-            return treeFactory.createTuple(production.sort(), childASTs);
+            return treeFactory.createTuple(childASTs);
     }
 
     public static class SubTree<Tree> {

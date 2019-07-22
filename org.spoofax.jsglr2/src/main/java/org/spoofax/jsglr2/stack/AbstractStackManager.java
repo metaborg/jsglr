@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.stack;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -68,7 +68,7 @@ public abstract class AbstractStackManager
 
     protected abstract Iterable<StackLink<ParseForest, StackNode>> stackLinksOut(StackNode stack);
 
-    public ParseForest[] getParseForests(ParseForestManager<ParseForest, ?, ?> parseForestManager,
+    public ParseForest[] getParseForests(ParseForestManager<ParseForest, ?, ?, Parse> parseForestManager,
         StackPath<ParseForest, StackNode> pathBegin) {
         ParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
 

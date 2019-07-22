@@ -4,6 +4,8 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 
 import java.util.Collections;
 
+import org.metaborg.parsetable.symbols.IMetaVarSymbol;
+import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
@@ -18,31 +20,36 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
         this.termFactory = new TermFactory().getFactoryWithStorageType(MUTABLE);
     }
 
-    @Override public IStrategoTerm createStringTerminal(String sort, String value) {
+    @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value) {
         return termFactory.makeString(value);
     }
 
-    @Override public IStrategoTerm createNonTerminal(String sort, String constructor,
+    @Override public IStrategoTerm createMetaVar(IMetaVarSymbol symbol, String value) {
+        return termFactory.makeAppl(symbol.metaVarCardinality().constructor, termFactory.makeString(value));
+    }
+
+    @Override public IStrategoTerm createNonTerminal(ISymbol symbol, String constructor,
         Iterable<IStrategoTerm> childASTs) {
         IStrategoTerm[] terms = toArray(childASTs);
-        return termFactory.makeAppl(termFactory.makeConstructor(constructor != null ? constructor : sort, terms.length),
+        return termFactory.makeAppl(
+            termFactory.makeConstructor(constructor != null ? constructor : ISymbol.getSort(symbol), terms.length),
             terms);
     }
 
-    @Override public IStrategoTerm createList(String sort, Iterable<IStrategoTerm> children) {
+    @Override public IStrategoTerm createList(Iterable<IStrategoTerm> children) {
         return termFactory.makeList(toArray(children));
     }
 
-    @Override public IStrategoTerm createOptional(String sort, Iterable<IStrategoTerm> children) {
-        return createNonTerminal(sort, children == null || Iterables.isEmpty(children) ? "None" : "Some", children);
+    @Override public IStrategoTerm createOptional(ISymbol symbol, Iterable<IStrategoTerm> children) {
+        return createNonTerminal(symbol, children == null || Iterables.isEmpty(children) ? "None" : "Some", children);
     }
 
-    @Override public IStrategoTerm createTuple(String sort, Iterable<IStrategoTerm> children) {
+    @Override public IStrategoTerm createTuple(Iterable<IStrategoTerm> children) {
         return termFactory.makeTuple(toArray(children));
     }
 
-    @Override public IStrategoTerm createAmb(String sort, Iterable<IStrategoTerm> alternatives) {
-        return createNonTerminal(null, "amb", Collections.singletonList(createList(null, alternatives)));
+    @Override public IStrategoTerm createAmb(Iterable<IStrategoTerm> alternatives) {
+        return createNonTerminal(null, "amb", Collections.singletonList(createList(alternatives)));
     }
 
     private static IStrategoTerm[] toArray(Iterable<IStrategoTerm> children) {

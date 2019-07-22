@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.reducing;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -25,11 +25,11 @@ public class ReduceManager
 
     protected final IParseTable parseTable;
     protected final AbstractStackManager<ParseForest, StackNode, Parse> stackManager;
-    protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
+    protected final ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager;
     protected final Reducer<ParseForest, ParseNode, Derivation, StackNode, Parse> reducer;
 
     public ReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
@@ -50,7 +50,7 @@ public class ReduceManager
         doReductionsHelper(parse, stack, reduce, null);
     }
 
-    private void doLimitedRedutions(Parse parse, StackNode stack, IReduce reduce,
+    private void doLimitedReductions(Parse parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> throughLink) {
         if(reduce.production().isCompletionOrRecovery())
             return;
@@ -100,7 +100,7 @@ public class ReduceManager
 
                 for(StackNode activeStack : parse.activeStacks.forLimitedReductions(parse.forActorStacks)) {
                     for(IReduce reduceAction : activeStack.state().getApplicableReduceActions(parse))
-                        doLimitedRedutions(parse, activeStack, reduceAction, link);
+                        doLimitedReductions(parse, activeStack, reduceAction, link);
                 }
             }
         } else {

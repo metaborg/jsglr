@@ -19,7 +19,8 @@ public class OptionalsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void testIncrementalOptionals() throws ParseError {
-        testIncrementalSuccessByExpansions(new String[]{"X", "", "X"}, new String[]{"Some(X)", "None", "Some(X)"});
+        testIncrementalSuccessByExpansions(new String[] { "X", "", "X" },
+            new String[] { "Some(X)", "None", "Some(X)" });
     }
 
 }

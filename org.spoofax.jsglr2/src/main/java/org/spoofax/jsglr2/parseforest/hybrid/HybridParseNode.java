@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 

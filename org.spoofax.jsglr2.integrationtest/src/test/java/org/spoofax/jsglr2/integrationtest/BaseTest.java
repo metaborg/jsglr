@@ -11,12 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
-import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
+import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
@@ -42,9 +43,9 @@ public abstract class BaseTest implements WithParseTable {
         return termReader;
     }
 
-    protected IParseTable getParseTableFailOnException(ParseTableVariant variant) {
+    protected Iterable<ParseTableWithOrigin> getParseTablesOrFailOnException(ParseTableVariant variant) {
         try {
-            return getParseTable(variant);
+            return getParseTables(variant);
         } catch(Exception e) {
             e.printStackTrace();
 
@@ -54,25 +55,62 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    protected void testParseSuccess(String inputString) {
+    class TestVariant {
+
+        IntegrationVariant variant;
+        ParseTableWithOrigin parseTableWithOrigin;
+
+        TestVariant(IntegrationVariant variant, ParseTableWithOrigin parseTableWithOrigin) {
+            this.variant = variant;
+            this.parseTableWithOrigin = parseTableWithOrigin;
+        }
+
+        String name() {
+            return variant.name() + "(parseTableOrigin:" + parseTableWithOrigin.origin + ")";
+        }
+
+        IParser<?> parser() {
+            return JSGLR2Variants.getParser(parseTableWithOrigin.parseTable, variant.parser);
+        }
+
+        JSGLR2<IStrategoTerm> jsglr2() {
+            return JSGLR2Variants.getJSGLR2(parseTableWithOrigin.parseTable, variant.jsglr2);
+        }
+
+    }
+
+    protected Iterable<TestVariant> getTestVariants(Predicate<TestVariant> filter) {
+        List<TestVariant> testVariants = new ArrayList<>();
+
         for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
-            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IParser<?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+            for(ParseTableWithOrigin parseTableWithOrigin : getParseTablesOrFailOnException(variant.parseTable)) {
+                TestVariant testVariant = new TestVariant(variant, parseTableWithOrigin);
 
-            ParseResult<?> parseResult = parser.parse(inputString);
+                if(filter.test(testVariant))
+                    testVariants.add(testVariant);
+            }
+        }
 
-            assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess);
+        return testVariants;
+    }
+
+    protected Iterable<TestVariant> getTestVariants() {
+        return getTestVariants(testVariant -> true);
+    }
+
+    protected void testParseSuccess(String inputString) {
+        for(TestVariant variant : getTestVariants()) {
+            ParseResult<?> parseResult = variant.parser().parse(inputString);
+
+            assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess());
         }
     }
 
     protected void testParseFailure(String inputString) {
-        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
-            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IParser<?> parser = JSGLR2Variants.getParser(parseTable, variant.parser);
+        for(TestVariant variant : getTestVariants()) {
+            ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            ParseResult<?> parseResult = parser.parse(inputString);
-
-            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess);
+            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
         }
     }
 
@@ -98,59 +136,46 @@ public abstract class BaseTest implements WithParseTable {
 
     private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
-        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
-            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            IStrategoTerm actualOutputAst = testSuccess(parseTable, variant.jsglr2, startSymbol, inputString);
+        for(TestVariant variant : getTestVariants()) {
+            IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
                 actualOutputAst, equalityByExpansions);
         }
     }
 
-    protected IStrategoTerm testSuccess(IParseTable parseTable, JSGLR2Variants.Variant variant, String startSymbol,
-        String inputString) {
-        JSGLR2<IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant);
-
+    protected IStrategoTerm testSuccess(TestVariant variant, String startSymbol, String inputString) {
         return testSuccess("Variant '" + variant.name() + "' failed parsing: ",
-            "Variant '" + variant.name() + "' failed imploding: ", jsglr2, "", startSymbol, inputString);
+            "Variant '" + variant.name() + "' failed imploding: ", variant.jsglr2(), "", startSymbol, inputString);
     }
 
     private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage, JSGLR2<IStrategoTerm> jsglr2,
         String filename, String startSymbol, String inputString) {
         try {
-
             IStrategoTerm result = jsglr2.parseUnsafe(inputString, filename, startSymbol);
 
             // Fail here if imploding or tokenization failed
             assertNotNull(implodeFailMessage, result);
 
             return result;
-
         } catch(ParseException e) {
-
             // Fail here if parsing failed
             fail(parseFailMessage + e.failureType);
-
         }
         return null;
     }
 
     private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
         boolean equalityByExpansions) {
-        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
-            if(variant.parser.parseForestRepresentation != ParseForestRepresentation.Incremental)
-                continue;
-
-            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            JSGLR2<IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.jsglr2);
-
+        for(TestVariant variant : getTestVariants(
+            testVariant -> testVariant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Incremental)) {
             IStrategoTerm actualOutputAst;
             String filename = "" + System.nanoTime(); // To ensure the results will be cached
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
                 String inputString = inputStrings[i];
                 actualOutputAst = testSuccess("Variant '" + variant.name() + "' failed parsing at update " + i + ": ",
-                    "Variant '" + variant.name() + "' failed imploding at update " + i + ": ", jsglr2, filename,
-                    startSymbol, inputString);
+                    "Variant '" + variant.name() + "' failed imploding at update " + i + ": ", variant.jsglr2(),
+                    filename, startSymbol, inputString);
                 assertEqualAST("Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ",
                     expectedOutputAstStrings[i], actualOutputAst, equalityByExpansions);
             }
@@ -177,7 +202,6 @@ public abstract class BaseTest implements WithParseTable {
         List<String> actualExpansion = toSortedStringList(astUtilities.expand(actual));
 
         assertEquals(message, expectedExpansion, actualExpansion);
-
     }
 
     private static List<String> toSortedStringList(List<IStrategoTerm> astExpansion) {
@@ -193,24 +217,23 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
-        for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
-            IParseTable parseTable = getParseTableFailOnException(variant.parseTable);
-            JSGLR2<IStrategoTerm> jsglr2 = JSGLR2Variants.getJSGLR2(parseTable, variant.jsglr2);
+        for(TestVariant variant : getTestVariants()) {
+            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
-            JSGLR2Result<?> jsglr2Result = jsglr2.parseResult(inputString, "", null);
+            assertTrue("Variant '" + variant.name() + "' failed", jsglr2Result.isSuccess());
 
-            assertTrue("Variant '" + variant.name() + "' failed: ", jsglr2Result.isSuccess);
+            JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
 
             List<TokenDescriptor> actualTokens = new ArrayList<>();
 
-            for(IToken token : jsglr2Result.tokens) {
+            for(IToken token : (jsglr2Success).tokens) {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 
-            TokenDescriptor expectedBeginToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1);
-            TokenDescriptor actualBeginToken = actualTokens.get(0);
+            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1);
+            TokenDescriptor actualStartToken = actualTokens.get(0);
 
-            assertEquals("Start token incorrect:", expectedBeginToken, actualBeginToken);
+            assertEquals("Start token incorrect:", expectedStartToken, actualStartToken);
 
             Position endPosition = Position.atEnd(inputString);
 
@@ -221,9 +244,9 @@ public abstract class BaseTest implements WithParseTable {
                 new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1);
             TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
 
-            List<TokenDescriptor> actualTokenWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
+            List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 
-            assertThat(actualTokenWithoutStartAndEnd, is(expectedTokens));
+            assertThat(actualTokensWithoutStartAndEnd, is(expectedTokens));
 
             assertEquals("End token incorrect:", expectedEndToken, actualEndToken);
         }

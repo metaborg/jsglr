@@ -1,0 +1,24 @@
+module expressions
+
+lexical syntax
+	ID     = [a-zA-Z]+
+	NUMBER = [0-9]+
+	LAYOUT  = [\ \n]
+
+lexical restrictions
+	ID     -/- [a-zA-Z]
+	NUMBER -/- [0-9]
+
+context-free restrictions
+	LAYOUT? -/- [\ \n]
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start           = {Exp ";"}+
+	Exp.Id          = ID
+	Exp.Number      = NUMBER
+	Exp.AddOperator = <<Exp> + <Exp>>
+	Exp.AddKeyword  = <<Exp> add <Exp>>
+	Exp.Add2Keyword = <<Exp> add2 <Exp>>

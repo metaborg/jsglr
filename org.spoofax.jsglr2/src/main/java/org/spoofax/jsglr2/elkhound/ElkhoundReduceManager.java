@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.elkhound;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -26,7 +26,7 @@ public class ElkhoundReduceManager
 
     public ElkhoundReduceManager(IParseTable parseTable,
         ElkhoundStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
 

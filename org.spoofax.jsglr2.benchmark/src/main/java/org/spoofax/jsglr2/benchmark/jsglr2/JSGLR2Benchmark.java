@@ -3,19 +3,15 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import java.util.Arrays;
 import java.util.List;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.JSGLR2Implementation;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
-import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
@@ -24,14 +20,11 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.metaborg.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.states.IStateFactory;
-import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.TestSetReader;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 import org.spoofax.terms.ParseError;
@@ -56,18 +49,7 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
 
         filterVariants(implode(), variant);
 
-        IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
-            StateFactory.defaultProductionToGotoRepresentation);
-
-        IActionsFactory actionsFactory = new ActionsFactory(true);
-        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
-
-        IParseTable parseTable = new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
-            .read(testSetReader.getParseTableTerm());
-
-        // IParseTable parseTable = new ParseTableReader(characterClassFactory,
-        // variant.parseTable.actionsForCharacterRepresentation,
-        // variant.parseTable.productionToGotoRepresentation).read(testSetReader.getParseTableTerm());
+        IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
         parser = JSGLR2Variants.getParser(parseTable, variant.parser);
         jsglr2 = (JSGLR2Implementation<?, ?, ?>) JSGLR2Variants.getJSGLR2(parseTable, variant.jsglr2);

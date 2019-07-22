@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.datadependent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 
 public class DataDependentParseNode extends DataDependentParseForest

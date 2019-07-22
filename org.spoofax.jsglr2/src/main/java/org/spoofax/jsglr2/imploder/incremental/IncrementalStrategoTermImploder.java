@@ -12,10 +12,12 @@ public class IncrementalStrategoTermImploder
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>>
 //@formatter:on
-    extends IncrementalTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm> {
+    extends
+    IncrementalTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm, IncrementalImplodeInput<ParseNode, IStrategoTerm>> {
 
     public IncrementalStrategoTermImploder() {
-        super(new StrategoTermTreeFactory());
+        super(inputString -> new IncrementalImplodeInput<>(inputString, null), IncrementalImplodeInput::new,
+            new StrategoTermTreeFactory());
     }
 
 }

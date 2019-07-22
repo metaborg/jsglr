@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.elkhound;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
@@ -44,7 +44,7 @@ public abstract class ElkhoundStackManager
     }
 
     public DeterministicStackPath<ParseForest, ElkhoundStackNode> findDeterministicPathOfLength(
-        ParseForestManager<ParseForest, ?, ?> parseForestManager, ElkhoundStackNode stack, int length) {
+        ParseForestManager<ParseForest, ?, ?, Parse> parseForestManager, ElkhoundStackNode stack, int length) {
         ElkhoundStackNode lastStackNode = stack;
         ElkhoundStackNode currentStackNode = stack;
 

@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.util.iterators.Iterables2;
+import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
+import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -22,12 +24,13 @@ public class IterativeTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    Tree>
+    Tree,
+    Input       extends ImplodeInput>
 //@formatter:on
-    extends TreeImploder<ParseForest, ParseNode, Derivation, Tree> {
+    extends TreeImploder<ParseForest, ParseNode, Derivation, Tree, Input> {
 
-    public IterativeTreeImploder(ITreeFactory<Tree> treeFactory) {
-        super(treeFactory);
+    public IterativeTreeImploder(IImplodeInputFactory<Input> inputFactory, ITreeFactory<Tree> treeFactory) {
+        super(inputFactory, treeFactory);
     }
 
     private class PseudoNode {
@@ -44,7 +47,7 @@ public class IterativeTreeImploder
         }
     }
 
-    @Override protected SubTree<Tree> implodeParseNode(String inputString, ParseNode rootNode, int startOffset) {
+    @Override protected SubTree<Tree> implodeParseNode(Input input, ParseNode rootNode, int startOffset) {
         // This stack contains the parse nodes that we still need to process
         Stack<PseudoNode> parseNodeStack = new Stack<>();
         // These stack elements contain: one list for each derivation, and per derivation: one list for all subtrees.
@@ -83,10 +86,14 @@ public class IterativeTreeImploder
                 }
             } else {
                 ParseNode parseNode = currentIn.getFirst().removeFirst(); // Process the next parse node
+
+                // TODO: process injections with implodeInjections. Is this the correct place?
+                // parseNode = implodeInjection(parseNode);
+
                 IProduction production = parseNode.production();
                 if(!production.isContextFree()) { // If the current parse node is a lexical node
                     SubTree<Tree> lexicalSubTree =
-                        createLexicalSubTree(inputString, parseNode, pseudoNode.pivotOffset, production);
+                        createLexicalSubTree(input.inputString, parseNode, pseudoNode.pivotOffset, production);
                     currentOut.getLast().add(lexicalSubTree); // Add a new SubTree to the output
                     pseudoNode.pivotOffset += lexicalSubTree.width;
                 } else { // If the current parse node is a context-free node
@@ -129,9 +136,8 @@ public class IterativeTreeImploder
     }
 
     private SubTree<Tree> createAmbiguousSubTree(ParseNode parseNode, List<SubTree<Tree>> subTrees) {
-        return new SubTree<>(
-            treeFactory.createAmb(parseNode.production().sort(), subTrees.stream().map(t -> t.tree)::iterator),
-            subTrees, null, null, subTrees.get(0).width);
+        return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null, null,
+            subTrees.get(0).width);
     }
 
     private SubTree<Tree> createNonTerminalSubTree(Derivation derivation, List<SubTree<Tree>> subTrees) {

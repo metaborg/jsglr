@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.actions.ActionsFactory;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -18,13 +16,12 @@ import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.states.StateFactory;
 import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
 
@@ -37,9 +34,7 @@ public class ParsingMeasurements extends Measurements {
     public void measure() throws ParseTableReadException, IOException, ParseException {
         System.out.println(" * Parsing");
 
-        IParseTable parseTable =
-            new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory())
-                .read(testSetReader.getParseTableTerm());
+        IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         JSGLR2Variants.ParserVariant variantStandard =
             new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.ArrayList,
@@ -118,8 +113,7 @@ public class ParsingMeasurements extends Measurements {
             if(parseNode.production.isContextFree())
                 parseNodesContextFree.add(parseNode);
 
-            if(!parseNode.production.isLayout()
-                && (parseNode.production.isLexical() || parseNode.production.isLexicalRhs()))
+            if(!parseNode.production.isLayout() && parseNode.production.isLexical())
                 parseNodesLexical.add(parseNode);
 
             if(parseNode.production.isLayout())

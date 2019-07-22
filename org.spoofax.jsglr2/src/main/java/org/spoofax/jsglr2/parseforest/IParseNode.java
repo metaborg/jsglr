@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 
 public interface IParseNode
 //@formatter:off
@@ -65,7 +65,7 @@ public interface IParseNode
     }
 
     default String descriptor() {
-        return production().descriptor();
+        return production().lhs().toString();
     }
 
 }

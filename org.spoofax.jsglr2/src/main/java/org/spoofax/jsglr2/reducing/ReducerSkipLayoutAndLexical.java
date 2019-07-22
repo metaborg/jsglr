@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.reducing;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -21,7 +21,7 @@ public class ReducerSkipLayoutAndLexical
     extends Reducer<ParseForest, ParseNode, Derivation, StackNode, Parse> {
 
     public ReducerSkipLayoutAndLexical(AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager) {
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager) {
         super(stackManager, parseForestManager);
     }
 

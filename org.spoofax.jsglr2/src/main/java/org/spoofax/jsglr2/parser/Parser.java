@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
@@ -35,13 +35,13 @@ public class Parser
     protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
     protected final IParseTable parseTable;
     protected final StackManager stackManager;
-    protected final ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager;
+    protected final ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager;
     protected final ReduceManager reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
     protected final ParserObserving<ParseForest, StackNode> observing;
 
     public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
-        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;

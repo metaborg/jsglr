@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.measure;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
 
 public class MeasureCharacterClassFactory extends CharacterClassFactory {
@@ -16,7 +16,7 @@ public class MeasureCharacterClassFactory extends CharacterClassFactory {
     public Set<ICharacterClass> characterClassesOptimizedUnique = new HashSet<>();
 
     protected MeasureCharacterClassFactory() {
-        super(true, true);
+        super();
     }
 
     @Override public ICharacterClass finalize(ICharacterClass characters) {

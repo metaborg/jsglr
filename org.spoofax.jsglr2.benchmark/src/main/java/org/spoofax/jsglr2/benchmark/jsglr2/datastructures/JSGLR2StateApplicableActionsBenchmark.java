@@ -3,27 +3,28 @@ package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
-import org.metaborg.parsetable.IActionQuery;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.ICharacterClassFactory;
+import org.metaborg.parsetable.query.IActionQuery;
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.actions.IActionsFactory;
+import org.metaborg.parsetable.actions.ActionsFactory;
+import org.metaborg.parsetable.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.states.IStateFactory;
-import org.spoofax.jsglr2.states.StateFactory;
+import org.metaborg.parsetable.states.IStateFactory;
+import org.metaborg.parsetable.states.StateFactory;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataStructureBenchmark {
@@ -52,8 +53,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         ICharacterClassFactory characterClassFactory =
             new CharacterClassFactory(optimizeCharacterClasses, cacheCharacterClasses);
         IActionsFactory actionsFactory = new ActionsFactory(cacheActions);
-        IStateFactory stateFactory = new StateFactory(actionsPerCharacterClassRepresentation,
-            StateFactory.defaultProductionToGotoRepresentation);
+        IStateFactory stateFactory =
+            new StateFactory(actionsPerCharacterClassRepresentation, ProductionToGotoRepresentation.standard());
 
         return new ParseTableReader(characterClassFactory, actionsFactory, stateFactory).read(parseTableTerm);
     }

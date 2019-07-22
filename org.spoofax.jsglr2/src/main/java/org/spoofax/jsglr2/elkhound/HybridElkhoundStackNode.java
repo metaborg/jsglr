@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.elkhound;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;

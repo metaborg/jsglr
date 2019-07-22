@@ -3,23 +3,23 @@ package org.spoofax.jsglr2.layoutsensitive;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
-import org.metaborg.parsetable.ProductionType;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintSelector;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class LayoutSensitiveParseForestManager
-    extends ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation> {
+public class LayoutSensitiveParseForestManager<Parse extends AbstractParse<LayoutSensitiveParseForest, ?>>
+    extends ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, Parse> {
 
-    @Override public LayoutSensitiveParseNode createParseNode(AbstractParse<LayoutSensitiveParseForest, ?> parse,
-        IStackNode stack, IProduction production, LayoutSensitiveDerivation firstDerivation) {
+    @Override public LayoutSensitiveParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,
+        LayoutSensitiveDerivation firstDerivation) {
         LayoutSensitiveParseNode parseNode =
             new LayoutSensitiveParseNode(stack.position(), parse.currentPosition(), production);
 
-        // parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
+        parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
 
         addDerivation(parse, parseNode, firstDerivation);
 
@@ -27,7 +27,7 @@ public class LayoutSensitiveParseForestManager
     }
 
     @Override public LayoutSensitiveParseForest filterStartSymbol(LayoutSensitiveParseForest parseForest,
-        String startSymbol, AbstractParse<LayoutSensitiveParseForest, ?> parse) {
+        String startSymbol, Parse parse) {
         LayoutSensitiveParseNode topNode = (LayoutSensitiveParseNode) parseForest;
         List<LayoutSensitiveDerivation> result = new ArrayList<>();
 
@@ -51,9 +51,8 @@ public class LayoutSensitiveParseForestManager
         }
     }
 
-    @Override public LayoutSensitiveDerivation createDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
-        IStackNode stack, IProduction production, ProductionType productionType,
-        LayoutSensitiveParseForest[] parseForests) {
+    @Override public LayoutSensitiveDerivation createDerivation(Parse parse, IStackNode stack, IProduction production,
+        ProductionType productionType, LayoutSensitiveParseForest[] parseForests) {
         Position beginPosition = stack.position();
 
         // FIXME since EndPosition is wrong, right is also wrong
@@ -141,7 +140,7 @@ public class LayoutSensitiveParseForestManager
         LayoutSensitiveDerivation derivation = new LayoutSensitiveDerivation(parse, beginPosition, leftPosition,
             rightPosition, parse.currentPosition(), production, productionType, parseForests);
 
-        // parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
+        parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
@@ -170,19 +169,18 @@ public class LayoutSensitiveParseForestManager
         return p1;
     }
 
-    @Override public void addDerivation(AbstractParse<LayoutSensitiveParseForest, ?> parse,
-        LayoutSensitiveParseNode parseNode, LayoutSensitiveDerivation derivation) {
-        // parse.observing.notify(observer -> observer.addDerivation(parseNode));
+    @Override public void addDerivation(Parse parse, LayoutSensitiveParseNode parseNode,
+        LayoutSensitiveDerivation derivation) {
+        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public LayoutSensitiveCharacterNode
-        createCharacterNode(AbstractParse<LayoutSensitiveParseForest, ?> parse) {
+    @Override public LayoutSensitiveCharacterNode createCharacterNode(Parse parse) {
         LayoutSensitiveCharacterNode termNode =
             new LayoutSensitiveCharacterNode(parse.currentPosition(), parse.currentChar);
 
-        // parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }

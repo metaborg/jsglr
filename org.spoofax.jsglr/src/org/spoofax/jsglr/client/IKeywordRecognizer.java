@@ -4,6 +4,6 @@ import java.io.Serializable;
 
 public interface IKeywordRecognizer extends Serializable {
 
-    public boolean isKeyword(String literal);
+    boolean isKeyword(String literal);
     
 }

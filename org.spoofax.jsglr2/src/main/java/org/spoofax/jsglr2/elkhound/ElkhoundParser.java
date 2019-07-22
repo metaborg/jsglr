@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.elkhound;
 import java.util.Iterator;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
@@ -30,7 +30,7 @@ public class ElkhoundParser
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> {
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
-        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation> parseForestManager,
+        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory) {
         super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory);
     }

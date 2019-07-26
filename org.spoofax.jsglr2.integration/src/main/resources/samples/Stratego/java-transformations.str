@@ -1,0 +1,17 @@
+module org/webdsl/dsl/java-transformations/java-transformations
+
+imports
+  libstratego-lib
+  libjava-front
+  org/webdsl/dsl/syntax/webdsl-front //only for the JavaFile and XMLFile constructors
+  
+imports
+  org/webdsl/dsl/java-transformations/-
+
+rules
+
+	// Create java artifacts from a list of partial classes
+  create-java-artifacts =
+    	java-concat-ids'
+    ; merge-classes
+    

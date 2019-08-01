@@ -20,6 +20,7 @@ import org.metaborg.sdf2table.grammar.NormGrammar;
 import org.metaborg.sdf2table.io.NormGrammarReader;
 import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.ParseTable;
+import org.metaborg.sdf2table.parsetable.ParseTableConfiguration;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
@@ -81,13 +82,14 @@ public class Sdf3ToParseTable {
         NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource);
 
         // TODO: use the parse table variant in the parse table generator
-        return new ParseTable(normalizedGrammar, false, false, true);
+        return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false));
     }
 
     public IStrategoTerm getParseTableTerm(String sdf3Resource) throws Exception {
         NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource);
 
-        ParseTable parseTable = new ParseTable(normalizedGrammar, false, false, true);
+        ParseTable parseTable =
+            new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false));
 
         return ParseTableIO.generateATerm(parseTable);
     }

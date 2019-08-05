@@ -237,7 +237,7 @@ public abstract class TokenizedTreeImploder
         else if(production.isList())
             return treeFactory.createList(childASTs, leftToken, rightToken);
         else if(childASTs.size() == 1)
-            return treeFactory.createInjection(production.lhs(), childASTs.get(0));
+            return treeFactory.createInjection(production.lhs(), childASTs.get(0), production.isBracket());
         else
             return treeFactory.createTuple(childASTs, leftToken, rightToken);
     }

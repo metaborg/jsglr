@@ -19,7 +19,7 @@ public class ExpressionsDisambiguationTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void nonAssociativeOperator() throws ParseError {
-        testParseFailure("x*x*x");
+        testSuccessByExpansions("x*x*x", "Inf3(Inf3(Term(), Term()), Term())");
     }
 
     @Test public void lowPriorityInfixLeft() throws ParseError {

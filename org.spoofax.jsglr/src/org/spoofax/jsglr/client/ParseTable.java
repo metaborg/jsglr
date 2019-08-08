@@ -81,7 +81,8 @@ public class ParseTable implements Serializable {
     private Associativity[] associativities;
 
     private final SetMultimap<String, String> nonAssocPriorities = HashMultimap.create();
-
+    private final SetMultimap<String, String> nonNestedPriorities = HashMultimap.create();
+    
     private boolean hasRejects;
 
     private boolean hasAvoids;
@@ -137,6 +138,7 @@ public class ParseTable implements Serializable {
 
         if(ptGenerator != null) {
             nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
         }
 
         if(dynamicPTgeneration && persistedTable != null) {
@@ -169,6 +171,7 @@ public class ParseTable implements Serializable {
 
         if(ptGenerator != null) {
             nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
         }
         
         parse(parseTableAterm);
@@ -820,5 +823,9 @@ public class ParseTable implements Serializable {
 
     public SetMultimap<String, String> getNonAssocPriorities() {
         return nonAssocPriorities;
+    }
+    
+    public SetMultimap<String, String> getNonNestedPriorities() {
+        return nonNestedPriorities;
     }
 }

@@ -35,15 +35,28 @@ public class IterativeTreeImploder
 
     private class PseudoNode {
         final ParseNode parseNode;
-        final List<Derivation> derivations;
+        final List<Derivation> derivations; // Regular node
+        final IProduction production; // List node
+        final boolean isListNode;
         final int beginOffset;
         int pivotOffset;
 
         PseudoNode(ParseNode parseNode, List<Derivation> derivations, int beginOffset) {
             this.parseNode = parseNode;
             this.derivations = derivations;
+            this.production = null;
             this.beginOffset = beginOffset;
             this.pivotOffset = beginOffset;
+            this.isListNode = false;
+        }
+
+        PseudoNode(ParseNode parseNode, IProduction production, int beginOffset) {
+            this.parseNode = parseNode;
+            this.derivations = null;
+            this.production = production;
+            this.beginOffset = beginOffset;
+            this.pivotOffset = beginOffset;
+            this.isListNode = true;
         }
     }
 
@@ -75,9 +88,16 @@ public class IterativeTreeImploder
                     outputStack.pop(); // Also remove `currentOut` from stack
 
                     // Merge resulting SubTrees from `currentOut` into one SubTree
-                    SubTree<Tree> possiblyAmbiguousSubTree =
-                        createPossiblyAmbiguousSubTree(pseudoNode.parseNode, Lists.newArrayList(
-                            Iterables2.zip(pseudoNode.derivations, currentOut, this::createNonTerminalSubTree)));
+                    SubTree<Tree> possiblyAmbiguousSubTree = pseudoNode.isListNode
+                        // In the case of a list node, use the production of the pseudoNode
+                        ? createPossiblyAmbiguousSubTree(pseudoNode.parseNode,
+                            currentOut.stream()
+                                .map(subTrees -> createNonTerminalSubTree(pseudoNode.production, subTrees))
+                                .collect(Collectors.toList()))
+                        // In the case of a regular node, use the productions of the derivations
+                        : createPossiblyAmbiguousSubTree(pseudoNode.parseNode, Lists.newArrayList(Iterables2.zip(
+                            pseudoNode.derivations, currentOut,
+                            (derivation, subTrees) -> createNonTerminalSubTree(derivation.production(), subTrees))));
                     outputStack.peek().getLast().add(possiblyAmbiguousSubTree); // And add it to the output
                     parseNodeStack.peek().pivotOffset += possiblyAmbiguousSubTree.width;
                 } else { // If the stack entry is not yet empty, that means we're processing an alternate derivation
@@ -87,8 +107,7 @@ public class IterativeTreeImploder
             } else {
                 ParseNode parseNode = currentIn.getFirst().removeFirst(); // Process the next parse node
 
-                // TODO: process injections with implodeInjections. Is this the correct place?
-                // parseNode = implodeInjection(parseNode);
+                parseNode = implodeInjection(parseNode);
 
                 IProduction production = parseNode.production();
                 if(!production.isContextFree()) { // If the current parse node is a lexical node
@@ -99,8 +118,13 @@ public class IterativeTreeImploder
                 } else { // If the current parse node is a context-free node
                     // Then push it on top of the stacks
                     List<Derivation> derivations = applyDisambiguationFilters(parseNode);
-                    inputStack.add(getDerivationLists(derivations));
-                    parseNodeStack.add(new PseudoNode(parseNode, derivations, pseudoNode.pivotOffset));
+                    if(derivations.size() > 1 && production.isList()) {
+                        inputStack.add(getDerivationListsForListNode(production, derivations));
+                        parseNodeStack.add(new PseudoNode(parseNode, production, pseudoNode.pivotOffset));
+                    } else {
+                        inputStack.add(getDerivationLists(derivations));
+                        parseNodeStack.add(new PseudoNode(parseNode, derivations, pseudoNode.pivotOffset));
+                    }
                     outputStack.add(newNestedList());
                 }
             }
@@ -128,6 +152,24 @@ public class IterativeTreeImploder
         return derivationLists;
     }
 
+    private LinkedList<LinkedList<ParseNode>> getDerivationListsForListNode(IProduction production,
+        List<Derivation> derivations) {
+        LinkedList<LinkedList<ParseNode>> derivationLists = new LinkedList<>();
+        for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(derivations)) {
+            LinkedList<ParseNode> derivationList = new LinkedList<>();
+            for(ParseForest childParseForest : getChildParseForests(production, derivationParseForests)) {
+                // Can be null in the case of a layout subtree parse node that is not created
+                if(childParseForest != null) {
+                    @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+
+                    derivationList.add(childParseNode);
+                }
+            }
+            derivationLists.add(derivationList);
+        }
+        return derivationLists;
+    }
+
     private SubTree<Tree> createPossiblyAmbiguousSubTree(ParseNode parseNode, List<SubTree<Tree>> subTrees) {
         if(subTrees.size() > 1) {
             return createAmbiguousSubTree(parseNode, subTrees);
@@ -140,11 +182,11 @@ public class IterativeTreeImploder
             subTrees.get(0).width);
     }
 
-    private SubTree<Tree> createNonTerminalSubTree(Derivation derivation, List<SubTree<Tree>> subTrees) {
+    private SubTree<Tree> createNonTerminalSubTree(IProduction production, List<SubTree<Tree>> subTrees) {
         return new SubTree<>(
-            createContextFreeTerm(derivation.production(),
+            createContextFreeTerm(production,
                 subTrees.stream().filter(t -> t.tree != null).map(t -> t.tree).collect(Collectors.toList())),
-            subTrees, derivation.production());
+            subTrees, production);
     }
 
     private SubTree<Tree> createLexicalSubTree(String inputString, ParseNode parseNode, int startOffset,

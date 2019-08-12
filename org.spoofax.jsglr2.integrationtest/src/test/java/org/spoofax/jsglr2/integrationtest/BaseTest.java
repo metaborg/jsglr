@@ -85,6 +85,13 @@ public abstract class BaseTest implements WithParseTable {
         for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             for(ParseTableWithOrigin parseTableWithOrigin : getParseTablesOrFailOnException(variant.parseTable)) {
                 TestVariant testVariant = new TestVariant(variant, parseTableWithOrigin);
+                
+                // data-dependent parser is incompatible with Aterm parse table
+                if(variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.DataDependent)
+                    && parseTableWithOrigin.origin.equals(ParseTableOrigin.ATerm)) {
+                    continue;
+                }
+
 
                 if(filter.test(testVariant))
                     testVariants.add(testVariant);
@@ -226,7 +233,7 @@ public abstract class BaseTest implements WithParseTable {
 
             List<TokenDescriptor> actualTokens = new ArrayList<>();
 
-            for(IToken token : (jsglr2Success).tokens) {
+            for(IToken token : jsglr2Success.tokens) {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 

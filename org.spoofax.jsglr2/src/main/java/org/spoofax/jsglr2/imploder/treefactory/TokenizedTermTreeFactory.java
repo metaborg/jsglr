@@ -80,10 +80,11 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
     @Override public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
         IStrategoTerm alternativesListTerm = createList(alternatives, leftToken, rightToken);
 
-        return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
+        return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken,
+            rightToken);
     }
 
-    @Override public IStrategoTerm createInjection(ISymbol symbol, IStrategoTerm injected) {
+    @Override public IStrategoTerm createInjection(ISymbol symbol, IStrategoTerm injected, boolean isBracket) {
         String sort = ISymbol.getSort(symbol);
 
         // Prevent bogus injections from empty sorts, or lexical sorts into themselves
@@ -91,6 +92,8 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         if(sort != null && !Objects.equals(sort, injectedSort)) {
             ImploderAttachment.get(injected).pushInjection(sort);
         }
+        
+        ImploderAttachment.get(injected).setBracket(isBracket);
         return injected;
     }
 

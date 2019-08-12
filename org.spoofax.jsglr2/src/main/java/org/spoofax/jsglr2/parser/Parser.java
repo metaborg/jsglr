@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -27,8 +27,7 @@ public class Parser
     StackNode     extends IStackNode,
     Parse         extends AbstractParse<ParseForest, StackNode>,
     StackManager  extends AbstractStackManager<ParseForest, StackNode, Parse>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<
-                              ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
 //@formatter:on
     implements IObservableParser<ParseForest, StackNode> {
 

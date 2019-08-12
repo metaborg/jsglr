@@ -22,6 +22,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -34,10 +35,9 @@ public class IncrementalParser
    <ParseNode     extends IncrementalParseNode,
     Derivation    extends IncrementalDerivation,
     StackNode     extends IStackNode,
-    Parse         extends IncrementalParse<StackNode>,
+    Parse         extends AbstractParse<IncrementalParseForest, StackNode> & IIncrementalParse,
     StackManager  extends AbstractStackManager<IncrementalParseForest, StackNode, Parse>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<
-                              IncrementalParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse>>
 // @formatter:on
     extends Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> {
 
@@ -84,9 +84,9 @@ public class IncrementalParser
         // - if we would, it would cause different shifts to be desynchronised;
         // - if a break-down of this node would cause different actions, it would already have been broken down because
         // that would mean that this node was created when the parser was in multiple states.
-        while(!parse.lookahead.get().isTerminal()
-            && (lookaheadHasNoState(parse.lookahead) || isEmpty(actions) && parse.forShifter.isEmpty())) {
-            parse.lookahead.leftBreakdown();
+        while(!parse.lookahead().get().isTerminal()
+            && (lookaheadHasNoState(parse.lookahead()) || isEmpty(actions) && parse.forShifter.isEmpty())) {
+            parse.lookahead().leftBreakdown();
             actions = getActions(stack, parse);
         }
 
@@ -110,7 +110,7 @@ public class IncrementalParser
         // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
         Iterable<IAction> actions = stack.state().getApplicableActions(parse);
 
-        IncrementalParseForest lookahead = parse.lookahead.get();
+        IncrementalParseForest lookahead = parse.lookahead().get();
         if(lookahead.isTerminal()) {
             return actions;
         } else {
@@ -160,6 +160,6 @@ public class IncrementalParser
     @Override protected IncrementalParseForest getNodeToShift(Parse parse) {
         parse.setMultipleStates(parse.forShifter.size() > 1);
 
-        return parse.lookahead.get();
+        return parse.lookahead().get();
     }
 }

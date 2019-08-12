@@ -89,6 +89,10 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         currentChar = lookahead.actionQueryCharacter();
     }
 
+    @Override public ILookaheadStack lookahead() {
+        return lookahead;
+    }
+
     @Override public boolean isMultipleStates() {
         return multipleStates;
     }

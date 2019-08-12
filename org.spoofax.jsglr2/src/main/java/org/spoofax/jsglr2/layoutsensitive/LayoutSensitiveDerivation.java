@@ -34,23 +34,6 @@ public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest
 
         this.leftPosition = leftPosition;
         this.rightPosition = rightPosition;
-
-        // if(production.isLongestMatch()) {
-        // PositionInterval nodePos = new PositionInterval(startPosition, endPosition);
-        // longestMatchPos.add(nodePos);
-        // }
-        //
-        // for(BasicParseForest pf : parseForests) {
-        // if(pf instanceof LayoutSensitiveParseNode) {
-        // if(((LayoutSensitiveParseNode) pf).isAmbiguous()) {
-        // System.out.println();
-        // }
-        // longestMatchPos.addAll(((LayoutSensitiveParseNode) pf).getFirstDerivation().longestMatchPos);
-        // } else if(pf instanceof LayoutSensitiveDerivation) {
-        // longestMatchPos.addAll(((LayoutSensitiveDerivation) pf).longestMatchPos);
-        // }
-        // }
-
     }
 
     @Override public IProduction production() {
@@ -66,7 +49,6 @@ public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest
     }
 
     public List<PositionInterval> getLongestMatchPositions() {
-        // System.out.println("getting positions for " + this);
         List<PositionInterval> result = Lists.newArrayList();
         if(production.isLongestMatch()) {
             result.add(new PositionInterval(getStartPosition(), getEndPosition()));
@@ -82,25 +64,4 @@ public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest
         }
         return result;
     }
-
-    // @Override public String toString() {
-    //// String buf = "prod(";
-    ////
-    //// buf += "prod(" + production + ", [";
-    ////
-    //// int i = 0;
-    //// for(BasicParseForest pf : parseForests) {
-    //// if(i != 0) {
-    //// buf += ", ";
-    //// }
-    //// if(pf != null) {
-    //// buf += pf.toString();
-    //// }
-    //// i++;
-    ////
-    //// }
-    //// buf += "])";
-    //
-    // return "";
-    // }
 }

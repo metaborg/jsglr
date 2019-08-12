@@ -7,7 +7,6 @@ import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -50,8 +49,8 @@ public class TreeImploder
 
                 if(production.isList()) {
                     for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
-                        SubTree<Tree> result =
-                            implodeListDerivation(input, production, derivationParseForests, startOffset);
+                        SubTree<Tree> result = implodeDerivationChildren(input, production,
+                            getChildParseForests(production, derivationParseForests), startOffset);
                         trees.add(result.tree);
                         subTrees.add(result);
                     }
@@ -79,32 +78,16 @@ public class TreeImploder
         if(!production.isContextFree())
             throw new RuntimeException("non context free imploding not supported");
 
-        List<Tree> childASTs = new ArrayList<>();
-        List<SubTree<Tree>> subTrees = new ArrayList<>();
-
-        for(ParseForest childParseForest : getChildParseForests(derivation)) {
-            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
-                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-
-                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
-
-                if(subTree.tree != null) {
-                    childASTs.add(subTree.tree);
-                }
-                subTrees.add(subTree);
-                startOffset += subTree.width;
-            }
-        }
-
-        return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, derivation.production());
+        return implodeDerivationChildren(input, production, getChildParseForests(derivation), startOffset);
     }
 
-    protected SubTree<Tree> implodeListDerivation(Input input, IProduction production,
+    protected SubTree<Tree> implodeDerivationChildren(Input input, IProduction production,
         List<ParseForest> childParseForests, int startOffset) {
+
         List<Tree> childASTs = new ArrayList<>();
         List<SubTree<Tree>> subTrees = new ArrayList<>();
 
-        for(ParseForest childParseForest : getChildParseForests(production, childParseForests)) {
+        for(ParseForest childParseForest : childParseForests) {
             if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
                 @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 

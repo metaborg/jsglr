@@ -22,6 +22,6 @@ public interface ITokenizedTreeFactory<T> {
 
     T createAmb(List<T> alternatives, IToken leftToken, IToken rightToken);
 
-    T createInjection(ISymbol symbol, T injected);
+    T createInjection(ISymbol symbol, T injected, boolean isBracket);
 
 }

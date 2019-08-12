@@ -45,6 +45,9 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+
 /**
  * A parse table.
  * 
@@ -77,6 +80,9 @@ public class ParseTable implements Serializable {
 
     private Associativity[] associativities;
 
+    private final SetMultimap<String, String> nonAssocPriorities = HashMultimap.create();
+    private final SetMultimap<String, String> nonNestedPriorities = HashMultimap.create();
+    
     private boolean hasRejects;
 
     private boolean hasAvoids;
@@ -130,12 +136,18 @@ public class ParseTable implements Serializable {
             dynamicPTgeneration = true;
         }
 
+        if(ptGenerator != null) {
+            nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
+        }
+
         if(dynamicPTgeneration && persistedTable != null) {
             this.ptGenerator = ptGenerator;
             gotoCache = new HashMap<Goto, Goto>();
             shiftCache = new HashMap<Shift, Shift>();
             reduceCache = new HashMap<Reduce, Reduce>();
             rangesCache = new HashMap<RangeList, RangeList>();
+
         } else {
             this.ptGenerator = null;
         }
@@ -149,9 +161,7 @@ public class ParseTable implements Serializable {
     public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable, IParseTable referencePt,
         IParseTableGenerator ptGenerator, IStrategoTerm parseTableAterm) throws Exception {
         initTransientData(factory);
-
         dynamicPTgeneration = checkDynamicGeneration(pt);
-
 
         if(dynamicPTgeneration && persistedTable != null) {
             this.ptGenerator = ptGenerator;
@@ -159,6 +169,11 @@ public class ParseTable implements Serializable {
             this.ptGenerator = null;
         }
 
+        if(ptGenerator != null) {
+            nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
+        }
+        
         parse(parseTableAterm);
         gotoCache = new HashMap<Goto, Goto>();
         shiftCache = new HashMap<Shift, Shift>();
@@ -641,7 +656,7 @@ public class ParseTable implements Serializable {
     }
 
 
-    private State parseDynamicState(IStrategoTerm s)  {
+    private State parseDynamicState(IStrategoTerm s) {
 
         IStrategoNamed stateRec = (IStrategoNamed) s;
 
@@ -804,5 +819,13 @@ public class ParseTable implements Serializable {
         if(keywords == null)
             keywords = new KeywordRecognizer(this);
         return keywords;
+    }
+
+    public SetMultimap<String, String> getNonAssocPriorities() {
+        return nonAssocPriorities;
+    }
+    
+    public SetMultimap<String, String> getNonNestedPriorities() {
+        return nonNestedPriorities;
     }
 }

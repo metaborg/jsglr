@@ -233,7 +233,7 @@ public abstract class BaseTest implements WithParseTable {
 
             List<TokenDescriptor> actualTokens = new ArrayList<>();
 
-            for(IToken token : (jsglr2Success).tokens) {
+            for(IToken token : jsglr2Success.tokens) {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 

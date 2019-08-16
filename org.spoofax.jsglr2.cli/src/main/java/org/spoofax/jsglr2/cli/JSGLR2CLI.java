@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.cli;
 
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
@@ -213,7 +213,7 @@ public class JSGLR2CLI implements Runnable {
 
     private void output(String output) {
         try {
-            outputStream.write((output + "\n").getBytes(Charset.forName("UTF-8")));
+            outputStream.write((output + "\n").getBytes(StandardCharsets.UTF_8));
         } catch(IOException e) {
             failOnWrappedException(new WrappedException("Writing output failed", e), verbose);
         }
@@ -242,7 +242,7 @@ public class JSGLR2CLI implements Runnable {
             Process pr = Runtime.getRuntime().exec("dot -T" + format);
 
             try(InputStream dotOutputStream = pr.getInputStream(); OutputStream input = pr.getOutputStream()) {
-                input.write(dot.getBytes(Charset.forName("UTF-8")));
+                input.write(dot.getBytes(StandardCharsets.UTF_8));
                 input.close();
 
                 IOUtils.copy(dotOutputStream, outputStream);

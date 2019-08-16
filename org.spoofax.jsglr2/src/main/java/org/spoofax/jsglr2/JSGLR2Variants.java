@@ -37,7 +37,62 @@ import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
 import org.spoofax.jsglr2.tokens.NullTokenizer;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
-public class JSGLR2Variants {
+public enum JSGLR2Variants {
+    // @formatter:off
+    standard(
+        new Variant(
+            new ParserVariant(
+                ActiveStacksRepresentation.standard(),
+                ForActorStacksRepresentation.standard(),
+                ParseForestRepresentation.standard(),
+                ParseForestConstruction.standard(),
+                StackRepresentation.standard(),
+                Reducing.standard()),
+            ImploderVariant.standard(),
+            TokenizerVariant.standard())),
+
+    dataDependent(
+        new Variant(
+            new ParserVariant(
+                ActiveStacksRepresentation.standard(),
+                ForActorStacksRepresentation.standard(),
+                ParseForestRepresentation.DataDependent,
+                ParseForestConstruction.standard(),
+                StackRepresentation.Basic,
+                Reducing.DataDependent),
+            ImploderVariant.standard(),
+            TokenizerVariant.standard())),
+
+    layoutSensitive(
+        new Variant(
+            new ParserVariant(
+                ActiveStacksRepresentation.standard(),
+                ForActorStacksRepresentation.standard(),
+                ParseForestRepresentation.LayoutSensitive,
+                ParseForestConstruction.standard(),
+                StackRepresentation.Basic,
+                Reducing.LayoutSensitive),
+            ImploderVariant.standard(),
+            TokenizerVariant.standard())),
+
+    incremental(
+        new Variant(
+            new ParserVariant(
+                ActiveStacksRepresentation.standard(),
+                ForActorStacksRepresentation.standard(),
+                ParseForestRepresentation.Incremental,
+                ParseForestConstruction.Full,
+                StackRepresentation.Basic,
+                Reducing.Incremental),
+            ImploderVariant.RecursiveIncremental,
+            TokenizerVariant.Recursive));
+    // @formatter:on
+
+    public Variant variant;
+
+    JSGLR2Variants(Variant variant) {
+        this.variant = variant;
+    }
 
     public static class Variant {
         public final ParserVariant parser;

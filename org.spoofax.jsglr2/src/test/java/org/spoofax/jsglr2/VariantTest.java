@@ -11,10 +11,9 @@ public class VariantTest {
      * @see JSGLR2Variants#getParser(IParseTable, JSGLR2Variants.ParserVariant)
      */
     @Test public void testPresetVariants() {
-        JSGLR2.standard((IParseTable) null);
-        JSGLR2.dataDependent(null);
-        JSGLR2.layoutSensitive(null);
-        JSGLR2.incremental(null);
+        for (JSGLR2Variants enumValue : JSGLR2Variants.values()) {
+            JSGLR2Variants.getJSGLR2(null, enumValue.variant);
+        }
     }
 
 }

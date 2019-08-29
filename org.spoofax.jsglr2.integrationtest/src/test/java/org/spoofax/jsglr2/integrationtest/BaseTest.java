@@ -85,9 +85,10 @@ public abstract class BaseTest implements WithParseTable {
         for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             for(ParseTableWithOrigin parseTableWithOrigin : getParseTablesOrFailOnException(variant.parseTable)) {
                 TestVariant testVariant = new TestVariant(variant, parseTableWithOrigin);
-                
-                // data-dependent parser is incompatible with Aterm parse table
-                if(variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.DataDependent)
+
+                // data-dependent and layout-sensitive parsers are incompatible with Aterm parse table
+                if((variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.DataDependent)
+                    || variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
                     && parseTableWithOrigin.origin.equals(ParseTableOrigin.ATerm)) {
                     continue;
                 }
@@ -121,12 +122,27 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
+    protected void testLayoutSensitiveParseFailure(String inputString) {
+        for(TestVariant variant : getTestVariants()) {
+            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
+                continue;
+
+            ParseResult<?> parseResult = variant.parser().parse(inputString);
+
+            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
+        }
+    }
+
     protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, null, false);
     }
 
     protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, null, true);
+    }
+    
+    protected void testLayoutSensitiveSuccessByExpansions(String inputString, String expectedOutputAstString) {
+        testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
     }
 
     protected void testIncrementalSuccessByExpansions(String[] inputStrings, String[] expectedOutputAstStrings) {
@@ -144,6 +160,19 @@ public abstract class BaseTest implements WithParseTable {
     private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
         for(TestVariant variant : getTestVariants()) {
+            IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
+
+            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
+                actualOutputAst, equalityByExpansions);
+        }
+    }
+    
+    private void testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString, String startSymbol,
+        boolean equalityByExpansions) {
+        for(TestVariant variant : getTestVariants()) {
+            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
+                continue;
+            
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,

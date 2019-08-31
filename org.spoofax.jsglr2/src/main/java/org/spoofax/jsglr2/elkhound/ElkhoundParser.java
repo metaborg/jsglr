@@ -3,16 +3,18 @@ package org.spoofax.jsglr2.elkhound;
 import java.util.Iterator;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
+import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 
@@ -31,8 +33,10 @@ public class ElkhoundParser
 
     public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
         StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
-        ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory) {
-        super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory);
+        ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory,
+        IParseFailureHandler failureHandler, ParserObserving observing) {
+        super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory, failureHandler,
+            observing);
     }
 
     @Override protected void parseLoop(Parse parse) {

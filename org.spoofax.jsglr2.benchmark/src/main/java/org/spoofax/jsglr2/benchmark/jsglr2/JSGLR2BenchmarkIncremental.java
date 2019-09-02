@@ -114,6 +114,14 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         }
     }
 
+    protected void possiblyClearCache() {
+        if(parserType == ParserType.IncrementalNoCache) {
+            ((IncrementalParser) jsglr2.parser).clearCache();
+            if(implode())
+                ((IncrementalTreeImploder) jsglr2.imploder).clearCache();
+        }
+    }
+
     // Only used in ManualBenchmark
     Iterable<IncrementalStringInput> getInputs() {
         return inputs;

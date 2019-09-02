@@ -31,6 +31,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding extends JSGL
 
         // if (i == -1)
         for(String content : input.content) {
+            possiblyClearCache();
             bh.consume(jsglr2.parseUnsafe(content, input.filename, null));
         }
         return null;

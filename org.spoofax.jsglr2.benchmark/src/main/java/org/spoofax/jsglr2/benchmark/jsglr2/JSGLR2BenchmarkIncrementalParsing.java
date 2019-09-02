@@ -31,6 +31,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2BenchmarkI
 
         // if (i == -1)
         for(String content : input.content) {
+            possiblyClearCache();
             bh.consume(jsglr2.parser.parseUnsafe(content, input.filename, null));
         }
         return null;

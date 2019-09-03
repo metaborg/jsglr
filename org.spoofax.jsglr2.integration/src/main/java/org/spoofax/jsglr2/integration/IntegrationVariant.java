@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
-import org.spoofax.jsglr2.JSGLR2Variants;
+import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -18,7 +18,7 @@ import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
 public class IntegrationVariant {
     public final ParseTableVariant parseTable;
-    public final JSGLR2Variants.Variant jsglr2;
+    public final JSGLR2Variant jsglr2;
     public final ParserVariant parser;
     public final ImploderVariant imploder;
     public final TokenizerVariant tokenizer;
@@ -26,13 +26,13 @@ public class IntegrationVariant {
     public IntegrationVariant(ParseTableVariant parseTableVariant, ParserVariant parserVariant,
         ImploderVariant imploderVariant, TokenizerVariant tokenizer) {
         this.parseTable = parseTableVariant;
-        this.jsglr2 = new JSGLR2Variants.Variant(parserVariant, imploderVariant, tokenizer);
+        this.jsglr2 = new JSGLR2Variant(parserVariant, imploderVariant, tokenizer);
         this.parser = parserVariant;
         this.imploder = imploderVariant;
         this.tokenizer = tokenizer;
     }
 
-    public IntegrationVariant(ParseTableVariant parseTableVariant, JSGLR2Variants.Variant jsglr2Variant) {
+    public IntegrationVariant(ParseTableVariant parseTableVariant, JSGLR2Variant jsglr2Variant) {
         this.parseTable = parseTableVariant;
         this.jsglr2 = jsglr2Variant;
         this.parser = jsglr2Variant.parser;

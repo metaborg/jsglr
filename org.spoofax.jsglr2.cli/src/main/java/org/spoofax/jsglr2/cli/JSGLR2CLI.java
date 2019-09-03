@@ -80,12 +80,11 @@ public class JSGLR2CLI implements Runnable {
             description = "Tokenizer variant: ${COMPLETION-CANDIDATES}") private TokenizerVariant tokenizerVariant =
                 TokenizerVariant.standard();
 
-        JSGLR2Variants.Variant getVariant() throws WrappedException {
+        JSGLR2Variant getVariant() throws WrappedException {
             ParserVariant parserVariant = new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation,
                 parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
 
-            JSGLR2Variants.Variant variant =
-                new JSGLR2Variants.Variant(parserVariant, imploderVariant, tokenizerVariant);
+            JSGLR2Variant variant = new JSGLR2Variant(parserVariant, imploderVariant, tokenizerVariant);
 
             if(variant.isValid())
                 return variant;
@@ -152,7 +151,7 @@ public class JSGLR2CLI implements Runnable {
 
     public void run() {
         try {
-            JSGLR2Variants.Variant variant = parserVariant.getVariant();
+            JSGLR2Variant variant = parserVariant.getVariant();
             IParseTable parseTable = getParseTable();
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
                 (JSGLR2Implementation<?, ?, IStrategoTerm>) variant.getJSGLR2(parseTable);

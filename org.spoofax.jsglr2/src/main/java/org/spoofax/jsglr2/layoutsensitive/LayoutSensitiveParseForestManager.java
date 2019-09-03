@@ -101,8 +101,8 @@ public class LayoutSensitiveParseForestManager<Parse extends AbstractParse<Layou
             }
         }
 
-        LayoutSensitiveDerivation derivation = new LayoutSensitiveDerivation(parse, beginPosition, leftPosition,
-            rightPosition, parse.currentPosition(), production, productionType, parseForests);
+        LayoutSensitiveDerivation derivation = new LayoutSensitiveDerivation(beginPosition, leftPosition, rightPosition,
+            parse.currentPosition(), production, productionType, parseForests);
 
         parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 

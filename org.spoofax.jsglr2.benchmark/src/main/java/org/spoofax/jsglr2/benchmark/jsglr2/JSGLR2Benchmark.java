@@ -50,8 +50,8 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
 
         IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
-        parser = variant.parser.getParser(parseTable);
         jsglr2 = (JSGLR2Implementation<?, ?, ?>) variant.jsglr2.getJSGLR2(parseTable);
+        parser = jsglr2.parser;
     }
 
     //@formatter:off

@@ -47,13 +47,11 @@ public class LayoutSensitiveReduceManager
                 if(reduce.production() instanceof ParseTableProduction) {
                     ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
 
-                    if(!sdf2tableProduction.getLayoutConstraints().isEmpty()) {
-                        for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
-                            // Skip the reduction if the constraint evaluates to false or if it is not present
-                            if(!lce.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false)) {
-                                skipReduce = true;
-                                break;
-                            }
+                    for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
+                        // Skip the reduction if the constraint evaluates to false or if it is not present
+                        if(!lce.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false)) {
+                            skipReduce = true;
+                            break;
                         }
                     }
                 }

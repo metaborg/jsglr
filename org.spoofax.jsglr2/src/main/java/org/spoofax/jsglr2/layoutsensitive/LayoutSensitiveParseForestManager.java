@@ -59,31 +59,35 @@ public class LayoutSensitiveParseForestManager<Parse extends AbstractParse<Layou
         Position rightPosition = null;
 
         for(LayoutSensitiveParseForest pf : parseForests) {
-            if(pf instanceof LayoutSensitiveParseNode && (((LayoutSensitiveParseNode) pf).production().isLayout()
-                || ((LayoutSensitiveParseNode) pf).production().isIgnoreLayoutConstraint())) {
-                continue;
-            }
             if(pf instanceof LayoutSensitiveParseNode) {
-                Position currentStartPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().getStartPosition();
-                Position currentLeftPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().leftPosition;
-                Position currentRightPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().rightPosition;
-                Position currentEndPosition = ((LayoutSensitiveParseNode) pf).getFirstDerivation().getEndPosition();
+                LayoutSensitiveParseNode layoutSensitiveParseNode = (LayoutSensitiveParseNode) pf;
 
-                if(currentLeftPosition != null) {
-                    leftPosition = leftMost(leftPosition, currentLeftPosition);
-                }
+                if(!layoutSensitiveParseNode.production().isLayout()
+                    && !layoutSensitiveParseNode.production().isIgnoreLayoutConstraint()) {
+                    LayoutSensitiveDerivation firstDerivation = layoutSensitiveParseNode.getFirstDerivation();
 
-                if(currentStartPosition.line > beginPosition.line && !currentStartPosition.equals(currentEndPosition)) {
-                    leftPosition = leftMost(leftPosition, currentStartPosition);
-                }
+                    Position currentStartPosition = firstDerivation.getStartPosition();
+                    Position currentLeftPosition = firstDerivation.leftPosition;
+                    Position currentRightPosition = firstDerivation.rightPosition;
+                    Position currentEndPosition = firstDerivation.getEndPosition();
 
-                if(currentRightPosition != null) {
-                    rightPosition = rightMost(rightPosition, currentRightPosition);
-                }
+                    if(currentLeftPosition != null) {
+                        leftPosition = leftMost(leftPosition, currentLeftPosition);
+                    }
 
-                if(currentEndPosition.line < parse.currentPosition().line
-                    && !currentStartPosition.equals(currentEndPosition)) {
-                    rightPosition = rightMost(rightPosition, currentEndPosition);
+                    if(currentStartPosition.line > beginPosition.line
+                        && !currentStartPosition.equals(currentEndPosition)) {
+                        leftPosition = leftMost(leftPosition, currentStartPosition);
+                    }
+
+                    if(currentRightPosition != null) {
+                        rightPosition = rightMost(rightPosition, currentRightPosition);
+                    }
+
+                    if(currentEndPosition.line < parse.currentPosition().line
+                        && !currentStartPosition.equals(currentEndPosition)) {
+                        rightPosition = rightMost(rightPosition, currentEndPosition);
+                    }
                 }
             } else if(pf instanceof LayoutSensitiveCharacterNode) {
                 if(pf.getStartPosition().line > beginPosition.line
@@ -97,7 +101,7 @@ public class LayoutSensitiveParseForestManager<Parse extends AbstractParse<Layou
                         new Position(pf.getEndPosition().offset, pf.getEndPosition().line, pf.getEndPosition().column);
                 }
             } else if(pf != null) {
-                System.err.println("Not a valid tree node.");
+                throw new IllegalStateException("Invalid layout sensitive node");
             }
         }
 

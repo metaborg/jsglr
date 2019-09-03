@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.cli;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
@@ -39,7 +40,7 @@ public class JSGLR2CLI implements Runnable {
     @Option(names = { "-pt", "--parseTable" }, required = true,
         description = "Parse table file") private File parseTableFile;
 
-    @Parameters(arity = "1", description = "The input string to be parsed") private String input;
+    @Parameters(arity = "1..*", description = "The input file(s)/string(s) to be parsed") private String[] input;
 
     @Option(names = { "-im", "--implode" }, negatable = true,
         description = "Implode parse tree to AST") private boolean implode = true;
@@ -171,6 +172,19 @@ public class JSGLR2CLI implements Runnable {
                 observableParser.observing()
                     .attachObserver(new ParseForestDotVisualisationParserObserver<>(this::outputDot));
 
+            // For each input, try to check if it is a file, and if so, read its contents
+            for(int i = 0; i < input.length; i++) {
+                File file = new File(input[i]);
+                if(file.isFile()) {
+                    try(Scanner s = new Scanner(new FileInputStream(file))) {
+                        s.useDelimiter("\\A");
+                        input[i] = s.hasNext() ? s.next() : "";
+                    } catch(FileNotFoundException e) {
+                        throw new WrappedException("File not found", e);
+                    }
+                }
+            }
+
             if(implode)
                 parseAndImplode(jsglr2);
             else
@@ -188,34 +202,40 @@ public class JSGLR2CLI implements Runnable {
     }
 
     private void parse(IParser<?> parser) {
-        ParseResult<?> result = parser.parse(input);
+        for(String in : input) {
+            // Explicit filename to enable caching in incremental parser
+            ParseResult<?> result = parser.parse(in, "cli", null);
 
-        if(result.isSuccess()) {
-            ParseSuccess<?> success = (ParseSuccess<?>) result;
+            if(result.isSuccess()) {
+                ParseSuccess<?> success = (ParseSuccess<?>) result;
 
-            if(outputOptions.isParseResult())
-                output(success.parseResult.toString());
-        } else {
-            ParseFailure<?> failure = (ParseFailure<?>) result;
+                if(outputOptions.isParseResult())
+                    output(success.parseResult.toString());
+            } else {
+                ParseFailure<?> failure = (ParseFailure<?>) result;
 
-            if(outputOptions.isParseResult())
-                output(failure.failureType.message);
+                if(outputOptions.isParseResult())
+                    output(failure.failureType.message);
+            }
         }
     }
 
     private void parseAndImplode(JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2) {
-        JSGLR2Result<IStrategoTerm> result = jsglr2.parseResult(input);
+        for(String in : input) {
+            // Explicit filename to enable caching in incremental parser
+            JSGLR2Result<IStrategoTerm> result = jsglr2.parseResult(in, "cli", null);
 
-        if(result.isSuccess()) {
-            JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
+            if(result.isSuccess()) {
+                JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
 
-            if(outputOptions.isParseResult())
-                output(success.ast.toString());
-        } else {
-            JSGLR2Failure<IStrategoTerm> failure = (JSGLR2Failure<IStrategoTerm>) result;
+                if(outputOptions.isParseResult())
+                    output(success.ast.toString());
+            } else {
+                JSGLR2Failure<IStrategoTerm> failure = (JSGLR2Failure<IStrategoTerm>) result;
 
-            if(outputOptions.isParseResult())
-                output(failure.parseFailure.failureType.message);
+                if(outputOptions.isParseResult())
+                    output(failure.parseFailure.failureType.message);
+            }
         }
     }
 

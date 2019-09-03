@@ -2,6 +2,8 @@ package org.spoofax.jsglr2.integrationtest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.function.Predicate;
+
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
@@ -18,11 +20,12 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
         return sdf3ToParseTable.getLayoutSensitiveParseTable(variant, sdf3Resource);
     }
 
-    protected void testLayoutSensitiveParseFailure(String inputString) {
-        for(TestVariant variant : getTestVariants()) {
-            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
-                continue;
+    private Predicate<TestVariant> isLayoutSensitiveVariant =
+        testVariant -> testVariant.variant.parser.parseForestRepresentation
+            .equals(ParseForestRepresentation.LayoutSensitive);
 
+    protected void testLayoutSensitiveParseFailure(String inputString) {
+        for(TestVariant variant : getTestVariants(isLayoutSensitiveVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
@@ -35,10 +38,7 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
 
     private void testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants()) {
-            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
-                continue;
-
+        for(TestVariant variant : getTestVariants(isLayoutSensitiveVariant)) {
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,

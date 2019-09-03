@@ -4,27 +4,28 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
-import org.metaborg.parsetable.productions.IProduction;
-import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class ParserMeasureObserver<ParseForest extends IParseForest>
-    implements IParserObserver<ParseForest, AbstractElkhoundStackNode<ParseForest>> {
+public class ParserMeasureObserver<ParseForest extends IParseForest> implements
+    IParserObserver<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> {
 
     public int length = 0;
-    AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse;
+    AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse;
 
     Set<AbstractElkhoundStackNode<ParseForest>> stackNodes = new HashSet<>();
     Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinks = new HashSet<>();
@@ -82,13 +83,15 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
         return res;
     }
 
-    @Override public void parseStart(AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse) {
+    @Override public void parseStart(
+        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse) {
         this.parse = parse;
 
         length += parse.inputLength;
     }
 
-    @Override public void parseCharacter(AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
+    @Override public void parseCharacter(
+        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse,
         Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
     }
 
@@ -125,7 +128,8 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
     }
 
     @Override public void actor(AbstractElkhoundStackNode<ParseForest> stack,
-        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse, Iterable<IAction> applicableActions) {
+        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse,
+        Iterable<IAction> applicableActions) {
         actors.add(new Actor(stack, applicableActions));
     }
 
@@ -135,7 +139,8 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
     @Override public void addForShifter(ForShifterElement<AbstractElkhoundStackNode<ParseForest>> forShifterElement) {
     }
 
-    @Override public void doReductions(AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
+    @Override public void doReductions(
+        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce) {
         doReductions++;
 
@@ -149,7 +154,8 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
         }
     }
 
-    @Override public void doLimitedReductions(AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
+    @Override public void doLimitedReductions(
+        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> throughLink) {
         doLimitedReductions++;
@@ -165,7 +171,8 @@ public class ParserMeasureObserver<ParseForest extends IParseForest>
         reducersElkhound.add(new Reducer(reduce, parseNodes));
     }
 
-    @Override public void directLinkFound(AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>> parse,
+    @Override public void directLinkFound(
+        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse,
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> directLink) {
     }
 

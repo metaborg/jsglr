@@ -11,7 +11,7 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class LayoutSensitiveParseForestManager<Parse extends AbstractParse<LayoutSensitiveParseForest, ?>>
+public class LayoutSensitiveParseForestManager<Parse extends AbstractParse<LayoutSensitiveParseForest, ?, ?>>
     extends ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, Parse> {
 
     @Override public LayoutSensitiveParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,

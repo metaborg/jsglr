@@ -1,13 +1,14 @@
 package org.spoofax.jsglr2.elkhound;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
@@ -18,14 +19,15 @@ public class ElkhoundReduceManager
     ParseNode         extends ParseForest,
     Derivation        extends IDerivation<ParseForest>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>>
+    ParseState        extends IParseState<ParseForest, ElkhoundStackNode>,
+    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode, ParseState>>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse> {
+    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse> {
 
-    protected final ElkhoundStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager;
+    protected final ElkhoundStackManager<ParseForest, ElkhoundStackNode, ParseState, Parse> stackManager;
 
     public ElkhoundReduceManager(IParseTable parseTable,
-        ElkhoundStackManager<ParseForest, ElkhoundStackNode, Parse> stackManager,
+        ElkhoundStackManager<ParseForest, ElkhoundStackNode, ParseState, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);

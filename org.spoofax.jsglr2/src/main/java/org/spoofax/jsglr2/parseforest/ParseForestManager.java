@@ -10,7 +10,7 @@ public abstract class ParseForestManager
    <ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
-    Parse       extends AbstractParse<ParseForest, ?>>
+    Parse       extends AbstractParse<ParseForest, ?, ?>>
 //@formatter:on
 {
 

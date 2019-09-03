@@ -156,7 +156,7 @@ public class JSGLR2CLI implements Runnable {
             IParseTable parseTable = getParseTable();
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
                 (JSGLR2Implementation<?, ?, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant);
-            IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
+            IObservableParser<?, ?, ?> observableParser = (IObservableParser<?, ?, ?>) jsglr2.parser;
 
             outputStream = outputStream();
 

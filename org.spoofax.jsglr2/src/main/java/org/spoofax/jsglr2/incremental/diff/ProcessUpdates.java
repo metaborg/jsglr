@@ -17,10 +17,10 @@ import org.spoofax.jsglr2.stack.IStackNode;
 
 public class ProcessUpdates<StackNode extends IStackNode> {
 
-    private final IncrementalParse<StackNode> incrementalParse;
+    private final IncrementalParse<StackNode, ?> incrementalParse;
     private final IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();
 
-    public ProcessUpdates(IncrementalParse<StackNode> incrementalParse) {
+    public ProcessUpdates(IncrementalParse<StackNode, ?> incrementalParse) {
         this.incrementalParse = incrementalParse;
     }
 

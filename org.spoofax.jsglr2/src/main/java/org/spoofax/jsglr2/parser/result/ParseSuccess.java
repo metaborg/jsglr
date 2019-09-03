@@ -7,7 +7,7 @@ public class ParseSuccess<ParseForest extends IParseForest> extends ParseResult<
 
     public final ParseForest parseResult;
 
-    public ParseSuccess(AbstractParse<ParseForest, ?> parse, ParseForest parseResult) {
+    public ParseSuccess(AbstractParse<ParseForest, ?, ?> parse, ParseForest parseResult) {
         super(parse);
 
         this.parseResult = parseResult;

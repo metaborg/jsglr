@@ -9,6 +9,7 @@ import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
 
@@ -59,11 +60,13 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
         final List<ForShifterElement<?>> forShifterElements = new ArrayList<>();
     }
 
-    class ForShifterObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
+    class ForShifterObserver extends
+        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
 
         public List<ParseRound> parseRounds = new ArrayList<>();
 
-        @Override public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        @Override public void parseCharacter(
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStacks) {
             parseRounds.add(new ParseRound());
         }

@@ -9,15 +9,17 @@ import java.util.stream.Collectors;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
 class StackDotVisualisationParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
+    StackNode   extends IStackNode,
+    ParseState  extends IParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends DotVisualisationParserObserver<ParseForest, StackNode> {
+    extends DotVisualisationParserObserver<ParseForest, StackNode, ParseState> {
 
     private Map<StackNode, Integer> stackNodeRank;
     private int maxStackNodeRank;
@@ -27,7 +29,7 @@ class StackDotVisualisationParserObserver
         super(outputConsumer);
     }
 
-    @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
+    @Override public void parseStart(AbstractParse<ParseForest, StackNode, ParseState> parse) {
         super.parseStart(parse);
         stackNodeRank = new HashMap<>();
         maxStackNodeRank = 0;

@@ -19,7 +19,8 @@ import com.google.common.collect.Maps;
 public abstract class AbstractParse
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
+    StackNode   extends IStackNode,
+    ParseState  extends IParseState<ParseForest, StackNode>>
 //@formatter:on
     implements IActionQuery {
 
@@ -39,10 +40,10 @@ public abstract class AbstractParse
     public IForActorStacks<StackNode> forActorStacks;
     public Queue<ForShifterElement<StackNode>> forShifter;
 
-    public final ParserObserving<ParseForest, StackNode> observing;
+    public final ParserObserving<ParseForest, StackNode, ParseState> observing;
 
     public AbstractParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, ParserObserving<ParseForest, StackNode> observing) {
+        IForActorStacksFactory forActorStacksFactory, ParserObserving<ParseForest, StackNode, ParseState> observing) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();

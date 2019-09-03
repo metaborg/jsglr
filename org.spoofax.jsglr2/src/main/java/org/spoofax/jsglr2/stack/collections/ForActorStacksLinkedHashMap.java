@@ -5,16 +5,22 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ForActorStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends IStackNode>
-    extends ForActorStacks<ParseForest, StackNode> {
+public class ForActorStacksLinkedHashMap
+//@formatter:off
+   <ParseForest extends IParseForest,
+    StackNode   extends IStackNode,
+    ParseState  extends IParseState<ParseForest, StackNode>>
+//@formatter:on
+    extends ForActorStacks<ParseForest, StackNode, ParseState> {
 
     protected Map<Integer, Linked<StackNode>> forActor;
     private Linked<StackNode> last;
 
-    public ForActorStacksLinkedHashMap(ParserObserving<ParseForest, StackNode> observing) {
+    public ForActorStacksLinkedHashMap(ParserObserving<ParseForest, StackNode, ParseState> observing) {
         super(observing);
 
         this.forActor = new HashMap<>();

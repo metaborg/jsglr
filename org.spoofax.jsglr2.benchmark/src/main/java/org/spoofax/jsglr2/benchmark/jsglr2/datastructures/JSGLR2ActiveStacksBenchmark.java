@@ -13,6 +13,7 @@ import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
@@ -80,11 +81,13 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
         void execute(Blackhole bh);
     }
 
-    class ActiveStacksObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
+    class ActiveStacksObserver extends
+        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
 
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
-        @Override public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        @Override public void parseCharacter(
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));
         }
@@ -93,7 +96,8 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
             operations.add(bh -> activeStacks.add(stack));
         }
 
-        @Override public void directLinkFound(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        @Override public void directLinkFound(
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active

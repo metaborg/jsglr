@@ -1,14 +1,15 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.sdf2table.grammar.LayoutConstraintAttribute;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -21,14 +22,15 @@ public class LayoutSensitiveReduceManager
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+    ParseState  extends IParseState<ParseForest, StackNode>,
+    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> {
+    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse> {
 
     private LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
 
     public LayoutSensitiveReduceManager(IParseTable parseTable,
-        AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
+        AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);

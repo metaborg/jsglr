@@ -13,6 +13,7 @@ import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -21,8 +22,12 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
-public class IncrementalParse<StackNode extends IStackNode> extends AbstractParse<IncrementalParseForest, StackNode>
-    implements IIncrementalParse {
+public class IncrementalParse
+//@formatter:off
+   <StackNode  extends IStackNode,
+    ParseState extends IParseState<IncrementalParseForest, StackNode>>
+//@formatter:on
+    extends AbstractParse<IncrementalParseForest, StackNode, ParseState> implements IIncrementalParse {
 
     private boolean multipleStates = false;
     ILookaheadStack lookahead;
@@ -33,14 +38,15 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
 
     public IncrementalParse(List<EditorUpdate> editorUpdates, IncrementalParseForest previous, String inputString,
         String filename, IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
-        ParserObserving<IncrementalParseForest, StackNode> observing) {
+        ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
 
         super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
         initParse(processUpdates.processUpdates(previous, editorUpdates), inputString);
     }
 
     public IncrementalParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, ParserObserving<IncrementalParseForest, StackNode> observing) {
+        IForActorStacksFactory forActorStacksFactory,
+        ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
 
         super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
         initParse(processUpdates.getParseNodeFromString(inputString), inputString);
@@ -51,7 +57,8 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
         this.currentChar = lookahead.actionQueryCharacter();
     }
 
-    public static <StackNode_ extends IStackNode> IncrementalParseFactory<StackNode_, IncrementalParse<StackNode_>>
+    public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
+        IncrementalParseFactory<StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
         incrementalFactory(JSGLR2Variants.ParserVariant variant) {
 
         ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
@@ -61,14 +68,15 @@ public class IncrementalParse<StackNode extends IStackNode> extends AbstractPars
             observing);
     }
 
-    public static <StackNode_ extends IStackNode>
-        ParseFactory<IncrementalParseForest, StackNode_, IncrementalParse<StackNode_>>
+    public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
+        ParseFactory<IncrementalParseForest, StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
         factory(JSGLR2Variants.ParserVariant variant) {
 
         ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
         ForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
-        return (inputString, filename, observing) -> new IncrementalParse<>(inputString, filename, activeStacksFactory,
-            forActorStacksFactory, observing);
+
+        return (inputString, filename, observing) -> (IncrementalParse<StackNode_, ParseState_>) new IncrementalParse<>(
+            inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
     }
 
     @Override public int actionQueryCharacter() {

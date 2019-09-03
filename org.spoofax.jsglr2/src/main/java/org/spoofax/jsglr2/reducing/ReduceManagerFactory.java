@@ -15,6 +15,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -31,9 +32,10 @@ public interface ReduceManagerFactory
     ParseNode     extends ParseForest,
     Derivation    extends IDerivation<ParseForest>,
     StackNode     extends IStackNode,
-    Parse         extends AbstractParse<ParseForest, StackNode>,
-    StackManager  extends AbstractStackManager<ParseForest, StackNode, Parse>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ParseState    extends IParseState<ParseForest, StackNode>,
+    Parse         extends AbstractParse<ParseForest, StackNode, ParseState>,
+    StackManager  extends AbstractStackManager<ParseForest, StackNode, ParseState, Parse>,
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
 //@formatter:on
 {
     ReduceManager get(IParseTable parseTable, StackManager stackManager,
@@ -45,10 +47,11 @@ public interface ReduceManagerFactory
         ParseNode    extends ParseForest,
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
-        Parse        extends AbstractParse<ParseForest, StackNode>,
-        StackManager extends AbstractStackManager<ParseForest, StackNode, Parse>>
+        ParseState   extends IParseState<ParseForest, StackNode>,
+        Parse        extends AbstractParse<ParseForest, StackNode, ParseState>,
+        StackManager extends AbstractStackManager<ParseForest, StackNode, ParseState, Parse>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
         reduceManagerFactory(JSGLR2Variants.ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new org.spoofax.jsglr2.reducing.ReduceManager<>(
             parseTable, stackManager, parseForestManager, parserVariant.parseForestConstruction);
@@ -60,10 +63,11 @@ public interface ReduceManagerFactory
         ParseNode    extends ParseForest,
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends AbstractElkhoundStackNode<ParseForest>,
-        StackManager extends ElkhoundStackManager<ParseForest, StackNode, Parse>,
-        Parse        extends AbstractParse<ParseForest, StackNode>>
+        ParseState   extends IParseState<ParseForest, StackNode>,
+        Parse        extends AbstractParse<ParseForest, StackNode, ParseState>,
+        StackManager extends ElkhoundStackManager<ParseForest, StackNode, ParseState, Parse>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ElkhoundReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, ElkhoundReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
         elkhoundReduceManagerFactory(JSGLR2Variants.ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new ElkhoundReduceManager<>(parseTable, stackManager,
             parseForestManager, parserVariant.parseForestConstruction);
@@ -75,10 +79,11 @@ public interface ReduceManagerFactory
         ParseNode    extends ParseForest,
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
-        StackManager extends AbstractStackManager<ParseForest, StackNode, Parse>,
-        Parse        extends AbstractParse<ParseForest, StackNode>>
+        ParseState   extends IParseState<ParseForest, StackNode>,
+        Parse        extends AbstractParse<ParseForest, StackNode, ParseState>,
+        StackManager extends AbstractStackManager<ParseForest, StackNode, ParseState, Parse>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, DataDependentReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, DataDependentReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
         dataDependentReduceManagerFactory(JSGLR2Variants.ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new DataDependentReduceManager<>(parseTable,
             stackManager, parseForestManager, parserVariant.parseForestConstruction);
@@ -90,10 +95,11 @@ public interface ReduceManagerFactory
         ParseNode    extends ParseForest,
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
-        StackManager extends AbstractStackManager<ParseForest, StackNode, Parse>,
-        Parse        extends AbstractParse<ParseForest, StackNode>>
+        ParseState   extends IParseState<ParseForest, StackNode>,
+        Parse        extends AbstractParse<ParseForest, StackNode, ParseState>,
+        StackManager extends AbstractStackManager<ParseForest, StackNode, ParseState, Parse>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, LayoutSensitiveReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, LayoutSensitiveReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
         layoutSensitiveReduceManagerFactory(JSGLR2Variants.ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new LayoutSensitiveReduceManager<>(parseTable,
             stackManager, parseForestManager, parserVariant.parseForestConstruction);
@@ -105,10 +111,11 @@ public interface ReduceManagerFactory
         ParseNode    extends ParseForest,
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
-        StackManager extends AbstractStackManager<ParseForest, StackNode, Parse>,
-        Parse        extends AbstractParse<ParseForest, StackNode> & IIncrementalParse>
+        ParseState   extends IParseState<ParseForest, StackNode>,
+        Parse        extends AbstractParse<ParseForest, StackNode, ParseState> & IIncrementalParse,
+        StackManager extends AbstractStackManager<ParseForest, StackNode, ParseState, Parse>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, IncrementalReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, IncrementalReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
         incrementalReduceManagerFactory(JSGLR2Variants.ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable,
             stackManager, parseForestManager, parserVariant.parseForestConstruction);

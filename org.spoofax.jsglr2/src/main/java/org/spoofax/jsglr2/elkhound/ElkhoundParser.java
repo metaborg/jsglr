@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
@@ -24,17 +25,21 @@ public class ElkhoundParser
     ParseNode         extends ParseForest,
     Derivation        extends IDerivation<ParseForest>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>,
-    StackManager      extends AbstractStackManager<ParseForest, ElkhoundStackNode, Parse>,
+    ParseState        extends IParseState<ParseForest, ElkhoundStackNode>,
+    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode, ParseState>,
+    StackManager      extends AbstractStackManager<ParseForest, ElkhoundStackNode, ParseState, Parse>,
     ReduceManager     extends org.spoofax.jsglr2.reducing.ReduceManager<
-                                  ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse>>
+                                  ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse>>
 //@formatter:on
-    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> {
+    extends
+    Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse, StackManager, ReduceManager> {
 
-    public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, Parse> parseFactory, IParseTable parseTable,
-        StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
-        ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory,
-        IParseFailureHandler failureHandler, ParserObserving observing) {
+    public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, ParseState, Parse> parseFactory,
+        IParseTable parseTable, StackManager stackManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
+        ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory,
+        IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState, Parse> failureHandler,
+        ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing) {
         super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory, failureHandler,
             observing);
     }

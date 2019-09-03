@@ -140,7 +140,7 @@ public abstract class BaseTest implements WithParseTable {
     protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, null, true);
     }
-    
+
     protected void testLayoutSensitiveSuccessByExpansions(String inputString, String expectedOutputAstString) {
         testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
     }
@@ -166,13 +166,13 @@ public abstract class BaseTest implements WithParseTable {
                 actualOutputAst, equalityByExpansions);
         }
     }
-    
+
     private void testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
         for(TestVariant variant : getTestVariants()) {
             if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
                 continue;
-            
+
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,

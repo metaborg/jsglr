@@ -4,6 +4,7 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -12,9 +13,10 @@ public abstract class ElkhoundStackManager
 //@formatter:off
    <ParseForest       extends IParseForest,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode>>
+    ParseState        extends IParseState<ParseForest, ElkhoundStackNode>,
+    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode, ParseState>>
 //@formatter:on
-    extends AbstractStackManager<ParseForest, ElkhoundStackNode, Parse> {
+    extends AbstractStackManager<ParseForest, ElkhoundStackNode, ParseState, Parse> {
 
     protected abstract ElkhoundStackNode createStackNode(IState state, Position position, boolean isRoot);
 

@@ -23,6 +23,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
@@ -37,22 +38,24 @@ public class IncrementalParser
    <ParseNode     extends IncrementalParseNode,
     Derivation    extends IncrementalDerivation,
     StackNode     extends IStackNode,
-    Parse         extends AbstractParse<IncrementalParseForest, StackNode> & IIncrementalParse,
-    StackManager  extends AbstractStackManager<IncrementalParseForest, StackNode, Parse>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ParseState    extends IParseState<IncrementalParseForest, StackNode>,
+    Parse         extends AbstractParse<IncrementalParseForest, StackNode, ParseState> & IIncrementalParse,
+    StackManager  extends AbstractStackManager<IncrementalParseForest, StackNode, ParseState, Parse>,
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
 // @formatter:on
-    extends Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> {
+    extends
+    Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, ReduceManager> {
 
-    private final IncrementalParseFactory<StackNode, Parse> incrementalParseFactory;
+    private final IncrementalParseFactory<StackNode, ParseState, Parse> incrementalParseFactory;
     private final HashMap<String, IncrementalParseForest> cache = new HashMap<>();
     private final HashMap<String, String> oldString = new HashMap<>();
     private final IStringDiff diff;
 
-    public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, Parse> parseFactory,
-        IncrementalParseFactory<StackNode, Parse> incrementalParseFactory, IParseTable parseTable,
+    public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, ParseState, Parse> parseFactory,
+        IncrementalParseFactory<StackNode, ParseState, Parse> incrementalParseFactory, IParseTable parseTable,
         StackManager stackManager,
         ParseForestManager<IncrementalParseForest, ParseNode, Derivation, Parse> parseForestManager,
-        ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory,
+        ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler failureHandler, ParserObserving observing) {
         super(parseFactory, parseTable, stackManager, parseForestManager, reduceManagerFactory, failureHandler,
             observing);

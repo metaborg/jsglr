@@ -6,17 +6,23 @@ import java.util.Map;
 
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends IStackNode>
+public class ActiveStacksLinkedHashMap
+//@formatter:off
+   <ParseForest extends IParseForest,
+    StackNode   extends IStackNode,
+    ParseState  extends IParseState<ParseForest, StackNode>>
+//@formatter:on
     implements IActiveStacks<StackNode> {
 
-    private ParserObserving<ParseForest, StackNode> observing;
+    private ParserObserving<ParseForest, StackNode, ParseState> observing;
     protected Map<Integer, Linked<StackNode>> activeStacks;
     private Linked<StackNode> last;
 
-    public ActiveStacksLinkedHashMap(ParserObserving<ParseForest, StackNode> observing) {
+    public ActiveStacksLinkedHashMap(ParserObserving<ParseForest, StackNode, ParseState> observing) {
         this.observing = observing;
         this.activeStacks = new HashMap<>();
         this.last = null;

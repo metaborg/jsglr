@@ -12,22 +12,28 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 public class Parse
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
+    StackNode   extends IStackNode,
+    ParseState  extends IParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends AbstractParse<ParseForest, StackNode> {
+    extends AbstractParse<ParseForest, StackNode, ParseState> {
 
-    public static <ParseForest_ extends IParseForest, StackNode_ extends IStackNode>
-        ParseFactory<ParseForest_, StackNode_, AbstractParse<ParseForest_, StackNode_>>
-        factory(JSGLR2Variants.ParserVariant variant) {
-
+    public static
+//@formatter:off
+   <ParseForest_ extends IParseForest,
+    StackNode_   extends IStackNode,
+    ParseState_  extends IParseState<ParseForest_, StackNode_>,
+    Parse_       extends AbstractParse<ParseForest_, StackNode_, ParseState_>>
+//@formatter:on
+    ParseFactory<ParseForest_, StackNode_, ParseState_, Parse_> factory(JSGLR2Variants.ParserVariant variant) {
         ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
         ForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
-        return (inputString, filename, observing) -> new Parse<>(inputString, filename, activeStacksFactory,
+
+        return (inputString, filename, observing) -> (Parse_) new Parse<>(inputString, filename, activeStacksFactory,
             forActorStacksFactory, observing);
     }
 
     public Parse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, ParserObserving<ParseForest, StackNode> observing) {
+        IForActorStacksFactory forActorStacksFactory, ParserObserving<ParseForest, StackNode, ParseState> observing) {
         super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
     }
 }

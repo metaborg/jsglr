@@ -24,24 +24,26 @@ public class Parser
     ParseNode     extends ParseForest,
     Derivation    extends IDerivation<ParseForest>,
     StackNode     extends IStackNode,
-    Parse         extends AbstractParse<ParseForest, StackNode>,
-    StackManager  extends AbstractStackManager<ParseForest, StackNode, Parse>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse>>
+    ParseState    extends IParseState<ParseForest, StackNode>,
+    Parse         extends AbstractParse<ParseForest, StackNode, ParseState>,
+    StackManager  extends AbstractStackManager<ParseForest, StackNode, ParseState, Parse>,
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse>>
 //@formatter:on
-    implements IObservableParser<ParseForest, StackNode> {
+    implements IObservableParser<ParseForest, StackNode, ParseState> {
 
-    protected final ParseFactory<ParseForest, StackNode, Parse> parseFactory;
+    protected final ParseFactory<ParseForest, StackNode, ParseState, Parse> parseFactory;
     protected final IParseTable parseTable;
     protected final StackManager stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager;
     protected final ReduceManager reduceManager;
-    protected final IParseFailureHandler<ParseForest, StackNode> failureHandler;
-    protected final ParserObserving<ParseForest, StackNode> observing;
+    protected final IParseFailureHandler<ParseForest, StackNode, ParseState, Parse> failureHandler;
+    protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
 
-    public Parser(ParseFactory<ParseForest, StackNode, Parse> parseFactory, IParseTable parseTable,
+    public Parser(ParseFactory<ParseForest, StackNode, ParseState, Parse> parseFactory, IParseTable parseTable,
         StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
-        ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, Parse, StackManager, ReduceManager> reduceManagerFactory,
-        IParseFailureHandler failureHandler, ParserObserving observing) {
+        ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, ReduceManager> reduceManagerFactory,
+        IParseFailureHandler<ParseForest, StackNode, ParseState, Parse> failureHandler,
+        ParserObserving<ParseForest, StackNode, ParseState> observing) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManager;
@@ -201,7 +203,7 @@ public class Parser
         parse.forShifter.add(forShifterElement);
     }
 
-    @Override public ParserObserving<ParseForest, StackNode> observing() {
+    @Override public ParserObserving<ParseForest, StackNode, ParseState> observing() {
         return observing;
     }
 

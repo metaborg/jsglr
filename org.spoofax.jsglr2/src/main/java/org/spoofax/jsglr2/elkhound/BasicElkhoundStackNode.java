@@ -32,7 +32,7 @@ public class BasicElkhoundStackNode<ParseForest extends IParseForest> extends Ab
 
     public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(
         BasicElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
-        AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>> parse) {
+        AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>, ?> parse) {
         StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
 
         links.add(link);

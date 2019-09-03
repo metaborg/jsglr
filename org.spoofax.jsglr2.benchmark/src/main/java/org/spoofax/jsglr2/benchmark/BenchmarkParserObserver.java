@@ -2,15 +2,16 @@ package org.spoofax.jsglr2.benchmark;
 
 import java.util.Queue;
 
-import org.metaborg.parsetable.productions.IProduction;
-import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -18,13 +19,13 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode extends IStackNode>
-    implements IParserObserver<ParseForest, StackNode> {
+public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode extends IStackNode, ParseState extends IParseState<ParseForest, StackNode>>
+    implements IParserObserver<ParseForest, StackNode, ParseState> {
 
-    @Override public void parseStart(AbstractParse<ParseForest, StackNode> parse) {
+    @Override public void parseStart(AbstractParse<ParseForest, StackNode, ParseState> parse) {
     }
 
-    @Override public void parseCharacter(AbstractParse<ParseForest, StackNode> parse,
+    @Override public void parseCharacter(AbstractParse<ParseForest, StackNode, ParseState> parse,
         Iterable<StackNode> activeStacks) {
     }
 
@@ -55,7 +56,7 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
     }
 
-    @Override public void actor(StackNode stack, AbstractParse<ParseForest, StackNode> parse,
+    @Override public void actor(StackNode stack, AbstractParse<ParseForest, StackNode, ParseState> parse,
         Iterable<IAction> applicableActions) {
     }
 
@@ -65,10 +66,11 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
     }
 
-    @Override public void doReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack, IReduce reduce) {
+    @Override public void doReductions(AbstractParse<ParseForest, StackNode, ParseState> parse, StackNode stack,
+        IReduce reduce) {
     }
 
-    @Override public void doLimitedReductions(AbstractParse<ParseForest, StackNode> parse, StackNode stack,
+    @Override public void doLimitedReductions(AbstractParse<ParseForest, StackNode, ParseState> parse, StackNode stack,
         IReduce reduce, StackLink<ParseForest, StackNode> link) {
     }
 
@@ -79,7 +81,7 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
     }
 
-    @Override public void directLinkFound(AbstractParse<ParseForest, StackNode> parse,
+    @Override public void directLinkFound(AbstractParse<ParseForest, StackNode, ParseState> parse,
         StackLink<ParseForest, StackNode> directLink) {
     }
 

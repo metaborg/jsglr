@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
@@ -15,9 +17,8 @@ import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.IObservableParser;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.metaborg.parsetable.ParseTableReadException;
-import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
@@ -65,8 +66,8 @@ public class ParsingMeasurements extends Measurements {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
-            @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>> parser =
-                (IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>) JSGLR2Variants
+            @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>> parser =
+                (IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) JSGLR2Variants
                     .getParser(parseTable, variant);
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<>();

@@ -10,6 +10,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -22,12 +23,13 @@ public class IncrementalReduceManager
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode> & IIncrementalParse>
+    ParseState  extends IParseState<ParseForest, StackNode>,
+    Parse       extends AbstractParse<ParseForest, StackNode, ParseState> & IIncrementalParse>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> {
+    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse> {
 
     public IncrementalReduceManager(IParseTable parseTable,
-        AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
+        AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);

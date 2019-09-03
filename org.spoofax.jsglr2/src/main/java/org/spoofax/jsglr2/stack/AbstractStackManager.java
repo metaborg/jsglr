@@ -7,6 +7,7 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.StackPath;
@@ -15,7 +16,8 @@ public abstract class AbstractStackManager
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+    ParseState  extends IParseState<ParseForest, StackNode>,
+    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
 //@formatter:on
 {
 

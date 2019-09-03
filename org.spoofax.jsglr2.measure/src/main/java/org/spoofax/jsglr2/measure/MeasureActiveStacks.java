@@ -4,18 +4,24 @@ import java.util.Iterator;
 
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksArrayList;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class MeasureActiveStacks<ParseForest extends IParseForest, StackNode extends IStackNode>
-    extends ActiveStacksArrayList<ParseForest, StackNode> {
+public class MeasureActiveStacks
+//@formatter:off
+   <ParseForest extends IParseForest,
+    StackNode   extends IStackNode,
+    ParseState  extends IParseState<ParseForest, StackNode>>
+//@formatter:on
+    extends ActiveStacksArrayList<ParseForest, StackNode, ParseState> {
 
     long adds = 0, maxSize = 0, iSingleChecks = 0, isEmptyChecks = 0, findsWithState = 0, forLimitedReductions = 0,
         addAllTo = 0, clears = 0, iterators = 0;
 
-    public MeasureActiveStacks(ParserObserving<ParseForest, StackNode> observing) {
+    public MeasureActiveStacks(ParserObserving<ParseForest, StackNode, ParseState> observing) {
         super(observing);
     }
 

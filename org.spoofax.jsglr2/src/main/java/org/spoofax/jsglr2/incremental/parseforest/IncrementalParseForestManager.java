@@ -12,7 +12,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class IncrementalParseForestManager<Parse extends AbstractParse<IncrementalParseForest, ?> & IIncrementalParse>
+public class IncrementalParseForestManager<Parse extends AbstractParse<IncrementalParseForest, ?, ?> & IIncrementalParse>
     extends ParseForestManager<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, Parse> {
 
     @Override public IncrementalParseForest filterStartSymbol(IncrementalParseForest parseForest, String startSymbol,

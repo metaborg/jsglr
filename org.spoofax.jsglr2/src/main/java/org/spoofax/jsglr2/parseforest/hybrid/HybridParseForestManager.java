@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class HybridParseForestManager<Parse extends AbstractParse<HybridParseForest, ?>>
+public class HybridParseForestManager<Parse extends AbstractParse<HybridParseForest, ?, ?>>
     extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation, Parse> {
 
     @Override public HybridParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,

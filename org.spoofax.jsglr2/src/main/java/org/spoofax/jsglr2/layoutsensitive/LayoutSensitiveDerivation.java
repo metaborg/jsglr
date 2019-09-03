@@ -23,7 +23,7 @@ public class LayoutSensitiveDerivation extends LayoutSensitiveParseForest
     // longest-match positions
     // public Set<PositionInterval> longestMatchPos = Sets.newLinkedHashSet();
 
-    public LayoutSensitiveDerivation(AbstractParse<?, ?> parse, Position startPosition, Position leftPosition,
+    public LayoutSensitiveDerivation(AbstractParse<?, ?, ?> parse, Position startPosition, Position leftPosition,
         Position rightPosition, Position endPosition, IProduction production, ProductionType productionType,
         LayoutSensitiveParseForest[] parseForests) {
         super(startPosition, endPosition);

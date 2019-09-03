@@ -38,7 +38,7 @@ public class HybridElkhoundStackNode<ParseForest extends IParseForest> extends A
 
     public StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addLink(
         HybridElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
-        AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>> parse) {
+        AbstractParse<ParseForest, HybridElkhoundStackNode<ParseForest>, ?> parse) {
         StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
 
         link.to.referenceCount++;

@@ -1,11 +1,12 @@
 package org.spoofax.jsglr2.reducing;
 
-import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -16,14 +17,15 @@ public class Reducer
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+    ParseState  extends IParseState<ParseForest, StackNode>,
+    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
 //@formatter:on
 {
 
-    protected final AbstractStackManager<ParseForest, StackNode, Parse> stackManager;
+    protected final AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager;
 
-    public Reducer(AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
+    public Reducer(AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager) {
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;

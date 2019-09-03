@@ -8,10 +8,11 @@ public interface ParseFactory
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+    ParseState  extends IParseState<ParseForest, StackNode>,
+    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
 //@formatter:on
 {
 
-    Parse get(String inputString, String filename, ParserObserving<ParseForest, StackNode> observing);
+    Parse get(String inputString, String filename, ParserObserving<ParseForest, StackNode, ParseState> parserObserving);
 
 }

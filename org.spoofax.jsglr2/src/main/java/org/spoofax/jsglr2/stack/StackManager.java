@@ -3,15 +3,17 @@ package org.spoofax.jsglr2.stack;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.Position;
 
 public abstract class StackManager
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends AbstractStackNode<ParseForest, StackNode>,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+    ParseState  extends IParseState<ParseForest, StackNode>,
+    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
 //@formatter:on
-    extends AbstractStackManager<ParseForest, StackNode, Parse> {
+    extends AbstractStackManager<ParseForest, StackNode, ParseState, Parse> {
 
     protected abstract StackNode createStackNode(IState state, Position position, boolean isRoot);
 

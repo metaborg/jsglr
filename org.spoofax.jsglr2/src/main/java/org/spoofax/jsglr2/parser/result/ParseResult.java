@@ -5,9 +5,9 @@ import org.spoofax.jsglr2.parser.AbstractParse;
 
 public abstract class ParseResult<ParseForest extends IParseForest> {
 
-    public final AbstractParse<ParseForest, ?> parse;
+    public final AbstractParse<ParseForest, ?, ?> parse;
 
-    ParseResult(AbstractParse<ParseForest, ?> parse) {
+    ParseResult(AbstractParse<ParseForest, ?, ?> parse) {
         this.parse = parse;
     }
 

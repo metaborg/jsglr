@@ -9,6 +9,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
@@ -51,11 +52,13 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
         void execute(Blackhole bh);
     }
 
-    class ForActorStacksObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
+    class ForActorStacksObserver extends
+        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
 
         public List<ForActorStacksOperation> operations = new ArrayList<>();
 
-        @Override public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        @Override public void parseCharacter(
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
             List<BasicStackNode<BasicParseForest>> activeStacksCopy = activeStacksCopy(parse);
 
@@ -77,7 +80,8 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
             operations.add(bh -> forActorStacks.add(stack));
         }
 
-        @Override public void directLinkFound(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        @Override public void directLinkFound(
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
@@ -92,8 +96,8 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
             }
         }
 
-        private List<BasicStackNode<BasicParseForest>>
-            activeStacksCopy(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse) {
+        private List<BasicStackNode<BasicParseForest>> activeStacksCopy(
+            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse) {
             List<BasicStackNode<BasicParseForest>> activeStacksCopy = new ArrayList<>();
 
             for(BasicStackNode<BasicParseForest> activeStack : parse.activeStacks)

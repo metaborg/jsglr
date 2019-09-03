@@ -4,9 +4,10 @@ import java.util.Optional;
 
 import org.metaborg.sdf2table.grammar.layoutconstraints.*;
 
-public class LayoutConstraintEvaluator<ParseForest extends LayoutSensitiveParseForest> {
+class LayoutConstraintEvaluator {
 
-    public Optional<Boolean> evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
+    static <ParseForest extends LayoutSensitiveParseForest> Optional<Boolean>
+        evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
         if(layoutConstraint instanceof BooleanLayoutConstraint) {
             BooleanLayoutConstraint booleanLayoutConstraint = (BooleanLayoutConstraint) layoutConstraint;
 
@@ -70,7 +71,8 @@ public class LayoutConstraintEvaluator<ParseForest extends LayoutSensitiveParseF
         throw new IllegalStateException("Could not evaluate constraint: " + layoutConstraint);
     }
 
-    private Optional<Integer> evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
+    private static <ParseForest extends LayoutSensitiveParseForest> Optional<Integer>
+        evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
         if(layoutConstraint instanceof NumericLayoutConstraint) {
             NumericLayoutConstraint numericLayoutConstraint = (NumericLayoutConstraint) layoutConstraint;
 

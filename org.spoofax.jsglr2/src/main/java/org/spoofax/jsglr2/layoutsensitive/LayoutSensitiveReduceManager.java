@@ -26,8 +26,6 @@ public class LayoutSensitiveReduceManager
 //@formatter:on
     extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse> {
 
-    private LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
-
     public LayoutSensitiveReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
@@ -49,7 +47,7 @@ public class LayoutSensitiveReduceManager
 
                     for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
                         // Skip the reduction if the constraint evaluates to false or if it is not present
-                        if(!lce.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false)) {
+                        if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false)) {
                             skipReduce = true;
                             break;
                         }

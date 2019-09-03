@@ -3,19 +3,28 @@ package org.spoofax.jsglr2.incremental.diff;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
+import org.spoofax.jsglr2.reducing.Reducing;
+import org.spoofax.jsglr2.stack.StackRepresentation;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 
 public class ProcessUpdatesTest {
 
-    private final ProcessUpdates<?> processUpdates = new ProcessUpdates<>(new IncrementalParse<>("", "",
-        new ActiveStacksFactory(), new ForActorStacksFactory(), new ParserObserving<>()));
+    private final ProcessUpdates<?> processUpdates =
+        new ProcessUpdates<>(new IncrementalParse<>(
+            new JSGLR2Variants.ParserVariant(ActiveStacksRepresentation.standard(),
+                ForActorStacksRepresentation.standard(), ParseForestRepresentation.standard(),
+                ParseForestConstruction.standard(), StackRepresentation.standard(), Reducing.standard()),
+            "", "", new ParserObserving<>()));
 
     @Test public void testDeleteSubtree() {
         IncrementalParseNode previous = node(node(0, 1), node(2, 3), node(4, 5));

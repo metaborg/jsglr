@@ -17,10 +17,6 @@ import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 public class IncrementalParse
 //@formatter:off
@@ -36,19 +32,16 @@ public class IncrementalParse
     public static final State NO_STATE = new State(-1,
         new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
 
-    public IncrementalParse(List<EditorUpdate> editorUpdates, IncrementalParseForest previous, String inputString,
-        String filename, IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory,
+    public IncrementalParse(JSGLR2Variants.ParserVariant variant, List<EditorUpdate> editorUpdates,
+        IncrementalParseForest previous, String inputString, String filename,
         ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
-
-        super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
+        super(variant, inputString, filename, observing);
         initParse(processUpdates.processUpdates(previous, editorUpdates), inputString);
     }
 
-    public IncrementalParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory,
+    public IncrementalParse(JSGLR2Variants.ParserVariant variant, String inputString, String filename,
         ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
-
-        super(inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
+        super(variant, inputString, filename, observing);
         initParse(processUpdates.getParseNodeFromString(inputString), inputString);
     }
 
@@ -60,27 +53,15 @@ public class IncrementalParse
     public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
         IncrementalParseFactory<StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
         incrementalFactory(JSGLR2Variants.ParserVariant variant) {
-
-        ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
-        ForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
-        return (editorUpdates, previousVersion, inputString, filename, observing) -> new IncrementalParse<>(
-            editorUpdates, previousVersion, inputString, filename, activeStacksFactory, forActorStacksFactory,
-            observing);
+        return (editorUpdates, previousVersion, inputString, filename, observing) -> new IncrementalParse<>(variant,
+            editorUpdates, previousVersion, inputString, filename, observing);
     }
 
     public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
         ParseFactory<IncrementalParseForest, StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
         factory(JSGLR2Variants.ParserVariant variant) {
-
-        ActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(variant.activeStacksRepresentation);
-        ForActorStacksFactory forActorStacksFactory = new ForActorStacksFactory(variant.forActorStacksRepresentation);
-
         return (inputString, filename, observing) -> (IncrementalParse<StackNode_, ParseState_>) new IncrementalParse<>(
-            inputString, filename, activeStacksFactory, forActorStacksFactory, observing);
-    }
-
-    @Override public int actionQueryCharacter() {
-        return currentChar;
+            variant, inputString, filename, observing);
     }
 
     @Override public String actionQueryLookahead(int length) {

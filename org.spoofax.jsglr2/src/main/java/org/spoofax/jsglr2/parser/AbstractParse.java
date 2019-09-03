@@ -1,20 +1,18 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
-import java.util.Map;
 import java.util.Queue;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.query.IActionQuery;
+import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
-
-import com.google.common.collect.Maps;
 
 public abstract class AbstractParse
 //@formatter:off
@@ -40,15 +38,16 @@ public abstract class AbstractParse
 
     public final ParserObserving<ParseForest, StackNode, ParseState> observing;
 
-    public AbstractParse(String inputString, String filename, IActiveStacksFactory activeStacksFactory,
-        IForActorStacksFactory forActorStacksFactory, ParserObserving<ParseForest, StackNode, ParseState> observing) {
+    public AbstractParse(JSGLR2Variants.ParserVariant variant, String inputString, String filename,
+        ParserObserving<ParseForest, StackNode, ParseState> observing) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
 
         this.acceptingStack = null;
-        this.activeStacks = activeStacksFactory.get(observing);
-        this.forActorStacks = forActorStacksFactory.get(observing);
+
+        this.activeStacks = new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
+        this.forActorStacks = new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;

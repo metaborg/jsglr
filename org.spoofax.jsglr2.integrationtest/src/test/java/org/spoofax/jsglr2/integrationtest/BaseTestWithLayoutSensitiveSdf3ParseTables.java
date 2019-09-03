@@ -24,11 +24,21 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
         testVariant -> testVariant.variant.parser.parseForestRepresentation
             .equals(ParseForestRepresentation.LayoutSensitive);
 
-    protected void testLayoutSensitiveParseFailure(String inputString) {
+    private Predicate<TestVariant> isNotLayoutSensitiveVariant =
+        testVariant -> !testVariant.variant.parser.parseForestRepresentation
+            .equals(ParseForestRepresentation.LayoutSensitive);
+
+    protected void testLayoutSensitiveParseFiltered(String inputString) {
+        for(TestVariant variant : getTestVariants(isNotLayoutSensitiveVariant)) {
+            ParseResult<?> parseResult = variant.parser().parse(inputString);
+
+            assertEquals("Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ", true, parseResult.isSuccess());
+        }
+
         for(TestVariant variant : getTestVariants(isLayoutSensitiveVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
+            assertEquals("Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ", false, parseResult.isSuccess());
         }
     }
 

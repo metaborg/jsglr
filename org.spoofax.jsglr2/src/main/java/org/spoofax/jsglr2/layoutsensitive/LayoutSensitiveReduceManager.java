@@ -35,27 +35,20 @@ public class LayoutSensitiveReduceManager
 
     @Override protected void doReductionsHelper(Parse parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> throughLink) {
-        for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
+        pathsLoop: for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack,
+            reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
                 StackNode pathBegin = path.head();
                 ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
-
-                boolean skipReduce = false;
 
                 if(reduce.production() instanceof ParseTableProduction) {
                     ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
 
                     for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
                         // Skip the reduction if the constraint evaluates to false or if it is not present
-                        if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false)) {
-                            skipReduce = true;
-                            break;
-                        }
+                        if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false))
+                            continue pathsLoop;
                     }
-                }
-
-                if(skipReduce) {
-                    continue;
                 }
 
                 reducer(parse, pathBegin, reduce, parseNodes);

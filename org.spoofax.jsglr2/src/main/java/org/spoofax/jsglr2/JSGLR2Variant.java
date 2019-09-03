@@ -101,7 +101,8 @@ public class JSGLR2Variant {
                     ParseForestRepresentation.standard(),
                     ParseForestConstruction.standard(),
                     StackRepresentation.standard(),
-                    Reducing.standard()),
+                    Reducing.standard(),
+                    false),
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
     
@@ -113,7 +114,8 @@ public class JSGLR2Variant {
                     ParseForestRepresentation.DataDependent,
                     ParseForestConstruction.standard(),
                     StackRepresentation.Hybrid,
-                    Reducing.DataDependent),
+                    Reducing.DataDependent,
+                    false),
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
     
@@ -125,7 +127,8 @@ public class JSGLR2Variant {
                     ParseForestRepresentation.LayoutSensitive,
                     ParseForestConstruction.standard(),
                     StackRepresentation.Hybrid,
-                    Reducing.LayoutSensitive),
+                    Reducing.LayoutSensitive,
+                    false),
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
     
@@ -137,7 +140,8 @@ public class JSGLR2Variant {
                     ParseForestRepresentation.Incremental,
                     ParseForestConstruction.Full,
                     StackRepresentation.Hybrid,
-                    Reducing.Incremental),
+                    Reducing.Incremental,
+                    false),
                 ImploderVariant.RecursiveIncremental,
                 TokenizerVariant.Recursive));
         // @formatter:on

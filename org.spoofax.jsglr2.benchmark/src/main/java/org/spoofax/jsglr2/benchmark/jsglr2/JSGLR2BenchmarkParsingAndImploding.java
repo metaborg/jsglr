@@ -48,7 +48,7 @@ public abstract class JSGLR2BenchmarkParsingAndImploding extends JSGLR2Benchmark
         return new IntegrationVariant(
             new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
             new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
-                parseForestConstruction, stackRepresentation, reducing),
+                parseForestConstruction, stackRepresentation, reducing, false),
             imploderVariant, tokenizerVariant);
     }
 

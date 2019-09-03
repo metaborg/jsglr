@@ -45,7 +45,7 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<StringIn
         IntegrationVariant variant = new IntegrationVariant(
             new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
             new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
-                parseForestConstruction, stackRepresentation, reducing),
+                parseForestConstruction, stackRepresentation, reducing, false),
             imploderVariant, tokenizerVariant);
         System.out.println("JSGLR2 PT Var: " + variant.name());
         if(variant.equals(new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,

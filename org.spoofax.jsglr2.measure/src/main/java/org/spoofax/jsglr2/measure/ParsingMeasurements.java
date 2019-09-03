@@ -39,13 +39,13 @@ public class ParsingMeasurements extends Measurements {
 
         ParserVariant variantStandard = new ParserVariant(ActiveStacksRepresentation.ArrayList,
             ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
-            StackRepresentation.HybridElkhound, Reducing.Basic);
+            StackRepresentation.HybridElkhound, Reducing.Basic, false);
         ParserVariant variantElkhound = new ParserVariant(ActiveStacksRepresentation.ArrayList,
             ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full,
-            StackRepresentation.HybridElkhound, Reducing.Elkhound);
+            StackRepresentation.HybridElkhound, Reducing.Elkhound, false);
         ParserVariant variantOptimzedParseForest = new ParserVariant(ActiveStacksRepresentation.ArrayList,
             ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Basic);
+            ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Basic, false);
 
         measure(parseTable, variantStandard, "standard");
         measure(parseTable, variantElkhound, "elkhound");

@@ -58,7 +58,7 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
     static ParseTableVariant naiveTableVariant     = new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop);
     static ParseTableVariant bestParseTableVariant = new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted, ProductionToGotoRepresentation.JavaHashMap);
 
-    static ParserVariant naiveParserVariant = new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic);
+    static ParserVariant naiveParserVariant = new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic, false);
     
     static ImploderVariant imploderVariant = ImploderVariant.TokenizedRecursive;
     static TokenizerVariant tokenizerVariant = TokenizerVariant.Null;
@@ -72,28 +72,28 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
         
         // Variants for parser variants
         // - Stack collections
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList,        ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayListHashMap, ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.LinkedHashMap,    ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList,        ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayListHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.LinkedHashMap,    ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList,        ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayListHashMap, ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.LinkedHashMap,    ForActorStacksRepresentation.ArrayDeque,    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList,        ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayListHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.LinkedHashMap,    ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic, Reducing.Basic, false), imploderVariant, tokenizerVariant),
         
         // - Data structures
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Basic,  Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Hybrid, Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.Basic,  Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.Hybrid, Reducing.Basic), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Basic,  Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Basic,  ParseForestConstruction.Full, StackRepresentation.Hybrid, Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.Basic,  Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.Hybrid, Reducing.Basic, false), imploderVariant, tokenizerVariant),
 
         // - Elkhound
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Basic),    imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Elkhound), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Basic,    false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound, Reducing.Elkhound, false), imploderVariant, tokenizerVariant),
         
         // - Parse forest construction
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid, Reducing.Basic), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid, Reducing.Basic, false), imploderVariant, tokenizerVariant),
 
         // - Best
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound, false), imploderVariant, tokenizerVariant),
 
         // - Naive
         new IntegrationVariant(naiveTableVariant, naiveParserVariant, imploderVariant, tokenizerVariant)
@@ -101,8 +101,8 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
     
     static List<IntegrationVariant> benchmarkParseAndImplodeVariants = Arrays.asList(
         new IntegrationVariant(naiveTableVariant, naiveParserVariant, imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid, Reducing.Basic), imploderVariant, tokenizerVariant),
-        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound), imploderVariant, tokenizerVariant)
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid, Reducing.Basic, false), imploderVariant, tokenizerVariant),
+        new IntegrationVariant(bestParseTableVariant, new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound, false), imploderVariant, tokenizerVariant)
     );
     //@formatter:on
 

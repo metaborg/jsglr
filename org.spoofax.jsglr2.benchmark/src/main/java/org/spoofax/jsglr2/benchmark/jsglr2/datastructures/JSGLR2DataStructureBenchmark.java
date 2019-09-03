@@ -38,7 +38,7 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringI
             (IObservableParser<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>>) new ParserVariant(
                 ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.Basic).getParser(parseTable);
+                Reducing.Basic, false).getParser(parseTable);
 
         postParserSetup();
 

@@ -32,16 +32,19 @@ public class ParserVariant {
     public final ParseForestConstruction parseForestConstruction;
     public final StackRepresentation stackRepresentation;
     public final Reducing reducing;
+    public final boolean recovery;
 
     public ParserVariant(ActiveStacksRepresentation activeStacksRepresentation,
         ForActorStacksRepresentation forActorStacksRepresentation, ParseForestRepresentation parseForestRepresentation,
-        ParseForestConstruction parseForestConstruction, StackRepresentation stackRepresentation, Reducing reducing) {
+        ParseForestConstruction parseForestConstruction, StackRepresentation stackRepresentation, Reducing reducing,
+        boolean recovery) {
         this.activeStacksRepresentation = activeStacksRepresentation;
         this.forActorStacksRepresentation = forActorStacksRepresentation;
         this.parseForestRepresentation = parseForestRepresentation;
         this.parseForestConstruction = parseForestConstruction;
         this.stackRepresentation = stackRepresentation;
         this.reducing = reducing;
+        this.recovery = recovery;
     }
 
     public boolean isValid() {
@@ -60,15 +63,19 @@ public class ParserVariant {
             (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive) == (reducing == Reducing.LayoutSensitive);
         boolean validDataDependent =
             (parseForestRepresentation == ParseForestRepresentation.DataDependent) == (reducing == Reducing.DataDependent);
+        // Recovery and incremental parsing not simultaneously supported
+        boolean validRecoveryIncremental =
+            !(parseForestRepresentation == ParseForestRepresentation.Incremental && recovery);
 
-        return validElkhound && validParseForest && validIncremental && validLayoutSensitive && validDataDependent;
+        return validElkhound && validParseForest && validIncremental && validLayoutSensitive && validDataDependent
+            && validRecoveryIncremental;
     }
 
     public String name() {
         return "ActiveStacksRepresentation:" + activeStacksRepresentation + "/ForActorStacksRepresentation:"
             + forActorStacksRepresentation + "/ParseForestRepresentation:" + parseForestRepresentation
             + "/ParseForestConstruction:" + parseForestConstruction + "/StackRepresentation:" + stackRepresentation
-            + "/Reducing:" + reducing;
+            + "/Reducing:" + reducing + "/Recovery:" + recovery;
     }
 
     @Override public boolean equals(Object o) {
@@ -83,7 +90,8 @@ public class ParserVariant {
             && forActorStacksRepresentation == that.forActorStacksRepresentation
             && parseForestRepresentation == that.parseForestRepresentation
             && parseForestConstruction == that.parseForestConstruction
-            && stackRepresentation == that.stackRepresentation && reducing == that.reducing;
+            && stackRepresentation == that.stackRepresentation && reducing == that.reducing
+            && recovery == that.recovery;
     }
 
     public IParser<? extends IParseForest> getParser(IParseTable parseTable) {

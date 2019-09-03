@@ -76,6 +76,9 @@ public class JSGLR2CLI implements Runnable {
             description = "Reducing implementation: ${COMPLETION-CANDIDATES}") private Reducing reducing =
                 Reducing.standard();
 
+        @Option(names = { "--recovery" }, description = "Recovery: ${COMPLETION-CANDIDATES}") private boolean recovery =
+            false;
+
         @Option(names = { "--imploder" },
             description = "Imploder variant: ${COMPLETION-CANDIDATES}") private ImploderVariant imploderVariant =
                 ImploderVariant.standard();
@@ -86,7 +89,7 @@ public class JSGLR2CLI implements Runnable {
 
         JSGLR2Variant getVariant() throws WrappedException {
             ParserVariant parserVariant = new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation,
-                parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
+                parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing, recovery);
 
             JSGLR2Variant variant = new JSGLR2Variant(parserVariant, imploderVariant, tokenizerVariant);
 

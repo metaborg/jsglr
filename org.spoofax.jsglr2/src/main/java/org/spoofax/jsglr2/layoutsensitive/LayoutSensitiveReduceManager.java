@@ -45,8 +45,8 @@ public class LayoutSensitiveReduceManager
                     ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
 
                     for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
-                        // Skip the reduction if the constraint evaluates to false or if it is not present
-                        if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false))
+                        // Skip the reduction if the constraint evaluates to false
+                        if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(true))
                             continue pathsLoop;
                     }
                 }

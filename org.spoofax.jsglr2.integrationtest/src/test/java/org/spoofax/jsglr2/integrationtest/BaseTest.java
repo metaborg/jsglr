@@ -74,7 +74,7 @@ public abstract class BaseTest implements WithParseTable {
         }
 
         JSGLR2<IStrategoTerm> jsglr2() {
-            return JSGLR2Variants.getJSGLR2(parseTableWithOrigin.parseTable, variant.jsglr2);
+            return variant.jsglr2.getJSGLR2(parseTableWithOrigin.parseTable);
         }
 
     }

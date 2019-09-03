@@ -12,7 +12,7 @@ public class VariantTest {
      */
     @Test public void testPresetVariants() {
         for (JSGLR2Variants enumValue : JSGLR2Variants.values()) {
-            JSGLR2Variants.getJSGLR2(null, enumValue.variant);
+            enumValue.variant.getJSGLR2(null);
         }
     }
 

@@ -126,6 +126,47 @@ public enum JSGLR2Variants {
             return parser.isValid()
                 && (imploder == ImploderVariant.TokenizedRecursive) == (tokenizer == TokenizerVariant.Null);
         }
+
+        private <ParseForest extends IParseForest> IImploder<ParseForest, TreeImploder.SubTree<IStrategoTerm>>
+            getImploder() {
+            switch(this.imploder) {
+                default:
+                case Recursive:
+                    return new StrategoTermImploder<>();
+                case RecursiveIncremental:
+                    return new IncrementalStrategoTermImploder<>();
+                case Iterative:
+                    return new IterativeStrategoTermImploder<>();
+            }
+        }
+
+        private ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm> getTokenizer() {
+            switch(this.tokenizer) {
+                default:
+                case Null:
+                    return (input, filename, implodeResult) -> new TokenizeResult<>(null, implodeResult.tree);
+                case Recursive:
+                    return new StrategoTermTokenizer();
+                case Iterative:
+                    return new IterativeStrategoTermTokenizer();
+            }
+        }
+
+        public JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable) {
+            if(!this.isValid())
+                throw new IllegalStateException("Invalid JSGLR2 variant");
+
+            @SuppressWarnings("unchecked") final IParser<IParseForest> parser =
+                (IParser<IParseForest>) this.parser.getParser(parseTable);
+
+            if(this.parser.parseForestRepresentation == ParseForestRepresentation.Null)
+                return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), new NullTokenizer<>());
+
+            if(this.imploder == ImploderVariant.TokenizedRecursive)
+                return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new NullTokenizer<>());
+
+            return new JSGLR2Implementation<>(parser, getImploder(), getTokenizer());
+        }
     }
 
     public static class ParserVariant {
@@ -316,51 +357,11 @@ public enum JSGLR2Variants {
         return parsers;
     }
 
-    private static <ParseForest extends IParseForest> IImploder<ParseForest, TreeImploder.SubTree<IStrategoTerm>>
-        getImploder(Variant variant) {
-        switch(variant.imploder) {
-            default:
-            case Recursive:
-                return new StrategoTermImploder<>();
-            case RecursiveIncremental:
-                return new IncrementalStrategoTermImploder<>();
-            case Iterative:
-                return new IterativeStrategoTermImploder<>();
-        }
-    }
-
-    private static ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm> getTokenizer(Variant variant) {
-        switch(variant.tokenizer) {
-            default:
-            case Null:
-                return (input, filename, implodeResult) -> new TokenizeResult<>(null, implodeResult.tree);
-            case Recursive:
-                return new StrategoTermTokenizer();
-            case Iterative:
-                return new IterativeStrategoTermTokenizer();
-        }
-    }
-
-    public static JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable, Variant variant) {
-        @SuppressWarnings("unchecked") final IParser<IParseForest> parser =
-            (IParser<IParseForest>) variant.parser.getParser(parseTable);
-
-        if(variant.parser.parseForestRepresentation == ParseForestRepresentation.Null)
-            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), new NullTokenizer<>());
-
-        if(variant.imploder == ImploderVariant.TokenizedRecursive)
-            return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new NullTokenizer<>());
-
-        return new JSGLR2Implementation<>(parser, getImploder(variant), getTokenizer(variant));
-    }
-
     public static List<JSGLR2<IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
         List<JSGLR2<IStrategoTerm>> jsglr2s = new ArrayList<>();
 
         for(Variant variant : allVariants()) {
-            JSGLR2<IStrategoTerm> jsglr2 = getJSGLR2(parseTable, variant);
-
-            jsglr2s.add(jsglr2);
+            jsglr2s.add(variant.getJSGLR2(parseTable));
         }
 
         return jsglr2s;

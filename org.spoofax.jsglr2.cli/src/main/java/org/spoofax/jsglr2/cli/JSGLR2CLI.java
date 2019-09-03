@@ -44,6 +44,9 @@ public class JSGLR2CLI implements Runnable {
     @Option(names = { "-im", "--implode" }, negatable = true,
         description = "Implode parse tree to AST") private boolean implode = true;
 
+    @Option(names = { "-p", "--preset" },
+        description = "Parser variant preset: ${COMPLETION-CANDIDATES}") private JSGLR2Variant.Preset preset = null;
+
     @ArgGroup(exclusive = false, validate = false, heading = "Parser variant%n") ParserVariantOptions parserVariant =
         new ParserVariantOptions();
 
@@ -151,10 +154,9 @@ public class JSGLR2CLI implements Runnable {
 
     public void run() {
         try {
-            JSGLR2Variant variant = parserVariant.getVariant();
             IParseTable parseTable = getParseTable();
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
-                (JSGLR2Implementation<?, ?, IStrategoTerm>) variant.getJSGLR2(parseTable);
+                (JSGLR2Implementation<?, ?, IStrategoTerm>) getJSGLR2(parseTable);
             IObservableParser<?, ?, ?> observableParser = (IObservableParser<?, ?, ?>) jsglr2.parser;
 
             outputStream = outputStream();
@@ -176,6 +178,13 @@ public class JSGLR2CLI implements Runnable {
         } catch(WrappedException e) {
             failOnWrappedException(e, verbose);
         }
+    }
+
+    private JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable) throws WrappedException {
+        if(preset == null)
+            return parserVariant.getVariant().getJSGLR2(parseTable);
+        else
+            return preset.getJSGLR2(parseTable);
     }
 
     private void parse(IParser<?> parser) {

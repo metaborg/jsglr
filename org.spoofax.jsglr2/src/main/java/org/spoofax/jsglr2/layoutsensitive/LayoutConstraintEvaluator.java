@@ -60,9 +60,7 @@ public class LayoutConstraintEvaluator<ParseForest extends LayoutSensitiveParseF
     private int evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
 
         if(layoutConstraint instanceof NumericLayoutConstraint) {
-            ParseForest tree = parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()]; // selectCorrectTree(((NumericLayoutConstraint)
-                                                                                                   // layoutConstraint).getTree(),
-                                                                                                   // parseNodes);
+            ParseForest tree = parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()];
 
             if(tree instanceof LayoutSensitiveParseNode
                 && ((LayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
@@ -117,30 +115,6 @@ public class LayoutConstraintEvaluator<ParseForest extends LayoutSensitiveParseF
         }
 
         throw new Exception("Could not evaluate constraint: " + layoutConstraint);
-    }
-
-    // skip LAYOUT?-CF nodes
-    private ParseForest selectCorrectTree(int tree, ParseForest[] parseNodes) throws Exception {
-
-        int treeCount = tree;
-
-        for(int i = 0; i < parseNodes.length; i++) {
-            ParseForest current = parseNodes[i];
-            if(current == null || current instanceof LayoutSensitiveParseNode) {
-                if(current == null || ((LayoutSensitiveParseNode) current).production().isLayout()) {
-                    continue;
-                } else {
-                    treeCount--;
-                }
-            } else {
-                throw new Exception("Could not select correct tree at index " + tree);
-            }
-            if(treeCount == 0) {
-                return current;
-            }
-        }
-
-        throw new Exception("Could not select correct tree at index " + tree);
     }
 
 }

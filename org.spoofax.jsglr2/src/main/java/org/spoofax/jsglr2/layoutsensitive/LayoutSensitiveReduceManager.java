@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.layoutsensitive;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
-import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.sdf2table.grammar.LayoutConstraintAttribute;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -45,17 +44,13 @@ public class LayoutSensitiveReduceManager
 
                 boolean skipReduce = false;
 
-                IProduction prod = reduce.production();
-                if(prod instanceof ParseTableProduction) {
-                    if(!((ParseTableProduction) prod).getLayoutConstraints().isEmpty()) {
-                        for(LayoutConstraintAttribute lca : ((ParseTableProduction) prod).getLayoutConstraints()) {
-                            try {
-                                if(!lce.evaluate(lca.getLayoutConstraint(), parseNodes)) {
-                                    skipReduce = true;
-                                    break;
-                                }
-                            } catch(Exception e) {
-                                System.err.println(e.getMessage());
+                if(reduce.production() instanceof ParseTableProduction) {
+                    ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
+
+                    if(!sdf2tableProduction.getLayoutConstraints().isEmpty()) {
+                        for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
+                            // Skip the reduction if the constraint evaluates to false or if it is not present
+                            if(!lce.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(false)) {
                                 skipReduce = true;
                                 break;
                             }

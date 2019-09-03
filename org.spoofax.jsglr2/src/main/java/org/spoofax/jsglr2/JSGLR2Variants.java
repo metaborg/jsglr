@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import org.metaborg.parsetable.IParseTable;
@@ -312,59 +310,6 @@ public enum JSGLR2Variants {
             }
             // @formatter:on
         }
-    }
-
-    public static List<Variant> allVariants() {
-        List<Variant> variants = new ArrayList<>();
-
-        for(ActiveStacksRepresentation activeStacksRepresentation : ActiveStacksRepresentation.values()) {
-            for(ForActorStacksRepresentation forActorStacksRepresentation : ForActorStacksRepresentation.values()) {
-                for(ParseForestRepresentation parseForestRepresentation : ParseForestRepresentation.values()) {
-                    if(parseForestRepresentation != ParseForestRepresentation.Null)
-                        for(ParseForestConstruction parseForestConstruction : ParseForestConstruction.values()) {
-                            for(StackRepresentation stackRepresentation : StackRepresentation.values()) {
-                                for(Reducing reducing : Reducing.values()) {
-                                    ParserVariant parserVariant = new ParserVariant(activeStacksRepresentation,
-                                        forActorStacksRepresentation, parseForestRepresentation,
-                                        parseForestConstruction, stackRepresentation, reducing);
-
-                                    if(parserVariant.isValid())
-                                        for(ImploderVariant imploderVariant : ImploderVariant.values()) {
-                                            for(TokenizerVariant tokenizerVariant : TokenizerVariant.values()) {
-                                                Variant variant =
-                                                    new Variant(parserVariant, imploderVariant, tokenizerVariant);
-                                                if(variant.isValid())
-                                                    variants.add(variant);
-                                            }
-                                        }
-                                }
-                            }
-                        }
-                }
-            }
-        }
-
-        return variants;
-    }
-
-    public static List<IParser<?>> allParsers(IParseTable parseTable) {
-        List<IParser<?>> parsers = new ArrayList<>();
-
-        for(Variant variant : allVariants()) {
-            parsers.add(variant.parser.getParser(parseTable));
-        }
-
-        return parsers;
-    }
-
-    public static List<JSGLR2<IStrategoTerm>> allJSGLR2(IParseTable parseTable) {
-        List<JSGLR2<IStrategoTerm>> jsglr2s = new ArrayList<>();
-
-        for(Variant variant : allVariants()) {
-            jsglr2s.add(variant.getJSGLR2(parseTable));
-        }
-
-        return jsglr2s;
     }
 
 }

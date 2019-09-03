@@ -70,7 +70,7 @@ public abstract class BaseTest implements WithParseTable {
         }
 
         IParser<?> parser() {
-            return JSGLR2Variants.getParser(parseTableWithOrigin.parseTable, variant.parser);
+            return variant.parser.getParser(parseTableWithOrigin.parseTable);
         }
 
         JSGLR2<IStrategoTerm> jsglr2() {

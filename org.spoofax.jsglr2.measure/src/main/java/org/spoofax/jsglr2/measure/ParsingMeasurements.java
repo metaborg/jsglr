@@ -67,8 +67,8 @@ public class ParsingMeasurements extends Measurements {
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
             @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>> parser =
-                (IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) JSGLR2Variants
-                    .getParser(parseTable, variant);
+                (IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) variant
+                    .getParser(parseTable);
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<>();
 

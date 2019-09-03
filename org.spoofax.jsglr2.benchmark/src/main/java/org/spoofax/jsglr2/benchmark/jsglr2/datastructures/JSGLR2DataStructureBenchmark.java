@@ -5,7 +5,6 @@ import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
@@ -36,11 +35,10 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringI
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
         parser =
-            (IObservableParser<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>>) JSGLR2Variants
-                .getParser(parseTable,
-                    new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                        ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
-                        Reducing.Basic));
+            (IObservableParser<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>>) new ParserVariant(
+                ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
+                Reducing.Basic).getParser(parseTable);
 
         postParserSetup();
 

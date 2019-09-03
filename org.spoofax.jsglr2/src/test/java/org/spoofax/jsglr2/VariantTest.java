@@ -8,7 +8,7 @@ public class VariantTest {
     /**
      * This test will throw an IllegalStateException in JSGLR2Variants.getParser if the preset variants are invalid.
      * 
-     * @see JSGLR2Variants#getParser(IParseTable, JSGLR2Variants.ParserVariant)
+     * @see JSGLR2Variants.ParserVariant#getParser(IParseTable)
      */
     @Test public void testPresetVariants() {
         for (JSGLR2Variants enumValue : JSGLR2Variants.values()) {

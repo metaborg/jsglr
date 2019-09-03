@@ -18,6 +18,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -80,9 +81,8 @@ public class JSGLR2CLI implements Runnable {
                 TokenizerVariant.standard();
 
         JSGLR2Variants.Variant getVariant() throws WrappedException {
-            JSGLR2Variants.ParserVariant parserVariant =
-                new JSGLR2Variants.ParserVariant(activeStacksRepresentation, forActorStacksRepresentation,
-                    parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
+            ParserVariant parserVariant = new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation,
+                parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
 
             JSGLR2Variants.Variant variant =
                 new JSGLR2Variants.Variant(parserVariant, imploderVariant, tokenizerVariant);

@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -20,11 +19,11 @@ public class Parse
     ParseState_  extends IParseState<ParseForest_, StackNode_>,
     Parse_       extends AbstractParse<ParseForest_, StackNode_, ParseState_>>
 //@formatter:on
-    ParseFactory<ParseForest_, StackNode_, ParseState_, Parse_> factory(JSGLR2Variants.ParserVariant variant) {
+    ParseFactory<ParseForest_, StackNode_, ParseState_, Parse_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> (Parse_) new Parse<>(variant, inputString, filename, observing);
     }
 
-    public Parse(JSGLR2Variants.ParserVariant variant, String inputString, String filename,
+    public Parse(ParserVariant variant, String inputString, String filename,
         ParserObserving<ParseForest, StackNode, ParseState> observing) {
         super(variant, inputString, filename, observing);
     }

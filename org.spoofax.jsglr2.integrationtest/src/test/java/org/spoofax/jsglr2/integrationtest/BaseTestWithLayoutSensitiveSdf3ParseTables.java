@@ -1,54 +1,49 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.BeforeClass;
-import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.sdf2table.io.ParseTableIO;
-import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
-import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.parser.result.ParseResult;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-
-public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTest {
-
-    private String sdf3Resource;
-    private static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
+public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
     protected BaseTestWithLayoutSensitiveSdf3ParseTables(String sdf3Resource) {
-        this.sdf3Resource = sdf3Resource;
+        super(sdf3Resource);
     }
 
-    private static Sdf3ToParseTable sdf3ToParseTable;
-
-    @BeforeClass public static void setup() throws MetaborgException {
-        sdf3ToParseTable = new Sdf3ToParseTable(resource -> BaseTestWithLayoutSensitiveSdf3ParseTables.class
-            .getClassLoader().getResource(resource).getPath());
+    @Override public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
+        return sdf3ToParseTable.getLayoutSensitiveParseTable(variant, sdf3Resource);
     }
 
-    public ParseTableWithOrigin getParseTable(ParseTableVariant variant) throws Exception {
-        if(!parseTableTable.contains(sdf3Resource, variant)) {
-            parseTableTable.put(sdf3Resource, variant,
-                sdf3ToParseTable.getLayoutSensitiveParseTable(variant, sdf3Resource));
+    protected void testLayoutSensitiveParseFailure(String inputString) {
+        for(TestVariant variant : getTestVariants()) {
+            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
+                continue;
+
+            ParseResult<?> parseResult = variant.parser().parse(inputString);
+
+            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
         }
-        return new ParseTableWithOrigin(parseTableTable.get(sdf3Resource, variant), ParseTableOrigin.Sdf3Generation);
     }
 
-    @Override public Iterable<ParseTableWithOrigin> getParseTables(ParseTableVariant variant) throws Exception {
-        ParseTableWithOrigin parseTableWithOrigin = getParseTable(variant);
+    protected void testLayoutSensitiveSuccessByExpansions(String inputString, String expectedOutputAstString) {
+        testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
+    }
 
-        IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTableWithOrigin.parseTable);
+    private void testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString, String startSymbol,
+        boolean equalityByExpansions) {
+        for(TestVariant variant : getTestVariants()) {
+            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
+                continue;
 
-        ParseTableWithOrigin parseTableWithOriginSerializedDeserialized =
-            new ParseTableWithOrigin(variant.parseTableReader().read(parseTableTerm), ParseTableOrigin.ATerm);
+            IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
-        // Ensure that the parse table that directly comes from the generation behaves the same after
-        // serialization/deserialization to/from term format
-        return Arrays.asList(parseTableWithOrigin, parseTableWithOriginSerializedDeserialized);
+            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
+                actualOutputAst, equalityByExpansions);
+        }
     }
 
 }

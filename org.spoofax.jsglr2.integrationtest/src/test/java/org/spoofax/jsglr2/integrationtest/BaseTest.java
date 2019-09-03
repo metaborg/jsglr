@@ -93,7 +93,6 @@ public abstract class BaseTest implements WithParseTable {
                     continue;
                 }
 
-
                 if(filter.test(testVariant))
                     testVariants.add(testVariant);
             }
@@ -122,27 +121,12 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    protected void testLayoutSensitiveParseFailure(String inputString) {
-        for(TestVariant variant : getTestVariants()) {
-            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
-                continue;
-
-            ParseResult<?> parseResult = variant.parser().parse(inputString);
-
-            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
-        }
-    }
-
     protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, null, false);
     }
 
     protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
         testSuccess(inputString, expectedOutputAstString, null, true);
-    }
-
-    protected void testLayoutSensitiveSuccessByExpansions(String inputString, String expectedOutputAstString) {
-        testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
     }
 
     protected void testIncrementalSuccessByExpansions(String[] inputStrings, String[] expectedOutputAstStrings) {
@@ -160,19 +144,6 @@ public abstract class BaseTest implements WithParseTable {
     private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
         for(TestVariant variant : getTestVariants()) {
-            IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
-
-            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
-                actualOutputAst, equalityByExpansions);
-        }
-    }
-
-    private void testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString, String startSymbol,
-        boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants()) {
-            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
-                continue;
-
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
@@ -218,7 +189,7 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    private void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,
+    protected void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,
         boolean equalityByExpansions) {
         if(equalityByExpansions) {
             IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);

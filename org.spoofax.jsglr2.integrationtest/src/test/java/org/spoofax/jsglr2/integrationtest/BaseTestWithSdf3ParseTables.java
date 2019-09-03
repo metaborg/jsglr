@@ -16,14 +16,14 @@ import com.google.common.collect.Table;
 
 public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
-    private String sdf3Resource;
-    private static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
+    protected String sdf3Resource;
+    protected static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
 
     protected BaseTestWithSdf3ParseTables(String sdf3Resource) {
         this.sdf3Resource = sdf3Resource;
     }
 
-    private static Sdf3ToParseTable sdf3ToParseTable;
+    protected static Sdf3ToParseTable sdf3ToParseTable;
 
     @BeforeClass public static void setup() throws MetaborgException {
         sdf3ToParseTable = new Sdf3ToParseTable(
@@ -32,9 +32,13 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
     public ParseTableWithOrigin getParseTable(ParseTableVariant variant) throws Exception {
         if(!parseTableTable.contains(sdf3Resource, variant)) {
-            parseTableTable.put(sdf3Resource, variant, sdf3ToParseTable.getParseTable(variant, sdf3Resource));
+            parseTableTable.put(sdf3Resource, variant, getParseTable(variant, sdf3Resource));
         }
         return new ParseTableWithOrigin(parseTableTable.get(sdf3Resource, variant), ParseTableOrigin.Sdf3Generation);
+    }
+
+    public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
+        return sdf3ToParseTable.getParseTable(variant, sdf3Resource);
     }
 
     @Override public Iterable<ParseTableWithOrigin> getParseTables(ParseTableVariant variant) throws Exception {

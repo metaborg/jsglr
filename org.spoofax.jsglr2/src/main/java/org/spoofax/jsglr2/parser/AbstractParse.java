@@ -28,8 +28,6 @@ public abstract class AbstractParse
     final public String inputString;
     final public int inputLength;
 
-    final public Map<Integer, Object> longestMatchPos = Maps.newHashMap();
-
     public int currentChar; // Current ASCII char in range [0, 256]
     public int currentOffset, currentLine, currentColumn;
 

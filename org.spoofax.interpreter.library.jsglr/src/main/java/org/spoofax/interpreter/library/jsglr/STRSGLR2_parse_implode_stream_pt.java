@@ -8,6 +8,7 @@ import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2;
+import org.spoofax.jsglr2.JSGLR2Variant;
 
 import java.io.IOException;
 
@@ -62,7 +63,7 @@ public class STRSGLR2_parse_implode_stream_pt extends JSGLRPrimitive {
 	}
 
 	private static IStrategoTerm doParse(String input, String startSymbol, IParseTable pt, String path) {
-		JSGLR2<IStrategoTerm> parser = JSGLR2.standard(pt);
+		JSGLR2<IStrategoTerm> parser = JSGLR2Variant.Preset.standard.getJSGLR2(pt);
 
 		return parser.parse(input, path, startSymbol);
 	}

@@ -56,7 +56,8 @@ public class IncrementalParser
         StackManager stackManager,
         ParseForestManager<IncrementalParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, ReduceManager> reduceManagerFactory,
-        IParseFailureHandler failureHandler, ParserObserving observing) {
+        IParseFailureHandler<IncrementalParseForest, StackNode, ParseState, Parse> failureHandler,
+        ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
         super(parseFactory, parseTable, stackManager, parseForestManager, reduceManagerFactory, failureHandler,
             observing);
         this.incrementalParseFactory = incrementalParseFactory;

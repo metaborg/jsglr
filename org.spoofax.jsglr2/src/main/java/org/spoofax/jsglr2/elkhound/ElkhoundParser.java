@@ -15,7 +15,6 @@ import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 
@@ -38,10 +37,8 @@ public class ElkhoundParser
         IParseTable parseTable, StackManager stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory,
-        IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState, Parse> failureHandler,
-        ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing) {
-        super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory, failureHandler,
-            observing);
+        IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState, Parse> failureHandler) {
+        super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory, failureHandler);
     }
 
     @Override protected void parseLoop(Parse parse) {

@@ -42,15 +42,14 @@ public class Parser
     public Parser(ParseFactory<ParseForest, StackNode, ParseState, Parse> parseFactory, IParseTable parseTable,
         StackManager stackManager, ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse, StackManager, ReduceManager> reduceManagerFactory,
-        IParseFailureHandler<ParseForest, StackNode, ParseState, Parse> failureHandler,
-        ParserObserving<ParseForest, StackNode, ParseState> observing) {
+        IParseFailureHandler<ParseForest, StackNode, ParseState, Parse> failureHandler) {
         this.parseFactory = parseFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
         this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager);
         this.failureHandler = failureHandler;
-        this.observing = observing;
+        this.observing = new ParserObserving<>();
     }
 
     @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {

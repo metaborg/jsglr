@@ -7,7 +7,6 @@ import org.metaborg.parsetable.query.ActionsForCharacterSeparated;
 import org.metaborg.parsetable.query.ActionsPerCharacterClass;
 import org.metaborg.parsetable.query.ProductionToGotoForLoop;
 import org.metaborg.parsetable.states.State;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
@@ -15,6 +14,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.parser.AbstractParse;
 import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseFactory;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -32,14 +32,13 @@ public class IncrementalParse
     public static final State NO_STATE = new State(-1,
         new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
 
-    public IncrementalParse(JSGLR2Variants.ParserVariant variant, List<EditorUpdate> editorUpdates,
-        IncrementalParseForest previous, String inputString, String filename,
-        ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
+    public IncrementalParse(ParserVariant variant, List<EditorUpdate> editorUpdates, IncrementalParseForest previous,
+        String inputString, String filename, ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
         super(variant, inputString, filename, observing);
         initParse(processUpdates.processUpdates(previous, editorUpdates), inputString);
     }
 
-    public IncrementalParse(JSGLR2Variants.ParserVariant variant, String inputString, String filename,
+    public IncrementalParse(ParserVariant variant, String inputString, String filename,
         ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
         super(variant, inputString, filename, observing);
         initParse(processUpdates.getParseNodeFromString(inputString), inputString);
@@ -52,14 +51,14 @@ public class IncrementalParse
 
     public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
         IncrementalParseFactory<StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
-        incrementalFactory(JSGLR2Variants.ParserVariant variant) {
+        incrementalFactory(ParserVariant variant) {
         return (editorUpdates, previousVersion, inputString, filename, observing) -> new IncrementalParse<>(variant,
             editorUpdates, previousVersion, inputString, filename, observing);
     }
 
     public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
         ParseFactory<IncrementalParseForest, StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
-        factory(JSGLR2Variants.ParserVariant variant) {
+        factory(ParserVariant variant) {
         return (inputString, filename, observing) -> (IncrementalParse<StackNode_, ParseState_>) new IncrementalParse<>(
             variant, inputString, filename, observing);
     }

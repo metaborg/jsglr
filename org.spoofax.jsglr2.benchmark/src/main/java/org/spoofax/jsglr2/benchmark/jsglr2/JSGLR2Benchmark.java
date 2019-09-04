@@ -11,8 +11,6 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.JSGLR2Implementation;
-import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
@@ -21,6 +19,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
@@ -51,8 +50,8 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
 
         IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
-        parser = JSGLR2Variants.getParser(parseTable, variant.parser);
-        jsglr2 = (JSGLR2Implementation<?, ?, ?>) JSGLR2Variants.getJSGLR2(parseTable, variant.jsglr2);
+        jsglr2 = (JSGLR2Implementation<?, ?, ?>) variant.jsglr2.getJSGLR2(parseTable);
+        parser = jsglr2.parser;
     }
 
     //@formatter:off

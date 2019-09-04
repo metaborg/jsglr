@@ -5,7 +5,6 @@ import java.util.Queue;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.query.IActionQuery;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -38,7 +37,7 @@ public abstract class AbstractParse
 
     public final ParserObserving<ParseForest, StackNode, ParseState> observing;
 
-    public AbstractParse(JSGLR2Variants.ParserVariant variant, String inputString, String filename,
+    public AbstractParse(ParserVariant variant, String inputString, String filename,
         ParserObserving<ParseForest, StackNode, ParseState> observing) {
         this.filename = filename;
         this.inputString = inputString;

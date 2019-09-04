@@ -18,7 +18,6 @@ import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Success;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
@@ -70,11 +69,11 @@ public abstract class BaseTest implements WithParseTable {
         }
 
         IParser<?> parser() {
-            return JSGLR2Variants.getParser(parseTableWithOrigin.parseTable, variant.parser);
+            return variant.parser.getParser(parseTableWithOrigin.parseTable);
         }
 
         JSGLR2<IStrategoTerm> jsglr2() {
-            return JSGLR2Variants.getJSGLR2(parseTableWithOrigin.parseTable, variant.jsglr2);
+            return variant.jsglr2.getJSGLR2(parseTableWithOrigin.parseTable);
         }
 
     }

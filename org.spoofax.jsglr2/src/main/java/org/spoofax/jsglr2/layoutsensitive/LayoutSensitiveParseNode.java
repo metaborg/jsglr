@@ -79,7 +79,7 @@ public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
                 }
             }
         }
-        //
+
         if(disambiguatedLongestMatch) {
             LayoutSensitiveDerivation longestDerivation = derivations.get(currentLongestDerivation);
             derivations.clear();
@@ -104,33 +104,13 @@ public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
     }
 
     public List<PositionInterval> getLongestMatchPositions() {
-        // System.out.println("getting positions for " + this);
         if(longestMatchPos == null && !filteredLongestMatch) {
             filterLongestMatchDerivations();
+
             return longestMatchPos;
         } else {
             return longestMatchPos;
         }
-
     }
-
-    // @Override public String toString() {
-    // if(derivations.size() == 1) {
-    // return derivations.get(0).toString();
-    // }
-    // String buf = "amb(";
-    // int i = 0;
-    // for(LayoutSensitiveDerivation der : derivations) {
-    // if(der == null)
-    // continue;
-    // if(i != 0)
-    // buf += ", ";
-    // buf += der.toString();
-    // i++;
-    // }
-    // buf += ")";
-    //
-    // return buf;
-    // }
 
 }

@@ -11,11 +11,11 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
     }
 
     @Test public void alignmentMisaligned1() throws ParseError {
-        testLayoutSensitiveParseFailure("doAlignList s1 \n" + "       s2");
+        testLayoutSensitiveParseFiltered("doAlignList s1 \n" + "       s2");
     }
 
     @Test public void alignmentMisaligned2() throws ParseError {
-        testLayoutSensitiveParseFailure("doAlignList s1 \n" + "             s2");
+        testLayoutSensitiveParseFiltered("doAlignList s1 \n" + "             s2");
     }
 
     @Test public void alignmentAligned() throws ParseError {
@@ -23,11 +23,11 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
     }
 
     @Test public void explicitAlignmentMisaligned1() throws ParseError {
-        testLayoutSensitiveParseFailure("doAlign s1 \n" + "       s2");
+        testLayoutSensitiveParseFiltered("doAlign s1 \n" + "       s2");
     }
 
     @Test public void explicitAlignmentMisaligned2() throws ParseError {
-        testLayoutSensitiveParseFailure("doAlign s1 \n" + "         s2");
+        testLayoutSensitiveParseFiltered("doAlign s1 \n" + "         s2");
     }
 
     @Test public void explicitAlignmentAligned() throws ParseError {
@@ -64,15 +64,15 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
     }
 
     @Test public void indentExpressionFailed() throws ParseError {
-        testLayoutSensitiveParseFailure("doIndent \n" + "s1");
+        testLayoutSensitiveParseFiltered("doIndent \n" + "s1");
     }
 
     @Test public void newlineIndentExpressionFailed1() throws ParseError {
-        testLayoutSensitiveParseFailure("doNLIndent s1");
+        testLayoutSensitiveParseFiltered("doNLIndent s1");
     }
 
     @Test public void newlineIndentExpressionFailed2() throws ParseError {
-        testLayoutSensitiveParseFailure("doNLIndent \n" + "s1");
+        testLayoutSensitiveParseFiltered("doNLIndent \n" + "s1");
     }
 
     @Test public void newlineIndentExpression() throws ParseError {

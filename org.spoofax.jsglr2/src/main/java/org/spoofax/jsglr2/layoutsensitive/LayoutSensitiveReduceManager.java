@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.layoutsensitive;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
-import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.sdf2table.grammar.LayoutConstraintAttribute;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -27,8 +26,6 @@ public class LayoutSensitiveReduceManager
 //@formatter:on
     extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse> {
 
-    private LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
-
     public LayoutSensitiveReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
@@ -38,33 +35,20 @@ public class LayoutSensitiveReduceManager
 
     @Override protected void doReductionsHelper(Parse parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> throughLink) {
-        for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
+        pathsLoop: for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack,
+            reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
                 StackNode pathBegin = path.head();
                 ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-                boolean skipReduce = false;
+                if(reduce.production() instanceof ParseTableProduction) {
+                    ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
 
-                IProduction prod = reduce.production();
-                if(prod instanceof ParseTableProduction) {
-                    if(!((ParseTableProduction) prod).getLayoutConstraints().isEmpty()) {
-                        for(LayoutConstraintAttribute lca : ((ParseTableProduction) prod).getLayoutConstraints()) {
-                            try {
-                                if(!lce.evaluate(lca.getLayoutConstraint(), parseNodes)) {
-                                    skipReduce = true;
-                                    break;
-                                }
-                            } catch(Exception e) {
-                                System.err.println(e.getMessage());
-                                skipReduce = true;
-                                break;
-                            }
-                        }
+                    for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
+                        // Skip the reduction if the constraint evaluates to false
+                        if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(true))
+                            continue pathsLoop;
                     }
-                }
-
-                if(skipReduce) {
-                    continue;
                 }
 
                 reducer(parse, pathBegin, reduce, parseNodes);

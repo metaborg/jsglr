@@ -11,10 +11,7 @@ import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
-import org.spoofax.jsglr2.parser.ParseFactory;
-import org.spoofax.jsglr2.parser.ParserVariant;
+import org.spoofax.jsglr2.parser.*;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -33,14 +30,15 @@ public class IncrementalParse
         new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
 
     public IncrementalParse(ParserVariant variant, List<EditorUpdate> editorUpdates, IncrementalParseForest previous,
-        String inputString, String filename, ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
-        super(variant, inputString, filename, observing);
+        String inputString, String filename, ParserObserving<IncrementalParseForest, StackNode, ParseState> observing,
+        ParseState state) {
+        super(variant, inputString, filename, observing, state);
         initParse(processUpdates.processUpdates(previous, editorUpdates), inputString);
     }
 
     public IncrementalParse(ParserVariant variant, String inputString, String filename,
-        ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
-        super(variant, inputString, filename, observing);
+        ParserObserving<IncrementalParseForest, StackNode, ParseState> observing, ParseState state) {
+        super(variant, inputString, filename, observing, state);
         initParse(processUpdates.getParseNodeFromString(inputString), inputString);
     }
 
@@ -51,16 +49,18 @@ public class IncrementalParse
 
     public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
         IncrementalParseFactory<StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
-        incrementalFactory(ParserVariant variant) {
+        incrementalFactory(ParserVariant variant,
+            ParseStateFactory<IncrementalParseForest, StackNode_, ParseState_> parseStateFactory) {
         return (editorUpdates, previousVersion, inputString, filename, observing) -> new IncrementalParse<>(variant,
-            editorUpdates, previousVersion, inputString, filename, observing);
+            editorUpdates, previousVersion, inputString, filename, observing, parseStateFactory.get());
     }
 
     public static <StackNode_ extends IStackNode, ParseState_ extends IParseState<IncrementalParseForest, StackNode_>>
         ParseFactory<IncrementalParseForest, StackNode_, ParseState_, IncrementalParse<StackNode_, ParseState_>>
-        factory(ParserVariant variant) {
-        return (inputString, filename, observing) -> (IncrementalParse<StackNode_, ParseState_>) new IncrementalParse<>(
-            variant, inputString, filename, observing);
+        factory(ParserVariant variant,
+            ParseStateFactory<IncrementalParseForest, StackNode_, ParseState_> parseStateFactory) {
+        return (inputString, filename, observing) -> new IncrementalParse<>(variant, inputString, filename, observing,
+            parseStateFactory.get());
     }
 
     @Override public String actionQueryLookahead(int length) {

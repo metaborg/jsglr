@@ -37,8 +37,10 @@ public abstract class AbstractParse
 
     public final ParserObserving<ParseForest, StackNode, ParseState> observing;
 
+    public final ParseState state;
+
     public AbstractParse(ParserVariant variant, String inputString, String filename,
-        ParserObserving<ParseForest, StackNode, ParseState> observing) {
+        ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState state) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
@@ -56,6 +58,8 @@ public abstract class AbstractParse
         this.currentChar = getChar(currentOffset);
 
         this.observing = observing;
+
+        this.state = state;
     }
 
     public Position currentPosition() {

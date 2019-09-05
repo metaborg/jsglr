@@ -8,6 +8,6 @@ public interface IRecoveryState
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode>
-//@formatter:oN
+//@formatter:on
     extends IParseState<ParseForest, StackNode> {
 }

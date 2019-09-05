@@ -9,12 +9,14 @@ import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.parser.ParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 
 public class ProcessUpdatesTest {
 
-    private final ProcessUpdates<?> processUpdates = new ProcessUpdates<>(
-        new IncrementalParse<>(JSGLR2Variant.Preset.incremental.variant.parser, "", "", new ParserObserving<>()));
+    private final ProcessUpdates<?> processUpdates =
+        new ProcessUpdates<>(new IncrementalParse<>(JSGLR2Variant.Preset.incremental.variant.parser, "", "",
+            new ParserObserving<>(), new ParseState<>()));
 
     @Test public void testDeleteSubtree() {
         IncrementalParseNode previous = node(node(0, 1), node(2, 3), node(4, 5));

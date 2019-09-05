@@ -19,12 +19,14 @@ public class Parse
     ParseState_  extends IParseState<ParseForest_, StackNode_>,
     Parse_       extends AbstractParse<ParseForest_, StackNode_, ParseState_>>
 //@formatter:on
-    ParseFactory<ParseForest_, StackNode_, ParseState_, Parse_> factory(ParserVariant variant) {
-        return (inputString, filename, observing) -> (Parse_) new Parse<>(variant, inputString, filename, observing);
+    ParseFactory<ParseForest_, StackNode_, ParseState_, Parse_> factory(ParserVariant variant,
+        ParseStateFactory<ParseForest_, StackNode_, ParseState_> parseStateFactory) {
+        return (inputString, filename,
+            observing) -> (Parse_) new Parse<>(variant, inputString, filename, observing, parseStateFactory.get());
     }
 
     public Parse(ParserVariant variant, String inputString, String filename,
-        ParserObserving<ParseForest, StackNode, ParseState> observing) {
-        super(variant, inputString, filename, observing);
+        ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState state) {
+        super(variant, inputString, filename, observing, state);
     }
 }

@@ -4,6 +4,7 @@ import java.util.Queue;
 
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
@@ -28,10 +29,17 @@ public class RecoveryParserObserver
     implements IParserObserver<ParseForest, StackNode, ParseState> {
 
     @Override public void parseStart(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+        parse.state.initializeBacktrackChoicePoints(parse.inputString);
+        parse.state.saveBacktrackChoicePoint(parse.currentPosition(), parse.activeStacks);
     }
 
     @Override public void parseCharacter(AbstractParse<ParseForest, StackNode, ParseState> parse,
         Iterable<StackNode> activeStacks) {
+    }
+
+    @Override public void parseNext(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+        if(CharacterClassFactory.isNewLine(parse.currentChar))
+            parse.state.saveBacktrackChoicePoint(parse.currentPosition(), parse.activeStacks);
     }
 
     @Override public void addActiveStack(StackNode stack) {

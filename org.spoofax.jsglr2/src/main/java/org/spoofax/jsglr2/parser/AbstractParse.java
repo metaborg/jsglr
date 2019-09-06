@@ -84,6 +84,8 @@ public abstract class AbstractParse
                 currentColumn++;
             }
         }
+
+        observing.notify(observer -> observer.parseNext(this));
     }
 
     private int getChar(int position) {

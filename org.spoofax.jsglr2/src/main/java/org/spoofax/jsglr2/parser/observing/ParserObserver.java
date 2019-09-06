@@ -101,6 +101,9 @@ public abstract class ParserObserver
         Iterable<StackNode> activeStacks) {
     }
 
+    @Override public void parseNext(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+    }
+
     @Override public void addActiveStack(StackNode stack) {
     }
 

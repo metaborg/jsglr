@@ -16,7 +16,7 @@ public class ParseState
     StackNode_   extends IStackNode,
     ParseState_  extends IParseState<ParseForest_, StackNode_>>
 //@formatter:on
-   ParseStateFactory<ParseForest_, StackNode_, ParseState_> factory() {
+    ParseStateFactory<ParseForest_, StackNode_, ParseState_> factory() {
         return () -> (ParseState_) new ParseState<>();
     }
 

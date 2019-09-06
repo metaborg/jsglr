@@ -30,6 +30,8 @@ public interface IParserObserver
 
     void parseCharacter(AbstractParse<ParseForest, StackNode, ParseState> parse, Iterable<StackNode> activeStacks);
 
+    void parseNext(AbstractParse<ParseForest, StackNode, ParseState> parse);
+
     void addActiveStack(StackNode stack);
 
     void addForActorStack(StackNode stack);

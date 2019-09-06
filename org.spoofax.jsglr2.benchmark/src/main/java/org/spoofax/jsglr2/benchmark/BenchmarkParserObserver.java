@@ -29,6 +29,9 @@ public class BenchmarkParserObserver<ParseForest extends IParseForest, StackNode
         Iterable<StackNode> activeStacks) {
     }
 
+    @Override public void parseNext(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+    }
+
     @Override public void addActiveStack(StackNode stack) {
     }
 

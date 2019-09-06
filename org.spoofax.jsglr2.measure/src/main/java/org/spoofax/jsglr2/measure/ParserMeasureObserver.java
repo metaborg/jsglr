@@ -95,6 +95,10 @@ public class ParserMeasureObserver<ParseForest extends IParseForest> implements
         Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
     }
 
+    @Override public void parseNext(
+        AbstractParse<ParseForest, AbstractElkhoundStackNode<ParseForest>, IParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse) {
+    }
+
     @Override public void addActiveStack(AbstractElkhoundStackNode<ParseForest> stack) {
     }
 

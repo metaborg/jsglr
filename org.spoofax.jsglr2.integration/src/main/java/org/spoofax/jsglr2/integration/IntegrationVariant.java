@@ -67,6 +67,7 @@ public class IntegrationVariant {
             new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.Hybrid,         Reducing.Basic)),
             new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.Separated,      ProductionToGotoRepresentation.ForLoop),     new ParserVariant(ActiveStacksRepresentation.LinkedHashMap, ForActorStacksRepresentation.LinkedHashMap, ParseForestRepresentation.Hybrid, ParseForestConstruction.Optimized, StackRepresentation.HybridElkhound, Reducing.Elkhound)),*/
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.standard.variant),
+            new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.recovery.variant),
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.dataDependent.variant),
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.layoutSensitive.variant),
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.incremental.variant)

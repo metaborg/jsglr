@@ -106,6 +106,19 @@ public class JSGLR2Variant {
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
     
+        recovery(
+            new JSGLR2Variant(
+                new ParserVariant(
+                    ActiveStacksRepresentation.standard(),
+                    ForActorStacksRepresentation.standard(),
+                    ParseForestRepresentation.standard(),
+                    ParseForestConstruction.standard(),
+                    StackRepresentation.standard(),
+                    Reducing.standard(),
+                    true),
+                ImploderVariant.standard(),
+                TokenizerVariant.standard())),
+
         dataDependent(
             new JSGLR2Variant(
                 new ParserVariant(

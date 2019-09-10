@@ -46,7 +46,6 @@ public interface ReduceManagerFactory
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
         ParseState   extends AbstractParseState<ParseForest, StackNode>,
-        Parse        extends org.spoofax.jsglr2.parser.Parse<ParseForest, StackNode, ParseState>,
         StackManager extends AbstractStackManager<ParseForest, StackNode, ParseState>>
     //@formatter:on
     ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState>>
@@ -62,7 +61,6 @@ public interface ReduceManagerFactory
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends AbstractElkhoundStackNode<ParseForest>,
         ParseState   extends AbstractParseState<ParseForest, StackNode>,
-        Parse        extends org.spoofax.jsglr2.parser.Parse<ParseForest, StackNode, ParseState>,
         StackManager extends ElkhoundStackManager<ParseForest, StackNode, ParseState>>
     //@formatter:on
     ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ElkhoundReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState>>
@@ -78,7 +76,6 @@ public interface ReduceManagerFactory
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
         ParseState   extends AbstractParseState<ParseForest, StackNode>,
-        Parse        extends org.spoofax.jsglr2.parser.Parse<ParseForest, StackNode, ParseState>,
         StackManager extends AbstractStackManager<ParseForest, StackNode, ParseState>>
     //@formatter:on
     ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, DataDependentReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState>>
@@ -94,7 +91,6 @@ public interface ReduceManagerFactory
         Derivation   extends IDerivation<ParseForest>,
         StackNode    extends IStackNode,
         ParseState   extends AbstractParseState<ParseForest, StackNode>,
-        Parse        extends org.spoofax.jsglr2.parser.Parse<ParseForest, StackNode, ParseState>,
         StackManager extends AbstractStackManager<ParseForest, StackNode, ParseState>>
     //@formatter:on
     ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, LayoutSensitiveReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState>>

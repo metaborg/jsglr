@@ -15,8 +15,8 @@ import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
-import org.spoofax.jsglr2.parser.IParseState;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
@@ -63,8 +63,8 @@ public class ParsingMeasurements extends Measurements {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
-            @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>> parser =
-                (IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, IParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) variant
+            @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, AbstractParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>> parser =
+                (IObservableParser<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>, AbstractParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) variant
                     .getParser(parseTable);
 
             ParserMeasureObserver<HybridParseForest> measureObserver = new ParserMeasureObserver<>();

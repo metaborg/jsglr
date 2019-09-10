@@ -1,23 +1,19 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.query.IActionQuery;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public abstract class AbstractParse
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+public abstract class AbstractParseState
 //@formatter:off
    <ParseForest extends IParseForest,
-    StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>>
+    StackNode   extends IStackNode>
 //@formatter:on
     implements IActionQuery {
 
@@ -35,20 +31,16 @@ public abstract class AbstractParse
     public IForActorStacks<StackNode> forActorStacks;
     public Queue<ForShifterElement<StackNode>> forShifter;
 
-    public final ParserObserving<ParseForest, StackNode, ParseState> observing;
-
-    public final ParseState state;
-
-    public AbstractParse(ParserVariant variant, String inputString, String filename,
-        ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState state) {
+    protected AbstractParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+                                 IForActorStacks<StackNode> forActorStacks) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();
 
         this.acceptingStack = null;
 
-        this.activeStacks = new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
-        this.forActorStacks = new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
+        this.activeStacks = activeStacks;
+        this.forActorStacks = forActorStacks;
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
@@ -56,10 +48,6 @@ public abstract class AbstractParse
         this.currentColumn = 1;
 
         this.currentChar = getChar(currentOffset);
-
-        this.observing = observing;
-
-        this.state = state;
     }
 
     public Position currentPosition() {
@@ -84,11 +72,9 @@ public abstract class AbstractParse
                 currentColumn++;
             }
         }
-
-        observing.notify(observer -> observer.parseNext(this));
     }
 
-    private int getChar(int position) {
+    int getChar(int position) {
         if(position < inputLength) {
             char c = inputString.charAt(position);
 

@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
@@ -17,7 +17,7 @@ class StackDotVisualisationParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
     extends DotVisualisationParserObserver<ParseForest, StackNode, ParseState> {
 
@@ -29,11 +29,11 @@ class StackDotVisualisationParserObserver
         super(outputConsumer);
     }
 
-    @Override public void parseStart(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+    @Override public void parseStart(Parse<ParseForest, StackNode, ParseState> parse) {
         super.parseStart(parse);
         stackNodeRank = new HashMap<>();
         maxStackNodeRank = 0;
-        offsetMaxStackNodeRank = new int[parse.inputLength + 1];
+        offsetMaxStackNodeRank = new int[parse.state.inputLength + 1];
     }
 
     private void rankStackNode(StackNode stackNode, int rank) {

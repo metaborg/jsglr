@@ -9,9 +9,9 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -22,15 +22,15 @@ public interface IParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    void parseStart(AbstractParse<ParseForest, StackNode, ParseState> parse);
+    void parseStart(Parse<ParseForest, StackNode, ParseState> parse);
 
-    void parseCharacter(AbstractParse<ParseForest, StackNode, ParseState> parse, Iterable<StackNode> activeStacks);
+    void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse, Iterable<StackNode> activeStacks);
 
-    void parseNext(AbstractParse<ParseForest, StackNode, ParseState> parse);
+    void parseNext(Parse<ParseForest, StackNode, ParseState> parse);
 
     void addActiveStack(StackNode stack);
 
@@ -50,24 +50,24 @@ public interface IParserObserver
 
     void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
 
-    void actor(StackNode stack, AbstractParse<ParseForest, StackNode, ParseState> parse,
+    void actor(StackNode stack, Parse<ParseForest, StackNode, ParseState> parse,
         Iterable<IAction> applicableActions);
 
     void skipRejectedStack(StackNode stack);
 
     void addForShifter(ForShifterElement<StackNode> forShifterElement);
 
-    void doReductions(AbstractParse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce);
+    void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce);
 
-    void doLimitedReductions(AbstractParse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> link);
+    void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,
+                             StackLink<ParseForest, StackNode> link);
 
     void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
 
     void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
 
-    void directLinkFound(AbstractParse<ParseForest, StackNode, ParseState> parse,
-        StackLink<ParseForest, StackNode> directLink);
+    void directLinkFound(Parse<ParseForest, StackNode, ParseState> parse,
+                         StackLink<ParseForest, StackNode> directLink);
 
     void accept(StackNode acceptingStack);
 

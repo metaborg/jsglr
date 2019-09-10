@@ -5,7 +5,7 @@ import org.spoofax.jsglr2.datadependent.DataDependentParseForestManager;
 import org.spoofax.jsglr2.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.elkhound.ElkhoundParser;
 import org.spoofax.jsglr2.elkhound.HybridElkhoundStackManager;
-import org.spoofax.jsglr2.incremental.IncrementalParse;
+import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
@@ -16,7 +16,7 @@ import org.spoofax.jsglr2.parseforest.basic.BasicParseForestManager;
 import org.spoofax.jsglr2.parseforest.empty.NullParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
 import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
-import org.spoofax.jsglr2.recovery.IRecoveryState;
+import org.spoofax.jsglr2.recovery.IRecoveryParseState;
 import org.spoofax.jsglr2.recovery.RecoveryParseFailureHandler;
 import org.spoofax.jsglr2.recovery.RecoveryParseState;
 import org.spoofax.jsglr2.recovery.RecoveryParserObserver;
@@ -102,7 +102,7 @@ public class ParserVariant {
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode> & IRecoveryState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<ParseForest, StackNode>>
 //@formatter:on
     IParser<? extends IParseForest> withRecovery(IObservableParser<ParseForest, StackNode, ParseState> parser) {
         parser.observing().attachObserver(new RecoveryParserObserver<>());
@@ -248,8 +248,8 @@ public class ParserVariant {
                     throw new IllegalStateException();
 
                 switch(this.stackRepresentation) {
-                    case Basic:  return new IncrementalParser<>(IncrementalParse.factory(this, ParseState.factory()), IncrementalParse.incrementalFactory(this, ParseState.factory()), parseTable, new BasicStackManager<>(),  new IncrementalParseForestManager<>(), ReduceManagerFactory.incrementalReduceManagerFactory(this), new DefaultParseFailureHandler<>());
-                    case Hybrid: return new IncrementalParser<>(IncrementalParse.factory(this, ParseState.factory()), IncrementalParse.incrementalFactory(this, ParseState.factory()), parseTable, new HybridStackManager<>(), new IncrementalParseForestManager<>(), ReduceManagerFactory.incrementalReduceManagerFactory(this), new DefaultParseFailureHandler<>());
+                    case Basic:  return new IncrementalParser<>(Parse.factory(this, IncrementalParseState.factory()), parseTable, new BasicStackManager<>(),  new IncrementalParseForestManager<>(), ReduceManagerFactory.incrementalReduceManagerFactory(this), new DefaultParseFailureHandler<>());
+                    case Hybrid: return new IncrementalParser<>(Parse.factory(this, IncrementalParseState.factory()), parseTable, new HybridStackManager<>(), new IncrementalParseForestManager<>(), ReduceManagerFactory.incrementalReduceManagerFactory(this), new DefaultParseFailureHandler<>());
                     default: throw new IllegalStateException();
                 }
         }

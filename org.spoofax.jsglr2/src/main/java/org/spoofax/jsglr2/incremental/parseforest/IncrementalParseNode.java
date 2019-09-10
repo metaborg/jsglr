@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
-import static org.spoofax.jsglr2.incremental.IncrementalParse.NO_STATE;
+import static org.spoofax.jsglr2.incremental.IncrementalParseState.NO_STATE;
 
 import java.util.ArrayList;
 import java.util.Collections;

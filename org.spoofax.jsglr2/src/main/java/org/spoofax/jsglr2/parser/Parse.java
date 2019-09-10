@@ -3,30 +3,53 @@ package org.spoofax.jsglr2.parser;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class Parse
+public final class Parse
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends AbstractParse<ParseForest, StackNode, ParseState> {
+{
+
+    public final ParserObserving<ParseForest, StackNode, ParseState> observing;
+    public final ParseState state;
+
+    public Parse(ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState state) {
+        this.observing = observing;
+        this.state = state;
+    }
 
     public static
 //@formatter:off
    <ParseForest_ extends IParseForest,
     StackNode_   extends IStackNode,
-    ParseState_  extends IParseState<ParseForest_, StackNode_>,
-    Parse_       extends AbstractParse<ParseForest_, StackNode_, ParseState_>>
+    ParseState_  extends AbstractParseState<ParseForest_, StackNode_>>
 //@formatter:on
-    ParseFactory<ParseForest_, StackNode_, ParseState_, Parse_> factory(ParserVariant variant,
+    ParseFactory<ParseForest_, StackNode_, ParseState_> factory(ParserVariant variant,
         ParseStateFactory<ParseForest_, StackNode_, ParseState_> parseStateFactory) {
-        return (inputString, filename,
-            observing) -> (Parse_) new Parse<>(variant, inputString, filename, observing, parseStateFactory.get());
+        return (inputString, filename, observing) -> {
+            IActiveStacks<StackNode_> activeStacks =
+                new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
+            IForActorStacks<StackNode_> forActorStacks =
+                new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
+
+            return new Parse<>(observing, parseStateFactory.get(inputString, filename, activeStacks, forActorStacks));
+        };
     }
 
-    public Parse(ParserVariant variant, String inputString, String filename,
-        ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState state) {
-        super(variant, inputString, filename, observing, state);
+    public boolean hasNext() {
+        return state.hasNext();
     }
+
+    public void next() {
+        state.next();
+
+        observing.notify(observer -> observer.parseNext(this));
+    }
+
 }

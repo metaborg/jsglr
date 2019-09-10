@@ -10,9 +10,9 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -24,7 +24,7 @@ public class LogParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
     extends ParserObserver<ParseForest, StackNode, ParseState> {
 
@@ -34,14 +34,14 @@ public class LogParserObserver
         this.logger = logger;
     }
 
-    @Override public void parseStart(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+    @Override public void parseStart(Parse<ParseForest, StackNode, ParseState> parse) {
         super.parseStart(parse);
-        log("\nStarting parse for input '" + parse.inputString + "'");
+        log("\nStarting parse for input '" + parse.state.inputString + "'");
     }
 
-    @Override public void parseCharacter(AbstractParse<ParseForest, StackNode, ParseState> parse,
+    @Override public void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse,
         Iterable<StackNode> activeStacks) {
-        log("\nParse character '" + CharacterClassFactory.intToString(parse.currentChar) + "' (active stacks: "
+        log("\nParse character '" + CharacterClassFactory.intToString(parse.state.currentChar) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")\n");
     }
 
@@ -69,7 +69,7 @@ public class LogParserObserver
         log("For actor stacks: " + stackQueueToString(forActorStacks));
     }
 
-    @Override public void actor(StackNode stack, AbstractParse<ParseForest, StackNode, ParseState> parse,
+    @Override public void actor(StackNode stack, Parse<ParseForest, StackNode, ParseState> parse,
         Iterable<IAction> applicableActions) {
         log("  Actor for stack " + stackNodeString(stack) + " (applicable actions: "
             + applicableActionsToString(applicableActions) + ")");
@@ -83,7 +83,7 @@ public class LogParserObserver
         log("    Add for shifter " + forShifterElementToString(forShifterElement));
     }
 
-    @Override public void doLimitedReductions(AbstractParse<ParseForest, StackNode, ParseState> parse, StackNode stack,
+    @Override public void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
         IReduce reduce, StackLink<ParseForest, StackNode> link) {
     }
 
@@ -99,7 +99,7 @@ public class LogParserObserver
             + reduce.productionType().toString() + ") with parse nodes " + parseForestsToString(parseNodes));
     }
 
-    @Override public void directLinkFound(AbstractParse<ParseForest, StackNode, ParseState> parse,
+    @Override public void directLinkFound(Parse<ParseForest, StackNode, ParseState> parse,
         StackLink<ParseForest, StackNode> directLink) {
         log("    Direct link " + (directLink != null ? id(directLink) : "not") + " found");
     }

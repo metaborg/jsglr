@@ -1,22 +1,38 @@
 package org.spoofax.jsglr2.incremental.diff;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
-import org.spoofax.jsglr2.incremental.IncrementalParse;
+import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.parser.ParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+
+import static org.junit.Assert.assertEquals;
 
 public class ProcessUpdatesTest {
 
-    private final ProcessUpdates<?> processUpdates =
-        new ProcessUpdates<>(new IncrementalParse<>(JSGLR2Variant.Preset.incremental.variant.parser, "", "",
-            new ParserObserving<>(), new ParseState<>()));
+    private final ProcessUpdates<?, ?> processUpdates;
+
+    public ProcessUpdatesTest() {
+        ParserObserving<?, ?, ?> observing = new ParserObserving<>();
+        IActiveStacks<?> activeStacks =
+            new ActiveStacksFactory(JSGLR2Variant.Preset.incremental.variant.parser.activeStacksRepresentation)
+                .get(observing);
+        IForActorStacks<?> forActorStacks =
+            new ForActorStacksFactory(JSGLR2Variant.Preset.incremental.variant.parser.forActorStacksRepresentation)
+                .get(observing);
+
+        Parse<?, ?, ?> parse = new Parse(observing, new IncrementalParseState("", "", activeStacks, forActorStacks));
+
+        processUpdates = new ProcessUpdates(parse);
+    }
 
     @Test public void testDeleteSubtree() {
         IncrementalParseNode previous = node(node(0, 1), node(2, 3), node(4, 5));

@@ -7,31 +7,37 @@ import org.spoofax.jsglr2.parseforest.hybrid.HybridCharacterNode;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class NullParseForestManager<Parse extends AbstractParse<HybridParseForest, ?, ?>>
-    extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation, Parse> {
+public class NullParseForestManager
+//@formatter:off
+   <StackNode  extends IStackNode,
+    ParseState extends AbstractParseState<HybridParseForest, StackNode>>
+//@formatter:on
+    extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation, StackNode, ParseState> {
 
-    @Override public HybridParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,
-        HybridDerivation firstDerivation) {
+    @Override public HybridParseNode createParseNode(Parse<HybridParseForest, StackNode, ParseState> parse,
+        IStackNode stack, IProduction production, HybridDerivation firstDerivation) {
         return null;
     }
 
     @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
-        Parse parse) {
+        Parse<HybridParseForest, StackNode, ParseState> parse) {
         return null;
     }
 
-    @Override public HybridDerivation createDerivation(Parse parse, IStackNode stack, IProduction production,
-        ProductionType productionType, HybridParseForest[] parseForests) {
+    @Override public HybridDerivation createDerivation(Parse<HybridParseForest, StackNode, ParseState> parse,
+        IStackNode stack, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         return null;
     }
 
-    @Override public void addDerivation(Parse parse, HybridParseNode parseNode, HybridDerivation derivation) {
+    @Override public void addDerivation(Parse<HybridParseForest, StackNode, ParseState> parse,
+        HybridParseNode parseNode, HybridDerivation derivation) {
     }
 
-    @Override public HybridCharacterNode createCharacterNode(Parse parse) {
+    @Override public HybridCharacterNode createCharacterNode(Parse<HybridParseForest, StackNode, ParseState> parse) {
         return null;
     }
 

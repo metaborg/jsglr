@@ -5,8 +5,8 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -17,16 +17,15 @@ public class Reducer
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>,
-    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    protected final AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager;
-    protected final ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager;
+    protected final AbstractStackManager<ParseForest, StackNode, ParseState> stackManager;
+    protected final ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager;
 
-    public Reducer(AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager) {
+    public Reducer(AbstractStackManager<ParseForest, StackNode, ParseState> stackManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager) {
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
     }
@@ -37,7 +36,7 @@ public class Reducer
      * currently reduced derivation will be added as an alternative to the parse node on the link. This means the parse
      * node is ambiguous.
      */
-    public void reducerExistingStackWithDirectLink(Parse parse, IReduce reduce,
+    public void reducerExistingStackWithDirectLink(Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce,
         StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parse, existingDirectLinkToActiveStateWithGoto.to,
             reduce.production(), reduce.productionType(), parseForests);
@@ -57,8 +56,9 @@ public class Reducer
      * between these stacks is created and the currently reduced derivation is added as the first derivation for the
      * parse node on the link.
      */
-    public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(Parse parse, IReduce reduce,
-        StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
+    public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(
+        Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce, StackNode existingActiveStackWithGotoState,
+        StackNode stack, ParseForest[] parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parse, stack, reduce.production(),
             reduce.productionType(), parseForests);
         ParseForest parseNode = parseForestManager.createParseNode(parse, stack, reduce.production(), derivation);
@@ -77,8 +77,8 @@ public class Reducer
      * goto state is created and a link between this stack and the stack from where the reduction started is created.
      * The currently reduced derivation is added as the first derivation for the parse node on the link.
      */
-    public StackNode reducerNoExistingStack(Parse parse, IReduce reduce, StackNode stack, IState gotoState,
-        ParseForest[] parseForests) {
+    public StackNode reducerNoExistingStack(Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce,
+        StackNode stack, IState gotoState, ParseForest[] parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parse, stack, reduce.production(),
             reduce.productionType(), parseForests);
         ParseForest parseNode = parseForestManager.createParseNode(parse, stack, reduce.production(), derivation);

@@ -7,8 +7,8 @@ import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -21,20 +21,19 @@ public class LayoutSensitiveReduceManager
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>,
-    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse> {
+    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> {
 
     public LayoutSensitiveReduceManager(IParseTable parseTable,
-        AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
+        AbstractStackManager<ParseForest, StackNode, ParseState> stackManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }
 
-    @Override protected void doReductionsHelper(Parse parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> throughLink) {
+    @Override protected void doReductionsHelper(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
+        IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
         pathsLoop: for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack,
             reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {

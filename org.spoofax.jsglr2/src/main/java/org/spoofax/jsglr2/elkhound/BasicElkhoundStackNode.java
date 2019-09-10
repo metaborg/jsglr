@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.StackLink;
 
@@ -32,7 +32,7 @@ public class BasicElkhoundStackNode<ParseForest extends IParseForest> extends Ab
 
     public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(
         BasicElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
-        AbstractParse<ParseForest, BasicElkhoundStackNode<ParseForest>, ?> parse) {
+        Parse<ParseForest, BasicElkhoundStackNode<ParseForest>, ?> parse) {
         StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
 
         links.add(link);
@@ -47,7 +47,7 @@ public class BasicElkhoundStackNode<ParseForest extends IParseForest> extends Ab
             if(referenceCount > 0) {
                 parse.observing.notify(observer -> observer.resetDeterministicDepth(this));
 
-                for(AbstractElkhoundStackNode<ParseForest> stack : parse.activeStacks)
+                for(AbstractElkhoundStackNode<ParseForest> stack : parse.state.activeStacks)
                     if(stack != this)
                         stack.resetDeterministicDepth();
             }

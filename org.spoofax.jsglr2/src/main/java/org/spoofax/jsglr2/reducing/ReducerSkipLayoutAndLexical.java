@@ -5,8 +5,8 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -17,18 +17,18 @@ public class ReducerSkipLayoutAndLexical
     ParseForest extends IParseForest,
     ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
-    ParseState  extends IParseState<ParseForest, StackNode>,
-    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends Reducer<ParseForest, ParseNode, Derivation, StackNode, ParseState, Parse> {
+    extends Reducer<ParseForest, ParseNode, Derivation, StackNode, ParseState> {
 
-    public ReducerSkipLayoutAndLexical(AbstractStackManager<ParseForest, StackNode, ParseState, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager) {
+    public ReducerSkipLayoutAndLexical(AbstractStackManager<ParseForest, StackNode, ParseState> stackManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager) {
         super(stackManager, parseForestManager);
     }
 
-    @Override public void reducerExistingStackWithDirectLink(Parse parse, IReduce reduce,
-        StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
+    @Override public void reducerExistingStackWithDirectLink(Parse<ParseForest, StackNode, ParseState> parse,
+        IReduce reduce, StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto,
+        ParseForest[] parseForests) {
         @SuppressWarnings("unchecked") ParseNode parseNode =
             (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
 
@@ -42,8 +42,9 @@ public class ReducerSkipLayoutAndLexical
             stackManager.rejectStackLink(parse, existingDirectLinkToActiveStateWithGoto);
     }
 
-    @Override public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(Parse parse,
-        IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
+    @Override public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(
+        Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce, StackNode existingActiveStackWithGotoState,
+        StackNode stack, ParseForest[] parseForests) {
         ParseNode parseNode;
 
         if(reduce.production().isSkippableInParseForest())
@@ -63,8 +64,8 @@ public class ReducerSkipLayoutAndLexical
         return newDirectLinkToActiveStateWithGoto;
     }
 
-    @Override public StackNode reducerNoExistingStack(Parse parse, IReduce reduce, StackNode stack, IState gotoState,
-        ParseForest[] parseForests) {
+    @Override public StackNode reducerNoExistingStack(Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce,
+        StackNode stack, IState gotoState, ParseForest[] parseForests) {
         ParseNode parseNode;
 
         if(reduce.production().isSkippableInParseForest())

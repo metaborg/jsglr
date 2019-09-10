@@ -16,9 +16,9 @@ import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -29,7 +29,7 @@ public abstract class ParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
     implements IParserObserver<ParseForest, StackNode, ParseState> {
 
@@ -87,7 +87,7 @@ public abstract class ParserObserver
             + (stackLink.parseForest != null ? id(stackLink.parseForest) : "null") + "]";
     }
 
-    @Override public void parseStart(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+    @Override public void parseStart(Parse<ParseForest, StackNode, ParseState> parse) {
         parseNodeCount = 0;
         stackNodeCount = 0;
         stackLinkCount = 0;
@@ -97,11 +97,11 @@ public abstract class ParserObserver
         stackLinkId.clear();
     }
 
-    @Override public void parseCharacter(AbstractParse<ParseForest, StackNode, ParseState> parse,
-        Iterable<StackNode> activeStacks) {
+    @Override public void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse,
+                                         Iterable<StackNode> activeStacks) {
     }
 
-    @Override public void parseNext(AbstractParse<ParseForest, StackNode, ParseState> parse) {
+    @Override public void parseNext(Parse<ParseForest, StackNode, ParseState> parse) {
     }
 
     @Override public void addActiveStack(StackNode stack) {
@@ -133,7 +133,7 @@ public abstract class ParserObserver
     @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
     }
 
-    @Override public void actor(StackNode stack, AbstractParse<ParseForest, StackNode, ParseState> parse,
+    @Override public void actor(StackNode stack, Parse<ParseForest, StackNode, ParseState> parse,
         Iterable<IAction> applicableActions) {
     }
 
@@ -143,12 +143,12 @@ public abstract class ParserObserver
     @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
     }
 
-    @Override public void doReductions(AbstractParse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-        IReduce reduce) {
+    @Override public void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
+                                       IReduce reduce) {
     }
 
-    @Override public void doLimitedReductions(AbstractParse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-        IReduce reduce, StackLink<ParseForest, StackNode> link) {
+    @Override public void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
+                                              IReduce reduce, StackLink<ParseForest, StackNode> link) {
     }
 
     @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
@@ -158,8 +158,8 @@ public abstract class ParserObserver
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
     }
 
-    @Override public void directLinkFound(AbstractParse<ParseForest, StackNode, ParseState> parse,
-        StackLink<ParseForest, StackNode> directLink) {
+    @Override public void directLinkFound(Parse<ParseForest, StackNode, ParseState> parse,
+                                          StackLink<ParseForest, StackNode> directLink) {
     }
 
     @Override public void accept(StackNode acceptingStack) {

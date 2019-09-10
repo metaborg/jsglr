@@ -7,8 +7,8 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
@@ -19,24 +19,23 @@ public class ElkhoundReduceManager
     ParseNode         extends ParseForest,
     Derivation        extends IDerivation<ParseForest>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    ParseState        extends IParseState<ParseForest, ElkhoundStackNode>,
-    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode, ParseState>>
+    ParseState        extends AbstractParseState<ParseForest, ElkhoundStackNode>>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse> {
+    extends ReduceManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState> {
 
-    protected final ElkhoundStackManager<ParseForest, ElkhoundStackNode, ParseState, Parse> stackManager;
+    protected final ElkhoundStackManager<ParseForest, ElkhoundStackNode, ParseState> stackManager;
 
     public ElkhoundReduceManager(IParseTable parseTable,
-        ElkhoundStackManager<ParseForest, ElkhoundStackNode, ParseState, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
+        ElkhoundStackManager<ParseForest, ElkhoundStackNode, ParseState> stackManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
 
         this.stackManager = stackManager;
     }
 
-    @Override protected void doReductionsHelper(Parse parse, ElkhoundStackNode stack, IReduce reduce,
-        StackLink<ParseForest, ElkhoundStackNode> throughLink) {
+    @Override protected void doReductionsHelper(Parse<ParseForest, ElkhoundStackNode, ParseState> parse,
+        ElkhoundStackNode stack, IReduce reduce, StackLink<ParseForest, ElkhoundStackNode> throughLink) {
         if(stack.deterministicDepth >= reduce.arity()) {
             DeterministicStackPath<ParseForest, ElkhoundStackNode> deterministicPath =
                 stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
@@ -44,7 +43,7 @@ public class ElkhoundReduceManager
             if(throughLink == null || deterministicPath.contains(throughLink)) {
                 ElkhoundStackNode pathBegin = deterministicPath.head();
 
-                if(parse.activeStacks.isEmpty())
+                if(parse.state.activeStacks.isEmpty())
                     // Do LR if there are no other active stacks (the stack on which the current reduction is applied is
                     // removed from the activeStacks collection in ElkhoundParser)
                     reducerElkhound(parse, pathBegin, reduce, deterministicPath.parseForests);
@@ -65,7 +64,8 @@ public class ElkhoundReduceManager
         }
     }
 
-    private void reducerElkhound(Parse parse, ElkhoundStackNode stack, IReduce reduce, ParseForest[] parseForests) {
+    private void reducerElkhound(Parse<ParseForest, ElkhoundStackNode, ParseState> parse, ElkhoundStackNode stack,
+        IReduce reduce, ParseForest[] parseForests) {
         int gotoId = stack.state.getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
@@ -73,7 +73,7 @@ public class ElkhoundReduceManager
 
         ElkhoundStackNode newStack = reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
 
-        parse.activeStacks.add(newStack);
+        parse.state.activeStacks.add(newStack);
         // We are doing LR and the new active stack is the only one, thus no need to add it to forActorStacks here for
         // further processing
     }

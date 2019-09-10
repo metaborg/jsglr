@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.elkhound;
 
-import java.util.Iterator;
-
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
@@ -10,13 +8,15 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.ParseFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
+
+import java.util.Iterator;
 
 public class ElkhoundParser
 //@formatter:off
@@ -24,36 +24,35 @@ public class ElkhoundParser
     ParseNode         extends ParseForest,
     Derivation        extends IDerivation<ParseForest>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    ParseState        extends IParseState<ParseForest, ElkhoundStackNode>,
-    Parse             extends AbstractParse<ParseForest, ElkhoundStackNode, ParseState>,
-    StackManager      extends AbstractStackManager<ParseForest, ElkhoundStackNode, ParseState, Parse>,
+    ParseState        extends AbstractParseState<ParseForest, ElkhoundStackNode>,
+    StackManager      extends AbstractStackManager<ParseForest, ElkhoundStackNode, ParseState>,
     ReduceManager     extends org.spoofax.jsglr2.reducing.ReduceManager<
-                                  ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse>>
+                                  ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState>>
 //@formatter:on
-    extends
-    Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse, StackManager, ReduceManager> {
+    extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, StackManager, ReduceManager> {
 
-    public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, ParseState, Parse> parseFactory,
-        IParseTable parseTable, StackManager stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
-        ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, Parse, StackManager, ReduceManager> elkhoundReduceManagerFactory,
-        IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState, Parse> failureHandler) {
+    public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, ParseState> parseFactory, IParseTable parseTable,
+        StackManager stackManager,
+        ParseForestManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState> parseForestManager,
+        ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
+        IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState> failureHandler) {
         super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory, failureHandler);
     }
 
-    @Override protected void parseLoop(Parse parse) {
-        while(parse.hasNext() && !parse.activeStacks.isEmpty()) {
-            if(parse.activeStacks.isSingle()) {
-                ElkhoundStackNode singleActiveStack = parse.activeStacks.getSingle();
+    @Override protected void parseLoop(Parse<ParseForest, ElkhoundStackNode, ParseState> parse) {
+        while(parse.hasNext() && !parse.state.activeStacks.isEmpty()) {
+            if(parse.state.activeStacks.isSingle()) {
+                ElkhoundStackNode singleActiveStack = parse.state.activeStacks.getSingle();
 
                 if(!singleActiveStack.allLinksRejected()) {
-                    Iterator<IAction> actionsIterator = singleActiveStack.state.getApplicableActions(parse).iterator();
+                    Iterator<IAction> actionsIterator =
+                        singleActiveStack.state.getApplicableActions(parse.state).iterator();
 
                     if(actionsIterator.hasNext()) {
                         IAction firstAction = actionsIterator.next();
 
                         if(!actionsIterator.hasNext()) {
-                            parse.activeStacks.clear();
+                            parse.state.activeStacks.clear();
 
                             switch(firstAction.actionType()) {
                                 case SHIFT:
@@ -67,7 +66,7 @@ public class ElkhoundParser
 
                                     stackManager.createStackLink(parse, newStack, singleActiveStack, characterNode);
 
-                                    parse.activeStacks.add(newStack);
+                                    parse.state.activeStacks.add(newStack);
 
                                     parse.next();
                                     break;
@@ -81,8 +80,8 @@ public class ElkhoundParser
                                     // depth not big enough, so there is reduced over multiple paths), we thus partly
                                     // fall back to (S)GLR by processing the forActorStacks collection and calling
                                     // shifter afterwards, before going to the next character
-                                    if(parse.forActorStacks.nonEmpty()) {
-                                        parse.activeStacks.add(singleActiveStack);
+                                    if(parse.state.forActorStacks.nonEmpty()) {
+                                        parse.state.activeStacks.add(singleActiveStack);
 
                                         processForActorStacks(parse);
                                         shifter(parse);
@@ -91,7 +90,7 @@ public class ElkhoundParser
 
                                     break;
                                 case ACCEPT:
-                                    parse.acceptingStack = singleActiveStack;
+                                    parse.state.acceptingStack = singleActiveStack;
 
                                     observing.notify(observer -> observer.accept(singleActiveStack));
 
@@ -112,14 +111,14 @@ public class ElkhoundParser
                         }
                     } else {
                         // The single active stack that was left has no applicable actions, thus parsing fails
-                        parse.activeStacks.clear();
+                        parse.state.activeStacks.clear();
                         return;
                     }
                 } else {
                     parse.observing.notify(observer -> observer.skipRejectedStack(singleActiveStack));
 
                     // The single active stack that was left is rejected, thus parsing fails
-                    parse.activeStacks.clear();
+                    parse.state.activeStacks.clear();
                     return;
                 }
             } else {

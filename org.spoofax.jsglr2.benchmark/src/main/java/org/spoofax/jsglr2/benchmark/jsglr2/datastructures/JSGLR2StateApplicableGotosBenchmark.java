@@ -18,7 +18,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
 
@@ -62,7 +62,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
     }
 
     class GotoObserver extends
-        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
+        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
 
         public List<GotoLookup> gotoLookups = new ArrayList<>();
 

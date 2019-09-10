@@ -1,22 +1,28 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.incremental.IIncrementalParse;
-import org.spoofax.jsglr2.incremental.IncrementalParse;
+import org.spoofax.jsglr2.incremental.IIncrementalParseState;
+import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class IncrementalParseForestManager<Parse extends AbstractParse<IncrementalParseForest, ?, ?> & IIncrementalParse>
-    extends ParseForestManager<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, Parse> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class IncrementalParseForestManager
+//@formatter:off
+   <StackNode extends IStackNode,
+    ParseState extends AbstractParseState<IncrementalParseForest, StackNode> & IIncrementalParseState>
+//@formatter:on
+    extends
+    ParseForestManager<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, StackNode, ParseState> {
 
     @Override public IncrementalParseForest filterStartSymbol(IncrementalParseForest parseForest, String startSymbol,
-        Parse parse) {
+        Parse<IncrementalParseForest, StackNode, ParseState> parse) {
 
         IncrementalParseNode topNode = (IncrementalParseNode) parseForest;
         List<IncrementalDerivation> result = new ArrayList<>();
@@ -40,8 +46,8 @@ public class IncrementalParseForestManager<Parse extends AbstractParse<Increment
         }
     }
 
-    @Override public IncrementalParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,
-        IncrementalDerivation firstDerivation) {
+    @Override public IncrementalParseNode createParseNode(Parse<IncrementalParseForest, StackNode, ParseState> parse,
+        IStackNode stack, IProduction production, IncrementalDerivation firstDerivation) {
 
         IncrementalParseNode parseNode = new IncrementalParseNode(production, firstDerivation);
 
@@ -51,7 +57,8 @@ public class IncrementalParseForestManager<Parse extends AbstractParse<Increment
         return parseNode;
     }
 
-    public IncrementalParseNode createChangedParseNode(Parse parse, IncrementalParseForest... children) {
+    public IncrementalParseNode createChangedParseNode(Parse<IncrementalParseForest, StackNode, ParseState> parse,
+        IncrementalParseForest... children) {
         IncrementalParseNode parseNode = new IncrementalParseNode(children);
 
         parse.observing.notify(observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, children));
@@ -61,10 +68,11 @@ public class IncrementalParseForestManager<Parse extends AbstractParse<Increment
         return parseNode;
     }
 
-    @Override public IncrementalDerivation createDerivation(Parse parse, IStackNode stack, IProduction production,
-        ProductionType productionType, IncrementalParseForest[] parseForests) {
+    @Override public IncrementalDerivation createDerivation(Parse<IncrementalParseForest, StackNode, ParseState> parse,
+        IStackNode stack, IProduction production, ProductionType productionType,
+        IncrementalParseForest[] parseForests) {
 
-        IState state = parse.isMultipleStates() ? IncrementalParse.NO_STATE : stack.state();
+        IState state = parse.state.isMultipleStates() ? IncrementalParseState.NO_STATE : stack.state();
         IncrementalDerivation derivation = new IncrementalDerivation(production, productionType, parseForests, state);
 
         parse.observing.notify(observer -> observer.createDerivation(derivation, production, derivation.parseForests));
@@ -72,18 +80,21 @@ public class IncrementalParseForestManager<Parse extends AbstractParse<Increment
         return derivation;
     }
 
-    @Override public void addDerivation(Parse parse, IncrementalParseNode parseNode, IncrementalDerivation derivation) {
+    @Override public void addDerivation(Parse<IncrementalParseForest, StackNode, ParseState> parse,
+        IncrementalParseNode parseNode, IncrementalDerivation derivation) {
 
         parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public IncrementalParseForest createCharacterNode(Parse parse) {
-        return createCharacterNode(parse, parse.currentChar);
+    @Override public IncrementalParseForest
+        createCharacterNode(Parse<IncrementalParseForest, StackNode, ParseState> parse) {
+        return createCharacterNode(parse, parse.state.currentChar);
     }
 
-    public IncrementalParseForest createCharacterNode(Parse parse, int currentChar) {
+    public IncrementalParseForest createCharacterNode(Parse<IncrementalParseForest, StackNode, ParseState> parse,
+        int currentChar) {
         IncrementalCharacterNode characterNode = new IncrementalCharacterNode(currentChar);
 
         parse.observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));

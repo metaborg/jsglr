@@ -11,9 +11,9 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
@@ -82,12 +82,12 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
     }
 
     class ActiveStacksObserver extends
-        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
+        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
 
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
         @Override public void parseCharacter(
-            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
+            Parse<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));
         }
@@ -97,7 +97,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
         }
 
         @Override public void directLinkFound(
-            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
+            Parse<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active

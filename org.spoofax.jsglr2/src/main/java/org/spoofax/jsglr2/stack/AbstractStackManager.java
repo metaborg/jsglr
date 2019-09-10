@@ -1,34 +1,34 @@
 package org.spoofax.jsglr2.stack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.StackPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractStackManager
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends IParseState<ParseForest, StackNode>,
-    Parse       extends AbstractParse<ParseForest, StackNode, ParseState>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    public abstract StackNode createInitialStackNode(Parse parse, IState state);
+    public abstract StackNode createInitialStackNode(Parse<ParseForest, StackNode, ParseState> parse, IState state);
 
-    public abstract StackNode createStackNode(Parse parse, IState state);
+    public abstract StackNode createStackNode(Parse<ParseForest, StackNode, ParseState> parse, IState state);
 
-    public abstract StackLink<ParseForest, StackNode> createStackLink(Parse parse, StackNode from, StackNode to,
-        ParseForest parseNode);
+    public abstract StackLink<ParseForest, StackNode> createStackLink(Parse<ParseForest, StackNode, ParseState> parse,
+        StackNode from, StackNode to, ParseForest parseNode);
 
-    public void rejectStackLink(Parse parse, StackLink<ParseForest, StackNode> link) {
+    public void rejectStackLink(Parse<ParseForest, StackNode, ParseState> parse,
+        StackLink<ParseForest, StackNode> link) {
         link.reject();
 
         parse.observing.notify(observer -> observer.rejectStackLink(link));
@@ -70,7 +70,7 @@ public abstract class AbstractStackManager
 
     protected abstract Iterable<StackLink<ParseForest, StackNode>> stackLinksOut(StackNode stack);
 
-    public ParseForest[] getParseForests(ParseForestManager<ParseForest, ?, ?, Parse> parseForestManager,
+    public ParseForest[] getParseForests(ParseForestManager<ParseForest, ?, ?, ?, ?> parseForestManager,
         StackPath<ParseForest, StackNode> pathBegin) {
         ParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
 

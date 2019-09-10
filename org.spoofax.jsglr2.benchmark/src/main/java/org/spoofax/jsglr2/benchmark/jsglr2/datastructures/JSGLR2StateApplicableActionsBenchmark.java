@@ -23,8 +23,8 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.IParseState;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
 
@@ -86,14 +86,14 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
     }
 
     class ActorObserver extends
-        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
+        BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
 
         public List<ActorOnState> stateApplicableActions = new ArrayList<>();
 
         @Override public void actor(BasicStackNode<BasicParseForest> stack,
-            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>, IParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
+            Parse<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             Iterable<IAction> applicableActions) {
-            ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
+            ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.state.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);
         }

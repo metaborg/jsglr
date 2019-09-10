@@ -14,6 +14,8 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
+import java.util.Collections;
+
 public class ReduceManager
 //@formatter:off
    <ParseForest extends IParseForest,
@@ -43,7 +45,7 @@ public class ReduceManager
     }
 
     public void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce) {
-        if(reduce.production().isCompletionOrRecovery())
+        if(ignoreReduce(parse, reduce))
             return;
 
         parse.observing.notify(observer -> observer.doReductions(parse, stack, reduce));
@@ -53,12 +55,24 @@ public class ReduceManager
 
     private void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,
         StackLink<ParseForest, StackNode> throughLink) {
-        if(reduce.production().isCompletionOrRecovery())
+        if(ignoreReduce(parse, reduce))
             return;
 
         parse.observing.notify(observer -> observer.doLimitedReductions(parse, stack, reduce, throughLink));
 
         doReductionsHelper(parse, stack, reduce, throughLink);
+    }
+
+    private Iterable<ReduceFilter<ParseForest, StackNode, ParseState>> reduceFilters =
+        Collections.singleton(ReduceFilter.ignoreCompletionAndRecovery());
+
+    private boolean ignoreReduce(Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce) {
+        for(ReduceFilter<ParseForest, StackNode, ParseState> reduceFilter : reduceFilters) {
+            if(reduceFilter.ignoreReduce(parse, reduce))
+                return true;
+        }
+
+        return false;
     }
 
     protected void doReductionsHelper(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,

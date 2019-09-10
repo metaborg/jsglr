@@ -25,11 +25,12 @@ public class ProcessUpdates
 {
 
     private final Parse<IncrementalParseForest, StackNode, ParseState> parse;
-    private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager =
-        new IncrementalParseForestManager<>();
+    private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager;
 
-    public ProcessUpdates(Parse<IncrementalParseForest, StackNode, ParseState> parse) {
+    public ProcessUpdates(Parse<IncrementalParseForest, StackNode, ParseState> parse,
+        IncrementalParseForestManager<StackNode, ParseState> parseForestManager) {
         this.parse = parse;
+        this.parseForestManager = parseForestManager;
     }
 
     public IncrementalParseForest processUpdates(IncrementalParseForest previous, EditorUpdate... editorUpdates) {

@@ -6,6 +6,7 @@ import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.Parse;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -31,7 +32,7 @@ public class ProcessUpdatesTest {
 
         Parse<?, ?, ?> parse = new Parse(observing, new IncrementalParseState("", "", activeStacks, forActorStacks));
 
-        processUpdates = new ProcessUpdates(parse);
+        processUpdates = new ProcessUpdates(parse, new IncrementalParseForestManager());
     }
 
     @Test public void testDeleteSubtree() {

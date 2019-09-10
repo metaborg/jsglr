@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -48,8 +49,8 @@ public class IncrementalParser
     private final HashMap<String, String> oldString = new HashMap<>();
     private final IStringDiff diff;
 
-    public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, ParseState> parseFactory, IParseTable parseTable,
-        StackManager stackManager,
+    public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, ParseState> parseFactory,
+        IParseTable parseTable, StackManager stackManager,
         ParseForestManager<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
         ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler) {
@@ -61,7 +62,8 @@ public class IncrementalParser
     @Override protected Parse<IncrementalParseForest, StackNode, ParseState> getParse(String inputString,
         String filename) {
         Parse<IncrementalParseForest, StackNode, ParseState> parse = super.getParse(inputString, filename);
-        ProcessUpdates<StackNode, ParseState> processUpdates = new ProcessUpdates<>(parse);
+        ProcessUpdates<StackNode, ParseState> processUpdates =
+            new ProcessUpdates<>(parse, (IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
 
         if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
             List<EditorUpdate> updates = diff.diff(oldString.get(filename), inputString);

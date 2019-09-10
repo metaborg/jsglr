@@ -50,8 +50,7 @@ public interface IParserObserver
 
     void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
 
-    void actor(StackNode stack, Parse<ParseForest, StackNode, ParseState> parse,
-        Iterable<IAction> applicableActions);
+    void actor(StackNode stack, Parse<ParseForest, StackNode, ParseState> parse, Iterable<IAction> applicableActions);
 
     void skipRejectedStack(StackNode stack);
 
@@ -60,14 +59,13 @@ public interface IParserObserver
     void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce);
 
     void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,
-                             StackLink<ParseForest, StackNode> link);
+        StackLink<ParseForest, StackNode> link);
 
     void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
 
     void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
 
-    void directLinkFound(Parse<ParseForest, StackNode, ParseState> parse,
-                         StackLink<ParseForest, StackNode> directLink);
+    void directLinkFound(Parse<ParseForest, StackNode, ParseState> parse, StackLink<ParseForest, StackNode> directLink);
 
     void accept(StackNode acceptingStack);
 

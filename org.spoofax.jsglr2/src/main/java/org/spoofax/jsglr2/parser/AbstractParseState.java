@@ -32,7 +32,7 @@ public abstract class AbstractParseState
     public Queue<ForShifterElement<StackNode>> forShifter;
 
     protected AbstractParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
-                                 IForActorStacks<StackNode> forActorStacks) {
+        IForActorStacks<StackNode> forActorStacks) {
         this.filename = filename;
         this.inputString = inputString;
         this.inputLength = inputString.length();

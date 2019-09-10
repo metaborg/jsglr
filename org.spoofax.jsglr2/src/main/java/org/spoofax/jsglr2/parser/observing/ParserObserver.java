@@ -98,7 +98,7 @@ public abstract class ParserObserver
     }
 
     @Override public void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse,
-                                         Iterable<StackNode> activeStacks) {
+        Iterable<StackNode> activeStacks) {
     }
 
     @Override public void parseNext(Parse<ParseForest, StackNode, ParseState> parse) {
@@ -144,11 +144,11 @@ public abstract class ParserObserver
     }
 
     @Override public void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-                                       IReduce reduce) {
+        IReduce reduce) {
     }
 
     @Override public void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-                                              IReduce reduce, StackLink<ParseForest, StackNode> link) {
+        IReduce reduce, StackLink<ParseForest, StackNode> link) {
     }
 
     @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
@@ -159,7 +159,7 @@ public abstract class ParserObserver
     }
 
     @Override public void directLinkFound(Parse<ParseForest, StackNode, ParseState> parse,
-                                          StackLink<ParseForest, StackNode> directLink) {
+        StackLink<ParseForest, StackNode> directLink) {
     }
 
     @Override public void accept(StackNode acceptingStack) {

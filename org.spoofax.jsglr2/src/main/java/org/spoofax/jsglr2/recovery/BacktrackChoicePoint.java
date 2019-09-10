@@ -21,7 +21,7 @@ public class BacktrackChoicePoint
         this.position = position;
         this.activeStacks = new ArrayList<>();
 
-        for (StackNode activeStack : activeStacks)
+        for(StackNode activeStack : activeStacks)
             this.activeStacks.add(activeStack);
     }
 

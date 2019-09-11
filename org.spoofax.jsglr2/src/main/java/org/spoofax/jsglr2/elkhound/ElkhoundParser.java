@@ -40,7 +40,7 @@ public class ElkhoundParser
     }
 
     @Override protected void parseLoop(Parse<ParseForest, ElkhoundStackNode, ParseState> parse) {
-        while(parse.hasNext() && !parse.state.activeStacks.isEmpty()) {
+        while(parse.state.hasNext() && !parse.state.activeStacks.isEmpty()) {
             if(parse.state.activeStacks.isSingle()) {
                 observing.notify(observer -> observer.parseRound(parse, parse.state.activeStacks));
 
@@ -70,7 +70,7 @@ public class ElkhoundParser
 
                                     parse.state.activeStacks.add(newStack);
 
-                                    parse.next();
+                                    parse.state.next();
                                     break;
                                 case REDUCE:
                                 case REDUCE_LOOKAHEAD:
@@ -87,7 +87,7 @@ public class ElkhoundParser
 
                                         processForActorStacks(parse);
                                         shifter(parse);
-                                        parse.next();
+                                        parse.state.next();
                                     }
 
                                     break;
@@ -109,7 +109,7 @@ public class ElkhoundParser
                             // performing shifts and then proceed to the next character
                             processForActorStacks(parse);
                             shifter(parse);
-                            parse.next();
+                            parse.state.next();
                         }
                     } else {
                         // The single active stack that was left has no applicable actions, thus parsing fails
@@ -127,7 +127,7 @@ public class ElkhoundParser
                 // Fall back to regular (S)GLR when multiple stacks are active
                 parseCharacter(parse);
 
-                parse.next();
+                parse.state.next();
             }
         }
     }

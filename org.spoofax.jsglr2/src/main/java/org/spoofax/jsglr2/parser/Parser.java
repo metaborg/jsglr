@@ -101,11 +101,11 @@ public class Parser
     }
 
     protected void parseLoop(Parse<ParseForest, StackNode, ParseState> parse) {
-        while(parse.hasNext() && !parse.state.activeStacks.isEmpty()) {
+        while(parse.state.hasNext() && !parse.state.activeStacks.isEmpty()) {
             parseCharacter(parse);
 
             if(!parse.state.activeStacks.isEmpty())
-                parse.next();
+                parse.state.next();
         }
 
         if(parse.state.acceptingStack == null) {

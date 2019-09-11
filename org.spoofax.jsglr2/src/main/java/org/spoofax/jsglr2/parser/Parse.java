@@ -42,12 +42,4 @@ public final class Parse
         };
     }
 
-    public boolean hasNext() {
-        return state.hasNext();
-    }
-
-    public void next() {
-        state.next();
-    }
-
 }

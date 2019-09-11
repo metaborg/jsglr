@@ -39,7 +39,7 @@ public class LogParserObserver
         log("\nStarting parse for input '" + parse.state.inputString + "'");
     }
 
-    @Override public void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse,
+    @Override public void parseRound(Parse<ParseForest, StackNode, ParseState> parse,
         Iterable<StackNode> activeStacks) {
         log("\nParse character '" + CharacterClassFactory.intToString(parse.state.currentChar) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")\n");

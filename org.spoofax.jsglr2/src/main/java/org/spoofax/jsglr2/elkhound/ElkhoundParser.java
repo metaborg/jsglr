@@ -42,6 +42,8 @@ public class ElkhoundParser
     @Override protected void parseLoop(Parse<ParseForest, ElkhoundStackNode, ParseState> parse) {
         while(parse.hasNext() && !parse.state.activeStacks.isEmpty()) {
             if(parse.state.activeStacks.isSingle()) {
+                observing.notify(observer -> observer.parseRound(parse, parse.state.activeStacks));
+
                 ElkhoundStackNode singleActiveStack = parse.state.activeStacks.getSingle();
 
                 if(!singleActiveStack.allLinksRejected()) {

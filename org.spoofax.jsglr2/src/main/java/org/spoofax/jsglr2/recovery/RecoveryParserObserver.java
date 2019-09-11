@@ -30,14 +30,10 @@ public class RecoveryParserObserver
 
     @Override public void parseStart(Parse<ParseForest, StackNode, ParseState> parse) {
         parse.state.initializeBacktrackChoicePoints(parse.state.inputString);
-        parse.state.saveBacktrackChoicePoint(parse.state.currentPosition(), parse.state.activeStacks);
     }
 
-    @Override public void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse,
-        Iterable<StackNode> activeStacks) {
-    }
-
-    @Override public void parseNext(Parse<ParseForest, StackNode, ParseState> parse) {
+    @Override public void parseRound(Parse<ParseForest, StackNode, ParseState> parse,
+                                     Iterable<StackNode> activeStacks) {
         if(CharacterClassFactory.isNewLine(parse.state.currentChar))
             parse.state.saveBacktrackChoicePoint(parse.state.currentPosition(), parse.state.activeStacks);
 

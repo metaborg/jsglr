@@ -117,7 +117,7 @@ public class Parser
     }
 
     protected void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse) {
-        observing.notify(observer -> observer.parseCharacter(parse, parse.state.activeStacks));
+        observing.notify(observer -> observer.parseRound(parse, parse.state.activeStacks));
 
         parse.state.activeStacks.addAllTo(parse.state.forActorStacks);
 

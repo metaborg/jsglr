@@ -90,13 +90,9 @@ public class ParserMeasureObserver<ParseForest extends IParseForest> implements
         length += parse.state.inputLength;
     }
 
-    @Override public void parseCharacter(
+    @Override public void parseRound(
         Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse,
         Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
-    }
-
-    @Override public void parseNext(
-        Parse<ParseForest, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> parse) {
     }
 
     @Override public void addActiveStack(AbstractElkhoundStackNode<ParseForest> stack) {

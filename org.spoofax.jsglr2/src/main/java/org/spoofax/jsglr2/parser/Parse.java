@@ -48,8 +48,6 @@ public final class Parse
 
     public void next() {
         state.next();
-
-        observing.notify(observer -> observer.parseNext(this));
     }
 
 }

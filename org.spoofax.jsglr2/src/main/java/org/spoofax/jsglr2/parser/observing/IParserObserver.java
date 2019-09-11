@@ -28,9 +28,7 @@ public interface IParserObserver
 
     void parseStart(Parse<ParseForest, StackNode, ParseState> parse);
 
-    void parseCharacter(Parse<ParseForest, StackNode, ParseState> parse, Iterable<StackNode> activeStacks);
-
-    void parseNext(Parse<ParseForest, StackNode, ParseState> parse);
+    void parseRound(Parse<ParseForest, StackNode, ParseState> parse, Iterable<StackNode> activeStacks);
 
     void addActiveStack(StackNode stack);
 

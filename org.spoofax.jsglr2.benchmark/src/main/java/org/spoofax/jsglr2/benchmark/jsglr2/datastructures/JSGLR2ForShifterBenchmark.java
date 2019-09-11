@@ -65,7 +65,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
 
         public List<ParseRound> parseRounds = new ArrayList<>();
 
-        @Override public void parseCharacter(
+        @Override public void parseRound(
             Parse<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStacks) {
             parseRounds.add(new ParseRound());

@@ -86,7 +86,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
 
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
-        @Override public void parseCharacter(
+        @Override public void parseRound(
             Parse<BasicParseForest, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> parse,
             Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));

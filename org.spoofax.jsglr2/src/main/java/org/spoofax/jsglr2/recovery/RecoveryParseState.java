@@ -30,7 +30,7 @@ public class RecoveryParseState
     }
 
     private BacktrackChoicePoint[] backtrackChoicePoints;
-    private Optional<RecoveryPoint> recoveryPointOpt = Optional.empty();
+    private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
 
     RecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
@@ -60,23 +60,30 @@ public class RecoveryParseState
         return (BacktrackChoicePoint<ParseForest, StackNode>) backtrackChoicePoints[index];
     }
 
-    @Override public void startRecovery(Position position) {
-        recoveryPointOpt = Optional.of(new RecoveryPoint(position));
-
-        // TODO: start using recovery productions
+    @Override public void setRecovery(Position position) {
+        recoveryPointOpt = Optional.of(new RecoveryJob(position));
     }
 
-    @Override public Optional<RecoveryPoint> recoveryPointOpt() {
+    @Override public Optional<RecoveryJob> recoveryJobOpt() {
         return recoveryPointOpt;
     }
 
     @Override public boolean nextRecoveryIteration() {
-        if(recoveryPoint().hasNextIteration()) {
-            int iteration = recoveryPoint().nextIteration();
+        if(recoveryJob().hasNextIteration()) {
+            int iteration = recoveryJob().nextIteration();
 
-            BacktrackChoicePoint backtrackChoicePoint = backtrackChoicePointForIteration(iteration);
+            BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint = backtrackChoicePointForIteration(iteration);
 
-            // TODO: reset parser state
+            this.currentOffset = backtrackChoicePoint.position.offset;
+            this.currentLine = backtrackChoicePoint.position.line;
+            this.currentColumn = backtrackChoicePoint.position.column;
+
+            this.currentChar = getChar(currentOffset);
+
+            this.activeStacks.clear();
+
+            for(StackNode activeStack : backtrackChoicePoint.activeStacks)
+                this.activeStacks.add(activeStack);
 
             return true;
         } else

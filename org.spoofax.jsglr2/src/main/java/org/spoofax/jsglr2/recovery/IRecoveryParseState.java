@@ -19,20 +19,20 @@ public interface IRecoveryParseState
 
     BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int line);
 
-    void startRecovery(Position position);
+    void setRecovery(Position position);
 
-    Optional<RecoveryPoint> recoveryPointOpt();
+    Optional<RecoveryJob> recoveryJobOpt();
 
     default boolean isRecovering() {
-        return recoveryPointOpt().isPresent();
+        return recoveryJobOpt().isPresent();
     }
 
-    default RecoveryPoint recoveryPoint() {
-        return recoveryPointOpt().get();
+    default RecoveryJob recoveryJob() {
+        return recoveryJobOpt().get();
     }
 
     default BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePointForIteration(int i) {
-        int recoveryLine = recoveryPoint().position.line;
+        int recoveryLine = recoveryJob().position.line;
 
         return getBacktrackChoicePoint(Math.max(recoveryLine - i, 0));
     }

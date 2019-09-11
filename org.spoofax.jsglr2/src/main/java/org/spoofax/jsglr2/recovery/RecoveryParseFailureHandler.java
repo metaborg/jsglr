@@ -17,7 +17,7 @@ public class RecoveryParseFailureHandler
 
     @Override public boolean onFailure(Parse<ParseForest, StackNode, ParseState> parse) {
         if(!parse.state.isRecovering())
-            parse.state.startRecovery(parse.state.currentPosition());
+            parse.state.setRecovery(parse.state.currentPosition());
 
         return parse.state.nextRecoveryIteration();
     }

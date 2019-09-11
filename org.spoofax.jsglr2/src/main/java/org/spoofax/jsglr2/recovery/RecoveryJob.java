@@ -2,12 +2,13 @@ package org.spoofax.jsglr2.recovery;
 
 import org.spoofax.jsglr2.parser.Position;
 
-public class RecoveryPoint {
+public class RecoveryJob {
 
     public Position position;
     public int iteration;
+    public int quota;
 
-    public RecoveryPoint(Position position) {
+    public RecoveryJob(Position position) {
         this.position = position;
         this.iteration = 0;
     }
@@ -17,7 +18,9 @@ public class RecoveryPoint {
     }
 
     int nextIteration() {
-        return iteration++;
+        quota = iteration++;
+
+        return iteration;
     }
 
 }

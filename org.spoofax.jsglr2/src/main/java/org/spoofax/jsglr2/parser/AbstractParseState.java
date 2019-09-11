@@ -74,9 +74,9 @@ public abstract class AbstractParseState
         }
     }
 
-    int getChar(int position) {
-        if(position < inputLength) {
-            char c = inputString.charAt(position);
+    protected int getChar(int offset) {
+        if(offset < inputLength) {
+            char c = inputString.charAt(offset);
 
             if(c > 255)
                 throw new IllegalStateException("Unicode not supported");

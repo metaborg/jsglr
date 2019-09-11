@@ -34,7 +34,7 @@ public class Parser
     protected final IParseTable parseTable;
     protected final StackManager stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager;
-    protected final ReduceManager reduceManager;
+    public final ReduceManager reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler;
     protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
 

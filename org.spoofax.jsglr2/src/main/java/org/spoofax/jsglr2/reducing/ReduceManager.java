@@ -14,7 +14,8 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReduceManager
 //@formatter:off
@@ -30,6 +31,7 @@ public class ReduceManager
     protected final AbstractStackManager<ParseForest, StackNode, ParseState> stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager;
     protected final Reducer<ParseForest, ParseNode, Derivation, StackNode, ParseState> reducer;
+    protected final List<ReduceFilter<ParseForest, StackNode, ParseState>> reduceFilters;
 
     public ReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode, ParseState> stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
@@ -37,11 +39,16 @@ public class ReduceManager
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
+        this.reduceFilters = new ArrayList<>();
 
         if(parseForestConstruction == ParseForestConstruction.Optimized)
             this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<>(stackManager, parseForestManager);
         else
             this.reducer = new Reducer<>(stackManager, parseForestManager);
+    }
+
+    public void addFilter(ReduceFilter<ParseForest, StackNode, ParseState> reduceFilter) {
+        reduceFilters.add(reduceFilter);
     }
 
     public void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce) {
@@ -62,9 +69,6 @@ public class ReduceManager
 
         doReductionsHelper(parse, stack, reduce, throughLink);
     }
-
-    private Iterable<ReduceFilter<ParseForest, StackNode, ParseState>> reduceFilters =
-        Collections.singleton(ReduceFilter.ignoreCompletionAndRecovery());
 
     private boolean ignoreReduce(Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce) {
         for(ReduceFilter<ParseForest, StackNode, ParseState> reduceFilter : reduceFilters) {

@@ -34,7 +34,7 @@ public class RecoveryParserObserver
 
     @Override public void parseRound(Parse<ParseForest, StackNode, ParseState> parse,
                                      Iterable<StackNode> activeStacks) {
-        if(CharacterClassFactory.isNewLine(parse.state.currentChar))
+        if(parse.state.currentOffset == 0 || CharacterClassFactory.isNewLine(parse.state.currentChar))
             parse.state.saveBacktrackChoicePoint(parse.state.currentPosition(), parse.state.activeStacks);
 
         // TODO: check if recovery mode can be leaved

@@ -61,7 +61,16 @@ public class Parser
 
         parseState.activeStacks.add(initialStackNode);
 
-        parseLoop(parseState);
+        boolean recover = false;
+
+        do {
+            parseLoop(parseState);
+
+            if(parseState.acceptingStack == null)
+                recover = failureHandler.onFailure(parseState);
+            else
+                recover = false;
+        } while(recover);
 
         if(parseState.acceptingStack != null) {
             ParseForest parseForest =
@@ -104,13 +113,6 @@ public class Parser
 
             if(!parseState.activeStacks.isEmpty())
                 parseState.next();
-        }
-
-        if(parseState.acceptingStack == null) {
-            boolean recover = failureHandler.onFailure(parseState);
-
-            if(recover)
-                parseLoop(parseState);
         }
     }
 
@@ -185,8 +187,7 @@ public class Parser
                 stackManager.createStackLink(observing, parseState, activeStackForState, forShifterElement.stack,
                     characterNode);
             } else {
-                StackNode newStack =
-                    stackManager.createStackNode(observing, forShifterElement.state);
+                StackNode newStack = stackManager.createStackNode(observing, forShifterElement.state);
 
                 stackManager.createStackLink(observing, parseState, newStack, forShifterElement.stack, characterNode);
 

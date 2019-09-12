@@ -61,7 +61,7 @@ public class Parser
 
         parseState.activeStacks.add(initialStackNode);
 
-        boolean recover = false;
+        boolean recover;
 
         do {
             parseLoop(parseState);

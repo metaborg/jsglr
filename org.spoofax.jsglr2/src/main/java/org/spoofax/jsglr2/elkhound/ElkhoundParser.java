@@ -40,9 +40,12 @@ public class ElkhoundParser
     }
 
     @Override protected void parseLoop(ParseState parseState) {
+        boolean nextRound = true;
+
         while(parseState.hasNext() && !parseState.activeStacks.isEmpty()) {
             if(parseState.activeStacks.isSingle()) {
-                observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
+                if(nextRound)
+                    observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
 
                 ElkhoundStackNode singleActiveStack = parseState.activeStacks.getSingle();
 
@@ -73,6 +76,9 @@ public class ElkhoundParser
                                     parseState.activeStacks.add(newStack);
 
                                     parseState.next();
+
+                                    nextRound = true;
+
                                     break;
                                 case REDUCE:
                                 case REDUCE_LOOKAHEAD:
@@ -90,7 +96,10 @@ public class ElkhoundParser
                                         processForActorStacks(parseState);
                                         shifter(parseState);
                                         parseState.next();
-                                    }
+
+                                        nextRound = true;
+                                    } else
+                                        nextRound = false;
 
                                     break;
                                 case ACCEPT:
@@ -112,6 +121,8 @@ public class ElkhoundParser
                             processForActorStacks(parseState);
                             shifter(parseState);
                             parseState.next();
+
+                            nextRound = true;
                         }
                     } else {
                         // The single active stack that was left has no applicable actions, thus parsing fails
@@ -130,6 +141,8 @@ public class ElkhoundParser
                 parseCharacter(parseState);
 
                 parseState.next();
+
+                nextRound = true;
             }
         }
     }

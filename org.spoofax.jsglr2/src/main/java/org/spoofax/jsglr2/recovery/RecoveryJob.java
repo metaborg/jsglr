@@ -18,7 +18,7 @@ public class RecoveryJob {
     }
 
     int nextIteration() {
-        quota = iteration++;
+        quota = ++iteration;
 
         return iteration;
     }

@@ -9,8 +9,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parser.ParseFactory;
+import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
@@ -31,30 +30,31 @@ public class ElkhoundParser
 //@formatter:on
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, StackManager, ReduceManager> {
 
-    public ElkhoundParser(ParseFactory<ParseForest, ElkhoundStackNode, ParseState> parseFactory, IParseTable parseTable,
-        StackManager stackManager,
+    public ElkhoundParser(ParseStateFactory<ParseForest, ElkhoundStackNode, ParseState> parseStateFactory,
+        IParseTable parseTable, StackManager stackManager,
         ParseForestManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState> parseForestManager,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
         IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState> failureHandler) {
-        super(parseFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory, failureHandler);
+        super(parseStateFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory,
+            failureHandler);
     }
 
-    @Override protected void parseLoop(Parse<ParseForest, ElkhoundStackNode, ParseState> parse) {
-        while(parse.state.hasNext() && !parse.state.activeStacks.isEmpty()) {
-            if(parse.state.activeStacks.isSingle()) {
-                observing.notify(observer -> observer.parseRound(parse, parse.state.activeStacks));
+    @Override protected void parseLoop(ParseState parseState) {
+        while(parseState.hasNext() && !parseState.activeStacks.isEmpty()) {
+            if(parseState.activeStacks.isSingle()) {
+                observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
 
-                ElkhoundStackNode singleActiveStack = parse.state.activeStacks.getSingle();
+                ElkhoundStackNode singleActiveStack = parseState.activeStacks.getSingle();
 
                 if(!singleActiveStack.allLinksRejected()) {
                     Iterator<IAction> actionsIterator =
-                        singleActiveStack.state.getApplicableActions(parse.state).iterator();
+                        singleActiveStack.state.getApplicableActions(parseState).iterator();
 
                     if(actionsIterator.hasNext()) {
                         IAction firstAction = actionsIterator.next();
 
                         if(!actionsIterator.hasNext()) {
-                            parse.state.activeStacks.clear();
+                            parseState.activeStacks.clear();
 
                             switch(firstAction.actionType()) {
                                 case SHIFT:
@@ -63,71 +63,74 @@ public class ElkhoundParser
                                     IShift shiftAction = (IShift) firstAction;
                                     IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
-                                    ElkhoundStackNode newStack = stackManager.createStackNode(parse, shiftState);
-                                    ParseForest characterNode = parseForestManager.createCharacterNode(parse);
+                                    ElkhoundStackNode newStack = stackManager.createStackNode(observing,
+                                        parseState.currentPosition(), shiftState);
+                                    ParseForest characterNode =
+                                        parseForestManager.createCharacterNode(observing, parseState);
 
-                                    stackManager.createStackLink(parse, newStack, singleActiveStack, characterNode);
+                                    stackManager.createStackLink(observing, parseState, newStack, singleActiveStack,
+                                        characterNode);
 
-                                    parse.state.activeStacks.add(newStack);
+                                    parseState.activeStacks.add(newStack);
 
-                                    parse.state.next();
+                                    parseState.next();
                                     break;
                                 case REDUCE:
                                 case REDUCE_LOOKAHEAD:
                                     IReduce reduceAction = (IReduce) firstAction;
 
-                                    reduceManager.doReductions(parse, singleActiveStack, reduceAction);
+                                    reduceManager.doReductions(observing, parseState, singleActiveStack, reduceAction);
 
                                     // If stacks are added to forActorStacks, the reduction was not LR (deterministic
                                     // depth not big enough, so there is reduced over multiple paths), we thus partly
                                     // fall back to (S)GLR by processing the forActorStacks collection and calling
                                     // shifter afterwards, before going to the next character
-                                    if(parse.state.forActorStacks.nonEmpty()) {
-                                        parse.state.activeStacks.add(singleActiveStack);
+                                    if(parseState.forActorStacks.nonEmpty()) {
+                                        parseState.activeStacks.add(singleActiveStack);
 
-                                        processForActorStacks(parse);
-                                        shifter(parse);
-                                        parse.state.next();
+                                        processForActorStacks(parseState);
+                                        shifter(parseState);
+                                        parseState.next();
                                     }
 
                                     break;
                                 case ACCEPT:
-                                    parse.state.acceptingStack = singleActiveStack;
+                                    parseState.acceptingStack = singleActiveStack;
 
                                     observing.notify(observer -> observer.accept(singleActiveStack));
 
                                     return;
                             }
                         } else {
-                            actor(singleActiveStack, parse, firstAction);
+                            actor(singleActiveStack, parseState, firstAction);
 
                             while(actionsIterator.hasNext())
-                                actor(singleActiveStack, parse, actionsIterator.next());
+                                actor(singleActiveStack, parseState, actionsIterator.next());
 
                             // The forActorStacks collection could be filled with actions from the reductions that are
                             // applied, so we need continue like regular (S)GLR, by processing the active stacks,
                             // performing shifts and then proceed to the next character
-                            processForActorStacks(parse);
-                            shifter(parse);
-                            parse.state.next();
+                            processForActorStacks(parseState);
+                            shifter(parseState);
+                            parseState.next();
                         }
                     } else {
                         // The single active stack that was left has no applicable actions, thus parsing fails
-                        parse.state.activeStacks.clear();
+                        parseState.activeStacks.clear();
                         return;
                     }
                 } else {
-                    parse.observing.notify(observer -> observer.skipRejectedStack(singleActiveStack));
+                    observing.notify(observer -> observer.skipRejectedStack(singleActiveStack));
 
                     // The single active stack that was left is rejected, thus parsing fails
-                    parse.state.activeStacks.clear();
+                    parseState.activeStacks.clear();
                     return;
                 }
             } else {
                 // Fall back to regular (S)GLR when multiple stacks are active
-                parseCharacter(parse);
+                parseCharacter(parseState);
 
-                parse.state.next();
+                parseState.next();
             }
         }
     }

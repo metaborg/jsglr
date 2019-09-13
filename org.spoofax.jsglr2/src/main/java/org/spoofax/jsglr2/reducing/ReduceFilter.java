@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.reducing;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public interface ReduceFilter
@@ -14,7 +14,7 @@ public interface ReduceFilter
 //@formatter:on
 {
 
-    boolean ignoreReduce(Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce);
+    boolean ignoreReduce(ParseState parseState, IReduce reduce);
 
     static
 //@formatter:off
@@ -23,7 +23,7 @@ public interface ReduceFilter
     ParseState_  extends AbstractParseState<ParseForest_, StackNode_>>
 //@formatter:on
     ReduceFilter<ParseForest_, StackNode_, ParseState_> ignoreCompletionAndRecovery() {
-        return (parse, reduce) -> reduce.production().isCompletionOrRecovery();
+        return (parseState, reduce) -> reduce.production().isCompletionOrRecovery();
     }
 
 }

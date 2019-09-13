@@ -15,8 +15,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
-import org.spoofax.jsglr2.parser.ParseFactory;
+import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -49,44 +48,43 @@ public class IncrementalParser
     private final HashMap<String, String> oldString = new HashMap<>();
     private final IStringDiff diff;
 
-    public IncrementalParser(ParseFactory<IncrementalParseForest, StackNode, ParseState> parseFactory,
+    public IncrementalParser(ParseStateFactory<IncrementalParseForest, StackNode, ParseState> parseStateFactory,
         IParseTable parseTable, StackManager stackManager,
         ParseForestManager<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
         ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler) {
-        super(parseFactory, parseTable, stackManager, parseForestManager, reduceManagerFactory, failureHandler);
+        super(parseStateFactory, parseTable, stackManager, parseForestManager, reduceManagerFactory, failureHandler);
         // TODO parametrize parser on diff algorithm for benchmarking
         this.diff = new JGitHistogramDiff();
     }
 
-    @Override protected Parse<IncrementalParseForest, StackNode, ParseState> getParse(String inputString,
-        String filename) {
-        Parse<IncrementalParseForest, StackNode, ParseState> parse = super.getParse(inputString, filename);
+    @Override protected ParseState getParseState(String inputString, String filename) {
+        ParseState parseState = super.getParseState(inputString, filename);
         ProcessUpdates<StackNode, ParseState> processUpdates =
-            new ProcessUpdates<>(parse, (IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
+            new ProcessUpdates<>(parseState, (IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
 
         if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
             List<EditorUpdate> updates = diff.diff(oldString.get(filename), inputString);
 
-            parse.state.initParse(processUpdates.processUpdates(cache.get(filename), updates), inputString);
+            parseState.initParse(processUpdates.processUpdates(cache.get(filename), updates), inputString);
         } else
-            parse.state.initParse(processUpdates.getParseNodeFromString(inputString), inputString);
+            parseState.initParse(processUpdates.getParseNodeFromString(inputString), inputString);
 
-        return parse;
+        return parseState;
     }
 
-    @Override protected ParseSuccess<IncrementalParseForest>
-        success(Parse<IncrementalParseForest, StackNode, ParseState> parse, IncrementalParseForest parseForest) {
+    @Override protected ParseSuccess<IncrementalParseForest> success(ParseState parseState,
+        IncrementalParseForest parseForest) {
         // On success, save result (if filename != "")
-        if(!parse.state.filename.equals("")) {
-            oldString.put(parse.state.filename, parse.state.inputString);
-            cache.put(parse.state.filename, parseForest);
+        if(!parseState.filename.equals("")) {
+            oldString.put(parseState.filename, parseState.inputString);
+            cache.put(parseState.filename, parseForest);
         }
-        return super.success(parse, parseForest);
+        return super.success(parseState, parseForest);
     }
 
-    @Override protected void actor(StackNode stack, Parse<IncrementalParseForest, StackNode, ParseState> parse) {
-        Iterable<IAction> actions = getActions(stack, parse);
+    @Override protected void actor(StackNode stack, ParseState parseState) {
+        Iterable<IAction> actions = getActions(stack, parseState);
         // Break down lookahead if it has no state or if there are no actions for it.
         // Only break down if the lookahead is not a terminal.
         // If there are no actions, do not break down if we already have something to shift.
@@ -94,20 +92,20 @@ public class IncrementalParser
         // - if we would, it would cause different shifts to be desynchronised;
         // - if a break-down of this node would cause different actions, it would already have been broken down because
         // that would mean that this node was created when the parser was in multiple states.
-        while(!parse.state.lookahead().get().isTerminal()
-            && (lookaheadHasNoState(parse.state.lookahead()) || isEmpty(actions) && parse.state.forShifter.isEmpty())) {
-            parse.state.lookahead().leftBreakdown();
-            actions = getActions(stack, parse);
+        while(!parseState.lookahead().get().isTerminal()
+            && (lookaheadHasNoState(parseState.lookahead()) || isEmpty(actions) && parseState.forShifter.isEmpty())) {
+            parseState.lookahead().leftBreakdown();
+            actions = getActions(stack, parseState);
         }
 
         if(size(actions) > 1)
-            parse.state.setMultipleStates(true);
+            parseState.setMultipleStates(true);
 
         Iterable<IAction> finalActions = actions;
-        observing.notify(observer -> observer.actor(stack, parse, finalActions));
+        observing.notify(observer -> observer.actor(stack, parseState, finalActions));
 
         for(IAction action : actions)
-            actor(stack, parse, action);
+            actor(stack, parseState, action);
     }
 
     private boolean lookaheadHasNoState(ILookaheadStack lookahead) {
@@ -116,11 +114,11 @@ public class IncrementalParser
 
     // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.
     // Else, the loop in `actor` will have broken it down
-    private Iterable<IAction> getActions(StackNode stack, Parse<IncrementalParseForest, StackNode, ParseState> parse) {
+    private Iterable<IAction> getActions(StackNode stack, ParseState parseState) {
         // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
-        Iterable<IAction> actions = stack.state().getApplicableActions(parse.state);
+        Iterable<IAction> actions = stack.state().getApplicableActions(parseState);
 
-        IncrementalParseForest lookahead = parse.state.lookahead().get();
+        IncrementalParseForest lookahead = parseState.lookahead().get();
         if(lookahead.isTerminal()) {
             return actions;
         } else {
@@ -167,10 +165,9 @@ public class IncrementalParser
         return stack.state().getGotoId(reduceAction.production().id()) == gotoShiftAction.shiftStateId();
     }
 
-    @Override protected IncrementalParseForest
-        getNodeToShift(Parse<IncrementalParseForest, StackNode, ParseState> parse) {
-        parse.state.setMultipleStates(parse.state.forShifter.size() > 1);
+    @Override protected IncrementalParseForest getNodeToShift(ParseState parseState) {
+        parseState.setMultipleStates(parseState.forShifter.size() > 1);
 
-        return parse.state.lookahead().get();
+        return parseState.lookahead().get();
     }
 }

@@ -6,7 +6,8 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.Arrays;
@@ -24,12 +25,14 @@ public class ProcessUpdates
 //@formatter:on
 {
 
-    private final Parse<IncrementalParseForest, StackNode, ParseState> parse;
+    private final ParseState parseState;
+    private final ParserObserving<IncrementalParseForest, StackNode, ParseState> observing;
     private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager;
 
-    public ProcessUpdates(Parse<IncrementalParseForest, StackNode, ParseState> parse,
+    public ProcessUpdates(ParseState parseState,
         IncrementalParseForestManager<StackNode, ParseState> parseForestManager) {
-        this.parse = parse;
+        this.parseState = parseState;
+        this.observing = new ParserObserving<>();
         this.parseForestManager = parseForestManager;
     }
 
@@ -150,7 +153,7 @@ public class ProcessUpdates
             Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
         if(filtered.length == 0)
             return null;
-        return parseForestManager.createChangedParseNode(parse, filtered);
+        return parseForestManager.createChangedParseNode(observing, parseState, filtered);
     }
 
     public IncrementalParseNode getParseNodeFromString(String inputString) {
@@ -158,8 +161,8 @@ public class ProcessUpdates
 
         char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            parseForests[i] = parseForestManager.createCharacterNode(parse, chars[i]);
+            parseForests[i] = parseForestManager.createCharacterNode(observing, parseState, chars[i]);
         }
-        return parseForestManager.createChangedParseNode(parse, parseForests);
+        return parseForestManager.createChangedParseNode(observing, parseState, parseForests);
     }
 }

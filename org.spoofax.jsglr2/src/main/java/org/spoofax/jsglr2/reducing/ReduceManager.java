@@ -8,7 +8,8 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -51,42 +52,43 @@ public class ReduceManager
         reduceFilters.add(reduceFilter);
     }
 
-    public void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce) {
-        if(ignoreReduce(parse, reduce))
+    public void doReductions(ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState,
+        StackNode stack, IReduce reduce) {
+        if(ignoreReduce(parseState, reduce))
             return;
 
-        parse.observing.notify(observer -> observer.doReductions(parse, stack, reduce));
+        observing.notify(observer -> observer.doReductions(parseState, stack, reduce));
 
-        doReductionsHelper(parse, stack, reduce, null);
+        doReductionsHelper(observing, parseState, stack, reduce, null);
     }
 
-    private void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> throughLink) {
-        if(ignoreReduce(parse, reduce))
+    private void doLimitedReductions(ParserObserving<ParseForest, StackNode, ParseState> observing,
+        ParseState parseState, StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+        if(ignoreReduce(parseState, reduce))
             return;
 
-        parse.observing.notify(observer -> observer.doLimitedReductions(parse, stack, reduce, throughLink));
+        observing.notify(observer -> observer.doLimitedReductions(parseState, stack, reduce, throughLink));
 
-        doReductionsHelper(parse, stack, reduce, throughLink);
+        doReductionsHelper(observing, parseState, stack, reduce, throughLink);
     }
 
-    private boolean ignoreReduce(Parse<ParseForest, StackNode, ParseState> parse, IReduce reduce) {
+    private boolean ignoreReduce(ParseState parseState, IReduce reduce) {
         for(ReduceFilter<ParseForest, StackNode, ParseState> reduceFilter : reduceFilters) {
-            if(reduceFilter.ignoreReduce(parse, reduce))
+            if(reduceFilter.ignoreReduce(parseState, reduce))
                 return true;
         }
 
         return false;
     }
 
-    protected void doReductionsHelper(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> throughLink) {
+    protected void doReductionsHelper(ParserObserving<ParseForest, StackNode, ParseState> observing,
+        ParseState parseState, StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
         for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
                 StackNode pathBegin = path.head();
                 ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-                reducer(parse, pathBegin, reduce, parseNodes);
+                reducer(observing, parseState, pathBegin, reduce, parseNodes);
             }
         }
     }
@@ -98,36 +100,37 @@ public class ReduceManager
      * not and if such an active stack already exists, the link to it can also already exist. Based on the existence of
      * the stack with the goto state and the link to it, different actions are performed.
      */
-    protected void reducer(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack, IReduce reduce,
-        ParseForest[] parseForests) {
+    protected void reducer(ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState,
+        StackNode stack, IReduce reduce, ParseForest[] parseForests) {
         int gotoId = stack.state().getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
-        StackNode activeStackWithGotoState = parse.state.activeStacks.findWithState(gotoState);
+        StackNode activeStackWithGotoState = parseState.activeStacks.findWithState(gotoState);
 
-        parse.observing.notify(observer -> observer.reducer(stack, reduce, parseForests, activeStackWithGotoState));
+        observing.notify(observer -> observer.reducer(stack, reduce, parseForests, activeStackWithGotoState));
 
         if(activeStackWithGotoState != null) {
             StackLink<ParseForest, StackNode> directLink = stackManager.findDirectLink(activeStackWithGotoState, stack);
 
-            parse.observing.notify(observer -> observer.directLinkFound(parse, directLink));
+            observing.notify(observer -> observer.directLinkFound(parseState, directLink));
 
             if(directLink != null) {
-                reducer.reducerExistingStackWithDirectLink(parse, reduce, directLink, parseForests);
+                reducer.reducerExistingStackWithDirectLink(observing, parseState, reduce, directLink, parseForests);
             } else {
-                StackLink<ParseForest, StackNode> link = reducer.reducerExistingStackWithoutDirectLink(parse, reduce,
-                    activeStackWithGotoState, stack, parseForests);
+                StackLink<ParseForest, StackNode> link = reducer.reducerExistingStackWithoutDirectLink(observing,
+                    parseState, reduce, activeStackWithGotoState, stack, parseForests);
 
-                for(StackNode activeStack : parse.state.activeStacks.forLimitedReductions(parse.state.forActorStacks)) {
-                    for(IReduce reduceAction : activeStack.state().getApplicableReduceActions(parse.state))
-                        doLimitedReductions(parse, activeStack, reduceAction, link);
+                for(StackNode activeStack : parseState.activeStacks.forLimitedReductions(parseState.forActorStacks)) {
+                    for(IReduce reduceAction : activeStack.state().getApplicableReduceActions(parseState))
+                        doLimitedReductions(observing, parseState, activeStack, reduceAction, link);
                 }
             }
         } else {
-            StackNode newStack = reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
+            StackNode newStack =
+                reducer.reducerNoExistingStack(observing, parseState, reduce, stack, gotoState, parseForests);
 
-            parse.state.activeStacks.add(newStack);
-            parse.state.forActorStacks.add(newStack);
+            parseState.activeStacks.add(newStack);
+            parseState.forActorStacks.add(newStack);
         }
     }
 

@@ -4,7 +4,8 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.ArrayList;
@@ -17,18 +18,19 @@ public class HybridParseForestManager
 //@formatter:on
     extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation, StackNode, ParseState> {
 
-    @Override public HybridParseNode createParseNode(Parse<HybridParseForest, StackNode, ParseState> parse,
-        IStackNode stack, IProduction production, HybridDerivation firstDerivation) {
+    @Override public HybridParseNode createParseNode(
+        ParserObserving<HybridParseForest, StackNode, ParseState> observing, ParseState parseState, IStackNode stack,
+        IProduction production, HybridDerivation firstDerivation) {
         HybridParseNode parseNode = new HybridParseNode(production, firstDerivation);
 
-        parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
-        parse.observing.notify(observer -> observer.addDerivation(parseNode, firstDerivation));
+        observing.notify(observer -> observer.createParseNode(parseNode, production));
+        observing.notify(observer -> observer.addDerivation(parseNode, firstDerivation));
 
         return parseNode;
     }
 
     @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
-        Parse<HybridParseForest, StackNode, ParseState> parse) {
+        ParseState parseState) {
         HybridParseNode topNode = (HybridParseNode) parseForest;
         List<HybridDerivation> result = new ArrayList<>();
 
@@ -51,26 +53,28 @@ public class HybridParseForestManager
         }
     }
 
-    @Override public HybridDerivation createDerivation(Parse<HybridParseForest, StackNode, ParseState> parse,
-        IStackNode stack, IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
+    @Override public HybridDerivation createDerivation(
+        ParserObserving<HybridParseForest, StackNode, ParseState> observing, ParseState parseState, IStackNode stack,
+        IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
         HybridDerivation derivation = new HybridDerivation(production, productionType, parseForests);
 
-        parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
+        observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
 
-    @Override public void addDerivation(Parse<HybridParseForest, StackNode, ParseState> parse,
-        HybridParseNode parseNode, HybridDerivation derivation) {
-        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
+    @Override public void addDerivation(ParserObserving<HybridParseForest, StackNode, ParseState> observing,
+        ParseState parseState, HybridParseNode parseNode, HybridDerivation derivation) {
+        observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public HybridCharacterNode createCharacterNode(Parse<HybridParseForest, StackNode, ParseState> parse) {
-        HybridCharacterNode characterNode = new HybridCharacterNode(parse.state.currentChar);
+    @Override public HybridCharacterNode createCharacterNode(
+        ParserObserving<HybridParseForest, StackNode, ParseState> observing, ParseState parseState) {
+        HybridCharacterNode characterNode = new HybridCharacterNode(parseState.currentChar);
 
-        parse.observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
+        observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
 
         return characterNode;
     }

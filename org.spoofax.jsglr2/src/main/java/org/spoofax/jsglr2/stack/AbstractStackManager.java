@@ -4,7 +4,9 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
+import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.StackPath;
@@ -20,18 +22,21 @@ public abstract class AbstractStackManager
 //@formatter:on
 {
 
-    public abstract StackNode createInitialStackNode(Parse<ParseForest, StackNode, ParseState> parse, IState state);
+    public abstract StackNode createInitialStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
+        Position currentPosition, IState state);
 
-    public abstract StackNode createStackNode(Parse<ParseForest, StackNode, ParseState> parse, IState state);
+    public abstract StackNode createStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
+        Position currentPosition, IState state);
 
-    public abstract StackLink<ParseForest, StackNode> createStackLink(Parse<ParseForest, StackNode, ParseState> parse,
-        StackNode from, StackNode to, ParseForest parseNode);
+    public abstract StackLink<ParseForest, StackNode> createStackLink(
+        ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState, StackNode from,
+        StackNode to, ParseForest parseNode);
 
-    public void rejectStackLink(Parse<ParseForest, StackNode, ParseState> parse,
+    public void rejectStackLink(ParserObserving<ParseForest, StackNode, ParseState> observing,
         StackLink<ParseForest, StackNode> link) {
         link.reject();
 
-        parse.observing.notify(observer -> observer.rejectStackLink(link));
+        observing.notify(observer -> observer.rejectStackLink(link));
     }
 
     public StackLink<ParseForest, StackNode> findDirectLink(StackNode from, StackNode to) {

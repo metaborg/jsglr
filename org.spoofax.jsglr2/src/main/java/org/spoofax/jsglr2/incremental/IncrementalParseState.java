@@ -10,7 +10,10 @@ import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
@@ -41,9 +44,15 @@ public class IncrementalParseState
    <StackNode_  extends IStackNode,
     ParseState_ extends AbstractParseState<IncrementalParseForest, StackNode_> & IIncrementalParseState>
 //@formatter:on
-    ParseStateFactory<IncrementalParseForest, StackNode_, ParseState_> factory() {
-        return (inputString, filename, activeStacks, forActorStacks) -> (ParseState_) new IncrementalParseState<>(
-            inputString, filename, activeStacks, forActorStacks);
+    ParseStateFactory<IncrementalParseForest, StackNode_, ParseState_> factory(ParserVariant variant) {
+        return (inputString, filename, observing) -> {
+            IActiveStacks<StackNode_> activeStacks =
+                new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
+            IForActorStacks<StackNode_> forActorStacks =
+                new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
+
+            return (ParseState_) new IncrementalParseState<>(inputString, filename, activeStacks, forActorStacks);
+        };
     }
 
     @Override public String actionQueryLookahead(int length) {

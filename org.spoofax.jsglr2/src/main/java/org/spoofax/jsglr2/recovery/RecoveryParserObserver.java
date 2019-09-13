@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.Parse;
+
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -28,14 +28,13 @@ public class RecoveryParserObserver
 //@formatter:on
     implements IParserObserver<ParseForest, StackNode, ParseState> {
 
-    @Override public void parseStart(Parse<ParseForest, StackNode, ParseState> parse) {
-        parse.state.initializeBacktrackChoicePoints(parse.state.inputString);
+    @Override public void parseStart(ParseState parseState) {
+        parseState.initializeBacktrackChoicePoints(parseState.inputString);
     }
 
-    @Override public void parseRound(Parse<ParseForest, StackNode, ParseState> parse,
-                                     Iterable<StackNode> activeStacks) {
-        if(parse.state.currentOffset == 0 || CharacterClassFactory.isNewLine(parse.state.currentChar))
-            parse.state.saveBacktrackChoicePoint(parse.state.currentPosition(), parse.state.activeStacks);
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
+        if(parseState.currentOffset == 0 || CharacterClassFactory.isNewLine(parseState.currentChar))
+            parseState.saveBacktrackChoicePoint(parseState.currentPosition(), parseState.activeStacks);
 
         // TODO: check if recovery mode can be leaved
     }
@@ -67,8 +66,7 @@ public class RecoveryParserObserver
     @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
     }
 
-    @Override public void actor(StackNode stack, Parse<ParseForest, StackNode, ParseState> parse,
-        Iterable<IAction> applicableActions) {
+    @Override public void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions) {
     }
 
     @Override public void skipRejectedStack(StackNode stack) {
@@ -77,12 +75,11 @@ public class RecoveryParserObserver
     @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
     }
 
-    @Override public void doReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-        IReduce reduce) {
+    @Override public void doReductions(ParseState parseState, StackNode stack, IReduce reduce) {
     }
 
-    @Override public void doLimitedReductions(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-        IReduce reduce, StackLink<ParseForest, StackNode> link) {
+    @Override public void doLimitedReductions(ParseState parseState, StackNode stack, IReduce reduce,
+        StackLink<ParseForest, StackNode> link) {
     }
 
     @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
@@ -92,8 +89,7 @@ public class RecoveryParserObserver
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
     }
 
-    @Override public void directLinkFound(Parse<ParseForest, StackNode, ParseState> parse,
-        StackLink<ParseForest, StackNode> directLink) {
+    @Override public void directLinkFound(ParseState parseState, StackLink<ParseForest, StackNode> directLink) {
     }
 
     @Override public void accept(StackNode acceptingStack) {

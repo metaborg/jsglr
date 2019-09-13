@@ -4,8 +4,11 @@ import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
@@ -24,9 +27,15 @@ public class RecoveryParseState
     StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & IRecoveryParseState<ParseForest_, StackNode_>>
 //@formatter:on
-    ParseStateFactory<ParseForest_, StackNode_, ParseState_> factory() {
-        return (inputString, filename, activeStacks, forActorStacks) -> (ParseState_) new RecoveryParseState<>(
-            inputString, filename, activeStacks, forActorStacks);
+    ParseStateFactory<ParseForest_, StackNode_, ParseState_> factory(ParserVariant variant) {
+        return (inputString, filename, observing) -> {
+            IActiveStacks<StackNode_> activeStacks =
+                new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
+            IForActorStacks<StackNode_> forActorStacks =
+                new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
+
+            return (ParseState_) new RecoveryParseState<>(inputString, filename, activeStacks, forActorStacks);
+        };
     }
 
     private BacktrackChoicePoint[] backtrackChoicePoints;
@@ -72,7 +81,8 @@ public class RecoveryParseState
         if(recoveryJob().hasNextIteration()) {
             int iteration = recoveryJob().nextIteration();
 
-            BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint = backtrackChoicePointForIteration(iteration);
+            BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint =
+                backtrackChoicePointForIteration(iteration);
 
             this.currentOffset = backtrackChoicePoint.position.offset;
             this.currentLine = backtrackChoicePoint.position.line;

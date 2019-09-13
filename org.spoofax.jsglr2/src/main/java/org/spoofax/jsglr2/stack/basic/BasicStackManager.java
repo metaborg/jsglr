@@ -4,6 +4,7 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackManager;
 
 public class BasicStackManager
@@ -13,7 +14,9 @@ public class BasicStackManager
 //@formatter:on
     extends StackManager<ParseForest, BasicStackNode<ParseForest>, ParseState> {
 
-    @Override protected BasicStackNode<ParseForest> createStackNode(IState state, Position position, boolean isRoot) {
+    @Override protected BasicStackNode<ParseForest> createStackNode(
+        ParserObserving<ParseForest, BasicStackNode<ParseForest>, ParseState> observing, IState state,
+        Position position, boolean isRoot) {
         return new BasicStackNode<>(state, position);
     }
 

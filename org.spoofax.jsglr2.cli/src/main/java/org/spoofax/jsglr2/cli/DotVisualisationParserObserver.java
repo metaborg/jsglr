@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -26,8 +26,8 @@ abstract class DotVisualisationParserObserver
 
     StringBuilder dotStatements;
 
-    @Override public void parseStart(Parse<ParseForest, StackNode, ParseState> parse) {
-        super.parseStart(parse);
+    @Override public void parseStart(ParseState parseState) {
+        super.parseStart(parseState);
         dotStatements = new StringBuilder();
     }
 

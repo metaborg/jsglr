@@ -4,8 +4,9 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.ArrayList;
@@ -20,20 +21,20 @@ public class LayoutSensitiveParseForestManager
     ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode, ParseState> {
 
     @Override public LayoutSensitiveParseNode createParseNode(
-        Parse<LayoutSensitiveParseForest, StackNode, ParseState> parse, IStackNode stack, IProduction production,
-        LayoutSensitiveDerivation firstDerivation) {
+        ParserObserving<LayoutSensitiveParseForest, StackNode, ParseState> observing, ParseState parseState,
+        IStackNode stack, IProduction production, LayoutSensitiveDerivation firstDerivation) {
         LayoutSensitiveParseNode parseNode =
-            new LayoutSensitiveParseNode(stack.position(), parse.state.currentPosition(), production);
+            new LayoutSensitiveParseNode(stack.position(), parseState.currentPosition(), production);
 
-        parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
+        observing.notify(observer -> observer.createParseNode(parseNode, production));
 
-        addDerivation(parse, parseNode, firstDerivation);
+        addDerivation(observing, parseState, parseNode, firstDerivation);
 
         return parseNode;
     }
 
     @Override public LayoutSensitiveParseForest filterStartSymbol(LayoutSensitiveParseForest parseForest,
-        String startSymbol, Parse<LayoutSensitiveParseForest, StackNode, ParseState> parse) {
+        String startSymbol, ParseState parseState) {
         LayoutSensitiveParseNode topNode = (LayoutSensitiveParseNode) parseForest;
         List<LayoutSensitiveDerivation> result = new ArrayList<>();
 
@@ -58,8 +59,9 @@ public class LayoutSensitiveParseForestManager
     }
 
     @Override public LayoutSensitiveDerivation createDerivation(
-        Parse<LayoutSensitiveParseForest, StackNode, ParseState> parse, IStackNode stack, IProduction production,
-        ProductionType productionType, LayoutSensitiveParseForest[] parseForests) {
+        ParserObserving<LayoutSensitiveParseForest, StackNode, ParseState> observing, ParseState parseState,
+        IStackNode stack, IProduction production, ProductionType productionType,
+        LayoutSensitiveParseForest[] parseForests) {
         Position beginPosition = stack.position();
 
         // FIXME since EndPosition is wrong, right is also wrong
@@ -92,7 +94,7 @@ public class LayoutSensitiveParseForestManager
                         rightPosition = rightMost(rightPosition, currentRightPosition);
                     }
 
-                    if(currentEndPosition.line < parse.state.currentPosition().line
+                    if(currentEndPosition.line < parseState.currentPosition().line
                         && !currentStartPosition.equals(currentEndPosition)) {
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
@@ -103,8 +105,8 @@ public class LayoutSensitiveParseForestManager
                     leftPosition = new Position(pf.getStartPosition().offset, pf.getStartPosition().line,
                         pf.getStartPosition().column);
                 }
-                if(pf.getEndPosition().line < parse.state.currentPosition().line
-                    && pf.getEndPosition().column > parse.state.currentPosition().column) {
+                if(pf.getEndPosition().line < parseState.currentPosition().line
+                    && pf.getEndPosition().column > parseState.currentPosition().column) {
                     rightPosition =
                         new Position(pf.getEndPosition().offset, pf.getEndPosition().line, pf.getEndPosition().column);
                 }
@@ -114,9 +116,9 @@ public class LayoutSensitiveParseForestManager
         }
 
         LayoutSensitiveDerivation derivation = new LayoutSensitiveDerivation(beginPosition, leftPosition, rightPosition,
-            parse.state.currentPosition(), production, productionType, parseForests);
+            parseState.currentPosition(), production, productionType, parseForests);
 
-        parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
+        observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
@@ -145,19 +147,19 @@ public class LayoutSensitiveParseForestManager
         return p1;
     }
 
-    @Override public void addDerivation(Parse<LayoutSensitiveParseForest, StackNode, ParseState> parse,
-        LayoutSensitiveParseNode parseNode, LayoutSensitiveDerivation derivation) {
-        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
+    @Override public void addDerivation(ParserObserving<LayoutSensitiveParseForest, StackNode, ParseState> observing,
+        ParseState parseState, LayoutSensitiveParseNode parseNode, LayoutSensitiveDerivation derivation) {
+        observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public LayoutSensitiveCharacterNode
-        createCharacterNode(Parse<LayoutSensitiveParseForest, StackNode, ParseState> parse) {
+    @Override public LayoutSensitiveCharacterNode createCharacterNode(
+        ParserObserving<LayoutSensitiveParseForest, StackNode, ParseState> observing, ParseState parseState) {
         LayoutSensitiveCharacterNode termNode =
-            new LayoutSensitiveCharacterNode(parse.state.currentPosition(), parse.state.currentChar);
+            new LayoutSensitiveCharacterNode(parseState.currentPosition(), parseState.currentChar);
 
-        parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
+        observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
 
         return termNode;
     }

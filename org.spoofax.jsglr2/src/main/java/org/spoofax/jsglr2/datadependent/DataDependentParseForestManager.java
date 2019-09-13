@@ -4,7 +4,8 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.ArrayList;
@@ -19,19 +20,19 @@ public class DataDependentParseForestManager
     ParseForestManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode, ParseState> {
 
     @Override public DataDependentParseNode createParseNode(
-        Parse<DataDependentParseForest, StackNode, ParseState> parse, IStackNode stack, IProduction production,
-        DataDependentDerivation firstDerivation) {
+        ParserObserving<DataDependentParseForest, StackNode, ParseState> observing, ParseState parseState,
+        IStackNode stack, IProduction production, DataDependentDerivation firstDerivation) {
         DataDependentParseNode parseNode = new DataDependentParseNode(production);
 
-        parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
+        observing.notify(observer -> observer.createParseNode(parseNode, production));
 
-        addDerivation(parse, parseNode, firstDerivation);
+        addDerivation(observing, parseState, parseNode, firstDerivation);
 
         return parseNode;
     }
 
     @Override public DataDependentParseForest filterStartSymbol(DataDependentParseForest parseForest,
-        String startSymbol, Parse<DataDependentParseForest, StackNode, ParseState> parse) {
+        String startSymbol, ParseState parseState) {
         DataDependentParseNode topNode = (DataDependentParseNode) parseForest;
         List<DataDependentDerivation> result = new ArrayList<>();
 
@@ -55,28 +56,29 @@ public class DataDependentParseForestManager
     }
 
     @Override public DataDependentDerivation createDerivation(
-        Parse<DataDependentParseForest, StackNode, ParseState> parse, IStackNode stack, IProduction production,
-        ProductionType productionType, DataDependentParseForest[] parseForests) {
+        ParserObserving<DataDependentParseForest, StackNode, ParseState> observing, ParseState parseState,
+        IStackNode stack, IProduction production, ProductionType productionType,
+        DataDependentParseForest[] parseForests) {
         DataDependentDerivation derivation = new DataDependentDerivation(production, productionType, parseForests);
 
-        parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
+        observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
 
-    @Override public void addDerivation(Parse<DataDependentParseForest, StackNode, ParseState> parse,
-        DataDependentParseNode parseNode, DataDependentDerivation derivation) {
+    @Override public void addDerivation(ParserObserving<DataDependentParseForest, StackNode, ParseState> observing,
+        ParseState parseState, DataDependentParseNode parseNode, DataDependentDerivation derivation) {
 
-        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
+        observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public DataDependentCharacterNode
-        createCharacterNode(Parse<DataDependentParseForest, StackNode, ParseState> parse) {
-        DataDependentCharacterNode characterNode = new DataDependentCharacterNode(parse.state.currentChar);
+    @Override public DataDependentCharacterNode createCharacterNode(
+        ParserObserving<DataDependentParseForest, StackNode, ParseState> observing, ParseState parseState) {
+        DataDependentCharacterNode characterNode = new DataDependentCharacterNode(parseState.currentChar);
 
-        parse.observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
+        observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
 
         return characterNode;
     }

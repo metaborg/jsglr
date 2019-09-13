@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.parser.failure;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
 import org.spoofax.jsglr2.parser.result.ParseFailureType;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -14,8 +14,8 @@ public interface IParseFailureHandler
 //@formatter:on
 {
 
-    boolean onFailure(Parse<ParseForest, StackNode, ParseState> parse);
+    boolean onFailure(ParseState parseState);
 
-    ParseFailureType failureType(Parse<ParseForest, StackNode, ParseState> parse);
+    ParseFailureType failureType(ParseState parseState);
 
 }

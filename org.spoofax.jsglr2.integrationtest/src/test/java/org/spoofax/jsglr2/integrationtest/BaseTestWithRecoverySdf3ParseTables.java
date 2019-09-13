@@ -19,7 +19,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         return sdf3ToParseTable.getParseTable(variant, sdf3Resource);
     }
 
-    private Predicate<TestVariant> isRecoveryVariant = testVariant -> testVariant.variant.parser.recovery && testVariant.variant.parser.reducing != Reducing.Elkhound;
+    private Predicate<TestVariant> isRecoveryVariant =
+        testVariant -> testVariant.variant.parser.recovery && testVariant.variant.parser.reducing != Reducing.Elkhound;
 
     private Predicate<TestVariant> isNotRecoveryVariant = testVariant -> !testVariant.variant.parser.recovery;
 

@@ -12,7 +12,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -39,8 +39,8 @@ public class DataDependentReduceManager
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }
 
-    @Override protected void doReductionsHelper(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-        IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+    @Override protected void doReductionsHelper(ParserObserving<ParseForest, StackNode, ParseState> observing,
+        ParseState parseState, StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
         for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
                 StackNode pathBegin = path.head();
@@ -66,7 +66,7 @@ public class DataDependentReduceManager
                     continue;
                 }
 
-                reducer(parse, pathBegin, reduce, parseNodes);
+                reducer(observing, parseState, pathBegin, reduce, parseNodes);
             }
         }
     }

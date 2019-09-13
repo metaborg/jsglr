@@ -6,7 +6,7 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
 import org.spoofax.jsglr2.stack.IStackNode;
 
 class ParseForestDotVisualisationParserObserver
@@ -21,8 +21,8 @@ class ParseForestDotVisualisationParserObserver
         super(outputConsumer);
     }
 
-    @Override public void parseStart(Parse<ParseForest, StackNode, ParseState> parse) {
-        super.parseStart(parse);
+    @Override public void parseStart(ParseState parseState) {
+        super.parseStart(parseState);
     }
 
     @Override public void createParseNode(ParseForest parseNode, IProduction production) {

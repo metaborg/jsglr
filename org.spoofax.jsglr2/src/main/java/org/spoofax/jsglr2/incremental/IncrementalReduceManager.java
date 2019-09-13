@@ -7,7 +7,8 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -34,8 +35,8 @@ public class IncrementalReduceManager
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }
 
-    @Override protected void doReductionsHelper(Parse<ParseForest, StackNode, ParseState> parse, StackNode stack,
-        IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+    @Override protected void doReductionsHelper(ParserObserving<ParseForest, StackNode, ParseState> observing,
+        ParseState parseState, StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
 
         List<StackPath<ParseForest, StackNode>> paths = stackManager.findAllPathsOfLength(stack, reduce.arity());
 
@@ -43,13 +44,13 @@ public class IncrementalReduceManager
             paths = paths.stream().filter(path -> path.contains(throughLink)).collect(Collectors.toList());
 
         if(paths.size() > 1)
-            parse.state.setMultipleStates(true);
+            parseState.setMultipleStates(true);
 
         for(StackPath<ParseForest, StackNode> path : paths) {
             StackNode pathBegin = path.head();
             ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-            reducer(parse, pathBegin, reduce, parseNodes);
+            reducer(observing, parseState, pathBegin, reduce, parseNodes);
         }
     }
 }

@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.parser.Parse;
+
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
@@ -30,9 +30,8 @@ public class ProcessUpdatesTest {
             new ForActorStacksFactory(JSGLR2Variant.Preset.incremental.variant.parser.forActorStacksRepresentation)
                 .get(observing);
 
-        Parse<?, ?, ?> parse = new Parse(observing, new IncrementalParseState("", "", activeStacks, forActorStacks));
-
-        processUpdates = new ProcessUpdates(parse, new IncrementalParseForestManager());
+        processUpdates = new ProcessUpdates(new IncrementalParseState("", "", activeStacks, forActorStacks),
+            new IncrementalParseForestManager());
     }
 
     @Test public void testDeleteSubtree() {

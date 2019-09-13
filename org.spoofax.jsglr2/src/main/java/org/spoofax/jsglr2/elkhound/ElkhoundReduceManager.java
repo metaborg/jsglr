@@ -8,7 +8,8 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Parse;
+
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
@@ -34,8 +35,9 @@ public class ElkhoundReduceManager
         this.stackManager = stackManager;
     }
 
-    @Override protected void doReductionsHelper(Parse<ParseForest, ElkhoundStackNode, ParseState> parse,
-        ElkhoundStackNode stack, IReduce reduce, StackLink<ParseForest, ElkhoundStackNode> throughLink) {
+    @Override protected void doReductionsHelper(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing,
+        ParseState parseState, ElkhoundStackNode stack, IReduce reduce,
+        StackLink<ParseForest, ElkhoundStackNode> throughLink) {
         if(stack.deterministicDepth >= reduce.arity()) {
             DeterministicStackPath<ParseForest, ElkhoundStackNode> deterministicPath =
                 stackManager.findDeterministicPathOfLength(parseForestManager, stack, reduce.arity());
@@ -43,14 +45,14 @@ public class ElkhoundReduceManager
             if(throughLink == null || deterministicPath.contains(throughLink)) {
                 ElkhoundStackNode pathBegin = deterministicPath.head();
 
-                if(parse.state.activeStacks.isEmpty())
+                if(parseState.activeStacks.isEmpty())
                     // Do LR if there are no other active stacks (the stack on which the current reduction is applied is
                     // removed from the activeStacks collection in ElkhoundParser)
-                    reducerElkhound(parse, pathBegin, reduce, deterministicPath.parseForests);
+                    reducerElkhound(observing, parseState, pathBegin, reduce, deterministicPath.parseForests);
                 else
                     // Benefit from faster path retrieval, but still do regular (S)GLR reducing since there are other
                     // active stacks
-                    reducer(parse, pathBegin, reduce, deterministicPath.parseForests);
+                    reducer(observing, parseState, pathBegin, reduce, deterministicPath.parseForests);
             }
         } else {
             // Fall back to regular (S)GLR
@@ -59,21 +61,23 @@ public class ElkhoundReduceManager
                 if(throughLink == null || path.contains(throughLink)) {
                     ElkhoundStackNode pathBegin = path.head();
 
-                    reducer(parse, pathBegin, reduce, stackManager.getParseForests(parseForestManager, path));
+                    reducer(observing, parseState, pathBegin, reduce,
+                        stackManager.getParseForests(parseForestManager, path));
                 }
         }
     }
 
-    private void reducerElkhound(Parse<ParseForest, ElkhoundStackNode, ParseState> parse, ElkhoundStackNode stack,
-        IReduce reduce, ParseForest[] parseForests) {
+    private void reducerElkhound(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing,
+        ParseState parseState, ElkhoundStackNode stack, IReduce reduce, ParseForest[] parseForests) {
         int gotoId = stack.state.getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
-        parse.observing.notify(observer -> observer.reducerElkhound(stack, reduce, parseForests));
+        observing.notify(observer -> observer.reducerElkhound(stack, reduce, parseForests));
 
-        ElkhoundStackNode newStack = reducer.reducerNoExistingStack(parse, reduce, stack, gotoState, parseForests);
+        ElkhoundStackNode newStack =
+            reducer.reducerNoExistingStack(observing, parseState, reduce, stack, gotoState, parseForests);
 
-        parse.state.activeStacks.add(newStack);
+        parseState.activeStacks.add(newStack);
         // We are doing LR and the new active stack is the only one, thus no need to add it to forActorStacks here for
         // further processing
     }

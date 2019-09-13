@@ -24,8 +24,6 @@ public abstract class AbstractParseState
     public int currentChar; // Current ASCII char in range [0, 256]
     public int currentOffset;
 
-    private static final int TAB_SIZE = 8;
-
     public StackNode acceptingStack;
     public IActiveStacks<StackNode> activeStacks;
     public IForActorStacks<StackNode> forActorStacks;

@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.elkhound;
 
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
@@ -17,8 +16,8 @@ public class HybridElkhoundStackNode<ParseForest extends IParseForest> extends A
     private StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> firstLink;
     private ArrayList<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>> otherLinks;
 
-    public HybridElkhoundStackNode(IState state, Position position, boolean isRoot) {
-        super(state, position, isRoot);
+    public HybridElkhoundStackNode(IState state, boolean isRoot) {
+        super(state, isRoot);
     }
 
     @Override @SuppressWarnings("unchecked") public

@@ -3,8 +3,6 @@ package org.spoofax.jsglr2.stack;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 
 public abstract class StackManager
@@ -16,11 +14,11 @@ public abstract class StackManager
     extends AbstractStackManager<ParseForest, StackNode, ParseState> {
 
     protected abstract StackNode createStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        IState state, Position position, boolean isRoot);
+        IState state, boolean isRoot);
 
     @Override public StackNode createInitialStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        Position currentPosition, IState state) {
-        StackNode newStackNode = createStackNode(observing, state, currentPosition, true);
+        IState state) {
+        StackNode newStackNode = createStackNode(observing, state, true);
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
 
@@ -28,8 +26,8 @@ public abstract class StackManager
     }
 
     @Override public StackNode createStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        Position currentPosition, IState state) {
-        StackNode newStackNode = createStackNode(observing, state, currentPosition, false);
+        IState state) {
+        StackNode newStackNode = createStackNode(observing, state, false);
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
 

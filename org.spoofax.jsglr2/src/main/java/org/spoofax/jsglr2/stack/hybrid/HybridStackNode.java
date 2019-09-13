@@ -1,21 +1,20 @@
 package org.spoofax.jsglr2.stack.hybrid;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class HybridStackNode<ParseForest> extends AbstractStackNode<ParseForest, HybridStackNode<ParseForest>> {
 
     private StackLink<ParseForest, HybridStackNode<ParseForest>> firstLink;
     private ArrayList<StackLink<ParseForest, HybridStackNode<ParseForest>>> otherLinks;
 
-    public HybridStackNode(IState state, Position position) {
-        super(state, position);
+    public HybridStackNode(IState state) {
+        super(state);
     }
 
     @Override public Iterable<StackLink<ParseForest, HybridStackNode<ParseForest>>> getLinks() {

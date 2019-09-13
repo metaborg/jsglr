@@ -57,8 +57,7 @@ public class Parser
 
         observing.notify(observer -> observer.parseStart(parseState));
 
-        StackNode initialStackNode =
-            stackManager.createInitialStackNode(observing, parseState.currentPosition(), parseTable.getStartState());
+        StackNode initialStackNode = stackManager.createInitialStackNode(observing, parseTable.getStartState());
 
         parseState.activeStacks.add(initialStackNode);
 
@@ -187,7 +186,7 @@ public class Parser
                     characterNode);
             } else {
                 StackNode newStack =
-                    stackManager.createStackNode(observing, parseState.currentPosition(), forShifterElement.state);
+                    stackManager.createStackNode(observing, forShifterElement.state);
 
                 stackManager.createStackLink(observing, parseState, newStack, forShifterElement.stack, characterNode);
 

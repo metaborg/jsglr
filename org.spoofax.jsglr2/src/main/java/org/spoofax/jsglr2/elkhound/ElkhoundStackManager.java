@@ -4,8 +4,6 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -18,20 +16,20 @@ public abstract class ElkhoundStackManager
 //@formatter:on
     extends AbstractStackManager<ParseForest, ElkhoundStackNode, ParseState> {
 
-    protected abstract ElkhoundStackNode createStackNode(IState state, Position position, boolean isRoot);
+    protected abstract ElkhoundStackNode createStackNode(IState state, boolean isRoot);
 
-    @Override public ElkhoundStackNode createInitialStackNode(
-        ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, Position currentPosition, IState state) {
-        ElkhoundStackNode newStackNode = createStackNode(state, currentPosition, true);
+    @Override public ElkhoundStackNode
+        createInitialStackNode(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, IState state) {
+        ElkhoundStackNode newStackNode = createStackNode(state, true);
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
 
-    @Override public ElkhoundStackNode createStackNode(
-        ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, Position currentPosition, IState state) {
-        ElkhoundStackNode newStackNode = createStackNode(state, currentPosition, false);
+    @Override public ElkhoundStackNode
+        createStackNode(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, IState state) {
+        ElkhoundStackNode newStackNode = createStackNode(state, false);
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
 

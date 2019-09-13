@@ -1,20 +1,19 @@
 package org.spoofax.jsglr2.stack.basic;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BasicStackNode<ParseForest> extends AbstractStackNode<ParseForest, BasicStackNode<ParseForest>> {
 
     // Directed to the initial stack node
     private final ArrayList<StackLink<ParseForest, BasicStackNode<ParseForest>>> links = new ArrayList<>();
 
-    public BasicStackNode(IState state, Position position) {
-        super(state, position);
+    public BasicStackNode(IState state) {
+        super(state);
     }
 
     @Override public List<StackLink<ParseForest, BasicStackNode<ParseForest>>> getLinks() {

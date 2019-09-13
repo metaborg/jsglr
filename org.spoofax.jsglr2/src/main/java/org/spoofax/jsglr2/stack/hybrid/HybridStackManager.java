@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.stack.hybrid;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackManager;
 
@@ -16,8 +15,8 @@ public class HybridStackManager
 
     @Override protected HybridStackNode<ParseForest> createStackNode(
         ParserObserving<ParseForest, HybridStackNode<ParseForest>, ParseState> observing, IState state,
-        Position position, boolean isRoot) {
-        return new HybridStackNode<>(state, position);
+        boolean isRoot) {
+        return new HybridStackNode<>(state);
     }
 
 }

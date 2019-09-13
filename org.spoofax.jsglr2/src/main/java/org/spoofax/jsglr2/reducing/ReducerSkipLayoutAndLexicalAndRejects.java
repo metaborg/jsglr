@@ -74,7 +74,7 @@ public class ReducerSkipLayoutAndLexicalAndRejects
     @Override public StackNode reducerNoExistingStack(ParserObserving<ParseForest, StackNode, ParseState> observing,
         ParseState parseState, IReduce reduce, StackNode stack, IState gotoState, ParseForest[] parseForests) {
         StackNode newStackWithGotoState =
-            stackManager.createStackNode(observing, parseState.currentPosition(), gotoState);
+            stackManager.createStackNode(observing, gotoState);
 
         StackLink<ParseForest, StackNode> link;
 

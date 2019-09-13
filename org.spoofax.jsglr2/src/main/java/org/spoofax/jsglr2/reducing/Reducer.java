@@ -88,7 +88,7 @@ public class Reducer
             parseForestManager.createParseNode(observing, parseState, stack, reduce.production(), derivation);
 
         StackNode newStackWithGotoState =
-            stackManager.createStackNode(observing, parseState.currentPosition(), gotoState);
+            stackManager.createStackNode(observing, gotoState);
         StackLink<ParseForest, StackNode> link =
             stackManager.createStackLink(observing, parseState, newStackWithGotoState, stack, parseNode);
 

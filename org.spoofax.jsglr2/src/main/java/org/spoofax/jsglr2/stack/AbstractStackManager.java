@@ -4,8 +4,6 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
@@ -23,10 +21,10 @@ public abstract class AbstractStackManager
 {
 
     public abstract StackNode createInitialStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        Position currentPosition, IState state);
+        IState state);
 
     public abstract StackNode createStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        Position currentPosition, IState state);
+        IState state);
 
     public abstract StackLink<ParseForest, StackNode> createStackLink(
         ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState, StackNode from,

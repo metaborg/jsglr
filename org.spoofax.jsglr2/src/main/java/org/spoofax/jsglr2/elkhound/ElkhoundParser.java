@@ -63,8 +63,7 @@ public class ElkhoundParser
                                     IShift shiftAction = (IShift) firstAction;
                                     IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
-                                    ElkhoundStackNode newStack = stackManager.createStackNode(observing,
-                                        parseState.currentPosition(), shiftState);
+                                    ElkhoundStackNode newStack = stackManager.createStackNode(observing, shiftState);
                                     ParseForest characterNode =
                                         parseForestManager.createCharacterNode(observing, parseState);
 

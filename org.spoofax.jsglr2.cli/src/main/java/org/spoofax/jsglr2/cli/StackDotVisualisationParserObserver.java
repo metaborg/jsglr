@@ -1,17 +1,16 @@
 package org.spoofax.jsglr2.cli;
 
+import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.StackLink;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import org.spoofax.jsglr2.parseforest.IParseForest;
-
-import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackLink;
 
 class StackDotVisualisationParserObserver
 //@formatter:off
@@ -23,7 +22,9 @@ class StackDotVisualisationParserObserver
 
     private Map<StackNode, Integer> stackNodeRank;
     private int maxStackNodeRank;
+    private int currentOffset;
     private int[] offsetMaxStackNodeRank;
+    private Map<StackNode, Integer> stackNodeOffset;
 
     public StackDotVisualisationParserObserver(Consumer<String> outputConsumer) {
         super(outputConsumer);
@@ -32,25 +33,32 @@ class StackDotVisualisationParserObserver
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
         stackNodeRank = new HashMap<>();
+        currentOffset = 0;
         maxStackNodeRank = 0;
         offsetMaxStackNodeRank = new int[parseState.inputLength + 1];
+    }
+
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
+        currentOffset = parseState.currentOffset;
     }
 
     private void rankStackNode(StackNode stackNode, int rank) {
         int rankAtOffset;
 
-        if(stackNode.position().offset > 0)
-            rankAtOffset = Math.max(rank, offsetMaxStackNodeRank[stackNode.position().offset - 1]);
+        if(stackNodeOffset.get(stackNode) > 0)
+            rankAtOffset = Math.max(rank, offsetMaxStackNodeRank[stackNodeOffset.get(stackNode) - 1]);
         else
             rankAtOffset = rank;
 
         stackNodeRank.put(stackNode, rankAtOffset);
         maxStackNodeRank = Math.max(maxStackNodeRank, rankAtOffset);
-        offsetMaxStackNodeRank[stackNode.position().offset] = maxStackNodeRank;
+        offsetMaxStackNodeRank[stackNodeOffset.get(stackNode)] = maxStackNodeRank;
     }
 
     @Override public void createStackNode(StackNode stack) {
         super.createStackNode(stack);
+
+        stackNodeOffset.put(stack, currentOffset);
 
         if(id(stack) == 0)
             rankStackNode(stack, 0);

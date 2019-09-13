@@ -15,7 +15,7 @@ import java.util.List;
 public class LayoutSensitiveParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<LayoutSensitiveParseForest, StackNode>>
+    ParseState extends AbstractParseState<LayoutSensitiveParseForest, StackNode> & ILayoutSensitiveParseState<LayoutSensitiveParseForest, StackNode>>
 //@formatter:on
     extends
     ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode, ParseState> {

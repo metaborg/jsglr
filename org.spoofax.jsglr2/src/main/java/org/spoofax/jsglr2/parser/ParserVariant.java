@@ -9,6 +9,7 @@ import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
+import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -68,9 +69,12 @@ public class ParserVariant {
         // Recovery and incremental parsing not simultaneously supported
         boolean validRecoveryIncremental =
             !(parseForestRepresentation == ParseForestRepresentation.Incremental && recovery);
+        // Recovery and layout-sensitive parsing not simultaneously supported
+        boolean validRecoveryLayoutSensitive =
+            !(parseForestRepresentation == ParseForestRepresentation.LayoutSensitive && recovery);
 
         return validElkhound && validParseForest && validIncremental && validLayoutSensitive && validDataDependent
-            && validRecoveryIncremental;
+            && validRecoveryIncremental && validRecoveryLayoutSensitive;
     }
 
     public String name() {
@@ -237,20 +241,20 @@ public class ParserVariant {
                 }
 
             case LayoutSensitive:
-                if(this.reducing != Reducing.LayoutSensitive)
+                if(this.reducing != Reducing.LayoutSensitive || this.recovery)
                     throw new IllegalStateException();
 
                 switch(this.stackRepresentation) {
                     case Basic:
-                        if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new RecoveryParseFailureHandler<>()));
-                        else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new DefaultParseFailureHandler<>()));
+                        //if (this.recovery)
+                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new RecoveryParseFailureHandler<>()));
+                        //else
+                            return withoutRecovery(new Parser<>(LayoutSensitiveParseState.factory(this),         parseTable, new BasicStackManager<>(),  new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new DefaultParseFailureHandler<>()));
                     case Hybrid:
-                        if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new RecoveryParseFailureHandler<>()));
-                        else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new DefaultParseFailureHandler<>()));
+                        //if (this.recovery)
+                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new RecoveryParseFailureHandler<>()));
+                        //else
+                            return withoutRecovery(new Parser<>(LayoutSensitiveParseState.factory(this),         parseTable, new HybridStackManager<>(), new LayoutSensitiveParseForestManager<>(), ReduceManagerFactory.layoutSensitiveReduceManagerFactory(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException();
                 }
 

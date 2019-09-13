@@ -22,7 +22,7 @@ public abstract class AbstractParseState
     final public int inputLength;
 
     public int currentChar; // Current ASCII char in range [0, 256]
-    public int currentOffset, currentLine, currentColumn;
+    public int currentOffset;
 
     private static final int TAB_SIZE = 8;
 
@@ -44,14 +44,8 @@ public abstract class AbstractParseState
         this.forShifter = new ArrayDeque<>();
 
         this.currentOffset = 0;
-        this.currentLine = 1;
-        this.currentColumn = 1;
 
         this.currentChar = getChar(currentOffset);
-    }
-
-    public Position currentPosition() {
-        return new Position(currentOffset, currentLine, currentColumn);
     }
 
     public boolean hasNext() {
@@ -61,17 +55,6 @@ public abstract class AbstractParseState
     public void next() {
         currentOffset++;
         currentChar = getChar(currentOffset);
-
-        if(currentOffset < inputLength) {
-            if(CharacterClassFactory.isNewLine(currentChar)) {
-                currentLine++;
-                currentColumn = 0;
-            } else if(CharacterClassFactory.isTab(currentChar)) {
-                currentColumn = (currentColumn / TAB_SIZE + 1) * TAB_SIZE;
-            } else {
-                currentColumn++;
-            }
-        }
     }
 
     protected int getChar(int offset) {

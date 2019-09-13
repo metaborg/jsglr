@@ -1,15 +1,15 @@
 package org.spoofax.jsglr2.recovery;
 
-import org.spoofax.jsglr2.parser.Position;
-
 public class RecoveryJob {
 
-    public Position position;
+    public int backtrackChoicePointIndex;
+    public int offset;
     public int iteration;
     public int quota;
 
-    public RecoveryJob(Position position) {
-        this.position = position;
+    public RecoveryJob(int backtrackChoicePointIndex, int offset) {
+        this.backtrackChoicePointIndex = backtrackChoicePointIndex;
+        this.offset = offset;
         this.iteration = 0;
     }
 
@@ -18,6 +18,9 @@ public class RecoveryJob {
     }
 
     int nextIteration() {
+        if(this.backtrackChoicePointIndex > 0)
+            this.backtrackChoicePointIndex--;
+
         quota = ++iteration;
 
         return iteration;

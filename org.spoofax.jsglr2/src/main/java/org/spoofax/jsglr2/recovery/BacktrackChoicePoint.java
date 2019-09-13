@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.recovery;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.ArrayList;
@@ -14,11 +13,11 @@ public class BacktrackChoicePoint
 //@formatter:on
 {
 
-    public final Position position;
+    public final int offset;
     public final List<StackNode> activeStacks;
 
-    public BacktrackChoicePoint(Position position, Iterable<StackNode> activeStacks) {
-        this.position = position;
+    public BacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
+        this.offset = offset;
         this.activeStacks = new ArrayList<>();
 
         for(StackNode activeStack : activeStacks)

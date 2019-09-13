@@ -5,7 +5,6 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.ParserVariant;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
@@ -39,6 +38,7 @@ public class RecoveryParseState
     }
 
     private BacktrackChoicePoint[] backtrackChoicePoints;
+    private int backtrackChoicePointCount = 0;
     private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
 
     RecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
@@ -61,16 +61,16 @@ public class RecoveryParseState
         return lineCount;
     }
 
-    @Override public void saveBacktrackChoicePoint(Position position, Iterable<StackNode> activeStacks) {
-        backtrackChoicePoints[position.line - 1] = new BacktrackChoicePoint<>(position, activeStacks);
+    @Override public void saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
+        backtrackChoicePoints[backtrackChoicePointCount++] = new BacktrackChoicePoint<>(offset, activeStacks);
     }
 
     @Override public BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int index) {
         return (BacktrackChoicePoint<ParseForest, StackNode>) backtrackChoicePoints[index];
     }
 
-    @Override public void setRecovery(Position position) {
-        recoveryPointOpt = Optional.of(new RecoveryJob(position));
+    @Override public void setRecovery(int offset) {
+        recoveryPointOpt = Optional.of(new RecoveryJob(backtrackChoicePointCount - 1, offset));
     }
 
     @Override public Optional<RecoveryJob> recoveryJobOpt() {
@@ -82,11 +82,15 @@ public class RecoveryParseState
             int iteration = recoveryJob().nextIteration();
 
             BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint =
-                backtrackChoicePointForIteration(iteration);
+                getBacktrackChoicePoint(recoveryJob().backtrackChoicePointIndex);
 
-            this.currentOffset = backtrackChoicePoint.position.offset;
-            this.currentLine = backtrackChoicePoint.position.line;
-            this.currentColumn = backtrackChoicePoint.position.column;
+            this.backtrackChoicePointCount = recoveryJob().backtrackChoicePointIndex + 1;
+
+            this.currentOffset = backtrackChoicePoint.offset;
+
+            // TODO: lines below required for layout-sensitive
+            // this.currentLine = backtrackChoicePoint.position.line;
+            // this.currentColumn = backtrackChoicePoint.position.column;
 
             this.currentChar = getChar(currentOffset);
 

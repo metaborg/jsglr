@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.recovery;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.Optional;
@@ -15,11 +14,11 @@ public interface IRecoveryParseState
 
     void initializeBacktrackChoicePoints(String input);
 
-    void saveBacktrackChoicePoint(Position position, Iterable<StackNode> activeStacks);
+    void saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks);
 
     BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int line);
 
-    void setRecovery(Position position);
+    void setRecovery(int offset);
 
     Optional<RecoveryJob> recoveryJobOpt();
 
@@ -29,12 +28,6 @@ public interface IRecoveryParseState
 
     default RecoveryJob recoveryJob() {
         return recoveryJobOpt().get();
-    }
-
-    default BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePointForIteration(int i) {
-        int recoveryLine = recoveryJob().position.line;
-
-        return getBacktrackChoicePoint(Math.max(recoveryLine - i, 0));
     }
 
     boolean nextRecoveryIteration();

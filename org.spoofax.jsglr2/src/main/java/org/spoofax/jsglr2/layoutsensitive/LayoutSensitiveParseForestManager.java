@@ -24,7 +24,7 @@ public class LayoutSensitiveParseForestManager
         ParserObserving<LayoutSensitiveParseForest, StackNode, ParseState> observing, ParseState parseState,
         IStackNode stack, IProduction production, LayoutSensitiveDerivation firstDerivation) {
         LayoutSensitiveParseNode parseNode =
-            new LayoutSensitiveParseNode(stack.position(), parseState.currentPosition(), production);
+            new LayoutSensitiveParseNode(firstDerivation.getStartPosition(), parseState.currentPosition(), production);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -62,7 +62,12 @@ public class LayoutSensitiveParseForestManager
         ParserObserving<LayoutSensitiveParseForest, StackNode, ParseState> observing, ParseState parseState,
         IStackNode stack, IProduction production, ProductionType productionType,
         LayoutSensitiveParseForest[] parseForests) {
-        Position beginPosition = stack.position();
+
+        Position beginPosition = parseForests.length == 0
+            // If this derivation corresponds with an epsilon production, use current parse position as startPosition
+            ? parseState.currentPosition()
+            // Else, just use the start position of the first child node
+            : parseForests[0].getStartPosition();
 
         // FIXME since EndPosition is wrong, right is also wrong
         Position leftPosition = null;

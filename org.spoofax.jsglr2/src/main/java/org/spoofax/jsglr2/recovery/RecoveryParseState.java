@@ -20,6 +20,19 @@ public class RecoveryParseState
 //@formatter:on
     extends AbstractParseState<ParseForest, StackNode> implements IRecoveryParseState<ParseForest, StackNode> {
 
+    private BacktrackChoicePoint[] backtrackChoicePoints;
+    private int backtrackChoicePointCount = 0;
+    private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
+
+    RecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+        IForActorStacks<StackNode> forActorStacks) {
+        super(inputString, filename, activeStacks, forActorStacks);
+    }
+
+    @Override public void initializeBacktrackChoicePoints(String input) {
+        backtrackChoicePoints = new BacktrackChoicePoint[inputLineCount(input)];
+    }
+
     public static
 //@formatter:off
    <ParseForest_ extends IParseForest,
@@ -35,19 +48,6 @@ public class RecoveryParseState
 
             return (ParseState_) new RecoveryParseState<>(inputString, filename, activeStacks, forActorStacks);
         };
-    }
-
-    private BacktrackChoicePoint[] backtrackChoicePoints;
-    private int backtrackChoicePointCount = 0;
-    private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
-
-    RecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
-        IForActorStacks<StackNode> forActorStacks) {
-        super(inputString, filename, activeStacks, forActorStacks);
-    }
-
-    @Override public void initializeBacktrackChoicePoints(String input) {
-        backtrackChoicePoints = new BacktrackChoicePoint[inputLineCount(input)];
     }
 
     private int inputLineCount(String input) {

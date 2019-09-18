@@ -34,11 +34,6 @@ public class IncrementalParseState
         super(inputString, filename, activeStacks, forActorStacks);
     }
 
-    @Override public void initParse(IncrementalParseForest updatedTree, String inputString) {
-        this.lookahead = new EagerLookaheadStack(updatedTree, inputString); // TODO switch types between Lazy and Eager
-        this.currentChar = lookahead.actionQueryCharacter();
-    }
-
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
@@ -53,6 +48,11 @@ public class IncrementalParseState
 
             return (ParseState_) new IncrementalParseState<>(inputString, filename, activeStacks, forActorStacks);
         };
+    }
+
+    @Override public void initParse(IncrementalParseForest updatedTree, String inputString) {
+        this.lookahead = new EagerLookaheadStack(updatedTree, inputString); // TODO switch types between Lazy and Eager
+        this.currentChar = lookahead.actionQueryCharacter();
     }
 
     @Override public String actionQueryLookahead(int length) {

@@ -19,6 +19,17 @@ public class LayoutSensitiveParseState
 //@formatter:on
     extends AbstractParseState<ParseForest, StackNode> implements ILayoutSensitiveParseState<ParseForest, StackNode> {
 
+    public int currentLine, currentColumn;
+
+    private static final int TAB_SIZE = 8;
+
+    LayoutSensitiveParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+        IForActorStacks<StackNode> forActorStacks) {
+        super(inputString, filename, activeStacks, forActorStacks);
+        this.currentLine = 1;
+        this.currentColumn = 1;
+    }
+
     public static
 //@formatter:off
    <ParseForest_ extends IParseForest,
@@ -34,17 +45,6 @@ public class LayoutSensitiveParseState
 
             return (ParseState_) new LayoutSensitiveParseState<>(inputString, filename, activeStacks, forActorStacks);
         };
-    }
-
-    public int currentLine, currentColumn;
-
-    private static final int TAB_SIZE = 8;
-
-    LayoutSensitiveParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
-        IForActorStacks<StackNode> forActorStacks) {
-        super(inputString, filename, activeStacks, forActorStacks);
-        this.currentLine = 1;
-        this.currentColumn = 1;
     }
 
     public Position currentPosition() {

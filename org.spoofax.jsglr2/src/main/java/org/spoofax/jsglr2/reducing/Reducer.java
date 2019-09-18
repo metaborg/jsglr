@@ -49,7 +49,7 @@ public class Reducer
         parseForestManager.addDerivation(parseState, parseNode, derivation);
 
         if(reduce.isRejectProduction())
-            stackManager.rejectStackLink(observing, existingDirectLinkToActiveStateWithGoto);
+            stackManager.rejectStackLink(existingDirectLinkToActiveStateWithGoto);
     }
 
     /**
@@ -66,10 +66,10 @@ public class Reducer
         ParseForest parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
 
         StackLink<ParseForest, StackNode> newDirectLinkToActiveStateWithGoto =
-            stackManager.createStackLink(observing, parseState, existingActiveStackWithGotoState, stack, parseNode);
+            stackManager.createStackLink(parseState, existingActiveStackWithGotoState, stack, parseNode);
 
         if(reduce.isRejectProduction())
-            stackManager.rejectStackLink(observing, newDirectLinkToActiveStateWithGoto);
+            stackManager.rejectStackLink(newDirectLinkToActiveStateWithGoto);
 
         return newDirectLinkToActiveStateWithGoto;
     }
@@ -85,12 +85,12 @@ public class Reducer
             reduce.productionType(), parseForests);
         ParseForest parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
 
-        StackNode newStackWithGotoState = stackManager.createStackNode(observing, gotoState);
+        StackNode newStackWithGotoState = stackManager.createStackNode(gotoState);
         StackLink<ParseForest, StackNode> link =
-            stackManager.createStackLink(observing, parseState, newStackWithGotoState, stack, parseNode);
+            stackManager.createStackLink(parseState, newStackWithGotoState, stack, parseNode);
 
         if(reduce.isRejectProduction())
-            stackManager.rejectStackLink(observing, link);
+            stackManager.rejectStackLink(link);
 
         return newStackWithGotoState;
     }

@@ -14,6 +14,7 @@ import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
+import org.spoofax.jsglr2.stack.StackManagerFactory;
 
 import java.util.Iterator;
 
@@ -31,12 +32,13 @@ public class ElkhoundParser
     extends Parser<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, StackManager, ReduceManager> {
 
     public ElkhoundParser(ParseStateFactory<ParseForest, ElkhoundStackNode, ParseState> parseStateFactory,
-        IParseTable parseTable, StackManager stackManager,
+        IParseTable parseTable,
+        StackManagerFactory<ParseForest, ElkhoundStackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
         IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState> failureHandler) {
-        super(parseStateFactory, parseTable, stackManager, parseForestManagerFactory, elkhoundReduceManagerFactory,
-            failureHandler);
+        super(parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory,
+            elkhoundReduceManagerFactory, failureHandler);
     }
 
     @Override protected void parseLoop(ParseState parseState) {
@@ -66,10 +68,10 @@ public class ElkhoundParser
                                     IShift shiftAction = (IShift) firstAction;
                                     IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
-                                    ElkhoundStackNode newStack = stackManager.createStackNode(observing, shiftState);
+                                    ElkhoundStackNode newStack = stackManager.createStackNode(shiftState);
                                     ParseForest characterNode = parseForestManager.createCharacterNode(parseState);
 
-                                    stackManager.createStackLink(observing, parseState, newStack, singleActiveStack,
+                                    stackManager.createStackLink(parseState, newStack, singleActiveStack,
                                         characterNode);
 
                                     parseState.activeStacks.add(newStack);

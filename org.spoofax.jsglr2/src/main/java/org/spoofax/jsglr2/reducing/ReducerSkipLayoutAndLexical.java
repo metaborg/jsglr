@@ -40,7 +40,7 @@ public class ReducerSkipLayoutAndLexical
         }
 
         if(reduce.isRejectProduction())
-            stackManager.rejectStackLink(observing, existingDirectLinkToActiveStateWithGoto);
+            stackManager.rejectStackLink(existingDirectLinkToActiveStateWithGoto);
     }
 
     @Override public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(
@@ -57,10 +57,10 @@ public class ReducerSkipLayoutAndLexical
         }
 
         StackLink<ParseForest, StackNode> newDirectLinkToActiveStateWithGoto =
-            stackManager.createStackLink(observing, parseState, existingActiveStackWithGotoState, stack, parseNode);
+            stackManager.createStackLink(parseState, existingActiveStackWithGotoState, stack, parseNode);
 
         if(reduce.isRejectProduction())
-            stackManager.rejectStackLink(observing, newDirectLinkToActiveStateWithGoto);
+            stackManager.rejectStackLink(newDirectLinkToActiveStateWithGoto);
 
         return newDirectLinkToActiveStateWithGoto;
     }
@@ -77,12 +77,12 @@ public class ReducerSkipLayoutAndLexical
             parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
         }
 
-        StackNode newStackWithGotoState = stackManager.createStackNode(observing, gotoState);
+        StackNode newStackWithGotoState = stackManager.createStackNode(gotoState);
         StackLink<ParseForest, StackNode> link =
-            stackManager.createStackLink(observing, parseState, newStackWithGotoState, stack, parseNode);
+            stackManager.createStackLink(parseState, newStackWithGotoState, stack, parseNode);
 
         if(reduce.isRejectProduction())
-            stackManager.rejectStackLink(observing, link);
+            stackManager.rejectStackLink(link);
 
         return newStackWithGotoState;
     }

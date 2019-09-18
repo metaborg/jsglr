@@ -16,10 +16,13 @@ public abstract class ElkhoundStackManager
 //@formatter:on
     extends AbstractStackManager<ParseForest, ElkhoundStackNode, ParseState> {
 
+    public ElkhoundStackManager(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing) {
+        super(observing);
+    }
+
     protected abstract ElkhoundStackNode createStackNode(IState state, boolean isRoot);
 
-    @Override public ElkhoundStackNode
-        createInitialStackNode(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, IState state) {
+    @Override public ElkhoundStackNode createInitialStackNode(IState state) {
         ElkhoundStackNode newStackNode = createStackNode(state, true);
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
@@ -27,8 +30,7 @@ public abstract class ElkhoundStackManager
         return newStackNode;
     }
 
-    @Override public ElkhoundStackNode
-        createStackNode(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, IState state) {
+    @Override public ElkhoundStackNode createStackNode(IState state) {
         ElkhoundStackNode newStackNode = createStackNode(state, false);
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
@@ -36,10 +38,9 @@ public abstract class ElkhoundStackManager
         return newStackNode;
     }
 
-    @Override public StackLink<ParseForest, ElkhoundStackNode> createStackLink(
-        ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, ParseState parseState,
+    @Override public StackLink<ParseForest, ElkhoundStackNode> createStackLink(ParseState parseState,
         ElkhoundStackNode from, ElkhoundStackNode to, ParseForest parseNode) {
-        StackLink<ParseForest, ElkhoundStackNode> link = addStackLink(observing, parseState, from, to, parseNode);
+        StackLink<ParseForest, ElkhoundStackNode> link = addStackLink(parseState, from, to, parseNode);
 
         observing.notify(observer -> observer.createStackLink(link));
 
@@ -69,8 +70,7 @@ public abstract class ElkhoundStackManager
         return new DeterministicStackPath<>(parseForests, lastStackNode);
     }
 
-    protected abstract StackLink<ParseForest, ElkhoundStackNode> addStackLink(
-        ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing, ParseState parseState,
+    protected abstract StackLink<ParseForest, ElkhoundStackNode> addStackLink(ParseState parseState,
         ElkhoundStackNode from, ElkhoundStackNode to, ParseForest parseNode);
 
     protected abstract StackLink<ParseForest, ElkhoundStackNode> getOnlyLink(ElkhoundStackNode stack);

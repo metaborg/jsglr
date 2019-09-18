@@ -20,18 +20,20 @@ public abstract class AbstractStackManager
 //@formatter:on
 {
 
-    public abstract StackNode createInitialStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        IState state);
+    protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
 
-    public abstract StackNode createStackNode(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        IState state);
+    protected AbstractStackManager(ParserObserving<ParseForest, StackNode, ParseState> observing) {
+        this.observing = observing;
+    }
 
-    public abstract StackLink<ParseForest, StackNode> createStackLink(
-        ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState, StackNode from,
+    public abstract StackNode createInitialStackNode(IState state);
+
+    public abstract StackNode createStackNode(IState state);
+
+    public abstract StackLink<ParseForest, StackNode> createStackLink(ParseState parseState, StackNode from,
         StackNode to, ParseForest parseNode);
 
-    public void rejectStackLink(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        StackLink<ParseForest, StackNode> link) {
+    public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
         link.reject();
 
         observing.notify(observer -> observer.rejectStackLink(link));

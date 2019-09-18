@@ -22,6 +22,7 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.StackManagerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,11 +50,12 @@ public class IncrementalParser
     private final IStringDiff diff;
 
     public IncrementalParser(ParseStateFactory<IncrementalParseForest, StackNode, ParseState> parseStateFactory,
-        IParseTable parseTable, StackManager stackManager,
+        IParseTable parseTable,
+        StackManagerFactory<IncrementalParseForest, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler) {
-        super(parseStateFactory, parseTable, stackManager, parseForestManagerFactory, reduceManagerFactory,
+        super(parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, reduceManagerFactory,
             failureHandler);
         // TODO parametrize parser on diff algorithm for benchmarking
         this.diff = new JGitHistogramDiff();

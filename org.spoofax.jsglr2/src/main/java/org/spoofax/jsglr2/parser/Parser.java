@@ -18,6 +18,7 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.StackManagerFactory;
 
 public class Parser
 //@formatter:off
@@ -40,16 +41,16 @@ public class Parser
     protected final IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler;
 
     public Parser(ParseStateFactory<ParseForest, StackNode, ParseState> parseStateFactory, IParseTable parseTable,
-        StackManager stackManager,
+        StackManagerFactory<ParseForest, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler) {
         this.observing = new ParserObserving<>();
         this.parseStateFactory = parseStateFactory;
         this.parseTable = parseTable;
-        this.stackManager = stackManager;
+        this.stackManager = stackManagerFactory.get(observing);
         this.parseForestManager = parseForestManagerFactory.get(observing);
-        this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager);
+        this.reduceManager = reduceManagerFactory.get(parseTable, stackManager, parseForestManager);
         this.failureHandler = failureHandler;
     }
 
@@ -58,7 +59,7 @@ public class Parser
 
         observing.notify(observer -> observer.parseStart(parseState));
 
-        StackNode initialStackNode = stackManager.createInitialStackNode(observing, parseTable.getStartState());
+        StackNode initialStackNode = stackManager.createInitialStackNode(parseTable.getStartState());
 
         parseState.activeStacks.add(initialStackNode);
 
@@ -185,12 +186,11 @@ public class Parser
             StackNode activeStackForState = parseState.activeStacks.findWithState(forShifterElement.state);
 
             if(activeStackForState != null) {
-                stackManager.createStackLink(observing, parseState, activeStackForState, forShifterElement.stack,
-                    characterNode);
+                stackManager.createStackLink(parseState, activeStackForState, forShifterElement.stack, characterNode);
             } else {
-                StackNode newStack = stackManager.createStackNode(observing, forShifterElement.state);
+                StackNode newStack = stackManager.createStackNode(forShifterElement.state);
 
-                stackManager.createStackLink(observing, parseState, newStack, forShifterElement.stack, characterNode);
+                stackManager.createStackLink(parseState, newStack, forShifterElement.stack, characterNode);
 
                 parseState.activeStacks.add(newStack);
             }

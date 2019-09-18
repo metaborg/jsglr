@@ -153,7 +153,7 @@ public class ProcessUpdates
             Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
         if(filtered.length == 0)
             return null;
-        return parseForestManager.createChangedParseNode(observing, parseState, filtered);
+        return parseForestManager.createChangedParseNode(parseState, filtered);
     }
 
     public IncrementalParseNode getParseNodeFromString(String inputString) {
@@ -161,8 +161,8 @@ public class ProcessUpdates
 
         char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            parseForests[i] = parseForestManager.createCharacterNode(observing, parseState, chars[i]);
+            parseForests[i] = parseForestManager.createCharacterNode(parseState, chars[i]);
         }
-        return parseForestManager.createChangedParseNode(observing, parseState, parseForests);
+        return parseForestManager.createChangedParseNode(parseState, parseForests);
     }
 }

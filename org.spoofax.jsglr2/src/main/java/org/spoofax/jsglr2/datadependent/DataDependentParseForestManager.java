@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.datadependent;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -19,14 +19,27 @@ public class DataDependentParseForestManager
     extends
     ParseForestManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode, ParseState> {
 
-    @Override public DataDependentParseNode createParseNode(
-        ParserObserving<DataDependentParseForest, StackNode, ParseState> observing, ParseState parseState,
-        IStackNode stack, IProduction production, DataDependentDerivation firstDerivation) {
+    public DataDependentParseForestManager(ParserObserving<DataDependentParseForest, StackNode, ParseState> observing) {
+        super(observing);
+    }
+
+    public static
+//@formatter:off
+   <StackNode_   extends IStackNode,
+    ParseState_  extends AbstractParseState<DataDependentParseForest, StackNode_>>
+//@formatter:on
+    ParseForestManagerFactory<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode_, ParseState_>
+        factory() {
+        return DataDependentParseForestManager::new;
+    }
+
+    @Override public DataDependentParseNode createParseNode(ParseState parseState, IStackNode stack,
+        IProduction production, DataDependentDerivation firstDerivation) {
         DataDependentParseNode parseNode = new DataDependentParseNode(production);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
 
-        addDerivation(observing, parseState, parseNode, firstDerivation);
+        addDerivation(parseState, parseNode, firstDerivation);
 
         return parseNode;
     }
@@ -55,10 +68,8 @@ public class DataDependentParseForestManager
         }
     }
 
-    @Override public DataDependentDerivation createDerivation(
-        ParserObserving<DataDependentParseForest, StackNode, ParseState> observing, ParseState parseState,
-        IStackNode stack, IProduction production, ProductionType productionType,
-        DataDependentParseForest[] parseForests) {
+    @Override public DataDependentDerivation createDerivation(ParseState parseState, IStackNode stack,
+        IProduction production, ProductionType productionType, DataDependentParseForest[] parseForests) {
         DataDependentDerivation derivation = new DataDependentDerivation(production, productionType, parseForests);
 
         observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
@@ -66,16 +77,15 @@ public class DataDependentParseForestManager
         return derivation;
     }
 
-    @Override public void addDerivation(ParserObserving<DataDependentParseForest, StackNode, ParseState> observing,
-        ParseState parseState, DataDependentParseNode parseNode, DataDependentDerivation derivation) {
+    @Override public void addDerivation(ParseState parseState, DataDependentParseNode parseNode,
+        DataDependentDerivation derivation) {
 
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public DataDependentCharacterNode createCharacterNode(
-        ParserObserving<DataDependentParseForest, StackNode, ParseState> observing, ParseState parseState) {
+    @Override public DataDependentCharacterNode createCharacterNode(ParseState parseState) {
         DataDependentCharacterNode characterNode = new DataDependentCharacterNode(parseState.currentChar);
 
         observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));

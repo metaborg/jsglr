@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.parseforest.hybrid;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -18,9 +18,21 @@ public class HybridParseForestManager
 //@formatter:on
     extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation, StackNode, ParseState> {
 
-    @Override public HybridParseNode createParseNode(
-        ParserObserving<HybridParseForest, StackNode, ParseState> observing, ParseState parseState, IStackNode stack,
-        IProduction production, HybridDerivation firstDerivation) {
+    public HybridParseForestManager(ParserObserving<HybridParseForest, StackNode, ParseState> observing) {
+        super(observing);
+    }
+
+    public static
+//@formatter:off
+   <StackNode_   extends IStackNode,
+    ParseState_  extends AbstractParseState<HybridParseForest, StackNode_>>
+//@formatter:on
+    ParseForestManagerFactory<HybridParseForest, HybridParseNode, HybridDerivation, StackNode_, ParseState_> factory() {
+        return HybridParseForestManager::new;
+    }
+
+    @Override public HybridParseNode createParseNode(ParseState parseState, IStackNode stack, IProduction production,
+        HybridDerivation firstDerivation) {
         HybridParseNode parseNode = new HybridParseNode(production, firstDerivation);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
@@ -53,9 +65,8 @@ public class HybridParseForestManager
         }
     }
 
-    @Override public HybridDerivation createDerivation(
-        ParserObserving<HybridParseForest, StackNode, ParseState> observing, ParseState parseState, IStackNode stack,
-        IProduction production, ProductionType productionType, HybridParseForest[] parseForests) {
+    @Override public HybridDerivation createDerivation(ParseState parseState, IStackNode stack, IProduction production,
+        ProductionType productionType, HybridParseForest[] parseForests) {
         HybridDerivation derivation = new HybridDerivation(production, productionType, parseForests);
 
         observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
@@ -63,15 +74,13 @@ public class HybridParseForestManager
         return derivation;
     }
 
-    @Override public void addDerivation(ParserObserving<HybridParseForest, StackNode, ParseState> observing,
-        ParseState parseState, HybridParseNode parseNode, HybridDerivation derivation) {
+    @Override public void addDerivation(ParseState parseState, HybridParseNode parseNode, HybridDerivation derivation) {
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public HybridCharacterNode createCharacterNode(
-        ParserObserving<HybridParseForest, StackNode, ParseState> observing, ParseState parseState) {
+    @Override public HybridCharacterNode createCharacterNode(ParseState parseState) {
         HybridCharacterNode characterNode = new HybridCharacterNode(parseState.currentChar);
 
         observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));

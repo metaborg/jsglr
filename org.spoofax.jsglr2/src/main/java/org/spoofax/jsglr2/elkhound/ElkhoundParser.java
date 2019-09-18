@@ -7,7 +7,7 @@ import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.Parser;
@@ -32,10 +32,10 @@ public class ElkhoundParser
 
     public ElkhoundParser(ParseStateFactory<ParseForest, ElkhoundStackNode, ParseState> parseStateFactory,
         IParseTable parseTable, StackManager stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState> parseForestManager,
+        ParseForestManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, ElkhoundStackNode, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
         IParseFailureHandler<ParseForest, ElkhoundStackNode, ParseState> failureHandler) {
-        super(parseStateFactory, parseTable, stackManager, parseForestManager, elkhoundReduceManagerFactory,
+        super(parseStateFactory, parseTable, stackManager, parseForestManagerFactory, elkhoundReduceManagerFactory,
             failureHandler);
     }
 
@@ -67,8 +67,7 @@ public class ElkhoundParser
                                     IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
                                     ElkhoundStackNode newStack = stackManager.createStackNode(observing, shiftState);
-                                    ParseForest characterNode =
-                                        parseForestManager.createCharacterNode(observing, parseState);
+                                    ParseForest characterNode = parseForestManager.createCharacterNode(parseState);
 
                                     stackManager.createStackLink(observing, parseState, newStack, singleActiveStack,
                                         characterNode);

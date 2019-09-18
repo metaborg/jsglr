@@ -140,27 +140,27 @@ public class ParserVariant {
                 case Elkhound: switch(this.stackRepresentation) {
                     case BasicElkhound:
                         if (this.recovery)
-                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new BasicElkhoundStackManager<>(),  new BasicParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new BasicElkhoundStackManager<>(),  BasicParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new BasicElkhoundStackManager<>(),  new BasicParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new BasicElkhoundStackManager<>(),  BasicParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
                     case HybridElkhound:
                         if (this.recovery)
-                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new HybridElkhoundStackManager<>(), new BasicParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new HybridElkhoundStackManager<>(), BasicParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new HybridElkhoundStackManager<>(), new BasicParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new HybridElkhoundStackManager<>(), BasicParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
                 }
                 case Basic: switch(this.stackRepresentation) {
                     case Basic:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  new BasicParseForestManager<>(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  BasicParseForestManager.factory(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  new BasicParseForestManager<>(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  BasicParseForestManager.factory(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
                     case Hybrid:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), new BasicParseForestManager<>(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), BasicParseForestManager.factory(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), new BasicParseForestManager<>(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), BasicParseForestManager.factory(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException("Basic reducing requires Basic or Hybrid stack");
                 }
                 default: throw new IllegalStateException("Only Elkhound or basic reducing possible with basic parse forest representation");
@@ -170,27 +170,27 @@ public class ParserVariant {
                 case Elkhound: switch(this.stackRepresentation) {
                     case BasicElkhound:
                         if (this.recovery)
-                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new BasicElkhoundStackManager<>(),  new NullParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new BasicElkhoundStackManager<>(),  NullParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new BasicElkhoundStackManager<>(),  new NullParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new BasicElkhoundStackManager<>(),  NullParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
                     case HybridElkhound:
                         if (this.recovery)
-                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new HybridElkhoundStackManager<>(), new NullParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new HybridElkhoundStackManager<>(), NullParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new HybridElkhoundStackManager<>(), new NullParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new HybridElkhoundStackManager<>(), NullParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
                 }
                 case Basic: switch(this.stackRepresentation) {
                     case Basic:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  new NullParseForestManager<>(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  NullParseForestManager.factory(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  new NullParseForestManager<>(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  NullParseForestManager.factory(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
                     case Hybrid:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), new NullParseForestManager<>(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), NullParseForestManager.factory(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), new NullParseForestManager<>(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), NullParseForestManager.factory(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException("Basic reducing requires Basic or Hybrid stack");
                 }
                 default: throw new IllegalStateException("Only Elkhound or basic reducing possible with empty parse forest representation");
@@ -200,27 +200,27 @@ public class ParserVariant {
                 case Elkhound: switch(this.stackRepresentation) {
                     case BasicElkhound:
                         if (this.recovery)
-                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new BasicElkhoundStackManager<>(),  new HybridParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new BasicElkhoundStackManager<>(),  HybridParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new BasicElkhoundStackManager<>(),  new HybridParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new BasicElkhoundStackManager<>(),  HybridParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
                     case HybridElkhound:
                         if (this.recovery)
-                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new HybridElkhoundStackManager<>(), new HybridParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new ElkhoundParser<>(RecoveryParseState.factory(this), parseTable, new HybridElkhoundStackManager<>(), HybridParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new HybridElkhoundStackManager<>(), new HybridParseForestManager<>(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new ElkhoundParser<>(ParseState.factory(this),         parseTable, new HybridElkhoundStackManager<>(), HybridParseForestManager.factory(), ElkhoundReduceManager.factoryElkhound(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException("Elkhound reducing requires Elkhound stack");
                 }
                 case Basic: switch(this.stackRepresentation) {
                     case Basic:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  new HybridParseForestManager<>(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  HybridParseForestManager.factory(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  new HybridParseForestManager<>(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  HybridParseForestManager.factory(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
                     case Hybrid:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), new HybridParseForestManager<>(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), HybridParseForestManager.factory(), ReduceManager.factory(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), new HybridParseForestManager<>(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), HybridParseForestManager.factory(), ReduceManager.factory(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException("Basic reducing requires Basic or Hybrid stack");
                 }
                 default: throw new IllegalStateException("Only Elkhound or basic reducing possible with hybrid parse forest representation");
@@ -233,14 +233,14 @@ public class ParserVariant {
                 switch(this.stackRepresentation) {
                     case Basic:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  new DataDependentParseForestManager<>(), DataDependentReduceManager.factoryDataDependent(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  DataDependentParseForestManager.factory(), DataDependentReduceManager.factoryDataDependent(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  new DataDependentParseForestManager<>(), DataDependentReduceManager.factoryDataDependent(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new BasicStackManager<>(),  DataDependentParseForestManager.factory(), DataDependentReduceManager.factoryDataDependent(this), new DefaultParseFailureHandler<>()));
                     case Hybrid:
                         if (this.recovery)
-                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), new DataDependentParseForestManager<>(), DataDependentReduceManager.factoryDataDependent(this), new RecoveryParseFailureHandler<>()));
+                            return    withRecovery(new Parser<>(RecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), DataDependentParseForestManager.factory(), DataDependentReduceManager.factoryDataDependent(this), new RecoveryParseFailureHandler<>()));
                         else
-                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), new DataDependentParseForestManager<>(), DataDependentReduceManager.factoryDataDependent(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(ParseState.factory(this),         parseTable, new HybridStackManager<>(), DataDependentParseForestManager.factory(), DataDependentReduceManager.factoryDataDependent(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException();
                 }
 
@@ -251,14 +251,14 @@ public class ParserVariant {
                 switch(this.stackRepresentation) {
                     case Basic:
                         //if (this.recovery)
-                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  new LayoutSensitiveParseForestManager<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new RecoveryParseFailureHandler<>()));
+                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, new BasicStackManager<>(),  LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new RecoveryParseFailureHandler<>()));
                         //else
-                            return withoutRecovery(new Parser<>(LayoutSensitiveParseState.factory(this),         parseTable, new BasicStackManager<>(),  new LayoutSensitiveParseForestManager<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(LayoutSensitiveParseState.factory(this),         parseTable, new BasicStackManager<>(),  LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new DefaultParseFailureHandler<>()));
                     case Hybrid:
                         //if (this.recovery)
-                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), new LayoutSensitiveParseForestManager<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new RecoveryParseFailureHandler<>()));
+                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, new HybridStackManager<>(), LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new RecoveryParseFailureHandler<>()));
                         //else
-                            return withoutRecovery(new Parser<>(LayoutSensitiveParseState.factory(this),         parseTable, new HybridStackManager<>(), new LayoutSensitiveParseForestManager<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new DefaultParseFailureHandler<>()));
+                            return withoutRecovery(new Parser<>(LayoutSensitiveParseState.factory(this),         parseTable, new HybridStackManager<>(), LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException();
                 }
 
@@ -267,8 +267,8 @@ public class ParserVariant {
                     throw new IllegalStateException();
 
                 switch(this.stackRepresentation) {
-                    case Basic:  return withoutRecovery(new IncrementalParser<>(IncrementalParseState.factory(this), parseTable, new BasicStackManager<>(),  new IncrementalParseForestManager<>(), IncrementalReduceManager.factoryIncremental(this), new DefaultParseFailureHandler<>()));
-                    case Hybrid: return withoutRecovery(new IncrementalParser<>(IncrementalParseState.factory(this), parseTable, new HybridStackManager<>(), new IncrementalParseForestManager<>(), IncrementalReduceManager.factoryIncremental(this), new DefaultParseFailureHandler<>()));
+                    case Basic:  return withoutRecovery(new IncrementalParser<>(IncrementalParseState.factory(this), parseTable, new BasicStackManager<>(),  IncrementalParseForestManager.factory(), IncrementalReduceManager.factoryIncremental(this), new DefaultParseFailureHandler<>()));
+                    case Hybrid: return withoutRecovery(new IncrementalParser<>(IncrementalParseState.factory(this), parseTable, new HybridStackManager<>(), IncrementalParseForestManager.factory(), IncrementalReduceManager.factoryIncremental(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException();
                 }
         }

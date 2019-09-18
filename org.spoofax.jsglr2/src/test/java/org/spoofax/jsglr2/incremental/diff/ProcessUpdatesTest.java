@@ -31,7 +31,7 @@ public class ProcessUpdatesTest {
                 .get(observing);
 
         processUpdates = new ProcessUpdates(new IncrementalParseState("", "", activeStacks, forActorStacks),
-            new IncrementalParseForestManager());
+            new IncrementalParseForestManager(observing));
     }
 
     @Test public void testDeleteSubtree() {

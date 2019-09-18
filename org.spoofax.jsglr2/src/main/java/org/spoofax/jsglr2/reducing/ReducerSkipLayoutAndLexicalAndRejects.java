@@ -36,9 +36,9 @@ public class ReducerSkipLayoutAndLexicalAndRejects
         if(reduce.isRejectProduction())
             stackManager.rejectStackLink(observing, existingDirectLinkToActiveStateWithGoto);
         else if(!existingDirectLinkToActiveStateWithGoto.isRejected() && parseNode != null) {
-            Derivation derivation = parseForestManager.createDerivation(observing, parseState,
+            Derivation derivation = parseForestManager.createDerivation(parseState,
                 existingDirectLinkToActiveStateWithGoto.to, reduce.production(), reduce.productionType(), parseForests);
-            parseForestManager.addDerivation(observing, parseState, parseNode, derivation);
+            parseForestManager.addDerivation(parseState, parseNode, derivation);
         }
     }
 
@@ -58,10 +58,9 @@ public class ReducerSkipLayoutAndLexicalAndRejects
             if(reduce.production().isSkippableInParseForest())
                 parseNode = null;
             else {
-                Derivation derivation = parseForestManager.createDerivation(observing, parseState, stack,
-                    reduce.production(), reduce.productionType(), parseForests);
-                parseNode =
-                    parseForestManager.createParseNode(observing, parseState, stack, reduce.production(), derivation);
+                Derivation derivation = parseForestManager.createDerivation(parseState, stack, reduce.production(),
+                    reduce.productionType(), parseForests);
+                parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
             }
 
             newDirectLinkToActiveStateWithGoto =
@@ -73,8 +72,7 @@ public class ReducerSkipLayoutAndLexicalAndRejects
 
     @Override public StackNode reducerNoExistingStack(ParserObserving<ParseForest, StackNode, ParseState> observing,
         ParseState parseState, IReduce reduce, StackNode stack, IState gotoState, ParseForest[] parseForests) {
-        StackNode newStackWithGotoState =
-            stackManager.createStackNode(observing, gotoState);
+        StackNode newStackWithGotoState = stackManager.createStackNode(observing, gotoState);
 
         StackLink<ParseForest, StackNode> link;
 
@@ -88,10 +86,9 @@ public class ReducerSkipLayoutAndLexicalAndRejects
             if(reduce.production().isSkippableInParseForest())
                 parseNode = null;
             else {
-                Derivation derivation = parseForestManager.createDerivation(observing, parseState, stack,
-                    reduce.production(), reduce.productionType(), parseForests);
-                parseNode =
-                    parseForestManager.createParseNode(observing, parseState, stack, reduce.production(), derivation);
+                Derivation derivation = parseForestManager.createDerivation(parseState, stack, reduce.production(),
+                    reduce.productionType(), parseForests);
+                parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
             }
 
             link = stackManager.createStackLink(observing, parseState, newStackWithGotoState, stack, parseNode);

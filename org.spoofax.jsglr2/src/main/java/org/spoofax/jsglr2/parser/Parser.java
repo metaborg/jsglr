@@ -8,6 +8,7 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -30,26 +31,26 @@ public class Parser
 //@formatter:on
     implements IObservableParser<ParseForest, StackNode, ParseState> {
 
+    protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
     protected final ParseStateFactory<ParseForest, StackNode, ParseState> parseStateFactory;
     protected final IParseTable parseTable;
     protected final StackManager stackManager;
     protected final ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager;
     public final ReduceManager reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler;
-    protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
 
     public Parser(ParseStateFactory<ParseForest, StackNode, ParseState> parseStateFactory, IParseTable parseTable,
         StackManager stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
+        ParseForestManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler) {
+        this.observing = new ParserObserving<>();
         this.parseStateFactory = parseStateFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManager;
-        this.parseForestManager = parseForestManager;
+        this.parseForestManager = parseForestManagerFactory.get(observing);
         this.reduceManager = reduceManagerFactory.get(parseTable, this.stackManager, parseForestManager);
         this.failureHandler = failureHandler;
-        this.observing = new ParserObserving<>();
     }
 
     @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {
@@ -199,7 +200,7 @@ public class Parser
     }
 
     protected ParseForest getNodeToShift(ParseState parseState) {
-        return parseForestManager.createCharacterNode(observing, parseState);
+        return parseForestManager.createCharacterNode(parseState);
     }
 
     private void addForShifter(ParseState parseState, StackNode stack, IState shiftState) {

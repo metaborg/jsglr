@@ -8,8 +8,10 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
+import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -30,6 +32,21 @@ public class LayoutSensitiveReduceManager
         ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
+    }
+
+    public static
+    //@formatter:off
+       <ParseForest_  extends LayoutSensitiveParseForest,
+        ParseNode_    extends ParseForest_,
+        Derivation_   extends IDerivation<ParseForest_>,
+        StackNode_    extends IStackNode,
+        ParseState_   extends AbstractParseState<ParseForest_, StackNode_>,
+        StackManager_ extends AbstractStackManager<ParseForest_, StackNode_, ParseState_>>
+    //@formatter:on
+    ReduceManagerFactory<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_, StackManager_, LayoutSensitiveReduceManager<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_>>
+        factoryLayoutSensitive(ParserVariant parserVariant) {
+        return (parseTable, stackManager, parseForestManager) -> new LayoutSensitiveReduceManager<>(parseTable,
+            stackManager, parseForestManager, parserVariant.parseForestConstruction);
     }
 
     @Override protected void doReductionsHelper(ParserObserving<ParseForest, StackNode, ParseState> observing,

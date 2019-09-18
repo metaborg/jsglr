@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -46,6 +46,21 @@ public class ReduceManager
             this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<>(stackManager, parseForestManager);
         else
             this.reducer = new Reducer<>(stackManager, parseForestManager);
+    }
+
+    public static
+    //@formatter:off
+       <ParseForest_  extends IParseForest,
+        ParseNode_    extends ParseForest_,
+        Derivation_   extends IDerivation<ParseForest_>,
+        StackNode_    extends IStackNode,
+        ParseState_   extends AbstractParseState<ParseForest_, StackNode_>,
+        StackManager_ extends AbstractStackManager<ParseForest_, StackNode_, ParseState_>>
+    //@formatter:on
+    ReduceManagerFactory<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_, StackManager_, ReduceManager<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_>>
+        factory(ParserVariant parserVariant) {
+        return (parseTable, stackManager, parseForestManager) -> new ReduceManager<>(parseTable, stackManager,
+            parseForestManager, parserVariant.parseForestConstruction);
     }
 
     public void addFilter(ReduceFilter<ParseForest, StackNode, ParseState> reduceFilter) {

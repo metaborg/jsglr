@@ -124,7 +124,7 @@ public class ParserVariant {
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
     IParser<? extends IParseForest> withoutRecovery(Parser<ParseForest, ?, ?, StackNode, ParseState, ?, ?> parser) {
-        parser.reduceManager.addFilter(ReduceFilter.ignoreCompletionAndRecovery());
+        parser.reduceManager.addFilter(ReduceFilter.ignoreRecoveryAndCompletion());
 
         return parser;
     }

@@ -22,8 +22,8 @@ public interface ReduceFilter
     StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<ParseForest_, StackNode_>>
 //@formatter:on
-    ReduceFilter<ParseForest_, StackNode_, ParseState_> ignoreCompletionAndRecovery() {
-        return (parseState, reduce) -> reduce.production().isCompletionOrRecovery();
+    ReduceFilter<ParseForest_, StackNode_, ParseState_> ignoreRecoveryAndCompletion() {
+        return (parseState, reduce) -> reduce.production().isRecovery() || reduce.production().isCompletion();
     }
 
 }

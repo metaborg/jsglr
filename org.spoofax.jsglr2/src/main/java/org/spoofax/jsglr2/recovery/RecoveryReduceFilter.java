@@ -16,7 +16,10 @@ public class RecoveryReduceFilter
     implements ReduceFilter<ParseForest, StackNode, ParseState> {
 
     @Override public boolean ignoreReduce(ParseState parseState, IReduce reduce) {
-        if(reduce.production().isCompletionOrRecovery()) {
+        if(reduce.production().isCompletion())
+            return true;
+
+        if(reduce.production().isRecovery()) {
             if(parseState.isRecovering()) {
                 if(parseState.recoveryJob().quota > 0) {
                     parseState.recoveryJob().quota--;

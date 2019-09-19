@@ -6,7 +6,6 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
 
@@ -30,12 +29,11 @@ public class HybridElkhoundStackManager
    <ParseForest_  extends IParseForest,
     Derivation_   extends IDerivation<ParseForest_>,
     ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
-    ParseState_   extends AbstractParseState<ParseForest_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>>,
-    StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>, ParseState_>>
+    ParseState_   extends AbstractParseState<ParseForest_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>>>
 //@formatter:on
-    StackManagerFactory<ParseForest_, Derivation_, ParseNode_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>, ParseState_, StackManager_>
+    StackManagerFactory<ParseForest_, Derivation_, ParseNode_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>, ParseState_, HybridElkhoundStackManager<ParseForest_, Derivation_, ParseNode_, ParseState_>>
         factory() {
-        return observing -> (StackManager_) new HybridElkhoundStackManager(observing);
+        return observing -> new HybridElkhoundStackManager<>(observing);
     }
 
     @Override protected HybridElkhoundStackNode<ParseForest, Derivation, ParseNode> createStackNode(IState state,

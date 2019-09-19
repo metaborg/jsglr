@@ -6,7 +6,6 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.StackManager;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
 
@@ -29,12 +28,11 @@ public class HybridStackManager
    <ParseForest_  extends IParseForest,
     Derivation_   extends IDerivation<ParseForest_>,
     ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
-    ParseState_   extends AbstractParseState<ParseForest_, HybridStackNode<ParseForest_>>,
-    StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, HybridStackNode<ParseForest_>, ParseState_>>
+    ParseState_   extends AbstractParseState<ParseForest_, HybridStackNode<ParseForest_>>>
 //@formatter:on
-    StackManagerFactory<ParseForest_, Derivation_, ParseNode_, HybridStackNode<ParseForest_>, ParseState_, StackManager_>
+    StackManagerFactory<ParseForest_, Derivation_, ParseNode_, HybridStackNode<ParseForest_>, ParseState_, HybridStackManager<ParseForest_, Derivation_, ParseNode_, ParseState_>>
         factory() {
-        return observing -> (StackManager_) new HybridStackManager(observing);
+        return observing -> new HybridStackManager<>(observing);
     }
 
     @Override protected HybridStackNode<ParseForest> createStackNode(IState state, boolean isRoot) {

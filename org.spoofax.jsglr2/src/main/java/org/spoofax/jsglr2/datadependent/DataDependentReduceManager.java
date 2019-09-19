@@ -61,7 +61,7 @@ public class DataDependentReduceManager
                 final ParseForest nextParseForest = parseNodes[i];
                 final ISymbol nextSymbol = rightHandSymbols.get(i);
 
-                if(nextSymbol instanceof ContextualSymbol && checkContexts(nextParseForest, nextSymbol))
+                if(nextSymbol instanceof ContextualSymbol && hasDeepConflict(nextParseForest, nextSymbol))
                     return true; // prohibit reduction
             }
         }
@@ -75,7 +75,7 @@ public class DataDependentReduceManager
         Derivation_   extends IDataDependentDerivation<ParseForest_>,
         ParseNode_    extends IDataDependentParseNode<ParseForest_, Derivation_>>
     //@formatter:on
-    boolean checkContexts(ParseForest_ parseForest, ISymbol symbol) {
+    boolean hasDeepConflict(ParseForest_ parseForest, ISymbol symbol) {
         final ContextualSymbol contextualSymbol = (ContextualSymbol) symbol;
 
         final long contextBitmap = contextualSymbol.deepContexts();
@@ -91,23 +91,23 @@ public class DataDependentReduceManager
         if(derivations.size() == 1) {
             final Derivation_ derivation = derivations.get(0);
 
-            final boolean hasDeepConflict = (derivation.getContextBitmap() & contextBitmap) != 0;
-
             // check if bitmaps intersect
-            return hasDeepConflict;
+            return hasDeepConflict(derivation, contextBitmap);
         } else {
             for(Iterator<Derivation_> iterator = derivations.iterator(); iterator.hasNext();) {
                 final Derivation_ derivation = iterator.next();
 
-                final boolean hasDeepConflict = (derivation.getContextBitmap() & contextBitmap) != 0;
-
                 // discard rule nodes where bitmaps intersect
-                if(hasDeepConflict) {
+                if(hasDeepConflict(derivation, contextBitmap)) {
                     iterator.remove();
                 }
             }
             return derivations.isEmpty();
         }
+    }
+
+    private static boolean hasDeepConflict(IDataDependentDerivation<?> derivation, long contextBitmap) {
+        return (derivation.getContextBitmap() & contextBitmap) != 0;
     }
 
 }

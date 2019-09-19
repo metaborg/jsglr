@@ -7,7 +7,6 @@ import org.metaborg.sdf2table.deepconflicts.ContextualSymbol;
 import org.metaborg.sdf2table.grammar.IProduction;
 import org.metaborg.sdf2table.grammar.ISymbol;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
-import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -70,7 +69,13 @@ public class DataDependentReduceManager
         return false;
     }
 
-    private static <ParseForest extends IParseForest> boolean checkContexts(ParseForest pf, ISymbol symbol) {
+    private static
+    //@formatter:off
+       <ParseForest_  extends IDataDependentParseForest,
+        Derivation_   extends IDataDependentDerivation<ParseForest_>,
+        ParseNode_    extends IDataDependentParseNode<ParseForest_, Derivation_>>
+    //@formatter:on
+    boolean checkContexts(ParseForest_ parseForest, ISymbol symbol) {
         final ContextualSymbol contextualSymbol = (ContextualSymbol) symbol;
 
         final long contextBitmap = contextualSymbol.deepContexts();
@@ -79,19 +84,20 @@ public class DataDependentReduceManager
             return false;
         }
 
-        assert pf instanceof DataDependentParseNode;
-        final List<DataDependentDerivation> derivations = ((DataDependentParseNode) pf).getDerivations();
+        assert parseForest instanceof IDataDependentParseNode;
+
+        final List<Derivation_> derivations = ((ParseNode_) parseForest).getDerivations();
 
         if(derivations.size() == 1) {
-            final DataDependentDerivation derivation = derivations.get(0);
+            final Derivation_ derivation = derivations.get(0);
 
             final boolean hasDeepConflict = (derivation.getContextBitmap() & contextBitmap) != 0;
 
             // check if bitmaps intersect
             return hasDeepConflict;
         } else {
-            for(Iterator<DataDependentDerivation> iterator = derivations.iterator(); iterator.hasNext();) {
-                final DataDependentDerivation derivation = iterator.next();
+            for(Iterator<Derivation_> iterator = derivations.iterator(); iterator.hasNext();) {
+                final Derivation_ derivation = iterator.next();
 
                 final boolean hasDeepConflict = (derivation.getContextBitmap() & contextBitmap) != 0;
 

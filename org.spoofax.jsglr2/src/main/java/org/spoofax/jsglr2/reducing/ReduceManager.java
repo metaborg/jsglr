@@ -103,9 +103,14 @@ public class ReduceManager
                 StackNode pathBegin = path.head();
                 ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-                reducer(observing, parseState, pathBegin, reduce, parseNodes);
+                if(!ignoreReducer(pathBegin, reduce, parseNodes))
+                    reducer(observing, parseState, pathBegin, reduce, parseNodes);
             }
         }
+    }
+
+    protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce, ParseForest[] parseNodes) {
+        return false;
     }
 
     /**

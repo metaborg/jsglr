@@ -1,16 +1,19 @@
 package org.spoofax.jsglr2.datadependent;
 
+import org.metaborg.parsetable.productions.IProduction;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.parsetable.productions.IProduction;
-import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
-
-public class DataDependentParseNode extends DataDependentParseForest
-    implements IBasicParseNode<DataDependentParseForest, DataDependentDerivation> {
+public class DataDependentParseNode
+//@formatter:off
+   <ParseForest extends IDataDependentParseForest,
+    Derivation  extends IDataDependentDerivation<ParseForest>>
+//@formatter:on
+    implements IDataDependentParseNode<ParseForest, Derivation> {
 
     public final IProduction production;
-    private final List<DataDependentDerivation> derivations = new ArrayList<>();
+    private final List<Derivation> derivations = new ArrayList<>();
 
     public DataDependentParseNode(IProduction production) {
         this.production = production;
@@ -20,7 +23,7 @@ public class DataDependentParseNode extends DataDependentParseForest
         return production;
     }
 
-    @Override public List<DataDependentDerivation> getDerivations() {
+    @Override public List<Derivation> getDerivations() {
         return derivations;
     }
 

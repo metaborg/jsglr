@@ -13,30 +13,34 @@ import java.util.List;
 
 public class DataDependentParseForestManager
 //@formatter:off
-   <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<DataDependentParseForest, StackNode>>
+   <ParseForest extends IDataDependentParseForest,
+    Derivation  extends IDataDependentDerivation<ParseForest>,
+    ParseNode   extends IDataDependentParseNode<ParseForest, Derivation>,
+    StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends
-    ParseForestManager<DataDependentParseForest, DataDependentDerivation, DataDependentParseNode, StackNode, ParseState> {
+    extends ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     public DataDependentParseForestManager(
-        ParserObserving<DataDependentParseForest, DataDependentDerivation, DataDependentParseNode, StackNode, ParseState> observing) {
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 
     public static
 //@formatter:off
-   <StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<DataDependentParseForest, StackNode_>>
+   <ParseForest_ extends IDataDependentParseForest,
+    Derivation_  extends IDataDependentDerivation<ParseForest_>,
+    ParseNode_   extends IDataDependentParseNode<ParseForest_, Derivation_>,
+    StackNode_   extends IStackNode,
+    ParseState_  extends AbstractParseState<ParseForest_, StackNode_>>
 //@formatter:on
-    ParseForestManagerFactory<DataDependentParseForest, DataDependentDerivation, DataDependentParseNode, StackNode_, ParseState_>
-        factory() {
+    ParseForestManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
         return DataDependentParseForestManager::new;
     }
 
-    @Override public DataDependentParseNode createParseNode(ParseState parseState, IStackNode stack,
-        IProduction production, DataDependentDerivation firstDerivation) {
-        DataDependentParseNode parseNode = new DataDependentParseNode(production);
+    @Override public ParseNode createParseNode(ParseState parseState, IStackNode stack, IProduction production,
+        Derivation firstDerivation) {
+        ParseNode parseNode = (ParseNode) new DataDependentParseNode(production);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -45,13 +49,12 @@ public class DataDependentParseForestManager
         return parseNode;
     }
 
-    @Override public DataDependentParseForest filterStartSymbol(DataDependentParseForest parseForest,
-        String startSymbol, ParseState parseState) {
-        DataDependentParseNode topNode = (DataDependentParseNode) parseForest;
-        List<DataDependentDerivation> result = new ArrayList<>();
+    @Override public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol, ParseState parseState) {
+        ParseNode topNode = (ParseNode) parseForest;
+        List<Derivation> result = new ArrayList<>();
 
-        for(DataDependentDerivation derivation : topNode.getDerivations()) {
-            String derivationStartSymbol = derivation.production.startSymbolSort();
+        for(Derivation derivation : topNode.getDerivations()) {
+            String derivationStartSymbol = derivation.production().startSymbolSort();
 
             if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
                 result.add(derivation);
@@ -60,42 +63,40 @@ public class DataDependentParseForestManager
         if(result.isEmpty())
             return null;
         else {
-            DataDependentParseNode filteredTopNode = new DataDependentParseNode(topNode.production);
+            ParseNode filteredTopNode = (ParseNode) new DataDependentParseNode(topNode.production());
 
-            for(DataDependentDerivation derivation : result)
+            for(Derivation derivation : result)
                 filteredTopNode.addDerivation(derivation);
 
-            return filteredTopNode;
+            return (ParseForest) filteredTopNode;
         }
     }
 
-    @Override public DataDependentDerivation createDerivation(ParseState parseState, IStackNode stack,
-        IProduction production, ProductionType productionType, DataDependentParseForest[] parseForests) {
-        DataDependentDerivation derivation = new DataDependentDerivation(production, productionType, parseForests);
+    @Override public Derivation createDerivation(ParseState parseState, IStackNode stack, IProduction production,
+        ProductionType productionType, ParseForest[] parseForests) {
+        Derivation derivation = (Derivation) new DataDependentDerivation(production, productionType, parseForests);
 
         observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
         return derivation;
     }
 
-    @Override public void addDerivation(ParseState parseState, DataDependentParseNode parseNode,
-        DataDependentDerivation derivation) {
-
+    @Override public void addDerivation(ParseState parseState, ParseNode parseNode, Derivation derivation) {
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
     }
 
-    @Override public DataDependentCharacterNode createCharacterNode(ParseState parseState) {
-        DataDependentCharacterNode characterNode = new DataDependentCharacterNode(parseState.currentChar);
+    @Override public ParseForest createCharacterNode(ParseState parseState) {
+        ParseForest characterNode = (ParseForest) new DataDependentCharacterNode(parseState.currentChar);
 
-        observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
+        observing.notify(observer -> observer.createCharacterNode(characterNode, parseState.currentChar));
 
         return characterNode;
     }
 
-    @Override public DataDependentParseForest[] parseForestsArray(int length) {
-        return new DataDependentParseForest[length];
+    @Override public ParseForest[] parseForestsArray(int length) {
+        return (ParseForest[]) new IDataDependentParseForest[length];
     }
 
 }

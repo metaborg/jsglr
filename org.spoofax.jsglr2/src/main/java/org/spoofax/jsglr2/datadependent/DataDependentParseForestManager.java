@@ -10,46 +10,55 @@ import org.spoofax.jsglr2.stack.IStackNode;
 
 public class DataDependentParseForestManager
 //@formatter:off
-   <ParseForest extends IDataDependentParseForest,
-    Derivation  extends IDataDependentDerivation<ParseForest>,
-    ParseNode   extends IDataDependentParseNode<ParseForest, Derivation>,
-    StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+   <StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<IDataDependentParseForest, StackNode>>
+    extends
+    AbstractBasicParseForestManager
+       <IDataDependentParseForest,
+        IDataDependentDerivation<IDataDependentParseForest>,
+        IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>,
+        StackNode,
+        ParseState>
 //@formatter:on
-    extends AbstractBasicParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
+{
 
     public DataDependentParseForestManager(
-        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
+        ParserObserving<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> observing) {
         super(observing);
     }
 
     public static
 //@formatter:off
-   <ParseForest_ extends IDataDependentParseForest,
-    Derivation_  extends IDataDependentDerivation<ParseForest_>,
-    ParseNode_   extends IDataDependentParseNode<ParseForest_, Derivation_>,
-    StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_>>
+   <StackNode_   extends IStackNode,
+    ParseState_  extends AbstractParseState<IDataDependentParseForest, StackNode_>>
+    ParseForestManagerFactory
+       <IDataDependentParseForest,
+        IDataDependentDerivation<IDataDependentParseForest>,
+        IDataDependentParseNode<IDataDependentParseForest,
+        IDataDependentDerivation<IDataDependentParseForest>>,
+        StackNode_,
+        ParseState_>
 //@formatter:on
-    ParseForestManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
+    factory() {
         return DataDependentParseForestManager::new;
     }
 
-    @Override protected ParseNode constructParseNode(IProduction production) {
-        return (ParseNode) new DataDependentParseNode<>(production);
+    @Override protected DataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>
+        constructParseNode(IProduction production) {
+        return new DataDependentParseNode<>(production);
     }
 
-    @Override protected Derivation constructDerivation(IProduction production, ProductionType productionType,
-        ParseForest[] parseForests) {
-        return (Derivation) new DataDependentDerivation<>(production, productionType, parseForests);
+    @Override protected IDataDependentDerivation<IDataDependentParseForest> constructDerivation(IProduction production,
+        ProductionType productionType, IDataDependentParseForest[] parseForests) {
+        return new DataDependentDerivation<>(production, productionType, parseForests);
     }
 
-    @Override protected ParseForest constructCharacterNode(int character) {
-        return (ParseForest) new DataDependentCharacterNode(character);
+    @Override protected IDataDependentParseForest constructCharacterNode(int character) {
+        return new DataDependentCharacterNode(character);
     }
 
-    @Override public ParseForest[] parseForestsArray(int length) {
-        return (ParseForest[]) new IDataDependentParseForest[length];
+    @Override public IDataDependentParseForest[] parseForestsArray(int length) {
+        return new IDataDependentParseForest[length];
     }
 
 }

@@ -20,44 +20,51 @@ import java.util.List;
 
 public class DataDependentReduceManager
 //@formatter:off
-   <ParseForest extends IDataDependentParseForest,
-    Derivation  extends IDataDependentDerivation<ParseForest>,
-    ParseNode   extends IDataDependentParseNode<ParseForest, Derivation>,
-    StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+   <StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<IDataDependentParseForest, StackNode>>
+    extends
+    ReduceManager<
+        IDataDependentParseForest,
+        IDataDependentDerivation<IDataDependentParseForest>,
+        IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>,
+        StackNode,
+        ParseState>
 //@formatter:on
-    extends ReduceManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
+{
 
     public DataDependentReduceManager(IParseTable parseTable,
-        AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
-        ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager,
+        AbstractStackManager<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> stackManager,
+        ParseForestManager<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }
 
     public static
     //@formatter:off
-       <ParseForest_  extends IDataDependentParseForest,
-        Derivation_   extends IDataDependentDerivation<ParseForest_>,
-        ParseNode_    extends IDataDependentParseNode<ParseForest_, Derivation_>,
-        StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<ParseForest_, StackNode_>,
-        StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
+       <StackNode_    extends IStackNode,
+        ParseState_   extends AbstractParseState<IDataDependentParseForest, StackNode_>,
+        StackManager_ extends AbstractStackManager
+           <IDataDependentParseForest,
+            IDataDependentDerivation<IDataDependentParseForest>,
+            IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>,
+            StackNode_,
+            ParseState_>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, DataDependentReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
+    ReduceManagerFactory<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode_, ParseState_, StackManager_, DataDependentReduceManager<StackNode_, ParseState_>>
         factoryDataDependent(ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new DataDependentReduceManager<>(parseTable,
             stackManager, parseForestManager, parserVariant.parseForestConstruction);
     }
 
-    @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce, ParseForest[] parseNodes) {
+    @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce,
+        IDataDependentParseForest[] parseNodes) {
         final IProduction production = ((ParseTableProduction) reduce.production()).getProduction();
 
         if(production instanceof ContextualProduction) {
             final List<ISymbol> rightHandSymbols = production.rightHand();
 
             for(int i = 0; i < rightHandSymbols.size(); i++) {
-                final ParseForest nextParseForest = parseNodes[i];
+                final IDataDependentParseForest nextParseForest = parseNodes[i];
                 final ISymbol nextSymbol = rightHandSymbols.get(i);
 
                 if(nextSymbol instanceof ContextualSymbol && hasDeepConflict(nextParseForest, nextSymbol))

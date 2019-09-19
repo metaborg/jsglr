@@ -16,7 +16,6 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class DataDependentReduceManager
@@ -80,9 +79,8 @@ public class DataDependentReduceManager
 
         final long contextBitmap = contextualSymbol.deepContexts();
 
-        if(contextBitmap == 0) {
+        if(contextBitmap == 0)
             return false;
-        }
 
         assert parseForest instanceof IDataDependentParseNode;
 
@@ -94,14 +92,9 @@ public class DataDependentReduceManager
             // check if bitmaps intersect
             return hasDeepConflict(derivation, contextBitmap);
         } else {
-            for(Iterator<Derivation_> iterator = derivations.iterator(); iterator.hasNext();) {
-                final Derivation_ derivation = iterator.next();
+            // discard rule nodes where bitmaps intersect
+            derivations.removeIf(derivation -> hasDeepConflict(derivation, contextBitmap));
 
-                // discard rule nodes where bitmaps intersect
-                if(hasDeepConflict(derivation, contextBitmap)) {
-                    iterator.remove();
-                }
-            }
             return derivations.isEmpty();
         }
     }

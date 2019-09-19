@@ -10,16 +10,16 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public abstract class ParseForestManager
 //@formatter:off
    <ParseForest extends IParseForest,
-    ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
+    protected final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
 
-    protected ParseForestManager(ParserObserving<ParseForest, StackNode, ParseState> observing) {
+    protected ParseForestManager(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         this.observing = observing;
     }
 

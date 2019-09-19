@@ -16,9 +16,10 @@ public class HybridParseForestManager
    <StackNode  extends IStackNode,
     ParseState extends AbstractParseState<HybridParseForest, StackNode>>
 //@formatter:on
-    extends ParseForestManager<HybridParseForest, HybridParseNode, HybridDerivation, StackNode, ParseState> {
+    extends ParseForestManager<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> {
 
-    public HybridParseForestManager(ParserObserving<HybridParseForest, StackNode, ParseState> observing) {
+    public HybridParseForestManager(
+        ParserObserving<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 
@@ -27,7 +28,7 @@ public class HybridParseForestManager
    <StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<HybridParseForest, StackNode_>>
 //@formatter:on
-    ParseForestManagerFactory<HybridParseForest, HybridParseNode, HybridDerivation, StackNode_, ParseState_> factory() {
+    ParseForestManagerFactory<HybridParseForest, HybridDerivation, HybridParseNode, StackNode_, ParseState_> factory() {
         return HybridParseForestManager::new;
     }
 

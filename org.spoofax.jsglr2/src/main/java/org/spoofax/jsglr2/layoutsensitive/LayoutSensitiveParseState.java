@@ -1,7 +1,9 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.ParserVariant;
@@ -33,10 +35,12 @@ public class LayoutSensitiveParseState
     public static
 //@formatter:off
    <ParseForest_ extends IParseForest,
+    Derivation_  extends IDerivation<ParseForest_>,
+    ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & ILayoutSensitiveParseState<ParseForest_, StackNode_>>
 //@formatter:on
-    ParseStateFactory<ParseForest_, StackNode_, ParseState_> factory(ParserVariant variant) {
+    ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
                 new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);

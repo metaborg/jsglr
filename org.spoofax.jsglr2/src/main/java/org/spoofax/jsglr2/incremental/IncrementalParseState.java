@@ -7,7 +7,9 @@ import org.metaborg.parsetable.query.ProductionToGotoForLoop;
 import org.metaborg.parsetable.states.State;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.ParserVariant;
@@ -39,7 +41,8 @@ public class IncrementalParseState
    <StackNode_  extends IStackNode,
     ParseState_ extends AbstractParseState<IncrementalParseForest, StackNode_> & IIncrementalParseState>
 //@formatter:on
-    ParseStateFactory<IncrementalParseForest, StackNode_, ParseState_> factory(ParserVariant variant) {
+    ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode_, ParseState_>
+        factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
                 new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);

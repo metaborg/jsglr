@@ -16,13 +16,14 @@ import java.util.List;
 
 public class IncrementalParseForestManager
 //@formatter:off
-   <StackNode extends IStackNode,
+   <StackNode  extends IStackNode,
     ParseState extends AbstractParseState<IncrementalParseForest, StackNode> & IIncrementalParseState>
 //@formatter:on
     extends
-    ParseForestManager<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, StackNode, ParseState> {
+    ParseForestManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> {
 
-    public IncrementalParseForestManager(ParserObserving<IncrementalParseForest, StackNode, ParseState> observing) {
+    public IncrementalParseForestManager(
+        ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 
@@ -31,7 +32,7 @@ public class IncrementalParseForestManager
    <StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<IncrementalParseForest, StackNode_> & IIncrementalParseState>
 //@formatter:on
-    ParseForestManagerFactory<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, StackNode_, ParseState_>
+    ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode_, ParseState_>
         factory() {
         return IncrementalParseForestManager::new;
     }

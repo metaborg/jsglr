@@ -1,7 +1,9 @@
 package org.spoofax.jsglr2.elkhound;
 
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
@@ -11,41 +13,49 @@ import org.spoofax.jsglr2.stack.StackManagerFactory;
 public class HybridElkhoundStackManager
 //@formatter:off
    <ParseForest extends IParseForest,
-    ParseState  extends AbstractParseState<ParseForest, HybridElkhoundStackNode<ParseForest>>>
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
+    ParseState  extends AbstractParseState<ParseForest, HybridElkhoundStackNode<ParseForest, Derivation, ParseNode>>>
 //@formatter:on
-    extends ElkhoundStackManager<ParseForest, HybridElkhoundStackNode<ParseForest>, ParseState> {
+    extends
+    ElkhoundStackManager<ParseForest, Derivation, ParseNode, HybridElkhoundStackNode<ParseForest, Derivation, ParseNode>, ParseState> {
 
     public HybridElkhoundStackManager(
-        ParserObserving<ParseForest, HybridElkhoundStackNode<ParseForest>, ParseState> observing) {
+        ParserObserving<ParseForest, Derivation, ParseNode, HybridElkhoundStackNode<ParseForest, Derivation, ParseNode>, ParseState> observing) {
         super(observing);
     }
 
     public static
 //@formatter:off
    <ParseForest_  extends IParseForest,
-    ParseState_   extends AbstractParseState<ParseForest_, HybridElkhoundStackNode<ParseForest_>>,
-    StackManager_ extends AbstractStackManager<ParseForest_, HybridElkhoundStackNode<ParseForest_>, ParseState_>>
+    Derivation_   extends IDerivation<ParseForest_>,
+    ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
+    ParseState_   extends AbstractParseState<ParseForest_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>>,
+    StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>, ParseState_>>
 //@formatter:on
-    StackManagerFactory<ParseForest_, HybridElkhoundStackNode<ParseForest_>, ParseState_, StackManager_> factory() {
+    StackManagerFactory<ParseForest_, Derivation_, ParseNode_, HybridElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>, ParseState_, StackManager_>
+        factory() {
         return observing -> (StackManager_) new HybridElkhoundStackManager(observing);
     }
 
-    @Override protected HybridElkhoundStackNode<ParseForest> createStackNode(IState state, boolean isRoot) {
+    @Override protected HybridElkhoundStackNode<ParseForest, Derivation, ParseNode> createStackNode(IState state,
+        boolean isRoot) {
         return new HybridElkhoundStackNode<>(state, isRoot);
     }
 
-    @Override protected StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>> addStackLink(ParseState parseState,
-        HybridElkhoundStackNode<ParseForest> from, HybridElkhoundStackNode<ParseForest> to, ParseForest parseNode) {
+    @Override protected StackLink<ParseForest, HybridElkhoundStackNode<ParseForest, Derivation, ParseNode>>
+        addStackLink(ParseState parseState, HybridElkhoundStackNode<ParseForest, Derivation, ParseNode> from,
+            HybridElkhoundStackNode<ParseForest, Derivation, ParseNode> to, ParseForest parseNode) {
         return from.addLink(observing, to, parseNode, parseState.activeStacks);
     }
 
-    @Override protected StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>
-        getOnlyLink(HybridElkhoundStackNode<ParseForest> stack) {
+    @Override protected StackLink<ParseForest, HybridElkhoundStackNode<ParseForest, Derivation, ParseNode>>
+        getOnlyLink(HybridElkhoundStackNode<ParseForest, Derivation, ParseNode> stack) {
         return stack.getOnlyLink();
     }
 
-    @Override protected Iterable<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest>>>
-        stackLinksOut(HybridElkhoundStackNode<ParseForest> stack) {
+    @Override protected Iterable<StackLink<ParseForest, HybridElkhoundStackNode<ParseForest, Derivation, ParseNode>>>
+        stackLinksOut(HybridElkhoundStackNode<ParseForest, Derivation, ParseNode> stack) {
         return stack.getLinks();
     }
 

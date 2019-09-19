@@ -1,40 +1,50 @@
 package org.spoofax.jsglr2.elkhound;
 
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 
 import java.util.ArrayList;
 
-public class BasicElkhoundStackNode<ParseForest extends IParseForest> extends AbstractElkhoundStackNode<ParseForest> {
+public class BasicElkhoundStackNode
+//@formatter:off
+   <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>>
+//@formatter:on
+    extends AbstractElkhoundStackNode<ParseForest> {
 
     // Directed to the initial stack node
-    private ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> links = new ArrayList<>();
+    private ArrayList<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>>> links =
+        new ArrayList<>();
 
     public BasicElkhoundStackNode(IState state, boolean isRoot) {
         super(state, isRoot);
     }
 
     @Override @SuppressWarnings("unchecked") public
-        Iterable<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>>> getLinks() {
+        Iterable<StackLink<ParseForest, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>>> getLinks() {
         return links;
     }
 
-    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> getOnlyLink() {
+    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>> getOnlyLink() {
         return links.get(0);
     }
 
-    @Override public BasicElkhoundStackNode<ParseForest> getOnlyLinkTo() {
+    @Override public BasicElkhoundStackNode<ParseForest, Derivation, ParseNode> getOnlyLinkTo() {
         return links.get(0).to;
     }
 
-    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> addLink(
-        ParserObserving<ParseForest, BasicElkhoundStackNode<ParseForest>, ?> observing,
-        BasicElkhoundStackNode<ParseForest> parent, ParseForest parseNode,
-        IActiveStacks<BasicElkhoundStackNode<ParseForest>> activeStacks) {
-        StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link = new StackLink<>(this, parent, parseNode);
+    public StackLink<ParseForest, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>> addLink(
+        ParserObserving<ParseForest, Derivation, ParseNode, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>, ?> observing,
+        BasicElkhoundStackNode<ParseForest, Derivation, ParseNode> parent, ParseForest parseNode,
+        IActiveStacks<BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>> activeStacks) {
+        StackLink<ParseForest, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>> link =
+            new StackLink<>(this, parent, parseNode);
 
         links.add(link);
 
@@ -48,7 +58,7 @@ public class BasicElkhoundStackNode<ParseForest extends IParseForest> extends Ab
             if(referenceCount > 0) {
                 observing.notify(observer -> observer.resetDeterministicDepth(this));
 
-                for(BasicElkhoundStackNode<ParseForest> stack : activeStacks)
+                for(BasicElkhoundStackNode<ParseForest, Derivation, ParseNode> stack : activeStacks)
                     if(stack != this)
                         stack.resetDeterministicDepth();
             }
@@ -61,7 +71,7 @@ public class BasicElkhoundStackNode<ParseForest extends IParseForest> extends Ab
         if(links.isEmpty())
             return false;
 
-        for(StackLink<ParseForest, BasicElkhoundStackNode<ParseForest>> link : links) {
+        for(StackLink<ParseForest, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>> link : links) {
             if(!link.isRejected())
                 return false;
         }

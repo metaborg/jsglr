@@ -1,12 +1,5 @@
 package org.spoofax.jsglr2.parser.observing;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
@@ -16,22 +9,30 @@ import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-
-import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 public abstract class ParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
-    implements IParserObserver<ParseForest, StackNode, ParseState> {
+    implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     private int parseNodeCount = 0;
     private int stackNodeCount = 0;
@@ -67,7 +68,7 @@ public abstract class ParserObserver
         // For incremental parsing, not all nodes are registered yet because they come from a previous parse
         if(!parseNodeId.containsKey(parseNode)) {
             if(parseNode instanceof IParseNode)
-                createParseNode(parseNode, ((IParseNode) parseNode).production());
+                createParseNode((ParseNode) parseNode, ((ParseNode) parseNode).production());
             else
                 createCharacterNode(parseNode, ((ICharacterNode) parseNode).character());
         }
@@ -158,12 +159,11 @@ public abstract class ParserObserver
     @Override public void accept(StackNode acceptingStack) {
     }
 
-    @Override public void createParseNode(ParseForest parseNode, IProduction production) {
-        registerParseNode(parseNode);
+    @Override public void createParseNode(ParseNode parseNode, IProduction production) {
+        registerParseNode((ParseForest) parseNode);
     }
 
-    @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
-        ParseForest[] parseNodes) {
+    @Override public void createDerivation(Derivation derivation, IProduction production, ParseForest[] parseNodes) {
         registerDerivationNode(derivation);
     }
 
@@ -171,7 +171,7 @@ public abstract class ParserObserver
         registerParseNode(characterNode);
     }
 
-    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
+    @Override public void addDerivation(ParseNode parseNode, Derivation derivation) {
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {

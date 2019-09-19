@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parser.observing;
 
-import java.util.Queue;
-
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
@@ -9,18 +7,22 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-
-import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
+import java.util.Queue;
+
 public interface IParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
@@ -67,13 +69,13 @@ public interface IParserObserver
 
     void accept(StackNode acceptingStack);
 
-    void createParseNode(ParseForest parseNode, IProduction production);
+    void createParseNode(ParseNode parseNode, IProduction production);
 
-    void createDerivation(IDerivation<ParseForest> derivationNode, IProduction production, ParseForest[] parseNodes);
+    void createDerivation(Derivation derivationNode, IProduction production, ParseForest[] parseNodes);
 
     void createCharacterNode(ParseForest characterNode, int character);
 
-    void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation);
+    void addDerivation(ParseNode parseNode, Derivation derivation);
 
     void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 

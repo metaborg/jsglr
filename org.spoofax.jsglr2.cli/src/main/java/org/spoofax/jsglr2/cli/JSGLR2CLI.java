@@ -1,10 +1,5 @@
 package org.spoofax.jsglr2.cli;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.io.IOUtils;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
@@ -28,11 +23,15 @@ import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
-
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 @CommandLine.Command(name = "JSGLR2 CLI", sortOptions = false)
 public class JSGLR2CLI implements Runnable {
@@ -161,7 +160,7 @@ public class JSGLR2CLI implements Runnable {
             IParseTable parseTable = getParseTable();
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
                 (JSGLR2Implementation<?, ?, IStrategoTerm>) getJSGLR2(parseTable);
-            IObservableParser<?, ?, ?> observableParser = (IObservableParser<?, ?, ?>) jsglr2.parser;
+            IObservableParser<?, ?, ?, ?, ?> observableParser = (IObservableParser<?, ?, ?, ?, ?>) jsglr2.parser;
 
             outputStream = outputStream();
 

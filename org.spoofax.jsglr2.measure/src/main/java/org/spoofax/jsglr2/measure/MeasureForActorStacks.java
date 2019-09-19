@@ -1,18 +1,27 @@
 package org.spoofax.jsglr2.measure;
 
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksArrayDeque;
 
-public class MeasureForActorStacks<ParseForest extends IParseForest, StackNode extends IStackNode, ParseState extends AbstractParseState<ParseForest, StackNode>>
-    extends ForActorStacksArrayDeque<ParseForest, StackNode, ParseState> {
+public class MeasureForActorStacks
+//@formatter:off
+   <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
+    StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+//@formatter:on
+    extends ForActorStacksArrayDeque<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     long forActorAdds = 0, forActorDelayedAdds = 0, forActorMaxSize = 0, forActorDelayedMaxSize = 0, containsChecks = 0,
         nonEmptyChecks = 0;
 
-    public MeasureForActorStacks(ParserObserving<ParseForest, StackNode, ParseState> observing) {
+    public MeasureForActorStacks(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 

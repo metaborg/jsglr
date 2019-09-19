@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.incremental.diff;
 
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.IIncrementalParseState;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
@@ -26,7 +27,7 @@ public class ProcessUpdates
 {
 
     private final ParseState parseState;
-    private final ParserObserving<IncrementalParseForest, StackNode, ParseState> observing;
+    private final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing;
     private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager;
 
     public ProcessUpdates(ParseState parseState,

@@ -1,7 +1,9 @@
 package org.spoofax.jsglr2.stack;
 
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -15,14 +17,17 @@ import java.util.List;
 public abstract class AbstractStackManager
 //@formatter:off
    <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
+    protected final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
 
-    protected AbstractStackManager(ParserObserving<ParseForest, StackNode, ParseState> observing) {
+    protected AbstractStackManager(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         this.observing = observing;
     }
 
@@ -31,7 +36,7 @@ public abstract class AbstractStackManager
     public abstract StackNode createStackNode(IState state);
 
     public abstract StackLink<ParseForest, StackNode> createStackLink(ParseState parseState, StackNode from,
-        StackNode to, ParseForest parseNode);
+        StackNode to, ParseForest parseForest);
 
     public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
         link.reject();

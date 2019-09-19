@@ -4,6 +4,7 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -22,16 +23,16 @@ import java.util.stream.Collectors;
 public class IncrementalReduceManager
 //@formatter:off
    <ParseForest extends IncrementalParseForest,
-    ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode> & IIncrementalParseState>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> {
+    extends ReduceManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     public IncrementalReduceManager(IParseTable parseTable,
-        AbstractStackManager<ParseForest, StackNode, ParseState> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
+        AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
+        ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }
@@ -39,20 +40,21 @@ public class IncrementalReduceManager
     public static
     //@formatter:off
        <ParseForest_  extends IncrementalParseForest,
-        ParseNode_    extends ParseForest_,
         Derivation_   extends IDerivation<ParseForest_>,
+        ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,
         ParseState_   extends AbstractParseState<ParseForest_, StackNode_> & IIncrementalParseState,
-        StackManager_ extends AbstractStackManager<ParseForest_, StackNode_, ParseState_>>
+        StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_, StackManager_, IncrementalReduceManager<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_>>
+    ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, IncrementalReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
         factoryIncremental(ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable,
             stackManager, parseForestManager, parserVariant.parseForestConstruction);
     }
 
-    @Override protected void doReductionsHelper(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        ParseState parseState, StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+    @Override protected void doReductionsHelper(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
+        StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
 
         List<StackPath<ParseForest, StackNode>> paths = stackManager.findAllPathsOfLength(stack, reduce.arity());
 

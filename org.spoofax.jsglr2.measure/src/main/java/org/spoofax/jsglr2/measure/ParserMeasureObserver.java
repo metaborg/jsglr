@@ -7,6 +7,7 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -20,8 +21,14 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
-public class ParserMeasureObserver<ParseForest extends IParseForest> implements
-    IParserObserver<ParseForest, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> {
+public class ParserMeasureObserver
+//@formatter:off
+   <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>>
+//@formatter:on
+    implements
+    IParserObserver<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> {
 
     public int length = 0;
     AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState;
@@ -177,11 +184,11 @@ public class ParserMeasureObserver<ParseForest extends IParseForest> implements
     @Override public void accept(AbstractElkhoundStackNode<ParseForest> acceptingStack) {
     }
 
-    @Override public void createParseNode(ParseForest parseNode, IProduction production) {
+    @Override public void createParseNode(ParseNode parseNode, IProduction production) {
         parseNodes.add((HybridParseNode) parseNode);
     }
 
-    @Override public void createDerivation(IDerivation<ParseForest> derivationNode, IProduction production,
+    @Override public void createDerivation(Derivation derivationNode, IProduction production,
         ParseForest[] parseNodes) {
     }
 
@@ -189,7 +196,7 @@ public class ParserMeasureObserver<ParseForest extends IParseForest> implements
         characterNodes.add(characterNode);
     }
 
-    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
+    @Override public void addDerivation(ParseNode parseNode, Derivation derivation) {
     }
 
     @Override public void shifter(ParseForest termNode,

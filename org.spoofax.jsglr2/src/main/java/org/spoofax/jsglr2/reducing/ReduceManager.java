@@ -3,10 +3,7 @@ package org.spoofax.jsglr2.reducing;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -21,21 +18,22 @@ import java.util.List;
 public class ReduceManager
 //@formatter:off
    <ParseForest extends IParseForest,
-    ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
     protected final IParseTable parseTable;
-    protected final AbstractStackManager<ParseForest, StackNode, ParseState> stackManager;
-    protected final ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager;
-    protected final Reducer<ParseForest, ParseNode, Derivation, StackNode, ParseState> reducer;
+    protected final AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager;
+    protected final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
+    protected final Reducer<ParseForest, Derivation, ParseNode, StackNode, ParseState> reducer;
     protected final List<ReduceFilter<ParseForest, StackNode, ParseState>> reduceFilters;
 
-    public ReduceManager(IParseTable parseTable, AbstractStackManager<ParseForest, StackNode, ParseState> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager,
+    public ReduceManager(IParseTable parseTable,
+        AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
+        ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
@@ -51,13 +49,13 @@ public class ReduceManager
     public static
     //@formatter:off
        <ParseForest_  extends IParseForest,
-        ParseNode_    extends ParseForest_,
         Derivation_   extends IDerivation<ParseForest_>,
+        ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,
         ParseState_   extends AbstractParseState<ParseForest_, StackNode_>,
-        StackManager_ extends AbstractStackManager<ParseForest_, StackNode_, ParseState_>>
+        StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_, StackManager_, ReduceManager<ParseForest_, ParseNode_, Derivation_, StackNode_, ParseState_>>
+    ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, ReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
         factory(ParserVariant parserVariant) {
         return (parseTable, stackManager, parseForestManager) -> new ReduceManager<>(parseTable, stackManager,
             parseForestManager, parserVariant.parseForestConstruction);
@@ -67,8 +65,8 @@ public class ReduceManager
         reduceFilters.add(reduceFilter);
     }
 
-    public void doReductions(ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState,
-        StackNode stack, IReduce reduce) {
+    public void doReductions(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
+        ParseState parseState, StackNode stack, IReduce reduce) {
         if(ignoreReduce(parseState, reduce))
             return;
 
@@ -77,8 +75,9 @@ public class ReduceManager
         doReductionsHelper(observing, parseState, stack, reduce, null);
     }
 
-    private void doLimitedReductions(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        ParseState parseState, StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+    private void doLimitedReductions(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
+        StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
         if(ignoreReduce(parseState, reduce))
             return;
 
@@ -96,8 +95,9 @@ public class ReduceManager
         return false;
     }
 
-    protected void doReductionsHelper(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        ParseState parseState, StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+    protected void doReductionsHelper(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
+        StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
         for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
             if(throughLink == null || path.contains(throughLink)) {
                 StackNode pathBegin = path.head();
@@ -115,8 +115,8 @@ public class ReduceManager
      * not and if such an active stack already exists, the link to it can also already exist. Based on the existence of
      * the stack with the goto state and the link to it, different actions are performed.
      */
-    protected void reducer(ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState,
-        StackNode stack, IReduce reduce, ParseForest[] parseForests) {
+    protected void reducer(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
+        ParseState parseState, StackNode stack, IReduce reduce, ParseForest[] parseForests) {
         int gotoId = stack.state().getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 

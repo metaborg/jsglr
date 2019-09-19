@@ -36,24 +36,24 @@ import static org.spoofax.jsglr2.incremental.IncrementalParseState.NO_STATE;
 
 public class IncrementalParser
 // @formatter:off
-   <ParseNode     extends IncrementalParseNode,
-    Derivation    extends IncrementalDerivation,
-    StackNode     extends IStackNode,
+   <StackNode     extends IStackNode,
     ParseState    extends AbstractParseState<IncrementalParseForest, StackNode> & IIncrementalParseState,
-    StackManager  extends AbstractStackManager<IncrementalParseForest, StackNode, ParseState>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState>>
+    StackManager  extends AbstractStackManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState>,
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState>>
 // @formatter:on
-    extends Parser<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> {
+    extends
+    Parser<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager, ReduceManager> {
 
     private final HashMap<String, IncrementalParseForest> cache = new HashMap<>();
     private final HashMap<String, String> oldString = new HashMap<>();
     private final IStringDiff diff;
 
-    public IncrementalParser(ParseStateFactory<IncrementalParseForest, StackNode, ParseState> parseStateFactory,
+    public IncrementalParser(
+        ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseStateFactory,
         IParseTable parseTable,
-        StackManagerFactory<IncrementalParseForest, StackNode, ParseState, StackManager> stackManagerFactory,
-        ParseForestManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManagerFactory,
-        ReduceManagerFactory<IncrementalParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
+        StackManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
+        ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
+        ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler) {
         super(parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, reduceManagerFactory,
             failureHandler);

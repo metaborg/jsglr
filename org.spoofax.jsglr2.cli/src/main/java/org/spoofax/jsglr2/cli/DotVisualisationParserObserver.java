@@ -1,22 +1,25 @@
 package org.spoofax.jsglr2.cli;
 
-import java.util.function.Consumer;
-
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
 
+import java.util.function.Consumer;
+
 abstract class DotVisualisationParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends ParserObserver<ParseForest, StackNode, ParseState> {
+    extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     final Consumer<String> outputConsumer;
 

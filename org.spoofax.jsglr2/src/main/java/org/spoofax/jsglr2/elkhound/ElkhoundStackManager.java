@@ -1,7 +1,9 @@
 package org.spoofax.jsglr2.elkhound;
 
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -11,12 +13,15 @@ import org.spoofax.jsglr2.stack.StackLink;
 public abstract class ElkhoundStackManager
 //@formatter:off
    <ParseForest       extends IParseForest,
+    Derivation        extends IDerivation<ParseForest>,
+    ParseNode         extends IParseNode<ParseForest, Derivation>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
     ParseState        extends AbstractParseState<ParseForest, ElkhoundStackNode>>
 //@formatter:on
-    extends AbstractStackManager<ParseForest, ElkhoundStackNode, ParseState> {
+    extends AbstractStackManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> {
 
-    public ElkhoundStackManager(ParserObserving<ParseForest, ElkhoundStackNode, ParseState> observing) {
+    public ElkhoundStackManager(
+        ParserObserving<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> observing) {
         super(observing);
     }
 

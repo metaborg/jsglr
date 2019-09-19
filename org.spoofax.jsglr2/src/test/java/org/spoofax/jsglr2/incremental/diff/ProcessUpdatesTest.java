@@ -22,7 +22,7 @@ public class ProcessUpdatesTest {
     private final ProcessUpdates<?, ?> processUpdates;
 
     public ProcessUpdatesTest() {
-        ParserObserving<?, ?, ?> observing = new ParserObserving<>();
+        ParserObserving<?, ?, ?, ?, ?> observing = new ParserObserving<>();
         IActiveStacks<?> activeStacks =
             new ActiveStacksFactory(JSGLR2Variant.Preset.incremental.variant.parser.activeStacksRepresentation)
                 .get(observing);

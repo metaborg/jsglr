@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.cli;
 
-import java.util.Queue;
-import java.util.function.Consumer;
-
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
@@ -10,9 +7,9 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -20,13 +17,18 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
+import java.util.Queue;
+import java.util.function.Consumer;
+
 public class LogParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
-    extends ParserObserver<ParseForest, StackNode, ParseState> {
+    extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     final private Consumer<String> logger;
 
@@ -105,15 +107,14 @@ public class LogParserObserver
         log("    Accept stack " + stackNodeString(acceptingStack));
     }
 
-    @Override public void createParseNode(ParseForest parseNode, IProduction production) {
+    @Override public void createParseNode(ParseNode parseNode, IProduction production) {
         super.createParseNode(parseNode, production);
 
-        log("    Create parse node " + id(parseNode) + " for production "
+        log("    Create parse node " + id((ParseForest) parseNode) + " for production "
             + (production == null ? null : production.id()));
     }
 
-    @Override public void createDerivation(IDerivation<ParseForest> derivation, IProduction production,
-        ParseForest[] parseNodes) {
+    @Override public void createDerivation(Derivation derivation, IProduction production, ParseForest[] parseNodes) {
         super.createDerivation(derivation, production, parseNodes);
 
         log("    Create derivation with parse nodes " + parseForestsToString(parseNodes));
@@ -126,8 +127,8 @@ public class LogParserObserver
             + CharacterClassFactory.intToString(character) + "'");
     }
 
-    @Override public void addDerivation(ParseForest parseNode, IDerivation<ParseForest> derivation) {
-        log("    Add derivation " + id(derivation) + " to parse node " + id(parseNode));
+    @Override public void addDerivation(ParseNode parseNode, Derivation derivation) {
+        log("    Add derivation " + id(derivation) + " to parse node " + id((ParseForest) parseNode));
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {

@@ -18,10 +18,10 @@ public class LayoutSensitiveParseForestManager
     ParseState extends AbstractParseState<LayoutSensitiveParseForest, StackNode> & ILayoutSensitiveParseState<LayoutSensitiveParseForest, StackNode>>
 //@formatter:on
     extends
-    ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode, ParseState> {
+    ParseForestManager<LayoutSensitiveParseForest, LayoutSensitiveDerivation, LayoutSensitiveParseNode, StackNode, ParseState> {
 
     public LayoutSensitiveParseForestManager(
-        ParserObserving<LayoutSensitiveParseForest, StackNode, ParseState> observing) {
+        ParserObserving<LayoutSensitiveParseForest, LayoutSensitiveDerivation, LayoutSensitiveParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 
@@ -30,7 +30,7 @@ public class LayoutSensitiveParseForestManager
    <StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<LayoutSensitiveParseForest, StackNode_> & ILayoutSensitiveParseState<LayoutSensitiveParseForest, StackNode_>>
 //@formatter:on
-    ParseForestManagerFactory<LayoutSensitiveParseForest, LayoutSensitiveParseNode, LayoutSensitiveDerivation, StackNode_, ParseState_>
+    ParseForestManagerFactory<LayoutSensitiveParseForest, LayoutSensitiveDerivation, LayoutSensitiveParseNode, StackNode_, ParseState_>
         factory() {
         return LayoutSensitiveParseForestManager::new;
     }

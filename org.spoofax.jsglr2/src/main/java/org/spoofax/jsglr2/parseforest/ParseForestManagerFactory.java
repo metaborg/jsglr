@@ -7,14 +7,14 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public interface ParseForestManagerFactory
 //@formatter:off
    <ParseForest extends IParseForest,
-    ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState>
-        get(ParserObserving<ParseForest, StackNode, ParseState> observing);
+    ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState>
+        get(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing);
 
 }

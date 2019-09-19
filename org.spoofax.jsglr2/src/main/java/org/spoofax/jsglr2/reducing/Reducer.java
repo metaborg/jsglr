@@ -4,9 +4,9 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -15,18 +15,18 @@ import org.spoofax.jsglr2.stack.StackLink;
 public class Reducer
 //@formatter:off
    <ParseForest extends IParseForest,
-    ParseNode   extends ParseForest,
     Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
 {
 
-    protected final AbstractStackManager<ParseForest, StackNode, ParseState> stackManager;
-    protected final ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager;
+    protected final AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager;
+    protected final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
 
-    public Reducer(AbstractStackManager<ParseForest, StackNode, ParseState> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager) {
+    public Reducer(AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
+        ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager) {
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
     }
@@ -37,9 +37,10 @@ public class Reducer
      * currently reduced derivation will be added as an alternative to the parse node on the link. This means the parse
      * node is ambiguous.
      */
-    public void reducerExistingStackWithDirectLink(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        ParseState parseState, IReduce reduce,
-        StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto, ParseForest[] parseForests) {
+    public void reducerExistingStackWithDirectLink(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
+        IReduce reduce, StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto,
+        ParseForest[] parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parseState,
             existingDirectLinkToActiveStateWithGoto.to, reduce.production(), reduce.productionType(), parseForests);
 
@@ -59,14 +60,14 @@ public class Reducer
      * parse node on the link.
      */
     public StackLink<ParseForest, StackNode> reducerExistingStackWithoutDirectLink(
-        ParserObserving<ParseForest, StackNode, ParseState> observing, ParseState parseState, IReduce reduce,
-        StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
+        IReduce reduce, StackNode existingActiveStackWithGotoState, StackNode stack, ParseForest[] parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parseState, stack, reduce.production(),
             reduce.productionType(), parseForests);
-        ParseForest parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
+        ParseNode parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
 
         StackLink<ParseForest, StackNode> newDirectLinkToActiveStateWithGoto =
-            stackManager.createStackLink(parseState, existingActiveStackWithGotoState, stack, parseNode);
+            stackManager.createStackLink(parseState, existingActiveStackWithGotoState, stack, (ParseForest) parseNode);
 
         if(reduce.isRejectProduction())
             stackManager.rejectStackLink(newDirectLinkToActiveStateWithGoto);
@@ -79,15 +80,16 @@ public class Reducer
      * goto state is created and a link between this stack and the stack from where the reduction started is created.
      * The currently reduced derivation is added as the first derivation for the parse node on the link.
      */
-    public StackNode reducerNoExistingStack(ParserObserving<ParseForest, StackNode, ParseState> observing,
-        ParseState parseState, IReduce reduce, StackNode stack, IState gotoState, ParseForest[] parseForests) {
+    public StackNode reducerNoExistingStack(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
+        IReduce reduce, StackNode stack, IState gotoState, ParseForest[] parseForests) {
         Derivation derivation = parseForestManager.createDerivation(parseState, stack, reduce.production(),
             reduce.productionType(), parseForests);
-        ParseForest parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
+        ParseNode parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
 
         StackNode newStackWithGotoState = stackManager.createStackNode(gotoState);
         StackLink<ParseForest, StackNode> link =
-            stackManager.createStackLink(parseState, newStackWithGotoState, stack, parseNode);
+            stackManager.createStackLink(parseState, newStackWithGotoState, stack, (ParseForest) parseNode);
 
         if(reduce.isRejectProduction())
             stackManager.rejectStackLink(link);

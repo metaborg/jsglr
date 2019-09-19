@@ -5,10 +5,7 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -23,27 +20,28 @@ import org.spoofax.jsglr2.stack.StackManagerFactory;
 public class Parser
 //@formatter:off
    <ParseForest   extends IParseForest,
-    ParseNode     extends ParseForest,
     Derivation    extends IDerivation<ParseForest>,
+    ParseNode     extends IParseNode<ParseForest, Derivation>,
     StackNode     extends IStackNode,
     ParseState    extends AbstractParseState<ParseForest, StackNode>,
-    StackManager  extends AbstractStackManager<ParseForest, StackNode, ParseState>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, ParseNode, Derivation, StackNode, ParseState>>
+    StackManager  extends AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState>,
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, Derivation, ParseNode, StackNode, ParseState>>
 //@formatter:on
-    implements IObservableParser<ParseForest, StackNode, ParseState> {
+    implements IObservableParser<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
-    protected final ParserObserving<ParseForest, StackNode, ParseState> observing;
-    protected final ParseStateFactory<ParseForest, StackNode, ParseState> parseStateFactory;
+    protected final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
+    protected final ParseStateFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseStateFactory;
     protected final IParseTable parseTable;
     protected final StackManager stackManager;
-    protected final ParseForestManager<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManager;
+    protected final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
     public final ReduceManager reduceManager;
     protected final IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler;
 
-    public Parser(ParseStateFactory<ParseForest, StackNode, ParseState> parseStateFactory, IParseTable parseTable,
-        StackManagerFactory<ParseForest, StackNode, ParseState, StackManager> stackManagerFactory,
-        ParseForestManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState> parseForestManagerFactory,
-        ReduceManagerFactory<ParseForest, ParseNode, Derivation, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
+    public Parser(ParseStateFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseStateFactory,
+        IParseTable parseTable,
+        StackManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
+        ParseForestManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManagerFactory,
+        ReduceManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler) {
         this.observing = new ParserObserving<>();
         this.parseStateFactory = parseStateFactory;
@@ -211,7 +209,7 @@ public class Parser
         parseState.forShifter.add(forShifterElement);
     }
 
-    @Override public ParserObserving<ParseForest, StackNode, ParseState> observing() {
+    @Override public ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing() {
         return observing;
     }
 

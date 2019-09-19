@@ -17,9 +17,10 @@ public class DataDependentParseForestManager
     ParseState extends AbstractParseState<DataDependentParseForest, StackNode>>
 //@formatter:on
     extends
-    ParseForestManager<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode, ParseState> {
+    ParseForestManager<DataDependentParseForest, DataDependentDerivation, DataDependentParseNode, StackNode, ParseState> {
 
-    public DataDependentParseForestManager(ParserObserving<DataDependentParseForest, StackNode, ParseState> observing) {
+    public DataDependentParseForestManager(
+        ParserObserving<DataDependentParseForest, DataDependentDerivation, DataDependentParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 
@@ -28,7 +29,7 @@ public class DataDependentParseForestManager
    <StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<DataDependentParseForest, StackNode_>>
 //@formatter:on
-    ParseForestManagerFactory<DataDependentParseForest, DataDependentParseNode, DataDependentDerivation, StackNode_, ParseState_>
+    ParseForestManagerFactory<DataDependentParseForest, DataDependentDerivation, DataDependentParseNode, StackNode_, ParseState_>
         factory() {
         return DataDependentParseForestManager::new;
     }

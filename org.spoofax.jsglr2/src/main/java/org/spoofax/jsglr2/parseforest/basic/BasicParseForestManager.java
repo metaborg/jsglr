@@ -16,9 +16,10 @@ public class BasicParseForestManager
    <StackNode  extends IStackNode,
     ParseState extends AbstractParseState<BasicParseForest, StackNode>>
 //@formatter:on
-    extends ParseForestManager<BasicParseForest, BasicParseNode, BasicDerivation, StackNode, ParseState> {
+    extends ParseForestManager<BasicParseForest, BasicDerivation, BasicParseNode, StackNode, ParseState> {
 
-    public BasicParseForestManager(ParserObserving<BasicParseForest, StackNode, ParseState> observing) {
+    public BasicParseForestManager(
+        ParserObserving<BasicParseForest, BasicDerivation, BasicParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 
@@ -27,7 +28,7 @@ public class BasicParseForestManager
    <StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<BasicParseForest, StackNode_>>
 //@formatter:on
-    ParseForestManagerFactory<BasicParseForest, BasicParseNode, BasicDerivation, StackNode_, ParseState_> factory() {
+    ParseForestManagerFactory<BasicParseForest, BasicDerivation, BasicParseNode, StackNode_, ParseState_> factory() {
         return BasicParseForestManager::new;
     }
 

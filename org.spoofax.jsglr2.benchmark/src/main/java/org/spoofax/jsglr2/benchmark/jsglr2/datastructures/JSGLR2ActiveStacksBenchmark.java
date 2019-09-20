@@ -5,9 +5,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
+import org.spoofax.jsglr2.parseforest.basic.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -37,7 +35,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
 
     @Param public Representation representation;
 
-    IActiveStacks<BasicStackNode<BasicParseForest>> activeStacks;
+    IActiveStacks<BasicStackNode<IBasicParseForest>> activeStacks;
 
     @Override public void postParserSetup() {
         activeStacksObserver = new ActiveStacksObserver();
@@ -54,13 +52,13 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
         }
     }
 
-    private IForActorStacks<BasicStackNode<BasicParseForest>> emptyForActorStacks =
-        new IForActorStacks<BasicStackNode<BasicParseForest>>() {
+    private IForActorStacks<BasicStackNode<IBasicParseForest>> emptyForActorStacks =
+        new IForActorStacks<BasicStackNode<IBasicParseForest>>() {
 
-            @Override public void add(BasicStackNode<BasicParseForest> stack) {
+            @Override public void add(BasicStackNode<IBasicParseForest> stack) {
             }
 
-            @Override public boolean contains(BasicStackNode<BasicParseForest> stack) {
+            @Override public boolean contains(BasicStackNode<IBasicParseForest> stack) {
                 return false;
             }
 
@@ -68,11 +66,11 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
                 return false;
             }
 
-            @Override public BasicStackNode<BasicParseForest> remove() {
+            @Override public BasicStackNode<IBasicParseForest> remove() {
                 return null;
             }
 
-            @Override public Iterator<BasicStackNode<BasicParseForest>> iterator() {
+            @Override public Iterator<BasicStackNode<IBasicParseForest>> iterator() {
                 return null;
             }
 
@@ -83,23 +81,23 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
     }
 
     class ActiveStacksObserver extends
-        BenchmarkParserObserver<BasicParseForest, BasicDerivation, BasicParseNode, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> {
 
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
         @Override public void parseRound(
-            AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>> parseState,
-            Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
+            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+            Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));
         }
 
-        @Override public void addActiveStack(BasicStackNode<BasicParseForest> stack) {
+        @Override public void addActiveStack(BasicStackNode<IBasicParseForest> stack) {
             operations.add(bh -> activeStacks.add(stack));
         }
 
         @Override public void directLinkFound(
-            AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>> parseState,
-            StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
+            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+            StackLink<IBasicParseForest, BasicStackNode<IBasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
                 // stacks (those that are not reject and not in for actor) need to be revisited
@@ -114,8 +112,8 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
             operations.add(bh -> bh.consume(activeStacks.findWithState(state)));
         }
 
-        @Override public void shifter(BasicParseForest termNode,
-            Queue<ForShifterElement<BasicStackNode<BasicParseForest>>> forShifter) {
+        @Override public void shifter(IBasicParseForest termNode,
+            Queue<ForShifterElement<BasicStackNode<IBasicParseForest>>> forShifter) {
             operations.add(bh -> activeStacks.clear());
         }
 

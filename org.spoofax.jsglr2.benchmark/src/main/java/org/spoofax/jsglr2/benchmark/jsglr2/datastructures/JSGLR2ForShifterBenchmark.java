@@ -4,9 +4,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
+import org.spoofax.jsglr2.parseforest.basic.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
@@ -62,13 +60,13 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
     }
 
     class ForShifterObserver extends
-        BenchmarkParserObserver<BasicParseForest, BasicDerivation, BasicParseNode, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> {
 
         public List<ParseRound> parseRounds = new ArrayList<>();
 
         @Override public void parseRound(
-            AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>> parseState,
-            Iterable<BasicStackNode<BasicParseForest>> activeStacks) {
+            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+            Iterable<BasicStackNode<IBasicParseForest>> activeStacks) {
             parseRounds.add(new ParseRound());
         }
 
@@ -76,7 +74,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
             return parseRounds.get(parseRounds.size() - 1);
         }
 
-        @Override public void addForShifter(ForShifterElement<BasicStackNode<BasicParseForest>> forShifterElement) {
+        @Override public void addForShifter(ForShifterElement<BasicStackNode<IBasicParseForest>> forShifterElement) {
             currentParseRound().forShifterElements.add(forShifterElement);
         }
 

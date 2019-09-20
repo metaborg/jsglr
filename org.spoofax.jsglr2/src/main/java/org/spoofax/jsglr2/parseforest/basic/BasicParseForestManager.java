@@ -10,39 +10,42 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public class BasicParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<BasicParseForest, StackNode>>
+    ParseState extends AbstractParseState<IBasicParseForest, StackNode>>
 //@formatter:on
-    extends AbstractBasicParseForestManager<BasicParseForest, BasicDerivation, BasicParseNode, StackNode, ParseState> {
+    extends
+    AbstractBasicParseForestManager<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> {
 
     public BasicParseForestManager(
-        ParserObserving<BasicParseForest, BasicDerivation, BasicParseNode, StackNode, ParseState> observing) {
+        ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> observing) {
         super(observing);
     }
 
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<BasicParseForest, StackNode_>>
+    ParseState_ extends AbstractParseState<IBasicParseForest, StackNode_>>
 //@formatter:on
-    ParseForestManagerFactory<BasicParseForest, BasicDerivation, BasicParseNode, StackNode_, ParseState_> factory() {
+    ParseForestManagerFactory<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode_, ParseState_>
+        factory() {
         return BasicParseForestManager::new;
     }
 
-    @Override protected BasicParseNode constructParseNode(IProduction production) {
-        return new BasicParseNode(production);
+    @Override protected IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>
+        constructParseNode(IProduction production) {
+        return new BasicParseNode<>(production);
     }
 
-    @Override protected BasicDerivation constructDerivation(IProduction production, ProductionType productionType,
-        BasicParseForest[] parseForests) {
-        return new BasicDerivation(production, productionType, parseForests);
+    @Override protected IBasicDerivation<IBasicParseForest> constructDerivation(IProduction production,
+        ProductionType productionType, IBasicParseForest[] parseForests) {
+        return new BasicDerivation<>(production, productionType, parseForests);
     }
 
-    @Override protected BasicParseForest constructCharacterNode(int character) {
+    @Override protected IBasicParseForest constructCharacterNode(int character) {
         return new BasicCharacterNode(character);
     }
 
-    @Override public BasicParseForest[] parseForestsArray(int length) {
-        return new BasicParseForest[length];
+    @Override public IBasicParseForest[] parseForestsArray(int length) {
+        return new IBasicParseForest[length];
     }
 
 }

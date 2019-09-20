@@ -4,9 +4,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
+import org.spoofax.jsglr2.parseforest.basic.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -32,7 +30,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
 
     @Param public Representation representation;
 
-    IForActorStacks<BasicStackNode<BasicParseForest>> forActorStacks;
+    IForActorStacks<BasicStackNode<IBasicParseForest>> forActorStacks;
 
     @Override public void postParserSetup() {
         forActorStacksObserver = new ForActorStacksObserver();
@@ -54,54 +52,54 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
     }
 
     class ForActorStacksObserver extends
-        BenchmarkParserObserver<BasicParseForest, BasicDerivation, BasicParseNode, BasicStackNode<BasicParseForest>, AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> {
 
         public List<ForActorStacksOperation> operations = new ArrayList<>();
 
         @Override public void parseRound(
-            AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>> parseState,
-            Iterable<BasicStackNode<BasicParseForest>> activeStackNodes) {
-            List<BasicStackNode<BasicParseForest>> activeStacksCopy = activeStacksCopy(parseState);
+            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+            Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes) {
+            List<BasicStackNode<IBasicParseForest>> activeStacksCopy = activeStacksCopy(parseState);
 
             operations.add(bh -> {
-                for(BasicStackNode<BasicParseForest> activeStack : activeStacksCopy)
+                for(BasicStackNode<IBasicParseForest> activeStack : activeStacksCopy)
                     forActorStacks.add(activeStack);
             });
         }
 
-        @Override public void handleForActorStack(BasicStackNode<BasicParseForest> stack,
-            IForActorStacks<BasicStackNode<BasicParseForest>> forActorStacks_) {
+        @Override public void handleForActorStack(BasicStackNode<IBasicParseForest> stack,
+            IForActorStacks<BasicStackNode<IBasicParseForest>> forActorStacks_) {
             operations.add(bh -> {
                 bh.consume(forActorStacks.nonEmpty()); // The condition in the while loop in Parser::parseCharacter
                 bh.consume(forActorStacks.remove());
             });
         }
 
-        @Override public void addForActorStack(BasicStackNode<BasicParseForest> stack) {
+        @Override public void addForActorStack(BasicStackNode<IBasicParseForest> stack) {
             operations.add(bh -> forActorStacks.add(stack));
         }
 
         @Override public void directLinkFound(
-            AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>> parseState,
-            StackLink<BasicParseForest, BasicStackNode<BasicParseForest>> directLink) {
+            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+            StackLink<IBasicParseForest, BasicStackNode<IBasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
                 // stacks (those that are not reject and not in for actor) need to be revisited
 
-                List<BasicStackNode<BasicParseForest>> activeStacksCopy = activeStacksCopy(parseState);
+                List<BasicStackNode<IBasicParseForest>> activeStacksCopy = activeStacksCopy(parseState);
 
                 operations.add(bh -> {
-                    for(BasicStackNode<BasicParseForest> activeStack : activeStacksCopy)
+                    for(BasicStackNode<IBasicParseForest> activeStack : activeStacksCopy)
                         bh.consume(!activeStack.allLinksRejected() && !forActorStacks.contains(activeStack));
                 });
             }
         }
 
-        private List<BasicStackNode<BasicParseForest>>
-            activeStacksCopy(AbstractParseState<BasicParseForest, BasicStackNode<BasicParseForest>> parseState) {
-            List<BasicStackNode<BasicParseForest>> activeStacksCopy = new ArrayList<>();
+        private List<BasicStackNode<IBasicParseForest>>
+            activeStacksCopy(AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState) {
+            List<BasicStackNode<IBasicParseForest>> activeStacksCopy = new ArrayList<>();
 
-            for(BasicStackNode<BasicParseForest> activeStack : parseState.activeStacks)
+            for(BasicStackNode<IBasicParseForest> activeStack : parseState.activeStacks)
                 activeStacksCopy.add(activeStack);
 
             return activeStacksCopy;

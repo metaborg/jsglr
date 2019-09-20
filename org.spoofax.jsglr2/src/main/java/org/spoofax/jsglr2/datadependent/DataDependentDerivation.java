@@ -3,23 +3,18 @@ package org.spoofax.jsglr2.datadependent;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
+import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
 
 public class DataDependentDerivation
 //@formatter:off
    <ParseForest extends IDataDependentParseForest>
 //@formatter:on
-    implements IDataDependentDerivation<ParseForest> {
-
-    public final IProduction production;
-    public final ProductionType productionType;
-    public final ParseForest[] parseForests;
+    extends BasicDerivation<ParseForest> implements IDataDependentDerivation<ParseForest> {
 
     private long contextBitmap = 0L;
 
     public DataDependentDerivation(IProduction production, ProductionType productionType, ParseForest[] parseForests) {
-        this.production = production;
-        this.productionType = productionType;
-        this.parseForests = parseForests;
+        super(production, productionType, parseForests);
 
         if(parseForests.length > 0) {
             if(parseForests.length == 1) {
@@ -69,18 +64,6 @@ public class DataDependentDerivation
 
             }
         }
-    }
-
-    public IProduction production() {
-        return production;
-    }
-
-    public ProductionType productionType() {
-        return productionType;
-    }
-
-    public ParseForest[] parseForests() {
-        return parseForests;
     }
 
     public final long getContextBitmap() {

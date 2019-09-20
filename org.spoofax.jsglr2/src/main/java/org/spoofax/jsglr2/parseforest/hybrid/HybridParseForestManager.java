@@ -8,7 +8,6 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HybridParseForestManager
@@ -42,30 +41,6 @@ public class HybridParseForestManager
         return parseNode;
     }
 
-    @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
-        ParseState parseState) {
-        HybridParseNode topNode = (HybridParseNode) parseForest;
-        List<HybridDerivation> result = new ArrayList<>();
-
-        for(HybridDerivation derivation : topNode.getDerivations()) {
-            String derivationStartSymbol = derivation.production.startSymbolSort();
-
-            if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
-                result.add(derivation);
-        }
-
-        if(result.isEmpty())
-            return null;
-        else {
-            HybridParseNode filteredTopNode = new HybridParseNode(topNode.production, result.get(0));
-
-            for(int i = 1; i < result.size(); i++)
-                filteredTopNode.addDerivation(result.get(i));
-
-            return filteredTopNode;
-        }
-    }
-
     @Override public HybridDerivation createDerivation(ParseState parseState, IStackNode stack, IProduction production,
         ProductionType productionType, HybridParseForest[] parseForests) {
         HybridDerivation derivation = new HybridDerivation(production, productionType, parseForests);
@@ -91,6 +66,16 @@ public class HybridParseForestManager
 
     @Override public HybridParseForest[] parseForestsArray(int length) {
         return new HybridParseForest[length];
+    }
+
+    @Override protected HybridParseNode filteredTopParseNode(HybridParseNode parseNode,
+        List<HybridDerivation> derivations) {
+        HybridParseNode topParseNode = new HybridParseNode(parseNode.production, derivations.get(0));
+
+        for(int i = 1; i < derivations.size(); i++)
+            topParseNode.addDerivation(derivations.get(i));
+
+        return topParseNode;
     }
 
 }

@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import java.util.Optional;
-
 import org.metaborg.sdf2table.grammar.layoutconstraints.*;
+
+import java.util.Optional;
 
 class LayoutConstraintEvaluator {
 
-    static <ParseForest extends LayoutSensitiveParseForest> Optional<Boolean>
+    static <ParseForest extends ILayoutSensitiveParseForest> Optional<Boolean>
         evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
         if(layoutConstraint instanceof BooleanLayoutConstraint) {
             BooleanLayoutConstraint booleanLayoutConstraint = (BooleanLayoutConstraint) layoutConstraint;
@@ -71,7 +71,7 @@ class LayoutConstraintEvaluator {
         throw new IllegalStateException("Could not evaluate constraint: " + layoutConstraint);
     }
 
-    private static <ParseForest extends LayoutSensitiveParseForest> Optional<Integer>
+    private static <ParseForest extends ILayoutSensitiveParseForest> Optional<Integer>
         evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
         if(layoutConstraint instanceof NumericLayoutConstraint) {
             NumericLayoutConstraint numericLayoutConstraint = (NumericLayoutConstraint) layoutConstraint;
@@ -79,7 +79,7 @@ class LayoutConstraintEvaluator {
             ParseForest tree = parseNodes[numericLayoutConstraint.getTree()];
 
             if(tree instanceof LayoutSensitiveParseNode
-                && ((LayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
+                && ((ILayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
                 return Optional.empty();
             }
 
@@ -97,15 +97,16 @@ class LayoutConstraintEvaluator {
                         return Optional.of(tree.getEndPosition().line);
                     }
                 case LEFT:
-                    if(tree instanceof LayoutSensitiveParseNode) {
-                        LayoutSensitiveParseNode layoutSensitiveParseNode = (LayoutSensitiveParseNode) tree;
+                    if(tree instanceof ILayoutSensitiveParseNode) {
+                        ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> layoutSensitiveParseNode =
+                            (ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>) tree;
 
-                        if(layoutSensitiveParseNode.getFirstDerivation().leftPosition == null) {
+                        if(layoutSensitiveParseNode.getFirstDerivation().getLeftPosition() == null) {
                             return Optional.empty();
                         } else if(numericLayoutConstraint.getElem() == ConstraintElement.COL) {
-                            return Optional.of(layoutSensitiveParseNode.getFirstDerivation().leftPosition.column);
+                            return Optional.of(layoutSensitiveParseNode.getFirstDerivation().getLeftPosition().column);
                         } else {
-                            return Optional.of(layoutSensitiveParseNode.getFirstDerivation().leftPosition.line);
+                            return Optional.of(layoutSensitiveParseNode.getFirstDerivation().getLeftPosition().line);
                         }
                     }
                     return Optional.empty();

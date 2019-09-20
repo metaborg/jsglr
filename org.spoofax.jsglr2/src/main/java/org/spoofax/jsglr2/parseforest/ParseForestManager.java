@@ -7,6 +7,9 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class ParseForestManager
 //@formatter:off
    <ParseForest extends IParseForest,
@@ -43,6 +46,23 @@ public abstract class ParseForestManager
 
     abstract public ParseForest[] parseForestsArray(int length);
 
-    abstract public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol, ParseState parseState);
+    public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol, ParseState parseState) {
+        ParseNode topNode = (ParseNode) parseForest;
+        List<Derivation> derivationsWithStartSymbol = new ArrayList<>();
+
+        for(Derivation derivation : topNode.getDerivations()) {
+            String derivationStartSymbol = derivation.production().startSymbolSort();
+
+            if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
+                derivationsWithStartSymbol.add(derivation);
+        }
+
+        if(derivationsWithStartSymbol.isEmpty())
+            return null;
+        else
+            return (ParseForest) filteredTopParseNode(topNode, derivationsWithStartSymbol);
+    }
+
+    abstract protected ParseNode filteredTopParseNode(ParseNode parseNode, List<Derivation> derivations);
 
 }

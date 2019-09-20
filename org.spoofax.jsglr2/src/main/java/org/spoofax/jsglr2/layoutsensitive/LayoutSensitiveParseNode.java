@@ -1,43 +1,41 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.metaborg.parsetable.productions.IProduction;
-import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
+import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.PositionInterval;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
-public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
-    implements IBasicParseNode<LayoutSensitiveParseForest, LayoutSensitiveDerivation> {
+public class LayoutSensitiveParseNode
+//@formatter:off
+   <ParseForest extends ILayoutSensitiveParseForest,
+    Derivation  extends ILayoutSensitiveDerivation<ParseForest>>
+//@formatter:on
+    extends BasicParseNode<ParseForest, Derivation> implements ILayoutSensitiveParseNode<ParseForest, Derivation> {
 
-    public final IProduction production; // left hand side non-terminal
-    private final List<LayoutSensitiveDerivation> derivations;
+    private final Position startPosition, endPosition;
 
     public List<PositionInterval> longestMatchPos = null;
     boolean filteredLongestMatch = false;
 
     public LayoutSensitiveParseNode(Position startPosition, Position endPosition, IProduction production) {
-        super(startPosition, endPosition);
-        this.production = production;
-        this.derivations = new ArrayList<>();
+        super(production);
+
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
     }
 
-    @Override public IProduction production() {
-        return production;
+    public Position getStartPosition() {
+        return startPosition;
     }
 
-    public List<LayoutSensitiveDerivation> getDerivations() {
-        return derivations;
+    public Position getEndPosition() {
+        return endPosition;
     }
 
-    @Override public String descriptor() {
-        return production.descriptor();
-    }
-
-    public void filterLongestMatchDerivations() {
+    @Override public void filterLongestMatchDerivations() {
         filteredLongestMatch = true;
         longestMatchPos = getFirstDerivation().getLongestMatchPositions();
         if(derivations.size() <= 1) {
@@ -46,7 +44,7 @@ public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
 
         List<List<PositionInterval>> longestMatchNodes = Lists.newArrayList();
 
-        for(LayoutSensitiveDerivation derivation : derivations) {
+        for(Derivation derivation : derivations) {
             longestMatchNodes.add(derivation.getLongestMatchPositions());
         }
 
@@ -81,7 +79,7 @@ public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
         }
 
         if(disambiguatedLongestMatch) {
-            LayoutSensitiveDerivation longestDerivation = derivations.get(currentLongestDerivation);
+            Derivation longestDerivation = derivations.get(currentLongestDerivation);
             derivations.clear();
             derivations.add(longestDerivation);
         }
@@ -103,7 +101,7 @@ public class LayoutSensitiveParseNode extends LayoutSensitiveParseForest
         return null;
     }
 
-    public List<PositionInterval> getLongestMatchPositions() {
+    @Override public List<PositionInterval> getLongestMatchPositions() {
         if(longestMatchPos == null && !filteredLongestMatch) {
             filterLongestMatchDerivations();
 

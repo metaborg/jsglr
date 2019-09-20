@@ -53,8 +53,8 @@ public class DataDependentParseForestManager
         return new DataDependentDerivation<>(production, productionType, parseForests);
     }
 
-    @Override protected IDataDependentParseForest constructCharacterNode(int character) {
-        return new DataDependentCharacterNode(character);
+    @Override protected IDataDependentParseForest constructCharacterNode(ParseState parseState) {
+        return new DataDependentCharacterNode(parseState.currentChar);
     }
 
     @Override public IDataDependentParseForest[] parseForestsArray(int length) {

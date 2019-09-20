@@ -14,7 +14,7 @@ public class BasicParseNode
     implements IBasicParseNode<ParseForest, Derivation> {
 
     public final IProduction production;
-    private final List<Derivation> derivations = new ArrayList<>();
+    protected final List<Derivation> derivations = new ArrayList<>();
 
     public BasicParseNode(IProduction production) {
         this.production = production;

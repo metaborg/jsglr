@@ -10,7 +10,6 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractBasicParseForestManager
@@ -33,7 +32,7 @@ public abstract class AbstractBasicParseForestManager
     protected abstract Derivation constructDerivation(IProduction production, ProductionType productionType,
         ParseForest[] parseForests);
 
-    protected abstract ParseForest constructCharacterNode(int character);
+    protected abstract ParseForest constructCharacterNode(ParseState parseState);
 
     @Override public ParseNode createParseNode(ParseState parseState, IStackNode stack, IProduction production,
         Derivation firstDerivation) {
@@ -44,29 +43,6 @@ public abstract class AbstractBasicParseForestManager
         addDerivation(parseState, parseNode, firstDerivation);
 
         return parseNode;
-    }
-
-    @Override public ParseForest filterStartSymbol(ParseForest parseForest, String startSymbol, ParseState parseState) {
-        ParseNode topNode = (ParseNode) parseForest;
-        List<Derivation> result = new ArrayList<>();
-
-        for(Derivation derivation : topNode.getDerivations()) {
-            String derivationStartSymbol = derivation.production().startSymbolSort();
-
-            if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
-                result.add(derivation);
-        }
-
-        if(result.isEmpty())
-            return null;
-        else {
-            ParseNode filteredTopNode = constructParseNode(topNode.production());
-
-            for(Derivation derivation : result)
-                filteredTopNode.addDerivation(derivation);
-
-            return (ParseForest) filteredTopNode;
-        }
     }
 
     @Override public Derivation createDerivation(ParseState parseState, IStackNode stack, IProduction production,
@@ -85,11 +61,20 @@ public abstract class AbstractBasicParseForestManager
     }
 
     @Override public ParseForest createCharacterNode(ParseState parseState) {
-        ParseForest termNode = constructCharacterNode(parseState.currentChar);
+        ParseForest termNode = constructCharacterNode(parseState);
 
         observing.notify(observer -> observer.createCharacterNode(termNode, parseState.currentChar));
 
         return termNode;
+    }
+
+    @Override protected ParseNode filteredTopParseNode(ParseNode parseNode, List<Derivation> derivations) {
+        ParseNode topParseNode = constructParseNode(parseNode.production());
+
+        for(Derivation derivation : derivations)
+            topParseNode.addDerivation(derivation);
+
+        return topParseNode;
     }
 
 }

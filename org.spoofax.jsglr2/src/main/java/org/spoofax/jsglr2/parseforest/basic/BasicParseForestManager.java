@@ -40,8 +40,8 @@ public class BasicParseForestManager
         return new BasicDerivation<>(production, productionType, parseForests);
     }
 
-    @Override protected IBasicParseForest constructCharacterNode(int character) {
-        return new BasicCharacterNode(character);
+    @Override protected IBasicParseForest constructCharacterNode(ParseState parseState) {
+        return new BasicCharacterNode(parseState.currentChar);
     }
 
     @Override public IBasicParseForest[] parseForestsArray(int length) {

@@ -20,7 +20,7 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class LayoutSensitiveReduceManager
 //@formatter:off
-   <ParseForest extends LayoutSensitiveParseForest,
+   <ParseForest extends ILayoutSensitiveParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
@@ -37,7 +37,7 @@ public class LayoutSensitiveReduceManager
 
     public static
     //@formatter:off
-       <ParseForest_  extends LayoutSensitiveParseForest,
+       <ParseForest_  extends ILayoutSensitiveParseForest,
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,

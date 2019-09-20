@@ -12,6 +12,8 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
+import java.util.List;
+
 public class NullParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
@@ -38,11 +40,6 @@ public class NullParseForestManager
         return null;
     }
 
-    @Override public HybridParseForest filterStartSymbol(HybridParseForest parseForest, String startSymbol,
-        ParseState parseState) {
-        return null;
-    }
-
     @Override public HybridDerivation createDerivation(ParseState parseState, IStackNode stack, IProduction production,
         ProductionType productionType, HybridParseForest[] parseForests) {
         return null;
@@ -56,6 +53,11 @@ public class NullParseForestManager
     }
 
     @Override public HybridParseForest[] parseForestsArray(int length) {
+        return null;
+    }
+
+    @Override protected HybridParseNode filteredTopParseNode(HybridParseNode parseNode,
+        List<HybridDerivation> derivations) {
         return null;
     }
 

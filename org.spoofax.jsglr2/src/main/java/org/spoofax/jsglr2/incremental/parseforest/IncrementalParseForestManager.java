@@ -11,7 +11,6 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class IncrementalParseForestManager
@@ -35,31 +34,6 @@ public class IncrementalParseForestManager
     ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode_, ParseState_>
         factory() {
         return IncrementalParseForestManager::new;
-    }
-
-    @Override public IncrementalParseForest filterStartSymbol(IncrementalParseForest parseForest, String startSymbol,
-        ParseState parseState) {
-
-        IncrementalParseNode topNode = (IncrementalParseNode) parseForest;
-        List<IncrementalDerivation> result = new ArrayList<>();
-
-        for(IncrementalDerivation derivation : topNode.getDerivations()) {
-            String derivationStartSymbol = derivation.production().startSymbolSort();
-
-            if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
-                result.add(derivation);
-        }
-
-        if(result.isEmpty())
-            return null;
-        else {
-            IncrementalParseNode filteredTopNode = new IncrementalParseNode(topNode.production(), result.get(0));
-
-            for(int i = 1; i < result.size(); i++)
-                filteredTopNode.addDerivation(result.get(i));
-
-            return filteredTopNode;
-        }
     }
 
     @Override public IncrementalParseNode createParseNode(ParseState parseState, IStackNode stack,
@@ -117,4 +91,15 @@ public class IncrementalParseForestManager
     @Override public IncrementalParseForest[] parseForestsArray(int length) {
         return new IncrementalParseForest[length];
     }
+
+    @Override protected IncrementalParseNode filteredTopParseNode(IncrementalParseNode parseNode,
+        List<IncrementalDerivation> derivations) {
+        IncrementalParseNode topParseNode = new IncrementalParseNode(parseNode.production(), derivations.get(0));
+
+        for(int i = 1; i < derivations.size(); i++)
+            topParseNode.addDerivation(derivations.get(i));
+
+        return topParseNode;
+    }
+
 }

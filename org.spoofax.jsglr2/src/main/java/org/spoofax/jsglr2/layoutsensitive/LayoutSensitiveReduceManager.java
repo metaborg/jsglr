@@ -8,13 +8,10 @@ import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParserVariant;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class LayoutSensitiveReduceManager
 //@formatter:off
@@ -43,29 +40,19 @@ public class LayoutSensitiveReduceManager
             stackManager, parseForestManager, parserVariant.parseForestConstruction);
     }
 
-    @Override protected void doReductionsHelper(
-        ParserObserving<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> observing,
-        ParseState parseState, StackNode stack, IReduce reduce,
-        StackLink<ILayoutSensitiveParseForest, StackNode> throughLink) {
-        pathsLoop: for(StackPath<ILayoutSensitiveParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack,
-            reduce.arity())) {
-            if(throughLink == null || path.contains(throughLink)) {
-                StackNode pathBegin = path.head();
-                ILayoutSensitiveParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+    @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce,
+        ILayoutSensitiveParseForest[] parseNodes) {
+        if(reduce.production() instanceof ParseTableProduction) {
+            ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
 
-                if(reduce.production() instanceof ParseTableProduction) {
-                    ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
-
-                    for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
-                        // Skip the reduction if the constraint evaluates to false
-                        if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(true))
-                            continue pathsLoop;
-                    }
-                }
-
-                reducer(observing, parseState, pathBegin, reduce, parseNodes);
+            for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
+                // Skip the reduction if the constraint evaluates to false
+                if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(true))
+                    return true;
             }
         }
+
+        return false;
     }
 
 }

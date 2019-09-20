@@ -19,7 +19,7 @@ public class LayoutSensitiveParseState
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode>
 //@formatter:on
-    extends AbstractParseState<ParseForest, StackNode> implements ILayoutSensitiveParseState<ParseForest, StackNode> {
+    extends AbstractParseState<ParseForest, StackNode> implements ILayoutSensitiveParseState {
 
     public int currentLine, currentColumn;
 
@@ -38,7 +38,7 @@ public class LayoutSensitiveParseState
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & ILayoutSensitiveParseState<ParseForest_, StackNode_>>
+    ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & ILayoutSensitiveParseState>
 //@formatter:on
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {

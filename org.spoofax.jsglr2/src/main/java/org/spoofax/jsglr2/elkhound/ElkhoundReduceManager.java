@@ -59,14 +59,18 @@ public class ElkhoundReduceManager
             if(throughLink == null || deterministicPath.contains(throughLink)) {
                 ElkhoundStackNode pathBegin = deterministicPath.head();
 
-                if(parseState.activeStacks.isEmpty())
-                    // Do LR if there are no other active stacks (the stack on which the current reduction is applied is
-                    // removed from the activeStacks collection in ElkhoundParser)
-                    reducerElkhound(observing, parseState, pathBegin, reduce, deterministicPath.parseForests);
-                else
-                    // Benefit from faster path retrieval, but still do regular (S)GLR reducing since there are other
-                    // active stacks
-                    reducer(observing, parseState, pathBegin, reduce, deterministicPath.parseForests);
+                ParseForest[] parseNodes = deterministicPath.parseForests;
+
+                if(!ignoreReducer(pathBegin, reduce, parseNodes)) {
+                    if(parseState.activeStacks.isEmpty())
+                        // Do LR if there are no other active stacks (the stack on which the current reduction is
+                        // applied is removed from the activeStacks collection in ElkhoundParser)
+                        reducerElkhound(observing, parseState, pathBegin, reduce, parseNodes);
+                    else
+                        // Benefit from faster path retrieval, but still do regular (S)GLR reducing since there are
+                        // other active stacks
+                        reducer(observing, parseState, pathBegin, reduce, parseNodes);
+                }
             }
         } else {
             // Fall back to regular (S)GLR
@@ -75,8 +79,10 @@ public class ElkhoundReduceManager
                 if(throughLink == null || path.contains(throughLink)) {
                     ElkhoundStackNode pathBegin = path.head();
 
-                    reducer(observing, parseState, pathBegin, reduce,
-                        stackManager.getParseForests(parseForestManager, path));
+                    ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+
+                    if(!ignoreReducer(pathBegin, reduce, parseNodes))
+                        reducer(observing, parseState, pathBegin, reduce, parseNodes);
                 }
         }
     }

@@ -20,11 +20,11 @@ import java.util.List;
 
 public class DataDependentReduceManager
 //@formatter:off
-   <StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<IDataDependentParseForest, StackNode>>
+   <StackNode  extends IStackNode,
+    ParseState extends AbstractParseState<IDataDependentParseForest, StackNode>>
     extends
-    ReduceManager<
-        IDataDependentParseForest,
+    ReduceManager
+       <IDataDependentParseForest,
         IDataDependentDerivation<IDataDependentParseForest>,
         IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>,
         StackNode,
@@ -77,9 +77,9 @@ public class DataDependentReduceManager
 
     private static
     //@formatter:off
-       <ParseForest_  extends IDataDependentParseForest,
-        Derivation_   extends IDataDependentDerivation<ParseForest_>,
-        ParseNode_    extends IDataDependentParseNode<ParseForest_, Derivation_>>
+       <ParseForest_ extends IDataDependentParseForest,
+        Derivation_  extends IDataDependentDerivation<ParseForest_>,
+        ParseNode_   extends IDataDependentParseNode<ParseForest_, Derivation_>>
     //@formatter:on
     boolean hasDeepConflict(ParseForest_ parseForest, ISymbol symbol) {
         final ContextualSymbol contextualSymbol = (ContextualSymbol) symbol;

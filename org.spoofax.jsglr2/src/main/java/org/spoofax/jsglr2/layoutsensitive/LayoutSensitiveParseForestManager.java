@@ -26,8 +26,8 @@ public class LayoutSensitiveParseForestManager
 
     public static
 //@formatter:off
-   <StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ILayoutSensitiveParseForest, StackNode_> & ILayoutSensitiveParseState>
+   <StackNode_  extends IStackNode,
+    ParseState_ extends AbstractParseState<ILayoutSensitiveParseForest, StackNode_> & ILayoutSensitiveParseState>
 //@formatter:on
     ParseForestManagerFactory<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_>
         factory() {

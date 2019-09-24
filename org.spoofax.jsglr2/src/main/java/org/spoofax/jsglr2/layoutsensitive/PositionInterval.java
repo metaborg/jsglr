@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.layoutsensitive;
 
 import org.spoofax.jsglr2.parser.Position;
 
-class PositionInterval {
+public class PositionInterval {
 
     private Position start;
     private Position end;

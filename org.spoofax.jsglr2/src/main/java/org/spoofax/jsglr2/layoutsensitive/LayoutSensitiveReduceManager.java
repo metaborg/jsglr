@@ -42,6 +42,10 @@ public class LayoutSensitiveReduceManager
 
     @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce,
         ILayoutSensitiveParseForest[] parseNodes) {
+        return ignoreByLayoutConstraint(reduce, parseNodes);
+    }
+
+    public static boolean ignoreByLayoutConstraint(IReduce reduce, ILayoutSensitiveParseForest[] parseNodes) {
         if(reduce.production() instanceof ParseTableProduction) {
             ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
 

@@ -58,6 +58,10 @@ public class DataDependentReduceManager
 
     @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce,
         IDataDependentParseForest[] parseNodes) {
+        return ignoreByDeepPriorityConflict(reduce, parseNodes);
+    }
+
+    public static boolean ignoreByDeepPriorityConflict(IReduce reduce, IDataDependentParseForest[] parseNodes) {
         final IProduction production = ((ParseTableProduction) reduce.production()).getProduction();
 
         if(production instanceof ContextualProduction) {

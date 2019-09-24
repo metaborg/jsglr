@@ -4,9 +4,9 @@ import org.metaborg.sdf2table.grammar.layoutconstraints.*;
 
 import java.util.Optional;
 
-class LayoutConstraintEvaluator {
+public class LayoutConstraintEvaluator {
 
-    static <ParseForest extends ILayoutSensitiveParseForest> Optional<Boolean>
+    public static <ParseForest extends ILayoutSensitiveParseForest> Optional<Boolean>
         evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
         if(layoutConstraint instanceof BooleanLayoutConstraint) {
             BooleanLayoutConstraint booleanLayoutConstraint = (BooleanLayoutConstraint) layoutConstraint;

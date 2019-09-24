@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
+import org.spoofax.jsglr2.layoutsensitive.ILayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -73,8 +73,8 @@ public abstract class AbstractTreeImploder
 
         List<Derivation> result;
         // TODO always filter longest-match?
-        if(parseNode instanceof LayoutSensitiveParseNode) {
-            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
+        if(parseNode instanceof ILayoutSensitiveParseNode) {
+            ((ILayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
         }
         // TODO always filter prefer/avoid?
         result = parseNode.getPreferredAvoidedDerivations();

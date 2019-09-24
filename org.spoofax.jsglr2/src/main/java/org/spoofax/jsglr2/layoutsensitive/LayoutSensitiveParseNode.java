@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parser.PositionInterval;
 
 import java.util.List;
 

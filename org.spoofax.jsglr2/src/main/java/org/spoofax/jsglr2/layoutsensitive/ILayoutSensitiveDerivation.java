@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.layoutsensitive;
 import com.google.common.collect.Lists;
 import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parser.PositionInterval;
 
 import java.util.List;
 

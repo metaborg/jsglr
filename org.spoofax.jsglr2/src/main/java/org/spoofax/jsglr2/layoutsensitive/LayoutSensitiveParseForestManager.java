@@ -105,7 +105,7 @@ public class LayoutSensitiveParseForestManager
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
                 }
-            } else if(pf instanceof LayoutSensitiveCharacterNode) {
+            } else if(pf instanceof ILayoutSensitiveCharacterNode) {
                 if(pf.getStartPosition().line > startPosition.line
                     && pf.getStartPosition().column < startPosition.column) {
                     leftPosition = new Position(pf.getStartPosition().offset, pf.getStartPosition().line,

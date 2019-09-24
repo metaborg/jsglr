@@ -52,10 +52,20 @@ public class LayoutSensitiveParseForestManager
     @Override public ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> createDerivation(ParseState parseState,
         IStackNode stack, IProduction production, ProductionType productionType,
         ILayoutSensitiveParseForest[] parseForests) {
+        Shape shape = shape(parseForests, parseState.currentPosition());
 
-        Position beginPosition = parseForests.length == 0
+        ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> derivation = new LayoutSensitiveDerivation<>(
+            shape.start, shape.left, shape.right, shape.end, production, productionType, parseForests);
+
+        observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
+
+        return derivation;
+    }
+
+    public static Shape shape(ILayoutSensitiveParseForest[] parseForests, Position endPosition) {
+        Position startPosition = parseForests.length == 0
             // If this derivation corresponds with an epsilon production, use current parse position as startPosition
-            ? parseState.currentPosition()
+            ? endPosition
             // Else, just use the start position of the first child node
             : parseForests[0].getStartPosition();
 
@@ -82,7 +92,7 @@ public class LayoutSensitiveParseForestManager
                         leftPosition = leftMost(leftPosition, currentLeftPosition);
                     }
 
-                    if(currentStartPosition.line > beginPosition.line
+                    if(currentStartPosition.line > startPosition.line
                         && !currentStartPosition.equals(currentEndPosition)) {
                         leftPosition = leftMost(leftPosition, currentStartPosition);
                     }
@@ -91,19 +101,17 @@ public class LayoutSensitiveParseForestManager
                         rightPosition = rightMost(rightPosition, currentRightPosition);
                     }
 
-                    if(currentEndPosition.line < parseState.currentPosition().line
-                        && !currentStartPosition.equals(currentEndPosition)) {
+                    if(currentEndPosition.line < endPosition.line && !currentStartPosition.equals(currentEndPosition)) {
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
                 }
             } else if(pf instanceof LayoutSensitiveCharacterNode) {
-                if(pf.getStartPosition().line > beginPosition.line
-                    && pf.getStartPosition().column < beginPosition.column) {
+                if(pf.getStartPosition().line > startPosition.line
+                    && pf.getStartPosition().column < startPosition.column) {
                     leftPosition = new Position(pf.getStartPosition().offset, pf.getStartPosition().line,
                         pf.getStartPosition().column);
                 }
-                if(pf.getEndPosition().line < parseState.currentPosition().line
-                    && pf.getEndPosition().column > parseState.currentPosition().column) {
+                if(pf.getEndPosition().line < endPosition.line && pf.getEndPosition().column > endPosition.column) {
                     rightPosition =
                         new Position(pf.getEndPosition().offset, pf.getEndPosition().line, pf.getEndPosition().column);
                 }
@@ -112,16 +120,10 @@ public class LayoutSensitiveParseForestManager
             }
         }
 
-        ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> derivation =
-            new LayoutSensitiveDerivation<>(beginPosition, leftPosition, rightPosition, parseState.currentPosition(),
-                production, productionType, parseForests);
-
-        observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
-
-        return derivation;
+        return new Shape(startPosition, endPosition, leftPosition, rightPosition);
     }
 
-    private Position rightMost(Position p1, Position p2) {
+    private static Position rightMost(Position p1, Position p2) {
         if(p1 == null) {
             return p2;
         }
@@ -133,7 +135,7 @@ public class LayoutSensitiveParseForestManager
         return p1;
     }
 
-    private Position leftMost(Position p1, Position p2) {
+    private static Position leftMost(Position p1, Position p2) {
         if(p1 == null) {
             return p2;
         }

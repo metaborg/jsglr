@@ -32,7 +32,7 @@ public class DataDependentReduceManager
 //@formatter:on
 {
 
-    public DataDependentReduceManager(IParseTable parseTable,
+    private DataDependentReduceManager(IParseTable parseTable,
         AbstractStackManager<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> stackManager,
         ParseForestManager<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {

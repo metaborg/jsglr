@@ -5,7 +5,7 @@ import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
 import org.spoofax.jsglr2.parser.Position;
 
-public class LayoutSensitiveDerivation
+class LayoutSensitiveDerivation
 //@formatter:off
    <ParseForest extends ILayoutSensitiveParseForest>
 //@formatter:on
@@ -14,7 +14,7 @@ public class LayoutSensitiveDerivation
     private final Position startPosition, endPosition;
     private final Position leftPosition, rightPosition;
 
-    public LayoutSensitiveDerivation(Position startPosition, Position leftPosition, Position rightPosition,
+    LayoutSensitiveDerivation(Position startPosition, Position leftPosition, Position rightPosition,
         Position endPosition, IProduction production, ProductionType productionType, ParseForest[] parseForests) {
         super(production, productionType, parseForests);
 

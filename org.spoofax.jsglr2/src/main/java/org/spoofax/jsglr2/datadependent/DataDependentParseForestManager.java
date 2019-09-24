@@ -22,7 +22,7 @@ public class DataDependentParseForestManager
 //@formatter:on
 {
 
-    public DataDependentParseForestManager(
+    private DataDependentParseForestManager(
         ParserObserving<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> observing) {
         super(observing);
     }
@@ -31,19 +31,14 @@ public class DataDependentParseForestManager
 //@formatter:off
    <StackNode_  extends IStackNode,
     ParseState_ extends AbstractParseState<IDataDependentParseForest, StackNode_>>
-    ParseForestManagerFactory
-       <IDataDependentParseForest,
-        IDataDependentDerivation<IDataDependentParseForest>,
-        IDataDependentParseNode<IDataDependentParseForest,
-        IDataDependentDerivation<IDataDependentParseForest>>,
-        StackNode_,
-        ParseState_>
 //@formatter:on
-    factory() {
+    ParseForestManagerFactory<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode_, ParseState_>
+        factory() {
         return DataDependentParseForestManager::new;
     }
 
-    @Override protected DataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>
+    @Override protected
+        DataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>
         constructParseNode(IProduction production) {
         return new DataDependentParseNode<>(production);
     }

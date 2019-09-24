@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parser.PositionInterval;
 
 import java.util.List;
 
-public class LayoutSensitiveParseNode
+class LayoutSensitiveParseNode
 //@formatter:off
    <ParseForest extends ILayoutSensitiveParseForest,
     Derivation  extends ILayoutSensitiveDerivation<ParseForest>>
@@ -17,21 +17,21 @@ public class LayoutSensitiveParseNode
 
     private final Position startPosition, endPosition;
 
-    public List<PositionInterval> longestMatchPos = null;
-    boolean filteredLongestMatch = false;
+    private List<PositionInterval> longestMatchPos = null;
+    private boolean filteredLongestMatch = false;
 
-    public LayoutSensitiveParseNode(Position startPosition, Position endPosition, IProduction production) {
+    LayoutSensitiveParseNode(Position startPosition, Position endPosition, IProduction production) {
         super(production);
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
     }
 
-    public Position getStartPosition() {
+    @Override public Position getStartPosition() {
         return startPosition;
     }
 
-    public Position getEndPosition() {
+    @Override public Position getEndPosition() {
         return endPosition;
     }
 

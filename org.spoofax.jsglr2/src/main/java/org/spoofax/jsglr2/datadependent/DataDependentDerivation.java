@@ -5,7 +5,7 @@ import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.spoofax.jsglr2.parseforest.basic.BasicDerivation;
 
-public class DataDependentDerivation
+class DataDependentDerivation
 //@formatter:off
    <ParseForest extends IDataDependentParseForest>
 //@formatter:on
@@ -13,13 +13,13 @@ public class DataDependentDerivation
 
     private final long contextBitmap;
 
-    public DataDependentDerivation(IProduction production, ProductionType productionType, ParseForest[] parseForests) {
+    DataDependentDerivation(IProduction production, ProductionType productionType, ParseForest[] parseForests) {
         super(production, productionType, parseForests);
 
         contextBitmap = calculateContextBitmap(parseForests);
     }
 
-    public final long getContextBitmap() {
+    @Override public final long getContextBitmap() {
         return contextBitmap;
     }
 

@@ -1,6 +1,9 @@
 package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.IParseTable;
+import org.spoofax.jsglr2.composite.CompositeParseState;
+import org.spoofax.jsglr2.composite.CompositeParseForestManager;
+import org.spoofax.jsglr2.composite.CompositeReduceManager;
 import org.spoofax.jsglr2.datadependent.DataDependentParseForestManager;
 import org.spoofax.jsglr2.datadependent.DataDependentReduceManager;
 import org.spoofax.jsglr2.elkhound.BasicElkhoundStackManager;
@@ -55,30 +58,40 @@ public class ParserVariant {
     }
 
     public boolean isValid() {
+        // The implication N -> F is written as !N || F
+
         // Elkhound reducing requires Elkhound stack, and the other way around (bi-implication)
         boolean validElkhound =
             (reducing == Reducing.Elkhound) == (stackRepresentation == StackRepresentation.BasicElkhound
                 || stackRepresentation == StackRepresentation.HybridElkhound);
-        // PFR Null requires PFC Full (the implication N -> F is written as !N || F)
+
         boolean validParseForest = parseForestRepresentation != ParseForestRepresentation.Null
             || parseForestConstruction == ParseForestConstruction.Full;
+
         boolean validIncremental =
             (parseForestRepresentation == ParseForestRepresentation.Incremental) == (reducing == Reducing.Incremental)
                 // Incremental parsing requires a full parse forest
                 && (reducing != Reducing.Incremental || parseForestConstruction == ParseForestConstruction.Full);
+
         boolean validLayoutSensitive =
             (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive) == (reducing == Reducing.LayoutSensitive);
+
         boolean validDataDependent =
             (parseForestRepresentation == ParseForestRepresentation.DataDependent) == (reducing == Reducing.DataDependent);
+
         // Recovery and incremental parsing not simultaneously supported
         boolean validRecoveryIncremental =
             !(parseForestRepresentation == ParseForestRepresentation.Incremental && recovery);
+
         // Recovery and layout-sensitive parsing not simultaneously supported
         boolean validRecoveryLayoutSensitive =
             !(parseForestRepresentation == ParseForestRepresentation.LayoutSensitive && recovery);
 
+        boolean validComposite =
+            (parseForestRepresentation == ParseForestRepresentation.Composite) == (reducing == Reducing.Composite);
+
         return validElkhound && validParseForest && validIncremental && validLayoutSensitive && validDataDependent
-            && validRecoveryIncremental && validRecoveryLayoutSensitive;
+            && validRecoveryIncremental && validRecoveryLayoutSensitive && validComposite;
     }
 
     public String name() {
@@ -259,6 +272,24 @@ public class ParserVariant {
                         //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, HybridStackManager.factory(), LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new RecoveryParseFailureHandler<>()));
                         //else
                             return withoutRecovery(new Parser<>(LayoutSensitiveParseState.factory(this),         parseTable, HybridStackManager.factory(), LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new DefaultParseFailureHandler<>()));
+                    default: throw new IllegalStateException();
+                }
+
+            case Composite:
+                if(this.reducing != Reducing.Composite || this.recovery)
+                    throw new IllegalStateException();
+
+                switch(this.stackRepresentation) {
+                    case Basic:
+                        //if (this.recovery)
+                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, BasicStackManager.factory(),  LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new RecoveryParseFailureHandler<>()));
+                        //else
+                            return withoutRecovery(new Parser<>(CompositeParseState.factory(this),         parseTable, BasicStackManager.factory(),  CompositeParseForestManager.factory(), CompositeReduceManager.factoryComposite(this), new DefaultParseFailureHandler<>()));
+                    case Hybrid:
+                        //if (this.recovery)
+                        //    return    withRecovery(new Parser<>(LayoutSensitiveRecoveryParseState.factory(this), parseTable, HybridStackManager.factory(), LayoutSensitiveParseForestManager.factory(), LayoutSensitiveReduceManager.factoryLayoutSensitive(this), new RecoveryParseFailureHandler<>()));
+                        //else
+                            return withoutRecovery(new Parser<>(CompositeParseState.factory(this),         parseTable, HybridStackManager.factory(), CompositeParseForestManager.factory(), CompositeReduceManager.factoryComposite(this), new DefaultParseFailureHandler<>()));
                     default: throw new IllegalStateException();
                 }
 

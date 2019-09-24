@@ -85,9 +85,10 @@ public abstract class BaseTest implements WithParseTable {
             for(ParseTableWithOrigin parseTableWithOrigin : getParseTablesOrFailOnException(variant.parseTable)) {
                 TestVariant testVariant = new TestVariant(variant, parseTableWithOrigin);
 
-                // data-dependent and layout-sensitive parsers are incompatible with Aterm parse table
+                // data-dependent, layout-sensitive, and composite parsers are incompatible with Aterm parse table
                 if((variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.DataDependent)
-                    || variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
+                    || variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive)
+                    || variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.Composite))
                     && parseTableWithOrigin.origin.equals(ParseTableOrigin.ATerm)) {
                     continue;
                 }

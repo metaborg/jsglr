@@ -20,13 +20,15 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
         return sdf3ToParseTable.getLayoutSensitiveParseTable(variant, sdf3Resource);
     }
 
-    private Predicate<TestVariant> isLayoutSensitiveVariant =
-        testVariant -> testVariant.variant.parser.parseForestRepresentation
-            .equals(ParseForestRepresentation.LayoutSensitive);
+    private Predicate<TestVariant> isLayoutSensitiveVariant = testVariant -> {
+        ParseForestRepresentation parseForestRepresentation = testVariant.variant.parser.parseForestRepresentation;
+
+        return parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive)
+            || parseForestRepresentation.equals(ParseForestRepresentation.Composite);
+    };
 
     private Predicate<TestVariant> isNotLayoutSensitiveVariant =
-        testVariant -> !testVariant.variant.parser.parseForestRepresentation
-            .equals(ParseForestRepresentation.LayoutSensitive);
+        testVariant -> !isLayoutSensitiveVariant.test(testVariant);
 
     protected void testLayoutSensitiveParseFiltered(String inputString) {
         for(TestVariant variant : getTestVariants(isNotLayoutSensitiveVariant)) {

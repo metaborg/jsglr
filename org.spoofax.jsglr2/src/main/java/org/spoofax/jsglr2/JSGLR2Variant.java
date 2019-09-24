@@ -157,6 +157,19 @@ public class JSGLR2Variant {
                     false),
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
+
+        composite(
+            new JSGLR2Variant(
+                new ParserVariant(
+                    ActiveStacksRepresentation.standard(),
+                    ForActorStacksRepresentation.standard(),
+                    ParseForestRepresentation.Composite,
+                    ParseForestConstruction.standard(),
+                    StackRepresentation.Hybrid,
+                    Reducing.Composite,
+                    false),
+                ImploderVariant.standard(),
+                TokenizerVariant.standard())),
     
         incremental(
             new JSGLR2Variant(

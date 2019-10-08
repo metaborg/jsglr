@@ -17,9 +17,10 @@ public final class SpoofaxLanguageFinder {
      * "org/metaborg/lang.java".
      *
      * @param repoName
-     *            The identifier of the language in the repository, in the format "[groupId]/[artifactId]/[version]",
-     *            where the groupId is slash-separated, the artifactId is period-separated, and the version is optional.
-     *            Example: "org/metaborg/lang.java/1.1.0-SNAPSHOT"
+     *            The identifier of a Spoofax language in the local Maven repository, in the format
+     *            "[groupId]/[artifactId]/[version]", where the groupId is slash-separated, the artifactId is
+     *            period-separated, and the version is optional. Examples: "org/metaborg/lang.java",
+     *            "org/metaborg/lang.java/1.1.0-SNAPSHOT"
      * @return A *.spoofax-language file.
      */
     public static File getSpoofaxLanguage(String repoName) throws WrappedException {

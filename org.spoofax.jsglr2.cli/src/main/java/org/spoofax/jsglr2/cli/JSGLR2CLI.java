@@ -28,7 +28,7 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "JSGLR2 CLI", sortOptions = false, mixinStandardHelpOptions = true)
+@Command(name = "JSGLR2 CLI", sortOptions = false, mixinStandardHelpOptions = true, abbreviateSynopsis = true)
 public class JSGLR2CLI implements Runnable {
 
     @Parameters(arity = "1..*", description = "The input file(s)/string(s) to be parsed") public String[] input;
@@ -42,6 +42,9 @@ public class JSGLR2CLI implements Runnable {
 
     @Option(names = { "-v", "--verbose" }, negatable = true,
         description = "Print stack traces") public boolean verbose = false;
+
+    @Option(names = { "-l", "--language" },
+        description = "The identifier of a Spoofax language in the local Maven repository, in the format '[groupId]/[artifactId]/[version]', where the groupId is slash-separated, the artifactId is period-separated, and the version is optional. Examples: 'org/metaborg/lang.java', 'org/metaborg/lang.java/1.1.0-SNAPSHOT'") public static String language;
 
     // TODO As alternative to the parser builder, we could also load a Spoofax language and use its parsing services.
     // However, that cannot easily be combined with the custom output options, because 1) not all languages use JSGLR2
@@ -67,6 +70,12 @@ public class JSGLR2CLI implements Runnable {
 
     public void run() {
         try {
+            if(language == null && parserBuilder.parseTableOptions.parseTableFile == null) {
+                System.err.println("Either option --parseTable or --language should be provided");
+                new CommandLine(new JSGLR2CLI()).execute("-h");
+                System.exit(2);
+            }
+
             outputProcessor.checkAllowed(this);
 
             JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =

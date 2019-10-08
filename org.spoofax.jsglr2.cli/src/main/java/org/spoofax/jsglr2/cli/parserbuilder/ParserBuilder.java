@@ -22,7 +22,7 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 public class ParserBuilder {
-    @Mixin private ParseTableOptions parseTableOptions = new ParseTableOptions();
+    @Mixin public ParseTableOptions parseTableOptions = new ParseTableOptions();
 
     @SuppressWarnings("DefaultAnnotationParam") @ArgGroup(exclusive = true,
         heading = "Parser preset%n") private PresetOrVariantOptions presetOrVariantOptions =

@@ -3,7 +3,11 @@ package org.spoofax.jsglr2.cli.parserbuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.spoofax.jsglr2.cli.WrappedException;
@@ -46,9 +50,18 @@ public final class SpoofaxLanguageFinder {
 
     private static String getLocalRepository() throws WrappedException {
         try {
-            return new BufferedReader(new InputStreamReader(Runtime.getRuntime()
-                .exec("mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout").getInputStream()))
-                    .readLine();
+            // Caching the repo location somewhere in the tmpdir so that we don't need to get it every time again
+            Path tmpFile = Paths.get(System.getProperty("java.io.tmpdir"), "SpoofaxLanguageFinder_maven_repo.txt");
+            if(tmpFile.toFile().exists()) {
+                return Files.readAllLines(tmpFile).get(0);
+            } else {
+                // This command takes like two seconds to run...
+                final String repoLocation = new BufferedReader(new InputStreamReader(Runtime.getRuntime()
+                    .exec("mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout").getInputStream()))
+                        .readLine();
+                Files.write(tmpFile, Collections.singletonList(repoLocation));
+                return repoLocation;
+            }
         } catch(Exception e) {
             throw new WrappedException("Could not locate local Maven repository", e);
         }

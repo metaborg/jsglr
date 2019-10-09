@@ -1,4 +1,10 @@
-package org.spoofax.jsglr2.cli;
+package org.spoofax.jsglr2.cli.output.dot;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -6,13 +12,6 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 class StackDotVisualisationParserObserver
 //@formatter:off
@@ -30,16 +29,13 @@ class StackDotVisualisationParserObserver
     private int[] offsetMaxStackNodeRank;
     private Map<StackNode, Integer> stackNodeOffset;
 
-    public StackDotVisualisationParserObserver(Consumer<String> outputConsumer) {
-        super(outputConsumer);
-    }
-
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
         stackNodeRank = new HashMap<>();
         currentOffset = 0;
         maxStackNodeRank = 0;
         offsetMaxStackNodeRank = new int[parseState.inputLength + 1];
+        stackNodeOffset = new HashMap<>();
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
@@ -80,15 +76,15 @@ class StackDotVisualisationParserObserver
             + id(link.parseForest) + ": " + escape(link.parseForest.descriptor()) + "\"];");
     }
 
-    String stackNodeId(StackNode stack) {
+    private String stackNodeId(StackNode stack) {
         return stackNodeId(id(stack));
     }
 
-    String stackNodeId(int id) {
+    private String stackNodeId(int id) {
         return "stack_" + id;
     }
 
-    void output() {
+    public String output() {
         String prefix = "digraph {\nrankdir = LR;\nedge [dir=\"back\"];\n";
 
         for(int rank = 0; rank <= maxStackNodeRank; rank++) {
@@ -103,7 +99,7 @@ class StackDotVisualisationParserObserver
                 + stackNodesForRank.stream().map(id -> stackNodeId(id) + ";").collect(Collectors.joining()) + "}");
         }
 
-        outputConsumer.accept(prefix + dotStatements + "}");
+        return prefix + dotStatements + "}";
     }
 
 }

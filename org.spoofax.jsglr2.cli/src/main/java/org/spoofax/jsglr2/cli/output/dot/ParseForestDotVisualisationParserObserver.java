@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.cli;
+package org.spoofax.jsglr2.cli.output.dot;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -7,9 +7,7 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.function.Consumer;
-
-class ParseForestDotVisualisationParserObserver
+public class ParseForestDotVisualisationParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
@@ -18,10 +16,6 @@ class ParseForestDotVisualisationParserObserver
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
     extends DotVisualisationParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
-
-    public ParseForestDotVisualisationParserObserver(Consumer<String> outputConsumer) {
-        super(outputConsumer);
-    }
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
@@ -53,26 +47,24 @@ class ParseForestDotVisualisationParserObserver
             dotStatement(parseNodeId(parseForest) + ":p:n -> " + derivationId(derivation) + ":p:s;");
     }
 
-    String parseNodeId(ParseForest parseNode) {
+    private String parseNodeId(ParseForest parseNode) {
         return parseNodeId(id(parseNode));
     }
 
-    String parseNodeId(int id) {
+    private String parseNodeId(int id) {
         return "parseNode_" + id;
     }
 
-    String derivationId(IDerivation<ParseForest> derivation) {
+    private String derivationId(IDerivation<ParseForest> derivation) {
         return derivationId(id(derivation));
     }
 
-    String derivationId(int id) {
+    private String derivationId(int id) {
         return "derivation_" + id;
     }
 
-    void output() {
-        String prefix = "digraph {\nrankdir = BT;\n";
-
-        outputConsumer.accept(prefix + dotStatements + "}");
+    public String output() {
+        return "digraph {\nrankdir = BT;\n" + dotStatements + "}";
     }
 
 }

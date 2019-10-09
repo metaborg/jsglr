@@ -185,7 +185,7 @@ public class JSGLR2Variant {
                 TokenizerVariant.Recursive));
         // @formatter:on
 
-        public JSGLR2Variant variant;
+        public final JSGLR2Variant variant;
 
         Preset(JSGLR2Variant variant) {
             this.variant = variant;

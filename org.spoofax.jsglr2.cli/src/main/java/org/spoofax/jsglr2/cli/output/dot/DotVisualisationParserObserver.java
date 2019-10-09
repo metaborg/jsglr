@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.cli;
+package org.spoofax.jsglr2.cli.output.dot;
 
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -9,8 +9,6 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.function.Consumer;
-
 abstract class DotVisualisationParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
@@ -20,12 +18,6 @@ abstract class DotVisualisationParserObserver
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
     extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
-
-    final Consumer<String> outputConsumer;
-
-    DotVisualisationParserObserver(Consumer<String> outputConsumer) {
-        this.outputConsumer = outputConsumer;
-    }
 
     StringBuilder dotStatements;
 
@@ -48,7 +40,7 @@ abstract class DotVisualisationParserObserver
     }
 
     void dotStatement(String string) {
-        dotStatements.append(string + "\n");
+        dotStatements.append(string).append('\n');
     }
 
     @Override public void success(ParseSuccess<ParseForest> success) {
@@ -59,13 +51,13 @@ abstract class DotVisualisationParserObserver
         output();
     }
 
-    abstract void output();
+    public abstract String output();
 
     String escape(String string) {
         return string.replace("[", "\\[").replace("]", "\\]").replace("\"", "\\\"");
     }
 
-    String escapeHtml(String string) {
+    private String escapeHtml(String string) {
         return string.replace("<", "&lt;").replace(">", "&gt;");
     }
 

@@ -41,7 +41,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                 Position pivotPosition = currentPos;
                 for(SubTree subTree : currentOut) {
                     // If child tree had tokens that were not yet bound, bind them
-                    if(tree.tree == null) {
+                    if(subTree.tree == null) {
                         if(subTree.leftToken != null)
                             tokenTreeBinding(subTree.leftToken, tree.tree);
 

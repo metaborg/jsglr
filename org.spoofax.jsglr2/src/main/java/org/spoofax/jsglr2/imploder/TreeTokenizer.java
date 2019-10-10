@@ -58,7 +58,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
                 SubTree subTree = tokenizeInternal(tokens, child, pivotPosition);
 
                 // If child tree had tokens that were not yet bound, bind them
-                if(child.tree == null) {
+                if(subTree.tree == null) {
                     if(subTree.leftToken != null)
                         tokenTreeBinding(subTree.leftToken, tree.tree);
 

@@ -62,7 +62,7 @@ public class TreeImploder
                     }
                 }
 
-                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null, subTrees.get(0).width);
+                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null, subTrees.get(0).width, false);
             } else
                 return implodeDerivation(input, filteredDerivations.get(0), startOffset);
         } else {
@@ -101,7 +101,9 @@ public class TreeImploder
             }
         }
 
-        return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, production);
+        Tree contextFreeTerm = createContextFreeTerm(production, childASTs);
+        return new SubTree<>(contextFreeTerm, subTrees, production,
+            childASTs.size() > 0 && contextFreeTerm == childASTs.get(0));
     }
 
     protected List<ParseForest> getChildParseForests(Derivation derivation) {
@@ -176,22 +178,39 @@ public class TreeImploder
         public final String string; // Only set for lexical nodes.
         public final int width;
 
-        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, String string, int width) {
+        /**
+         * True whenever the `tree` field of this node and its (only) child node are equal. Tokenizers should annotate
+         * ASTs with the sort/cons of the production that is closest to the node. This means that injections should be
+         * skipped when adding the ImploderAttachment. E.g. The program `x` with AST `Exp()` should be annotated with
+         * `Exp.Exp` and not with `Start` in the following grammar:
+         *
+         * <code>
+         * context-free syntax
+         *     Start = Stmt
+         *     Stmt = Exp
+         *     Exp.Exp = "x"
+         * </code>
+         */
+        public final boolean isInjection;
+
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, String string, int width,
+            boolean isInjection) {
             this.tree = tree;
             this.children = children;
             this.production = production;
             this.string = string;
             this.width = width;
+            this.isInjection = isInjection;
         }
 
         /** This constructor infers the width from the sum of widths of its children. */
-        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production) {
-            this(tree, children, production, null, sumWidth(children));
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, boolean isInjection) {
+            this(tree, children, production, null, sumWidth(children), isInjection);
         }
 
         /** This constructor corresponds to a terminal/lexical node without children. */
         public SubTree(Tree tree, IProduction production, String string) {
-            this(tree, Collections.emptyList(), production, string, string.length());
+            this(tree, Collections.emptyList(), production, string, string.length(), false);
         }
 
         private static <Tree> int sumWidth(List<SubTree<Tree>> children) {

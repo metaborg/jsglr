@@ -28,7 +28,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
     @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value, IToken token) {
         IStrategoTerm stringTerminalTerm = termFactory.makeString(value);
 
-        configure(stringTerminalTerm, null, token, token);
+        configure(stringTerminalTerm, ISymbol.getSort(symbol), token, token);
 
         return stringTerminalTerm;
     }
@@ -37,7 +37,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         IStrategoTerm stringTerm = termFactory.makeString(value);
         IStrategoTerm metaVarTerm = termFactory.makeAppl(symbol.metaVarCardinality().constructor, stringTerm);
 
-        configure(stringTerm, null, token, token);
+        configure(stringTerm, ISymbol.getSort(symbol), token, token);
         configure(metaVarTerm, null, token, token);
 
         return metaVarTerm;

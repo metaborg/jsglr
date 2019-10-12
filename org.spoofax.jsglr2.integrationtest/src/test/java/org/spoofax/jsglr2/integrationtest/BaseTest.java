@@ -227,7 +227,8 @@ public abstract class BaseTest implements WithParseTable {
         for(TestVariant variant : getTestVariants()) {
             JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
-            assertTrue("Variant '" + variant.name() + "' failed", jsglr2Result.isSuccess());
+            String variantPrefix = "Variant '" + variant.name() + "' failed";
+            assertTrue(variantPrefix, jsglr2Result.isSuccess());
 
             JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
 
@@ -237,10 +238,10 @@ public abstract class BaseTest implements WithParseTable {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 
-            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1);
+            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, null);
             TokenDescriptor actualStartToken = actualTokens.get(0);
 
-            assertEquals("Start token incorrect:", expectedStartToken, actualStartToken);
+            assertEquals(variantPrefix + "\nStart token incorrect:", expectedStartToken, actualStartToken);
 
             Position endPosition = Position.atEnd(inputString);
 
@@ -248,14 +249,15 @@ public abstract class BaseTest implements WithParseTable {
             int endColumn = endPosition.column;
 
             TokenDescriptor expectedEndToken =
-                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1);
+                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1, null, null);
             TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
 
             List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 
-            assertThat(actualTokensWithoutStartAndEnd, is(expectedTokens));
+            assertThat(variantPrefix + "\nToken lists don't match:", actualTokensWithoutStartAndEnd,
+                is(expectedTokens));
 
-            assertEquals("End token incorrect:", expectedEndToken, actualEndToken);
+            assertEquals(variantPrefix + "\nEnd token incorrect:", expectedEndToken, actualEndToken);
         }
     }
 

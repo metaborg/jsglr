@@ -179,14 +179,15 @@ public class IterativeTreeImploder
 
     private SubTree<Tree> createAmbiguousSubTree(ParseNode parseNode, List<SubTree<Tree>> subTrees) {
         return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null, null,
-            subTrees.get(0).width);
+            subTrees.get(0).width, false);
     }
 
     private SubTree<Tree> createNonTerminalSubTree(IProduction production, List<SubTree<Tree>> subTrees) {
-        return new SubTree<>(
-            createContextFreeTerm(production,
-                subTrees.stream().filter(t -> t.tree != null).map(t -> t.tree).collect(Collectors.toList())),
-            subTrees, production);
+        List<Tree> childASTs =
+            subTrees.stream().filter(t -> t.tree != null).map(t -> t.tree).collect(Collectors.toList());
+        Tree contextFreeTerm = createContextFreeTerm(production, childASTs);
+        return new SubTree<>(contextFreeTerm, subTrees, production,
+            childASTs.size() > 0 && contextFreeTerm == childASTs.get(0));
     }
 
     private SubTree<Tree> createLexicalSubTree(String inputString, ParseNode parseNode, int startOffset,

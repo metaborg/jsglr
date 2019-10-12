@@ -16,7 +16,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
             this.leftToken = leftToken;
             this.rightToken = rightToken;
             this.endPosition = endPosition;
-            if(tree.tree != null && leftToken != null && rightToken != null) {
+            if(!tree.isInjection && tree.tree != null && leftToken != null && rightToken != null) {
                 String sort = tree.production == null ? null : tree.production.sort();
                 configure(tree.tree, sort, leftToken, rightToken);
             }
@@ -58,7 +58,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
                 SubTree subTree = tokenizeInternal(tokens, child, pivotPosition);
 
                 // If child tree had tokens that were not yet bound, bind them
-                if(child.tree == null) {
+                if(subTree.tree == null) {
                     if(subTree.leftToken != null)
                         tokenTreeBinding(subTree.leftToken, tree.tree);
 

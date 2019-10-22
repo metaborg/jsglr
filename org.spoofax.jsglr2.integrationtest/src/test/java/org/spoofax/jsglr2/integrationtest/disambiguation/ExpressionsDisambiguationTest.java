@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.disambiguation;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -59,9 +59,19 @@ public class ExpressionsDisambiguationTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void longestMatchFrontComplex() throws ParseError {
-        testSuccessByExpansions("xx]xxx]xx]",
-            "ListFront(\n" + "  [ ListFront(\n" + "      [ListFront([Term(), Term()]), Term(), Term(), Term()]\n"
-                + "    )\n" + "  , Term()\n" + "  , Term()\n" + "  ]\n" + ")");
+        //@formatter:off
+        testSuccessByExpansions(
+            "xx]xxx]xx]",
+            "ListFront(\n" +
+            "  [ ListFront(\n" +
+            "      [ListFront([Term(), Term()]), Term(), Term(), Term()]\n" +
+            "    )\n" +
+            "  , Term()\n" +
+            "  , Term()\n" +
+            "  ]\n" +
+            ")"
+        );
+        //@formatter:on
     }
 
     @Test public void longestMatchBackSimple() throws ParseError {
@@ -69,9 +79,19 @@ public class ExpressionsDisambiguationTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void longestMatchBackComplex() throws ParseError {
-        testSuccessByExpansions(";xx;xxx;xx", "ListBack(\n" + "  [ Term()\n" + "  , Term()\n" + "  , ListBack(\n"
-            + "      [Term(), Term(), Term(), ListBack([Term(), Term()])]\n" + "    )\n" + "  ]\n" + ")");
+        //@formatter:off
+        testSuccessByExpansions(
+            ";xx;xxx;xx",
+            "ListBack(\n" +
+            "  [ Term()\n" +
+            "  , Term()\n" +
+            "  , ListBack(\n" +
+            "      [Term(), Term(), Term(), ListBack([Term(), Term()])]\n" +
+            "    )\n" +
+            "  ]\n" +
+            ")"
+        );
+        //@formatter:on
     }
-
 
 }

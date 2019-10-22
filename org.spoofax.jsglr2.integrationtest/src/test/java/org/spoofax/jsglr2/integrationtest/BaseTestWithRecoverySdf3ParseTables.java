@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import org.metaborg.parsetable.IParseTable;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
-import org.spoofax.jsglr2.parser.result.ParseResult;
+import static org.junit.Assert.assertEquals;
 
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
+import org.metaborg.parsetable.IParseTable;
+import org.spoofax.jsglr2.integration.ParseTableVariant;
+import org.spoofax.jsglr2.parser.result.ParseResult;
 
 public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSdf3ParseTables {
 

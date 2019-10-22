@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.features;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -19,8 +19,12 @@ public class OptionalsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void testIncrementalOptionals() throws ParseError {
-        testIncrementalSuccessByExpansions(new String[] { "X", "", "X" },
-            new String[] { "Some(X)", "None", "Some(X)" });
+        //@formatter:off
+        testIncrementalSuccessByExpansions(
+            new String[] { "X",       "",     "X" },
+            new String[] { "Some(X)", "None", "Some(X)" }
+        );
+        //@formatter:off
     }
 
 }

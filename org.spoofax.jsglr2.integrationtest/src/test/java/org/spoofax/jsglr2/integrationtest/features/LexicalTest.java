@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.features;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -13,12 +13,6 @@ public class LexicalTest extends BaseTestWithSdf3ParseTables {
     @Test public void identifiers() throws ParseError {
         testSuccessByExpansions("a", "\"a\")");
         testSuccessByExpansions("abcde", "\"abcde\")");
-    }
-
-    @Test public void incrementalIdentifiers() throws ParseError {
-        testIncrementalSuccessByExpansions(
-            new String[] { "a", "abcde", "abfghije", "abfghije", "abfghijeklm", "xyzabfghijeklm" }, new String[] {
-                "\"a\"", "\"abcde\"", "\"abfghije\"", "\"abfghije\"", "\"abfghijeklm\"", "\"xyzabfghijeklm\"" });
     }
 
 }

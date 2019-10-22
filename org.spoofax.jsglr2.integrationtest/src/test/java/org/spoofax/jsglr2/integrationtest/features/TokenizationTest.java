@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.features;
 
 import java.util.Arrays;
 

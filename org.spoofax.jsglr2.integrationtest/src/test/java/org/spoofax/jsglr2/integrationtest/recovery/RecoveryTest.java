@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.recovery;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithRecoverySdf3ParseTables;

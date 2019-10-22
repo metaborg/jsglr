@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.features;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -34,13 +34,6 @@ public class ListsTest extends BaseTestWithSdf3ParseTables {
     @Test public void testThreeCommaSeparatedXs() throws ParseError {
         testSuccessByExpansions("x,x , x",
             "amb([ZeroOrMoreXsCommaSeparated([X, X, X]), OneOrMoreXsCommaSeparated([X, X, X])])");
-    }
-
-    @Test public void testIncrementalLayoutSeparatedXs() throws ParseError {
-        testIncrementalSuccessByExpansions(new String[] { "x x x", "x x x x", "x x x" },
-            new String[] { "amb([ZeroOrMoreXs([X, X, X]), OneOrMoreXs([X, X, X])])",
-                "amb([ZeroOrMoreXs([X, X, X, X]), OneOrMoreXs([X, X, X, X])])",
-                "amb([ZeroOrMoreXs([X, X, X]), OneOrMoreXs([X, X, X])])" });
     }
 
 }

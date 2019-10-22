@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.incremental;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -32,19 +32,30 @@ public class LookaheadIncrementalTest extends BaseTestWithSdf3ParseTables {
     }
 
     @Test public void incrementalOneCharFollowRestricted() throws ParseError {
-        testIncrementalSuccessByExpansions(new String[] { "1[x]", "1[ax]", "1[x]" }, new String[] {
-            "OneCharFollowRestricted(\"1[x]\")", "OneCharPrefix(\"1[ax]\")", "OneCharFollowRestricted(\"1[x]\")" });
+        //@formatter:off
+        testIncrementalSuccessByExpansions(
+            new String[] { "1[x]",                           "1[ax]",                       "1[x]" },
+            new String[] { "OneCharFollowRestricted(\"1[x]\")", "OneCharPrefix(\"1[ax]\")", "OneCharFollowRestricted(\"1[x]\")" }
+        );
+        //@formatter:on
     }
 
     @Test public void incrementalTwoCharFollowRestricted() throws ParseError {
-        testIncrementalSuccessByExpansions(new String[] { "2[ax]", "2[abx]", "2[ax]" }, new String[] {
-            "TwoCharFollowRestricted(\"2[ax]\")", "TwoCharPrefix(\"2[abx]\")", "TwoCharFollowRestricted(\"2[ax]\")" });
+        //@formatter:off
+        testIncrementalSuccessByExpansions(
+            new String[] { "2[ax]",                              "2[abx]",                     "2[ax]" },
+            new String[] { "TwoCharFollowRestricted(\"2[ax]\")", "TwoCharPrefix(\"2[abx]\")", "TwoCharFollowRestricted(\"2[ax]\")" }
+        );
+        //@formatter:on
     }
 
     @Test public void incrementalThreeCharFollowRestricted() throws ParseError {
-        testIncrementalSuccessByExpansions(new String[] { "3[abx]", "3[abcx]", "3[abx]" },
-            new String[] { "ThreeCharFollowRestricted(\"3[abx]\")", "ThreeCharPrefix(\"3[abcx]\")",
-                "ThreeCharFollowRestricted(\"3[abx]\")" });
+        //@formatter:off
+        testIncrementalSuccessByExpansions(
+            new String[] { "3[abx]",                                "3[abcx]",                      "3[abx]" },
+            new String[] { "ThreeCharFollowRestricted(\"3[abx]\")", "ThreeCharPrefix(\"3[abcx]\")", "ThreeCharFollowRestricted(\"3[abx]\")" }
+        );
+        //@formatter:on
     }
 
 }

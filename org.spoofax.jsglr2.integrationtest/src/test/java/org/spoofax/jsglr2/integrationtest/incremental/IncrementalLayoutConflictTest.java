@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.integrationtest.grammars;
+package org.spoofax.jsglr2.integrationtest.incremental;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
@@ -18,8 +18,18 @@ public class IncrementalLayoutConflictTest extends BaseTestWithSdf3ParseTables {
      * "parsed in multiple states" and be broken down during the second parse.
      */
     @Test public void test() throws ParseError {
-        testIncrementalSuccessByExpansions(new String[] { "a   b ", "a   ", },
-            new String[] { "Binary(\"a\",\"b\")", "Unary(\"a\")", });
+        //@formatter:off
+        testIncrementalSuccessByExpansions(
+            new String[] {
+                "a   b ",
+                "a   "
+            },
+            new String[] {
+                "Binary(\"a\",\"b\")",
+                "Unary(\"a\")"
+            }
+        );
+        //@formatter:on
     }
 
 }

@@ -14,7 +14,7 @@ public class RecoveryJob {
     }
 
     boolean hasNextIteration() {
-        return iteration < 3;
+        return iteration < RecoveryConfig.RECOVERY_ITERATIONS_QUOTA;
     }
 
     int nextIteration() {

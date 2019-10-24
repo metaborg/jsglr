@@ -35,11 +35,15 @@ public class RecoveryParserObserver
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
+        // Record backtrack choice points per line. If in recovery mode, only record new choice points when parsing
+        // after the point that initiated recovery.
         if((parseState.currentOffset == 0 || CharacterClassFactory.isNewLine(parseState.currentChar))
             && (!parseState.isRecovering() || parseState.recoveryJob().offset < parseState.currentOffset))
             parseState.saveBacktrackChoicePoint(parseState.currentOffset, parseState.activeStacks);
 
-        // TODO: check if recovery mode can be leaved
+        if(parseState.isRecovering()
+            && parseState.currentOffset > parseState.recoveryJob().offset + 20)
+            parseState.endRecovery();
     }
 
     @Override public void addActiveStack(StackNode stack) {

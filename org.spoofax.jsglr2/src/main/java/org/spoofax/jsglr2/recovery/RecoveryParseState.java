@@ -73,8 +73,12 @@ public class RecoveryParseState
         return (BacktrackChoicePoint<ParseForest, StackNode>) backtrackChoicePoints[index];
     }
 
-    @Override public void setRecovery(int offset) {
+    @Override public void startRecovery(int offset) {
         recoveryPointOpt = Optional.of(new RecoveryJob(backtrackChoicePointCount - 1, offset));
+    }
+
+    @Override public void endRecovery() {
+        recoveryPointOpt = Optional.empty();
     }
 
     @Override public Optional<RecoveryJob> recoveryJobOpt() {

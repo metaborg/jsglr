@@ -18,7 +18,9 @@ public interface IRecoveryParseState
 
     BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int line);
 
-    void setRecovery(int offset);
+    void startRecovery(int offset);
+
+    void endRecovery();
 
     Optional<RecoveryJob> recoveryJobOpt();
 

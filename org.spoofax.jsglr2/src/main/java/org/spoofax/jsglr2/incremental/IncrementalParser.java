@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.Parser;
-import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
+import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
@@ -54,9 +54,9 @@ public class IncrementalParser
         StackManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
-        IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler) {
+        ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory) {
         super(parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, reduceManagerFactory,
-            failureHandler);
+            failureHandlerFactory);
         // TODO parametrize parser on diff algorithm for benchmarking
         this.diff = new JGitHistogramDiff();
     }

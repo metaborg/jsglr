@@ -7,6 +7,7 @@ import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
+import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureType;
@@ -42,14 +43,14 @@ public class Parser
         StackManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
-        IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler) {
+        ParseFailureHandlerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> failureHandlerFactory) {
         this.observing = new ParserObserving<>();
         this.parseStateFactory = parseStateFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManagerFactory.get(observing);
         this.parseForestManager = parseForestManagerFactory.get(observing);
         this.reduceManager = reduceManagerFactory.get(parseTable, stackManager, parseForestManager);
-        this.failureHandler = failureHandler;
+        this.failureHandler = failureHandlerFactory.get(observing);
     }
 
     @Override public ParseResult<ParseForest> parse(String inputString, String filename, String startSymbol) {

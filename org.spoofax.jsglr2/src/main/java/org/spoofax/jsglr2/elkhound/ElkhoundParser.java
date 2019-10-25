@@ -48,7 +48,7 @@ public class ElkhoundParser
         while(parseState.hasNext() && !parseState.activeStacks.isEmpty()) {
             if(parseState.activeStacks.isSingle()) {
                 if(nextRound)
-                    observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
+                    observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks, observing));
 
                 ElkhoundStackNode singleActiveStack = parseState.activeStacks.getSingle();
 

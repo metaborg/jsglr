@@ -4,7 +4,9 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.*;
+import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -58,7 +60,8 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
 
         @Override public void parseRound(
             AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
-            Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes) {
+            Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes,
+            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> observing) {
             List<BasicStackNode<IBasicParseForest>> activeStacksCopy = activeStacksCopy(parseState);
 
             operations.add(bh -> {

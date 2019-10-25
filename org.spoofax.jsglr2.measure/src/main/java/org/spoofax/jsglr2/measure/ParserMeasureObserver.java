@@ -12,6 +12,7 @@ import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -97,7 +98,8 @@ public class ParserMeasureObserver
     }
 
     @Override public void parseRound(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState,
-        Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
+        Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks,
+        ParserObserving<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> observing) {
     }
 
     @Override public void addActiveStack(AbstractElkhoundStackNode<ParseForest> stack) {
@@ -201,6 +203,14 @@ public class ParserMeasureObserver
 
     @Override public void shifter(ParseForest termNode,
         Queue<ForShifterElement<AbstractElkhoundStackNode<ParseForest>>> forShifter) {
+    }
+
+    @Override public void
+        startRecovery(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
+    }
+
+    @Override public void
+        endRecovery(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
     }
 
     @Override public void remark(String remark) {

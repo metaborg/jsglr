@@ -12,6 +12,7 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -34,7 +35,8 @@ public class RecoveryParserObserver
         parseState.initializeBacktrackChoicePoints(parseState.inputString);
     }
 
-    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         // Record backtrack choice points per line. If in recovery mode, only record new choice points when parsing
         // after the point that initiated recovery.
         if((parseState.currentOffset == 0 || CharacterClassFactory.isNewLine(parseState.currentChar))
@@ -42,8 +44,11 @@ public class RecoveryParserObserver
             parseState.saveBacktrackChoicePoint(parseState.currentOffset, parseState.activeStacks);
 
         if(parseState.isRecovering()
-            && parseState.currentOffset > parseState.recoveryJob().offset + RecoveryConfig.SUCCEEDING_RECOVERY_OFFSET)
+            && parseState.currentOffset > parseState.recoveryJob().offset + RecoveryConfig.SUCCEEDING_RECOVERY_OFFSET) {
             parseState.endRecovery();
+
+            observing.notify(observer -> observer.endRecovery(parseState));
+        }
     }
 
     @Override public void addActiveStack(StackNode stack) {
@@ -115,6 +120,12 @@ public class RecoveryParserObserver
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
+    }
+
+    @Override public void startRecovery(ParseState parseState) {
+    }
+
+    @Override public void endRecovery(ParseState parseState) {
     }
 
     @Override public void remark(String remark) {

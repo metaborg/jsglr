@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -32,7 +33,8 @@ public class BenchmarkParserObserver
     @Override public void parseStart(ParseState parseState) {
     }
 
-    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
     }
 
     @Override public void addActiveStack(StackNode stack) {
@@ -105,6 +107,12 @@ public class BenchmarkParserObserver
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
+    }
+
+    @Override public void startRecovery(ParseState parseState) {
+    }
+
+    @Override public void endRecovery(ParseState parseState) {
     }
 
     @Override public void remark(String remark) {

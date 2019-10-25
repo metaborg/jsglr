@@ -4,9 +4,12 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.*;
+import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
 
@@ -66,7 +69,8 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
 
         @Override public void parseRound(
             AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
-            Iterable<BasicStackNode<IBasicParseForest>> activeStacks) {
+            Iterable<BasicStackNode<IBasicParseForest>> activeStacks,
+            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> observing) {
             parseRounds.add(new ParseRound());
         }
 

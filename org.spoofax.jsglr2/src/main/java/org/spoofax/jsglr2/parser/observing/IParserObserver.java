@@ -30,7 +30,8 @@ public interface IParserObserver
 
     void parseStart(ParseState parseState);
 
-    void parseRound(ParseState parseState, Iterable<StackNode> activeStacks);
+    void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing);
 
     void addActiveStack(StackNode stack);
 
@@ -78,6 +79,10 @@ public interface IParserObserver
     void addDerivation(ParseNode parseNode, Derivation derivation);
 
     void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
+
+    void startRecovery(ParseState parseState);
+
+    void endRecovery(ParseState parseState);
 
     void remark(String remark);
 

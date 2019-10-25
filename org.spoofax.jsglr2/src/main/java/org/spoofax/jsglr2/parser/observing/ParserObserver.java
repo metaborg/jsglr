@@ -98,7 +98,8 @@ public abstract class ParserObserver
         stackLinkId.clear();
     }
 
-    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
     }
 
     @Override public void addActiveStack(StackNode stack) {
@@ -175,6 +176,12 @@ public abstract class ParserObserver
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
+    }
+
+    @Override public void startRecovery(ParseState parseState) {
+    }
+
+    @Override public void endRecovery(ParseState parseState) {
     }
 
     @Override public void remark(String remark) {

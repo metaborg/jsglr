@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -41,7 +42,8 @@ public class LogParserObserver
         log("\nStarting parse for input '" + parseState.inputString + "'");
     }
 
-    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         log("\nParse character '" + CharacterClassFactory.intToString(parseState.currentChar) + "' (active stacks: "
             + stackQueueToString(activeStacks) + ")\n");
     }

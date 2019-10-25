@@ -28,6 +28,10 @@ public interface IRecoveryParseState
         return recoveryJobOpt().isPresent();
     }
 
+    default boolean successfulRecovery(int currentOffset) {
+        return isRecovering() && currentOffset > recoveryJob().offset + RecoveryConfig.SUCCEEDING_RECOVERY_OFFSET;
+    }
+
     default RecoveryJob recoveryJob() {
         return recoveryJobOpt().get();
     }

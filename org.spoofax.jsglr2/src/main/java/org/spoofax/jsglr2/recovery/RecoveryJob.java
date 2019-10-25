@@ -5,16 +5,18 @@ public class RecoveryJob {
     public int backtrackChoicePointIndex;
     public int offset;
     public int iteration;
+    final int iterationsQuota;
     public int quota;
 
-    public RecoveryJob(int backtrackChoicePointIndex, int offset) {
+    public RecoveryJob(int backtrackChoicePointIndex, int offset, int iterationsQuota) {
         this.backtrackChoicePointIndex = backtrackChoicePointIndex;
         this.offset = offset;
         this.iteration = 0;
+        this.iterationsQuota = iterationsQuota;
     }
 
     boolean hasNextIteration() {
-        return iteration < RecoveryConfig.RECOVERY_ITERATIONS_QUOTA;
+        return iteration < iterationsQuota;
     }
 
     int nextIteration() {

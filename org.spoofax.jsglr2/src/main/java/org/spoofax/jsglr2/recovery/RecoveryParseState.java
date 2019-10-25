@@ -74,7 +74,8 @@ public class RecoveryParseState
     }
 
     @Override public void startRecovery(int offset) {
-        recoveryPointOpt = Optional.of(new RecoveryJob(backtrackChoicePointCount - 1, offset));
+        recoveryPointOpt = Optional
+            .of(new RecoveryJob(backtrackChoicePointCount - 1, offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA));
     }
 
     @Override public void endRecovery() {

@@ -43,8 +43,7 @@ public class RecoveryParserObserver
             && (!parseState.isRecovering() || parseState.recoveryJob().offset < parseState.currentOffset))
             parseState.saveBacktrackChoicePoint(parseState.currentOffset, parseState.activeStacks);
 
-        if(parseState.isRecovering()
-            && parseState.currentOffset > parseState.recoveryJob().offset + RecoveryConfig.SUCCEEDING_RECOVERY_OFFSET) {
+        if(parseState.successfulRecovery(parseState.currentOffset)) {
             parseState.endRecovery();
 
             observing.notify(observer -> observer.endRecovery(parseState));

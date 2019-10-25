@@ -1,12 +1,18 @@
 module recovery
 
+lexical syntax
+	LAYOUT  = [\ ]
+
+context-free restrictions
+	LAYOUT? -/- [\ ]
+
 context-free start-symbols
 
   Start
 
 context-free syntax
 
-  Start.Start = X
+  Start.Start = X+
 
   X.X = <x>
   X.Y = <y> {recover}

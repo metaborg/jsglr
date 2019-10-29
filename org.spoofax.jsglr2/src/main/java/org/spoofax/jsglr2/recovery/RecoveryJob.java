@@ -11,7 +11,7 @@ public class RecoveryJob {
     public RecoveryJob(int backtrackChoicePointIndex, int offset, int iterationsQuota) {
         this.backtrackChoicePointIndex = backtrackChoicePointIndex;
         this.offset = offset;
-        this.iteration = 0;
+        this.iteration = -1;
         this.iterationsQuota = iterationsQuota;
     }
 
@@ -23,7 +23,7 @@ public class RecoveryJob {
         if(this.backtrackChoicePointIndex > 0)
             this.backtrackChoicePointIndex--;
 
-        quota = ++iteration;
+        quota = (++iteration + 1);
 
         return iteration;
     }

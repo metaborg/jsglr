@@ -14,7 +14,7 @@ public interface IRecoveryParseState
 
     void initializeBacktrackChoicePoints(String input);
 
-    void saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks);
+    BacktrackChoicePoint<ParseForest, StackNode> saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks);
 
     BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int line);
 

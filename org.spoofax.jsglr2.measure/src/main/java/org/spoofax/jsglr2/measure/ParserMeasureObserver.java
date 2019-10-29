@@ -15,6 +15,7 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.recovery.BacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
@@ -203,6 +204,10 @@ public class ParserMeasureObserver
 
     @Override public void shifter(ParseForest termNode,
         Queue<ForShifterElement<AbstractElkhoundStackNode<ParseForest>>> forShifter) {
+    }
+
+    @Override public void recoveryBacktrackChoicePoint(
+        BacktrackChoicePoint<ParseForest, AbstractElkhoundStackNode<ParseForest>> backtrackChoicePoint) {
     }
 
     @Override public void

@@ -13,10 +13,12 @@ public class BacktrackChoicePoint
 //@formatter:on
 {
 
+    public final int index;
     public final int offset;
     public final List<StackNode> activeStacks;
 
-    public BacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
+    public BacktrackChoicePoint(int index, int offset, Iterable<StackNode> activeStacks) {
+        this.index = index;
         this.offset = offset;
         this.activeStacks = new ArrayList<>();
 

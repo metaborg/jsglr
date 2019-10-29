@@ -9,6 +9,7 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.recovery.BacktrackChoicePoint;
 import org.spoofax.jsglr2.recovery.IRecoveryParseState;
 import org.spoofax.jsglr2.recovery.RecoveryJob;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -82,14 +83,20 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
     //@formatter:on
         extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
-        public List<Integer> started;
-        public List<Integer> ended;
-        public List<RecoverIteration> iterations;
+        public final List<Integer> backtrackChoicePoints;
+        public final List<Integer> started;
+        public final List<Integer> ended;
+        public final List<RecoverIteration> iterations;
 
         RecoveryTrace() {
+            backtrackChoicePoints = new ArrayList<>();
             started = new ArrayList<>();
             ended = new ArrayList<>();
             iterations = new ArrayList<>();
+        }
+
+        @Override public void recoveryBacktrackChoicePoint(BacktrackChoicePoint<ParseForest, StackNode> choicePoint) {
+            backtrackChoicePoints.add(choicePoint.index, choicePoint.offset);
         }
 
         @Override public void startRecovery(ParseState parseState) {

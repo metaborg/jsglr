@@ -65,8 +65,14 @@ public class RecoveryParseState
         return lineCount;
     }
 
-    @Override public void saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
-        backtrackChoicePoints[backtrackChoicePointCount++] = new BacktrackChoicePoint<>(offset, activeStacks);
+    @Override public BacktrackChoicePoint<ParseForest, StackNode> saveBacktrackChoicePoint(int offset,
+        Iterable<StackNode> activeStacks) {
+        BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint =
+            new BacktrackChoicePoint<>(backtrackChoicePointCount++, offset, activeStacks);
+
+        backtrackChoicePoints[backtrackChoicePoint.index] = backtrackChoicePoint;
+
+        return backtrackChoicePoint;
     }
 
     @Override public BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int index) {

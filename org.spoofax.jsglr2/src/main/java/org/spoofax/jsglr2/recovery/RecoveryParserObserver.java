@@ -40,8 +40,12 @@ public class RecoveryParserObserver
         // Record backtrack choice points per line. If in recovery mode, only record new choice points when parsing
         // after the point that initiated recovery.
         if((parseState.currentOffset == 0 || CharacterClassFactory.isNewLine(parseState.currentChar))
-            && (!parseState.isRecovering() || parseState.recoveryJob().offset < parseState.currentOffset))
-            parseState.saveBacktrackChoicePoint(parseState.currentOffset, parseState.activeStacks);
+            && (!parseState.isRecovering() || parseState.recoveryJob().offset < parseState.currentOffset)) {
+            BacktrackChoicePoint<ParseForest, StackNode> choicePoint =
+                parseState.saveBacktrackChoicePoint(parseState.currentOffset, parseState.activeStacks);
+
+            observing.notify(observer -> observer.recoveryBacktrackChoicePoint(choicePoint));
+        }
 
         if(parseState.successfulRecovery(parseState.currentOffset)) {
             parseState.endRecovery();
@@ -119,6 +123,9 @@ public class RecoveryParserObserver
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
+    }
+
+    @Override public void recoveryBacktrackChoicePoint(BacktrackChoicePoint<ParseForest, StackNode> choicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

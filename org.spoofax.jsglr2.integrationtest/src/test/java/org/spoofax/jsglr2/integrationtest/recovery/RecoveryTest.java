@@ -23,12 +23,14 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
         testRecovery("y");
 
         testRecoveryTraced("y", recoveryTrace -> {
+            assertEquals(Arrays.asList(0), recoveryTrace.backtrackChoicePoints);
             assertEquals(Arrays.asList(1), recoveryTrace.started);
             assertEquals(Arrays.asList(), recoveryTrace.ended);
             assertEquals(Arrays.asList(new RecoverIteration(0, 1, 0)), recoveryTrace.iterations);
         });
 
         testRecoveryTraced("y ", recoveryTrace -> {
+            assertEquals(Arrays.asList(0), recoveryTrace.backtrackChoicePoints);
             assertEquals(Arrays.asList(1), recoveryTrace.started);
             assertEquals(Arrays.asList(2), recoveryTrace.ended);
             assertEquals(Arrays.asList(new RecoverIteration(0, 1, 0)), recoveryTrace.iterations);
@@ -39,6 +41,7 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
         testRecovery("y y");
 
         testRecoveryTraced("y y", recoveryTrace -> {
+            assertEquals(Arrays.asList(0), recoveryTrace.backtrackChoicePoints);
             assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
             assertEquals(Arrays.asList(2), recoveryTrace.ended);
             assertEquals(Arrays.asList(
@@ -51,6 +54,7 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
         });
 
         testRecoveryTraced("y y ", recoveryTrace -> {
+            assertEquals(Arrays.asList(0), recoveryTrace.backtrackChoicePoints);
             assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
             assertEquals(Arrays.asList(2, 4), recoveryTrace.ended);
             assertEquals(Arrays.asList(
@@ -67,6 +71,7 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
         testRecovery("yxy");
 
         testRecoveryTraced("yxy", recoveryTrace -> {
+            assertEquals(Arrays.asList(0), recoveryTrace.backtrackChoicePoints);
             assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
             assertEquals(Arrays.asList(2), recoveryTrace.ended);
             assertEquals(Arrays.asList(
@@ -79,6 +84,7 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
         });
 
         testRecoveryTraced("yxy ", recoveryTrace -> {
+            assertEquals(Arrays.asList(0), recoveryTrace.backtrackChoicePoints);
             assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
             assertEquals(Arrays.asList(2, 4), recoveryTrace.ended);
             assertEquals(Arrays.asList(

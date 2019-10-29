@@ -124,6 +124,12 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
             assertEquals(Arrays.asList(5), recoveryTrace.ended);
             assertEquals(Arrays.asList(new RecoverIteration(0, 4, 3)), recoveryTrace.iterations);
         });
+        testRecoveryTraced(newlines(3) + "y" + newlines(1), recoveryTrace -> {
+            assertEquals(Arrays.asList(0, 1, 2, 3, 5), recoveryTrace.backtrackChoicePoints);
+            assertEquals(Arrays.asList(4), recoveryTrace.started);
+            assertEquals(Arrays.asList(5), recoveryTrace.ended);
+            assertEquals(Arrays.asList(new RecoverIteration(0, 4, 3)), recoveryTrace.iterations);
+        });
     }
 
 }

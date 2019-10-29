@@ -122,7 +122,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         RecoverIteration(RecoveryJob recoveryJob) {
             this.iteration = recoveryJob.iteration;
             this.offset = recoveryJob.offset;
-            this.backtrackChoicePointIndex = recoveryJob.backtrackChoicePointIndex;
+            this.backtrackChoicePointIndex = recoveryJob.iterationBacktrackChoicePointIndex();
         }
 
         public RecoverIteration(int iteration, int offset, int backtrackChoicePointIndex) {

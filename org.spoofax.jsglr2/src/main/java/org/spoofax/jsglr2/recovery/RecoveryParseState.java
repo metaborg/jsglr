@@ -23,7 +23,7 @@ public class RecoveryParseState
     extends AbstractParseState<ParseForest, StackNode> implements IRecoveryParseState<ParseForest, StackNode> {
 
     private BacktrackChoicePoint[] backtrackChoicePoints;
-    private int backtrackChoicePointCount = 0;
+    private int lastBacktrackChoicePointIndex = -1;
     private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
 
     RecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
@@ -68,7 +68,7 @@ public class RecoveryParseState
     @Override public BacktrackChoicePoint<ParseForest, StackNode> saveBacktrackChoicePoint(int offset,
         Iterable<StackNode> activeStacks) {
         BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint =
-            new BacktrackChoicePoint<>(backtrackChoicePointCount++, offset, activeStacks);
+            new BacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, offset, activeStacks);
 
         backtrackChoicePoints[backtrackChoicePoint.index] = backtrackChoicePoint;
 
@@ -81,7 +81,7 @@ public class RecoveryParseState
 
     @Override public void startRecovery(int offset) {
         recoveryPointOpt = Optional
-            .of(new RecoveryJob(backtrackChoicePointCount - 1, offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA));
+            .of(new RecoveryJob(lastBacktrackChoicePointIndex, offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA));
     }
 
     @Override public void endRecovery() {
@@ -97,10 +97,9 @@ public class RecoveryParseState
             int iteration = recoveryJob().nextIteration();
 
             BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint =
-                getBacktrackChoicePoint(recoveryJob().backtrackChoicePointIndex);
+                getBacktrackChoicePoint(recoveryJob().iterationBacktrackChoicePointIndex());
 
-            this.backtrackChoicePointCount = recoveryJob().backtrackChoicePointIndex + 1;
-
+            this.lastBacktrackChoicePointIndex = backtrackChoicePoint.index;
             this.currentOffset = backtrackChoicePoint.offset;
 
             // TODO: lines below required for layout-sensitive

@@ -20,12 +20,13 @@ public class RecoveryJob {
     }
 
     int nextIteration() {
-        if(this.backtrackChoicePointIndex > 0)
-            this.backtrackChoicePointIndex--;
-
         quota = (++iteration + 1);
 
         return iteration;
+    }
+
+    public int iterationBacktrackChoicePointIndex() {
+        return Math.max(backtrackChoicePointIndex - iteration, 0);
     }
 
 }

@@ -210,6 +210,10 @@ public class ParserMeasureObserver
     }
 
     @Override public void
+        recoveryIteration(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
+    }
+
+    @Override public void
         endRecovery(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
     }
 

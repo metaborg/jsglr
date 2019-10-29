@@ -9,6 +9,8 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.recovery.IRecoveryParseState;
+import org.spoofax.jsglr2.recovery.RecoveryJob;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.ArrayList;
@@ -58,7 +60,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             ParseResult<?> parseResult = parser.parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' should succeed for recovering parsing: ", true,
-                    parseResult.isSuccess());
+                parseResult.isSuccess());
 
             withRecoveryTrace.get(recoveryTrace);
         }
@@ -76,26 +78,65 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         Derivation  extends IDerivation<ParseForest>,
         ParseNode   extends IParseNode<ParseForest, Derivation>,
         StackNode   extends IStackNode,
-        ParseState  extends AbstractParseState<ParseForest, StackNode>>
+        ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<ParseForest, StackNode>>
     //@formatter:on
         extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
         public List<Integer> started;
         public List<Integer> ended;
+        public List<RecoverIteration> iterations;
 
         RecoveryTrace() {
             started = new ArrayList<>();
             ended = new ArrayList<>();
+            iterations = new ArrayList<>();
         }
 
         @Override public void startRecovery(ParseState parseState) {
             started.add(parseState.currentOffset);
         }
 
+        @Override public void recoveryIteration(ParseState parseState) {
+            iterations.add(new RecoverIteration(parseState.recoveryJob()));
+        }
+
         @Override public void endRecovery(ParseState parseState) {
             ended.add(parseState.currentOffset);
         }
 
+    }
+
+    public static class RecoverIteration {
+
+        public final int iteration;
+        public final int offset;
+        public final int backtrackChoicePointIndex;
+
+        RecoverIteration(RecoveryJob recoveryJob) {
+            this.iteration = recoveryJob.iteration;
+            this.offset = recoveryJob.offset;
+            this.backtrackChoicePointIndex = recoveryJob.backtrackChoicePointIndex;
+        }
+
+        public RecoverIteration(int iteration, int offset, int backtrackChoicePointIndex) {
+            this.iteration = iteration;
+            this.offset = offset;
+            this.backtrackChoicePointIndex = backtrackChoicePointIndex;
+        }
+
+        @Override public boolean equals(Object obj) {
+            if(!(obj instanceof RecoverIteration))
+                return false;
+
+            RecoverIteration other = (RecoverIteration) obj;
+
+            return offset == other.offset && iteration == other.iteration
+                && backtrackChoicePointIndex == other.backtrackChoicePointIndex;
+        }
+
+        @Override public String toString() {
+            return "" + iteration + "@" + offset + "/" + backtrackChoicePointIndex;
+        }
     }
 
 }

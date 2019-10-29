@@ -82,6 +82,8 @@ public interface IParserObserver
 
     void startRecovery(ParseState parseState);
 
+    void recoveryIteration(ParseState parseState);
+
     void endRecovery(ParseState parseState);
 
     void remark(String remark);

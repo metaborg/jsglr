@@ -28,8 +28,7 @@ public class RecoveryParseFailureHandler
     StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & IRecoveryParseState<ParseForest_, StackNode_>>
 //@formatter:on
-    ParseFailureHandlerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>
-    factory() {
+    ParseFailureHandlerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
         return RecoveryParseFailureHandler::new;
     }
 
@@ -46,7 +45,12 @@ public class RecoveryParseFailureHandler
             observing.notify(observer -> observer.startRecovery(parseState));
         }
 
-        return parseState.nextRecoveryIteration();
+        boolean hasNextIteration = parseState.nextRecoveryIteration();
+
+        if(hasNextIteration)
+            observing.notify(observer -> observer.recoveryIteration(parseState));
+
+        return hasNextIteration;
     }
 
     @Override public ParseFailureType failureType(ParseState parseState) {

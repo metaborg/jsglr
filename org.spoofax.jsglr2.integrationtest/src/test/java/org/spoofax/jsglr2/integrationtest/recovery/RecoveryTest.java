@@ -5,9 +5,9 @@ import org.spoofax.jsglr2.integrationtest.BaseTestWithRecoverySdf3ParseTables;
 import org.spoofax.terms.ParseError;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.spoofax.jsglr2.integrationtest.Util.newlines;
 
 public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
 
@@ -24,12 +24,14 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
 
         testRecoveryTraced("y", recoveryTrace -> {
             assertEquals(Arrays.asList(1), recoveryTrace.started);
-            assertEquals(Collections.emptyList(), recoveryTrace.ended);
+            assertEquals(Arrays.asList(), recoveryTrace.ended);
+            assertEquals(Arrays.asList(new RecoverIteration(0, 1, 0)), recoveryTrace.iterations);
         });
 
         testRecoveryTraced("y ", recoveryTrace -> {
             assertEquals(Arrays.asList(1), recoveryTrace.started);
             assertEquals(Arrays.asList(2), recoveryTrace.ended);
+            assertEquals(Arrays.asList(new RecoverIteration(0, 1, 0)), recoveryTrace.iterations);
         });
     }
 
@@ -39,25 +41,53 @@ public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
         testRecoveryTraced("y y", recoveryTrace -> {
             assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
             assertEquals(Arrays.asList(2), recoveryTrace.ended);
+            assertEquals(Arrays.asList(
+            //@formatter:off
+                new RecoverIteration(0, 1, 0),
+                new RecoverIteration(0, 3, 0),
+                new RecoverIteration(1, 3, 0)
+            //@formatter:on
+            ), recoveryTrace.iterations);
         });
 
         testRecoveryTraced("y y ", recoveryTrace -> {
             assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
             assertEquals(Arrays.asList(2, 4), recoveryTrace.ended);
+            assertEquals(Arrays.asList(
+            //@formatter:off
+                new RecoverIteration(0, 1, 0),
+                new RecoverIteration(0, 3, 0),
+                new RecoverIteration(1, 3, 0)
+            //@formatter:on
+            ), recoveryTrace.iterations);
         });
     }
 
     @Test public void testYXY() throws ParseError {
-        testRecovery("y x y");
+        testRecovery("yxy");
 
-        testRecoveryTraced("y x y", recoveryTrace -> {
-            assertEquals(Arrays.asList(1, 5), recoveryTrace.started);
+        testRecoveryTraced("yxy", recoveryTrace -> {
+            assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
             assertEquals(Arrays.asList(2), recoveryTrace.ended);
+            assertEquals(Arrays.asList(
+            //@formatter:off
+                new RecoverIteration(0, 1, 0),
+                new RecoverIteration(0, 3, 0),
+                new RecoverIteration(1, 3, 0)
+            //@formatter:on
+            ), recoveryTrace.iterations);
         });
 
-        testRecoveryTraced("y x y ", recoveryTrace -> {
-            assertEquals(Arrays.asList(1, 5), recoveryTrace.started);
-            assertEquals(Arrays.asList(2, 6), recoveryTrace.ended);
+        testRecoveryTraced("yxy ", recoveryTrace -> {
+            assertEquals(Arrays.asList(1, 3), recoveryTrace.started);
+            assertEquals(Arrays.asList(2, 4), recoveryTrace.ended);
+            assertEquals(Arrays.asList(
+            //@formatter:off
+                new RecoverIteration(0, 1, 0),
+                new RecoverIteration(0, 3, 0),
+                new RecoverIteration(1, 3, 0)
+            //@formatter:on
+            ), recoveryTrace.iterations);
         });
     }
 

@@ -181,6 +181,9 @@ public abstract class ParserObserver
     @Override public void startRecovery(ParseState parseState) {
     }
 
+    @Override public void recoveryIteration(ParseState parseState) {
+    }
+
     @Override public void endRecovery(ParseState parseState) {
     }
 

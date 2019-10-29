@@ -1,10 +1,10 @@
 module recovery
 
 lexical syntax
-	LAYOUT  = [\ ]
+	LAYOUT  = [\ \n\r]
 
 context-free restrictions
-	LAYOUT? -/- [\ ]
+	LAYOUT? -/- [\ \n\r]
 
 context-free start-symbols
 

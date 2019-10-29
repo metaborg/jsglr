@@ -55,7 +55,7 @@ public abstract class AbstractParseState
         currentChar = getChar(currentOffset);
     }
 
-    protected int getChar(int offset) {
+    public int getChar(int offset) {
         if(offset < inputLength) {
             char c = inputString.charAt(offset);
 

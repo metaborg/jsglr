@@ -34,7 +34,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
     private Predicate<TestVariant> isNotRecoveryVariant = testVariant -> !testVariant.variant.parser.recovery;
 
-    protected void testRecovery(String inputString) {
+    protected void testRecovery(String inputString, boolean recovers) {
         for(TestVariant variant : getTestVariants(isNotRecoveryVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
@@ -45,12 +45,16 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         for(TestVariant variant : getTestVariants(isRecoveryVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should succeed for recovering parsing: ", true,
-                parseResult.isSuccess());
+            assertEquals("Variant '" + variant.name() + "' should " + (recovers ? "succeed" : "fail")
+                + " for recovering parsing: ", recovers, parseResult.isSuccess());
         }
     }
 
-    protected void testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace) {
+    protected void testRecovery(String inputString) {
+        testRecovery(inputString, true);
+    }
+
+    protected void testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace, boolean recovers) {
         for(TestVariant variant : getTestVariants(isRecoveryVariant)) {
             IObservableParser parser = (IObservableParser) variant.parser();
 
@@ -60,11 +64,15 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should succeed for recovering parsing: ", true,
-                parseResult.isSuccess());
+            assertEquals("Variant '" + variant.name() + "' should " + (recovers ? "succeed" : "fail")
+                + " for recovering parsing: ", recovers, parseResult.isSuccess());
 
             withRecoveryTrace.get(recoveryTrace);
         }
+    }
+
+    protected void testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace) {
+        testRecoveryTraced(inputString, withRecoveryTrace, true);
     }
 
     public interface WithRecoveryTrace {

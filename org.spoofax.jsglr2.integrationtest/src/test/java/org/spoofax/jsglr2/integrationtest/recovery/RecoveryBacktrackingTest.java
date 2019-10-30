@@ -9,9 +9,9 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 import static org.spoofax.jsglr2.integrationtest.Util.newlines;
 
-public class RecoveryTest extends BaseTestWithRecoverySdf3ParseTables {
+public class RecoveryBacktrackingTest extends BaseTestWithRecoverySdf3ParseTables {
 
-    public RecoveryTest() {
+    public RecoveryBacktrackingTest() {
         super("recovery.sdf3");
     }
 

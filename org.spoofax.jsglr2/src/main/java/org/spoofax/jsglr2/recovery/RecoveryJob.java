@@ -16,7 +16,7 @@ public class RecoveryJob {
     }
 
     boolean hasNextIteration() {
-        return iteration < iterationsQuota;
+        return iteration + 1 < iterationsQuota;
     }
 
     int nextIteration() {

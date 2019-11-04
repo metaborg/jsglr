@@ -4,7 +4,7 @@ import org.metaborg.parsetable.query.IActionQuery;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 
 // TODO the name LookaheadStack is a bit misleading. Rename to something like MixedInputStream?
-public interface ILookaheadStack extends IActionQuery {
+public interface ILookaheadStack extends IActionQuery, Cloneable {
     void leftBreakdown();
 
     void popLookahead();

@@ -27,6 +27,16 @@ public class EagerLookaheadStack extends AbstractLookaheadStack {
         this(root, root.getYield());
     }
 
+    @Override public EagerLookaheadStack clone() {
+        EagerLookaheadStack clone = new EagerLookaheadStack(IncrementalCharacterNode.EOF_NODE, inputString);
+        clone.stack.clear();
+        for (IncrementalParseForest node : stack) {
+            clone.stack.push(node);
+        }
+        clone.position = position;
+        return clone;
+    }
+
     @Override public void leftBreakdown() {
         if(stack.isEmpty())
             return;

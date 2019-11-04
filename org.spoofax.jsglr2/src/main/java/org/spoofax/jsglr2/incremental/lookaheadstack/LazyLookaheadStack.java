@@ -31,6 +31,17 @@ public class LazyLookaheadStack extends AbstractLookaheadStack {
         this(root, root.getYield());
     }
 
+    @Override public LazyLookaheadStack clone() {
+        LazyLookaheadStack clone = new LazyLookaheadStack(IncrementalCharacterNode.EOF_NODE, inputString);
+        clone.stack.clear();
+        for (StackTuple stackTuple : stack) {
+            clone.stack.push(stackTuple);
+        }
+        clone.last = last;
+        clone.position = position;
+        return clone;
+    }
+
     @Override public IncrementalParseForest get() {
         return last;
     }
@@ -75,11 +86,11 @@ public class LazyLookaheadStack extends AbstractLookaheadStack {
         }
     }
 
-    private final class StackTuple {
+    private static final class StackTuple {
         private final IncrementalParseNode parseForest;
         private final int childIndex;
 
-        public StackTuple(IncrementalParseNode parseForest, int childIndex) {
+        StackTuple(IncrementalParseNode parseForest, int childIndex) {
             this.parseForest = parseForest;
             this.childIndex = childIndex;
         }

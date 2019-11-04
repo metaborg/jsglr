@@ -25,4 +25,6 @@ public abstract class AbstractLookaheadStack implements ILookaheadStack {
         return inputString.substring(position + 1, Math.min(position + 1 + length, inputLength))
             + (position + 1 + length > inputLength ? (char) EOF_INT : "");
     }
+
+    public abstract ILookaheadStack clone();
 }

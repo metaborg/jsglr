@@ -1,22 +1,21 @@
 package org.spoofax.jsglr2.recovery;
 
-import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.Optional;
 
 public interface IRecoveryParseState
 //@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
+   <StackNode            extends IStackNode,
+    BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>>
 //@formatter:on
 {
 
     void initializeBacktrackChoicePoints(String input);
 
-    BacktrackChoicePoint<ParseForest, StackNode> saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks);
+    BacktrackChoicePoint saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks);
 
-    BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int line);
+    BacktrackChoicePoint getBacktrackChoicePoint(int line);
 
     void startRecovery(int offset);
 

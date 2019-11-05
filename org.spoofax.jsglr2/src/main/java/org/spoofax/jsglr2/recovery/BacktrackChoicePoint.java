@@ -1,17 +1,11 @@
 package org.spoofax.jsglr2.recovery;
 
-import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BacktrackChoicePoint
-//@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
-//@formatter:on
-{
+public class BacktrackChoicePoint<StackNode extends IStackNode> implements IBacktrackChoicePoint<StackNode> {
 
     public final int index;
     public final int offset;
@@ -26,4 +20,15 @@ public class BacktrackChoicePoint
             this.activeStacks.add(activeStack);
     }
 
+    @Override public int index() {
+        return index;
+    }
+
+    @Override public int offset() {
+        return offset;
+    }
+
+    @Override public List<StackNode> activeStacks() {
+        return activeStacks;
+    }
 }

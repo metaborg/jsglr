@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.observing.ParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseResult;
-import org.spoofax.jsglr2.recovery.BacktrackChoicePoint;
+import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.recovery.IRecoveryParseState;
 import org.spoofax.jsglr2.recovery.RecoveryJob;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -83,11 +83,12 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
     public static class RecoveryTrace
     //@formatter:off
-       <ParseForest extends IParseForest,
-        Derivation  extends IDerivation<ParseForest>,
-        ParseNode   extends IParseNode<ParseForest, Derivation>,
-        StackNode   extends IStackNode,
-        ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<ParseForest, StackNode>>
+       <ParseForest          extends IParseForest,
+        Derivation           extends IDerivation<ParseForest>,
+        ParseNode            extends IParseNode<ParseForest, Derivation>,
+        StackNode            extends IStackNode,
+        BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
+        ParseState           extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
     //@formatter:on
         extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -103,8 +104,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             iterations = new ArrayList<>();
         }
 
-        @Override public void recoveryBacktrackChoicePoint(BacktrackChoicePoint<ParseForest, StackNode> choicePoint) {
-            backtrackChoicePoints.add(choicePoint.index, choicePoint.offset);
+        @Override public void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> choicePoint) {
+            backtrackChoicePoints.add(choicePoint.index(), choicePoint.offset());
         }
 
         @Override public void startRecovery(ParseState parseState) {

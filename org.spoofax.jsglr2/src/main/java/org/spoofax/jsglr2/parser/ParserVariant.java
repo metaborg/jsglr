@@ -119,9 +119,10 @@ public class ParserVariant {
 
     private static
 //@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<ParseForest, StackNode>>
+   <ParseForest          extends IParseForest,
+    StackNode            extends IStackNode,
+    BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
+    ParseState           extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
 //@formatter:on
     IParser<? extends IParseForest> withRecovery(Parser<ParseForest, ?, ?, StackNode, ParseState, ?, ?> parser) {
         parser.observing().attachObserver(new RecoveryParserObserver<>());

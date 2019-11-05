@@ -12,21 +12,23 @@ import org.spoofax.jsglr2.stack.IStackNode;
 
 public class RecoveryParseFailureHandler
 //@formatter:off
-   <ParseForest extends IParseForest,
-    Derivation  extends IDerivation<ParseForest>,
-    ParseNode   extends IParseNode<ParseForest, Derivation>,
-    StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<ParseForest, StackNode>>
+   <ParseForest          extends IParseForest,
+    Derivation           extends IDerivation<ParseForest>,
+    ParseNode            extends IParseNode<ParseForest, Derivation>,
+    StackNode            extends IStackNode,
+    BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
+    ParseState           extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
 //@formatter:on
     implements IParseFailureHandler<ParseForest, StackNode, ParseState> {
 
     public static
 //@formatter:off
-   <ParseForest_ extends IParseForest,
-    Derivation_  extends IDerivation<ParseForest_>,
-    ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
-    StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & IRecoveryParseState<ParseForest_, StackNode_>>
+   <ParseForest_          extends IParseForest,
+    Derivation_           extends IDerivation<ParseForest_>,
+    ParseNode_            extends IParseNode<ParseForest_, Derivation_>,
+    StackNode_            extends IStackNode,
+    BacktrackChoicePoint_ extends IBacktrackChoicePoint<StackNode_>,
+    ParseState_           extends AbstractParseState<ParseForest_, StackNode_> & IRecoveryParseState<StackNode_, BacktrackChoicePoint_>>
 //@formatter:on
     ParseFailureHandlerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
         return RecoveryParseFailureHandler::new;

@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.recovery;
 
-import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -13,26 +12,16 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.Optional;
-
 public class RecoveryParseState
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode>
 //@formatter:on
-    extends AbstractParseState<ParseForest, StackNode> implements IRecoveryParseState<ParseForest, StackNode> {
-
-    private BacktrackChoicePoint[] backtrackChoicePoints;
-    private int lastBacktrackChoicePointIndex = -1;
-    private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
+    extends AbstractRecoveryParseState<ParseForest, StackNode, BacktrackChoicePoint<StackNode>> {
 
     RecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
         super(inputString, filename, activeStacks, forActorStacks);
-    }
-
-    @Override public void initializeBacktrackChoicePoints(String input) {
-        backtrackChoicePoints = new BacktrackChoicePoint[inputLineCount(input)];
     }
 
     public static
@@ -41,81 +30,25 @@ public class RecoveryParseState
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & IRecoveryParseState<ParseForest_, StackNode_>>
+    ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & IRecoveryParseState<StackNode_, BacktrackChoicePoint<StackNode_>>>
 //@formatter:on
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
-                new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
+                    new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
             IForActorStacks<StackNode_> forActorStacks =
-                new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
+                    new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
 
             return (ParseState_) new RecoveryParseState<>(inputString, filename, activeStacks, forActorStacks);
         };
     }
 
-    private int inputLineCount(String input) {
-        int lineCount = 1;
-
-        for(char c : input.toCharArray()) {
-            if(CharacterClassFactory.isNewLine(c))
-                lineCount++;
-        }
-
-        return lineCount;
+    @Override public void initializeBacktrackChoicePoints(String input) {
+        backtrackChoicePoints = new BacktrackChoicePoint[inputLineCount(input)];
     }
 
-    @Override public BacktrackChoicePoint<ParseForest, StackNode> saveBacktrackChoicePoint(int offset,
-        Iterable<StackNode> activeStacks) {
-        BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint =
-            new BacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, offset, activeStacks);
-
-        backtrackChoicePoints[backtrackChoicePoint.index] = backtrackChoicePoint;
-
-        return backtrackChoicePoint;
-    }
-
-    @Override public BacktrackChoicePoint<ParseForest, StackNode> getBacktrackChoicePoint(int index) {
-        return (BacktrackChoicePoint<ParseForest, StackNode>) backtrackChoicePoints[index];
-    }
-
-    @Override public void startRecovery(int offset) {
-        recoveryPointOpt = Optional
-            .of(new RecoveryJob(lastBacktrackChoicePointIndex, offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA));
-    }
-
-    @Override public void endRecovery() {
-        recoveryPointOpt = Optional.empty();
-    }
-
-    @Override public Optional<RecoveryJob> recoveryJobOpt() {
-        return recoveryPointOpt;
-    }
-
-    @Override public boolean nextRecoveryIteration() {
-        if(recoveryJob().hasNextIteration()) {
-            int iteration = recoveryJob().nextIteration();
-
-            BacktrackChoicePoint<ParseForest, StackNode> backtrackChoicePoint =
-                getBacktrackChoicePoint(recoveryJob().iterationBacktrackChoicePointIndex());
-
-            this.lastBacktrackChoicePointIndex = backtrackChoicePoint.index;
-            this.currentOffset = backtrackChoicePoint.offset;
-
-            // TODO: lines below required for layout-sensitive
-            // this.currentLine = backtrackChoicePoint.position.line;
-            // this.currentColumn = backtrackChoicePoint.position.column;
-
-            this.currentChar = getChar(currentOffset);
-
-            this.activeStacks.clear();
-
-            for(StackNode activeStack : backtrackChoicePoint.activeStacks)
-                this.activeStacks.add(activeStack);
-
-            return true;
-        } else
-            return false;
+    protected BacktrackChoicePoint<StackNode> createBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
+        return new BacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, offset, activeStacks);
     }
 
 }

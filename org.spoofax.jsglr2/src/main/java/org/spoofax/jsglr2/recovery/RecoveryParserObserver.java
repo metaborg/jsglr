@@ -27,7 +27,7 @@ public class RecoveryParserObserver
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<StackNode, ?>>
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -42,7 +42,7 @@ public class RecoveryParserObserver
         if((parseState.currentOffset == 0
             || CharacterClassFactory.isNewLine(parseState.getChar(parseState.currentOffset - 1)))
             && (!parseState.isRecovering() || parseState.recoveryJob().offset < parseState.currentOffset)) {
-            BacktrackChoicePoint<ParseForest, StackNode> choicePoint =
+            IBacktrackChoicePoint<StackNode> choicePoint =
                 parseState.saveBacktrackChoicePoint(parseState.currentOffset, parseState.activeStacks);
 
             observing.notify(observer -> observer.recoveryBacktrackChoicePoint(choicePoint));
@@ -126,7 +126,7 @@ public class RecoveryParserObserver
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
-    @Override public void recoveryBacktrackChoicePoint(BacktrackChoicePoint<ParseForest, StackNode> choicePoint) {
+    @Override public void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> choicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

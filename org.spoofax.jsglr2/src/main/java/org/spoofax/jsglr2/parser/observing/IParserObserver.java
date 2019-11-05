@@ -12,7 +12,7 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.recovery.BacktrackChoicePoint;
+import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
@@ -81,7 +81,7 @@ public interface IParserObserver
 
     void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 
-    void recoveryBacktrackChoicePoint(BacktrackChoicePoint<ParseForest, StackNode> choicePoint);
+    void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> choicePoint);
 
     void startRecovery(ParseState parseState);
 

@@ -40,7 +40,7 @@ public class LayoutSensitiveReduceManager
             stackManager, parseForestManager, parserVariant.parseForestConstruction);
     }
 
-    @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce,
+    @Override protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce,
         ILayoutSensitiveParseForest[] parseNodes) {
         return ignoreByLayoutConstraint(reduce, parseNodes);
     }

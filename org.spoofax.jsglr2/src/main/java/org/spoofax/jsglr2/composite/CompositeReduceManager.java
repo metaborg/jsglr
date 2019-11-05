@@ -41,7 +41,8 @@ public class CompositeReduceManager
             parseForestManager, parserVariant.parseForestConstruction);
     }
 
-    @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce, ICompositeParseForest[] parseNodes) {
+    @Override protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce,
+        ICompositeParseForest[] parseNodes) {
         return ignoreByDeepPriorityConflict(reduce, parseNodes) || ignoreByLayoutConstraint(reduce, parseNodes);
     }
 

@@ -29,7 +29,7 @@ public class ReduceManager
     protected final AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager;
     protected final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
     protected final Reducer<ParseForest, Derivation, ParseNode, StackNode, ParseState> reducer;
-    protected final List<ReduceFilter<ParseForest, StackNode, ParseState>> reduceFilters;
+    protected final List<ReduceActionFilter<ParseForest, StackNode, ParseState>> reduceActionFilters;
 
     public ReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
@@ -38,7 +38,7 @@ public class ReduceManager
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
-        this.reduceFilters = new ArrayList<>();
+        this.reduceActionFilters = new ArrayList<>();
 
         if(parseForestConstruction == ParseForestConstruction.Optimized)
             this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<>(stackManager, parseForestManager);
@@ -61,13 +61,13 @@ public class ReduceManager
             parseForestManager, parserVariant.parseForestConstruction);
     }
 
-    public void addFilter(ReduceFilter<ParseForest, StackNode, ParseState> reduceFilter) {
-        reduceFilters.add(reduceFilter);
+    public void addFilter(ReduceActionFilter<ParseForest, StackNode, ParseState> reduceActionFilter) {
+        reduceActionFilters.add(reduceActionFilter);
     }
 
     public void doReductions(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
         ParseState parseState, StackNode stack, IReduce reduce) {
-        if(ignoreReduce(parseState, reduce))
+        if(ignoreReduceAction(parseState, reduce))
             return;
 
         observing.notify(observer -> observer.doReductions(parseState, stack, reduce));
@@ -78,7 +78,7 @@ public class ReduceManager
     private void doLimitedReductions(
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
         StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
-        if(ignoreReduce(parseState, reduce))
+        if(ignoreReduceAction(parseState, reduce))
             return;
 
         observing.notify(observer -> observer.doLimitedReductions(parseState, stack, reduce, throughLink));
@@ -86,9 +86,9 @@ public class ReduceManager
         doReductionsHelper(observing, parseState, stack, reduce, throughLink);
     }
 
-    private boolean ignoreReduce(ParseState parseState, IReduce reduce) {
-        for(ReduceFilter<ParseForest, StackNode, ParseState> reduceFilter : reduceFilters) {
-            if(reduceFilter.ignoreReduce(parseState, reduce))
+    private boolean ignoreReduceAction(ParseState parseState, IReduce reduce) {
+        for(ReduceActionFilter<ParseForest, StackNode, ParseState> reduceActionFilter : reduceActionFilters) {
+            if(reduceActionFilter.ignoreReduce(parseState, reduce))
                 return true;
         }
 
@@ -103,13 +103,13 @@ public class ReduceManager
                 StackNode pathBegin = path.head();
                 ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-                if(!ignoreReducer(pathBegin, reduce, parseNodes))
+                if(!ignoreReducePath(pathBegin, reduce, parseNodes))
                     reducer(observing, parseState, pathBegin, reduce, parseNodes);
             }
         }
     }
 
-    protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce, ParseForest[] parseNodes) {
+    protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce, ParseForest[] parseNodes) {
         return false;
     }
 

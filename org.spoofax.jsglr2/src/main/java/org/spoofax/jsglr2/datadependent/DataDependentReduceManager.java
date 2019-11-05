@@ -56,7 +56,7 @@ public class DataDependentReduceManager
             stackManager, parseForestManager, parserVariant.parseForestConstruction);
     }
 
-    @Override protected boolean ignoreReducer(StackNode pathBegin, IReduce reduce,
+    @Override protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce,
         IDataDependentParseForest[] parseNodes) {
         return ignoreByDeepPriorityConflict(reduce, parseNodes);
     }

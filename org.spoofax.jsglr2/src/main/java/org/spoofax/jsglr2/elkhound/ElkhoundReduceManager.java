@@ -61,7 +61,7 @@ public class ElkhoundReduceManager
 
                 ParseForest[] parseNodes = deterministicPath.parseForests;
 
-                if(!ignoreReducer(pathBegin, reduce, parseNodes)) {
+                if(!ignoreReducePath(pathBegin, reduce, parseNodes)) {
                     if(parseState.activeStacks.isEmpty())
                         // Do LR if there are no other active stacks (the stack on which the current reduction is
                         // applied is removed from the activeStacks collection in ElkhoundParser)
@@ -81,7 +81,7 @@ public class ElkhoundReduceManager
 
                     ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-                    if(!ignoreReducer(pathBegin, reduce, parseNodes))
+                    if(!ignoreReducePath(pathBegin, reduce, parseNodes))
                         reducer(observing, parseState, pathBegin, reduce, parseNodes);
                 }
         }

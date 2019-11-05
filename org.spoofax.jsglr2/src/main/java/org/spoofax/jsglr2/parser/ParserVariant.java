@@ -26,7 +26,7 @@ import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
 import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
 import org.spoofax.jsglr2.recovery.*;
 import org.spoofax.jsglr2.recoveryincremental.RecoveryIncrementalParseState;
-import org.spoofax.jsglr2.reducing.ReduceFilter;
+import org.spoofax.jsglr2.reducing.ReduceActionFilter;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -123,7 +123,7 @@ public class ParserVariant {
 //@formatter:on
     IParser<? extends IParseForest> withRecovery(Parser<ParseForest, ?, ?, StackNode, ParseState, ?, ?> parser) {
         parser.observing().attachObserver(new RecoveryParserObserver<>());
-        parser.reduceManager.addFilter(new RecoveryReduceFilter<>());
+        parser.reduceManager.addFilter(new RecoveryReduceActionFilter<>());
 
         return parser;
     }
@@ -135,7 +135,7 @@ public class ParserVariant {
     ParseState  extends AbstractParseState<ParseForest, StackNode>>
 //@formatter:on
     IParser<? extends IParseForest> withoutRecovery(Parser<ParseForest, ?, ?, StackNode, ParseState, ?, ?> parser) {
-        parser.reduceManager.addFilter(ReduceFilter.ignoreRecoveryAndCompletion());
+        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
         return parser;
     }

@@ -68,7 +68,7 @@ public class IncrementalReduceManager
             StackNode pathBegin = path.head();
             ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-            if(!ignoreReducer(pathBegin, reduce, parseNodes))
+            if(!ignoreReducePath(pathBegin, reduce, parseNodes))
                 reducer(observing, parseState, pathBegin, reduce, parseNodes);
         }
     }

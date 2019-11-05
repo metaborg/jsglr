@@ -182,6 +182,19 @@ public class JSGLR2Variant {
                     Reducing.Incremental,
                     false),
                 ImploderVariant.RecursiveIncremental,
+                TokenizerVariant.Recursive)),
+
+        recoveryIncremental(
+            new JSGLR2Variant(
+                new ParserVariant(
+                    ActiveStacksRepresentation.standard(),
+                    ForActorStacksRepresentation.standard(),
+                    ParseForestRepresentation.Incremental,
+                    ParseForestConstruction.Full,
+                    StackRepresentation.Hybrid,
+                    Reducing.Incremental,
+                    true),
+                ImploderVariant.RecursiveIncremental,
                 TokenizerVariant.Recursive));
         // @formatter:on
 

@@ -39,15 +39,15 @@ public abstract class AbstractRecoveryParseState
         return lineCount;
     }
 
-    @Override public BacktrackChoicePoint saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
-        BacktrackChoicePoint backtrackChoicePoint = createBacktrackChoicePoint(offset, activeStacks);
+    @Override public BacktrackChoicePoint saveBacktrackChoicePoint() {
+        BacktrackChoicePoint backtrackChoicePoint = createBacktrackChoicePoint();
 
         backtrackChoicePoints[backtrackChoicePoint.index()] = backtrackChoicePoint;
 
         return backtrackChoicePoint;
     }
 
-    abstract protected BacktrackChoicePoint createBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks);
+    abstract protected BacktrackChoicePoint createBacktrackChoicePoint();
 
     @Override public BacktrackChoicePoint getBacktrackChoicePoint(int index) {
         return backtrackChoicePoints[index];

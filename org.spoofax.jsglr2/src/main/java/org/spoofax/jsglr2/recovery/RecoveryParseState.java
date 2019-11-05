@@ -35,9 +35,9 @@ public class RecoveryParseState
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
-                    new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
+                new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
             IForActorStacks<StackNode_> forActorStacks =
-                    new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
+                new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
 
             return (ParseState_) new RecoveryParseState<>(inputString, filename, activeStacks, forActorStacks);
         };
@@ -47,8 +47,8 @@ public class RecoveryParseState
         backtrackChoicePoints = new BacktrackChoicePoint[inputLineCount(input)];
     }
 
-    protected BacktrackChoicePoint<StackNode> createBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
-        return new BacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, offset, activeStacks);
+    protected BacktrackChoicePoint<StackNode> createBacktrackChoicePoint() {
+        return new BacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, currentOffset, activeStacks);
     }
 
 }

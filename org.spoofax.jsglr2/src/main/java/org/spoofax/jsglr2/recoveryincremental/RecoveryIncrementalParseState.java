@@ -58,9 +58,8 @@ public class RecoveryIncrementalParseState
         backtrackChoicePoints = new IncrementalBacktrackChoicePoint[inputLineCount(input)];
     }
 
-    protected IncrementalBacktrackChoicePoint<StackNode> createBacktrackChoicePoint(int offset,
-        Iterable<StackNode> activeStacks) {
-        return new IncrementalBacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, offset, activeStacks);
+    protected IncrementalBacktrackChoicePoint<StackNode> createBacktrackChoicePoint() {
+        return new IncrementalBacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, currentOffset, activeStacks);
     }
 
     @Override public void initParse(IncrementalParseForest updatedTree, String inputString) {

@@ -13,7 +13,7 @@ public interface IRecoveryParseState
 
     void initializeBacktrackChoicePoints(String input);
 
-    BacktrackChoicePoint saveBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks);
+    BacktrackChoicePoint saveBacktrackChoicePoint();
 
     BacktrackChoicePoint getBacktrackChoicePoint(int line);
 

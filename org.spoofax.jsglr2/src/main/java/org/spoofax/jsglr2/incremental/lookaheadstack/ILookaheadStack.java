@@ -11,6 +11,8 @@ public interface ILookaheadStack extends IActionQuery, Cloneable {
 
     IncrementalParseForest get();
 
+    ILookaheadStack clone();
+
     // TODO add support for recovery. Resetting should push the characters between new and old position on the stack.
     // This is an optimization because the parse nodes in the the part of the input being recovered need to be broken
     // down anyway.

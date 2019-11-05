@@ -94,4 +94,11 @@ public class RecoveryIncrementalParseState
         this.multipleStates = multipleStates;
     }
 
+    @Override protected void
+        resetToBacktrackChoicePoint(IncrementalBacktrackChoicePoint<StackNode> backtrackChoicePoint) {
+        super.resetToBacktrackChoicePoint(backtrackChoicePoint);
+
+        lookahead = backtrackChoicePoint.lookahead.clone();
+    }
+
 }

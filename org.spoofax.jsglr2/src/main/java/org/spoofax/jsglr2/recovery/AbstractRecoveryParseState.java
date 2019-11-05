@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.recovery;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
-import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
@@ -11,11 +10,10 @@ import java.util.Optional;
 
 public abstract class AbstractRecoveryParseState
 //@formatter:off
-   <ParseForest          extends IParseForest,
-    StackNode            extends IStackNode,
+   <StackNode            extends IStackNode,
     BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>>
 //@formatter:on
-    extends AbstractParseState<ParseForest, StackNode> implements IRecoveryParseState<StackNode, BacktrackChoicePoint> {
+    extends AbstractParseState<StackNode> implements IRecoveryParseState<StackNode, BacktrackChoicePoint> {
 
     protected BacktrackChoicePoint[] backtrackChoicePoints;
     protected int lastBacktrackChoicePointIndex = -1;

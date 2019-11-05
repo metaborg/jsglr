@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.query.IActionQuery;
-import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
@@ -10,12 +9,7 @@ import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public abstract class AbstractParseState
-//@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
-//@formatter:on
-    implements IActionQuery {
+public abstract class AbstractParseState<StackNode extends IStackNode> implements IActionQuery {
 
     final public String filename;
     final public String inputString;

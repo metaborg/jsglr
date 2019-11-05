@@ -12,7 +12,7 @@ public interface StackManagerFactory
     Derivation   extends IDerivation<ParseForest>,
     ParseNode    extends IParseNode<ParseForest, Derivation>,
     StackNode    extends IStackNode,
-    ParseState   extends AbstractParseState<ParseForest, StackNode>,
+    ParseState   extends AbstractParseState<StackNode>,
     StackManager extends AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState>>
 //@formatter:on
 {

@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parseforest.empty;
 
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -12,12 +14,10 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.List;
-
 public class NullParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<HybridParseForest, StackNode>>
+    ParseState extends AbstractParseState<StackNode>>
 //@formatter:on
     extends ParseForestManager<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> {
 
@@ -29,7 +29,7 @@ public class NullParseForestManager
     public static
 //@formatter:off
    <StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<HybridParseForest, StackNode_>>
+    ParseState_  extends AbstractParseState<StackNode_>>
 //@formatter:on
     ParseForestManagerFactory<HybridParseForest, HybridDerivation, HybridParseNode, StackNode_, ParseState_> factory() {
         return NullParseForestManager::new;

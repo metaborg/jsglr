@@ -13,7 +13,7 @@ import java.util.List;
 public class HybridParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<HybridParseForest, StackNode>>
+    ParseState extends AbstractParseState<StackNode>>
 //@formatter:on
     extends ParseForestManager<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> {
 
@@ -25,7 +25,7 @@ public class HybridParseForestManager
     public static
 //@formatter:off
    <StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<HybridParseForest, StackNode_>>
+    ParseState_  extends AbstractParseState<StackNode_>>
 //@formatter:on
     ParseForestManagerFactory<HybridParseForest, HybridDerivation, HybridParseNode, StackNode_, ParseState_> factory() {
         return HybridParseForestManager::new;

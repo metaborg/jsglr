@@ -31,7 +31,7 @@ public abstract class ParserObserver
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 

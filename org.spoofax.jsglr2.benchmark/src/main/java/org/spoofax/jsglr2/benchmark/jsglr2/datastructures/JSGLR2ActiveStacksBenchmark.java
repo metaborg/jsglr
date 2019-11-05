@@ -83,14 +83,13 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
     }
 
     class ActiveStacksObserver extends
-        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> {
 
         public List<ActiveStacksOperation> operations = new ArrayList<>();
 
-        @Override public void parseRound(
-            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+        @Override public void parseRound(AbstractParseState<BasicStackNode<IBasicParseForest>> parseState,
             Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes,
-            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> observing) {
+            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> observing) {
             operations.add(bh -> activeStacks.addAllTo(emptyForActorStacks));
         }
 
@@ -98,8 +97,7 @@ public abstract class JSGLR2ActiveStacksBenchmark extends JSGLR2DataStructureBen
             operations.add(bh -> activeStacks.add(stack));
         }
 
-        @Override public void directLinkFound(
-            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+        @Override public void directLinkFound(AbstractParseState<BasicStackNode<IBasicParseForest>> parseState,
             StackLink<IBasicParseForest, BasicStackNode<IBasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active

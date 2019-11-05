@@ -25,7 +25,7 @@ public class ElkhoundParser
     Derivation        extends IDerivation<ParseForest>,
     ParseNode         extends IParseNode<ParseForest, Derivation>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    ParseState        extends AbstractParseState<ParseForest, ElkhoundStackNode>,
+    ParseState        extends AbstractParseState<ElkhoundStackNode>,
     StackManager      extends AbstractStackManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState>,
     ReduceManager     extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState>>
 //@formatter:on

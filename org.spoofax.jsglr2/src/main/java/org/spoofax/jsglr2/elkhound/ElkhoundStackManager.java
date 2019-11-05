@@ -16,7 +16,7 @@ public abstract class ElkhoundStackManager
     Derivation        extends IDerivation<ParseForest>,
     ParseNode         extends IParseNode<ParseForest, Derivation>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    ParseState        extends AbstractParseState<ParseForest, ElkhoundStackNode>>
+    ParseState        extends AbstractParseState<ElkhoundStackNode>>
 //@formatter:on
     extends AbstractStackManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> {
 

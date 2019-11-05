@@ -14,7 +14,7 @@ public class BasicElkhoundStackManager
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    ParseState  extends AbstractParseState<ParseForest, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>>>
+    ParseState  extends AbstractParseState<BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>>>
 //@formatter:on
     extends
     ElkhoundStackManager<ParseForest, Derivation, ParseNode, BasicElkhoundStackNode<ParseForest, Derivation, ParseNode>, ParseState> {
@@ -29,7 +29,7 @@ public class BasicElkhoundStackManager
    <ParseForest_  extends IParseForest,
     Derivation_   extends IDerivation<ParseForest_>,
     ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
-    ParseState_   extends AbstractParseState<ParseForest_, BasicElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>>>
+    ParseState_   extends AbstractParseState<BasicElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>>>
 //@formatter:on
     StackManagerFactory<ParseForest_, Derivation_, ParseNode_, BasicElkhoundStackNode<ParseForest_, Derivation_, ParseNode_>, ParseState_, BasicElkhoundStackManager<ParseForest_, Derivation_, ParseNode_, ParseState_>>
         factory() {

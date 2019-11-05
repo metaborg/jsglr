@@ -37,7 +37,7 @@ import static org.spoofax.jsglr2.incremental.IncrementalParseState.NO_STATE;
 public class IncrementalParser
 // @formatter:off
    <StackNode     extends IStackNode,
-    ParseState    extends AbstractParseState<IncrementalParseForest, StackNode> & IIncrementalParseState,
+    ParseState    extends AbstractParseState<StackNode> & IIncrementalParseState,
     StackManager  extends AbstractStackManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState>,
     ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState>>
 // @formatter:on

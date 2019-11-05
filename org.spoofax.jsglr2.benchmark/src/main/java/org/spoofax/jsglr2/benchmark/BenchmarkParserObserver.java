@@ -27,7 +27,7 @@ public class BenchmarkParserObserver
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -110,8 +110,7 @@ public class BenchmarkParserObserver
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
-    @Override public void
-        recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> backtrackChoicePoint) {
+    @Override public void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> backtrackChoicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

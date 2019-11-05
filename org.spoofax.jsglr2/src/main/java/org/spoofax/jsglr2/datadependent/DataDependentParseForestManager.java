@@ -11,7 +11,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public class DataDependentParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<IDataDependentParseForest, StackNode>>
+    ParseState extends AbstractParseState<StackNode>>
     extends
     AbstractBasicParseForestManager
        <IDataDependentParseForest,
@@ -30,7 +30,7 @@ public class DataDependentParseForestManager
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<IDataDependentParseForest, StackNode_>>
+    ParseState_ extends AbstractParseState<StackNode_>>
 //@formatter:on
     ParseForestManagerFactory<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode_, ParseState_>
         factory() {

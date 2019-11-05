@@ -13,7 +13,7 @@ public abstract class StackManager
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends AbstractStackNode<ParseForest, StackNode>,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
     extends AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 

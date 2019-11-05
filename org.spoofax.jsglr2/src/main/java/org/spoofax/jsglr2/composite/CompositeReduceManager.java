@@ -17,7 +17,7 @@ import static org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveReduceManager.ig
 public class CompositeReduceManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<ICompositeParseForest, StackNode>>
+    ParseState extends AbstractParseState<StackNode>>
 //@formatter:on
     extends
     ReduceManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> {
@@ -32,7 +32,7 @@ public class CompositeReduceManager
     public static
     //@formatter:off
        <StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<ICompositeParseForest, StackNode_>,
+        ParseState_   extends AbstractParseState<StackNode_>,
         StackManager_ extends AbstractStackManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode_, ParseState_, StackManager_, CompositeReduceManager<StackNode_, ParseState_>>

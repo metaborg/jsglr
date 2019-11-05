@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public class BasicParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<IBasicParseForest, StackNode>>
+    ParseState extends AbstractParseState<StackNode>>
 //@formatter:on
     extends
     AbstractBasicParseForestManager<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> {
@@ -23,7 +23,7 @@ public class BasicParseForestManager
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<IBasicParseForest, StackNode_>>
+    ParseState_ extends AbstractParseState<StackNode_>>
 //@formatter:on
     ParseForestManagerFactory<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode_, ParseState_>
         factory() {

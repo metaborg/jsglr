@@ -85,13 +85,12 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
     }
 
     class ActorObserver extends
-        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> {
 
         public List<ActorOnState> stateApplicableActions = new ArrayList<>();
 
         @Override public void actor(BasicStackNode<IBasicParseForest> stack,
-            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
-            Iterable<IAction> applicableActions) {
+            AbstractParseState<BasicStackNode<IBasicParseForest>> parseState, Iterable<IAction> applicableActions) {
             ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parseState.currentChar);
 
             stateApplicableActions.add(stateApplicableActionsForActor);

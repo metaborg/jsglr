@@ -27,7 +27,7 @@ public class RecoveryParserObserver
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<StackNode, ?>>
+    ParseState  extends AbstractParseState<StackNode> & IRecoveryParseState<StackNode, ?>>
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 

@@ -30,10 +30,10 @@ public class ParserMeasureObserver
     ParseNode   extends IParseNode<ParseForest, Derivation>>
 //@formatter:on
     implements
-    IParserObserver<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> {
+    IParserObserver<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<AbstractElkhoundStackNode<ParseForest>>> {
 
     public int length = 0;
-    AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState;
+    AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState;
 
     Set<AbstractElkhoundStackNode<ParseForest>> stackNodes = new HashSet<>();
     Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinks = new HashSet<>();
@@ -91,16 +91,15 @@ public class ParserMeasureObserver
         return res;
     }
 
-    @Override public void
-        parseStart(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
+    @Override public void parseStart(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState) {
         this.parseState = parseState;
 
         length += parseState.inputLength;
     }
 
-    @Override public void parseRound(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState,
+    @Override public void parseRound(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState,
         Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks,
-        ParserObserving<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>>> observing) {
+        ParserObserving<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<AbstractElkhoundStackNode<ParseForest>>> observing) {
     }
 
     @Override public void addActiveStack(AbstractElkhoundStackNode<ParseForest> stack) {
@@ -136,8 +135,7 @@ public class ParserMeasureObserver
     }
 
     @Override public void actor(AbstractElkhoundStackNode<ParseForest> stack,
-        AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState,
-        Iterable<IAction> applicableActions) {
+        AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState, Iterable<IAction> applicableActions) {
         actors.add(new Actor(stack, applicableActions));
     }
 
@@ -147,8 +145,7 @@ public class ParserMeasureObserver
     @Override public void addForShifter(ForShifterElement<AbstractElkhoundStackNode<ParseForest>> forShifterElement) {
     }
 
-    @Override public void doReductions(
-        AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState,
+    @Override public void doReductions(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce) {
         doReductions++;
 
@@ -162,8 +159,7 @@ public class ParserMeasureObserver
         }
     }
 
-    @Override public void doLimitedReductions(
-        AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState,
+    @Override public void doLimitedReductions(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState,
         AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> throughLink) {
         doLimitedReductions++;
@@ -179,8 +175,7 @@ public class ParserMeasureObserver
         reducersElkhound.add(new Reducer(reduce, parseNodes));
     }
 
-    @Override public void directLinkFound(
-        AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState,
+    @Override public void directLinkFound(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState,
         StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> directLink) {
     }
 
@@ -210,16 +205,13 @@ public class ParserMeasureObserver
         IBacktrackChoicePoint<AbstractElkhoundStackNode<ParseForest>> backtrackChoicePoint) {
     }
 
-    @Override public void
-        startRecovery(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
+    @Override public void startRecovery(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState) {
     }
 
-    @Override public void
-        recoveryIteration(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
+    @Override public void recoveryIteration(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState) {
     }
 
-    @Override public void
-        endRecovery(AbstractParseState<ParseForest, AbstractElkhoundStackNode<ParseForest>> parseState) {
+    @Override public void endRecovery(AbstractParseState<AbstractElkhoundStackNode<ParseForest>> parseState) {
     }
 
     @Override public void remark(String remark) {

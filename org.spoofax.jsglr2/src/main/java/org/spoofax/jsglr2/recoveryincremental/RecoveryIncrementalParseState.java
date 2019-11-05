@@ -18,12 +18,8 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class RecoveryIncrementalParseState
-//@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
-//@formatter:on
-    extends AbstractRecoveryParseState<ParseForest, StackNode, IncrementalBacktrackChoicePoint<StackNode>>
+public class RecoveryIncrementalParseState<StackNode extends IStackNode>
+    extends AbstractRecoveryParseState<StackNode, IncrementalBacktrackChoicePoint<StackNode>>
     implements IIncrementalParseState {
 
     private boolean multipleStates = false;
@@ -40,7 +36,7 @@ public class RecoveryIncrementalParseState
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & IRecoveryParseState<StackNode_, IncrementalBacktrackChoicePoint<StackNode_>> & IIncrementalParseState>
+    ParseState_  extends AbstractParseState<StackNode_> & IRecoveryParseState<StackNode_, IncrementalBacktrackChoicePoint<StackNode_>> & IIncrementalParseState>
 //@formatter:on
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {

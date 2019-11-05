@@ -18,7 +18,7 @@ public class ReducerSkipLayoutAndLexical
     ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
     extends Reducer<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 

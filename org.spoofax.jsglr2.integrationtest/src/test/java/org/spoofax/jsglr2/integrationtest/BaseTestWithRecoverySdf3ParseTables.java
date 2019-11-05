@@ -88,7 +88,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         ParseNode            extends IParseNode<ParseForest, Derivation>,
         StackNode            extends IStackNode,
         BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
-        ParseState           extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
+        ParseState           extends AbstractParseState<StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
     //@formatter:on
         extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 

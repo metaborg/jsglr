@@ -14,19 +14,15 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class CompositeParseState
-//@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
-//@formatter:on
-    extends AbstractParseState<ParseForest, StackNode> implements ICompositeParseState {
+public class CompositeParseState<StackNode extends IStackNode> extends AbstractParseState<StackNode>
+    implements ICompositeParseState {
 
     private int currentLine, currentColumn;
 
     private static final int TAB_SIZE = 8;
 
     private CompositeParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
-                                IForActorStacks<StackNode> forActorStacks) {
+        IForActorStacks<StackNode> forActorStacks) {
         super(inputString, filename, activeStacks, forActorStacks);
         this.currentLine = 1;
         this.currentColumn = 1;
@@ -38,7 +34,7 @@ public class CompositeParseState
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_> & ICompositeParseState>
+    ParseState_  extends AbstractParseState<StackNode_> & ICompositeParseState>
 //@formatter:on
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {

@@ -54,14 +54,13 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
     }
 
     class ForActorStacksObserver extends
-        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> {
 
         public List<ForActorStacksOperation> operations = new ArrayList<>();
 
-        @Override public void parseRound(
-            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+        @Override public void parseRound(AbstractParseState<BasicStackNode<IBasicParseForest>> parseState,
             Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes,
-            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> observing) {
+            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> observing) {
             List<BasicStackNode<IBasicParseForest>> activeStacksCopy = activeStacksCopy(parseState);
 
             operations.add(bh -> {
@@ -82,8 +81,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
             operations.add(bh -> forActorStacks.add(stack));
         }
 
-        @Override public void directLinkFound(
-            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+        @Override public void directLinkFound(AbstractParseState<BasicStackNode<IBasicParseForest>> parseState,
             StackLink<IBasicParseForest, BasicStackNode<IBasicParseForest>> directLink) {
             if(directLink == null) {
                 // Only if no existing direct link is found during a reduction, a new link is created and some active
@@ -99,7 +97,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
         }
 
         private List<BasicStackNode<IBasicParseForest>>
-            activeStacksCopy(AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState) {
+            activeStacksCopy(AbstractParseState<BasicStackNode<IBasicParseForest>> parseState) {
             List<BasicStackNode<IBasicParseForest>> activeStacksCopy = new ArrayList<>();
 
             for(BasicStackNode<IBasicParseForest> activeStack : parseState.activeStacks)

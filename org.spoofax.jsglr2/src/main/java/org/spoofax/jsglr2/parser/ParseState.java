@@ -9,12 +9,7 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class ParseState
-//@formatter:off
-   <ParseForest extends IParseForest,
-    StackNode   extends IStackNode>
-//@formatter:on
-    extends AbstractParseState<ParseForest, StackNode> {
+public class ParseState<StackNode extends IStackNode> extends AbstractParseState<StackNode> {
 
     protected ParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
@@ -27,7 +22,7 @@ public class ParseState
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_>>
+    ParseState_  extends AbstractParseState<StackNode_>>
 //@formatter:on
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
         return (inputString, filename, observing) -> {

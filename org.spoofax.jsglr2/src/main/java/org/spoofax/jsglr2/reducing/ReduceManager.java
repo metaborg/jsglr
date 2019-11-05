@@ -21,7 +21,7 @@ public class ReduceManager
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
 {
 
@@ -52,7 +52,7 @@ public class ReduceManager
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<ParseForest_, StackNode_>,
+        ParseState_   extends AbstractParseState<StackNode_>,
         StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, ReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>

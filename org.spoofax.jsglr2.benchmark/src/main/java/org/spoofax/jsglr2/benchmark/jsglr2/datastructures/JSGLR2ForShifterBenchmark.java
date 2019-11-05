@@ -63,14 +63,13 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
     }
 
     class ForShifterObserver extends
-        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> {
 
         public List<ParseRound> parseRounds = new ArrayList<>();
 
-        @Override public void parseRound(
-            AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>> parseState,
+        @Override public void parseRound(AbstractParseState<BasicStackNode<IBasicParseForest>> parseState,
             Iterable<BasicStackNode<IBasicParseForest>> activeStacks,
-            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> observing) {
+            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> observing) {
             parseRounds.add(new ParseRound());
         }
 

@@ -26,7 +26,7 @@ public class IncrementalReduceManager
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode> & IIncrementalParseState>
+    ParseState  extends AbstractParseState<StackNode> & IIncrementalParseState>
 //@formatter:on
     extends ReduceManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -43,7 +43,7 @@ public class IncrementalReduceManager
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<ParseForest_, StackNode_> & IIncrementalParseState,
+        ParseState_   extends AbstractParseState<StackNode_> & IIncrementalParseState,
         StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, IncrementalReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>

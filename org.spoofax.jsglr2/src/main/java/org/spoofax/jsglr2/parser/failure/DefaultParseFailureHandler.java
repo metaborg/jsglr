@@ -14,7 +14,7 @@ public class DefaultParseFailureHandler
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
     implements IParseFailureHandler<ParseForest, StackNode, ParseState> {
 
@@ -24,7 +24,7 @@ public class DefaultParseFailureHandler
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<ParseForest_, StackNode_>>
+    ParseState_  extends AbstractParseState<StackNode_>>
 //@formatter:on
     ParseFailureHandlerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>
     factory() {

@@ -22,7 +22,7 @@ import static org.spoofax.jsglr2.incremental.EditorUpdate.Type.REPLACEMENT;
 public class ProcessUpdates
 //@formatter:off
    <StackNode extends IStackNode,
-    ParseState extends AbstractParseState<IncrementalParseForest, StackNode> & IIncrementalParseState>
+    ParseState extends AbstractParseState<StackNode> & IIncrementalParseState>
 //@formatter:on
 {
 

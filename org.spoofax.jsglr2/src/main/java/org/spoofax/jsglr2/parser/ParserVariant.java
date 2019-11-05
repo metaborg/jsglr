@@ -119,7 +119,7 @@ public class ParserVariant {
    <ParseForest          extends IParseForest,
     StackNode            extends IStackNode,
     BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
-    ParseState           extends AbstractParseState<ParseForest, StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
+    ParseState           extends AbstractParseState<StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
 //@formatter:on
     IParser<? extends IParseForest> withRecovery(Parser<ParseForest, ?, ?, StackNode, ParseState, ?, ?> parser) {
         parser.observing().attachObserver(new RecoveryParserObserver<>());
@@ -132,7 +132,7 @@ public class ParserVariant {
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
     IParser<? extends IParseForest> withoutRecovery(Parser<ParseForest, ?, ?, StackNode, ParseState, ?, ?> parser) {
         parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());

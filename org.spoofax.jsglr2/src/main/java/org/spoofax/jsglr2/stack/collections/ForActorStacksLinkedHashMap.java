@@ -17,7 +17,7 @@ public class ForActorStacksLinkedHashMap
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
     extends ForActorStacks<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 

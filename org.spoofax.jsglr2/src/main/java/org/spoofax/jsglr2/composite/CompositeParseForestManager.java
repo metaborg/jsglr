@@ -16,7 +16,7 @@ import java.util.List;
 public class CompositeParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<ICompositeParseForest, StackNode> & ICompositeParseState>
+    ParseState extends AbstractParseState<StackNode> & ICompositeParseState>
 //@formatter:on
     extends
     ParseForestManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> {
@@ -29,7 +29,7 @@ public class CompositeParseForestManager
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<ICompositeParseForest, StackNode_> & ICompositeParseState>
+    ParseState_ extends AbstractParseState<StackNode_> & ICompositeParseState>
 //@formatter:on
     ParseForestManagerFactory<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode_, ParseState_>
         factory() {

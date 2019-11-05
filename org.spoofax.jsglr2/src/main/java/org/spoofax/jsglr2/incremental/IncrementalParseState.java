@@ -19,11 +19,8 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class IncrementalParseState
-//@formatter:off
-   <StackNode  extends IStackNode>
-//@formatter:on
-    extends AbstractParseState<IncrementalParseForest, StackNode> implements IIncrementalParseState {
+public class IncrementalParseState<StackNode extends IStackNode> extends AbstractParseState<StackNode>
+    implements IIncrementalParseState {
 
     private boolean multipleStates = false;
     ILookaheadStack lookahead;
@@ -39,7 +36,7 @@ public class IncrementalParseState
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<IncrementalParseForest, StackNode_> & IIncrementalParseState>
+    ParseState_ extends AbstractParseState<StackNode_> & IIncrementalParseState>
 //@formatter:on
     ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode_, ParseState_>
         factory(ParserVariant variant) {

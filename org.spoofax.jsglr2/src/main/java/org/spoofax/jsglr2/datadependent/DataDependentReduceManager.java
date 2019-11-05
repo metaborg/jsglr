@@ -21,7 +21,7 @@ import java.util.List;
 public class DataDependentReduceManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<IDataDependentParseForest, StackNode>>
+    ParseState extends AbstractParseState<StackNode>>
     extends
     ReduceManager
        <IDataDependentParseForest,
@@ -42,7 +42,7 @@ public class DataDependentReduceManager
     public static
     //@formatter:off
        <StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<IDataDependentParseForest, StackNode_>,
+        ParseState_   extends AbstractParseState<StackNode_>,
         StackManager_ extends AbstractStackManager
            <IDataDependentParseForest,
             IDataDependentDerivation<IDataDependentParseForest>,

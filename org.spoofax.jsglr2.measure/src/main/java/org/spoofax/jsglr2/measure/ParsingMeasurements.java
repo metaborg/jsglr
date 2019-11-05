@@ -63,8 +63,8 @@ public class ParsingMeasurements extends Measurements {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
-            @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, HybridDerivation, HybridParseNode, AbstractElkhoundStackNode<HybridParseForest>, AbstractParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>> parser =
-                (IObservableParser<HybridParseForest, HybridDerivation, HybridParseNode, AbstractElkhoundStackNode<HybridParseForest>, AbstractParseState<HybridParseForest, AbstractElkhoundStackNode<HybridParseForest>>>) variant
+            @SuppressWarnings("unchecked") IObservableParser<HybridParseForest, HybridDerivation, HybridParseNode, AbstractElkhoundStackNode<HybridParseForest>, AbstractParseState<AbstractElkhoundStackNode<HybridParseForest>>> parser =
+                (IObservableParser<HybridParseForest, HybridDerivation, HybridParseNode, AbstractElkhoundStackNode<HybridParseForest>, AbstractParseState<AbstractElkhoundStackNode<HybridParseForest>>>) variant
                     .getParser(parseTable);
 
             ParserMeasureObserver<HybridParseForest, HybridDerivation, HybridParseNode> measureObserver =

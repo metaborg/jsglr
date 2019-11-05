@@ -10,7 +10,7 @@ public interface IParseFailureHandler
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<StackNode>>
 //@formatter:on
 {
 

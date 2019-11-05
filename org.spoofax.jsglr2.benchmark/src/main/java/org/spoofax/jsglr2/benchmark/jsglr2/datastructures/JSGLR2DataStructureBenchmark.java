@@ -25,7 +25,7 @@ import org.spoofax.terms.ParseError;
 
 public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringInput> {
 
-    protected IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>> parser;
+    protected IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> parser;
 
     protected JSGLR2DataStructureBenchmark(TestSet testSet) {
         super(new BenchmarkStringInputTestSetReader(testSet));
@@ -35,7 +35,7 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringI
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
         parser =
-            (IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IBasicParseForest, BasicStackNode<IBasicParseForest>>>) new ParserVariant(
+            (IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>>) new ParserVariant(
                 ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
                 ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
                 Reducing.Basic, false).getParser(parseTable);

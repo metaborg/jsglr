@@ -32,7 +32,12 @@ public abstract class AbstractRecoveryParseState
     @Override public BacktrackChoicePoint saveBacktrackChoicePoint() {
         BacktrackChoicePoint backtrackChoicePoint = createBacktrackChoicePoint();
 
-        backtrackChoicePoints.add(++lastBacktrackChoicePointIndex, backtrackChoicePoint);
+        lastBacktrackChoicePointIndex++;
+
+        if (lastBacktrackChoicePointIndex > backtrackChoicePoints.size() - 1)
+            backtrackChoicePoints.add(backtrackChoicePoint);
+        else
+            backtrackChoicePoints.set(lastBacktrackChoicePointIndex, backtrackChoicePoint);
 
         return backtrackChoicePoint;
     }

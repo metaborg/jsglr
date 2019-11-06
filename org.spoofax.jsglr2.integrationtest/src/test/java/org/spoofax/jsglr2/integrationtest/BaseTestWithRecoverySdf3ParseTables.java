@@ -105,7 +105,10 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         }
 
         @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint) {
-            backtrackChoicePoints.add(index, choicePoint.offset());
+            if (index > backtrackChoicePoints.size() - 1)
+                backtrackChoicePoints.add(choicePoint.offset());
+            else
+                backtrackChoicePoints.set(index, choicePoint.offset());
         }
 
         @Override public void startRecovery(ParseState parseState) {

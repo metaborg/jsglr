@@ -32,7 +32,6 @@ public class RecoveryParserObserver
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     @Override public void parseStart(ParseState parseState) {
-        parseState.initializeBacktrackChoicePoints(parseState.inputString);
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
@@ -44,7 +43,8 @@ public class RecoveryParserObserver
             && (!parseState.isRecovering() || parseState.recoveryJob().offset < parseState.currentOffset)) {
             IBacktrackChoicePoint<StackNode> choicePoint = parseState.saveBacktrackChoicePoint();
 
-            observing.notify(observer -> observer.recoveryBacktrackChoicePoint(choicePoint));
+            observing.notify(observer -> observer
+                .recoveryBacktrackChoicePoint(parseState.lastBacktrackChoicePointIndex(), choicePoint));
         }
 
         if(parseState.successfulRecovery(parseState.currentOffset)) {
@@ -125,7 +125,7 @@ public class RecoveryParserObserver
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
-    @Override public void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> choicePoint) {
+    @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

@@ -39,12 +39,8 @@ public class RecoveryParseState<StackNode extends IStackNode>
         };
     }
 
-    @Override public void initializeBacktrackChoicePoints(String input) {
-        backtrackChoicePoints = new BacktrackChoicePoint[inputLineCount(input)];
-    }
-
     protected BacktrackChoicePoint<StackNode> createBacktrackChoicePoint() {
-        return new BacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, currentOffset, activeStacks);
+        return new BacktrackChoicePoint<>(currentOffset, activeStacks);
     }
 
 }

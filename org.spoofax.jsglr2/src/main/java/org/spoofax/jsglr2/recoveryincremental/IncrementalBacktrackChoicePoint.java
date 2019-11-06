@@ -8,8 +8,8 @@ public class IncrementalBacktrackChoicePoint<StackNode extends IStackNode> exten
 
     public final ILookaheadStack lookahead;
 
-    public IncrementalBacktrackChoicePoint(int index, int offset, Iterable<StackNode> activeStacks, ILookaheadStack lookahead) {
-        super(index, offset, activeStacks);
+    public IncrementalBacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks, ILookaheadStack lookahead) {
+        super(offset, activeStacks);
 
         this.lookahead = lookahead;
     }

@@ -50,13 +50,8 @@ public class RecoveryIncrementalParseState<StackNode extends IStackNode>
         };
     }
 
-    @Override public void initializeBacktrackChoicePoints(String input) {
-        backtrackChoicePoints = new IncrementalBacktrackChoicePoint[inputLineCount(input)];
-    }
-
     protected IncrementalBacktrackChoicePoint<StackNode> createBacktrackChoicePoint() {
-        return new IncrementalBacktrackChoicePoint<>(++lastBacktrackChoicePointIndex, currentOffset, activeStacks,
-            lookahead.clone());
+        return new IncrementalBacktrackChoicePoint<>(currentOffset, activeStacks, lookahead.clone());
     }
 
     @Override public void initParse(IncrementalParseForest updatedTree, String inputString) {
@@ -91,9 +86,9 @@ public class RecoveryIncrementalParseState<StackNode extends IStackNode>
         this.multipleStates = multipleStates;
     }
 
-    @Override protected void
-        resetToBacktrackChoicePoint(IncrementalBacktrackChoicePoint<StackNode> backtrackChoicePoint) {
-        super.resetToBacktrackChoicePoint(backtrackChoicePoint);
+    @Override protected void resetToBacktrackChoicePoint(
+        IncrementalBacktrackChoicePoint<StackNode> backtrackChoicePoint, int backtrackChoicePointIndex) {
+        super.resetToBacktrackChoicePoint(backtrackChoicePoint, backtrackChoicePointIndex);
 
         lookahead = backtrackChoicePoint.lookahead.clone();
     }

@@ -81,7 +81,7 @@ public interface IParserObserver
 
     void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 
-    void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> choicePoint);
+    void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint);
 
     void startRecovery(ParseState parseState);
 

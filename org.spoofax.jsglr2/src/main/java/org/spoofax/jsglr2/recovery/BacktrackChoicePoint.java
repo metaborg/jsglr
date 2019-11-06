@@ -7,21 +7,15 @@ import java.util.List;
 
 public class BacktrackChoicePoint<StackNode extends IStackNode> implements IBacktrackChoicePoint<StackNode> {
 
-    public final int index;
     public final int offset;
     public final List<StackNode> activeStacks;
 
-    public BacktrackChoicePoint(int index, int offset, Iterable<StackNode> activeStacks) {
-        this.index = index;
+    public BacktrackChoicePoint(int offset, Iterable<StackNode> activeStacks) {
         this.offset = offset;
         this.activeStacks = new ArrayList<>();
 
         for(StackNode activeStack : activeStacks)
             this.activeStacks.add(activeStack);
-    }
-
-    @Override public int index() {
-        return index;
     }
 
     @Override public int offset() {

@@ -11,11 +11,11 @@ public interface IRecoveryParseState
 //@formatter:on
 {
 
-    void initializeBacktrackChoicePoints(String input);
+    int lastBacktrackChoicePointIndex();
 
     BacktrackChoicePoint saveBacktrackChoicePoint();
 
-    BacktrackChoicePoint getBacktrackChoicePoint(int line);
+    BacktrackChoicePoint getBacktrackChoicePoint(int index);
 
     void startRecovery(int offset);
 

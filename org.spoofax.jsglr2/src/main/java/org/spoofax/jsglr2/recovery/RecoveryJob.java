@@ -19,10 +19,10 @@ public class RecoveryJob {
         return iteration + 1 < iterationsQuota;
     }
 
-    int nextIteration() {
+    RecoveryJob nextIteration() {
         quota = (++iteration + 1);
 
-        return iteration;
+        return this;
     }
 
     public int iterationBacktrackChoicePointIndex() {

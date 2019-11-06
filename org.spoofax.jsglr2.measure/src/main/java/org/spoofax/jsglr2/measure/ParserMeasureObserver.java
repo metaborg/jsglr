@@ -201,7 +201,7 @@ public class ParserMeasureObserver
         Queue<ForShifterElement<AbstractElkhoundStackNode<ParseForest>>> forShifter) {
     }
 
-    @Override public void recoveryBacktrackChoicePoint(
+    @Override public void recoveryBacktrackChoicePoint(int index,
         IBacktrackChoicePoint<AbstractElkhoundStackNode<ParseForest>> backtrackChoicePoint) {
     }
 

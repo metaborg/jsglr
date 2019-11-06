@@ -110,7 +110,8 @@ public class BenchmarkParserObserver
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
-    @Override public void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> backtrackChoicePoint) {
+    @Override public void recoveryBacktrackChoicePoint(int index,
+        IBacktrackChoicePoint<StackNode> backtrackChoicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

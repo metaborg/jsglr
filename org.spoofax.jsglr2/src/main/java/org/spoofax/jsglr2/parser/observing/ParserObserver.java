@@ -179,7 +179,7 @@ public abstract class ParserObserver
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
-    @Override public void recoveryBacktrackChoicePoint(IBacktrackChoicePoint<StackNode> choicePoint) {
+    @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

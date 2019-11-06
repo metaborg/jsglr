@@ -83,7 +83,8 @@ public class RecoveryIncrementalParseState<StackNode extends IStackNode>
     }
 
     @Override public boolean isMultipleStates() {
-        return multipleStates;
+        // TODO: since isRecovering is also here, is isMultipleStates still the correct name?
+        return multipleStates || isRecovering();
     }
 
     @Override public void setMultipleStates(boolean multipleStates) {

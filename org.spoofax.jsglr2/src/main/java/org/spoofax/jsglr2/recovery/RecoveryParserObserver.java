@@ -41,12 +41,11 @@ public class RecoveryParserObserver
         if((parseState.currentOffset == 0
             || CharacterClassFactory.isNewLine(parseState.getChar(parseState.currentOffset - 1)))
             && (!parseState.isRecovering()
-                || parseState.getBacktrackChoicePoint(parseState.recoveryJob().backtrackChoicePointIndex)
-                    .offset() < parseState.currentOffset)) {
+                || parseState.lastBacktrackChoicePoint().offset() < parseState.currentOffset)) {
             IBacktrackChoicePoint<StackNode> choicePoint = parseState.saveBacktrackChoicePoint();
 
             observing.notify(observer -> observer
-                .recoveryBacktrackChoicePoint(parseState.lastBacktrackChoicePointIndex(), choicePoint));
+                .recoveryBacktrackChoicePoint(parseState.backtrackChoicePoints().size() - 1, choicePoint));
         }
 
         if(parseState.successfulRecovery(parseState.currentOffset)) {

@@ -5,9 +5,8 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 
 public abstract class AbstractRecoveryParseState
 //@formatter:off
@@ -16,8 +15,7 @@ public abstract class AbstractRecoveryParseState
 //@formatter:on
     extends AbstractParseState<StackNode> implements IRecoveryParseState<StackNode, BacktrackChoicePoint> {
 
-    protected List<BacktrackChoicePoint> backtrackChoicePoints = new ArrayList<>();
-    protected int lastBacktrackChoicePointIndex = -1;
+    Stack<BacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
 
     public AbstractRecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
@@ -25,32 +23,12 @@ public abstract class AbstractRecoveryParseState
         super(inputString, filename, activeStacks, forActorStacks);
     }
 
-    @Override public int lastBacktrackChoicePointIndex() {
-        return lastBacktrackChoicePointIndex;
-    }
-
-    @Override public BacktrackChoicePoint saveBacktrackChoicePoint() {
-        BacktrackChoicePoint backtrackChoicePoint = createBacktrackChoicePoint();
-
-        lastBacktrackChoicePointIndex++;
-
-        if (lastBacktrackChoicePointIndex > backtrackChoicePoints.size() - 1)
-            backtrackChoicePoints.add(backtrackChoicePoint);
-        else
-            backtrackChoicePoints.set(lastBacktrackChoicePointIndex, backtrackChoicePoint);
-
-        return backtrackChoicePoint;
-    }
-
-    abstract protected BacktrackChoicePoint createBacktrackChoicePoint();
-
-    @Override public BacktrackChoicePoint getBacktrackChoicePoint(int index) {
-        return backtrackChoicePoints.get(index);
+    @Override public Stack<BacktrackChoicePoint> backtrackChoicePoints() {
+        return backtrackChoicePoints;
     }
 
     @Override public void startRecovery(int offset) {
-        recoveryPointOpt = Optional
-            .of(new RecoveryJob(lastBacktrackChoicePointIndex, offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA));
+        recoveryPointOpt = Optional.of(new RecoveryJob(offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA));
     }
 
     @Override public void endRecovery() {
@@ -63,22 +41,20 @@ public abstract class AbstractRecoveryParseState
 
     @Override public boolean nextRecoveryIteration() {
         if(recoveryJob().hasNextIteration()) {
-            int backtrackChoicePointIndex = recoveryJob().nextIteration().iterationBacktrackChoicePointIndex();
+            int iteration = recoveryJob().nextIteration();
 
-            BacktrackChoicePoint backtrackChoicePoint = getBacktrackChoicePoint(backtrackChoicePointIndex);
+            for (int i = iteration; i > 0 && backtrackChoicePoints.size() > 1; i--)
+                backtrackChoicePoints.pop();
 
-            resetToBacktrackChoicePoint(backtrackChoicePoint, backtrackChoicePointIndex);
+            resetToBacktrackChoicePoint(backtrackChoicePoints.peek());
 
             return true;
         } else
             return false;
     }
 
-    protected void resetToBacktrackChoicePoint(BacktrackChoicePoint backtrackChoicePoint,
-        int backtrackChoicePointIndex) {
-        this.lastBacktrackChoicePointIndex = backtrackChoicePointIndex;
+    protected void resetToBacktrackChoicePoint(BacktrackChoicePoint backtrackChoicePoint) {
         this.currentOffset = backtrackChoicePoint.offset();
-
         this.currentChar = getChar(currentOffset);
 
         this.activeStacks.clear();

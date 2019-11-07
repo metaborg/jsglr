@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.recovery;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 import java.util.Optional;
+import java.util.Stack;
 
 public interface IRecoveryParseState
 //@formatter:off
@@ -11,11 +12,17 @@ public interface IRecoveryParseState
 //@formatter:on
 {
 
-    int lastBacktrackChoicePointIndex();
+    Stack<BacktrackChoicePoint> backtrackChoicePoints();
 
-    BacktrackChoicePoint saveBacktrackChoicePoint();
+    BacktrackChoicePoint createBacktrackChoicePoint();
 
-    BacktrackChoicePoint getBacktrackChoicePoint(int index);
+    default BacktrackChoicePoint saveBacktrackChoicePoint() {
+        return backtrackChoicePoints().push(createBacktrackChoicePoint());
+    }
+
+    default BacktrackChoicePoint lastBacktrackChoicePoint() {
+        return backtrackChoicePoints().peek();
+    }
 
     void startRecovery(int offset);
 

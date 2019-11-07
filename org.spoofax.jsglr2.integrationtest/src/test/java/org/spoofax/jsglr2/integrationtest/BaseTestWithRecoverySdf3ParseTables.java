@@ -105,7 +105,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         }
 
         @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint) {
-            if (index > backtrackChoicePoints.size() - 1)
+            if(index > backtrackChoicePoints.size() - 1)
                 backtrackChoicePoints.add(choicePoint.offset());
             else
                 backtrackChoicePoints.set(index, choicePoint.offset());
@@ -116,7 +116,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         }
 
         @Override public void recoveryIteration(ParseState parseState) {
-            iterations.add(new RecoverIteration(parseState.recoveryJob()));
+            iterations
+                .add(new RecoverIteration(parseState.recoveryJob(), parseState.lastBacktrackChoicePoint().offset()));
         }
 
         @Override public void endRecovery(ParseState parseState) {
@@ -129,18 +130,18 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
         public final int iteration;
         public final int offset;
-        public final int backtrackChoicePointIndex;
+        public final int backtrackChoicePointOffset;
 
-        RecoverIteration(RecoveryJob recoveryJob) {
+        RecoverIteration(RecoveryJob recoveryJob, int backtrackChoicePointOffset) {
             this.iteration = recoveryJob.iteration;
             this.offset = recoveryJob.offset;
-            this.backtrackChoicePointIndex = recoveryJob.iterationBacktrackChoicePointIndex();
+            this.backtrackChoicePointOffset = backtrackChoicePointOffset;
         }
 
-        public RecoverIteration(int iteration, int offset, int backtrackChoicePointIndex) {
+        public RecoverIteration(int iteration, int offset, int backtrackChoicePointOffset) {
             this.iteration = iteration;
             this.offset = offset;
-            this.backtrackChoicePointIndex = backtrackChoicePointIndex;
+            this.backtrackChoicePointOffset = backtrackChoicePointOffset;
         }
 
         @Override public boolean equals(Object obj) {
@@ -150,11 +151,11 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             RecoverIteration other = (RecoverIteration) obj;
 
             return offset == other.offset && iteration == other.iteration
-                && backtrackChoicePointIndex == other.backtrackChoicePointIndex;
+                && backtrackChoicePointOffset == other.backtrackChoicePointOffset;
         }
 
         @Override public String toString() {
-            return "" + iteration + "@" + offset + "/" + backtrackChoicePointIndex;
+            return "" + iteration + "[" + backtrackChoicePointOffset + "->" + offset + "]";
         }
     }
 

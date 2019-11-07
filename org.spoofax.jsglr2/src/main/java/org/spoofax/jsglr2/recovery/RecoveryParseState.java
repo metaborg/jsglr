@@ -39,7 +39,7 @@ public class RecoveryParseState<StackNode extends IStackNode>
         };
     }
 
-    protected BacktrackChoicePoint<StackNode> createBacktrackChoicePoint() {
+    @Override public BacktrackChoicePoint<StackNode> createBacktrackChoicePoint() {
         return new BacktrackChoicePoint<>(currentOffset, activeStacks);
     }
 

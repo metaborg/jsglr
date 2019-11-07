@@ -5,7 +5,6 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.Optional;
 import java.util.Stack;
 
 public abstract class AbstractRecoveryParseState
@@ -16,7 +15,7 @@ public abstract class AbstractRecoveryParseState
     extends AbstractParseState<StackNode> implements IRecoveryParseState<StackNode, BacktrackChoicePoint> {
 
     Stack<BacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
-    private Optional<RecoveryJob> recoveryPointOpt = Optional.empty();
+    private RecoveryJob recoveryJob = null;
 
     public AbstractRecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
@@ -28,22 +27,22 @@ public abstract class AbstractRecoveryParseState
     }
 
     @Override public void startRecovery(int offset) {
-        recoveryPointOpt = Optional.of(new RecoveryJob(offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA));
+        recoveryJob = new RecoveryJob(offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA);
     }
 
     @Override public void endRecovery() {
-        recoveryPointOpt = Optional.empty();
+        recoveryJob = null;
     }
 
-    @Override public Optional<RecoveryJob> recoveryJobOpt() {
-        return recoveryPointOpt;
+    @Override public RecoveryJob recoveryJob() {
+        return recoveryJob;
     }
 
     @Override public boolean nextRecoveryIteration() {
         if(recoveryJob().hasNextIteration()) {
             int iteration = recoveryJob().nextIteration();
 
-            for (int i = iteration; i > 0 && backtrackChoicePoints.size() > 1; i--)
+            for(int i = iteration; i > 0 && backtrackChoicePoints.size() > 1; i--)
                 backtrackChoicePoints.pop();
 
             resetToBacktrackChoicePoint(backtrackChoicePoints.peek());

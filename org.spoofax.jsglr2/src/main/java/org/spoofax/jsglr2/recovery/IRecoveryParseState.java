@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.recovery;
 
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.Optional;
 import java.util.Stack;
 
 public interface IRecoveryParseState
@@ -28,20 +27,16 @@ public interface IRecoveryParseState
 
     void endRecovery();
 
-    Optional<RecoveryJob> recoveryJobOpt();
+    RecoveryJob recoveryJob();
 
     default boolean isRecovering() {
-        return recoveryJobOpt().isPresent();
+        return recoveryJob() != null;
     }
+
+    boolean nextRecoveryIteration();
 
     default boolean successfulRecovery(int currentOffset) {
         return isRecovering() && currentOffset >= recoveryJob().offset + RecoveryConfig.SUCCEEDING_RECOVERY_OFFSET;
     }
-
-    default RecoveryJob recoveryJob() {
-        return recoveryJobOpt().get();
-    }
-
-    boolean nextRecoveryIteration();
 
 }

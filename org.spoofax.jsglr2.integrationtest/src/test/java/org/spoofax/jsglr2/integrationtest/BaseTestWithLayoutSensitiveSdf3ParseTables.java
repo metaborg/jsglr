@@ -27,8 +27,7 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
             || parseForestRepresentation.equals(ParseForestRepresentation.Composite);
     };
 
-    private Predicate<TestVariant> isNotLayoutSensitiveVariant =
-        testVariant -> !isLayoutSensitiveVariant.test(testVariant);
+    private Predicate<TestVariant> isNotLayoutSensitiveVariant = isLayoutSensitiveVariant.negate();
 
     protected void testLayoutSensitiveParseFiltered(String inputString) {
         for(TestVariant variant : getTestVariants(isNotLayoutSensitiveVariant)) {

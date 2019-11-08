@@ -106,7 +106,11 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected void testParseSuccess(String inputString) {
-        for(TestVariant variant : getTestVariants()) {
+        testParseSuccess(inputString, getTestVariants());
+    }
+
+    protected void testParseSuccess(String inputString, Iterable<TestVariant> variants) {
+        for(TestVariant variant : variants) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess());
@@ -114,7 +118,11 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected void testParseFailure(String inputString) {
-        for(TestVariant variant : getTestVariants()) {
+        testParseFailure(inputString, getTestVariants());
+    }
+
+    protected void testParseFailure(String inputString, Iterable<TestVariant> variants) {
+        for(TestVariant variant : variants) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
             assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
@@ -172,10 +180,18 @@ public abstract class BaseTest implements WithParseTable {
         return null;
     }
 
+    protected Predicate<TestVariant> isIncrementalVariant =
+        testVariant -> testVariant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Incremental;
+
     private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
         boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants(
-            testVariant -> testVariant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Incremental)) {
+        testIncrementalSuccess(inputStrings, expectedOutputAstStrings, startSymbol, equalityByExpansions,
+            getTestVariants(isIncrementalVariant));
+    }
+
+    private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
+        boolean equalityByExpansions, Iterable<TestVariant> variants) {
+        for(TestVariant variant : variants) {
             IStrategoTerm actualOutputAst;
             String filename = "" + System.nanoTime(); // To ensure the results will be cached
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
@@ -224,7 +240,12 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
-        for(TestVariant variant : getTestVariants()) {
+        testTokens(inputString, expectedTokens, getTestVariants());
+    }
+
+    protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens,
+        Iterable<TestVariant> variants) {
+        for(TestVariant variant : variants) {
             JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
             String variantPrefix = "Variant '" + variant.name() + "' failed";

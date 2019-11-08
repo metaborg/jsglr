@@ -281,7 +281,7 @@ public abstract class BaseTest implements WithParseTable {
 
             List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 
-            assertIterableEquals(actualTokensWithoutStartAndEnd, expectedTokens, "Token lists don't match");
+            assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match");
 
             assertEquals(expectedEndToken, actualEndToken, "End token incorrect");
         });

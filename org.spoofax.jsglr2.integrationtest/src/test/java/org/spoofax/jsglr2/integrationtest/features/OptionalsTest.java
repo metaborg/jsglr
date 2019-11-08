@@ -1,8 +1,11 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
+
+import java.util.stream.Stream;
 
 public class OptionalsTest extends BaseTestWithSdf3ParseTables {
 
@@ -10,17 +13,17 @@ public class OptionalsTest extends BaseTestWithSdf3ParseTables {
         super("optionals.sdf3");
     }
 
-    @Test public void testEmpty() throws ParseError {
-        testSuccessByExpansions("", "None");
+    @TestFactory public Stream<DynamicTest> testEmpty() throws ParseError {
+        return testSuccessByExpansions("", "None");
     }
 
-    @Test public void testSingleX() throws ParseError {
-        testSuccessByExpansions("X", "Some(X)");
+    @TestFactory public Stream<DynamicTest> testSingleX() throws ParseError {
+        return testSuccessByExpansions("X", "Some(X)");
     }
 
-    @Test public void testIncrementalOptionals() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testIncrementalOptionals() throws ParseError {
         //@formatter:off
-        testIncrementalSuccessByExpansions(
+        return testIncrementalSuccessByExpansions(
             new String[] { "X",       "",     "X" },
             new String[] { "Some(X)", "None", "Some(X)" }
         );

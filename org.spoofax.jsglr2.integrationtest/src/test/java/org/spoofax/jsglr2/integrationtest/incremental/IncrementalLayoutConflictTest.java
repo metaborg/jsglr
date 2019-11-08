@@ -1,8 +1,11 @@
 package org.spoofax.jsglr2.integrationtest.incremental;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
+
+import java.util.stream.Stream;
 
 public class IncrementalLayoutConflictTest extends BaseTestWithSdf3ParseTables {
 
@@ -17,9 +20,9 @@ public class IncrementalLayoutConflictTest extends BaseTestWithSdf3ParseTables {
      * then the parser expects to parse a second ID, which is not there. Instead, the first layout should be marked as
      * "parsed in multiple states" and be broken down during the second parse.
      */
-    @Test public void test() throws ParseError {
+    @TestFactory public Stream<DynamicTest> test() throws ParseError {
         //@formatter:off
-        testIncrementalSuccessByExpansions(
+        return testIncrementalSuccessByExpansions(
             new String[] {
                 "a   b ",
                 "a   "

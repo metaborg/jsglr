@@ -1,7 +1,10 @@
 package org.spoofax.jsglr2.integrationtest.incremental;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
+
+import java.util.stream.Stream;
 
 public class IncrementalExpressionPrioritiesTest extends BaseTestWithSdf3ParseTables {
 
@@ -9,9 +12,9 @@ public class IncrementalExpressionPrioritiesTest extends BaseTestWithSdf3ParseTa
         super("exp-priorities.sdf3");
     }
 
-    @Test public void changingPriorities() {
+    @TestFactory public Stream<DynamicTest> changingPriorities() {
         //@formatter:off
-        testIncrementalSuccessByExpansions(
+        return testIncrementalSuccessByExpansions(
             new String[] {
                 "x+x+x",
                 "x*x+x",
@@ -30,9 +33,9 @@ public class IncrementalExpressionPrioritiesTest extends BaseTestWithSdf3ParseTa
         //@formatter:on
     }
 
-    @Test public void largerPrioritiesTest() {
+    @TestFactory public Stream<DynamicTest> largerPrioritiesTest() {
         //@formatter:off
-        testIncrementalSuccessByExpansions(
+        return testIncrementalSuccessByExpansions(
             new String[] {
                 "x*x+x*x+x*x",
                 "x*x+x*x+x+x",
@@ -47,9 +50,9 @@ public class IncrementalExpressionPrioritiesTest extends BaseTestWithSdf3ParseTa
         //@formatter:on
     }
 
-    @Test public void nothingChangedTest() {
+    @TestFactory public Stream<DynamicTest> nothingChangedTest() {
         //@formatter:off
-        testIncrementalSuccessByExpansions(
+        return testIncrementalSuccessByExpansions(
             new String[] {
                 "x*x+x*x+x*x",
                 "x*x+x*x+x*x"

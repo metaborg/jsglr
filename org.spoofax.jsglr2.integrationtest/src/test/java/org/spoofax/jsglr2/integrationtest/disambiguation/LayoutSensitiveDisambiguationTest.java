@@ -1,8 +1,11 @@
 package org.spoofax.jsglr2.integrationtest.disambiguation;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithLayoutSensitiveSdf3ParseTables;
 import org.spoofax.terms.ParseError;
+
+import java.util.stream.Stream;
 
 public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensitiveSdf3ParseTables {
 
@@ -10,27 +13,27 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         super("layout-sensitive.sdf3");
     }
 
-    @Test public void alignmentMisaligned1() throws ParseError {
+    @TestFactory public Stream<DynamicTest> alignmentMisaligned1() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveParseFiltered(
+        return testLayoutSensitiveParseFiltered(
             "doAlignList s1 \n" +
             "       s2"
         );
         //@formatter:on
     }
 
-    @Test public void alignmentMisaligned2() throws ParseError {
+    @TestFactory public Stream<DynamicTest> alignmentMisaligned2() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveParseFiltered(
+        return testLayoutSensitiveParseFiltered(
             "doAlignList s1 \n" +
             "             s2"
         );
         //@formatter:on
     }
 
-    @Test public void alignmentAligned() throws ParseError {
+    @TestFactory public Stream<DynamicTest> alignmentAligned() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "doAlignList s1 \n" +
             "            s2",
             "DoAlignList([\"s1\", \"s2\"])"
@@ -38,26 +41,26 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void explicitAlignmentMisaligned1() throws ParseError {
+    @TestFactory public Stream<DynamicTest> explicitAlignmentMisaligned1() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveParseFiltered(
+        return testLayoutSensitiveParseFiltered(
             "doAlign s1 \n" +
             "       s2");
         //@formatter:on
     }
 
-    @Test public void explicitAlignmentMisaligned2() throws ParseError {
+    @TestFactory public Stream<DynamicTest> explicitAlignmentMisaligned2() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveParseFiltered(
+        return testLayoutSensitiveParseFiltered(
             "doAlign s1 \n" +
             "         s2"
         );
         //@formatter:on
     }
 
-    @Test public void explicitAlignmentAligned() throws ParseError {
+    @TestFactory public Stream<DynamicTest> explicitAlignmentAligned() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "doAlign s1 \n" +
             "        s2",
             "DoAlign(StmtSeq(Stmt(\"s1\"), \"s2\"))"
@@ -65,9 +68,9 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void offsideExpression1() throws ParseError {
+    @TestFactory public Stream<DynamicTest> offsideExpression1() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "do e1 +\n" +
             "    e2",
             "Do(OffsideExp(Add(\"e1\", \"e2\")))"
@@ -75,9 +78,9 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void offsideExpression2() throws ParseError {
+    @TestFactory public Stream<DynamicTest> offsideExpression2() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "do e1 +\n" +
             "   e2",
             "Add(Do(OffsideExp(\"e1\")), \"e2\")"
@@ -85,9 +88,9 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void offsideExpression3() throws ParseError {
+    @TestFactory public Stream<DynamicTest> offsideExpression3() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "do e1 +\n" +
             "  e2",
             "Add(Do(OffsideExp(\"e1\")), \"e2\")"
@@ -95,9 +98,9 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void offsideMultipleElements1() throws ParseError {
+    @TestFactory public Stream<DynamicTest> offsideMultipleElements1() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "doOffside e1\n" +
             "+ e2",
             "Add(DoOffside(Exp(\"e1\")), \"e2\")"
@@ -105,9 +108,9 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void offsideMultipleElements2() throws ParseError {
+    @TestFactory public Stream<DynamicTest> offsideMultipleElements2() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "doOffside e1\n" +
             " + e2",
             "DoOffside(Exp(Add(\"e1\", \"e2\")))"
@@ -115,18 +118,18 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void indentExpression1() throws ParseError {
+    @TestFactory public Stream<DynamicTest> indentExpression1() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "doIndent s1",
             "DoIndent(\"s1\")"
         );
         //@formatter:on
     }
 
-    @Test public void indentExpression2() throws ParseError {
+    @TestFactory public Stream<DynamicTest> indentExpression2() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "doIndent \n" +
             " s1",
             "DoIndent(\"s1\")"
@@ -134,35 +137,35 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @Test public void indentExpressionFailed() throws ParseError {
+    @TestFactory public Stream<DynamicTest> indentExpressionFailed() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveParseFiltered(
+        return testLayoutSensitiveParseFiltered(
             "doIndent \n" +
             "s1"
         );
         //@formatter:on
     }
 
-    @Test public void newlineIndentExpressionNoNewline() throws ParseError {
+    @TestFactory public Stream<DynamicTest> newlineIndentExpressionNoNewline() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveParseFiltered(
+        return testLayoutSensitiveParseFiltered(
             "doNLIndent s1"
         );
         //@formatter:on
     }
 
-    @Test public void newlineIndentExpressionNoIndent() throws ParseError {
+    @TestFactory public Stream<DynamicTest> newlineIndentExpressionNoIndent() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveParseFiltered(
+        return testLayoutSensitiveParseFiltered(
             "doNLIndent \n" +
             "s1"
         );
         //@formatter:on
     }
 
-    @Test public void newlineIndentExpression() throws ParseError {
+    @TestFactory public Stream<DynamicTest> newlineIndentExpression() throws ParseError {
         //@formatter:off
-        testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveSuccessByExpansions(
             "doNLIndent \n" +
             " s1",
             "DoNLIndent(\"s1\"))"

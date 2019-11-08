@@ -1,9 +1,12 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
+
+import java.util.stream.Stream;
 
 public class RejectTest extends BaseTestWithSdf3ParseTables {
 
@@ -12,8 +15,8 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
     }
 
     // This test only fails when running `./b build all`, not when running the tests separately.
-    @Disabled @Test public void testReject() throws ParseError {
-        testSuccessByAstString("foo", "Foo");
+    @Disabled @TestFactory public Stream<DynamicTest> testReject() throws ParseError {
+        return testSuccessByAstString("foo", "Foo");
     }
 
     /**
@@ -21,12 +24,12 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
      *
      * @see org.spoofax.jsglr2.stack.collections.IForActorStacks
      */
-    @Disabled @Test public void testNestedReject() throws ParseError {
-        testParseFailure("bar");
+    @Disabled @TestFactory public Stream<DynamicTest> testNestedReject() throws ParseError {
+        return testParseFailure("bar");
     }
 
-    @Test public void testNonReject() throws ParseError {
-        testSuccessByAstString("baz", "Id(\"baz\")");
+    @TestFactory public Stream<DynamicTest> testNonReject() throws ParseError {
+        return testSuccessByAstString("baz", "Id(\"baz\")");
     }
 
 }

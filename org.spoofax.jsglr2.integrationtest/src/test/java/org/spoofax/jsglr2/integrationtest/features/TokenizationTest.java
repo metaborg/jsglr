@@ -1,12 +1,14 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.TokenDescriptor;
 import org.spoofax.terms.ParseError;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class TokenizationTest extends BaseTestWithSdf3ParseTables {
 
@@ -14,24 +16,24 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         super("tokenization.sdf3");
     }
 
-    @Test public void number() throws ParseError {
-        testTokens("1", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> number() throws ParseError {
+        return testTokens("1", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("1", IToken.TK_NUMBER, 0, 1, 1, "NUMBER", null)
         //@formatter:on
         ));
     }
 
-    @Test public void identifier() throws ParseError {
-        testTokens("x", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> identifier() throws ParseError {
+        return testTokens("x", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null)
         //@formatter:on
         ));
     }
 
-    @Test public void operator() throws ParseError {
-        testTokens("x+x", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> operator() throws ParseError {
+        return testTokens("x+x", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor("+", IToken.TK_OPERATOR,   1, 1, 2, "Exp", "AddOperator"),
@@ -40,8 +42,8 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
-    @Test public void operatorWithLayout() throws ParseError {
-        testTokens("x + x", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> operatorWithLayout() throws ParseError {
+        return testTokens("x + x", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor(" ", IToken.TK_LAYOUT,     1, 1, 2, "Exp", "AddOperator"),
@@ -52,8 +54,8 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
-    @Test public void operatorWithLayout2() throws ParseError {
-        testTokens(" x + x ", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> operatorWithLayout2() throws ParseError {
+        return testTokens(" x + x ", Arrays.asList(
         //@formatter:off
             new TokenDescriptor(" ", IToken.TK_LAYOUT,     0, 1, 1, null, null),
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 1, 1, 2, "ID", null),
@@ -66,8 +68,8 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
-    @Test public void keywordWithLayout() throws ParseError {
-        testTokens("x add x", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> keywordWithLayout() throws ParseError {
+        return testTokens("x add x", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",   IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor(" ",   IToken.TK_LAYOUT,     1, 1, 2, "Exp", "AddKeyword"),
@@ -78,8 +80,8 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
-    @Test public void keywordWithNumber() throws ParseError {
-        testTokens("x add2 x", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> keywordWithNumber() throws ParseError {
+        return testTokens("x add2 x", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",    IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor(" ",    IToken.TK_LAYOUT,     1, 1, 2, "Exp", "Add2Keyword"),
@@ -90,8 +92,8 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
-    @Test public void multipleLines() throws ParseError {
-        testTokens("x;\nx", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> multipleLines() throws ParseError {
+        return testTokens("x;\nx", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor(";",  IToken.TK_OPERATOR,   1, 1, 2, null, null),
@@ -101,8 +103,8 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
-    @Test public void multipleLinesNewlineEnd() throws ParseError {
-        testTokens("x;\nx\n", Arrays.asList(
+    @TestFactory public Stream<DynamicTest> multipleLinesNewlineEnd() throws ParseError {
+        return testTokens("x;\nx\n", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor(";",  IToken.TK_OPERATOR,   1, 1, 2, null, null),

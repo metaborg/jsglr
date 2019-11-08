@@ -1,8 +1,11 @@
 package org.spoofax.jsglr2.integrationtest.disambiguation;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
+
+import java.util.stream.Stream;
 
 public class SumAmbiguousTest extends BaseTestWithSdf3ParseTables {
 
@@ -10,16 +13,16 @@ public class SumAmbiguousTest extends BaseTestWithSdf3ParseTables {
         super("sum-ambiguous.sdf3");
     }
 
-    @Test public void one() throws ParseError {
-        testSuccessByExpansions("x", "Term()");
+    @TestFactory public Stream<DynamicTest> one() throws ParseError {
+        return testSuccessByExpansions("x", "Term()");
     }
 
-    @Test public void two() throws ParseError {
-        testSuccessByExpansions("x+x", "Add(Term(),Term())");
+    @TestFactory public Stream<DynamicTest> two() throws ParseError {
+        return testSuccessByExpansions("x+x", "Add(Term(),Term())");
     }
 
-    @Test public void three() throws ParseError {
-        testSuccessByExpansions("x+x+x", "amb([Add(Add(Term,Term),Term), Add(Term,Add(Term,Term))])");
+    @TestFactory public Stream<DynamicTest> three() throws ParseError {
+        return testSuccessByExpansions("x+x+x", "amb([Add(Add(Term,Term),Term), Add(Term,Add(Term,Term))])");
     }
 
 }

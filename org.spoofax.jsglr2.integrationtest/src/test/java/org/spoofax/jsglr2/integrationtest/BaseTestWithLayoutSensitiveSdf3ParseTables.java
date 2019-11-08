@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import org.junit.jupiter.api.DynamicTest;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
@@ -7,6 +8,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,34 +31,39 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
 
     private Predicate<TestVariant> isNotLayoutSensitiveVariant = isLayoutSensitiveVariant.negate();
 
-    protected void testLayoutSensitiveParseFiltered(String inputString) {
-        for(TestVariant variant : getTestVariants(isNotLayoutSensitiveVariant)) {
-            ParseResult<?> parseResult = variant.parser().parse(inputString);
+    protected Stream<DynamicTest> testLayoutSensitiveParseFiltered(String inputString) {
+        Stream<DynamicTest> notLayoutSensitiveTests =
+            testPerVariant(getTestVariants(isNotLayoutSensitiveVariant), variant -> () -> {
+                ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals(true, parseResult.isSuccess(),
-                "Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ");
-        }
+                assertEquals(true, parseResult.isSuccess(),
+                    "Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ");
+            });
 
-        for(TestVariant variant : getTestVariants(isLayoutSensitiveVariant)) {
-            ParseResult<?> parseResult = variant.parser().parse(inputString);
+        Stream<DynamicTest> layoutSensitiveTests =
+            testPerVariant(getTestVariants(isLayoutSensitiveVariant), variant -> () -> {
+                ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals(false, parseResult.isSuccess(),
-                "Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ");
-        }
+                assertEquals(false, parseResult.isSuccess(),
+                    "Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ");
+            });
+
+        return Stream.concat(notLayoutSensitiveTests, layoutSensitiveTests);
     }
 
-    protected void testLayoutSensitiveSuccessByExpansions(String inputString, String expectedOutputAstString) {
-        testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
+    protected Stream<DynamicTest> testLayoutSensitiveSuccessByExpansions(String inputString,
+        String expectedOutputAstString) {
+        return testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
     }
 
-    private void testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString, String startSymbol,
-        boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants(isLayoutSensitiveVariant)) {
+    private Stream<DynamicTest> testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString,
+        String startSymbol, boolean equalityByExpansions) {
+        return testPerVariant(getTestVariants(isLayoutSensitiveVariant), variant -> () -> {
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
                 actualOutputAst, equalityByExpansions);
-        }
+        });
     }
 
 }

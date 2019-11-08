@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.function.Executable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
@@ -24,7 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +57,7 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    class TestVariant {
+    static class TestVariant {
 
         IntegrationVariant variant;
         ParseTableWithOrigin parseTableWithOrigin;
@@ -77,7 +81,7 @@ public abstract class BaseTest implements WithParseTable {
 
     }
 
-    protected Iterable<TestVariant> getTestVariants(Predicate<TestVariant> filter) {
+    protected Stream<TestVariant> getTestVariants(Predicate<TestVariant> filter) {
         List<TestVariant> testVariants = new ArrayList<>();
 
         for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
@@ -97,65 +101,74 @@ public abstract class BaseTest implements WithParseTable {
             }
         }
 
-        return testVariants;
+        return testVariants.stream();
     }
 
-    protected Iterable<TestVariant> getTestVariants() {
+    protected Stream<TestVariant> getTestVariants() {
         return getTestVariants(testVariant -> true);
     }
 
-    protected void testParseSuccess(String inputString) {
-        testParseSuccess(inputString, getTestVariants());
+    protected Stream<DynamicTest> testPerVariant(Stream<TestVariant> variants, Function<TestVariant, Executable> body) {
+        return variants.map(variant -> DynamicTest.dynamicTest(variant.name(), body.apply(variant)));
     }
 
-    protected void testParseSuccess(String inputString, Iterable<TestVariant> variants) {
-        for(TestVariant variant : variants) {
+    protected Stream<DynamicTest> testParseSuccess(String inputString) {
+        return testParseSuccess(inputString, getTestVariants());
+    }
+
+    protected Stream<DynamicTest> testParseSuccess(String inputString, Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
             assertEquals(true, parseResult.isSuccess(), "Variant '" + variant.name() + "' failed parsing: ");
-        }
+        });
     }
 
-    protected void testParseFailure(String inputString) {
-        testParseFailure(inputString, getTestVariants());
+    protected Stream<DynamicTest> testParseFailure(String inputString) {
+        return testParseFailure(inputString, getTestVariants());
     }
 
-    protected void testParseFailure(String inputString, Iterable<TestVariant> variants) {
-        for(TestVariant variant : variants) {
+    protected Stream<DynamicTest> testParseFailure(String inputString, Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
             assertEquals(false, parseResult.isSuccess(), "Variant '" + variant.name() + "' should fail: ");
-        }
+        });
     }
 
-    protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, null, false);
+    protected Stream<DynamicTest> testSuccessByAstString(String inputString,
+        String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, null, false);
     }
 
-    protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, null, true);
+    protected Stream<DynamicTest> testSuccessByExpansions(String inputString,
+        String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, null, true);
     }
 
-    protected void testIncrementalSuccessByExpansions(String[] inputStrings, String[] expectedOutputAstStrings) {
-        testIncrementalSuccess(inputStrings, expectedOutputAstStrings, null, true);
+    protected Stream<DynamicTest> testIncrementalSuccessByExpansions(String[] inputStrings,
+        String[] expectedOutputAstStrings) {
+        return testIncrementalSuccess(inputStrings, expectedOutputAstStrings, null, true);
     }
 
-    protected void testSuccessByAstString(String startSymbol, String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, startSymbol, false);
+    protected Stream<DynamicTest> testSuccessByAstString(String startSymbol, String inputString,
+        String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, startSymbol, false);
     }
 
-    protected void testSuccessByExpansions(String startSymbol, String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, startSymbol, true);
+    protected Stream<DynamicTest> testSuccessByExpansions(String startSymbol, String inputString,
+        String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, startSymbol, true);
     }
 
-    private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
-        boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants()) {
+    private Stream<DynamicTest> testSuccess(String inputString, String expectedOutputAstString,
+        String startSymbol, boolean equalityByExpansions) {
+        return testPerVariant(getTestVariants(), variant -> () -> {
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
                 actualOutputAst, equalityByExpansions);
-        }
+        });
     }
 
     protected IStrategoTerm testSuccess(TestVariant variant, String startSymbol, String inputString) {
@@ -182,15 +195,15 @@ public abstract class BaseTest implements WithParseTable {
     protected Predicate<TestVariant> isIncrementalVariant =
         testVariant -> testVariant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Incremental;
 
-    private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
-        boolean equalityByExpansions) {
-        testIncrementalSuccess(inputStrings, expectedOutputAstStrings, startSymbol, equalityByExpansions,
+    private Stream<DynamicTest> testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings,
+        String startSymbol, boolean equalityByExpansions) {
+        return testIncrementalSuccess(inputStrings, expectedOutputAstStrings, startSymbol, equalityByExpansions,
             getTestVariants(isIncrementalVariant));
     }
 
-    private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
-        boolean equalityByExpansions, Iterable<TestVariant> variants) {
-        for(TestVariant variant : variants) {
+    private Stream<DynamicTest> testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings,
+        String startSymbol, boolean equalityByExpansions, Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
             IStrategoTerm actualOutputAst;
             String filename = "" + System.nanoTime(); // To ensure the results will be cached
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
@@ -201,7 +214,7 @@ public abstract class BaseTest implements WithParseTable {
                 assertEqualAST("Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ",
                     expectedOutputAstStrings[i], actualOutputAst, equalityByExpansions);
             }
-        }
+        });
     }
 
     protected void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,
@@ -238,13 +251,13 @@ public abstract class BaseTest implements WithParseTable {
         return result;
     }
 
-    protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
-        testTokens(inputString, expectedTokens, getTestVariants());
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
+        return testTokens(inputString, expectedTokens, getTestVariants());
     }
 
-    protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens,
-        Iterable<TestVariant> variants) {
-        for(TestVariant variant : variants) {
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
+        Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
             JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
             String variantPrefix = "Variant '" + variant.name() + "' failed";
@@ -278,7 +291,7 @@ public abstract class BaseTest implements WithParseTable {
                 variantPrefix + "\nToken lists don't match:");
 
             assertEquals(expectedEndToken, actualEndToken, variantPrefix + "\nEnd token incorrect:");
-        }
+        });
     }
 
     protected String getFileAsString(String filename) throws IOException {

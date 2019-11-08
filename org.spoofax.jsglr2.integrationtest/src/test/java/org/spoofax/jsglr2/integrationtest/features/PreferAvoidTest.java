@@ -1,7 +1,10 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
+
+import java.util.stream.Stream;
 
 public class PreferAvoidTest extends BaseTestWithSdf3ParseTables {
 
@@ -9,12 +12,12 @@ public class PreferAvoidTest extends BaseTestWithSdf3ParseTables {
         super("prefer-avoid.sdf3");
     }
 
-    @Test public void testAvoid() {
-        testSuccessByExpansions("a x", "Avoid(amb([X2, X3]))");
+    @TestFactory public Stream<DynamicTest> testAvoid() {
+        return testSuccessByExpansions("a x", "Avoid(amb([X2, X3]))");
     }
 
-    @Test public void testPrefer() {
-        testSuccessByExpansions("p x", "Prefer(X1)");
+    @TestFactory public Stream<DynamicTest> testPrefer() {
+        return testSuccessByExpansions("p x", "Prefer(X1)");
     }
 
 }

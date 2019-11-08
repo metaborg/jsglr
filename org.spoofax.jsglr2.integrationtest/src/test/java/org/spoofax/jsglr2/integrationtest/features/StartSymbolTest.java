@@ -1,8 +1,11 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
+
+import java.util.stream.Stream;
 
 public class StartSymbolTest extends BaseTestWithSdf3ParseTables {
 
@@ -10,12 +13,12 @@ public class StartSymbolTest extends BaseTestWithSdf3ParseTables {
         super("start-symbol.sdf3");
     }
 
-    @Test public void withoutStartSymbol() throws ParseError {
-        testSuccessByExpansions(null, "foo", "amb([\"foo\", Id(\"foo\")])");
+    @TestFactory public Stream<DynamicTest> withoutStartSymbol() throws ParseError {
+        return testSuccessByExpansions(null, "foo", "amb([\"foo\", Id(\"foo\")])");
     }
 
-    @Test public void withStartSymbol() throws ParseError {
-        testSuccessByExpansions("Start", "foo", "Id(\"foo\")");
+    @TestFactory public Stream<DynamicTest> withStartSymbol() throws ParseError {
+        return testSuccessByExpansions("Start", "foo", "Id(\"foo\")");
     }
 
 }

@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import org.junit.jupiter.api.DynamicTest;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -17,7 +18,9 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
@@ -33,28 +36,31 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
     protected Predicate<TestVariant> isNotRecoveryVariant = isRecoveryVariant.negate();
 
-    protected void testRecovery(String inputString, boolean recovers) {
-        for(TestVariant variant : getTestVariants(isNotRecoveryVariant)) {
+    protected Stream<DynamicTest> testRecovery(String inputString, boolean recovers) {
+        Stream<DynamicTest> notRecoveryTests = testPerVariant(getTestVariants(isNotRecoveryVariant), variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
             assertEquals(false, parseResult.isSuccess(),
                 "Variant '" + variant.name() + "' should fail for non-recovering parsing: ");
-        }
+        });
 
-        for(TestVariant variant : getTestVariants(isRecoveryVariant)) {
+        Stream<DynamicTest> recoveryTests = testPerVariant(getTestVariants(isRecoveryVariant), variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
             assertEquals(recovers, parseResult.isSuccess(), "Variant '" + variant.name() + "' should "
                 + (recovers ? "succeed" : "fail") + " for recovering parsing: ");
-        }
+        });
+
+        return Stream.concat(notRecoveryTests, recoveryTests);
     }
 
-    protected void testRecovery(String inputString) {
-        testRecovery(inputString, true);
+    protected Stream<DynamicTest> testRecovery(String inputString) {
+        return testRecovery(inputString, true);
     }
 
-    protected void testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace, boolean recovers) {
-        for(TestVariant variant : getTestVariants(isRecoveryVariant)) {
+    protected Stream<DynamicTest> testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace,
+        boolean recovers) {
+        return testPerVariant(getTestVariants(isRecoveryVariant), variant -> () -> {
             IObservableParser parser = (IObservableParser) variant.parser();
 
             RecoveryTrace recoveryTrace = new RecoveryTrace<>();
@@ -67,11 +73,11 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
                 + (recovers ? "succeed" : "fail") + " for recovering parsing: ");
 
             withRecoveryTrace.get(recoveryTrace);
-        }
+        });
     }
 
-    protected void testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace) {
-        testRecoveryTraced(inputString, withRecoveryTrace, true);
+    protected Stream<DynamicTest> testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace) {
+        return testRecoveryTraced(inputString, withRecoveryTrace, true);
     }
 
     public interface WithRecoveryTrace {

@@ -1,8 +1,11 @@
 package org.spoofax.jsglr2.integrationtest.disambiguation;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
+
+import java.util.stream.Stream;
 
 public class ExpressionsDisambiguationTest extends BaseTestWithSdf3ParseTables {
 
@@ -10,57 +13,57 @@ public class ExpressionsDisambiguationTest extends BaseTestWithSdf3ParseTables {
         super("expressions-disambiguation.sdf3");
     }
 
-    @Test public void leftAssociativeOperator() throws ParseError {
-        testSuccessByExpansions("x+x+x", "Inf1(Inf1(Term(), Term()), Term())");
+    @TestFactory public Stream<DynamicTest> leftAssociativeOperator() throws ParseError {
+        return testSuccessByExpansions("x+x+x", "Inf1(Inf1(Term(), Term()), Term())");
     }
 
-    @Test public void rightAssociativeOperator() throws ParseError {
-        testSuccessByExpansions("x-x-x", "Inf2(Term(), Inf2(Term(), Term()))");
+    @TestFactory public Stream<DynamicTest> rightAssociativeOperator() throws ParseError {
+        return testSuccessByExpansions("x-x-x", "Inf2(Term(), Inf2(Term(), Term()))");
     }
 
-    @Test public void nonAssociativeOperator() throws ParseError {
-        testSuccessByExpansions("x*x*x", "Inf3(Inf3(Term(), Term()), Term())");
+    @TestFactory public Stream<DynamicTest> nonAssociativeOperator() throws ParseError {
+        return testSuccessByExpansions("x*x*x", "Inf3(Inf3(Term(), Term()), Term())");
     }
 
-    @Test public void lowPriorityInfixLeft() throws ParseError {
-        testSuccessByExpansions("x-x+x", "Inf2(Term(), Inf1(Term(), Term()))");
+    @TestFactory public Stream<DynamicTest> lowPriorityInfixLeft() throws ParseError {
+        return testSuccessByExpansions("x-x+x", "Inf2(Term(), Inf1(Term(), Term()))");
     }
 
-    @Test public void highPriorityInfixLeft() throws ParseError {
-        testSuccessByExpansions("x-x*x", "Inf3(Inf2(Term(), Term()), Term())");
+    @TestFactory public Stream<DynamicTest> highPriorityInfixLeft() throws ParseError {
+        return testSuccessByExpansions("x-x*x", "Inf3(Inf2(Term(), Term()), Term())");
     }
 
-    @Test public void highPriorityPrefix() throws ParseError {
-        testSuccessByExpansions("x+@x+x", "Inf1(Inf1(Term(), Pre1(Term())), Term())");
+    @TestFactory public Stream<DynamicTest> highPriorityPrefix() throws ParseError {
+        return testSuccessByExpansions("x+@x+x", "Inf1(Inf1(Term(), Pre1(Term())), Term())");
     }
 
-    @Test public void lowPriorityPrefixDeep() throws ParseError {
-        testSuccessByExpansions("x+$x+x", "Inf1(Term(), Pre2(Inf1(Term(), Term())))");
+    @TestFactory public Stream<DynamicTest> lowPriorityPrefixDeep() throws ParseError {
+        return testSuccessByExpansions("x+$x+x", "Inf1(Term(), Pre2(Inf1(Term(), Term())))");
     }
 
-    @Test public void highPriorityPostfix() throws ParseError {
-        testSuccessByExpansions("x+x!+x", "Inf1(Inf1(Term(), Pos1(Term())), Term())");
+    @TestFactory public Stream<DynamicTest> highPriorityPostfix() throws ParseError {
+        return testSuccessByExpansions("x+x!+x", "Inf1(Inf1(Term(), Pos1(Term())), Term())");
     }
 
-    @Test public void lowPriorityPostfixDeep() throws ParseError {
-        testSuccessByExpansions("x+x%+x", "Inf1(Pos2(Inf1(Term(), Term())), Term())");
+    @TestFactory public Stream<DynamicTest> lowPriorityPostfixDeep() throws ParseError {
+        return testSuccessByExpansions("x+x%+x", "Inf1(Pos2(Inf1(Term(), Term())), Term())");
     }
 
-    @Test public void danglingPrefix() throws ParseError {
-        testSuccessByExpansions("&&x^x", "DisPre1(DisInPre1(Term(), Term()))");
+    @TestFactory public Stream<DynamicTest> danglingPrefix() throws ParseError {
+        return testSuccessByExpansions("&&x^x", "DisPre1(DisInPre1(Term(), Term()))");
     }
 
-    @Test public void danglingSuffix() throws ParseError {
-        testSuccessByExpansions("x.x''", "DisPos1(DisInPos1(Term(), Term()))");
+    @TestFactory public Stream<DynamicTest> danglingSuffix() throws ParseError {
+        return testSuccessByExpansions("x.x''", "DisPos1(DisInPos1(Term(), Term()))");
     }
 
-    @Test public void longestMatchFrontSimple() throws ParseError {
-        testSuccessByExpansions("xx]]", "ListFront([ListFront([Term(), Term()])])");
+    @TestFactory public Stream<DynamicTest> longestMatchFrontSimple() throws ParseError {
+        return testSuccessByExpansions("xx]]", "ListFront([ListFront([Term(), Term()])])");
     }
 
-    @Test public void longestMatchFrontComplex() throws ParseError {
+    @TestFactory public Stream<DynamicTest> longestMatchFrontComplex() throws ParseError {
         //@formatter:off
-        testSuccessByExpansions(
+        return testSuccessByExpansions(
             "xx]xxx]xx]",
             "ListFront(\n" +
             "  [ ListFront(\n" +
@@ -74,13 +77,13 @@ public class ExpressionsDisambiguationTest extends BaseTestWithSdf3ParseTables {
         //@formatter:on
     }
 
-    @Test public void longestMatchBackSimple() throws ParseError {
-        testSuccessByExpansions(";;xx", "ListBack([ListBack([Term(), Term()])])");
+    @TestFactory public Stream<DynamicTest> longestMatchBackSimple() throws ParseError {
+        return testSuccessByExpansions(";;xx", "ListBack([ListBack([Term(), Term()])])");
     }
 
-    @Test public void longestMatchBackComplex() throws ParseError {
+    @TestFactory public Stream<DynamicTest> longestMatchBackComplex() throws ParseError {
         //@formatter:off
-        testSuccessByExpansions(
+        return testSuccessByExpansions(
             ";xx;xxx;xx",
             "ListBack(\n" +
             "  [ Term()\n" +

@@ -1,5 +1,14 @@
 package org.spoofax.jsglr2.incremental;
 
+import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Iterables.size;
+import static org.metaborg.util.iterators.Iterables2.stream;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
@@ -8,7 +17,6 @@ import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
-import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
@@ -23,16 +31,6 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.collect.Iterables.isEmpty;
-import static com.google.common.collect.Iterables.size;
-import static org.metaborg.util.iterators.Iterables2.stream;
-import static org.spoofax.jsglr2.incremental.IncrementalParseState.NO_STATE;
 
 public class IncrementalParser
 // @formatter:off
@@ -88,15 +86,16 @@ public class IncrementalParser
 
     @Override protected void actor(StackNode stack, ParseState parseState) {
         Iterable<IAction> actions = getActions(stack, parseState);
-        // Break down lookahead if it has no state or if there are no actions for it.
-        // Only break down if the lookahead is not a terminal.
-        // If there are no actions, do not break down if we already have something to shift.
+        // Break down the lookahead in either of the following scenarios:
+        // - The lookahead is not reusable (terminal nodes are always reusable).
+        // - The lookahead is a non-terminal parse node AND there are no actions for it.
+        // In the second case, do not break down if we already have something to shift.
         // This node that we can shift should not be broken down anymore:
         // - if we would, it would cause different shifts to be desynchronised;
         // - if a break-down of this node would cause different actions, it would already have been broken down because
         // that would mean that this node was created when the parser was in multiple states.
-        while(!parseState.lookahead().get().isTerminal()
-            && (lookaheadHasNoState(parseState.lookahead()) || isEmpty(actions) && parseState.forShifter.isEmpty())) {
+        while(!parseState.lookahead().get().isReusable()
+            || !parseState.lookahead().get().isTerminal() && isEmpty(actions) && parseState.forShifter.isEmpty()) {
             parseState.lookahead().leftBreakdown();
             actions = getActions(stack, parseState);
         }
@@ -109,10 +108,6 @@ public class IncrementalParser
 
         for(IAction action : actions)
             actor(stack, parseState, action);
-    }
-
-    private boolean lookaheadHasNoState(ILookaheadStack lookahead) {
-        return ((IncrementalParseNode) lookahead.get()).getFirstDerivation().state.equals(NO_STATE);
     }
 
     // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.
@@ -137,22 +132,20 @@ public class IncrementalParser
             IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
 
             // Only allow shifting the subtree if the saved state matches the current state
-            boolean hasGotoShift = false;
-            for(IncrementalDerivation derivation : lookaheadNode.getDerivations()) {
-                if(stack.state().id() == derivation.state.id()) {
-                    result.add(new GotoShift(stack.state().getGotoId(derivation.production().id())));
-                    hasGotoShift = true;
-                }
+            boolean reusable = lookaheadNode.isReusable(stack.state());
+            if(reusable) {
+                result
+                    .add(new GotoShift(stack.state().getGotoId(lookaheadNode.getFirstDerivation().production().id())));
             }
 
             // If we don't have a GotoShift action, but do have regular shift actions, we should break down further
-            if(!hasGotoShift && !shiftActions.isEmpty()) {
+            if(!reusable && !shiftActions.isEmpty()) {
                 return Collections.emptyList(); // Return no actions, to trigger breakdown
             }
 
             // If lookahead has null yield and the production of lookahead matches the state of the GotoShift,
             // there is a duplicate action that can be removed (this is an optimization to avoid multipleStates == true)
-            if(!lookaheadNode.isAmbiguous() && lookaheadNode.width() == 0 && result.size() == 2 && hasGotoShift
+            if(lookaheadNode.width() == 0 && result.size() == 2 && reusable
                 && nullReduceMatchesGotoShift(stack, (IReduce) result.get(0), (GotoShift) result.get(1))) {
                 result.remove(0); // Removes the unnecessary reduce action
             }

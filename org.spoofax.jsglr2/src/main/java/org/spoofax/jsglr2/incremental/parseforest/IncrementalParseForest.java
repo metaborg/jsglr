@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
@@ -10,6 +11,12 @@ public abstract class IncrementalParseForest implements IParseForest {
         super();
         this.width = width;
     }
+
+    /** Returns whether this parse node is in theory reusable, not taking into account the stack it's shifted onto. */
+    public abstract boolean isReusable();
+
+    /** Returns whether this parse node is reusable, taking into account the state of the stack it's shifted onto. */
+    public abstract boolean isReusable(IState stackState);
 
     public abstract boolean isTerminal();
 

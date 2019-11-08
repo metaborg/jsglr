@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.incremental.parseforest;
 import static org.metaborg.parsetable.characterclasses.CharacterClassFactory.EOF_INT;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
@@ -15,6 +16,14 @@ public class IncrementalCharacterNode extends IncrementalParseForest implements 
     public IncrementalCharacterNode(int character) {
         super(1);
         this.character = character;
+    }
+
+    @Override public boolean isReusable() {
+        return true;
+    }
+
+    @Override public boolean isReusable(IState stackState) {
+        return true;
     }
 
     @Override public boolean isTerminal() {

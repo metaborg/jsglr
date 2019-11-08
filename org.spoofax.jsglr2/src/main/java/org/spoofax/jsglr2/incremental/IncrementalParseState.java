@@ -1,10 +1,5 @@
 package org.spoofax.jsglr2.incremental;
 
-import org.metaborg.parsetable.actions.IGoto;
-import org.metaborg.parsetable.query.ActionsForCharacterSeparated;
-import org.metaborg.parsetable.query.ActionsPerCharacterClass;
-import org.metaborg.parsetable.query.ProductionToGotoForLoop;
-import org.metaborg.parsetable.states.State;
 import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
 import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
@@ -24,9 +19,6 @@ public class IncrementalParseState<StackNode extends IStackNode> extends Abstrac
 
     private boolean multipleStates = false;
     ILookaheadStack lookahead;
-
-    public static final State NO_STATE = new State(-1,
-        new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
 
     public IncrementalParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
@@ -73,8 +65,8 @@ public class IncrementalParseState<StackNode extends IStackNode> extends Abstrac
         return lookahead;
     }
 
-    @Override public boolean isMultipleStates() {
-        return multipleStates;
+    @Override public boolean newParseNodesAreReusable() {
+        return !multipleStates;
     }
 
     @Override public void setMultipleStates(boolean multipleStates) {

@@ -9,7 +9,7 @@ public interface IIncrementalParseState {
 
     ILookaheadStack lookahead();
 
-    boolean isMultipleStates();
+    boolean newParseNodesAreReusable();
 
     void setMultipleStates(boolean multipleStates);
 

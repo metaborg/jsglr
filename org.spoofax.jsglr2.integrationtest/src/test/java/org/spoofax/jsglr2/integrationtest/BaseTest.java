@@ -120,7 +120,7 @@ public abstract class BaseTest implements WithParseTable {
         return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals(true, parseResult.isSuccess(), "Variant '" + variant.name() + "' failed parsing: ");
+            assertEquals(true, parseResult.isSuccess(), "Parsing failed");
         });
     }
 
@@ -132,17 +132,15 @@ public abstract class BaseTest implements WithParseTable {
         return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals(false, parseResult.isSuccess(), "Variant '" + variant.name() + "' should fail: ");
+            assertEquals(false, parseResult.isSuccess(), "Parsing should fail");
         });
     }
 
-    protected Stream<DynamicTest> testSuccessByAstString(String inputString,
-        String expectedOutputAstString) {
+    protected Stream<DynamicTest> testSuccessByAstString(String inputString, String expectedOutputAstString) {
         return testSuccess(inputString, expectedOutputAstString, null, false);
     }
 
-    protected Stream<DynamicTest> testSuccessByExpansions(String inputString,
-        String expectedOutputAstString) {
+    protected Stream<DynamicTest> testSuccessByExpansions(String inputString, String expectedOutputAstString) {
         return testSuccess(inputString, expectedOutputAstString, null, true);
     }
 
@@ -161,19 +159,17 @@ public abstract class BaseTest implements WithParseTable {
         return testSuccess(inputString, expectedOutputAstString, startSymbol, true);
     }
 
-    private Stream<DynamicTest> testSuccess(String inputString, String expectedOutputAstString,
-        String startSymbol, boolean equalityByExpansions) {
+    private Stream<DynamicTest> testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
+        boolean equalityByExpansions) {
         return testPerVariant(getTestVariants(), variant -> () -> {
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
-            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
-                actualOutputAst, equalityByExpansions);
+            assertEqualAST("Incorrect AST", expectedOutputAstString, actualOutputAst, equalityByExpansions);
         });
     }
 
     protected IStrategoTerm testSuccess(TestVariant variant, String startSymbol, String inputString) {
-        return testSuccess("Variant '" + variant.name() + "' failed parsing: ",
-            "Variant '" + variant.name() + "' failed imploding: ", variant.jsglr2(), "", startSymbol, inputString);
+        return testSuccess("Parsing failed", "Imploding failed", variant.jsglr2(), "", startSymbol, inputString);
     }
 
     private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage, JSGLR2<IStrategoTerm> jsglr2,
@@ -208,11 +204,10 @@ public abstract class BaseTest implements WithParseTable {
             String filename = "" + System.nanoTime(); // To ensure the results will be cached
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
                 String inputString = inputStrings[i];
-                actualOutputAst = testSuccess("Variant '" + variant.name() + "' failed parsing at update " + i + ": ",
-                    "Variant '" + variant.name() + "' failed imploding at update " + i + ": ", variant.jsglr2(),
-                    filename, startSymbol, inputString);
-                assertEqualAST("Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ",
-                    expectedOutputAstStrings[i], actualOutputAst, equalityByExpansions);
+                actualOutputAst = testSuccess("Parsing failed at update " + i + ": ",
+                    "Imploding failed at update " + i + ": ", variant.jsglr2(), filename, startSymbol, inputString);
+                assertEqualAST("Incorrect AST at update " + i + ": ", expectedOutputAstStrings[i], actualOutputAst,
+                    equalityByExpansions);
             }
         });
     }
@@ -260,8 +255,7 @@ public abstract class BaseTest implements WithParseTable {
         return testPerVariant(variants, variant -> () -> {
             JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
-            String variantPrefix = "Variant '" + variant.name() + "' failed";
-            assertTrue(jsglr2Result.isSuccess(), variantPrefix);
+            assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
 
             JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
 
@@ -274,7 +268,7 @@ public abstract class BaseTest implements WithParseTable {
             TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, null);
             TokenDescriptor actualStartToken = actualTokens.get(0);
 
-            assertEquals(expectedStartToken, actualStartToken, variantPrefix + "\nStart token incorrect:");
+            assertEquals(expectedStartToken, actualStartToken, "Start token incorrect");
 
             Position endPosition = Position.atEnd(inputString);
 
@@ -287,10 +281,9 @@ public abstract class BaseTest implements WithParseTable {
 
             List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 
-            assertIterableEquals(actualTokensWithoutStartAndEnd, expectedTokens,
-                variantPrefix + "\nToken lists don't match:");
+            assertIterableEquals(actualTokensWithoutStartAndEnd, expectedTokens, "Token lists don't match");
 
-            assertEquals(expectedEndToken, actualEndToken, variantPrefix + "\nEnd token incorrect:");
+            assertEquals(expectedEndToken, actualEndToken, "End token incorrect");
         });
     }
 

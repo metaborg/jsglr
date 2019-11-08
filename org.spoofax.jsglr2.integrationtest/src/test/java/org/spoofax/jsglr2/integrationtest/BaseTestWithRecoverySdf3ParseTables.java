@@ -40,15 +40,14 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         Stream<DynamicTest> notRecoveryTests = testPerVariant(getTestVariants(isNotRecoveryVariant), variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals(false, parseResult.isSuccess(),
-                "Variant '" + variant.name() + "' should fail for non-recovering parsing: ");
+            assertEquals(false, parseResult.isSuccess(), "Non-recovering parsing should fail");
         });
 
         Stream<DynamicTest> recoveryTests = testPerVariant(getTestVariants(isRecoveryVariant), variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals(recovers, parseResult.isSuccess(), "Variant '" + variant.name() + "' should "
-                + (recovers ? "succeed" : "fail") + " for recovering parsing: ");
+            assertEquals(recovers, parseResult.isSuccess(),
+                "Parsing should " + (recovers ? "succeed" : "fail") + " with recovering parsing");
         });
 
         return Stream.concat(notRecoveryTests, recoveryTests);
@@ -69,8 +68,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
-            assertEquals(recovers, parseResult.isSuccess(), "Variant '" + variant.name() + "' should "
-                + (recovers ? "succeed" : "fail") + " for recovering parsing: ");
+            assertEquals(recovers, parseResult.isSuccess(),
+                "Parsing should " + (recovers ? "succeed" : "fail") + " with recovering parsing");
 
             withRecoveryTrace.get(recoveryTrace);
         });

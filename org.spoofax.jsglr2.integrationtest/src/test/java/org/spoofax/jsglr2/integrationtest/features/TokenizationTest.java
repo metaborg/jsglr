@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
-import java.util.Arrays;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.TokenDescriptor;
 import org.spoofax.terms.ParseError;
+
+import java.util.Arrays;
 
 public class TokenizationTest extends BaseTestWithSdf3ParseTables {
 

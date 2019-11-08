@@ -17,8 +17,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
@@ -38,15 +37,15 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         for(TestVariant variant : getTestVariants(isNotRecoveryVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should fail for non-recovering parsing: ", false,
-                parseResult.isSuccess());
+            assertEquals(false, parseResult.isSuccess(),
+                "Variant '" + variant.name() + "' should fail for non-recovering parsing: ");
         }
 
         for(TestVariant variant : getTestVariants(isRecoveryVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should " + (recovers ? "succeed" : "fail")
-                + " for recovering parsing: ", recovers, parseResult.isSuccess());
+            assertEquals(recovers, parseResult.isSuccess(), "Variant '" + variant.name() + "' should "
+                + (recovers ? "succeed" : "fail") + " for recovering parsing: ");
         }
     }
 
@@ -64,8 +63,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
             ParseResult<?> parseResult = parser.parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should " + (recovers ? "succeed" : "fail")
-                + " for recovering parsing: ", recovers, parseResult.isSuccess());
+            assertEquals(recovers, parseResult.isSuccess(), "Variant '" + variant.name() + "' should "
+                + (recovers ? "succeed" : "fail") + " for recovering parsing: ");
 
             withRecoveryTrace.get(recoveryTrace);
         }

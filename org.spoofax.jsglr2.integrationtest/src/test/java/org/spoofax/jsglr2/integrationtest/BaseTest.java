@@ -1,18 +1,5 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import static java.util.Collections.sort;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
@@ -29,6 +16,18 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+import static java.util.Collections.sort;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class BaseTest implements WithParseTable {
 
@@ -113,7 +112,7 @@ public abstract class BaseTest implements WithParseTable {
         for(TestVariant variant : variants) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess());
+            assertEquals(true, parseResult.isSuccess(), "Variant '" + variant.name() + "' failed parsing: ");
         }
     }
 
@@ -125,7 +124,7 @@ public abstract class BaseTest implements WithParseTable {
         for(TestVariant variant : variants) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
+            assertEquals(false, parseResult.isSuccess(), "Variant '" + variant.name() + "' should fail: ");
         }
     }
 
@@ -170,7 +169,7 @@ public abstract class BaseTest implements WithParseTable {
             IStrategoTerm result = jsglr2.parseUnsafe(inputString, filename, startSymbol);
 
             // Fail here if imploding or tokenization failed
-            assertNotNull(implodeFailMessage, result);
+            assertNotNull(result, implodeFailMessage);
 
             return result;
         } catch(ParseException e) {
@@ -212,7 +211,7 @@ public abstract class BaseTest implements WithParseTable {
 
             assertEqualTermExpansions(message, expectedOutputAst, actualOutputAst);
         } else {
-            assertEquals(message, expectedOutputAstString, actualOutputAst.toString());
+            assertEquals(expectedOutputAstString, actualOutputAst.toString(), message);
         }
     }
 
@@ -224,7 +223,7 @@ public abstract class BaseTest implements WithParseTable {
         List<String> expectedExpansion = toSortedStringList(astUtilities.expand(expected));
         List<String> actualExpansion = toSortedStringList(astUtilities.expand(actual));
 
-        assertEquals(message, expectedExpansion, actualExpansion);
+        assertEquals(expectedExpansion, actualExpansion, message);
     }
 
     private static List<String> toSortedStringList(List<IStrategoTerm> astExpansion) {
@@ -249,7 +248,7 @@ public abstract class BaseTest implements WithParseTable {
             JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
             String variantPrefix = "Variant '" + variant.name() + "' failed";
-            assertTrue(variantPrefix, jsglr2Result.isSuccess());
+            assertTrue(jsglr2Result.isSuccess(), variantPrefix);
 
             JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
 
@@ -262,7 +261,7 @@ public abstract class BaseTest implements WithParseTable {
             TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, null);
             TokenDescriptor actualStartToken = actualTokens.get(0);
 
-            assertEquals(variantPrefix + "\nStart token incorrect:", expectedStartToken, actualStartToken);
+            assertEquals(expectedStartToken, actualStartToken, variantPrefix + "\nStart token incorrect:");
 
             Position endPosition = Position.atEnd(inputString);
 
@@ -275,10 +274,10 @@ public abstract class BaseTest implements WithParseTable {
 
             List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 
-            assertThat(variantPrefix + "\nToken lists don't match:", actualTokensWithoutStartAndEnd,
-                is(expectedTokens));
+            assertIterableEquals(actualTokensWithoutStartAndEnd, expectedTokens,
+                variantPrefix + "\nToken lists don't match:");
 
-            assertEquals(variantPrefix + "\nEnd token incorrect:", expectedEndToken, actualEndToken);
+            assertEquals(expectedEndToken, actualEndToken, variantPrefix + "\nEnd token incorrect:");
         }
     }
 

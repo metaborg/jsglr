@@ -1,14 +1,14 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.function.Predicate;
-
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+
+import java.util.function.Predicate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
@@ -33,15 +33,15 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
         for(TestVariant variant : getTestVariants(isNotLayoutSensitiveVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ", true,
-                parseResult.isSuccess());
+            assertEquals(true, parseResult.isSuccess(),
+                "Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ");
         }
 
         for(TestVariant variant : getTestVariants(isLayoutSensitiveVariant)) {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ", false,
-                parseResult.isSuccess());
+            assertEquals(false, parseResult.isSuccess(),
+                "Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ");
         }
     }
 

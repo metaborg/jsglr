@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.integrationtest.languages;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithParseTableFromTerm;
 import org.spoofax.terms.ParseError;
 

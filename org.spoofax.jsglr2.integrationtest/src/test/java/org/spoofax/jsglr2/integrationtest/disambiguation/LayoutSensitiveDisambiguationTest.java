@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.integrationtest.disambiguation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithLayoutSensitiveSdf3ParseTables;
 import org.spoofax.terms.ParseError;
 

@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.integrationtest.recovery;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithRecoverySdf3ParseTables;
 import org.spoofax.terms.ParseError;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.spoofax.jsglr2.integrationtest.Util.newlines;
 
 public class RecoveryBacktrackingTest extends BaseTestWithRecoverySdf3ParseTables {

@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.integrationtest.incremental;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 
 public class IncrementalExpressionPrioritiesTest extends BaseTestWithSdf3ParseTables {

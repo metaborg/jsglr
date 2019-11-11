@@ -16,7 +16,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public class LayoutSensitiveReduceManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<StackNode>>
+    ParseState extends AbstractParseState<?, StackNode>>
 //@formatter:on
     extends
     ReduceManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> {
@@ -31,7 +31,7 @@ public class LayoutSensitiveReduceManager
     public static
     //@formatter:off
        <StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<StackNode_>,
+        ParseState_   extends AbstractParseState<?, StackNode_>,
         StackManager_ extends AbstractStackManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_, StackManager_, LayoutSensitiveReduceManager<StackNode_, ParseState_>>

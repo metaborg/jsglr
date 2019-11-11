@@ -14,7 +14,7 @@ public class BasicStackManager
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    ParseState  extends AbstractParseState<BasicStackNode<ParseForest>>>
+    ParseState  extends AbstractParseState<?, BasicStackNode<ParseForest>>>
 //@formatter:on
     extends StackManager<ParseForest, Derivation, ParseNode, BasicStackNode<ParseForest>, ParseState> {
 
@@ -28,7 +28,7 @@ public class BasicStackManager
    <ParseForest_  extends IParseForest,
     Derivation_   extends IDerivation<ParseForest_>,
     ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
-    ParseState_   extends AbstractParseState<BasicStackNode<ParseForest_>>>
+    ParseState_   extends AbstractParseState<?, BasicStackNode<ParseForest_>>>
 //@formatter:on
     StackManagerFactory<ParseForest_, Derivation_, ParseNode_, BasicStackNode<ParseForest_>, ParseState_, BasicStackManager<ParseForest_, Derivation_, ParseNode_, ParseState_>>
         factory() {

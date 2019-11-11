@@ -1,13 +1,15 @@
 package org.spoofax.jsglr2.recovery;
 
-import org.spoofax.jsglr2.stack.IStackNode;
-
 import java.util.Stack;
+
+import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public interface IRecoveryParseState
 //@formatter:off
-   <StackNode            extends IStackNode,
-    BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>>
+   <InputStack           extends IInputStack,
+    StackNode            extends IStackNode,
+    BacktrackChoicePoint extends IBacktrackChoicePoint<InputStack, StackNode>>
 //@formatter:on
 {
 

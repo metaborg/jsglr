@@ -1,38 +1,35 @@
 package org.spoofax.jsglr2.incremental.diff;
 
-import org.spoofax.jsglr2.incremental.EditorUpdate;
-import org.spoofax.jsglr2.incremental.IIncrementalParseState;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.parser.AbstractParseState;
-
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.IStackNode;
+import static org.spoofax.jsglr2.incremental.EditorUpdate.Type.INSERTION;
+import static org.spoofax.jsglr2.incremental.EditorUpdate.Type.REPLACEMENT;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.spoofax.jsglr2.incremental.EditorUpdate.Type.INSERTION;
-import static org.spoofax.jsglr2.incremental.EditorUpdate.Type.REPLACEMENT;
+import org.spoofax.jsglr2.incremental.EditorUpdate;
+import org.spoofax.jsglr2.incremental.IIncrementalParseState;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.stack.IStackNode;
 
 public class ProcessUpdates
 //@formatter:off
    <StackNode extends IStackNode,
-    ParseState extends AbstractParseState<StackNode> & IIncrementalParseState>
+    ParseState extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState>
 //@formatter:on
 {
 
-    private final ParseState parseState;
     private final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing;
     private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager;
 
-    public ProcessUpdates(ParseState parseState,
-        IncrementalParseForestManager<StackNode, ParseState> parseForestManager) {
-        this.parseState = parseState;
+    public ProcessUpdates(IncrementalParseForestManager<StackNode, ParseState> parseForestManager) {
         this.observing = new ParserObserving<>();
         this.parseForestManager = parseForestManager;
     }
@@ -154,7 +151,7 @@ public class ProcessUpdates
             Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
         if(filtered.length == 0)
             return null;
-        return parseForestManager.createChangedParseNode(parseState, filtered);
+        return parseForestManager.createChangedParseNode(filtered);
     }
 
     public IncrementalParseNode getParseNodeFromString(String inputString) {
@@ -162,8 +159,8 @@ public class ProcessUpdates
 
         char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            parseForests[i] = parseForestManager.createCharacterNode(parseState, chars[i]);
+            parseForests[i] = parseForestManager.createCharacterNode(chars[i]);
         }
-        return parseForestManager.createChangedParseNode(parseState, parseForests);
+        return parseForestManager.createChangedParseNode(parseForests);
     }
 }

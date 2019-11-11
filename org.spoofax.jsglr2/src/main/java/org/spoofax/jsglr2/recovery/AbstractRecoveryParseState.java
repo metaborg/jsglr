@@ -1,25 +1,28 @@
 package org.spoofax.jsglr2.recovery;
 
+import java.util.Stack;
+
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.Stack;
-
 public abstract class AbstractRecoveryParseState
 //@formatter:off
-   <StackNode            extends IStackNode,
-    BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>>
+   <InputStack           extends IInputStack,
+    StackNode            extends IStackNode,
+    BacktrackChoicePoint extends IBacktrackChoicePoint<InputStack, StackNode>>
 //@formatter:on
-    extends AbstractParseState<StackNode> implements IRecoveryParseState<StackNode, BacktrackChoicePoint> {
+    extends AbstractParseState<InputStack, StackNode>
+    implements IRecoveryParseState<InputStack, StackNode, BacktrackChoicePoint> {
 
     Stack<BacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private RecoveryJob recoveryJob = null;
 
-    public AbstractRecoveryParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+    public AbstractRecoveryParseState(InputStack inputStack, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
-        super(inputString, filename, activeStacks, forActorStacks);
+        super(inputStack, activeStacks, forActorStacks);
     }
 
     @Override public Stack<BacktrackChoicePoint> backtrackChoicePoints() {
@@ -53,8 +56,8 @@ public abstract class AbstractRecoveryParseState
     }
 
     protected void resetToBacktrackChoicePoint(BacktrackChoicePoint backtrackChoicePoint) {
-        this.currentOffset = backtrackChoicePoint.offset();
-        this.currentChar = getChar(currentOffset);
+        // TODO this cast is ugly, but there's no way around it
+        this.inputStack = (InputStack) backtrackChoicePoint.inputStack().clone();
 
         this.activeStacks.clear();
 

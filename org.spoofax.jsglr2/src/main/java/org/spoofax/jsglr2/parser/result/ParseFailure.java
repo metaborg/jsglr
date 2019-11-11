@@ -8,7 +8,7 @@ public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<
 
     public final ParseFailureType failureType;
 
-    public ParseFailure(AbstractParseState<?> parseState, ParseFailureType failureType) {
+    public ParseFailure(AbstractParseState<?, ?> parseState, ParseFailureType failureType) {
         super(parseState);
 
         this.failureType = failureType;

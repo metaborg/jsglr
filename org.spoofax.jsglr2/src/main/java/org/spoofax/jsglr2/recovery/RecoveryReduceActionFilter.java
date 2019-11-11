@@ -10,8 +10,8 @@ public class RecoveryReduceActionFilter
 //@formatter:off
    <ParseForest          extends IParseForest,
     StackNode            extends IStackNode,
-    BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
-    ParseState           extends AbstractParseState<StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
+    BacktrackChoicePoint extends IBacktrackChoicePoint<?, StackNode>,
+    ParseState           extends AbstractParseState<?, StackNode> & IRecoveryParseState<?, StackNode, BacktrackChoicePoint>>
 //@formatter:on
     implements ReduceActionFilter<ParseForest, StackNode, ParseState> {
 

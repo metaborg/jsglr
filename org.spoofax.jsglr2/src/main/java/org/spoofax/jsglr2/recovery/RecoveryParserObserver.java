@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.recovery;
 
+import java.util.Queue;
+
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
@@ -19,15 +21,13 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.Queue;
-
 public class RecoveryParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode> & IRecoveryParseState<StackNode, ?>>
+    ParseState  extends AbstractParseState<?, StackNode> & IRecoveryParseState<?, StackNode, ?>>
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -38,17 +38,17 @@ public class RecoveryParserObserver
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         // Record backtrack choice points per line. If in recovery mode, only record new choice points when parsing
         // after the point that initiated recovery.
-        if((parseState.currentOffset == 0
-            || CharacterClassFactory.isNewLine(parseState.getChar(parseState.currentOffset - 1)))
+        int currentOffset = parseState.inputStack.offset();
+        if((currentOffset == 0 || CharacterClassFactory.isNewLine(parseState.inputStack.getChar(currentOffset - 1)))
             && (!parseState.isRecovering()
-                || parseState.lastBacktrackChoicePoint().offset() < parseState.currentOffset)) {
-            IBacktrackChoicePoint<StackNode> choicePoint = parseState.saveBacktrackChoicePoint();
+                || parseState.lastBacktrackChoicePoint().inputStack().offset() < currentOffset)) {
+            IBacktrackChoicePoint<?, StackNode> choicePoint = parseState.saveBacktrackChoicePoint();
 
             observing.notify(observer -> observer
                 .recoveryBacktrackChoicePoint(parseState.backtrackChoicePoints().size() - 1, choicePoint));
         }
 
-        if(parseState.successfulRecovery(parseState.currentOffset)) {
+        if(parseState.successfulRecovery(currentOffset)) {
             parseState.endRecovery();
 
             observing.notify(observer -> observer.endRecovery(parseState));
@@ -126,7 +126,7 @@ public class RecoveryParserObserver
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
-    @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint) {
+    @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

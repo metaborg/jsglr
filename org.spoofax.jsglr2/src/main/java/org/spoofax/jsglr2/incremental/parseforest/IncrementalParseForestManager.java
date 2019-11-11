@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public class IncrementalParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<StackNode> & IIncrementalParseState>
+    ParseState extends AbstractParseState<?, StackNode> & IIncrementalParseState>
 //@formatter:on
     extends
     ParseForestManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> {
@@ -30,7 +30,7 @@ public class IncrementalParseForestManager
     public static
 //@formatter:off
    <StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<StackNode_> & IIncrementalParseState>
+    ParseState_  extends AbstractParseState<?, StackNode_> & IIncrementalParseState>
 //@formatter:on
     ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode_, ParseState_>
         factory() {
@@ -49,7 +49,7 @@ public class IncrementalParseForestManager
         return parseNode;
     }
 
-    public IncrementalParseNode createChangedParseNode(ParseState parseState, IncrementalParseForest... children) {
+    public IncrementalParseNode createChangedParseNode(IncrementalParseForest... children) {
         IncrementalParseNode parseNode = new IncrementalParseNode(children);
 
         observing.notify(observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, children));
@@ -78,10 +78,10 @@ public class IncrementalParseForestManager
     }
 
     @Override public IncrementalParseForest createCharacterNode(ParseState parseState) {
-        return createCharacterNode(parseState, parseState.currentChar);
+        return createCharacterNode(parseState.inputStack.getChar());
     }
 
-    public IncrementalParseForest createCharacterNode(ParseState parseState, int currentChar) {
+    public IncrementalParseForest createCharacterNode(int currentChar) {
         IncrementalCharacterNode characterNode = new IncrementalCharacterNode(currentChar);
 
         observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));

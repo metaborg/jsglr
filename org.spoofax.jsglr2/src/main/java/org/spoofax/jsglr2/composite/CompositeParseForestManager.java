@@ -1,22 +1,22 @@
 package org.spoofax.jsglr2.composite;
 
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
+import org.spoofax.jsglr2.inputstack.LayoutSensitiveInputStack;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
 import org.spoofax.jsglr2.layoutsensitive.Shape;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
-
-import java.util.List;
 
 public class CompositeParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<StackNode> & ICompositeParseState>
+    ParseState extends AbstractParseState<LayoutSensitiveInputStack, StackNode>>
 //@formatter:on
     extends
     ParseForestManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> {
@@ -29,19 +29,18 @@ public class CompositeParseForestManager
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<StackNode_> & ICompositeParseState>
+    ParseState_ extends AbstractParseState<LayoutSensitiveInputStack, StackNode_>>
 //@formatter:on
     ParseForestManagerFactory<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode_, ParseState_>
         factory() {
         return CompositeParseForestManager::new;
     }
 
-    @Override public
-        ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
+    @Override public ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ICompositeDerivation<ICompositeParseForest> firstDerivation) {
         ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> parseNode =
-            new CompositeParseNode<>(firstDerivation.getStartPosition(), parseState.currentPosition(),
+            new CompositeParseNode<>(firstDerivation.getStartPosition(), parseState.inputStack.currentPosition(),
                 production);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
@@ -52,13 +51,11 @@ public class CompositeParseForestManager
     }
 
     @Override public ICompositeDerivation<ICompositeParseForest> createDerivation(ParseState parseState,
-        IStackNode stack, IProduction production, ProductionType productionType,
-        ICompositeParseForest[] parseForests) {
-        Shape shape = LayoutSensitiveParseForestManager.shape(parseForests, parseState.currentPosition());
+        IStackNode stack, IProduction production, ProductionType productionType, ICompositeParseForest[] parseForests) {
+        Shape shape = LayoutSensitiveParseForestManager.shape(parseForests, parseState.inputStack.currentPosition());
 
-        ICompositeDerivation<ICompositeParseForest> derivation =
-            new CompositeDerivation<>(shape.start, shape.left, shape.right, shape.end, production, productionType,
-                parseForests);
+        ICompositeDerivation<ICompositeParseForest> derivation = new CompositeDerivation<>(shape.start, shape.left,
+            shape.right, shape.end, production, productionType, parseForests);
 
         observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
@@ -75,9 +72,9 @@ public class CompositeParseForestManager
 
     @Override public ICompositeParseForest createCharacterNode(ParseState parseState) {
         ICompositeParseForest termNode =
-            new CompositeCharacterNode(parseState.currentPosition(), parseState.currentChar);
+            new CompositeCharacterNode(parseState.inputStack.currentPosition(), parseState.inputStack.getChar());
 
-        observing.notify(observer -> observer.createCharacterNode(termNode, parseState.currentChar));
+        observing.notify(observer -> observer.createCharacterNode(termNode, parseState.inputStack.getChar()));
 
         return termNode;
     }
@@ -86,14 +83,12 @@ public class CompositeParseForestManager
         return new ICompositeParseForest[length];
     }
 
-    @Override protected
-        ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
+    @Override protected ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
         filteredTopParseNode(
             ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> parseNode,
             List<ICompositeDerivation<ICompositeParseForest>> derivations) {
         ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> topParseNode =
-            new CompositeParseNode<>(parseNode.getStartPosition(), parseNode.getEndPosition(),
-                parseNode.production());
+            new CompositeParseNode<>(parseNode.getStartPosition(), parseNode.getEndPosition(), parseNode.production());
 
         for(ICompositeDerivation<ICompositeParseForest> derivation : derivations)
             topParseNode.addDerivation(derivation);

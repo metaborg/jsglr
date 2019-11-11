@@ -1,7 +1,10 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
+import org.spoofax.jsglr2.inputstack.LayoutSensitiveInputStack;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -9,12 +12,10 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.List;
-
 public class LayoutSensitiveParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<StackNode> & ILayoutSensitiveParseState>
+    ParseState extends AbstractParseState<LayoutSensitiveInputStack, StackNode>>
 //@formatter:on
     extends
     ParseForestManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> {
@@ -27,7 +28,7 @@ public class LayoutSensitiveParseForestManager
     public static
 //@formatter:off
    <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<StackNode_> & ILayoutSensitiveParseState>
+    ParseState_ extends AbstractParseState<LayoutSensitiveInputStack, StackNode_>>
 //@formatter:on
     ParseForestManagerFactory<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_>
         factory() {
@@ -39,7 +40,7 @@ public class LayoutSensitiveParseForestManager
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> firstDerivation) {
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> parseNode =
-            new LayoutSensitiveParseNode<>(firstDerivation.getStartPosition(), parseState.currentPosition(),
+            new LayoutSensitiveParseNode<>(firstDerivation.getStartPosition(), parseState.inputStack.currentPosition(),
                 production);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
@@ -52,7 +53,7 @@ public class LayoutSensitiveParseForestManager
     @Override public ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> createDerivation(ParseState parseState,
         IStackNode stack, IProduction production, ProductionType productionType,
         ILayoutSensitiveParseForest[] parseForests) {
-        Shape shape = shape(parseForests, parseState.currentPosition());
+        Shape shape = shape(parseForests, parseState.inputStack.currentPosition());
 
         ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> derivation = new LayoutSensitiveDerivation<>(
             shape.start, shape.left, shape.right, shape.end, production, productionType, parseForests);
@@ -157,9 +158,9 @@ public class LayoutSensitiveParseForestManager
 
     @Override public ILayoutSensitiveParseForest createCharacterNode(ParseState parseState) {
         ILayoutSensitiveParseForest termNode =
-            new LayoutSensitiveCharacterNode(parseState.currentPosition(), parseState.currentChar);
+            new LayoutSensitiveCharacterNode(parseState.inputStack.currentPosition(), parseState.inputStack.getChar());
 
-        observing.notify(observer -> observer.createCharacterNode(termNode, parseState.currentChar));
+        observing.notify(observer -> observer.createCharacterNode(termNode, parseState.inputStack.getChar()));
 
         return termNode;
     }

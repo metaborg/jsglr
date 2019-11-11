@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -10,15 +12,13 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.List;
-
 public abstract class AbstractBasicParseForestManager
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
     extends ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -63,7 +63,7 @@ public abstract class AbstractBasicParseForestManager
     @Override public ParseForest createCharacterNode(ParseState parseState) {
         ParseForest termNode = constructCharacterNode(parseState);
 
-        observing.notify(observer -> observer.createCharacterNode(termNode, parseState.currentChar));
+        observing.notify(observer -> observer.createCharacterNode(termNode, parseState.inputStack.getChar()));
 
         return termNode;
     }

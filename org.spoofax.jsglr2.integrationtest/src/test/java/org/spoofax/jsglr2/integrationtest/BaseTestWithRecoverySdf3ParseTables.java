@@ -1,5 +1,12 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.DynamicTest;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
@@ -14,13 +21,6 @@ import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.recovery.IRecoveryParseState;
 import org.spoofax.jsglr2.recovery.RecoveryJob;
 import org.spoofax.jsglr2.stack.IStackNode;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
@@ -91,8 +91,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         Derivation           extends IDerivation<ParseForest>,
         ParseNode            extends IParseNode<ParseForest, Derivation>,
         StackNode            extends IStackNode,
-        BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
-        ParseState           extends AbstractParseState<StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
+        BacktrackChoicePoint extends IBacktrackChoicePoint<?, StackNode>,
+        ParseState           extends AbstractParseState<?, StackNode> & IRecoveryParseState<?, StackNode, BacktrackChoicePoint>>
     //@formatter:on
         extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -108,15 +108,15 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             iterations = new ArrayList<>();
         }
 
-        @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint) {
+        @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint) {
             if(index > backtrackChoicePoints.size() - 1)
-                backtrackChoicePoints.add(choicePoint.offset());
+                backtrackChoicePoints.add(choicePoint.inputStack().offset());
             else
-                backtrackChoicePoints.set(index, choicePoint.offset());
+                backtrackChoicePoints.set(index, choicePoint.inputStack().offset());
         }
 
         @Override public void startRecovery(ParseState parseState) {
-            started.add(parseState.currentOffset);
+            started.add(parseState.inputStack.offset());
         }
 
         @Override public void recoveryIteration(ParseState parseState) {
@@ -125,7 +125,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         }
 
         @Override public void endRecovery(ParseState parseState) {
-            ended.add(parseState.currentOffset);
+            ended.add(parseState.inputStack.offset());
         }
 
     }

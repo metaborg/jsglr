@@ -18,7 +18,7 @@ public class ReducerSkipRejects
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
     extends Reducer<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 

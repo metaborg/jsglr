@@ -20,7 +20,7 @@ class StackDotVisualisationParserObserver
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
     extends DotVisualisationParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -35,13 +35,13 @@ class StackDotVisualisationParserObserver
         stackNodeRank = new HashMap<>();
         currentOffset = 0;
         maxStackNodeRank = 0;
-        offsetMaxStackNodeRank = new int[parseState.inputLength + 1];
+        offsetMaxStackNodeRank = new int[parseState.inputStack.inputString().length() + 1];
         stackNodeOffset = new HashMap<>();
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
-        currentOffset = parseState.currentOffset;
+        currentOffset = parseState.inputStack.offset();
     }
 
     private void rankStackNode(StackNode stackNode, int rank) {

@@ -21,6 +21,8 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
+import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
@@ -35,51 +37,58 @@ import org.spoofax.jsglr2.stack.StackManagerFactory;
 public class IncrementalParser
 // @formatter:off
    <StackNode     extends IStackNode,
-    ParseState    extends AbstractParseState<StackNode> & IIncrementalParseState,
+    ParseState    extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState,
     StackManager  extends AbstractStackManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState>,
     ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState>>
 // @formatter:on
     extends
-    Parser<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager, ReduceManager> {
+    Parser<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> {
 
     private final HashMap<String, IncrementalParseForest> cache = new HashMap<>();
     private final HashMap<String, String> oldString = new HashMap<>();
-    private final IStringDiff diff;
 
-    public IncrementalParser(
-        ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseStateFactory,
+    private final IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory;
+    private final IStringDiff diff;
+    private final ProcessUpdates<StackNode, ParseState> processUpdates;
+
+    public IncrementalParser(IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory,
+        ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> parseStateFactory,
         IParseTable parseTable,
         StackManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory) {
-        super(parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, reduceManagerFactory,
+
+        super(null, parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, reduceManagerFactory,
             failureHandlerFactory);
+
+        this.incrementalInputStackFactory = incrementalInputStackFactory;
         // TODO parametrize parser on diff algorithm for benchmarking
         this.diff = new JGitHistogramDiff();
+        this.processUpdates =
+            new ProcessUpdates<>((IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
     }
 
     @Override protected ParseState getParseState(String inputString, String filename) {
-        ParseState parseState = super.getParseState(inputString, filename);
-        ProcessUpdates<StackNode, ParseState> processUpdates =
-            new ProcessUpdates<>(parseState, (IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
+        IncrementalParseForest updatedTree = getUpdatedTree(inputString, filename);
+        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, filename), observing);
+    }
 
+    private IncrementalParseForest getUpdatedTree(String inputString, String filename) {
         if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
             List<EditorUpdate> updates = diff.diff(oldString.get(filename), inputString);
 
-            parseState.initParse(processUpdates.processUpdates(cache.get(filename), updates), inputString);
+            return processUpdates.processUpdates(cache.get(filename), updates);
         } else
-            parseState.initParse(processUpdates.getParseNodeFromString(inputString), inputString);
-
-        return parseState;
+            return processUpdates.getParseNodeFromString(inputString);
     }
 
     @Override protected ParseSuccess<IncrementalParseForest> success(ParseState parseState,
         IncrementalParseForest parseForest) {
         // On success, save result (if filename != "")
-        if(!parseState.filename.equals("")) {
-            oldString.put(parseState.filename, parseState.inputString);
-            cache.put(parseState.filename, parseForest);
+        if(!parseState.inputStack.fileName().equals("")) {
+            oldString.put(parseState.inputStack.fileName(), parseState.inputStack.inputString());
+            cache.put(parseState.inputStack.fileName(), parseForest);
         }
         return super.success(parseState, parseForest);
     }
@@ -94,9 +103,9 @@ public class IncrementalParser
         // - if we would, it would cause different shifts to be desynchronised;
         // - if a break-down of this node would cause different actions, it would already have been broken down because
         // that would mean that this node was created when the parser was in multiple states.
-        while(!parseState.lookahead().get().isReusable()
-            || !parseState.lookahead().get().isTerminal() && isEmpty(actions) && parseState.forShifter.isEmpty()) {
-            parseState.lookahead().leftBreakdown();
+        while(!parseState.inputStack.getNode().isReusable()
+            || !parseState.inputStack.getNode().isTerminal() && isEmpty(actions) && parseState.forShifter.isEmpty()) {
+            parseState.inputStack.leftBreakdown();
             actions = getActions(stack, parseState);
         }
 
@@ -114,9 +123,9 @@ public class IncrementalParser
     // Else, the loop in `actor` will have broken it down
     private Iterable<IAction> getActions(StackNode stack, ParseState parseState) {
         // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
-        Iterable<IAction> actions = stack.state().getApplicableActions(parseState);
+        Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack);
 
-        IncrementalParseForest lookahead = parseState.lookahead().get();
+        IncrementalParseForest lookahead = parseState.inputStack.getNode();
         if(lookahead.isTerminal()) {
             return actions;
         } else {
@@ -134,6 +143,7 @@ public class IncrementalParser
             // Only allow shifting the subtree if the saved state matches the current state
             boolean reusable = lookaheadNode.isReusable(stack.state());
             if(reusable) {
+                // Reusable nodes have only one derivation, by definition
                 result
                     .add(new GotoShift(stack.state().getGotoId(lookaheadNode.getFirstDerivation().production().id())));
             }
@@ -164,6 +174,6 @@ public class IncrementalParser
     @Override protected IncrementalParseForest getNodeToShift(ParseState parseState) {
         parseState.setMultipleStates(parseState.forShifter.size() > 1);
 
-        return parseState.lookahead().get();
+        return parseState.inputStack.getNode();
     }
 }

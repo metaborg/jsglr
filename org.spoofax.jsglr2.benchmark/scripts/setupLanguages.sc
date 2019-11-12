@@ -3,18 +3,13 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $file.args, args._
 import $file.config, config.config
 
-def setupLanguages(args: Args) = {
+def setupLanguages(implicit args: Args) = {
     println("Setting up languages...")
-
-    val languagesDir = args.dir / 'languages
     
     mkdir! languagesDir
 
-    config.languages.foreach { language =>
+    config.languages.foreach { implicit language =>
         println(" " + language.id)
-
-        val languageRepoDir = languagesDir / language.id
-        val languageDir = languageRepoDir / language.path
         
         rm! languageRepoDir
         mkdir! languageRepoDir
@@ -28,4 +23,4 @@ def setupLanguages(args: Args) = {
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(setupLanguages _)
+def ini(args: String*) = withArgs(args :_ *)(setupLanguages(_))

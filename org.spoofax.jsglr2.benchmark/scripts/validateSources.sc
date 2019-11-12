@@ -8,16 +8,12 @@ import org.spoofax.jsglr2.JSGLR2Variant
 import org.spoofax.jsglr2.integration.IntegrationVariant
 import org.spoofax.jsglr2.integration.ParseTableVariant
 
-def validateSources(args: Args) = {
+def validateSources(implicit args: Args) = {
     println("Validating sources...")
 
-    val languagesDir = args.dir / 'languages
-    val sourcesDir = args.dir / 'sources
-
-    config.languages.foreach { language =>
+    config.languages.foreach { implicit language =>
         println(" " + language.id)
 
-        val languageSourcesDir = sourcesDir / language.id
         val files = ls.rec! languageSourcesDir
 
         val variant = new IntegrationVariant(
@@ -25,8 +21,7 @@ def validateSources(args: Args) = {
             JSGLR2Variant.Preset.standard.variant
         )
 
-        val languageDir = languagesDir / language.id
-        val parseTablePath = languageDir / language.path / "target" / "metaborg" / "sdf.tbl"
+        val parseTablePath = languageDir / "target" / "metaborg" / "sdf.tbl"
 
         val jsglr2 = getJSGLR2(variant, parseTablePath)
 
@@ -46,4 +41,4 @@ def validateSources(args: Args) = {
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(validateSources _)
+def ini(args: String*) = withArgs(args :_ *)(validateSources(_))

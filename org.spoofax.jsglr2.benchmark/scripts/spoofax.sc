@@ -18,7 +18,6 @@ def readParseTableTerm(path: Path) = termReader.parseFromString(read! path)
 def getJSGLR2(variant: IntegrationVariant, parseTablePath: Path) = {
     val parseTableTerm = readParseTableTerm(parseTablePath)
     val parseTable = variant.parseTable.parseTableReader().read(parseTableTerm)
-
     
     variant.jsglr2.getJSGLR2(parseTable)
 }

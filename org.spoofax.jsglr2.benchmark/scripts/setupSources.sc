@@ -7,17 +7,13 @@ def preProcess(file: String) =
     // Replace Unicode
     file.replaceAll("[^\\x00-\\xFF]", "?")
 
-def setupSources(args: Args) = {
+def setupSources(implicit args: Args) = {
     println("Setting up sources...")
-
-    val sourcesDir = args.dir / 'sources
     
     mkdir! sourcesDir
 
-    config.languages.foreach { language =>
+    config.languages.foreach { implicit language =>
         println(" " + language.id)
-
-        val languageSourcesDir = sourcesDir / language.id
         
         rm! languageSourcesDir
         mkdir! languageSourcesDir / "repos"
@@ -60,4 +56,4 @@ def setupSources(args: Args) = {
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(setupSources _)
+def ini(args: String*) = withArgs(args :_ *)(setupSources(_))

@@ -5,12 +5,10 @@ import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.recovery.AbstractRecoveryParseState;
 import org.spoofax.jsglr2.recovery.BacktrackChoicePoint;
-import org.spoofax.jsglr2.recovery.IRecoveryParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
@@ -33,11 +31,10 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
    <ParseForest_ extends IParseForest,
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
-    StackNode_   extends IStackNode,
     InputStack_  extends IIncrementalInputStack,
-    ParseState_  extends AbstractParseState<IIncrementalInputStack, StackNode_> & IRecoveryParseState<InputStack_, StackNode_, BacktrackChoicePoint<InputStack_, StackNode_>> & IIncrementalParseState>
+    StackNode_   extends IStackNode>
 //@formatter:on
-    ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, IIncrementalInputStack, ParseState_>
+    ParseStateFactory<ParseForest_, Derivation_, ParseNode_, InputStack_, StackNode_, RecoveryIncrementalParseState<InputStack_, StackNode_>>
         factory(ParserVariant variant) {
         return (inputStack, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
@@ -45,7 +42,7 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
             IForActorStacks<StackNode_> forActorStacks =
                 new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
 
-            return (ParseState_) new RecoveryIncrementalParseState<>(inputStack, activeStacks, forActorStacks);
+            return new RecoveryIncrementalParseState<>(inputStack, activeStacks, forActorStacks);
         };
     }
 

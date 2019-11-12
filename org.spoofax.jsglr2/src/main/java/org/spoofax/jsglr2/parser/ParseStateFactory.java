@@ -12,8 +12,8 @@ public interface ParseStateFactory
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    StackNode   extends IStackNode,
     InputStack  extends IInputStack,
+    StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<InputStack, StackNode>>
 //@formatter:on
 {

@@ -36,7 +36,7 @@ public class ElkhoundParser
     Parser<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState, StackManager, ReduceManager> {
 
     public ElkhoundParser(InputStackFactory<InputStack> inputStackFactory,
-        ParseStateFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState> parseStateFactory,
+        ParseStateFactory<ParseForest, Derivation, ParseNode, InputStack, ElkhoundStackNode, ParseState> parseStateFactory,
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> parseForestManagerFactory,

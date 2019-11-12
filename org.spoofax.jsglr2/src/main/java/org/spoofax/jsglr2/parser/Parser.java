@@ -35,7 +35,7 @@ public class Parser
 
     protected final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
     protected final InputStackFactory<InputStack> inputStackFactory;
-    protected final ParseStateFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> parseStateFactory;
+    protected final ParseStateFactory<ParseForest, Derivation, ParseNode, InputStack, StackNode, ParseState> parseStateFactory;
     protected final IParseTable parseTable;
     protected final StackManager stackManager;
     protected final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
@@ -43,7 +43,7 @@ public class Parser
     protected final IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler;
 
     public Parser(InputStackFactory<InputStack> inputStackFactory,
-        ParseStateFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> parseStateFactory,
+        ParseStateFactory<ParseForest, Derivation, ParseNode, InputStack, StackNode, ParseState> parseStateFactory,
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManagerFactory,

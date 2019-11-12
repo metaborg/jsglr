@@ -23,13 +23,8 @@ public class IncrementalParseState<StackNode extends IStackNode>
         super(inputStack, activeStacks, forActorStacks);
     }
 
-    public static
-//@formatter:off
-   <StackNode_  extends IStackNode,
-    InputStack_ extends IIncrementalInputStack,
-    ParseState_ extends AbstractParseState<InputStack_, StackNode_> & IIncrementalParseState>
-//@formatter:on
-    ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode_, InputStack_, ParseState_>
+    public static <StackNode_ extends IStackNode>
+        ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IIncrementalInputStack, StackNode_, IncrementalParseState<StackNode_>>
         factory(ParserVariant variant) {
         return (inputStack, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
@@ -37,7 +32,7 @@ public class IncrementalParseState<StackNode extends IStackNode>
             IForActorStacks<StackNode_> forActorStacks =
                 new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
 
-            return (ParseState_) new IncrementalParseState<>(inputStack, activeStacks, forActorStacks);
+            return new IncrementalParseState<>(inputStack, activeStacks, forActorStacks);
         };
     }
 

@@ -28,7 +28,7 @@ public class ForActorStacksFactory implements IForActorStacksFactory {
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
     IForActorStacks<StackNode>
         get(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {

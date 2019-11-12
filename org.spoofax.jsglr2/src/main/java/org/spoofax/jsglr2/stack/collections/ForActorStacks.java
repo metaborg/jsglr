@@ -1,6 +1,10 @@
 package org.spoofax.jsglr2.stack.collections;
 
-import com.google.common.collect.Iterables;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -8,10 +12,7 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import com.google.common.collect.Iterables;
 
 public abstract class ForActorStacks
 //@formatter:off
@@ -19,7 +20,7 @@ public abstract class ForActorStacks
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
     implements IForActorStacks<StackNode> {
 

@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.stack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -11,16 +14,13 @@ import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class AbstractStackManager
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
 {
 

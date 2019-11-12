@@ -1,12 +1,13 @@
-package org.spoofax.jsglr2.incremental.lookaheadstack;
+package org.spoofax.jsglr2.inputstack.incremental;
+
+import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
 
 import java.util.Stack;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 
-public class EagerLookaheadStack extends AbstractLookaheadStack {
+public class EagerIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
     /**
      * The stack contains all subtrees that are yet to be popped. The top of the stack also contains the subtree that
      * has been returned last time. The stack initially only contains EOF and the root.
@@ -17,23 +18,23 @@ public class EagerLookaheadStack extends AbstractLookaheadStack {
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public EagerLookaheadStack(IncrementalParseForest root, String inputString) {
-        super(inputString);
-        stack.push(IncrementalCharacterNode.EOF_NODE);
+    public EagerIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
+        super(inputString, fileName);
+        stack.push(EOF_NODE);
         stack.push(root);
     }
 
-    public EagerLookaheadStack(IncrementalParseForest root) {
-        this(root, root.getYield());
+    EagerIncrementalInputStack(IncrementalParseForest root) {
+        this(root, root.getYield(), "");
     }
 
-    @Override public EagerLookaheadStack clone() {
-        EagerLookaheadStack clone = new EagerLookaheadStack(IncrementalCharacterNode.EOF_NODE, inputString);
+    @Override public EagerIncrementalInputStack clone() {
+        EagerIncrementalInputStack clone = new EagerIncrementalInputStack(EOF_NODE, inputString, fileName);
         clone.stack.clear();
-        for (IncrementalParseForest node : stack) {
+        for(IncrementalParseForest node : stack) {
             clone.stack.push(node);
         }
-        clone.position = position;
+        clone.currentOffset = currentOffset;
         return clone;
     }
 
@@ -52,11 +53,11 @@ public class EagerLookaheadStack extends AbstractLookaheadStack {
         }
     }
 
-    @Override public void popLookahead() {
-        position += stack.pop().width();
+    @Override public void next() {
+        currentOffset += stack.pop().width();
     }
 
-    @Override public IncrementalParseForest get() {
+    @Override public IncrementalParseForest getNode() {
         return stack.empty() ? null : stack.peek();
     }
 }

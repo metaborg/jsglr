@@ -1,10 +1,9 @@
 package org.spoofax.jsglr2.incremental;
 
-import org.spoofax.jsglr2.incremental.lookaheadstack.EagerLookaheadStack;
-import org.spoofax.jsglr2.incremental.lookaheadstack.ILookaheadStack;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.ParserVariant;
@@ -14,55 +13,27 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class IncrementalParseState<StackNode extends IStackNode> extends AbstractParseState<StackNode>
-    implements IIncrementalParseState {
+public class IncrementalParseState<StackNode extends IStackNode>
+    extends AbstractParseState<IIncrementalInputStack, StackNode> implements IIncrementalParseState {
 
     private boolean multipleStates = false;
-    ILookaheadStack lookahead;
 
-    public IncrementalParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+    public IncrementalParseState(IIncrementalInputStack inputStack, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
-        super(inputString, filename, activeStacks, forActorStacks);
+        super(inputStack, activeStacks, forActorStacks);
     }
 
-    public static
-//@formatter:off
-   <StackNode_  extends IStackNode,
-    ParseState_ extends AbstractParseState<StackNode_> & IIncrementalParseState>
-//@formatter:on
-    ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode_, ParseState_>
+    public static <StackNode_ extends IStackNode>
+        ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IIncrementalInputStack, StackNode_, IncrementalParseState<StackNode_>>
         factory(ParserVariant variant) {
-        return (inputString, filename, observing) -> {
+        return (inputStack, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
                 new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
             IForActorStacks<StackNode_> forActorStacks =
                 new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
 
-            return (ParseState_) new IncrementalParseState<>(inputString, filename, activeStacks, forActorStacks);
+            return new IncrementalParseState<>(inputStack, activeStacks, forActorStacks);
         };
-    }
-
-    @Override public void initParse(IncrementalParseForest updatedTree, String inputString) {
-        this.lookahead = new EagerLookaheadStack(updatedTree, inputString); // TODO switch types between Lazy and Eager
-        this.currentChar = lookahead.actionQueryCharacter();
-    }
-
-    @Override public String actionQueryLookahead(int length) {
-        return lookahead.actionQueryLookahead(length);
-    }
-
-    @Override public boolean hasNext() {
-        return lookahead.get() != null; // null is the lookahead of the EOF node
-    }
-
-    @Override public void next() {
-        currentOffset += lookahead.get().width();
-        lookahead.popLookahead();
-        currentChar = lookahead.actionQueryCharacter();
-    }
-
-    @Override public ILookaheadStack lookahead() {
-        return lookahead;
     }
 
     @Override public boolean newParseNodesAreReusable() {

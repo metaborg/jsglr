@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
@@ -14,13 +17,13 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.*;
+import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStructureBenchmark {
 
@@ -62,7 +65,7 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
     }
 
     class GotoObserver extends
-        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<BasicStackNode<IBasicParseForest>>> {
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> {
 
         public List<GotoLookup> gotoLookups = new ArrayList<>();
 

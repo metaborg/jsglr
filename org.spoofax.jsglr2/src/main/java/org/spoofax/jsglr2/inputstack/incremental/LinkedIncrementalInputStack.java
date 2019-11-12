@@ -1,33 +1,34 @@
-package org.spoofax.jsglr2.incremental.lookaheadstack;
+package org.spoofax.jsglr2.inputstack.incremental;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
+import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
+
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 
-public class LinkedLookaheadStack extends AbstractLookaheadStack {
+public class LinkedIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
     private StackTuple head;
 
     /**
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public LinkedLookaheadStack(IncrementalParseForest root, String inputString) {
-        super(inputString);
-        this.head = new StackTuple(root, new StackTuple(IncrementalCharacterNode.EOF_NODE));
+    public LinkedIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
+        super(inputString, fileName);
+        this.head = new StackTuple(root, new StackTuple(EOF_NODE));
     }
 
-    public LinkedLookaheadStack(IncrementalParseForest root) {
-        this(root, root.getYield());
+    LinkedIncrementalInputStack(IncrementalParseForest root) {
+        this(root, root.getYield(), "");
     }
 
-    @Override public IncrementalParseForest get() {
+    @Override public IncrementalParseForest getNode() {
         return head == null ? null : head.node;
     }
 
-    @Override public LinkedLookaheadStack clone() {
-        LinkedLookaheadStack clone = new LinkedLookaheadStack(IncrementalCharacterNode.EOF_NODE, inputString);
+    @Override public LinkedIncrementalInputStack clone() {
+        LinkedIncrementalInputStack clone = new LinkedIncrementalInputStack(EOF_NODE, inputString, fileName);
         clone.head = head;
-        clone.position = position;
+        clone.currentOffset = currentOffset;
         return clone;
     }
 
@@ -46,8 +47,8 @@ public class LinkedLookaheadStack extends AbstractLookaheadStack {
         }
     }
 
-    @Override public void popLookahead() {
-        position += head.node.width();
+    @Override public void next() {
+        currentOffset += head.node.width();
         head = head.next;
     }
 

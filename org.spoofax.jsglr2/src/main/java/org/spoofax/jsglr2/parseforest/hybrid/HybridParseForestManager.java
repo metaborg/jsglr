@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -8,12 +10,10 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.List;
-
 public class HybridParseForestManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<StackNode>>
+    ParseState extends AbstractParseState<?, StackNode>>
 //@formatter:on
     extends ParseForestManager<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> {
 
@@ -25,7 +25,7 @@ public class HybridParseForestManager
     public static
 //@formatter:off
    <StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<StackNode_>>
+    ParseState_  extends AbstractParseState<?, StackNode_>>
 //@formatter:on
     ParseForestManagerFactory<HybridParseForest, HybridDerivation, HybridParseNode, StackNode_, ParseState_> factory() {
         return HybridParseForestManager::new;
@@ -57,7 +57,7 @@ public class HybridParseForestManager
     }
 
     @Override public HybridCharacterNode createCharacterNode(ParseState parseState) {
-        HybridCharacterNode characterNode = new HybridCharacterNode(parseState.currentChar);
+        HybridCharacterNode characterNode = new HybridCharacterNode(parseState.inputStack.getChar());
 
         observing.notify(observer -> observer.createCharacterNode(characterNode, characterNode.character));
 

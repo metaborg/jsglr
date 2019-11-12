@@ -1,72 +1,30 @@
 package org.spoofax.jsglr2.parser;
 
-import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
-import org.metaborg.parsetable.query.IActionQuery;
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+public abstract class AbstractParseState<InputStack extends IInputStack, StackNode extends IStackNode> {
 
-public abstract class AbstractParseState<StackNode extends IStackNode> implements IActionQuery {
+    // TODO would be nice if this is final, but resetting a recovery point requires overwriting it...
+    public InputStack inputStack;
 
-    final public String filename;
-    final public String inputString;
-    final public int inputLength;
-
-    public int currentChar; // Current ASCII char in range [0, 256]
-    public int currentOffset;
+    public final IActiveStacks<StackNode> activeStacks;
+    public final IForActorStacks<StackNode> forActorStacks;
+    public final Queue<ForShifterElement<StackNode>> forShifter = new ArrayDeque<>();
 
     public StackNode acceptingStack;
-    public IActiveStacks<StackNode> activeStacks;
-    public IForActorStacks<StackNode> forActorStacks;
-    public Queue<ForShifterElement<StackNode>> forShifter;
 
-    protected AbstractParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+    protected AbstractParseState(InputStack inputStack, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
-        this.filename = filename;
-        this.inputString = inputString;
-        this.inputLength = inputString.length();
-
-        this.acceptingStack = null;
+        this.inputStack = inputStack;
 
         this.activeStacks = activeStacks;
         this.forActorStacks = forActorStacks;
-        this.forShifter = new ArrayDeque<>();
-
-        this.currentOffset = 0;
-
-        this.currentChar = getChar(currentOffset);
-    }
-
-    public boolean hasNext() {
-        return currentOffset <= inputLength;
-    }
-
-    public void next() {
-        currentOffset++;
-        currentChar = getChar(currentOffset);
-    }
-
-    public int getChar(int offset) {
-        if(offset < inputLength) {
-            char c = inputString.charAt(offset);
-
-            if(c > 255)
-                throw new IllegalStateException("Unicode not supported");
-
-            return c;
-        } else
-            return CharacterClassFactory.EOF_INT;
-    }
-
-    @Override public int actionQueryCharacter() {
-        return currentChar;
-    }
-
-    @Override public String actionQueryLookahead(int length) {
-        return inputString.substring(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 
 }

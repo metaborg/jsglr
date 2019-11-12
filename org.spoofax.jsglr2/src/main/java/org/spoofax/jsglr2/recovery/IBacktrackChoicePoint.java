@@ -1,12 +1,15 @@
 package org.spoofax.jsglr2.recovery;
 
-import org.spoofax.jsglr2.stack.IStackNode;
-
 import java.util.List;
 
-public interface IBacktrackChoicePoint<StackNode extends IStackNode> {
+import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.stack.IStackNode;
+
+public interface IBacktrackChoicePoint<InputStack extends IInputStack, StackNode extends IStackNode> {
 
     int offset();
+
+    InputStack inputStack();
 
     List<StackNode> activeStacks();
 

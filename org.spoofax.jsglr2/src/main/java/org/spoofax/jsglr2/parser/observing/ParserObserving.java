@@ -1,13 +1,13 @@
 package org.spoofax.jsglr2.parser.observing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ParserObserving
 //@formatter:off
@@ -15,7 +15,7 @@ public class ParserObserving
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
 {
 

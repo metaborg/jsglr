@@ -1,10 +1,14 @@
 package org.spoofax.jsglr2.elkhound;
 
+import java.util.Iterator;
+
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -17,35 +21,35 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
 
-import java.util.Iterator;
-
 public class ElkhoundParser
 //@formatter:off
    <ParseForest       extends IParseForest,
     Derivation        extends IDerivation<ParseForest>,
     ParseNode         extends IParseNode<ParseForest, Derivation>,
+    InputStack        extends IInputStack,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    ParseState        extends AbstractParseState<ElkhoundStackNode>,
+    ParseState        extends AbstractParseState<InputStack, ElkhoundStackNode>,
     StackManager      extends AbstractStackManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState>,
     ReduceManager     extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState>>
 //@formatter:on
-    extends Parser<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState, StackManager, ReduceManager> {
+    extends
+    Parser<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState, StackManager, ReduceManager> {
 
-    public ElkhoundParser(
-        ParseStateFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> parseStateFactory,
+    public ElkhoundParser(InputStackFactory<InputStack> inputStackFactory,
+        ParseStateFactory<ParseForest, Derivation, ParseNode, InputStack, ElkhoundStackNode, ParseState> parseStateFactory,
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
         ParseFailureHandlerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> failureHandlerFactory) {
-        super(parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory,
+        super(inputStackFactory, parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory,
             elkhoundReduceManagerFactory, failureHandlerFactory);
     }
 
     @Override protected void parseLoop(ParseState parseState) {
         boolean nextRound = true;
 
-        while(parseState.hasNext() && !parseState.activeStacks.isEmpty()) {
+        while(parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {
             if(parseState.activeStacks.isSingle()) {
                 if(nextRound)
                     observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks, observing));
@@ -54,7 +58,7 @@ public class ElkhoundParser
 
                 if(!singleActiveStack.allLinksRejected()) {
                     Iterator<IAction> actionsIterator =
-                        singleActiveStack.state.getApplicableActions(parseState).iterator();
+                        singleActiveStack.state.getApplicableActions(parseState.inputStack).iterator();
 
                     if(actionsIterator.hasNext()) {
                         IAction firstAction = actionsIterator.next();
@@ -77,7 +81,7 @@ public class ElkhoundParser
 
                                     parseState.activeStacks.add(newStack);
 
-                                    parseState.next();
+                                    parseState.inputStack.next();
 
                                     nextRound = true;
 
@@ -97,7 +101,7 @@ public class ElkhoundParser
 
                                         processForActorStacks(parseState);
                                         shifter(parseState);
-                                        parseState.next();
+                                        parseState.inputStack.next();
 
                                         nextRound = true;
                                     } else
@@ -122,7 +126,7 @@ public class ElkhoundParser
                             // performing shifts and then proceed to the next character
                             processForActorStacks(parseState);
                             shifter(parseState);
-                            parseState.next();
+                            parseState.inputStack.next();
 
                             nextRound = true;
                         }
@@ -142,7 +146,7 @@ public class ElkhoundParser
                 // Fall back to regular (S)GLR when multiple stacks are active
                 parseCharacter(parseState);
 
-                parseState.next();
+                parseState.inputStack.next();
 
                 nextRound = true;
             }

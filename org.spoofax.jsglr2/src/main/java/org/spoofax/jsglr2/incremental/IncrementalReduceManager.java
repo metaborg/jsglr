@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.incremental;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
@@ -17,16 +20,13 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class IncrementalReduceManager
 //@formatter:off
    <ParseForest extends IncrementalParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode> & IIncrementalParseState>
+    ParseState  extends AbstractParseState<?, StackNode> & IIncrementalParseState>
 //@formatter:on
     extends ReduceManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -43,7 +43,7 @@ public class IncrementalReduceManager
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<StackNode_> & IIncrementalParseState,
+        ParseState_   extends AbstractParseState<?, StackNode_> & IIncrementalParseState,
         StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, IncrementalReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>

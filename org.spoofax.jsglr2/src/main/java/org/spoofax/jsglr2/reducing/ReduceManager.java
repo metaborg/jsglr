@@ -1,8 +1,12 @@
 package org.spoofax.jsglr2.reducing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParserVariant;
@@ -12,16 +16,13 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.paths.StackPath;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ReduceManager
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
 {
 
@@ -52,7 +53,7 @@ public class ReduceManager
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<StackNode_>,
+        ParseState_   extends AbstractParseState<?, StackNode_>,
         StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, ReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
@@ -141,7 +142,7 @@ public class ReduceManager
                     parseState, reduce, activeStackWithGotoState, stack, parseForests);
 
                 for(StackNode activeStack : parseState.activeStacks.forLimitedReductions(parseState.forActorStacks)) {
-                    for(IReduce reduceAction : activeStack.state().getApplicableReduceActions(parseState))
+                    for(IReduce reduceAction : activeStack.state().getApplicableReduceActions(parseState.inputStack))
                         doLimitedReductions(observing, parseState, activeStack, reduceAction, link);
                 }
             }

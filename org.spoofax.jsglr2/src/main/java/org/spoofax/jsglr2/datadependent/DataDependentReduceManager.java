@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.datadependent;
 
+import java.util.List;
+
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.sdf2table.deepconflicts.ContextualProduction;
@@ -16,12 +18,10 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-import java.util.List;
-
 public class DataDependentReduceManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<StackNode>>
+    ParseState extends AbstractParseState<?, StackNode>>
     extends
     ReduceManager
        <IDataDependentParseForest,
@@ -42,7 +42,7 @@ public class DataDependentReduceManager
     public static
     //@formatter:off
        <StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<StackNode_>,
+        ParseState_   extends AbstractParseState<?, StackNode_>,
         StackManager_ extends AbstractStackManager
            <IDataDependentParseForest,
             IDataDependentDerivation<IDataDependentParseForest>,

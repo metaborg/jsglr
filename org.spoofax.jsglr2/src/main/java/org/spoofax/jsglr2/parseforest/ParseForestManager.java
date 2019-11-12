@@ -1,14 +1,13 @@
 package org.spoofax.jsglr2.parseforest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ParseForestManager
 //@formatter:off
@@ -16,7 +15,7 @@ public abstract class ParseForestManager
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
 {
 

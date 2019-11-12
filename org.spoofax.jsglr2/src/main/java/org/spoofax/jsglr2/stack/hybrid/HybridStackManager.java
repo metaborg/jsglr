@@ -14,7 +14,7 @@ public class HybridStackManager
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    ParseState  extends AbstractParseState<HybridStackNode<ParseForest>>>
+    ParseState  extends AbstractParseState<?, HybridStackNode<ParseForest>>>
 //@formatter:on
     extends StackManager<ParseForest, Derivation, ParseNode, HybridStackNode<ParseForest>, ParseState> {
 
@@ -28,7 +28,7 @@ public class HybridStackManager
    <ParseForest_  extends IParseForest,
     Derivation_   extends IDerivation<ParseForest_>,
     ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
-    ParseState_   extends AbstractParseState<HybridStackNode<ParseForest_>>>
+    ParseState_   extends AbstractParseState<?, HybridStackNode<ParseForest_>>>
 //@formatter:on
     StackManagerFactory<ParseForest_, Derivation_, ParseNode_, HybridStackNode<ParseForest_>, ParseState_, HybridStackManager<ParseForest_, Derivation_, ParseNode_, ParseState_>>
         factory() {

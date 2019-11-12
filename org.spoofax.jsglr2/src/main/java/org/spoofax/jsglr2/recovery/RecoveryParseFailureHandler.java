@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.recovery;
 
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -16,8 +17,9 @@ public class RecoveryParseFailureHandler
     Derivation           extends IDerivation<ParseForest>,
     ParseNode            extends IParseNode<ParseForest, Derivation>,
     StackNode            extends IStackNode,
-    BacktrackChoicePoint extends IBacktrackChoicePoint<StackNode>,
-    ParseState           extends AbstractParseState<StackNode> & IRecoveryParseState<StackNode, BacktrackChoicePoint>>
+    InputStack           extends IInputStack,
+    BacktrackChoicePoint extends IBacktrackChoicePoint<InputStack, StackNode>,
+    ParseState           extends AbstractParseState<InputStack, StackNode> & IRecoveryParseState<InputStack, StackNode, BacktrackChoicePoint>>
 //@formatter:on
     implements IParseFailureHandler<ParseForest, StackNode, ParseState> {
 
@@ -27,8 +29,9 @@ public class RecoveryParseFailureHandler
     Derivation_           extends IDerivation<ParseForest_>,
     ParseNode_            extends IParseNode<ParseForest_, Derivation_>,
     StackNode_            extends IStackNode,
-    BacktrackChoicePoint_ extends IBacktrackChoicePoint<StackNode_>,
-    ParseState_           extends AbstractParseState<StackNode_> & IRecoveryParseState<StackNode_, BacktrackChoicePoint_>>
+    InputStack_           extends IInputStack,
+    BacktrackChoicePoint_ extends IBacktrackChoicePoint<InputStack_, StackNode_>,
+    ParseState_           extends AbstractParseState<InputStack_, StackNode_> & IRecoveryParseState<InputStack_, StackNode_, BacktrackChoicePoint_>>
 //@formatter:on
     ParseFailureHandlerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
         return RecoveryParseFailureHandler::new;
@@ -42,7 +45,7 @@ public class RecoveryParseFailureHandler
 
     @Override public boolean onFailure(ParseState parseState) {
         if(!parseState.isRecovering()) {
-            parseState.startRecovery(parseState.currentOffset);
+            parseState.startRecovery(parseState.inputStack.offset());
 
             observing.notify(observer -> observer.startRecovery(parseState));
         }

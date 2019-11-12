@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.benchmark;
 
+import java.util.Queue;
+
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
@@ -19,15 +21,13 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.Queue;
-
 public class BenchmarkParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -111,7 +111,7 @@ public class BenchmarkParserObserver
     }
 
     @Override public void recoveryBacktrackChoicePoint(int index,
-        IBacktrackChoicePoint<StackNode> backtrackChoicePoint) {
+        IBacktrackChoicePoint<?, StackNode> backtrackChoicePoint) {
     }
 
     @Override public void startRecovery(ParseState parseState) {

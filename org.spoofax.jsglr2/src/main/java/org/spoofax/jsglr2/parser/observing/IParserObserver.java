@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parser.observing;
 
+import java.util.Queue;
+
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
@@ -17,15 +19,13 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.Queue;
-
 public interface IParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
 {
 
@@ -81,7 +81,7 @@ public interface IParserObserver
 
     void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
 
-    void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<StackNode> choicePoint);
+    void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint);
 
     void startRecovery(ParseState parseState);
 

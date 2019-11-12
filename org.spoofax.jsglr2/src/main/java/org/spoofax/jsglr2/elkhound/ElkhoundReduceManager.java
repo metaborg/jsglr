@@ -18,7 +18,7 @@ public class ElkhoundReduceManager
     Derivation        extends IDerivation<ParseForest>,
     ParseNode         extends IParseNode<ParseForest, Derivation>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    ParseState        extends AbstractParseState<ElkhoundStackNode>>
+    ParseState        extends AbstractParseState<?, ElkhoundStackNode>>
 //@formatter:on
     extends ReduceManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> {
 
@@ -39,7 +39,7 @@ public class ElkhoundReduceManager
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends AbstractElkhoundStackNode<ParseForest_>,
-        ParseState_   extends AbstractParseState<StackNode_>,
+        ParseState_   extends AbstractParseState<?, StackNode_>,
         StackManager_ extends ElkhoundStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, ElkhoundReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>

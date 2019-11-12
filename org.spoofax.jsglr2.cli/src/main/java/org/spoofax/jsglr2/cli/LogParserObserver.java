@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.cli;
 
+import java.util.Queue;
+import java.util.function.Consumer;
+
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
@@ -18,16 +21,13 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import java.util.Queue;
-import java.util.function.Consumer;
-
 public class LogParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
     extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -39,13 +39,13 @@ public class LogParserObserver
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
-        log("\nStarting parse for input '" + parseState.inputString + "'");
+        log("\nStarting parse for input '" + parseState.inputStack.inputString() + "'");
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
-        log("\nParse character '" + CharacterClassFactory.intToString(parseState.currentChar) + "' (active stacks: "
-            + stackQueueToString(activeStacks) + ")\n");
+        log("\nParse character '" + CharacterClassFactory.intToString(parseState.inputStack.getChar())
+            + "' (active stacks: " + stackQueueToString(activeStacks) + ")\n");
     }
 
     @Override public void createStackNode(StackNode stack) {

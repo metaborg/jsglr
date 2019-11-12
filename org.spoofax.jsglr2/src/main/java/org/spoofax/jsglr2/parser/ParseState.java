@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -9,11 +10,12 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class ParseState<StackNode extends IStackNode> extends AbstractParseState<StackNode> {
+public class ParseState<InputStack extends IInputStack, StackNode extends IStackNode>
+    extends AbstractParseState<InputStack, StackNode> {
 
-    protected ParseState(String inputString, String filename, IActiveStacks<StackNode> activeStacks,
+    protected ParseState(InputStack inputStack, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
-        super(inputString, filename, activeStacks, forActorStacks);
+        super(inputStack, activeStacks, forActorStacks);
     }
 
     public static
@@ -22,16 +24,17 @@ public class ParseState<StackNode extends IStackNode> extends AbstractParseState
     Derivation_  extends IDerivation<ParseForest_>,
     ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
     StackNode_   extends IStackNode,
-    ParseState_  extends AbstractParseState<StackNode_>>
+    InputStack_  extends IInputStack>
 //@formatter:on
-    ParseStateFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory(ParserVariant variant) {
-        return (inputString, filename, observing) -> {
+    ParseStateFactory<ParseForest_, Derivation_, ParseNode_, InputStack_, StackNode_, ParseState<InputStack_, StackNode_>>
+        factory(ParserVariant variant) {
+        return (inputStack, observing) -> {
             IActiveStacks<StackNode_> activeStacks =
                 new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
             IForActorStacks<StackNode_> forActorStacks =
                 new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
 
-            return (ParseState_) new ParseState<>(inputString, filename, activeStacks, forActorStacks);
+            return new ParseState<>(inputStack, activeStacks, forActorStacks);
         };
     }
 

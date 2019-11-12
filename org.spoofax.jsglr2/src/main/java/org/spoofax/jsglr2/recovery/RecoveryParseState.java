@@ -40,8 +40,9 @@ public class RecoveryParseState<InputStack extends IInputStack, StackNode extend
         };
     }
 
+    @SuppressWarnings("unchecked")
     @Override public BacktrackChoicePoint<InputStack, StackNode> createBacktrackChoicePoint() {
-        // TODO this cast is ugly, but there's no way around it
+        // This cast is ugly, but there's no way around it (see AbstractRecoveryParseState)
         return new BacktrackChoicePoint<>((InputStack) inputStack.clone(), activeStacks);
     }
 }

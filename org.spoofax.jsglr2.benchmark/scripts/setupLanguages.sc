@@ -1,6 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.args, args._
+import $file.args, args._, Args._
 import $file.config, config.config
 
 def setupLanguages(implicit args: Args) = {
@@ -8,17 +8,17 @@ def setupLanguages(implicit args: Args) = {
     
     mkdir! languagesDir
 
-    config.languages.foreach { implicit language =>
+    config.languages.foreach { language =>
         println(" " + language.id)
         
-        rm! languageRepoDir
-        mkdir! languageRepoDir
+        rm! language.repoDir
+        mkdir! language.repoDir
 
         println(s"  Cloning ${language.repo}...")
-        %%("git", "clone", language.repo, ".")(languageRepoDir)
+        %%("git", "clone", language.repo, ".")(language.repoDir)
 
-        println(s"  Building ${languageDir}...")
-        %%("mvn", "install")(languageDir)
+        println(s"  Building ${language.dir}...")
+        %%("mvn", "install")(language.dir)
     }
 }
 

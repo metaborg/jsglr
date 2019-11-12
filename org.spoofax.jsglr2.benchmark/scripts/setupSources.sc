@@ -1,6 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.args, args._
+import $file.args, args._, Args._
 import $file.config, config.config
 
 def preProcess(file: String) =
@@ -12,16 +12,16 @@ def setupSources(implicit args: Args) = {
     
     mkdir! sourcesDir
 
-    config.languages.foreach { implicit language =>
+    config.languages.foreach { language =>
         println(" " + language.id)
         
-        rm! languageSourcesDir
-        mkdir! languageSourcesDir / "repos"
+        rm! language.sourcesDir
+        mkdir! language.sourcesDir / "repos"
 
         language.sources.foreach { source =>
             println("  " + source.id)
             
-            val languageSourceRepoDir = languageSourcesDir / "repos" / source.id
+            val languageSourceRepoDir = language.sourcesDir / "repos" / source.id
         
             rm! languageSourceRepoDir
             mkdir! languageSourceRepoDir
@@ -45,13 +45,13 @@ def setupSources(implicit args: Args) = {
 
                 val preProcessed = preProcess(read! file)
 
-                write(languageSourcesDir / filename, preProcessed)
+                write(language.sourcesDir / filename, preProcessed)
                 rm! file
             }
         }
 
         // Repo dirs are now empty, remove
-        rm! languageSourcesDir / "repos"
+        rm! language.sourcesDir / "repos"
     }
 }
 

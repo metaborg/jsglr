@@ -1,6 +1,9 @@
 DIR=~/jsglr2evaluation
 
-all: languages
+all: languages sources
 
 languages:
 	amm setupLanguages.sc $(DIR)
+
+sources:
+	amm setupSources.sc $(DIR)

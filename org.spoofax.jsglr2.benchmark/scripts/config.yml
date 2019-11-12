@@ -2,3 +2,6 @@ languages:
   - id: java
     repo: git@github.com:metaborg/java-front.git
     path: lang.java
+    sources:
+      - id: commons-lang
+        repo: https://github.com/apache/commons-lang.git

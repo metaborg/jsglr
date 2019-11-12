@@ -55,6 +55,7 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
     }
 
     @Override public BacktrackChoicePoint<InputStack, StackNode> createBacktrackChoicePoint() {
-        return new BacktrackChoicePoint<>(inputStack, activeStacks);
+        // TODO this cast is ugly, but there's no way around it
+        return new BacktrackChoicePoint<>((InputStack) inputStack.clone(), activeStacks);
     }
 }

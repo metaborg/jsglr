@@ -17,24 +17,39 @@ def setupSources(dir: Path) = {
         val languageSourcesDir = sourcesDir / language.id
         
         rm! languageSourcesDir
-        mkdir! languageSourcesDir
+        mkdir! languageSourcesDir / "repos"
 
         language.sources.foreach { source =>
-            val languageSourceDir = languageSourcesDir / source.id
+            println(source.id)
+            
+            val languageSourceRepoDir = languageSourcesDir / "repos" / source.id
         
-            rm! languageSourceDir
-            mkdir! languageSourceDir
+            rm! languageSourceRepoDir
+            mkdir! languageSourceRepoDir
 
-            // Initially clone without checking out
-            %%("git", "clone", "--no-checkout", "--depth=1", source.repo, ".")(languageSourceDir)
+            // Initially clone without checking out and without all history
+            %%("git", "clone", "--no-checkout", "--depth=1", source.repo, ".")(languageSourceRepoDir)
 
             // Config sparse checkout: filter files based on extension
-            %%("git", "config", "core.sparseCheckout", "true")(languageSourceDir)
-            write(languageSourceDir / ".git" / "info" / "sparse-checkout", "*." + language.extension)
+            %%("git", "config", "core.sparseCheckout", "true")(languageSourceRepoDir)
+            write(languageSourceRepoDir / ".git" / "info" / "sparse-checkout", "*." + language.extension)
 
             // Pull with the filter, skip history
-            %%("git", "checkout", "master")(languageSourceDir)
+            %%("git", "checkout", "master")(languageSourceRepoDir)
+
+            val files = ls.rec! languageSourceRepoDir |? (_.ext == language.extension)
+
+            // Copy all files to the aggregated directory
+            files.map { file =>
+                val pathInRepo = file relativeTo languageSourceRepoDir
+                val filename = source.id + "_" + pathInRepo.toString.replace("/", "_")
+
+                mv(file, languageSourcesDir / filename)
+            }
         }
+
+        // Repo dirs are now empty, remove
+        rm! languageSourcesDir / "repos"
     }
 }
 

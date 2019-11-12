@@ -1,5 +1,6 @@
 languages:
   - id: java
+    extension: java
     repo: git@github.com:metaborg/java-front.git
     path: lang.java
     sources:

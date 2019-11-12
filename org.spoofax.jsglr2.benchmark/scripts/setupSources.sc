@@ -24,9 +24,16 @@ def setupSources(dir: Path) = {
         
             rm! languageSourceDir
             mkdir! languageSourceDir
-    
-            println(s"Cloning ${source.repo}...")
-            %%("git", "clone", source.repo, ".")(languageSourceDir)
+
+            // Initially clone without checking out
+            %%("git", "clone", "--no-checkout", source.repo, ".")(languageSourceDir)
+
+            // Config sparse checkout: filter files based on extension
+            %%("git", "config", "core.sparseCheckout", "true")(languageSourceDir)
+            write(languageSourceDir / ".git" / "info" / "sparse-checkout", "*." + language.extension)
+
+            // Pull with the filter, skip history
+            %%("git", "checkout", "master")(languageSourceDir)
         }
     }
 }

@@ -1,13 +1,12 @@
-import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`
-import ammonite.ops._
+import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.config
-import config.config
+import $file.args, args._
+import $file.config, config.config
 
-def setupLanguages(dir: Path) = {
+def setupLanguages(args: Args) = {
     println("Setting up languages...")
 
-    val languagesDir = dir / 'languages
+    val languagesDir = args.dir / 'languages
     
     mkdir! languagesDir
 
@@ -29,10 +28,4 @@ def setupLanguages(dir: Path) = {
 }
 
 @main
-def ini(args: String*) = {
-    val dir = args match {
-        case Seq(dir) => Path(dir, root)
-    }
-
-    setupLanguages(dir)
-}
+def ini(args: String*) = withArgs(args :_ *)(setupLanguages _)

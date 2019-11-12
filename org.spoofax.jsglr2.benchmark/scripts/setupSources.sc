@@ -1,13 +1,12 @@
-import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`
-import ammonite.ops._
+import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.config
-import config.config
+import $file.args, args._
+import $file.config, config.config
 
-def setupSources(dir: Path) = {
+def setupSources(args: Args) = {
     println("Setting up sources...")
 
-    val sourcesDir = dir / 'sources
+    val sourcesDir = args.dir / 'sources
     
     mkdir! sourcesDir
 
@@ -54,10 +53,4 @@ def setupSources(dir: Path) = {
 }
 
 @main
-def ini(args: String*) = {
-    val dir = args match {
-        case Seq(dir) => Path(dir, root)
-    }
-
-    setupSources(dir)
-}
+def ini(args: String*) = withArgs(args :_ *)(setupSources _)

@@ -3,6 +3,10 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $file.args, args._
 import $file.config, config.config
 
+def preProcess(file: String) =
+    // Replace Unicode
+    file.replaceAll("[^\\x00-\\xFF]", "?")
+
 def setupSources(args: Args) = {
     println("Setting up sources...")
 
@@ -39,11 +43,14 @@ def setupSources(args: Args) = {
             val files = ls.rec! languageSourceRepoDir |? (_.ext == language.extension)
 
             // Copy all files to the aggregated directory
-            files.map { file =>
+            files.foreach { file =>
                 val pathInRepo = file relativeTo languageSourceRepoDir
                 val filename = source.id + "_" + pathInRepo.toString.replace("/", "_")
 
-                mv(file, languageSourcesDir / filename)
+                val preProcessed = preProcess(read! file)
+
+                write(languageSourcesDir / filename, preProcessed)
+                rm! file
             }
         }
 

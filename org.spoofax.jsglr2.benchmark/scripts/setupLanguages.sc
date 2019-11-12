@@ -12,7 +12,7 @@ def setupLanguages(dir: Path) = {
     mkdir! languagesDir
 
     config.languages.foreach { language =>
-        println(language.id)
+        println(" " + language.id)
 
         val languageRepoDir = languagesDir / language.id
         val languageDir = languageRepoDir / language.path
@@ -20,10 +20,10 @@ def setupLanguages(dir: Path) = {
         rm! languageRepoDir
         mkdir! languageRepoDir
 
-        println(s"Cloning ${language.repo}...")
+        println(s"  Cloning ${language.repo}...")
         %%("git", "clone", language.repo, ".")(languageRepoDir)
 
-        println(s"Building ${languageDir}...")
+        println(s"  Building ${languageDir}...")
         %%("mvn", "install")(languageDir)
     }
 }

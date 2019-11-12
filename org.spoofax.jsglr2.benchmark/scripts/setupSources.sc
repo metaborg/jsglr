@@ -12,7 +12,7 @@ def setupSources(dir: Path) = {
     mkdir! sourcesDir
 
     config.languages.foreach { language =>
-        println(language.id)
+        println(" " + language.id)
 
         val languageSourcesDir = sourcesDir / language.id
         
@@ -20,7 +20,7 @@ def setupSources(dir: Path) = {
         mkdir! languageSourcesDir / "repos"
 
         language.sources.foreach { source =>
-            println(source.id)
+            println("  " + source.id)
             
             val languageSourceRepoDir = languageSourcesDir / "repos" / source.id
         

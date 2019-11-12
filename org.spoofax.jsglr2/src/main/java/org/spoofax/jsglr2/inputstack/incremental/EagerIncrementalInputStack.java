@@ -60,8 +60,4 @@ public class EagerIncrementalInputStack extends AbstractInputStack implements II
     @Override public IncrementalParseForest getNode() {
         return stack.empty() ? null : stack.peek();
     }
-
-    @Override public int getChar() {
-        throw new IllegalStateException("IncrementalInputStack does not provide single characters");
-    }
 }

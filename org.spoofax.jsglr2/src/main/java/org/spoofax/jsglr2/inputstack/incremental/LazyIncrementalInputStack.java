@@ -44,10 +44,6 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
         return clone;
     }
 
-    @Override public int getChar() {
-        throw new IllegalStateException("IncrementalInputStack does not provide single characters");
-    }
-
     @Override public IncrementalParseForest getNode() {
         return last;
     }

@@ -26,7 +26,7 @@ def setupSources(dir: Path) = {
             mkdir! languageSourceDir
 
             // Initially clone without checking out
-            %%("git", "clone", "--no-checkout", source.repo, ".")(languageSourceDir)
+            %%("git", "clone", "--no-checkout", "--depth=1", source.repo, ".")(languageSourceDir)
 
             // Config sparse checkout: filter files based on extension
             %%("git", "config", "core.sparseCheckout", "true")(languageSourceDir)

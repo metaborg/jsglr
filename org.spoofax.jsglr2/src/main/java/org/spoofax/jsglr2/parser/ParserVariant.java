@@ -1,5 +1,10 @@
 package org.spoofax.jsglr2.parser;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.jsglr2.composite.CompositeParseForestManager;
 import org.spoofax.jsglr2.composite.CompositeReduceManager;
@@ -65,36 +70,41 @@ public class ParserVariant {
     }
 
     public boolean isValid() {
+        return validate().count() == 0;
+    }
+
+    public Stream<String> validate() {
         // The implication N -> F is written as !N || F
 
+        Map<String, Boolean> constraints = new HashMap<>();
+
         // Elkhound reducing requires Elkhound stack, and the other way around (bi-implication)
-        boolean validElkhound =
+        constraints.put("elkhound",
             (reducing == Reducing.Elkhound) == (stackRepresentation == StackRepresentation.BasicElkhound
-                || stackRepresentation == StackRepresentation.HybridElkhound);
+                || stackRepresentation == StackRepresentation.HybridElkhound));
 
-        boolean validParseForest = parseForestRepresentation != ParseForestRepresentation.Null
-            || parseForestConstruction == ParseForestConstruction.Full;
+        constraints.put("null parse forest", parseForestRepresentation != ParseForestRepresentation.Null
+            || parseForestConstruction == ParseForestConstruction.Full);
 
-        boolean validIncremental =
+        constraints.put("incremental",
             (parseForestRepresentation == ParseForestRepresentation.Incremental) == (reducing == Reducing.Incremental)
                 // Incremental parsing requires a full parse forest
-                && (reducing != Reducing.Incremental || parseForestConstruction == ParseForestConstruction.Full);
+                && (reducing != Reducing.Incremental || parseForestConstruction == ParseForestConstruction.Full));
 
-        boolean validLayoutSensitive =
-            (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive) == (reducing == Reducing.LayoutSensitive);
+        constraints.put("layout-sensitive",
+            (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive) == (reducing == Reducing.LayoutSensitive));
 
-        boolean validDataDependent =
-            (parseForestRepresentation == ParseForestRepresentation.DataDependent) == (reducing == Reducing.DataDependent);
+        constraints.put("data-dependent",
+            (parseForestRepresentation == ParseForestRepresentation.DataDependent) == (reducing == Reducing.DataDependent));
 
         // Recovery and layout-sensitive parsing not simultaneously supported
-        boolean validRecoveryLayoutSensitive =
-            !(parseForestRepresentation == ParseForestRepresentation.LayoutSensitive && recovery);
+        constraints.put("recovery layout-sensitive",
+            !(parseForestRepresentation == ParseForestRepresentation.LayoutSensitive && recovery));
 
-        boolean validComposite =
-            (parseForestRepresentation == ParseForestRepresentation.Composite) == (reducing == Reducing.Composite);
+        constraints.put("composite",
+            (parseForestRepresentation == ParseForestRepresentation.Composite) == (reducing == Reducing.Composite));
 
-        return validElkhound && validParseForest && validIncremental && validLayoutSensitive && validDataDependent
-            && validRecoveryLayoutSensitive && validComposite;
+        return constraints.entrySet().stream().filter(constraint -> !constraint.getValue()).map(Map.Entry::getKey);
     }
 
     public String name() {
@@ -149,7 +159,7 @@ public class ParserVariant {
 
     public IParser<? extends IParseForest> getParser(IParseTable parseTable) {
         if(!this.isValid())
-            throw new IllegalStateException("Invalid parser variant");
+            throw new IllegalStateException("Invalid parser variant: " + validate().collect(Collectors.joining(", ")));
 
         InputStackFactory<IInputStack> inputStackFactory = InputStack::new;
         InputStackFactory<LayoutSensitiveInputStack> inputStackFactoryLS = LayoutSensitiveInputStack::new;

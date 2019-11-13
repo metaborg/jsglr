@@ -14,7 +14,7 @@ validate:
 measurements: buildMeasurements execMeasurements
 
 buildMeasurements:
-	mvn -f ../../org.spoofax.jsglr2.measure -q clean install
+	mvn -f ../org.spoofax.jsglr2.measure -q clean install
 
 execMeasurements:
 	amm measurements.sc $(DIR)

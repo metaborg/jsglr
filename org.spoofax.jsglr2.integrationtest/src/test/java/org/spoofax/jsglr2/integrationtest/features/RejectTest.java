@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.terms.ParseError;
-
-import java.util.stream.Stream;
 
 public class RejectTest extends BaseTestWithSdf3ParseTables {
 

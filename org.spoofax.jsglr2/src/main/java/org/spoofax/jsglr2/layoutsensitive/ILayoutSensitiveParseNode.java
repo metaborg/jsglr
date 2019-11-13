@@ -1,9 +1,10 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public interface ILayoutSensitiveParseNode
 //@formatter:off

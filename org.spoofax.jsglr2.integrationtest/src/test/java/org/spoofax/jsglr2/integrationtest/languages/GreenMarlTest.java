@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.integrationtest.languages;
 
+import java.io.IOException;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithParseTableFromTermWithJSGLR1;
 import org.spoofax.terms.ParseError;
-
-import java.io.IOException;
-import java.util.stream.Stream;
 
 public class GreenMarlTest extends BaseTestWithParseTableFromTermWithJSGLR1 {
 

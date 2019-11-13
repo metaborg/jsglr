@@ -1,217 +1,217 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.spoofax.jsglr2.benchmark</artifactId>
-	<packaging>jar</packaging>
-	<description>Benchmarking suite for the 2nd generation Java implementation of the scannerless generalized LR
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.spoofax.jsglr2.benchmark</artifactId>
+    <packaging>jar</packaging>
+    <description>Benchmarking suite for the 2nd generation Java implementation of the scannerless generalized LR
         parser
     </description>
-	<url>https://github.com/metaborg/jsglr</url>
+    <url>https://github.com/metaborg/jsglr</url>
 
-	<properties>
-		<java-version>1.8</java-version>
-		<jmh-version>1.21</jmh-version>
-		<main-class>org.openjdk.jmh.Main</main-class>
-		<metaborg-version>2.6.0-SNAPSHOT</metaborg-version>
-	</properties>
+    <properties>
+        <java-version>1.8</java-version>
+        <jmh-version>1.21</jmh-version>
+        <main-class>org.openjdk.jmh.Main</main-class>
+        <metaborg-version>2.6.0-SNAPSHOT</metaborg-version>
+    </properties>
 
-	<groupId>org.metaborg</groupId>
-	<version>2.6.0-SNAPSHOT</version>
+    <groupId>org.metaborg</groupId>
+    <version>2.6.0-SNAPSHOT</version>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.metaborg</groupId>
-			<artifactId>org.spoofax.jsglr2.integration</artifactId>
-			<version>${metaborg-version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.spoofax.jsglr2.integration</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.openjdk.jmh</groupId>
-			<artifactId>jmh-core</artifactId>
-			<version>${jmh-version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh-version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.openjdk.jmh</groupId>
-			<artifactId>jmh-generator-annprocess</artifactId>
-			<version>${jmh-version}</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh-version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<sourceDirectory>src/main/java</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>../org.spoofax.jsglr2.integration/src/main/resources</directory>
-			</resource>
-		</resources>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>../org.spoofax.jsglr2.integration/src/main/resources</directory>
+            </resource>
+        </resources>
 
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<!-- Required to add a dependency on the Spoofax plugin, otherwise unpacking 
-					will fail with a class cast exception on archivers. Fix from: http://maven.40175.n5.nabble.com/Problems-with-register-new-archive-type-td4574906.html -->
-				<dependencies>
-					<dependency>
-						<groupId>org.metaborg</groupId>
-						<artifactId>spoofax-maven-plugin</artifactId>
-						<version>${metaborg-version}</version>
-					</dependency>
-					<!-- SDF3 -->
-					<dependency>
-						<groupId>org.metaborg</groupId>
-						<artifactId>org.metaborg.meta.lang.template</artifactId>
-						<version>${metaborg-version}</version>
-						<type>spoofax-language</type>
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<id>copy-spoofax-meta-languages</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<!-- SDF3 -->
-								<artifactItem>
-									<groupId>org.metaborg</groupId>
-									<artifactId>org.metaborg.meta.lang.template</artifactId>
-									<version>${metaborg-version}</version>
-									<type>spoofax-language</type>
-									<destFileName>sdf3.spoofax-language</destFileName>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-				<configuration>
-					<overWriteReleases>true</overWriteReleases>
-					<overWriteSnapshots>true</overWriteSnapshots>
-				</configuration>
-			</plugin>
-			<!-- Use javac compiler, since the JMH annotation processor does not work 
-				with the JDT -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.0</version><!--$NO-MVN-MAN-VER$ -->
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-compiler-javac</artifactId>
-						<version>2.8.1</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<compilerId>javac</compilerId>
-					<source>${java-version}</source>
-					<target>${java-version}</target>
-				</configuration>
-			</plugin>
-			<!-- Create an executable JAR -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<finalName>${project.artifactId}</finalName>
-							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>${main-class}</mainClass>
-								</transformer>
-							</transformers>
-							<filters>
-								<filter>
-									<!-- Shading signed JARs will fail without this. http://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar -->
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Testing if the code is runnable, and if the shaded JAR is runnable -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>test-executable</id>
-						<phase>test</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>java</executable>
-							<arguments>
-								<argument>-classpath</argument>
-								<classpath />
-								<argument>${main-class}</argument>
-								<argument>-h</argument>
-							</arguments>
-							<outputFile>${null-device}</outputFile>
-						</configuration>
-					</execution>
-					<execution>
-						<id>test-shaded-jar-executable</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>java</executable>
-							<arguments>
-								<argument>-jar</argument>
-								<argument>${project.build.directory}/${project.artifactId}.jar</argument>
-								<argument>-h</argument>
-							</arguments>
-							<outputFile>${null-device}</outputFile>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Skip installation of executable -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <!-- Required to add a dependency on the Spoofax plugin, otherwise unpacking
+                    will fail with a class cast exception on archivers. Fix from: http://maven.40175.n5.nabble.com/Problems-with-register-new-archive-type-td4574906.html -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.metaborg</groupId>
+                        <artifactId>spoofax-maven-plugin</artifactId>
+                        <version>${metaborg-version}</version>
+                    </dependency>
+                    <!-- SDF3 -->
+                    <dependency>
+                        <groupId>org.metaborg</groupId>
+                        <artifactId>org.metaborg.meta.lang.template</artifactId>
+                        <version>${metaborg-version}</version>
+                        <type>spoofax-language</type>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>copy-spoofax-meta-languages</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- SDF3 -->
+                                <artifactItem>
+                                    <groupId>org.metaborg</groupId>
+                                    <artifactId>org.metaborg.meta.lang.template</artifactId>
+                                    <version>${metaborg-version}</version>
+                                    <type>spoofax-language</type>
+                                    <destFileName>sdf3.spoofax-language</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <overWriteReleases>true</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+            </plugin>
+            <!-- Use javac compiler, since the JMH annotation processor does not work
+                with the JDT -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.0</version><!--$NO-MVN-MAN-VER$ -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-javac</artifactId>
+                        <version>2.8.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <compilerId>javac</compilerId>
+                    <source>${java-version}</source>
+                    <target>${java-version}</target>
+                </configuration>
+            </plugin>
+            <!-- Create an executable JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}</finalName>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${main-class}</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <!-- Shading signed JARs will fail without this. http://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar -->
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Testing if the code is runnable, and if the shaded JAR is runnable -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-executable</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>${main-class}</argument>
+                                <argument>-h</argument>
+                            </arguments>
+                            <outputFile>${null-device}</outputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-shaded-jar-executable</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.artifactId}.jar</argument>
+                                <argument>-h</argument>
+                            </arguments>
+                            <outputFile>${null-device}</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Skip installation of executable -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<developers>
-		<developer>
-			<name>Jasper Denkers</name>
-			<email>jasperdenkers@gmail.com</email>
-			<organization>Delft University of Technology</organization>
-			<organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <name>Jasper Denkers</name>
+            <email>jasperdenkers@gmail.com</email>
+            <organization>Delft University of Technology</organization>
+            <organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
-		<developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
-		<url>https://github.com/metaborg/jsglr</url>
-	</scm>
+    <scm>
+        <connection>scm:git:git@github.com:metaborg/jsglr.git</connection>
+        <developerConnection>scm:git:git@github.com:metaborg/jsglr.git</developerConnection>
+        <url>https://github.com/metaborg/jsglr</url>
+    </scm>
 </project>

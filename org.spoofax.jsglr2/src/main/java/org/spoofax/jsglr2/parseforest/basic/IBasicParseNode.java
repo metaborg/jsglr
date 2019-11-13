@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
+import java.util.List;
+
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-
-import java.util.List;
 
 public interface IBasicParseNode
 //@formatter:off

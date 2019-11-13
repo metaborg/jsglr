@@ -12,7 +12,6 @@ import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
 import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.testinput.StringInput;

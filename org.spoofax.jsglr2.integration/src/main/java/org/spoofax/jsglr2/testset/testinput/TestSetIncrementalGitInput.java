@@ -31,8 +31,7 @@ public class TestSetIncrementalGitInput extends TestSetInput<String[], Increment
     @Override public List<IncrementalStringInput> getInputs() throws IOException {
         Git git = Git.open(new File(gitDirectory));
         RevWalk revWalk = new RevWalk(git.getRepository());
-        revWalk
-            .markStart(revWalk.parseCommit(git.getRepository().getRefDatabase().findRef("master").getObjectId()));
+        revWalk.markStart(revWalk.parseCommit(git.getRepository().getRefDatabase().findRef("master").getObjectId()));
 
         Map<String, List<String>> map = new HashMap<>();
         List<String> emptyList = Collections.nCopies(depth, "");

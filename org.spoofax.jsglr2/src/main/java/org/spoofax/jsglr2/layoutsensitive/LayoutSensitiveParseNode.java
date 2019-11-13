@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
-
-import java.util.List;
 
 class LayoutSensitiveParseNode
 //@formatter:off

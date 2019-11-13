@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
-import org.metaborg.parsetable.productions.IProduction;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.metaborg.parsetable.productions.IProduction;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 
 public class BasicParseNode
 //@formatter:off

@@ -1,10 +1,11 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
 import org.spoofax.jsglr2.parser.Position;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public interface ILayoutSensitiveDerivation
 //@formatter:off

@@ -61,8 +61,8 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
         this.multipleStates = multipleStates;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override public BacktrackChoicePoint<InputStack, StackNode> createBacktrackChoicePoint() {
+    @SuppressWarnings("unchecked") @Override public BacktrackChoicePoint<InputStack, StackNode>
+        createBacktrackChoicePoint() {
         // This cast is ugly, but there's no way around it (see AbstractRecoveryParseState)
         return new BacktrackChoicePoint<>((InputStack) inputStack.clone(), activeStacks);
     }

@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import java.util.Arrays;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
@@ -11,7 +11,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 
-import java.util.Arrays;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 

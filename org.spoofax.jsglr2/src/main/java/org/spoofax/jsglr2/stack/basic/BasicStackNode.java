@@ -1,11 +1,11 @@
 package org.spoofax.jsglr2.stack.basic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BasicStackNode<ParseForest> extends AbstractStackNode<ParseForest, BasicStackNode<ParseForest>> {
 

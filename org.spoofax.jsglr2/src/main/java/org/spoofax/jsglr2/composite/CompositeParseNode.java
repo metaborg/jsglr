@@ -1,11 +1,11 @@
 package org.spoofax.jsglr2.composite;
 
+import java.util.List;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.layoutsensitive.PositionInterval;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
-
-import java.util.List;
 
 class CompositeParseNode
 //@formatter:off

@@ -10,20 +10,14 @@ import java.util.stream.StreamSupport;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
-import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.result.ParseFailure;
-import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public abstract class RegisteringParserObserver
 //@formatter:off

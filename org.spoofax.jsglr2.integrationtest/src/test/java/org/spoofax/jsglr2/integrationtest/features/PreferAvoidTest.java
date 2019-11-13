@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
-
-import java.util.stream.Stream;
 
 public class PreferAvoidTest extends BaseTestWithSdf3ParseTables {
 

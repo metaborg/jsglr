@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.elkhound;
 
+import java.util.ArrayList;
+
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -7,8 +9,6 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-
-import java.util.ArrayList;
 
 public class BasicElkhoundStackNode
 //@formatter:off

@@ -42,7 +42,7 @@ public abstract class TestSetReader<ContentType, Input extends TestInput<Content
             case ATERM:
                 TestSetParseTableFromATerm testSetParseTableFromATerm = (TestSetParseTableFromATerm) testSet.parseTable;
 
-                if (testSetParseTableFromATerm.internal)
+                if(testSetParseTableFromATerm.internal)
                     setParseTableFromTermResource("/parsetables/" + testSetParseTableFromATerm.file + ".tbl");
                 else
                     setParseTableFromTermFile(testSetParseTableFromATerm.file);

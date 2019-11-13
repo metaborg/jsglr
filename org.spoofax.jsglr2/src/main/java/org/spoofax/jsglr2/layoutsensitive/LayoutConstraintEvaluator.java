@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import org.metaborg.sdf2table.grammar.layoutconstraints.*;
-
 import java.util.Optional;
+
+import org.metaborg.sdf2table.grammar.layoutconstraints.*;
 
 public class LayoutConstraintEvaluator {
 

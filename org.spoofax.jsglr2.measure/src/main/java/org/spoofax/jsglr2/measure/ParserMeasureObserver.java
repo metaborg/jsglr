@@ -1,26 +1,20 @@
 package org.spoofax.jsglr2.measure;
 
 import java.util.HashSet;
-import java.util.Queue;
 import java.util.Set;
 
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
-import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
-import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class ParserMeasureObserver
 //@formatter:off

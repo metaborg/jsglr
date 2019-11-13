@@ -24,9 +24,9 @@ public class JSGLR2Measurements {
 
         Iterable<TestSet<String, StringInput>> testSets;
 
-        if (arg.length == 0)
+        if(arg.length == 0)
             testSets = TestSet.all;
-        else if (arg.length == 1 && arg[0].split(" ").length == 4) {
+        else if(arg.length == 1 && arg[0].split(" ").length == 4) {
             String[] args = arg[0].split(" ");
 
             String language = args[0];
@@ -34,11 +34,9 @@ public class JSGLR2Measurements {
             String parseTablePath = args[2];
             String sourcesPath = args[3];
 
-            testSets = Collections.singleton(new TestSet<>(
-                language,
-                new TestSetParseTableFromATerm(parseTablePath, false),
-                new TestSetMultipleInputs.StringInputSet(sourcesPath, extension)
-            ));
+            testSets =
+                Collections.singleton(new TestSet<>(language, new TestSetParseTableFromATerm(parseTablePath, false),
+                    new TestSetMultipleInputs.StringInputSet(sourcesPath, extension)));
         } else
             throw new IllegalStateException("invalid arguments");
 

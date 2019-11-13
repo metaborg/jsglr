@@ -7,6 +7,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.ParserVariant;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.recovery.AbstractRecoveryParseState;
 import org.spoofax.jsglr2.recovery.BacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -44,6 +45,12 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
 
             return new RecoveryIncrementalParseState<>(inputStack, activeStacks, forActorStacks);
         };
+    }
+
+    @Override public void nextParseRound(ParserObserving observing) {
+        super.nextParseRound(observing);
+
+        setMultipleStates(activeStacks.isMultiple());
     }
 
     @Override public boolean newParseNodesAreReusable() {

@@ -172,8 +172,6 @@ public class IncrementalParser
     }
 
     @Override protected IncrementalParseForest getNodeToShift(ParseState parseState) {
-        parseState.setMultipleStates(parseState.forShifter.size() > 1);
-
         return parseState.inputStack.getNode();
     }
 }

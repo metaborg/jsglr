@@ -7,7 +7,7 @@ object Args {
 
     implicit def languagesDir(implicit args: Args) = args.dir / 'languages
     implicit def sourcesDir(implicit args: Args)   = args.dir / 'sources
-
+    implicit def measurementsDir(implicit args: Args)   = args.dir / 'measurements
 }
 
 def withArgs(args: String*)(body: Args => Unit) = {

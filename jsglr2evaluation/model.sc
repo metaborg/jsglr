@@ -7,6 +7,7 @@ case class Language(id: String, extension: String, repo: String, path: String, s
     def dir(implicit args: Args) = repoDir / path
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
     def parseTablePath(implicit args: Args) = dir / "target" / "metaborg" / "sdf.tbl"
+    def measurementsDir(implicit args: Args) = Args.measurementsDir / id
 }
 
 case class Source(id: String, repo: String)

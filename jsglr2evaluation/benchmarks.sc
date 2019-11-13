@@ -28,7 +28,7 @@ def execBenchmarks(implicit args: Args) = {
             "-f", 1,
             "-rff", language.benchmarksPath,
             "JSGLR2BenchmarkParsingExternal",
-            "-jvmArgs=\"-Dlanguage='" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "'\""
+            "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "\""
         )(benchmarksMvnDir)
     }
 }

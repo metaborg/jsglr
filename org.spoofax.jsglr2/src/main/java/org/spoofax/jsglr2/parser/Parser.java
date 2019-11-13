@@ -209,7 +209,7 @@ public class Parser
         return parseForestManager.createCharacterNode(parseState);
     }
 
-    private void addForShifter(ParseState parseState, StackNode stack, IState shiftState) {
+    protected void addForShifter(ParseState parseState, StackNode stack, IState shiftState) {
         ForShifterElement<StackNode> forShifterElement = new ForShifterElement<>(stack, shiftState);
 
         observing.notify(observer -> observer.addForShifter(forShifterElement));

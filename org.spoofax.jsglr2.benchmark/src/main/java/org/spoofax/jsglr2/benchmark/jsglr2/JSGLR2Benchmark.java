@@ -25,15 +25,17 @@ import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.testset.TestSetReader;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
+public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<ContentType>>
+    extends BaseBenchmark<ContentType, Input> {
 
     protected IParser<?> parser; // Just parsing
     protected JSGLR2Implementation<?, ?, ?> jsglr2; // Parsing, imploding, and tokenization
 
-    public JSGLR2Benchmark(TestSetReader<Input> testSetReader) {
+    public JSGLR2Benchmark(TestSetReader<ContentType, Input> testSetReader) {
         super(testSetReader);
     }
 
@@ -41,12 +43,12 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
 
     abstract protected boolean implode();
 
-    abstract protected Object action(Input input) throws ParseException;
+    abstract protected Object action(Blackhole bh, Input input) throws ParseException;
 
     @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         IntegrationVariant variant = variant();
 
-        filterVariants(implode(), variant);
+        // filterVariants(implode(), variant);
 
         IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
@@ -119,7 +121,7 @@ public abstract class JSGLR2Benchmark<Input> extends BaseBenchmark<Input> {
 
     @Benchmark public void benchmark(Blackhole bh) throws ParseException {
         for(Input input : inputs)
-            bh.consume(action(input));
+            bh.consume(action(bh, input));
     }
 
 }

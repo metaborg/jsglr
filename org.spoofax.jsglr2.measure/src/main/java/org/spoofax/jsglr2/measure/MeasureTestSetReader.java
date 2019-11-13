@@ -6,14 +6,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import org.spoofax.jsglr2.testset.*;
+import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetInput;
+import org.spoofax.jsglr2.testset.TestSetReader;
+import org.spoofax.jsglr2.testset.TestSetSizedInput;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-public class MeasureTestSetReader extends TestSetReader<StringInput> {
+public class MeasureTestSetReader<ContentType, Input extends TestInput<ContentType>>
+    extends TestSetReader<ContentType, Input> {
 
-    public MeasureTestSetReader(TestSet testSet) {
+    public MeasureTestSetReader(TestSet<ContentType, Input> testSet) {
         super(testSet);
     }
 
@@ -32,56 +37,36 @@ public class MeasureTestSetReader extends TestSetReader<StringInput> {
         return new FileInputStream(new File(basePath() + resource));
     }
 
-    @Override protected String getFileAsString(String filename) throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/samples/" + filename);
-
-        return inputStreamAsString(inputStream);
-    }
-
-    @Override protected StringInput getInput(String filename, String input) {
-        return new StringInput(filename, input);
-    }
-
     public Iterable<InputBatch> getInputBatches() throws IOException {
-        switch(testSet.input.type) {
-            case SINGLE:
-                TestSetSingleInput testSetSingleInput = (TestSetSingleInput) testSet.input;
+        if(testSet.input.type == TestSetInput.Type.SIZED) {
+            TestSetSizedInput<ContentType, Input> testSizedInput =
+                (TestSetSizedInput<ContentType, Input>) testSet.input;
 
-                return Arrays.asList(new InputBatch(getSingleInput(testSetSingleInput.filename), -1));
-            case MULTIPLE:
-                TestSetMultipleInputs testSetMultipleInputs = (TestSetMultipleInputs) testSet.input;
+            if(testSizedInput.sizes == null)
+                throw new IllegalStateException("invalid input type (sizes missing)");
 
-                return Arrays.asList(
-                    new InputBatch(getMultipleInputs(testSetMultipleInputs.path, testSetMultipleInputs.extension), -1));
-            case SIZED:
-                TestSetSizedInput testSizedInput = (TestSetSizedInput) testSet.input;
+            List<InputBatch> result = new ArrayList<>();
 
-                if(testSizedInput.sizes == null)
-                    throw new IllegalStateException("invalid input type (sizes missing)");
+            for(int size : testSizedInput.sizes) {
+                result.add(new InputBatch(testSizedInput.getInputs(size), size));
+            }
 
-                List<InputBatch> result = new ArrayList<>();
-
-                for(int size : testSizedInput.sizes) {
-                    result.add(new InputBatch(new StringInput("", testSizedInput.get(size)), size));
-                }
-
-                return result;
-            default:
-                throw new IllegalStateException("invalid input type (does have a size)");
+            return result;
         }
+        return Collections.singletonList(new InputBatch(testSet.input.getInputs(), -1));
     }
 
     public class InputBatch {
-        public Iterable<StringInput> inputs;
+        public Iterable<Input> inputs;
         public int size;
 
-        public InputBatch(Iterable<StringInput> inputs, int size) {
+        public InputBatch(Iterable<Input> inputs, int size) {
             this.inputs = inputs;
             this.size = size;
         }
 
-        public InputBatch(StringInput input, int size) {
-            this.inputs = Arrays.asList(input);
+        public InputBatch(Input input, int size) {
+            this.inputs = Collections.singletonList(input);
             this.size = size;
         }
     }

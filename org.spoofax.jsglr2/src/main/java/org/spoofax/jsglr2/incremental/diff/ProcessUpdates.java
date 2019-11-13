@@ -57,6 +57,10 @@ public class ProcessUpdates
      * guarantees are made for a consecutive insertion/deletion.
      */
     public IncrementalParseForest processUpdates(IncrementalParseForest previous, List<EditorUpdate> editorUpdates) {
+        // Optimization: if there are no changes: then just return the old tree
+        if(editorUpdates.size() == 0)
+            return previous;
+
         // Optimization: if everything is deleted/replaced: then return a tree created from the inserted string
         if(editorUpdates.size() == 1) {
             EditorUpdate editorUpdate = editorUpdates.get(0);

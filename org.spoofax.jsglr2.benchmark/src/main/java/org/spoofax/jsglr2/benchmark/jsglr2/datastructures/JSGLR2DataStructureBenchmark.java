@@ -6,7 +6,7 @@ import org.metaborg.parsetable.ParseTableReader;
 import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
-import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
+import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -22,16 +22,16 @@ import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.testset.StringInput;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringInput> {
+public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<String, StringInput> {
 
     protected IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> parser;
 
-    protected JSGLR2DataStructureBenchmark(TestSet testSet) {
-        super(new BenchmarkStringInputTestSetReader(testSet));
+    protected JSGLR2DataStructureBenchmark(TestSet<String, StringInput> testSet) {
+        super(new BenchmarkTestSetReader<>(testSet));
     }
 
     @SuppressWarnings("unchecked") @Setup public void parserSetup() throws ParseError, ParseTableReadException {

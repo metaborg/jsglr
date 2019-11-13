@@ -2,16 +2,17 @@ package org.spoofax.jsglr2.benchmark;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetReader;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-public abstract class BenchmarkTestSetReader<Input> extends TestSetReader<Input> {
+public class BenchmarkTestSetReader<ContentType, Input extends TestInput<ContentType>>
+    extends TestSetReader<ContentType, Input> {
 
-    public BenchmarkTestSetReader(TestSet testSet) {
+    public BenchmarkTestSetReader(TestSet<ContentType, Input> testSet) {
         super(testSet);
     }
 
@@ -28,12 +29,6 @@ public abstract class BenchmarkTestSetReader<Input> extends TestSetReader<Input>
 
     @Override public InputStream resourceInputStream(String resource) throws Exception {
         return new FileInputStream(new File(basePath() + resource));
-    }
-
-    @Override protected String getFileAsString(String filename) throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/samples/" + filename);
-
-        return inputStreamAsString(inputStream);
     }
 
 }

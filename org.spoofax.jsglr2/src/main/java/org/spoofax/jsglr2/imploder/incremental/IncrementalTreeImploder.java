@@ -47,6 +47,20 @@ public abstract class IncrementalTreeImploder
         return implodeParseNode(incrementalInputFactory.get(inputString, cache.get(filename)), topParseNode, 0);
     }
 
+    public void clearCache() {
+        cache.clear();
+    }
+
+    // TODO it is very ugly to have these methods here. It's only used in benchmarking, but it should not exist in the
+    // regular implementation
+    public WeakHashMap<ParseNode, SubTree<Tree>> getFromCache(String filename) {
+        return cache.get(filename);
+    }
+
+    public void addToCache(String filename, WeakHashMap<ParseNode, SubTree<Tree>> map) {
+        cache.put(filename, map);
+    }
+
     @Override protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
         if(input.resultCache.containsKey(parseNode))
             return input.resultCache.get(parseNode);

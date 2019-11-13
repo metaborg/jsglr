@@ -15,12 +15,13 @@ import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBenchmark {
 
     ForShifterObserver forShifterObserver;
 
-    protected JSGLR2ForShifterBenchmark(TestSet testSet) {
+    protected JSGLR2ForShifterBenchmark(TestSet<String, StringInput> testSet) {
         super(testSet);
     }
 

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.actions.Accept;
 import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
@@ -69,6 +70,18 @@ public class IncrementalParser
             new ProcessUpdates<>((IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
     }
 
+    public void clearCache() {
+        cache.clear();
+        oldString.clear();
+    }
+
+    // TODO it is very ugly to have this method here. It's only used in benchmarking, but it should not exist in the
+    // regular implementation
+    public void addToCache(String filename, String oldInput, IncrementalParseForest oldResult) {
+        oldString.put(filename, oldInput);
+        cache.put(filename, oldResult);
+    }
+
     @Override protected ParseState getParseState(String inputString, String filename) {
         IncrementalParseForest updatedTree = getUpdatedTree(inputString, filename);
         return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, filename), observing);
@@ -81,6 +94,26 @@ public class IncrementalParser
             return processUpdates.processUpdates(cache.get(filename), updates);
         } else
             return processUpdates.getParseNodeFromString(inputString);
+    }
+
+    @Override protected void parseLoop(ParseState parse) {
+        // Optimization: if the first tree on the lookahead stack is exactly the same as the previous tree:
+        String fileName = parse.inputStack.fileName();
+        if(!fileName.equals("") && cache.containsKey(fileName) && parse.inputStack.getNode() == cache.get(fileName)) {
+
+            StackNode stack = parse.activeStacks.getSingle();
+
+            // Shift this previous tree
+            addForShifter(parse, stack, parseTable
+                .getState(stack.state().getGotoId(((IncrementalParseNode) cache.get(fileName)).production().id())));
+            shifter(parse);
+            parse.inputStack.next();
+
+            // Accept
+            actor(parse.activeStacks.getSingle(), parse, Accept.SINGLETON);
+
+        } else
+            super.parseLoop(parse);
     }
 
     @Override protected ParseSuccess<IncrementalParseForest> success(ParseState parseState,

@@ -24,12 +24,13 @@ import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStructureBenchmark {
 
     GotoObserver gotoObserver;
 
-    protected JSGLR2StateApplicableGotosBenchmark(TestSet testSet) {
+    protected JSGLR2StateApplicableGotosBenchmark(TestSet<String, StringInput> testSet) {
         super(testSet);
     }
 

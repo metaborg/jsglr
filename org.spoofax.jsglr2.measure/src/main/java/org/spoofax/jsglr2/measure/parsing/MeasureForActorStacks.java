@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.measure;
+package org.spoofax.jsglr2.measure.parsing;
 
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;

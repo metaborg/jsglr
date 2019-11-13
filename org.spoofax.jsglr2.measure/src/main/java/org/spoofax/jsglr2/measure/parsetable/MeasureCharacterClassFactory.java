@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.measure;
+package org.spoofax.jsglr2.measure.parsetable;
 
 import java.util.HashSet;
 import java.util.Set;

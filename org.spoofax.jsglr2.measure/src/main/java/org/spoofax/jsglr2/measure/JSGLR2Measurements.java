@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.metaborg.parsetable.ParseTableReadException;
+import org.spoofax.jsglr2.measure.parsetable.ParseTableMeasurements;
+import org.spoofax.jsglr2.measure.parsing.ParsingMeasurements;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetMultipleInputs;

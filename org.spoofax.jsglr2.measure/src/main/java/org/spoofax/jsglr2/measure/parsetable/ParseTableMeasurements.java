@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.measure;
+package org.spoofax.jsglr2.measure.parsetable;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -9,6 +9,8 @@ import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.actions.ActionsFactory;
 import org.metaborg.parsetable.actions.IActionsFactory;
+import org.spoofax.jsglr2.measure.JSGLR2Measurements;
+import org.spoofax.jsglr2.measure.Measurements;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 

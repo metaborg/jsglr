@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.measure;
+package org.spoofax.jsglr2.measure.parsing;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,6 +10,10 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.measure.JSGLR2Measurements;
+import org.spoofax.jsglr2.measure.MeasureTestSetReader;
+import org.spoofax.jsglr2.measure.Measurements;
+import org.spoofax.jsglr2.measure.ParserMeasureObserver;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;

@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
+import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
@@ -13,7 +14,7 @@ public class JSGLR2OCamlGitBenchmarkIncrementalParsing extends JSGLR2BenchmarkIn
         "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49" }) public int i;
 
     public JSGLR2OCamlGitBenchmarkIncrementalParsing() {
-        super(TestSet.ocamlIncrementalGit);
+        this.testSetReader = new BenchmarkTestSetReader<>(TestSet.ocamlIncrementalGit);
     }
 
     // TODO Some of the ML files don't parse :shrug:

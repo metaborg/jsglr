@@ -12,14 +12,10 @@ import org.spoofax.jsglr2.testset.testinput.TestInput;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public abstract class BaseBenchmark<ContentType, Input extends TestInput<ContentType>> {
 
-    protected final TestSetReader<ContentType, Input> testSetReader;
+    protected TestSetReader<ContentType, Input> testSetReader;
     protected Iterable<Input> inputs;
 
     @Param({ "-1" }) public int n; // Can be overwritten if the input has a dynamic size
-
-    protected BaseBenchmark(TestSetReader<ContentType, Input> testSetReader) {
-        this.testSetReader = testSetReader;
-    }
 
     @Setup public void setupInputs() throws IOException {
         if(n == -1)

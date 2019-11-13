@@ -13,9 +13,7 @@ import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
-import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
-import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.terms.ParseError;
 
@@ -23,10 +21,6 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark<String, StringInput>
 
     protected SGLR jsglr1parse;
     protected SGLR jsglr1parseAndImplode;
-
-    protected JSGLR1Benchmark(TestSet<String, StringInput> testSet) {
-        super(new BenchmarkTestSetReader<>(testSet));
-    }
 
     @Param({ "false", "true" }) public boolean implode;
 

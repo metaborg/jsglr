@@ -30,10 +30,6 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
 
     GotoObserver gotoObserver;
 
-    protected JSGLR2StateApplicableGotosBenchmark(TestSet<String, StringInput> testSet) {
-        super(testSet);
-    }
-
     @Param public ProductionToGotoRepresentation productionToGotoRepresentation;
 
     @Override public void postParserSetup() {

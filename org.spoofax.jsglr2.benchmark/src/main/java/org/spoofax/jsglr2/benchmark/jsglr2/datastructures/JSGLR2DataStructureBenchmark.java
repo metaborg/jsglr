@@ -30,10 +30,6 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<String,
 
     protected IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> parser;
 
-    protected JSGLR2DataStructureBenchmark(TestSet<String, StringInput> testSet) {
-        super(new BenchmarkTestSetReader<>(testSet));
-    }
-
     @SuppressWarnings("unchecked") @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 

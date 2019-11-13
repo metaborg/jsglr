@@ -35,10 +35,6 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     ActorObserver actorObserver;
 
-    protected JSGLR2StateApplicableActionsBenchmark(TestSet<String, StringInput> testSet) {
-        super(testSet);
-    }
-
     @Param({ "false", "true" }) public boolean optimizeCharacterClasses;
 
     @Param({ "false", "true" }) public boolean cacheCharacterClasses;

@@ -20,10 +20,6 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
 
     ForShifterObserver forShifterObserver;
 
-    protected JSGLR2ForShifterBenchmark(TestSet<String, StringInput> testSet) {
-        super(testSet);
-    }
-
     public enum Representation {
         ArrayDequeue, ArrayList, LinkedList, Set
     }

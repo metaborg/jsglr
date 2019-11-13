@@ -19,14 +19,9 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.testset.TestSetReader;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 
 public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[], IncrementalStringInput> {
-
-    public JSGLR2BenchmarkIncremental(TestSetReader<String[], IncrementalStringInput> testSetReader) {
-        super(testSetReader);
-    }
 
     public enum ParserType {
         Batch(false,

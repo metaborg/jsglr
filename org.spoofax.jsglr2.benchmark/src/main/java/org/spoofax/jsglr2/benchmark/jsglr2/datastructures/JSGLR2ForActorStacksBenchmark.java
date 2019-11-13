@@ -24,10 +24,6 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
 
     ForActorStacksObserver forActorStacksObserver;
 
-    protected JSGLR2ForActorStacksBenchmark(TestSet<String, StringInput> testSet) {
-        super(testSet);
-    }
-
     public enum Representation {
         DequeuePriority
     }

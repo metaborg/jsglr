@@ -58,7 +58,7 @@ public abstract class TestSetMultipleInputs<Input extends TestInput<String>> ext
         }
     }
 
-    static class StringInputSet extends TestSetMultipleInputs<StringInput> {
+    public static class StringInputSet extends TestSetMultipleInputs<StringInput> {
         public StringInputSet(String path, String extension) {
             super(path, extension);
         }

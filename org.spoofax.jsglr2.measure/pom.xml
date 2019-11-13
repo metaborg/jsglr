@@ -82,7 +82,7 @@
                                     <destFileName>sdf3.spoofax-language</destFileName>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

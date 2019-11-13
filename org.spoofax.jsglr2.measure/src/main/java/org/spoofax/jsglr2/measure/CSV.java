@@ -18,11 +18,11 @@ public class CSV<T> {
     }
 
     public void addRow(Map<T, String> row) {
-        rows.add(row);
+        this.rows.add(row);
     }
 
     public void addRows(List<Map<T, String>> rows) {
-        rows.addAll(rows);
+        this.rows.addAll(rows);
     }
 
     public void write(String path) throws FileNotFoundException {
@@ -31,7 +31,7 @@ public class CSV<T> {
 
     private void write(PrintWriter out) {
         writeHeader(out);
-        rows.stream().forEach(row -> writeRow(out, row));
+        rows.forEach(row -> writeRow(out, row));
 
         out.close();
     }

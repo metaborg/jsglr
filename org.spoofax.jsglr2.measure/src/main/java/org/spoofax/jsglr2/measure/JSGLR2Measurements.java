@@ -7,17 +7,14 @@ import java.util.Collections;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.measure.parsetable.ParseTableMeasurements;
 import org.spoofax.jsglr2.measure.parsing.ParsingMeasurements;
-import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.TestSet;
-import org.spoofax.jsglr2.testset.TestSetMultipleInputs;
-import org.spoofax.jsglr2.testset.TestSetParseTableFromATerm;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class JSGLR2Measurements {
 
     private static String REPORT_PATH = System.getProperty("reportPath", "~/jsglr2measurements");
 
-    public static void main(String[] args) throws ParseTableReadException, IOException, ParseException {
+    public static void main(String[] args) throws ParseTableReadException, IOException {
         if(REPORT_PATH.startsWith("~" + File.separator)) {
             REPORT_PATH = System.getProperty("user.home") + REPORT_PATH.substring(1);
         }
@@ -42,16 +39,7 @@ public class JSGLR2Measurements {
             String[] args = arg[0].split(" ");
 
             if(args.length == 4) {
-                String language = args[0];
-                String extension = args[1];
-                String parseTablePath = args[2];
-                String sourcesPath = args[3];
-
-                TestSetParseTableFromATerm parseTable = new TestSetParseTableFromATerm(parseTablePath, false);
-                TestSetMultipleInputs<StringInput> input =
-                    new TestSetMultipleInputs.StringInputSet(sourcesPath, extension);
-
-                TestSet<String, StringInput> testSet = new TestSet<>(language, parseTable, input);
+                TestSet<String, StringInput> testSet = TestSet.fromArgs(args);
 
                 return new Config(Collections.singleton(testSet), false);
             }

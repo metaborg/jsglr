@@ -7,7 +7,7 @@ public enum ParsingMeasurement {
     forActorDelayedMaxSize, forActorContainsChecks, forActorNonEmptyChecks, stackNodes, stackNodesSingleLink,
     stackLinks, stackLinksRejected, deterministicDepthResets, parseNodes, parseNodesSingleDerivation,
     parseNodesAmbiguous, parseNodesContextFree, parseNodesContextFreeAmbiguous, parseNodesLexical,
-    parseNodesLexicalAmbiguous, parseNodesLayout, parseNodesLayoutAmbiguous, characterNodes, actors, doReductions,
-    doLimitedReductions, doReductionsLR, doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers,
-    reducersElkhound
+    parseNodesLexicalAmbiguous, parseNodesLayout, parseNodesLayoutAmbiguous, parseNodesLiteral,
+    parseNodesLiteralAmbiguous, characterNodes, actors, doReductions, doLimitedReductions, doReductionsLR,
+    doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers, reducersElkhound
 }

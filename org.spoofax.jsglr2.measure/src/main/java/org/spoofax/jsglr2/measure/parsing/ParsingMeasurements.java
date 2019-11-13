@@ -174,6 +174,10 @@ public class ParsingMeasurements extends Measurements {
                     return "" + measureObserver.parseNodesLayout;
                 case parseNodesLayoutAmbiguous:
                     return "" + measureObserver.parseNodesLayoutAmbiguous;
+                case parseNodesLiteral:
+                    return "" + measureObserver.parseNodesLiteral;
+                case parseNodesLiteralAmbiguous:
+                    return "" + measureObserver.parseNodesLiteralAmbiguous;
                 case parseNodesSingleDerivation:
                     return "" + measureObserver.parseNodesSingleDerivation;
                 case characterNodes:

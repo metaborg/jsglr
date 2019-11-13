@@ -61,6 +61,8 @@ abstract class ParserMeasureObserver
     long parseNodesContextFreeAmbiguous = 0;
     long parseNodesLexical = 0;
     long parseNodesLexicalAmbiguous = 0;
+    long parseNodesLiteral = 0;
+    long parseNodesLiteralAmbiguous = 0;
     long parseNodesLayout = 0;
     long parseNodesLayoutAmbiguous = 0;
     long parseNodesSingleDerivation = 0;
@@ -141,25 +143,31 @@ abstract class ParserMeasureObserver
             if(ambiguous)
                 parseNodesAmbiguous++;
 
-            if(parseNode.production().isContextFree()) {
-                parseNodesContextFree++;
+            switch(parseNode.production().concreteSyntaxContext()) {
+                case ContextFree:
+                    parseNodesContextFree++;
 
-                if(ambiguous)
-                    parseNodesContextFreeAmbiguous++;
-            }
+                    if(ambiguous)
+                        parseNodesContextFreeAmbiguous++;
+                    break;
+                case Lexical:
+                    parseNodesLexical++;
 
-            if(!parseNode.production().isLayout() && parseNode.production().isLexical()) {
-                parseNodesLexical++;
+                    if(ambiguous)
+                        parseNodesLexicalAmbiguous++;
+                    break;
+                case Layout:
+                    parseNodesLayout++;
 
-                if(ambiguous)
-                    parseNodesLexicalAmbiguous++;
-            }
+                    if(ambiguous)
+                        parseNodesLayoutAmbiguous++;
+                    break;
+                case Literal:
+                    parseNodesLiteral++;
 
-            if(parseNode.production().isLayout()) {
-                parseNodesLayout++;
-
-                if(ambiguous)
-                    parseNodesLayoutAmbiguous++;
+                    if(ambiguous)
+                        parseNodesLiteralAmbiguous++;
+                    break;
             }
 
             int derivationCount = 0;

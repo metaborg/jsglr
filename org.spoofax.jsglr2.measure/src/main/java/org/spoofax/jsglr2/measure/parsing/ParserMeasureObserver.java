@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.measure;
+package org.spoofax.jsglr2.measure.parsing;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +16,7 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class ParserMeasureObserver
+class ParserMeasureObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
@@ -25,51 +25,50 @@ public class ParserMeasureObserver
     implements
     IParserObserver<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>>> {
 
-    public int length = 0;
-    AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState;
+    int length = 0;
 
-    public Set<AbstractElkhoundStackNode<ParseForest>> stackNodes = new HashSet<>();
-    public Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinks = new HashSet<>();
-    public Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinksRejected = new HashSet<>();
+    Set<AbstractElkhoundStackNode<ParseForest>> stackNodes = new HashSet<>();
+    Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinks = new HashSet<>();
+    Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinksRejected = new HashSet<>();
 
-    public Set<Actor> actors = new HashSet<>();
+    Set<Actor> actors = new HashSet<>();
 
-    public int doReductions = 0;
-    public int doLimitedReductions = 0;
+    int doReductions = 0;
+    int doLimitedReductions = 0;
 
-    public int doReductionsLR = 0;
-    public int doReductionsDeterministicGLR = 0;
-    public int doReductionsNonDeterministicGLR = 0;
+    int doReductionsLR = 0;
+    int doReductionsDeterministicGLR = 0;
+    int doReductionsNonDeterministicGLR = 0;
 
-    public Set<Reducer> reducers = new HashSet<>();
-    public Set<Reducer> reducersElkhound = new HashSet<>();
+    Set<Reducer> reducers = new HashSet<>();
+    Set<Reducer> reducersElkhound = new HashSet<>();
 
-    public int deterministicDepthResets = 0;
+    int deterministicDepthResets = 0;
 
-    public Set<HybridParseNode> parseNodes = new HashSet<>();
-    public Set<ParseForest> characterNodes = new HashSet<>();
+    Set<HybridParseNode> parseNodes = new HashSet<>();
+    Set<ParseForest> characterNodes = new HashSet<>();
 
     class Actor {
-        public AbstractElkhoundStackNode<ParseForest> stack;
-        public Iterable<IAction> applicableActions;
+        AbstractElkhoundStackNode<ParseForest> stack;
+        Iterable<IAction> applicableActions;
 
-        public Actor(AbstractElkhoundStackNode<ParseForest> stack, Iterable<IAction> applicableActions) {
+        Actor(AbstractElkhoundStackNode<ParseForest> stack, Iterable<IAction> applicableActions) {
             this.stack = stack;
             this.applicableActions = applicableActions;
         }
     }
 
     class Reducer {
-        public IReduce reduce;
-        public ParseForest[] parseNodes;
+        IReduce reduce;
+        ParseForest[] parseNodes;
 
-        public Reducer(IReduce reduce, ParseForest[] parseNodes) {
+        Reducer(IReduce reduce, ParseForest[] parseNodes) {
             this.reduce = reduce;
             this.parseNodes = parseNodes;
         }
     }
 
-    public int stackNodesSingleLink() {
+    int stackNodesSingleLink() {
         int res = 0;
 
         for(AbstractElkhoundStackNode<?> stackNode : stackNodes) {
@@ -85,8 +84,6 @@ public class ParserMeasureObserver
     }
 
     @Override public void parseStart(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState) {
-        this.parseState = parseState;
-
         length += parseState.inputStack.inputString().length();
     }
 

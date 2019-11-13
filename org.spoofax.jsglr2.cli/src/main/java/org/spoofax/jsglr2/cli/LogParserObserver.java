@@ -13,8 +13,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.observing.ParserObserver;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.parser.observing.RegisteringParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -29,7 +28,7 @@ public class LogParserObserver
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
+    extends RegisteringParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     final private Consumer<String> logger;
 

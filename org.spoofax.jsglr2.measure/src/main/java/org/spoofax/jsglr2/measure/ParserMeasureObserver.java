@@ -16,7 +16,6 @@ import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
@@ -97,19 +96,6 @@ public class ParserMeasureObserver
         length += parseState.inputStack.inputString().length();
     }
 
-    @Override public void parseRound(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState,
-        Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
-    }
-
-    @Override public void addActiveStack(AbstractElkhoundStackNode<ParseForest> stack) {
-    }
-
-    @Override public void addForActorStack(AbstractElkhoundStackNode<ParseForest> stack) {
-    }
-
-    @Override public void findActiveStackWithState(IState state) {
-    }
-
     @Override public void createStackNode(AbstractElkhoundStackNode<ParseForest> stack) {
         stackNodes.add(stack);
     }
@@ -126,22 +112,9 @@ public class ParserMeasureObserver
         stackLinksRejected.add(link);
     }
 
-    @Override public void forActorStacks(IForActorStacks<AbstractElkhoundStackNode<ParseForest>> forActorStacks) {
-    }
-
-    @Override public void handleForActorStack(AbstractElkhoundStackNode<ParseForest> stack,
-        IForActorStacks<AbstractElkhoundStackNode<ParseForest>> forActorStacks) {
-    }
-
     @Override public void actor(AbstractElkhoundStackNode<ParseForest> stack,
         AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState, Iterable<IAction> applicableActions) {
         actors.add(new Actor(stack, applicableActions));
-    }
-
-    @Override public void skipRejectedStack(AbstractElkhoundStackNode<ParseForest> stack) {
-    }
-
-    @Override public void addForShifter(ForShifterElement<AbstractElkhoundStackNode<ParseForest>> forShifterElement) {
     }
 
     @Override public void doReductions(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState,
@@ -174,49 +147,12 @@ public class ParserMeasureObserver
         reducersElkhound.add(new Reducer(reduce, parseNodes));
     }
 
-    @Override public void directLinkFound(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState,
-        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> directLink) {
-    }
-
-    @Override public void accept(AbstractElkhoundStackNode<ParseForest> acceptingStack) {
-    }
-
     @Override public void createParseNode(ParseNode parseNode, IProduction production) {
         parseNodes.add((HybridParseNode) parseNode);
     }
 
-    @Override public void createDerivation(Derivation derivationNode, IProduction production,
-        ParseForest[] parseNodes) {
-    }
-
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
         characterNodes.add(characterNode);
-    }
-
-    @Override public void addDerivation(ParseNode parseNode, Derivation derivation) {
-    }
-
-    @Override public void shifter(ParseForest termNode,
-        Queue<ForShifterElement<AbstractElkhoundStackNode<ParseForest>>> forShifter) {
-    }
-
-    @Override public void recoveryBacktrackChoicePoint(int index,
-        IBacktrackChoicePoint<?, AbstractElkhoundStackNode<ParseForest>> backtrackChoicePoint) {
-    }
-
-    @Override public void startRecovery(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState) {
-    }
-
-    @Override public void recoveryIteration(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState) {
-    }
-
-    @Override public void endRecovery(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState) {
-    }
-
-    @Override public void remark(String remark) {
-    }
-
-    @Override public void success(ParseSuccess<ParseForest> success) {
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {

@@ -15,7 +15,7 @@ import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.cli.JSGLR2CLI;
 import org.spoofax.jsglr2.cli.WrappedException;
 import org.spoofax.jsglr2.cli.output.IOutputProcessor;
-import org.spoofax.jsglr2.parser.observing.ParserObserver;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
 import picocli.CommandLine.ArgGroup;
@@ -64,7 +64,7 @@ public class DotOutputProcessor implements IOutputProcessor {
             throw new WrappedException("Dot visualisation is only supported for exactly one input.");
     }
 
-    @Override public List<ParserObserver<?, ?, ?, ?, ?>> observers() {
+    @Override public List<IParserObserver<?, ?, ?, ?, ?>> observers() {
         switch(dotOutputOptions.dot) {
             default:
             case ParseForest:

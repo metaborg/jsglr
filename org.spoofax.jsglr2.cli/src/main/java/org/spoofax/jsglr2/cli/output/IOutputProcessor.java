@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.JSGLR2Failure;
 import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.cli.JSGLR2CLI;
 import org.spoofax.jsglr2.cli.WrappedException;
-import org.spoofax.jsglr2.parser.observing.ParserObserver;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
@@ -18,7 +18,7 @@ public interface IOutputProcessor {
     default void checkAllowed(JSGLR2CLI cli) throws WrappedException {
     }
 
-    default List<ParserObserver<?, ?, ?, ?, ?>> observers() {
+    default List<IParserObserver<?, ?, ?, ?, ?>> observers() {
         return Collections.emptyList();
     }
 

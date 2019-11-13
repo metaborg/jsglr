@@ -15,7 +15,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
-import org.spoofax.jsglr2.parser.observing.ParserObserver;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.recovery.IRecoveryParseState;
@@ -94,7 +94,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         BacktrackChoicePoint extends IBacktrackChoicePoint<?, StackNode>,
         ParseState           extends AbstractParseState<?, StackNode> & IRecoveryParseState<?, StackNode, BacktrackChoicePoint>>
     //@formatter:on
-        extends ParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
+        implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
         public final List<Integer> backtrackChoicePoints;
         public final List<Integer> started;

@@ -25,7 +25,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public abstract class ParserObserver
+public abstract class RegisteringParserObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
@@ -39,25 +39,25 @@ public abstract class ParserObserver
     private int stackNodeCount = 0;
     private int stackLinkCount = 0;
 
-    protected final Map<IDerivation<ParseForest>, Integer> derivationId = new HashMap<>();
-    protected final Map<ParseForest, Integer> parseNodeId = new HashMap<>();
-    protected final Map<StackNode, Integer> stackNodeId = new HashMap<>();
-    protected final Map<StackLink<ParseForest, StackNode>, Integer> stackLinkId = new HashMap<>();
+    private final Map<IDerivation<ParseForest>, Integer> derivationId = new HashMap<>();
+    private final Map<ParseForest, Integer> parseNodeId = new HashMap<>();
+    private final Map<StackNode, Integer> stackNodeId = new HashMap<>();
+    private final Map<StackLink<ParseForest, StackNode>, Integer> stackLinkId = new HashMap<>();
 
-    protected void registerDerivationNode(IDerivation<ParseForest> derivation) {
+    private void registerDerivationNode(IDerivation<ParseForest> derivation) {
         // use same count as parse nodes as they're in the same tree in the visualisation
         derivationId.put(derivation, parseNodeCount++);
     }
 
-    protected void registerParseNode(ParseForest parseNode) {
+    private void registerParseNode(ParseForest parseNode) {
         parseNodeId.put(parseNode, parseNodeCount++);
     }
 
-    protected void registerStackNode(StackNode stackNode) {
+    private void registerStackNode(StackNode stackNode) {
         stackNodeId.put(stackNode, stackNodeCount++);
     }
 
-    protected void registerStackLink(StackLink<ParseForest, StackNode> stackLink) {
+    private void registerStackLink(StackLink<ParseForest, StackNode> stackLink) {
         stackLinkId.put(stackLink, stackLinkCount++);
     }
 
@@ -99,65 +99,12 @@ public abstract class ParserObserver
         stackLinkId.clear();
     }
 
-    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
-    }
-
-    @Override public void addActiveStack(StackNode stack) {
-    }
-
-    @Override public void addForActorStack(StackNode stack) {
-    }
-
-    @Override public void findActiveStackWithState(IState state) {
-    }
-
     @Override public void createStackNode(StackNode stack) {
         registerStackNode(stack);
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
         registerStackLink(link);
-    }
-
-    @Override public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
-    }
-
-    @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
-    }
-
-    @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
-    }
-
-    @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
-    }
-
-    @Override public void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions) {
-    }
-
-    @Override public void skipRejectedStack(StackNode stack) {
-    }
-
-    @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
-    }
-
-    @Override public void doReductions(ParseState parseState, StackNode stack, IReduce reduce) {
-    }
-
-    @Override public void doLimitedReductions(ParseState parseState, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> link) {
-    }
-
-    @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
-        StackNode activeStackWithGotoState) {
-    }
-
-    @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
-    }
-
-    @Override public void directLinkFound(ParseState parseState, StackLink<ParseForest, StackNode> directLink) {
-    }
-
-    @Override public void accept(StackNode acceptingStack) {
     }
 
     @Override public void createParseNode(ParseNode parseNode, IProduction production) {
@@ -172,39 +119,12 @@ public abstract class ParserObserver
         registerParseNode(characterNode);
     }
 
-    @Override public void addDerivation(ParseNode parseNode, Derivation derivation) {
-    }
-
-    @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
-    }
-
-    @Override public void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint) {
-    }
-
-    @Override public void startRecovery(ParseState parseState) {
-    }
-
-    @Override public void recoveryIteration(ParseState parseState) {
-    }
-
-    @Override public void endRecovery(ParseState parseState) {
-    }
-
-    @Override public void remark(String remark) {
-    }
-
-    @Override public void success(ParseSuccess<ParseForest> success) {
-    }
-
-    @Override public void failure(ParseFailure<ParseForest> failure) {
-    }
-
-    public String stackQueueToString(Iterable<StackNode> stacks) {
+    protected String stackQueueToString(Iterable<StackNode> stacks) {
         return StreamSupport.stream(stacks.spliterator(), false).map(this::id).map(Object::toString)
             .collect(Collectors.joining(","));
     }
 
-    public String applicableActionsToString(Iterable<IAction> applicableActions) {
+    protected String applicableActionsToString(Iterable<IAction> applicableActions) {
         return StreamSupport.stream(applicableActions.spliterator(), false).map(action -> {
             if(action instanceof IReduce)
                 return action.toString() + "[" + ((IReduce) action).production().toString() + "]";
@@ -213,16 +133,15 @@ public abstract class ParserObserver
         }).collect(Collectors.joining(","));
     }
 
-    public String forShifterQueueToString(Queue<ForShifterElement<StackNode>> forShifter) {
-        return StreamSupport.stream(forShifter.spliterator(), false).map(this::forShifterElementToString)
-            .collect(Collectors.joining(","));
+    protected String forShifterQueueToString(Queue<ForShifterElement<StackNode>> forShifter) {
+        return forShifter.stream().map(this::forShifterElementToString).collect(Collectors.joining(","));
     }
 
-    public String forShifterElementToString(ForShifterElement<StackNode> forShifterElement) {
+    protected String forShifterElementToString(ForShifterElement<StackNode> forShifterElement) {
         return "{\"stack\":" + id(forShifterElement.stack) + ",\"state\":" + forShifterElement.state.id() + "}";
     }
 
-    public String parseForestsToString(ParseForest[] parseForests) {
+    protected String parseForestsToString(ParseForest[] parseForests) {
         return Arrays.stream(parseForests).map(parseForest -> parseForest != null ? "" + id(parseForest) : "null")
             .collect(Collectors.joining(","));
     }

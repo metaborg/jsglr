@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.cli.output.dot.DotOutputProcessor;
 import org.spoofax.jsglr2.cli.parserbuilder.ParserBuilder;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.IParser;
-import org.spoofax.jsglr2.parser.observing.ParserObserver;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -87,7 +87,7 @@ public class JSGLR2CLI implements Runnable {
             if(logging)
                 observableParser.observing().attachObserver(new LogParserObserver<>(outputStream::println));
 
-            for(ParserObserver observer : outputProcessor.observers()) {
+            for(IParserObserver observer : outputProcessor.observers()) {
                 observableParser.observing().attachObserver(observer);
             }
 

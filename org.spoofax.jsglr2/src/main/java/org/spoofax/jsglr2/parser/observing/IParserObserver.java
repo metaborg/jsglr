@@ -29,69 +29,69 @@ public interface IParserObserver
 //@formatter:on
 {
 
-    void parseStart(ParseState parseState);
+    default void parseStart(ParseState parseState) {}
 
-    void parseRound(ParseState parseState, Iterable<StackNode> activeStacks);
+    default void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {}
 
-    void addActiveStack(StackNode stack);
+    default void addActiveStack(StackNode stack) {}
 
-    void addForActorStack(StackNode stack);
+    default void addForActorStack(StackNode stack) {}
 
-    void findActiveStackWithState(IState state);
+    default void findActiveStackWithState(IState state) {}
 
-    void createStackNode(StackNode stack);
+    default void createStackNode(StackNode stack) {}
 
-    void createStackLink(StackLink<ParseForest, StackNode> link);
+    default void createStackLink(StackLink<ParseForest, StackNode> link) {}
 
-    void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack);
+    default void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {}
 
-    void rejectStackLink(StackLink<ParseForest, StackNode> link);
+    default void rejectStackLink(StackLink<ParseForest, StackNode> link) {}
 
-    void forActorStacks(IForActorStacks<StackNode> forActorStacks);
+    default void forActorStacks(IForActorStacks<StackNode> forActorStacks) {}
 
-    void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks);
+    default void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {}
 
-    void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions);
+    default void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions) {}
 
-    void skipRejectedStack(StackNode stack);
+    default void skipRejectedStack(StackNode stack) {}
 
-    void addForShifter(ForShifterElement<StackNode> forShifterElement);
+    default void addForShifter(ForShifterElement<StackNode> forShifterElement) {}
 
-    void doReductions(ParseState parseState, StackNode stack, IReduce reduce);
+    default void doReductions(ParseState parseState, StackNode stack, IReduce reduce) {}
 
-    void doLimitedReductions(ParseState parseState, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> link);
+    default void doLimitedReductions(ParseState parseState, StackNode stack, IReduce reduce,
+        StackLink<ParseForest, StackNode> link) {}
 
-    void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState);
+    default void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes, StackNode activeStackWithGotoState) {}
 
-    void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes);
+    default void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {}
 
-    void directLinkFound(ParseState parseState, StackLink<ParseForest, StackNode> directLink);
+    default void directLinkFound(ParseState parseState, StackLink<ParseForest, StackNode> directLink) {}
 
-    void accept(StackNode acceptingStack);
+    default void accept(StackNode acceptingStack) {}
 
-    void createParseNode(ParseNode parseNode, IProduction production);
+    default void createParseNode(ParseNode parseNode, IProduction production) {}
 
-    void createDerivation(Derivation derivationNode, IProduction production, ParseForest[] parseNodes);
+    default void createDerivation(Derivation derivationNode, IProduction production, ParseForest[] parseNodes) {}
 
-    void createCharacterNode(ParseForest characterNode, int character);
+    default void createCharacterNode(ParseForest characterNode, int character) {}
 
-    void addDerivation(ParseNode parseNode, Derivation derivation);
+    default void addDerivation(ParseNode parseNode, Derivation derivation) {}
 
-    void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter);
+    default void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {}
 
-    void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint);
+    default void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint) {}
 
-    void startRecovery(ParseState parseState);
+    default void startRecovery(ParseState parseState) {}
 
-    void recoveryIteration(ParseState parseState);
+    default void recoveryIteration(ParseState parseState) {}
 
-    void endRecovery(ParseState parseState);
+    default void endRecovery(ParseState parseState) {}
 
-    void remark(String remark);
+    default void remark(String remark) {}
 
-    void success(ParseSuccess<ParseForest> success);
+    default void success(ParseSuccess<ParseForest> success) {}
 
-    void failure(ParseFailure<ParseForest> failure);
+    default void failure(ParseFailure<ParseForest> failure) {}
 
 }

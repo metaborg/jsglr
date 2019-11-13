@@ -1,14 +1,16 @@
 package org.spoofax.jsglr2.measure.parsetable;
 
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.actions.ActionsFactory;
 import org.metaborg.parsetable.actions.IActionsFactory;
+import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.JSGLR2Measurements;
 import org.spoofax.jsglr2.measure.Measurements;
 import org.spoofax.jsglr2.testset.TestSet;
@@ -23,9 +25,7 @@ public class ParseTableMeasurements extends Measurements {
     public void measure() throws FileNotFoundException, ParseTableReadException {
         System.out.println(" * Parse table");
 
-        PrintWriter out = new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsetable.csv");
-
-        csvHeader(out);
+        CSV<ParseTableMeasurement> output = new CSV<>(ParseTableMeasurement.values());
 
         MeasureCharacterClassFactory characterClassFactory = new MeasureCharacterClassFactory();
         IActionsFactory actionsFactory = new ActionsFactory();
@@ -34,85 +34,50 @@ public class ParseTableMeasurements extends Measurements {
         new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
             .read(testSetReader.getParseTableTerm());
 
-        csvResults(out, characterClassFactory, stateFactory);
+        output.addRow(toOutput(characterClassFactory, stateFactory));
 
-        out.close();
+        output.write(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsetable.csv");
     }
 
-    protected static void csvResults(PrintWriter out, MeasureCharacterClassFactory characterClassFactory,
+    private static Map<ParseTableMeasurement, String> toOutput(MeasureCharacterClassFactory characterClassFactory,
         MeasureStateFactory stateFactory) {
-        List<String> cells = new ArrayList<>();
-
-        for(ParseTableMeasurement measurement : ParseTableMeasurement.values()) {
-            switch(measurement) {
-                case states:
-                    cells.add("" + stateFactory.statesCount);
-                    break;
-                case characterClasses:
-                    cells.add("" + characterClassFactory.characterClassesCount);
-                    break;
-                case characterClassesUnique:
-                    cells.add("" + characterClassFactory.characterClassesUnique.size());
-                    break;
-                case characterClassesOptimizedUnique:
-                    cells.add("" + characterClassFactory.characterClassesOptimizedUnique.size());
-                    break;
-                case statesDisjointSortableCharacterClasses:
-                    cells.add("" + stateFactory.statesDisjointSortableCharacterClassesCount);
-                    break;
-                case gotos:
-                    cells.add("" + stateFactory.gotosCount);
-                    break;
-                case gotosPerStateMax:
-                    cells.add("" + stateFactory.gotosPerStateMax);
-                    break;
-                case actionGroups:
-                    cells.add("" + stateFactory.actionGroupsCount);
-                    break;
-                case actionDisjointSortedRanges:
-                    cells.add("" + stateFactory.actionDisjointSortedRangesCount);
-                    break;
-                case actions:
-                    cells.add("" + stateFactory.actionsCount);
-                    break;
-                case actionGroupsPerStateMax:
-                    cells.add("" + stateFactory.actionGroupsPerStateMax);
-                    break;
-                case actionDisjointSortedRangesPerStateMax:
-                    cells.add("" + stateFactory.actionDisjointSortedRangesPerStateMax);
-                    break;
-                case actionsPerStateMax:
-                    cells.add("" + stateFactory.actionsPerStateMax);
-                    break;
-                case actionsPerGroupMax:
-                    cells.add("" + stateFactory.actionsPerGroupMax);
-                    break;
-                case actionsPerDisjointSortedRangeMax:
-                    cells.add("" + stateFactory.actionsPerDisjointSortedRangeMax);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        csvLine(out, cells);
-    }
-
-    public enum ParseTableMeasurement {
-        states, characterClasses, characterClassesUnique, characterClassesOptimizedUnique,
-        statesDisjointSortableCharacterClasses, gotos, gotosPerStateMax, actionGroups, actionDisjointSortedRanges,
-        actions, actionGroupsPerStateMax, actionDisjointSortedRangesPerStateMax, actionsPerStateMax, actionsPerGroupMax,
-        actionsPerDisjointSortedRangeMax
-    }
-
-    private static void csvHeader(PrintWriter out) {
-        List<String> cells = new ArrayList<>();
-
-        for(ParseTableMeasurement measurement : ParseTableMeasurement.values()) {
-            cells.add(measurement.name());
-        }
-
-        csvLine(out, cells);
+        return Arrays.stream(ParseTableMeasurement.values())
+            .collect(Collectors.toMap(Function.identity(), measurement -> {
+                switch(measurement) {
+                    case states:
+                        return "" + stateFactory.statesCount;
+                    case characterClasses:
+                        return "" + characterClassFactory.characterClassesCount;
+                    case characterClassesUnique:
+                        return "" + characterClassFactory.characterClassesUnique.size();
+                    case characterClassesOptimizedUnique:
+                        return "" + characterClassFactory.characterClassesOptimizedUnique.size();
+                    case statesDisjointSortableCharacterClasses:
+                        return "" + stateFactory.statesDisjointSortableCharacterClassesCount;
+                    case gotos:
+                        return "" + stateFactory.gotosCount;
+                    case gotosPerStateMax:
+                        return "" + stateFactory.gotosPerStateMax;
+                    case actionGroups:
+                        return "" + stateFactory.actionGroupsCount;
+                    case actionDisjointSortedRanges:
+                        return "" + stateFactory.actionDisjointSortedRangesCount;
+                    case actions:
+                        return "" + stateFactory.actionsCount;
+                    case actionGroupsPerStateMax:
+                        return "" + stateFactory.actionGroupsPerStateMax;
+                    case actionDisjointSortedRangesPerStateMax:
+                        return "" + stateFactory.actionDisjointSortedRangesPerStateMax;
+                    case actionsPerStateMax:
+                        return "" + stateFactory.actionsPerStateMax;
+                    case actionsPerGroupMax:
+                        return "" + stateFactory.actionsPerGroupMax;
+                    case actionsPerDisjointSortedRangeMax:
+                        return "" + stateFactory.actionsPerDisjointSortedRangeMax;
+                    default:
+                        return "";
+                }
+            }));
     }
 
 }

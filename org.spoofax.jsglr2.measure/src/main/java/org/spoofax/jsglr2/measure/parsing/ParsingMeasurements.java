@@ -1,14 +1,14 @@
 package org.spoofax.jsglr2.measure.parsing;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.JSGLR2Measurements;
 import org.spoofax.jsglr2.measure.MeasureTestSetReader;
 import org.spoofax.jsglr2.measure.Measurements;
@@ -76,10 +76,7 @@ public class ParsingMeasurements extends Measurements {
     void measure(ParserVariant variant, IParseTable parseTable,
         ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver,
         String postfix) throws IOException {
-        PrintWriter out =
-            new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");
-
-        csvHeader(out);
+        CSV<ParsingMeasurement> output = new CSV<>(ParsingMeasurement.values());
 
         testSetReader.getInputBatches().forEach(inputBatch -> {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
@@ -101,13 +98,13 @@ public class ParsingMeasurements extends Measurements {
             else
                 System.out.println("   - Characters: " + measureObserver.length + " (" + postfix + ")");
 
-            csvResults(out, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory, measureObserver);
+            output.addRow(toOutput(inputBatch, measureActiveStacksFactory, measureForActorStacksFactory, measureObserver));
         });
 
-        out.close();
+        output.write(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");
     }
 
-    protected
+    private
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
@@ -115,12 +112,10 @@ public class ParsingMeasurements extends Measurements {
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    void csvResults(PrintWriter out, MeasureTestSetReader.InputBatch inputBatch,
+    Map<ParsingMeasurement, String> toOutput(MeasureTestSetReader.InputBatch inputBatch,
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver) {
-        List<String> cells = new ArrayList<>();
-
         int parseNodesSingleDerivation = 0;
 
         List<IParseNode> parseNodesContextFree = new ArrayList<>();
@@ -146,134 +141,94 @@ public class ParsingMeasurements extends Measurements {
                 parseNodesLayout.add(parseNode);
         }
 
-        for(ParsingMeasurement measurement : ParsingMeasurement.values()) {
+        int finalParseNodesSingleDerivation = parseNodesSingleDerivation;
+
+        return Arrays.stream(ParsingMeasurement.values()).collect(Collectors.toMap(Function.identity(), measurement -> {
             switch(measurement) {
                 case size:
-                    cells.add("" + inputBatch.size);
-                    break;
+                    return "" + inputBatch.size;
                 case characters:
-                    cells.add("" + measureObserver.length);
-                    break;
+                    return "" + measureObserver.length;
                 case activeStacksAdds:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.adds);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.adds;
                 case activeStacksMaxSize:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.maxSize);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.maxSize;
                 case activeStacksIsSingleChecks:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.iSingleChecks);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.iSingleChecks;
                 case activeStacksIsEmptyChecks:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.isEmptyChecks);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.isEmptyChecks;
                 case activeStacksFindsWithState:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.findsWithState);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.findsWithState;
                 case activeStacksForLimitedReductions:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.forLimitedReductions);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.forLimitedReductions;
                 case activeStacksAddAllTo:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.addAllTo);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.addAllTo;
                 case activeStacksClears:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.clears);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.clears;
                 case activeStacksIterators:
-                    cells.add("" + measureActiveStacksFactory.measureActiveStacks.iterators);
-                    break;
+                    return "" + measureActiveStacksFactory.measureActiveStacks.iterators;
                 case forActorAdds:
-                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorAdds);
-                    break;
+                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorAdds;
                 case forActorDelayedAdds:
-                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedAdds);
-                    break;
+                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedAdds;
                 case forActorMaxSize:
-                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorMaxSize);
-                    break;
+                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorMaxSize;
                 case forActorDelayedMaxSize:
-                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedMaxSize);
-                    break;
+                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedMaxSize;
                 case forActorContainsChecks:
-                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.containsChecks);
-                    break;
+                    return "" + measureForActorStacksFactory.measureForActorStacks.containsChecks;
                 case forActorNonEmptyChecks:
-                    cells.add("" + measureForActorStacksFactory.measureForActorStacks.nonEmptyChecks);
-                    break;
+                    return "" + measureForActorStacksFactory.measureForActorStacks.nonEmptyChecks;
                 case stackNodes:
-                    cells.add("" + measureObserver.stackNodes.size());
-                    break;
+                    return "" + measureObserver.stackNodes.size();
                 case stackNodesSingleLink:
-                    cells.add("" + measureObserver.stackNodesSingleLink());
-                    break;
+                    return "" + measureObserver.stackNodesSingleLink();
                 case stackLinks:
-                    cells.add("" + measureObserver.stackLinks.size());
-                    break;
+                    return "" + measureObserver.stackLinks.size();
                 case stackLinksRejected:
-                    cells.add("" + measureObserver.stackLinksRejected.size());
-                    break;
+                    return "" + measureObserver.stackLinksRejected.size();
                 case deterministicDepthResets:
-                    cells.add("" + measureObserver.deterministicDepthResets);
-                    break;
+                    return "" + measureObserver.deterministicDepthResets;
                 case parseNodes:
-                    cells.add("" + measureObserver.parseNodes.size());
-                    break;
+                    return "" + measureObserver.parseNodes.size();
                 case parseNodesSingleDerivation:
-                    cells.add("" + parseNodesSingleDerivation);
-                    break;
+                    return "" + finalParseNodesSingleDerivation;
                 case parseNodesAmbiguous:
-                    cells.add("" + parseNodesAmbiguous(measureObserver.parseNodes));
-                    break;
+                    return "" + parseNodesAmbiguous(measureObserver.parseNodes);
                 case parseNodesContextFree:
-                    cells.add("" + parseNodesContextFree.size());
-                    break;
+                    return "" + parseNodesContextFree.size();
                 case parseNodesContextFreeAmbiguous:
-                    cells.add("" + parseNodesAmbiguous(parseNodesContextFree));
-                    break;
+                    return "" + parseNodesAmbiguous(parseNodesContextFree);
                 case parseNodesLexical:
-                    cells.add("" + parseNodesLexical.size());
-                    break;
+                    return "" + parseNodesLexical.size();
                 case parseNodesLexicalAmbiguous:
-                    cells.add("" + parseNodesAmbiguous(parseNodesLexical));
-                    break;
+                    return "" + parseNodesAmbiguous(parseNodesLexical);
                 case parseNodesLayout:
-                    cells.add("" + parseNodesLayout.size());
-                    break;
+                    return "" + parseNodesLayout.size();
                 case parseNodesLayoutAmbiguous:
-                    cells.add("" + parseNodesAmbiguous(parseNodesLayout));
-                    break;
+                    return "" + parseNodesAmbiguous(parseNodesLayout);
                 case characterNodes:
-                    cells.add("" + measureObserver.characterNodes.size());
-                    break;
+                    return "" + measureObserver.characterNodes.size();
                 case actors:
-                    cells.add("" + measureObserver.actors.size());
-                    break;
+                    return "" + measureObserver.actors.size();
                 case doReductions:
-                    cells.add("" + measureObserver.doReductions);
-                    break;
+                    return "" + measureObserver.doReductions;
                 case doLimitedReductions:
-                    cells.add("" + measureObserver.doLimitedReductions);
-                    break;
+                    return "" + measureObserver.doLimitedReductions;
                 case doReductionsLR:
-                    cells.add("" + measureObserver.doReductionsLR);
-                    break;
+                    return "" + measureObserver.doReductionsLR;
                 case doReductionsDeterministicGLR:
-                    cells.add("" + measureObserver.doReductionsDeterministicGLR);
-                    break;
+                    return "" + measureObserver.doReductionsDeterministicGLR;
                 case doReductionsNonDeterministicGLR:
-                    cells.add("" + measureObserver.doReductionsNonDeterministicGLR);
-                    break;
+                    return "" + measureObserver.doReductionsNonDeterministicGLR;
                 case reducers:
-                    cells.add("" + measureObserver.reducers.size());
-                    break;
+                    return "" + measureObserver.reducers.size();
                 case reducersElkhound:
-                    cells.add("" + measureObserver.reducersElkhound.size());
-                    break;
+                    return "" + measureObserver.reducersElkhound.size();
                 default:
-                    break;
+                    return "";
             }
-        }
-
-        csvLine(out, cells);
+        }));
     }
 
     private static int parseNodesAmbiguous(Collection<IParseNode> parseNodes) {
@@ -285,27 +240,6 @@ public class ParsingMeasurements extends Measurements {
         }
 
         return parseNodesAmbiguous;
-    }
-
-    public enum ParsingMeasurement {
-        size, characters, activeStacksAdds, activeStacksMaxSize, activeStacksIsSingleChecks, activeStacksIsEmptyChecks,
-        activeStacksFindsWithState, activeStacksForLimitedReductions, activeStacksAddAllTo, activeStacksClears,
-        activeStacksIterators, forActorAdds, forActorDelayedAdds, forActorMaxSize, forActorDelayedMaxSize,
-        forActorContainsChecks, forActorNonEmptyChecks, stackNodes, stackNodesSingleLink, stackLinks,
-        stackLinksRejected, deterministicDepthResets, parseNodes, parseNodesSingleDerivation, parseNodesAmbiguous,
-        parseNodesContextFree, parseNodesContextFreeAmbiguous, parseNodesLexical, parseNodesLexicalAmbiguous,
-        parseNodesLayout, parseNodesLayoutAmbiguous, characterNodes, actors, doReductions, doLimitedReductions,
-        doReductionsLR, doReductionsDeterministicGLR, doReductionsNonDeterministicGLR, reducers, reducersElkhound
-    }
-
-    private static void csvHeader(PrintWriter out) {
-        List<String> cells = new ArrayList<>();
-
-        for(ParsingMeasurement measurement : ParsingMeasurement.values()) {
-            cells.add(measurement.name());
-        }
-
-        csvLine(out, cells);
     }
 
 }

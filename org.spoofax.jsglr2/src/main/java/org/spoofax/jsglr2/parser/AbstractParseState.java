@@ -29,7 +29,7 @@ public abstract class AbstractParseState<InputStack extends IInputStack, StackNo
     }
 
     public void nextParseRound(ParserObserving observing) {
-        observing.notify(observer -> observer.parseRound(this, activeStacks, observing));
+        observing.notify(observer -> observer.parseRound(this, activeStacks));
     }
 
 }

@@ -98,8 +98,7 @@ public class ParserMeasureObserver
     }
 
     @Override public void parseRound(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState,
-        Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks,
-        ParserObserving<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>>> observing) {
+        Iterable<AbstractElkhoundStackNode<ParseForest>> activeStacks) {
     }
 
     @Override public void addActiveStack(AbstractElkhoundStackNode<ParseForest> stack) {

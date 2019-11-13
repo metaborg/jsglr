@@ -60,8 +60,7 @@ public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureB
         public List<ForActorStacksOperation> operations = new ArrayList<>();
 
         @Override public void parseRound(AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>> parseState,
-            Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes,
-            ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> observing) {
+            Iterable<BasicStackNode<IBasicParseForest>> activeStackNodes) {
             List<BasicStackNode<IBasicParseForest>> activeStacksCopy = activeStacksCopy(parseState);
 
             operations.add(bh -> {

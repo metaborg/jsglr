@@ -39,8 +39,7 @@ class StackDotVisualisationParserObserver
         stackNodeOffset = new HashMap<>();
     }
 
-    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
-        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
         currentOffset = parseState.inputStack.offset();
     }
 

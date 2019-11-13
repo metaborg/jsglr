@@ -34,8 +34,7 @@ public class BenchmarkParserObserver
     @Override public void parseStart(ParseState parseState) {
     }
 
-    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks,
-        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
+    @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
     }
 
     @Override public void addActiveStack(StackNode stack) {

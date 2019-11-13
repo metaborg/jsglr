@@ -130,7 +130,6 @@ public class ParserVariant {
 //@formatter:on
     IParser<? extends IParseForest>
         withRecovery(Parser<ParseForest, ?, ?, StackNode, InputStack, ParseState, ?, ?> parser) {
-        parser.observing().attachObserver(new RecoveryParserObserver<>());
         parser.reduceManager.addFilter(new RecoveryReduceActionFilter<>());
 
         return parser;

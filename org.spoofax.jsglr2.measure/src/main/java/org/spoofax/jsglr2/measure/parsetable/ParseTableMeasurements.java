@@ -22,7 +22,8 @@ public class ParseTableMeasurements extends Measurements {
         super(testSet);
     }
 
-    @Override public void measure(JSGLR2Measurements.Config config) throws FileNotFoundException, ParseTableReadException {
+    @Override public void measure(JSGLR2Measurements.Config config)
+        throws FileNotFoundException, ParseTableReadException {
         CSV<ParseTableMeasurement> output = new CSV<>(ParseTableMeasurement.values());
 
         MeasureCharacterClassFactory characterClassFactory = new MeasureCharacterClassFactory();

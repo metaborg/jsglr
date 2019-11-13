@@ -1,6 +1,8 @@
 package org.spoofax.jsglr2.measure.parsing;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.metaborg.parsetable.actions.IAction;
@@ -13,6 +15,7 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
@@ -26,59 +29,42 @@ abstract class ParserMeasureObserver
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
-    int length = 0;
+    long length = 0;
 
-    Set<StackNode> stackNodes = new HashSet<>();
-    Set<StackLink<ParseForest, StackNode>> stackLinks = new HashSet<>();
-    Set<StackLink<ParseForest, StackNode>> stackLinksRejected = new HashSet<>();
+    private Set<StackNode> stackNodes_ = new HashSet<>();
+    private Set<StackLink<ParseForest, StackNode>> stackLinks_ = new HashSet<>();
 
-    Set<Actor> actors = new HashSet<>();
+    long stackNodes = 0;
+    long stackNodesSingleLink = 0;
+    long stackLinks = 0;
+    long stackLinksRejected = 0;
 
-    int doReductions = 0;
-    int doLimitedReductions = 0;
+    long actors = 0;
 
-    int doReductionsLR = 0;
-    int doReductionsDeterministicGLR = 0;
-    int doReductionsNonDeterministicGLR = 0;
+    long doReductions = 0;
+    long doLimitedReductions = 0;
 
-    Set<Reducer> reducers = new HashSet<>();
-    Set<Reducer> reducersElkhound = new HashSet<>();
+    long doReductionsLR = 0;
+    long doReductionsDeterministicGLR = 0;
+    long doReductionsNonDeterministicGLR = 0;
 
-    int deterministicDepthResets = 0;
+    long reducers = 0;
+    long reducersElkhound = 0;
 
-    Set<IParseNode> parseNodes = new HashSet<>();
-    Set<ParseForest> characterNodes = new HashSet<>();
+    long deterministicDepthResets = 0;
 
-    class Actor {
-        StackNode stack;
-        Iterable<IAction> applicableActions;
+    private List<IParseNode> parseNodes_ = new ArrayList<>();
 
-        Actor(StackNode stack, Iterable<IAction> applicableActions) {
-            this.stack = stack;
-            this.applicableActions = applicableActions;
-        }
-    }
-
-    class Reducer {
-        IReduce reduce;
-        ParseForest[] parseNodes;
-
-        Reducer(IReduce reduce, ParseForest[] parseNodes) {
-            this.reduce = reduce;
-            this.parseNodes = parseNodes;
-        }
-    }
-
-    int stackNodesSingleLink() {
-        int res = 0;
-
-        for(StackNode stackNode : stackNodes) {
-            if(stackNodeLinkCount(stackNode) == 1)
-                res++;
-        }
-
-        return res;
-    }
+    long parseNodes = 0;
+    long parseNodesAmbiguous = 0;
+    long parseNodesContextFree = 0;
+    long parseNodesContextFreeAmbiguous = 0;
+    long parseNodesLexical = 0;
+    long parseNodesLexicalAmbiguous = 0;
+    long parseNodesLayout = 0;
+    long parseNodesLayoutAmbiguous = 0;
+    long parseNodesSingleDerivation = 0;
+    long characterNodes = 0;
 
     abstract int stackNodeLinkCount(StackNode stackNode);
 
@@ -87,11 +73,11 @@ abstract class ParserMeasureObserver
     }
 
     @Override public void createStackNode(StackNode stack) {
-        stackNodes.add(stack);
+        stackNodes_.add(stack);
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
-        stackLinks.add(link);
+        stackLinks_.add(link);
     }
 
     @Override public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
@@ -99,11 +85,11 @@ abstract class ParserMeasureObserver
     }
 
     @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
-        stackLinksRejected.add(link);
+        stackLinksRejected++;
     }
 
     @Override public void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions) {
-        actors.add(new Actor(stack, applicableActions));
+        actors++;
     }
 
     @Override public void doReductions(ParseState parseState, StackNode stack, IReduce reduce) {
@@ -117,19 +103,77 @@ abstract class ParserMeasureObserver
 
     @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
         StackNode activeStackWithGotoState) {
-        reducers.add(new Reducer(reduce, parseNodes));
+        reducers++;
     }
 
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
-        reducersElkhound.add(new Reducer(reduce, parseNodes));
+        reducersElkhound++;
     }
 
     @Override public void createParseNode(ParseNode parseNode, IProduction production) {
-        parseNodes.add(parseNode);
+        parseNodes_.add(parseNode);
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
-        characterNodes.add(characterNode);
+        characterNodes++;
+    }
+
+    @Override public void success(ParseSuccess<ParseForest> success) {
+        for(StackNode stackNode : stackNodes_) {
+            stackNodes++;
+
+            if(stackNodeLinkCount(stackNode) == 1)
+                stackNodesSingleLink++;
+        }
+
+        for(StackLink stackLink : stackLinks_) {
+            stackLinks++;
+
+            if(stackLink.isRejected())
+                stackLinksRejected++;
+        }
+
+        for(IParseNode parseNode : parseNodes_) {
+            parseNodes++;
+
+            boolean ambiguous = parseNode.isAmbiguous();
+
+            if(ambiguous)
+                parseNodesAmbiguous++;
+
+            if(parseNode.production().isContextFree()) {
+                parseNodesContextFree++;
+
+                if(ambiguous)
+                    parseNodesContextFreeAmbiguous++;
+            }
+
+            if(!parseNode.production().isLayout() && parseNode.production().isLexical()) {
+                parseNodesLexical++;
+
+                if(ambiguous)
+                    parseNodesLexicalAmbiguous++;
+            }
+
+            if(parseNode.production().isLayout()) {
+                parseNodesLayout++;
+
+                if(ambiguous)
+                    parseNodesLayoutAmbiguous++;
+            }
+
+            int derivationCount = 0;
+
+            for(Object derivation : parseNode.getDerivations())
+                derivationCount++;
+
+            if(derivationCount == 1)
+                parseNodesSingleDerivation++;
+        }
+
+        stackNodes_.clear();
+        stackLinks_.clear();
+        parseNodes_.clear();
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {

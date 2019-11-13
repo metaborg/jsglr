@@ -13,20 +13,20 @@ import org.metaborg.parsetable.states.StateFactory;
 
 public class MeasureStateFactory extends StateFactory {
 
-    int statesCount = 0;
-    int statesDisjointSortableCharacterClassesCount = 0;
+    long statesCount = 0;
+    long statesDisjointSortableCharacterClassesCount = 0;
 
-    int gotosCount = 0;
-    int actionGroupsCount = 0;
-    int actionDisjointSortedRangesCount = 0;
-    int actionsCount = 0;
+    long gotosCount = 0;
+    long actionGroupsCount = 0;
+    long actionDisjointSortedRangesCount = 0;
+    long actionsCount = 0;
 
-    int gotosPerStateMax = 0;
-    int actionGroupsPerStateMax = 0;
-    int actionDisjointSortedRangesPerStateMax = 0;
-    int actionsPerStateMax = 0;
-    int actionsPerGroupMax = 0;
-    int actionsPerDisjointSortedRangeMax = 0;
+    long gotosPerStateMax = 0;
+    long actionGroupsPerStateMax = 0;
+    long actionDisjointSortedRangesPerStateMax = 0;
+    long actionsPerStateMax = 0;
+    long actionsPerGroupMax = 0;
+    long actionsPerDisjointSortedRangeMax = 0;
 
     @Override public IState from(int stateNumber, IGoto[] gotos,
         ActionsPerCharacterClass[] actionsPerCharacterClasses) {

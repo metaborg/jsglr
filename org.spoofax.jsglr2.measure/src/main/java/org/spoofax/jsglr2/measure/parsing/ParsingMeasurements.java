@@ -1,7 +1,9 @@
 package org.spoofax.jsglr2.measure.parsing;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -108,33 +110,6 @@ public class ParsingMeasurements extends Measurements {
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver) {
-        int parseNodesSingleDerivation = 0;
-
-        List<IParseNode> parseNodesContextFree = new ArrayList<>();
-        List<IParseNode> parseNodesLexical = new ArrayList<>();
-        List<IParseNode> parseNodesLayout = new ArrayList<>();
-
-        for(IParseNode parseNode : measureObserver.parseNodes) {
-            int derivationCount = 0;
-
-            for(Object derivation : parseNode.getDerivations())
-                derivationCount++;
-
-            if(derivationCount == 1)
-                parseNodesSingleDerivation++;
-
-            if(parseNode.production().isContextFree())
-                parseNodesContextFree.add(parseNode);
-
-            if(!parseNode.production().isLayout() && parseNode.production().isLexical())
-                parseNodesLexical.add(parseNode);
-
-            if(parseNode.production().isLayout())
-                parseNodesLayout.add(parseNode);
-        }
-
-        int finalParseNodesSingleDerivation = parseNodesSingleDerivation;
-
         return Arrays.stream(ParsingMeasurement.values()).collect(Collectors.toMap(Function.identity(), measurement -> {
             switch(measurement) {
                 case name:
@@ -174,37 +149,37 @@ public class ParsingMeasurements extends Measurements {
                 case forActorNonEmptyChecks:
                     return "" + measureForActorStacksFactory.measureForActorStacks.nonEmptyChecks;
                 case stackNodes:
-                    return "" + measureObserver.stackNodes.size();
+                    return "" + measureObserver.stackNodes;
                 case stackNodesSingleLink:
-                    return "" + measureObserver.stackNodesSingleLink();
+                    return "" + measureObserver.stackNodesSingleLink;
                 case stackLinks:
-                    return "" + measureObserver.stackLinks.size();
+                    return "" + measureObserver.stackLinks;
                 case stackLinksRejected:
-                    return "" + measureObserver.stackLinksRejected.size();
+                    return "" + measureObserver.stackLinksRejected;
                 case deterministicDepthResets:
                     return "" + measureObserver.deterministicDepthResets;
                 case parseNodes:
-                    return "" + measureObserver.parseNodes.size();
-                case parseNodesSingleDerivation:
-                    return "" + finalParseNodesSingleDerivation;
+                    return "" + measureObserver.parseNodes;
                 case parseNodesAmbiguous:
-                    return "" + parseNodesAmbiguous(measureObserver.parseNodes);
+                    return "" + measureObserver.parseNodesAmbiguous;
                 case parseNodesContextFree:
-                    return "" + parseNodesContextFree.size();
+                    return "" + measureObserver.parseNodesContextFree;
                 case parseNodesContextFreeAmbiguous:
-                    return "" + parseNodesAmbiguous(parseNodesContextFree);
+                    return "" + measureObserver.parseNodesContextFreeAmbiguous;
                 case parseNodesLexical:
-                    return "" + parseNodesLexical.size();
+                    return "" + measureObserver.parseNodesLexical;
                 case parseNodesLexicalAmbiguous:
-                    return "" + parseNodesAmbiguous(parseNodesLexical);
+                    return "" + measureObserver.parseNodesLexicalAmbiguous;
                 case parseNodesLayout:
-                    return "" + parseNodesLayout.size();
+                    return "" + measureObserver.parseNodesLayout;
                 case parseNodesLayoutAmbiguous:
-                    return "" + parseNodesAmbiguous(parseNodesLayout);
+                    return "" + measureObserver.parseNodesLayoutAmbiguous;
+                case parseNodesSingleDerivation:
+                    return "" + measureObserver.parseNodesSingleDerivation;
                 case characterNodes:
-                    return "" + measureObserver.characterNodes.size();
+                    return "" + measureObserver.characterNodes;
                 case actors:
-                    return "" + measureObserver.actors.size();
+                    return "" + measureObserver.actors;
                 case doReductions:
                     return "" + measureObserver.doReductions;
                 case doLimitedReductions:
@@ -216,24 +191,13 @@ public class ParsingMeasurements extends Measurements {
                 case doReductionsNonDeterministicGLR:
                     return "" + measureObserver.doReductionsNonDeterministicGLR;
                 case reducers:
-                    return "" + measureObserver.reducers.size();
+                    return "" + measureObserver.reducers;
                 case reducersElkhound:
-                    return "" + measureObserver.reducersElkhound.size();
+                    return "" + measureObserver.reducersElkhound;
                 default:
                     return "";
             }
         }));
-    }
-
-    private static int parseNodesAmbiguous(Collection<IParseNode> parseNodes) {
-        int parseNodesAmbiguous = 0;
-
-        for(IParseNode parseNode : parseNodes) {
-            if(parseNode.isAmbiguous())
-                parseNodesAmbiguous++;
-        }
-
-        return parseNodesAmbiguous;
     }
 
 }

@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.integration;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.metaborg.parsetable.IParseTable;
@@ -22,17 +23,17 @@ public interface WithParseTableFromTerm extends WithParseTable {
 
     void setParseTableTerm(IStrategoTerm parseTableTerm);
 
-    default void setParseTableFromTermFile(String parseTableFilename) throws Exception {
-        IStrategoTerm parseTableTerm = parseTableTerm(parseTableFilename);
-
-        setParseTableTerm(parseTableTerm);
+    default void setParseTableFromTermResource(String parseTableFilename) throws Exception {
+        setParseTableTerm(parseTableTerm(resourceInputStream(parseTableFilename)));
     }
 
     InputStream resourceInputStream(String resource) throws Exception;
 
-    default IStrategoTerm parseTableTerm(String filename) throws Exception {
-        InputStream inputStream = resourceInputStream(filename);
+    default void setParseTableFromTermFile(String parseTablePath) throws Exception {
+        setParseTableTerm(parseTableTerm(new FileInputStream(parseTablePath)));
+    }
 
+    default IStrategoTerm parseTableTerm(InputStream inputStream) throws Exception {
         return getTermReader().parseFromStream(inputStream);
     }
 

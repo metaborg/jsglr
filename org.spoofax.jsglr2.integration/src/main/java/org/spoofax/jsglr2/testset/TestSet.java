@@ -35,20 +35,20 @@ public class TestSet {
         System.getProperty(String.format("%s.%s", TestSet.class.getCanonicalName(), "javaInputPath"),
             "/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms");
 
-    public static TestSet java8 = new TestSet("java", new TestSetParseTableFromATerm("Java8"),
+    public static TestSet java8 = new TestSet("java", new TestSetParseTableFromATerm("Java8", true),
         new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
-    public static TestSet java8unrolled = new TestSet("javaUnrolled", new TestSetParseTableFromATerm("Java8_unrolled"),
+    public static TestSet java8unrolled = new TestSet("javaUnrolled", new TestSetParseTableFromATerm("Java8_unrolled", true),
         new TestSetMultipleInputs(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
-    public static TestSet greenMarl = new TestSet("greenmarl", new TestSetParseTableFromATerm("GreenMarl"),
+    public static TestSet greenMarl = new TestSet("greenmarl", new TestSetParseTableFromATerm("GreenMarl", true),
         new TestSetSingleInput("GreenMarl/infomap.gm"));
 
     private static final String WEBDSL_BENCHMARK_INPUT_PATH_STRING =
         System.getProperty(String.format("%s.%s", TestSet.class.getCanonicalName(), "webDSLInputPath"),
             "/Users/Jasper/Desktop/jsglr2benchmarks/webdsl");
 
-    public static TestSet webDSL = new TestSet("webdsl", new TestSetParseTableFromATerm("WebDSL"),
+    public static TestSet webDSL = new TestSet("webdsl", new TestSetParseTableFromATerm("WebDSL", true),
         new TestSetMultipleInputs(WEBDSL_BENCHMARK_INPUT_PATH_STRING, "app"));
 
     public static List<TestSet> all =

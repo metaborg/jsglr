@@ -10,26 +10,27 @@ import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
-class ParserMeasureObserver
+abstract class ParserMeasureObserver
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
-    ParseNode   extends IParseNode<ParseForest, Derivation>>
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
+    StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    implements
-    IParserObserver<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>>> {
+    implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     int length = 0;
 
-    Set<AbstractElkhoundStackNode<ParseForest>> stackNodes = new HashSet<>();
-    Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinks = new HashSet<>();
-    Set<StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>>> stackLinksRejected = new HashSet<>();
+    Set<StackNode> stackNodes = new HashSet<>();
+    Set<StackLink<ParseForest, StackNode>> stackLinks = new HashSet<>();
+    Set<StackLink<ParseForest, StackNode>> stackLinksRejected = new HashSet<>();
 
     Set<Actor> actors = new HashSet<>();
 
@@ -45,14 +46,14 @@ class ParserMeasureObserver
 
     int deterministicDepthResets = 0;
 
-    Set<HybridParseNode> parseNodes = new HashSet<>();
+    Set<IParseNode> parseNodes = new HashSet<>();
     Set<ParseForest> characterNodes = new HashSet<>();
 
     class Actor {
-        AbstractElkhoundStackNode<ParseForest> stack;
+        StackNode stack;
         Iterable<IAction> applicableActions;
 
-        Actor(AbstractElkhoundStackNode<ParseForest> stack, Iterable<IAction> applicableActions) {
+        Actor(StackNode stack, Iterable<IAction> applicableActions) {
             this.stack = stack;
             this.applicableActions = applicableActions;
         }
@@ -71,27 +72,25 @@ class ParserMeasureObserver
     int stackNodesSingleLink() {
         int res = 0;
 
-        for(AbstractElkhoundStackNode<?> stackNode : stackNodes) {
-            int linksOutCount = 0;
-
-            for(StackLink<?, ?> link : stackNode.getLinks())
-                linksOutCount++;
-
-            res += linksOutCount == 1 ? 1 : 0;
+        for(StackNode stackNode : stackNodes) {
+            if(stackNodeLinkCount(stackNode) == 1)
+                res++;
         }
 
         return res;
     }
 
-    @Override public void parseStart(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState) {
+    abstract int stackNodeLinkCount(StackNode stackNode);
+
+    @Override public void parseStart(ParseState parseState) {
         length += parseState.inputStack.inputString().length();
     }
 
-    @Override public void createStackNode(AbstractElkhoundStackNode<ParseForest> stack) {
+    @Override public void createStackNode(StackNode stack) {
         stackNodes.add(stack);
     }
 
-    @Override public void createStackLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link) {
+    @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
         stackLinks.add(link);
     }
 
@@ -99,47 +98,34 @@ class ParserMeasureObserver
         deterministicDepthResets++;
     }
 
-    @Override public void rejectStackLink(StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> link) {
+    @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
         stackLinksRejected.add(link);
     }
 
-    @Override public void actor(AbstractElkhoundStackNode<ParseForest> stack,
-        AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState, Iterable<IAction> applicableActions) {
+    @Override public void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions) {
         actors.add(new Actor(stack, applicableActions));
     }
 
-    @Override public void doReductions(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState,
-        AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce) {
+    @Override public void doReductions(ParseState parseState, StackNode stack, IReduce reduce) {
         doReductions++;
-
-        if(stack.deterministicDepth >= reduce.arity()) {
-            if(parseState.activeStacks.isSingle())
-                doReductionsLR++;
-            else
-                doReductionsDeterministicGLR++;
-        } else {
-            doReductionsNonDeterministicGLR++;
-        }
     }
 
-    @Override public void doLimitedReductions(AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>> parseState,
-        AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
-        StackLink<ParseForest, AbstractElkhoundStackNode<ParseForest>> throughLink) {
+    @Override public void doLimitedReductions(ParseState parseState, StackNode stack, IReduce reduce,
+        StackLink<ParseForest, StackNode> throughLink) {
         doLimitedReductions++;
     }
 
-    @Override public void reducer(AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
-        ParseForest[] parseNodes, AbstractElkhoundStackNode<ParseForest> activeStackWithGotoState) {
+    @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
+        StackNode activeStackWithGotoState) {
         reducers.add(new Reducer(reduce, parseNodes));
     }
 
-    @Override public void reducerElkhound(AbstractElkhoundStackNode<ParseForest> stack, IReduce reduce,
-        ParseForest[] parseNodes) {
+    @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
         reducersElkhound.add(new Reducer(reduce, parseNodes));
     }
 
     @Override public void createParseNode(ParseNode parseNode, IProduction production) {
-        parseNodes.add((HybridParseNode) parseNode);
+        parseNodes.add(parseNode);
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {

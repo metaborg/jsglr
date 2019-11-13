@@ -10,12 +10,12 @@ public class MeasureCharacterClassFactory extends CharacterClassFactory {
 
     private static final long serialVersionUID = 5184928823095118233L;
 
-    public int characterClassesCount = 0;
+    int characterClassesCount = 0;
 
-    public Set<ICharacterClass> characterClassesUnique = new HashSet<>();
-    public Set<ICharacterClass> characterClassesOptimizedUnique = new HashSet<>();
+    Set<ICharacterClass> characterClassesUnique = new HashSet<>();
+    Set<ICharacterClass> characterClassesOptimizedUnique = new HashSet<>();
 
-    protected MeasureCharacterClassFactory() {
+    MeasureCharacterClassFactory() {
         super();
     }
 

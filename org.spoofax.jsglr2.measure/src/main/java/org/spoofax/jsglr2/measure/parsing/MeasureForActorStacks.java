@@ -21,7 +21,7 @@ public class MeasureForActorStacks
     long forActorAdds = 0, forActorDelayedAdds = 0, forActorMaxSize = 0, forActorDelayedMaxSize = 0, containsChecks = 0,
         nonEmptyChecks = 0;
 
-    public MeasureForActorStacks(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
+    MeasureForActorStacks(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         super(observing);
     }
 

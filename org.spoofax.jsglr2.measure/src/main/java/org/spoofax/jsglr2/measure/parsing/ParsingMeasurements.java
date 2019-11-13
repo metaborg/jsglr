@@ -98,7 +98,8 @@ public class ParsingMeasurements extends Measurements {
             else
                 System.out.println("   - Characters: " + measureObserver.length + " (" + postfix + ")");
 
-            output.addRow(toOutput(inputBatch, measureActiveStacksFactory, measureForActorStacksFactory, measureObserver));
+            output.addRow(
+                toOutput(inputBatch, measureActiveStacksFactory, measureForActorStacksFactory, measureObserver));
         });
 
         output.write(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");

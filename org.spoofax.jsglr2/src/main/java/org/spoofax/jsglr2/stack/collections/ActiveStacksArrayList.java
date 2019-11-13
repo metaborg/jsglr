@@ -49,6 +49,10 @@ public class ActiveStacksArrayList
         return activeStacks.isEmpty();
     }
 
+    @Override public boolean isMultiple() {
+        return activeStacks.size() > 1;
+    }
+
     @Override public StackNode findWithState(IState state) {
         observing.notify(observer -> observer.findActiveStackWithState(state));
 

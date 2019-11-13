@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.testset;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -17,9 +19,9 @@ public abstract class TestSetReader<ContentType, Input extends TestInput<Content
 
     protected final TestSet<ContentType, Input> testSet;
 
-    protected TermReader termReader;
+    private TermReader termReader;
 
-    protected IStrategoTerm parseTableTerm;
+    private IStrategoTerm parseTableTerm;
 
     protected TestSetReader(TestSet<ContentType, Input> testSet) {
         this.testSet = testSet;
@@ -63,7 +65,9 @@ public abstract class TestSetReader<ContentType, Input extends TestInput<Content
 
     protected abstract String basePath();
 
-    public abstract InputStream resourceInputStream(String filename) throws Exception;
+    @Override public InputStream resourceInputStream(String resource) throws Exception {
+        return new FileInputStream(new File(basePath() + resource));
+    }
 
     public TermReader getTermReader() {
         return termReader;

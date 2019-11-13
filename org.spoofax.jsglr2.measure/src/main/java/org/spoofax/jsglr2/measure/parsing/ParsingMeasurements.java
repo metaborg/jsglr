@@ -36,7 +36,7 @@ public class ParsingMeasurements extends Measurements {
         super(testSet);
     }
 
-    public void measure() throws ParseTableReadException, IOException, ParseException {
+    public void measure() throws ParseTableReadException, IOException {
         System.out.println(" * Parsing");
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
@@ -52,14 +52,13 @@ public class ParsingMeasurements extends Measurements {
         measure(parseTable, variantElkhound, "elkhound");
     }
 
-    private void measure(IParseTable parseTable, ParserVariant variant, String postfix)
-        throws IOException, ParseException {
+    private void measure(IParseTable parseTable, ParserVariant variant, String postfix) throws IOException {
         PrintWriter out =
             new PrintWriter(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");
 
         csvHeader(out);
 
-        for(MeasureTestSetReader<String, StringInput>.InputBatch inputBatch : testSetReader.getInputBatches()) {
+        testSetReader.getInputBatches().forEach(inputBatch -> {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
@@ -73,7 +72,7 @@ public class ParsingMeasurements extends Measurements {
             parser.observing().attachObserver(measureObserver);
 
             for(StringInput input : inputBatch.inputs) {
-                parser.parseUnsafe(input.content, input.filename, null);
+                parser.parse(input.content, input.filename, null);
             }
 
             if(inputBatch.size != -1)
@@ -83,7 +82,7 @@ public class ParsingMeasurements extends Measurements {
                 System.out.println("   - Characters: " + measureObserver.length + " (" + postfix + ")");
 
             csvResults(out, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory, measureObserver);
-        }
+        });
 
         out.close();
     }

@@ -36,9 +36,12 @@ public class JSGLR2Measurements {
             String parseTablePath = args[2];
             String sourcesPath = args[3];
 
-            testSets =
-                Collections.singleton(new TestSet<>(language, new TestSetParseTableFromATerm(parseTablePath, false),
-                    new TestSetMultipleInputs.StringInputSet(sourcesPath, extension)));
+            TestSetParseTableFromATerm parseTable = new TestSetParseTableFromATerm(parseTablePath, false);
+            TestSetMultipleInputs<StringInput> input = new TestSetMultipleInputs.StringInputSet(sourcesPath, extension);
+
+            TestSet<String, StringInput> testSet = new TestSet<>(language, parseTable, input);
+
+            testSets = Collections.singleton(testSet);
         } else
             throw new IllegalStateException("invalid arguments");
 

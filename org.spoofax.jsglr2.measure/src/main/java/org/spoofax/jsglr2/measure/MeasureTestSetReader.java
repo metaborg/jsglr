@@ -1,13 +1,11 @@
 package org.spoofax.jsglr2.measure;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetInput;
@@ -18,55 +16,39 @@ import org.spoofax.jsglr2.testset.testinput.TestInput;
 public class MeasureTestSetReader<ContentType, Input extends TestInput<ContentType>>
     extends TestSetReader<ContentType, Input> {
 
-    public MeasureTestSetReader(TestSet<ContentType, Input> testSet) {
+    MeasureTestSetReader(TestSet<ContentType, Input> testSet) {
         super(testSet);
     }
 
     @Override protected String basePath() {
         try {
-            return new File(
-                MeasureTestSetReader.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
-                    .getParent()
-                + "/classes/";
+            URL url = MeasureTestSetReader.class.getProtectionDomain().getCodeSource().getLocation();
+            String path = url.toURI().getPath();
+
+            return new File(path).getParent() + "/classes/";
         } catch(URISyntaxException e) {
             throw new IllegalStateException("base path for measurements could not be retrieved");
         }
     }
 
-    @Override public InputStream resourceInputStream(String resource) throws Exception {
-        return new FileInputStream(new File(basePath() + resource));
-    }
-
-    public Iterable<InputBatch> getInputBatches() throws IOException {
+    public Stream<InputBatch> getInputBatches() throws IOException {
         if(testSet.input.type == TestSetInput.Type.SIZED) {
-            TestSetSizedInput<ContentType, Input> testSizedInput =
-                (TestSetSizedInput<ContentType, Input>) testSet.input;
+            TestSetSizedInput<ContentType, Input> sizedInput = (TestSetSizedInput<ContentType, Input>) testSet.input;
 
-            if(testSizedInput.sizes == null)
+            if(sizedInput.sizes == null)
                 throw new IllegalStateException("invalid input type (sizes missing)");
 
-            List<InputBatch> result = new ArrayList<>();
-
-            for(int size : testSizedInput.sizes) {
-                result.add(new InputBatch(testSizedInput.getInputs(size), size));
-            }
-
-            return result;
-        }
-        return Collections.singletonList(new InputBatch(testSet.input.getInputs(), -1));
+            return Arrays.stream(sizedInput.sizes).mapToObj(size -> new InputBatch(sizedInput.getInputs(size), size));
+        } else
+            return Stream.of(new InputBatch(testSet.input.getInputs(), -1));
     }
 
     public class InputBatch {
         public Iterable<Input> inputs;
         public int size;
 
-        public InputBatch(Iterable<Input> inputs, int size) {
+        InputBatch(Iterable<Input> inputs, int size) {
             this.inputs = inputs;
-            this.size = size;
-        }
-
-        public InputBatch(Input input, int size) {
-            this.inputs = Collections.singletonList(input);
             this.size = size;
         }
     }

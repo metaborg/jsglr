@@ -21,6 +21,8 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
         this.input = input;
     }
 
+    // --- ARTIFICIAL BENCHMARKS ---
+
     public static TestSet<String, StringInput> lexical = new TestSet<>("lexical",
         new TestSetParseTableFromSDF3("lexical-id"),
         new TestSetSizedInput.StringInputSet(n -> String.join("", Collections.nCopies(n, "a")), 10000, 50000, 100000));
@@ -42,6 +44,11 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
                     String.join("+", Collections.nCopies(n + 1, "x")), String.join("+", Collections.nCopies(n, "x")) },
                 4000, 8000, 16000, 32000, 64000));
 
+    // --- LANGUAGE BENCHMARKS ---
+
+    public static TestSet<String, StringInput> greenMarl = new TestSet<>("greenmarl",
+        new TestSetParseTableFromATerm("GreenMarl"), new TestSetSingleInput.StringInputSet("GreenMarl/infomap.gm"));
+
 
     private static final String JAVA_8_BENCHMARK_INPUT_PATH_STRING =
         System.getProperty(TestSet.class.getCanonicalName() + ".javaInputPath",
@@ -57,20 +64,17 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
             new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
     public static TestSet<String[], IncrementalStringInput> java8Incremental = new TestSet<>("java8Incremental",
-        JAVA_8_PARSE_TABLE, new TestSetIncrementalInput("Java/IncrementalParser.java/"));
+        JAVA_8_PARSE_TABLE, new TestSetIncrementalInput("Java/AnyKeyboardViewBase.java/"));
 
-    public static final TestSet<String[], IncrementalStringInput> java8IncrementalGit = new TestSet<>(
-        "java8Incremental", JAVA_8_PARSE_TABLE, new TestSetIncrementalGitInput("/home/maarten/tmp/mb-rep", "java", 50));
-
-
-
-    public static TestSet<String, StringInput> greenMarl = new TestSet<>("greenmarl",
-        new TestSetParseTableFromATerm("GreenMarl"), new TestSetSingleInput.StringInputSet("GreenMarl/infomap.gm"));
+    public static final TestSet<String[], IncrementalStringInput> java8IncrementalGit =
+        new TestSet<>("java8Incremental", JAVA_8_PARSE_TABLE,
+            new TestSetIncrementalGitInput("/home/maarten/git/tmp/mb-rep", "java", 50));
 
 
     public static final TestSet<String[], IncrementalStringInput> ocamlIncrementalGit =
         new TestSet<>("OCaml-incremental-git", new TestSetParseTableFromATerm("OCaml"),
-            new TestSetIncrementalGitInput("/home/maarten/tmp/google-drive-ocamlfuse", "ml", 50));
+            new TestSetIncrementalGitInput("/home/maarten/git/tmp/google-drive-ocamlfuse", "ml", 50));
+
 
     private static final String WEBDSL_BENCHMARK_INPUT_PATH_STRING = System.getProperty(
         TestSet.class.getCanonicalName() + ".webDSLInputPath", "/Users/Jasper/Desktop/jsglr2benchmarks/webdsl");
@@ -81,6 +85,6 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
 
     public static List<TestSet<String, StringInput>> all =
-        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, java8, java8Unrolled, greenMarl, webDSL);
+        Arrays.asList(lexical, sumAmbiguous, sumNonAmbiguous, greenMarl, java8, java8Unrolled, webDSL);
 
 }

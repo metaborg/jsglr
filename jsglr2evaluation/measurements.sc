@@ -16,7 +16,7 @@ def execMeasurements(implicit args: Args) = {
 
         val measurementsDir = (pwd / up / "org.spoofax.jsglr2.measure")
 
-        %%("mvn", "exec:java", "-Dexec.args=\"" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "\"", "-Dorg.spoofax.jsglr2.measure.JSGLR2Measurements.reportPath=" + language.measurementsDir)(measurementsDir)
+        %%("mvn", "exec:java", "-Dexec.args=\"" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "\"", "-DreportPath=" + language.measurementsDir)(measurementsDir)
     }
 }
 

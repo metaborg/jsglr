@@ -22,9 +22,7 @@ public class ParseTableMeasurements extends Measurements {
         super(testSet);
     }
 
-    public void measure() throws FileNotFoundException, ParseTableReadException {
-        System.out.println(" * Parse table");
-
+    @Override public void measure(JSGLR2Measurements.Config config) throws FileNotFoundException, ParseTableReadException {
         CSV<ParseTableMeasurement> output = new CSV<>(ParseTableMeasurement.values());
 
         MeasureCharacterClassFactory characterClassFactory = new MeasureCharacterClassFactory();
@@ -36,7 +34,7 @@ public class ParseTableMeasurements extends Measurements {
 
         output.addRow(toOutput(characterClassFactory, stateFactory));
 
-        output.write(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsetable.csv");
+        output.write(config.prefix(testSet) + "parsetable.csv");
     }
 
     private static Map<ParseTableMeasurement, String> toOutput(MeasureCharacterClassFactory characterClassFactory,

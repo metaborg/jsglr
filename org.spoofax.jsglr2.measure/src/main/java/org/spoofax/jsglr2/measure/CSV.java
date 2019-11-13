@@ -21,6 +21,10 @@ public class CSV<T> {
         rows.add(row);
     }
 
+    public void addRows(List<Map<T, String>> rows) {
+        rows.addAll(rows);
+    }
+
     public void write(String path) throws FileNotFoundException {
         write(new PrintWriter(path));
     }

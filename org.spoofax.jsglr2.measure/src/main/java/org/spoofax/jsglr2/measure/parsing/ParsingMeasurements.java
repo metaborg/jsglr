@@ -30,8 +30,8 @@ public class ParsingMeasurements extends Measurements {
         super(testSet);
     }
 
-    public void measure() throws ParseTableReadException, IOException {
-        System.out.println(" * Parsing");
+    @Override public void measure(JSGLR2Measurements.Config config) throws ParseTableReadException, IOException {
+        CSV<ParsingMeasurement> output = new CSV<>(ParsingMeasurement.values());
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
@@ -61,8 +61,10 @@ public class ParsingMeasurements extends Measurements {
             );
         //@formatter:on
 
-        measure(variantStandard, parseTable, new StandardParserMeasureObserver<>(), "standard");
-        measure(variantElkhound, parseTable, new ElkhoundParserMeasureObserver<>(), "elkhound");
+        output.addRows(measure("standard", variantStandard, parseTable, new StandardParserMeasureObserver<>()));
+        output.addRows(measure("elkhound", variantElkhound, parseTable, new ElkhoundParserMeasureObserver<>()));
+
+        output.write(config.prefix(testSet) + "parsing.csv");
     }
 
     private
@@ -73,12 +75,10 @@ public class ParsingMeasurements extends Measurements {
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    void measure(ParserVariant variant, IParseTable parseTable,
-        ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver,
-        String postfix) throws IOException {
-        CSV<ParsingMeasurement> output = new CSV<>(ParsingMeasurement.values());
-
-        testSetReader.getInputBatches().forEach(inputBatch -> {
+    List<Map<ParsingMeasurement, String>> measure(String name, ParserVariant variant, IParseTable parseTable,
+        ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver)
+        throws IOException {
+        return testSetReader.getInputBatches().map(inputBatch -> {
             MeasureActiveStacksFactory measureActiveStacksFactory = new MeasureActiveStacksFactory();
             MeasureForActorStacksFactory measureForActorStacksFactory = new MeasureForActorStacksFactory();
 
@@ -88,21 +88,12 @@ public class ParsingMeasurements extends Measurements {
 
             parser.observing().attachObserver(measureObserver);
 
-            for(StringInput input : inputBatch.inputs) {
+            for(StringInput input : inputBatch.inputs)
                 parser.parse(input.content, input.filename, null);
-            }
 
-            if(inputBatch.size != -1)
-                System.out.println(
-                    "   - Size: " + inputBatch.size + ", Characters: " + measureObserver.length + " (" + postfix + ")");
-            else
-                System.out.println("   - Characters: " + measureObserver.length + " (" + postfix + ")");
-
-            output.addRow(
-                toOutput(inputBatch, measureActiveStacksFactory, measureForActorStacksFactory, measureObserver));
-        });
-
-        output.write(JSGLR2Measurements.REPORT_PATH + testSet.name + "_parsing_" + postfix + ".csv");
+            return toOutput(name, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory,
+                measureObserver);
+        }).collect(Collectors.toList());
     }
 
     private
@@ -113,7 +104,7 @@ public class ParsingMeasurements extends Measurements {
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    Map<ParsingMeasurement, String> toOutput(MeasureTestSetReader.InputBatch inputBatch,
+    Map<ParsingMeasurement, String> toOutput(String name, MeasureTestSetReader.InputBatch inputBatch,
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver) {
@@ -146,6 +137,8 @@ public class ParsingMeasurements extends Measurements {
 
         return Arrays.stream(ParsingMeasurement.values()).collect(Collectors.toMap(Function.identity(), measurement -> {
             switch(measurement) {
+                case name:
+                    return name;
                 case size:
                     return "" + inputBatch.size;
                 case characters:

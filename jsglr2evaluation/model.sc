@@ -8,6 +8,7 @@ case class Language(id: String, extension: String, repo: String, path: String, s
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
     def parseTablePath(implicit args: Args) = dir / "target" / "metaborg" / "sdf.tbl"
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
+    def benchmarksPath(implicit args: Args) = Args.benchmarksDir / (id + ".csv")
 }
 
 case class Source(id: String, repo: String)

@@ -18,3 +18,11 @@ buildMeasurements:
 
 execMeasurements:
 	amm measurements.sc $(DIR)
+
+benchmarks: buildBenchmarks execBenchmarks
+
+buildBenchmarks:
+	mvn -f ../org.spoofax.jsglr2.benchmark -q clean install
+
+execBenchmarks:
+	amm benchmarks.sc $(DIR)

@@ -87,7 +87,7 @@ public class ParsingMeasurements extends Measurements {
 
             @SuppressWarnings("unchecked") IObservableParser<ParseForest, Derivation, ParseNode, StackNode, ParseState> parser =
                 (IObservableParser<ParseForest, Derivation, ParseNode, StackNode, ParseState>) variant
-                    .getParser(parseTable);
+                    .getParser(parseTable, measureActiveStacksFactory, measureForActorStacksFactory);
 
             parser.observing().attachObserver(measureObserver);
 

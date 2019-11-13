@@ -11,10 +11,7 @@ import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.recovery.AbstractRecoveryParseState;
 import org.spoofax.jsglr2.recovery.BacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.stack.collections.*;
 
 public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputStack, StackNode extends IStackNode>
     extends AbstractRecoveryParseState<InputStack, StackNode, BacktrackChoicePoint<InputStack, StackNode>>
@@ -37,11 +34,27 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
 //@formatter:on
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, InputStack_, StackNode_, RecoveryIncrementalParseState<InputStack_, StackNode_>>
         factory(ParserVariant variant) {
+       //@formatter:off
+        return factory(
+            new ActiveStacksFactory(variant.activeStacksRepresentation),
+            new ForActorStacksFactory(variant.forActorStacksRepresentation)
+        );
+       //@formatter:on
+    }
+
+    public static
+//@formatter:off
+   <ParseForest_ extends IParseForest,
+    Derivation_  extends IDerivation<ParseForest_>,
+    ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
+    InputStack_  extends IIncrementalInputStack,
+    StackNode_   extends IStackNode>
+//@formatter:on
+    ParseStateFactory<ParseForest_, Derivation_, ParseNode_, InputStack_, StackNode_, RecoveryIncrementalParseState<InputStack_, StackNode_>>
+        factory(IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory) {
         return (inputStack, observing) -> {
-            IActiveStacks<StackNode_> activeStacks =
-                new ActiveStacksFactory(variant.activeStacksRepresentation).get(observing);
-            IForActorStacks<StackNode_> forActorStacks =
-                new ForActorStacksFactory(variant.forActorStacksRepresentation).get(observing);
+            IActiveStacks<StackNode_> activeStacks = activeStacksFactory.get(observing);
+            IForActorStacks<StackNode_> forActorStacks = forActorStacksFactory.get(observing);
 
             return new RecoveryIncrementalParseState<>(inputStack, activeStacks, forActorStacks);
         };

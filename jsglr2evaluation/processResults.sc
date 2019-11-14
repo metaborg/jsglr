@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.JSGLR2Variant
 import org.spoofax.jsglr2.integration.IntegrationVariant
 import org.spoofax.jsglr2.integration.ParseTableVariant
 
-def execMeasurements(implicit args: Args) = {
+def processResults(implicit args: Args) = {
     println("Processing results...")
     
     mkdir! resultsDir
@@ -44,4 +44,4 @@ def execMeasurements(implicit args: Args) = {
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(execMeasurements(_))
+def ini(args: String*) = withArgs(args :_ *)(processResults(_))

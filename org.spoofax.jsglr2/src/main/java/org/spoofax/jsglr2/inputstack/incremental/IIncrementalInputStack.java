@@ -6,7 +6,7 @@ import org.spoofax.jsglr2.inputstack.IInputStack;
 public interface IIncrementalInputStack extends IInputStack {
     IncrementalParseForest getNode();
 
-    void leftBreakdown();
+    void breakDown();
 
     IIncrementalInputStack clone();
 

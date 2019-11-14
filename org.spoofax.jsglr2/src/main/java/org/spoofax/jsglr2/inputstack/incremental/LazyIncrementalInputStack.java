@@ -48,7 +48,7 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
         return last;
     }
 
-    @Override public void leftBreakdown() {
+    @Override public void breakDown() {
         if(stack.isEmpty())
             last = null;
         if(last == null || last.isTerminal())

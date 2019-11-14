@@ -184,7 +184,7 @@ public abstract class AbstractIncrementalInputStackTest {
     }
 
     private static void assertLeftBreakdown(IncrementalParseForest forest, IIncrementalInputStack stack) {
-        stack.leftBreakdown();
+        stack.breakDown();
         assertSame(forest, stack.getNode());
     }
 

@@ -138,7 +138,7 @@ public class IncrementalParser
         // that would mean that this node was created when the parser was in multiple states.
         while(!parseState.inputStack.getNode().isReusable()
             || !parseState.inputStack.getNode().isTerminal() && isEmpty(actions) && parseState.forShifter.isEmpty()) {
-            parseState.inputStack.leftBreakdown();
+            parseState.inputStack.breakDown();
             actions = getActions(stack, parseState);
         }
 

@@ -100,6 +100,19 @@ public class JSGLR2Variant {
                     ForActorStacksRepresentation.standard(),
                     ParseForestRepresentation.standard(),
                     ParseForestConstruction.standard(),
+                    StackRepresentation.Hybrid,
+                    Reducing.Basic,
+                    false),
+                ImploderVariant.standard(),
+                TokenizerVariant.standard())),
+    
+        elkhound(
+            new JSGLR2Variant(
+                new ParserVariant(
+                    ActiveStacksRepresentation.standard(),
+                    ForActorStacksRepresentation.standard(),
+                    ParseForestRepresentation.standard(),
+                    ParseForestConstruction.standard(),
                     StackRepresentation.standard(),
                     Reducing.standard(),
                     false),

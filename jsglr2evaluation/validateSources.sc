@@ -31,8 +31,8 @@ def validateSources(implicit args: Args) = {
 
                     println("   Invalid: " + filename)
 
-                    mkdir! language.sourcesDir / "invalid"
-                    mv(file, language.sourcesDir / "invalid" / filename)
+                    mkdir! sourcesDir / "invalid"
+                    mv(file, sourcesDir / "invalid" / filename)
                 }
             }
         }

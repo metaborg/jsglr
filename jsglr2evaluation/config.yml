@@ -4,5 +4,12 @@ languages:
     repo: git@github.com:metaborg/java-front.git
     path: lang.java
     sources:
-      - id: commons-lang
+      - id: apache-commons-lang
         repo: https://github.com/apache/commons-lang.git
+  - id: ocaml
+    extension: ml
+    repo: git@github.com:metaborgcube/metaborg-ocaml
+    path: org.metaborg.lang.ocaml
+    sources:
+      - id: facebook-flow
+        repo: https://github.com/facebook/flow.git

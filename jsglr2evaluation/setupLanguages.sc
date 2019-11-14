@@ -13,11 +13,15 @@ def setupLanguages(implicit args: Args) = {
         rm! language.repoDir
         mkdir! language.repoDir
 
-        println(s"  Cloning ${language.repo}...")
-        %%("git", "clone", language.repo, ".")(language.repoDir)
+        timed("clone " + language.id) {
+            println(s"  Cloning ${language.repo}...")
+            %%("git", "clone", language.repo, ".")(language.repoDir)
+        }
 
-        println(s"  Building ${language.dir}...")
-        %%("mvn", "install")(language.dir)
+        timed("build " + language.id) {
+            println(s"  Building ${language.dir}...")
+            %%("mvn", "install")(language.dir)
+        }
     }
 }
 

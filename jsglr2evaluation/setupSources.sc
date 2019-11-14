@@ -25,27 +25,31 @@ def setupSources(implicit args: Args) = {
             rm! languageSourceRepoDir
             mkdir! languageSourceRepoDir
 
-            // Initially clone without checking out and without all history
-            %%("git", "clone", "--no-checkout", "--depth=1", source.repo, ".")(languageSourceRepoDir)
+            timed("clone " + source.id) {
+                // Initially clone without checking out and without all history
+                %%("git", "clone", "--no-checkout", "--depth=1", source.repo, ".")(languageSourceRepoDir)
 
-            // Config sparse checkout: filter files based on extension
-            %%("git", "config", "core.sparseCheckout", "true")(languageSourceRepoDir)
-            write(languageSourceRepoDir / ".git" / "info" / "sparse-checkout", "*." + language.extension)
+                // Config sparse checkout: filter files based on extension
+                %%("git", "config", "core.sparseCheckout", "true")(languageSourceRepoDir)
+                write(languageSourceRepoDir / ".git" / "info" / "sparse-checkout", "*." + language.extension)
 
-            // Pull with the filter, skip history
-            %%("git", "checkout", "master")(languageSourceRepoDir)
+                // Pull with the filter, skip history
+                %%("git", "checkout", "master")(languageSourceRepoDir)
+            }
 
-            val files = ls.rec! languageSourceRepoDir |? (_.ext == language.extension)
+            timed("preprocess " + source.id) {
+                val files = ls.rec! languageSourceRepoDir |? (_.ext == language.extension)
 
-            // Copy all files to the aggregated directory
-            files.foreach { file =>
-                val pathInRepo = file relativeTo languageSourceRepoDir
-                val filename = source.id + "_" + pathInRepo.toString.replace("/", "_")
+                // Copy all files to the aggregated directory
+                files.foreach { file =>
+                    val pathInRepo = file relativeTo languageSourceRepoDir
+                    val filename = source.id + "_" + pathInRepo.toString.replace("/", "_")
 
-                val preProcessed = preProcess(read! file)
+                    val preProcessed = preProcess(read! file)
 
-                write(language.sourcesDir / filename, preProcessed)
-                rm! file
+                    write(language.sourcesDir / filename, preProcessed)
+                    rm! file
+                }
             }
         }
 

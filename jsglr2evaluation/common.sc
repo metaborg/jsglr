@@ -6,6 +6,7 @@ import ammonite.ops._
 import cats.syntax.either._
 import io.circe.generic.auto._
 import io.circe.yaml._
+import java.time.LocalDateTime
 
 case class Config(languages: Seq[Language])
 
@@ -39,4 +40,17 @@ def withArgs(args: String*)(body: Args => Unit) = {
     }
 
     body(Args(dir))
+}
+
+def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
+    val t0 = System.currentTimeMillis()
+    block
+    val t1 = System.currentTimeMillis()
+
+    val time = (BigDecimal(t1 - t0)) / 1000
+    val report = s"$name: ${time}s"
+
+    println(report)
+
+    write.append(args.dir / "timing.txt", s"${LocalDateTime.now} $report\n")
 }

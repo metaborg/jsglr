@@ -20,15 +20,17 @@ def execBenchmarks(implicit args: Args) = {
 
         mkdir! benchmarksDir
 
-        %%(
-            "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
-            "-wi", warmupIterations,
-            "-i", benchmarkIterations,
-            "-f", 1,
-            "-rff", language.benchmarksPath,
-            "JSGLR2BenchmarkParsingExternal",
-            "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "\""
-        )(benchmarksMvnDir)
+        timed("benchmark " + language.id) {
+            %%(
+                "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
+                "-wi", warmupIterations,
+                "-i", benchmarkIterations,
+                "-f", 1,
+                "-rff", language.benchmarksPath,
+                "JSGLR2BenchmarkParsingExternal",
+                "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "\""
+            )(benchmarksMvnDir)
+        }
     }
 }
 

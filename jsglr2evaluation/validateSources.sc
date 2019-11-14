@@ -22,16 +22,18 @@ def validateSources(implicit args: Args) = {
 
         val jsglr2 = getJSGLR2(variant, language.parseTablePath)
 
-        files.foreach { file =>
-            val ast = jsglr2.parse(read! file)
+        timed("validate " + language.id) {
+            files.foreach { file =>
+                val ast = jsglr2.parse(read! file)
 
-            if (ast == null) {
-                val filename = file relativeTo language.sourcesDir
+                if (ast == null) {
+                    val filename = file relativeTo language.sourcesDir
 
-                println("   Invalid: " + filename)
+                    println("   Invalid: " + filename)
 
-                mkdir! language.sourcesDir / "invalid"
-                mv(file, language.sourcesDir / "invalid" / filename)
+                    mkdir! language.sourcesDir / "invalid"
+                    mv(file, language.sourcesDir / "invalid" / filename)
+                }
             }
         }
     }

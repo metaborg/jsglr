@@ -20,7 +20,7 @@ def execBenchmarks(implicit args: Args) = {
 
         mkdir! benchmarksDir
 
-        timed("benchmark " + language.id) {
+        timed(s"benchmark (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
             %%(
                 "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
                 "-wi", warmupIterations,

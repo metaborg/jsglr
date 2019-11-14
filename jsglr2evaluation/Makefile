@@ -1,7 +1,7 @@
 DIR=~/jsglr2evaluation
 ITERATIONS=1
 
-all: languages sources validate measurements benchmarks processResults
+all: languages sources validate measurements benchmarks processResults reportLatex
 
 languages:
 	amm setupLanguages.sc $(DIR)
@@ -30,3 +30,6 @@ execBenchmarks:
 
 processResults:
 	amm processResults.sc $(DIR)
+
+reportLatex:
+	amm reportLatex.sc $(DIR) $(ITERATIONS) $(LATEXDIR)

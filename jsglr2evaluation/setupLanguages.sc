@@ -20,7 +20,7 @@ def setupLanguages(implicit args: Args) = {
 
         timed("build " + language.id) {
             println(s"  Building ${language.dir}...")
-            %%("mvn", "install")(language.dir)
+            %%("mvn", "install", MAVEN_OPTS="-Xmx8G -Xss64M")(language.dir)
         }
     }
 }

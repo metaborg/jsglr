@@ -1,6 +1,6 @@
 DIR=~/jsglr2evaluation
 
-all: languages sources validate measurements
+all: languages sources validate measurements benchmarks
 
 languages:
 	amm setupLanguages.sc $(DIR)
@@ -9,7 +9,7 @@ sources:
 	amm setupSources.sc $(DIR)
 
 validate:
-	amm validateSources.sc $(DIR)
+	JAVA_OPTS="-Xmx8G" amm validateSources.sc $(DIR)
 
 measurements: buildMeasurements execMeasurements
 

@@ -1,7 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.args, args._, Args._
-import $file.config, config.config
+import $file.common, common._, Args._
 
 def setupLanguages(implicit args: Args) = {
     println("Setting up languages...")

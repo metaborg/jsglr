@@ -1,7 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.args, args._, Args._
-import $file.config, config.config
+import $file.common, common._, Args._
 
 import $file.spoofax, spoofax._
 import org.spoofax.jsglr2.JSGLR2Variant

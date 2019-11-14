@@ -32,6 +32,8 @@ object Args {
     implicit def sourcesDir(implicit args: Args)   = args.dir / 'sources
     implicit def measurementsDir(implicit args: Args)   = args.dir / 'measurements
     implicit def benchmarksDir(implicit args: Args)   = args.dir / 'benchmarks
+    implicit def resultsDir(implicit args: Args)   = args.dir / 'results
+    
 }
 
 def withArgs(args: String*)(body: Args => Unit) = {
@@ -54,4 +56,19 @@ def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
     println(report)
 
     write.append(args.dir / "timing.txt", s"${LocalDateTime.now} $report\n")
+}
+
+object CSV {
+
+    def parse(file: Path) = {
+        read.lines(file) match {
+            case header +: rows =>
+                val columns = header.split(",").toSeq
+
+                rows.map { row =>
+                    (columns zip row.split(",")).toMap
+                }
+        }
+    }
+
 }

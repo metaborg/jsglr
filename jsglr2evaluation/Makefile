@@ -1,7 +1,7 @@
 DIR=~/jsglr2evaluation
 ITERATIONS=1
 
-all: languages sources validate measurements benchmarks
+all: languages sources validate measurements benchmarks processResults
 
 languages:
 	amm setupLanguages.sc $(DIR)
@@ -27,3 +27,6 @@ buildBenchmarks:
 
 execBenchmarks:
 	amm benchmarks.sc $(DIR) $(ITERATIONS)
+
+processResults:
+	amm processResults.sc $(DIR)

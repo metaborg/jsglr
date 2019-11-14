@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
@@ -19,8 +20,11 @@ public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, Stri
         this.testSetReader = new BenchmarkTestSetReader<>(testSet);
     }
 
+    @Param({ "standard", "elkhound", "recovery", "recoveryElkhound", "incremental",
+        "recoveryIncremental" }) JSGLR2Variant.Preset jsglr2Variant;
+
     @Override protected IntegrationVariant variant() {
-        return new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.standard.variant);
+        return new IntegrationVariant(new ParseTableVariant(), jsglr2Variant.variant);
     }
 
     @Override protected boolean implode() {

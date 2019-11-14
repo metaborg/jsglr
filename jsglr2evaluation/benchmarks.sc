@@ -15,8 +15,8 @@ def execBenchmarks(implicit args: Args) = {
 
         val benchmarksMvnDir = (pwd / up / "org.spoofax.jsglr2.benchmark")
 
-        val warmupIterations = 1
-        val benchmarkIterations = 1
+        val warmupIterations = args.iterations
+        val benchmarkIterations = args.iterations
 
         mkdir! benchmarksDir
 

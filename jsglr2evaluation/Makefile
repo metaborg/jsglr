@@ -1,4 +1,5 @@
 DIR=~/jsglr2evaluation
+ITERATIONS=1
 
 all: languages sources validate measurements benchmarks
 
@@ -25,4 +26,4 @@ buildBenchmarks:
 	mvn -f ../org.spoofax.jsglr2.benchmark -q clean install
 
 execBenchmarks:
-	amm benchmarks.sc $(DIR)
+	amm benchmarks.sc $(DIR) $(ITERATIONS)

@@ -10,7 +10,6 @@ import org.spoofax.jsglr2.integration.ParseTableVariant
 def latexTableTestSets(implicit args: Args) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{table}[]\n")
     s.append("\\begin{tabular}{|l|l|r|r|r|}\n")
     s.append("\\hline\n")
     s.append("Language & Source & Files & Lines & Size (bytes) \\\\\n")
@@ -34,7 +33,6 @@ def latexTableTestSets(implicit args: Args) = {
     }
 
     s.append("\\end{tabular}\n")
-    s.append("\\end{table}\n")
 
     s.toString
 }
@@ -42,7 +40,6 @@ def latexTableTestSets(implicit args: Args) = {
 def latexTableMeasurements(csv: CSV) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{table}[]\n")
     s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
     s.append("Measure" + config.languages.map(" & " + _.name).mkString("") + " \\\\\n")
@@ -62,7 +59,6 @@ def latexTableMeasurements(csv: CSV) = {
     }
 
     s.append("\\end{tabular}\n")
-    s.append("\\end{table}\n")
 
     s.toString
 }
@@ -78,7 +74,6 @@ def latexTableParsing(implicit args: Args) = {
 def latexTableBenchmarks(implicit args: Args) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{table}[]\n")
     s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
     s.append("Variant" + config.languages.map(" & " + _.name).mkString("") + " \\\\\n")
@@ -107,7 +102,6 @@ def latexTableBenchmarks(implicit args: Args) = {
     }
 
     s.append("\\end{tabular}\n")
-    s.append("\\end{table}\n")
 
     s.toString
 }

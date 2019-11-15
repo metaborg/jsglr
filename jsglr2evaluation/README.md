@@ -4,6 +4,7 @@
 
  - Java 8
  - Ammonite for Scala scripting: https://ammonite.io/
+ - R: https://www.r-project.org/
 
 ## Run
 

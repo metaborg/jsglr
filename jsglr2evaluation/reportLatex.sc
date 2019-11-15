@@ -118,8 +118,8 @@ def reportLatex(implicit args: Args) = {
     mkdir! args.latexDir
 
     write.over(args.latexDir / "testsets.tex", latexTableTestSets)
-    write.over(args.latexDir / "parsetables.tex", latexTableParseTables)
-    write.over(args.latexDir / "parsing.tex", latexTableParsing)
+    write.over(args.latexDir / "measurements-parsetables.tex", latexTableParseTables)
+    write.over(args.latexDir / "measurements-parsing.tex", latexTableParsing)
     write.over(args.latexDir / "benchmarks.tex", latexTableBenchmarks)
 }
 

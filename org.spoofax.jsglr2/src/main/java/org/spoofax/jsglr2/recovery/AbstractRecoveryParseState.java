@@ -34,7 +34,7 @@ public abstract class AbstractRecoveryParseState
         // after the point that initiated recovery.
         int currentOffset = inputStack.offset();
         if((currentOffset == 0 || CharacterClassFactory.isNewLine(inputStack.getChar(currentOffset - 1)))
-            && (!isRecovering() || lastBacktrackChoicePoint().inputStack().offset() < currentOffset)) {
+            && (!isRecovering() || lastBacktrackChoicePoint().offset() < currentOffset)) {
             IBacktrackChoicePoint<?, StackNode> choicePoint = saveBacktrackChoicePoint();
 
             observing.notify(

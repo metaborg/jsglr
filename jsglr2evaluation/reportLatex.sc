@@ -39,17 +39,44 @@ def latexTableTestSets(implicit args: Args) = {
     s.toString
 }
 
-def execMeasurements(implicit args: Args) = {
+def latexTableParseTables(implicit args: Args) = {
+    val s = new StringBuilder()
+
+    s.append("\\begin{table}[]\n")
+    s.append("\\begin{tabular}{|l|" + ("l|" * config.languages.size) + "}\n")
+    s.append("\\hline\n")
+    s.append("Measure " + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
+    s.append("\\hline\n")
+
+    val parseTableMeasurementsCSV = CSV.parse(parseTableMeasurementsPath)
+
+    parseTableMeasurementsCSV.columns.filter(_ != "language").foreach { column =>
+        s.append(column)
+
+        config.languages.foreach { language =>
+            val row = parseTableMeasurementsCSV.rows.find(_("language") == language.id).get
+            val value = row(column)
+
+            s.append(" & " + value);
+        }
+
+        s.append(" \\\\ \\hline\n");
+    }
+
+    s.append("\\end{tabular}\n")
+    s.append("\\end{table}\n")
+
+    s.toString
+}
+
+def reportLatex(implicit args: Args) = {
     println("LateX reporting...")
     
     mkdir! args.latexDir
 
     write.over(args.latexDir / "testsets.tex", latexTableTestSets)
-
-    config.languages.zipWithIndex.foreach { case(language, index) =>
-        println(" " + language.id)
-    }
+    write.over(args.latexDir / "parsetables.tex", latexTableParseTables)
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(execMeasurements(_))
+def ini(args: String*) = withArgs(args :_ *)(reportLatex(_))

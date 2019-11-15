@@ -11,7 +11,7 @@ def execMeasurements(implicit args: Args) = {
     println("Executing measurements...")
 
     config.languages.foreach { language =>
-        println(" " + language.id)
+        println(" " + language.name)
 
         val measurementsMvnDir = (pwd / up / "org.spoofax.jsglr2.measure")
 

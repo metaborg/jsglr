@@ -1,5 +1,6 @@
 languages:
   - id: java
+    name: Java
     extension: java
     repo: git@github.com:metaborg/java-front.git
     path: lang.java
@@ -7,6 +8,7 @@ languages:
       - id: apache-commons-lang
         repo: https://github.com/apache/commons-lang.git
   - id: ocaml
+    name: OCaml
     extension: ml
     repo: git@github.com:metaborgcube/metaborg-ocaml
     path: org.metaborg.lang.ocaml

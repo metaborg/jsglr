@@ -11,7 +11,7 @@ def validateSources(implicit args: Args) = {
     println("Validating sources...")
 
     config.languages.foreach { language =>
-        println(" " + language.id)
+        println(" " + language.name)
 
         val files = ls.rec! language.sourcesDir
 

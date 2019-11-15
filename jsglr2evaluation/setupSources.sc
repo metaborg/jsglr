@@ -12,7 +12,7 @@ def setupSources(implicit args: Args) = {
     mkdir! sourcesDir
 
     config.languages.foreach { language =>
-        println(" " + language.id)
+        println(" " + language.name)
         
         rm! language.sourcesDir
         mkdir! language.sourcesDir / "repos"

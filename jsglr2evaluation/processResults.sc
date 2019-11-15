@@ -17,7 +17,7 @@ def processResults(implicit args: Args) = {
     write.over(benchmarksPath,             "")
 
     config.languages.zipWithIndex.foreach { case(language, index) =>
-        println(" " + language.id)
+        println(" " + language.name)
 
         if (index == 0) {
             // Copy header from measurements CSV

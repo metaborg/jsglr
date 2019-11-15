@@ -17,7 +17,7 @@ def latexTableTestSets(implicit args: Args) = {
     s.append("\\hline\n")
 
     config.languages.foreach { language =>
-        s.append("\\multirow{" + language.sources.size + "}{*}{" + language.id + "}\n")
+        s.append("\\multirow{" + language.sources.size + "}{*}{" + language.name + "}\n")
 
         language.sources.zipWithIndex.foreach { case (source, index) =>
             val files = ls.rec! language.sourcesDir
@@ -45,7 +45,7 @@ def latexTableMeasurements(csv: CSV) = {
     s.append("\\begin{table}[]\n")
     s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
-    s.append("Measure" + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
+    s.append("Measure" + config.languages.map(" & " + _.name).mkString("") + " \\\\\n")
     s.append("\\hline\n")
 
     csv.columns.filter(_ != "language").foreach { column =>
@@ -81,7 +81,7 @@ def latexTableBenchmarks(implicit args: Args) = {
     s.append("\\begin{table}[]\n")
     s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
-    s.append("Variant" + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
+    s.append("Variant" + config.languages.map(" & " + _.name).mkString("") + " \\\\\n")
     s.append("\\hline\n")
 
     val benchmarksCSV = CSV.parse(benchmarksPath)

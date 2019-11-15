@@ -97,7 +97,7 @@ def latexTableBenchmarks(implicit args: Args) = {
                 row("variant") == variant
             }.get
 
-            val value = row("score")
+            val value = round(row("score"))
 
             s.append(" & " + value);
         }

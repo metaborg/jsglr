@@ -83,3 +83,8 @@ object CSV {
     }
 
 }
+
+import scala.math.BigDecimal.RoundingMode
+
+def round(number: BigDecimal): BigDecimal = number.setScale(0, RoundingMode.HALF_UP)
+def round(number: String): BigDecimal = round(BigDecimal(number))

@@ -1,5 +1,6 @@
 DIR=~/jsglr2evaluation
 ITERATIONS=1
+REPORTDIR=~/jsglr2evaluation/reports
 
 all: languages sources validate measurements benchmarks processResults reportLatex reportR
 
@@ -32,7 +33,7 @@ processResults:
 	amm processResults.sc $(DIR)
 
 reportLatex:
-	amm reportLatex.sc $(DIR) $(ITERATIONS) $(LATEXDIR)
+	amm reportLatex.sc $(DIR) $(ITERATIONS) $(REPORTDIR)
 
 reportR:
-	Rscript report.R $(DIR) $(LATEXDIR)
+	Rscript report.R $(DIR) $(REPORTDIR)

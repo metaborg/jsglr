@@ -2,10 +2,10 @@ args = commandArgs(trailingOnly=TRUE)
 
 if (length(args) != 2) {
   dir       <- "~/jsglr2evaluation"
-  outputDir <- "~/jsglr2evaluation/plots"
+  reportDir <- "~/jsglr2evaluation/reports"
 } else {
   dir       <- args[1]
-  outputDir <- args[2]
+  reportDir <- args[2]
 }
 
 setwd(dir)
@@ -16,9 +16,9 @@ scorePerLanguageAndVariant <- as.table(xtabs(score~variant+language, data))
 
 scorePerLanguageAndVariant <- scorePerLanguageAndVariant[variants,] # order by original variant order
 
-dir.create(outputDir, showWarnings = FALSE)
+dir.create(reportDir, showWarnings = FALSE)
 
-pdf(file=paste(outputDir, "/benchmarks.pdf",sep=""))
+pdf(file=paste(reportDir, "/benchmarks.pdf",sep=""))
 
 barplot(scorePerLanguageAndVariant,
         main="Benchmarks results per language and variant (ms)",

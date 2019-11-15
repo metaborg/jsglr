@@ -109,12 +109,12 @@ def latexTableBenchmarks(implicit args: Args) = {
 def reportLatex(implicit args: Args) = {
     println("LateX reporting...")
     
-    mkdir! args.latexDir
+    mkdir! args.reportDir
 
-    write.over(args.latexDir / "testsets.tex", latexTableTestSets)
-    write.over(args.latexDir / "measurements-parsetables.tex", latexTableParseTables)
-    write.over(args.latexDir / "measurements-parsing.tex", latexTableParsing)
-    write.over(args.latexDir / "benchmarks.tex", latexTableBenchmarks)
+    write.over(args.reportDir / "testsets.tex", latexTableTestSets)
+    write.over(args.reportDir / "measurements-parsetables.tex", latexTableParseTables)
+    write.over(args.reportDir / "measurements-parsing.tex", latexTableParsing)
+    write.over(args.reportDir / "benchmarks.tex", latexTableBenchmarks)
 }
 
 @main

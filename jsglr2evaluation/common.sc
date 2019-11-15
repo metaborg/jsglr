@@ -24,7 +24,7 @@ case class Source(id: String, repo: String)
 val configJson = parser.parse(read! pwd/"config.yml")
 val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
-case class Args(dir: Path, iterations: Int, latexDir: Path)
+case class Args(dir: Path, iterations: Int, reportDir: Path)
 
 object Args {
 
@@ -40,13 +40,13 @@ object Args {
 }
 
 def withArgs(args: String*)(body: Args => Unit) = {
-    val (dir, iterations, latexDir) = args match {
+    val (dir, iterations, reportDir) = args match {
         case Seq(dir) => (Path(dir, root), 0, None)
         case Seq(dir, iterations) => (Path(dir, root), iterations.toInt, None)
-        case Seq(dir, iterations, latexDir) => (Path(dir, root), iterations.toInt, Some(Path(latexDir, root)))
+        case Seq(dir, iterations, reportDir) => (Path(dir, root), iterations.toInt, Some(Path(reportDir, root)))
     }
 
-    body(Args(dir, iterations, latexDir.getOrElse(dir / "latex")))
+    body(Args(dir, iterations, reportDir.getOrElse(dir / "reports")))
 }
 
 def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {

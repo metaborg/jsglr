@@ -36,7 +36,8 @@ object Args {
     implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"
     implicit def parsingMeasurementsPath(implicit args: Args)    = resultsDir / "measurements-parsing.csv"
     implicit def benchmarksPath(implicit args: Args)             = resultsDir / "benchmarks.csv"
-    
+    implicit def benchmarksNormalizedPath(implicit args: Args)   = resultsDir / "benchmarks-normalized.csv"
+
 }
 
 def withArgs(args: String*)(body: Args => Unit) = {

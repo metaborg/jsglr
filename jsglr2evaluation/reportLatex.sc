@@ -63,23 +63,13 @@ def latexTableMeasurements(csv: CSV) = {
     s.toString
 }
 
-def latexTableParseTables(implicit args: Args) = {
-    latexTableMeasurements(CSV.parse(parseTableMeasurementsPath))
-}
-
-def latexTableParsing(implicit args: Args) = {
-    latexTableMeasurements(CSV.parse(parsingMeasurementsPath))
-}
-
-def latexTableBenchmarks(implicit args: Args) = {
+def latexTableBenchmarks(benchmarksCSV: CSV)(implicit args: Args) = {
     val s = new StringBuilder()
 
     s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
     s.append("Variant" + config.languages.map(" & " + _.name).mkString("") + " \\\\\n")
     s.append("\\hline\n")
-
-    val benchmarksCSV = CSV.parse(benchmarksPath)
 
     val variants = benchmarksCSV.rows.map(_("variant")).distinct
 
@@ -112,9 +102,10 @@ def reportLatex(implicit args: Args) = {
     mkdir! args.reportDir
 
     write.over(args.reportDir / "testsets.tex", latexTableTestSets)
-    write.over(args.reportDir / "measurements-parsetables.tex", latexTableParseTables)
-    write.over(args.reportDir / "measurements-parsing.tex", latexTableParsing)
-    write.over(args.reportDir / "benchmarks.tex", latexTableBenchmarks)
+    write.over(args.reportDir / "measurements-parsetables.tex", latexTableMeasurements(CSV.parse(parseTableMeasurementsPath)))
+    write.over(args.reportDir / "measurements-parsing.tex",     latexTableMeasurements(CSV.parse(parsingMeasurementsPath)))
+    write.over(args.reportDir / "benchmarks.tex",               latexTableBenchmarks(CSV.parse(benchmarksPath)))
+    write.over(args.reportDir / "benchmarks-normalized.tex",    latexTableBenchmarks(CSV.parse(benchmarksNormalizedPath)))
 }
 
 @main

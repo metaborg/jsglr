@@ -15,6 +15,7 @@ def processResults(implicit args: Args) = {
     write.over(parseTableMeasurementsPath, "")
     write.over(parsingMeasurementsPath,    "")
     write.over(benchmarksPath,             "")
+    write.over(benchmarksNormalizedPath,   "")
 
     config.languages.zipWithIndex.foreach { case(language, index) =>
         println(" " + language.name)
@@ -25,7 +26,8 @@ def processResults(implicit args: Args) = {
             write.append(parsingMeasurementsPath,    "language," + read.lines(language.measurementsDir / "parsing.csv")(0))
 
             // Add header to benchmarks CSV
-            write.append(benchmarksPath, "language,variant,score,error")
+            write.append(benchmarksPath,           "language,variant,score,error")
+            write.append(benchmarksNormalizedPath, "language,variant,score,error")
         }
 
         write.append(parseTableMeasurementsPath, "\n" + language.id + "," + read.lines(language.measurementsDir / "parsetable.csv")(1))
@@ -34,7 +36,14 @@ def processResults(implicit args: Args) = {
         val benchmarksCSV = CSV.parse(language.benchmarksPath)
 
         benchmarksCSV.rows.foreach { row =>
-            write.append(benchmarksPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + row("\"Score\"") + "," + row("\"Score Error (99.9%)\""))
+            val score = BigDecimal(row("\"Score\""))
+
+            write.append(benchmarksPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + round(score) + "," + row("\"Score Error (99.9%)\""))
+            
+            val characters = BigDecimal(CSV.parse(language.measurementsDir / "parsing.csv").rows.head("characters"))
+            val normalized = characters / score * 1000
+
+            write.append(benchmarksNormalizedPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + round(normalized) + "," + row("\"Score Error (99.9%)\""))
         }
     }
 }

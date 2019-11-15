@@ -19,18 +19,16 @@ public class RecoveryReduceActionFilter
         if(reduce.production().isCompletion())
             return true;
 
-        if(reduce.production().isRecovery()) {
-            if(parseState.isRecovering()) {
-                if(parseState.recoveryJob().quota > 0) {
-                    parseState.recoveryJob().quota--;
+        if(!reduce.production().isRecovery())
+            return false; // Regular productions can always be used
+        if(!parseState.isRecovering())
+            return true; // Ignore recovery productions outside recovery mode
+        if(parseState.recoveryJob().quota <= 0)
+            return true; // Ignore recovery productions after quota exceeded
 
-                    return false;
-                } else
-                    return true;
-            } else
-                return true;
-        } else
-            return false;
+        // TODO quota per stack
+        parseState.recoveryJob().quota--;
+        return false;
     }
 
 }

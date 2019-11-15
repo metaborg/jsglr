@@ -22,7 +22,7 @@ Specify directory for languages, sources, measurements, etc., with `DIR` (defaul
 make DIR=~/jsglr2evaluation all
 ```
 
-Specify number of warmup and benchmark iterations with `ITERATIONS` (defaults to `~/jsglr2evaluation`):
+Specify number of warmup and benchmark iterations with `ITERATIONS` (defaults to `1`):
 
 ```
 make ITERATIONS=10 benchmarks

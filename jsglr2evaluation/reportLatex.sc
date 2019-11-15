@@ -45,7 +45,7 @@ def latexTableMeasurements(csv: CSV) = {
     s.append("\\begin{table}[]\n")
     s.append("\\begin{tabular}{|l|" + ("l|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
-    s.append("Measure " + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
+    s.append("Measure" + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
     s.append("\\hline\n")
 
     csv.columns.filter(_ != "language").foreach { column =>
@@ -75,6 +75,42 @@ def latexTableParsing(implicit args: Args) = {
     latexTableMeasurements(CSV.parse(parsingMeasurementsPath))
 }
 
+def latexTableBenchmarks(implicit args: Args) = {
+    val s = new StringBuilder()
+
+    s.append("\\begin{table}[]\n")
+    s.append("\\begin{tabular}{|l|" + ("l|" * config.languages.size) + "}\n")
+    s.append("\\hline\n")
+    s.append("Variant" + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
+    s.append("\\hline\n")
+
+    val benchmarksCSV = CSV.parse(benchmarksPath)
+
+    val variants = benchmarksCSV.rows.map(_("variant")).distinct
+
+    variants.foreach { variant =>
+        s.append(variant)
+
+        config.languages.foreach { language =>
+            val row = benchmarksCSV.rows.find { row =>
+                row("language") == language.id &&
+                row("variant") == variant
+            }.get
+
+            val value = row("score")
+
+            s.append(" & " + value);
+        }
+
+        s.append(" \\\\ \\hline\n");
+    }
+
+    s.append("\\end{tabular}\n")
+    s.append("\\end{table}\n")
+
+    s.toString
+}
+
 def reportLatex(implicit args: Args) = {
     println("LateX reporting...")
     
@@ -83,6 +119,7 @@ def reportLatex(implicit args: Args) = {
     write.over(args.latexDir / "testsets.tex", latexTableTestSets)
     write.over(args.latexDir / "parsetables.tex", latexTableParseTables)
     write.over(args.latexDir / "parsing.tex", latexTableParsing)
+    write.over(args.latexDir / "benchmarks.tex", latexTableBenchmarks)
 }
 
 @main

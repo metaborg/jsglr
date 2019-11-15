@@ -11,7 +11,7 @@ def latexTableTestSets(implicit args: Args) = {
     val s = new StringBuilder()
 
     s.append("\\begin{table}[]\n")
-    s.append("\\begin{tabular}{|l|l|l|l|l|}\n")
+    s.append("\\begin{tabular}{|l|l|r|r|r|}\n")
     s.append("\\hline\n")
     s.append("Language & Source & Files & Lines & Size (bytes) \\\\\n")
     s.append("\\hline\n")
@@ -43,7 +43,7 @@ def latexTableMeasurements(csv: CSV) = {
     val s = new StringBuilder()
 
     s.append("\\begin{table}[]\n")
-    s.append("\\begin{tabular}{|l|" + ("l|" * config.languages.size) + "}\n")
+    s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
     s.append("Measure" + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
     s.append("\\hline\n")
@@ -79,7 +79,7 @@ def latexTableBenchmarks(implicit args: Args) = {
     val s = new StringBuilder()
 
     s.append("\\begin{table}[]\n")
-    s.append("\\begin{tabular}{|l|" + ("l|" * config.languages.size) + "}\n")
+    s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
     s.append("\\hline\n")
     s.append("Variant" + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
     s.append("\\hline\n")

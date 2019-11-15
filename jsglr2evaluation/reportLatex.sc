@@ -39,7 +39,7 @@ def latexTableTestSets(implicit args: Args) = {
     s.toString
 }
 
-def latexTableParseTables(implicit args: Args) = {
+def latexTableMeasurements(csv: CSV) = {
     val s = new StringBuilder()
 
     s.append("\\begin{table}[]\n")
@@ -48,13 +48,11 @@ def latexTableParseTables(implicit args: Args) = {
     s.append("Measure " + config.languages.map(" & " + _.id).mkString("") + " \\\\\n")
     s.append("\\hline\n")
 
-    val parseTableMeasurementsCSV = CSV.parse(parseTableMeasurementsPath)
-
-    parseTableMeasurementsCSV.columns.filter(_ != "language").foreach { column =>
+    csv.columns.filter(_ != "language").foreach { column =>
         s.append(column)
 
         config.languages.foreach { language =>
-            val row = parseTableMeasurementsCSV.rows.find(_("language") == language.id).get
+            val row = csv.rows.find(_("language") == language.id).get
             val value = row(column)
 
             s.append(" & " + value);
@@ -69,6 +67,14 @@ def latexTableParseTables(implicit args: Args) = {
     s.toString
 }
 
+def latexTableParseTables(implicit args: Args) = {
+    latexTableMeasurements(CSV.parse(parseTableMeasurementsPath))
+}
+
+def latexTableParsing(implicit args: Args) = {
+    latexTableMeasurements(CSV.parse(parsingMeasurementsPath))
+}
+
 def reportLatex(implicit args: Args) = {
     println("LateX reporting...")
     
@@ -76,6 +82,7 @@ def reportLatex(implicit args: Args) = {
 
     write.over(args.latexDir / "testsets.tex", latexTableTestSets)
     write.over(args.latexDir / "parsetables.tex", latexTableParseTables)
+    write.over(args.latexDir / "parsing.tex", latexTableParsing)
 }
 
 @main

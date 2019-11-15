@@ -33,6 +33,9 @@ object Args {
     implicit def measurementsDir(implicit args: Args)   = args.dir / 'measurements
     implicit def benchmarksDir(implicit args: Args)   = args.dir / 'benchmarks
     implicit def resultsDir(implicit args: Args)   = args.dir / 'results
+    implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"
+    implicit def parsingMeasurementsPath(implicit args: Args)    = resultsDir / "measurements-parsing.csv"
+    implicit def benchmarksPath(implicit args: Args)             = resultsDir / "benchmarks.csv"
     
 }
 
@@ -59,16 +62,23 @@ def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
     write.append(args.dir / "timing.txt", s"${LocalDateTime.now} $report\n")
 }
 
+case class CSV(columns: Seq[String], rows: Seq[CSVRow])
+case class CSVRow(values: Map[String, String]) {
+    def apply(column: String) = values.get(column).get
+}
+
 object CSV {
 
-    def parse(file: Path) = {
+    def parse(file: Path): CSV = {
         read.lines(file) match {
-            case header +: rows =>
-                val columns = header.split(",").toSeq
+            case headerLine +: rowLines =>
+                val columns = headerLine.split(",").toSeq
 
-                rows.map { row =>
-                    (columns zip row.split(",")).toMap
+                val rows = rowLines.map { row =>
+                    CSVRow((columns zip row.split(",")).toMap)
                 }
+
+                CSV(columns, rows)
         }
     }
 

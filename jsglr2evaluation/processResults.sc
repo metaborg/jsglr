@@ -12,12 +12,8 @@ def processResults(implicit args: Args) = {
     
     mkdir! resultsDir
 
-    val parsingMeasurementsPath    = resultsDir / "measurements-parsing.csv"
-    val parseTableMeasurementsPath = resultsDir / "measurements-parsetable.csv"
-    val benchmarksPath             = resultsDir / "benchmarks.csv"
-
-    write.over(parsingMeasurementsPath,    "")
     write.over(parseTableMeasurementsPath, "")
+    write.over(parsingMeasurementsPath,    "")
     write.over(benchmarksPath,             "")
 
     config.languages.zipWithIndex.foreach { case(language, index) =>
@@ -37,8 +33,8 @@ def processResults(implicit args: Args) = {
 
         val benchmarksCSV = CSV.parse(language.benchmarksPath)
 
-        benchmarksCSV.map { row =>
-            write.append(benchmarksPath, "\n" + language.id + "," + row.get("\"Param: jsglr2Variant\"").get + "," + row.get("\"Score\"").get + "," + row.get("\"Score Error (99.9%)\"").get)
+        benchmarksCSV.rows.foreach { row =>
+            write.append(benchmarksPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + row("\"Score\"") + "," + row("\"Score Error (99.9%)\""))
         }
     }
 }

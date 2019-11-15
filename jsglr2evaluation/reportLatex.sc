@@ -97,9 +97,10 @@ def latexTableBenchmarks(implicit args: Args) = {
                 row("variant") == variant
             }.get
 
-            val value = round(row("score"))
+            val score = round(row("score"))
+            val error = round(row("error"))
 
-            s.append(" & " + value);
+            s.append(" & " + score + " (" + error + ")");
         }
 
         s.append(" \\\\ \\hline\n");

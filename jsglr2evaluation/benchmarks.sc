@@ -20,15 +20,19 @@ def execBenchmarks(implicit args: Args) = {
 
         mkdir! benchmarksDir
 
-        def benchmark(resultsPath: Path, sourcePath: Path, cardinality: String) =
+        def benchmark(resultsPath: Path, sourcePath: Path, cardinality: String, params: Map[String, String] = Map.empty) =
             %%(
-                "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
-                "-wi", warmupIterations,
-                "-i", benchmarkIterations,
-                "-f", 1,
-                "-rff", resultsPath,
-                "JSGLR2BenchmarkParsingExternal",
-                "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + sourcePath + " " + cardinality + "\""
+                Seq(
+                    "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
+                    "-wi", warmupIterations.toString,
+                    "-i", benchmarkIterations.toString,
+                    "-f", 1.toString,
+                    "-rff", resultsPath.toString,
+                    "JSGLR2BenchmarkParsingExternal",
+                    "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + sourcePath + " " + cardinality + "\""
+                ) ++ params.toSeq.flatMap {
+                    case (param, value) => Seq("-p", s"$param=$value")
+                }
             )(benchmarksMvnDir)
 
         timed(s"benchmark [batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
@@ -41,7 +45,7 @@ def execBenchmarks(implicit args: Args) = {
             mkdir! (Args.benchmarksDir / language.id)
 
             files.filterNot(_.last.toString.startsWith(".")).foreach { file =>
-                benchmark(language.benchmarksPath(file.last.toString), file, "single")
+                benchmark(language.benchmarksPath(file.last.toString), file, "single", Map("variant" -> "standard"))
             }
         }
     }

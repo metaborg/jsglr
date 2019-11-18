@@ -10,7 +10,7 @@ if (length(args) != 2) {
 
 setwd(dir)
 
-benchmarksPlot <- function(inputFile, outputFile, unit) {
+batchBenchmarksPlot <- function(inputFile, outputFile, unit) {
   data                       <- read.csv(file=inputFile, header=TRUE, sep=",")
   variants                   <- unique(data$variant)
   scorePerLanguageAndVariant <- as.table(xtabs(score~variant+language, data))
@@ -22,7 +22,7 @@ benchmarksPlot <- function(inputFile, outputFile, unit) {
   pdf(file=paste(reportDir, outputFile, sep=""))
 
   barplot(scorePerLanguageAndVariant,
-          main="Benchmarks results per language and variant",
+          main="Parsing speed",
           xlab="Language",
           ylab=unit,
           col=rainbow(length(variants)),
@@ -32,5 +32,25 @@ benchmarksPlot <- function(inputFile, outputFile, unit) {
   dev.off()
 }
 
-benchmarksPlot("results/benchmarks.csv",            "/benchmarks.pdf",            "parse time in ms")
-benchmarksPlot("results/benchmarks-normalized.csv", "/benchmarks-normalized.pdf", "throughput in k chars/s")
+perFileBenchmarksPlot <- function(inputFile, outputFile, unit) {
+  data <- read.csv(file=inputFile, header=TRUE, sep=",")
+  data <- data[data$variant == "standard",]
+  
+  dir.create(reportDir, showWarnings = FALSE)
+  
+  pdf(file=paste(reportDir, outputFile, sep=""))
+  
+  plot(data$score,
+       data$size,
+       main="Parsing speed vs. file size",
+       xlab="File size (# characters)",
+       ylab=unit)
+  
+  dev.off()
+}
+
+batchBenchmarksPlot("results/benchmarks-batch.csv",            "/benchmarks-batch.pdf",            "parse time in ms")
+batchBenchmarksPlot("results/benchmarks-batch-normalized.csv", "/benchmarks-batch-normalized.pdf", "throughput in k chars/s")
+
+perFileBenchmarksPlot("results/benchmarks-perFile.csv",            "/benchmarks-perFile.pdf",            "parse time in ms")
+perFileBenchmarksPlot("results/benchmarks-perFile-normalized.csv", "/benchmarks-perFile-normalized.pdf", "throughput in k chars/s")

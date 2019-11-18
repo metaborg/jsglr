@@ -104,8 +104,8 @@ def reportLatex(implicit args: Args) = {
     write.over(args.reportDir / "testsets.tex", latexTableTestSets)
     write.over(args.reportDir / "measurements-parsetables.tex", latexTableMeasurements(CSV.parse(parseTableMeasurementsPath)))
     write.over(args.reportDir / "measurements-parsing.tex",     latexTableMeasurements(CSV.parse(parsingMeasurementsPath)))
-    write.over(args.reportDir / "benchmarks.tex",               latexTableBenchmarks(CSV.parse(benchmarksPath)))
-    write.over(args.reportDir / "benchmarks-normalized.tex",    latexTableBenchmarks(CSV.parse(benchmarksNormalizedPath)))
+    write.over(args.reportDir / "benchmarks.tex",               latexTableBenchmarks(CSV.parse(batchBenchmarksPath)))
+    write.over(args.reportDir / "benchmarks-normalized.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath)))
 }
 
 @main

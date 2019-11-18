@@ -89,4 +89,4 @@ object CSV {
 import scala.math.BigDecimal.RoundingMode
 
 def round(number: BigDecimal): BigDecimal = number.setScale(0, RoundingMode.HALF_UP)
-def round(number: String): BigDecimal = round(BigDecimal(number))
+def round(number: String): String = if (number != "NaN") round(BigDecimal(number)).toString else number

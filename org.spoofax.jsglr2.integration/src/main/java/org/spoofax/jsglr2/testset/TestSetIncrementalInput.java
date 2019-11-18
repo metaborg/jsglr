@@ -10,11 +10,12 @@ import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 
 public class TestSetIncrementalInput extends TestSetInput<String[], IncrementalStringInput> {
 
-    // Directory in the org.spoofax.jsglr2.integration/src/main/resources/samples directory, containing files %d.in
+    // Directory (if internal) in the org.spoofax.jsglr2.integration/src/main/resources/samples directory or (if not
+    // internal) an absolute path, containing files %d.in
     public final String directory;
 
-    public TestSetIncrementalInput(String directory) {
-        super(Type.INCREMENTAL);
+    public TestSetIncrementalInput(String directory, boolean internal) {
+        super(Type.INCREMENTAL, internal);
 
         this.directory = directory;
     }

@@ -38,7 +38,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
                 return new TestSet<>(language, parseTable, input);
             } else if ("single".equals(type)) {
-                input = new TestSetSingleInput.StringInputSet(sourcePath);
+                input = new TestSetSingleInput.StringInputSet(sourcePath, false);
 
                 return new TestSet<>(language, parseTable, input);
             }
@@ -74,7 +74,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
     public static TestSet<String, StringInput> greenMarl =
         new TestSet<>("greenmarl", new TestSetParseTableFromATerm("GreenMarl", true),
-            new TestSetSingleInput.StringInputSet("GreenMarl/infomap.gm"));
+            new TestSetSingleInput.StringInputSet("GreenMarl/infomap.gm", true));
 
 
     private static final String JAVA_8_BENCHMARK_INPUT_PATH_STRING =
@@ -92,7 +92,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
             new TestSetMultipleInputs.StringInputSet(JAVA_8_BENCHMARK_INPUT_PATH_STRING, "java"));
 
     public static TestSet<String[], IncrementalStringInput> java8Incremental = new TestSet<>("java8Incremental",
-        JAVA_8_PARSE_TABLE, new TestSetIncrementalInput("Java/AnyKeyboardViewBase.java/"));
+        JAVA_8_PARSE_TABLE, new TestSetIncrementalInput("Java/AnyKeyboardViewBase.java/", true));
 
     public static final TestSet<String[], IncrementalStringInput> java8IncrementalGit =
         new TestSet<>("java8Incremental", JAVA_8_PARSE_TABLE,

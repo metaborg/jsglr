@@ -17,7 +17,7 @@ public abstract class TestSetMultipleInputs<Input extends TestInput<String>> ext
     public final String extension; // Extension for files to find in path
 
     public TestSetMultipleInputs(String path, String extension) {
-        super(Type.MULTIPLE);
+        super(Type.MULTIPLE, false);
 
         this.path = path;
         this.extension = extension;

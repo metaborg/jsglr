@@ -18,7 +18,7 @@ public class TestSetIncrementalGitInput extends TestSetInput<String[], Increment
     private final int depth;
 
     public TestSetIncrementalGitInput(String gitDirectory, String extension, int depth) {
-        super(Type.INCREMENTAL);
+        super(Type.INCREMENTAL, false);
         this.gitDirectory = gitDirectory;
         this.extension = extension;
         this.depth = depth;

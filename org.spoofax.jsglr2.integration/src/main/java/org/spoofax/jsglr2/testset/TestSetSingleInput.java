@@ -11,17 +11,23 @@ import org.spoofax.jsglr2.testset.testinput.TestInput;
 public abstract class TestSetSingleInput<ContentType, Input extends TestInput<ContentType>>
     extends TestSetInput<ContentType, Input> {
 
-    public final String filename; // Path in the org.spoofax.jsglr2.integration/src/main/resources/samples directory
+    // Path in org.spoofax.jsglr2.integration/src/main/resources/samples directory (if internal) or an absolute path (if
+    // not internal)
+    public final String filename;
 
     public TestSetSingleInput(String filename) {
-        super(Type.SINGLE);
+        this(filename, true);
+    }
+
+    public TestSetSingleInput(String filename, boolean internal) {
+        super(Type.SINGLE, internal);
 
         this.filename = filename;
     }
 
     static class StringInputSet extends TestSetSingleInput<String, StringInput> {
-        public StringInputSet(String filename) {
-            super(filename);
+        public StringInputSet(String filename, boolean internal) {
+            super(filename, internal);
         }
 
         @Override public List<StringInput> getInputs() throws IOException {

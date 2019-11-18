@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.testset;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -18,16 +19,24 @@ public abstract class TestSetInput<ContentType, Input extends TestInput<ContentT
 
     public final Type type;
 
+    public final boolean internal;
+
     protected abstract Input getInput(String filename, ContentType input);
 
     public abstract List<Input> getInputs() throws IOException;
 
-    protected TestSetInput(Type type) {
+    protected TestSetInput(Type type, boolean internal) {
         this.type = type;
+        this.internal = internal;
     }
 
     protected String getFileAsString(String filename) throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/samples/" + filename);
+        InputStream inputStream;
+
+        if(internal)
+            inputStream = getClass().getResourceAsStream("/samples/" + filename);
+        else
+            inputStream = new FileInputStream(filename);
 
         return inputStreamAsString(inputStream);
     }

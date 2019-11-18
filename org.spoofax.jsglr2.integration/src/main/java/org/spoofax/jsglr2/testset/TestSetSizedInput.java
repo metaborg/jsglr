@@ -18,7 +18,7 @@ public abstract class TestSetSizedInput<ContentType, Input extends TestInput<Con
     public final int[] sizes;
 
     public TestSetSizedInput(InputForSize<ContentType> inputForSize, int... sizes) {
-        super(Type.SIZED);
+        super(Type.SIZED, true);
 
         this.inputForSize = inputForSize;
         this.sizes = sizes;

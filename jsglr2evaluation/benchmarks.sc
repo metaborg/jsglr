@@ -20,16 +20,27 @@ def execBenchmarks(implicit args: Args) = {
 
         mkdir! benchmarksDir
 
-        timed(s"benchmark (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+        def benchmark(resultsPath: Path, sourcePath: Path, cardinality: String) =
             %%(
                 "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
                 "-wi", warmupIterations,
                 "-i", benchmarkIterations,
                 "-f", 1,
-                "-rff", language.benchmarksPath,
+                "-rff", resultsPath,
                 "JSGLR2BenchmarkParsingExternal",
-                "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "\""
+                "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + sourcePath + " " + cardinality + "\""
             )(benchmarksMvnDir)
+
+        timed(s"benchmark [batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+            benchmark(language.benchmarksPath, language.sourcesDir, "multiple")
+        }
+
+        timed(s"benchmark [per file] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+            val files = ls.rec! language.sourcesDir
+
+            files.filterNot(_.toString.startsWith(".")).foreach { file =>
+                benchmark(language.benchmarksPath(file.toString), file, "single")
+            }
         }
     }
 }

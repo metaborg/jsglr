@@ -22,16 +22,26 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
     }
 
     public static TestSet<String, StringInput> fromArgs(String[] args) {
-        if(args.length == 4) {
+        if(args.length == 5) {
             String language = args[0];
             String extension = args[1];
             String parseTablePath = args[2];
-            String sourcesPath = args[3];
+            String sourcePath = args[3];
+            String type = args[4];
 
             TestSetParseTableFromATerm parseTable = new TestSetParseTableFromATerm(parseTablePath, false);
-            TestSetMultipleInputs<StringInput> input = new TestSetMultipleInputs.StringInputSet(sourcesPath, extension);
 
-            return new TestSet<>(language, parseTable, input);
+            TestSetInput<String, StringInput> input;
+
+            if ("multiple".equals(type)) {
+                input = new TestSetMultipleInputs.StringInputSet(sourcePath, extension);
+
+                return new TestSet<>(language, parseTable, input);
+            } else if ("single".equals(type)) {
+                input = new TestSetSingleInput.StringInputSet(sourcePath);
+
+                return new TestSet<>(language, parseTable, input);
+            }
         }
 
         throw new IllegalStateException("invalid arguments");

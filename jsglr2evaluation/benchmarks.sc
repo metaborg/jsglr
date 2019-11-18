@@ -38,8 +38,10 @@ def execBenchmarks(implicit args: Args) = {
         timed(s"benchmark [per file] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
             val files = ls.rec! language.sourcesDir
 
-            files.filterNot(_.toString.startsWith(".")).foreach { file =>
-                benchmark(language.benchmarksPath(file.toString), file, "single")
+            mkdir! (Args.benchmarksDir / language.id)
+
+            files.filterNot(_.last.toString.startsWith(".")).foreach { file =>
+                benchmark(language.benchmarksPath(file.last.toString), file, "single")
             }
         }
     }

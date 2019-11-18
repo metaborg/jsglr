@@ -41,7 +41,7 @@ def processResults(implicit args: Args) = {
             write.append(benchmarksPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + round(score) + "," + row("\"Score Error (99.9%)\""))
             
             val characters = BigDecimal(CSV.parse(language.measurementsDir / "parsing.csv").rows.head("characters"))
-            val normalized = characters / score * 1000
+            val normalized = characters / score // chars / ms == k chars / s
 
             write.append(benchmarksNormalizedPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + round(normalized) + "," + row("\"Score Error (99.9%)\""))
         }

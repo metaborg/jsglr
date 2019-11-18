@@ -33,4 +33,4 @@ benchmarksPlot <- function(inputFile, outputFile, unit) {
 }
 
 benchmarksPlot("results/benchmarks.csv",            "/benchmarks.pdf",            "parse time in ms")
-benchmarksPlot("results/benchmarks-normalized.csv", "/benchmarks-normalized.pdf", "throughput in chars/s")
+benchmarksPlot("results/benchmarks-normalized.csv", "/benchmarks-normalized.pdf", "throughput in k chars/s")

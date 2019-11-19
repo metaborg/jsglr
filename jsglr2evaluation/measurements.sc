@@ -24,7 +24,7 @@ def execMeasurements(implicit args: Args) = {
                     s"extension=${language.extension} " +
                     s"parseTablePath=${language.parseTablePath} " +
                     s"sourcePath=${language.sourcesDir} " +
-                    s"cardinality=multiple" +
+                    s"type=multiple" +
                 "\"",
                 "-DreportPath=" + language.measurementsDir,
                 MAVEN_OPTS="-Xmx8G -Xss64M"

@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 case class Config(languages: Seq[Language])
 
-case class Language(id: String, name: String, extension: String, repo: String, path: String, sources: Seq[Source]) {
+case class Language(id: String, name: String, extension: String, repo: String, antlrBenchmark: Option[String], path: String, sources: Seq[Source]) {
     def repoDir(implicit args: Args) = Args.languagesDir / id
     def dir(implicit args: Args) = repoDir / RelPath(path)
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
@@ -18,6 +18,7 @@ case class Language(id: String, name: String, extension: String, repo: String, p
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
     def benchmarksPath(implicit args: Args) = Args.benchmarksDir / (id + ".csv")
     def benchmarksPath(file: String)(implicit args: Args) = Args.benchmarksDir / id / (file + ".csv")
+    def benchmarksPathANTLR(implicit args: Args) = Args.benchmarksDirANTLR / (id + ".csv")
 }
 
 case class Source(id: String, repo: String)
@@ -30,9 +31,10 @@ case class Args(dir: Path, iterations: Int, reportDir: Path)
 object Args {
 
     implicit def languagesDir(implicit args: Args) = args.dir / 'languages
-    implicit def sourcesDir(implicit args: Args)   = args.dir / 'sources
-    implicit def measurementsDir(implicit args: Args)   = args.dir / 'measurements
-    implicit def benchmarksDir(implicit args: Args)   = args.dir / 'benchmarks
+    implicit def sourcesDir(implicit args: Args) = args.dir / 'sources
+    implicit def measurementsDir(implicit args: Args) = args.dir / 'measurements
+    implicit def benchmarksDir(implicit args: Args) = args.dir / 'benchmarks
+    implicit def benchmarksDirANTLR(implicit args: Args) = args.dir / 'benchmarks / 'antlr
     implicit def resultsDir(implicit args: Args)   = args.dir / 'results
     implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"
     implicit def parsingMeasurementsPath(implicit args: Args)    = resultsDir / "measurements-parsing.csv"

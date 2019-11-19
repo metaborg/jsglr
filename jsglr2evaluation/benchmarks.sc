@@ -19,8 +19,9 @@ def execBenchmarks(implicit args: Args) = {
         val benchmarkIterations = args.iterations
 
         mkdir! benchmarksDir
+        mkdir! benchmarksDirANTLR
 
-        def benchmark(resultsPath: Path, sourcePath: Path, cardinality: String, params: Map[String, String] = Map.empty) =
+        def benchmark(name: String, resultsPath: Path, sourcePath: Path, cardinality: String, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
             %%(
                 Seq(
                     "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
@@ -28,21 +29,46 @@ def execBenchmarks(implicit args: Args) = {
                     "-i", benchmarkIterations.toString,
                     "-f", 1.toString,
                     "-rff", resultsPath.toString,
-                    "JSGLR2BenchmarkParsingExternal",
-                    "-jvmArgs=\"-DtestSet=" +
-                        s"language=${language.id} " +
-                        s"extension=${language.extension} " +
-                        s"parseTablePath=${language.parseTablePath} " +
-                        s"sourcePath=${sourcePath} " +
-                        s"cardinality=${cardinality}" +
-                    "\""
+                    name,
+                    "-jvmArgs=\"-DtestSet=" + testSetArgs.mkString(" ") + "\""
                 ) ++ params.toSeq.flatMap {
                     case (param, value) => Seq("-p", s"$param=$value")
                 }
             )(benchmarksMvnDir)
 
+        def benchmarkJSGLR(resultsPath: Path, sourcePath: Path, cardinality: String, params: Map[String, String] = Map.empty) =
+            benchmark(
+                "JSGLR2BenchmarkParsingExternal",
+                resultsPath,
+                sourcePath,
+                cardinality,
+                Seq(
+                    s"language=${language.id}",
+                    s"extension=${language.extension}",
+                    s"parseTablePath=${language.parseTablePath}",
+                    s"sourcePath=${sourcePath}",
+                    s"type=${cardinality}"
+                ),
+                params
+            )
+
+        def benchmarkANTLR(name: String, resultsPath: Path, sourcePath: Path, cardinality: String) =
+            benchmark(
+                name,
+                resultsPath,
+                sourcePath,
+                cardinality,
+                Seq(
+                    s"language=${language.id}",
+                    s"extension=${language.extension}",
+                    s"sourcePath=${sourcePath}",
+                    s"type=${cardinality}"
+                ),
+                Map.empty
+            )
+
         timed(s"benchmark [batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            benchmark(language.benchmarksPath, language.sourcesDir, "multiple")
+            println(benchmarkJSGLR(language.benchmarksPath, language.sourcesDir, "multiple"))
         }
 
         timed(s"benchmark [per file] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
@@ -51,7 +77,13 @@ def execBenchmarks(implicit args: Args) = {
             mkdir! (Args.benchmarksDir / language.id)
 
             files.filterNot(_.last.toString.startsWith(".")).foreach { file =>
-                benchmark(language.benchmarksPath(file.last.toString), file, "single", Map("variant" -> "standard"))
+                benchmarkJSGLR(language.benchmarksPath(file.last.toString), file, "single", Map("variant" -> "standard"))
+            }
+        }
+
+        language.antlrBenchmark.foreach { antlrBenchmark =>
+            timed(s"benchmark [batch/ANTLR] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                println(benchmarkANTLR(antlrBenchmark, language.benchmarksPathANTLR, language.sourcesDir, "multiple"))
             }
         }
     }

@@ -21,7 +21,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
         Map<String, String> parsedArgs = new HashMap<>();
 
         for(String arg : args) {
-            String[] splitted = arg.split(":");
+            String[] splitted = arg.split("=");
 
             if(splitted.length == 2) {
                 String key = splitted[0];

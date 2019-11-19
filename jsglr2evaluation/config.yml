@@ -3,6 +3,7 @@ languages:
     name: Java
     extension: java
     repo: git@github.com:metaborg/java-front.git
+    antlrBenchmark: ANTLRJava8Benchmark
     path: lang.java
     sources:
       - id: apache-commons-lang

@@ -56,20 +56,22 @@ def withArgs(args: String*)(body: Args => Unit) = {
 }
 
 def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
+    println(s"$name: start @ ${LocalDateTime.now}")
     val t0 = System.currentTimeMillis()
+    
     block
     val t1 = System.currentTimeMillis()
 
     val seconds = (BigDecimal(t1 - t0)) / 1000
 
     val report =
-        s"$name: " +
+        s"$name: finished in " +
         (if (seconds < 60)
-            s"${seconds}s"
+            s"${round(seconds, 1)}s"
         else if (seconds < 3600)
-            s"${seconds / 60}m"
+            s"${round(seconds / 60, 1)}m"
         else
-            s"${seconds / 3600}h")
+            s"${round(seconds / 3600, 1)}h")
 
     println(report)
 
@@ -100,5 +102,5 @@ object CSV {
 
 import scala.math.BigDecimal.RoundingMode
 
-def round(number: BigDecimal): BigDecimal = number.setScale(0, RoundingMode.HALF_UP)
+def round(number: BigDecimal, scale: Int = 0): BigDecimal = number.setScale(scale, RoundingMode.HALF_UP)
 def round(number: String): String = if (number != "NaN") round(BigDecimal(number)).toString else number

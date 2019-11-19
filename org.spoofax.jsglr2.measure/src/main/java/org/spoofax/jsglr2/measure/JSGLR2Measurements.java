@@ -8,6 +8,7 @@ import org.metaborg.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.measure.parsetable.ParseTableMeasurements;
 import org.spoofax.jsglr2.measure.parsing.ParsingMeasurements;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class JSGLR2Measurements {
@@ -23,7 +24,7 @@ public class JSGLR2Measurements {
 
         Config config = getConfig(args);
 
-        for(TestSet<String, StringInput> testSet : config.testSets) {
+        for(TestSetWithParseTable<String, StringInput> testSet : config.testSets) {
             if(config.prefix)
                 System.out.println(testSet.name);
 
@@ -38,7 +39,7 @@ public class JSGLR2Measurements {
         else if(arg.length == 1) {
             String[] args = arg[0].split(" ");
 
-            return new Config(Collections.singleton(TestSet.fromArgs(TestSet.parseArgs(args))), false);
+            return new Config(Collections.singleton(TestSet.fromArgsWithParseTable(TestSet.parseArgs(args))), false);
         }
 
         throw new IllegalStateException("invalid arguments");
@@ -46,10 +47,10 @@ public class JSGLR2Measurements {
 
     public static class Config {
 
-        final Iterable<TestSet<String, StringInput>> testSets;
+        final Iterable<TestSetWithParseTable<String, StringInput>> testSets;
         final boolean prefix;
 
-        Config(Iterable<TestSet<String, StringInput>> testSets, boolean prefix) {
+        Config(Iterable<TestSetWithParseTable<String, StringInput>> testSets, boolean prefix) {
             this.testSets = testSets;
             this.prefix = prefix;
         }

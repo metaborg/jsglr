@@ -7,22 +7,22 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetInput;
-import org.spoofax.jsglr2.testset.TestSetReader;
 import org.spoofax.jsglr2.testset.TestSetSizedInput;
+import org.spoofax.jsglr2.testset.TestSetWithParseTable;
+import org.spoofax.jsglr2.testset.TestSetWithParseTableReader;
 import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-public class MeasureTestSetReader<ContentType, Input extends TestInput<ContentType>>
-    extends TestSetReader<ContentType, Input> {
+public class MeasureTestSetWithParseTableReader<ContentType, Input extends TestInput<ContentType>>
+    extends TestSetWithParseTableReader<ContentType, Input> {
 
-    MeasureTestSetReader(TestSet<ContentType, Input> testSet) {
+    MeasureTestSetWithParseTableReader(TestSetWithParseTable<ContentType, Input> testSet) {
         super(testSet);
     }
 
     @Override protected String basePath() {
         try {
-            URL url = MeasureTestSetReader.class.getProtectionDomain().getCodeSource().getLocation();
+            URL url = MeasureTestSetWithParseTableReader.class.getProtectionDomain().getCodeSource().getLocation();
             String path = url.toURI().getPath();
 
             return new File(path).getParent() + "/classes/";

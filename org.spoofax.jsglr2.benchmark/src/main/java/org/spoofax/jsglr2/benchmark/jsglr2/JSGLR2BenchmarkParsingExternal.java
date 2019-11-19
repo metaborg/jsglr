@@ -5,13 +5,14 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.JSGLR2Variant;
-import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
+import org.spoofax.jsglr2.benchmark.BenchmarkTestSetWithParseTableReader;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, StringInput> {
@@ -19,9 +20,9 @@ public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, Stri
     public JSGLR2BenchmarkParsingExternal() {
         String[] args = System.getProperty("testSet").split(" ");
 
-        TestSet<String, StringInput> testSet = TestSet.fromArgs(TestSet.parseArgs(args));
+        TestSetWithParseTable<String, StringInput> testSet = TestSet.fromArgsWithParseTable(TestSet.parseArgs(args));
 
-        this.testSetReader = new BenchmarkTestSetReader<>(testSet);
+        setTestSetReader(new BenchmarkTestSetWithParseTableReader<>(testSet));
     }
 
     @Param({ "standard", "elkhound", "recovery", "recoveryElkhound", "incremental",

@@ -24,6 +24,7 @@ import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
+import org.spoofax.jsglr2.testset.TestSetWithParseTableReader;
 import org.spoofax.jsglr2.testset.testinput.TestInput;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 import org.spoofax.terms.ParseError;
@@ -31,8 +32,15 @@ import org.spoofax.terms.ParseError;
 public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<ContentType>>
     extends BaseBenchmark<ContentType, Input> {
 
+    private TestSetWithParseTableReader<ContentType, Input> testSetReader;
+
     protected IParser<?> parser; // Just parsing
     protected JSGLR2Implementation<?, ?, ?> jsglr2; // Parsing, imploding, and tokenization
+
+    protected void setTestSetReader(TestSetWithParseTableReader<ContentType, Input> testSetReader) {
+        super.setTestSetReader(testSetReader);
+        this.testSetReader = testSetReader;
+    }
 
     abstract protected IntegrationVariant variant();
 

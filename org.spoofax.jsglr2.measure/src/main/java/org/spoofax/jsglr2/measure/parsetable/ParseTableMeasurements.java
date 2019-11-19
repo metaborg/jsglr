@@ -13,12 +13,12 @@ import org.metaborg.parsetable.actions.IActionsFactory;
 import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.JSGLR2Measurements;
 import org.spoofax.jsglr2.measure.Measurements;
-import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class ParseTableMeasurements extends Measurements {
 
-    public ParseTableMeasurements(TestSet<String, StringInput> testSet) {
+    public ParseTableMeasurements(TestSetWithParseTable<String, StringInput> testSet) {
         super(testSet);
     }
 

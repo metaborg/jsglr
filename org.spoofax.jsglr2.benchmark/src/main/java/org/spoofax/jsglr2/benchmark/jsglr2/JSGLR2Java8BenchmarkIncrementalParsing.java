@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import org.openjdk.jmh.annotations.Param;
-import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
+import org.spoofax.jsglr2.benchmark.BenchmarkTestSetWithParseTableReader;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public class JSGLR2Java8BenchmarkIncrementalParsing extends JSGLR2BenchmarkIncrementalParsing {
@@ -10,7 +10,7 @@ public class JSGLR2Java8BenchmarkIncrementalParsing extends JSGLR2BenchmarkIncre
         "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29" }) public int i;
 
     public JSGLR2Java8BenchmarkIncrementalParsing() {
-        this.testSetReader = new BenchmarkTestSetReader<>(TestSet.java8Incremental);
+        setTestSetReader(new BenchmarkTestSetWithParseTableReader<>(TestSet.java8Incremental));
     }
 
 }

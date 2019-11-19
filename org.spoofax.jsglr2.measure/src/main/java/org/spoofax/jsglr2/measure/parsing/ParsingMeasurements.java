@@ -12,7 +12,7 @@ import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.JSGLR2Measurements;
-import org.spoofax.jsglr2.measure.MeasureTestSetReader;
+import org.spoofax.jsglr2.measure.MeasureTestSetWithParseTableReader;
 import org.spoofax.jsglr2.measure.Measurements;
 import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -23,12 +23,12 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class ParsingMeasurements extends Measurements {
 
-    public ParsingMeasurements(TestSet<String, StringInput> testSet) {
+    public ParsingMeasurements(TestSetWithParseTable<String, StringInput> testSet) {
         super(testSet);
     }
 
@@ -106,7 +106,7 @@ public class ParsingMeasurements extends Measurements {
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    Map<ParsingMeasurement, String> toOutput(String name, MeasureTestSetReader.InputBatch inputBatch,
+    Map<ParsingMeasurement, String> toOutput(String name, MeasureTestSetWithParseTableReader.InputBatch inputBatch,
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver) {

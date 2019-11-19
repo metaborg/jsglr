@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import org.openjdk.jmh.annotations.Param;
-import org.spoofax.jsglr2.benchmark.BenchmarkTestSetReader;
+import org.spoofax.jsglr2.benchmark.BenchmarkTestSetWithParseTableReader;
 import org.spoofax.jsglr2.testset.TestSet;
 
 public class JSGLR2SumNonAmbiguousBenchmarkIncrementalParsing extends JSGLR2BenchmarkIncrementalParsing {
@@ -10,7 +10,7 @@ public class JSGLR2SumNonAmbiguousBenchmarkIncrementalParsing extends JSGLR2Benc
     @Param({ "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }) public int i;
 
     public JSGLR2SumNonAmbiguousBenchmarkIncrementalParsing() {
-        this.testSetReader = new BenchmarkTestSetReader<>(TestSet.sumNonAmbiguousIncremental);
+        setTestSetReader(new BenchmarkTestSetWithParseTableReader<>(TestSet.sumNonAmbiguousIncremental));
     }
 
 }

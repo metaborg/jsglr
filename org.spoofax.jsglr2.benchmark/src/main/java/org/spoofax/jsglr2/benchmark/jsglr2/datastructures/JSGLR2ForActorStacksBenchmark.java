@@ -17,8 +17,6 @@ import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksArrayDeque;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.testset.TestSet;
-import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public abstract class JSGLR2ForActorStacksBenchmark extends JSGLR2DataStructureBenchmark {
 

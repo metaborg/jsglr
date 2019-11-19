@@ -1,8 +1,6 @@
 package org.spoofax.jsglr2.testset;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
@@ -21,27 +19,34 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
         this.input = input;
     }
 
-    public static TestSet<String, StringInput> fromArgs(String[] args) {
-        if(args.length == 5) {
-            String language = args[0];
-            String extension = args[1];
-            String parseTablePath = args[2];
-            String sourcePath = args[3];
-            String type = args[4];
+    public static Map<String, String> parseArgs(String[] args) {
+        Map<String, String> parsedArgs = new HashMap<>();
 
+        for(String arg : args) {
+            String[] splitted = arg.split("=");
+
+            if(splitted.length == 2) {
+                String key = splitted[0];
+                String value = splitted[1];
+
+                parsedArgs.put(key, value);
+            } else
+                throw new IllegalArgumentException("invalid argument: " + arg);
+        }
+
+        return parsedArgs;
+    }
+
+    public static TestSet<String, StringInput> fromArgs(Map<String, String> args) {
+        String language = args.get("language");
+        String parseTablePath = args.get("parseTablePath");
+
+        if(language != null & parseTablePath != null) {
             TestSetParseTableFromATerm parseTable = new TestSetParseTableFromATerm(parseTablePath, false);
 
-            TestSetInput<String, StringInput> input;
+            TestSetInput<String, StringInput> input = TestSetInput.fromArgs(args);
 
-            if ("multiple".equals(type)) {
-                input = new TestSetMultipleInputs.StringInputSet(sourcePath, extension);
-
-                return new TestSet<>(language, parseTable, input);
-            } else if ("single".equals(type)) {
-                input = new TestSetSingleInput.StringInputSet(sourcePath, false);
-
-                return new TestSet<>(language, parseTable, input);
-            }
+            return new TestSet<>(language, parseTable, input);
         }
 
         throw new IllegalStateException("invalid arguments");

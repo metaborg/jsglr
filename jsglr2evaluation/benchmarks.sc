@@ -29,7 +29,13 @@ def execBenchmarks(implicit args: Args) = {
                     "-f", 1.toString,
                     "-rff", resultsPath.toString,
                     "JSGLR2BenchmarkParsingExternal",
-                    "-jvmArgs=\"-Dlanguage=" + language.id + " " + language.extension + " " + language.parseTablePath + " " + sourcePath + " " + cardinality + "\""
+                    "-jvmArgs=\"-DtestSet=" +
+                        s"language=${language.id} " +
+                        s"extension=${language.extension} " +
+                        s"parseTablePath=${language.parseTablePath} " +
+                        s"sourcePath=${sourcePath} " +
+                        s"cardinality=${cardinality}" +
+                    "\""
                 ) ++ params.toSeq.flatMap {
                     case (param, value) => Seq("-p", s"$param=$value")
                 }

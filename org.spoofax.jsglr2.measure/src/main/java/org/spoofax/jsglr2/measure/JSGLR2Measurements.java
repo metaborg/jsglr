@@ -38,7 +38,7 @@ public class JSGLR2Measurements {
         else if(arg.length == 1) {
             String[] args = arg[0].split(" ");
 
-            return new Config(Collections.singleton(TestSet.fromArgs(args)), false);
+            return new Config(Collections.singleton(TestSet.fromArgs(TestSet.parseArgs(args))), false);
         }
 
         throw new IllegalStateException("invalid arguments");

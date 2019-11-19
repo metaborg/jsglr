@@ -4,8 +4,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.jsglr2.testset.testinput.TestInput;
 
 public abstract class TestSetInput<ContentType, Input extends TestInput<ContentType>> {
@@ -20,6 +22,20 @@ public abstract class TestSetInput<ContentType, Input extends TestInput<ContentT
     public final Type type;
 
     public final boolean internal;
+
+    public static TestSetInput<String, StringInput> fromArgs(Map<String, String> args) {
+        String type = args.get("type");
+        String sourcePath = args.get("sourcePath");
+        String extension = args.get("extension");
+
+        if("multiple".equals(type) && sourcePath != null && extension != null) {
+            return new TestSetMultipleInputs.StringInputSet(sourcePath, extension);
+        } else if("single".equals(type) && sourcePath != null) {
+            return new TestSetSingleInput.StringInputSet(sourcePath, false);
+        }
+
+        throw new IllegalStateException("invalid arguments");
+    }
 
     protected abstract Input getInput(String filename, ContentType input);
 

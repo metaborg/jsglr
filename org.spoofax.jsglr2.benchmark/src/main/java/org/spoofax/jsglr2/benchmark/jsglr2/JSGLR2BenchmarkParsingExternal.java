@@ -17,9 +17,9 @@ import org.spoofax.jsglr2.testset.testinput.StringInput;
 public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, StringInput> {
 
     public JSGLR2BenchmarkParsingExternal() {
-        String[] args = System.getProperty("language").split(" ");
+        String[] args = System.getProperty("testSet").split(" ");
 
-        TestSet<String, StringInput> testSet = TestSet.fromArgs(args);
+        TestSet<String, StringInput> testSet = TestSet.fromArgs(TestSet.parseArgs(args));
 
         this.testSetReader = new BenchmarkTestSetReader<>(testSet);
     }

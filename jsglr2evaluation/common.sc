@@ -58,8 +58,16 @@ def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
     block
     val t1 = System.currentTimeMillis()
 
-    val time = (BigDecimal(t1 - t0)) / 1000
-    val report = s"$name: ${time}s"
+    val seconds = (BigDecimal(t1 - t0)) / 1000
+
+    val report =
+        s"$name: " +
+        (if (seconds < 60)
+            s"${seconds}s"
+        else if (seconds < 3600)
+            s"${seconds / 60}m"
+        else
+            s"${seconds / 3600}h")
 
     println(report)
 

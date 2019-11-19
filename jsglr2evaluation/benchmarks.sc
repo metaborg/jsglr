@@ -71,6 +71,12 @@ def execBenchmarks(implicit args: Args) = {
             println(benchmarkJSGLR(language.benchmarksPath, language.sourcesDir, "multiple"))
         }
 
+        language.antlrBenchmark.foreach { antlrBenchmark =>
+            timed(s"benchmark [batch/ANTLR] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                println(benchmarkANTLR(antlrBenchmark, language.benchmarksPathANTLR, language.sourcesDir, "multiple"))
+            }
+        }
+
         timed(s"benchmark [per file] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
             val files = ls.rec! language.sourcesDir
 
@@ -78,12 +84,6 @@ def execBenchmarks(implicit args: Args) = {
 
             files.filterNot(_.last.toString.startsWith(".")).foreach { file =>
                 benchmarkJSGLR(language.benchmarksPath(file.last.toString), file, "single", Map("variant" -> "standard"))
-            }
-        }
-
-        language.antlrBenchmark.foreach { antlrBenchmark =>
-            timed(s"benchmark [batch/ANTLR] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-                println(benchmarkANTLR(antlrBenchmark, language.benchmarksPathANTLR, language.sourcesDir, "multiple"))
             }
         }
     }

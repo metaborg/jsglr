@@ -16,7 +16,7 @@ def execMeasurements(implicit args: Args) = {
         val measurementsMvnDir = (pwd / up / "org.spoofax.jsglr2.measure")
 
         timed("measure " + language.id) {
-            %%("mvn", "exec:java", "-Dexec.args=\"" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + "\"", "-DreportPath=" + language.measurementsDir, MAVEN_OPTS="-Xmx8G -Xss64M")(measurementsMvnDir)
+            %%("mvn", "exec:java", "-Dexec.args=\"" + language.id + " " + language.extension + " " + language.parseTablePath + " " + language.sourcesDir + " multiple\"", "-DreportPath=" + language.measurementsDir, MAVEN_OPTS="-Xmx8G -Xss64M")(measurementsMvnDir)
         }
     }
 }

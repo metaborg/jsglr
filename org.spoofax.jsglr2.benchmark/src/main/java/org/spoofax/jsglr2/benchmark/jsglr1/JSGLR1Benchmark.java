@@ -11,6 +11,7 @@ import org.spoofax.jsglr.client.SGLR;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
+import org.spoofax.jsglr2.testset.TestSetReader;
 import org.spoofax.jsglr2.testset.TestSetWithParseTableReader;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.terms.ParseError;
@@ -23,6 +24,11 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark<String, StringInput>
     protected SGLR jsglr1parseAndImplode;
 
     @Param({ "false", "true" }) public boolean implode;
+
+    protected void setTestSetReader(TestSetWithParseTableReader<String, StringInput> testSetReader) {
+        super.setTestSetReader(testSetReader);
+        this.testSetReader = testSetReader;
+    }
 
     @Setup public void prepare() throws ParseError, InvalidParseTableException {
         jsglr1parseAndImplode = getJSGLR1();

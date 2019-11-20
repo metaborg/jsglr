@@ -34,6 +34,8 @@ def preprocess(implicit args: Args) = {
                     mkdir! sourcesDir / "invalid"
                     mv.over(file, sourcesDir / "invalid" / filename)
                 }
+
+                // TODO: if language has ANTLR grammar, also validate with ANTLR
             }
         }
     }

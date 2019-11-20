@@ -25,8 +25,7 @@ public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, Stri
         setTestSetReader(new BenchmarkTestSetWithParseTableReader<>(testSet));
     }
 
-    @Param({ "standard", "elkhound", "recovery", "recoveryElkhound", "incremental",
-        "recoveryIncremental" }) JSGLR2Variant.Preset jsglr2Variant;
+    @Param({ "standard", "recovery", "incremental", "recoveryIncremental" }) JSGLR2Variant.Preset jsglr2Variant;
 
     @Override protected IntegrationVariant variant() {
         return new IntegrationVariant(new ParseTableVariant(), jsglr2Variant.variant);

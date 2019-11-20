@@ -91,7 +91,7 @@ def execBenchmarks(implicit args: Args) = {
             for (i <- 0 until samples) {
                 val file = files(i * step)
 
-                benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("variant" -> "standard"))
+                benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("implode" -> "true", "variant" -> "standard"))
             }
         }
     }

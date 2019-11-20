@@ -15,9 +15,9 @@ import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
-public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, StringInput> {
+public class JSGLR2BenchmarkExternal extends JSGLR2Benchmark<String, StringInput> {
 
-    public JSGLR2BenchmarkParsingExternal() {
+    public JSGLR2BenchmarkExternal() {
         String[] args = System.getProperty("testSet").split(" ");
 
         TestSetWithParseTable<String, StringInput> testSet = TestSet.fromArgsWithParseTable(TestSet.parseArgs(args));
@@ -27,12 +27,14 @@ public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, Stri
 
     @Param({ "standard", "recovery", "incremental", "recoveryIncremental" }) JSGLR2Variant.Preset jsglr2Variant;
 
+    @Param({ "false", "true" }) public boolean implode;
+
     @Override protected IntegrationVariant variant() {
         return new IntegrationVariant(new ParseTableVariant(), jsglr2Variant.variant);
     }
 
     @Override protected boolean implode() {
-        return false;
+        return implode;
     }
 
     @Setup(Level.Invocation) public void clearCache() {
@@ -45,7 +47,10 @@ public class JSGLR2BenchmarkParsingExternal extends JSGLR2Benchmark<String, Stri
     }
 
     @Override protected Object action(Blackhole bh, StringInput input) throws ParseException {
-        return jsglr2.parser.parseUnsafe(input.content, input.filename, null);
+        if(implode)
+            return jsglr2.parseUnsafe(input.content, input.filename, null);
+        else
+            return jsglr2.parser.parseUnsafe(input.content, input.filename, null);
     }
 
 }

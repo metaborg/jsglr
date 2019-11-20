@@ -38,7 +38,7 @@ def execBenchmarks(implicit args: Args) = {
 
         def benchmarkJSGLR(resultsPath: Path, sourcePath: Path, cardinality: String, params: Map[String, String] = Map.empty) =
             benchmark(
-                "JSGLR2BenchmarkParsingExternal",
+                "JSGLR2BenchmarkExternal",
                 resultsPath,
                 sourcePath,
                 cardinality,
@@ -68,7 +68,7 @@ def execBenchmarks(implicit args: Args) = {
             )
 
         timed(s"benchmark [batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            println(benchmarkJSGLR(language.benchmarksPath, language.sourcesDir, "multiple"))
+            println(benchmarkJSGLR(language.benchmarksPath, language.sourcesDir, "multiple"), Map("implode" -> "true"))
         }
 
         language.antlrBenchmark.foreach { antlrBenchmark =>

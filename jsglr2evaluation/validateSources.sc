@@ -23,7 +23,7 @@ def validateSources(implicit args: Args) = {
         val jsglr2 = getJSGLR2(variant, language.parseTablePath)
 
         timed("validate " + language.id) {
-            files.foreach { file =>
+            files.filterNot(_.last.toString.startsWith(".")).foreach { file =>
                 val ast = jsglr2.parse(read! file)
 
                 if (ast == null) {

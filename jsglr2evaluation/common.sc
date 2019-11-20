@@ -16,9 +16,7 @@ case class Language(id: String, name: String, extension: String, repo: String, a
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
     def parseTablePath(implicit args: Args) = dir / "target" / "metaborg" / "sdf.tbl"
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
-    def benchmarksPath(implicit args: Args) = Args.benchmarksDir / (id + ".csv")
-    def benchmarksPath(file: String)(implicit args: Args) = Args.benchmarksDir / id / (file + ".csv")
-    def benchmarksPathANTLR(implicit args: Args) = Args.benchmarksDirANTLR / (id + ".csv")
+    def benchmarksDir(implicit args: Args) = Args.benchmarksDir / id
 }
 
 case class Source(id: String, repo: String)
@@ -30,14 +28,15 @@ case class Args(dir: Path, iterations: Int, reportDir: Path)
 
 object Args {
 
-    implicit def languagesDir(implicit args: Args) = args.dir / 'languages
-    implicit def sourcesDir(implicit args: Args) = args.dir / 'sources
+    implicit def languagesDir(implicit args: Args)    = args.dir / 'languages
+    implicit def sourcesDir(implicit args: Args)      = args.dir / 'sources
     implicit def measurementsDir(implicit args: Args) = args.dir / 'measurements
-    implicit def benchmarksDir(implicit args: Args) = args.dir / 'benchmarks
-    implicit def benchmarksDirANTLR(implicit args: Args) = args.dir / 'benchmarks / 'antlr
-    implicit def resultsDir(implicit args: Args)   = args.dir / 'results
+    implicit def benchmarksDir(implicit args: Args)   = args.dir / 'benchmarks
+    implicit def resultsDir(implicit args: Args)      = args.dir / 'results
+    
     implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"
     implicit def parsingMeasurementsPath(implicit args: Args)    = resultsDir / "measurements-parsing.csv"
+
     implicit def batchBenchmarksPath(implicit args: Args)             = resultsDir / "benchmarks-batch.csv"
     implicit def batchBenchmarksNormalizedPath(implicit args: Args)   = resultsDir / "benchmarks-batch-normalized.csv"
     implicit def perFileBenchmarksPath(implicit args: Args)           = resultsDir / "benchmarks-perFile.csv"

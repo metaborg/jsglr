@@ -18,11 +18,10 @@ def execBenchmarks(implicit args: Args) = {
         val warmupIterations = args.iterations
         val benchmarkIterations = args.iterations
 
-        mkdir! benchmarksDir
-        mkdir! benchmarksDirANTLR
+        mkdir! language.benchmarksDir
 
         def benchmark(name: String, resultsPath: Path, sourcePath: Path, cardinality: String, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
-            %%(
+            println(%%(
                 Seq(
                     "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
                     "-wi", warmupIterations.toString,
@@ -34,11 +33,11 @@ def execBenchmarks(implicit args: Args) = {
                 ) ++ params.toSeq.flatMap {
                     case (param, value) => Seq("-p", s"$param=$value")
                 }
-            )(benchmarksMvnDir)
+            )(benchmarksMvnDir))
 
-        def benchmarkJSGLR(resultsPath: Path, sourcePath: Path, cardinality: String, params: Map[String, String] = Map.empty) =
+        def benchmarkJSGLR(name: String, resultsPath: Path, sourcePath: Path, cardinality: String, params: Map[String, String] = Map.empty) =
             benchmark(
-                "JSGLR2BenchmarkExternal",
+                name,
                 resultsPath,
                 sourcePath,
                 cardinality,
@@ -67,23 +66,32 @@ def execBenchmarks(implicit args: Args) = {
                 Map.empty
             )
 
-        timed(s"benchmark [batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            println(benchmarkJSGLR(language.benchmarksPath, language.sourcesDir, "multiple"), Map("implode" -> "true"))
+        timed(s"benchmark [JSGLR2/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+            benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "jsglr2.csv", language.sourcesDir, "multiple", Map("implode" -> "true"))
+        }
+
+        timed(s"benchmark [JSGLR1/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+            benchmarkJSGLR("JSGLR1BenchmarkExternal", language.benchmarksDir / "jsglr1.csv", language.sourcesDir, "multiple", Map("implode" -> "true"))
         }
 
         language.antlrBenchmark.foreach { antlrBenchmark =>
-            timed(s"benchmark [batch/ANTLR] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-                println(benchmarkANTLR(antlrBenchmark, language.benchmarksPathANTLR, language.sourcesDir, "multiple"))
+            timed(s"benchmark [ANTLR/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                benchmarkANTLR(antlrBenchmark, language.benchmarksDir / "antlr.csv", language.sourcesDir, "multiple")
             }
         }
 
-        timed(s"benchmark [per file] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            val files = ls.rec! language.sourcesDir
+        timed(s"benchmark [JSGLR2/perFile] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+            val files = ls.rec! language.sourcesDir sortBy(-_.size)
+            val fileCount = files.size
+            val samples = 10
+            val step = fileCount / samples
 
-            mkdir! (Args.benchmarksDir / language.id)
+            mkdir! (language.benchmarksDir / "perFile")
 
-            files.filterNot(_.last.toString.startsWith(".")).foreach { file =>
-                benchmarkJSGLR(language.benchmarksPath(file.last.toString), file, "single", Map("variant" -> "standard"))
+            for (i <- 0 until samples) {
+                val file = files(i * step)
+
+                benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("variant" -> "standard"))
             }
         }
     }

@@ -87,7 +87,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         if(production == null)
             printer.println("p null {");
         else
-            printer.println("p" + production.id() + " : " + production.sort() + "{ (s" + state.id() + ")");
+            printer.println("p" + production.id() + " : " + production.sort() + " { (s" + state.id() + ")");
         if(isAmbiguous()) {
             printer.indent(1);
             printer.println("amb[");

@@ -38,7 +38,7 @@ public class EagerIncrementalInputStack extends AbstractInputStack implements II
         return clone;
     }
 
-    @Override public void leftBreakdown() {
+    @Override public void breakDown() {
         if(stack.isEmpty())
             return;
         IncrementalParseForest current = stack.peek();

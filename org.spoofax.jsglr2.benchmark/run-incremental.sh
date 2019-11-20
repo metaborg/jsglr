@@ -19,7 +19,7 @@ mkdir -p tmp
 for benchmark in \
     "JSGLR2Java8GitBenchmarkIncrementalParsing.benchmark" \
 ; do
-    java ${jargs} -rff ${benchmark}-${timestamp}.csv ${benchmark} |& tee tmp/${benchmark}-${timestamp}.log
+    java "$jargs" -rff "tmp/$benchmark-$timestamp.csv" ${benchmark} |& tee "tmp/$benchmark-$timestamp.log"
 done
 
 true || \

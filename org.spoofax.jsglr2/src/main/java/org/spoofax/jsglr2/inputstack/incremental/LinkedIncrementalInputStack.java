@@ -32,7 +32,7 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
         return clone;
     }
 
-    @Override public void leftBreakdown() {
+    @Override public void breakDown() {
         if(head == null)
             return;
         IncrementalParseForest current = head.node;

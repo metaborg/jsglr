@@ -7,11 +7,8 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.NullTreeBuilder;
-import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
 import org.spoofax.jsglr2.testset.TestSetWithParseTableReader;
@@ -38,8 +35,7 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark<String, StringInput>
         return testSetReader.getParseTableTerm();
     }
 
-    @Benchmark public void jsglr1default(Blackhole bh)
-        throws TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
+    @Benchmark public void jsglr1default(Blackhole bh) throws SGLRException, InterruptedException {
         if(implode) {
             for(StringInput input : inputs)
                 bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));

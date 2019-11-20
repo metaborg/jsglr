@@ -42,14 +42,26 @@ def processResults(implicit args: Args) = {
         // Benchmarks (batch)
 
         val batchBenchmarkCSV = CSV.parse(language.benchmarksPath)
+        val characters = BigDecimal(CSV.parse(language.measurementsDir / "parsing.csv").rows.head("characters"))
 
         batchBenchmarkCSV.rows.foreach { row =>
             val score = BigDecimal(row("\"Score\""))
-            val characters = BigDecimal(CSV.parse(language.measurementsDir / "parsing.csv").rows.head("characters"))
             val normalized = characters / score // chars / ms == k chars / s
 
             write.append(batchBenchmarksPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + round(score) + "," + row("\"Score Error (99.9%)\""))
             write.append(batchBenchmarksNormalizedPath, "\n" + language.id + "," + row("\"Param: jsglr2Variant\"") + "," + round(normalized) + "," + row("\"Score Error (99.9%)\""))
+        }
+
+        language.antlrBenchmark.foreach { antlrBenchmark =>
+            val batchBenchmarkANTLRCSV = CSV.parse(language.benchmarksPathANTLR)
+
+            batchBenchmarkANTLRCSV.rows.foreach { row =>
+                val score = BigDecimal(row("\"Score\""))
+                val normalized = characters / score // chars / ms == k chars / s
+
+                write.append(batchBenchmarksPath, "\n" + language.id + ",antlr," + round(score) + "," + row("\"Score Error (99.9%)\""))
+                write.append(batchBenchmarksNormalizedPath, "\n" + language.id + ",antlr," + round(normalized) + "," + row("\"Score Error (99.9%)\""))
+            }
         }
 
         // Benchmarks (per file)

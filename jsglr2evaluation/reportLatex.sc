@@ -77,13 +77,14 @@ def latexTableBenchmarks(benchmarksCSV: CSV)(implicit args: Args) = {
         s.append(variant)
 
         config.languages.foreach { language =>
-            val row = benchmarksCSV.rows.find { row =>
-                row("language") == language.id &&
-                row("variant") == variant
-            }.get
-
-            val score = round(row("score"))
-            val error = round(row("error"))
+            val (score, error) =
+                benchmarksCSV.rows.find { row =>
+                    row("language") == language.id &&
+                    row("variant") == variant
+                } match {
+                    case Some(row) => (round(row("score")), round(row("error")))
+                    case None      => ("", "")
+                }
 
             s.append(" & " + score + " (" + error + ")");
         }

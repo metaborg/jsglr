@@ -29,10 +29,10 @@ public abstract class AbstractRecoveryParseState
 
     @Override public void nextParseRound(ParserObserving observing) {
         super.nextParseRound(observing);
-
-        // Record backtrack choice points per line. If in recovery mode, only record new choice points when parsing
-        // after the point that initiated recovery.
         int currentOffset = inputStack.offset();
+
+        // Record backtrack choice points per line.
+        // If in recovery mode, only record new choice points when parsing after the point that initiated recovery.
         if((currentOffset == 0 || CharacterClassFactory.isNewLine(inputStack.getChar(currentOffset - 1)))
             && (!isRecovering() || lastBacktrackChoicePoint().offset() < currentOffset)) {
             IBacktrackChoicePoint<?, StackNode> choicePoint = saveBacktrackChoicePoint();

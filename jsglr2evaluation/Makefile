@@ -10,8 +10,8 @@ languages:
 sources:
 	amm setupSources.sc $(DIR)
 
-validate:
-	JAVA_OPTS="-Xmx8G" amm validateSources.sc $(DIR)
+preprocess:
+	JAVA_OPTS="-Xmx8G" amm preprocess.sc $(DIR)
 
 measurements: buildMeasurements execMeasurements
 

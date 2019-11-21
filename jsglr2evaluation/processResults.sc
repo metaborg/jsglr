@@ -66,7 +66,7 @@ def processResults(implicit args: Args) = {
 
         // Benchmarks (per file)
 
-        language.sourceFilesPerFileBenchmark.map { file =>
+        language.sourceFilesPerFileBenchmark.foreach { file =>
             val characters = (read! file).length
             val normalizePerFile: BigDecimal => BigDecimal = score => characters / score
 

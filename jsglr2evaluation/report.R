@@ -10,7 +10,7 @@ if (length(args) != 2) {
 
 setwd(dir)
 
-batchBenchmarksPlot <- function(inputFile, outputFile, unit) {
+batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   data                       <- read.csv(file=inputFile, header=TRUE, sep=",")
   variants                   <- unique(data$variant)
   scorePerLanguageAndVariant <- as.table(xtabs(score~variant+language, data))
@@ -22,7 +22,7 @@ batchBenchmarksPlot <- function(inputFile, outputFile, unit) {
   pdf(file=paste(reportDir, outputFile, sep=""))
 
   barplot(scorePerLanguageAndVariant,
-          main="Parsing speed",
+          main=paste("Parsing", quantity),
           xlab="Language",
           ylab=unit,
           col=rainbow(length(variants)),
@@ -32,7 +32,7 @@ batchBenchmarksPlot <- function(inputFile, outputFile, unit) {
   dev.off()
 }
 
-perFileBenchmarksPlot <- function(inputFile, outputFile, unit) {
+perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   data <- read.csv(file=inputFile, header=TRUE, sep=",")
   data <- data[data$variant == "standard",]
   
@@ -42,15 +42,15 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, unit) {
   
   plot(data$score,
        data$size,
-       main="Parsing speed vs. file size",
+       main=paste("Parsing", quantity, "vs. file size"),
        xlab="File size (# characters)",
        ylab=unit)
   
   dev.off()
 }
 
-batchBenchmarksPlot("results/benchmarks-batch.csv",            "/benchmarks-batch.pdf",            "parse time in ms")
-batchBenchmarksPlot("results/benchmarks-batch-normalized.csv", "/benchmarks-batch-normalized.pdf", "throughput in k chars/s")
+batchBenchmarksPlot("results/benchmarks-batch.csv",            "/benchmarks-batch.pdf",            "time",       "ms")
+batchBenchmarksPlot("results/benchmarks-batch-normalized.csv", "/benchmarks-batch-normalized.pdf", "throughput", "1000 chars/s")
 
-perFileBenchmarksPlot("results/benchmarks-perFile.csv",            "/benchmarks-perFile.pdf",            "parse time in ms")
-perFileBenchmarksPlot("results/benchmarks-perFile-normalized.csv", "/benchmarks-perFile-normalized.pdf", "throughput in k chars/s")
+perFileBenchmarksPlot("results/benchmarks-perFile.csv",            "/benchmarks-perFile.pdf",            "time",       "ms")
+perFileBenchmarksPlot("results/benchmarks-perFile-normalized.csv", "/benchmarks-perFile-normalized.pdf", "throughput", "1000 chars/s")

@@ -18,8 +18,9 @@ case class Language(id: String, name: String, extension: String, repo: String, a
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
     def benchmarksDir(implicit args: Args) = Args.benchmarksDir / id
     
-    def sourcesPerFileBenchmark(implicit args: Args): Seq[Path] = {
-        val files = ls.rec! sourcesDir sortBy(-_.size)
+    def sourceFiles(implicit args: Args) = ls! sourcesDir |? (_.ext == extension)
+    def sourceFilesPerFileBenchmark(implicit args: Args): Seq[Path] = {
+        val files = sourceFiles sortBy(-_.size)
         val trimPercentage: Float = 10F
         val filesTrimmed = files.slice(
             ((trimPercentage / 100F) * files.size).toInt,

@@ -79,7 +79,7 @@ def processResults(implicit args: Args) = {
 
         // Benchmarks (per file)
 
-        language.sourcesPerFileBenchmark.map { file =>
+        language.sourceFilesPerFileBenchmark.map { file =>
             val perFileBenchmarkJSGLR2CSV = CSV.parse(language.benchmarksDir / "perFile" / s"${file.last.toString}.csv")
 
             perFileBenchmarkJSGLR2CSV.rows.foreach { row =>

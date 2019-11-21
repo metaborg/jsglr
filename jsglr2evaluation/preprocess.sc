@@ -13,8 +13,6 @@ def preprocess(implicit args: Args) = {
     config.languages.foreach { language =>
         println(" " + language.name)
 
-        val files = ls.rec! language.sourcesDir
-
         val variant = new IntegrationVariant(
             new ParseTableVariant(),
             JSGLR2Variant.Preset.standard.variant
@@ -23,7 +21,7 @@ def preprocess(implicit args: Args) = {
         val jsglr2 = getJSGLR2(variant, language.parseTablePath)
 
         timed("validate " + language.id) {
-            files.filterNot(_.last.toString.startsWith(".")).foreach { file =>
+            language.sourceFiles.foreach { file =>
                 val ast = jsglr2.parse(read! file)
 
                 if (ast == null) {

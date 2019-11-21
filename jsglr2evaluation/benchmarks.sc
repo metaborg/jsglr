@@ -83,7 +83,7 @@ def execBenchmarks(implicit args: Args) = {
         timed(s"benchmark [JSGLR2/perFile] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
             mkdir! (language.benchmarksDir / "perFile")
 
-            language.sourcesPerFileBenchmark.map { file =>
+            language.sourceFilesPerFileBenchmark.map { file =>
                 benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("implode" -> "true", "variant" -> "standard"))
             }
         }

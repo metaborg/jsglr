@@ -61,10 +61,10 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   
   pdf(file=paste(reportDir, outputFile, sep=""))
   
-  plot(data$size,
+  plot(data$size / 1000,
        data$score,
        main=paste("Parsing", quantity, "vs. file size"),
-       xlab="File size (# characters)",
+       xlab="File size (1000 characters)",
        ylab=unit)
   
   dev.off()

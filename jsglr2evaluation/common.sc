@@ -80,13 +80,23 @@ object Args {
 }
 
 def withArgs(args: String*)(body: Args => Unit) = {
-    val (dir, iterations, reportDir) = args match {
-        case Seq(dir) => (Path(dir, root), 0, None)
-        case Seq(dir, iterations) => (Path(dir, root), iterations.toInt, None)
-        case Seq(dir, iterations, reportDir) => (Path(dir, root), iterations.toInt, Some(Path(reportDir, root)))
-    }
+    val argsMapped = args.toSeq.map { arg =>
+        arg.split("=") match {
+            case Array(key, value) => key -> value
+        }
+    }.toMap
 
-    body(Args(dir, iterations, reportDir.getOrElse(dir / "reports")))
+    def getPath(path: String) =
+        if (path.startsWith("~"))
+            Path(System.getProperty("user.home") + path.substring(1))
+        else
+            root / RelPath(path)
+
+    val dir        = argsMapped.get("dir").map(getPath).get
+    val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(0)
+    val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")
+
+    body(Args(dir, iterations, reportDir))
 }
 
 def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {

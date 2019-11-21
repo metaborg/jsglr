@@ -73,6 +73,12 @@ def processResults(implicit args: Args) = {
             processBenchmarkCSV(CSV.parse(language.benchmarksDir / "perFile" / s"${file.last.toString}.csv"), row => row("\"Param: variant\""), perFileBenchmarksPath, perFileBenchmarksNormalizedPath, normalizePerFile, "," + characters)
         }
     }
+
+    // Add proper file ending
+    write.append(batchBenchmarksPath,             "\n")
+    write.append(batchBenchmarksNormalizedPath,   "\n")
+    write.append(perFileBenchmarksPath,           "\n")
+    write.append(perFileBenchmarksNormalizedPath, "\n")
 }
 
 @main

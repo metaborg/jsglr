@@ -31,7 +31,7 @@ execBenchmarks:
 	amm benchmarks.sc dir=$(DIR) iterations=$(ITERATIONS) samples=$(SAMPLES)
 
 processResults:
-	amm processResults.sc dir=$(DIR)
+	amm processResults.sc dir=$(DIR) samples=$(SAMPLES)
 
 reportLatex:
 	amm reportLatex.sc dir=$(DIR) iterations=$(ITERATIONS) reportDir=$(REPORTDIR)

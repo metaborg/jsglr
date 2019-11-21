@@ -10,11 +10,12 @@ if (length(args) != 2) {
 
 setwd(dir)
 
-colors <- c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e") # Colorblind safe: http://colorbrewer2.org/#type=diverging&scheme=BrBG&n=6
+colors <- c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e") # Color per parser variant, colorblind safe: http://colorbrewer2.org/#type=diverging&scheme=BrBG&n=6
+symbols <- c(1,2,3,4,5) # Color per language
 
 batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, getHighs) {
-  data                       <- read.csv(file=inputFile, header=TRUE, sep=",")
-  variants                   <- unique(data$variant)
+  data     <- read.csv(file=inputFile, header=TRUE, sep=",")
+  variants <- unique(data$variant)
   
   scores <- tapply(data$score,      list(data$variant, data$language), function(x) c(x = x))
   lows   <- tapply(getLows(data),   list(data$variant, data$language), function(x) c(x = x))
@@ -56,6 +57,7 @@ batchThroughputBenchmarksPlot <- function(inputFile, outputFile, quantity, unit)
 perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   data <- read.csv(file=inputFile, header=TRUE, sep=",")
   data <- data[data$variant == "standard",]
+  languages <- unique(data$language)
   
   dir.create(reportDir, showWarnings = FALSE)
   
@@ -65,7 +67,8 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
        data$score,
        main=paste("Parsing", quantity, "vs. file size"),
        xlab="File size (1000 characters)",
-       ylab=unit)
+       ylab=unit,
+       pch=symbols[data$language])
   
   dev.off()
 }

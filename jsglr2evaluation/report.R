@@ -1,3 +1,5 @@
+options(warn=1)
+
 args = commandArgs(trailingOnly=TRUE)
 
 if (length(args) != 2) {

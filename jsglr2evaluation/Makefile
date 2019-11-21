@@ -2,7 +2,7 @@ DIR=~/jsglr2evaluation
 ITERATIONS=1
 REPORTDIR=~/jsglr2evaluation/reports
 
-all: languages sources preprocess measurements benchmarks processResults reportLatex reportR
+all: languages sources validate measurements benchmarks processResults reportLatex reportR
 
 languages:
 	amm setupLanguages.sc $(DIR)
@@ -10,8 +10,8 @@ languages:
 sources:
 	amm setupSources.sc $(DIR)
 
-preprocess:
-	JAVA_OPTS="-Xmx8G" amm preprocess.sc $(DIR)
+validate:
+	JAVA_OPTS="-Xmx8G" amm validate.sc $(DIR)
 
 measurements: buildMeasurements execMeasurements
 

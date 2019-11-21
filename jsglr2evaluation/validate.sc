@@ -7,8 +7,8 @@ import org.spoofax.jsglr2.JSGLR2Variant
 import org.spoofax.jsglr2.integration.IntegrationVariant
 import org.spoofax.jsglr2.integration.ParseTableVariant
 
-def preprocess(implicit args: Args) = {
-    println("Preprocessing sources...")
+def validate(implicit args: Args) = {
+    println("Validate sources...")
 
     config.languages.foreach { language =>
         println(" " + language.name)
@@ -44,4 +44,4 @@ def preprocess(implicit args: Args) = {
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(preprocess(_))
+def ini(args: String*) = withArgs(args :_ *)(validate(_))

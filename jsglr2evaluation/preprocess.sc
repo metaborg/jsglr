@@ -39,8 +39,6 @@ def preprocess(implicit args: Args) = {
             }
         }
     }
-
-    // TODO: sample files (based on file size) for per file benchmarking
 }
 
 @main

@@ -72,6 +72,8 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
        ylab=unit,
        pch=symbols[data$language])
   
+  legend("top", inset=0.05, legend=languages, pch=symbols[languages])
+  
   dev.off()
 }
 

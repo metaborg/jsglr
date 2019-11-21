@@ -49,8 +49,8 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   dev.off()
 }
 
-batchBenchmarksPlot("results/benchmarks-batch.csv",            "/benchmarks-batch.pdf",            "time",       "ms")
-batchBenchmarksPlot("results/benchmarks-batch-normalized.csv", "/benchmarks-batch-normalized.pdf", "throughput", "1000 chars/s")
+batchBenchmarksPlot("results/benchmarks-batch-time.csv",       "/benchmarks-batch-time.pdf",       "time",       "ms")
+batchBenchmarksPlot("results/benchmarks-batch-throughput.csv", "/benchmarks-batch-throughput.pdf", "throughput", "1000 chars/s")
 
-perFileBenchmarksPlot("results/benchmarks-perFile.csv",            "/benchmarks-perFile.pdf",            "time",       "ms")
-perFileBenchmarksPlot("results/benchmarks-perFile-normalized.csv", "/benchmarks-perFile-normalized.pdf", "throughput", "1000 chars/s")
+perFileBenchmarksPlot("results/benchmarks-perFile-time.csv",       "/benchmarks-perFile-time.pdf",       "time",       "ms")
+perFileBenchmarksPlot("results/benchmarks-perFile-throughput.csv", "/benchmarks-perFile-throughput.pdf", "throughput", "1000 chars/s")

@@ -46,10 +46,10 @@ object Args {
     implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"
     implicit def parsingMeasurementsPath(implicit args: Args)    = resultsDir / "measurements-parsing.csv"
 
-    implicit def batchBenchmarksPath(implicit args: Args)             = resultsDir / "benchmarks-batch.csv"
-    implicit def batchBenchmarksNormalizedPath(implicit args: Args)   = resultsDir / "benchmarks-batch-normalized.csv"
-    implicit def perFileBenchmarksPath(implicit args: Args)           = resultsDir / "benchmarks-perFile.csv"
-    implicit def perFileBenchmarksNormalizedPath(implicit args: Args) = resultsDir / "benchmarks-perFile-normalized.csv"
+    implicit def batchBenchmarksPath(implicit args: Args)             = resultsDir / "benchmarks-batch-time.csv"
+    implicit def batchBenchmarksNormalizedPath(implicit args: Args)   = resultsDir / "benchmarks-batch-throughput.csv"
+    implicit def perFileBenchmarksPath(implicit args: Args)           = resultsDir / "benchmarks-perFile-time.csv"
+    implicit def perFileBenchmarksNormalizedPath(implicit args: Args) = resultsDir / "benchmarks-perFile-throughput.csv"
 
 }
 

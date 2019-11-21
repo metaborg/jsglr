@@ -63,12 +63,14 @@ def latexTableMeasurements(csv: CSV) = {
     s.toString
 }
 
-def latexTableBenchmarks(benchmarksCSV: CSV)(implicit args: Args) = {
+def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(implicit args: Args) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
+    s.append("\\begin{tabular}{|l|" + ("r|" * (config.languages.size * (1 + benchmarkType.errorColumns.size))) + "}\n")
     s.append("\\hline\n")
-    s.append("Variant" + config.languages.map(" & " + _.name).mkString("") + " \\\\\n")
+    s.append("\\multirow{2}{*}{Variant}" + config.languages.map(language => s" & \\multicolumn{${1 + benchmarkType.errorColumns.size}}{c|}{${language.name}}").mkString("") + " \\\\\n")
+    s.append(s"\\cline{2-${1 + config.languages.size * (1 + benchmarkType.errorColumns.size)}}\n")
+    s.append(config.languages.map(_ => " & Score" + benchmarkType.errorColumns.map(" & " + _._2).mkString).mkString + " \\\\\n")
     s.append("\\hline\n")
 
     val variants = benchmarksCSV.rows.map(_("variant")).distinct
@@ -77,16 +79,19 @@ def latexTableBenchmarks(benchmarksCSV: CSV)(implicit args: Args) = {
         s.append(variant)
 
         config.languages.foreach { language =>
-            val (score, error) =
-                benchmarksCSV.rows.find { row =>
-                    row("language") == language.id &&
-                    row("variant") == variant
-                } match {
-                    case Some(row) => (round(row("score")), round(row("error")))
-                    case None      => ("", "")
-                }
+            def get(column: String) = benchmarksCSV.rows.find { row =>
+                row("language") == language.id &&
+                row("variant") == variant
+            } match {
+                case Some(row) => round(row(column))
+                case None      => ""
+            }
 
-            s.append(" & " + score + " (" + error + ")");
+            s.append(" & " + get("score"))
+
+            benchmarkType.errorColumns.foreach { case (errorColumn, _) =>
+                s.append(" & " + get(errorColumn));
+            }
         }
 
         s.append(" \\\\ \\hline\n");
@@ -97,6 +102,16 @@ def latexTableBenchmarks(benchmarksCSV: CSV)(implicit args: Args) = {
     s.toString
 }
 
+trait BenchmarkType {
+    def errorColumns: Seq[(String, String)]
+}
+case object Time extends BenchmarkType {
+    def errorColumns = Seq("error" -> "Error")
+}
+case object Throughput extends BenchmarkType {
+    def errorColumns = Seq("low" -> "Low", "high" -> "High")
+}
+
 def reportLatex(implicit args: Args) = {
     println("LateX reporting...")
     
@@ -105,8 +120,8 @@ def reportLatex(implicit args: Args) = {
     write.over(args.reportDir / "testsets.tex", latexTableTestSets)
     write.over(args.reportDir / "measurements-parsetables.tex", latexTableMeasurements(CSV.parse(parseTableMeasurementsPath)))
     write.over(args.reportDir / "measurements-parsing.tex",     latexTableMeasurements(CSV.parse(parsingMeasurementsPath)))
-    write.over(args.reportDir / "benchmarks.tex",               latexTableBenchmarks(CSV.parse(batchBenchmarksPath)))
-    write.over(args.reportDir / "benchmarks-normalized.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath)))
+    write.over(args.reportDir / "benchmarks-time.tex",          latexTableBenchmarks(CSV.parse(batchBenchmarksPath), Time))
+    write.over(args.reportDir / "benchmarks-throughput.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath), Throughput))
 }
 
 @main

@@ -10,6 +10,8 @@ if (length(args) != 2) {
 
 setwd(dir)
 
+colors <- c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e") # Colorblind safe: http://colorbrewer2.org/#type=diverging&scheme=BrBG&n=6
+
 batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, getHighs) {
   data                       <- read.csv(file=inputFile, header=TRUE, sep=",")
   variants                   <- unique(data$variant)
@@ -33,7 +35,7 @@ batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, 
                         xlab="Language",
                         ylab=unit,
                         ylim=c(0, max(getHighs(data))),
-                        col=rainbow(length(variants)),
+                        col=colors[1:length(variants)],
                         legend=rownames(scorePerLanguageAndVariant),
                         beside=TRUE)
   

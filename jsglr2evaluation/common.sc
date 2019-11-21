@@ -88,7 +88,7 @@ def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
 
 case class CSV(columns: Seq[String], rows: Seq[CSVRow])
 case class CSVRow(values: Map[String, String]) {
-    def apply(column: String) = values.get(column).get
+    def apply(column: String) = values.get(column).getOrElse("")
 }
 
 object CSV {
@@ -111,4 +111,4 @@ object CSV {
 import scala.math.BigDecimal.RoundingMode
 
 def round(number: BigDecimal, scale: Int = 0): BigDecimal = number.setScale(scale, RoundingMode.HALF_UP)
-def round(number: String): String = if (number != "NaN") round(BigDecimal(number)).toString else number
+def round(number: String): String = if (number != "NaN" && number != "") round(BigDecimal(number)).toString else number

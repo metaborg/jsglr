@@ -2,17 +2,18 @@ languages:
   - id: java
     name: Java
     extension: java
-    repo: git@github.com:metaborg/java-front.git
+    parseTable:
+      repo: git@github.com:metaborg/java-front.git
+      subDir: lang.java
     antlrBenchmark: ANTLRJava8Benchmark
-    path: lang.java
     sources:
       - id: apache-commons-lang
         repo: https://github.com/apache/commons-lang.git
-  - id: ocaml
-    name: OCaml
-    extension: ml
-    repo: git@github.com:metaborgcube/metaborg-ocaml
-    path: org.metaborg.lang.ocaml
+  - id: webdsl
+    name: WebDSL
+    extension: app
+    parseTable:
+      file: parsetables/WebDSL.tbl
     sources:
-      - id: facebook-flow
-        repo: https://github.com/facebook/flow.git
+      - id: webdsl-yellowgrass
+        repo: https://github.com/webdsl/yellowgrass

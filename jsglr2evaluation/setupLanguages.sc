@@ -9,18 +9,22 @@ def setupLanguages(implicit args: Args) = {
 
     config.languages.foreach { language =>
         println(" " + language.name)
+
+        language.parseTable match {
+            case gitSpoofax @ GitSpoofax(repo: String, _) =>
+                rm!    gitSpoofax.repoDir(language)
+                mkdir! gitSpoofax.repoDir(language)
         
-        rm! language.repoDir
-        mkdir! language.repoDir
-
-        timed("clone " + language.id) {
-            println(s"  Cloning ${language.repo}...")
-            %%("git", "clone", language.repo, ".")(language.repoDir)
-        }
-
-        timed("build " + language.id) {
-            println(s"  Building ${language.dir}...")
-            %%("mvn", "install", MAVEN_OPTS="-Xmx8G -Xss64M")(language.dir)
+                timed("clone " + language.id) {
+                    println(s"  Cloning ${repo}...")
+                    %%("git", "clone", repo, ".")(gitSpoofax.repoDir(language))
+                }
+        
+                timed("build " + language.id) {
+                    println(s"  Building ${gitSpoofax.spoofaxProjectDir(language)}...")
+                    %%("mvn", "install", MAVEN_OPTS="-Xmx8G -Xss64M")(gitSpoofax.spoofaxProjectDir(language))
+                }
+            case LocalParseTable(_) =>
         }
     }
 }

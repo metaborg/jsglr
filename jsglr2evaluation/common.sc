@@ -4,17 +4,18 @@ import $ivy.`io.circe::circe-yaml:0.11.0-M1`
 
 import ammonite.ops._
 import cats.syntax.either._
+import io.circe._
 import io.circe.generic.auto._
 import io.circe.yaml._
 import java.time.LocalDateTime
 
 case class Config(languages: Seq[Language])
 
-case class Language(id: String, name: String, extension: String, repo: String, antlrBenchmark: Option[String], path: String, sources: Seq[Source]) {
-    def repoDir(implicit args: Args) = Args.languagesDir / id
-    def dir(implicit args: Args) = repoDir / RelPath(path)
+case class Language(id: String, name: String, extension: String, parseTable: ParseTable, antlrBenchmark: Option[String], sources: Seq[Source]) {
+    def parseTablePath(implicit args: Args) = parseTable.path(this)
+
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
-    def parseTablePath(implicit args: Args) = dir / "target" / "metaborg" / "sdf.tbl"
+    
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
     def benchmarksDir(implicit args: Args) = Args.benchmarksDir / id
     
@@ -33,6 +34,24 @@ case class Language(id: String, name: String, extension: String, repo: String, a
 
         for (i <- 0 until samples) yield filesTrimmed(i * step)
     }
+}
+
+sealed trait ParseTable {
+    def path(language: Language)(implicit args: Args): Path
+}
+case class GitSpoofax(repo: String, subDir: String) extends ParseTable {
+    def repoDir(language: Language)(implicit args: Args) = Args.languagesDir / language.id
+    def spoofaxProjectDir(language: Language)(implicit args: Args) = repoDir(language) / RelPath(subDir)
+    def path(language: Language)(implicit args: Args) = spoofaxProjectDir(language) / "target" / "metaborg" / "sdf.tbl"
+}
+case class LocalParseTable(file: String) extends ParseTable {
+    def path(language: Language)(implicit args: Args) = pwd / RelPath(file)
+}
+
+object ParseTable {
+    implicit val decodeParseTable: Decoder[ParseTable] =
+        Decoder[GitSpoofax]     .map[ParseTable](identity) or
+        Decoder[LocalParseTable].map[ParseTable](identity)
 }
 
 case class Source(id: String, repo: String)

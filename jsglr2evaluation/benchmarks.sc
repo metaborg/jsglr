@@ -81,16 +81,9 @@ def execBenchmarks(implicit args: Args) = {
         }
 
         timed(s"benchmark [JSGLR2/perFile] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            val files = ls.rec! language.sourcesDir sortBy(-_.size)
-            val fileCount = files.size
-            val samples = 10
-            val step = fileCount / samples
-
             mkdir! (language.benchmarksDir / "perFile")
 
-            for (i <- 0 until samples) {
-                val file = files(i * step)
-
+            language.sourcesPerFileBenchmark.map { file =>
                 benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("implode" -> "true", "variant" -> "standard"))
             }
         }

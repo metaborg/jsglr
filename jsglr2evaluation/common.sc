@@ -17,6 +17,15 @@ case class Language(id: String, name: String, extension: String, repo: String, a
     def parseTablePath(implicit args: Args) = dir / "target" / "metaborg" / "sdf.tbl"
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
     def benchmarksDir(implicit args: Args) = Args.benchmarksDir / id
+    
+    def sourcesPerFileBenchmark(implicit args: Args): Seq[Path] = {
+        val files = ls.rec! sourcesDir sortBy(-_.size)
+        val fileCount = files.size
+        val samples = 10
+        val step = fileCount / samples
+
+        for (i <- 0 until samples) yield files(i * step)
+    }
 }
 
 case class Source(id: String, repo: String)

@@ -74,9 +74,9 @@ def execBenchmarks(implicit args: Args) = {
             benchmarkJSGLR("JSGLR1BenchmarkExternal", language.benchmarksDir / "jsglr1.csv", language.sourcesDir, "multiple", Map("implode" -> "true"))
         }
 
-        language.antlrBenchmark.foreach { antlrBenchmark =>
-            timed(s"benchmark [ANTLR/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-                benchmarkANTLR(antlrBenchmark, language.benchmarksDir / "antlr.csv", language.sourcesDir, "multiple")
+        language.antlrBenchmarks.foreach { antlrBenchmark =>
+            timed(s"benchmark [${antlrBenchmark.id}/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                benchmarkANTLR(antlrBenchmark.benchmark, language.benchmarksDir / s"${antlrBenchmark.id}.csv", language.sourcesDir, "multiple")
             }
         }
 

@@ -5,7 +5,11 @@ languages:
     parseTable:
       repo: git@github.com:metaborg/java-front.git
       subDir: lang.java
-    antlrBenchmark: ANTLRJava8Benchmark
+    antlrBenchmarks:
+      - id: antlr
+        benchmark: ANTLRJava8Benchmark
+      - id: antlr-optimized
+        benchmark: ANTLRJavaBenchmark
     sources:
       - id: apache-commons-lang
         repo: https://github.com/apache/commons-lang.git
@@ -14,6 +18,7 @@ languages:
     extension: app
     parseTable:
       file: parsetables/WebDSL.tbl
+    antlrBenchmarks: []
     sources:
       - id: webdsl-yellowgrass
         repo: https://github.com/webdsl/yellowgrass

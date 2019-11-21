@@ -61,8 +61,9 @@ def processResults(implicit args: Args) = {
         processBenchmarkCSV(CSV.parse(language.benchmarksDir / "jsglr2.csv"), row => row("\"Param: variant\""), batchBenchmarksPath, batchBenchmarksNormalizedPath, normalizeBatch)
         processBenchmarkCSV(CSV.parse(language.benchmarksDir / "jsglr1.csv"), _   => "jsglr1"                 , batchBenchmarksPath, batchBenchmarksNormalizedPath, normalizeBatch)
 
-        if (language.antlrBenchmark.isDefined)
-            processBenchmarkCSV(CSV.parse(language.benchmarksDir / "antlr.csv"), _   => "antlr", batchBenchmarksPath, batchBenchmarksNormalizedPath, normalizeBatch)
+        language.antlrBenchmarks.foreach { antlrBenchmark =>
+            processBenchmarkCSV(CSV.parse(language.benchmarksDir / s"${antlrBenchmark.id}.csv"), _ => antlrBenchmark.id, batchBenchmarksPath, batchBenchmarksNormalizedPath, normalizeBatch)
+        }
 
         // Benchmarks (per file)
 

@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 
 case class Config(languages: Seq[Language])
 
-case class Language(id: String, name: String, extension: String, parseTable: ParseTable, antlrBenchmark: Option[String], sources: Seq[Source]) {
+case class Language(id: String, name: String, extension: String, parseTable: ParseTable, antlrBenchmarks: Seq[ANTLRBenchmark], sources: Seq[Source]) {
     def parseTablePath(implicit args: Args) = parseTable.path(this)
 
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
@@ -52,6 +52,8 @@ object ParseTable {
         Decoder[GitSpoofax]     .map[ParseTable](identity) or
         Decoder[LocalParseTable].map[ParseTable](identity)
 }
+
+case class ANTLRBenchmark(id: String, benchmark: String)
 
 case class Source(id: String, repo: String)
 

@@ -10,26 +10,45 @@ if (length(args) != 2) {
 
 setwd(dir)
 
-batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
+batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, getHighs) {
   data                       <- read.csv(file=inputFile, header=TRUE, sep=",")
   variants                   <- unique(data$variant)
-  scorePerLanguageAndVariant <- as.table(xtabs(score~variant+language, data))
-
-  scorePerLanguageAndVariant <- scorePerLanguageAndVariant[variants,] # order by original variant order
-
+  
+  scores <- tapply(data$score,      list(data$variant, data$language), function(x) c(x = x))
+  lows   <- tapply(getLows(data),   list(data$variant, data$language), function(x) c(x = x))
+  highs  <- tapply(getHighs(data),  list(data$variant, data$language), function(x) c(x = x))
+  
+  # order by original variant order
+  scores <- scores[variants,]
+  lows   <-   lows[variants,]
+  highs  <-  highs[variants,]
+  
   dir.create(reportDir, showWarnings = FALSE)
 
   pdf(file=paste(reportDir, outputFile, sep=""))
-
-  barplot(scorePerLanguageAndVariant,
-          main=paste("Parsing", quantity),
-          xlab="Language",
-          ylab=unit,
-          col=rainbow(length(variants)),
-          legend=rownames(scorePerLanguageAndVariant),
-          beside=TRUE)
-
+  
+  # https://datascienceplus.com/building-barplots-with-error-bars/
+  barCenters <- barplot(height=scores,
+                        main=paste("Parsing", quantity),
+                        xlab="Language",
+                        ylab=unit,
+                        ylim=c(0, max(getHighs(data))),
+                        col=rainbow(length(variants)),
+                        legend=rownames(scorePerLanguageAndVariant),
+                        beside=TRUE)
+  
+  segments(barCenters, lows, barCenters, highs, lwd = 1)
+  arrows(barCenters, lows, barCenters, highs, lwd = 1, angle = 90, code = 3, length = 0.05)
+  
   dev.off()
+}
+
+batchTimeBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
+  batchBenchmarksPlot(inputFile, outputFile, "time", "ms", function(data) data$score - data$error, function(data) data$score + data$error)
+}
+
+batchThroughputBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
+  batchBenchmarksPlot(inputFile, outputFile, "throughput", "1000 chars/s", function(data) data$low, function(data) data$high)
 }
 
 perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
@@ -49,8 +68,8 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   dev.off()
 }
 
-batchBenchmarksPlot("results/benchmarks-batch-time.csv",       "/benchmarks-batch-time.pdf",       "time",       "ms")
-batchBenchmarksPlot("results/benchmarks-batch-throughput.csv", "/benchmarks-batch-throughput.pdf", "throughput", "1000 chars/s")
+batchTimeBenchmarksPlot("results/benchmarks-batch-time.csv", "/benchmarks-batch-time.pdf")
+batchThroughputBenchmarksPlot("results/benchmarks-batch-throughput.csv", "/benchmarks-batch-throughput.pdf")
 
 perFileBenchmarksPlot("results/benchmarks-perFile-time.csv",       "/benchmarks-perFile-time.pdf",       "time",       "ms")
 perFileBenchmarksPlot("results/benchmarks-perFile-throughput.csv", "/benchmarks-perFile-throughput.pdf", "throughput", "1000 chars/s")

@@ -1,5 +1,6 @@
 DIR=~/jsglr2evaluation
-ITERATIONS=1
+ITERATIONS=1 # warmup and benchmark iterations
+SAMPLES=1 # number of sampled files for per file benchmarking
 REPORTDIR=~/jsglr2evaluation/reports
 
 all: languages sources validate measurements benchmarks processResults reportLatex reportR
@@ -27,7 +28,7 @@ buildBenchmarks:
 	mvn -f ../org.spoofax.jsglr2.benchmark -q clean install
 
 execBenchmarks:
-	amm benchmarks.sc dir=$(DIR) iterations=$(ITERATIONS)
+	amm benchmarks.sc dir=$(DIR) iterations=$(ITERATIONS) samples=$(SAMPLES)
 
 processResults:
 	amm processResults.sc dir=$(DIR)

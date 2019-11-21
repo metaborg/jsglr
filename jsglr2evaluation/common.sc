@@ -29,10 +29,9 @@ case class Language(id: String, name: String, extension: String, parseTable: Par
         )
 
         val fileCount = filesTrimmed.size
-        val samples = 10
-        val step = fileCount / samples
+        val step = fileCount / args.samples
 
-        for (i <- 0 until samples) yield filesTrimmed(i * step)
+        for (i <- 0 until args.samples) yield filesTrimmed(i * step)
     }
 }
 
@@ -59,7 +58,7 @@ case class Source(id: String, repo: String)
 val configJson = parser.parse(read! pwd/"config.yml")
 val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
-case class Args(dir: Path, iterations: Int, reportDir: Path)
+case class Args(dir: Path, iterations: Int, samples: Int, reportDir: Path)
 
 object Args {
 
@@ -93,10 +92,11 @@ def withArgs(args: String*)(body: Args => Unit) = {
             root / RelPath(path)
 
     val dir        = argsMapped.get("dir").map(getPath).get
-    val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(0)
+    val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
+    val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
     val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")
 
-    body(Args(dir, iterations, reportDir))
+    body(Args(dir, iterations, samples, reportDir))
 }
 
 def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {

@@ -20,11 +20,17 @@ case class Language(id: String, name: String, extension: String, repo: String, a
     
     def sourcesPerFileBenchmark(implicit args: Args): Seq[Path] = {
         val files = ls.rec! sourcesDir sortBy(-_.size)
-        val fileCount = files.size
+        val trimPercentage: Float = 10F
+        val filesTrimmed = files.slice(
+            ((trimPercentage / 100F) * files.size).toInt,
+            (((100F - trimPercentage) / 100F) * files.size).toInt
+        )
+
+        val fileCount = filesTrimmed.size
         val samples = 10
         val step = fileCount / samples
 
-        for (i <- 0 until samples) yield files(i * step)
+        for (i <- 0 until samples) yield filesTrimmed(i * step)
     }
 }
 

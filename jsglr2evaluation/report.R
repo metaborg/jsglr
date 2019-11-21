@@ -34,9 +34,9 @@ batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, 
                         main=paste("Parsing", quantity),
                         xlab="Language",
                         ylab=unit,
-                        ylim=c(0, max(getHighs(data))),
+                        ylim=c(0, 1.01 * max(getHighs(data))),
                         col=colors[1:length(variants)],
-                        legend=rownames(scorePerLanguageAndVariant),
+                        legend=variants,
                         beside=TRUE)
   
   segments(barCenters, lows, barCenters, highs, lwd = 1)

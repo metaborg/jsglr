@@ -13,7 +13,7 @@ if (length(args) != 2) {
 setwd(dir)
 
 colors <- c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e") # Color per parser variant, colorblind safe: http://colorbrewer2.org/#type=diverging&scheme=BrBG&n=6
-symbols <- c(1,2,3,4,5) # Color per language
+symbols <- c(0,2,5) # Color per language
 
 batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, getHighs) {
   data     <- read.csv(file=inputFile, header=TRUE, sep=",")

@@ -11,7 +11,13 @@ import org.metaborg.parsetable.ParseTableReadException
 
 import org.spoofax.jsglr2.integration.IntegrationVariant
 
-val termReader = new TermReader(new TermFactory())
+import org.spoofax.jsglr.client.ParseTable;
+import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.TermTreeFactory;
+import org.spoofax.jsglr.client.imploder.TreeBuilder;
+
+val termFactory = new TermFactory()
+val termReader = new TermReader(termFactory)
 
 def readParseTableTerm(path: Path) = termReader.parseFromString(read! path)
 
@@ -20,4 +26,13 @@ def getJSGLR2(variant: IntegrationVariant, parseTablePath: Path) = {
     val parseTable = variant.parseTable.parseTableReader().read(parseTableTerm)
     
     variant.jsglr2.getJSGLR2(parseTable)
+}
+
+def getJSGLR1(parseTablePath: Path) = {
+    val parseTableTerm = readParseTableTerm(parseTablePath)
+
+    val jsglr1TreeBuilder = new TreeBuilder(new TermTreeFactory(termFactory));
+    val jsglr1ParseTable = new ParseTable(parseTableTerm, termFactory);
+
+    new SGLR(jsglr1TreeBuilder, jsglr1ParseTable)
 }

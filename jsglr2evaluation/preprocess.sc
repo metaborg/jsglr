@@ -19,12 +19,16 @@ def preprocess(implicit args: Args) = {
         )
 
         val jsglr2 = getJSGLR2(variant, language.parseTablePath)
+        val jsglr1 = getJSGLR1(language.parseTablePath)
 
         timed("validate " + language.id) {
             language.sourceFiles.foreach { file =>
-                val ast = jsglr2.parse(read! file)
+                val input = read! file
 
-                if (ast == null) {
+                val jsglr2AST = jsglr2.parse(input)
+                val jsglr1AST = jsglr1.parse(input, null, null)
+
+                if (jsglr2AST == null || jsglr1AST == null) {
                     val filename = file relativeTo language.sourcesDir
 
                     println("   Invalid: " + filename)

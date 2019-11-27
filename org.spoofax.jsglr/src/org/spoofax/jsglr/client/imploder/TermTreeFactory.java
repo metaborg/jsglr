@@ -223,8 +223,8 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     public IStrategoTerm createInjection(String sort, IToken leftToken, IToken rightToken, IStrategoTerm injected,
         boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion, boolean isBracket) {
         // tagging bracket nodes as completed and adding the brackets as part of the origin
+        IStrategoTerm result = injected;
         if(isBracket) {
-            IStrategoTerm result = injected;
             if(result instanceof IStrategoAppl) {
                 if(((IStrategoAppl) result).getConstructor().getName().equals("amb")) {
                     IStrategoTerm ambList = result.getSubterm(0);
@@ -242,16 +242,13 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
                 configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false,
                     isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
             }
-            return result;
-        } else {
-            IStrategoTerm result = injected;
-            // Prevent bogus injections from empty sorts, or lexical sorts into themselves
-            String injectedSort = ImploderAttachment.get(injected).getSort();
-            if(sort != null && !Objects.equals(sort, injectedSort)) {
-                ImploderAttachment.get(result).pushInjection(sort);
-            }
-            return result;
         }
+        // Prevent bogus injections from empty sorts, or lexical sorts into themselves
+        String injectedSort = ImploderAttachment.get(injected).getSort();
+        if(sort != null && !Objects.equals(sort, injectedSort)) {
+            ImploderAttachment.get(result).pushInjection(sort);
+        }
+        return result;
     }
 
     private void configureAmbNodes(IStrategoTerm result, boolean isBracket, boolean isCompletion,

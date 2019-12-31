@@ -121,7 +121,7 @@ public class TermEditsAnalyzer {
 	private IStrategoTerm createSublist(IStrategoTerm listTerm, int startIndex,
 			int endIndex) {
 		IStrategoTerm prefixSublist;
-		final ITermFactory termFactory = new TermFactory().getFactoryWithStorageType(IStrategoTerm.MUTABLE);
+		final ITermFactory termFactory = new TermFactory();
 		final TermTreeFactory termTreeFactory = new TermTreeFactory(termFactory);
 		IStrategoTerm firstChild = listTerm.getSubterm(startIndex);
 		IStrategoTerm lastChild = listTerm.getSubterm(endIndex);

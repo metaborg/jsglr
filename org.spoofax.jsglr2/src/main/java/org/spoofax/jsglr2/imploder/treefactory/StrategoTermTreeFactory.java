@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.imploder.treefactory;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
-
 import java.util.Collections;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
@@ -17,7 +15,7 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
     private final ITermFactory termFactory;
 
     public StrategoTermTreeFactory() {
-        this.termFactory = new TermFactory().getFactoryWithStorageType(MUTABLE);
+        this.termFactory = new TermFactory();
     }
 
     @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value) {

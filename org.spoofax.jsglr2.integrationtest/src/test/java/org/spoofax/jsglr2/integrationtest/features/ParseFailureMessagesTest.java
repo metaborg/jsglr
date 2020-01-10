@@ -33,18 +33,50 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
         ), "B");
     }
 
-    @TestFactory public Stream<DynamicTest> unexpectedInput() throws ParseError {
+    @TestFactory public Stream<DynamicTest> unexpectedInputoffset0() throws ParseError {
         return testMessages("c", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureType.UnexpectedInput.message, MessageSeverity.ERROR)
+            new MessageDescriptor(ParseFailureType.UnexpectedInput.message, MessageSeverity.ERROR, 0, 1, 1)
         //@formatter:on
         ));
     }
 
-    @TestFactory public Stream<DynamicTest> unexpectedEOF() throws ParseError {
+    @TestFactory public Stream<DynamicTest> unexpectedInputoffset1() throws ParseError {
+        return testMessages("xc", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor(ParseFailureType.UnexpectedInput.message, MessageSeverity.ERROR, 1, 1, 2)
+        //@formatter:on
+        ));
+    }
+
+    @TestFactory public Stream<DynamicTest> unexpectedInputoffset2() throws ParseError {
+        return testMessages("xxc", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor(ParseFailureType.UnexpectedInput.message, MessageSeverity.ERROR, 2, 1, 3)
+        //@formatter:on
+        ));
+    }
+
+    @TestFactory public Stream<DynamicTest> unexpectedEOFempty() throws ParseError {
         return testMessages("", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureType.UnexpectedEOF.message, MessageSeverity.ERROR)
+            new MessageDescriptor(ParseFailureType.UnexpectedEOF.message, MessageSeverity.ERROR, 0, 1, 1)
+        //@formatter:on
+        ));
+    }
+
+    @TestFactory public Stream<DynamicTest> unexpectedEOFx() throws ParseError {
+        return testMessages("x", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor(ParseFailureType.UnexpectedEOF.message, MessageSeverity.ERROR, 1, 1, 2)
+        //@formatter:on
+        ));
+    }
+
+    @TestFactory public Stream<DynamicTest> unexpectedEOFxx() throws ParseError {
+        return testMessages("xx", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor(ParseFailureType.UnexpectedEOF.message, MessageSeverity.ERROR, 2, 1, 3)
         //@formatter:on
         ));
     }

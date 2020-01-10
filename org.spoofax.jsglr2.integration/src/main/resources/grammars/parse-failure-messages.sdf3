@@ -2,9 +2,11 @@ module recovery
 
 context-free start-symbols
 
-  A B
+  A B XXX
 
 context-free syntax
 
   A.A = "a"
   B.B = "b"
+
+  XXX.XXX = "xxx"

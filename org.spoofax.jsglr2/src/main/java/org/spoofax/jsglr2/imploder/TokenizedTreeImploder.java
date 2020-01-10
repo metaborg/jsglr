@@ -49,7 +49,7 @@ public abstract class TokenizedTreeImploder
         tokenTreeBinding(tokens.startToken(), tree.tree);
         tokenTreeBinding(tokens.endToken(), tree.tree);
 
-        return new TokenizeResult<>(tokens, tree.tree);
+        return new TokenizeResult<>(resource, tokens, tree.tree);
     }
 
     static class SubTree<Tree> {

@@ -47,7 +47,7 @@ public class JSGLR2Variant {
         switch(this.tokenizer) {
             default:
             case Null:
-                return (input, filename, implodeResult) -> new TokenizeResult<>(null, implodeResult.tree);
+                return (input, resource, implodeResult) -> new TokenizeResult<>(resource, null, implodeResult.tree);
             case Recursive:
                 return new StrategoTermTokenizer();
             case Iterative:

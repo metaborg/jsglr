@@ -53,7 +53,9 @@ public class Tokens implements IParseTokens {
     public IToken makeToken(Position startPosition, Position endPosition, IProduction production) {
         int tokenKind;
 
-        if(production.isLayout()) {
+        if(production.isRecovery()) {
+            tokenKind = IToken.TK_ERROR;
+        } else if(production.isLayout()) {
             tokenKind = IToken.TK_LAYOUT;
         } else if(production.isLiteral()) {
             if(production.isOperator())

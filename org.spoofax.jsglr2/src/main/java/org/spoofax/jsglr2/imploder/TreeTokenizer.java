@@ -30,7 +30,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
     @Override public TokenizeResult<Tree> tokenize(String input, @Nullable FileObject resource,
         TreeImploder.SubTree<Tree> tree) {
         Tokens tokens = new Tokens(input, resource != null ? resource.getName().getURI() : "");
-        return new TokenizeResult<>(tokens, tokenize(tokens, tree));
+        return new TokenizeResult<>(resource, tokens, tokenize(tokens, tree));
     }
 
     protected Tree tokenize(Tokens tokens, TreeImploder.SubTree<Tree> tree) {

@@ -35,15 +35,16 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, ImplodeResul
         ParseResult<ParseForest> parseResult = parser.parse(input, resource, startSymbol);
 
         if(parseResult.isSuccess()) {
-            List<IMessage> messages = new ArrayList<>(parseResult.messages);
-
-            // TODO: add imploding/tokenization messages
-
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;
 
             ImplodeResult implodeResult = imploder.implode(input, resource, success.parseResult);
 
             TokenizeResult<AbstractSyntaxTree> tokenizeResult = tokenizer.tokenize(input, resource, implodeResult);
+
+            List<IMessage> messages = new ArrayList<>();
+
+            messages.addAll(parseResult.messages);
+            messages.addAll(tokenizeResult.messages);
 
             return new JSGLR2Success<>(tokenizeResult, messages);
         } else {

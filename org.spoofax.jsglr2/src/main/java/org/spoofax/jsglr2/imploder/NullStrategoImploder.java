@@ -11,7 +11,7 @@ public class NullStrategoImploder<ParseForest extends IParseForest>
 
     @Override public TokenizeResult<IStrategoTerm> implode(String input, @Nullable FileObject resource,
         ParseForest forest) {
-        return new TokenizeResult<>(null, null);
+        return new TokenizeResult<>(resource, null, null);
     }
 
 }

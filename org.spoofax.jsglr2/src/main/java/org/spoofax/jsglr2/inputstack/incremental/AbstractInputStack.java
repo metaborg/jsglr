@@ -39,6 +39,10 @@ public abstract class AbstractInputStack implements IInputStack {
         return currentOffset;
     }
 
+    @Override public int length() {
+        return inputLength;
+    }
+
     @Override public int actionQueryCharacter() {
         if(currentOffset < inputLength)
             return inputString.charAt(currentOffset);

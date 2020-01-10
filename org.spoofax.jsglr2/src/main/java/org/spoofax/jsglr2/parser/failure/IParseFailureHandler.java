@@ -16,7 +16,10 @@ public interface IParseFailureHandler
     boolean onFailure(ParseState parseState);
 
     default ParseFailureType failureType(ParseState parseState) {
-        return ParseFailureType.Unknown;
+        if(parseState.inputStack.offset() == parseState.inputStack.length() - 1)
+            return ParseFailureType.UnexpectedEOF;
+        else
+            return ParseFailureType.UnexpectedInput;
     }
 
 }

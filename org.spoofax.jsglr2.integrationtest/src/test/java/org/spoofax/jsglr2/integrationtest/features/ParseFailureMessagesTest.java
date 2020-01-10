@@ -33,4 +33,20 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
         ), "B");
     }
 
+    @TestFactory public Stream<DynamicTest> unexpectedInput() throws ParseError {
+        return testMessages("c", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor(ParseFailureType.UnexpectedInput.message, MessageSeverity.ERROR)
+        //@formatter:on
+        ));
+    }
+
+    @TestFactory public Stream<DynamicTest> unexpectedEOF() throws ParseError {
+        return testMessages("", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor(ParseFailureType.UnexpectedEOF.message, MessageSeverity.ERROR)
+        //@formatter:on
+        ));
+    }
+
 }

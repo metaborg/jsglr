@@ -6,7 +6,8 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 
 public enum ParseFailureType {
 
-    Unknown("unknown parsing failure"), InvalidStartSymbol("invalid start symbol");
+    UnexpectedEOF("Unexpected end of input"), UnexpectedInput("Unexpected input"),
+    InvalidStartSymbol("Invalid start symbol");
 
     public final String message;
 

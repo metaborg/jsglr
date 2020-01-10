@@ -20,5 +20,7 @@ public interface IInputStack extends IActionQuery {
 
     int offset();
 
+    int length();
+
     IInputStack clone();
 }

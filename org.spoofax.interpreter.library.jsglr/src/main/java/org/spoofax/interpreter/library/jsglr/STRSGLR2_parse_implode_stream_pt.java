@@ -1,5 +1,10 @@
 package org.spoofax.interpreter.library.jsglr;
 
+import java.io.IOException;
+
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -9,8 +14,7 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variant;
-
-import java.io.IOException;
+import org.spoofax.jsglr2.util.LocalFileObject;
 
 /**
  * @author Jeff Smits <j.smits-1@tudelft.nl>
@@ -65,7 +69,9 @@ public class STRSGLR2_parse_implode_stream_pt extends JSGLRPrimitive {
 	private static IStrategoTerm doParse(String input, String startSymbol, IParseTable pt, String path) {
 		JSGLR2<IStrategoTerm> parser = JSGLR2Variant.Preset.standard.getJSGLR2(pt);
 
-		return parser.parse(input, path, startSymbol);
+		FileObject resource = LocalFileObject.get(path);
+
+		return parser.parse(input, resource, startSymbol);
 	}
 
 }

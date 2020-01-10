@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parser.result;
 
+import java.util.Collections;
+
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -9,7 +11,7 @@ public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<
     public final ParseFailureType failureType;
 
     public ParseFailure(AbstractParseState<?, ?> parseState, ParseFailureType failureType) {
-        super(parseState);
+        super(parseState, Collections.singletonList(failureType.toMessage(parseState)));
 
         this.failureType = failureType;
     }

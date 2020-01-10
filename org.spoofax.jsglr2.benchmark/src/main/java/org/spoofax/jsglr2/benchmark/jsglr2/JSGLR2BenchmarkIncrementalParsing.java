@@ -14,11 +14,11 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2BenchmarkI
         correctCache(input);
 
         if(i >= 0)
-            return jsglr2.parser.parseUnsafe(input.content[i], input.filename, null);
+            return jsglr2.parser.parseUnsafe(input.content[i], input.resource, null);
 
         if(i == -2) {
             for(String content : uniqueInputs.get(input)) {
-                bh.consume(jsglr2.parser.parseUnsafe(content, input.filename, null));
+                bh.consume(jsglr2.parser.parseUnsafe(content, input.resource, null));
             }
             return null;
         }
@@ -26,7 +26,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2BenchmarkI
         // if (i == -1)
         for(String content : input.content) {
             possiblyClearCache();
-            bh.consume(jsglr2.parser.parseUnsafe(content, input.filename, null));
+            bh.consume(jsglr2.parser.parseUnsafe(content, input.resource, null));
         }
         return null;
     }

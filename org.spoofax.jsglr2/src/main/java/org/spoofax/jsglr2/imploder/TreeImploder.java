@@ -2,6 +2,9 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.*;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
@@ -29,7 +32,7 @@ public class TreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public SubTree<Tree> implode(String input, String filename, ParseForest parseForest) {
+    @Override public SubTree<Tree> implode(String input, @Nullable FileObject resource, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
         return implodeParseNode(inputFactory.get(input), topParseNode, 0);

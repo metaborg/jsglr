@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.imploder;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
@@ -24,8 +27,9 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
     }
 
-    @Override public TokenizeResult<Tree> tokenize(String input, String filename, TreeImploder.SubTree<Tree> tree) {
-        Tokens tokens = new Tokens(input, filename);
+    @Override public TokenizeResult<Tree> tokenize(String input, @Nullable FileObject resource,
+        TreeImploder.SubTree<Tree> tree) {
+        Tokens tokens = new Tokens(input, resource != null ? resource.getName().getURI() : "");
         return new TokenizeResult<>(tokens, tokenize(tokens, tree));
     }
 

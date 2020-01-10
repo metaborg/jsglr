@@ -83,11 +83,11 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                 String content = input.content[i - 1];
                 prevString.put(input, content);
                 prevResult.put(input,
-                    ((IncrementalParseForest) jsglr2.parser.parseUnsafe(content, input.filename, null)));
+                    ((IncrementalParseForest) jsglr2.parser.parseUnsafe(content, input.resource, null)));
                 if(implode()) {
                     IncrementalTreeImploder<IParseForest, IParseNode<IParseForest, IDerivation<IParseForest>>, IDerivation<IParseForest>, IStrategoTerm, IncrementalImplodeInput<IParseNode<IParseForest, IDerivation<IParseForest>>, IStrategoTerm>> imploder =
                         (IncrementalTreeImploder) jsglr2.imploder;
-                    imploder.implode(prevString.get(input), input.filename, prevResult.get(input));
+                    imploder.implode(prevString.get(input), input.resource, prevResult.get(input));
                     prevMap.put(input, imploder.getFromCache(input.filename));
                 }
             }

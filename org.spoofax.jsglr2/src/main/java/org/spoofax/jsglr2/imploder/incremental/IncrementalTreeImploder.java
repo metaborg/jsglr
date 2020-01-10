@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
@@ -33,9 +36,13 @@ public abstract class IncrementalTreeImploder
         this.incrementalInputFactory = incrementalInputFactory;
     }
 
-    @Override public SubTree<Tree> implode(String inputString, String filename, ParseForest parseForest) {
+    @Override public SubTree<Tree> implode(String inputString, @Nullable FileObject resource, ParseForest parseForest) {
+        String filename = resource != null ? resource.getName().getURI() : "";
+
+        // TODO: maybe do caching on resource, not filename?
+
         if(filename.equals("")) {
-            return regularImplode.implode(inputString, filename, parseForest);
+            return regularImplode.implode(inputString, resource, parseForest);
         }
 
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;

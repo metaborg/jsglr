@@ -4,6 +4,9 @@ import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNod
 
 import java.util.Stack;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 
@@ -18,18 +21,18 @@ public class EagerIncrementalInputStack extends AbstractInputStack implements II
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public EagerIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
-        super(inputString, fileName);
+    public EagerIncrementalInputStack(IncrementalParseForest root, String inputString, @Nullable FileObject resource) {
+        super(inputString, resource);
         stack.push(EOF_NODE);
         stack.push(root);
     }
 
     EagerIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield(), "");
+        this(root, root.getYield(), null);
     }
 
     @Override public EagerIncrementalInputStack clone() {
-        EagerIncrementalInputStack clone = new EagerIncrementalInputStack(EOF_NODE, inputString, fileName);
+        EagerIncrementalInputStack clone = new EagerIncrementalInputStack(EOF_NODE, inputString, resource);
         clone.stack.clear();
         for(IncrementalParseForest node : stack) {
             clone.stack.push(node);

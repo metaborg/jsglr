@@ -1,5 +1,12 @@
 package org.spoofax.jsglr2;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.messages.IMessage;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
 import org.spoofax.jsglr2.imploder.TokenizeResult;
@@ -23,21 +30,26 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, ImplodeResul
         this.tokenizer = tokenizer;
     }
 
-    @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String filename, String startSymbol) {
-        ParseResult<ParseForest> parseResult = parser.parse(input, filename, startSymbol);
+    @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, @Nullable FileObject resource,
+        String startSymbol) {
+        ParseResult<ParseForest> parseResult = parser.parse(input, resource, startSymbol);
 
         if(parseResult.isSuccess()) {
+            List<IMessage> messages = new ArrayList<>(parseResult.messages);
+
+            // TODO: add imploding/tokenization messages
+
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;
 
-            ImplodeResult implodeResult = imploder.implode(input, filename, success.parseResult);
+            ImplodeResult implodeResult = imploder.implode(input, resource, success.parseResult);
 
-            TokenizeResult<AbstractSyntaxTree> tokenizeResult = tokenizer.tokenize(input, filename, implodeResult);
+            TokenizeResult<AbstractSyntaxTree> tokenizeResult = tokenizer.tokenize(input, resource, implodeResult);
 
-            return new JSGLR2Success<>(tokenizeResult);
+            return new JSGLR2Success<>(tokenizeResult, messages);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 
-            return new JSGLR2Failure<>(failure);
+            return new JSGLR2Failure<>(failure, parseResult.messages);
         }
     }
 

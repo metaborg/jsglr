@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.Accept;
 import org.metaborg.parsetable.actions.ActionType;
@@ -82,12 +85,16 @@ public class IncrementalParser
         cache.put(filename, oldResult);
     }
 
-    @Override protected ParseState getParseState(String inputString, String filename) {
-        IncrementalParseForest updatedTree = getUpdatedTree(inputString, filename);
-        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, filename), observing);
+    @Override protected ParseState getParseState(String inputString, @Nullable FileObject resource) {
+        IncrementalParseForest updatedTree = getUpdatedTree(inputString, resource);
+        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, resource), observing);
     }
 
-    private IncrementalParseForest getUpdatedTree(String inputString, String filename) {
+    private IncrementalParseForest getUpdatedTree(String inputString, @Nullable FileObject resource) {
+        String filename = resource != null ? resource.getName().getURI() : "";
+
+        // TODO: maybe do caching on resource, not filename?
+
         if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
             List<EditorUpdate> updates = diff.diff(oldString.get(filename), inputString);
 

@@ -14,11 +14,11 @@ public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding extends JSGL
         correctCache(input);
 
         if(i >= 0)
-            return jsglr2.parseUnsafe(input.content[i], input.filename, null);
+            return jsglr2.parseUnsafe(input.content[i], input.resource, null);
 
         if(i == -2) {
             for(String content : uniqueInputs.get(input)) {
-                bh.consume(jsglr2.parseUnsafe(content, input.filename, null));
+                bh.consume(jsglr2.parseUnsafe(content, input.resource, null));
             }
             return null;
         }
@@ -26,7 +26,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding extends JSGL
         // if (i == -1)
         for(String content : input.content) {
             possiblyClearCache();
-            bh.consume(jsglr2.parseUnsafe(content, input.filename, null));
+            bh.consume(jsglr2.parseUnsafe(content, input.resource, null));
         }
         return null;
     }

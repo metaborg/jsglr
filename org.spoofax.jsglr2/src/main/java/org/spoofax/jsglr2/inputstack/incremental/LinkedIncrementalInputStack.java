@@ -2,6 +2,9 @@ package org.spoofax.jsglr2.inputstack.incremental;
 
 import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 
@@ -12,13 +15,13 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public LinkedIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
-        super(inputString, fileName);
+    public LinkedIncrementalInputStack(IncrementalParseForest root, String inputString, @Nullable FileObject resource) {
+        super(inputString, resource);
         this.head = new StackTuple(root, new StackTuple(EOF_NODE));
     }
 
     LinkedIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield(), "");
+        this(root, root.getYield(), null);
     }
 
     @Override public IncrementalParseForest getNode() {
@@ -26,7 +29,7 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
     }
 
     @Override public LinkedIncrementalInputStack clone() {
-        LinkedIncrementalInputStack clone = new LinkedIncrementalInputStack(EOF_NODE, inputString, fileName);
+        LinkedIncrementalInputStack clone = new LinkedIncrementalInputStack(EOF_NODE, inputString, resource);
         clone.head = head;
         clone.currentOffset = currentOffset;
         return clone;

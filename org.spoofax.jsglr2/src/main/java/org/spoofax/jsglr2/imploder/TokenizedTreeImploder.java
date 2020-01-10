@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
@@ -29,7 +32,9 @@ public abstract class TokenizedTreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public TokenizeResult<Tree> implode(String input, String filename, ParseForest parseForest) {
+    @Override public TokenizeResult<Tree> implode(String input, @Nullable FileObject resource,
+        ParseForest parseForest) {
+        String filename = resource != null ? resource.getName().getURI() : "";
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
         Tokens tokens = new Tokens(input, filename);

@@ -22,5 +22,11 @@ public class StrategoWebDSLTest extends BaseTestWithParseTableFromTermWithJSGLR1
         return testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
 
+    @TestFactory public Stream<DynamicTest> testDeriveCrud() throws ParseError, IOException {
+        String sampleProgram = getFileAsString("StrategoWebDSL/webdsl-src-org-webdsl-dsl-modules-derive-crud.str");
+
+        return testSuccessByJSGLR1(sampleProgram);
+    }
+
 
 }

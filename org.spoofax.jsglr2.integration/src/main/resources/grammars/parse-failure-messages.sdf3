@@ -1,0 +1,10 @@
+module recovery
+
+context-free start-symbols
+
+  A B
+
+context-free syntax
+
+  A.A = "a"
+  B.B = "b"

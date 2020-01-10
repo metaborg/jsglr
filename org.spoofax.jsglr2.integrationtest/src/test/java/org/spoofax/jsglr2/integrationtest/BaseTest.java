@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.vfs2.FileObject;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
+import org.metaborg.core.messages.IMessage;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
@@ -288,6 +289,30 @@ public abstract class BaseTest implements WithParseTable {
             assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match");
 
             assertEquals(expectedEndToken, actualEndToken, "End token incorrect");
+        });
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages) {
+        return testMessages(inputString, expectedMessages, getTestVariants(), null);
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
+        String startSymbol) {
+        return testMessages(inputString, expectedMessages, getTestVariants(), startSymbol);
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
+        Stream<TestVariant> variants, String startSymbol) {
+        return testPerVariant(variants, variant -> () -> {
+            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, null, startSymbol);
+
+            List<MessageDescriptor> actualMessages = new ArrayList<>();
+
+            for(IMessage message : jsglr2Result.messages) {
+                actualMessages.add(MessageDescriptor.from(message));
+            }
+
+            assertIterableEquals(expectedMessages, actualMessages, "Message lists don't match");
         });
     }
 

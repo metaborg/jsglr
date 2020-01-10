@@ -8,7 +8,6 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.parser.result.ParseFailureType;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public class RecoveryParseFailureHandler
@@ -56,10 +55,6 @@ public class RecoveryParseFailureHandler
             observing.notify(observer -> observer.recoveryIteration(parseState));
 
         return hasNextIteration;
-    }
-
-    @Override public ParseFailureType failureType(ParseState parseState) {
-        return ParseFailureType.Unknown;
     }
 
 }

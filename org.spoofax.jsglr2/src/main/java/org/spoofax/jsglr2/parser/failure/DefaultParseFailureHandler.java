@@ -5,7 +5,6 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.parser.result.ParseFailureType;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public class DefaultParseFailureHandler
@@ -38,10 +37,6 @@ public class DefaultParseFailureHandler
 
     public boolean onFailure(ParseState parseState) {
         return false;
-    }
-
-    public ParseFailureType failureType(ParseState parseState) {
-        return ParseFailureType.Unknown;
     }
 
 }

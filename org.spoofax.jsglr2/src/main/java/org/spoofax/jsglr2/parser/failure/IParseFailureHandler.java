@@ -15,6 +15,8 @@ public interface IParseFailureHandler
 
     boolean onFailure(ParseState parseState);
 
-    ParseFailureType failureType(ParseState parseState);
+    default ParseFailureType failureType(ParseState parseState) {
+        return ParseFailureType.Unknown;
+    }
 
 }

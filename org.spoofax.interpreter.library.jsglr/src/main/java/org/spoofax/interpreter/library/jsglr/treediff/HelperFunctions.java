@@ -42,8 +42,6 @@ public class HelperFunctions {
 	 * @param trm
 	 */
 	public static void setParentAttachments(IStrategoTerm trm){
-		assert trm.getStorageType() == IStrategoTerm.MUTABLE
-	    	: "Parent attachments only work for mutable, non-shared terms; failed for " + trm;
 		IStrategoTerm[] subterms = trm.getAllSubterms();
 		for (int i = 0; i < subterms.length; i++) {
 			ParentAttachment.putParent(subterms[i], trm, null);

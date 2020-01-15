@@ -44,8 +44,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     /**
-     * Creates a new TermTreeFactory. Must be done using an ITermFactory that supports creating mutable terms; this
-     * constructor calls setDefaultStorageType(MUTABLE).
+     * Creates a new TermTreeFactory.
      */
     public TermTreeFactory(ITermFactory factory) {
         originalFactory = factory;
@@ -54,14 +53,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 
     public void setEnableTokens(boolean enableTokens) {
         this.enableTokens = enableTokens;
-        if(enableTokens) {
-            factory = originalFactory.getFactoryWithStorageType(MUTABLE);
-            if(!TermFactory.checkStorageType(factory, MUTABLE))
-                throw new IllegalStateException(
-                    "Term factory does not support MUTABLE terms, required for creating terms with (token) attachments");
-        } else {
-            factory = originalFactory;
-        }
+        factory = originalFactory;
     }
 
     /**

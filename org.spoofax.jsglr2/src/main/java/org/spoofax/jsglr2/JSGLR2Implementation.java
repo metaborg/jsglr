@@ -46,7 +46,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, ImplodeResul
             messages.addAll(parseResult.messages);
             messages.addAll(tokenizeResult.messages);
 
-            return new JSGLR2Success<>(tokenizeResult, messages);
+            return new JSGLR2Success<>(tokenizeResult.ast, tokenizeResult.tokens, messages);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 

@@ -30,7 +30,8 @@ public class JSGLR2Variant {
         this.tokenizer = tokenizerVariant;
     }
 
-    private <ParseForest extends IParseForest> IImploder<ParseForest, TreeImploder.SubTree<IStrategoTerm>>
+    private <ParseForest extends IParseForest>
+        IImploder<ParseForest, TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm>>
         getImploder() {
         switch(this.imploder) {
             default:
@@ -43,15 +44,15 @@ public class JSGLR2Variant {
         }
     }
 
-    private ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm> getTokenizer() {
+    private ITokenizer<ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm>> getTokenizer() {
         switch(this.tokenizer) {
-            default:
-            case Null:
-                return (input, resource, implodeResult) -> new TokenizeResult<>(resource, null, implodeResult.tree);
             case Recursive:
                 return new StrategoTermTokenizer();
             case Iterative:
                 return new IterativeStrategoTermTokenizer();
+            default:
+            case Null:
+                throw new IllegalStateException();
         }
     }
 
@@ -63,12 +64,11 @@ public class JSGLR2Variant {
             (IParser<IParseForest>) this.parser.getParser(parseTable);
 
         if(this.parser.parseForestRepresentation == ParseForestRepresentation.Null)
-            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), new NullTokenizer<>());
-
-        if(this.imploder == ImploderVariant.TokenizedRecursive)
+            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), (input, resource, tree) -> null);
+        else if(this.imploder == ImploderVariant.TokenizedRecursive)
             return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new NullTokenizer<>());
-
-        return new JSGLR2Implementation<>(parser, getImploder(), getTokenizer());
+        else
+            return new JSGLR2Implementation<>(parser, getImploder(), getTokenizer());
     }
 
     public String name() {

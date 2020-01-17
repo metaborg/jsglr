@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.imploder.incremental;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -7,6 +8,7 @@ import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
+import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
@@ -36,7 +38,8 @@ public abstract class IncrementalTreeImploder
         this.incrementalInputFactory = incrementalInputFactory;
     }
 
-    @Override public SubTree<Tree> implode(String inputString, @Nullable FileObject resource, ParseForest parseForest) {
+    @Override public ImplodeResult<SubTree<Tree>, Tree> implode(String inputString, @Nullable FileObject resource,
+        ParseForest parseForest) {
         String filename = resource != null ? resource.getName().getURI() : "";
 
         // TODO: maybe do caching on resource, not filename?
@@ -51,7 +54,10 @@ public abstract class IncrementalTreeImploder
             cache.put(filename, new WeakHashMap<>());
         }
 
-        return implodeParseNode(incrementalInputFactory.get(inputString, cache.get(filename)), topParseNode, 0);
+        SubTree<Tree> result =
+            implodeParseNode(incrementalInputFactory.get(inputString, cache.get(filename)), topParseNode, 0);
+
+        return new ImplodeResult<>(resource, result, result.tree, Collections.emptyList());
     }
 
     public void clearCache() {

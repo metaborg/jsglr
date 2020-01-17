@@ -22,7 +22,8 @@ public class TreeImploder
     Tree,
     Input       extends ImplodeInput>
 //@formatter:on
-    extends AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>> {
+    extends
+    AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>, Tree, ImplodeResult<TreeImploder.SubTree<Tree>, Tree>> {
 
     protected final IImplodeInputFactory<Input> inputFactory;
     protected final ITreeFactory<Tree> treeFactory;
@@ -32,10 +33,13 @@ public class TreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public SubTree<Tree> implode(String input, @Nullable FileObject resource, ParseForest parseForest) {
+    @Override public ImplodeResult<TreeImploder.SubTree<Tree>, Tree> implode(String input,
+        @Nullable FileObject resource, ParseForest parseForest) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        return implodeParseNode(inputFactory.get(input), topParseNode, 0);
+        SubTree<Tree> result = implodeParseNode(inputFactory.get(input), topParseNode, 0);
+
+        return new ImplodeResult<>(resource, result, result.tree, Collections.emptyList());
     }
 
     protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {

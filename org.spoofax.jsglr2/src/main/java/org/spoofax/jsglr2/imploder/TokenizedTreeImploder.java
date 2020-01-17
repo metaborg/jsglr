@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -24,7 +25,8 @@ public abstract class TokenizedTreeImploder
     Derivation  extends IDerivation<ParseForest>,
     Tree>
 //@formatter:on
-    extends AbstractTreeImploder<ParseForest, ParseNode, Derivation, TokenizeResult<Tree>> {
+    extends
+    AbstractTreeImploder<ParseForest, ParseNode, Derivation, TokenizedTreeImploder.SubTree<Tree>, Tree, TokenizedImplodeResult<TokenizedTreeImploder.SubTree<Tree>, Tree>> {
 
     protected final ITokenizedTreeFactory<Tree> treeFactory;
 
@@ -32,7 +34,7 @@ public abstract class TokenizedTreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public TokenizeResult<Tree> implode(String input, @Nullable FileObject resource,
+    @Override public TokenizedImplodeResult<SubTree<Tree>, Tree> implode(String input, @Nullable FileObject resource,
         ParseForest parseForest) {
         String filename = resource != null ? resource.getName().getURI() : "";
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
@@ -49,7 +51,7 @@ public abstract class TokenizedTreeImploder
         tokenTreeBinding(tokens.startToken(), tree.tree);
         tokenTreeBinding(tokens.endToken(), tree.tree);
 
-        return new TokenizeResult<>(resource, tokens, tree.tree);
+        return new TokenizedImplodeResult<>(resource, tree, tree.tree, Collections.emptyList(), tokens);
     }
 
     static class SubTree<Tree> {

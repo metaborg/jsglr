@@ -7,6 +7,7 @@ import java.util.WeakHashMap;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
@@ -28,7 +29,7 @@ public abstract class IncrementalTreeImploder
 
     private final IIncrementalImplodeInputFactory<ParseNode, Tree, Input> incrementalInputFactory;
     private final TreeImploder<ParseForest, ParseNode, Derivation, Tree, Input> regularImplode;
-    private final Map<FileObject, WeakHashMap<ParseNode, SubTree<Tree>>> cache = new HashMap<>();
+    private final Map<FileName, WeakHashMap<ParseNode, SubTree<Tree>>> cache = new HashMap<>();
 
     public IncrementalTreeImploder(IImplodeInputFactory<Input> inputFactory,
         IIncrementalImplodeInputFactory<ParseNode, Tree, Input> incrementalInputFactory,
@@ -46,12 +47,13 @@ public abstract class IncrementalTreeImploder
 
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        if(!cache.containsKey(resource)) {
-            cache.put(resource, new WeakHashMap<>());
+        FileName fileName = resource.getName();
+        if(!cache.containsKey(fileName)) {
+            cache.put(fileName, new WeakHashMap<>());
         }
 
         SubTree<Tree> result =
-            implodeParseNode(incrementalInputFactory.get(inputString, cache.get(resource)), topParseNode, 0);
+            implodeParseNode(incrementalInputFactory.get(inputString, cache.get(fileName)), topParseNode, 0);
 
         return new ImplodeResult<>(resource, result, result.tree, Collections.emptyList());
     }
@@ -62,12 +64,12 @@ public abstract class IncrementalTreeImploder
 
     // TODO it is very ugly to have these methods here. It's only used in benchmarking, but it should not exist in the
     // regular implementation
-    public WeakHashMap<ParseNode, SubTree<Tree>> getFromCache(FileObject resource) {
-        return cache.get(resource);
+    public WeakHashMap<ParseNode, SubTree<Tree>> getFromCache(FileName fileName) {
+        return cache.get(fileName);
     }
 
-    public void addToCache(FileObject resource, WeakHashMap<ParseNode, SubTree<Tree>> map) {
-        cache.put(resource, map);
+    public void addToCache(FileName fileName, WeakHashMap<ParseNode, SubTree<Tree>> map) {
+        cache.put(fileName, map);
     }
 
     @Override protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {

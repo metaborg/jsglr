@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.Accept;
@@ -48,8 +49,8 @@ public class IncrementalParser
     extends
     Parser<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> {
 
-    private final HashMap<FileObject, IncrementalParseForest> cache = new HashMap<>();
-    private final HashMap<FileObject, String> oldString = new HashMap<>();
+    private final HashMap<FileName, IncrementalParseForest> cache = new HashMap<>();
+    private final HashMap<FileName, String> oldString = new HashMap<>();
 
     private final IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory;
     private final IStringDiff diff;
@@ -80,9 +81,9 @@ public class IncrementalParser
 
     // TODO it is very ugly to have this method here. It's only used in benchmarking, but it should not exist in the
     // regular implementation
-    public void addToCache(FileObject resource, String oldInput, IncrementalParseForest oldResult) {
-        oldString.put(resource, oldInput);
-        cache.put(resource, oldResult);
+    public void addToCache(FileName fileName, String oldInput, IncrementalParseForest oldResult) {
+        oldString.put(fileName, oldInput);
+        cache.put(fileName, oldResult);
     }
 
     @Override protected ParseState getParseState(String inputString, @Nullable FileObject resource) {
@@ -91,10 +92,10 @@ public class IncrementalParser
     }
 
     private IncrementalParseForest getUpdatedTree(String inputString, @Nullable FileObject resource) {
-        if(resource != null && cache.containsKey(resource) && oldString.containsKey(resource)) {
-            List<EditorUpdate> updates = diff.diff(oldString.get(resource), inputString);
+        if(resource != null && cache.containsKey(resource.getName()) && oldString.containsKey(resource.getName())) {
+            List<EditorUpdate> updates = diff.diff(oldString.get(resource.getName()), inputString);
 
-            return processUpdates.processUpdates(cache.get(resource), updates);
+            return processUpdates.processUpdates(cache.get(resource.getName()), updates);
         } else
             return processUpdates.getParseNodeFromString(inputString);
     }
@@ -102,13 +103,14 @@ public class IncrementalParser
     @Override protected void parseLoop(ParseState parse) {
         // Optimization: if the first tree on the lookahead stack is exactly the same as the previous tree:
         FileObject resource = parse.inputStack.resource();
-        if(resource != null && cache.containsKey(resource) && parse.inputStack.getNode() == cache.get(resource)) {
+        if(resource != null && cache.containsKey(resource.getName())
+            && parse.inputStack.getNode() == cache.get(resource.getName())) {
 
             StackNode stack = parse.activeStacks.getSingle();
 
             // Shift this previous tree
-            addForShifter(parse, stack, parseTable
-                .getState(stack.state().getGotoId(((IncrementalParseNode) cache.get(resource)).production().id())));
+            addForShifter(parse, stack, parseTable.getState(
+                stack.state().getGotoId(((IncrementalParseNode) cache.get(resource.getName())).production().id())));
             shifter(parse);
             parse.inputStack.next();
 
@@ -123,8 +125,9 @@ public class IncrementalParser
         IncrementalParseForest parseForest) {
         // On success, save result (if resource != null)
         if(parseState.inputStack.resource() != null) {
-            oldString.put(parseState.inputStack.resource(), parseState.inputStack.inputString());
-            cache.put(parseState.inputStack.resource(), parseForest);
+            FileName fileName = parseState.inputStack.resource().getName();
+            oldString.put(fileName, parseState.inputStack.inputString());
+            cache.put(fileName, parseForest);
         }
         return super.success(parseState, parseForest);
     }

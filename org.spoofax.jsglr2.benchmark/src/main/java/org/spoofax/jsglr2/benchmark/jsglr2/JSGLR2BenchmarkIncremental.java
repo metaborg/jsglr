@@ -88,7 +88,7 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                     IncrementalTreeImploder<IParseForest, IParseNode<IParseForest, IDerivation<IParseForest>>, IDerivation<IParseForest>, IStrategoTerm, IncrementalImplodeInput<IParseNode<IParseForest, IDerivation<IParseForest>>, IStrategoTerm>> imploder =
                         (IncrementalTreeImploder) jsglr2.imploder;
                     imploder.implode(prevString.get(input), input.resource, prevResult.get(input));
-                    prevMap.put(input, imploder.getFromCache(input.resource));
+                    prevMap.put(input, imploder.getFromCache(input.resource.getName()));
                 }
             }
         }
@@ -99,13 +99,13 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
             IncrementalParser parser = (IncrementalParser) jsglr2.parser;
             parser.clearCache();
             if(shouldSetupCache())
-                parser.addToCache(input.resource, prevString.get(input), prevResult.get(input));
+                parser.addToCache(input.resource.getName(), prevString.get(input), prevResult.get(input));
         }
         if(implode() && jsglr2.imploder instanceof IncrementalTreeImploder) {
             IncrementalTreeImploder imploder = (IncrementalTreeImploder) jsglr2.imploder;
             imploder.clearCache();
             if(shouldSetupCache())
-                imploder.addToCache(input.resource, new WeakHashMap<>(prevMap.get(input)));
+                imploder.addToCache(input.resource.getName(), new WeakHashMap<>(prevMap.get(input)));
         }
     }
 

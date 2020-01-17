@@ -71,7 +71,7 @@ abstract class ParserMeasureObserver
     abstract int stackNodeLinkCount(StackNode stackNode);
 
     @Override public void parseStart(ParseState parseState) {
-        length += parseState.inputStack.inputString().length();
+        length += parseState.inputStack.length();
     }
 
     @Override public void createStackNode(StackNode stack) {

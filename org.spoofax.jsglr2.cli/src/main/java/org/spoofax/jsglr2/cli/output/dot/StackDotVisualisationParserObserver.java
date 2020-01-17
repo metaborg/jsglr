@@ -34,7 +34,7 @@ class StackDotVisualisationParserObserver
         stackNodeRank = new HashMap<>();
         currentOffset = 0;
         maxStackNodeRank = 0;
-        offsetMaxStackNodeRank = new int[parseState.inputStack.inputString().length() + 1];
+        offsetMaxStackNodeRank = new int[parseState.inputStack.length() + 1];
         stackNodeOffset = new HashMap<>();
     }
 

@@ -8,8 +8,6 @@ public interface IInputStack extends IActionQuery {
 
     FileObject resource();
 
-    String fileName();
-
     boolean hasNext();
 
     void next();

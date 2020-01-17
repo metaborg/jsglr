@@ -10,7 +10,6 @@ import org.spoofax.jsglr2.inputstack.IInputStack;
 public abstract class AbstractInputStack implements IInputStack {
     protected final String inputString;
     protected final FileObject resource;
-    protected final String fileName;
     protected final int inputLength;
     protected int currentOffset = 0;
 
@@ -18,7 +17,6 @@ public abstract class AbstractInputStack implements IInputStack {
         this.inputString = inputString;
         this.inputLength = inputString.length();
         this.resource = resource;
-        this.fileName = resource != null ? resource.getName().getURI() : "";
     }
 
     @Override public abstract IInputStack clone();
@@ -29,10 +27,6 @@ public abstract class AbstractInputStack implements IInputStack {
 
     @Override public FileObject resource() {
         return resource;
-    }
-
-    @Override public String fileName() {
-        return fileName;
     }
 
     @Override public int offset() {

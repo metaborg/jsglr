@@ -16,22 +16,26 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 
         // SubTree res = tokenizeInternal(tokens, tree, new Position(0, 1, 1));
         Stack<LinkedList<TreeImploder.SubTree<Tree>>> inputStack = new Stack<>();
-        Stack<Position> positionStack = new Stack<>();
+        Stack<Position> pivotPositionStack = new Stack<>();
+        Stack<Position> startPositionStack = new Stack<>();
         Stack<LinkedList<SubTree>> outputStack = new Stack<>();
 
         inputStack.add(new LinkedList<>(Collections.singletonList(rootTree)));
-        positionStack.add(new Position(0, 1, 1));
+        pivotPositionStack.add(new Position(0, 1, 1));
+        startPositionStack.add(new Position(0, 1, 1));
         outputStack.add(new LinkedList<>());
 
         while(true) {
             LinkedList<TreeImploder.SubTree<Tree>> currentIn = inputStack.peek();
-            Position currentPos = positionStack.peek();
+            Position currentPos = pivotPositionStack.peek();
+            Position currentStart = startPositionStack.peek();
             LinkedList<SubTree> currentOut = outputStack.peek();
             if(currentIn.isEmpty()) { // If we're finished with the current children
                 inputStack.pop(); // That means it's done, so remove it from the stack
                 if(inputStack.isEmpty()) // If it was the last stack node, we're done
                     break;
-                positionStack.pop(); // Also remove `currentPos` from stack
+                pivotPositionStack.pop(); // Also remove `currentPos` from stack
+                startPositionStack.pop(); // Also remove `currentStart` from stack
                 outputStack.pop(); // Also remove `currentOut` from stack
 
                 // Process current output in the way we're used to
@@ -70,16 +74,16 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                     }
                 }
 
-                if(tree.production.isRecovery()) {
+                if(tree.production != null && tree.production.isRecovery()) {
                     if(messages == null)
                         messages = new ArrayList<>();
 
-                    messages.add(parseErrorMessage(resource, currentPos, pivotPosition));
+                    messages.add(parseErrorMessage(resource, currentStart, pivotPosition));
                 }
 
                 // Add processed output to the list that is on top of the stack
-                positionStack.pop();
-                positionStack.push(pivotPosition);
+                pivotPositionStack.pop();
+                pivotPositionStack.push(pivotPosition);
                 outputStack.peek().add(new SubTree(tree, leftToken, rightToken, pivotPosition, messages));
             } else {
                 TreeImploder.SubTree<Tree> tree = currentIn.getFirst(); // Process the next input
@@ -89,15 +93,16 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                         IToken token = tokens.makeToken(currentPos, endPosition, tree.production);
                         tokenTreeBinding(token, tree.tree);
                         currentOut.add(new SubTree(tree, token, token, endPosition, Collections.emptyList()));
-                        positionStack.pop();
-                        positionStack.push(endPosition);
+                        pivotPositionStack.pop();
+                        pivotPositionStack.push(endPosition);
                     } else {
                         currentOut.add(new SubTree(tree, null, null, currentPos, Collections.emptyList()));
                     }
                     currentIn.removeFirst();
                 } else {
                     inputStack.add(new LinkedList<>(tree.children));
-                    positionStack.add(currentPos);
+                    pivotPositionStack.add(currentPos);
+                    startPositionStack.add(currentPos);
                     outputStack.add(new LinkedList<>());
                 }
             }

@@ -106,7 +106,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
                 }
             }
 
-            if(tree.production.isRecovery()) {
+            if(tree.production != null && tree.production.isRecovery()) {
                 if(messages == null)
                     messages = new ArrayList<>();
 

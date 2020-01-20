@@ -1,16 +1,16 @@
 package org.spoofax.jsglr2.imploder;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Stack;
+import java.util.*;
 
+import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.messages.IMessage;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 
-    @Override public Tree tokenize(Tokens tokens, TreeImploder.SubTree<Tree> rootTree) {
+    @Override public SubTree tokenize(FileObject resource, Tokens tokens, TreeImploder.SubTree<Tree> rootTree) {
         tokens.makeStartToken();
         tokenTreeBinding(tokens.startToken(), rootTree.tree);
 
@@ -39,6 +39,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                 IToken leftToken = null;
                 IToken rightToken = null;
                 Position pivotPosition = currentPos;
+                Collection<IMessage> messages = null;
                 for(SubTree subTree : currentOut) {
                     // If child tree had tokens that were not yet bound, bind them
                     if(subTree.tree == null) {
@@ -60,11 +61,26 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                     // If tree production == null, that means it's an "amb" node; in that case, position is not advanced
                     if(tree.production != null)
                         pivotPosition = subTree.endPosition;
+
+                    if(subTree.messages != null) {
+                        if(messages == null)
+                            messages = new ArrayList<>();
+
+                        messages.addAll(subTree.messages);
+                    }
                 }
+
+                if(tree.production.isRecovery()) {
+                    if(messages == null)
+                        messages = new ArrayList<>();
+
+                    messages.add(parseErrorMessage(resource, currentPos, pivotPosition));
+                }
+
                 // Add processed output to the list that is on top of the stack
                 positionStack.pop();
                 positionStack.push(pivotPosition);
-                outputStack.peek().add(new SubTree(tree, leftToken, rightToken, pivotPosition));
+                outputStack.peek().add(new SubTree(tree, leftToken, rightToken, pivotPosition, messages));
             } else {
                 TreeImploder.SubTree<Tree> tree = currentIn.getFirst(); // Process the next input
                 if(tree.children.size() == 0) {
@@ -72,11 +88,11 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                         Position endPosition = currentPos.step(tokens.getInput(), tree.width);
                         IToken token = tokens.makeToken(currentPos, endPosition, tree.production);
                         tokenTreeBinding(token, tree.tree);
-                        currentOut.add(new SubTree(tree, token, token, endPosition));
+                        currentOut.add(new SubTree(tree, token, token, endPosition, Collections.emptyList()));
                         positionStack.pop();
                         positionStack.push(endPosition);
                     } else {
-                        currentOut.add(new SubTree(tree, null, null, currentPos));
+                        currentOut.add(new SubTree(tree, null, null, currentPos, Collections.emptyList()));
                     }
                     currentIn.removeFirst();
                 } else {
@@ -92,7 +108,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
         tokens.makeEndToken(new Position(res.endPosition.offset, res.endPosition.line, res.endPosition.column));
         tokenTreeBinding(tokens.endToken(), res.tree);
 
-        return res.tree;
+        return res;
     }
 
 }

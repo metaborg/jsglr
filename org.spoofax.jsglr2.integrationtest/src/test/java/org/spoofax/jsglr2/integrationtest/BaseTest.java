@@ -297,6 +297,11 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
+        Stream<TestVariant> variants) {
+        return testMessages(inputString, expectedMessages, variants, null);
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
         String startSymbol) {
         return testMessages(inputString, expectedMessages, getTestVariants(), startSymbol);
     }

@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.inputstack;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parser.Position;
 
@@ -13,8 +10,8 @@ public class LayoutSensitiveInputStack extends InputStack {
     private int currentLine = 1;
     private int currentColumn = 1;
 
-    public LayoutSensitiveInputStack(String inputString, @Nullable FileObject resource) {
-        super(inputString, resource);
+    public LayoutSensitiveInputStack(String inputString, String fileName) {
+        super(inputString, fileName);
     }
 
     public Position currentPosition() {

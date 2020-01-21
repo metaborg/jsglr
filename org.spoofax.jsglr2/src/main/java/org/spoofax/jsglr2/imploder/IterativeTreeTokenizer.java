@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.*;
 
-import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.Position;
@@ -10,7 +9,7 @@ import org.spoofax.jsglr2.tokens.Tokens;
 
 public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 
-    @Override public SubTree tokenize(FileObject resource, Tokens tokens, TreeImploder.SubTree<Tree> rootTree) {
+    @Override public SubTree tokenize(Tokens tokens, TreeImploder.SubTree<Tree> rootTree) {
         tokens.makeStartToken();
         tokenTreeBinding(tokens.startToken(), rootTree.tree);
 
@@ -78,7 +77,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                     if(messages == null)
                         messages = new ArrayList<>();
 
-                    messages.add(parseErrorMessage(resource, currentStart, pivotPosition));
+                    messages.add(parseErrorMessage(currentStart, pivotPosition));
                 }
 
                 // Add processed output to the list that is on top of the stack

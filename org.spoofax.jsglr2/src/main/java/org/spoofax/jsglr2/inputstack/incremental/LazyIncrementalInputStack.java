@@ -4,9 +4,6 @@ import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNod
 
 import java.util.Stack;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
@@ -24,8 +21,8 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public LazyIncrementalInputStack(IncrementalParseForest root, String inputString, @Nullable FileObject resource) {
-        super(inputString, resource);
+    public LazyIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
+        super(inputString, fileName);
         IncrementalParseNode ultraRoot = new IncrementalParseNode(root, IncrementalCharacterNode.EOF_NODE);
         stack.push(new StackTuple(ultraRoot, 0));
 
@@ -33,11 +30,11 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
     }
 
     LazyIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield(), null);
+        this(root, root.getYield(), "");
     }
 
     @Override public LazyIncrementalInputStack clone() {
-        LazyIncrementalInputStack clone = new LazyIncrementalInputStack(EOF_NODE, inputString, resource);
+        LazyIncrementalInputStack clone = new LazyIncrementalInputStack(EOF_NODE, inputString, fileName);
         clone.stack.clear();
         for(StackTuple stackTuple : stack) {
             clone.stack.push(stackTuple);

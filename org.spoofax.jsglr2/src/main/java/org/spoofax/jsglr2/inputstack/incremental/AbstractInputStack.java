@@ -2,33 +2,24 @@ package org.spoofax.jsglr2.inputstack.incremental;
 
 import static org.metaborg.parsetable.characterclasses.CharacterClassFactory.EOF_INT;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 
 public abstract class AbstractInputStack implements IInputStack {
     protected final String inputString;
-    protected final FileObject resource;
     protected final String fileName;
     protected final int inputLength;
     protected int currentOffset = 0;
 
-    public AbstractInputStack(String inputString, @Nullable FileObject resource) {
+    public AbstractInputStack(String inputString, String fileName) {
         this.inputString = inputString;
         this.inputLength = inputString.length();
-        this.resource = resource;
-        this.fileName = resource != null ? resource.getName().getURI() : "";
+        this.fileName = fileName;
     }
 
     @Override public abstract IInputStack clone();
 
     @Override public String inputString() {
         return inputString;
-    }
-
-    @Override public FileObject resource() {
-        return resource;
     }
 
     @Override public String fileName() {

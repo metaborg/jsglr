@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
@@ -10,23 +7,22 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
 public interface IParser<ParseForest extends IParseForest> {
 
-    ParseResult<ParseForest> parse(String input, @Nullable FileObject resource, String startSymbol);
+    ParseResult<ParseForest> parse(String input, String fileName, String startSymbol);
 
-    default ParseResult<ParseForest> parse(String input, @Nullable FileObject resource) {
-        return parse(input, resource, null);
+    default ParseResult<ParseForest> parse(String input, String fileName) {
+        return parse(input, fileName, null);
     }
 
     default ParseResult<ParseForest> parse(String input) {
-        return parse(input, null);
+        return parse(input, "");
     }
 
     /*
      * Parses an input and directly returns the parse forest in case of a successful parse or throws a ParseException
      * otherwise.
      */
-    default ParseForest parseUnsafe(String input, @Nullable FileObject resource, String startSymbol)
-        throws ParseException {
-        ParseResult<ParseForest> result = parse(input, resource, startSymbol);
+    default ParseForest parseUnsafe(String input, String fileName, String startSymbol) throws ParseException {
+        ParseResult<ParseForest> result = parse(input, fileName, startSymbol);
 
         if(result.isSuccess()) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;

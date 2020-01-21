@@ -83,12 +83,12 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                 String content = input.content[i - 1];
                 prevString.put(input, content);
                 prevResult.put(input,
-                    ((IncrementalParseForest) jsglr2.parser.parseUnsafe(content, input.resource, null)));
+                    ((IncrementalParseForest) jsglr2.parser.parseUnsafe(content, input.fileName, null)));
                 if(implode()) {
                     IncrementalTreeImploder<IParseForest, IParseNode<IParseForest, IDerivation<IParseForest>>, IDerivation<IParseForest>, IStrategoTerm, IncrementalImplodeInput<IParseNode<IParseForest, IDerivation<IParseForest>>, IStrategoTerm>> imploder =
                         (IncrementalTreeImploder) jsglr2.imploder;
-                    imploder.implode(prevString.get(input), input.resource, prevResult.get(input));
-                    prevMap.put(input, imploder.getFromCache(input.filename));
+                    imploder.implode(prevString.get(input), input.fileName, prevResult.get(input));
+                    prevMap.put(input, imploder.getFromCache(input.fileName));
                 }
             }
         }
@@ -99,13 +99,13 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
             IncrementalParser parser = (IncrementalParser) jsglr2.parser;
             parser.clearCache();
             if(shouldSetupCache())
-                parser.addToCache(input.filename, prevString.get(input), prevResult.get(input));
+                parser.addToCache(input.fileName, prevString.get(input), prevResult.get(input));
         }
         if(implode() && jsglr2.imploder instanceof IncrementalTreeImploder) {
             IncrementalTreeImploder imploder = (IncrementalTreeImploder) jsglr2.imploder;
             imploder.clearCache();
             if(shouldSetupCache())
-                imploder.addToCache(input.filename, new WeakHashMap<>(prevMap.get(input)));
+                imploder.addToCache(input.fileName, new WeakHashMap<>(prevMap.get(input)));
         }
     }
 

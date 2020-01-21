@@ -22,7 +22,6 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
-import org.spoofax.jsglr2.util.LocalFileObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -117,7 +116,7 @@ public class JSGLR2CLI implements Runnable {
     private void parse(IParser<?> parser, IOutputProcessor outputProcessor) throws WrappedException {
         for(String in : input) {
             // Explicit filename to enable caching in incremental parser
-            ParseResult<?> result = parser.parse(in, LocalFileObject.get("cli"), null);
+            ParseResult<?> result = parser.parse(in);
 
             if(result.isSuccess())
                 outputProcessor.outputParseResult((ParseSuccess<?>) result, outputStream);
@@ -130,7 +129,7 @@ public class JSGLR2CLI implements Runnable {
         throws WrappedException {
         for(String in : input) {
             // Explicit filename to enable caching in incremental parser
-            JSGLR2Result<IStrategoTerm> result = jsglr2.parseResult(in, LocalFileObject.get("cli"), null);
+            JSGLR2Result<IStrategoTerm> result = jsglr2.parseResult(in);
 
             if(result.isSuccess())
                 outputProcessor.outputResult((JSGLR2Success<IStrategoTerm>) result, outputStream);

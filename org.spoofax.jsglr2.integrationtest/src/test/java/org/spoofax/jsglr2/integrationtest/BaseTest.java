@@ -14,9 +14,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -34,7 +31,6 @@ import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.util.AstUtilities;
-import org.spoofax.jsglr2.util.LocalFileObject;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -174,13 +170,13 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected IStrategoTerm testSuccess(TestVariant variant, String startSymbol, String inputString) {
-        return testSuccess("Parsing failed", "Imploding failed", variant.jsglr2(), null, startSymbol, inputString);
+        return testSuccess("Parsing failed", "Imploding failed", variant.jsglr2(), "", startSymbol, inputString);
     }
 
     private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage, JSGLR2<IStrategoTerm> jsglr2,
-        @Nullable FileObject resource, String startSymbol, String inputString) {
+        String fileName, String startSymbol, String inputString) {
         try {
-            IStrategoTerm result = jsglr2.parseUnsafe(inputString, resource, startSymbol);
+            IStrategoTerm result = jsglr2.parseUnsafe(inputString, fileName, startSymbol);
 
             // Fail here if imploding or tokenization failed
             assertNotNull(result, implodeFailMessage);
@@ -206,11 +202,11 @@ public abstract class BaseTest implements WithParseTable {
         String startSymbol, boolean equalityByExpansions, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
             IStrategoTerm actualOutputAst;
-            FileObject resource = LocalFileObject.get("" + System.nanoTime()); // To ensure the results will be cached
+            String fileName = "" + System.nanoTime(); // To ensure the results will be cached
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
                 String inputString = inputStrings[i];
                 actualOutputAst = testSuccess("Parsing failed at update " + i + ": ",
-                    "Imploding failed at update " + i + ": ", variant.jsglr2(), resource, startSymbol, inputString);
+                    "Imploding failed at update " + i + ": ", variant.jsglr2(), fileName, startSymbol, inputString);
                 assertEqualAST("Incorrect AST at update " + i + ": ", expectedOutputAstStrings[i], actualOutputAst,
                     equalityByExpansions);
             }
@@ -258,7 +254,7 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
         Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
-            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, null, null);
+            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
             assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
 
@@ -309,7 +305,7 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
         Stream<TestVariant> variants, String startSymbol) {
         return testPerVariant(variants, variant -> () -> {
-            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, null, startSymbol);
+            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", startSymbol);
 
             List<MessageDescriptor> actualMessages = new ArrayList<>();
 

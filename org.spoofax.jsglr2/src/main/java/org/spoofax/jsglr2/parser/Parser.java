@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
@@ -62,9 +59,8 @@ public class Parser
         this.failureHandler = failureHandlerFactory.get(observing);
     }
 
-    @Override public ParseResult<ParseForest> parse(String inputString, @Nullable FileObject resource,
-        String startSymbol) {
-        ParseState parseState = getParseState(inputString, resource);
+    @Override public ParseResult<ParseForest> parse(String inputString, String fileName, String startSymbol) {
+        ParseState parseState = getParseState(inputString, fileName);
 
         observing.notify(observer -> observer.parseStart(parseState));
 
@@ -98,8 +94,8 @@ public class Parser
             return failure(parseState, failureHandler.failureType(parseState));
     }
 
-    protected ParseState getParseState(String inputString, @Nullable FileObject resource) {
-        return parseStateFactory.get(inputStackFactory.get(inputString, resource), observing);
+    protected ParseState getParseState(String inputString, String fileName) {
+        return parseStateFactory.get(inputStackFactory.get(inputString, fileName), observing);
     }
 
     protected ParseSuccess<ParseForest> success(ParseState parseState, ParseForest parseForest) {

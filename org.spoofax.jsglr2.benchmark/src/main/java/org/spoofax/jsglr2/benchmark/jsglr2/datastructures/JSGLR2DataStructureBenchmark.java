@@ -44,7 +44,7 @@ public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<String,
 
         try {
             for(StringInput input : inputs)
-                parser.parseUnsafe(input.content, input.resource, null);
+                parser.parseUnsafe(input.content, input.fileName, null);
         } catch(ParseException e) {
             throw new IllegalStateException("setup of benchmark should not fail");
         }

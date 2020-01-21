@@ -3,9 +3,6 @@ package org.spoofax.jsglr2;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
@@ -32,16 +29,15 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
         this.tokenizer = tokenizer;
     }
 
-    @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, @Nullable FileObject resource,
-        String startSymbol) {
-        ParseResult<ParseForest> parseResult = parser.parse(input, resource, startSymbol);
+    @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String fileName, String startSymbol) {
+        ParseResult<ParseForest> parseResult = parser.parse(input, fileName, startSymbol);
 
         if(parseResult.isSuccess()) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;
 
-            ImplodeResult implodeResult = imploder.implode(input, resource, success.parseResult);
+            ImplodeResult implodeResult = imploder.implode(input, fileName, success.parseResult);
 
-            TokenizeResult tokenizeResult = tokenizer.tokenize(input, resource, implodeResult);
+            TokenizeResult tokenizeResult = tokenizer.tokenize(input, fileName, implodeResult);
 
             List<Message> messages = new ArrayList<>();
 

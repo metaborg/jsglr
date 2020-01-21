@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.Accept;
 import org.metaborg.parsetable.actions.ActionType;
@@ -80,25 +77,21 @@ public class IncrementalParser
 
     // TODO it is very ugly to have this method here. It's only used in benchmarking, but it should not exist in the
     // regular implementation
-    public void addToCache(String filename, String oldInput, IncrementalParseForest oldResult) {
-        oldString.put(filename, oldInput);
-        cache.put(filename, oldResult);
+    public void addToCache(String fileName, String oldInput, IncrementalParseForest oldResult) {
+        oldString.put(fileName, oldInput);
+        cache.put(fileName, oldResult);
     }
 
-    @Override protected ParseState getParseState(String inputString, @Nullable FileObject resource) {
-        IncrementalParseForest updatedTree = getUpdatedTree(inputString, resource);
-        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, resource), observing);
+    @Override protected ParseState getParseState(String inputString, String fileName) {
+        IncrementalParseForest updatedTree = getUpdatedTree(inputString, fileName);
+        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, fileName), observing);
     }
 
-    private IncrementalParseForest getUpdatedTree(String inputString, @Nullable FileObject resource) {
-        String filename = resource != null ? resource.getName().getURI() : "";
+    private IncrementalParseForest getUpdatedTree(String inputString, String fileName) {
+        if(!fileName.equals("") && cache.containsKey(fileName) && oldString.containsKey(fileName)) {
+            List<EditorUpdate> updates = diff.diff(oldString.get(fileName), inputString);
 
-        // TODO: maybe do caching on resource, not filename?
-
-        if(!filename.equals("") && cache.containsKey(filename) && oldString.containsKey(filename)) {
-            List<EditorUpdate> updates = diff.diff(oldString.get(filename), inputString);
-
-            return processUpdates.processUpdates(cache.get(filename), updates);
+            return processUpdates.processUpdates(cache.get(fileName), updates);
         } else
             return processUpdates.getParseNodeFromString(inputString);
     }
@@ -125,7 +118,7 @@ public class IncrementalParser
 
     @Override protected ParseSuccess<IncrementalParseForest> success(ParseState parseState,
         IncrementalParseForest parseForest) {
-        // On success, save result (if filename != "")
+        // On success, save result (if fileName != "")
         if(!parseState.inputStack.fileName().equals("")) {
             oldString.put(parseState.inputStack.fileName(), parseState.inputStack.inputString());
             cache.put(parseState.inputStack.fileName(), parseForest);

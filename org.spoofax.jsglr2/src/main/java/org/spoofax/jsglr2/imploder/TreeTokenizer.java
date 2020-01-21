@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.vfs2.FileObject;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
@@ -36,20 +33,20 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
 
     }
 
-    @Override public TokenizeResult tokenize(String input, @Nullable FileObject resource,
+    @Override public TokenizeResult tokenize(String input, String fileName,
         ImplodeResult<TreeImploder.SubTree<Tree>, Tree> implodeResult) {
-        Tokens tokens = new Tokens(input, resource != null ? resource.getName().getURI() : "");
+        Tokens tokens = new Tokens(input, fileName);
 
-        SubTree result = tokenize(resource, tokens, implodeResult.intermediateResult);
+        SubTree result = tokenize(tokens, implodeResult.intermediateResult);
 
         return new TokenizeResult(tokens, result.messages);
     }
 
-    protected SubTree tokenize(FileObject resource, Tokens tokens, TreeImploder.SubTree<Tree> tree) {
+    protected SubTree tokenize(Tokens tokens, TreeImploder.SubTree<Tree> tree) {
         tokens.makeStartToken();
         tokenTreeBinding(tokens.startToken(), tree.tree);
 
-        SubTree res = tokenizeInternal(resource, tokens, tree, new Position(0, 1, 1));
+        SubTree res = tokenizeInternal(tokens, tree, new Position(0, 1, 1));
 
         tokens.makeEndToken(new Position(res.endPosition.offset, res.endPosition.line, res.endPosition.column));
         tokenTreeBinding(tokens.endToken(), res.tree);
@@ -57,8 +54,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
         return res;
     }
 
-    private SubTree tokenizeInternal(FileObject resource, Tokens tokens, TreeImploder.SubTree<Tree> tree,
-        Position startPosition) {
+    private SubTree tokenizeInternal(Tokens tokens, TreeImploder.SubTree<Tree> tree, Position startPosition) {
         if(tree.children.size() == 0) {
             if(tree.width > 0) {
                 Position endPosition = startPosition.step(tokens.getInput(), tree.width);
@@ -73,7 +69,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
             Position pivotPosition = startPosition;
             Collection<Message> messages = null;
             for(TreeImploder.SubTree<Tree> child : tree.children) {
-                SubTree subTree = tokenizeInternal(resource, tokens, child, pivotPosition);
+                SubTree subTree = tokenizeInternal(tokens, child, pivotPosition);
 
                 // If child tree had tokens that were not yet bound, bind them
                 if(subTree.tree == null) {
@@ -108,14 +104,14 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
                 if(messages == null)
                     messages = new ArrayList<>();
 
-                messages.add(parseErrorMessage(resource, startPosition, pivotPosition));
+                messages.add(parseErrorMessage(startPosition, pivotPosition));
             }
 
             return new SubTree(tree, leftToken, rightToken, pivotPosition, messages);
         }
     }
 
-    protected Message parseErrorMessage(FileObject resource, Position start, Position end) {
+    protected Message parseErrorMessage(Position start, Position end) {
         SourceRegion region =
             new SourceRegion(start.offset, start.line, start.column, end.offset, end.line, end.column);
 

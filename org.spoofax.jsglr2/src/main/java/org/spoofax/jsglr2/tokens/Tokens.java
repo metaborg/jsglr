@@ -15,16 +15,16 @@ public class Tokens implements IParseTokens {
 
     private static final long serialVersionUID = 2054391299757162697L;
 
-    private final String filename;
+    private final String fileName;
     private final String input;
 
     private IToken startToken, endToken;
 
     private final ArrayList<IToken> tokens;
 
-    public Tokens(String input, String filename) {
+    public Tokens(String input, String fileName) {
         this.input = input;
-        this.filename = filename;
+        this.fileName = fileName;
 
         this.tokens = new ArrayList<>();
     }
@@ -38,13 +38,13 @@ public class Tokens implements IParseTokens {
     }
 
     public void makeStartToken() {
-        startToken = new Token(this, filename, 0, 1, 1, 0, -1, TK_RESERVED);
+        startToken = new Token(this, fileName, 0, 1, 1, 0, -1, TK_RESERVED);
 
         addToken(startToken);
     }
 
     public void makeEndToken(Position endPosition) {
-        endToken = new Token(this, filename, tokens.size(), endPosition.line, endPosition.column - 1,
+        endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column - 1,
             endPosition.offset, -1, TK_EOF);
 
         addToken(endToken);
@@ -71,7 +71,7 @@ public class Tokens implements IParseTokens {
             throw new IllegalStateException("invalid production/token type");
         }
 
-        IToken token = new Token(this, filename, tokens.size(), startPosition.line, startPosition.column,
+        IToken token = new Token(this, fileName, tokens.size(), startPosition.line, startPosition.column,
             startPosition.offset, endPosition.offset - 1, tokenKind);
 
         addToken(token);
@@ -113,7 +113,7 @@ public class Tokens implements IParseTokens {
     }
 
     @Override public String getFilename() {
-        return filename;
+        return fileName;
     }
 
     @Override public String toString(IToken left, IToken right) {

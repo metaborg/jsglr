@@ -11,7 +11,8 @@ public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding extends JSGL
     }
 
     @Override protected Object action(Blackhole bh, IncrementalStringInput input) throws ParseException {
-        correctCache(input);
+        // TODO
+        // correctCache(input);
 
         if(i >= 0)
             return jsglr2.parseUnsafe(input.content[i], input.fileName, null);
@@ -25,7 +26,8 @@ public abstract class JSGLR2BenchmarkIncrementalParsingAndImploding extends JSGL
 
         // if (i == -1)
         for(String content : input.content) {
-            possiblyClearCache();
+            // TODO
+            // possiblyClearCache();
             bh.consume(jsglr2.parseUnsafe(content, input.fileName, null));
         }
         return null;

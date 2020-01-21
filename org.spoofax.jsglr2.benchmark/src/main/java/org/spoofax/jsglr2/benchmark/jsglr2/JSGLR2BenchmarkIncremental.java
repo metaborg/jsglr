@@ -11,7 +11,6 @@ import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalImplodeInput;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
-import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
@@ -91,29 +90,6 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                     prevMap.put(input, imploder.getFromCache(input.fileName));
                 }
             }
-        }
-    }
-
-    protected void correctCache(IncrementalStringInput input) {
-        if(jsglr2.parser instanceof IncrementalParser) {
-            IncrementalParser parser = (IncrementalParser) jsglr2.parser;
-            parser.clearCache();
-            if(shouldSetupCache())
-                parser.addToCache(input.fileName, prevString.get(input), prevResult.get(input));
-        }
-        if(implode() && jsglr2.imploder instanceof IncrementalTreeImploder) {
-            IncrementalTreeImploder imploder = (IncrementalTreeImploder) jsglr2.imploder;
-            imploder.clearCache();
-            if(shouldSetupCache())
-                imploder.addToCache(input.fileName, new WeakHashMap<>(prevMap.get(input)));
-        }
-    }
-
-    protected void possiblyClearCache() {
-        if(parserType == ParserType.IncrementalNoCache) {
-            ((IncrementalParser) jsglr2.parser).clearCache();
-            if(implode())
-                ((IncrementalTreeImploder) jsglr2.imploder).clearCache();
         }
     }
 

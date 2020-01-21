@@ -8,8 +8,7 @@ import org.spoofax.jsglr2.parser.Position;
 public class RecoveryMessages {
 
     public static Message get(IProduction production, Position start, Position end) {
-        SourceRegion region =
-            new SourceRegion(start.offset, start.line, start.column, end.offset, end.line, end.column);
+        SourceRegion region = new SourceRegion(start, end);
 
         String message;
 

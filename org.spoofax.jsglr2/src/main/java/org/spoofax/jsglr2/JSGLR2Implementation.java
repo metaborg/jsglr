@@ -14,16 +14,16 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
-public class JSGLR2Implementation<ParseForest extends IParseForest, IntermediateResult, AbstractSyntaxTree, ImplodeResult extends IImplodeResult<IntermediateResult, AbstractSyntaxTree>>
+public class JSGLR2Implementation<ParseForest extends IParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>>
     implements JSGLR2<AbstractSyntaxTree> {
 
     public final IParser<ParseForest> parser;
-    public final IImploder<ParseForest, IntermediateResult, AbstractSyntaxTree, ImplodeResult> imploder;
-    public final ITokenizer<ImplodeResult> tokenizer;
+    public final IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
+    public final ITokenizer<IntermediateResult> tokenizer;
 
     JSGLR2Implementation(IParser<ParseForest> parser,
-        IImploder<ParseForest, IntermediateResult, AbstractSyntaxTree, ImplodeResult> imploder,
-        ITokenizer<ImplodeResult> tokenizer) {
+        IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder,
+        ITokenizer<IntermediateResult> tokenizer) {
         this.parser = parser;
         this.imploder = imploder;
         this.tokenizer = tokenizer;
@@ -37,7 +37,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
 
             ImplodeResult implodeResult = imploder.implode(input, fileName, success.parseResult);
 
-            TokenizeResult tokenizeResult = tokenizer.tokenize(input, fileName, implodeResult);
+            TokenizeResult tokenizeResult = tokenizer.tokenize(input, fileName, implodeResult.intermediateResult());
 
             List<Message> messages = new ArrayList<>();
 

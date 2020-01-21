@@ -10,10 +10,11 @@ public class IncrementalStrategoTermImploder
 //@formatter:off
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    Derivation  extends IDerivation<ParseForest>>
+    Derivation  extends IDerivation<ParseForest>,
+    Cache       extends IncrementalTreeImploder.ResultCache<ParseForest, ParseNode, Derivation, IStrategoTerm>>
 //@formatter:on
     extends
-    IncrementalTreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm, IncrementalImplodeInput<ParseNode, IStrategoTerm>> {
+    IncrementalTreeImploder<ParseForest, ParseNode, Derivation, Cache, IStrategoTerm, IncrementalImplodeInput<ParseNode, Cache, IStrategoTerm>> {
 
     public IncrementalStrategoTermImploder() {
         super(inputString -> new IncrementalImplodeInput<>(inputString, null), IncrementalImplodeInput::new,

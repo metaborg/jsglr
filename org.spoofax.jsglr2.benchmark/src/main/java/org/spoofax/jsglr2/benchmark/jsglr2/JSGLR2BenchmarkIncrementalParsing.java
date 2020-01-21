@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
 import org.openjdk.jmh.infra.Blackhole;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 
@@ -14,10 +14,10 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2BenchmarkI
     @Override protected Object action(Blackhole bh, IncrementalStringInput input) throws ParseException {
         if(i >= 0)
             return jsglr2.parser.parseUnsafe(input.content[i], input.fileName, null, prevString.get(input),
-                prevResult.get(input));
+                prevParse.get(input));
 
         String previousInput = null;
-        IncrementalParseForest previousResult = null;
+        IParseForest previousResult = null;
 
         if(i == -2) {
             for(String content : uniqueInputs.get(input)) {

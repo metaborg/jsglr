@@ -16,11 +16,12 @@ public abstract class AbstractTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    IntermediateResult,
+    IntermediateResult, 
+    Cache,
     AbstractSyntaxTree,
-    Result      extends IImplodeResult<IntermediateResult, AbstractSyntaxTree>>
+    Result      extends IImplodeResult<IntermediateResult, Cache, AbstractSyntaxTree>>
 //@formatter:on
-    implements IImploder<ParseForest, IntermediateResult, AbstractSyntaxTree, Result> {
+    implements IImploder<ParseForest, IntermediateResult, Cache, AbstractSyntaxTree, Result> {
 
     protected List<List<ParseForest>> implodeAmbiguousLists(List<Derivation> derivations) {
         List<List<ParseForest>> alternatives = new ArrayList<>();

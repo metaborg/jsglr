@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.recovery.RecoveryMessages;
 import org.spoofax.jsglr2.tokens.Tokens;
 
-public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<TreeImploder.SubTree<Tree>, Tree>> {
+public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.SubTree<Tree>> {
     class SubTree {
         Tree tree;
         IToken leftToken;
@@ -34,10 +34,10 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
     }
 
     @Override public TokenizeResult tokenize(String input, String fileName,
-        ImplodeResult<TreeImploder.SubTree<Tree>, Tree> implodeResult) {
+        TreeImploder.SubTree<Tree> implodeIntermediateResult) {
         Tokens tokens = new Tokens(input, fileName);
 
-        SubTree result = tokenize(tokens, implodeResult.intermediateResult);
+        SubTree result = tokenize(tokens, implodeIntermediateResult);
 
         return new TokenizeResult(tokens, result.messages);
     }

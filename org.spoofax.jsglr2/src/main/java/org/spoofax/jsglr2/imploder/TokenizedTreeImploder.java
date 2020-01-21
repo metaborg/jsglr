@@ -25,7 +25,7 @@ public abstract class TokenizedTreeImploder
     Tree>
 //@formatter:on
     extends
-    AbstractTreeImploder<ParseForest, ParseNode, Derivation, TokenizedTreeImploder.SubTree<Tree>, Tree, TokenizedImplodeResult<TokenizedTreeImploder.SubTree<Tree>, Tree>> {
+    AbstractTreeImploder<ParseForest, ParseNode, Derivation, Tokens, Void, Tree, ImplodeResult<Tokens, Void, Tree>> {
 
     protected final ITokenizedTreeFactory<Tree> treeFactory;
 
@@ -33,8 +33,8 @@ public abstract class TokenizedTreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public TokenizedImplodeResult<SubTree<Tree>, Tree> implode(String input, String fileName,
-        ParseForest parseForest) {
+    @Override public ImplodeResult<Tokens, Void, Tree> implode(String input, String fileName, ParseForest parseForest,
+        Void resultCache) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
         Collection<Message> messages = new ArrayList<>();
@@ -51,7 +51,7 @@ public abstract class TokenizedTreeImploder
         tokenTreeBinding(tokens.startToken(), tree.tree);
         tokenTreeBinding(tokens.endToken(), tree.tree);
 
-        return new TokenizedImplodeResult<>(tree, tree.tree, messages, tokens);
+        return new ImplodeResult<>(tokens, null, tree.tree, messages);
     }
 
     static class SubTree<Tree> {

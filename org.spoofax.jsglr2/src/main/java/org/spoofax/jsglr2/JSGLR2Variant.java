@@ -6,16 +6,15 @@ import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.tokens.NullTokenizer;
+import org.spoofax.jsglr2.tokens.StubTokenizer;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
 public class JSGLR2Variant {
@@ -30,8 +29,8 @@ public class JSGLR2Variant {
         this.tokenizer = tokenizerVariant;
     }
 
-    private <ParseForest extends IParseForest>
-        IImploder<ParseForest, TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm>>
+    private <ImploderCache extends IncrementalTreeImploder.ResultCache<IParseForest, IParseNode<IParseForest, IDerivation<IParseForest>>, IDerivation<IParseForest>, IStrategoTerm>>
+        IImploder<IParseForest, TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm>>
         getImploder() {
         switch(this.imploder) {
             default:
@@ -44,7 +43,7 @@ public class JSGLR2Variant {
         }
     }
 
-    private ITokenizer<ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IStrategoTerm>> getTokenizer() {
+    private ITokenizer<TreeImploder.SubTree<IStrategoTerm>> getTokenizer() {
         switch(this.tokenizer) {
             case Recursive:
                 return new StrategoTermTokenizer();
@@ -66,7 +65,7 @@ public class JSGLR2Variant {
         if(this.parser.parseForestRepresentation == ParseForestRepresentation.Null)
             return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), (input, fileName, tree) -> null);
         else if(this.imploder == ImploderVariant.TokenizedRecursive)
-            return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new NullTokenizer<>());
+            return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new StubTokenizer());
         else
             return new JSGLR2Implementation<>(parser, getImploder(), getTokenizer());
     }

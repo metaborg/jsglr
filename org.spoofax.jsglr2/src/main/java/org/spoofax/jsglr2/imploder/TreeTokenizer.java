@@ -7,11 +7,9 @@ import java.util.Collections;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.messages.IMessage;
-import org.metaborg.core.messages.MessageFactory;
-import org.metaborg.core.source.ISourceRegion;
-import org.metaborg.core.source.SourceRegion;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
@@ -21,10 +19,10 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
         IToken leftToken;
         IToken rightToken;
         Position endPosition;
-        public final Collection<IMessage> messages;
+        public final Collection<Message> messages;
 
         SubTree(TreeImploder.SubTree<Tree> tree, IToken leftToken, IToken rightToken, Position endPosition,
-            Collection<IMessage> messages) {
+            Collection<Message> messages) {
             this.tree = tree.tree;
             this.leftToken = leftToken;
             this.rightToken = rightToken;
@@ -73,7 +71,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
             IToken leftToken = null;
             IToken rightToken = null;
             Position pivotPosition = startPosition;
-            Collection<IMessage> messages = null;
+            Collection<Message> messages = null;
             for(TreeImploder.SubTree<Tree> child : tree.children) {
                 SubTree subTree = tokenizeInternal(resource, tokens, child, pivotPosition);
 
@@ -117,11 +115,11 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
         }
     }
 
-    protected IMessage parseErrorMessage(FileObject resource, Position start, Position end) {
-        ISourceRegion region =
+    protected Message parseErrorMessage(FileObject resource, Position start, Position end) {
+        SourceRegion region =
             new SourceRegion(start.offset, start.line, start.column, end.offset, end.line, end.column);
 
-        return MessageFactory.newParseError(resource, region, "Invalid syntax", null);
+        return Message.error("Invalid syntax", region);
     }
 
     protected abstract void configure(Tree term, String sort, IToken leftToken, IToken rightToken);

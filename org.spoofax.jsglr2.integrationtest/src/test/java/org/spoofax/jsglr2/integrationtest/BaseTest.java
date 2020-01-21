@@ -19,7 +19,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.vfs2.FileObject;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
-import org.metaborg.core.messages.IMessage;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
@@ -28,6 +27,7 @@ import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -313,7 +313,7 @@ public abstract class BaseTest implements WithParseTable {
 
             List<MessageDescriptor> actualMessages = new ArrayList<>();
 
-            for(IMessage message : jsglr2Result.messages) {
+            for(Message message : jsglr2Result.messages) {
                 actualMessages.add(MessageDescriptor.from(message));
             }
 

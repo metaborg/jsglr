@@ -5,7 +5,7 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.messages.IMessage;
+import org.spoofax.jsglr2.messages.Message;
 
 public class ImplodeResult<IntermediateResult, AbstractSyntaxTree>
     implements IImplodeResult<IntermediateResult, AbstractSyntaxTree> {
@@ -13,10 +13,10 @@ public class ImplodeResult<IntermediateResult, AbstractSyntaxTree>
     public final @Nullable FileObject resource;
     public final IntermediateResult intermediateResult;
     public final AbstractSyntaxTree ast;
-    public final Collection<IMessage> messages;
+    public final Collection<Message> messages;
 
     public ImplodeResult(@Nullable FileObject resource, IntermediateResult intermediateResult, AbstractSyntaxTree ast,
-        Collection<IMessage> messages) {
+        Collection<Message> messages) {
         this.resource = resource;
         this.intermediateResult = intermediateResult;
         this.ast = ast;
@@ -31,7 +31,7 @@ public class ImplodeResult<IntermediateResult, AbstractSyntaxTree>
         return ast;
     }
 
-    @Override public Collection<IMessage> messages() {
+    @Override public Collection<Message> messages() {
         return messages;
     }
 }

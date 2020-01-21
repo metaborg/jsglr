@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.Collection;
 
-import org.metaborg.core.messages.IMessage;
+import org.spoofax.jsglr2.messages.Message;
 
 public interface IImplodeResult<IntermediateResult, AbstractSyntaxTree> {
 
@@ -10,6 +10,6 @@ public interface IImplodeResult<IntermediateResult, AbstractSyntaxTree> {
 
     AbstractSyntaxTree ast();
 
-    Collection<IMessage> messages();
+    Collection<Message> messages();
 
 }

@@ -1,9 +1,7 @@
 package org.spoofax.jsglr2.parser.result;
 
-import org.metaborg.core.messages.IMessage;
-import org.metaborg.core.messages.MessageFactory;
-import org.metaborg.core.source.ISourceRegion;
-import org.metaborg.core.source.SourceRegion;
+import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.Position;
 
@@ -20,15 +18,15 @@ public enum ParseFailureType {
         this.errorAtTop = errorAtTop;
     }
 
-    public IMessage toMessage(AbstractParseState<?, ?> parseState) {
+    public Message toMessage(AbstractParseState<?, ?> parseState) {
         if(errorAtTop)
-            return MessageFactory.newParseErrorAtTop(parseState.inputStack.resource(), message, null);
+            return Message.errorAtTop(message);
         else {
             Position position = Position.atOffset(parseState.inputStack.inputString(), parseState.inputStack.offset());
-            ISourceRegion region = new SourceRegion(position.offset, position.line, position.column, position.offset,
+            SourceRegion region = new SourceRegion(position.offset, position.line, position.column, position.offset,
                 position.line, position.column);
 
-            return MessageFactory.newParseError(parseState.inputStack.resource(), region, message, null);
+            return Message.error(message, region);
         }
     }
 

@@ -6,11 +6,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.messages.IMessage;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
 import org.spoofax.jsglr2.imploder.TokenizeResult;
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -43,7 +43,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
 
             TokenizeResult tokenizeResult = tokenizer.tokenize(input, resource, implodeResult);
 
-            List<IMessage> messages = new ArrayList<>();
+            List<Message> messages = new ArrayList<>();
 
             messages.addAll(parseResult.messages);
             messages.addAll(implodeResult.messages());

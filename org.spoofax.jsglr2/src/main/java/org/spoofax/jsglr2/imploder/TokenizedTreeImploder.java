@@ -8,14 +8,12 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.messages.IMessage;
-import org.metaborg.core.messages.MessageFactory;
-import org.metaborg.core.source.ISourceRegion;
-import org.metaborg.core.source.SourceRegion;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
+import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -43,7 +41,7 @@ public abstract class TokenizedTreeImploder
         String filename = resource != null ? resource.getName().getURI() : "";
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        Collection<IMessage> messages = new ArrayList<>();
+        Collection<Message> messages = new ArrayList<>();
 
         Tokens tokens = new Tokens(input, filename);
         tokens.makeStartToken();
@@ -76,7 +74,7 @@ public abstract class TokenizedTreeImploder
     }
 
     protected SubTree<Tree> implodeParseNode(ParseNode parseNode, @Nullable FileObject resource,
-        Collection<IMessage> messages, Tokens tokens, Position startPosition, IToken parentLeftToken) {
+        Collection<Message> messages, Tokens tokens, Position startPosition, IToken parentLeftToken) {
         parseNode = implodeInjection(parseNode);
 
         IProduction production = parseNode.production();
@@ -139,7 +137,7 @@ public abstract class TokenizedTreeImploder
         }
     }
 
-    protected SubTree<Tree> implodeDerivation(@Nullable FileObject resource, Collection<IMessage> messages,
+    protected SubTree<Tree> implodeDerivation(@Nullable FileObject resource, Collection<Message> messages,
         Tokens tokens, Derivation derivation, Position startPosition, IToken parentLeftToken) {
         IProduction production = derivation.production();
 
@@ -164,7 +162,7 @@ public abstract class TokenizedTreeImploder
         return subTree;
     }
 
-    protected SubTree<Tree> implodeListDerivation(@Nullable FileObject resource, Collection<IMessage> messages,
+    protected SubTree<Tree> implodeListDerivation(@Nullable FileObject resource, Collection<Message> messages,
         Tokens tokens, IProduction production, List<ParseForest> childParseForests, Position startPosition,
         IToken parentLeftToken) {
         List<Tree> childASTs = new ArrayList<>();
@@ -181,7 +179,7 @@ public abstract class TokenizedTreeImploder
         return subTree;
     }
 
-    protected SubTree<Tree> implodeChildParseNodes(@Nullable FileObject resource, Collection<IMessage> messages,
+    protected SubTree<Tree> implodeChildParseNodes(@Nullable FileObject resource, Collection<Message> messages,
         Tokens tokens, List<Tree> childASTs, Iterable<ParseForest> childParseForests, IProduction production,
         List<IToken> unboundTokens, Position startPosition, IToken parentLeftToken) {
         SubTree<Tree> result = new SubTree<>(null, startPosition, parentLeftToken, null);
@@ -277,11 +275,11 @@ public abstract class TokenizedTreeImploder
         return lexicalTerm;
     }
 
-    protected IMessage parseErrorMessage(FileObject resource, Position start, Position end) {
-        ISourceRegion region =
+    protected Message parseErrorMessage(FileObject resource, Position start, Position end) {
+        SourceRegion region =
             new SourceRegion(start.offset, start.line, start.column, end.offset, end.line, end.column);
 
-        return MessageFactory.newParseError(resource, region, "Invalid syntax", null);
+        return Message.error("Invalid syntax", region);
     }
 
     protected abstract void tokenTreeBinding(IToken token, Tree tree);

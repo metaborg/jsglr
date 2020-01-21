@@ -3,8 +3,8 @@ package org.spoofax.jsglr2.imploder;
 import java.util.*;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.messages.IMessage;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
@@ -43,7 +43,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                 IToken leftToken = null;
                 IToken rightToken = null;
                 Position pivotPosition = currentPos;
-                Collection<IMessage> messages = null;
+                Collection<Message> messages = null;
                 for(SubTree subTree : currentOut) {
                     // If child tree had tokens that were not yet bound, bind them
                     if(subTree.tree == null) {

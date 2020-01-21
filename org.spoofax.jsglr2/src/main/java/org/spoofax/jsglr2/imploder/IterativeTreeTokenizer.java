@@ -73,12 +73,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                     }
                 }
 
-                if(tree.production != null && tree.production.isRecovery()) {
-                    if(messages == null)
-                        messages = new ArrayList<>();
-
-                    messages.add(parseErrorMessage(currentStart, pivotPosition));
-                }
+                messages = recoveryMessages(tree.production, currentStart, pivotPosition, messages);
 
                 // Add processed output to the list that is on top of the stack
                 pivotPositionStack.pop();
@@ -91,11 +86,17 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                         Position endPosition = currentPos.step(tokens.getInput(), tree.width);
                         IToken token = tokens.makeToken(currentPos, endPosition, tree.production);
                         tokenTreeBinding(token, tree.tree);
-                        currentOut.add(new SubTree(tree, token, token, endPosition, Collections.emptyList()));
+
+                        Collection<Message> messages = recoveryMessages(tree.production, currentPos, endPosition);
+
+                        currentOut.add(new SubTree(tree, token, token, endPosition, messages));
                         pivotPositionStack.pop();
                         pivotPositionStack.push(endPosition);
                     } else {
-                        currentOut.add(new SubTree(tree, null, null, currentPos, Collections.emptyList()));
+                        Collection<Message> messages =
+                            recoveryMessages(tree.production, currentPos, currentPos.step(tokens.getInput(), 1));
+
+                        currentOut.add(new SubTree(tree, null, null, currentPos, messages));
                     }
                     currentIn.removeFirst();
                 } else {

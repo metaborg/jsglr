@@ -10,11 +10,11 @@ import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.recovery.RecoveryMessages;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public abstract class TokenizedTreeImploder
@@ -148,7 +148,7 @@ public abstract class TokenizedTreeImploder
         subTree.tree = createContextFreeTerm(derivation.production(), childASTs, subTree.leftToken, subTree.rightToken);
 
         if(production.isRecovery())
-            messages.add(parseErrorMessage(startPosition, subTree.endPosition));
+            messages.add(RecoveryMessages.get(production, startPosition, subTree.endPosition));
 
         for(IToken token : unboundTokens)
             tokenTreeBinding(token, subTree.tree);
@@ -266,13 +266,6 @@ public abstract class TokenizedTreeImploder
             tokenTreeBinding(lexicalToken, lexicalTerm);
 
         return lexicalTerm;
-    }
-
-    protected Message parseErrorMessage(Position start, Position end) {
-        SourceRegion region =
-            new SourceRegion(start.offset, start.line, start.column, end.offset, end.line, end.column);
-
-        return Message.error("Invalid syntax", region);
     }
 
     protected abstract void tokenTreeBinding(IToken token, Tree tree);

@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.imploder;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.tokens.Tokens;
@@ -12,7 +13,7 @@ public class TokenizeResult {
 
     public TokenizeResult(Tokens tokens, Collection<Message> messages) {
         this.tokens = tokens;
-        this.messages = messages;
+        this.messages = messages != null ? messages : Collections.emptyList();
     }
 
 }

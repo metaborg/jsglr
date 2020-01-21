@@ -2,12 +2,12 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.recovery.RecoveryMessages;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<TreeImploder.SubTree<Tree>, Tree>> {
@@ -60,9 +60,16 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
                 Position endPosition = startPosition.step(tokens.getInput(), tree.width);
                 IToken token = tokens.makeToken(startPosition, endPosition, tree.production);
                 tokenTreeBinding(token, tree.tree);
-                return new SubTree(tree, token, token, endPosition, Collections.emptyList());
+
+                Collection<Message> messages = recoveryMessages(tree.production, startPosition, endPosition);
+
+                return new SubTree(tree, token, token, endPosition, messages);
+            } else {
+                Collection<Message> messages =
+                    recoveryMessages(tree.production, startPosition, startPosition.step(tokens.getInput(), 1));
+
+                return new SubTree(tree, null, null, startPosition, messages);
             }
-            return new SubTree(tree, null, null, startPosition, Collections.emptyList());
         } else {
             IToken leftToken = null;
             IToken rightToken = null;
@@ -100,22 +107,27 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<ImplodeResult<Tr
                 }
             }
 
-            if(tree.production != null && tree.production.isRecovery()) {
-                if(messages == null)
-                    messages = new ArrayList<>();
-
-                messages.add(parseErrorMessage(startPosition, pivotPosition));
-            }
+            messages = recoveryMessages(tree.production, startPosition, pivotPosition, messages);
 
             return new SubTree(tree, leftToken, rightToken, pivotPosition, messages);
         }
     }
 
-    protected Message parseErrorMessage(Position start, Position end) {
-        SourceRegion region =
-            new SourceRegion(start.offset, start.line, start.column, end.offset, end.line, end.column);
+    protected Collection<Message> recoveryMessages(IProduction production, Position startPosition,
+        Position endPosition) {
+        return recoveryMessages(production, startPosition, endPosition, null);
+    }
 
-        return Message.error("Invalid syntax", region);
+    protected Collection<Message> recoveryMessages(IProduction production, Position startPosition, Position endPosition,
+        Collection<Message> messages) {
+        if(production != null && production.isRecovery()) {
+            if(messages == null)
+                messages = new ArrayList<>();
+
+            messages.add(RecoveryMessages.get(production, startPosition, endPosition));
+        }
+
+        return messages;
     }
 
     protected abstract void configure(Tree term, String sort, IToken leftToken, IToken rightToken);

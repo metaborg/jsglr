@@ -50,7 +50,7 @@ public abstract class JSGLR2BenchmarkParsing extends JSGLR2Benchmark<String, Str
     }
 
     @Override protected Object action(Blackhole bh, StringInput input) throws ParseException {
-        return jsglr2.parser.parseUnsafe(input.content, input.fileName, null);
+        return jsglr2.parser.parseUnsafe(input.content, null);
     }
 
 }

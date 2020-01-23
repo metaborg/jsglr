@@ -21,8 +21,8 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public LazyIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
-        super(inputString, fileName);
+    public LazyIncrementalInputStack(IncrementalParseForest root, String inputString) {
+        super(inputString);
         IncrementalParseNode ultraRoot = new IncrementalParseNode(root, IncrementalCharacterNode.EOF_NODE);
         stack.push(new StackTuple(ultraRoot, 0));
 
@@ -30,11 +30,11 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
     }
 
     LazyIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield(), "");
+        this(root, root.getYield());
     }
 
     @Override public LazyIncrementalInputStack clone() {
-        LazyIncrementalInputStack clone = new LazyIncrementalInputStack(EOF_NODE, inputString, fileName);
+        LazyIncrementalInputStack clone = new LazyIncrementalInputStack(EOF_NODE, inputString);
         clone.stack.clear();
         for(StackTuple stackTuple : stack) {
             clone.stack.push(stackTuple);

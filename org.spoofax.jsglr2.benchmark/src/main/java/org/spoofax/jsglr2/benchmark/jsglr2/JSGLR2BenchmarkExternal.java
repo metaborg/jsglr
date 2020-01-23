@@ -37,7 +37,7 @@ public class JSGLR2BenchmarkExternal extends JSGLR2Benchmark<String, StringInput
         if(implode)
             return jsglr2.parseUnsafe(input.content, input.fileName, null);
         else
-            return jsglr2.parser.parseUnsafe(input.content, input.fileName, null);
+            return jsglr2.parser.parseUnsafe(input.content, null);
     }
 
 }

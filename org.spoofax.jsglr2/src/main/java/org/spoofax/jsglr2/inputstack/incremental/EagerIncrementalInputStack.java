@@ -18,18 +18,18 @@ public class EagerIncrementalInputStack extends AbstractInputStack implements II
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public EagerIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
-        super(inputString, fileName);
+    public EagerIncrementalInputStack(IncrementalParseForest root, String inputString) {
+        super(inputString);
         stack.push(EOF_NODE);
         stack.push(root);
     }
 
     EagerIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield(), "");
+        this(root, root.getYield());
     }
 
     @Override public EagerIncrementalInputStack clone() {
-        EagerIncrementalInputStack clone = new EagerIncrementalInputStack(EOF_NODE, inputString, fileName);
+        EagerIncrementalInputStack clone = new EagerIncrementalInputStack(EOF_NODE, inputString);
         clone.stack.clear();
         for(IncrementalParseForest node : stack) {
             clone.stack.push(node);

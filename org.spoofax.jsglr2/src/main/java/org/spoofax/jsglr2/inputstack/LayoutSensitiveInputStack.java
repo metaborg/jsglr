@@ -10,8 +10,8 @@ public class LayoutSensitiveInputStack extends InputStack {
     private int currentLine = 1;
     private int currentColumn = 1;
 
-    public LayoutSensitiveInputStack(String inputString, String fileName) {
-        super(inputString, fileName);
+    public LayoutSensitiveInputStack(String inputString) {
+        super(inputString);
     }
 
     public Position currentPosition() {

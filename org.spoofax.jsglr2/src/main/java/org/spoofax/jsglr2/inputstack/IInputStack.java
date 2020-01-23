@@ -5,8 +5,6 @@ import org.metaborg.parsetable.query.IActionQuery;
 public interface IInputStack extends IActionQuery {
     String inputString();
 
-    String fileName();
-
     boolean hasNext();
 
     void next();

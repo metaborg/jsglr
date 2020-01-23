@@ -30,7 +30,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
     }
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String fileName, String startSymbol) {
-        ParseResult<ParseForest> parseResult = parser.parse(input, fileName, startSymbol);
+        ParseResult<ParseForest> parseResult = parser.parse(input, startSymbol);
 
         if(parseResult.isSuccess()) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;

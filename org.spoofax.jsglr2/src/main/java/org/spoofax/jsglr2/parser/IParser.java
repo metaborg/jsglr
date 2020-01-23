@@ -7,28 +7,23 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
 public interface IParser<ParseForest extends IParseForest> {
 
-    ParseResult<ParseForest> parse(String input, String fileName, String startSymbol, String previousInput,
-        ParseForest previousResult);
+    ParseResult<ParseForest> parse(String input, String startSymbol, String previousInput, ParseForest previousResult);
 
-    default ParseResult<ParseForest> parse(String input, String fileName, String startSymbol) {
-        return parse(input, fileName, startSymbol, null, null);
-    }
-
-    default ParseResult<ParseForest> parse(String input, String fileName) {
-        return parse(input, fileName, null);
+    default ParseResult<ParseForest> parse(String input, String startSymbol) {
+        return parse(input, startSymbol, null, null);
     }
 
     default ParseResult<ParseForest> parse(String input) {
-        return parse(input, "");
+        return parse(input, null);
     }
 
     /**
      * Parses an input and directly returns the parse forest in case of a successful parse or throws a ParseException
      * otherwise.
      */
-    default ParseForest parseUnsafe(String input, String fileName, String startSymbol, String previousInput,
-        ParseForest previousResult) throws ParseException {
-        ParseResult<ParseForest> result = parse(input, fileName, startSymbol, previousInput, previousResult);
+    default ParseForest parseUnsafe(String input, String startSymbol, String previousInput, ParseForest previousResult)
+        throws ParseException {
+        ParseResult<ParseForest> result = parse(input, startSymbol, previousInput, previousResult);
 
         if(result.isSuccess()) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;
@@ -41,8 +36,8 @@ public interface IParser<ParseForest extends IParseForest> {
         }
     }
 
-    default ParseForest parseUnsafe(String input, String fileName, String startSymbol) throws ParseException {
-        return parseUnsafe(input, fileName, startSymbol, null, null);
+    default ParseForest parseUnsafe(String input, String startSymbol) throws ParseException {
+        return parseUnsafe(input, startSymbol, null, null);
     }
 
 }

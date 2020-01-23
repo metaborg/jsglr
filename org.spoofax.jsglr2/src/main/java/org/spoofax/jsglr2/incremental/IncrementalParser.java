@@ -64,12 +64,12 @@ public class IncrementalParser
             new ProcessUpdates<>((IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
     }
 
-    @Override protected ParseState getParseState(String inputString, String fileName, String previousInput,
+    @Override protected ParseState getParseState(String inputString, String previousInput,
         IncrementalParseForest previousResult) {
         IncrementalParseForest updatedTree = previousInput != null && previousResult != null
             ? processUpdates.processUpdates(previousResult, diff.diff(previousInput, inputString))
             : processUpdates.getParseNodeFromString(inputString);
-        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, fileName), observing);
+        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString), observing);
     }
 
     /*

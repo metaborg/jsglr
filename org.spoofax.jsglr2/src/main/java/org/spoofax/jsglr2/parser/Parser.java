@@ -59,9 +59,9 @@ public class Parser
         this.failureHandler = failureHandlerFactory.get(observing);
     }
 
-    @Override public ParseResult<ParseForest> parse(String inputString, String fileName, String startSymbol,
-        String previousInput, ParseForest previousResult) {
-        ParseState parseState = getParseState(inputString, fileName, previousInput, previousResult);
+    @Override public ParseResult<ParseForest> parse(String inputString, String startSymbol, String previousInput,
+        ParseForest previousResult) {
+        ParseState parseState = getParseState(inputString, previousInput, previousResult);
 
         observing.notify(observer -> observer.parseStart(parseState));
 
@@ -95,9 +95,8 @@ public class Parser
             return failure(parseState, failureHandler.failureType(parseState));
     }
 
-    protected ParseState getParseState(String inputString, String fileName, String previousInput,
-        ParseForest previousResult) {
-        return parseStateFactory.get(inputStackFactory.get(inputString, fileName), observing);
+    protected ParseState getParseState(String inputString, String previousInput, ParseForest previousResult) {
+        return parseStateFactory.get(inputStackFactory.get(inputString), observing);
     }
 
     protected ParseSuccess<ParseForest> success(ParseState parseState, ParseForest parseForest) {

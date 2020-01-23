@@ -77,7 +77,7 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
             for(IncrementalStringInput input : inputs) {
                 String content = input.content[i - 1];
                 prevString.put(input, content);
-                prevParse.put(input, jsglr2.parser.parseUnsafe(content, input.fileName, null));
+                prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
                 if(implode()) {
                     IImplodeResult<?, Object, ?> implodeResult =
                         jsglr2.imploder.implode(prevString.get(input), input.fileName, prevParse.get(input));

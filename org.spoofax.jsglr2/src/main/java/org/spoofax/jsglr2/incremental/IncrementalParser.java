@@ -72,23 +72,25 @@ public class IncrementalParser
         return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString), observing);
     }
 
-    /*
-     * TODO this optimization does not work at the moment, as the `parseLoop` doesn't get passed the previousResult
-     * 
-     * @Override protected void parseLoop(ParseState parse) { // Optimization: if the first tree on the lookahead stack
-     * is exactly the same as the previous tree: String fileName = parse.inputStack.fileName(); if(!fileName.equals("")
-     * && cache.containsKey(fileName) && parse.inputStack.getNode() == cache.get(fileName)) {
-     * 
-     * StackNode stack = parse.activeStacks.getSingle();
-     * 
-     * // Shift this previous tree addForShifter(parse, stack, parseTable
-     * .getState(stack.state().getGotoId(((IncrementalParseNode) cache.get(fileName)).production().id())));
-     * shifter(parse); parse.inputStack.next();
-     * 
-     * // Accept actor(parse.activeStacks.getSingle(), parse, Accept.SINGLETON);
-     * 
-     * } else super.parseLoop(parse); }
-     */
+    // TODO this optimization does not work at the moment, as the `parseLoop` doesn't get passed the previousResult.
+    // Replacing this check with `isReusable` is not reliable enough.
+    // @Override protected void parseLoop(ParseState parse) {
+    // // Optimization: if the first tree on the lookahead stack is exactly the same as the previous tree:
+    // IncrementalParseForest rootNode = parse.inputStack.getNode();
+    // if(rootNode.width() == parse.inputStack.length() && rootNode.isReusable()) {
+    // StackNode stack = parse.activeStacks.getSingle();
+    //
+    // // Shift this previous tree
+    // addForShifter(parse, stack, parseTable.getState(
+    // stack.state().getGotoId(((IncrementalParseNode) rootNode).production().id())));
+    // shifter(parse);
+    // parse.inputStack.next();
+    //
+    // // Accept
+    // actor(parse.activeStacks.getSingle(), parse, Accept.SINGLETON);
+    // } else
+    // super.parseLoop(parse);
+    // }
 
     @Override protected void actor(StackNode stack, ParseState parseState) {
         Iterable<IAction> actions = getActions(stack, parseState);

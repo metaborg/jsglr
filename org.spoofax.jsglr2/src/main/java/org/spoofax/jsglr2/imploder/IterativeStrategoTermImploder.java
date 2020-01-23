@@ -11,7 +11,8 @@ public class IterativeStrategoTermImploder
 //@formatter:off
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    Derivation  extends IDerivation<ParseForest>, Cache>
+    Derivation  extends IDerivation<ParseForest>,
+    Cache>
 //@formatter:on
     extends IterativeTreeImploder<ParseForest, ParseNode, Derivation, Cache, IStrategoTerm, ImplodeInput> {
 

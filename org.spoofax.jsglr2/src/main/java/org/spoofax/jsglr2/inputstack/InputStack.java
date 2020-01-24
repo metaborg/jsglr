@@ -5,12 +5,12 @@ import org.spoofax.jsglr2.inputstack.incremental.AbstractInputStack;
 public class InputStack extends AbstractInputStack {
     int currentChar; // Current ASCII char in range [0, 256]
 
-    public InputStack(String inputString, String fileName) {
-        super(inputString, fileName);
+    public InputStack(String inputString) {
+        super(inputString);
     }
 
     @Override public InputStack clone() {
-        InputStack clone = new InputStack(inputString, fileName);
+        InputStack clone = new InputStack(inputString);
         clone.currentChar = currentChar;
         clone.currentOffset = currentOffset;
         return clone;

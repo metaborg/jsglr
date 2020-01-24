@@ -1,23 +1,19 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Variant;
-import org.spoofax.jsglr2.imploder.TreeImploder;
-import org.spoofax.jsglr2.imploder.incremental.IncrementalImplodeInput;
-import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
-import org.spoofax.jsglr2.incremental.IncrementalParser;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
-import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 
@@ -52,9 +48,8 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
     }
 
     Map<IncrementalStringInput, String> prevString = new HashMap<>();
-    Map<IncrementalStringInput, IncrementalParseForest> prevResult = new HashMap<>();
-    Map<IncrementalStringInput, WeakHashMap<IParseNode<IParseForest, IDerivation<IParseForest>>, TreeImploder.SubTree<IStrategoTerm>>> prevMap =
-        new HashMap<>();
+    Map<IncrementalStringInput, IParseForest> prevParse = new HashMap<>();
+    Map<IncrementalStringInput, Object> prevImplodeCache = new HashMap<>();
 
     Map<IncrementalStringInput, List<String>> uniqueInputs = new HashMap<>();
 
@@ -82,38 +77,13 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
             for(IncrementalStringInput input : inputs) {
                 String content = input.content[i - 1];
                 prevString.put(input, content);
-                prevResult.put(input,
-                    ((IncrementalParseForest) jsglr2.parser.parseUnsafe(content, input.fileName, null)));
+                prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
                 if(implode()) {
-                    IncrementalTreeImploder<IParseForest, IParseNode<IParseForest, IDerivation<IParseForest>>, IDerivation<IParseForest>, IStrategoTerm, IncrementalImplodeInput<IParseNode<IParseForest, IDerivation<IParseForest>>, IStrategoTerm>> imploder =
-                        (IncrementalTreeImploder) jsglr2.imploder;
-                    imploder.implode(prevString.get(input), input.fileName, prevResult.get(input));
-                    prevMap.put(input, imploder.getFromCache(input.fileName));
+                    IImplodeResult<?, Object, ?> implodeResult =
+                        jsglr2.imploder.implode(prevString.get(input), input.fileName, prevParse.get(input));
+                    prevImplodeCache.put(input, implodeResult.resultCache());
                 }
             }
-        }
-    }
-
-    protected void correctCache(IncrementalStringInput input) {
-        if(jsglr2.parser instanceof IncrementalParser) {
-            IncrementalParser parser = (IncrementalParser) jsglr2.parser;
-            parser.clearCache();
-            if(shouldSetupCache())
-                parser.addToCache(input.fileName, prevString.get(input), prevResult.get(input));
-        }
-        if(implode() && jsglr2.imploder instanceof IncrementalTreeImploder) {
-            IncrementalTreeImploder imploder = (IncrementalTreeImploder) jsglr2.imploder;
-            imploder.clearCache();
-            if(shouldSetupCache())
-                imploder.addToCache(input.fileName, new WeakHashMap<>(prevMap.get(input)));
-        }
-    }
-
-    protected void possiblyClearCache() {
-        if(parserType == ParserType.IncrementalNoCache) {
-            ((IncrementalParser) jsglr2.parser).clearCache();
-            if(implode())
-                ((IncrementalTreeImploder) jsglr2.imploder).clearCache();
         }
     }
 

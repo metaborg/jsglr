@@ -12,13 +12,13 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public LinkedIncrementalInputStack(IncrementalParseForest root, String inputString, String fileName) {
-        super(inputString, fileName);
+    public LinkedIncrementalInputStack(IncrementalParseForest root, String inputString) {
+        super(inputString);
         this.head = new StackTuple(root, new StackTuple(EOF_NODE));
     }
 
     LinkedIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield(), "");
+        this(root, root.getYield());
     }
 
     @Override public IncrementalParseForest getNode() {
@@ -26,7 +26,7 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
     }
 
     @Override public LinkedIncrementalInputStack clone() {
-        LinkedIncrementalInputStack clone = new LinkedIncrementalInputStack(EOF_NODE, inputString, fileName);
+        LinkedIncrementalInputStack clone = new LinkedIncrementalInputStack(EOF_NODE, inputString);
         clone.head = head;
         clone.currentOffset = currentOffset;
         return clone;

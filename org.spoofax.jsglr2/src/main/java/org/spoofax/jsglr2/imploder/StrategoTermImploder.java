@@ -11,9 +11,10 @@ public class StrategoTermImploder
 //@formatter:off
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
-    Derivation  extends IDerivation<ParseForest>>
+    Derivation  extends IDerivation<ParseForest>,
+    Cache>
 //@formatter:on
-    extends TreeImploder<ParseForest, ParseNode, Derivation, IStrategoTerm, ImplodeInput> {
+    extends TreeImploder<ParseForest, ParseNode, Derivation, Cache, IStrategoTerm, ImplodeInput> {
 
     public StrategoTermImploder() {
         super(ImplodeInput::new, new StrategoTermTreeFactory());

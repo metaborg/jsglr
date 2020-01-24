@@ -16,11 +16,12 @@ public class TreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
+    Cache,
     Tree,
     Input       extends ImplodeInput>
 //@formatter:on
     extends
-    AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>, Tree, ImplodeResult<TreeImploder.SubTree<Tree>, Tree>> {
+    AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>, Cache, Tree, ImplodeResult<TreeImploder.SubTree<Tree>, Cache, Tree>> {
 
     protected final IImplodeInputFactory<Input> inputFactory;
     protected final ITreeFactory<Tree> treeFactory;
@@ -30,13 +31,13 @@ public class TreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public ImplodeResult<TreeImploder.SubTree<Tree>, Tree> implode(String input, String fileName,
-        ParseForest parseForest) {
+    @Override public ImplodeResult<TreeImploder.SubTree<Tree>, Cache, Tree> implode(String input, String fileName,
+        ParseForest parseForest, Cache resultCache) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
         SubTree<Tree> result = implodeParseNode(inputFactory.get(input), topParseNode, 0);
 
-        return new ImplodeResult<>(result, result.tree, Collections.emptyList());
+        return new ImplodeResult<>(result, null, result.tree, Collections.emptyList());
     }
 
     protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
@@ -219,7 +220,7 @@ public class TreeImploder
 
         private static <Tree> int sumWidth(List<SubTree<Tree>> children) {
             int result = 0;
-            for(SubTree child : children) {
+            for(SubTree<Tree> child : children) {
                 result += child.width;
             }
             return result;

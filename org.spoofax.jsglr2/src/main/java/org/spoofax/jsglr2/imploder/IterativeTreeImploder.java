@@ -24,10 +24,11 @@ public class IterativeTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
+    Cache,
     Tree,
     Input       extends ImplodeInput>
 //@formatter:on
-    extends TreeImploder<ParseForest, ParseNode, Derivation, Tree, Input> {
+    extends TreeImploder<ParseForest, ParseNode, Derivation, Cache, Tree, Input> {
 
     public IterativeTreeImploder(IImplodeInputFactory<Input> inputFactory, ITreeFactory<Tree> treeFactory) {
         super(inputFactory, treeFactory);

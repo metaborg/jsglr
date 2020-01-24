@@ -5,12 +5,10 @@ import static com.google.common.collect.Iterables.size;
 import static org.metaborg.util.iterators.Iterables2.stream;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.actions.Accept;
 import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
@@ -29,7 +27,6 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
-import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -44,9 +41,6 @@ public class IncrementalParser
 // @formatter:on
     extends
     Parser<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> {
-
-    private final HashMap<String, IncrementalParseForest> cache = new HashMap<>();
-    private final HashMap<String, String> oldString = new HashMap<>();
 
     private final IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory;
     private final IStringDiff diff;
@@ -70,61 +64,33 @@ public class IncrementalParser
             new ProcessUpdates<>((IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
     }
 
-    public void clearCache() {
-        cache.clear();
-        oldString.clear();
+    @Override protected ParseState getParseState(String inputString, String previousInput,
+        IncrementalParseForest previousResult) {
+        IncrementalParseForest updatedTree = previousInput != null && previousResult != null
+            ? processUpdates.processUpdates(previousResult, diff.diff(previousInput, inputString))
+            : processUpdates.getParseNodeFromString(inputString);
+        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString), observing);
     }
 
-    // TODO it is very ugly to have this method here. It's only used in benchmarking, but it should not exist in the
-    // regular implementation
-    public void addToCache(String fileName, String oldInput, IncrementalParseForest oldResult) {
-        oldString.put(fileName, oldInput);
-        cache.put(fileName, oldResult);
-    }
-
-    @Override protected ParseState getParseState(String inputString, String fileName) {
-        IncrementalParseForest updatedTree = getUpdatedTree(inputString, fileName);
-        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString, fileName), observing);
-    }
-
-    private IncrementalParseForest getUpdatedTree(String inputString, String fileName) {
-        if(!fileName.equals("") && cache.containsKey(fileName) && oldString.containsKey(fileName)) {
-            List<EditorUpdate> updates = diff.diff(oldString.get(fileName), inputString);
-
-            return processUpdates.processUpdates(cache.get(fileName), updates);
-        } else
-            return processUpdates.getParseNodeFromString(inputString);
-    }
-
-    @Override protected void parseLoop(ParseState parse) {
-        // Optimization: if the first tree on the lookahead stack is exactly the same as the previous tree:
-        String fileName = parse.inputStack.fileName();
-        if(!fileName.equals("") && cache.containsKey(fileName) && parse.inputStack.getNode() == cache.get(fileName)) {
-
-            StackNode stack = parse.activeStacks.getSingle();
-
-            // Shift this previous tree
-            addForShifter(parse, stack, parseTable
-                .getState(stack.state().getGotoId(((IncrementalParseNode) cache.get(fileName)).production().id())));
-            shifter(parse);
-            parse.inputStack.next();
-
-            // Accept
-            actor(parse.activeStacks.getSingle(), parse, Accept.SINGLETON);
-
-        } else
-            super.parseLoop(parse);
-    }
-
-    @Override protected ParseSuccess<IncrementalParseForest> success(ParseState parseState,
-        IncrementalParseForest parseForest) {
-        // On success, save result (if fileName != "")
-        if(!parseState.inputStack.fileName().equals("")) {
-            oldString.put(parseState.inputStack.fileName(), parseState.inputStack.inputString());
-            cache.put(parseState.inputStack.fileName(), parseForest);
-        }
-        return super.success(parseState, parseForest);
-    }
+    // TODO this optimization does not work at the moment, as the `parseLoop` doesn't get passed the previousResult.
+    // Replacing this check with `isReusable` is not reliable enough.
+    // @Override protected void parseLoop(ParseState parse) {
+    // // Optimization: if the first tree on the lookahead stack is exactly the same as the previous tree:
+    // IncrementalParseForest rootNode = parse.inputStack.getNode();
+    // if(rootNode.width() == parse.inputStack.length() && rootNode.isReusable()) {
+    // StackNode stack = parse.activeStacks.getSingle();
+    //
+    // // Shift this previous tree
+    // addForShifter(parse, stack, parseTable.getState(
+    // stack.state().getGotoId(((IncrementalParseNode) rootNode).production().id())));
+    // shifter(parse);
+    // parse.inputStack.next();
+    //
+    // // Accept
+    // actor(parse.activeStacks.getSingle(), parse, Accept.SINGLETON);
+    // } else
+    // super.parseLoop(parse);
+    // }
 
     @Override protected void actor(StackNode stack, ParseState parseState) {
         Iterable<IAction> actions = getActions(stack, parseState);

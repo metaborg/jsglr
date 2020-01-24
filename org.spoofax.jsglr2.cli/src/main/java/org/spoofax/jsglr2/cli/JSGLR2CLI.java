@@ -15,6 +15,7 @@ import org.spoofax.jsglr2.cli.output.DefaultOutputProcessor;
 import org.spoofax.jsglr2.cli.output.IOutputProcessor;
 import org.spoofax.jsglr2.cli.output.dot.DotOutputProcessor;
 import org.spoofax.jsglr2.cli.parserbuilder.ParserBuilder;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
@@ -78,8 +79,8 @@ public class JSGLR2CLI implements Runnable {
 
             outputProcessor.checkAllowed(this);
 
-            JSGLR2Implementation<?, ?, IStrategoTerm, ?> jsglr2 =
-                (JSGLR2Implementation<?, ?, IStrategoTerm, ?>) parserBuilder.getJSGLR2();
+            JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?> jsglr2 =
+                (JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?>) parserBuilder.getJSGLR2();
             IObservableParser<?, ?, ?, ?, ?> observableParser = (IObservableParser<?, ?, ?, ?, ?>) jsglr2.parser;
 
             outputStream = outputStream();
@@ -113,20 +114,23 @@ public class JSGLR2CLI implements Runnable {
         }
     }
 
-    private void parse(IParser<?> parser, IOutputProcessor outputProcessor) throws WrappedException {
+    private void parse(IParser<IParseForest> parser, IOutputProcessor outputProcessor) throws WrappedException {
+        String prevInput = null;
+        IParseForest prevParseForest = null;
         for(String in : input) {
-            // Explicit filename to enable caching in incremental parser
-            ParseResult<?> result = parser.parse(in);
+            ParseResult<?> result = parser.parse(in, null, prevInput, prevParseForest);
 
-            if(result.isSuccess())
+            if(result.isSuccess()) {
+                prevInput = in;
+                prevParseForest = ((ParseSuccess<?>) result).parseResult;
                 outputProcessor.outputParseResult((ParseSuccess<?>) result, outputStream);
-            else
+            } else
                 outputProcessor.outputParseFailure((ParseFailure<?>) result, outputStream);
         }
     }
 
-    private void parseAndImplode(JSGLR2Implementation<?, ?, IStrategoTerm, ?> jsglr2, IOutputProcessor outputProcessor)
-        throws WrappedException {
+    private void parseAndImplode(JSGLR2Implementation<?, ?, ?, IStrategoTerm, ?> jsglr2,
+        IOutputProcessor outputProcessor) throws WrappedException {
         for(String in : input) {
             // Explicit filename to enable caching in incremental parser
             JSGLR2Result<IStrategoTerm> result = jsglr2.parseResult(in);

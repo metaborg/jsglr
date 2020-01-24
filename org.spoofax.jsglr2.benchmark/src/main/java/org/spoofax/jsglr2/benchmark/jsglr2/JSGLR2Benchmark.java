@@ -15,6 +15,7 @@ import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
@@ -35,7 +36,7 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
     private TestSetWithParseTableReader<ContentType, Input> testSetReader;
 
     protected IParser<?> parser; // Just parsing
-    protected JSGLR2Implementation<?, ?, ?, ?> jsglr2; // Parsing, imploding, and tokenization
+    protected JSGLR2Implementation<IParseForest, ?, Object, ?, ?> jsglr2; // Parsing, imploding, and tokenization
 
     protected void setTestSetReader(TestSetWithParseTableReader<ContentType, Input> testSetReader) {
         super.setTestSetReader(testSetReader);
@@ -55,7 +56,7 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
 
         IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
-        jsglr2 = (JSGLR2Implementation<?, ?, ?, ?>) variant.jsglr2.getJSGLR2(parseTable);
+        jsglr2 = (JSGLR2Implementation<IParseForest, ?, Object, ?, ?>) variant.jsglr2.getJSGLR2(parseTable);
         parser = jsglr2.parser;
     }
 

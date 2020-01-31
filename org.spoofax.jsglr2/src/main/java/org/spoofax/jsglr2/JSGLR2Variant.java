@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -57,7 +58,11 @@ public class JSGLR2Variant {
 
     public JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable) {
         if(!this.isValid())
-            throw new IllegalStateException("Invalid JSGLR2 variant");
+            if(!parser.isValid())
+                throw new IllegalStateException(
+                    "Invalid JSGLR2 parser variant: " + parser.validate().collect(Collectors.joining(", ")));
+            else
+                throw new IllegalStateException("Invalid JSGLR2 variant");
 
         @SuppressWarnings("unchecked") final IParser<IParseForest> parser =
             (IParser<IParseForest>) this.parser.getParser(parseTable);

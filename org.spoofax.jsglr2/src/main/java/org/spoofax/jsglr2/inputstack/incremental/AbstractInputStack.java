@@ -38,8 +38,7 @@ public abstract class AbstractInputStack implements IInputStack {
     }
 
     @Override public String actionQueryLookahead(int length) {
-        return inputString.substring(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength))
-            + (currentOffset + 1 + length > inputLength ? (char) EOF_INT : "");
+        return inputString.substring(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
     }
 
     @Override public int getChar(int offset) {

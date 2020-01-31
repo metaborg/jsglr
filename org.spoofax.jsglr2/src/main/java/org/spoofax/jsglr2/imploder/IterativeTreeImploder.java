@@ -181,7 +181,7 @@ public class IterativeTreeImploder
     }
 
     private SubTree<Tree> createAmbiguousSubTree(ParseNode parseNode, List<SubTree<Tree>> subTrees) {
-        return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null, null,
+        return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null,
             subTrees.get(0).width, false);
     }
 
@@ -195,9 +195,9 @@ public class IterativeTreeImploder
 
     private SubTree<Tree> createLexicalSubTree(String inputString, ParseNode parseNode, int startOffset,
         IProduction production) {
-        String substring = inputString.substring(startOffset, startOffset + parseNode.width());
+        int width = parseNode.width();
 
-        return new SubTree<>(createLexicalTerm(production, substring), production, substring);
+        return new SubTree<>(createLexicalTerm(production, inputString, startOffset, width), production, width);
     }
 
     @SafeVarargs private static <E> LinkedList<LinkedList<E>> newNestedList(E... elements) {

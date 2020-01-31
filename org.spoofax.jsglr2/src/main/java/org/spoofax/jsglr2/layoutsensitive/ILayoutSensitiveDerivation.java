@@ -27,14 +27,9 @@ public interface ILayoutSensitiveDerivation
             result.add(new PositionInterval(getStartPosition(), getEndPosition()));
         }
         for(ParseForest pf : parseForests()) {
-            if(pf instanceof ILayoutSensitiveDerivation) {
-                result.addAll(((ILayoutSensitiveDerivation<ParseForest>) pf).getLongestMatchPositions());
-            } else if(pf instanceof ILayoutSensitiveParseNode) {
-                List<PositionInterval> positions =
-                    ((ILayoutSensitiveParseNode<ParseForest, ILayoutSensitiveDerivation<ParseForest>>) pf)
-                        .getLongestMatchPositions();
-
-                result.addAll(positions);
+            if(pf instanceof ILayoutSensitiveParseNode) {
+                result.addAll(((ILayoutSensitiveParseNode<ParseForest, ILayoutSensitiveDerivation<ParseForest>>) pf)
+                    .getLongestMatchPositions());
             }
         }
         return result;

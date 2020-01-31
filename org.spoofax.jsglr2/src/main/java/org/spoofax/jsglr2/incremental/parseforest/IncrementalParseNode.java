@@ -21,7 +21,7 @@ public class IncrementalParseNode extends IncrementalParseForest
     public static final State NO_STATE = new State(-1,
         new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
 
-    private final IProduction production;
+    protected final IProduction production;
     private final IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
     private IState state;
@@ -35,6 +35,13 @@ public class IncrementalParseNode extends IncrementalParseForest
 
     public IncrementalParseNode(IncrementalParseForest... parseForests) {
         this(null, new IncrementalDerivation(null, null, parseForests), NO_STATE);
+    }
+
+    protected IncrementalParseNode(IProduction production, int width) {
+        super(width);
+        this.production = production;
+        this.firstDerivation = null;
+        this.state = null;
     }
 
     @Override public boolean isReusable() {

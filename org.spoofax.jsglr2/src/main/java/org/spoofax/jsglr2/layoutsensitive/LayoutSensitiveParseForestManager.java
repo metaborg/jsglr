@@ -156,6 +156,15 @@ public class LayoutSensitiveParseForestManager
         parseNode.addDerivation(derivation);
     }
 
+    @Override public
+        ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
+        createSkippedNode(ParseState parseState, IProduction production, ILayoutSensitiveParseForest[] parseForests) {
+        Position endPosition = parseState.inputStack.currentPosition();
+        return new LayoutSensitiveSkippedNode<>(
+            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // TODO probably correct?
+            endPosition, production, parseForests);
+    }
+
     @Override public ILayoutSensitiveParseForest createCharacterNode(ParseState parseState) {
         ILayoutSensitiveParseForest termNode =
             new LayoutSensitiveCharacterNode(parseState.inputStack.currentPosition(), parseState.inputStack.getChar());

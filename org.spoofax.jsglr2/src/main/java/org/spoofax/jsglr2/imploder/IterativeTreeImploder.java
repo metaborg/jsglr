@@ -111,12 +111,14 @@ public class IterativeTreeImploder
                 parseNode = implodeInjection(parseNode);
 
                 IProduction production = parseNode.production();
-                if(!production.isContextFree()) { // If the current parse node is a lexical node
+                if(!production.isContextFree() || production.isSkippableInParseForest()) {
+                    // If the current parse node is a lexical node or a skipped node
                     SubTree<Tree> lexicalSubTree =
                         createLexicalSubTree(input.inputString, parseNode, pseudoNode.pivotOffset, production);
                     currentOut.getLast().add(lexicalSubTree); // Add a new SubTree to the output
                     pseudoNode.pivotOffset += lexicalSubTree.width;
-                } else { // If the current parse node is a context-free node
+                } else {
+                    // If the current parse node is a context-free node
                     // Then push it on top of the stacks
                     List<Derivation> derivations = applyDisambiguationFilters(parseNode);
                     if(derivations.size() > 1 && production.isList()) {

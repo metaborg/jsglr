@@ -48,6 +48,12 @@ public class DataDependentParseForestManager
         return new DataDependentDerivation<>(production, productionType, parseForests);
     }
 
+    @Override public
+        IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>
+        createSkippedNode(ParseState parseState, IProduction production, IDataDependentParseForest[] parseForests) {
+        return new DataDependentSkippedNode<>(production, parseForests);
+    }
+
     @Override protected IDataDependentParseForest constructCharacterNode(ParseState parseState) {
         return new DataDependentCharacterNode(parseState.inputStack.getChar());
     }

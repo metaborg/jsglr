@@ -10,6 +10,7 @@ import org.spoofax.jsglr2.layoutsensitive.Shape;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -68,6 +69,14 @@ public class CompositeParseForestManager
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
+    }
+
+    @Override public ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
+        createSkippedNode(ParseState parseState, IProduction production, ICompositeParseForest[] parseForests) {
+        Position endPosition = parseState.inputStack.currentPosition();
+        return new CompositeSkippedNode<>(//
+            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // TODO probably correct?
+            endPosition, production, parseForests);
     }
 
     @Override public ICompositeParseForest createCharacterNode(ParseState parseState) {

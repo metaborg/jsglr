@@ -56,6 +56,11 @@ public class HybridParseForestManager
         parseNode.addDerivation(derivation);
     }
 
+    @Override public HybridParseNode createSkippedNode(ParseState parseState, IProduction production,
+        HybridParseForest[] parseForests) {
+        return new HybridSkippedNode(production, parseForests);
+    }
+
     @Override public HybridCharacterNode createCharacterNode(ParseState parseState) {
         HybridCharacterNode characterNode = new HybridCharacterNode(parseState.inputStack.getChar());
 

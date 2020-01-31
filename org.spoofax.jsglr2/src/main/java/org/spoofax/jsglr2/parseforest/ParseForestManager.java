@@ -41,6 +41,9 @@ public abstract class ParseForestManager
 
     abstract public void addDerivation(ParseState parseState, ParseNode parseNode, Derivation derivation);
 
+    abstract public ParseNode createSkippedNode(ParseState parseState, IProduction production,
+        ParseForest[] parseForests);
+
     abstract public ParseForest createCharacterNode(ParseState parseState);
 
     abstract public ParseForest[] parseForestsArray(int length);

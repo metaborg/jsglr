@@ -77,6 +77,11 @@ public class IncrementalParseForestManager
         parseNode.addDerivation(derivation);
     }
 
+    @Override public IncrementalSkippedNode createSkippedNode(ParseState parseState, IProduction production,
+        IncrementalParseForest[] parseForests) {
+        return new IncrementalSkippedNode(production, parseForests);
+    }
+
     @Override public IncrementalParseForest createCharacterNode(ParseState parseState) {
         return createCharacterNode(parseState.inputStack.getChar());
     }

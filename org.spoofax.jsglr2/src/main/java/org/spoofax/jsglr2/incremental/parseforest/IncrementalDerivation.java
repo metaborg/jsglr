@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -17,13 +19,7 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
         this.production = production;
         this.productionType = productionType;
         this.parseForests = parseForests;
-        int width = 0;
-        for(IncrementalParseForest parseForest : parseForests) {
-            if(parseForest == null)
-                continue; // Skippable parse nodes are null
-            width += parseForest.width();
-        }
-        this.width = width;
+        this.width = sumWidth(parseForests);
     }
 
     @Override public int width() {

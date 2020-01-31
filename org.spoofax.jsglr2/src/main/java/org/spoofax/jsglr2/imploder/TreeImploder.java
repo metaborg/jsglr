@@ -45,7 +45,7 @@ public class TreeImploder
 
         IProduction production = parseNode.production();
 
-        if(production.isContextFree()) {
+        if(production.isContextFree() && !production.isSkippableInParseForest()) {
             List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
 
             if(filteredDerivations.size() > 1) {

@@ -86,9 +86,7 @@ public class ParserVariant {
             || parseForestConstruction == ParseForestConstruction.Full);
 
         constraints.put("incremental",
-            (parseForestRepresentation == ParseForestRepresentation.Incremental) == (reducing == Reducing.Incremental)
-                // Incremental parsing requires a full parse forest
-                && (reducing != Reducing.Incremental || parseForestConstruction == ParseForestConstruction.Full));
+            (parseForestRepresentation == ParseForestRepresentation.Incremental) == (reducing == Reducing.Incremental));
 
         constraints.put("layout-sensitive",
             (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive) == (reducing == Reducing.LayoutSensitive));

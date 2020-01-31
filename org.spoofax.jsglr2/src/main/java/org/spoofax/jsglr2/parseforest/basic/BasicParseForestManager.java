@@ -40,6 +40,11 @@ public class BasicParseForestManager
         return new BasicDerivation<>(production, productionType, parseForests);
     }
 
+    @Override public IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>
+        createSkippedNode(ParseState parseState, IProduction production, IBasicParseForest[] parseForests) {
+        return new BasicSkippedNode<>(production, parseForests);
+    }
+
     @Override protected IBasicParseForest constructCharacterNode(ParseState parseState) {
         return new BasicCharacterNode(parseState.inputStack.getChar());
     }

@@ -7,20 +7,14 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.indentation.LayoutFilter;
+import org.spoofax.jsglr.shared.*;
 import org.spoofax.jsglr.shared.ArrayDeque;
-import org.spoofax.jsglr.shared.BadTokenException;
-import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.jsglr.shared.TokenExpectedException;
-import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.util.PushbackStringIterator;
 
 public class SGLR {
@@ -38,7 +32,7 @@ public class SGLR {
 
     private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
 
-    public static final int EOF = ParseTable.NUM_CHARS;
+    public static final int EOF = ICharacterClass.EOF_INT;
 
     static final int TAB_SIZE = 8;
 
@@ -1835,8 +1829,8 @@ public class SGLR {
     AmbiguityManager getAmbiguityManager() {
         return ambiguityManager;
     }
-    
-    public long getAmbiguitiesCount(){
+
+    public long getAmbiguitiesCount() {
         return disambiguator.getAmbiguityCount();
     }
 
@@ -2170,7 +2164,7 @@ public class SGLR {
             ArrayDeque<Frame> tmpActiveStacks = new ArrayDeque<Frame>(activeStacks);
             ArrayDeque<Frame> tmpForActor = new ArrayDeque<Frame>(forActor);
 
-            currentToken.setToken(256);
+            currentToken.setToken(EOF);
             currentToken.setOffset(Integer.MAX_VALUE);
             ; // EOF
 

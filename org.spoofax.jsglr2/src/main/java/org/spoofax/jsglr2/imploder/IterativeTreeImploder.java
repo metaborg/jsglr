@@ -143,12 +143,8 @@ public class IterativeTreeImploder
 
             LinkedList<ParseNode> derivationList = new LinkedList<>();
             for(ParseForest childParseForest : getChildParseForests(derivation)) {
-                // Can be null in the case of a layout subtree parse node that is not created
-                if(childParseForest != null) {
-                    @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-
-                    derivationList.add(childParseNode);
-                }
+                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+                derivationList.add(childParseNode);
             }
             derivationLists.add(derivationList);
         }
@@ -161,12 +157,8 @@ public class IterativeTreeImploder
         for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(derivations)) {
             LinkedList<ParseNode> derivationList = new LinkedList<>();
             for(ParseForest childParseForest : getChildParseForests(production, derivationParseForests)) {
-                // Can be null in the case of a layout subtree parse node that is not created
-                if(childParseForest != null) {
-                    @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-
-                    derivationList.add(childParseNode);
-                }
+                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+                derivationList.add(childParseNode);
             }
             derivationLists.add(derivationList);
         }

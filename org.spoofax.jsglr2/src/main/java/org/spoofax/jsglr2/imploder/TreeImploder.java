@@ -94,17 +94,15 @@ public class TreeImploder
         List<SubTree<Tree>> subTrees = new ArrayList<>();
 
         for(ParseForest childParseForest : childParseForests) {
-            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
-                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+            @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
+            SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
 
-                if(subTree.tree != null) {
-                    childASTs.add(subTree.tree);
-                }
-                subTrees.add(subTree);
-                startOffset += subTree.width;
+            if(subTree.tree != null) {
+                childASTs.add(subTree.tree);
             }
+            subTrees.add(subTree);
+            startOffset += subTree.width;
         }
 
         Tree contextFreeTerm = createContextFreeTerm(production, childASTs);

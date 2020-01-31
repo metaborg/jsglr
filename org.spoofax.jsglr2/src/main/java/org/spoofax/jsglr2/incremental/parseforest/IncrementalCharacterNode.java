@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
-import static org.metaborg.parsetable.characterclasses.CharacterClassFactory.EOF_INT;
+import static org.metaborg.parsetable.characterclasses.ICharacterClass.EOF_INT;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.states.IState;

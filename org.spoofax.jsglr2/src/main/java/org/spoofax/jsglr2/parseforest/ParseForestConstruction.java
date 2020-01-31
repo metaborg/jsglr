@@ -4,6 +4,6 @@ public enum ParseForestConstruction {
     Full, Optimized;
 
     public static ParseForestConstruction standard() {
-        return Full;
+        return Optimized;
     }
 }

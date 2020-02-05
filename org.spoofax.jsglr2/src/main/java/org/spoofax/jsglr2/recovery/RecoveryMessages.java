@@ -14,9 +14,16 @@ public class RecoveryMessages {
 
         if("WATER".equals(production.constructor()))
             message = "Not expected";
-        else if("INSERTION".equals(production.constructor()))
-            message = "Token expected";
-        else
+        else if("INSERTION".equals(production.constructor())) {
+            String insertion;
+
+            if (production.isLiteral())
+                insertion = production.lhs().descriptor().replaceAll("^\"|\"$", "");
+            else
+                insertion = "Token";
+
+            message = insertion + " expected";
+        } else
             message = "Invalid syntax";
 
         return Message.error(message, region);

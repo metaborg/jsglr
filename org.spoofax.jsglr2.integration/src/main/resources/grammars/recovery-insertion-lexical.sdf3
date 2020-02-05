@@ -16,5 +16,8 @@ context-free syntax
 
   X.X = "x"
   Y.Y = "y"
-  Y.INSERTION = <> {recover}
   Z.Z = "z"
+
+lexical syntax
+
+  "y".INSERTION = {recover}

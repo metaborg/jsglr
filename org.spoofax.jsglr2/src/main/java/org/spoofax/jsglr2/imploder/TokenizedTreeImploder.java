@@ -115,6 +115,9 @@ public abstract class TokenizedTreeImploder
 
             Position endPosition = startPosition.step(tokens.getInput(), width);
 
+            if(production.isRecovery())
+                messages.add(RecoveryMessages.get(production, startPosition, endPosition));
+
             IToken token = width > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
 
             Tree tree;

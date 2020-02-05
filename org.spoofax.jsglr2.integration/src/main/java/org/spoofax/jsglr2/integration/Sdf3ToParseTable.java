@@ -121,7 +121,7 @@ public class Sdf3ToParseTable {
         final IStrategoTerm sdf3ModuleNormalized;
 
         if(permissive)
-            sdf3ModuleNormalized = makePermissive(normalize(sdf3Module));
+            sdf3ModuleNormalized = normalize(makePermissive(sdf3Module));
         else
             sdf3ModuleNormalized = normalize(sdf3Module);
 

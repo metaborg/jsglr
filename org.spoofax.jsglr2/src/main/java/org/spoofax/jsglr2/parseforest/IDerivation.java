@@ -11,10 +11,6 @@ public interface IDerivation<ParseForest extends IParseForest> {
 
     ParseForest[] parseForests();
 
-    default int width() {
-        return IParseForest.sumWidth(parseForests());
-    }
-
     default String descriptor() {
         return production().descriptor();
     }

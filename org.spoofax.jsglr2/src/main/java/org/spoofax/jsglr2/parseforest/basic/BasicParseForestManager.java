@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
@@ -31,8 +33,8 @@ public class BasicParseForestManager
     }
 
     @Override protected IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>
-        constructParseNode(IProduction production) {
-        return new BasicParseNode<>(production);
+        constructParseNode(int width, IProduction production) {
+        return new BasicParseNode<>(width, production);
     }
 
     @Override protected IBasicDerivation<IBasicParseForest> constructDerivation(IProduction production,
@@ -42,7 +44,7 @@ public class BasicParseForestManager
 
     @Override public IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>
         createSkippedNode(ParseState parseState, IProduction production, IBasicParseForest[] parseForests) {
-        return new BasicSkippedNode<>(production, parseForests);
+        return new BasicParseNode<>(sumWidth(parseForests), production);
     }
 
     @Override protected IBasicParseForest constructCharacterNode(ParseState parseState) {

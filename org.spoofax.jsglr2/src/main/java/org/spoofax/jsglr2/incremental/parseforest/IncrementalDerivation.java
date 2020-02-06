@@ -1,14 +1,11 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
-import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
-
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public class IncrementalDerivation implements IDerivation<IncrementalParseForest> {
-    private final int width;
     private final IProduction production;
     private final ProductionType productionType;
     public final IncrementalParseForest[] parseForests;
@@ -19,11 +16,6 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
         this.production = production;
         this.productionType = productionType;
         this.parseForests = parseForests;
-        this.width = sumWidth(parseForests);
-    }
-
-    @Override public int width() {
-        return width;
     }
 
     @Override public IProduction production() {

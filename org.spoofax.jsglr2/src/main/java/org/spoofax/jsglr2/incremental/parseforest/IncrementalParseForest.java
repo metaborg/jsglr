@@ -8,7 +8,6 @@ public abstract class IncrementalParseForest implements IParseForest {
     private final int width;
 
     protected IncrementalParseForest(int width) {
-        super();
         this.width = width;
     }
 

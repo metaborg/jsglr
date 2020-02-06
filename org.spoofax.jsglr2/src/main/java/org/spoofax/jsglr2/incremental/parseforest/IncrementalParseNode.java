@@ -39,7 +39,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         this(null, new IncrementalDerivation(null, null, parseForests), NO_STATE);
     }
 
-    protected IncrementalParseNode(IProduction production, int width) {
+    protected IncrementalParseNode(int width, IProduction production) {
         super(width);
         this.production = production;
         this.firstDerivation = null;

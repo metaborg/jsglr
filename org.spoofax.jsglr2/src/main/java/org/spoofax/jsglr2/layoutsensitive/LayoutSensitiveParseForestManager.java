@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
@@ -40,8 +42,8 @@ public class LayoutSensitiveParseForestManager
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> firstDerivation) {
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> parseNode =
-            new LayoutSensitiveParseNode<>(firstDerivation.getStartPosition(), parseState.inputStack.currentPosition(),
-                production);
+            new LayoutSensitiveParseNode<>(sumWidth(firstDerivation.parseForests()), firstDerivation.getStartPosition(),
+                parseState.inputStack.currentPosition(), production);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -160,9 +162,9 @@ public class LayoutSensitiveParseForestManager
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
         createSkippedNode(ParseState parseState, IProduction production, ILayoutSensitiveParseForest[] parseForests) {
         Position endPosition = parseState.inputStack.currentPosition();
-        return new LayoutSensitiveSkippedNode<>(
+        return new LayoutSensitiveParseNode<>(sumWidth(parseForests),
             parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // Same as in the shape method
-            endPosition, production, parseForests);
+            endPosition, production);
     }
 
     @Override public ILayoutSensitiveParseForest createCharacterNode(ParseState parseState) {
@@ -184,7 +186,7 @@ public class LayoutSensitiveParseForestManager
             ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> parseNode,
             List<ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> derivations) {
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> topParseNode =
-            new LayoutSensitiveParseNode<>(parseNode.getStartPosition(), parseNode.getEndPosition(),
+            new LayoutSensitiveParseNode<>(parseNode.width(), parseNode.getStartPosition(), parseNode.getEndPosition(),
                 parseNode.production());
 
         for(ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> derivation : derivations)

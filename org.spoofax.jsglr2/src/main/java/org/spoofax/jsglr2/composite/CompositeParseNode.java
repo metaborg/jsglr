@@ -19,8 +19,8 @@ class CompositeParseNode
     private List<PositionInterval> longestMatchPositions = null;
     private boolean filteredLongestMatch = false;
 
-    CompositeParseNode(Position startPosition, Position endPosition, IProduction production) {
-        super(production);
+    CompositeParseNode(int width, Position startPosition, Position endPosition, IProduction production) {
+        super(width, production);
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;

@@ -18,8 +18,8 @@ class LayoutSensitiveParseNode
     private List<PositionInterval> longestMatchPositions = null;
     private boolean filteredLongestMatch = false;
 
-    LayoutSensitiveParseNode(Position startPosition, Position endPosition, IProduction production) {
-        super(production);
+    LayoutSensitiveParseNode(int width, Position startPosition, Position endPosition, IProduction production) {
+        super(width, production);
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;

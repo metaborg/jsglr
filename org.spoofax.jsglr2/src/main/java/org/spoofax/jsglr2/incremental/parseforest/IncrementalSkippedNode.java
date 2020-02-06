@@ -11,7 +11,7 @@ import org.spoofax.jsglr2.util.TreePrettyPrinter;
 public class IncrementalSkippedNode extends IncrementalParseNode {
 
     public IncrementalSkippedNode(IProduction production, IncrementalParseForest[] parseForests) {
-        super(production, sumWidth(parseForests));
+        super(sumWidth(parseForests), production);
     }
 
     @Override public boolean isReusable() {
@@ -38,9 +38,6 @@ public class IncrementalSkippedNode extends IncrementalParseNode {
         throw new UnsupportedOperationException("Cannot get yield of skipped parse node");
     }
 
-    // The following four methods are copied from IBasicSkippedNode
-    // Extracting an interface with default methods does not work,
-    // because the definitions in the direct superclass take precedence
     @Override public void addDerivation(IncrementalDerivation derivation) {
     }
 

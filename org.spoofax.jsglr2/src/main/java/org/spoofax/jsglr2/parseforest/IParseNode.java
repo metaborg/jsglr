@@ -60,10 +60,6 @@ public interface IParseNode
 
     boolean isAmbiguous();
 
-    default int width() {
-        return getFirstDerivation().width();
-    }
-
     default String descriptor() {
         return production().lhs().toString();
     }

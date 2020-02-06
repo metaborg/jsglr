@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.datadependent;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
@@ -39,8 +41,8 @@ public class DataDependentParseForestManager
 
     @Override protected
         DataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>
-        constructParseNode(IProduction production) {
-        return new DataDependentParseNode<>(production);
+        constructParseNode(int width, IProduction production) {
+        return new DataDependentParseNode<>(width, production);
     }
 
     @Override protected IDataDependentDerivation<IDataDependentParseForest> constructDerivation(IProduction production,
@@ -51,7 +53,7 @@ public class DataDependentParseForestManager
     @Override public
         IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>
         createSkippedNode(ParseState parseState, IProduction production, IDataDependentParseForest[] parseForests) {
-        return new DataDependentSkippedNode<>(production, parseForests);
+        return new DataDependentParseNode<>(sumWidth(parseForests), production);
     }
 
     @Override protected IDataDependentParseForest constructCharacterNode(ParseState parseState) {

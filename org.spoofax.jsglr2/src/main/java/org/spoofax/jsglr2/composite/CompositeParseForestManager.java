@@ -75,7 +75,7 @@ public class CompositeParseForestManager
         createSkippedNode(ParseState parseState, IProduction production, ICompositeParseForest[] parseForests) {
         Position endPosition = parseState.inputStack.currentPosition();
         return new CompositeSkippedNode<>(//
-            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // TODO probably correct?
+            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // Same as in the shape method
             endPosition, production, parseForests);
     }
 

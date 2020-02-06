@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +29,7 @@ public class IncrementalParseNode extends IncrementalParseForest
     private IState state;
 
     public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation, IState state) {
-        super(firstDerivation.width());
+        super(sumWidth(firstDerivation.parseForests()));
         this.production = production;
         this.firstDerivation = firstDerivation;
         this.state = state;

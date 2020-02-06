@@ -42,11 +42,12 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
     }
 
     public Iterable<HybridDerivation> getDerivations() {
-        if(otherDerivations == null) {
+        if(firstDerivation == null)
+            return Collections.emptyList();
+        if(otherDerivations == null)
             return Collections.singleton(firstDerivation);
-        } else {
-            return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
-        }
+
+        return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
     }
 
     public HybridDerivation getFirstDerivation() {

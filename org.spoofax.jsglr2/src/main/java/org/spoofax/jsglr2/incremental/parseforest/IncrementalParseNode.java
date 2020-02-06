@@ -77,11 +77,12 @@ public class IncrementalParseNode extends IncrementalParseForest
     }
 
     @Override public Iterable<IncrementalDerivation> getDerivations() {
-        if(otherDerivations == null) {
+        if(firstDerivation == null)
+            return Collections.emptyList();
+        if(otherDerivations == null)
             return Collections.singleton(firstDerivation);
-        } else {
-            return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
-        }
+
+        return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
     }
 
     @Override public IncrementalDerivation getFirstDerivation() {

@@ -39,6 +39,7 @@ public class IncrementalSkippedNode extends IncrementalParseNode {
     }
 
     @Override public void addDerivation(IncrementalDerivation derivation) {
+        throw new UnsupportedOperationException("Cannot add derivation to skipped parse node");
     }
 
     @Override public Iterable<IncrementalDerivation> getDerivations() {

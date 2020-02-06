@@ -37,7 +37,8 @@ public class ReducerSkipLayoutAndLexicalAndRejects
 
         if(reduce.isRejectProduction())
             stackManager.rejectStackLink(existingDirectLinkToActiveStateWithGoto);
-        else if(!existingDirectLinkToActiveStateWithGoto.isRejected() && parseNode != null) {
+        else if(!existingDirectLinkToActiveStateWithGoto.isRejected()
+            && !reduce.production().isSkippableInParseForest()) {
             Derivation derivation = parseForestManager.createDerivation(parseState,
                 existingDirectLinkToActiveStateWithGoto.to, reduce.production(), reduce.productionType(), parseForests);
             parseForestManager.addDerivation(parseState, parseNode, derivation);

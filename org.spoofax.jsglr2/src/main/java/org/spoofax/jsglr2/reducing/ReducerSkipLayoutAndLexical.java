@@ -35,7 +35,7 @@ public class ReducerSkipLayoutAndLexical
         @SuppressWarnings("unchecked") ParseNode parseNode =
             (ParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
 
-        if(parseNode != null) {
+        if(!reduce.production().isSkippableInParseForest()) {
             Derivation derivation = parseForestManager.createDerivation(parseState,
                 existingDirectLinkToActiveStateWithGoto.to, reduce.production(), reduce.productionType(), parseForests);
             parseForestManager.addDerivation(parseState, parseNode, derivation);

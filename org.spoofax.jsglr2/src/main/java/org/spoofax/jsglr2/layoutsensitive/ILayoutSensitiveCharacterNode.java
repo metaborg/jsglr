@@ -9,4 +9,12 @@ public interface ILayoutSensitiveCharacterNode extends ILayoutSensitiveParseFore
         return CharacterClassFactory.isNewLine(character) ? startPosition.nextLine() : startPosition.nextColumn();
     }
 
+    default Position getLeftPosition() {
+        return null;
+    }
+
+    default Position getRightPosition() {
+        return null;
+    }
+
 }

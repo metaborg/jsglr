@@ -1,10 +1,9 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
-
-import com.google.common.collect.Lists;
 
 public interface ILayoutSensitiveParseNode
 //@formatter:off
@@ -20,16 +19,30 @@ public interface ILayoutSensitiveParseNode
     default void filterLongestMatchDerivations() {
         setFilteredLongestMatch();
 
-        if(getDerivations().size() <= 1) {
-            setLongestMatchPositions(getFirstDerivation().getLongestMatchPositions());
-
+        if(getDerivations().isEmpty()) {
+            setLongestMatchPositions(new ArrayList<>());
             return;
         }
 
-        List<List<PositionInterval>> longestMatchNodes = Lists.newArrayList();
+        List<List<PositionInterval>> longestMatchNodes = new ArrayList<>();
 
         for(Derivation derivation : getDerivations()) {
-            longestMatchNodes.add(derivation.getLongestMatchPositions());
+            List<PositionInterval> result = new ArrayList<>();
+            if(derivation.production().isLongestMatch()) {
+                result.add(new PositionInterval(getStartPosition(), getEndPosition()));
+            }
+            for(ParseForest pf : derivation.parseForests()) {
+                if(pf instanceof ILayoutSensitiveParseNode) {
+                    result.addAll(((ILayoutSensitiveParseNode<ParseForest, ILayoutSensitiveDerivation<ParseForest>>) pf)
+                        .getLongestMatchPositions());
+                }
+            }
+            longestMatchNodes.add(result);
+        }
+
+        if(longestMatchNodes.size() == 1) {
+            setLongestMatchPositions(longestMatchNodes.get(0));
+            return;
         }
 
         int size = -1;

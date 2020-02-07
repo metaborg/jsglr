@@ -101,12 +101,12 @@ public class LayoutConstraintEvaluator {
                         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> layoutSensitiveParseNode =
                             (ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>) tree;
 
-                        if(layoutSensitiveParseNode.getFirstDerivation().getLeftPosition() == null) {
+                        if(layoutSensitiveParseNode.getLeftPosition() == null) {
                             return Optional.empty();
                         } else if(numericLayoutConstraint.getElem() == ConstraintElement.COL) {
-                            return Optional.of(layoutSensitiveParseNode.getFirstDerivation().getLeftPosition().column);
+                            return Optional.of(layoutSensitiveParseNode.getLeftPosition().column);
                         } else {
-                            return Optional.of(layoutSensitiveParseNode.getFirstDerivation().getLeftPosition().line);
+                            return Optional.of(layoutSensitiveParseNode.getLeftPosition().line);
                         }
                     }
                     return Optional.empty();

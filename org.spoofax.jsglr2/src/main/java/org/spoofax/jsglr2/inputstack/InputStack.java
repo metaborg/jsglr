@@ -7,6 +7,7 @@ public class InputStack extends AbstractInputStack {
 
     public InputStack(String inputString) {
         super(inputString);
+        currentChar = getChar(currentOffset);
     }
 
     @Override public InputStack clone() {

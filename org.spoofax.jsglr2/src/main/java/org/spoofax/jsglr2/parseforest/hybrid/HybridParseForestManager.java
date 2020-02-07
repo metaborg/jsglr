@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parseforest.hybrid;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
@@ -33,7 +35,8 @@ public class HybridParseForestManager
 
     @Override public HybridParseNode createParseNode(ParseState parseState, IStackNode stack, IProduction production,
         HybridDerivation firstDerivation) {
-        HybridParseNode parseNode = new HybridParseNode(production, firstDerivation);
+        HybridParseNode parseNode =
+            new HybridParseNode(sumWidth(firstDerivation.parseForests()), production, firstDerivation);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
         observing.notify(observer -> observer.addDerivation(parseNode, firstDerivation));
@@ -56,6 +59,11 @@ public class HybridParseForestManager
         parseNode.addDerivation(derivation);
     }
 
+    @Override public HybridParseNode createSkippedNode(ParseState parseState, IProduction production,
+        HybridParseForest[] parseForests) {
+        return new HybridParseNode(sumWidth(parseForests), production);
+    }
+
     @Override public HybridCharacterNode createCharacterNode(ParseState parseState) {
         HybridCharacterNode characterNode = new HybridCharacterNode(parseState.inputStack.getChar());
 
@@ -70,7 +78,8 @@ public class HybridParseForestManager
 
     @Override protected HybridParseNode filteredTopParseNode(HybridParseNode parseNode,
         List<HybridDerivation> derivations) {
-        HybridParseNode topParseNode = new HybridParseNode(parseNode.production, derivations.get(0));
+        HybridParseNode topParseNode =
+            new HybridParseNode(parseNode.width(), parseNode.production(), derivations.get(0));
 
         for(int i = 1; i < derivations.size(); i++)
             topParseNode.addDerivation(derivations.get(i));

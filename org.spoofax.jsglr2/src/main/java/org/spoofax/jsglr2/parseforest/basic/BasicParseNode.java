@@ -13,11 +13,17 @@ public class BasicParseNode
 //@formatter:on
     implements IBasicParseNode<ParseForest, Derivation> {
 
-    public final IProduction production;
+    private final int width;
+    private final IProduction production;
     protected final List<Derivation> derivations = new ArrayList<>();
 
-    public BasicParseNode(IProduction production) {
+    public BasicParseNode(int width, IProduction production) {
+        this.width = width;
         this.production = production;
+    }
+
+    @Override public int width() {
+        return width;
     }
 
     @Override public IProduction production() {

@@ -9,4 +9,8 @@ public interface ILayoutSensitiveParseForest extends IBasicParseForest {
 
     Position getEndPosition();
 
+    Position getLeftPosition();
+
+    Position getRightPosition();
+
 }

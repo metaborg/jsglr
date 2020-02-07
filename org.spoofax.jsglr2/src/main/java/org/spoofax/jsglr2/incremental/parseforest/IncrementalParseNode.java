@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,13 +23,13 @@ public class IncrementalParseNode extends IncrementalParseForest
     public static final State NO_STATE = new State(-1,
         new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
 
-    private final IProduction production;
+    protected final IProduction production;
     private final IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
     private IState state;
 
     public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation, IState state) {
-        super(firstDerivation.width());
+        super(sumWidth(firstDerivation.parseForests()));
         this.production = production;
         this.firstDerivation = firstDerivation;
         this.state = state;
@@ -35,6 +37,13 @@ public class IncrementalParseNode extends IncrementalParseForest
 
     public IncrementalParseNode(IncrementalParseForest... parseForests) {
         this(null, new IncrementalDerivation(null, null, parseForests), NO_STATE);
+    }
+
+    protected IncrementalParseNode(int width, IProduction production) {
+        super(width);
+        this.production = production;
+        this.firstDerivation = null;
+        this.state = null;
     }
 
     @Override public boolean isReusable() {
@@ -68,11 +77,12 @@ public class IncrementalParseNode extends IncrementalParseForest
     }
 
     @Override public Iterable<IncrementalDerivation> getDerivations() {
-        if(otherDerivations == null) {
+        if(firstDerivation == null)
+            return Collections.emptyList();
+        if(otherDerivations == null)
             return Collections.singleton(firstDerivation);
-        } else {
-            return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
-        }
+
+        return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
     }
 
     @Override public IncrementalDerivation getFirstDerivation() {

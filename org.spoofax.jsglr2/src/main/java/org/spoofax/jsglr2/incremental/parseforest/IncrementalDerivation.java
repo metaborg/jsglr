@@ -6,7 +6,6 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public class IncrementalDerivation implements IDerivation<IncrementalParseForest> {
-    private final int width;
     private final IProduction production;
     private final ProductionType productionType;
     public final IncrementalParseForest[] parseForests;
@@ -17,17 +16,6 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
         this.production = production;
         this.productionType = productionType;
         this.parseForests = parseForests;
-        int width = 0;
-        for(IncrementalParseForest parseForest : parseForests) {
-            if(parseForest == null)
-                continue; // Skippable parse nodes are null
-            width += parseForest.width();
-        }
-        this.width = width;
-    }
-
-    @Override public int width() {
-        return width;
     }
 
     @Override public IProduction production() {

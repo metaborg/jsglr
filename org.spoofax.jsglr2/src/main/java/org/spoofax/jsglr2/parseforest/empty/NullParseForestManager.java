@@ -48,6 +48,11 @@ public class NullParseForestManager
     @Override public void addDerivation(ParseState parseState, HybridParseNode parseNode, HybridDerivation derivation) {
     }
 
+    @Override public HybridParseNode createSkippedNode(ParseState parseState, IProduction production,
+        HybridParseForest[] parseForests) {
+        return null;
+    }
+
     @Override public HybridCharacterNode createCharacterNode(ParseState parseState) {
         return null;
     }

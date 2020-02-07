@@ -73,35 +73,36 @@ public class ParserVariant {
     }
 
     public Stream<String> validate() {
-        // The implication N -> F is written as !N || F
+        // Implication N -> F is written as !N || F
+        // Bi-implication N <-> F is written as N == F
 
         Map<String, Boolean> constraints = new HashMap<>();
 
-        // Elkhound reducing requires Elkhound stack, and the other way around (bi-implication)
-        constraints.put("elkhound",
+        constraints.put("both Reducing and StackRepresentation should use Elkhound",
             (reducing == Reducing.Elkhound) == (stackRepresentation == StackRepresentation.BasicElkhound
                 || stackRepresentation == StackRepresentation.HybridElkhound));
 
-        constraints.put("null parse forest", parseForestRepresentation != ParseForestRepresentation.Null
-            || parseForestConstruction == ParseForestConstruction.Full);
+        constraints.put("null parse forest requires Full parse forest construction",
+            parseForestRepresentation != ParseForestRepresentation.Null
+                || parseForestConstruction == ParseForestConstruction.Full);
 
-        constraints.put("incremental",
-            (parseForestRepresentation == ParseForestRepresentation.Incremental) == (reducing == Reducing.Incremental)
-                // Incremental parsing requires a full parse forest
-                && (reducing != Reducing.Incremental || parseForestConstruction == ParseForestConstruction.Full));
+        constraints.put("both Reducing and ParseForestRepresentation should use Incremental",
+            (parseForestRepresentation == ParseForestRepresentation.Incremental) == (reducing == Reducing.Incremental));
 
-        constraints.put("layout-sensitive",
+        constraints.put("both Reducing and ParseForestRepresentation should use LayoutSensitive",
             (parseForestRepresentation == ParseForestRepresentation.LayoutSensitive) == (reducing == Reducing.LayoutSensitive));
 
-        constraints.put("data-dependent",
+        constraints.put("both Reducing and ParseForestRepresentation should use DataDependent",
             (parseForestRepresentation == ParseForestRepresentation.DataDependent) == (reducing == Reducing.DataDependent));
 
-        // Recovery and layout-sensitive parsing not simultaneously supported
-        constraints.put("recovery layout-sensitive",
+        constraints.put("both Reducing and ParseForestRepresentation should use Composite",
+            (parseForestRepresentation == ParseForestRepresentation.Composite) == (reducing == Reducing.Composite));
+
+        constraints.put("recovery and layout-sensitive parsing not simultaneously supported",
             !(parseForestRepresentation == ParseForestRepresentation.LayoutSensitive && recovery));
 
-        constraints.put("composite",
-            (parseForestRepresentation == ParseForestRepresentation.Composite) == (reducing == Reducing.Composite));
+        constraints.put("recovery and composite parsing not simultaneously supported",
+            !(parseForestRepresentation == ParseForestRepresentation.Composite && recovery));
 
         return constraints.entrySet().stream().filter(constraint -> !constraint.getValue()).map(Map.Entry::getKey);
     }

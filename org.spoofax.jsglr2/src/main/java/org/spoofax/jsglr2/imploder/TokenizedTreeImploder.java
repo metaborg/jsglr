@@ -75,7 +75,7 @@ public abstract class TokenizedTreeImploder
 
         IProduction production = parseNode.production();
 
-        if(production.isContextFree()) {
+        if(production.isContextFree() && !production.isSkippableInParseForest()) {
             List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
 
             if(filteredDerivations.size() > 1) {
@@ -186,54 +186,52 @@ public abstract class TokenizedTreeImploder
         for(ParseForest childParseForest : childParseForests) {
             @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-            if(childParseNode != null) { // Can be null in the case of a layout subtree parse node that is not created
-                IProduction childProduction = childParseNode.production();
+            IProduction childProduction = childParseNode.production();
 
-                SubTree<Tree> subTree;
+            SubTree<Tree> subTree;
 
-                if(production.isList() && (
-                //@formatter:off
-                    // Constraints for flattening nested lists productions:
-                    childProduction.isList() && // The subtree is a list
-                    childProduction.constructor() == null && // The subtree has no constructor
-                    childParseNode.getPreferredAvoidedDerivations().size() <= 1 && // The subtree is not ambiguous
-                    !production.isLexical() // Not in lexical context; otherwise just implode as lexical token
-                //@formatter:on
-                )) {
-                    // Make sure lists are flattened
-                    subTree = implodeChildParseNodes(messages, tokens, childASTs,
-                        Arrays.asList(childParseNode.getFirstDerivation().parseForests()), childProduction,
-                        unboundTokens, pivotPosition, pivotToken);
-                } else {
-                    subTree = implodeParseNode(childParseNode, messages, tokens, pivotPosition, pivotToken);
+            if(production.isList() && (
+            //@formatter:off
+                // Constraints for flattening nested lists productions:
+                childProduction.isList() && // The subtree is a list
+                childProduction.constructor() == null && // The subtree has no constructor
+                childParseNode.getPreferredAvoidedDerivations().size() <= 1 && // The subtree is not ambiguous
+                !production.isLexical() // Not in lexical context; otherwise just implode as lexical token
+            //@formatter:on
+            )) {
+                // Make sure lists are flattened
+                subTree = implodeChildParseNodes(messages, tokens, childASTs,
+                    Arrays.asList(childParseNode.getFirstDerivation().parseForests()), childProduction, unboundTokens,
+                    pivotPosition, pivotToken);
+            } else {
+                subTree = implodeParseNode(childParseNode, messages, tokens, pivotPosition, pivotToken);
 
-                    if(subTree.tree != null)
-                        childASTs.add(subTree.tree);
+                if(subTree.tree != null)
+                    childASTs.add(subTree.tree);
 
-                    // Collect tokens that are not bound to a tree such that they can later be bound to the resulting
-                    // parent tree
-                    if(subTree.tree == null) {
-                        if(subTree.leftToken != null)
-                            unboundTokens.add(subTree.leftToken);
+                // Collect tokens that are not bound to a tree such that they can later be bound to the resulting
+                // parent tree
+                if(subTree.tree == null) {
+                    if(subTree.leftToken != null)
+                        unboundTokens.add(subTree.leftToken);
 
-                        if(subTree.rightToken != null)
-                            unboundTokens.add(subTree.rightToken);
-                    }
+                    if(subTree.rightToken != null)
+                        unboundTokens.add(subTree.rightToken);
                 }
-
-                // Set the parent tree left and right token from the outermost non-layout left and right child tokens
-                if(!childProduction.isLayout()) {
-                    if(result.leftToken == null)
-                        result.leftToken = subTree.leftToken;
-
-                    if(subTree.rightToken != null) {
-                        result.rightToken = subTree.rightToken;
-                        pivotToken = subTree.rightToken;
-                    }
-                }
-
-                pivotPosition = subTree.endPosition;
             }
+
+            // Set the parent tree left and right token from the outermost non-layout left and right child tokens
+            if(!childProduction.isLayout()) {
+                if(result.leftToken == null)
+                    result.leftToken = subTree.leftToken;
+
+                if(subTree.rightToken != null) {
+                    result.rightToken = subTree.rightToken;
+                    pivotToken = subTree.rightToken;
+                }
+            }
+
+            pivotPosition = subTree.endPosition;
         }
 
         result.endPosition = pivotPosition;

@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
@@ -27,7 +29,7 @@ public abstract class AbstractBasicParseForestManager
         super(observing);
     }
 
-    protected abstract ParseNode constructParseNode(IProduction production);
+    protected abstract ParseNode constructParseNode(int width, IProduction production);
 
     protected abstract Derivation constructDerivation(IProduction production, ProductionType productionType,
         ParseForest[] parseForests);
@@ -36,7 +38,7 @@ public abstract class AbstractBasicParseForestManager
 
     @Override public ParseNode createParseNode(ParseState parseState, IStackNode stack, IProduction production,
         Derivation firstDerivation) {
-        ParseNode parseNode = constructParseNode(production);
+        ParseNode parseNode = constructParseNode(sumWidth(firstDerivation.parseForests()), production);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -69,7 +71,7 @@ public abstract class AbstractBasicParseForestManager
     }
 
     @Override protected ParseNode filteredTopParseNode(ParseNode parseNode, List<Derivation> derivations) {
-        ParseNode topParseNode = constructParseNode(parseNode.production());
+        ParseNode topParseNode = constructParseNode(parseNode.width(), parseNode.production());
 
         for(Derivation derivation : derivations)
             topParseNode.addDerivation(derivation);

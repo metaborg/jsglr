@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.composite;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
@@ -10,6 +12,7 @@ import org.spoofax.jsglr2.layoutsensitive.Shape;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -39,9 +42,12 @@ public class CompositeParseForestManager
     @Override public ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ICompositeDerivation<ICompositeParseForest> firstDerivation) {
+        Shape shape = LayoutSensitiveParseForestManager.shape(firstDerivation.parseForests(),
+            parseState.inputStack.currentPosition());
+
         ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> parseNode =
-            new CompositeParseNode<>(firstDerivation.getStartPosition(), parseState.inputStack.currentPosition(),
-                production);
+            new CompositeParseNode<>(sumWidth(firstDerivation.parseForests()), production, shape.start, shape.end,
+                shape.left, shape.right);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -52,10 +58,8 @@ public class CompositeParseForestManager
 
     @Override public ICompositeDerivation<ICompositeParseForest> createDerivation(ParseState parseState,
         IStackNode stack, IProduction production, ProductionType productionType, ICompositeParseForest[] parseForests) {
-        Shape shape = LayoutSensitiveParseForestManager.shape(parseForests, parseState.inputStack.currentPosition());
-
-        ICompositeDerivation<ICompositeParseForest> derivation = new CompositeDerivation<>(shape.start, shape.left,
-            shape.right, shape.end, production, productionType, parseForests);
+        ICompositeDerivation<ICompositeParseForest> derivation =
+            new CompositeDerivation<>(production, productionType, parseForests);
 
         observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
@@ -68,6 +72,14 @@ public class CompositeParseForestManager
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
+    }
+
+    @Override public ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
+        createSkippedNode(ParseState parseState, IProduction production, ICompositeParseForest[] parseForests) {
+        Position endPosition = parseState.inputStack.currentPosition();
+        return new CompositeParseNode<>(sumWidth(parseForests), production,
+            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // Same as in the shape method
+            endPosition, null, null);
     }
 
     @Override public ICompositeParseForest createCharacterNode(ParseState parseState) {
@@ -88,7 +100,8 @@ public class CompositeParseForestManager
             ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> parseNode,
             List<ICompositeDerivation<ICompositeParseForest>> derivations) {
         ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> topParseNode =
-            new CompositeParseNode<>(parseNode.getStartPosition(), parseNode.getEndPosition(), parseNode.production());
+            new CompositeParseNode<>(parseNode.width(), parseNode.production(), parseNode.getStartPosition(),
+                parseNode.getEndPosition(), parseNode.getLeftPosition(), parseNode.getRightPosition());
 
         for(ICompositeDerivation<ICompositeParseForest> derivation : derivations)
             topParseNode.addDerivation(derivation);

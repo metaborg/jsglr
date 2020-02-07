@@ -52,7 +52,8 @@ public class ReducerSkipRejects
 
         if(reduce.isRejectProduction()) {
             newDirectLinkToActiveStateWithGoto =
-                stackManager.createStackLink(parseState, existingActiveStackWithGotoState, stack, null);
+                stackManager.createStackLink(parseState, existingActiveStackWithGotoState, stack,
+                    (ParseForest) parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests));
 
             stackManager.rejectStackLink(newDirectLinkToActiveStateWithGoto);
         } else {
@@ -76,7 +77,8 @@ public class ReducerSkipRejects
         StackLink<ParseForest, StackNode> link;
 
         if(reduce.isRejectProduction()) {
-            link = stackManager.createStackLink(parseState, newStackWithGotoState, stack, null);
+            link = stackManager.createStackLink(parseState, newStackWithGotoState, stack,
+                (ParseForest) parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests));
 
             stackManager.rejectStackLink(link);
         } else {

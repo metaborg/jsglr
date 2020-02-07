@@ -15,15 +15,19 @@ class CompositeParseNode
     extends BasicParseNode<ParseForest, Derivation> implements ICompositeParseNode<ParseForest, Derivation> {
 
     private final Position startPosition, endPosition;
+    private final Position leftPosition, rightPosition;
 
     private List<PositionInterval> longestMatchPositions = null;
     private boolean filteredLongestMatch = false;
 
-    CompositeParseNode(Position startPosition, Position endPosition, IProduction production) {
-        super(production);
+    CompositeParseNode(int width, IProduction production, Position startPosition, Position endPosition,
+        Position leftPosition, Position rightPosition) {
+        super(width, production);
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
+        this.leftPosition = leftPosition;
+        this.rightPosition = rightPosition;
     }
 
     @Override public Position getStartPosition() {
@@ -32,6 +36,14 @@ class CompositeParseNode
 
     @Override public Position getEndPosition() {
         return endPosition;
+    }
+
+    @Override public Position getLeftPosition() {
+        return leftPosition;
+    }
+
+    @Override public Position getRightPosition() {
+        return rightPosition;
     }
 
     @Override public boolean filteredLongestMatch() {

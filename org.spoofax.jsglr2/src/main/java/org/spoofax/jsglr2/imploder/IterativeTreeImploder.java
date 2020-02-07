@@ -111,12 +111,14 @@ public class IterativeTreeImploder
                 parseNode = implodeInjection(parseNode);
 
                 IProduction production = parseNode.production();
-                if(!production.isContextFree()) { // If the current parse node is a lexical node
+                if(!production.isContextFree() || production.isSkippableInParseForest()) {
+                    // If the current parse node is a lexical node or a skipped node
                     SubTree<Tree> lexicalSubTree =
                         createLexicalSubTree(input.inputString, parseNode, pseudoNode.pivotOffset, production);
                     currentOut.getLast().add(lexicalSubTree); // Add a new SubTree to the output
                     pseudoNode.pivotOffset += lexicalSubTree.width;
-                } else { // If the current parse node is a context-free node
+                } else {
+                    // If the current parse node is a context-free node
                     // Then push it on top of the stacks
                     List<Derivation> derivations = applyDisambiguationFilters(parseNode);
                     if(derivations.size() > 1 && production.isList()) {
@@ -141,12 +143,8 @@ public class IterativeTreeImploder
 
             LinkedList<ParseNode> derivationList = new LinkedList<>();
             for(ParseForest childParseForest : getChildParseForests(derivation)) {
-                // Can be null in the case of a layout subtree parse node that is not created
-                if(childParseForest != null) {
-                    @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-
-                    derivationList.add(childParseNode);
-                }
+                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+                derivationList.add(childParseNode);
             }
             derivationLists.add(derivationList);
         }
@@ -159,12 +157,8 @@ public class IterativeTreeImploder
         for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(derivations)) {
             LinkedList<ParseNode> derivationList = new LinkedList<>();
             for(ParseForest childParseForest : getChildParseForests(production, derivationParseForests)) {
-                // Can be null in the case of a layout subtree parse node that is not created
-                if(childParseForest != null) {
-                    @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-
-                    derivationList.add(childParseNode);
-                }
+                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+                derivationList.add(childParseNode);
             }
             derivationLists.add(derivationList);
         }
@@ -179,7 +173,7 @@ public class IterativeTreeImploder
     }
 
     private SubTree<Tree> createAmbiguousSubTree(ParseNode parseNode, List<SubTree<Tree>> subTrees) {
-        return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null, null,
+        return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null,
             subTrees.get(0).width, false);
     }
 
@@ -193,9 +187,9 @@ public class IterativeTreeImploder
 
     private SubTree<Tree> createLexicalSubTree(String inputString, ParseNode parseNode, int startOffset,
         IProduction production) {
-        String substring = inputString.substring(startOffset, startOffset + parseNode.width());
+        int width = parseNode.width();
 
-        return new SubTree<>(createLexicalTerm(production, substring), production, substring);
+        return new SubTree<>(createLexicalTerm(production, inputString, startOffset, width), production, width);
     }
 
     @SafeVarargs private static <E> LinkedList<LinkedList<E>> newNestedList(E... elements) {

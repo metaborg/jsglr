@@ -10,8 +10,8 @@ class DataDependentParseNode
 //@formatter:on
     extends BasicParseNode<ParseForest, Derivation> implements IDataDependentParseNode<ParseForest, Derivation> {
 
-    DataDependentParseNode(IProduction production) {
-        super(production);
+    DataDependentParseNode(int width, IProduction production) {
+        super(width, production);
     }
 
 }

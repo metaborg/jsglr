@@ -45,7 +45,7 @@ public class TreeImploder
 
         IProduction production = parseNode.production();
 
-        if(production.isContextFree()) {
+        if(production.isContextFree() && !production.isSkippableInParseForest()) {
             List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
 
             if(filteredDerivations.size() > 1) {
@@ -67,13 +67,14 @@ public class TreeImploder
                     }
                 }
 
-                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null, subTrees.get(0).width, false);
+                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false);
             } else
                 return implodeDerivation(input, filteredDerivations.get(0), startOffset);
         } else {
-            String substring = input.inputString.substring(startOffset, startOffset + parseNode.width());
+            int width = parseNode.width();
 
-            return new SubTree<>(createLexicalTerm(production, substring), production, substring);
+            return new SubTree<>(createLexicalTerm(production, input.inputString, startOffset, width), production,
+                width);
         }
     }
 
@@ -93,17 +94,15 @@ public class TreeImploder
         List<SubTree<Tree>> subTrees = new ArrayList<>();
 
         for(ParseForest childParseForest : childParseForests) {
-            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
-                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+            @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
+            SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
 
-                if(subTree.tree != null) {
-                    childASTs.add(subTree.tree);
-                }
-                subTrees.add(subTree);
-                startOffset += subTree.width;
+            if(subTree.tree != null) {
+                childASTs.add(subTree.tree);
             }
+            subTrees.add(subTree);
+            startOffset += subTree.width;
         }
 
         Tree contextFreeTerm = createContextFreeTerm(production, childASTs);
@@ -147,10 +146,11 @@ public class TreeImploder
         }
     }
 
-    protected Tree createLexicalTerm(IProduction production, String substring) {
+    protected Tree createLexicalTerm(IProduction production, String inputString, int startOffset, int width) {
         if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical()) {
+            String substring = inputString.substring(startOffset, startOffset + width);
             if(production.lhs() instanceof IMetaVarSymbol)
                 return treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
             else
@@ -180,7 +180,6 @@ public class TreeImploder
         public final Tree tree;
         public final List<SubTree<Tree>> children;
         public final IProduction production;
-        public final String string; // Only set for lexical nodes.
         public final int width;
 
         /**
@@ -198,24 +197,23 @@ public class TreeImploder
          */
         public final boolean isInjection;
 
-        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, String string, int width,
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, int width,
             boolean isInjection) {
             this.tree = tree;
             this.children = children;
             this.production = production;
-            this.string = string;
             this.width = width;
             this.isInjection = isInjection;
         }
 
         /** This constructor infers the width from the sum of widths of its children. */
         public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, boolean isInjection) {
-            this(tree, children, production, null, sumWidth(children), isInjection);
+            this(tree, children, production, sumWidth(children), isInjection);
         }
 
         /** This constructor corresponds to a terminal/lexical node without children. */
-        public SubTree(Tree tree, IProduction production, String string) {
-            this(tree, Collections.emptyList(), production, string, string.length(), false);
+        public SubTree(Tree tree, IProduction production, int width) {
+            this(tree, Collections.emptyList(), production, width, false);
         }
 
         private static <Tree> int sumWidth(List<SubTree<Tree>> children) {

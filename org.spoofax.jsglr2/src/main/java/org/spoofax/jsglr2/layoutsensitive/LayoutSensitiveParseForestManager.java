@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
+
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
@@ -39,9 +41,11 @@ public class LayoutSensitiveParseForestManager
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> firstDerivation) {
+        Shape shape = shape(firstDerivation.parseForests(), parseState.inputStack.currentPosition());
+
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> parseNode =
-            new LayoutSensitiveParseNode<>(firstDerivation.getStartPosition(), parseState.inputStack.currentPosition(),
-                production);
+            new LayoutSensitiveParseNode<>(sumWidth(firstDerivation.parseForests()), production, shape.start, shape.end,
+                shape.left, shape.right);
 
         observing.notify(observer -> observer.createParseNode(parseNode, production));
 
@@ -53,10 +57,8 @@ public class LayoutSensitiveParseForestManager
     @Override public ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> createDerivation(ParseState parseState,
         IStackNode stack, IProduction production, ProductionType productionType,
         ILayoutSensitiveParseForest[] parseForests) {
-        Shape shape = shape(parseForests, parseState.inputStack.currentPosition());
-
-        ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> derivation = new LayoutSensitiveDerivation<>(
-            shape.start, shape.left, shape.right, shape.end, production, productionType, parseForests);
+        ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> derivation =
+            new LayoutSensitiveDerivation<>(production, productionType, parseForests);
 
         observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
 
@@ -81,13 +83,10 @@ public class LayoutSensitiveParseForestManager
 
                 if(!layoutSensitiveParseNode.production().isLayout()
                     && !layoutSensitiveParseNode.production().isIgnoreLayoutConstraint()) {
-                    ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> firstDerivation =
-                        layoutSensitiveParseNode.getFirstDerivation();
-
-                    Position currentStartPosition = firstDerivation.getStartPosition();
-                    Position currentLeftPosition = firstDerivation.getLeftPosition();
-                    Position currentRightPosition = firstDerivation.getRightPosition();
-                    Position currentEndPosition = firstDerivation.getEndPosition();
+                    Position currentStartPosition = layoutSensitiveParseNode.getStartPosition();
+                    Position currentEndPosition = layoutSensitiveParseNode.getEndPosition();
+                    Position currentLeftPosition = layoutSensitiveParseNode.getLeftPosition();
+                    Position currentRightPosition = layoutSensitiveParseNode.getRightPosition();
 
                     if(currentLeftPosition != null) {
                         leftPosition = leftMost(leftPosition, currentLeftPosition);
@@ -109,12 +108,10 @@ public class LayoutSensitiveParseForestManager
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
                 if(pf.getStartPosition().line > startPosition.line
                     && pf.getStartPosition().column < startPosition.column) {
-                    leftPosition = new Position(pf.getStartPosition().offset, pf.getStartPosition().line,
-                        pf.getStartPosition().column);
+                    leftPosition = pf.getStartPosition();
                 }
                 if(pf.getEndPosition().line < endPosition.line && pf.getEndPosition().column > endPosition.column) {
-                    rightPosition =
-                        new Position(pf.getEndPosition().offset, pf.getEndPosition().line, pf.getEndPosition().column);
+                    rightPosition = pf.getEndPosition();
                 }
             } else if(pf != null) {
                 throw new IllegalStateException("Invalid layout sensitive node");
@@ -156,6 +153,15 @@ public class LayoutSensitiveParseForestManager
         parseNode.addDerivation(derivation);
     }
 
+    @Override public
+        ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
+        createSkippedNode(ParseState parseState, IProduction production, ILayoutSensitiveParseForest[] parseForests) {
+        Position endPosition = parseState.inputStack.currentPosition();
+        return new LayoutSensitiveParseNode<>(sumWidth(parseForests), production,
+            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // Same as in the shape method
+            endPosition, null, null);
+    }
+
     @Override public ILayoutSensitiveParseForest createCharacterNode(ParseState parseState) {
         ILayoutSensitiveParseForest termNode =
             new LayoutSensitiveCharacterNode(parseState.inputStack.currentPosition(), parseState.inputStack.getChar());
@@ -175,8 +181,8 @@ public class LayoutSensitiveParseForestManager
             ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> parseNode,
             List<ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> derivations) {
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> topParseNode =
-            new LayoutSensitiveParseNode<>(parseNode.getStartPosition(), parseNode.getEndPosition(),
-                parseNode.production());
+            new LayoutSensitiveParseNode<>(parseNode.width(), parseNode.production(), parseNode.getStartPosition(),
+                parseNode.getEndPosition(), parseNode.getLeftPosition(), parseNode.getRightPosition());
 
         for(ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> derivation : derivations)
             topParseNode.addDerivation(derivation);

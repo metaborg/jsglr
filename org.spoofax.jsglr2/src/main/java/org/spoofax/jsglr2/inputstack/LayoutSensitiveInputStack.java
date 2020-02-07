@@ -31,6 +31,8 @@ public class LayoutSensitiveInputStack extends InputStack {
                 currentColumn++;
             }
         }
+        if(currentOffset == inputLength)
+            currentColumn++;
     }
 
 }

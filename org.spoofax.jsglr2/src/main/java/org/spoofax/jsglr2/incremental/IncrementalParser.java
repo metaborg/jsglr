@@ -157,9 +157,8 @@ public class IncrementalParser
             // Only allow shifting the subtree if the saved state matches the current state
             boolean reusable = lookaheadNode.isReusable(stack.state());
             if(reusable) {
-                // Reusable nodes have only one derivation, by definition
-                result
-                    .add(new GotoShift(stack.state().getGotoId(lookaheadNode.getFirstDerivation().production().id())));
+                // Reusable nodes have only one derivation, by definition, so the production of the node is correct
+                result.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
             }
 
             // If we don't have a GotoShift action, but do have regular shift actions, we should break down further

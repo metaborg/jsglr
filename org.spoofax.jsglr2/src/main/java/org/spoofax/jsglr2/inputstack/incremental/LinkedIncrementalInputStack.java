@@ -37,18 +37,21 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
     @Override public void breakDown() {
         if(head == null)
             return;
+
         IncrementalParseForest current = head.node;
-        if(current.isTerminal()) {
-            if(current instanceof IncrementalSkippedNode) {
-                // Break down a skipped node by explicitly instantiating character nodes for the skipped part
-                head = head.next;
-                for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
-                    c = inputString.codePointBefore(i);
-                    head = new StackTuple(new IncrementalCharacterNode(c), head);
-                }
+        if(current.isTerminal())
+            return;
+
+        if(current instanceof IncrementalSkippedNode) {
+            // Break down a skipped node by explicitly instantiating character nodes for the skipped part
+            head = head.next;
+            for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
+                c = inputString.codePointBefore(i);
+                head = new StackTuple(new IncrementalCharacterNode(c), head);
             }
             return;
         }
+
         head = head.next; // always pop last lookahead, whether it has children or not
         IncrementalParseForest[] children = ((IncrementalParseNode) current).getFirstDerivation().parseForests();
         // Push all children to stack in reverse order

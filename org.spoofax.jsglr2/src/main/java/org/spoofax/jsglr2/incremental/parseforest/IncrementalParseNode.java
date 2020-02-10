@@ -40,11 +40,11 @@ public class IncrementalParseNode extends IncrementalParseForest
         this(null, new IncrementalDerivation(null, null, parseForests), NO_STATE);
     }
 
-    protected IncrementalParseNode(int width, IProduction production) {
+    protected IncrementalParseNode(int width, IProduction production, IState state) {
         super(width);
         this.production = production;
         this.firstDerivation = null;
-        this.state = null;
+        this.state = state;
     }
 
     @Override public boolean isReusable() {

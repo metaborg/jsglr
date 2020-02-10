@@ -79,13 +79,6 @@ public class ProcessUpdates
     private IncrementalParseForest processUpdates(String previousInput, IncrementalParseForest currentForest,
         int currentOffset, LinkedList<EditorUpdate> updates) {
         if(currentForest.isTerminal()) {
-            if(currentForest instanceof IncrementalSkippedNode) {
-                // First explicitly instantiate all skipped character nodes before applying updates
-                return processUpdates(previousInput,
-                    getParseNodeFromString(
-                        previousInput.substring(currentOffset, currentOffset + currentForest.width())),
-                    currentOffset, updates);
-            }
             EditorUpdate update = updates.getFirst();
             int deletedStartOffset = update.deletedStart;
             int deletedEndOffset = update.deletedEnd;
@@ -121,6 +114,12 @@ public class ProcessUpdates
             }
             // If none of the cases applies: just return original character node
             return currentForest;
+        }
+        if(currentForest instanceof IncrementalSkippedNode) {
+            // First explicitly instantiate all skipped character nodes before applying updates
+            return processUpdates(previousInput,
+                getParseNodeFromString(previousInput.substring(currentOffset, currentOffset + currentForest.width())),
+                currentOffset, updates);
         }
         // Use a shallow copy of the current children, else the old children array will be modified
         IncrementalParseForest[] parseForests =

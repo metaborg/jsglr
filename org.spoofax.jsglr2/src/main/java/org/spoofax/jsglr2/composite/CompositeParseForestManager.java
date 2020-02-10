@@ -76,7 +76,7 @@ public class CompositeParseForestManager
     }
 
     @Override public ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
-        createSkippedNode(ParseState parseState, IProduction production, ICompositeParseForest[] parseForests) {
+        createSkippedNode(ParseState parseState, IStackNode stack, IProduction production, ICompositeParseForest[] parseForests) {
         throw new IllegalStateException();
     }
 

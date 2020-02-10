@@ -5,11 +5,12 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
+import org.spoofax.jsglr2.integrationtest.ParseNodeDescriptor;
 import org.spoofax.terms.ParseError;
 
-public class LookaheadIncrementalTest extends BaseTestWithSdf3ParseTables {
+public class IncrementalLookaheadTest extends BaseTestWithSdf3ParseTables {
 
-    public LookaheadIncrementalTest() {
+    public IncrementalLookaheadTest() {
         super("lookahead-incremental.sdf3");
     }
 
@@ -86,6 +87,17 @@ public class LookaheadIncrementalTest extends BaseTestWithSdf3ParseTables {
             new String[] { "ThreeCharFollowRestricted(\"3[abx]\")", "ThreeCharPrefix(\"3[abcx]\")", "ThreeCharFollowRestricted(\"3[abx]\")" }
         );
         //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> reusingSubtreesNoLayout() {
+        String[] inputStrings = { "3[abx]", "3[abcx]" };
+        return Stream.concat(
+            testIncrementalSuccessByExpansions(inputStrings,
+                new String[] { "ThreeCharFollowRestricted(\"3[abx]\")", "ThreeCharPrefix(\"3[abcx]\")" }),
+
+            testParseNodeReuse(inputStrings[0], inputStrings[1], //
+                new ParseNodeDescriptor(0, 0, "LAYOUT", null), //
+                new ParseNodeDescriptor(6, 0, "LAYOUT", null)));
     }
 
 }

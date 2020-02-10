@@ -66,9 +66,9 @@ public class ReducerOptimized
         StackLink<ParseForest, StackNode> newDirectLinkToActiveStateWithGoto;
 
         if(reduce.isRejectProduction()) {
-            newDirectLinkToActiveStateWithGoto =
-                stackManager.createStackLink(parseState, existingActiveStackWithGotoState, stack,
-                    (ParseForest) parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests));
+            newDirectLinkToActiveStateWithGoto = stackManager.createStackLink(parseState,
+                existingActiveStackWithGotoState, stack, (ParseForest) parseForestManager.createSkippedNode(parseState,
+                    stack, reduce.production(), parseForests));
 
             stackManager.rejectStackLink(newDirectLinkToActiveStateWithGoto);
         } else {
@@ -89,8 +89,9 @@ public class ReducerOptimized
         StackLink<ParseForest, StackNode> link;
 
         if(reduce.isRejectProduction()) {
-            link = stackManager.createStackLink(parseState, newStackWithGotoState, stack,
-                (ParseForest) parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests));
+            link =
+                stackManager.createStackLink(parseState, newStackWithGotoState, stack, (ParseForest) parseForestManager
+                    .createSkippedNode(parseState, stack, reduce.production(), parseForests));
 
             stackManager.rejectStackLink(link);
         } else {
@@ -107,7 +108,7 @@ public class ReducerOptimized
         ParseNode parseNode;
 
         if(skipParseNodeCreation(parseState, reduce))
-            parseNode = parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests);
+            parseNode = parseForestManager.createSkippedNode(parseState, stack, reduce.production(), parseForests);
         else {
             Derivation derivation = parseForestManager.createDerivation(parseState, stack, reduce.production(),
                 reduce.productionType(), parseForests);

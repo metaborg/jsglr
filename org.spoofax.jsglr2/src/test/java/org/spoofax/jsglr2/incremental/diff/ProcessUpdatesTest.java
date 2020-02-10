@@ -117,7 +117,8 @@ public class ProcessUpdatesTest {
 
 
     private void testUpdate(IncrementalParseNode previous, IncrementalParseNode expected, EditorUpdate... updates) {
-        assertEquals(expected.toString(), processUpdates.processUpdates(previous, updates).toString());
+        assertEquals(expected.toString(),
+            processUpdates.processUpdates(previous.getYield(), previous, updates).toString());
     }
 
     private static IncrementalCharacterNode node(int i) {

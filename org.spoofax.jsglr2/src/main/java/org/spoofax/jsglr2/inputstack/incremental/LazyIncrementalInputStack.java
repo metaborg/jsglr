@@ -51,6 +51,7 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
     @Override public void breakDown() {
         if(stack.isEmpty())
             last = null;
+        // TODO implement skipped nodes
         if(last == null || last.isTerminal())
             return;
         IncrementalParseForest[] children = ((IncrementalParseNode) last).getFirstDerivation().parseForests();

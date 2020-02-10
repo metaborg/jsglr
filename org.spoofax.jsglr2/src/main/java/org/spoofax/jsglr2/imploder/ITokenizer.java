@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.imploder;
 
-public interface ITokenizer<ImplodeResult, AbstractSyntaxTree> {
+public interface ITokenizer<ImplodeIntermediateResult> {
 
-    TokenizeResult<AbstractSyntaxTree> tokenize(String input, String filename, ImplodeResult tree);
+    TokenizeResult tokenize(String input, String fileName, ImplodeIntermediateResult tree);
 
 }

@@ -1,8 +1,7 @@
 package org.spoofax.jsglr2.integrationtest;
 
 import static java.util.Collections.sort;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,17 +10,21 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.function.Executable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Success;
-import org.spoofax.jsglr2.JSGLR2Variants;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -55,7 +58,7 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    class TestVariant {
+    static class TestVariant {
 
         IntegrationVariant variant;
         ParseTableWithOrigin parseTableWithOrigin;
@@ -70,128 +73,113 @@ public abstract class BaseTest implements WithParseTable {
         }
 
         IParser<?> parser() {
-            return JSGLR2Variants.getParser(parseTableWithOrigin.parseTable, variant.parser);
+            return variant.parser.getParser(parseTableWithOrigin.parseTable);
         }
 
         JSGLR2<IStrategoTerm> jsglr2() {
-            return JSGLR2Variants.getJSGLR2(parseTableWithOrigin.parseTable, variant.jsglr2);
+            return variant.jsglr2.getJSGLR2(parseTableWithOrigin.parseTable);
         }
 
     }
 
-    protected Iterable<TestVariant> getTestVariants(Predicate<TestVariant> filter) {
+    protected Stream<TestVariant> getTestVariants(Predicate<TestVariant> filter) {
         List<TestVariant> testVariants = new ArrayList<>();
 
         for(IntegrationVariant variant : IntegrationVariant.testVariants()) {
             for(ParseTableWithOrigin parseTableWithOrigin : getParseTablesOrFailOnException(variant.parseTable)) {
                 TestVariant testVariant = new TestVariant(variant, parseTableWithOrigin);
 
-                // data-dependent and layout-sensitive parsers are incompatible with Aterm parse table
+                // data-dependent, layout-sensitive, and composite parsers are incompatible with Aterm parse table
                 if((variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.DataDependent)
-                    || variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
+                    || variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive)
+                    || variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.Composite))
                     && parseTableWithOrigin.origin.equals(ParseTableOrigin.ATerm)) {
                     continue;
                 }
-
 
                 if(filter.test(testVariant))
                     testVariants.add(testVariant);
             }
         }
 
-        return testVariants;
+        return testVariants.stream();
     }
 
-    protected Iterable<TestVariant> getTestVariants() {
+    protected Stream<TestVariant> getTestVariants() {
         return getTestVariants(testVariant -> true);
     }
 
-    protected void testParseSuccess(String inputString) {
-        for(TestVariant variant : getTestVariants()) {
+    protected Stream<DynamicTest> testPerVariant(Stream<TestVariant> variants, Function<TestVariant, Executable> body) {
+        return variants.map(variant -> DynamicTest.dynamicTest(variant.name(), body.apply(variant)));
+    }
+
+    protected Stream<DynamicTest> testParseSuccess(String inputString) {
+        return testParseSuccess(inputString, getTestVariants());
+    }
+
+    protected Stream<DynamicTest> testParseSuccess(String inputString, Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' failed parsing: ", true, parseResult.isSuccess());
-        }
+            assertEquals(true, parseResult.isSuccess(), "Parsing failed");
+        });
     }
 
-    protected void testParseFailure(String inputString) {
-        for(TestVariant variant : getTestVariants()) {
+    protected Stream<DynamicTest> testParseFailure(String inputString) {
+        return testParseFailure(inputString, getTestVariants());
+    }
+
+    protected Stream<DynamicTest> testParseFailure(String inputString, Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(inputString);
 
-            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
-        }
+            assertEquals(false, parseResult.isSuccess(), "Parsing should fail");
+        });
     }
 
-    protected void testLayoutSensitiveParseFailure(String inputString) {
-        for(TestVariant variant : getTestVariants()) {
-            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
-                continue;
-
-            ParseResult<?> parseResult = variant.parser().parse(inputString);
-
-            assertEquals("Variant '" + variant.name() + "' should fail: ", false, parseResult.isSuccess());
-        }
+    protected Stream<DynamicTest> testSuccessByAstString(String inputString, String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, null, false);
     }
 
-    protected void testSuccessByAstString(String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, null, false);
+    protected Stream<DynamicTest> testSuccessByExpansions(String inputString, String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, null, true);
     }
 
-    protected void testSuccessByExpansions(String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, null, true);
-    }
-    
-    protected void testLayoutSensitiveSuccessByExpansions(String inputString, String expectedOutputAstString) {
-        testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
+    protected Stream<DynamicTest> testIncrementalSuccessByExpansions(String[] inputStrings,
+        String[] expectedOutputAstStrings) {
+        return testIncrementalSuccess(inputStrings, expectedOutputAstStrings, null, true);
     }
 
-    protected void testIncrementalSuccessByExpansions(String[] inputStrings, String[] expectedOutputAstStrings) {
-        testIncrementalSuccess(inputStrings, expectedOutputAstStrings, null, true);
+    protected Stream<DynamicTest> testSuccessByAstString(String startSymbol, String inputString,
+        String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, startSymbol, false);
     }
 
-    protected void testSuccessByAstString(String startSymbol, String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, startSymbol, false);
+    protected Stream<DynamicTest> testSuccessByExpansions(String startSymbol, String inputString,
+        String expectedOutputAstString) {
+        return testSuccess(inputString, expectedOutputAstString, startSymbol, true);
     }
 
-    protected void testSuccessByExpansions(String startSymbol, String inputString, String expectedOutputAstString) {
-        testSuccess(inputString, expectedOutputAstString, startSymbol, true);
-    }
-
-    private void testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
+    private Stream<DynamicTest> testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants()) {
+        return testPerVariant(getTestVariants(), variant -> () -> {
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
-            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
-                actualOutputAst, equalityByExpansions);
-        }
-    }
-    
-    private void testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString, String startSymbol,
-        boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants()) {
-            if(!variant.variant.parser.parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive))
-                continue;
-            
-            IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
-
-            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
-                actualOutputAst, equalityByExpansions);
-        }
+            assertEqualAST("Incorrect AST", expectedOutputAstString, actualOutputAst, equalityByExpansions);
+        });
     }
 
     protected IStrategoTerm testSuccess(TestVariant variant, String startSymbol, String inputString) {
-        return testSuccess("Variant '" + variant.name() + "' failed parsing: ",
-            "Variant '" + variant.name() + "' failed imploding: ", variant.jsglr2(), "", startSymbol, inputString);
+        return testSuccess("Parsing failed", "Imploding failed", variant.jsglr2(), "", startSymbol, inputString);
     }
 
     private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage, JSGLR2<IStrategoTerm> jsglr2,
-        String filename, String startSymbol, String inputString) {
+        String fileName, String startSymbol, String inputString) {
         try {
-            IStrategoTerm result = jsglr2.parseUnsafe(inputString, filename, startSymbol);
+            IStrategoTerm result = jsglr2.parseUnsafe(inputString, fileName, startSymbol);
 
             // Fail here if imploding or tokenization failed
-            assertNotNull(implodeFailMessage, result);
+            assertNotNull(result, implodeFailMessage);
 
             return result;
         } catch(ParseException e) {
@@ -201,31 +189,39 @@ public abstract class BaseTest implements WithParseTable {
         return null;
     }
 
-    private void testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings, String startSymbol,
-        boolean equalityByExpansions) {
-        for(TestVariant variant : getTestVariants(
-            testVariant -> testVariant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Incremental)) {
-            IStrategoTerm actualOutputAst;
-            String filename = "" + System.nanoTime(); // To ensure the results will be cached
-            for(int i = 0; i < expectedOutputAstStrings.length; i++) {
-                String inputString = inputStrings[i];
-                actualOutputAst = testSuccess("Variant '" + variant.name() + "' failed parsing at update " + i + ": ",
-                    "Variant '" + variant.name() + "' failed imploding at update " + i + ": ", variant.jsglr2(),
-                    filename, startSymbol, inputString);
-                assertEqualAST("Variant '" + variant.name() + "' has incorrect AST at update " + i + ": ",
-                    expectedOutputAstStrings[i], actualOutputAst, equalityByExpansions);
-            }
-        }
+    protected Predicate<TestVariant> isIncrementalVariant =
+        testVariant -> testVariant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Incremental;
+
+    private Stream<DynamicTest> testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings,
+        String startSymbol, boolean equalityByExpansions) {
+        return testIncrementalSuccess(inputStrings, expectedOutputAstStrings, startSymbol, equalityByExpansions,
+            getTestVariants(isIncrementalVariant));
     }
 
-    private void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,
+    private Stream<DynamicTest> testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings,
+        String startSymbol, boolean equalityByExpansions, Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
+            JSGLR2<IStrategoTerm> jsglr2 = variant.jsglr2();
+            IStrategoTerm actualOutputAst;
+            String fileName = "" + System.nanoTime(); // To ensure the results will be cached
+            for(int i = 0; i < expectedOutputAstStrings.length; i++) {
+                String inputString = inputStrings[i];
+                actualOutputAst = testSuccess("Parsing failed at update " + i + ": ",
+                    "Imploding failed at update " + i + ": ", jsglr2, fileName, startSymbol, inputString);
+                assertEqualAST("Incorrect AST at update " + i + ": ", expectedOutputAstStrings[i], actualOutputAst,
+                    equalityByExpansions);
+            }
+        });
+    }
+
+    protected void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,
         boolean equalityByExpansions) {
         if(equalityByExpansions) {
             IStrategoTerm expectedOutputAst = termReader.parseFromString(expectedOutputAstString);
 
             assertEqualTermExpansions(message, expectedOutputAst, actualOutputAst);
         } else {
-            assertEquals(message, expectedOutputAstString, actualOutputAst.toString());
+            assertEquals(expectedOutputAstString, actualOutputAst.toString(), message);
         }
     }
 
@@ -237,7 +233,7 @@ public abstract class BaseTest implements WithParseTable {
         List<String> expectedExpansion = toSortedStringList(astUtilities.expand(expected));
         List<String> actualExpansion = toSortedStringList(astUtilities.expand(actual));
 
-        assertEquals(message, expectedExpansion, actualExpansion);
+        assertEquals(expectedExpansion, actualExpansion, message);
     }
 
     private static List<String> toSortedStringList(List<IStrategoTerm> astExpansion) {
@@ -252,11 +248,16 @@ public abstract class BaseTest implements WithParseTable {
         return result;
     }
 
-    protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
-        for(TestVariant variant : getTestVariants()) {
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens) {
+        return testTokens(inputString, expectedTokens, getTestVariants());
+    }
+
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
+        Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
             JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
-            assertTrue("Variant '" + variant.name() + "' failed", jsglr2Result.isSuccess());
+            assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
 
             JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
 
@@ -266,10 +267,10 @@ public abstract class BaseTest implements WithParseTable {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
 
-            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1);
+            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, null);
             TokenDescriptor actualStartToken = actualTokens.get(0);
 
-            assertEquals("Start token incorrect:", expectedStartToken, actualStartToken);
+            assertEquals(expectedStartToken, actualStartToken, "Start token incorrect");
 
             Position endPosition = Position.atEnd(inputString);
 
@@ -277,15 +278,44 @@ public abstract class BaseTest implements WithParseTable {
             int endColumn = endPosition.column;
 
             TokenDescriptor expectedEndToken =
-                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1);
+                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1, null, null);
             TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
 
             List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
 
-            assertThat(actualTokensWithoutStartAndEnd, is(expectedTokens));
+            assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match");
 
-            assertEquals("End token incorrect:", expectedEndToken, actualEndToken);
-        }
+            assertEquals(expectedEndToken, actualEndToken, "End token incorrect");
+        });
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages) {
+        return testMessages(inputString, expectedMessages, getTestVariants(), null);
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
+        Stream<TestVariant> variants) {
+        return testMessages(inputString, expectedMessages, variants, null);
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
+        String startSymbol) {
+        return testMessages(inputString, expectedMessages, getTestVariants(), startSymbol);
+    }
+
+    protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
+        Stream<TestVariant> variants, String startSymbol) {
+        return testPerVariant(variants, variant -> () -> {
+            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", startSymbol);
+
+            List<MessageDescriptor> actualMessages = new ArrayList<>();
+
+            for(Message message : jsglr2Result.messages) {
+                actualMessages.add(MessageDescriptor.from(message));
+            }
+
+            assertIterableEquals(expectedMessages, actualMessages, "Message lists don't match");
+        });
     }
 
     protected String getFileAsString(String filename) throws IOException {

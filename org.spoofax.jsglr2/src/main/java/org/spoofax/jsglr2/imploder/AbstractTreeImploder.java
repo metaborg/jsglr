@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseNode;
+import org.spoofax.jsglr2.layoutsensitive.ILayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -16,9 +16,12 @@ public abstract class AbstractTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    Tree>
+    IntermediateResult, 
+    Cache,
+    AbstractSyntaxTree,
+    Result      extends IImplodeResult<IntermediateResult, Cache, AbstractSyntaxTree>>
 //@formatter:on
-    implements IImploder<ParseForest, Tree> {
+    implements IImploder<ParseForest, IntermediateResult, Cache, AbstractSyntaxTree, Result> {
 
     protected List<List<ParseForest>> implodeAmbiguousLists(List<Derivation> derivations) {
         List<List<ParseForest>> alternatives = new ArrayList<>();
@@ -73,8 +76,8 @@ public abstract class AbstractTreeImploder
 
         List<Derivation> result;
         // TODO always filter longest-match?
-        if(parseNode instanceof LayoutSensitiveParseNode) {
-            ((LayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
+        if(parseNode instanceof ILayoutSensitiveParseNode) {
+            ((ILayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
         }
         // TODO always filter prefer/avoid?
         result = parseNode.getPreferredAvoidedDerivations();

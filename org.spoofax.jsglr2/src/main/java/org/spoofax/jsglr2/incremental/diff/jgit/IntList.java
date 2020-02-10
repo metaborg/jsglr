@@ -1,3 +1,4 @@
+//@formatter:off
 /*
  * Copyright (C) 2008, Google Inc.
  * Copyright (C) 2009, Johannes Schindelin <johannes.schindelin@gmx.de>

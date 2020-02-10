@@ -6,19 +6,17 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBenchmark {
 
     ForShifterObserver forShifterObserver;
-
-    protected JSGLR2ForShifterBenchmark(TestSet testSet) {
-        super(testSet);
-    }
 
     public enum Representation {
         ArrayDequeue, ArrayList, LinkedList, Set
@@ -59,12 +57,13 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
         final List<ForShifterElement<?>> forShifterElements = new ArrayList<>();
     }
 
-    class ForShifterObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
+    class ForShifterObserver extends
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> {
 
         public List<ParseRound> parseRounds = new ArrayList<>();
 
-        @Override public void parseCharacter(AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
-            Iterable<BasicStackNode<BasicParseForest>> activeStacks) {
+        @Override public void parseRound(AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>> parseState,
+            Iterable<BasicStackNode<IBasicParseForest>> activeStacks) {
             parseRounds.add(new ParseRound());
         }
 
@@ -72,7 +71,7 @@ public abstract class JSGLR2ForShifterBenchmark extends JSGLR2DataStructureBench
             return parseRounds.get(parseRounds.size() - 1);
         }
 
-        @Override public void addForShifter(ForShifterElement<BasicStackNode<BasicParseForest>> forShifterElement) {
+        @Override public void addForShifter(ForShifterElement<BasicStackNode<IBasicParseForest>> forShifterElement) {
             currentParseRound().forShifterElements.add(forShifterElement);
         }
 

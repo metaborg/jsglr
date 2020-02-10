@@ -9,23 +9,31 @@ import java.util.List;
 import java.util.Objects;
 
 import org.spoofax.jsglr2.incremental.EditorUpdate;
-import org.spoofax.jsglr2.incremental.IncrementalParse;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.incremental.IIncrementalParseState;
+import org.spoofax.jsglr2.incremental.parseforest.*;
+import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ProcessUpdates<StackNode extends IStackNode> {
+public class ProcessUpdates
+//@formatter:off
+   <StackNode extends IStackNode,
+    ParseState extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState>
+//@formatter:on
+{
 
-    private final IncrementalParse<StackNode> incrementalParse;
-    private final IncrementalParseForestManager parseForestManager = new IncrementalParseForestManager();
+    private final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing;
+    private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager;
 
-    public ProcessUpdates(IncrementalParse<StackNode> incrementalParse) {
-        this.incrementalParse = incrementalParse;
+    public ProcessUpdates(IncrementalParseForestManager<StackNode, ParseState> parseForestManager) {
+        this.observing = new ParserObserving<>();
+        this.parseForestManager = parseForestManager;
     }
 
-    public IncrementalParseForest processUpdates(IncrementalParseForest previous, EditorUpdate... editorUpdates) {
-        return processUpdates(previous, Arrays.asList(editorUpdates));
+    public IncrementalParseForest processUpdates(String previousInput, IncrementalParseForest previous,
+        EditorUpdate... editorUpdates) {
+        return processUpdates(previousInput, previous, Arrays.asList(editorUpdates));
     }
 
     /**
@@ -46,7 +54,12 @@ public class ProcessUpdates<StackNode extends IStackNode> {
      * (meaning that first.end == second.start). This method will still work for two consecutive replacements, but no
      * guarantees are made for a consecutive insertion/deletion.
      */
-    public IncrementalParseForest processUpdates(IncrementalParseForest previous, List<EditorUpdate> editorUpdates) {
+    public IncrementalParseForest processUpdates(String previousInput, IncrementalParseForest previous,
+        List<EditorUpdate> editorUpdates) {
+        // Optimization: if there are no changes: then just return the old tree
+        if(editorUpdates.size() == 0)
+            return previous;
+
         // Optimization: if everything is deleted/replaced: then return a tree created from the inserted string
         if(editorUpdates.size() == 1) {
             EditorUpdate editorUpdate = editorUpdates.get(0);
@@ -56,12 +69,19 @@ public class ProcessUpdates<StackNode extends IStackNode> {
         }
 
         LinkedList<EditorUpdate> linkedUpdates = new LinkedList<>(editorUpdates);
-        return processUpdates(previous, 0, linkedUpdates);
+        return processUpdates(previousInput, previous, 0, linkedUpdates);
     }
 
-    private IncrementalParseForest processUpdates(IncrementalParseForest currentForest, int currentOffset,
-        LinkedList<EditorUpdate> updates) {
+    private IncrementalParseForest processUpdates(String previousInput, IncrementalParseForest currentForest,
+        int currentOffset, LinkedList<EditorUpdate> updates) {
         if(currentForest.isTerminal()) {
+            if(currentForest instanceof IncrementalSkippedNode) {
+                // First explicitly instantiate all skipped character nodes before applying updates
+                return processUpdates(previousInput,
+                    getParseNodeFromString(
+                        previousInput.substring(currentOffset, currentOffset + currentForest.width())),
+                    currentOffset, updates);
+            }
             EditorUpdate update = updates.getFirst();
             int deletedStartOffset = update.deletedStart;
             int deletedEndOffset = update.deletedEnd;
@@ -129,7 +149,7 @@ public class ProcessUpdates<StackNode extends IStackNode> {
                 parseForests[i] = null;
             // If current subtree (partially) overlaps with the to-be-deleted range: recurse
             else if(deletedStartOffset <= nextOffset && currentOffset <= deletedEndOffset)
-                parseForests[i] = processUpdates(parseForest, currentOffset, updates);
+                parseForests[i] = processUpdates(previousInput, parseForest, currentOffset, updates);
 
             currentOffset = nextOffset;
         }
@@ -141,7 +161,7 @@ public class ProcessUpdates<StackNode extends IStackNode> {
             Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
         if(filtered.length == 0)
             return null;
-        return parseForestManager.createChangedParseNode(incrementalParse, filtered);
+        return parseForestManager.createChangedParseNode(filtered);
     }
 
     public IncrementalParseNode getParseNodeFromString(String inputString) {
@@ -149,8 +169,8 @@ public class ProcessUpdates<StackNode extends IStackNode> {
 
         char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
-            parseForests[i] = parseForestManager.createCharacterNode(incrementalParse, chars[i]);
+            parseForests[i] = parseForestManager.createCharacterNode(chars[i]);
         }
-        return parseForestManager.createChangedParseNode(incrementalParse, parseForests);
+        return parseForestManager.createChangedParseNode(parseForests);
     }
 }

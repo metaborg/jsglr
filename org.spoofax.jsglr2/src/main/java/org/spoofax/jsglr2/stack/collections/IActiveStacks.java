@@ -13,6 +13,8 @@ public interface IActiveStacks<StackNode extends IStackNode> extends Iterable<St
 
     boolean isEmpty();
 
+    boolean isMultiple();
+
     StackNode findWithState(IState state);
 
     Iterable<StackNode> forLimitedReductions(IForActorStacks<StackNode> forActorStacks);

@@ -1,3 +1,4 @@
+//@formatter:off
 /*
  * Copyright (C) 2009, Google Inc.
  * and other copyright owners as documented in the project's IP log.

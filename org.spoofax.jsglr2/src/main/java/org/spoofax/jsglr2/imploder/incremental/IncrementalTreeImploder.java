@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2.imploder.incremental;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 import java.util.WeakHashMap;
 
+import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
@@ -16,44 +16,50 @@ public abstract class IncrementalTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
+    Cache       extends IncrementalTreeImploder.ResultCache<ParseForest, ParseNode, Derivation, Tree>,
     Tree,
-    Input       extends IncrementalImplodeInput<ParseNode, Tree>>
+    Input       extends IncrementalImplodeInput<ParseNode, Cache, Tree>>
 //@formatter:on
-    extends TreeImploder<ParseForest, ParseNode, Derivation, Tree, Input> {
+    extends TreeImploder<ParseForest, ParseNode, Derivation, Cache, Tree, Input> {
 
-    private final IIncrementalImplodeInputFactory<ParseNode, Tree, Input> incrementalInputFactory;
-    private final TreeImploder<ParseForest, ParseNode, Derivation, Tree, Input> regularImplode;
-    private final Map<String, WeakHashMap<ParseNode, SubTree<Tree>>> cache = new HashMap<>();
+    private final IIncrementalImplodeInputFactory<ParseNode, Cache, Tree, Input> incrementalInputFactory;
+    private final TreeImploder<ParseForest, ParseNode, Derivation, Void, Tree, Input> regularImplode;
 
     public IncrementalTreeImploder(IImplodeInputFactory<Input> inputFactory,
-        IIncrementalImplodeInputFactory<ParseNode, Tree, Input> incrementalInputFactory,
+        IIncrementalImplodeInputFactory<ParseNode, Cache, Tree, Input> incrementalInputFactory,
         ITreeFactory<Tree> treeFactory) {
         super(inputFactory, treeFactory);
         this.regularImplode = new TreeImploder<>(inputFactory, treeFactory);
         this.incrementalInputFactory = incrementalInputFactory;
     }
 
-    @Override public SubTree<Tree> implode(String inputString, String filename, ParseForest parseForest) {
-        if(filename.equals("")) {
-            return regularImplode.implode(inputString, filename, parseForest);
+    @Override public ImplodeResult<SubTree<Tree>, Cache, Tree> implode(String inputString, String fileName,
+        ParseForest parseForest, Cache resultCache) {
+
+        if(resultCache == null) {
+            ImplodeResult<SubTree<Tree>, Void, Tree> result =
+                regularImplode.implode(inputString, fileName, parseForest);
+            return new ImplodeResult<>(result.intermediateResult, null, result.ast, result.messages);
         }
 
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        if(!cache.containsKey(filename)) {
-            cache.put(filename, new WeakHashMap<>());
-        }
+        SubTree<Tree> result = implodeParseNode(incrementalInputFactory.get(inputString, resultCache), topParseNode, 0);
 
-        return implodeParseNode(incrementalInputFactory.get(inputString, cache.get(filename)), topParseNode, 0);
+        return new ImplodeResult<>(result, resultCache, result.tree, Collections.emptyList());
     }
 
     @Override protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
-        if(input.resultCache.containsKey(parseNode))
-            return input.resultCache.get(parseNode);
+        if(input.resultCache.cache.containsKey(parseNode))
+            return input.resultCache.cache.get(parseNode);
 
         SubTree<Tree> result = super.implodeParseNode(input, parseNode, startOffset);
-        input.resultCache.put(parseNode, result);
+        input.resultCache.cache.put(parseNode, result);
         return result;
+    }
+
+    public static class ResultCache<ParseForest extends IParseForest, ParseNode extends IParseNode<ParseForest, Derivation>, Derivation extends IDerivation<ParseForest>, Tree> {
+        protected final WeakHashMap<ParseNode, SubTree<Tree>> cache = new WeakHashMap<>();
     }
 
 }

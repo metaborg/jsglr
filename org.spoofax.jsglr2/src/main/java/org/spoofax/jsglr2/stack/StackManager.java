@@ -1,41 +1,49 @@
 package org.spoofax.jsglr2.stack;
 
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parseforest.IParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 
 public abstract class StackManager
 //@formatter:off
    <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends AbstractStackNode<ParseForest, StackNode>,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+    ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    extends AbstractStackManager<ParseForest, StackNode, Parse> {
+    extends AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
-    protected abstract StackNode createStackNode(IState state, Position position, boolean isRoot);
+    public StackManager(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
+        super(observing);
+    }
 
-    @Override public StackNode createInitialStackNode(Parse parse, IState state) {
-        StackNode newStackNode = createStackNode(state, parse.currentPosition(), true);
+    protected abstract StackNode createStackNode(IState state, boolean isRoot);
 
-        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
+    @Override public StackNode createInitialStackNode(IState state) {
+        StackNode newStackNode = createStackNode(state, true);
+
+        observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
 
-    @Override public StackNode createStackNode(Parse parse, IState state) {
-        StackNode newStackNode = createStackNode(state, parse.currentPosition(), false);
+    @Override public StackNode createStackNode(IState state) {
+        StackNode newStackNode = createStackNode(state, false);
 
-        parse.observing.notify(observer -> observer.createStackNode(newStackNode));
+        observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
 
-    @Override public StackLink<ParseForest, StackNode> createStackLink(Parse parse, StackNode from, StackNode to,
-        ParseForest parseNode) {
-        StackLink<ParseForest, StackNode> link = from.addLink(to, parseNode);
+    @Override public StackLink<ParseForest, StackNode> createStackLink(ParseState parseState, StackNode from,
+        StackNode to, ParseForest parseForest) {
+        StackLink<ParseForest, StackNode> link = from.addLink(to, parseForest);
 
-        parse.observing.notify(observer -> observer.createStackLink(link));
+        observing.notify(observer -> observer.createStackLink(link));
 
         return link;
     }

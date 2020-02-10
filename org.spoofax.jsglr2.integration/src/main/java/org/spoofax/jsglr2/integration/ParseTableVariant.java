@@ -19,6 +19,11 @@ public class ParseTableVariant {
         this.productionToGotoRepresentation = productionToGotoRepresentation;
     }
 
+    /** Uses the standard ActionsForCharacterRepresentation and ProductionToGotoRepresentation. */
+    public ParseTableVariant() {
+        this(ActionsForCharacterRepresentation.standard(), ProductionToGotoRepresentation.standard());
+    }
+
     public String name() {
         return "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation
             + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;

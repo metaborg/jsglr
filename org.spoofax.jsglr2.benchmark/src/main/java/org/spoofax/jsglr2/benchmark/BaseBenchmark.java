@@ -5,18 +5,19 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 import org.spoofax.jsglr2.testset.TestSetReader;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-public abstract class BaseBenchmark<Input> {
+public abstract class BaseBenchmark<ContentType, Input extends TestInput<ContentType>> {
 
-    protected final TestSetReader<Input> testSetReader;
+    private TestSetReader<ContentType, Input> testSetReader;
     protected Iterable<Input> inputs;
 
     @Param({ "-1" }) public int n; // Can be overwritten if the input has a dynamic size
 
-    protected BaseBenchmark(TestSetReader<Input> testSetReader) {
+    protected void setTestSetReader(TestSetReader<ContentType, Input> testSetReader) {
         this.testSetReader = testSetReader;
     }
 

@@ -1,54 +1,69 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import java.util.Arrays;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.metaborg.core.MetaborgException;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.DynamicTest;
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.sdf2table.io.ParseTableIO;
-import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
-import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.parser.result.ParseResult;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-
-public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTest {
-
-    private String sdf3Resource;
-    private static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
+public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
     protected BaseTestWithLayoutSensitiveSdf3ParseTables(String sdf3Resource) {
-        this.sdf3Resource = sdf3Resource;
+        super(sdf3Resource);
     }
 
-    private static Sdf3ToParseTable sdf3ToParseTable;
-
-    @BeforeClass public static void setup() throws MetaborgException {
-        sdf3ToParseTable = new Sdf3ToParseTable(resource -> BaseTestWithLayoutSensitiveSdf3ParseTables.class
-            .getClassLoader().getResource(resource).getPath());
+    @Override public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
+        return sdf3ToParseTable.getLayoutSensitiveParseTable(variant, sdf3Resource);
     }
 
-    public ParseTableWithOrigin getParseTable(ParseTableVariant variant) throws Exception {
-        if(!parseTableTable.contains(sdf3Resource, variant)) {
-            parseTableTable.put(sdf3Resource, variant,
-                sdf3ToParseTable.getLayoutSensitiveParseTable(variant, sdf3Resource));
-        }
-        return new ParseTableWithOrigin(parseTableTable.get(sdf3Resource, variant), ParseTableOrigin.Sdf3Generation);
+    private Predicate<TestVariant> isLayoutSensitiveVariant = testVariant -> {
+        ParseForestRepresentation parseForestRepresentation = testVariant.variant.parser.parseForestRepresentation;
+
+        return parseForestRepresentation.equals(ParseForestRepresentation.LayoutSensitive)
+            || parseForestRepresentation.equals(ParseForestRepresentation.Composite);
+    };
+
+    private Predicate<TestVariant> isNotLayoutSensitiveVariant = isLayoutSensitiveVariant.negate();
+
+    protected Stream<DynamicTest> testLayoutSensitiveParseFiltered(String inputString) {
+        Stream<DynamicTest> notLayoutSensitiveTests =
+            testPerVariant(getTestVariants(isNotLayoutSensitiveVariant), variant -> () -> {
+                ParseResult<?> parseResult = variant.parser().parse(inputString);
+
+                assertEquals(true, parseResult.isSuccess(),
+                    "Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ");
+            });
+
+        Stream<DynamicTest> layoutSensitiveTests =
+            testPerVariant(getTestVariants(isLayoutSensitiveVariant), variant -> () -> {
+                ParseResult<?> parseResult = variant.parser().parse(inputString);
+
+                assertEquals(false, parseResult.isSuccess(),
+                    "Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ");
+            });
+
+        return Stream.concat(notLayoutSensitiveTests, layoutSensitiveTests);
     }
 
-    @Override public Iterable<ParseTableWithOrigin> getParseTables(ParseTableVariant variant) throws Exception {
-        ParseTableWithOrigin parseTableWithOrigin = getParseTable(variant);
+    protected Stream<DynamicTest> testLayoutSensitiveSuccessByExpansions(String inputString,
+        String expectedOutputAstString) {
+        return testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
+    }
 
-        IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTableWithOrigin.parseTable);
+    private Stream<DynamicTest> testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString,
+        String startSymbol, boolean equalityByExpansions) {
+        return testPerVariant(getTestVariants(isLayoutSensitiveVariant), variant -> () -> {
+            IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
-        ParseTableWithOrigin parseTableWithOriginSerializedDeserialized =
-            new ParseTableWithOrigin(variant.parseTableReader().read(parseTableTerm), ParseTableOrigin.ATerm);
-
-        // Ensure that the parse table that directly comes from the generation behaves the same after
-        // serialization/deserialization to/from term format
-        return Arrays.asList(parseTableWithOrigin, parseTableWithOriginSerializedDeserialized);
+            assertEqualAST("Variant '" + variant.name() + "' has incorrect AST", expectedOutputAstString,
+                actualOutputAst, equalityByExpansions);
+        });
     }
 
 }

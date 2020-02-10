@@ -1,73 +1,62 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.sdf2table.grammar.LayoutConstraintAttribute;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
-import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.ReduceManager;
+import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class LayoutSensitiveReduceManager
 //@formatter:off
-   <ParseForest extends LayoutSensitiveParseForest,
-    ParseNode   extends ParseForest,
-    Derivation  extends IDerivation<ParseForest>,
-    StackNode   extends IStackNode,
-    Parse       extends AbstractParse<ParseForest, StackNode>>
+   <StackNode  extends IStackNode,
+    ParseState extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    extends ReduceManager<ParseForest, ParseNode, Derivation, StackNode, Parse> {
+    extends
+    ReduceManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> {
 
-    private LayoutConstraintEvaluator<ParseForest> lce = new LayoutConstraintEvaluator<>();
-
-    public LayoutSensitiveReduceManager(IParseTable parseTable,
-        AbstractStackManager<ParseForest, StackNode, Parse> stackManager,
-        ParseForestManager<ParseForest, ParseNode, Derivation, Parse> parseForestManager,
+    private LayoutSensitiveReduceManager(IParseTable parseTable,
+        AbstractStackManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> stackManager,
+        ParseForestManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> parseForestManager,
         ParseForestConstruction parseForestConstruction) {
         super(parseTable, stackManager, parseForestManager, parseForestConstruction);
     }
 
-    @Override protected void doReductionsHelper(Parse parse, StackNode stack, IReduce reduce,
-        StackLink<ParseForest, StackNode> throughLink) {
-        for(StackPath<ParseForest, StackNode> path : stackManager.findAllPathsOfLength(stack, reduce.arity())) {
-            if(throughLink == null || path.contains(throughLink)) {
-                StackNode pathBegin = path.head();
-                ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+    public static
+    //@formatter:off
+       <StackNode_    extends IStackNode,
+        ParseState_   extends AbstractParseState<?, StackNode_>,
+        StackManager_ extends AbstractStackManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_>>
+    //@formatter:on
+    ReduceManagerFactory<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_, StackManager_, LayoutSensitiveReduceManager<StackNode_, ParseState_>>
+        factoryLayoutSensitive(ParserVariant parserVariant) {
+        return (parseTable, stackManager, parseForestManager) -> new LayoutSensitiveReduceManager<>(parseTable,
+            stackManager, parseForestManager, parserVariant.parseForestConstruction);
+    }
 
-                boolean skipReduce = false;
+    @Override protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce,
+        ILayoutSensitiveParseForest[] parseNodes) {
+        return ignoreByLayoutConstraint(reduce, parseNodes);
+    }
 
-                IProduction prod = reduce.production();
-                if(prod instanceof ParseTableProduction) {
-                    if(!((ParseTableProduction) prod).getLayoutConstraints().isEmpty()) {
-                        for(LayoutConstraintAttribute lca : ((ParseTableProduction) prod).getLayoutConstraints()) {
-                            try {
-                                if(!lce.evaluate(lca.getLayoutConstraint(), parseNodes)) {
-                                    skipReduce = true;
-                                    break;
-                                }
-                            } catch(Exception e) {
-                                System.err.println(e.getMessage());
-                                skipReduce = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+    public static boolean ignoreByLayoutConstraint(IReduce reduce, ILayoutSensitiveParseForest[] parseNodes) {
+        if(reduce.production() instanceof ParseTableProduction) {
+            ParseTableProduction sdf2tableProduction = (ParseTableProduction) reduce.production();
 
-                if(skipReduce) {
-                    continue;
-                }
-
-                reducer(parse, pathBegin, reduce, parseNodes);
+            for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
+                // Skip the reduction if the constraint evaluates to false
+                if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(true))
+                    return true;
             }
         }
+
+        return false;
     }
 
 }

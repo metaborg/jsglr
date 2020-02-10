@@ -1,76 +1,58 @@
 package org.spoofax.jsglr2.parseforest.basic;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class BasicParseForestManager<Parse extends AbstractParse<BasicParseForest, ?>>
-    extends ParseForestManager<BasicParseForest, BasicParseNode, BasicDerivation, Parse> {
+public class BasicParseForestManager
+//@formatter:off
+   <StackNode  extends IStackNode,
+    ParseState extends AbstractParseState<?, StackNode>>
+//@formatter:on
+    extends
+    AbstractBasicParseForestManager<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> {
 
-    @Override public BasicParseNode createParseNode(Parse parse, IStackNode stack, IProduction production,
-        BasicDerivation firstDerivation) {
-        BasicParseNode parseNode = new BasicParseNode(production);
-
-        parse.observing.notify(observer -> observer.createParseNode(parseNode, production));
-
-        addDerivation(parse, parseNode, firstDerivation);
-
-        return parseNode;
+    public BasicParseForestManager(
+        ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> observing) {
+        super(observing);
     }
 
-    @Override public BasicParseForest filterStartSymbol(BasicParseForest parseForest, String startSymbol, Parse parse) {
-        BasicParseNode topNode = (BasicParseNode) parseForest;
-        List<BasicDerivation> result = new ArrayList<>();
-
-        for(BasicDerivation derivation : topNode.getDerivations()) {
-            String derivationStartSymbol = derivation.production.startSymbolSort();
-
-            if(derivationStartSymbol != null && derivationStartSymbol.equals(startSymbol))
-                result.add(derivation);
-        }
-
-        if(result.isEmpty())
-            return null;
-        else {
-            BasicParseNode filteredTopNode = new BasicParseNode(topNode.production);
-
-            for(BasicDerivation derivation : result)
-                filteredTopNode.addDerivation(derivation);
-
-            return filteredTopNode;
-        }
+    public static
+//@formatter:off
+   <StackNode_  extends IStackNode,
+    ParseState_ extends AbstractParseState<?, StackNode_>>
+//@formatter:on
+    ParseForestManagerFactory<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode_, ParseState_>
+        factory() {
+        return BasicParseForestManager::new;
     }
 
-    @Override public BasicDerivation createDerivation(Parse parse, IStackNode stack, IProduction production,
-        ProductionType productionType, BasicParseForest[] parseForests) {
-        BasicDerivation derivation = new BasicDerivation(production, productionType, parseForests);
-
-        parse.observing.notify(observer -> observer.createDerivation(derivation, production, parseForests));
-
-        return derivation;
+    @Override protected IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>
+        constructParseNode(int width, IProduction production) {
+        return new BasicParseNode<>(width, production);
     }
 
-    @Override public void addDerivation(Parse parse, BasicParseNode parseNode, BasicDerivation derivation) {
-        parse.observing.notify(observer -> observer.addDerivation(parseNode, derivation));
-
-        parseNode.addDerivation(derivation);
+    @Override protected IBasicDerivation<IBasicParseForest> constructDerivation(IProduction production,
+        ProductionType productionType, IBasicParseForest[] parseForests) {
+        return new BasicDerivation<>(production, productionType, parseForests);
     }
 
-    @Override public BasicCharacterNode createCharacterNode(Parse parse) {
-        BasicCharacterNode termNode = new BasicCharacterNode(parse.currentChar);
-
-        parse.observing.notify(observer -> observer.createCharacterNode(termNode, termNode.character));
-
-        return termNode;
+    @Override public IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>
+        createSkippedNode(ParseState parseState, IProduction production, IBasicParseForest[] parseForests) {
+        return new BasicParseNode<>(sumWidth(parseForests), production);
     }
 
-    @Override public BasicParseForest[] parseForestsArray(int length) {
-        return new BasicParseForest[length];
+    @Override protected IBasicParseForest constructCharacterNode(ParseState parseState) {
+        return new BasicCharacterNode(parseState.inputStack.getChar());
+    }
+
+    @Override public IBasicParseForest[] parseForestsArray(int length) {
+        return new IBasicParseForest[length];
     }
 
 }

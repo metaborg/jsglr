@@ -33,13 +33,13 @@
             <artifactId>jsr305</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>sdf2table</artifactId>
             <version>${metaborg-version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

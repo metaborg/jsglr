@@ -1,15 +1,19 @@
 package org.spoofax.jsglr2.imploder;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.tokens.Tokens;
 
-public class TokenizeResult<AbstractSyntaxTree> {
+public class TokenizeResult {
 
-    public final Tokens tokens;
-    public final AbstractSyntaxTree ast;
+    public Tokens tokens;
+    public Collection<Message> messages;
 
-    public TokenizeResult(Tokens tokens, AbstractSyntaxTree ast) {
+    public TokenizeResult(Tokens tokens, Collection<Message> messages) {
         this.tokens = tokens;
-        this.ast = ast;
+        this.messages = messages != null ? messages : Collections.emptyList();
     }
 
 }

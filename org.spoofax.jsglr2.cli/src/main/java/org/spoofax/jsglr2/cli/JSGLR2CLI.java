@@ -1,146 +1,65 @@
 package org.spoofax.jsglr2.cli;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.Scanner;
 
-import org.apache.commons.io.IOUtils;
-import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.ParseTableReadException;
-import org.metaborg.parsetable.ParseTableReader;
-import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.*;
-import org.spoofax.jsglr2.imploder.ImploderVariant;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.JSGLR2Failure;
+import org.spoofax.jsglr2.JSGLR2Implementation;
+import org.spoofax.jsglr2.JSGLR2Result;
+import org.spoofax.jsglr2.JSGLR2Success;
+import org.spoofax.jsglr2.cli.output.DefaultOutputProcessor;
+import org.spoofax.jsglr2.cli.output.IOutputProcessor;
+import org.spoofax.jsglr2.cli.output.dot.DotOutputProcessor;
+import org.spoofax.jsglr2.cli.parserbuilder.ParserBuilder;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.reducing.Reducing;
-import org.spoofax.jsglr2.stack.StackRepresentation;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.tokens.TokenizerVariant;
 
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@CommandLine.Command(name = "JSGLR2 CLI", sortOptions = false)
+@Command(name = "JSGLR2 CLI", sortOptions = false, mixinStandardHelpOptions = true, abbreviateSynopsis = true)
 public class JSGLR2CLI implements Runnable {
 
-    @Option(names = { "-pt", "--parseTable" }, required = true,
-        description = "Parse table file") private File parseTableFile;
+    @Parameters(arity = "1..*", description = "The input file(s)/string(s) to be parsed") public String[] input;
 
-    @Parameters(arity = "1", description = "The input string to be parsed") private String input;
+    @Option(names = { "-i", "--im", "--implode" }, negatable = true,
+        description = "Implode parse tree to AST") public boolean implode = true;
 
-    @Option(names = { "-im", "--implode" }, negatable = true,
-        description = "Implode parse tree to AST") private boolean implode = true;
+    @Option(names = { "--logging" }, description = "Log parser operations") public boolean logging = false;
 
-    @ArgGroup(exclusive = false, validate = false, heading = "Parser variant%n") ParserVariantOptions parserVariant =
-        new ParserVariantOptions();
+    @Option(names = { "-o", "--output" }, description = "Output file") public File outputFile;
 
-    static class ParserVariantOptions {
-        @Option(names = { "--activeStacks" },
-            description = "Active stacks implementation: ${COMPLETION-CANDIDATES}") private ActiveStacksRepresentation activeStacksRepresentation =
-                ActiveStacksRepresentation.standard();
+    @Option(names = { "-v", "--verbose" }, negatable = true,
+        description = "Print stack traces") public boolean verbose = false;
 
-        @Option(names = { "--forActorStacks" },
-            description = "For actor stacks implementation: ${COMPLETION-CANDIDATES}") private ForActorStacksRepresentation forActorStacksRepresentation =
-                ForActorStacksRepresentation.standard();
+    @Option(names = { "-l", "--language" },
+        description = "The identifier of a Spoofax language in the local Maven repository, in the format '[groupId]/[artifactId]/[version]', where the groupId is slash-separated, the artifactId is period-separated, and the version is optional. Examples: 'org/metaborg/lang.java', 'org/metaborg/lang.java/1.1.0-SNAPSHOT'") public static String language;
 
-        @Option(names = { "--parseForest" },
-            description = "Parse forest representation: ${COMPLETION-CANDIDATES}") private ParseForestRepresentation parseForestRepresentation =
-                ParseForestRepresentation.standard();
+    // TODO As alternative to the parser builder, we could also load a Spoofax language and use its parsing services.
+    // However, that cannot easily be combined with the custom output options, because 1) not all languages use JSGLR2
+    // and 2) you can't seem to be able to get a JSGLR2 parser instance from a Spoofax service...
+    @Mixin public ParserBuilder parserBuilder = new ParserBuilder();
 
-        @Option(names = { "--parseForestConstruction" },
-            description = "Parse forest construction method: ${COMPLETION-CANDIDATES}") private ParseForestConstruction parseForestConstruction =
-                ParseForestConstruction.standard();
+    @Mixin public DotOutputProcessor dotOutputOptions = new DotOutputProcessor();
 
-        @Option(names = { "--stack" },
-            description = "Stack representation: ${COMPLETION-CANDIDATES}") private StackRepresentation stackRepresentation =
-                StackRepresentation.standard();
-
-        @Option(names = { "--reducing" },
-            description = "Reducing implementation: ${COMPLETION-CANDIDATES}") private Reducing reducing =
-                Reducing.standard();
-
-        @Option(names = { "--imploder" },
-            description = "Imploder variant: ${COMPLETION-CANDIDATES}") private ImploderVariant imploderVariant =
-                ImploderVariant.standard();
-
-        @Option(names = { "--tokenizer" },
-            description = "Tokenizer variant: ${COMPLETION-CANDIDATES}") private TokenizerVariant tokenizerVariant =
-                TokenizerVariant.standard();
-
-        JSGLR2Variants.Variant getVariant() throws WrappedException {
-            JSGLR2Variants.ParserVariant parserVariant =
-                new JSGLR2Variants.ParserVariant(activeStacksRepresentation, forActorStacksRepresentation,
-                    parseForestRepresentation, parseForestConstruction, stackRepresentation, reducing);
-
-            JSGLR2Variants.Variant variant =
-                new JSGLR2Variants.Variant(parserVariant, imploderVariant, tokenizerVariant);
-
-            if(variant.isValid())
-                return variant;
-            else
-                throw new WrappedException("Invalid parser variant");
-        }
-    }
-
-    @ArgGroup(exclusive = false, validate = false,
-        heading = "Parse table variant%n") ParseTableVariantOptions parseTableVariant = new ParseTableVariantOptions();
-
-    static class ParseTableVariantOptions {
-        @Option(names = { "--actionsForCharacters" },
-            description = "Actions for character representation: ${COMPLETION-CANDIDATES}") private ActionsForCharacterRepresentation actionsForCharacterRepresentation =
-                ActionsForCharacterRepresentation.standard();
-
-        @Option(names = { "--productionToGoto" },
-            description = "Production to goto representation: ${COMPLETION-CANDIDATES}") private ProductionToGotoRepresentation productionToGotoRepresentation =
-                ProductionToGotoRepresentation.standard();
-
-        ParseTableVariant getVariant() {
-            return new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation);
-        }
-    }
-
-    @Option(names = { "--logging" }, description = "Log parser operations") boolean logging = false;
-
-    @ArgGroup(exclusive = false, validate = false, heading = "Output%n") OutputOptions outputOptions =
-        new OutputOptions();
-
-    static class OutputOptions {
-        boolean isParseResult() {
-            return dot == null;
-        }
-
-        @Option(names = { "-o", "--output" }, required = false, description = "Output file") private File outputFile;
-
-        @Option(names = "--dot", required = true,
-            description = "Visualization in DOT: ${COMPLETION-CANDIDATES}") DotVisualization dot;
-
-        @Option(names = "--dot-format", required = false,
-            description = "DOT format: ${COMPLETION-CANDIDATES}") DotVisualizationFormat dotFormat =
-                DotVisualizationFormat.Text;
-    }
-
-    enum DotVisualization {
-        Stack, ParseForest
-    }
-
-    enum DotVisualizationFormat {
-        Text, PDF, PNG
-    }
-
-    @Option(names = { "-v", "--verbose" }, negatable = true, description = "Print stack traces") boolean verbose =
-        false;
+    /**
+     * To create a custom output processor, just set this static variable to something else. For an example:
+     * 
+     * @see DotOutputProcessor#setDotOutputOptions
+     */
+    public static IOutputProcessor outputProcessor = new DefaultOutputProcessor();
 
     public static void main(String[] args) {
         int exitCode = new CommandLine(new JSGLR2CLI()).execute(args);
@@ -148,123 +67,85 @@ public class JSGLR2CLI implements Runnable {
         System.exit(exitCode);
     }
 
-    private OutputStream outputStream;
+    private PrintStream outputStream;
 
     public void run() {
         try {
-            JSGLR2Variants.Variant variant = parserVariant.getVariant();
-            IParseTable parseTable = getParseTable();
-            JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2 =
-                (JSGLR2Implementation<?, ?, IStrategoTerm>) JSGLR2Variants.getJSGLR2(parseTable, variant);
-            IObservableParser<?, ?> observableParser = (IObservableParser<?, ?>) jsglr2.parser;
+            if(language == null && parserBuilder.parseTableOptions.parseTableFile == null) {
+                System.err.println("Either option --parseTable or --language should be provided");
+                new CommandLine(new JSGLR2CLI()).execute("-h");
+                System.exit(2);
+            }
+
+            outputProcessor.checkAllowed(this);
+
+            JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?> jsglr2 =
+                (JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?>) parserBuilder.getJSGLR2();
+            IObservableParser<?, ?, ?, ?, ?> observableParser = (IObservableParser<?, ?, ?, ?, ?>) jsglr2.parser;
 
             outputStream = outputStream();
 
             if(logging)
-                observableParser.observing().attachObserver(new LogParserObserver<>(this::output));
+                observableParser.observing().attachObserver(new LogParserObserver<>(outputStream::println));
 
-            if(outputOptions.dot == DotVisualization.Stack)
-                observableParser.observing().attachObserver(new StackDotVisualisationParserObserver<>(this::outputDot));
-
-            if(outputOptions.dot == DotVisualization.ParseForest)
-                observableParser.observing()
-                    .attachObserver(new ParseForestDotVisualisationParserObserver<>(this::outputDot));
-
-            if(implode)
-                parseAndImplode(jsglr2);
-            else
-                parse(jsglr2.parser);
-        } catch(WrappedException e) {
-            failOnWrappedException(e, verbose);
-        }
-    }
-
-    private void parse(IParser<?> parser) {
-        ParseResult<?> result = parser.parse(input);
-
-        if(result.isSuccess()) {
-            ParseSuccess<?> success = (ParseSuccess<?>) result;
-
-            if(outputOptions.isParseResult())
-                output(success.parseResult.toString());
-        } else {
-            ParseFailure<?> failure = (ParseFailure<?>) result;
-
-            if(outputOptions.isParseResult())
-                output(failure.failureType.message);
-        }
-    }
-
-    private void parseAndImplode(JSGLR2Implementation<?, ?, IStrategoTerm> jsglr2) {
-        JSGLR2Result<IStrategoTerm> result = jsglr2.parseResult(input);
-
-        if(result.isSuccess()) {
-            JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
-
-            if(outputOptions.isParseResult())
-                output(success.ast.toString());
-        } else {
-            JSGLR2Failure<IStrategoTerm> failure = (JSGLR2Failure<IStrategoTerm>) result;
-
-            if(outputOptions.isParseResult())
-                output(failure.parseFailure.failureType.message);
-        }
-    }
-
-    private void output(String output) {
-        try {
-            outputStream.write((output + "\n").getBytes(Charset.forName("UTF-8")));
-        } catch(IOException e) {
-            failOnWrappedException(new WrappedException("Writing output failed", e), verbose);
-        }
-    }
-
-    private void outputDot(String dot) {
-        try {
-            switch(outputOptions.dotFormat) {
-                case Text:
-                    output(dot);
-                    break;
-                case PDF:
-                    outputDot(dot, "pdf");
-                    break;
-                case PNG:
-                    outputDot(dot, "png");
-                    break;
+            for(IParserObserver observer : outputProcessor.observers()) {
+                observableParser.observing().attachObserver(observer);
             }
-        } catch(WrappedException e) {
-            failOnWrappedException(e, verbose);
-        }
-    }
 
-    private void outputDot(String dot, String format) throws WrappedException {
-        try {
-            Process pr = Runtime.getRuntime().exec("dot -T" + format);
-
-            try(InputStream dotOutputStream = pr.getInputStream(); OutputStream input = pr.getOutputStream()) {
-                input.write(dot.getBytes(Charset.forName("UTF-8")));
-                input.close();
-
-                IOUtils.copy(dotOutputStream, outputStream);
-
-                if(!pr.waitFor(5, TimeUnit.SECONDS)) {
-                    int exitCode = pr.exitValue();
-
-                    if(exitCode == 0)
-                        throw new WrappedException("DOT timed out");
-                    else
-                        throw new WrappedException("DOT exited with " + exitCode);
+            // For each input, try to check if it is a file, and if so, read its contents
+            for(int i = 0; i < input.length; i++) {
+                File file = new File(input[i]);
+                if(file.isFile()) {
+                    try(Scanner s = new Scanner(new FileInputStream(file))) {
+                        s.useDelimiter("\\A");
+                        input[i] = s.hasNext() ? s.next() : "";
+                    } catch(FileNotFoundException e) {
+                        throw new WrappedException("File not found", e);
+                    }
                 }
             }
-        } catch(IOException | InterruptedException e) {
-            throw new WrappedException("Writing output failed", e);
+
+            if(implode)
+                parseAndImplode(jsglr2, outputProcessor);
+            else
+                parse(jsglr2.parser, outputProcessor);
+        } catch(WrappedException e) {
+            failOnWrappedException(e);
         }
     }
 
-    private OutputStream outputStream() throws WrappedException {
+    private void parse(IParser<IParseForest> parser, IOutputProcessor outputProcessor) throws WrappedException {
+        String prevInput = null;
+        IParseForest prevParseForest = null;
+        for(String in : input) {
+            ParseResult<?> result = parser.parse(in, prevInput, prevParseForest);
+
+            if(result.isSuccess()) {
+                prevInput = in;
+                prevParseForest = ((ParseSuccess<?>) result).parseResult;
+                outputProcessor.outputParseResult((ParseSuccess<?>) result, outputStream);
+            } else
+                outputProcessor.outputParseFailure((ParseFailure<?>) result, outputStream);
+        }
+    }
+
+    private void parseAndImplode(JSGLR2Implementation<?, ?, ?, IStrategoTerm, ?> jsglr2,
+        IOutputProcessor outputProcessor) throws WrappedException {
+        for(String in : input) {
+            // Explicit filename to enable caching in incremental parser
+            JSGLR2Result<IStrategoTerm> result = jsglr2.parseResult(in);
+
+            if(result.isSuccess())
+                outputProcessor.outputResult((JSGLR2Success<IStrategoTerm>) result, outputStream);
+            else
+                outputProcessor.outputFailure((JSGLR2Failure<IStrategoTerm>) result, outputStream);
+        }
+    }
+
+    private PrintStream outputStream() throws WrappedException {
         try {
-            if(outputOptions.outputFile != null)
-                return new FileOutputStream(outputOptions.outputFile);
+            if(outputFile != null)
+                return new PrintStream(outputFile);
             else
                 return System.out;
         } catch(FileNotFoundException e) {
@@ -272,24 +153,11 @@ public class JSGLR2CLI implements Runnable {
         }
     }
 
-    private IParseTable getParseTable() throws WrappedException {
-        try {
-            InputStream parseTableInputStream = new FileInputStream(parseTableFile);
-            ParseTableReader parseTableReader = parseTableVariant.getVariant().parseTableReader();
+    private void failOnWrappedException(WrappedException e) {
+        System.err.println(e.getMessage());
 
-            return parseTableReader.read(parseTableInputStream);
-        } catch(IOException e) {
-            throw new WrappedException("Invalid parse table file", e);
-        } catch(ParseTableReadException e) {
-            throw new WrappedException("Invalid parse table", e);
-        }
-    }
-
-    private static void failOnWrappedException(WrappedException e, boolean verbose) {
-        System.out.println(e.message);
-
-        if(verbose && e.exception != null)
-            e.exception.printStackTrace();
+        if(verbose && e.getCause() != null)
+            e.getCause().printStackTrace();
     }
 
 }

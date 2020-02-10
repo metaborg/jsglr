@@ -1,0 +1,18 @@
+module recovery
+
+lexical syntax
+	LAYOUT  = [\ \n\r]
+
+context-free restrictions
+	LAYOUT? -/- [\ \n\r]
+
+context-free start-symbols
+
+  Start
+
+context-free syntax
+
+  Start.Start = X+
+
+  X.X = <x>
+  X.Y = <y> {recover}

@@ -4,18 +4,20 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
-import org.spoofax.jsglr2.incremental.IncrementalParse;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 
 public class ProcessUpdatesTest {
 
-    private final ProcessUpdates<?> processUpdates = new ProcessUpdates<>(new IncrementalParse<>("", "",
-        new ActiveStacksFactory(), new ForActorStacksFactory(), new ParserObserving<>()));
+    private final ProcessUpdates<?, ?> processUpdates;
+
+    public ProcessUpdatesTest() {
+        ParserObserving<?, ?, ?, ?, ?> observing = new ParserObserving<>();
+        processUpdates = new ProcessUpdates(new IncrementalParseForestManager(observing));
+    }
 
     @Test public void testDeleteSubtree() {
         IncrementalParseNode previous = node(node(0, 1), node(2, 3), node(4, 5));
@@ -115,7 +117,8 @@ public class ProcessUpdatesTest {
 
 
     private void testUpdate(IncrementalParseNode previous, IncrementalParseNode expected, EditorUpdate... updates) {
-        assertEquals(expected.toString(), processUpdates.processUpdates(previous, updates).toString());
+        assertEquals(expected.toString(),
+            processUpdates.processUpdates(previous.getYield(), previous, updates).toString());
     }
 
     private static IncrementalCharacterNode node(int i) {

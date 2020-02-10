@@ -1,3 +1,4 @@
+//@formatter:off
 /*
  * Copyright (C) 2009, Christian Halstrick <christian.halstrick@sap.com>
  * Copyright (C) 2009, Google Inc.

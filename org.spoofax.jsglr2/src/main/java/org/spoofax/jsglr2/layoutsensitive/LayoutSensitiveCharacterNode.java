@@ -1,20 +1,25 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
-import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
-import org.spoofax.jsglr2.parseforest.ICharacterNode;
+import org.spoofax.jsglr2.parseforest.basic.BasicCharacterNode;
 import org.spoofax.jsglr2.parser.Position;
 
-public class LayoutSensitiveCharacterNode extends LayoutSensitiveParseForest implements ICharacterNode {
+class LayoutSensitiveCharacterNode extends BasicCharacterNode implements ILayoutSensitiveCharacterNode {
 
-    public final int character;
+    private final Position startPosition, endPosition;
 
-    public LayoutSensitiveCharacterNode(Position position, int character) {
-        super(position, CharacterClassFactory.isNewLine(character) ? position.nextLine() : position.nextColumn());
-        this.character = character;
+    LayoutSensitiveCharacterNode(Position position, int character) {
+        super(character);
+
+        this.startPosition = position;
+        this.endPosition = getEndPosition(position, character);
     }
 
-    @Override public int character() {
-        return character;
+    @Override public Position getStartPosition() {
+        return startPosition;
+    }
+
+    @Override public Position getEndPosition() {
+        return endPosition;
     }
 
 }

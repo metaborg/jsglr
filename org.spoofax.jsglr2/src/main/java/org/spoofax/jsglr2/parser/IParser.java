@@ -7,22 +7,27 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
 public interface IParser<ParseForest extends IParseForest> {
 
-    ParseResult<ParseForest> parse(String input, String filename, String startSymbol);
+    ParseResult<ParseForest> parse(String input, String startSymbol, String previousInput, ParseForest previousResult);
 
-    default ParseResult<ParseForest> parse(String input, String filename) {
-        return parse(input, filename, null);
+    default ParseResult<ParseForest> parse(String input, String previousInput, ParseForest previousResult) {
+        return parse(input, null, previousInput, previousResult);
+    }
+
+    default ParseResult<ParseForest> parse(String input, String startSymbol) {
+        return parse(input, startSymbol, null, null);
     }
 
     default ParseResult<ParseForest> parse(String input) {
-        return parse(input, "");
+        return parse(input, null, null, null);
     }
 
-    /*
+    /**
      * Parses an input and directly returns the parse forest in case of a successful parse or throws a ParseException
      * otherwise.
      */
-    default ParseForest parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        ParseResult<ParseForest> result = parse(input, filename, startSymbol);
+    default ParseForest parseUnsafe(String input, String startSymbol, String previousInput, ParseForest previousResult)
+        throws ParseException {
+        ParseResult<ParseForest> result = parse(input, startSymbol, previousInput, previousResult);
 
         if(result.isSuccess()) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) result;
@@ -33,6 +38,10 @@ public interface IParser<ParseForest extends IParseForest> {
 
             throw failure.exception();
         }
+    }
+
+    default ParseForest parseUnsafe(String input, String startSymbol) throws ParseException {
+        return parseUnsafe(input, startSymbol, null, null);
     }
 
 }

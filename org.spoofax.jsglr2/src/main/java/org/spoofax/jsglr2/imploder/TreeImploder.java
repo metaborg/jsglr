@@ -16,10 +16,12 @@ public class TreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
+    Cache,
     Tree,
     Input       extends ImplodeInput>
 //@formatter:on
-    extends AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>> {
+    extends
+    AbstractTreeImploder<ParseForest, ParseNode, Derivation, TreeImploder.SubTree<Tree>, Cache, Tree, ImplodeResult<TreeImploder.SubTree<Tree>, Cache, Tree>> {
 
     protected final IImplodeInputFactory<Input> inputFactory;
     protected final ITreeFactory<Tree> treeFactory;
@@ -29,10 +31,13 @@ public class TreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public SubTree<Tree> implode(String input, String filename, ParseForest parseForest) {
+    @Override public ImplodeResult<TreeImploder.SubTree<Tree>, Cache, Tree> implode(String input, String fileName,
+        ParseForest parseForest, Cache resultCache) {
         @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
 
-        return implodeParseNode(inputFactory.get(input), topParseNode, 0);
+        SubTree<Tree> result = implodeParseNode(inputFactory.get(input), topParseNode, 0);
+
+        return new ImplodeResult<>(result, null, result.tree, Collections.emptyList());
     }
 
     protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
@@ -40,7 +45,7 @@ public class TreeImploder
 
         IProduction production = parseNode.production();
 
-        if(production.isContextFree()) {
+        if(production.isContextFree() && !production.isSkippableInParseForest()) {
             List<Derivation> filteredDerivations = applyDisambiguationFilters(parseNode);
 
             if(filteredDerivations.size() > 1) {
@@ -62,13 +67,14 @@ public class TreeImploder
                     }
                 }
 
-                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, null, subTrees.get(0).width);
+                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false);
             } else
                 return implodeDerivation(input, filteredDerivations.get(0), startOffset);
         } else {
-            String substring = input.inputString.substring(startOffset, startOffset + parseNode.width());
+            int width = parseNode.width();
 
-            return new SubTree<>(createLexicalTerm(production, substring), production, substring);
+            return new SubTree<>(createLexicalTerm(production, input.inputString, startOffset, width), production,
+                width);
         }
     }
 
@@ -88,20 +94,20 @@ public class TreeImploder
         List<SubTree<Tree>> subTrees = new ArrayList<>();
 
         for(ParseForest childParseForest : childParseForests) {
-            if(childParseForest != null) { // Can be null in the case of a layout subtree parse node that is not created
-                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
+            @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
-                SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
+            SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
 
-                if(subTree.tree != null) {
-                    childASTs.add(subTree.tree);
-                }
-                subTrees.add(subTree);
-                startOffset += subTree.width;
+            if(subTree.tree != null) {
+                childASTs.add(subTree.tree);
             }
+            subTrees.add(subTree);
+            startOffset += subTree.width;
         }
 
-        return new SubTree<>(createContextFreeTerm(production, childASTs), subTrees, production);
+        Tree contextFreeTerm = createContextFreeTerm(production, childASTs);
+        return new SubTree<>(contextFreeTerm, subTrees, production,
+            childASTs.size() > 0 && contextFreeTerm == childASTs.get(0));
     }
 
     protected List<ParseForest> getChildParseForests(Derivation derivation) {
@@ -140,10 +146,11 @@ public class TreeImploder
         }
     }
 
-    protected Tree createLexicalTerm(IProduction production, String substring) {
+    protected Tree createLexicalTerm(IProduction production, String inputString, int startOffset, int width) {
         if(production.isLayout() || production.isLiteral()) {
             return null;
         } else if(production.isLexical()) {
+            String substring = inputString.substring(startOffset, startOffset + width);
             if(production.lhs() instanceof IMetaVarSymbol)
                 return treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
             else
@@ -173,30 +180,45 @@ public class TreeImploder
         public final Tree tree;
         public final List<SubTree<Tree>> children;
         public final IProduction production;
-        public final String string; // Only set for lexical nodes.
         public final int width;
 
-        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, String string, int width) {
+        /**
+         * True whenever the `tree` field of this node and its (only) child node are equal. Tokenizers should annotate
+         * ASTs with the sort/cons of the production that is closest to the node. This means that injections should be
+         * skipped when adding the ImploderAttachment. E.g. The program `x` with AST `Exp()` should be annotated with
+         * `Exp.Exp` and not with `Start` in the following grammar:
+         *
+         * <code>
+         * context-free syntax
+         *     Start = Stmt
+         *     Stmt = Exp
+         *     Exp.Exp = "x"
+         * </code>
+         */
+        public final boolean isInjection;
+
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, int width,
+            boolean isInjection) {
             this.tree = tree;
             this.children = children;
             this.production = production;
-            this.string = string;
             this.width = width;
+            this.isInjection = isInjection;
         }
 
         /** This constructor infers the width from the sum of widths of its children. */
-        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production) {
-            this(tree, children, production, null, sumWidth(children));
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, boolean isInjection) {
+            this(tree, children, production, sumWidth(children), isInjection);
         }
 
         /** This constructor corresponds to a terminal/lexical node without children. */
-        public SubTree(Tree tree, IProduction production, String string) {
-            this(tree, Collections.emptyList(), production, string, string.length());
+        public SubTree(Tree tree, IProduction production, int width) {
+            this(tree, Collections.emptyList(), production, width, false);
         }
 
         private static <Tree> int sumWidth(List<SubTree<Tree>> children) {
             int result = 0;
-            for(SubTree child : children) {
+            for(SubTree<Tree> child : children) {
                 result += child.width;
             }
             return result;

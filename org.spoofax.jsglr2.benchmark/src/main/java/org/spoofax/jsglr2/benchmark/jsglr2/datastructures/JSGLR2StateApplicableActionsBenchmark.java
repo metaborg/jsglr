@@ -3,37 +3,35 @@ package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
+import org.metaborg.parsetable.actions.ActionsFactory;
+import org.metaborg.parsetable.actions.IAction;
+import org.metaborg.parsetable.actions.IActionsFactory;
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.characterclasses.ICharacterClassFactory;
-import org.metaborg.parsetable.query.IActionQuery;
-import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.states.IState;
-import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.IActionQuery;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.parsetable.states.IState;
+import org.metaborg.parsetable.states.IStateFactory;
+import org.metaborg.parsetable.states.StateFactory;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.metaborg.parsetable.actions.ActionsFactory;
-import org.metaborg.parsetable.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BenchmarkParserObserver;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
-import org.metaborg.parsetable.ParseTableReadException;
-import org.metaborg.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
-import org.metaborg.parsetable.states.IStateFactory;
-import org.metaborg.parsetable.states.StateFactory;
-import org.spoofax.jsglr2.testset.TestSet;
 
 public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataStructureBenchmark {
 
     ActorObserver actorObserver;
-
-    protected JSGLR2StateApplicableActionsBenchmark(TestSet testSet) {
-        super(testSet);
-    }
 
     @Param({ "false", "true" }) public boolean optimizeCharacterClasses;
 
@@ -84,14 +82,16 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
 
     }
 
-    class ActorObserver extends BenchmarkParserObserver<BasicParseForest, BasicStackNode<BasicParseForest>> {
+    class ActorObserver extends
+        BenchmarkParserObserver<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> {
 
         public List<ActorOnState> stateApplicableActions = new ArrayList<>();
 
-        @Override public void actor(BasicStackNode<BasicParseForest> stack,
-            AbstractParse<BasicParseForest, BasicStackNode<BasicParseForest>> parse,
+        @Override public void actor(BasicStackNode<IBasicParseForest> stack,
+            AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>> parseState,
             Iterable<IAction> applicableActions) {
-            ActorOnState stateApplicableActionsForActor = new ActorOnState(stack.state, parse.currentChar);
+            ActorOnState stateApplicableActionsForActor =
+                new ActorOnState(stack.state, parseState.inputStack.getChar());
 
             stateApplicableActions.add(stateApplicableActionsForActor);
         }

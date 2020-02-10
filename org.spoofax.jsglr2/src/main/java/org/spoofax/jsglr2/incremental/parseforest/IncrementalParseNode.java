@@ -1,12 +1,18 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
-import static org.spoofax.jsglr2.incremental.IncrementalParse.NO_STATE;
+import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.query.ActionsForCharacterSeparated;
+import org.metaborg.parsetable.query.ActionsPerCharacterClass;
+import org.metaborg.parsetable.query.ProductionToGotoForLoop;
+import org.metaborg.parsetable.states.IState;
+import org.metaborg.parsetable.states.State;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
@@ -14,18 +20,39 @@ import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 public class IncrementalParseNode extends IncrementalParseForest
     implements IParseNode<IncrementalParseForest, IncrementalDerivation> {
 
-    private final IProduction production;
+    public static final State NO_STATE = new State(-1,
+        new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
+
+    protected final IProduction production;
     private final IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
+    private IState state;
 
-    public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation) {
-        super(firstDerivation.width());
+    public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation, IState state) {
+        super(sumWidth(firstDerivation.parseForests()));
         this.production = production;
         this.firstDerivation = firstDerivation;
+        this.state = state;
     }
 
     public IncrementalParseNode(IncrementalParseForest... parseForests) {
-        this(null, new IncrementalDerivation(null, null, parseForests, NO_STATE));
+        this(null, new IncrementalDerivation(null, null, parseForests), NO_STATE);
+    }
+
+    protected IncrementalParseNode(int width, IProduction production) {
+        super(width);
+        this.production = production;
+        this.firstDerivation = null;
+        this.state = null;
+    }
+
+    @Override public boolean isReusable() {
+        return state != NO_STATE;
+    }
+
+    @Override public boolean isReusable(IState stackState) {
+        // If state == NO_STATE, its ID is -1, and can in that case never equal the ID of stackState
+        return stackState.id() == state.id();
     }
 
     @Override public boolean isTerminal() {
@@ -45,14 +72,17 @@ public class IncrementalParseNode extends IncrementalParseForest
             otherDerivations = new ArrayList<>();
 
         otherDerivations.add(derivation);
+
+        state = NO_STATE; // Parse nodes with multiple derivations are by definition not reusable
     }
 
     @Override public Iterable<IncrementalDerivation> getDerivations() {
-        if(otherDerivations == null) {
+        if(firstDerivation == null)
+            return Collections.emptyList();
+        if(otherDerivations == null)
             return Collections.singleton(firstDerivation);
-        } else {
-            return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
-        }
+
+        return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
     }
 
     @Override public IncrementalDerivation getFirstDerivation() {
@@ -67,7 +97,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         if(production == null)
             printer.println("p null {");
         else
-            printer.println("p" + production.id() + " : " + production.sort() + "{");
+            printer.println("p" + production.id() + " : " + production.sort() + " { (s" + state.id() + ")");
         if(isAmbiguous()) {
             printer.indent(1);
             printer.println("amb[");

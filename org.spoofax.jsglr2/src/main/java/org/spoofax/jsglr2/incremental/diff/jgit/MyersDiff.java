@@ -1,3 +1,4 @@
+//@formatter:off
 /*
  * Copyright (C) 2008-2009, Johannes E. Schindelin <johannes.schindelin@gmx.de>
  * Copyright (C) 2009, Johannes Schindelin <johannes.schindelin@gmx.de>

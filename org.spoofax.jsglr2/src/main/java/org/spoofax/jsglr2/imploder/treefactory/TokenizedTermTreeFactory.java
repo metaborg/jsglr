@@ -27,7 +27,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
     @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value, IToken token) {
         IStrategoTerm stringTerminalTerm = termFactory.makeString(value);
 
-        configure(stringTerminalTerm, null, token, token);
+        configure(stringTerminalTerm, ISymbol.getSort(symbol), token, token);
 
         return stringTerminalTerm;
     }
@@ -36,7 +36,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         IStrategoTerm stringTerm = termFactory.makeString(value);
         IStrategoTerm metaVarTerm = termFactory.makeAppl(symbol.metaVarCardinality().constructor, stringTerm);
 
-        configure(stringTerm, null, token, token);
+        configure(stringTerm, ISymbol.getSort(symbol), token, token);
         configure(metaVarTerm, null, token, token);
 
         return metaVarTerm;
@@ -79,8 +79,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
     @Override public IStrategoTerm createAmb(List<IStrategoTerm> alternatives, IToken leftToken, IToken rightToken) {
         IStrategoTerm alternativesListTerm = createList(alternatives, leftToken, rightToken);
 
-        return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken,
-            rightToken);
+        return createNonTerminal(null, "amb", Collections.singletonList(alternativesListTerm), leftToken, rightToken);
     }
 
     @Override public IStrategoTerm createInjection(ISymbol symbol, IStrategoTerm injected, boolean isBracket) {
@@ -91,7 +90,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         if(sort != null && !Objects.equals(sort, injectedSort)) {
             ImploderAttachment.get(injected).pushInjection(sort);
         }
-        
+
         ImploderAttachment.get(injected).setBracket(isBracket);
         return injected;
     }

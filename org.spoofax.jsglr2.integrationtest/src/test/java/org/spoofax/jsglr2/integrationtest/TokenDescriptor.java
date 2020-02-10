@@ -1,19 +1,30 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import java.util.Objects;
+
+import javax.annotation.Nullable;
+
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
 public final class TokenDescriptor {
 
     public final String token;
     public final int kind;
     public final int offset, line, column;
+    @Nullable public String sort, cons;
 
-    public TokenDescriptor(String token, int kind, int offset, int line, int column) {
+    public TokenDescriptor(String token, int kind, int offset, int line, int column, @Nullable String sort,
+        @Nullable String cons) {
         this.token = token;
         this.kind = kind;
         this.offset = offset;
         this.line = line;
         this.column = column;
+        this.sort = sort;
+        this.cons = cons;
     }
 
     public static TokenDescriptor from(String inputString, IToken token) {
@@ -24,8 +35,12 @@ public final class TokenDescriptor {
         else
             inputPart = "";
 
+        IStrategoTerm astNode = (IStrategoTerm) token.getAstNode();
+        String sort = astNode == null ? null : ImploderAttachment.get(astNode).getSort();
+        String cons = astNode == null ? null
+            : astNode.getTermType() == IStrategoTerm.APPL ? ((IStrategoAppl) astNode).getConstructor().getName() : null;
         return new TokenDescriptor(inputPart, token.getKind(), token.getStartOffset(), token.getLine(),
-            token.getColumn());
+            token.getColumn(), sort, cons);
     }
 
     @Override public boolean equals(Object obj) {
@@ -35,11 +50,12 @@ public final class TokenDescriptor {
         TokenDescriptor other = (TokenDescriptor) obj;
 
         return token.equals(other.token) && kind == other.kind && offset == other.offset && line == other.line
-            && column == other.column;
+            && column == other.column && Objects.equals(sort, other.sort) && Objects.equals(cons, other.cons);
     }
 
     @Override public String toString() {
-        return "<'" + token.replace("\n", "\\n") + "';" + kind + ";" + offset + ";" + line + "," + column + ">";
+        return "<'" + token.replace("\n", "\\n") + "';" + kind + ";" + offset + ";" + line + "," + column + ";" + sort
+            + "." + cons + ">";
     }
 
 }

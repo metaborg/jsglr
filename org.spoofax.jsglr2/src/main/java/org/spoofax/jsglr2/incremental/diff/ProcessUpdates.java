@@ -76,6 +76,7 @@ public class ProcessUpdates
         int currentOffset, LinkedList<EditorUpdate> updates) {
         if(currentForest.isTerminal()) {
             if(currentForest instanceof IncrementalSkippedNode) {
+                // First explicitly instantiate all skipped character nodes before applying updates
                 return processUpdates(previousInput,
                     getParseNodeFromString(
                         previousInput.substring(currentOffset, currentOffset + currentForest.width())),

@@ -67,7 +67,7 @@ public class IncrementalParser
     @Override protected ParseState getParseState(String inputString, String previousInput,
         IncrementalParseForest previousResult) {
         IncrementalParseForest updatedTree = previousInput != null && previousResult != null
-            ? processUpdates.processUpdates(previousResult, diff.diff(previousInput, inputString))
+            ? processUpdates.processUpdates(previousInput, previousResult, diff.diff(previousInput, inputString))
             : processUpdates.getParseNodeFromString(inputString);
         return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString), observing);
     }

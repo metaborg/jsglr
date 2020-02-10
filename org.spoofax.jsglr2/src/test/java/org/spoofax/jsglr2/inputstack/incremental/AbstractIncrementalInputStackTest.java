@@ -11,9 +11,15 @@ import org.junit.Test;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 
 public abstract class AbstractIncrementalInputStackTest {
-    protected abstract IIncrementalInputStack getStack(IncrementalParseNode root);
+
+    protected abstract IIncrementalInputStack getStack(IncrementalParseNode root, String inputString);
+
+    protected IIncrementalInputStack getStack(IncrementalParseNode root) {
+        return getStack(root, root.getYield());
+    }
 
     @Test public void testOneNode() {
         IncrementalCharacterNode node = new IncrementalCharacterNode(42);
@@ -56,6 +62,28 @@ public abstract class AbstractIncrementalInputStackTest {
         assertPoppingEOF(stack);
 
         assertPoppingRoot(root);
+    }
+
+    @Test public void testSkippedNode() {
+        IncrementalCharacterNode node1 = new IncrementalCharacterNode(97);
+        IncrementalParseNode node2 = new IncrementalSkippedNode(null,
+            new IncrementalParseForest[] { new IncrementalCharacterNode(98), new IncrementalCharacterNode(99) });
+        IncrementalCharacterNode node3 = new IncrementalCharacterNode(100);
+        IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
+
+        IIncrementalInputStack stack = getStack(root, "abcd");
+        assertLeftBreakdown(node1, stack);
+        assertLeftBreakdown(node1, stack);
+        assertPopLookahead(node2, stack);
+        stack.breakDown();
+        assertEquals(98, ((IncrementalCharacterNode) stack.getNode()).character);
+        stack.next();
+        assertEquals(99, ((IncrementalCharacterNode) stack.getNode()).character);
+        assertPopLookahead(node3, stack);
+        assertLeftBreakdown(node3, stack);
+        assertPoppingEOF(stack);
+
+        assertPoppingEOF(getStack(root, "abcd"));
     }
 
     @Test public void testTwoSubtrees() {

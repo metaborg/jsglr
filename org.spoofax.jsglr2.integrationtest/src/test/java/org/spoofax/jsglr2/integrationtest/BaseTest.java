@@ -201,12 +201,13 @@ public abstract class BaseTest implements WithParseTable {
     private Stream<DynamicTest> testIncrementalSuccess(String[] inputStrings, String[] expectedOutputAstStrings,
         String startSymbol, boolean equalityByExpansions, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
+            JSGLR2<IStrategoTerm> jsglr2 = variant.jsglr2();
             IStrategoTerm actualOutputAst;
             String fileName = "" + System.nanoTime(); // To ensure the results will be cached
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
                 String inputString = inputStrings[i];
                 actualOutputAst = testSuccess("Parsing failed at update " + i + ": ",
-                    "Imploding failed at update " + i + ": ", variant.jsglr2(), fileName, startSymbol, inputString);
+                    "Imploding failed at update " + i + ": ", jsglr2, fileName, startSymbol, inputString);
                 assertEqualAST("Incorrect AST at update " + i + ": ", expectedOutputAstStrings[i], actualOutputAst,
                     equalityByExpansions);
             }

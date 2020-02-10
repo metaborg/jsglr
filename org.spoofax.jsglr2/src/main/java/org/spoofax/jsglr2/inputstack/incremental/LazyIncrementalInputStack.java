@@ -4,10 +4,7 @@ import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNod
 
 import java.util.Stack;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.incremental.parseforest.*;
 
 public class LazyIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
     /**
@@ -51,8 +48,14 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
     @Override public void breakDown() {
         if(stack.isEmpty())
             last = null;
-        if(last == null || last.isTerminal())
-            return;
+        if(last == null || last.isTerminal()) {
+            if(last instanceof IncrementalSkippedNode) {
+                // Replace skipped node by one that has all skipped characters explicitly instantiated
+                last = new IncrementalParseNode(inputString.substring(currentOffset, currentOffset + last.width())
+                    .codePoints().mapToObj(IncrementalCharacterNode::new).toArray(IncrementalParseForest[]::new));
+            } else
+                return;
+        }
         IncrementalParseForest[] children = ((IncrementalParseNode) last).getFirstDerivation().parseForests();
         if(children.length > 0) {
             stack.push(new StackTuple(((IncrementalParseNode) last), 0));

@@ -91,7 +91,7 @@ public class ParsingMeasurements extends Measurements {
             parser.observing().attachObserver(measureObserver);
 
             for(StringInput input : inputBatch.inputs)
-                parser.parse(input.content, null);
+                parser.parse(input.content);
 
             return toOutput(name, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory,
                 measureObserver);

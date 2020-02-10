@@ -9,12 +9,16 @@ public interface IParser<ParseForest extends IParseForest> {
 
     ParseResult<ParseForest> parse(String input, String startSymbol, String previousInput, ParseForest previousResult);
 
+    default ParseResult<ParseForest> parse(String input, String previousInput, ParseForest previousResult) {
+        return parse(input, null, previousInput, previousResult);
+    }
+
     default ParseResult<ParseForest> parse(String input, String startSymbol) {
         return parse(input, startSymbol, null, null);
     }
 
     default ParseResult<ParseForest> parse(String input) {
-        return parse(input, null);
+        return parse(input, null, null, null);
     }
 
     /**

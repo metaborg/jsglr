@@ -118,7 +118,7 @@ public class JSGLR2CLI implements Runnable {
         String prevInput = null;
         IParseForest prevParseForest = null;
         for(String in : input) {
-            ParseResult<?> result = parser.parse(in, null, prevInput, prevParseForest);
+            ParseResult<?> result = parser.parse(in, prevInput, prevParseForest);
 
             if(result.isSuccess()) {
                 prevInput = in;

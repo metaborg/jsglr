@@ -43,12 +43,7 @@ import com.google.common.collect.SetMultimap;
  */
 public class ParseTable implements Serializable {
 
-    /**
-     * Number of possible characters to expect (0x10FFFF would be all chars of UTF-8, but is not yet supported by the
-     * parse table format.)
-     */
-    public static final int NUM_CHARS = 256;
-    public static final int LABEL_BASE = NUM_CHARS + 1;
+    public static final int LABEL_BASE = 257;
 
     private static final ILogger logger = LoggerUtils.logger(ParseTable.class);
 
@@ -739,7 +734,7 @@ public class ParseTable implements Serializable {
     }
 
     public int getProductionCount() {
-        return labels.length - NUM_CHARS;
+        return labels.length - LABEL_BASE - 1;
     }
 
     public int getActionEntryCount() {
@@ -795,7 +790,7 @@ public class ParseTable implements Serializable {
     }
 
     public IStrategoTerm getProduction(int prod) {
-        if(prod < NUM_CHARS) {
+        if(prod < LABEL_BASE - 1) {
             return factory.makeInt(prod);
         }
         return labels[prod].prod;

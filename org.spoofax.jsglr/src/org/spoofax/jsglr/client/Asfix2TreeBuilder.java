@@ -24,7 +24,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	public Asfix2TreeBuilder() {
 		this(new TermFactory());
 	}
-	
+
 	public Asfix2TreeBuilder(ITermFactory factory) {
 		this.factory = factory;
 		applIStrategoConstructor = factory.makeConstructor("appl", 2);
@@ -33,7 +33,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 		cycleConstructor = factory.makeConstructor("cycle", 1);
 	}
 
-	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
+	public void initializeTable(ParseTable table, int labelStart, int labelCount) {
 		this.table = table;
 		labels = new IStrategoAppl[labelCount - labelStart];
 		this.labelStart = labelStart;
@@ -42,7 +42,7 @@ public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 	public void initializeLabel(int labelNumber, IStrategoAppl parseTreeProduction) {
 		labels[labelNumber - labelStart] = parseTreeProduction;
 	}
-	
+
 	public ParseTable getTable() {
 		return table;
 	}

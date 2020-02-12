@@ -32,16 +32,16 @@ public class Action implements Serializable {
     public boolean accepts(int currentToken) {
         return ranges.within(currentToken);
     }
-    
+
     /**
      * Gets the character of a single-character range.
      * 
-     * @return  The single range character, or -1 if not applicable.
+     * @return The single range character, or {@link RangeList#NONE} if not applicable.
      */
     public int getSingularRange() {
         return ranges.getSingularRange();
     }
-    
+
     /*
      * Returns a char value that can be used for "brute-force" recovery
      */
@@ -56,7 +56,7 @@ public class Action implements Serializable {
                 if(r.status == ProductionType.REJECT)
                     return true;
             }
-                
+
         }
         return false;
     }
@@ -86,13 +86,12 @@ public class Action implements Serializable {
         return false;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("action(");
         sb.append(ranges);
         sb.append(", [");
-        for(int i=0;i<items.length;i++) {
+        for(int i = 0; i < items.length; i++) {
             sb.append(items[i]);
             if(i < items.length - 1)
                 sb.append(", ");

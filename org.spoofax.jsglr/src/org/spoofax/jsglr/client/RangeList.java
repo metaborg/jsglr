@@ -9,17 +9,18 @@ import java.util.Arrays;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class RangeList implements Serializable {
-    
+
     private static final long serialVersionUID = 16593569;
-    
-    public static final int NONE = -1;
-    
+
+    public static final int NONE = -2;
+
+    /** An ordered array of low-high pairs. */
     private final int[] ranges;
-    
+
     private final int singularRange;
-    
+
     public RangeList(int[] ranges) {
-        if (ranges.length == 1) {
+        if(ranges.length == 1) {
             this.ranges = null;
             singularRange = ranges[0];
         } else {
@@ -27,14 +28,15 @@ public class RangeList implements Serializable {
             singularRange = NONE;
         }
     }
-    
+
     public final boolean within(int c) {
-        if (singularRange != NONE) return c == singularRange;
-        for (int i = 0; i < ranges.length; i += 2) {
+        if(singularRange != NONE)
+            return c == singularRange;
+        for(int i = 0; i < ranges.length; i += 2) {
             int low = ranges[i];
-            if (low <= c) {
+            if(low <= c) {
                 int high = ranges[i + 1];
-                if (c <= high) {
+                if(c <= high) {
                     return true;
                 }
             } else {
@@ -47,51 +49,48 @@ public class RangeList implements Serializable {
     /**
      * Gets the character of a single-character range.
      * 
-     * @return  The single range character, or {@link NONE} if not applicable.
+     * @return The single range character, or {@link NONE} if not applicable.
      */
     public int getSingularRange() {
         return singularRange;
     }
-    
+
     /*
      * Returns a char value that can be used for "brute-force" recovery
      */
     public int getFirstRangeElement() {
         return singularRange == NONE ? ranges[0] : singularRange;
     }
-    
+
     public int getLastRangeElement() {
         return singularRange == NONE ? ranges[ranges.length - 1] : singularRange;
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof RangeList))
+
+    @Override public boolean equals(Object obj) {
+        if(!(obj instanceof RangeList))
             return false;
-        if (singularRange == NONE) {
+        if(singularRange == NONE) {
             return Arrays.equals(((RangeList) obj).ranges, ranges);
         } else {
             return singularRange == ((RangeList) obj).singularRange;
         }
     }
-    
-    @Override
-    public int hashCode() {
+
+    @Override public int hashCode() {
         return singularRange == NONE ? Arrays.hashCode(ranges) : singularRange;
     }
-    
-    @Override
-    public String toString() {
+
+    @Override public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (singularRange != NONE) {
+        if(singularRange != NONE) {
             sb.append(singularRange);
         } else {
             sb.append('[');
-            for (int i = 0, end = ranges.length - 1; i < end; i+=2) {
+            for(int i = 0, end = ranges.length - 1; i < end; i += 2) {
                 int low = ranges[i];
                 int high = ranges[i + 1];
                 sb.append(low);
-                if (low != high) {
+                if(low != high) {
                     sb.append('-');
                     sb.append(high);
                 }

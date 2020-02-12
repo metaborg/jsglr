@@ -10,32 +10,20 @@ package org.spoofax.jsglr.client;
 import static java.util.Arrays.asList;
 import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
 import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.terms.Term.intAt;
-import static org.spoofax.terms.Term.isTermInt;
-import static org.spoofax.terms.Term.javaInt;
-import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.jsglr.client.SGLR.EOF;
+import static org.spoofax.terms.Term.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IParseTableGenerator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoNamed;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
@@ -70,6 +58,8 @@ public class ParseTable implements Serializable {
 
     private static SGLR layoutParser;
 
+    private int version;
+
     private State[] states;
 
     private int startState;
@@ -82,7 +72,7 @@ public class ParseTable implements Serializable {
 
     private final SetMultimap<String, String> nonAssocPriorities = HashMultimap.create();
     private final SetMultimap<String, String> nonNestedPriorities = HashMultimap.create();
-    
+
     private boolean hasRejects;
 
     private boolean hasAvoids;
@@ -173,7 +163,7 @@ public class ParseTable implements Serializable {
             nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
             nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
         }
-        
+
         parse(parseTableAterm);
         gotoCache = new HashMap<Goto, Goto>();
         shiftCache = new HashMap<Shift, Shift>();
@@ -207,7 +197,7 @@ public class ParseTable implements Serializable {
     }
 
     private boolean parse(IStrategoTerm pt) throws InvalidParseTableException {
-        int version = intAt(pt, 0);
+        version = intAt(pt, 0);
         if(pt.getSubtermCount() == 1) // Seen with ParseTable(0)
             throw new InvalidParseTableException("Invalid parse table (possibly wrong start symbol specified)\n" + pt);
         startState = intAt(pt, 1);
@@ -215,8 +205,8 @@ public class ParseTable implements Serializable {
         IStrategoNamed statesTerm = termAt(pt, 3);
         IStrategoNamed prioritiesTerm = termAt(pt, 4);
 
-        if(version != 4 && version != 6) {
-            throw new InvalidParseTableException("Only supports version 4 and 6 tables.");
+        if(version != 4 && version != 6 && version != 7) {
+            throw new InvalidParseTableException("Only supports version 4, 6 and 7 tables.");
         }
 
         labels = parseLabels(labelsTerm);
@@ -627,17 +617,53 @@ public class ParseTable implements Serializable {
         int[] ret = new int[size * 2];
 
         int idx = 0;
-
-        for(int i = 0; i < size; i++) {
-            IStrategoTerm t = ranges.head();
-            ranges = ranges.tail();
-            if(isTermInt(t)) {
-                int value = javaInt(t);
-                ret[idx++] = value;
-                ret[idx++] = value;
-            } else {
-                ret[idx++] = intAt(t, 0);
-                ret[idx++] = intAt(t, 1);
+        if(version >= 7) {
+            for(int i = 0; i < size; i++) {
+                IStrategoTerm t = ranges.head();
+                ranges = ranges.tail();
+                if(isTermInt(t)) {
+                    int value = javaInt(t);
+                    ret[idx++] = value;
+                    ret[idx++] = value;
+                } else if("eof".equals(((IStrategoAppl) t).getName())) {
+                    ret[idx++] = EOF;
+                    ret[idx++] = EOF;
+                } else {
+                    ret[idx++] = intAt(t, 0);
+                    ret[idx++] = intAt(t, 1);
+                }
+            }
+        } else { // version <= 6
+            for(int i = 0; i < size; i++) {
+                IStrategoTerm t = ranges.head();
+                ranges = ranges.tail();
+                if(isTermInt(t)) {
+                    int value = javaInt(t);
+                    if(value == 256) { // The legacy way of representing EOF (parse table version 6 and below)
+                        if(idx - 1 + 1 >= 0)
+                            System.arraycopy(ret, 0, ret, 2, idx); // Shift all current elements two to the right
+                        ret[0] = EOF; // Move EOF to front of array, else the "within" check breaks
+                        ret[1] = EOF;
+                    } else {
+                        ret[idx++] = value;
+                        ret[idx++] = value;
+                    }
+                } else {
+                    int to = intAt(t, 1);
+                    if(to == 256) { // The legacy way of representing EOF (parse table version 6 and below)
+                        int[] oldRet = ret;
+                        ret = new int[oldRet.length + 2];
+                        System.arraycopy(oldRet, 0, ret, 2, idx); // Create extra space to prepend separate EOF
+                        ret[0] = EOF;
+                        ret[1] = EOF;
+                        idx += 2;
+                        ret[idx++] = intAt(t, 0);
+                        ret[idx++] = 255;
+                    } else {
+                        ret[idx++] = intAt(t, 0);
+                        ret[idx++] = to;
+                    }
+                }
             }
         }
 
@@ -824,7 +850,7 @@ public class ParseTable implements Serializable {
     public SetMultimap<String, String> getNonAssocPriorities() {
         return nonAssocPriorities;
     }
-    
+
     public SetMultimap<String, String> getNonNestedPriorities() {
         return nonNestedPriorities;
     }

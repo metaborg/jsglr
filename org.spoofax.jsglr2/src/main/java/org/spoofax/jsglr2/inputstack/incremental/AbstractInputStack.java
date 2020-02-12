@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
 import static org.metaborg.parsetable.characterclasses.ICharacterClass.EOF_INT;
+import static org.metaborg.parsetable.characterclasses.ICharacterClass.MAX_CHAR;
 
 import org.spoofax.jsglr2.inputstack.IInputStack;
 
@@ -45,8 +46,8 @@ public abstract class AbstractInputStack implements IInputStack {
         if(offset < inputLength) {
             char c = inputString.charAt(offset);
 
-            if(c > 255)
-                throw new IllegalStateException("Unicode not supported");
+            if(c > MAX_CHAR)
+                throw new IllegalStateException("Character " + c + " not supported");
 
             return c;
         } else

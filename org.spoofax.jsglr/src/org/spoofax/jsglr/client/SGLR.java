@@ -370,9 +370,8 @@ public class SGLR {
             if(!(getTreeBuilder() instanceof NullTreeBuilder)) {
                 try {
                     getTreeBuilder().reset(startReductionOffset);
-                    IStrategoTerm candidate =
-                        ((IStrategoTerm) disambiguator.applyFilters(this, node, null, startReductionOffset,
-                            tokensSeen));
+                    IStrategoTerm candidate = ((IStrategoTerm) disambiguator.applyFilters(this, node, null,
+                        startReductionOffset, tokensSeen));
                     if(candidate != null)
                         result.add(candidate);
                 } catch(FilterException e) {
@@ -617,21 +616,17 @@ public class SGLR {
     }
 
     protected void setCurrentToken(TokenOffset tok) {
-        if(currentToken.getToken() == -1)
-            currentIndentation = 0;
-        else
-            switch(currentToken.getToken()) {
-                case '\n':
-                    currentIndentation = 0;
-                    break;
-                case '\t':
-                    currentIndentation = (currentIndentation / TAB_SIZE + 1) * TAB_SIZE;
-                    break;
-                case -1:
-                    break;
-                default:
-                    currentIndentation++;
-            }
+        switch(currentToken.getToken()) {
+            case TokenOffset.NONE:
+            case '\n':
+                currentIndentation = 0;
+                break;
+            case '\t':
+                currentIndentation = (currentIndentation / TAB_SIZE + 1) * TAB_SIZE;
+                break;
+            default:
+                currentIndentation++;
+        }
 
         this.currentToken.setToken(tok.getToken());
         this.currentToken.setOffset(tok.getOffset());

@@ -1,7 +1,10 @@
 package org.spoofax.jsglr.client;
 
+import static org.spoofax.jsglr.client.SGLR.EOF;
+
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A series of character ranges.
@@ -14,15 +17,22 @@ public class RangeList implements Serializable {
 
     public static final int NONE = -2;
 
-    /** An ordered array of low-high pairs. */
+    /** An ordered array of low-high pairs. Both ends of each range are inclusive. */
     private final int[] ranges;
+    /** @see SGLR#EOF */
+    private final boolean containsEOF;
 
     private final int singularRange;
 
-    public RangeList(int[] ranges) {
-        if(ranges.length == 1) {
+    public RangeList(int[] ranges, boolean containsEOF) {
+        this.containsEOF = containsEOF;
+        if(!containsEOF && (ranges.length == 1 || ranges.length == 2 && ranges[0] == ranges[1])) {
             this.ranges = null;
             singularRange = ranges[0];
+        } else if(ranges.length == 0 && containsEOF) {
+            // In case that the range list only contains EOF, it can also be a singluarRange
+            this.ranges = null;
+            singularRange = EOF;
         } else {
             this.ranges = ranges;
             singularRange = NONE;
@@ -30,7 +40,9 @@ public class RangeList implements Serializable {
     }
 
     public final boolean within(int c) {
-        if(singularRange != NONE)
+        if(c == EOF)
+            return containsEOF;
+        if(ranges == null)
             return c == singularRange;
         for(int i = 0; i < ranges.length; i += 2) {
             int low = ranges[i];
@@ -49,7 +61,7 @@ public class RangeList implements Serializable {
     /**
      * Gets the character of a single-character range.
      * 
-     * @return The single range character, or {@link NONE} if not applicable.
+     * @return The single range character, possibly {@link SGLR#EOF}, or {@link RangeList#NONE} if not applicable.
      */
     public int getSingularRange() {
         return singularRange;
@@ -59,25 +71,25 @@ public class RangeList implements Serializable {
      * Returns a char value that can be used for "brute-force" recovery
      */
     public int getFirstRangeElement() {
-        return singularRange == NONE ? ranges[0] : singularRange;
+        return ranges == null ? singularRange : ranges[0];
     }
 
     public int getLastRangeElement() {
-        return singularRange == NONE ? ranges[ranges.length - 1] : singularRange;
+        return ranges == null ? singularRange : ranges[ranges.length - 1];
     }
 
     @Override public boolean equals(Object obj) {
         if(!(obj instanceof RangeList))
             return false;
-        if(singularRange == NONE) {
-            return Arrays.equals(((RangeList) obj).ranges, ranges);
-        } else {
-            return singularRange == ((RangeList) obj).singularRange;
-        }
+        RangeList rangeList = (RangeList) obj;
+        return containsEOF == rangeList.containsEOF && singularRange == rangeList.singularRange
+            && Arrays.equals(ranges, rangeList.ranges);
     }
 
     @Override public int hashCode() {
-        return singularRange == NONE ? Arrays.hashCode(ranges) : singularRange;
+        int result = Objects.hash(containsEOF, singularRange);
+        result = 31 * result + Arrays.hashCode(ranges);
+        return result;
     }
 
     @Override public String toString() {

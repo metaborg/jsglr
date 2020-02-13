@@ -35,8 +35,8 @@ public class Action implements Serializable {
 
     /**
      * Gets the character of a single-character range.
-     * 
-     * @return The single range character, or {@link RangeList#NONE} if not applicable.
+     *
+     * @return The single range character, possibly {@link SGLR#EOF}, or {@link RangeList#NONE} if not applicable.
      */
     public int getSingularRange() {
         return ranges.getSingularRange();

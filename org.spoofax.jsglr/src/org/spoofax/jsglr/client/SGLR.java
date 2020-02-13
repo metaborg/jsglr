@@ -686,10 +686,10 @@ public class SGLR {
 
                 do {
                     final int token = action.getSingularRange();
-                    if(token == -1) {
+                    if(token == RangeList.NONE) {
                         break;
                     }
-                    expected.append((char) token);
+                    expected.append(token == EOF ? "EOF" : (char) token);
 
                     final ActionItem[] items = action.getActionItems();
 

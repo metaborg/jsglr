@@ -10,7 +10,6 @@ package org.spoofax.jsglr.client;
 import static java.util.Arrays.asList;
 import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
 import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.jsglr.client.SGLR.EOF;
 import static org.spoofax.terms.Term.*;
 
 import java.io.IOException;
@@ -609,64 +608,56 @@ public class ParseTable implements Serializable {
 
     private RangeList parseRanges(IStrategoList ranges) throws InvalidParseTableException {
         int size = ranges.getSubtermCount();
-        int[] ret = new int[size * 2];
+        int[] ret;
+        boolean containsEOF = false;
 
         int idx = 0;
+        IStrategoTerm[] allSubterms = ranges.getAllSubterms();
+        // Assuming "eof" (or 256, in parse table version <= 6) is always the last item
+        IStrategoTerm lastSubterm = allSubterms[allSubterms.length - 1];
         if(version >= 7) {
-            for(int i = 0; i < size; i++) {
-                IStrategoTerm t = ranges.head();
-                ranges = ranges.tail();
+            if(isTermAppl(lastSubterm) && "eof".equals(((IStrategoAppl) lastSubterm).getName())) {
+                containsEOF = true;
+            }
+            ret = new int[size * 2 - (containsEOF ? 2 : 0)]; // If an "eof" is in the ranges list, it can be smaller
+            for(IStrategoTerm t : allSubterms) {
                 if(isTermInt(t)) {
                     int value = javaInt(t);
                     ret[idx++] = value;
                     ret[idx++] = value;
-                } else if("eof".equals(((IStrategoAppl) t).getName())) {
-                    ret[idx++] = EOF;
-                    ret[idx++] = EOF;
-                } else {
+                } else if("range".equals(((IStrategoAppl) t).getName())) {
                     ret[idx++] = intAt(t, 0);
                     ret[idx++] = intAt(t, 1);
                 }
             }
         } else { // version <= 6
-            for(int i = 0; i < size; i++) {
-                IStrategoTerm t = ranges.head();
-                ranges = ranges.tail();
+            containsEOF = isTermInt(lastSubterm) && javaInt(lastSubterm) == 256;
+            ret = new int[size * 2 - (containsEOF ? 2 : 0)]; // If an "eof" is in the ranges list, it can be smaller
+            for(IStrategoTerm t : allSubterms) {
                 if(isTermInt(t)) {
                     int value = javaInt(t);
-                    if(value == 256) { // The legacy way of representing EOF (parse table version 6 and below)
-                        if(idx - 1 + 1 >= 0)
-                            System.arraycopy(ret, 0, ret, 2, idx); // Shift all current elements two to the right
-                        ret[0] = EOF; // Move EOF to front of array, else the "within" check breaks
-                        ret[1] = EOF;
-                    } else {
+                    if(value != 256) { // The legacy way of representing EOF (parse table version 6 and below)
                         ret[idx++] = value;
                         ret[idx++] = value;
                     }
                 } else {
+                    ret[idx++] = intAt(t, 0);
                     int to = intAt(t, 1);
                     if(to == 256) { // The legacy way of representing EOF (parse table version 6 and below)
-                        int[] oldRet = ret;
-                        ret = new int[oldRet.length + 2];
-                        System.arraycopy(oldRet, 0, ret, 2, idx); // Create extra space to prepend separate EOF
-                        ret[0] = EOF;
-                        ret[1] = EOF;
-                        idx += 2;
-                        ret[idx++] = intAt(t, 0);
+                        containsEOF = true;
                         ret[idx++] = 255;
                     } else {
-                        ret[idx++] = intAt(t, 0);
                         ret[idx++] = to;
                     }
                 }
             }
         }
 
-        return makeRangeList(ret);
+        return makeRangeList(ret, containsEOF);
     }
 
-    private RangeList makeRangeList(int[] ranges) throws InvalidParseTableException {
-        RangeList r = new RangeList(ranges);
+    private RangeList makeRangeList(int[] ranges, boolean containsEOF) {
+        RangeList r = new RangeList(ranges, containsEOF);
         RangeList cached = rangesCache.get(r);
         if(cached == null) {
             rangesCache.put(r, r);

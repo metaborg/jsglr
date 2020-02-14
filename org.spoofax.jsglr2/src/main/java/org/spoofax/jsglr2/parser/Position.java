@@ -86,6 +86,8 @@ public class Position {
     /**
      * Step from the current position in the input string by the given width.
      *
+     * @param width
+     *            The number of <b>characters</b> to step (not number of code points).
      * @return A new position that presents the position after the step in the given string.
      */
     public Position step(String inputString, int width) {
@@ -98,7 +100,8 @@ public class Position {
                 line++;
                 column = 1;
             } else {
-                column++;
+                if(!Character.isLowSurrogate(inputString.charAt(offset)))
+                    column++;
             }
         }
         return new Position(offset, line, column);

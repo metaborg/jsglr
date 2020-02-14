@@ -21,7 +21,8 @@ public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<
     }
 
     public ParseException exception() {
-        return new ParseException(failureType);
+        int offset = parseState.inputStack.offset();
+        return new ParseException(failureType, offset, parseState.inputStack.inputString().codePointAt(offset));
     }
 
 }

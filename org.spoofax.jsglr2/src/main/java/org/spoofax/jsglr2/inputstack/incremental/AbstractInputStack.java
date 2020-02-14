@@ -31,20 +31,31 @@ public abstract class AbstractInputStack implements IInputStack {
 
     @Override public int actionQueryCharacter() {
         if(currentOffset < inputLength)
-            return inputString.charAt(currentOffset);
+            return inputString.codePointAt(currentOffset);
         if(currentOffset == inputLength)
             return EOF_INT;
         else
             return -1;
     }
 
-    @Override public String actionQueryLookahead(int length) {
-        return inputString.substring(currentOffset + 1, Math.min(currentOffset + 1 + length, inputLength));
+    @Override public int[] actionQueryLookahead(int length) {
+        int[] res = new int[length];
+        int nextOffset = currentOffset + Character.charCount(getChar(currentOffset));
+        for(int i = 0; i < length; i++) {
+            if(nextOffset >= inputLength) {
+                int[] resShort = new int[i];
+                System.arraycopy(res, 0, resShort, 0, i);
+                return resShort;
+            }
+            res[i] = inputString.codePointAt(nextOffset);
+            nextOffset += Character.charCount(res[i]);
+        }
+        return res;
     }
 
     @Override public int getChar(int offset) {
         if(offset < inputLength) {
-            char c = inputString.charAt(offset);
+            int c = inputString.codePointAt(offset);
 
             if(c > MAX_CHAR)
                 throw new IllegalStateException("Character " + c + " not supported");

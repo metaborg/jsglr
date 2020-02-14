@@ -69,8 +69,8 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
                     return character;
                 }
 
-                @Override public String actionQueryLookahead(int length) {
-                    return "";
+                @Override public int[] actionQueryLookahead(int length) {
+                    return new int[0];
                 }
             };
         }

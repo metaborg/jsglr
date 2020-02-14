@@ -186,7 +186,7 @@ public abstract class BaseTest implements WithParseTable {
             return result;
         } catch(ParseException e) {
             // Fail here if parsing failed
-            fail(parseFailMessage + e.failureType);
+            fail(parseFailMessage + ": " + e.getMessage());
         }
         return null;
     }
@@ -208,8 +208,8 @@ public abstract class BaseTest implements WithParseTable {
             String fileName = "" + System.nanoTime(); // To ensure the results will be cached
             for(int i = 0; i < expectedOutputAstStrings.length; i++) {
                 String inputString = inputStrings[i];
-                actualOutputAst = testSuccess("Parsing failed at update " + i + ": ",
-                    "Imploding failed at update " + i + ": ", jsglr2, fileName, startSymbol, inputString);
+                actualOutputAst = testSuccess("Parsing failed at update " + i, "Imploding failed at update " + i + ": ",
+                    jsglr2, fileName, startSymbol, inputString);
                 assertEqualAST("Incorrect AST at update " + i + ": ", expectedOutputAstStrings[i], actualOutputAst,
                     equalityByExpansions);
             }

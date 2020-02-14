@@ -22,7 +22,7 @@ public class InputStack extends AbstractInputStack {
     }
 
     @Override public void next() {
-        currentOffset++;
+        currentOffset += Character.charCount(currentChar);
         currentChar = getChar(currentOffset);
     }
 

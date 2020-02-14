@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
 
 import java.util.function.BiConsumer;
@@ -192,11 +191,11 @@ public abstract class AbstractIncrementalInputStackTest {
         IIncrementalInputStack clone = original.clone();
         for(IIncrementalInputStack stack : new IIncrementalInputStack[] { original, clone }) {
             assertEquals('a', stack.actionQueryCharacter());
-            assertEquals("b", stack.actionQueryLookahead(1));
-            assertEquals("bc", stack.actionQueryLookahead(2));
-            assertEquals("bcd", stack.actionQueryLookahead(3));
-            assertEquals("bcd", stack.actionQueryLookahead(4));
-            assertEquals("bcd", stack.actionQueryLookahead(5));
+            assertArrayEquals("b".codePoints().toArray(), stack.actionQueryLookahead(1));
+            assertArrayEquals("bc".codePoints().toArray(), stack.actionQueryLookahead(2));
+            assertArrayEquals("bcd".codePoints().toArray(), stack.actionQueryLookahead(3));
+            assertArrayEquals("bcd".codePoints().toArray(), stack.actionQueryLookahead(4));
+            assertArrayEquals("bcd".codePoints().toArray(), stack.actionQueryLookahead(5));
         }
     }
 

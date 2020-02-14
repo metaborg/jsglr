@@ -7,7 +7,7 @@ public interface ICharacterNode extends IParseForest {
     int character();
 
     default int width() {
-        return 1;
+        return Character.charCount(character());
     }
 
     default String descriptor() {

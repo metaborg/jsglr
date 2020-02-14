@@ -1,0 +1,10 @@
+module literals
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start = Emoji
+
+lexical syntax
+    Emoji = [\128512-\128580]* // From "grinning" to "rolling eyes". https://en.wikipedia.org/wiki/Emoji#Unicode_blocks

@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.inputstack;
 import org.spoofax.jsglr2.inputstack.incremental.AbstractInputStack;
 
 public class InputStack extends AbstractInputStack {
-    int currentChar; // Current ASCII char in range [0, 256]
+    int currentChar; // Current ASCII char in range [0, MAX_CHAR] or EOF_INT
 
     public InputStack(String inputString) {
         super(inputString);

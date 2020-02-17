@@ -41,7 +41,7 @@ public class IntegrationVariant {
     }
 
     public String name() {
-        return parseTable.name() + "//" + jsglr2.name();
+        return (parseTable.equals(ParseTableVariant.standard()) ? "_" : parseTable.name()) + "//" + jsglr2.name();
     }
 
     @Override public boolean equals(Object o) {

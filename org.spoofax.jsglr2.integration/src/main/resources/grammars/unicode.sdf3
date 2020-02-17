@@ -4,7 +4,7 @@ context-free start-symbols
 	Start
 
 context-free syntax
-	Start = ID
+	Start.Id = ID
 
 lexical syntax
-    ID = ~[]*
+    ID = ~[]+

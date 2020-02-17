@@ -76,7 +76,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 	private int nonMatchingOffset = NONE;
 
-	private char nonMatchingChar, nonMatchingCharExpected;
+	private int nonMatchingChar, nonMatchingCharExpected;
 
 	private boolean inLexicalContext;
 
@@ -668,17 +668,16 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	*/
 
 	/** Consume a character of a lexical terminal. */
-	protected final void consumeLexicalChar(int character) {
+	protected final void consumeLexicalChar(int parsedChar) {
 		if (offset >= input.length()) {
-			markUnexpectedEOF(character);
+			markUnexpectedEOF(parsedChar);
 		} else {
-			char parsedChar = (char) character;
-			char inputChar = stringIterator.truncateUnicodeChar(input.charAt(offset));
+			int inputChar = input.codePointAt(offset);
 
 			if (parsedChar != inputChar) {
 				if (RecoveryConnector.isLayoutCharacter(parsedChar)) {
 					tokenizer.tryMakeSkippedRegionToken(offset);
-					offset++;
+					offset += Character.charCount(parsedChar);
 				} else {
 					// UNDONE: Strict lexical stream checking
 					// throw new IllegalStateException("Character from asfix stream (" + parsedChar
@@ -694,7 +693,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 					}
 				}
 			} else {
-				offset++;
+				offset += Character.charCount(parsedChar);
 			}
 		}
 	}

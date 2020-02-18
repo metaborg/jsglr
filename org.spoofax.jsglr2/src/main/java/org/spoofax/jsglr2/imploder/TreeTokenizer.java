@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.Position;
@@ -24,9 +25,13 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
             this.leftToken = leftToken;
             this.rightToken = rightToken;
             this.endPosition = endPosition;
-            if(!tree.isInjection && tree.tree != null && leftToken != null && rightToken != null) {
-                String sort = tree.production == null ? null : tree.production.sort();
-                configure(tree.tree, sort, leftToken, rightToken);
+            if(tree.tree != null && leftToken != null && rightToken != null) {
+                if(tree.isInjection) {
+                    configureInjection(tree.production.lhs(), tree.tree, tree.production.isBracket());
+                } else {
+                    String sort = tree.production == null ? null : tree.production.sort();
+                    configure(tree.tree, sort, leftToken, rightToken);
+                }
             }
             this.messages = messages;
         }
@@ -131,6 +136,8 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
     }
 
     protected abstract void configure(Tree term, String sort, IToken leftToken, IToken rightToken);
+
+    protected abstract void configureInjection(ISymbol lhs, Tree term, boolean bracket);
 
     protected abstract void tokenTreeBinding(IToken token, Tree term);
 

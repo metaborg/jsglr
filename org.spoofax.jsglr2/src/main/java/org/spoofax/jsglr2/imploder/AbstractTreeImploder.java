@@ -16,7 +16,7 @@ public abstract class AbstractTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    IntermediateResult, 
+    IntermediateResult,
     Cache,
     AbstractSyntaxTree,
     Result      extends IImplodeResult<IntermediateResult, Cache, AbstractSyntaxTree>>

@@ -96,10 +96,10 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
     }
 
     private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {
-        return children.toArray(new IStrategoTerm[children.size()]);
+        return children.toArray(new IStrategoTerm[0]);
     }
 
-    protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
+    public static void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
         // rightToken can be null, e.g. for an empty string lexical
         rightToken = rightToken != null ? rightToken : leftToken;
         putImploderAttachment(term, false, sort, leftToken, rightToken, false, false, false, false);

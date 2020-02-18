@@ -110,7 +110,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 
         SubTree res = outputStack.pop().getFirst();
 
-        tokens.makeEndToken(new Position(res.endPosition.offset, res.endPosition.line, res.endPosition.column));
+        tokens.makeEndToken(res.endPosition);
         tokenTreeBinding(tokens.endToken(), res.tree);
 
         return res;

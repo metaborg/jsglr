@@ -53,7 +53,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
         SubTree res = tokenizeInternal(tokens, tree, new Position(0, 1, 1));
 
-        tokens.makeEndToken(new Position(res.endPosition.offset, res.endPosition.line, res.endPosition.column));
+        tokens.makeEndToken(res.endPosition);
         tokenTreeBinding(tokens.endToken(), res.tree);
 
         return res;

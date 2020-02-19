@@ -182,7 +182,7 @@ public class IterativeTreeImploder
             subTrees.stream().filter(t -> t.tree != null).map(t -> t.tree).collect(Collectors.toList());
         Tree contextFreeTerm = createContextFreeTerm(production, childASTs);
         return new SubTree<>(contextFreeTerm, subTrees, production,
-            childASTs.size() > 0 && contextFreeTerm == childASTs.get(0));
+            childASTs.size() == 1 && contextFreeTerm == childASTs.get(0));
     }
 
     private SubTree<Tree> createLexicalSubTree(String inputString, ParseNode parseNode, int startOffset,

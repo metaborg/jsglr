@@ -107,7 +107,7 @@ public class TreeImploder
 
         Tree contextFreeTerm = createContextFreeTerm(production, childASTs);
         return new SubTree<>(contextFreeTerm, subTrees, production,
-            childASTs.size() > 0 && contextFreeTerm == childASTs.get(0));
+            childASTs.size() == 1 && contextFreeTerm == childASTs.get(0));
     }
 
     protected List<ParseForest> getChildParseForests(Derivation derivation) {

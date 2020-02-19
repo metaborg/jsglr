@@ -3,19 +3,29 @@ package org.spoofax.jsglr2.parser;
 public class Position {
 
     /**
-     * The offset in the input string, starts counting at 0 (consistent with Java string indexing).
+     * The offset in the input string, starts counting at 0.<br>
+     * A Unicode character outside the Basic Multilingual Plane (thus consisting of a high- and low-surrogate pair)
+     * counts as two, consistent with Java String indexing.
      */
-    final public int offset;
+    public final int offset;
 
     /**
      * The line number of the current offset, starts counting at 1 (consistent with IDE cursor position).
      */
-    final public int line;
+    public final int line;
 
     /**
-     * The column number of the current offset, starts counting at 1 (consistent with IDE cursor position).
+     * The column number of the current offset, starts counting at 1.<br>
+     * A Unicode character outside the Basic Multilingual Plane (thus consisting of a high- and low-surrogate pair)
+     * counts as one, consistent with IDE cursor position.
      */
-    final public int column;
+    public final int column;
+
+    /**
+     * The position at the start of a string; with offset 0, line 1, and column 1.<br>
+     * Is returned when calling {@link Position#atOffset} with offset 0.
+     */
+    public static final Position START_POSITION = new Position(0, 1, 1);
 
     /**
      * Basic constructor.
@@ -39,24 +49,22 @@ public class Position {
     }
 
     public static Position atEnd(String string) {
-        String[] lines = string.split("\n");
-
-        if(lines.length > 0) {
-            int line = lines.length;
-            int column = lines[line - 1].length() + 1;
-
-            if(string.endsWith("\n")) {
-                line++;
-                column = 1;
-            }
-
-            return new Position(string.length(), line, column);
-        } else
-            return new Position(string.length(), 2, 1);
+        return atOffset(string, string.length());
     }
 
     public static Position atOffset(String string, int offset) {
-        return atEnd(string.substring(0, offset));
+        if(offset == 0)
+            return START_POSITION;
+        int lines = 1;
+        for(int i = 0; i < offset; i++) {
+            if(string.charAt(i) == '\n')
+                lines++;
+        }
+
+        int column = string.codePointBefore(offset) == '\n' ? 1
+            : 1 + string.codePointCount(string.lastIndexOf('\n', offset - 1) + 1, offset);
+
+        return new Position(offset, lines, column);
     }
 
     /**
@@ -101,7 +109,7 @@ public class Position {
     }
 
     @Override public String toString() {
-        return "l: " + line + " c: " + column + " offset: " + offset;
+        return "offset: " + offset + " l: " + line + " c: " + column;
     }
 
     @Override public int hashCode() {

@@ -42,7 +42,7 @@ public abstract class TokenizedTreeImploder
         Tokens tokens = new Tokens(input, fileName);
         tokens.makeStartToken();
 
-        Position position = new Position(0, 1, 1);
+        Position position = Position.START_POSITION;
 
         SubTree<Tree> tree = implodeParseNode(topParseNode, messages, tokens, position, tokens.startToken());
 

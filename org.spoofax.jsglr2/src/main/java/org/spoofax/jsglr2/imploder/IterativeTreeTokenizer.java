@@ -13,15 +13,14 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
         tokens.makeStartToken();
         tokenTreeBinding(tokens.startToken(), rootTree.tree);
 
-        // SubTree res = tokenizeInternal(tokens, tree, new Position(0, 1, 1));
         Stack<LinkedList<TreeImploder.SubTree<Tree>>> inputStack = new Stack<>();
         Stack<Position> pivotPositionStack = new Stack<>();
         Stack<Position> startPositionStack = new Stack<>();
         Stack<LinkedList<SubTree>> outputStack = new Stack<>();
 
         inputStack.add(new LinkedList<>(Collections.singletonList(rootTree)));
-        pivotPositionStack.add(new Position(0, 1, 1));
-        startPositionStack.add(new Position(0, 1, 1));
+        pivotPositionStack.add(Position.START_POSITION);
+        startPositionStack.add(Position.START_POSITION);
         outputStack.add(new LinkedList<>());
 
         while(true) {

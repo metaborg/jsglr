@@ -76,7 +76,8 @@ public class JSGLR2Variant {
     }
 
     public String name() {
-        return parser.name() + "//Imploder:" + imploder.name() + "//Tokenizer:" + tokenizer.name();
+        return parser.name() + "//" + (imploder == ImploderVariant.standard() ? "_" : "Imploder:" + imploder.name())
+            + "//" + (tokenizer == TokenizerVariant.standard() ? "_" : "Tokenizer:" + tokenizer.name());
     }
 
     @Override public boolean equals(Object o) {

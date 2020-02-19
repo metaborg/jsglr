@@ -24,9 +24,15 @@ public class ParseTableVariant {
         this(ActionsForCharacterRepresentation.standard(), ProductionToGotoRepresentation.standard());
     }
 
+    public static ParseTableVariant standard() {
+        return new ParseTableVariant();
+    }
+
     public String name() {
-        return "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation
-            + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;
+        return (actionsForCharacterRepresentation == ActionsForCharacterRepresentation.standard() ? "_"
+            : "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation) + "/"
+            + (productionToGotoRepresentation == ProductionToGotoRepresentation.standard() ? "_"
+                : "ProductionToGotoRepresentation:" + productionToGotoRepresentation);
     }
 
     public ParseTableReader parseTableReader() {

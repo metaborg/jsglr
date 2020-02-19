@@ -108,10 +108,15 @@ public class ParserVariant {
     }
 
     public String name() {
-        return "ActiveStacksRepresentation:" + activeStacksRepresentation + "/ForActorStacksRepresentation:"
-            + forActorStacksRepresentation + "/ParseForestRepresentation:" + parseForestRepresentation
-            + "/ParseForestConstruction:" + parseForestConstruction + "/StackRepresentation:" + stackRepresentation
-            + "/Reducing:" + reducing + "/Recovery:" + recovery;
+        //@formatter:off
+        return  (activeStacksRepresentation == ActiveStacksRepresentation.standard() ? "_" : "ActiveStacksRepresentation:" + activeStacksRepresentation)
+        + "/" + (forActorStacksRepresentation == ForActorStacksRepresentation.standard() ? "_" : "ForActorStacksRepresentation:" + forActorStacksRepresentation)
+        + "/" + (parseForestRepresentation == ParseForestRepresentation.standard() ? "_" : "ParseForestRepresentation:" + parseForestRepresentation)
+        + "/" + (parseForestConstruction == ParseForestConstruction.standard() ? "_" : "ParseForestConstruction:" + parseForestConstruction)
+        + "/" + (stackRepresentation == StackRepresentation.standard() ? "_" : "StackRepresentation:" + stackRepresentation)
+        + "/" + (reducing == Reducing.standard() ? "_" : "Reducing:" + reducing)
+        + "/Recovery:" + recovery;
+        //@formatter:on
     }
 
     @Override public boolean equals(Object o) {

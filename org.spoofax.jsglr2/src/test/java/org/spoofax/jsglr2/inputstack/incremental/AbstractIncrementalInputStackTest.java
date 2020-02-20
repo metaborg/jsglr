@@ -2,6 +2,8 @@ package org.spoofax.jsglr2.inputstack.incremental;
 
 import static org.junit.Assert.*;
 import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
+import static org.spoofax.jsglr2.parser.PositionTest.SMILEY_CODEPOINT;
+import static org.spoofax.jsglr2.parser.PositionTest.SMILEY_STRING;
 
 import java.util.function.BiConsumer;
 
@@ -82,6 +84,29 @@ public abstract class AbstractIncrementalInputStackTest {
         assertPoppingEOF(stack);
 
         assertPoppingEOF(getStack(root, "abcd"));
+    }
+
+    @Test public void testSkippedNodeUnicode() {
+        IncrementalCharacterNode node1 = new IncrementalCharacterNode(97);
+        IncrementalParseNode node2 = new IncrementalSkippedNode(null, new IncrementalParseForest[] {
+            new IncrementalCharacterNode(98), new IncrementalCharacterNode(SMILEY_CODEPOINT) });
+        IncrementalCharacterNode node3 = new IncrementalCharacterNode(100);
+        IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
+
+        String inputString = "ab" + SMILEY_STRING + "d";
+        IIncrementalInputStack stack = getStack(root, inputString);
+        assertLeftBreakdown(node1, stack);
+        assertLeftBreakdown(node1, stack);
+        assertPopLookahead(node2, stack);
+        stack.breakDown();
+        assertEquals(98, ((IncrementalCharacterNode) stack.getNode()).character);
+        stack.next();
+        assertEquals(SMILEY_CODEPOINT, ((IncrementalCharacterNode) stack.getNode()).character);
+        assertPopLookahead(node3, stack);
+        assertLeftBreakdown(node3, stack);
+        assertPoppingEOF(stack);
+
+        assertPoppingEOF(getStack(root, inputString));
     }
 
     @Test public void testTwoSubtrees() {

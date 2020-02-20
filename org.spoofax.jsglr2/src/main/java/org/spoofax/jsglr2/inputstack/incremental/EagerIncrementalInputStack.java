@@ -48,11 +48,9 @@ public class EagerIncrementalInputStack extends AbstractInputStack implements II
             if(current instanceof IncrementalSkippedNode) {
                 // Break down a skipped node by explicitly instantiating character nodes for the skipped part
                 stack.pop();
-                for(int i = currentOffset + current.width(); i > currentOffset; i--) {
-                    int character = inputString.codePointBefore(i);
-                    stack.push(new IncrementalCharacterNode(character));
-                    if(Character.isSupplementaryCodePoint(character))
-                        i--;
+                for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
+                    c = inputString.codePointBefore(i);
+                    stack.push(new IncrementalCharacterNode(c));
                 }
             }
             return;

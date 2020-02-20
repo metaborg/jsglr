@@ -7,8 +7,8 @@ import org.junit.Test;
 
 public class PositionTest {
 
-    private static final String SMILEY_STRING = "😀";
-    private static final int SMILEY_CODEPOINT = SMILEY_STRING.codePointAt(0);
+    public static final String SMILEY_STRING = "😀";
+    public static final int SMILEY_CODEPOINT = SMILEY_STRING.codePointAt(0);
 
     @Test(expected = StringIndexOutOfBoundsException.class) public void outOfBounds() {
         test("", 1, 1, 2);

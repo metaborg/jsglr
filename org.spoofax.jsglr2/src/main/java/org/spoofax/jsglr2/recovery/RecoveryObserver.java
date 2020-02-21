@@ -32,4 +32,12 @@ public class RecoveryObserver
         }
     }
 
+    @Override public void shift(ParseState parseState, StackNode originStack, StackNode gotoStack) {
+        if(parseState.isRecovering()) {
+            int quota = parseState.recoveryJob().getQuota(originStack);
+
+            parseState.recoveryJob().updateQuota(gotoStack, quota);
+        }
+    }
+
 }

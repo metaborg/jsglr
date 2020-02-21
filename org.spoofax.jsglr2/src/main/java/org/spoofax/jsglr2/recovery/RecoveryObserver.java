@@ -22,10 +22,13 @@ public class RecoveryObserver
 
     @Override public void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
         ParseForest[] parseNodes, StackNode gotoStack) {
-        if(reduce.production().isRecovery()) {
+        if(parseState.isRecovering()) {
             int quota = parseState.recoveryJob().getQuota(activeStack);
 
-            parseState.recoveryJob().updateQuota(gotoStack, quota - 1);
+            if(reduce.production().isRecovery())
+                quota--;
+
+            parseState.recoveryJob().updateQuota(gotoStack, quota);
         }
     }
 

@@ -190,17 +190,20 @@ public class Parser
         observing.notify(observer -> observer.shifter(characterNode, parseState.forShifter));
 
         for(ForShifterElement<StackNode> forShifterElement : parseState.forShifter) {
-            StackNode activeStackForState = parseState.activeStacks.findWithState(forShifterElement.state);
+            StackNode gotoStack = parseState.activeStacks.findWithState(forShifterElement.state);
 
-            if(activeStackForState != null) {
-                stackManager.createStackLink(parseState, activeStackForState, forShifterElement.stack, characterNode);
+            if(gotoStack != null) {
+                stackManager.createStackLink(parseState, gotoStack, forShifterElement.stack, characterNode);
             } else {
-                StackNode newStack = stackManager.createStackNode(forShifterElement.state);
+                gotoStack = stackManager.createStackNode(forShifterElement.state);
 
-                stackManager.createStackLink(parseState, newStack, forShifterElement.stack, characterNode);
+                stackManager.createStackLink(parseState, gotoStack, forShifterElement.stack, characterNode);
 
-                parseState.activeStacks.add(newStack);
+                parseState.activeStacks.add(gotoStack);
             }
+
+            StackNode finalGotoStack = gotoStack;
+            observing.notify(observer -> observer.shift(parseState, forShifterElement.stack, finalGotoStack));
         }
 
         parseState.forShifter.clear();

@@ -106,6 +106,9 @@ public interface IParserObserver
     default void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
     }
 
+    default void shift(ParseState parseState, StackNode originStack, StackNode gotoStack) {
+    }
+
     default void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint) {
     }
 

@@ -95,12 +95,14 @@ public class ElkhoundReduceManager
 
         observing.notify(observer -> observer.reducerElkhound(stack, reduce, parseForests));
 
-        ElkhoundStackNode newStack =
+        ElkhoundStackNode targetStack =
             reducer.reducerNoExistingStack(observing, parseState, reduce, stack, gotoState, parseForests);
 
-        parseState.activeStacks.add(newStack);
+        parseState.activeStacks.add(targetStack);
         // We are doing LR and the new active stack is the only one, thus no need to add it to forActorStacks here for
         // further processing
+
+        observing.notify(observer -> observer.reducer(parseState, stack, reduce, parseForests, targetStack));
     }
 
 }

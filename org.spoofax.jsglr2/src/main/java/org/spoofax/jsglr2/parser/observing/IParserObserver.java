@@ -78,8 +78,8 @@ public interface IParserObserver
         StackLink<ParseForest, StackNode> link) {
     }
 
-    default void reducer(ParseState parseState, StackNode stack, IReduce reduce, ParseForest[] parseNodes,
-        StackNode targetStack) {
+    default void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
+        ParseForest[] parseNodes, StackNode gotoStack) {
     }
 
     default void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {

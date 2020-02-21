@@ -20,12 +20,12 @@ public class RecoveryObserver
 //@formatter:on
     implements IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
-    @Override public void reducer(ParseState parseState, StackNode stack, IReduce reduce, ParseForest[] parseNodes,
-        StackNode targetStack) {
+    @Override public void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
+        ParseForest[] parseNodes, StackNode gotoStack) {
         if(reduce.production().isRecovery()) {
-            int quota = parseState.recoveryJob().getQuota(stack);
+            int quota = parseState.recoveryJob().getQuota(activeStack);
 
-            parseState.recoveryJob().updateQuota(targetStack, quota - 1);
+            parseState.recoveryJob().updateQuota(gotoStack, quota - 1);
         }
     }
 

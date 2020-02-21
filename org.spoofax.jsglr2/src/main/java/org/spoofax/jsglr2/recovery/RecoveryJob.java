@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.recovery;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class RecoveryJob<StackNode> {
@@ -13,6 +14,7 @@ public class RecoveryJob<StackNode> {
         this.offset = offset;
         this.iteration = -1;
         this.iterationsQuota = iterationsQuota;
+        this.quota = new HashMap<>();
     }
 
     boolean hasNextIteration() {

@@ -29,7 +29,7 @@ public interface IRecoveryParseState
 
     void endRecovery();
 
-    RecoveryJob recoveryJob();
+    RecoveryJob<StackNode> recoveryJob();
 
     default boolean isRecovering() {
         return recoveryJob() != null;

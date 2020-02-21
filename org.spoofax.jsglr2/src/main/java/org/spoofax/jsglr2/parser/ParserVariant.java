@@ -146,6 +146,7 @@ public class ParserVariant {
     IParser<? extends IParseForest>
         withRecovery(Parser<ParseForest, ?, ?, StackNode, InputStack, ParseState, ?, ?> parser) {
         parser.reduceManager.addFilter(new RecoveryReduceActionFilter<>());
+        parser.observing.attachObserver(new RecoveryObserver<>());
 
         return parser;
     }

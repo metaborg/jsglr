@@ -67,7 +67,7 @@ public class ReduceManager
 
     public void doReductions(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
         ParseState parseState, StackNode stack, IReduce reduce) {
-        if(ignoreReduceAction(parseState, reduce))
+        if(ignoreReduceAction(parseState, stack, reduce))
             return;
 
         observing.notify(observer -> observer.doReductions(parseState, stack, reduce));
@@ -78,7 +78,7 @@ public class ReduceManager
     private void doLimitedReductions(
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
         StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
-        if(ignoreReduceAction(parseState, reduce))
+        if(ignoreReduceAction(parseState, stack, reduce))
             return;
 
         observing.notify(observer -> observer.doLimitedReductions(parseState, stack, reduce, throughLink));
@@ -86,9 +86,9 @@ public class ReduceManager
         doReductionsHelper(observing, parseState, stack, reduce, throughLink);
     }
 
-    private boolean ignoreReduceAction(ParseState parseState, IReduce reduce) {
+    private boolean ignoreReduceAction(ParseState parseState, StackNode stack, IReduce reduce) {
         for(ReduceActionFilter<ParseForest, StackNode, ParseState> reduceActionFilter : reduceActionFilters) {
-            if(reduceActionFilter.ignoreReduce(parseState, reduce))
+            if(reduceActionFilter.ignoreReduce(parseState, stack, reduce))
                 return true;
         }
 

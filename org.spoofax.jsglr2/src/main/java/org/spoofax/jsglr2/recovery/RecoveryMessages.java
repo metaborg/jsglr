@@ -18,7 +18,7 @@ public class RecoveryMessages {
         else if("INSERTION".equals(production.constructor())) {
             String insertion;
 
-            if (production.isLiteral())
+            if(production.isLiteral())
                 insertion = ((ILiteralSymbol) production.lhs()).literal();
             else
                 insertion = "Token";

@@ -81,6 +81,8 @@ public class ElkhoundParser
 
                                     parseState.activeStacks.add(newStack);
 
+                                    observing.notify(observer -> observer.shift(parseState, singleActiveStack, newStack));
+
                                     parseState.inputStack.next();
 
                                     nextRound = true;

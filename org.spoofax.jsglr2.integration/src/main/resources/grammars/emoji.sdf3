@@ -7,4 +7,4 @@ context-free syntax
 	Start = Emoji
 
 lexical syntax
-    Emoji = [\u1f600-\u1f645]* // From "grinning" to "rolling eyes". https://en.wikipedia.org/wiki/Emoji#Unicode_blocks
+    Emoji = [\0x1f600-\0x1f645]* // From "grinning" to "rolling eyes". https://en.wikipedia.org/wiki/Emoji#Unicode_blocks

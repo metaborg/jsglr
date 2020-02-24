@@ -215,7 +215,8 @@ public abstract class TokenizedTreeImploder
                     if(subTree.leftToken != null)
                         unboundTokens.add(subTree.leftToken);
 
-                    if(subTree.rightToken != null)
+                    // Make sure that if subTree.leftToken == subTree.rightToken it is not considered twice
+                    if(subTree.rightToken != null && subTree.rightToken != subTree.leftToken)
                         unboundTokens.add(subTree.rightToken);
                 }
             }

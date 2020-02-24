@@ -27,7 +27,7 @@ public class IncrementalSkippedNode extends IncrementalParseNode {
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {
-        printer.println("... " + production + " ...");
+        printer.println("s" + production.id() + " : " + production + " (s" + state.id() + ") { ... }");
     }
 
     @Override public String getYield() {

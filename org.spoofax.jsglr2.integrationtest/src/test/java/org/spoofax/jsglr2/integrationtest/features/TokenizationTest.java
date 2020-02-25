@@ -92,6 +92,39 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
+    @TestFactory public Stream<DynamicTest> emptyList() throws ParseError {
+        return testTokens("[]", Arrays.asList(
+        //@formatter:off
+            new TokenDescriptor("[", IToken.TK_OPERATOR, 0, 1, 1, "List", "List"),
+            new TokenDescriptor("]", IToken.TK_OPERATOR, 1, 1, 2, "List", "List")
+        //@formatter:on
+        ));
+    }
+
+    @TestFactory public Stream<DynamicTest> singletonList() throws ParseError {
+        return testTokens("[x]", Arrays.asList(
+        //@formatter:off
+            new TokenDescriptor("[", IToken.TK_OPERATOR,    0, 1, 1, "List", "List"),
+            new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 1, 1, 2, "ID", null),
+            new TokenDescriptor("]", IToken.TK_OPERATOR,    2, 1, 3, "List", "List")
+        //@formatter:on
+        ));
+    }
+
+    @TestFactory public Stream<DynamicTest> longList() throws ParseError {
+        return testTokens("[x,x,x]", Arrays.asList(
+        //@formatter:off
+            new TokenDescriptor("[", IToken.TK_OPERATOR,    0, 1, 1, "List", "List"),
+            new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 1, 1, 2, "ID", null),
+            new TokenDescriptor(",", IToken.TK_OPERATOR,    2, 1, 3, null, null),
+            new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 3, 1, 4, "ID", null),
+            new TokenDescriptor(",", IToken.TK_OPERATOR,    4, 1, 5, null, null),
+            new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 5, 1, 6, "ID", null),
+            new TokenDescriptor("]", IToken.TK_OPERATOR,    6, 1, 7, "List", "List")
+        //@formatter:on
+        ));
+    }
+
     @TestFactory public Stream<DynamicTest> multipleLines() throws ParseError {
         return testTokens("x;\nx", Arrays.asList(
         //@formatter:off

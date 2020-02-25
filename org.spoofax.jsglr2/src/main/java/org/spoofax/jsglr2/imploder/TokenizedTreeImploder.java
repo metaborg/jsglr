@@ -178,7 +178,7 @@ public abstract class TokenizedTreeImploder
     protected SubTree<Tree> implodeChildParseNodes(Collection<Message> messages, Tokens tokens, List<Tree> childASTs,
         Iterable<ParseForest> childParseForests, IProduction production, List<IToken> unboundTokens,
         Position startPosition, IToken parentLeftToken) {
-        SubTree<Tree> result = new SubTree<>(null, startPosition, parentLeftToken, null);
+        SubTree<Tree> result = new SubTree<>(null, startPosition, null, null);
 
         Position pivotPosition = startPosition;
         IToken pivotToken = parentLeftToken;
@@ -234,6 +234,9 @@ public abstract class TokenizedTreeImploder
 
             pivotPosition = subTree.endPosition;
         }
+
+        if(result.leftToken == null)
+            result.leftToken = parentLeftToken;
 
         result.endPosition = pivotPosition;
 

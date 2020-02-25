@@ -1,15 +1,17 @@
 package org.spoofax.jsglr2.imploder;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
-
+import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.imploder.treefactory.TokenizedTermTreeFactory;
 
 public class StrategoTermTokenizer extends TreeTokenizer<IStrategoTerm> {
     @Override protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
-        // rightToken can be null, e.g. for an empty string lexical
-        putImploderAttachment(term, false, sort, leftToken, rightToken != null ? rightToken : leftToken, false, false,
-            false, false);
+        TokenizedTermTreeFactory.configure(term, sort, leftToken, rightToken);
+    }
+
+    @Override protected void configureInjection(ISymbol lhs, IStrategoTerm term, boolean isBracket) {
+        TokenizedTermTreeFactory.configureInjection(lhs, term, isBracket);
     }
 
     @Override protected void tokenTreeBinding(IToken token, IStrategoTerm term) {

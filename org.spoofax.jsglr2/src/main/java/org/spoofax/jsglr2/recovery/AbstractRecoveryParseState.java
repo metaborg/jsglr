@@ -20,7 +20,7 @@ public abstract class AbstractRecoveryParseState
     implements IRecoveryParseState<InputStack, StackNode, BacktrackChoicePoint> {
 
     Stack<BacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
-    private RecoveryJob recoveryJob = null;
+    private RecoveryJob<StackNode> recoveryJob = null;
 
     public AbstractRecoveryParseState(InputStack inputStack, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
@@ -53,14 +53,14 @@ public abstract class AbstractRecoveryParseState
     }
 
     @Override public void startRecovery(int offset) {
-        recoveryJob = new RecoveryJob(offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA);
+        recoveryJob = new RecoveryJob<>(offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA);
     }
 
     @Override public void endRecovery() {
         recoveryJob = null;
     }
 
-    @Override public RecoveryJob recoveryJob() {
+    @Override public RecoveryJob<StackNode> recoveryJob() {
         return recoveryJob;
     }
 
@@ -72,6 +72,8 @@ public abstract class AbstractRecoveryParseState
                 backtrackChoicePoints.pop();
 
             resetToBacktrackChoicePoint(backtrackChoicePoints.peek());
+
+            recoveryJob.initQuota(activeStacks);
 
             return true;
         } else

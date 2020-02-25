@@ -10,12 +10,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2;
@@ -286,6 +288,40 @@ public abstract class BaseTest implements WithParseTable {
             assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match");
 
             assertEquals(expectedEndToken, actualEndToken, "End token incorrect");
+        });
+    }
+
+    protected Stream<DynamicTest> testOrigins(String inputString, List<OriginDescriptor> expectedOrigins) {
+        return testOrigins(inputString, expectedOrigins, getTestVariants());
+    }
+
+    protected Stream<DynamicTest> testOrigins(String inputString, List<OriginDescriptor> expectedOrigins,
+        Stream<TestVariant> variants) {
+        return testPerVariant(variants, variant -> () -> {
+            JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
+
+            assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
+
+            IStrategoTerm ast = ((JSGLR2Success<IStrategoTerm>) jsglr2Result).ast;
+
+            List<OriginDescriptor> actualOrigins = new ArrayList<>();
+
+            Stack<IStrategoTerm> terms = new Stack<>();
+
+            terms.push(ast);
+
+            while(!terms.isEmpty()) {
+                IStrategoTerm term = terms.pop();
+
+                for(int i = term.getSubtermCount() - 1; i >= 0; i--)
+                    terms.push(term.getSubterm(i));
+
+                if(term instanceof IStrategoAppl) {
+                    actualOrigins.add(OriginDescriptor.from(term));
+                }
+            }
+
+            assertIterableEquals(expectedOrigins, actualOrigins, "Origin lists don't match");
         });
     }
 

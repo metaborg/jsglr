@@ -78,8 +78,8 @@ public interface IParserObserver
         StackLink<ParseForest, StackNode> link) {
     }
 
-    default void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
-        StackNode activeStackWithGotoState) {
+    default void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
+        ParseForest[] parseNodes, StackNode gotoStack) {
     }
 
     default void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
@@ -104,6 +104,9 @@ public interface IParserObserver
     }
 
     default void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
+    }
+
+    default void shift(ParseState parseState, StackNode originStack, StackNode gotoStack) {
     }
 
     default void recoveryBacktrackChoicePoint(int index, IBacktrackChoicePoint<?, StackNode> choicePoint) {

@@ -42,7 +42,7 @@ public abstract class TokenizedTreeImploder
         Tokens tokens = new Tokens(input, fileName);
         tokens.makeStartToken();
 
-        Position position = new Position(0, 1, 1);
+        Position position = Position.START_POSITION;
 
         SubTree<Tree> tree = implodeParseNode(topParseNode, messages, tokens, position, tokens.startToken());
 
@@ -178,7 +178,7 @@ public abstract class TokenizedTreeImploder
     protected SubTree<Tree> implodeChildParseNodes(Collection<Message> messages, Tokens tokens, List<Tree> childASTs,
         Iterable<ParseForest> childParseForests, IProduction production, List<IToken> unboundTokens,
         Position startPosition, IToken parentLeftToken) {
-        SubTree<Tree> result = new SubTree<>(null, startPosition, parentLeftToken, null);
+        SubTree<Tree> result = new SubTree<>(null, startPosition, null, null);
 
         Position pivotPosition = startPosition;
         IToken pivotToken = parentLeftToken;
@@ -215,7 +215,8 @@ public abstract class TokenizedTreeImploder
                     if(subTree.leftToken != null)
                         unboundTokens.add(subTree.leftToken);
 
-                    if(subTree.rightToken != null)
+                    // Make sure that if subTree.leftToken == subTree.rightToken it is not considered twice
+                    if(subTree.rightToken != null && subTree.rightToken != subTree.leftToken)
                         unboundTokens.add(subTree.rightToken);
                 }
             }
@@ -233,6 +234,9 @@ public abstract class TokenizedTreeImploder
 
             pivotPosition = subTree.endPosition;
         }
+
+        if(result.leftToken == null)
+            result.leftToken = parentLeftToken;
 
         result.endPosition = pivotPosition;
 

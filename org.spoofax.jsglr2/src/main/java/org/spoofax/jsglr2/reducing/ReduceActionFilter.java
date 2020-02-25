@@ -13,7 +13,7 @@ public interface ReduceActionFilter
 //@formatter:on
 {
 
-    boolean ignoreReduce(ParseState parseState, IReduce reduce);
+    boolean ignoreReduce(ParseState parseState, StackNode stack, IReduce reduce);
 
     static
 //@formatter:off
@@ -22,7 +22,7 @@ public interface ReduceActionFilter
     ParseState_  extends AbstractParseState<?, StackNode_>>
 //@formatter:on
     ReduceActionFilter<ParseForest_, StackNode_, ParseState_> ignoreRecoveryAndCompletion() {
-        return (parseState, reduce) -> reduce.production().isRecovery() || reduce.production().isCompletion();
+        return (parseState, stack, reduce) -> reduce.production().isRecovery() || reduce.production().isCompletion();
     }
 
 }

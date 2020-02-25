@@ -54,9 +54,9 @@ public class IncrementalReduceManager
 
     @Override protected void doReductionsHelper(
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
-        StackNode stack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+        StackNode activeStack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
 
-        List<StackPath<ParseForest, StackNode>> paths = stackManager.findAllPathsOfLength(stack, reduce.arity());
+        List<StackPath<ParseForest, StackNode>> paths = stackManager.findAllPathsOfLength(activeStack, reduce.arity());
 
         if(throughLink != null)
             paths = paths.stream().filter(path -> path.contains(throughLink)).collect(Collectors.toList());
@@ -65,11 +65,11 @@ public class IncrementalReduceManager
             parseState.setMultipleStates(true);
 
         for(StackPath<ParseForest, StackNode> path : paths) {
-            StackNode pathBegin = path.head();
+            StackNode originStack = path.head();
             ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-            if(!ignoreReducePath(pathBegin, reduce, parseNodes))
-                reducer(observing, parseState, pathBegin, reduce, parseNodes);
+            if(!ignoreReducePath(originStack, reduce, parseNodes))
+                reducer(observing, parseState, activeStack, originStack, reduce, parseNodes);
         }
     }
 }

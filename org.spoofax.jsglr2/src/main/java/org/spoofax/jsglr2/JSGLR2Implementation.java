@@ -56,7 +56,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
             messages.addAll(implodeResult.messages());
             messages.addAll(tokenizeResult.messages);
 
-            if (!"".equals(fileName)) {
+            if(!"".equals(fileName)) {
                 inputCache.put(fileName, input);
                 parseForestCache.put(fileName, success.parseResult);
                 imploderCacheCache.put(fileName, implodeResult.resultCache());

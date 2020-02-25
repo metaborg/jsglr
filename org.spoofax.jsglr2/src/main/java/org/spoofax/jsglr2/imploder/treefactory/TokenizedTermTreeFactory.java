@@ -83,6 +83,15 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
     }
 
     @Override public IStrategoTerm createInjection(ISymbol symbol, IStrategoTerm injected, boolean isBracket) {
+        configureInjection(symbol, injected, isBracket);
+        return injected;
+    }
+
+    private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {
+        return children.toArray(new IStrategoTerm[0]);
+    }
+
+    public static void configureInjection(ISymbol symbol, IStrategoTerm injected, boolean isBracket) {
         String sort = ISymbol.getSort(symbol);
 
         // Prevent bogus injections from empty sorts, or lexical sorts into themselves
@@ -92,14 +101,9 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         }
 
         ImploderAttachment.get(injected).setBracket(isBracket);
-        return injected;
     }
 
-    private static IStrategoTerm[] toArray(List<IStrategoTerm> children) {
-        return children.toArray(new IStrategoTerm[children.size()]);
-    }
-
-    protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
+    public static void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
         // rightToken can be null, e.g. for an empty string lexical
         rightToken = rightToken != null ? rightToken : leftToken;
         putImploderAttachment(term, false, sort, leftToken, rightToken, false, false, false, false);

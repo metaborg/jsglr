@@ -64,9 +64,10 @@ public abstract class JSGLR2StateApplicableGotosBenchmark extends JSGLR2DataStru
 
         public List<GotoLookup> gotoLookups = new ArrayList<>();
 
-        @Override public void reducer(BasicStackNode<IBasicParseForest> stack, IReduce reduce,
-            IBasicParseForest[] parseNodes, BasicStackNode<IBasicParseForest> activeStackWithGotoState) {
-            gotoLookups.add(new GotoLookup(stack.state, reduce.production().id()));
+        @Override public void reducer(AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>> parseState,
+            BasicStackNode<IBasicParseForest> activeStack, BasicStackNode<IBasicParseForest> originStack,
+            IReduce reduce, IBasicParseForest[] parseNodes, BasicStackNode<IBasicParseForest> gotoStack) {
+            gotoLookups.add(new GotoLookup(originStack.state, reduce.production().id()));
         }
 
     }

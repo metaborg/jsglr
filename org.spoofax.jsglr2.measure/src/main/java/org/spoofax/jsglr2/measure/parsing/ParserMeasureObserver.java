@@ -103,8 +103,8 @@ abstract class ParserMeasureObserver
         doLimitedReductions++;
     }
 
-    @Override public void reducer(StackNode stack, IReduce reduce, ParseForest[] parseNodes,
-        StackNode activeStackWithGotoState) {
+    @Override public void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
+        ParseForest[] parseNodes, StackNode gotoStack) {
         reducers++;
     }
 

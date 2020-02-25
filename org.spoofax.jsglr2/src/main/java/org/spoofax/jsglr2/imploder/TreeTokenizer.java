@@ -51,7 +51,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
         tokens.makeStartToken();
         tokenTreeBinding(tokens.startToken(), tree.tree);
 
-        SubTree res = tokenizeInternal(tokens, tree, Position.START_POSITION);
+        SubTree res = tokenizeInternal(tokens, tree, Position.START_POSITION, tokens.startToken());
 
         tokens.makeEndToken(res.endPosition);
         tokenTreeBinding(tokens.endToken(), res.tree);
@@ -59,8 +59,9 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
         return res;
     }
 
-    private SubTree tokenizeInternal(Tokens tokens, TreeImploder.SubTree<Tree> tree, Position startPosition) {
-        if(tree.children.size() == 0) {
+    private SubTree tokenizeInternal(Tokens tokens, TreeImploder.SubTree<Tree> tree, Position startPosition,
+        IToken parentLeftToken) {
+        if(tree.production != null && !tree.production.isContextFree()) {
             if(tree.width > 0) {
                 Position endPosition = startPosition.step(tokens.getInput(), tree.width);
                 IToken token = tokens.makeToken(startPosition, endPosition, tree.production);
@@ -77,11 +78,11 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
             }
         } else {
             IToken leftToken = null;
-            IToken rightToken = null;
+            IToken pivotToken = parentLeftToken;
             Position pivotPosition = startPosition;
             Collection<Message> messages = null;
             for(TreeImploder.SubTree<Tree> child : tree.children) {
-                SubTree subTree = tokenizeInternal(tokens, child, pivotPosition);
+                SubTree subTree = tokenizeInternal(tokens, child, pivotPosition, pivotToken);
 
                 // If child tree had tokens that were not yet bound, bind them
                 if(subTree.tree == null) {
@@ -98,7 +99,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
                 // The right-most token of this tree is the last non-null rightToken of a subTree
                 if(subTree.rightToken != null)
-                    rightToken = subTree.rightToken;
+                    pivotToken = subTree.rightToken;
 
                 // If tree production == null, that means it's an "amb" node; in that case, position is not advanced
                 if(tree.production != null)
@@ -112,9 +113,12 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
                 }
             }
 
+            if(leftToken == null)
+                leftToken = parentLeftToken;
+
             messages = recoveryMessages(tree.production, startPosition, pivotPosition, messages);
 
-            return new SubTree(tree, leftToken, rightToken, pivotPosition, messages);
+            return new SubTree(tree, leftToken, pivotToken, pivotPosition, messages);
         }
     }
 

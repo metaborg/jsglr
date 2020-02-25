@@ -22,3 +22,6 @@ context-free syntax
 	Exp.AddOperator = <<Exp> + <Exp>>
 	Exp.AddKeyword  = <<Exp> add <Exp>>
 	Exp.Add2Keyword = <<Exp> add2 <Exp>>
+	Exp             = "[" List "]"
+
+	List.List = {Exp ","}*

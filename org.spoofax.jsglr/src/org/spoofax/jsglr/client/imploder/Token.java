@@ -205,7 +205,7 @@ public class Token implements IToken, Cloneable {
         }
     }
 
-    public static int indexOf(IToken token, char c) {
+    public static int indexOf(IToken token, int c) {
         String stream = token.getTokenizer().getInput();
         for(int i = token.getStartOffset(), last = token.getEndOffset(); i <= last; i++) {
             if(stream.codePointAt(i) == c)

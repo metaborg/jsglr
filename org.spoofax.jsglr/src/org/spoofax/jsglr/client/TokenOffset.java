@@ -6,18 +6,15 @@ public class TokenOffset {
 
     private int token;
     private int offset;
-    private char tokenChar;
 
     public TokenOffset() {
         token = NONE;
         offset = -1;
-        tokenChar = (char) NONE;
     }
 
     public TokenOffset(int token, int offset) {
         this.token = token;
         this.offset = offset;
-        tokenChar = (char) token;
     }
 
     public int getToken() {
@@ -26,7 +23,6 @@ public class TokenOffset {
 
     public void setToken(int token) {
         this.token = token;
-        this.tokenChar = (char) token;
     }
 
     public int getOffset() {

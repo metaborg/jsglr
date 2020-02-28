@@ -436,7 +436,7 @@ public class SGLR {
             do {
                 assert getHistory().getTokenIndex() == this.currentInputStream.getOffset();
                 assert this.currentInputStream.getOffset() <= endParseOffset;
-                // System.out.print(((char)this.currentToken));
+                // System.out.print(logCharify(this.currentToken));
                 readNextToken();
                 history.keepTokenAndState(this);
                 doParseStep();
@@ -610,7 +610,7 @@ public class SGLR {
     }
 
     void readNextToken() {
-        // System.out.print("(" + (currentToken.getOffset()) + ")=" + (char) currentToken.getToken());
+        // System.out.print("(" + (currentToken.getOffset()) + ")=" + logCharify(currentToken.getToken()));
         logCurrentToken();
         setCurrentToken(getNextToken());
     }
@@ -689,7 +689,10 @@ public class SGLR {
                     if(token == RangeList.NONE) {
                         break;
                     }
-                    expected.append(token == EOF ? "EOF" : (char) token);
+                    if(token == EOF)
+                        expected.append("EOF");
+                    else
+                        expected.appendCodePoint(token);
 
                     final ActionItem[] items = action.getActionItems();
 
@@ -720,7 +723,7 @@ public class SGLR {
             new ParseProductionNode(currentToken.getToken(), lastLineNumber, lastColumnNumber);
 
         // System.out.println("current token offset " + currentTokenOffset);
-        // System.out.println("shifted token " + (char)currentToken + " or (int) " + currentToken);
+        // System.out.println("shifted token " + logCharify(currentToken) + " or (int) " + currentToken);
 
         while(forShifter.size() > 0) {
             final ActionState as = forShifter.remove();
@@ -1340,12 +1343,7 @@ public class SGLR {
     }
 
     boolean isLayout(int token) {
-        char tokenChar = (char) token;
-
-        if(tokenChar == ' ' || tokenChar == '\n' || tokenChar == '\t')
-            return true;
-
-        return false;
+        return token == ' ' || token == '\n' || token == '\t';
     }
 
     /*
@@ -1787,7 +1785,7 @@ public class SGLR {
         tokensSeen++;
 
         if(Tools.debugging) {
-            Tools.debug("getNextToken() - ", ch, "(", (char) ch, ")");
+            Tools.debug("getNextToken() - ", ch, "(", ch, ",", logCharify(ch), ")");
         }
 
         lastLineNumber = lineNumber;
@@ -2008,7 +2006,7 @@ public class SGLR {
             case 0:
                 return "\\0";
             default:
-                return "" + (char) currentToken;
+                return new String(Character.toChars(currentToken));
         }
     }
 

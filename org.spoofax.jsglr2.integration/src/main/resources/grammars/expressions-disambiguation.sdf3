@@ -23,20 +23,11 @@ context-free syntax
   Exp.DisInPre1 = <& <Exp> ^ <Exp>>
   Exp.DisPre1   = <& <Exp>>
   
-  Exp.DisInPre2 = <? <Exp> : <Exp>>
-  Exp.DisPre2   = <? <Exp>>
-  
   Exp.DisInPos1 = <<Exp> . <Exp> '> 
   Exp.DisPos1   = <<Exp> '>
-  
-  Exp.DisInPos2 = <<Exp> ~ <Exp> "> 
-  Exp.DisPos2   = <<Exp> ">
 
   Exp.ListBack  = <; <Exp+>> {longest-match}
   Exp.ListFront = <<Exp+> ]> {longest-match}
-    
-  Exp2.ListBack2  = </ <Exp2+>> {shortest-match}
-  Exp2.ListFront2 = <<Exp2+> |> {shortest-match}
   
 
 context-free priorities
@@ -50,9 +41,6 @@ context-free priorities
   Exp.Inf1 >
   Exp.Inf2 >
   Exp.Inf3 >
-  
-  Exp.DisPre2 > Exp.DisInPre2 >
-  Exp.DisPos2 > Exp.DisInPos2 >
   
   Exp.Pre2 >
   Exp.Pos2

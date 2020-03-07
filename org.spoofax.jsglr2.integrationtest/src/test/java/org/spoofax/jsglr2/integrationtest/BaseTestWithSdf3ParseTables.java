@@ -18,6 +18,8 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
     protected String sdf3Resource;
     protected static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
+    protected static Table<String, ParseTableVariant, Iterable<ParseTableWithOrigin>> parseTablesCache =
+        HashBasedTable.create();
 
     protected BaseTestWithSdf3ParseTables(String sdf3Resource) {
         this.sdf3Resource = sdf3Resource;
@@ -42,16 +44,20 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
     }
 
     @Override public Iterable<ParseTableWithOrigin> getParseTables(ParseTableVariant variant) throws Exception {
-        ParseTableWithOrigin parseTableWithOrigin = getParseTable(variant);
+        if(!parseTablesCache.contains(sdf3Resource, variant)) {
+            ParseTableWithOrigin parseTableWithOrigin = getParseTable(variant);
 
-        IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTableWithOrigin.parseTable);
+            IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTableWithOrigin.parseTable);
 
-        ParseTableWithOrigin parseTableWithOriginSerializedDeserialized =
-            new ParseTableWithOrigin(variant.parseTableReader().read(parseTableTerm), ParseTableOrigin.ATerm);
+            ParseTableWithOrigin parseTableWithOriginSerializedDeserialized =
+                new ParseTableWithOrigin(variant.parseTableReader().read(parseTableTerm), ParseTableOrigin.ATerm);
 
-        // Ensure that the parse table that directly comes from the generation behaves the same after
-        // serialization/deserialization to/from term format
-        return Arrays.asList(parseTableWithOrigin, parseTableWithOriginSerializedDeserialized);
+            // Ensure that the parse table that directly comes from the generation behaves the same after
+            // serialization/deserialization to/from term format
+            parseTablesCache.put(sdf3Resource, variant,
+                Arrays.asList(parseTableWithOrigin, parseTableWithOriginSerializedDeserialized));
+        }
+        return parseTablesCache.get(sdf3Resource, variant);
     }
 
 }

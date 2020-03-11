@@ -35,7 +35,7 @@ public abstract class IncrementalParseForest implements IParseForest {
 
     /**
      * Warning: calling this method for every node in the parse tree is very memory-inefficient. If you need parts of
-     * the input string, you're better off saving the input string and calling `charAt` or `substring` on that.
+     * the input string, you're better off saving the input string and calling `codePointAt` or `substring` on that.
      *
      * @return The yield of this parse forest node.
      */

@@ -165,9 +165,9 @@ public class ProcessUpdates
     }
 
     public IncrementalParseNode getParseNodeFromString(String inputString) {
-        IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(inputString.length());
+        int[] chars = inputString.codePoints().toArray();
+        IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(chars.length);
 
-        char[] chars = inputString.toCharArray();
         for(int i = 0; i < chars.length; i++) {
             parseForests[i] = parseForestManager.createCharacterNode(chars[i]);
         }

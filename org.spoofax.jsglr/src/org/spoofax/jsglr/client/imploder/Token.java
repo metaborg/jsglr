@@ -35,12 +35,13 @@ public class Token implements IToken, Cloneable {
 
     private ISimpleTerm astNode;
 
-    public Token(ITokens tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset, int kind) {
+    public Token(ITokens tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset,
+        int kind) {
         this(tokenizer, filename, index, line, column, startOffset, endOffset, kind, null, null);
     }
 
-    public Token(ITokens tokens, String filename, int index, int line, int column, int startOffset, int endOffset, int kind,
-        String errorMessage, ISimpleTerm astNode) {
+    public Token(ITokens tokens, String filename, int index, int line, int column, int startOffset, int endOffset,
+        int kind, String errorMessage, ISimpleTerm astNode) {
         this.tokens = tokens;
         this.filename = filename;
         this.index = index;
@@ -111,8 +112,7 @@ public class Token implements IToken, Cloneable {
         return getEndOffset() - getStartOffset() + 1;
     }
 
-    @Override
-    public String getFilename() {
+    @Override public String getFilename() {
         return filename;
     }
 
@@ -140,8 +140,9 @@ public class Token implements IToken, Cloneable {
         if(astNode == null) {
             ITokens tokens = getTokenizer();
 
-            // This is a hack. For jsglr1 the AST binding might not be done yet. For jsglr2 it is always done during imploding.
-            if (tokens instanceof AbstractTokenizer)
+            // This is a hack. For jsglr1 the AST binding might not be done yet.
+            // For jsglr2 it is always done during imploding.
+            if(tokens instanceof AbstractTokenizer)
                 ((AbstractTokenizer) getTokenizer()).initAstNodeBinding();
         }
         return astNode;
@@ -151,8 +152,12 @@ public class Token implements IToken, Cloneable {
         return tokens.toString(this, this);
     }
 
-    public char charAt(int index) {
+    @Override public char charAt(int index) {
         return tokens.getInput().charAt(index + startOffset);
+    }
+
+    @Override public int codePointAt(int index) {
+        return tokens.getInput().codePointAt(index + startOffset);
     }
 
     @Override public int hashCode() {
@@ -200,10 +205,10 @@ public class Token implements IToken, Cloneable {
         }
     }
 
-    public static int indexOf(IToken token, char c) {
+    public static int indexOf(IToken token, int c) {
         String stream = token.getTokenizer().getInput();
         for(int i = token.getStartOffset(), last = token.getEndOffset(); i <= last; i++) {
-            if(stream.charAt(i) == c)
+            if(stream.codePointAt(i) == c)
                 return i;
         }
         return -1;

@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.integration;
 
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -10,6 +11,7 @@ import org.metaborg.core.editor.IEditorRegistry;
 import org.metaborg.core.editor.NullEditorRegistry;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
@@ -28,6 +30,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
 import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;
 
@@ -117,13 +120,12 @@ public class Sdf3ToParseTable {
         ISpoofaxInputUnit inputUnit = spoofax.unitService.inputUnit(sdf3File, sdf3Text, sdf3Impl, null);
 
         final ISpoofaxParseUnit parseResult = spoofax.syntaxService.parse(inputUnit);
-        final IStrategoTerm sdf3Module = parseResult.ast();
-        final IStrategoTerm sdf3ModuleNormalized;
+        if(!parseResult.success())
+            throw new RuntimeException("Parsing of " + sdf3Resource + " failed: "
+                + Iterables2.stream(parseResult.messages()).map(IMessage::message).collect(Collectors.joining(", ")));
 
-        if(permissive)
-            sdf3ModuleNormalized = normalize(makePermissive(sdf3Module));
-        else
-            sdf3ModuleNormalized = normalize(sdf3Module);
+        final IStrategoTerm sdf3Module = parseResult.ast();
+        final IStrategoTerm sdf3ModuleNormalized = normalize(permissive ? makePermissive(sdf3Module) : sdf3Module);
 
         return new NormGrammarReader().readGrammar(sdf3ModuleNormalized);
     }

@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+
 public class Position {
 
     /**
@@ -68,10 +70,15 @@ public class Position {
     }
 
     /**
+     * @param character
+     *            Based on the character, the {@link #offset} is incremented by 1 or 2, according to
+     *            {@link Character#charCount}.<br>
+     *            If the character is a newline, {@link #nextLine()} is called instead.
      * @return A new position that represents the position right of the current position.
      */
-    public Position nextColumn() {
-        return new Position(offset + 1, line, column + 1);
+    public Position next(int character) {
+        return CharacterClassFactory.isNewLine(character) ? nextLine()
+            : new Position(offset + Character.charCount(character), line, column + 1);
     }
 
     /**
@@ -86,6 +93,8 @@ public class Position {
     /**
      * Step from the current position in the input string by the given width.
      *
+     * @param width
+     *            The number of <b>characters</b> to step (not number of code points).
      * @return A new position that presents the position after the step in the given string.
      */
     public Position step(String inputString, int width) {
@@ -94,11 +103,13 @@ public class Position {
         int column = this.column;
         int end = Integer.min(inputString.length(), offset + width);
         for(; offset < end; offset++) {
-            if(inputString.charAt(offset) == '\n') {
+            char c = inputString.charAt(offset);
+            if(CharacterClassFactory.isNewLine(c)) {
                 line++;
                 column = 1;
             } else {
-                column++;
+                if(!Character.isLowSurrogate(c))
+                    column++;
             }
         }
         return new Position(offset, line, column);

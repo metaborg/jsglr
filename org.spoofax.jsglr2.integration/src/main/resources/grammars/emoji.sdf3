@@ -1,0 +1,16 @@
+module emoji
+
+context-free start-symbols Start
+
+context-free syntax
+
+    Start = {Exp "\n"}+
+
+    Exp.Add = Exp PLUS Exp
+    Exp.Var = ID
+
+lexical syntax
+
+    PLUS = [\0x2795]
+    ID = [\0x1f600-\0x1f645]+ // From "grinning" to "rolling eyes". https://en.wikipedia.org/wiki/Emoji#Unicode_blocks
+    LAYOUT = [\ \t\r]

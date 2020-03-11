@@ -8,8 +8,9 @@ public class ParseException extends Exception {
 
     public ParseFailureType failureType;
 
-    public ParseException(ParseFailureType failureType) {
-        super(failureType.message);
+    public ParseException(ParseFailureType failureType, int offset, int character) {
+        super(failureType.message + (failureType == ParseFailureType.UnexpectedInput
+            ? " at offset " + offset + ": " + new String(Character.toChars(character)) : ""));
 
         this.failureType = failureType;
     }

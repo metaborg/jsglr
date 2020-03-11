@@ -28,78 +28,78 @@ import org.spoofax.terms.util.PushbackStringIterator;
  */
 @SuppressWarnings({"rawtypes", "unchecked"}) // FIXME: class-wide {"rawtypes", "unchecked"}?!
 public class TreeBuilder extends TopdownTreeBuilder {
-	
+
 	public static final char SKIPPED_CHAR = (char) -1; // TODO: sync with ParseErorHandler
-	
+
 	public static final char UNEXPECTED_EOF_CHAR = (char) -2; // TODO: sync with ParseErorHandler
-	
+
 	private static final int NONE = -1;
 
 	private static final int EXPECTED_NODE_CHILDREN = 5;
-	
+
 	private static final String LIST_CONSTRUCTOR = new String("[]");
-	
+
 	private static final String TUPLE_CONSTRUCTOR = new String("");
-	
+
 	private final boolean disableTokens;
-	
+
 	private ParseTable table;
-	
+
 	private AbstractTokenizer tokenizer;
-	
+
 	private String input;
-	
+
 	private PushbackStringIterator stringIterator;
-	
+
 	private ITreeFactory factory;
-	
+
 	private boolean initializeFactories;
-	
+
 	private ProductionAttributeReader prodReader;
 
 	private ITermFactory termFactory;
-	
+
 	private LabelInfo[] labels;
-	
+
 	public LabelInfo[] getLabels() {
         return labels;
     }
 
     private int labelStart;
-	
+
 	public int getLabelStart() {
         return labelStart;
     }
 
-    /** Character offset for the current implosion. */ 
+    /** Character offset for the current implosion. */
 	private int offset;
-	
+
 	private int nonMatchingOffset = NONE;
-	
-	private char nonMatchingChar, nonMatchingCharExpected;
-	
+
+	private int nonMatchingChar, nonMatchingCharExpected;
+
 	private boolean inLexicalContext;
-	
+
 	public TreeBuilder() {
 		this(false);
 	}
-	
+
 	public TreeBuilder(boolean disableTokens) {
 		this.disableTokens = disableTokens;
 		this.initializeFactories = true;
 	}
-	
+
 	public TreeBuilder(ITreeFactory treeFactory) {
 		this(treeFactory, false);
 	}
-	
+
 	public TreeBuilder(ITreeFactory treeFactory, boolean disableTokens) {
 		this.factory = treeFactory;
 		this.disableTokens = disableTokens;
 		factory.setEnableTokens(!disableTokens);
 	}
 
-	public void initializeTable(ParseTable table, int productionCount, int labelStart, int labelCount) {
+	public void initializeTable(ParseTable table, int labelStart, int labelCount) {
 		this.table = table;
 		this.termFactory = table.getFactory();
 		if (initializeFactories) {
@@ -108,8 +108,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			initializeFactories = false;
 		}
 		// assert !(factory instanceof TermTreeFactory) || ((TermTreeFactory) factory).getOriginalTermFactory() == table.getFactory()
-		// 	: "ITermFactory of ITreeFactory does not correspond to ITermFactory of ParseTable"; 
-		assert !(tokenizer instanceof Tokenizer) || ((Tokenizer) tokenizer).getKeywordRecognizer() == table.getKeywordRecognizer(); 
+		// 	: "ITermFactory of ITreeFactory does not correspond to ITermFactory of ParseTable";
+		assert !(tokenizer instanceof Tokenizer) || ((Tokenizer) tokenizer).getKeywordRecognizer() == table.getKeywordRecognizer();
 		this.prodReader = new ProductionAttributeReader(termFactory);
 		this.labels = new LabelInfo[labelCount - labelStart];
 		this.labelStart = labelStart;
@@ -118,7 +118,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	public void initializeLabel(int labelNumber, IStrategoAppl parseTreeProduction) {
 		labels[labelNumber - labelStart] = new LabelInfo(prodReader, parseTreeProduction);
 	}
-	
+
 	public void initializeInput(String input, String filename) {
 		assert offset == 0 : "Tree builder offset was not reset, race condition?";
 		setTokenizer(disableTokens
@@ -127,32 +127,32 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		setInput(input);
 		reset();
 	}
-	
+
 	public final ITokenizer getTokenizer() {
 		return tokenizer;
 	}
-	
+
 	protected void setTokenizer(ITokenizer tokenizer) {
 		this.tokenizer = (AbstractTokenizer) tokenizer;
 	}
-	
+
 	protected void setInput(String input) {
 		this.input = input;
 		stringIterator = new PushbackStringIterator(input);
 	}
-	
+
 	protected final int getOffset() {
 		return offset;
 	}
-	
+
 	protected final String getInput() {
 		return input;
 	}
-	
+
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
-	
+
 	protected ParseTable getParseTable() {
 		return table;
 	}
@@ -162,14 +162,14 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			throw new IllegalStateException("Not initialized yet");
 		return factory;
 	}
-	
+
 	@Override
 	@Deprecated
 	public Object buildTree(AbstractParseNode node) {
 		assert tokenizer != null : "Tokenizer not initialized; initializeInput() not called?";
 		return tryBuildAutoConcatListNode(super.buildTree(node));
 	}
-	
+
 	@Override
 	public void reset() {
 		offset = 0;
@@ -180,7 +180,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				: new Tokenizer(tokenizer.getInput(), tokenizer.getFilename(), table.getKeywordRecognizer()));
 		}
 	}
-	
+
 	public void reset(int startOffset) {
 		if(getTokenizer() instanceof Tokenizer){
 			((Tokenizer)getTokenizer()).setPositions(0, 0, 0);
@@ -193,7 +193,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		}
 	}
 
-	
+
 	@Override
 	public Object buildTreeTop(Object subtree, int ambiguityCount) {
 		try {
@@ -221,7 +221,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				tokenizer.currentToken(), children);
 		return tree;
 	}
-	
+
 	/**
 	 * Given a {@link ParseNode}, builds a tree node using the
 	 * {@link ITreeFactory}, or an intermediate {@link AutoConcatList}
@@ -239,9 +239,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		boolean isCompletion = node.isProposal();
 		boolean isNestedCompletion = node.isNestedProposal();
 		boolean isSinglePlaceholderCompletion = node.isSinglePlaceholderInsertion();
-		
-		
-		
+
+
+
 		if (!inLexicalContext && label.isNonContextFree())
 			inLexicalContext = lexicalStart = true;
 
@@ -262,7 +262,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 					LabelInfo mjlabel = labels[current.getLabel() - labelStart];
 					tokenizer.markPossibleSyntaxError(mjlabel, prevToken, offset - 1,
 							prodReader);
-				} 
+				}
 			}
 		} else if (isList) {
 			children = inLexicalContext ? null : new AutoConcatList<Object>(
@@ -345,7 +345,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		return result;
 	}
 
-	private ArrayDeque<AbstractParseNode> fillNodeStack(AbstractParseNode node) {		
+	private ArrayDeque<AbstractParseNode> fillNodeStack(AbstractParseNode node) {
 		if (node.isAmbNode()) {
 			return fillNodeStack(node.getChildren()[0]);
 		}
@@ -400,7 +400,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 					throw new IllegalStateException("Unkown node type");
 			}
 		}
-		
+
 		final int oldOffset = offset;
 		final int oldBeginOffset = tokenizer.getStartOffset();
 		final boolean oldLexicalContext = inLexicalContext;
@@ -408,7 +408,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		final ArrayList<Object> children =
 			new ArrayList<Object>(max(EXPECTED_NODE_CHILDREN, subnodes.length));
 		tokenizer.setAmbiguous(true);
-		
+
 
 		// Recurse
 		for (AbstractParseNode subnode : subnodes) {
@@ -419,9 +419,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			//if(subnode.isCompleted()){
 			//    isCompletion = true;
 			//}
-			
+
 			Object subtree;
-			
+
 			switch (subnode.getNodeType()) {
 				case AbstractParseNode.CYCLE:
 					subtree = buildTreeCycle((CycleParseNode) subnode);
@@ -445,10 +445,10 @@ public class TreeBuilder extends TopdownTreeBuilder {
 					throw new IllegalStateException("Unkown node type");
 			}
 			Object child = tryBuildAutoConcatListNode(subtree);
-			
+
 			if (child != null) children.add(child);
 		}
-		IToken leftToken = null; 
+		IToken leftToken = null;
 		IToken rightToken = null;
 		if (children.size() > 0) {
 			leftToken = factory.getLeftToken(children.get(0));
@@ -456,11 +456,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		} else {
 			// No kids? Non-cf amb
 			return null;
-			// leftToken = rightToken = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true); 
+			// leftToken = rightToken = tokenizer.makeToken(offset - 1, TK_UNKNOWN, true);
 		}
-		
-	    
-		
+
+
+
 		return factory.createAmb(children, leftToken, rightToken, false, false, false);
 	}
 
@@ -489,7 +489,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return node;
 		}
 	}
-	
+
 	/**
 	 * Converts an {@link AutoConcatList} intermediate list
 	 * representation to a proper tree node using the
@@ -512,15 +512,15 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	private Object tryCreateStringTerminal(LabelInfo label, int lastOffset) {
 		String sort = label.getSort();
 		IToken rightToken = tokenizer.makeToken(offset - 1, label, sort != null);
-		
+
 		if (sort == null) return null; // just a literal
-		
+
 		// Don't use tokens here in case tokenizer is disabled
 		IToken leftToken = rightToken.getStartOffset() == lastOffset ? rightToken : tokenizer.getTokenAtOffset(lastOffset);
 		String contents = tokenizer.toString(lastOffset, offset - 1);
 		assert disableTokens || tokenizer.isAmbiguous()
 			|| (contents.equals(tokenizer.toString(leftToken, rightToken)) && lastOffset == leftToken.getStartOffset());
-		
+
 		Object result = factory.createStringTerminal(sort, leftToken, rightToken, getPaddedLexicalValue(label, contents, lastOffset), label.isCaseInsensitive());
 		String constructor = label.getMetaVarConstructor();
 		if (constructor != null) {
@@ -530,7 +530,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		}
 		return result;
 	}
-	
+
 	private Object createIntTerminal(ParseProductionNode node, LabelInfo label) {
 		IToken token = tokenizer.makeToken(offset - 1, label, true);
 		int value = node.prod;
@@ -538,9 +538,9 @@ public class TreeBuilder extends TopdownTreeBuilder {
 	}
 
 	private Object createNodeOrInjection(LabelInfo label, IToken prevToken, List<Object> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
-		
+
 		String constructor = label.getConstructor();
-		
+
 		if (label.isList()) {
 			throw new IllegalStateException("Illegal state: now handled by tryCreateAutoConcatListNode()");
 			// return createNode(label, LIST_CONSTRUCTOR, prevToken, children);
@@ -563,11 +563,11 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			//       would be needed to distinguish FoldingRules and Sorts in "folding" sections...
 			//       maybe only if the content proposer demands it?
 			// TODO: also, avoid semantics for deprecated?
-		    
+
 		    // adding brackets to origin of bracket nodes
 		    IToken left = getStartToken(prevToken);
 		    IToken right = tokenizer.currentToken();
-		    
+
 		    return factory.createInjection(label.getSort(), left, right, children.get(0), isCompletion, isNestedCompletion, isSinglePlaceholderCompletion, label.isBracket());
 		} else {
 			// Constructor-less application (tuple)
@@ -577,18 +577,18 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 	/**
 	 * Create a context-free tree node.
-	 * 
+	 *
 	 * @param constructor
 	 *          The constructor to use, or {@link #LIST_CONSTRUCTOR} to construct a list,
 	 *          or {@link #TUPLE_CONSTRUCTOR} to construct a tuple.
 	 */
 	private Object createNode(LabelInfo label, String constructor, IToken prevToken,
 			List<Object> children, boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion) {
-		
+
 		IToken left = getStartToken(prevToken);
 		// IToken right = getEndToken(left, tokenizer.currentToken());
 		IToken right = tokenizer.currentToken();
-		
+
 		if (constructor == LIST_CONSTRUCTOR) {
 			return factory.createList(label.getSort(), left, right, children);
 		} else if (constructor == TUPLE_CONSTRUCTOR) {
@@ -609,7 +609,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 		AstAnnoImploder imploder = new AstAnnoImploder<Object>(factory, termFactory, children, left, right);
 		return imploder.implode(label.getAstAttribute(), label.getSort());
 	}
-	
+
 	/**
 	 * Gets the padded lexical value for {indentpadding} lexicals, or returns null.
 	 */
@@ -629,7 +629,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			return contents; // lazily load token string value
 		}
 	}
-	
+
 	/** Get the token after the previous node's ending token, or null if N/A. */
 	private IToken getStartToken(IToken prevToken) {
 		if (prevToken == null) {
@@ -638,47 +638,46 @@ public class TreeBuilder extends TopdownTreeBuilder {
 				: tokenizer.getTokenAt(0);
 		} else {
 			int index = prevToken.getIndex();
-			
+
 			if (tokenizer.getTokenCount() - index <= 1) {
 				// Create new empty token
 				// HACK: Assume TK_LAYOUT kind for empty tokens in AST nodes
 				return tokenizer.makeToken(offset - 1, IToken.TK_LAYOUT, true);
 			} else {
-				return tokenizer.getTokenAt(index + 1); 
+				return tokenizer.getTokenAt(index + 1);
 			}
 		}
 	}
-	
+
 	/* Get the last no-layout token for an AST node.
 	private IToken getEndToken(IToken currentToken, IToken lastToken) {
 		if (lastToken.getEndOffset() == input.length() - 1)
 			return lastToken;
 
 		int begin = currentToken.getIndex();
-		
+
 		for (int i = lastToken.getIndex(); i > begin; i--) {
 			lastToken = tokenizer.getTokenAt(i);
 			if (lastToken.getKind() != IToken.TK_LAYOUT
 					|| lastToken.getStartOffset() == lastToken.getEndOffset()-1)
 				break;
 		}
-		
+
 		return lastToken;
 	}
 	*/
-	
+
 	/** Consume a character of a lexical terminal. */
-	protected final void consumeLexicalChar(int character) {
+	protected final void consumeLexicalChar(int parsedChar) {
 		if (offset >= input.length()) {
-			markUnexpectedEOF(character);
+			markUnexpectedEOF(parsedChar);
 		} else {
-			char parsedChar = (char) character;
-			char inputChar = stringIterator.truncateUnicodeChar(input.charAt(offset));
-			
+			int inputChar = input.codePointAt(offset);
+
 			if (parsedChar != inputChar) {
 				if (RecoveryConnector.isLayoutCharacter(parsedChar)) {
 					tokenizer.tryMakeSkippedRegionToken(offset);
-					offset++;
+					offset += Character.charCount(parsedChar);
 				} else {
 					// UNDONE: Strict lexical stream checking
 					// throw new IllegalStateException("Character from asfix stream (" + parsedChar
@@ -694,7 +693,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 					}
 				}
 			} else {
-				offset++;
+				offset += Character.charCount(parsedChar);
 			}
 		}
 	}

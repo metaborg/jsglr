@@ -42,8 +42,9 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
             if(current instanceof IncrementalSkippedNode) {
                 // Break down a skipped node by explicitly instantiating character nodes for the skipped part
                 head = head.next;
-                for(int i = currentOffset + current.width() - 1; i >= currentOffset; i--) {
-                    head = new StackTuple(new IncrementalCharacterNode(inputString.charAt(i)), head);
+                for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
+                    c = inputString.codePointBefore(i);
+                    head = new StackTuple(new IncrementalCharacterNode(c), head);
                 }
             }
             return;

@@ -10,32 +10,19 @@ package org.spoofax.jsglr.client;
 import static java.util.Arrays.asList;
 import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
 import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.terms.Term.intAt;
-import static org.spoofax.terms.Term.isTermInt;
-import static org.spoofax.terms.Term.javaInt;
-import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.Term.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IParseTableGenerator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoNamed;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
@@ -55,12 +42,7 @@ import com.google.common.collect.SetMultimap;
  */
 public class ParseTable implements Serializable {
 
-    /**
-     * Number of possible characters to expect (0x10FFFF would be all chars of UTF-8, but is not yet supported by the
-     * parse table format.)
-     */
-    public static final int NUM_CHARS = 256;
-    public static final int LABEL_BASE = NUM_CHARS + 1;
+    public static final int LABEL_BASE = 257;
 
     private static final ILogger logger = LoggerUtils.logger(ParseTable.class);
 
@@ -69,6 +51,8 @@ public class ParseTable implements Serializable {
     private final IParseTableGenerator ptGenerator;
 
     private static SGLR layoutParser;
+
+    private int version;
 
     private State[] states;
 
@@ -82,7 +66,7 @@ public class ParseTable implements Serializable {
 
     private final SetMultimap<String, String> nonAssocPriorities = HashMultimap.create();
     private final SetMultimap<String, String> nonNestedPriorities = HashMultimap.create();
-    
+
     private boolean hasRejects;
 
     private boolean hasAvoids;
@@ -173,7 +157,7 @@ public class ParseTable implements Serializable {
             nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
             nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
         }
-        
+
         parse(parseTableAterm);
         gotoCache = new HashMap<Goto, Goto>();
         shiftCache = new HashMap<Shift, Shift>();
@@ -207,7 +191,7 @@ public class ParseTable implements Serializable {
     }
 
     private boolean parse(IStrategoTerm pt) throws InvalidParseTableException {
-        int version = intAt(pt, 0);
+        version = intAt(pt, 0);
         if(pt.getSubtermCount() == 1) // Seen with ParseTable(0)
             throw new InvalidParseTableException("Invalid parse table (possibly wrong start symbol specified)\n" + pt);
         startState = intAt(pt, 1);
@@ -215,8 +199,8 @@ public class ParseTable implements Serializable {
         IStrategoNamed statesTerm = termAt(pt, 3);
         IStrategoNamed prioritiesTerm = termAt(pt, 4);
 
-        if(version != 4 && version != 6) {
-            throw new InvalidParseTableException("Only supports version 4 and 6 tables.");
+        if(version != 4 && version != 6 && version != 7) {
+            throw new InvalidParseTableException("Only supports version 4, 6 and 7 tables.");
         }
 
         labels = parseLabels(labelsTerm);
@@ -624,28 +608,56 @@ public class ParseTable implements Serializable {
 
     private RangeList parseRanges(IStrategoList ranges) throws InvalidParseTableException {
         int size = ranges.getSubtermCount();
-        int[] ret = new int[size * 2];
+        int[] ret;
+        boolean containsEOF = false;
 
         int idx = 0;
-
-        for(int i = 0; i < size; i++) {
-            IStrategoTerm t = ranges.head();
-            ranges = ranges.tail();
-            if(isTermInt(t)) {
-                int value = javaInt(t);
-                ret[idx++] = value;
-                ret[idx++] = value;
-            } else {
-                ret[idx++] = intAt(t, 0);
-                ret[idx++] = intAt(t, 1);
+        IStrategoTerm[] allSubterms = ranges.getAllSubterms();
+        // Assuming "eof" (or 256, in parse table version <= 6) is always the last item
+        IStrategoTerm lastSubterm = allSubterms[allSubterms.length - 1];
+        if(version >= 7) {
+            if(isTermAppl(lastSubterm) && "eof".equals(((IStrategoAppl) lastSubterm).getName())) {
+                containsEOF = true;
+            }
+            ret = new int[size * 2 - (containsEOF ? 2 : 0)]; // If an "eof" is in the ranges list, it can be smaller
+            for(IStrategoTerm t : allSubterms) {
+                if(isTermInt(t)) {
+                    int value = javaInt(t);
+                    ret[idx++] = value;
+                    ret[idx++] = value;
+                } else if("range".equals(((IStrategoAppl) t).getName())) {
+                    ret[idx++] = intAt(t, 0);
+                    ret[idx++] = intAt(t, 1);
+                }
+            }
+        } else { // version <= 6
+            containsEOF = isTermInt(lastSubterm) && javaInt(lastSubterm) == 256;
+            ret = new int[size * 2 - (containsEOF ? 2 : 0)]; // If an "eof" is in the ranges list, it can be smaller
+            for(IStrategoTerm t : allSubterms) {
+                if(isTermInt(t)) {
+                    int value = javaInt(t);
+                    if(value != 256) { // The legacy way of representing EOF (parse table version 6 and below)
+                        ret[idx++] = value;
+                        ret[idx++] = value;
+                    }
+                } else {
+                    ret[idx++] = intAt(t, 0);
+                    int to = intAt(t, 1);
+                    if(to == 256) { // The legacy way of representing EOF (parse table version 6 and below)
+                        containsEOF = true;
+                        ret[idx++] = 255;
+                    } else {
+                        ret[idx++] = to;
+                    }
+                }
             }
         }
 
-        return makeRangeList(ret);
+        return makeRangeList(ret, containsEOF);
     }
 
-    private RangeList makeRangeList(int[] ranges) throws InvalidParseTableException {
-        RangeList r = new RangeList(ranges);
+    private RangeList makeRangeList(int[] ranges, boolean containsEOF) {
+        RangeList r = new RangeList(ranges, containsEOF);
         RangeList cached = rangesCache.get(r);
         if(cached == null) {
             rangesCache.put(r, r);
@@ -713,7 +725,7 @@ public class ParseTable implements Serializable {
     }
 
     public int getProductionCount() {
-        return labels.length - NUM_CHARS;
+        return labels.length - LABEL_BASE - 1;
     }
 
     public int getActionEntryCount() {
@@ -769,7 +781,7 @@ public class ParseTable implements Serializable {
     }
 
     public IStrategoTerm getProduction(int prod) {
-        if(prod < NUM_CHARS) {
+        if(prod < LABEL_BASE - 1) {
             return factory.makeInt(prod);
         }
         return labels[prod].prod;
@@ -807,7 +819,7 @@ public class ParseTable implements Serializable {
     }
 
     public void initializeTreeBuilder(ITreeBuilder treeBuilder) {
-        treeBuilder.initializeTable(this, NUM_CHARS, LABEL_BASE, labels.length);
+        treeBuilder.initializeTable(this, LABEL_BASE, labels.length);
         for(int i = 0; i < labels.length; i++) {
             if(labels[i] == null)
                 continue;
@@ -824,7 +836,7 @@ public class ParseTable implements Serializable {
     public SetMultimap<String, String> getNonAssocPriorities() {
         return nonAssocPriorities;
     }
-    
+
     public SetMultimap<String, String> getNonNestedPriorities() {
         return nonNestedPriorities;
     }

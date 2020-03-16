@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import com.google.common.io.Resources;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -355,10 +356,7 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected String getFileAsString(String filename) throws IOException {
-        byte[] encoded =
-            Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("samples/" + filename).getPath()));
-
-        return new String(encoded, StandardCharsets.UTF_8);
+        return Resources.toString(Resources.getResource("samples/" + filename), StandardCharsets.UTF_8);
     }
 
     protected IStrategoTerm getFileAsAST(String filename) throws IOException {

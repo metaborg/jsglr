@@ -4,16 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
 import org.spoofax.jsglr2.imploder.TokenizeResult;
 import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.tokens.Tokens;
 
 public class JSGLR2Implementation<ParseForest extends IParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>>
     implements JSGLR2<AbstractSyntaxTree> {
@@ -56,6 +59,8 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
             messages.addAll(implodeResult.messages());
             messages.addAll(tokenizeResult.messages);
 
+            messages = postProcessMessages(messages, tokenizeResult.tokens);
+
             if(!"".equals(fileName)) {
                 inputCache.put(fileName, input);
                 parseForestCache.put(fileName, success.parseResult);
@@ -68,6 +73,26 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
 
             return new JSGLR2Failure<>(failure, parseResult.messages);
         }
+    }
+
+    private List<Message> postProcessMessages(List<Message> originalMessages, Tokens tokens) {
+        List<Message> messages = new ArrayList<>();
+
+        for(Message originalMessage : originalMessages) {
+            Message message = originalMessage;
+            IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
+            IToken precedingToken = token != null ? tokens.getTokenAt(token.getIndex() - 1) : null;
+
+            if(precedingToken != null && precedingToken.getKind() == IToken.TK_LAYOUT) {
+                message = message.atRegion(SourceRegion.fromToken(precedingToken));
+            }
+
+            // TODO: prevent multiple/overlapping recovery messages on the same region
+
+            messages.add(message);
+        }
+
+        return messages;
     }
 
 }

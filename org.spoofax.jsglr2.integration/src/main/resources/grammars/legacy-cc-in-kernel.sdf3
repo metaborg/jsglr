@@ -1,0 +1,11 @@
+module legacy-cc-in-kernel
+
+start-symbols
+
+    Symbol
+
+// Source: https://github.com/webdsl/webdsl/blob/master/src/org/webdsl/dsl/syntax/languages/java-15/lexical/literals/EscapeSequences.sdf#L20
+syntax
+
+    Symbol.Escape = "\\" [btnfr\"\'\\]
+    Symbol.OctEscape = "\\" [0-3] [0-7] [0-7]

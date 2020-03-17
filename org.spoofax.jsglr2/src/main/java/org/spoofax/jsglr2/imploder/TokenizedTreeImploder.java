@@ -10,6 +10,7 @@ import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -184,6 +185,17 @@ public abstract class TokenizedTreeImploder
         IToken pivotToken = parentLeftToken;
 
         for(ParseForest childParseForest : childParseForests) {
+            if(childParseForest instanceof ICharacterNode) {
+                int width = childParseForest.width();
+                Position endPosition = pivotPosition.step(tokens.getInput(), width);
+                IToken token = tokens.makeToken(pivotPosition, endPosition, null);
+                Tree tree = createCharacterTerm(((ICharacterNode) childParseForest).character(), token);
+                childASTs.add(tree);
+                pivotToken = token;
+                pivotPosition = endPosition;
+                continue;
+            }
+
             @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
 
             IProduction childProduction = childParseNode.production();
@@ -271,6 +283,14 @@ public abstract class TokenizedTreeImploder
             tokenTreeBinding(lexicalToken, lexicalTerm);
 
         return lexicalTerm;
+    }
+
+    protected Tree createCharacterTerm(int character, IToken lexicalToken) {
+        Tree term = treeFactory.createCharacterTerminal(character, lexicalToken);
+
+        tokenTreeBinding(lexicalToken, term);
+
+        return term;
     }
 
     protected abstract void tokenTreeBinding(IToken token, Tree tree);

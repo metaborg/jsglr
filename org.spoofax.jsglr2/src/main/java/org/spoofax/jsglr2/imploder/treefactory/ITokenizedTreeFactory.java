@@ -8,6 +8,8 @@ import org.spoofax.jsglr.client.imploder.IToken;
 
 public interface ITokenizedTreeFactory<T> {
 
+    T createCharacterTerminal(int character, IToken token);
+
     T createStringTerminal(ISymbol symbol, String value, IToken token);
 
     T createMetaVar(IMetaVarSymbol symbol, String value, IToken token);

@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.cli;
+package org.spoofax.jsglr2.parser.observing;
 
 import java.util.Queue;
 import java.util.function.Consumer;
@@ -32,7 +32,7 @@ public class LogParserObserver
 
     final private Consumer<String> logger;
 
-    LogParserObserver(Consumer<String> logger) {
+    public LogParserObserver(Consumer<String> logger) {
         this.logger = logger;
     }
 

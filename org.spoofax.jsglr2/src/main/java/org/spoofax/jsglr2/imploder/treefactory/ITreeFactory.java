@@ -5,6 +5,8 @@ import org.metaborg.parsetable.symbols.ISymbol;
 
 public interface ITreeFactory<T> {
 
+    T createCharacterTerminal(int character);
+
     T createStringTerminal(ISymbol symbol, String value);
 
     T createMetaVar(IMetaVarSymbol symbol, String value);

@@ -13,6 +13,7 @@ import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
+import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -61,22 +62,24 @@ public class IterativeTreeImploder
         }
     }
 
-    @Override protected SubTree<Tree> implodeParseNode(Input input, ParseNode rootNode, int startOffset) {
+    @Override protected SubTree<Tree> implodeParseNode(Input input, ParseForest rootForest, int startOffset) {
+        @SuppressWarnings("unchecked") ParseNode rootNode = (ParseNode) rootForest;
+
         // This stack contains the parse nodes that we still need to process
         Stack<PseudoNode> parseNodeStack = new Stack<>();
         // These stack elements contain: one list for each derivation, and per derivation: one list for all subtrees.
         // The elements on the input stack are processed from the front,
         // after which they are pushed to the back of the elements on the output stack.
-        Stack<LinkedList<LinkedList<ParseNode>>> inputStack = new Stack<>();
+        Stack<LinkedList<LinkedList<ParseForest>>> inputStack = new Stack<>();
         Stack<LinkedList<LinkedList<SubTree<Tree>>>> outputStack = new Stack<>();
 
         parseNodeStack.add(new PseudoNode(rootNode, applyDisambiguationFilters(rootNode), startOffset));
-        inputStack.add(newNestedList(rootNode));
+        inputStack.add(newNestedList(rootForest));
         outputStack.add(newNestedList());
 
         while(true) {
             PseudoNode pseudoNode = parseNodeStack.peek();
-            LinkedList<LinkedList<ParseNode>> currentIn = inputStack.peek();
+            LinkedList<LinkedList<ParseForest>> currentIn = inputStack.peek();
             LinkedList<LinkedList<SubTree<Tree>>> currentOut = outputStack.peek();
 
             if(currentIn.getFirst().isEmpty()) { // If we're finished with the current derivation
@@ -106,61 +109,58 @@ public class IterativeTreeImploder
                     pseudoNode.pivotOffset = pseudoNode.beginOffset; // And reset the pivotOffset
                 }
             } else {
-                ParseNode parseNode = currentIn.getFirst().removeFirst(); // Process the next parse node
-
-                parseNode = implodeInjection(parseNode);
-
-                IProduction production = parseNode.production();
-                if(!production.isContextFree() || production.isSkippableInParseForest()) {
-                    // If the current parse node is a lexical node or a skipped node
-                    SubTree<Tree> lexicalSubTree =
-                        createLexicalSubTree(input.inputString, parseNode, pseudoNode.pivotOffset, production);
-                    currentOut.getLast().add(lexicalSubTree); // Add a new SubTree to the output
-                    pseudoNode.pivotOffset += lexicalSubTree.width;
+                ParseForest parseForest = currentIn.getFirst().removeFirst(); // Process the next parse node
+                if(parseForest instanceof ICharacterNode) {
+                    SubTree<Tree> characterSubTree =
+                        new SubTree<>(treeFactory.createCharacterTerminal(((ICharacterNode) parseForest).character()),
+                            null, parseForest.width());
+                    currentOut.getLast().add(characterSubTree);
+                    pseudoNode.pivotOffset += characterSubTree.width;
                 } else {
-                    // If the current parse node is a context-free node
-                    // Then push it on top of the stacks
-                    List<Derivation> derivations = applyDisambiguationFilters(parseNode);
-                    if(derivations.size() > 1 && production.isList()) {
-                        inputStack.add(getDerivationListsForListNode(production, derivations));
-                        parseNodeStack.add(new PseudoNode(parseNode, production, pseudoNode.pivotOffset));
+                    @SuppressWarnings("unchecked") ParseNode parseNode = implodeInjection(((ParseNode) parseForest));
+
+                    IProduction production = parseNode.production();
+                    if(!production.isContextFree() || production.isSkippableInParseForest()) {
+                        // If the current parse node is a lexical node or a skipped node
+                        SubTree<Tree> lexicalSubTree =
+                            createLexicalSubTree(input.inputString, parseNode, pseudoNode.pivotOffset, production);
+                        currentOut.getLast().add(lexicalSubTree); // Add a new SubTree to the output
+                        pseudoNode.pivotOffset += lexicalSubTree.width;
                     } else {
-                        inputStack.add(getDerivationLists(derivations));
-                        parseNodeStack.add(new PseudoNode(parseNode, derivations, pseudoNode.pivotOffset));
+                        // If the current parse node is a context-free node
+                        // Then push it on top of the stacks
+                        List<Derivation> derivations = applyDisambiguationFilters(parseNode);
+                        if(derivations.size() > 1 && production.isList()) {
+                            inputStack.add(getDerivationListsForListNode(production, derivations));
+                            parseNodeStack.add(new PseudoNode(parseNode, production, pseudoNode.pivotOffset));
+                        } else {
+                            inputStack.add(getDerivationLists(derivations));
+                            parseNodeStack.add(new PseudoNode(parseNode, derivations, pseudoNode.pivotOffset));
+                        }
+                        outputStack.add(newNestedList());
                     }
-                    outputStack.add(newNestedList());
                 }
             }
         }
         return outputStack.peek().getFirst().getFirst();
     }
 
-    private LinkedList<LinkedList<ParseNode>> getDerivationLists(List<Derivation> derivations) {
-        LinkedList<LinkedList<ParseNode>> derivationLists = new LinkedList<>();
+    private LinkedList<LinkedList<ParseForest>> getDerivationLists(List<Derivation> derivations) {
+        LinkedList<LinkedList<ParseForest>> derivationLists = new LinkedList<>();
         for(Derivation derivation : derivations) {
             if(!derivation.production().isContextFree())
                 throw new RuntimeException("non context free imploding of Derivations not supported");
 
-            LinkedList<ParseNode> derivationList = new LinkedList<>();
-            for(ParseForest childParseForest : getChildParseForests(derivation)) {
-                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-                derivationList.add(childParseNode);
-            }
-            derivationLists.add(derivationList);
+            derivationLists.add(new LinkedList<>(getChildParseForests(derivation)));
         }
         return derivationLists;
     }
 
-    private LinkedList<LinkedList<ParseNode>> getDerivationListsForListNode(IProduction production,
+    private LinkedList<LinkedList<ParseForest>> getDerivationListsForListNode(IProduction production,
         List<Derivation> derivations) {
-        LinkedList<LinkedList<ParseNode>> derivationLists = new LinkedList<>();
+        LinkedList<LinkedList<ParseForest>> derivationLists = new LinkedList<>();
         for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(derivations)) {
-            LinkedList<ParseNode> derivationList = new LinkedList<>();
-            for(ParseForest childParseForest : getChildParseForests(production, derivationParseForests)) {
-                @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-                derivationList.add(childParseNode);
-            }
-            derivationLists.add(derivationList);
+            derivationLists.add(new LinkedList<>(getChildParseForests(production, derivationParseForests)));
         }
         return derivationLists;
     }

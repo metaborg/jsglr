@@ -16,7 +16,7 @@ public abstract class IncrementalTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    Cache       extends IncrementalTreeImploder.ResultCache<ParseForest, ParseNode, Derivation, Tree>,
+    Cache       extends IncrementalTreeImploder.ResultCache<ParseForest, Tree>,
     Tree,
     Input       extends IncrementalImplodeInput<ParseNode, Cache, Tree>>
 //@formatter:on
@@ -42,14 +42,12 @@ public abstract class IncrementalTreeImploder
             return new ImplodeResult<>(result.intermediateResult, null, result.ast, result.messages);
         }
 
-        @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
-
-        SubTree<Tree> result = implodeParseNode(incrementalInputFactory.get(inputString, resultCache), topParseNode, 0);
+        SubTree<Tree> result = implodeParseNode(incrementalInputFactory.get(inputString, resultCache), parseForest, 0);
 
         return new ImplodeResult<>(result, resultCache, result.tree, Collections.emptyList());
     }
 
-    @Override protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
+    @Override protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseNode, int startOffset) {
         if(input.resultCache.cache.containsKey(parseNode))
             return input.resultCache.cache.get(parseNode);
 
@@ -58,8 +56,8 @@ public abstract class IncrementalTreeImploder
         return result;
     }
 
-    public static class ResultCache<ParseForest extends IParseForest, ParseNode extends IParseNode<ParseForest, Derivation>, Derivation extends IDerivation<ParseForest>, Tree> {
-        protected final WeakHashMap<ParseNode, SubTree<Tree>> cache = new WeakHashMap<>();
+    public static class ResultCache<ParseForest extends IParseForest, Tree> {
+        protected final WeakHashMap<ParseForest, SubTree<Tree>> cache = new WeakHashMap<>();
     }
 
 }

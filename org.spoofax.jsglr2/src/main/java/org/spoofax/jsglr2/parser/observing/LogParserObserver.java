@@ -49,12 +49,12 @@ public class LogParserObserver
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
-        log("\nStarting parse", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+        log("Starting parse", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
-        log("\nParse character '" + CharacterClassFactory.intToString(parseState.inputStack.getChar())
-            + "' (active stacks: " + stackQueueToString(activeStacks) + ")\n", JSGLR2Logging.Parsing);
+        log("Parse character '" + CharacterClassFactory.intToString(parseState.inputStack.getChar())
+            + "' (active stacks: " + stackQueueToString(activeStacks) + ")", JSGLR2Logging.Parsing);
     }
 
     @Override public void createStackNode(StackNode stack) {
@@ -102,15 +102,16 @@ public class LogParserObserver
 
     @Override public void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
         ParseForest[] parseNodes, StackNode gotoStack) {
-        log("    Reduce by production " + reduce.production().id() + " (" + reduce.productionType().toString()
+        log("    Reduce by production [" + reduce.production().descriptor() + "] (" + reduce.productionType().toString()
             + ") with parse nodes " + parseForestsToString(parseNodes) + ", target stack: "
-            + stackNodeString(gotoStack), JSGLR2Logging.Parsing);
+            + stackNodeString(gotoStack), JSGLR2Logging.Parsing,
+            conditional(JSGLR2Logging.Recovery, reduce.production().isRecovery()));
     }
 
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
-        log("    Reduce (Elkhound) by production " + reduce.production().id() + " ("
+        log("    Reduce (Elkhound) by production [" + reduce.production().descriptor() + "] ("
             + reduce.productionType().toString() + ") with parse nodes " + parseForestsToString(parseNodes),
-            JSGLR2Logging.Parsing);
+            JSGLR2Logging.Parsing, conditional(JSGLR2Logging.Recovery, reduce.production().isRecovery()));
     }
 
     @Override public void directLinkFound(ParseState parseState, StackLink<ParseForest, StackNode> directLink) {
@@ -169,12 +170,18 @@ public class LogParserObserver
     }
 
     @Override public void success(ParseSuccess<ParseForest> success) {
-        log("Parsing succeeded. Result: " + success.parseResult.toString(), JSGLR2Logging.Parsing,
-            JSGLR2Logging.Minimal);
+        log("Parsing succeeded", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {
         log("Parsing failed", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+    }
+
+    private JSGLR2Logging conditional(JSGLR2Logging scope, boolean condition) {
+        if(condition)
+            return scope;
+        else
+            return JSGLR2Logging.None;
     }
 
     private void log(String message, JSGLR2Logging... eventJSGLR2Loggings) {
@@ -185,7 +192,7 @@ public class LogParserObserver
             }
 
             for(JSGLR2Logging eventJSGLR2Logging : eventJSGLR2Loggings) {
-                if(scope == eventJSGLR2Logging) {
+                if(scope == eventJSGLR2Logging || eventJSGLR2Logging == JSGLR2Logging.Minimal) {
                     logger.accept(message);
                     return;
                 }

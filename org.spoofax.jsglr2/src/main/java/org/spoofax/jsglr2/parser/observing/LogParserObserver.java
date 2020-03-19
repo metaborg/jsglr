@@ -7,15 +7,16 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.productions.IProduction;
+import org.spoofax.jsglr2.JSGLR2Logging;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.observing.RegisteringParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.recovery.IRecoveryParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
@@ -31,56 +32,68 @@ public class LogParserObserver
     extends RegisteringParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     final private Consumer<String> logger;
+    final private JSGLR2Logging[] scopes;
+
+    public LogParserObserver(Consumer<String> logger, JSGLR2Logging... scopes) {
+        this.logger = logger;
+        this.scopes = scopes;
+    }
 
     public LogParserObserver(Consumer<String> logger) {
-        this.logger = logger;
+        this(logger, JSGLR2Logging.All);
+    }
+
+    public LogParserObserver(JSGLR2Logging... scopes) {
+        this(System.out::println, scopes);
     }
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
-        log("\nStarting parse for input '" + parseState.inputStack.inputString() + "'");
+        log("\nStarting parse", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
         log("\nParse character '" + CharacterClassFactory.intToString(parseState.inputStack.getChar())
-            + "' (active stacks: " + stackQueueToString(activeStacks) + ")\n");
+            + "' (active stacks: " + stackQueueToString(activeStacks) + ")\n", JSGLR2Logging.Parsing);
     }
 
     @Override public void createStackNode(StackNode stack) {
         super.createStackNode(stack);
 
-        log("    Create stack " + stackNodeString(stack));
+        log("    Create stack " + stackNodeString(stack), JSGLR2Logging.Parsing);
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
         super.createStackLink(link);
 
-        log("    Create link " + stackNodeString(link.to) + " <-- " + id(link) + " --- " + stackNodeString(link.from));
+        log("    Create link " + stackNodeString(link.to) + " <-- " + id(link) + " --- " + stackNodeString(link.from),
+            JSGLR2Logging.Parsing);
     }
 
     @Override public void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
-        log("    Reset deterministic depth for stack " + stackNodeString((StackNode) stack));
+        log("    Reset deterministic depth for stack " + stackNodeString((StackNode) stack), JSGLR2Logging.Parsing);
     }
 
     @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
-        log("Reject link " + id(link));
+        log("Reject link " + id(link), JSGLR2Logging.Parsing);
     }
 
     @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
-        log("For actor stacks: " + stackQueueToString(forActorStacks));
+        log("For actor stacks: " + stackQueueToString(forActorStacks), JSGLR2Logging.Parsing);
     }
 
     @Override public void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions) {
         log("  Actor for stack " + stackNodeString(stack) + " (applicable actions: "
-            + applicableActionsToString(applicableActions) + ")");
+            + applicableActionsToString(applicableActions) + ")", JSGLR2Logging.Parsing);
     }
 
     @Override public void skipRejectedStack(StackNode stack) {
-        log("    Skipping stack " + stackNodeString(stack) + " since all links to it are rejected");
+        log("    Skipping stack " + stackNodeString(stack) + " since all links to it are rejected",
+            JSGLR2Logging.Parsing);
     }
 
     @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {
-        log("    Add for shifter " + forShifterElementToString(forShifterElement));
+        log("    Add for shifter " + forShifterElementToString(forShifterElement), JSGLR2Logging.Parsing);
     }
 
     @Override public void doLimitedReductions(ParseState parseState, StackNode stack, IReduce reduce,
@@ -91,64 +104,93 @@ public class LogParserObserver
         ParseForest[] parseNodes, StackNode gotoStack) {
         log("    Reduce by production " + reduce.production().id() + " (" + reduce.productionType().toString()
             + ") with parse nodes " + parseForestsToString(parseNodes) + ", target stack: "
-            + stackNodeString(gotoStack));
+            + stackNodeString(gotoStack), JSGLR2Logging.Parsing);
     }
 
     @Override public void reducerElkhound(StackNode stack, IReduce reduce, ParseForest[] parseNodes) {
         log("    Reduce (Elkhound) by production " + reduce.production().id() + " ("
-            + reduce.productionType().toString() + ") with parse nodes " + parseForestsToString(parseNodes));
+            + reduce.productionType().toString() + ") with parse nodes " + parseForestsToString(parseNodes),
+            JSGLR2Logging.Parsing);
     }
 
     @Override public void directLinkFound(ParseState parseState, StackLink<ParseForest, StackNode> directLink) {
-        log("    Direct link " + (directLink != null ? id(directLink) : "not") + " found");
+        log("    Direct link " + (directLink != null ? id(directLink) : "not") + " found", JSGLR2Logging.Parsing);
     }
 
     @Override public void accept(StackNode acceptingStack) {
-        log("    Accept stack " + stackNodeString(acceptingStack));
+        log("    Accept stack " + stackNodeString(acceptingStack), JSGLR2Logging.Parsing);
     }
 
     @Override public void createParseNode(ParseNode parseNode, IProduction production) {
         super.createParseNode(parseNode, production);
 
         log("    Create parse node " + id((ParseForest) parseNode) + " for production "
-            + (production == null ? null : production.id()));
+            + (production == null ? null : production.id()), JSGLR2Logging.Parsing);
     }
 
     @Override public void createDerivation(Derivation derivation, IProduction production, ParseForest[] parseNodes) {
         super.createDerivation(derivation, production, parseNodes);
 
-        log("    Create derivation with parse nodes " + parseForestsToString(parseNodes));
+        log("    Create derivation with parse nodes " + parseForestsToString(parseNodes), JSGLR2Logging.Parsing);
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
         super.createCharacterNode(characterNode, character);
 
         log("    Create character node " + id(characterNode) + " for character '"
-            + CharacterClassFactory.intToString(character) + "'");
+            + CharacterClassFactory.intToString(character) + "'", JSGLR2Logging.Parsing);
     }
 
     @Override public void addDerivation(ParseNode parseNode, Derivation derivation) {
-        log("    Add derivation " + id(derivation) + " to parse node " + id((ParseForest) parseNode));
+        log("    Add derivation " + id(derivation) + " to parse node " + id((ParseForest) parseNode),
+            JSGLR2Logging.Parsing);
     }
 
     @Override public void shifter(ParseForest termNode, Queue<ForShifterElement<StackNode>> forShifter) {
-        log("    Shifter for elements " + forShifterQueueToString(forShifter) + " with character node " + id(termNode));
+        log("    Shifter for elements " + forShifterQueueToString(forShifter) + " with character node " + id(termNode),
+            JSGLR2Logging.Parsing);
+    }
+
+    @Override public void startRecovery(ParseState parseState) {
+        log("    Recovery started at offset " + parseState.inputStack.offset(), JSGLR2Logging.Recovery);
+    }
+
+    @Override public void recoveryIteration(ParseState parseState) {
+        log("    Recovery iteration " + ((IRecoveryParseState) parseState).recoveryJob().iteration,
+            JSGLR2Logging.Recovery);
+    }
+
+    @Override public void endRecovery(ParseState parseState) {
+        log("    Recovery ended at offset " + parseState.inputStack.offset(), JSGLR2Logging.Recovery);
     }
 
     @Override public void remark(String remark) {
-        log(remark);
+        log(remark, JSGLR2Logging.All);
     }
 
     @Override public void success(ParseSuccess<ParseForest> success) {
-        log("Parsing succeeded. Result: " + success.parseResult.toString());
+        log("Parsing succeeded. Result: " + success.parseResult.toString(), JSGLR2Logging.Parsing,
+            JSGLR2Logging.Minimal);
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {
-        log("Parsing failed");
+        log("Parsing failed", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
     }
 
-    private void log(String message) {
-        logger.accept(message);
+    private void log(String message, JSGLR2Logging... eventJSGLR2Loggings) {
+        for(JSGLR2Logging scope : scopes) {
+            if(scope == JSGLR2Logging.All) {
+                logger.accept(message);
+                return;
+            }
+
+            for(JSGLR2Logging eventJSGLR2Logging : eventJSGLR2Loggings) {
+                if(scope == eventJSGLR2Logging) {
+                    logger.accept(message);
+                    return;
+                }
+            }
+        }
     }
 
 }

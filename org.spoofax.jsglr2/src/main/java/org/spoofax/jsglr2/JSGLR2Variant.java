@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
 import org.spoofax.jsglr2.parseforest.*;
-import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
@@ -64,8 +64,8 @@ public class JSGLR2Variant {
             else
                 throw new IllegalStateException("Invalid JSGLR2 variant");
 
-        @SuppressWarnings("unchecked") final IParser<IParseForest> parser =
-            (IParser<IParseForest>) this.parser.getParser(parseTable);
+        @SuppressWarnings("unchecked") final IObservableParser<IParseForest, ?, ?, ?, ?> parser =
+            (IObservableParser<IParseForest, ?, ?, ?, ?>) this.parser.getParser(parseTable);
 
         if(this.parser.parseForestRepresentation == ParseForestRepresentation.Null)
             return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), (input, fileName, tree) -> null);

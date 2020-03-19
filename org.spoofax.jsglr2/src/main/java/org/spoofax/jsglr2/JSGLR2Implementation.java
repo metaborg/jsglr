@@ -12,7 +12,8 @@ import org.spoofax.jsglr2.imploder.TokenizeResult;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.IParser;
+import org.spoofax.jsglr2.parser.IObservableParser;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -21,7 +22,7 @@ import org.spoofax.jsglr2.tokens.Tokens;
 public class JSGLR2Implementation<ParseForest extends IParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>>
     implements JSGLR2<AbstractSyntaxTree> {
 
-    public final IParser<ParseForest> parser;
+    public final IObservableParser<ParseForest, ?, ?, ?, ?> parser;
     public final IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
     public final ITokenizer<IntermediateResult> tokenizer;
 
@@ -29,12 +30,16 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
     public final HashMap<String, ParseForest> parseForestCache = new HashMap<>();
     public final HashMap<String, ImploderCache> imploderCacheCache = new HashMap<>();
 
-    JSGLR2Implementation(IParser<ParseForest> parser,
+    JSGLR2Implementation(IObservableParser<ParseForest, ?, ?, ?, ?> parser,
         IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder,
         ITokenizer<IntermediateResult> tokenizer) {
         this.parser = parser;
         this.imploder = imploder;
         this.tokenizer = tokenizer;
+    }
+
+    @Override public void attachObserver(IParserObserver observer) {
+        parser.observing().attachObserver(observer);
     }
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String fileName, String startSymbol) {
@@ -81,7 +86,8 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
         for(Message originalMessage : originalMessages) {
             Message message = originalMessage;
             IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
-            IToken precedingToken = (token != null && token.getIndex() > 0) ? tokens.getTokenAt(token.getIndex() - 1) : null;
+            IToken precedingToken =
+                (token != null && token.getIndex() > 0) ? tokens.getTokenAt(token.getIndex() - 1) : null;
 
             if(precedingToken != null && precedingToken.getKind() == IToken.TK_LAYOUT) {
                 message = message.atRegion(SourceRegion.fromToken(precedingToken));

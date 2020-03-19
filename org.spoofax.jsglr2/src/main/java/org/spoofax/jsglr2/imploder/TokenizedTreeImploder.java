@@ -10,6 +10,7 @@ import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -35,8 +36,6 @@ public abstract class TokenizedTreeImploder
 
     @Override public ImplodeResult<Tokens, Void, Tree> implode(String input, String fileName, ParseForest parseForest,
         Void resultCache) {
-        @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
-
         Collection<Message> messages = new ArrayList<>();
 
         Tokens tokens = new Tokens(input, fileName);
@@ -44,7 +43,7 @@ public abstract class TokenizedTreeImploder
 
         Position position = Position.START_POSITION;
 
-        SubTree<Tree> tree = implodeParseNode(topParseNode, messages, tokens, position, tokens.startToken());
+        SubTree<Tree> tree = implodeParseNode(parseForest, messages, tokens, position, tokens.startToken());
 
         tokens.makeEndToken(tree.endPosition);
 
@@ -69,8 +68,18 @@ public abstract class TokenizedTreeImploder
 
     }
 
-    protected SubTree<Tree> implodeParseNode(ParseNode parseNode, Collection<Message> messages, Tokens tokens,
+    protected SubTree<Tree> implodeParseNode(ParseForest parseForest, Collection<Message> messages, Tokens tokens,
         Position startPosition, IToken parentLeftToken) {
+        if(parseForest instanceof ICharacterNode) {
+            int width = parseForest.width();
+            Position endPosition = startPosition.step(tokens.getInput(), width);
+            IToken token = tokens.makeToken(startPosition, endPosition, null);
+            Tree tree = createCharacterTerm(((ICharacterNode) parseForest).character(), token);
+            return new SubTree<>(tree, endPosition, token, token);
+        }
+
+        @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
+
         parseNode = implodeInjection(parseNode);
 
         IProduction production = parseNode.production();
@@ -184,13 +193,13 @@ public abstract class TokenizedTreeImploder
         IToken pivotToken = parentLeftToken;
 
         for(ParseForest childParseForest : childParseForests) {
-            @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-
-            IProduction childProduction = childParseNode.production();
+            @SuppressWarnings("unchecked") ParseNode childParseNode =
+                childParseForest instanceof IParseNode ? (ParseNode) childParseForest : null;
+            IProduction childProduction = childParseNode != null ? childParseNode.production() : null;
 
             SubTree<Tree> subTree;
 
-            if(production.isList() && (
+            if(production.isList() && childProduction != null && (
             //@formatter:off
                 // Constraints for flattening nested lists productions:
                 childProduction.isList() && // The subtree is a list
@@ -204,7 +213,7 @@ public abstract class TokenizedTreeImploder
                     Arrays.asList(childParseNode.getFirstDerivation().parseForests()), childProduction, unboundTokens,
                     pivotPosition, pivotToken);
             } else {
-                subTree = implodeParseNode(childParseNode, messages, tokens, pivotPosition, pivotToken);
+                subTree = implodeParseNode(childParseForest, messages, tokens, pivotPosition, pivotToken);
 
                 if(subTree.tree != null)
                     childASTs.add(subTree.tree);
@@ -222,7 +231,7 @@ public abstract class TokenizedTreeImploder
             }
 
             // Set the parent tree left and right token from the outermost non-layout left and right child tokens
-            if(!childProduction.isLayout()) {
+            if(childProduction != null && !childProduction.isLayout()) {
                 if(result.leftToken == null)
                     result.leftToken = subTree.leftToken;
 
@@ -271,6 +280,14 @@ public abstract class TokenizedTreeImploder
             tokenTreeBinding(lexicalToken, lexicalTerm);
 
         return lexicalTerm;
+    }
+
+    protected Tree createCharacterTerm(int character, IToken lexicalToken) {
+        Tree term = treeFactory.createCharacterTerminal(character, lexicalToken);
+
+        tokenTreeBinding(lexicalToken, term);
+
+        return term;
     }
 
     protected abstract void tokenTreeBinding(IToken token, Tree tree);

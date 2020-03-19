@@ -7,6 +7,7 @@ import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
+import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -33,14 +34,19 @@ public class TreeImploder
 
     @Override public ImplodeResult<TreeImploder.SubTree<Tree>, Cache, Tree> implode(String input, String fileName,
         ParseForest parseForest, Cache resultCache) {
-        @SuppressWarnings("unchecked") ParseNode topParseNode = (ParseNode) parseForest;
-
-        SubTree<Tree> result = implodeParseNode(inputFactory.get(input), topParseNode, 0);
+        SubTree<Tree> result = implodeParseNode(inputFactory.get(input), parseForest, 0);
 
         return new ImplodeResult<>(result, null, result.tree, Collections.emptyList());
     }
 
-    protected SubTree<Tree> implodeParseNode(Input input, ParseNode parseNode, int startOffset) {
+    protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseForest, int startOffset) {
+        if(parseForest instanceof ICharacterNode) {
+            return new SubTree<>(treeFactory.createCharacterTerminal(((ICharacterNode) parseForest).character()), null,
+                parseForest.width());
+        }
+
+        @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
+
         parseNode = implodeInjection(parseNode);
 
         IProduction production = parseNode.production();
@@ -94,9 +100,7 @@ public class TreeImploder
         List<SubTree<Tree>> subTrees = new ArrayList<>();
 
         for(ParseForest childParseForest : childParseForests) {
-            @SuppressWarnings("unchecked") ParseNode childParseNode = (ParseNode) childParseForest;
-
-            SubTree<Tree> subTree = this.implodeParseNode(input, childParseNode, startOffset);
+            SubTree<Tree> subTree = this.implodeParseNode(input, childParseForest, startOffset);
 
             if(subTree.tree != null) {
                 childASTs.add(subTree.tree);

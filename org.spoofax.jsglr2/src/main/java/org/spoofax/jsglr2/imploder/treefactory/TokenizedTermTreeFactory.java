@@ -25,6 +25,14 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         this.termFactory = new TermFactory();
     }
 
+    @Override public IStrategoTerm createCharacterTerminal(int character, IToken token) {
+        IStrategoTerm characterTerminalTerm = termFactory.makeInt(character);
+
+        configure(characterTerminalTerm, null, token, token);
+
+        return characterTerminalTerm;
+    }
+
     @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value, IToken token) {
         IStrategoTerm stringTerminalTerm = termFactory.makeString(value);
 

@@ -8,7 +8,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
-import org.spoofax.jsglr2.parseforest.*;
+import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
@@ -30,7 +32,7 @@ public class JSGLR2Variant {
         this.tokenizer = tokenizerVariant;
     }
 
-    private <ImploderCache extends IncrementalTreeImploder.ResultCache<IParseForest, IParseNode<IParseForest, IDerivation<IParseForest>>, IDerivation<IParseForest>, IStrategoTerm>>
+    private <ImploderCache extends IncrementalTreeImploder.ResultCache<IParseForest, IStrategoTerm>>
         IImploder<IParseForest, TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm>>
         getImploder() {
         switch(this.imploder) {

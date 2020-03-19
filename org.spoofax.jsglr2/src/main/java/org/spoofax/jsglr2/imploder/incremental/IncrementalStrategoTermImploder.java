@@ -11,7 +11,7 @@ public class IncrementalStrategoTermImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    Cache       extends IncrementalTreeImploder.ResultCache<ParseForest, ParseNode, Derivation, IStrategoTerm>>
+    Cache       extends IncrementalTreeImploder.ResultCache<ParseForest, IStrategoTerm>>
 //@formatter:on
     extends
     IncrementalTreeImploder<ParseForest, ParseNode, Derivation, Cache, IStrategoTerm, IncrementalImplodeInput<ParseNode, Cache, IStrategoTerm>> {

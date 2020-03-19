@@ -18,6 +18,10 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
         this.termFactory = new TermFactory();
     }
 
+    @Override public IStrategoTerm createCharacterTerminal(int character) {
+        return termFactory.makeInt(character);
+    }
+
     @Override public IStrategoTerm createStringTerminal(ISymbol symbol, String value) {
         return termFactory.makeString(value);
     }

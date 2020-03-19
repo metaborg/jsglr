@@ -24,4 +24,23 @@ public class RecoveryLexicalInsertionMessagesTest extends BaseTestWithRecoverySd
         ), getTestVariants(isRecoveryVariant));
     }
 
+    // We expect messages for insertions at the start of whitespace, which differs from the location of recovery
+    // (typically at the end of whitespace)
+
+    @TestFactory public Stream<DynamicTest> testSingleLineWithWhiteSpaceYRecovering() throws ParseError {
+        return testMessages("x   z", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2)
+        //@formatter:on
+        ), getTestVariants(isRecoveryVariant));
+    }
+
+    @TestFactory public Stream<DynamicTest> testMultiLineWithWhiteSpaceYRecovering() throws ParseError {
+        return testMessages("x \n z", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2)
+        //@formatter:on
+        ), getTestVariants(isRecoveryVariant));
+    }
+
 }

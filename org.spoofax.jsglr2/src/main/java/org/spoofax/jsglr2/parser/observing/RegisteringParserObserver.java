@@ -114,30 +114,30 @@ public abstract class RegisteringParserObserver
     }
 
     protected String stackQueueToString(Iterable<StackNode> stacks) {
-        return StreamSupport.stream(stacks.spliterator(), false).map(this::id).map(Object::toString)
-            .collect(Collectors.joining(","));
+        return "[" + StreamSupport.stream(stacks.spliterator(), false).map(this::id).map(Object::toString)
+            .collect(Collectors.joining(",")) + "]";
     }
 
     protected String applicableActionsToString(Iterable<IAction> applicableActions) {
-        return StreamSupport.stream(applicableActions.spliterator(), false).map(action -> {
+        return "[" + StreamSupport.stream(applicableActions.spliterator(), false).map(action -> {
             if(action instanceof IReduce)
                 return action.toString() + "[" + ((IReduce) action).production().toString() + "]";
             else
                 return action.toString();
-        }).collect(Collectors.joining(","));
+        }).collect(Collectors.joining(",")) + "]";
     }
 
     protected String forShifterQueueToString(Queue<ForShifterElement<StackNode>> forShifter) {
-        return forShifter.stream().map(this::forShifterElementToString).collect(Collectors.joining(","));
+        return "[" + forShifter.stream().map(this::forShifterElementToString).collect(Collectors.joining(",")) + "]";
     }
 
     protected String forShifterElementToString(ForShifterElement<StackNode> forShifterElement) {
-        return "{\"stack\":" + id(forShifterElement.stack) + ",\"state\":" + forShifterElement.state.id() + "}";
+        return "(" + id(forShifterElement.stack) + "," + forShifterElement.state.id() + ")";
     }
 
     protected String parseForestsToString(ParseForest[] parseForests) {
-        return Arrays.stream(parseForests).map(parseForest -> parseForest != null ? "" + id(parseForest) : "null")
-            .collect(Collectors.joining(","));
+        return "[" + Arrays.stream(parseForests).map(parseForest -> parseForest != null ? "" + id(parseForest) : "null")
+            .collect(Collectors.joining(",")) + "]";
     }
 
 }

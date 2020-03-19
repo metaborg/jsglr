@@ -12,6 +12,10 @@ public class Message {
         this.region = region;
     }
 
+    public Message atRegion(SourceRegion otherRegion) {
+        return new Message(message, severity, otherRegion);
+    }
+
     public static Message error(String message, SourceRegion region) {
         return new Message(message, Severity.ERROR, region);
     }

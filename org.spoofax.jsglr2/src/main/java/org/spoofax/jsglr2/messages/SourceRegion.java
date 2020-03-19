@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.messages;
 
+import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 
 public class SourceRegion {
@@ -27,6 +28,11 @@ public class SourceRegion {
         this.endOffset = end.offset;
         this.endRow = end.line;
         this.endColumn = end.column;
+    }
+
+    public static SourceRegion fromToken(IToken token) {
+        return new SourceRegion(token.getStartOffset(), token.getLine(), token.getColumn(), token.getEndOffset(),
+            token.getEndLine(), token.getEndColumn());
     }
 
 }

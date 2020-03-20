@@ -1,8 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
-import static org.spoofax.terms.Term.asJavaInt;
-import static org.spoofax.terms.Term.asJavaString;
+import static org.spoofax.terms.util.TermUtils.toJavaInt;
+import static org.spoofax.terms.util.TermUtils.toJavaString;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -46,11 +46,11 @@ public class ImploderAttachment extends AbstractTermAttachment {
             }
 
             @Override protected ImploderAttachment fromSubterms(IStrategoTerm[] subterms) {
-                String fileName = asJavaString(subterms[0]).equals("") ? null : asJavaString(subterms[0]);
-                String sortType = asJavaString(subterms[0]).equals("") ? null : asJavaString(subterms[5]);
+                String fileName = toJavaString(subterms[0]).equals("") ? null : toJavaString(subterms[0]);
+                String sortType = toJavaString(subterms[0]).equals("") ? null : toJavaString(subterms[5]);
 
-                return createCompactPositionAttachment(fileName, asJavaInt(subterms[1]), asJavaInt(subterms[2]),
-                    asJavaInt(subterms[3]), asJavaInt(subterms[4]), sortType);
+                return createCompactPositionAttachment(fileName, toJavaInt(subterms[1]), toJavaInt(subterms[2]),
+                    toJavaInt(subterms[3]), toJavaInt(subterms[4]), sortType);
 
             }
 

@@ -58,8 +58,6 @@ public interface IToken extends Comparable<IToken>, Serializable {
 
     int getKind();
 
-    void setKind(int kind);
-
     int getIndex();
 
     int getStartOffset();

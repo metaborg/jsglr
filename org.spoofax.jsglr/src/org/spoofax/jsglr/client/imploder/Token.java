@@ -64,10 +64,6 @@ public class Token implements IToken, Cloneable {
         return kind;
     }
 
-    public void setKind(int kind) {
-        this.kind = kind;
-    }
-
     public int getIndex() {
         return index;
     }

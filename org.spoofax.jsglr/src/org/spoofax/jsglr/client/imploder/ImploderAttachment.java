@@ -334,9 +334,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
         ImploderAttachment result;
 
         public void preVisit(IStrategoTerm term) {
-            term = OriginAttachment.tryGetOrigin(term);
-            ImploderAttachment attach = ImploderAttachment.get(term);
-            result = attach;
+            result = ImploderAttachment.get(OriginAttachment.tryGetOrigin(term));
         }
 
         @Override public boolean isDone(IStrategoTerm term) {

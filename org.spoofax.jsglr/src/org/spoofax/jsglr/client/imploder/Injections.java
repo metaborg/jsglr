@@ -17,15 +17,10 @@ import com.google.common.collect.ImmutableList;
 
 public class Injections {
 
-    private final ITermFactory factory;
-    private final PartialFunction2<String, String, String> injName;
+    private static final String INJ_ANNO = "inj";
 
-    public Injections(ITermFactory factory, PartialFunction2<String, String, String> injName) {
-        this.factory = factory;
-        this.injName = injName;
-    }
-
-    public IStrategoTerm explicate(final IStrategoTerm term) {
+    public static IStrategoTerm explicate(IStrategoTerm term, PartialFunction2<String, String, String> injName,
+            ITermFactory factory) {
         final List<String> injections = ImmutableList.copyOf(ImploderAttachment.get(term).getInjections()).reverse();
 
         IStrategoTerm result;
@@ -34,16 +29,18 @@ public class Injections {
         switch(term.getTermType()) {
             case IStrategoTerm.APPL: {
                 final IStrategoAppl appl = (IStrategoAppl) term;
-                final IStrategoTerm[] subterms = Arrays.stream(appl.getAllSubterms()).map(this::explicate)
-                        .collect(Collectors.toList()).toArray(new IStrategoTerm[appl.getSubtermCount()]);
+                final IStrategoTerm[] subterms =
+                        Arrays.stream(appl.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))
+                                .collect(Collectors.toList()).toArray(new IStrategoTerm[appl.getSubtermCount()]);
                 result = factory.makeAppl(appl.getConstructor(), subterms, appl.getAnnotations());
                 sort = ImploderAttachment.get(term).getSort();
                 break;
             }
             case IStrategoTerm.TUPLE: {
                 final IStrategoTuple tuple = (IStrategoTuple) term;
-                final IStrategoTerm[] subterms = Arrays.stream(tuple.getAllSubterms()).map(this::explicate)
-                        .collect(Collectors.toList()).toArray(new IStrategoTerm[tuple.getSubtermCount()]);
+                final IStrategoTerm[] subterms =
+                        Arrays.stream(tuple.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))
+                                .collect(Collectors.toList()).toArray(new IStrategoTerm[tuple.getSubtermCount()]);
                 result = factory.makeTuple(subterms, tuple.getAnnotations());
                 final List<String> componentSorts = Arrays.stream(term.getAllSubterms())
                         .map(t -> ImploderAttachment.get(t).getSort()).collect(Collectors.toList());
@@ -52,8 +49,9 @@ public class Injections {
             }
             case IStrategoTerm.LIST: {
                 final IStrategoList list = (IStrategoList) term;
-                final IStrategoTerm[] subterms = Arrays.stream(list.getAllSubterms()).map(this::explicate)
-                        .collect(Collectors.toList()).toArray(new IStrategoTerm[list.getSubtermCount()]);
+                final IStrategoTerm[] subterms =
+                        Arrays.stream(list.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))
+                                .collect(Collectors.toList()).toArray(new IStrategoTerm[list.getSubtermCount()]);
                 result = factory.makeList(subterms, list.getAnnotations());
                 final String elementSort = ImploderAttachment.get(term).getElementSort();
                 sort = "List_" + elementSort + "_";
@@ -73,8 +71,10 @@ public class Injections {
                 continue;
             }
             final IStrategoConstructor cons = factory.makeConstructor(name.get(), 1);
+            final IStrategoTerm anno =
+                    factory.makeAppl(INJ_ANNO, factory.makeString(sort), factory.makeString(injection));
             ImploderAttachment ia = ImploderAttachment.get(result);
-            result = factory.makeAppl(cons, result);
+            result = factory.makeAppl(cons, new IStrategoTerm[] { result }, factory.makeList(anno));
             sort = injection;
             if(ia != null) {
                 ImploderAttachment.putImploderAttachment(result, false, sort, ia.getLeftToken(), ia.getRightToken(),

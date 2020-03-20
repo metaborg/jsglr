@@ -248,8 +248,8 @@ public class ImploderAttachment extends AbstractTermAttachment {
         result = prime * result + (isCompletion ? 1231 : 1237);
         result = prime * result + (isNestedCompletion ? 1231 : 1237);
         result = prime * result + (isSinglePlaceholderCompletion ? 1231 : 1237);
-        result = prime * result + ((leftToken == null) ? 0 : leftToken.hashCode());
-        result = prime * result + ((rightToken == null) ? 0 : rightToken.hashCode());
+        result = prime * result + leftToken.hashCode();
+        result = prime * result + rightToken.hashCode();
         result = prime * result + ((sort == null) ? 0 : sort.hashCode());
         return result;
     }
@@ -270,22 +270,14 @@ public class ImploderAttachment extends AbstractTermAttachment {
             return false;
         if(isSinglePlaceholderCompletion != other.isSinglePlaceholderCompletion)
             return false;
-        if(leftToken == null) {
-            if(other.leftToken != null)
-                return false;
-        } else if(!leftToken.equals(other.leftToken))
+        if(!leftToken.equals(other.leftToken))
             return false;
-        if(rightToken == null) {
-            if(other.rightToken != null)
-                return false;
-        } else if(!rightToken.equals(other.rightToken))
+        if(!rightToken.equals(other.rightToken))
             return false;
-        if(sort == null) {
-            if(other.sort != null)
-                return false;
-        } else if(!sort.equals(other.sort))
-            return false;
-        return true;
+        if(sort == null)
+            return other.sort == null;
+        else
+            return sort.equals(other.sort);
     }
 
     @Override public String toString() {

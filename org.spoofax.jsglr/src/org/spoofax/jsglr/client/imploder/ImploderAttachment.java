@@ -58,11 +58,10 @@ public class ImploderAttachment extends AbstractTermAttachment {
 
     private final IToken leftToken, rightToken;
 
-    private boolean isCompletion = false;
-    private boolean isNestedCompletion = false;
-    private boolean isSinglePlaceholderCompletion = false;
-    private boolean isBracket = false;
-
+    private final boolean isCompletion;
+    private final boolean isNestedCompletion;
+    private final boolean isSinglePlaceholderCompletion;
+    private boolean isBracket; // TODO should be final, but can be set when configuring injections
 
     private final String sort;
     private LinkedList<String> injections;
@@ -81,7 +80,7 @@ public class ImploderAttachment extends AbstractTermAttachment {
         this.isCompletion = isCompletion;
         this.isNestedCompletion = isNestedCompletion;
         this.isSinglePlaceholderCompletion = isSinglePlaceholderCompletion;
-        this.setBracket(isBracket);
+        this.isBracket = isBracket;
     }
 
     public TermAttachmentType<ImploderAttachment> getAttachmentType() {
@@ -302,24 +301,12 @@ public class ImploderAttachment extends AbstractTermAttachment {
         return isCompletion;
     }
 
-    public void setCompletion(boolean isCompletion) {
-        this.isCompletion = isCompletion;
-    }
-
     public boolean isNestedCompletion() {
         return isNestedCompletion;
     }
 
-    public void setNestedCompletion(boolean isNestedCompletion) {
-        this.isNestedCompletion = isNestedCompletion;
-    }
-
     public boolean isSinglePlaceholderCompletion() {
         return isSinglePlaceholderCompletion;
-    }
-
-    public void setSinglePlaceholderCompletion(boolean isSinglePlaceholderCompletion) {
-        this.isSinglePlaceholderCompletion = isSinglePlaceholderCompletion;
     }
 
     public boolean isBracket() {

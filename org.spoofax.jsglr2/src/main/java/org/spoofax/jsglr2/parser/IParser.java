@@ -10,6 +10,10 @@ public interface IParser<ParseForest extends IParseForest> {
 
     ParseResult<ParseForest> parse(JSGLR2Request request, String previousInput, ParseForest previousResult);
 
+    default ParseResult<ParseForest> parse(JSGLR2Request request) {
+        return parse(request, null, null);
+    }
+
     default ParseResult<ParseForest> parse(String input, String startSymbol, String previousInput,
         ParseForest previousResult) {
         return parse(new JSGLR2Request(input, "", startSymbol), previousInput, previousResult);

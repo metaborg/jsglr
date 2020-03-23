@@ -42,7 +42,7 @@ public abstract class AbstractRecoveryParseState
                 observer -> observer.recoveryBacktrackChoicePoint(backtrackChoicePoints().size() - 1, choicePoint));
         }
 
-        if(successfulRecovery(currentOffset)) {
+        if(successfulRecovery(request, currentOffset)) {
             endRecovery();
 
             observing.notify(observer -> observer.endRecovery(this));
@@ -53,8 +53,8 @@ public abstract class AbstractRecoveryParseState
         return backtrackChoicePoints;
     }
 
-    @Override public void startRecovery(int offset) {
-        recoveryJob = new RecoveryJob<>(offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA);
+    @Override public void startRecovery(JSGLR2Request request, int offset) {
+        recoveryJob = new RecoveryJob<>(offset, request.recoveryIterationsQuota);
     }
 
     @Override public void endRecovery() {

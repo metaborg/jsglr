@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.recovery.RecoveryMessages;
@@ -38,9 +39,9 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
     }
 
-    @Override public TokenizeResult tokenize(String input, String fileName,
+    @Override public TokenizeResult tokenize(JSGLR2Request request,
         TreeImploder.SubTree<Tree> implodeIntermediateResult) {
-        Tokens tokens = new Tokens(input, fileName);
+        Tokens tokens = new Tokens(request.input, request.fileName);
 
         SubTree result = tokenize(tokens, implodeIntermediateResult);
 

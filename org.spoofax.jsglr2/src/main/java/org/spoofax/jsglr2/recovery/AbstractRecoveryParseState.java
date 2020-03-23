@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.recovery;
 import java.util.Stack;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -22,9 +23,9 @@ public abstract class AbstractRecoveryParseState
     Stack<BacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private RecoveryJob<StackNode> recoveryJob = null;
 
-    public AbstractRecoveryParseState(InputStack inputStack, IActiveStacks<StackNode> activeStacks,
-        IForActorStacks<StackNode> forActorStacks) {
-        super(inputStack, activeStacks, forActorStacks);
+    public AbstractRecoveryParseState(JSGLR2Request request, InputStack inputStack,
+        IActiveStacks<StackNode> activeStacks, IForActorStacks<StackNode> forActorStacks) {
+        super(request, inputStack, activeStacks, forActorStacks);
     }
 
     @Override public void nextParseRound(ParserObserving observing) {

@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -18,7 +19,7 @@ public interface ParseStateFactory
 //@formatter:on
 {
 
-    ParseState get(InputStack inputStack,
+    ParseState get(JSGLR2Request request, InputStack inputStack,
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing);
 
 }

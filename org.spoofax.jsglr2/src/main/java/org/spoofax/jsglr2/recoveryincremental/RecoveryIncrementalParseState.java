@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.recoveryincremental;
 
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.incremental.IIncrementalParseState;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -19,9 +20,9 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
 
     private boolean multipleStates = false;
 
-    RecoveryIncrementalParseState(InputStack inputStack, IActiveStacks<StackNode> activeStacks,
+    RecoveryIncrementalParseState(JSGLR2Request request, InputStack inputStack, IActiveStacks<StackNode> activeStacks,
         IForActorStacks<StackNode> forActorStacks) {
-        super(inputStack, activeStacks, forActorStacks);
+        super(request, inputStack, activeStacks, forActorStacks);
     }
 
     public static
@@ -52,11 +53,11 @@ public class RecoveryIncrementalParseState<InputStack extends IIncrementalInputS
 //@formatter:on
     ParseStateFactory<ParseForest_, Derivation_, ParseNode_, InputStack_, StackNode_, RecoveryIncrementalParseState<InputStack_, StackNode_>>
         factory(IActiveStacksFactory activeStacksFactory, IForActorStacksFactory forActorStacksFactory) {
-        return (inputStack, observing) -> {
+        return (request, inputStack, observing) -> {
             IActiveStacks<StackNode_> activeStacks = activeStacksFactory.get(observing);
             IForActorStacks<StackNode_> forActorStacks = forActorStacksFactory.get(observing);
 
-            return new RecoveryIncrementalParseState<>(inputStack, activeStacks, forActorStacks);
+            return new RecoveryIncrementalParseState<>(request, inputStack, activeStacks, forActorStacks);
         };
     }
 

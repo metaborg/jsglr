@@ -12,6 +12,7 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
@@ -64,12 +65,12 @@ public class IncrementalParser
             new ProcessUpdates<>((IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
     }
 
-    @Override protected ParseState getParseState(String inputString, String previousInput,
+    @Override protected ParseState getParseState(JSGLR2Request request, String previousInput,
         IncrementalParseForest previousResult) {
         IncrementalParseForest updatedTree = previousInput != null && previousResult != null
-            ? processUpdates.processUpdates(previousInput, previousResult, diff.diff(previousInput, inputString))
-            : processUpdates.getParseNodeFromString(inputString);
-        return parseStateFactory.get(incrementalInputStackFactory.get(updatedTree, inputString), observing);
+            ? processUpdates.processUpdates(previousInput, previousResult, diff.diff(previousInput, request.input))
+            : processUpdates.getParseNodeFromString(request.input);
+        return parseStateFactory.get(request, incrementalInputStackFactory.get(updatedTree, request.input), observing);
     }
 
     // TODO this optimization does not work at the moment, as the `parseLoop` doesn't get passed the previousResult.

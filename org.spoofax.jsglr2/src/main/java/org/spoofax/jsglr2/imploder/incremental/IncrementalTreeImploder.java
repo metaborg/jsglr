@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.imploder.incremental;
 import java.util.Collections;
 import java.util.WeakHashMap;
 
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
@@ -33,16 +34,16 @@ public abstract class IncrementalTreeImploder
         this.incrementalInputFactory = incrementalInputFactory;
     }
 
-    @Override public ImplodeResult<SubTree<Tree>, Cache, Tree> implode(String inputString, String fileName,
-        ParseForest parseForest, Cache resultCache) {
+    @Override public ImplodeResult<SubTree<Tree>, Cache, Tree> implode(JSGLR2Request request, ParseForest parseForest,
+        Cache resultCache) {
 
         if(resultCache == null) {
-            ImplodeResult<SubTree<Tree>, Void, Tree> result =
-                regularImplode.implode(inputString, fileName, parseForest);
+            ImplodeResult<SubTree<Tree>, Void, Tree> result = regularImplode.implode(request, parseForest);
             return new ImplodeResult<>(result.intermediateResult, null, result.ast, result.messages);
         }
 
-        SubTree<Tree> result = implodeParseNode(incrementalInputFactory.get(inputString, resultCache), parseForest, 0);
+        SubTree<Tree> result =
+            implodeParseNode(incrementalInputFactory.get(request.input, resultCache), parseForest, 0);
 
         return new ImplodeResult<>(result, resultCache, result.tree, Collections.emptyList());
     }

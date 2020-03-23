@@ -42,22 +42,23 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
         parser.observing().attachObserver(observer);
     }
 
-    @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String fileName, String startSymbol) {
-        String previousInput =
-            !"".equals(fileName) && inputCache.containsKey(fileName) ? inputCache.get(fileName) : null;
-        ParseForest previousParseForest =
-            !"".equals(fileName) && parseForestCache.containsKey(fileName) ? parseForestCache.get(fileName) : null;
+    @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
+        String previousInput = !"".equals(request.fileName) && inputCache.containsKey(request.fileName)
+            ? inputCache.get(request.fileName) : null;
+        ParseForest previousParseForest = !"".equals(request.fileName) && parseForestCache.containsKey(request.fileName)
+            ? parseForestCache.get(request.fileName) : null;
         ImploderCache previousImploderCache =
-            !"".equals(fileName) && imploderCacheCache.containsKey(fileName) ? imploderCacheCache.get(fileName) : null;
+            !"".equals(request.fileName) && imploderCacheCache.containsKey(request.fileName)
+                ? imploderCacheCache.get(request.fileName) : null;
 
-        ParseResult<ParseForest> parseResult = parser.parse(input, startSymbol, previousInput, previousParseForest);
+        ParseResult<ParseForest> parseResult = parser.parse(request, previousInput, previousParseForest);
 
         if(parseResult.isSuccess()) {
             ParseSuccess<ParseForest> success = (ParseSuccess<ParseForest>) parseResult;
 
-            ImplodeResult implodeResult = imploder.implode(input, fileName, success.parseResult, previousImploderCache);
+            ImplodeResult implodeResult = imploder.implode(request, success.parseResult, previousImploderCache);
 
-            TokenizeResult tokenizeResult = tokenizer.tokenize(input, fileName, implodeResult.intermediateResult());
+            TokenizeResult tokenizeResult = tokenizer.tokenize(request, implodeResult.intermediateResult());
 
             List<Message> messages = new ArrayList<>();
             messages.addAll(parseResult.messages);
@@ -66,10 +67,10 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
 
             messages = postProcessMessages(messages, tokenizeResult.tokens);
 
-            if(!"".equals(fileName)) {
-                inputCache.put(fileName, input);
-                parseForestCache.put(fileName, success.parseResult);
-                imploderCacheCache.put(fileName, implodeResult.resultCache());
+            if(!"".equals(request.fileName)) {
+                inputCache.put(request.fileName, request.input);
+                parseForestCache.put(request.fileName, success.parseResult);
+                imploderCacheCache.put(request.fileName, implodeResult.resultCache());
             }
 
             return new JSGLR2Success<>(implodeResult.ast(), tokenizeResult.tokens, messages);

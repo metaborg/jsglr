@@ -49,7 +49,9 @@ public class LogParserObserver
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
-        log("Starting parse", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+        log("Starting parse" + (parseState.request.isCompletion()
+            ? (" for completion at offset " + parseState.request.completionCursorOffset.get()) : ""),
+            JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {

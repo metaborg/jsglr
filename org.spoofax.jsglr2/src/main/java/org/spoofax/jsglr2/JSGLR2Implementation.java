@@ -26,9 +26,9 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
     public final IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
     public final ITokenizer<IntermediateResult> tokenizer;
 
-    public final HashMap<String, String> inputCache = new HashMap<>();
-    public final HashMap<String, ParseForest> parseForestCache = new HashMap<>();
-    public final HashMap<String, ImploderCache> imploderCacheCache = new HashMap<>();
+    public final HashMap<JSGLR2Request, String> inputCache = new HashMap<>();
+    public final HashMap<JSGLR2Request, ParseForest> parseForestCache = new HashMap<>();
+    public final HashMap<JSGLR2Request, ImploderCache> imploderCacheCache = new HashMap<>();
 
     JSGLR2Implementation(IObservableParser<ParseForest, ?, ?, ?, ?> parser,
         IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder,
@@ -43,13 +43,12 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
     }
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
-        String previousInput = !"".equals(request.fileName) && inputCache.containsKey(request.fileName)
-            ? inputCache.get(request.fileName) : null;
-        ParseForest previousParseForest = !"".equals(request.fileName) && parseForestCache.containsKey(request.fileName)
-            ? parseForestCache.get(request.fileName) : null;
+        String previousInput =
+            request.hasFileName() && inputCache.containsKey(request) ? inputCache.get(request) : null;
+        ParseForest previousParseForest =
+            request.hasFileName() && parseForestCache.containsKey(request) ? parseForestCache.get(request) : null;
         ImploderCache previousImploderCache =
-            !"".equals(request.fileName) && imploderCacheCache.containsKey(request.fileName)
-                ? imploderCacheCache.get(request.fileName) : null;
+            request.hasFileName() && imploderCacheCache.containsKey(request) ? imploderCacheCache.get(request) : null;
 
         ParseResult<ParseForest> parseResult = parser.parse(request, previousInput, previousParseForest);
 
@@ -67,10 +66,10 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
 
             messages = postProcessMessages(messages, tokenizeResult.tokens);
 
-            if(!"".equals(request.fileName)) {
-                inputCache.put(request.fileName, request.input);
-                parseForestCache.put(request.fileName, success.parseResult);
-                imploderCacheCache.put(request.fileName, implodeResult.resultCache());
+            if(request.hasFileName()) {
+                inputCache.put(request, request.input);
+                parseForestCache.put(request, success.parseResult);
+                imploderCacheCache.put(request, implodeResult.resultCache());
             }
 
             return new JSGLR2Success<>(implodeResult.ast(), tokenizeResult.tokens, messages);

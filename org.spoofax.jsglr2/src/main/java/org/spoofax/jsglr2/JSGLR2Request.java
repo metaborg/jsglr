@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class JSGLR2Request {
@@ -37,6 +38,10 @@ public class JSGLR2Request {
         this.completionCursorOffset = completionCursorOffset;
     }
 
+    public boolean hasFileName() {
+        return !"".equals(fileName);
+    }
+
     public int succeedingRecoveryOffset() {
         return succeedingRecoveryOffset;
     }
@@ -45,4 +50,18 @@ public class JSGLR2Request {
         return completionCursorOffset.isPresent();
     }
 
+    @Override public boolean equals(Object o) {
+        if(o == null || getClass() != o.getClass())
+            return false;
+        JSGLR2Request that = (JSGLR2Request) o;
+        return input.equals(that.input) && Objects.equals(fileName, that.fileName)
+            && Objects.equals(startSymbol, that.startSymbol) && recoveryIterationsQuota == that.recoveryIterationsQuota
+            && succeedingRecoveryOffset == that.succeedingRecoveryOffset
+            && completionCursorOffset.equals(that.completionCursorOffset);
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(input, fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset,
+            completionCursorOffset);
+    }
 }

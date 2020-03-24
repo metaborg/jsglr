@@ -55,8 +55,8 @@ public class LogParserObserver
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
-        log("Parse character '" + CharacterClassFactory.intToString(parseState.inputStack.getChar())
-            + "' (active stacks: " + stackQueueToString(activeStacks) + ")", JSGLR2Logging.Parsing);
+        log("Parse character '" + characterToString(parseState.inputStack.getChar()) + "' (active stacks: "
+            + stackQueueToString(activeStacks) + ")", JSGLR2Logging.Parsing);
     }
 
     @Override public void createStackNode(StackNode stack) {
@@ -140,8 +140,8 @@ public class LogParserObserver
     @Override public void createCharacterNode(ParseForest characterNode, int character) {
         super.createCharacterNode(characterNode, character);
 
-        log("    Create character node " + id(characterNode) + " for character '"
-            + CharacterClassFactory.intToString(character) + "'", JSGLR2Logging.Parsing);
+        log("    Create character node " + id(characterNode) + " for character '" + characterToString(character) + "'",
+            JSGLR2Logging.Parsing);
     }
 
     @Override public void addDerivation(ParseNode parseNode, Derivation derivation) {
@@ -177,6 +177,11 @@ public class LogParserObserver
 
     @Override public void failure(ParseFailure<ParseForest> failure) {
         log("Parsing failed", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+    }
+
+    private String characterToString(int character) {
+        return CharacterClassFactory.intToString(character).replace("\n", "\\n").replace("\r", "\\r").replace("\t",
+            "\\t");
     }
 
     private JSGLR2Logging conditional(JSGLR2Logging scope, boolean condition) {

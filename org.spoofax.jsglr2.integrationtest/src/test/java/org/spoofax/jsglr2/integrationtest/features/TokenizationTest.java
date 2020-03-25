@@ -50,6 +50,7 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 2, 1, 3, "ID", null),
             new TokenDescriptor("+", IToken.TK_OPERATOR,   3, 1, 4, "Exp", "AddOperator"),
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 4, 1, 5, "ID", null),
+
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor("+", IToken.TK_OPERATOR,   1, 1, 2, "Exp", "AddOperator"),
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 2, 1, 3, "ID", null),

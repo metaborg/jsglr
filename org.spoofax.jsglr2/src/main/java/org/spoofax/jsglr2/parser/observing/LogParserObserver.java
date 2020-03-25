@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.parser.observing;
 
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.function.Consumer;
 
@@ -8,6 +9,7 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.JSGLR2Logging;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -34,9 +36,12 @@ public class LogParserObserver
     final private Consumer<String> logger;
     final private JSGLR2Logging[] scopes;
 
+    final private HashMap<JSGLR2Request, Long> startTimes;
+
     public LogParserObserver(Consumer<String> logger, JSGLR2Logging... scopes) {
         this.logger = logger;
         this.scopes = scopes;
+        this.startTimes = new HashMap<>();
     }
 
     public LogParserObserver(Consumer<String> logger) {
@@ -49,9 +54,12 @@ public class LogParserObserver
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
+
         log("Starting parse" + (parseState.request.isCompletion()
             ? (" for completion at offset " + parseState.request.completionCursorOffset.get()) : ""),
             JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+
+        startTimes.put(parseState.request, System.currentTimeMillis());
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
@@ -172,11 +180,15 @@ public class LogParserObserver
     }
 
     @Override public void success(ParseSuccess<ParseForest> success) {
-        log("Parsing succeeded", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+        log("Parsing succeeded " + timing(success.parseState.request), JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {
-        log("Parsing failed", JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+        log("Parsing failed " + timing(failure.parseState.request), JSGLR2Logging.Parsing, JSGLR2Logging.Minimal);
+    }
+
+    private String timing(JSGLR2Request request) {
+        return "(in " + (System.currentTimeMillis() - startTimes.get(request)) + "ms)";
     }
 
     private String characterToString(int character) {

@@ -6,6 +6,8 @@ import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.annotation.Nonnull;
+
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.Token;
@@ -83,15 +85,11 @@ public class Tokens implements IParseTokens {
         return token;
     }
 
-    public int addToken(IToken token) {
-        int index = tokens.size();
-
+    private void addToken(IToken token) {
         tokens.add(token);
-
-        return index;
     }
 
-    @Override public Iterator<IToken> iterator() {
+    @Override @Nonnull public Iterator<IToken> iterator() {
         return tokens.iterator();
     }
 

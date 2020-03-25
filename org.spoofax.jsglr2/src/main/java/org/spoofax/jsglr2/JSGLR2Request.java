@@ -50,11 +50,44 @@ public class JSGLR2Request {
         return completionCursorOffset.isPresent();
     }
 
+    public CachingKey cachingKey() {
+        return new CachingKey(fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset);
+    }
+
+    public static class CachingKey {
+
+        final String fileName;
+        final String startSymbol;
+        final int recoveryIterationsQuota;
+        final int succeedingRecoveryOffset;
+
+        CachingKey(String fileName, String startSymbol, int recoveryIterationsQuota, int succeedingRecoveryOffset) {
+            this.fileName = fileName;
+            this.startSymbol = startSymbol;
+            this.recoveryIterationsQuota = recoveryIterationsQuota;
+            this.succeedingRecoveryOffset = succeedingRecoveryOffset;
+        }
+
+        @Override public boolean equals(Object o) {
+            if(o == null || getClass() != o.getClass())
+                return false;
+            CachingKey that = (CachingKey) o;
+            return Objects.equals(fileName, that.fileName) && Objects.equals(startSymbol, that.startSymbol)
+                && recoveryIterationsQuota == that.recoveryIterationsQuota
+                && succeedingRecoveryOffset == that.succeedingRecoveryOffset;
+        }
+
+        @Override public int hashCode() {
+            return Objects.hash(fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset);
+        }
+
+    }
+
     @Override public boolean equals(Object o) {
         if(o == null || getClass() != o.getClass())
             return false;
         JSGLR2Request that = (JSGLR2Request) o;
-        return input.equals(that.input) && Objects.equals(fileName, that.fileName)
+        return Objects.equals(input, that.input) && Objects.equals(fileName, that.fileName)
             && Objects.equals(startSymbol, that.startSymbol) && recoveryIterationsQuota == that.recoveryIterationsQuota
             && succeedingRecoveryOffset == that.succeedingRecoveryOffset
             && completionCursorOffset.equals(that.completionCursorOffset);
@@ -64,4 +97,5 @@ public class JSGLR2Request {
         return Objects.hash(input, fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset,
             completionCursorOffset);
     }
+
 }

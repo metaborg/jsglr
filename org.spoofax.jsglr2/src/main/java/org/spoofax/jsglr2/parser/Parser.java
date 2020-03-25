@@ -5,6 +5,7 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.parseforest.*;
@@ -59,9 +60,9 @@ public class Parser
         this.failureHandler = failureHandlerFactory.get(observing);
     }
 
-    @Override public ParseResult<ParseForest> parse(String inputString, String startSymbol, String previousInput,
+    @Override public ParseResult<ParseForest> parse(JSGLR2Request request, String previousInput,
         ParseForest previousResult) {
-        ParseState parseState = getParseState(inputString, previousInput, previousResult);
+        ParseState parseState = getParseState(request, previousInput, previousResult);
 
         observing.notify(observer -> observer.parseStart(parseState));
 
@@ -84,8 +85,8 @@ public class Parser
             ParseForest parseForest =
                 stackManager.findDirectLink(parseState.acceptingStack, initialStackNode).parseForest;
 
-            ParseForest parseForestWithStartSymbol = startSymbol != null
-                ? parseForestManager.filterStartSymbol(parseForest, startSymbol, parseState) : parseForest;
+            ParseForest parseForestWithStartSymbol = request.startSymbol != null
+                ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState) : parseForest;
 
             if(parseForest != null && parseForestWithStartSymbol == null)
                 return failure(parseState, ParseFailureType.InvalidStartSymbol);
@@ -95,8 +96,8 @@ public class Parser
             return failure(parseState, failureHandler.failureType(parseState));
     }
 
-    protected ParseState getParseState(String inputString, String previousInput, ParseForest previousResult) {
-        return parseStateFactory.get(inputStackFactory.get(inputString), observing);
+    protected ParseState getParseState(JSGLR2Request request, String previousInput, ParseForest previousResult) {
+        return parseStateFactory.get(request, inputStackFactory.get(request.input), observing);
     }
 
     protected ParseSuccess<ParseForest> success(ParseState parseState, ParseForest parseForest) {

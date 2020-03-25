@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.recovery;
 
 import java.util.Stack;
 
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -25,7 +26,7 @@ public interface IRecoveryParseState
         return backtrackChoicePoints().peek();
     }
 
-    void startRecovery(int offset);
+    void startRecovery(JSGLR2Request request, int offset);
 
     void endRecovery();
 
@@ -37,8 +38,8 @@ public interface IRecoveryParseState
 
     boolean nextRecoveryIteration();
 
-    default boolean successfulRecovery(int currentOffset) {
-        return isRecovering() && currentOffset >= recoveryJob().offset + RecoveryConfig.SUCCEEDING_RECOVERY_OFFSET;
+    default boolean successfulRecovery(JSGLR2Request request, int currentOffset) {
+        return isRecovering() && currentOffset >= recoveryJob().offset + request.succeedingRecoveryOffset();
     }
 
 }

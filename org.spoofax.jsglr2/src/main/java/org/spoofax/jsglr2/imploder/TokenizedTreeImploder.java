@@ -8,6 +8,7 @@ import java.util.List;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
@@ -34,11 +35,11 @@ public abstract class TokenizedTreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public ImplodeResult<Tokens, Void, Tree> implode(String input, String fileName, ParseForest parseForest,
+    @Override public ImplodeResult<Tokens, Void, Tree> implode(JSGLR2Request request, ParseForest parseForest,
         Void resultCache) {
         Collection<Message> messages = new ArrayList<>();
 
-        Tokens tokens = new Tokens(input, fileName);
+        Tokens tokens = new Tokens(request.input, request.fileName);
         tokens.makeStartToken();
 
         Position position = Position.START_POSITION;

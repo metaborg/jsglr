@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.input.ImplodeInput;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
@@ -32,9 +33,9 @@ public class TreeImploder
         this.treeFactory = treeFactory;
     }
 
-    @Override public ImplodeResult<TreeImploder.SubTree<Tree>, Cache, Tree> implode(String input, String fileName,
+    @Override public ImplodeResult<TreeImploder.SubTree<Tree>, Cache, Tree> implode(JSGLR2Request request,
         ParseForest parseForest, Cache resultCache) {
-        SubTree<Tree> result = implodeParseNode(inputFactory.get(input), parseForest, 0);
+        SubTree<Tree> result = implodeParseNode(inputFactory.get(request.input), parseForest, 0);
 
         return new ImplodeResult<>(result, null, result.tree, Collections.emptyList());
     }

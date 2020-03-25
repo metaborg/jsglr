@@ -7,14 +7,18 @@ public interface JSGLR2<AbstractSyntaxTree> {
 
     void attachObserver(IParserObserver<?, ?, ?, ?, ?> parserObserver);
 
-    JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String fileName, String startSymbol);
+    JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request);
 
     default JSGLR2Result<AbstractSyntaxTree> parseResult(String input) {
-        return parseResult(input, "", null);
+        return parseResult(new JSGLR2Request(input));
     }
 
-    default AbstractSyntaxTree parse(String input, String fileName, String startSymbol) {
-        JSGLR2Result<AbstractSyntaxTree> result = parseResult(input, fileName, startSymbol);
+    default JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String fileName, String startSymbol) {
+        return parseResult(new JSGLR2Request(input, fileName, startSymbol));
+    }
+
+    default AbstractSyntaxTree parse(JSGLR2Request request) {
+        JSGLR2Result<AbstractSyntaxTree> result = parseResult(request);
 
         if(result.isSuccess())
             return ((JSGLR2Success<AbstractSyntaxTree>) result).ast;
@@ -23,11 +27,15 @@ public interface JSGLR2<AbstractSyntaxTree> {
     }
 
     default AbstractSyntaxTree parse(String input) {
-        return parse(input, "", null);
+        return parse(new JSGLR2Request(input));
     }
 
-    default AbstractSyntaxTree parseUnsafe(String input, String fileName, String startSymbol) throws ParseException {
-        JSGLR2Result<AbstractSyntaxTree> result = parseResult(input, fileName, startSymbol);
+    default AbstractSyntaxTree parse(String input, String fileName, String startSymbol) {
+        return parse(new JSGLR2Request(input, fileName, startSymbol));
+    }
+
+    default AbstractSyntaxTree parseUnsafe(JSGLR2Request request) throws ParseException {
+        JSGLR2Result<AbstractSyntaxTree> result = parseResult(request);
 
         if(result.isSuccess())
             return ((JSGLR2Success<AbstractSyntaxTree>) result).ast;
@@ -36,6 +44,10 @@ public interface JSGLR2<AbstractSyntaxTree> {
     }
 
     default AbstractSyntaxTree parseUnsafe(String input) throws ParseException {
-        return parseUnsafe(input, "", null);
+        return parseUnsafe(new JSGLR2Request(input));
+    }
+
+    default AbstractSyntaxTree parseUnsafe(String input, String fileName, String startSymbol) throws ParseException {
+        return parseUnsafe(new JSGLR2Request(input, fileName, startSymbol));
     }
 }

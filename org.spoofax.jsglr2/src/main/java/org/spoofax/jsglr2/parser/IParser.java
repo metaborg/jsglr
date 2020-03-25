@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
@@ -7,18 +8,23 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
 public interface IParser<ParseForest extends IParseForest> {
 
-    ParseResult<ParseForest> parse(String input, String startSymbol, String previousInput, ParseForest previousResult);
+    ParseResult<ParseForest> parse(JSGLR2Request request, String previousInput, ParseForest previousResult);
 
-    default ParseResult<ParseForest> parse(String input, String previousInput, ParseForest previousResult) {
-        return parse(input, null, previousInput, previousResult);
+    default ParseResult<ParseForest> parse(JSGLR2Request request) {
+        return parse(request, null, null);
     }
 
-    default ParseResult<ParseForest> parse(String input, String startSymbol) {
-        return parse(input, startSymbol, null, null);
+    default ParseResult<ParseForest> parse(String input, String startSymbol, String previousInput,
+        ParseForest previousResult) {
+        return parse(new JSGLR2Request(input, "", startSymbol), previousInput, previousResult);
     }
 
     default ParseResult<ParseForest> parse(String input) {
         return parse(input, null, null, null);
+    }
+
+    default ParseResult<ParseForest> parse(String input, String previousInput, ParseForest previousResult) {
+        return parse(input, null, previousInput, previousResult);
     }
 
     /**

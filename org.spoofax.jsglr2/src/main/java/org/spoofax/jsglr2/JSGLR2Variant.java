@@ -70,7 +70,7 @@ public class JSGLR2Variant {
             (IObservableParser<IParseForest, ?, ?, ?, ?>) this.parser.getParser(parseTable);
 
         if(this.parser.parseForestRepresentation == ParseForestRepresentation.Null)
-            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), (input, fileName, tree) -> null);
+            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), (request, tree) -> null);
         else if(this.imploder == ImploderVariant.TokenizedRecursive)
             return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new StubTokenizer());
         else

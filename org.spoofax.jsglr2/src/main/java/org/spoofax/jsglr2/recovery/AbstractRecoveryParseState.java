@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.recovery;
 import java.util.Stack;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -22,9 +23,9 @@ public abstract class AbstractRecoveryParseState
     Stack<BacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private RecoveryJob<StackNode> recoveryJob = null;
 
-    public AbstractRecoveryParseState(InputStack inputStack, IActiveStacks<StackNode> activeStacks,
-        IForActorStacks<StackNode> forActorStacks) {
-        super(inputStack, activeStacks, forActorStacks);
+    public AbstractRecoveryParseState(JSGLR2Request request, InputStack inputStack,
+        IActiveStacks<StackNode> activeStacks, IForActorStacks<StackNode> forActorStacks) {
+        super(request, inputStack, activeStacks, forActorStacks);
     }
 
     @Override public void nextParseRound(ParserObserving observing) {
@@ -41,7 +42,7 @@ public abstract class AbstractRecoveryParseState
                 observer -> observer.recoveryBacktrackChoicePoint(backtrackChoicePoints().size() - 1, choicePoint));
         }
 
-        if(successfulRecovery(currentOffset)) {
+        if(successfulRecovery(request, currentOffset)) {
             endRecovery();
 
             observing.notify(observer -> observer.endRecovery(this));
@@ -52,8 +53,8 @@ public abstract class AbstractRecoveryParseState
         return backtrackChoicePoints;
     }
 
-    @Override public void startRecovery(int offset) {
-        recoveryJob = new RecoveryJob<>(offset, RecoveryConfig.RECOVERY_ITERATIONS_QUOTA);
+    @Override public void startRecovery(JSGLR2Request request, int offset) {
+        recoveryJob = new RecoveryJob<>(offset, request.recoveryIterationsQuota);
     }
 
     @Override public void endRecovery() {

@@ -11,7 +11,6 @@ import java.util.List;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.terms.TermVisitor;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
 import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
@@ -187,32 +186,6 @@ public class ImploderAttachment extends AbstractTermAttachment {
     /**
      * Creates a compact position information attachment for a term.
      */
-    public static ImploderAttachment getCompactPositionAttachment(IStrategoTerm term, boolean useOnlyFirstAttach) {
-        if(useOnlyFirstAttach) {
-            FirstAttachFetcher fetcher = new FirstAttachFetcher();
-            fetcher.visit(term);
-            return getCompactPositionAttachment(fetcher.result, fetcher.result);
-        } else {
-            FirstLastAttachFetcher fetcher = new FirstLastAttachFetcher();
-            fetcher.visit(term);
-            return getCompactPositionAttachment(fetcher.first, fetcher.last);
-        }
-    }
-
-    public static ImploderAttachment getCompactPositionAttachment(ImploderAttachment first, ImploderAttachment last) {
-        if(first == null || last == null)
-            return null;
-
-        IToken left = first.getLeftToken();
-        IToken right = last.getRightToken();
-        String filename = left.getFilename();
-
-        return createCompactPositionAttachment(filename, left.getLine(), left.getColumn(), left.getStartOffset(),
-            right.getEndOffset());
-    }
-
-
-
     public static ImploderAttachment createCompactPositionAttachment(String filename, int line, int column,
         int startOffset, int endOffset) {
         return createCompactPositionAttachment(filename, line, column, startOffset, endOffset, null);
@@ -325,39 +298,4 @@ public class ImploderAttachment extends AbstractTermAttachment {
         injections = null;
     }
 
-    /**
-     * An inner class that fetches the first imploder atachment in a tree.
-     *
-     * @author Lennart Kats <lennart add lclnet.nl>
-     */
-    static class FirstAttachFetcher extends TermVisitor {
-        ImploderAttachment result;
-
-        public void preVisit(IStrategoTerm term) {
-            result = ImploderAttachment.get(OriginAttachment.tryGetOrigin(term));
-        }
-
-        @Override public boolean isDone(IStrategoTerm term) {
-            return result != null;
-        }
-    }
-
-    /**
-     * An inner class that fetches the first and last imploder atachment in a tree.
-     *
-     * @author Lennart Kats <lennart add lclnet.nl>
-     */
-    static class FirstLastAttachFetcher extends TermVisitor {
-        ImploderAttachment first, last;
-
-        public void preVisit(IStrategoTerm term) {
-            term = OriginAttachment.tryGetOrigin(term);
-            ImploderAttachment attach = term.getAttachment(TYPE);
-            if(attach == null)
-                return;
-            if(first == null)
-                first = attach;
-            last = attach;
-        }
-    }
 }

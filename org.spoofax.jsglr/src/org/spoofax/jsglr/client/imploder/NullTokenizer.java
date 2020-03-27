@@ -27,7 +27,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	public NullTokenizer(String input, String filename) {
 		super(input, filename);
 		onlyToken = new Token(this, filename, 0, 0, 0, 0,
-				input == null ? 0 : input.length() - 1, IToken.TK_UNKNOWN);
+				input == null ? 0 : input.length() - 1, IToken.Kind.TK_UNKNOWN);
 	}
 
 	public int getStartOffset() {
@@ -59,7 +59,7 @@ public class NullTokenizer extends AbstractTokenizer {
 		return onlyToken;
 	}
 
-	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
+	public IToken makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken) {
 		return onlyToken;
 	}
 	

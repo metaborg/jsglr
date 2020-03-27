@@ -13,11 +13,11 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 public final class TokenDescriptor {
 
     public final String token;
-    public final int kind;
+    public final IToken.Kind kind;
     public final int offset, line, column;
     @Nullable public String sort, cons;
 
-    public TokenDescriptor(String token, int kind, int offset, int line, int column, @Nullable String sort,
+    public TokenDescriptor(String token, IToken.Kind kind, int offset, int line, int column, @Nullable String sort,
         @Nullable String cons) {
         this.token = token;
         this.kind = kind;

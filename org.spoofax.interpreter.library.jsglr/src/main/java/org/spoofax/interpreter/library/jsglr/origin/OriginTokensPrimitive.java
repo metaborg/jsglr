@@ -26,7 +26,7 @@ public class OriginTokensPrimitive extends AbstractOriginPrimitive {
 		int endIndex = getRightToken(origin).getIndex();
 		ArrayList<IStrategoTerm> tokenStrings=new ArrayList<IStrategoTerm>();
 		for (int i = startIndex; i <= endIndex; i++) {
-			if(tokenizer.getTokenAt(i).getKind() != IToken.TK_EOF){
+			if(tokenizer.getTokenAt(i).getKind() != IToken.Kind.TK_EOF){
 				IStrategoTerm tokenString = env.getFactory().makeString(tokenizer.getTokenAt(i).toString());
 				IStrategoTerm nodeOfToken = OriginAttachment.getOrigin(tokenizer.getTokenAt(i).getAstNode());
 				if(nodeOfToken != null)

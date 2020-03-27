@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.tokens;
 
-import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_EOF;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_RESERVED;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -53,26 +53,26 @@ public class Tokens implements IParseTokens {
     }
 
     public IToken makeToken(Position startPosition, Position endPosition, IProduction production) {
-        int tokenKind;
+        IToken.Kind tokenKind;
 
         if(startPosition.equals(endPosition)) {
-            tokenKind = IToken.TK_NO_TOKEN_KIND;
+            tokenKind = IToken.Kind.TK_NO_TOKEN_KIND;
         } else if(production == null) {
-            tokenKind = IToken.TK_STRING; // indicates a character/int terminal, e.g. 'x'
+            tokenKind = IToken.Kind.TK_STRING; // indicates a character/int terminal, e.g. 'x'
         } else if(production.isLayout()) {
-            tokenKind = IToken.TK_LAYOUT;
+            tokenKind = IToken.Kind.TK_LAYOUT;
         } else if(production.isLiteral()) {
             if(production.isOperator())
-                tokenKind = IToken.TK_OPERATOR;
+                tokenKind = IToken.Kind.TK_OPERATOR;
             else
-                tokenKind = IToken.TK_KEYWORD;
+                tokenKind = IToken.Kind.TK_KEYWORD;
         } else if(production.isLexical()) {
             if(production.isStringLiteral())
-                tokenKind = IToken.TK_STRING;
+                tokenKind = IToken.Kind.TK_STRING;
             else if(production.isNumberLiteral())
-                tokenKind = IToken.TK_NUMBER;
+                tokenKind = IToken.Kind.TK_NUMBER;
             else
-                tokenKind = IToken.TK_IDENTIFIER;
+                tokenKind = IToken.Kind.TK_IDENTIFIER;
         } else {
             throw new IllegalStateException("invalid production/token type");
         }

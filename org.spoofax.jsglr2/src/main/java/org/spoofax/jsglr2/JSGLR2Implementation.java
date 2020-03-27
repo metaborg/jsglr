@@ -85,7 +85,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
             IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
             IToken precedingToken = token.getTokenBefore();
 
-            if(precedingToken != null && precedingToken.getKind() == IToken.TK_LAYOUT) {
+            if(precedingToken != null && precedingToken.getKind() == IToken.Kind.TK_LAYOUT) {
                 message = message.atRegion(SourceRegion.fromToken(precedingToken));
             }
 

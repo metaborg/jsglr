@@ -5,9 +5,9 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr.client.imploder.Token;
 
 /**
  * Represents a recovery based on discarding tokens associated to the term and/or its subterms.
@@ -307,7 +307,7 @@ public class RecoverInterpretation {
 		int rightIndex =  getRightToken(term).getIndex();
 		int nrOfNonLayoutTokens = 0;
 		for (int i = leftIndex; i <= rightIndex; i++) {
-			if(tokens.getTokenAt(i).getKind() != Token.TK_LAYOUT){
+			if(tokens.getTokenAt(i).getKind() != IToken.Kind.TK_LAYOUT){
 				nrOfNonLayoutTokens ++;
 			}
 		}

@@ -29,7 +29,7 @@ public class OriginTokenExpandPrimitive extends AbstractOriginPrimitive {
 		int i = startIndex;
 		while (i <= endIndex) {
 			IToken tok = tokenizer.getTokenAt(i);
-			if(tok.getKind() != IToken.TK_EOF){
+			if(tok.getKind() != IToken.Kind.TK_EOF){
 				IStrategoTerm containingSubTerm = getContainingSubTerm(i, origin);
 				if(containingSubTerm != null){
 					resultTerms.add(containingSubTerm);

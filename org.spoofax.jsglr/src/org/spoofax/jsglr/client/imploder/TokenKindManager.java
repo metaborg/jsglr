@@ -1,12 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.jsglr.client.imploder.IToken.TK_IDENTIFIER;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_KEYWORD;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_NUMBER;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_OPERATOR;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_STRING;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_VAR;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
 import static org.spoofax.terms.Term.intAt;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
@@ -40,7 +34,7 @@ public class TokenKindManager implements Serializable {
 	/**
 	 * Get the token kind for a given sort.
 	 */
-	public int getTokenKind(LabelInfo label) {
+	public IToken.Kind getTokenKind(LabelInfo label) {
 		// TODO: Optimization - cache token kind info in LabelInfo
 		
 		if (label == null) {

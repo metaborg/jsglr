@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static org.spoofax.jsglr.client.imploder.IToken.*;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -99,7 +100,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			String tokenText = makeTokenText(first, last);
 
 			if (label.isCompletion()) {
-				if(last.getKind() == IToken.TK_LAYOUT){
+				if(last.getKind() == TK_LAYOUT){
 					last = findLeftMostLayoutToken(last);
 					if (last.getKind() == TK_LAYOUT)
 						last = last.getTokenBefore();
@@ -298,7 +299,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	/**
 	 * Creates a helper token that is not really part of the token stream.
 	 */
-	protected final IToken makeAdjunct(int startOffset, int endOffset, int tokenKind) {
+	protected final IToken makeAdjunct(int startOffset, int endOffset, Kind tokenKind) {
 		LineStartOffsetList lineStarts = getLineStartOffsets();
 		int index = lineStarts.getIndex(startOffset);
 		int line = lineStarts.getLine(index);
@@ -309,7 +310,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	/**
 	 * Creates a helper token that is not really part of the token stream.
 	 */
-	protected IToken makeAdjunct(int startOffset, int endOffset, int tokenKind,
+	protected IToken makeAdjunct(int startOffset, int endOffset, Kind tokenKind,
 			int line, int column) {
 		IToken nearbyToken = getTokenAtOffset(startOffset);
 		int fakeIndex = nearbyToken == null ? 0 : nearbyToken.getIndex();

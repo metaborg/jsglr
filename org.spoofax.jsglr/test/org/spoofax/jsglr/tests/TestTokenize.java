@@ -47,7 +47,7 @@ public class TestTokenize extends ParseTestCase {
     	IToken classToken2 = getNonEmptyToken(tokens);
     	System.out.println(classToken2.getLine());
     	assertEquals("class", classToken.toString());
-    	assertEquals(IToken.TK_KEYWORD, classToken.getKind());
+    	assertEquals(IToken.Kind.TK_KEYWORD, classToken.getKind());
     	assertEquals(3, classToken.getLine());
     	assertEquals(8, tokenizer.getTokenAt(tokenizer.getTokenCount() - 1).getLine());
     }
@@ -72,16 +72,16 @@ public class TestTokenize extends ParseTestCase {
     	
     	IToken token = getNonEmptyToken(tokens);
     	assertEquals(" ", token.toString());
-    	assertEquals(IToken.TK_ERROR, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR, token.getKind());
     	token = getNonEmptyToken(tokens);
     	assertEquals("int", token.toString());
-    	assertEquals(IToken.TK_ERROR_KEYWORD, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR_KEYWORD, token.getKind());
     	token = getNonEmptyToken(tokens);
     	assertEquals(" ", token.toString());
-    	assertEquals(IToken.TK_ERROR, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR, token.getKind());
     	token = getNonEmptyToken(tokens);
     	assertEquals("bar", token.toString());
-    	assertEquals(IToken.TK_ERROR, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR, token.getKind());
     }
 
 }

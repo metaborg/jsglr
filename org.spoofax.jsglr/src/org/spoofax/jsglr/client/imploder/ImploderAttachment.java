@@ -1,6 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_UNKNOWN;
 import static org.spoofax.terms.util.TermUtils.toJavaInt;
 import static org.spoofax.terms.util.TermUtils.toJavaString;
 

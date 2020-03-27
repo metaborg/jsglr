@@ -31,7 +31,7 @@ public interface ITokenizer extends ITokens {
 
 	IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken);
 
-	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
+	IToken makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken);
 
 	IToken getTokenAt(int index);
 

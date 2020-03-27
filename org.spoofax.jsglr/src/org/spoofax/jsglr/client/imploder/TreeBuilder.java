@@ -2,9 +2,9 @@ package org.spoofax.jsglr.client.imploder;
 
 
 import static java.lang.Math.max;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_EOF_UNEXPECTED;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_UNKNOWN;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_EOF;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR_EOF_UNEXPECTED;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_UNKNOWN;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.AbstractParseNode;
 import org.spoofax.jsglr.client.CycleParseNode;
@@ -302,7 +301,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 			if (!inLexicalContext && isList && children.isEmpty()) {
 				IToken token = tokenizer.makeToken(
-						tokenizer.getStartOffset() - 1, IToken.TK_LAYOUT, true);
+						tokenizer.getStartOffset() - 1, IToken.Kind.TK_LAYOUT, true);
 				((AutoConcatList) children).setEmptyListToken(token);
 			}
 		} else {
@@ -642,7 +641,7 @@ public class TreeBuilder extends TopdownTreeBuilder {
 			if (tokenizer.getTokenCount() - index <= 1) {
 				// Create new empty token
 				// HACK: Assume TK_NO_TOKEN_KIND kind for empty tokens in AST nodes
-				return tokenizer.makeToken(offset - 1, IToken.TK_NO_TOKEN_KIND, true);
+				return tokenizer.makeToken(offset - 1, IToken.Kind.TK_NO_TOKEN_KIND, true);
 			} else {
 				return tokenizer.getTokenAt(index + 1);
 			}

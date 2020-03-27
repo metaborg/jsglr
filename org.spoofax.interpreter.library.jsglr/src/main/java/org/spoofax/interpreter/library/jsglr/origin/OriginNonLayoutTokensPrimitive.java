@@ -25,7 +25,7 @@ public class OriginNonLayoutTokensPrimitive extends AbstractOriginPrimitive {
 		int endIndex = getRightToken(origin).getIndex();
 		ArrayList<IStrategoTerm> tokenStrings=new ArrayList<IStrategoTerm>();
 		for (int i = startIndex; i <= endIndex; i++) {
-			if(tokenizer.getTokenAt(i).getKind() != IToken.TK_LAYOUT)
+			if(tokenizer.getTokenAt(i).getKind() != IToken.Kind.TK_LAYOUT)
 				tokenStrings.add(env.getFactory().makeString(tokenizer.getTokenAt(i).toString()));
 		}
 		return env.getFactory().makeList(tokenStrings);

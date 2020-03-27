@@ -379,7 +379,8 @@ public abstract class BaseTest implements WithParseTable {
             IStrategoTerm rootAst = jsglr2Success.ast;
             String rootCons = isAppl(rootAst) ? toAppl(rootAst).getName() : isList(rootAst) ? "[]" : null;
 
-            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, rootCons);
+            TokenDescriptor expectedStartToken =
+                new TokenDescriptor("", IToken.Kind.TK_RESERVED, 0, 1, 1, null, rootCons);
             TokenDescriptor actualStartToken = actualTokens.get(0);
 
             assertEquals(expectedStartToken, actualStartToken, "Start token incorrect");
@@ -389,8 +390,8 @@ public abstract class BaseTest implements WithParseTable {
             int endLine = endPosition.line;
             int endColumn = endPosition.column;
 
-            TokenDescriptor expectedEndToken =
-                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1, null, rootCons);
+            TokenDescriptor expectedEndToken = new TokenDescriptor("", IToken.Kind.TK_EOF, inputString.length(),
+                endLine, endColumn - 1, null, rootCons);
             TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
 
             List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);

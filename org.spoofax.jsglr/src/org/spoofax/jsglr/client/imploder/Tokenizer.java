@@ -1,10 +1,10 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static java.lang.Math.min;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR_KEYWORD;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_LAYOUT;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_RESERVED;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
@@ -130,11 +130,11 @@ public class Tokenizer extends AbstractTokenizer {
         return /* resultIndex == -1 ? null : */ internalGetTokenAt(resultIndex);
     }
 
-    public final Token makeToken(int endOffset, int kind, boolean allowEmptyToken) {
+    public final Token makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken) {
         return makeToken(endOffset, kind, allowEmptyToken, null);
     }
 
-    public Token makeToken(int endOffset, int kind, boolean allowEmptyToken, String errorMessage) {
+    public Token makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken, String errorMessage) {
         String input = getInput();
         assert endOffset <= input.length();
         if(!allowEmptyToken && startOffset > endOffset) // empty token
@@ -168,7 +168,7 @@ public class Tokenizer extends AbstractTokenizer {
         }
     }
 
-    protected Token internalMakeToken(int kind, int endOffset, String errorMessage) {
+    protected Token internalMakeToken(IToken.Kind kind, int endOffset, String errorMessage) {
         if(endOffset >= getInput().length()) { // somebody set up us the bomb
             assert false;
             endOffset = getInput().length() - 1; // move 'zig'

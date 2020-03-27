@@ -1,5 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +66,7 @@ public class Token implements IToken, Cloneable {
         return kind;
     }
 
-    public int getIndex() {
+    @SuppressWarnings("DeprecatedIsStillUsed") @Deprecated public int getIndex() {
         return index;
     }
 
@@ -145,6 +147,38 @@ public class Token implements IToken, Cloneable {
                 ((AbstractTokenizer) getTokenizer()).initAstNodeBinding();
         }
         return astNode;
+    }
+
+    @Override public IToken getTokenBefore() {
+        int prevOffset = this.getStartOffset();
+        ITokenizer tokens = (ITokenizer) this.getTokenizer();
+        for(int i = this.getIndex() - 1; i >= 0; i--) {
+            IToken result = tokens.getTokenAt(i);
+            if(result.getEndOffset() <= prevOffset)
+                return result;
+        }
+        return null;
+    }
+
+    @Override public IToken getTokenAfter() {
+        int nextOffset = this.getEndOffset();
+        ITokenizer tokens = (ITokenizer) this.getTokenizer();
+        for(int i = this.getIndex() + 1, max = tokens.getTokenCount(); i < max; i++) {
+            IToken result = tokens.getTokenAt(i);
+            if(result.getStartOffset() >= nextOffset)
+                return result;
+        }
+        return null;
+    }
+
+    @Override public Collection<IToken> getTokensBefore() {
+        IToken tokenBefore = getTokenBefore();
+        return tokenBefore == null ? Collections.emptyList() : Collections.singleton(tokenBefore);
+    }
+
+    @Override public Collection<IToken> getTokensAfter() {
+        IToken tokenAfter = getTokenAfter();
+        return tokenAfter == null ? Collections.emptyList() : Collections.singleton(tokenAfter);
     }
 
     @Override public String toString() {

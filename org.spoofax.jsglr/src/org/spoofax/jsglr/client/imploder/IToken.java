@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
@@ -95,6 +96,22 @@ public interface IToken extends Comparable<IToken>, Serializable {
     String getFilename();
 
     ITokens getTokenizer();
+
+    /**
+     * @return A token immediately preceding the current token, or null if the current token is the start token. <br>
+     *         If the preceding AST node is ambiguous, any of the possible tokens will be returned.
+     */
+    IToken getTokenBefore();
+
+    /**
+     * @return A token immediately following the current token, or null if the current token is the end token. <br>
+     *         If the following AST node is ambiguous, any of the possible tokens will be returned.
+     */
+    IToken getTokenAfter();
+
+    Collection<IToken> getTokensBefore();
+
+    Collection<IToken> getTokensAfter();
 
     IToken clone();
 }

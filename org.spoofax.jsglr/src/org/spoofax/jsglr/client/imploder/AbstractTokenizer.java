@@ -82,18 +82,18 @@ public abstract class AbstractTokenizer implements ITokenizer {
 			if (prevToken == currentToken()) {
 				first = last = makeToken(endOffset, TK_ERROR, true);
 			} else {
-				first = getTokenAfter(prevToken);
+				first = prevToken.getTokenAfter();
 				if (first != currentToken() && first.getKind() == TK_LAYOUT)
 					first = findRightMostLayoutToken(first);
 				if (first != currentToken() && first.getKind() == TK_LAYOUT)
-					first = getTokenAfter(first);
+					first = first.getTokenAfter();
 				last = currentToken();
 			}
 			if (first.getStartOffset() - 1 == last.getEndOffset()) {
 				// bah, we need some characters to mark, to the left then...
 				first = last = findLeftMostLayoutToken(first);//mark insertion errors at the end of previous token (before layout)
 				if (first.getKind() == TK_LAYOUT)
-					first = last = getTokenBefore(last);
+					first = last = last.getTokenBefore();
 			}
 
 			String tokenText = makeTokenText(first, last);
@@ -102,7 +102,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				if(last.getKind() == IToken.TK_LAYOUT){
 					last = findLeftMostLayoutToken(last);
 					if (last.getKind() == TK_LAYOUT)
-						last = getTokenBefore(last);
+						last = last.getTokenBefore();
 				}
 				String completionText = makeTokenText(first, last);
 				setErrorMessage(first, last, ERROR_INCOMPLETE_PREFIX
@@ -235,60 +235,6 @@ public abstract class AbstractTokenizer implements ITokenizer {
 				return tokens.getTokenAt(i - 1);
 		}
 		return token;
-	}
-
-	/**
-	 * Gets the token with a start offset following the given token,
-	 * even in an ambiguous token stream.
-	 *
-	 * @see #isAmbiguous()
-	 */
-	public static IToken getTokenAfter(IToken token) {
-		if (token == null) return null;
-		int nextOffset = token.getEndOffset();
-		ITokenizer tokens = (ITokenizer) token.getTokenizer();
-		for (int i = token.getIndex() + 1, max = tokens.getTokenCount(); i < max; i++) {
-			IToken result = tokens.getTokenAt(i);
-			if (result.getStartOffset() >= nextOffset) return result;
-		}
-		return null;
-	}
-
-	/**
-	 * Gets the token with an end offset preceding the given token,
-	 * even in an ambiguous token stream.
-	 *
-	 * @see #isAmbiguous()
-	 */
-	public static IToken getTokenBefore(IToken token) {
-		if (token == null) return null;
-		int prevOffset = token.getStartOffset();
-		ITokenizer tokens = (ITokenizer) token.getTokenizer();
-		for (int i = token.getIndex() - 1; i >= 0; i--) {
-			IToken result = tokens.getTokenAt(i);
-			if (result.getEndOffset() <= prevOffset) return result;
-		}
-		return null;
-	}
-
-	public static IToken getFirstTokenWithSameOffset(IToken token) {
-		IToken before = token;
-		do {
-			token = before;
-			before = getTokenBefore(token);
-			if (before == null || before == token) return token;
-		} while (before.getStartOffset() == token.getStartOffset());
-		return ((ITokenizer) token.getTokenizer()).getTokenAt(before.getIndex() + 1);
-	}
-
-	public static IToken getLastTokenWithSameEndOffset(IToken token) {
-		IToken after = token;
-		do {
-			token = after;
-			after = getTokenAfter(token);
-			if (after == null || after == token) return token;
-		} while (after.getEndOffset() == token.getEndOffset());
-		return ((ITokenizer) token.getTokenizer()).getTokenAt(after.getIndex() - 1);
 	}
 
 	public IToken getErrorTokenOrAdjunct(int offset) {

@@ -176,14 +176,6 @@ public class Token implements IToken, Cloneable {
         return tokens.toString(this, this);
     }
 
-    @Override public char charAt(int index) {
-        return tokens.getInput().charAt(index + startOffset);
-    }
-
-    @Override public int codePointAt(int index) {
-        return tokens.getInput().codePointAt(index + startOffset);
-    }
-
     @Override public int hashCode() {
         final int prime = 31;
         int result = 1;

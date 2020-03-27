@@ -58,7 +58,12 @@ public interface IToken extends Comparable<IToken>, Serializable {
 
     int getKind();
 
-    int getIndex();
+    /**
+     * Only Tokens returned by JSGLR1 are guaranteed to have an index, and this method may only be used by JSGLR1 legacy
+     * code. <br>
+     * Tokens returned by incremental JSGLR2 do not have an index.
+     */
+    @SuppressWarnings("DeprecatedIsStillUsed") @Deprecated int getIndex();
 
     int getStartOffset();
 

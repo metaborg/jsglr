@@ -1,13 +1,11 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.ITokens;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
 
@@ -304,7 +302,7 @@ public class RecoverInterpretation {
 	}
 	
 	private int numberOfNonLayoutTokens(IStrategoTerm term) {
-		ITokens tokens = getTokenizer(term);
+		ITokenizer tokens = (ITokenizer) getTokenizer(term);
 		int leftIndex =  getLeftToken(term).getIndex();
 		int rightIndex =  getRightToken(term).getIndex();
 		int nrOfNonLayoutTokens = 0;

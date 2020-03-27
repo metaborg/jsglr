@@ -23,7 +23,7 @@ public class LayoutStructure {
 	
 	private final ISimpleTerm node;
 	private final ISimpleTerm listParent;
-	private final ITokens tokens;
+	private final ITokenizer tokens;
 	
 	//suffix data
 	private int suffixStartIndex; //possible invalid index (if node contains rightmost token)
@@ -39,7 +39,7 @@ public class LayoutStructure {
 		this.node = ImploderAttachment.getImploderOrigin(node);
 		listParent = getParentList(); //could be null
 		assertImploderInfo();
-		tokens = (ITokens) getLeftToken(node).getTokenizer();
+		tokens = (ITokenizer) getLeftToken(node).getTokenizer();
 		analyzeSuffix();
 		analyzePrefix();
 		//logAnalysisResults();

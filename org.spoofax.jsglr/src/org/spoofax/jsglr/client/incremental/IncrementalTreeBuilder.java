@@ -20,10 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
-import org.spoofax.jsglr.client.imploder.ITreeFactory;
-import org.spoofax.jsglr.client.imploder.Tokenizer;
+import org.spoofax.jsglr.client.imploder.*;
 
 /**
  * Constructs the output tree based on the old tree and the list of repaired tree nodes.
@@ -224,7 +221,7 @@ public class IncrementalTreeBuilder<TNode extends ISimpleTerm> {
 	 *           The change in offset between the given tokens and the copied tokens in the new tokenizer.
 	 */
 	private void copyTokens(IToken startToken, IToken stopToken, int stopOffset, int offsetChange) {
-		ITokens fromTokenizer = startToken.getTokenizer();
+		ITokenizer fromTokenizer = (ITokenizer) startToken.getTokenizer();
 		assert fromTokenizer == stopToken.getTokenizer();
 		int oldStartOffset = newTokenizer.getStartOffset();
 		for (int i = findLeftMostLayoutToken(startToken).getIndex(), last = stopToken.getIndex(); i < last; i++) {

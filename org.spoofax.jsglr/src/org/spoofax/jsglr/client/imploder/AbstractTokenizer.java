@@ -1,36 +1,32 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_KEYWORD;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_ERROR_LAYOUT;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
+import static org.spoofax.jsglr.client.imploder.IToken.*;
 
-/** 
+/**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public abstract class AbstractTokenizer implements ITokenizer, ITokens {
-	
+public abstract class AbstractTokenizer implements ITokenizer {
+
 	private static final long serialVersionUID = 7697367149430201531L;
 
     private final TokenKindManager manager =
 		new TokenKindManager();
-	
+
 	private boolean isAmbiguous;
 
 	private final String filename;
-	
+
 	private final String input;
 
 	private LineStartOffsetList lineStartOffsets;
-	
+
 	private boolean isSyntaxCorrect = true;
 
 	public AbstractTokenizer(String input, String filename) {
 		this.input = input;
 		this.filename = filename;
 	}
-	
+
 	public String getFilename() {
 		return filename;
 	}
@@ -38,11 +34,11 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	public String getInput() {
 		return input;
 	}
-	
+
 	public boolean isSyntaxCorrect() {
 		return isSyntaxCorrect;
 	}
-	
+
 	public void setSyntaxCorrect(boolean isSyntaxCorrect)  {
 		this.isSyntaxCorrect = isSyntaxCorrect;
 	}
@@ -64,7 +60,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	public void setAmbiguous(boolean isAmbiguous) {
 		this.isAmbiguous = isAmbiguous;
 	}
-	
+
 	public int getLineAtOffset(int offset) {
 		return getTokenAtOffset(offset).getLine();
 	}
@@ -75,14 +71,14 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 				// Special case: don't report here, but further up the tree
 				return;
 			}
-			
+
 			if (isSyntaxCorrect)
 				isSyntaxCorrect = label.getDeprecationMessage() != null;
-			
+
 			// TODO: make TK_ERROR_LAYOUT token from preceding first whitespaces?
 			//TODO: refactor
 			IToken first, last;
-			
+
 			if (prevToken == currentToken()) {
 				first = last = makeToken(endOffset, TK_ERROR, true);
 			} else {
@@ -99,9 +95,9 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 				if (first.getKind() == TK_LAYOUT)
 					first = last = getTokenBefore(last);
 			}
-			
+
 			String tokenText = makeTokenText(first, last);
-			
+
 			if (label.isCompletion()) {
 				if(last.getKind() == IToken.TK_LAYOUT){
 					last = findLeftMostLayoutToken(last);
@@ -148,11 +144,11 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	public final int getEndLine() {
 		return getTokenCount() == 0 ? 1 : getTokenAt(getTokenCount() - 1).getLine();
 	}
-	
+
 	public final int getEndColumn() {
 		return getTokenCount() == 0 ? 1 : getTokenAt(getTokenCount() - 1).getColumn();
 	}
-	
+
 	public String toString(IToken left, IToken right) {
 		int startOffset = left.getStartOffset();
 		int endOffset = right.getEndOffset();
@@ -164,9 +160,9 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 			? null
 			: getInput().substring(startOffset, endOffset + 1);
 	}
-	
+
 	public static boolean isErrorInRange(IToken start, IToken end) {
-		ITokens tokens = start.getTokenizer();
+		ITokenizer tokens = (ITokenizer) start.getTokenizer();
 		for (int i = start.getIndex(), max = end.getIndex(); i <= max; i++) {
 			IToken token = tokens.getTokenAt(i);
 			if (token.getError() != null)
@@ -174,7 +170,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Searches towards the left of the given token for the
 	 * leftmost layout or error token, returning the current token if
@@ -182,7 +178,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	 */
 	public static IToken findLeftMostLayoutToken(IToken token) {
 		if (token == null) return null;
-		ITokens tokens = token.getTokenizer();
+		ITokenizer tokens = (ITokenizer) token.getTokenizer();
 		for (int i = token.getIndex() - 1; i >= 0; i--) {
 			IToken neighbour = tokens.getTokenAt(i);
 			switch (neighbour.getKind()) {
@@ -195,7 +191,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 		}
 		return token;
 	}
-	
+
 	/**
 	 * Searches towards the right of the given token for the
 	 * rightmost layout or error token, returning the current token if
@@ -203,7 +199,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	 */
 	public static IToken findRightMostLayoutToken(IToken token) {
 		if (token == null) return null;
-		ITokens tokens = token.getTokenizer();
+		ITokenizer tokens = (ITokenizer) token.getTokenizer();
 		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
 			IToken neighbour = tokens.getTokenAt(i);
 			switch (neighbour.getKind()) {
@@ -216,11 +212,11 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 		}
 		return token;
 	}
-	
+
 	public static IToken findLeftMostTokenOnSameLine(IToken token) {
 		if (token == null) return null;
 		int line = token.getLine();
-		ITokens tokens = token.getTokenizer();
+		ITokenizer tokens = (ITokenizer) token.getTokenizer();
 		for (int i = token.getIndex() - 1; i >= 0; i--) {
 			IToken neighbour = tokens.getTokenAt(i);
 			if (neighbour.getLine() != line || i == 0)
@@ -228,11 +224,11 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 		}
 		return token;
 	}
-	
+
 	public static IToken findRightMostTokenOnSameLine(IToken token) {
 		if (token == null) return null;
 		int line = token.getLine();
-		ITokens tokens = token.getTokenizer();
+		ITokenizer tokens = (ITokenizer) token.getTokenizer();
 		for (int i = token.getIndex() + 1, count = tokens.getTokenCount(); i < count; i++) {
 			IToken neighbour = tokens.getTokenAt(i);
 			if (neighbour.getLine() != line || i == count - 1)
@@ -240,41 +236,41 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 		}
 		return token;
 	}
-	
+
 	/**
 	 * Gets the token with a start offset following the given token,
 	 * even in an ambiguous token stream.
-	 * 
+	 *
 	 * @see #isAmbiguous()
 	 */
 	public static IToken getTokenAfter(IToken token) {
 		if (token == null) return null;
 		int nextOffset = token.getEndOffset();
-		ITokens tokens = token.getTokenizer();
+		ITokenizer tokens = (ITokenizer) token.getTokenizer();
 		for (int i = token.getIndex() + 1, max = tokens.getTokenCount(); i < max; i++) {
 			IToken result = tokens.getTokenAt(i);
 			if (result.getStartOffset() >= nextOffset) return result;
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets the token with an end offset preceding the given token,
 	 * even in an ambiguous token stream.
-	 * 
+	 *
 	 * @see #isAmbiguous()
 	 */
 	public static IToken getTokenBefore(IToken token) {
 		if (token == null) return null;
 		int prevOffset = token.getStartOffset();
-		ITokens tokens = token.getTokenizer();
+		ITokenizer tokens = (ITokenizer) token.getTokenizer();
 		for (int i = token.getIndex() - 1; i >= 0; i--) {
 			IToken result = tokens.getTokenAt(i);
 			if (result.getEndOffset() <= prevOffset) return result;
 		}
 		return null;
 	}
-	
+
 	public static IToken getFirstTokenWithSameOffset(IToken token) {
 		IToken before = token;
 		do {
@@ -282,9 +278,9 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 			before = getTokenBefore(token);
 			if (before == null || before == token) return token;
 		} while (before.getStartOffset() == token.getStartOffset());
-		return token.getTokenizer().getTokenAt(before.getIndex() + 1);
+		return ((ITokenizer) token.getTokenizer()).getTokenAt(before.getIndex() + 1);
 	}
-	
+
 	public static IToken getLastTokenWithSameEndOffset(IToken token) {
 		IToken after = token;
 		do {
@@ -292,9 +288,9 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 			after = getTokenAfter(token);
 			if (after == null || after == token) return token;
 		} while (after.getEndOffset() == token.getEndOffset());
-		return token.getTokenizer().getTokenAt(after.getIndex() - 1);
+		return ((ITokenizer) token.getTokenizer()).getTokenAt(after.getIndex() - 1);
 	}
-	
+
 	public IToken getErrorTokenOrAdjunct(int offset) {
 		if (offset < getStartOffset()) { // before the start of the next to be made token
 			return findReportableErrorToken(getTokenAtOffset(offset));
@@ -302,7 +298,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 			return makeErrorAdjunct(offset);
 		}
 	}
-	
+
 	private IToken makeErrorAdjunct(int offset) {
 		if (offset == getInput().length())
 		    return makeErrorAdjunctBackwards(offset - 1);
@@ -312,44 +308,44 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 		int endOffset = offset;
 		String input = getInput();
 		boolean onlySeenWhitespace = isSpace(input.charAt(endOffset));
-		
+
 		while (endOffset + 1 < getInput().length()) {
 			char next = input.charAt(endOffset+1);
-			
+
 			if (onlySeenWhitespace) {
 				onlySeenWhitespace = isSpace(next);
 				offset++;
 			} else if (!Character.isLetterOrDigit(next)) {
 				break;
 			}
-			
+
 			endOffset++;
 		}
-		
+
 		return makeAdjunct(offset, endOffset, TK_ERROR);
 	}
-	
+
 	private IToken makeErrorAdjunctBackwards(int offset) {
 		int beginOffset = offset;
 		boolean onlySeenWhitespace = true;
-		
+
 		while (offset >= getInput().length())
 			offset--;
-		
+
 		String input = getInput();
 		while (beginOffset > 0) {
 			char c = input.charAt(beginOffset - 1);
 			boolean isWhitespace = isSpace(c);
-			
+
 			if (onlySeenWhitespace) {
 				onlySeenWhitespace = isWhitespace;
 			} else if (isWhitespace) {
 				break;
 			}
-			
+
 			beginOffset--;
 		}
-		
+
 		return makeAdjunct(beginOffset, offset, TK_ERROR);
 	}
 
@@ -375,7 +371,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	}
 
 	private static IToken findReportableErrorToken(IToken token) {
-	    ITokens tokenizer = token.getTokenizer();
+	    ITokenizer tokenizer = (ITokenizer) token.getTokenizer();
 		// Search right
 		for (int i = token.getIndex(), max = tokenizer.getTokenCount(); i < max; i++) {
 			token = tokenizer.getTokenAt(i);
@@ -408,7 +404,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 	private void makeWaterToken(int endOffset, int lastOffset) {
 		if (getStartOffset() <= lastOffset)
 			makeToken(lastOffset, TK_LAYOUT, false);
-		
+
 		// Make an extra token for any whitespace preceding our error
 		String input = getInput();
 		int wordStart = getStartOffset();
@@ -416,7 +412,7 @@ public abstract class AbstractTokenizer implements ITokenizer, ITokens {
 			wordStart++;
 		if (wordStart < endOffset) // only do this if it doesn't consume the whole token
 			makeToken(wordStart - 1, TK_ERROR_LAYOUT, false);
-		
+
 		makeToken(endOffset, TK_ERROR, false);
 	}
 

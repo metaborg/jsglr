@@ -101,10 +101,6 @@ public class Tokens implements IParseTokens {
         return tokens.size();
     }
 
-    @Override public IToken getTokenAt(int index) {
-        return tokens.get(index);
-    }
-
     @Override public IToken getTokenAtOffset(int offset) {
         for(IToken token : tokens) {
             if(token.getStartOffset() == offset)

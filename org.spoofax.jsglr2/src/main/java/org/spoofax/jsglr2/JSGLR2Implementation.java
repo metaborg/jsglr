@@ -83,8 +83,8 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
         for(Message originalMessage : originalMessages) {
             Message message = originalMessage;
             IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
-            IToken precedingToken =
-                (token != null && token.getIndex() > 0) ? tokens.getTokenAt(token.getIndex() - 1) : null;
+            // TODO: this will always throw a ClassCastException
+            IToken precedingToken = org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenBefore(token);
 
             if(precedingToken != null && precedingToken.getKind() == IToken.TK_LAYOUT) {
                 message = message.atRegion(SourceRegion.fromToken(precedingToken));

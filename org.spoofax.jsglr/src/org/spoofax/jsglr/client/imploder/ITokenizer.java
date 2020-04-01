@@ -33,7 +33,7 @@ public interface ITokenizer extends ITokens {
 
 	IToken makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken);
 
-	IToken getTokenAt(int index);
+	Token getTokenAt(int index);
 
 	/**
 	 * Gets a token at the given offset, or creates an adjunct

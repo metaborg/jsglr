@@ -46,7 +46,7 @@ public class NullTokenizer extends AbstractTokenizer {
 		return 1;
 	}
 
-	public IToken getTokenAt(int i) {
+	public Token getTokenAt(int i) {
 		return onlyToken;
 	}
 	

@@ -165,7 +165,7 @@ public abstract class AbstractTokenizer implements ITokenizer {
 	public static boolean isErrorInRange(IToken start, IToken end) {
 		ITokenizer tokens = (ITokenizer) start.getTokenizer();
 		for (int i = start.getIndex(), max = end.getIndex(); i <= max; i++) {
-			IToken token = tokens.getTokenAt(i);
+			Token token = tokens.getTokenAt(i);
 			if (token.getError() != null)
 				return true;
 		}

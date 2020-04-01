@@ -70,8 +70,6 @@ public interface IToken extends Comparable<IToken>, Serializable {
 
     int getLength();
 
-    String getError();
-
     void setAstNode(ISimpleTerm astNode);
 
     ISimpleTerm getAstNode();

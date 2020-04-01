@@ -1,8 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
@@ -15,7 +15,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	
 	private static final long serialVersionUID = -6653567639280036480L;
 	
-    private final IToken onlyToken;
+    private final Token onlyToken;
 	
 	public NullTokenizer(String input, String filename, Token onlyToken) {
 		super(input, filename);
@@ -87,10 +87,12 @@ public class NullTokenizer extends AbstractTokenizer {
 		}
 	}
 
-	public Iterator<IToken> iterator() {
-		ArrayList<IToken> result = new ArrayList<IToken>(1);
-		result.add(onlyToken);
-		return result.iterator();
+	@Override public Iterator<IToken> iterator() {
+		return ambiguousTokens().iterator();
+	}
+
+	@Override public Iterable<IToken> ambiguousTokens() {
+		return Iterables2.from(onlyToken);
 	}
 
 	public void setAst(ISimpleTerm ast) {

@@ -363,7 +363,17 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
-        Stream<TestVariant> variants) {
+        List<TokenDescriptor> expectedAmbiguousTokens) {
+        return testTokens(inputString, expectedTokens, expectedAmbiguousTokens, getTestVariants());
+    }
+
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
+        Stream<TestVariant> testVariants) {
+        return testTokens(inputString, expectedTokens, expectedTokens, testVariants);
+    }
+
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
+        List<TokenDescriptor> expectedAmbiguousTokens, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
             JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
@@ -371,35 +381,44 @@ public abstract class BaseTest implements WithParseTable {
 
             JSGLR2Success<IStrategoTerm> jsglr2Success = (JSGLR2Success<IStrategoTerm>) jsglr2Result;
 
-            List<TokenDescriptor> actualTokens = new ArrayList<>();
-
-            for(IToken token : jsglr2Success.tokens) {
-                actualTokens.add(TokenDescriptor.from(inputString, token));
-            }
             IStrategoTerm rootAst = jsglr2Success.ast;
             String rootCons = isAppl(rootAst) ? toAppl(rootAst).getName() : isList(rootAst) ? "[]" : null;
 
-            TokenDescriptor expectedStartToken =
-                new TokenDescriptor("", IToken.Kind.TK_RESERVED, 0, 1, 1, null, rootCons);
-            TokenDescriptor actualStartToken = actualTokens.get(0);
+            testTokens(inputString, expectedTokens, jsglr2Success.tokens, "regular", rootCons);
 
-            assertEquals(expectedStartToken, actualStartToken, "Start token incorrect");
-
-            Position endPosition = Position.atEnd(inputString);
-
-            int endLine = endPosition.line;
-            int endColumn = endPosition.column;
-
-            TokenDescriptor expectedEndToken = new TokenDescriptor("", IToken.Kind.TK_EOF, inputString.length(),
-                endLine, endColumn - 1, null, rootCons);
-            TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
-
-            List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
-
-            assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match");
-
-            assertEquals(expectedEndToken, actualEndToken, "End token incorrect");
+            if(expectedTokens != expectedAmbiguousTokens)
+                testTokens(inputString, expectedAmbiguousTokens, jsglr2Success.tokens.ambiguousTokens(), "ambiguous", rootCons);
         });
+    }
+
+    protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens, Iterable<IToken> tokens,
+        String type, String rootCons) {
+        String messageSuffix = " for " + type + " tokens";
+
+        List<TokenDescriptor> actualTokens = new ArrayList<>();
+        for(IToken token : tokens) {
+            actualTokens.add(TokenDescriptor.from(inputString, token));
+        }
+
+        TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.Kind.TK_RESERVED, 0, 1, 1, null, rootCons);
+        TokenDescriptor actualStartToken = actualTokens.get(0);
+
+        assertEquals(expectedStartToken, actualStartToken, "Start token incorrect" + messageSuffix);
+
+        Position endPosition = Position.atEnd(inputString);
+
+        int endLine = endPosition.line;
+        int endColumn = endPosition.column;
+
+        TokenDescriptor expectedEndToken =
+            new TokenDescriptor("", IToken.Kind.TK_EOF, inputString.length(), endLine, endColumn - 1, null, rootCons);
+        TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
+
+        List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
+
+        assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match" + messageSuffix);
+
+        assertEquals(expectedEndToken, actualEndToken, "End token incorrect" + messageSuffix);
     }
 
     protected Stream<DynamicTest> testOrigins(String inputString, List<OriginDescriptor> expectedOrigins) {

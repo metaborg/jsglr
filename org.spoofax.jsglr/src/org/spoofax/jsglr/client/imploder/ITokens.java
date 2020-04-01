@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 public interface ITokens extends Iterable<IToken>, Serializable {
 
@@ -17,12 +18,13 @@ public interface ITokens extends Iterable<IToken>, Serializable {
     String toString(int startOffset, int endOffset);
 
     /**
-     * Determines if the tokenizer is ambiguous. If it is, tokens with subsequent indices may not always have matching
-     * start/end offsets.
-     * 
-     * @see Tokenizer#getTokenAfter(IToken) Gets the next token with a matching offset.
-     * @see Tokenizer#getTokenBefore(IToken) Gets the previous token with a matching offset.
+     * @return An iterator that skips ambiguous tokens.
      */
-    boolean isAmbiguous();
+    @Override Iterator<IToken> iterator();
+
+    /**
+     * @return An iterator that includes ambiguous tokens. No order is guaranteed on the offsets of the returned tokens.
+     */
+    Iterable<IToken> ambiguousTokens();
 
 }

@@ -1,17 +1,13 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static java.lang.Math.min;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR_KEYWORD;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_LAYOUT;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_RESERVED;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.IKeywordRecognizer;
@@ -272,9 +268,45 @@ public class Tokenizer extends AbstractTokenizer {
         return keywords;
     }
 
-    public Iterator<IToken> iterator() {
+    @Override public Iterator<IToken> iterator() {
+        return new AmbiguousToNonAmbiguousIterator(ambiguousTokens());
+    }
+
+    public static class AmbiguousToNonAmbiguousIterator implements Iterator<IToken> {
+        final Iterator<IToken> ambiguousIterator;
+        IToken next;
+        int offset;
+
+        public AmbiguousToNonAmbiguousIterator(Iterable<IToken> ambiguousTokens) {
+            ambiguousIterator = ambiguousTokens.iterator();
+            next = ambiguousIterator.next();
+            offset = next.getEndOffset();
+        }
+
+        @Override public boolean hasNext() {
+            return next != null;
+        }
+
+        @Override public IToken next() {
+            if(!hasNext())
+                throw new NoSuchElementException();
+
+            IToken res = next;
+            while(ambiguousIterator.hasNext()) {
+                next = ambiguousIterator.next();
+                if(next.getStartOffset() > offset) {
+                    offset = next.getEndOffset();
+                    return res;
+                }
+            }
+            next = null;
+            return res;
+        }
+    }
+
+    @Override public Iterable<IToken> ambiguousTokens() {
         @SuppressWarnings("unchecked") // covariance
-        Iterator<IToken> result = (Iterator<IToken>) (Iterator<?>) tokens.iterator();
+        Iterable<IToken> result = (Iterable<IToken>) (Iterable<?>) Collections.unmodifiableList(tokens);
         return result;
     }
 

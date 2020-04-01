@@ -2,7 +2,9 @@ package org.spoofax.jsglr2.integrationtest.features;
 
 import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
@@ -44,14 +46,18 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
     }
 
     @TestFactory public Stream<DynamicTest> ambiguousOperator() throws ParseError {
-        return testTokens("x+x+x", Arrays.asList(
+        List<TokenDescriptor> tokens1 = Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x", TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor("+", TK_OPERATOR,   1, 1, 2, "Exp", "AddOperator"),
             new TokenDescriptor("x", TK_IDENTIFIER, 2, 1, 3, "ID", null),
             new TokenDescriptor("+", TK_OPERATOR,   3, 1, 4, "Exp", "AddOperator"),
-            new TokenDescriptor("x", TK_IDENTIFIER, 4, 1, 5, "ID", null),
-
+            new TokenDescriptor("x", TK_IDENTIFIER, 4, 1, 5, "ID", null)
+        //@formatter:on
+        );
+        List<TokenDescriptor> tokens2 = new ArrayList<>(tokens1);
+        tokens2.addAll(Arrays.asList(
+        //@formatter:off
             new TokenDescriptor("x", TK_IDENTIFIER, 0, 1, 1, "ID", null),
             new TokenDescriptor("+", TK_OPERATOR,   1, 1, 2, "Exp", "AddOperator"),
             new TokenDescriptor("x", TK_IDENTIFIER, 2, 1, 3, "ID", null),
@@ -59,6 +65,7 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
             new TokenDescriptor("x", TK_IDENTIFIER, 4, 1, 5, "ID", null)
         //@formatter:on
         ));
+        return testTokens("x+x+x", tokens1, tokens2);
     }
 
     @TestFactory public Stream<DynamicTest> operatorWithLayout() throws ParseError {

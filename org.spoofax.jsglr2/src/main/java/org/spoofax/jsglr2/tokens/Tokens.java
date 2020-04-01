@@ -4,6 +4,7 @@ import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_EOF;
 import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_RESERVED;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
@@ -11,6 +12,7 @@ import javax.annotation.Nonnull;
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.Token;
+import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.jsglr2.parser.Position;
 
 public class Tokens implements IParseTokens {
@@ -90,7 +92,11 @@ public class Tokens implements IParseTokens {
     }
 
     @Override @Nonnull public Iterator<IToken> iterator() {
-        return tokens.iterator();
+        return new Tokenizer.AmbiguousToNonAmbiguousIterator(ambiguousTokens());
+    }
+
+    @Override @Nonnull public Iterable<IToken> ambiguousTokens() {
+        return Collections.unmodifiableList(tokens);
     }
 
     @Override public String getInput() {
@@ -126,10 +132,6 @@ public class Tokens implements IParseTokens {
 
     @Override public String toString(int startOffset, int endOffset) {
         return input.substring(startOffset, endOffset);
-    }
-
-    @Override public boolean isAmbiguous() {
-        return false; // TODO: implement
     }
 
     @Override public String toString() {

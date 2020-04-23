@@ -14,8 +14,8 @@ public class JGitHistogramDiff implements IStringDiff {
     @Override public List<EditorUpdate> diff(String oldString, String newString) {
         // By default, RawText is split per line.
         // By passing a `lineMap` which is a list that contains all integers from 0 to length, this is avoided.
-        RawText oldText = new RawText(oldString.getBytes(), new IncrementingIntList(oldString.length()));
-        RawText newText = new RawText(newString.getBytes(), new IncrementingIntList(newString.length()));
+        RawText oldText = new RawText(oldString.toCharArray(), new IncrementingIntList(oldString.length()));
+        RawText newText = new RawText(newString.toCharArray(), new IncrementingIntList(newString.length()));
 
         EditList edits = diff.diff(RawTextComparator.DEFAULT, oldText, newText);
         List<EditorUpdate> updates = new ArrayList<>(edits.size());

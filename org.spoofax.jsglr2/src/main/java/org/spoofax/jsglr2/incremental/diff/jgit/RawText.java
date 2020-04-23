@@ -37,7 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * A Sequence supporting UNIX formatted text in byte[] format.
+ * A Sequence supporting UNIX formatted text in char[] format.
  * <p>
  * Elements of the sequence are the lines of the file, as delimited by the UNIX newline character ('\n'). The file
  * content is treated as 8 bit binary text, with no assumptions or requirements on character encoding.
@@ -48,19 +48,19 @@ import java.io.OutputStream;
  */
 public class RawText extends Sequence {
     /** A RawText of length 0 */
-    public static final RawText EMPTY_TEXT = new RawText(new byte[0], new IntList());
+    public static final RawText EMPTY_TEXT = new RawText(new char[0], new IntList());
 
     /** Number of bytes to check for heuristics in {@link #isBinary(byte[])} */
     static final int FIRST_FEW_BYTES = 8000;
 
     /** The file content for this sequence. */
-    protected final byte[] content;
+    protected final char[] content;
 
     /** Map of line number to starting position within {@link #content}. */
     protected final IntList lines;
 
     /**
-     * Create a new sequence from the existing content byte array and the line map indicating line boundaries.
+     * Create a new sequence from the existing content char array and the line map indicating line boundaries.
      *
      * @param input
      *            the content array. The object retains a reference to this array, so it should be immutable.
@@ -69,7 +69,7 @@ public class RawText extends Sequence {
      *            {@link Integer#MIN_VALUE} and an offset one past the end of the last line, respectively.
      * @since 5.0
      */
-    public RawText(byte[] input, IntList lineMap) {
+    public RawText(char[] input, IntList lineMap) {
         content = input;
         lines = lineMap;
     }
@@ -78,7 +78,7 @@ public class RawText extends Sequence {
      * @return the raw, unprocessed content read.
      * @since 4.11
      */
-    public byte[] getRawContent() {
+    public char[] getRawContent() {
         return content;
     }
 
@@ -112,7 +112,7 @@ public class RawText extends Sequence {
         int end = getEnd(i);
         if(content[end - 1] == '\n')
             end--;
-        out.write(content, start, end - start);
+        out.write(new String(content).getBytes(), start, end - start);
     }
 
     /**

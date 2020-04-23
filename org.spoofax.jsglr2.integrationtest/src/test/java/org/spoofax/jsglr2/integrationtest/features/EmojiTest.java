@@ -51,4 +51,9 @@ public class EmojiTest extends BaseTestWithSdf3ParseTables {
                 new TokenDescriptor("😄", IToken.TK_IDENTIFIER, 5, 1, 5, "ID", null)));
     }
 
+    @TestFactory public Stream<DynamicTest> testEmojiIncremental() throws ParseError {
+        return testIncrementalSuccessByExpansions(new String[] { "😇 ➕ 😄😄", "😇😇  ➕ 😄" },
+                new String[] { "[Add(Var(\"😇\"),\"➕\",Var(\"😄😄\"))]", "[Add(Var(\"😇😇\"),\"➕\",Var(\"😄\"))]" });
+    }
+
 }

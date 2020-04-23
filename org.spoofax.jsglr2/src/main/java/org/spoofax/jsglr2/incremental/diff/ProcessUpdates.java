@@ -96,7 +96,7 @@ public class ProcessUpdates
                     return newParseNodeFromChildren(getParseNodeFromString(inserted), currentForest);
                 }
                 // If insert position is NOT begin of string: append to current character
-                if(deletedStartOffset != 0 && currentOffset == deletedStartOffset - 1) {
+                if(deletedStartOffset != 0 && currentOffset == deletedStartOffset - currentForest.width()) {
                     updates.removeFirst();
                     return newParseNodeFromChildren(currentForest, getParseNodeFromString(inserted));
                 }
@@ -105,13 +105,13 @@ public class ProcessUpdates
             }
             // Replace first deleted character with the inserted string (if any)
             if(type == REPLACEMENT && currentOffset == deletedStartOffset) {
-                if(currentOffset == deletedEndOffset - 1)
+                if(currentOffset == deletedEndOffset - currentForest.width())
                     updates.removeFirst();
                 return getParseNodeFromString(inserted);
             }
             // Else: delete all characters within deletion range
             if(deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset) {
-                if(currentOffset == deletedEndOffset - 1)
+                if(currentOffset == deletedEndOffset - currentForest.width())
                     updates.removeFirst();
                 return null;
             }

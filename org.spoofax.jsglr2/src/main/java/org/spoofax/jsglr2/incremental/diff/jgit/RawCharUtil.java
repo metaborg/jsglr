@@ -45,7 +45,7 @@
 package org.spoofax.jsglr2.incremental.diff.jgit;
 
 /**
- * Utility class for character functions on raw bytes
+ * Utility class for character functions on raw chars
  * <p>
  * Characters are assumed to be 8-bit US-ASCII.
  */
@@ -66,24 +66,24 @@ public class RawCharUtil {
      *            the 8-bit US-ASCII encoded character
      * @return true if c represents a whitespace character in 8-bit US-ASCII
      */
-    public static boolean isWhitespace(byte c) {
+    public static boolean isWhitespace(char c) {
         return WHITESPACE[c & 0xff];
     }
 
     /**
-     * Returns the new end point for the byte array passed in after trimming any
+     * Returns the new end point for the char array passed in after trimming any
      * trailing whitespace characters, as determined by the isWhitespace()
      * function. start and end are assumed to be within the bounds of raw.
      *
      * @param raw
-     *            the byte array containing the portion to trim whitespace for
+     *            the char array containing the portion to trim whitespace for
      * @param start
-     *            the start of the section of bytes
+     *            the start of the section of chars
      * @param end
-     *            the end of the section of bytes
+     *            the end of the section of chars
      * @return the new end point
      */
-    public static int trimTrailingWhitespace(byte[] raw, int start, int end) {
+    public static int trimTrailingWhitespace(char[] raw, int start, int end) {
         int ptr = end - 1;
         while (start <= ptr && isWhitespace(raw[ptr]))
             ptr--;
@@ -92,19 +92,19 @@ public class RawCharUtil {
     }
 
     /**
-     * Returns the new start point for the byte array passed in after trimming
+     * Returns the new start point for the char array passed in after trimming
      * any leading whitespace characters, as determined by the isWhitespace()
      * function. start and end are assumed to be within the bounds of raw.
      *
      * @param raw
-     *            the byte array containing the portion to trim whitespace for
+     *            the char array containing the portion to trim whitespace for
      * @param start
-     *            the start of the section of bytes
+     *            the start of the section of chars
      * @param end
-     *            the end of the section of bytes
+     *            the end of the section of chars
      * @return the new start point
      */
-    public static int trimLeadingWhitespace(byte[] raw, int start, int end) {
+    public static int trimLeadingWhitespace(char[] raw, int start, int end) {
         while (start < end && isWhitespace(raw[start]))
             start++;
 

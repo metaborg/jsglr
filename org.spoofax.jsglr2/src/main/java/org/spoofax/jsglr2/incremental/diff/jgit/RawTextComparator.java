@@ -74,7 +74,7 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 		}
 
 		@Override
-		protected int hashRegion(byte[] raw, int ptr, int end) {
+		protected int hashRegion(char[] raw, int ptr, int end) {
 			int hash = 5381;
 			for (; ptr < end; ptr++)
 				hash = ((hash << 5) + hash) + (raw[ptr] & 0xff);
@@ -98,8 +98,8 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 			be = trimTrailingWhitespace(b.content, bs, be);
 
 			while (as < ae && bs < be) {
-				byte ac = a.content[as];
-				byte bc = b.content[bs];
+				char ac = a.content[as];
+				char bc = b.content[bs];
 
 				while (as < ae - 1 && isWhitespace(ac)) {
 					as++;
@@ -122,10 +122,10 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 		}
 
 		@Override
-		protected int hashRegion(byte[] raw, int ptr, int end) {
+		protected int hashRegion(char[] raw, int ptr, int end) {
 			int hash = 5381;
 			for (; ptr < end; ptr++) {
-				byte c = raw[ptr];
+				char c = raw[ptr];
 				if (!isWhitespace(c))
 					hash = ((hash << 5) + hash) + (c & 0xff);
 			}
@@ -161,7 +161,7 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 		}
 
 		@Override
-		protected int hashRegion(byte[] raw, int ptr, int end) {
+		protected int hashRegion(char[] raw, int ptr, int end) {
 			int hash = 5381;
 			ptr = trimLeadingWhitespace(raw, ptr, end);
 			for (; ptr < end; ptr++)
@@ -196,7 +196,7 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 		}
 
 		@Override
-		protected int hashRegion(byte[] raw, int ptr, int end) {
+		protected int hashRegion(char[] raw, int ptr, int end) {
 			int hash = 5381;
 			end = trimTrailingWhitespace(raw, ptr, end);
 			for (; ptr < end; ptr++)
@@ -221,8 +221,8 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 			be = trimTrailingWhitespace(b.content, bs, be);
 
 			while (as < ae && bs < be) {
-				byte ac = a.content[as];
-				byte bc = b.content[bs];
+				char ac = a.content[as];
+				char bc = b.content[bs];
 
 				if (ac != bc)
 					return false;
@@ -241,11 +241,11 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 		}
 
 		@Override
-		protected int hashRegion(byte[] raw, int ptr, int end) {
+		protected int hashRegion(char[] raw, int ptr, int end) {
 			int hash = 5381;
 			end = trimTrailingWhitespace(raw, ptr, end);
 			while (ptr < end) {
-				byte c = raw[ptr];
+				char c = raw[ptr];
 				hash = ((hash << 5) + hash) + (c & 0xff);
 				if (isWhitespace(c))
 					ptr = trimLeadingWhitespace(raw, ptr, end);
@@ -275,8 +275,8 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 		if (e.beginA == e.endA || e.beginB == e.endB)
 			return e;
 
-		byte[] aRaw = a.content;
-		byte[] bRaw = b.content;
+		char[] aRaw = a.content;
+		char[] bRaw = b.content;
 
 		int aPtr = a.lines.get(e.beginA + 1);
 		int bPtr = a.lines.get(e.beginB + 1);
@@ -342,5 +342,5 @@ public abstract class RawTextComparator extends SequenceComparator<RawText> {
 	 *            1 past the last byte of the region.
 	 * @return hash code for the region <code>[ptr, end)</code> of raw.
 	 */
-	protected abstract int hashRegion(byte[] raw, int ptr, int end);
+	protected abstract int hashRegion(char[] raw, int ptr, int end);
 }

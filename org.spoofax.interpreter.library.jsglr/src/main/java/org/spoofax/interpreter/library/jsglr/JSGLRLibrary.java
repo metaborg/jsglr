@@ -5,7 +5,7 @@
  */
 package org.spoofax.interpreter.library.jsglr;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -17,10 +17,10 @@ import org.spoofax.jsglr.client.Disambiguator;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.io.ParseTableManager;
-import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.states.StateFactory;
+import org.metaborg.parsetable.actions.ActionsFactory;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
+import org.metaborg.parsetable.states.StateFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,81 +1,53 @@
 package org.spoofax.jsglr2;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.parsetable.IParseTable;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
-import org.spoofax.jsglr2.JSGLR2Variants.Variant;
-import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.imploder.ImploderVariant;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
-import org.spoofax.jsglr2.reducing.Reducing;
-import org.spoofax.jsglr2.stack.StackRepresentation;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.states.StateFactory;
-import org.spoofax.jsglr2.tokens.TokenizerVariant;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 
 public interface JSGLR2<AbstractSyntaxTree> {
-    static JSGLR2<IStrategoTerm> standard(IParseTable parseTable) {
-        return JSGLR2Variants.getJSGLR2(parseTable,
-            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid, ParseForestConstruction.Full, StackRepresentation.HybridElkhound,
-                Reducing.Elkhound), ImploderVariant.TokenizedRecursive, TokenizerVariant.Null));
+
+    void attachObserver(IParserObserver<?, ?, ?, ?, ?> parserObserver);
+
+    JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request);
+
+    default JSGLR2Result<AbstractSyntaxTree> parseResult(String input) {
+        return parseResult(new JSGLR2Request(input));
     }
 
-    static JSGLR2<IStrategoTerm> dataDependent(IParseTable parseTable) {
-        return JSGLR2Variants.getJSGLR2(parseTable,
-            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.DataDependent, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.DataDependent), ImploderVariant.TokenizedRecursive, TokenizerVariant.Null));
+    default JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String fileName, String startSymbol) {
+        return parseResult(new JSGLR2Request(input, fileName, startSymbol));
     }
 
-    static JSGLR2<IStrategoTerm> layoutSensitive(IParseTable parseTable) {
-        return JSGLR2Variants.getJSGLR2(parseTable,
-            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.LayoutSensitive, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.DataDependent), ImploderVariant.TokenizedRecursive, TokenizerVariant.Null));
-    }
+    default AbstractSyntaxTree parse(JSGLR2Request request) {
+        JSGLR2Result<AbstractSyntaxTree> result = parseResult(request);
 
-    static JSGLR2<IStrategoTerm> incremental(IParseTable parseTable) {
-        return JSGLR2Variants.getJSGLR2(parseTable,
-            new Variant(new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Basic,
-                Reducing.Basic), ImploderVariant.RecursiveIncremental, TokenizerVariant.Recursive));
-    }
-
-    static JSGLR2<IStrategoTerm> standard(IStrategoTerm parseTableTerm) throws ParseTableReadException {
-        IParseTable parseTable =
-            new ParseTableReader(new CharacterClassFactory(true, true), new ActionsFactory(true), new StateFactory())
-                .read(parseTableTerm);
-
-        return standard(parseTable);
+        if(result.isSuccess())
+            return ((JSGLR2Success<AbstractSyntaxTree>) result).ast;
+        else
+            return null;
     }
 
     default AbstractSyntaxTree parse(String input) {
-        return parse(input, "", null);
+        return parse(new JSGLR2Request(input));
     }
 
-    default AbstractSyntaxTree parse(String input, String filename, String startSymbol) {
-        return parseResult(input, filename, startSymbol).ast;
+    default AbstractSyntaxTree parse(String input, String fileName, String startSymbol) {
+        return parse(new JSGLR2Request(input, fileName, startSymbol));
     }
 
-    default JSGLR2Result<AbstractSyntaxTree> parseResult(String input, String filename, String startSymbol) {
-        try {
-            return parseUnsafeResult(input, filename, startSymbol);
-        } catch(ParseException e) {
-            return new JSGLR2Result<>();
-        }
+    default AbstractSyntaxTree parseUnsafe(JSGLR2Request request) throws ParseException {
+        JSGLR2Result<AbstractSyntaxTree> result = parseResult(request);
+
+        if(result.isSuccess())
+            return ((JSGLR2Success<AbstractSyntaxTree>) result).ast;
+        else
+            throw((JSGLR2Failure<AbstractSyntaxTree>) result).parseFailure.exception();
     }
 
-    default AbstractSyntaxTree parseUnsafe(String input, String filename, String startSymbol) throws ParseException {
-        return parseUnsafeResult(input, filename, startSymbol).ast;
+    default AbstractSyntaxTree parseUnsafe(String input) throws ParseException {
+        return parseUnsafe(new JSGLR2Request(input));
     }
 
-    JSGLR2Result<AbstractSyntaxTree> parseUnsafeResult(String input, String filename, String startSymbol)
-        throws ParseException;
+    default AbstractSyntaxTree parseUnsafe(String input, String fileName, String startSymbol) throws ParseException {
+        return parseUnsafe(new JSGLR2Request(input, fileName, startSymbol));
+    }
 }

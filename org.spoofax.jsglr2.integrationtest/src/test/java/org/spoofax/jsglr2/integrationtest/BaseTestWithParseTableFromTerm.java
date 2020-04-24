@@ -14,7 +14,7 @@ public abstract class BaseTestWithParseTableFromTerm extends BaseTest implements
     }
 
     protected void setupParseTable(String parseTable) throws Exception {
-        setParseTableFromTermFile("parsetables/" + parseTable + ".tbl");
+        setParseTableFromTermResource("parsetables/" + parseTable + ".tbl");
     }
 
     public void setParseTableTerm(IStrategoTerm parseTableTerm) {

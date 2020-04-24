@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.incremental.parseforest;
 
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
@@ -7,9 +8,14 @@ public abstract class IncrementalParseForest implements IParseForest {
     private final int width;
 
     protected IncrementalParseForest(int width) {
-        super();
         this.width = width;
     }
+
+    /** Returns whether this parse node is in theory reusable, not taking into account the stack it's shifted onto. */
+    public abstract boolean isReusable();
+
+    /** Returns whether this parse node is reusable, taking into account the state of the stack it's shifted onto. */
+    public abstract boolean isReusable(IState stackState);
 
     public abstract boolean isTerminal();
 
@@ -29,7 +35,7 @@ public abstract class IncrementalParseForest implements IParseForest {
 
     /**
      * Warning: calling this method for every node in the parse tree is very memory-inefficient. If you need parts of
-     * the input string, you're better off saving the input string and calling `charAt` or `substring` on that.
+     * the input string, you're better off saving the input string and calling `codePointAt` or `substring` on that.
      *
      * @return The yield of this parse forest node.
      */

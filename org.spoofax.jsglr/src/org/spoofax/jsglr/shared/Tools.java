@@ -7,6 +7,9 @@
  */
 package org.spoofax.jsglr.shared;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.spoofax.jsglr.client.Measures;
 
 
@@ -20,14 +23,14 @@ public class Tools {
 
     private static Measures measures;
 
-    public static void debug(Object ...s) {
-    	if(debugging)
-    		System.err.println(s);
+    public static void debug(Object... s) {
+        if(debugging)
+            System.err.println(Arrays.stream(s).map(Object::toString).collect(Collectors.joining()));
     }
 
-    public static void logger(Object ...s) {
-    	if(logging)
-    		System.out.println(s);
+    public static void logger(Object... s) {
+        if(logging)
+            System.out.println(Arrays.stream(s).map(Object::toString).collect(Collectors.joining()));
     }
 
     public static void setLogging(boolean enableLogging) {

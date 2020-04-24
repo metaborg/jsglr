@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.integration;
 
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -10,6 +11,7 @@ import org.metaborg.core.editor.IEditorRegistry;
 import org.metaborg.core.editor.NullEditorRegistry;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
@@ -20,6 +22,7 @@ import org.metaborg.sdf2table.grammar.NormGrammar;
 import org.metaborg.sdf2table.io.NormGrammarReader;
 import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.ParseTable;
+import org.metaborg.sdf2table.parsetable.ParseTableConfiguration;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
@@ -27,6 +30,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
 import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;
 
@@ -78,39 +82,67 @@ public class Sdf3ToParseTable {
     }
 
     public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
-        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource);
+        return getParseTable(variant, sdf3Resource, false);
+    }
+
+    public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource, boolean permissive)
+        throws Exception {
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, permissive);
 
         // TODO: use the parse table variant in the parse table generator
-        return new ParseTable(normalizedGrammar, false, false, true);
+        return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false));
+    }
+
+    public IParseTable getLayoutSensitiveParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, false);
+
+        // TODO: use the parse table variant in the parse table generator
+        return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, false, false, false));
     }
 
     public IStrategoTerm getParseTableTerm(String sdf3Resource) throws Exception {
-        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource);
+        return getParseTableTerm(sdf3Resource, false);
+    }
 
-        ParseTable parseTable = new ParseTable(normalizedGrammar, false, false, true);
+    public IStrategoTerm getParseTableTerm(String sdf3Resource, boolean permissive) throws Exception {
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, permissive);
+
+        ParseTable parseTable =
+            new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false));
 
         return ParseTableIO.generateATerm(parseTable);
     }
 
-    private NormGrammar normalizedGrammarFromSDF3(String sdf3Resource) throws Exception {
+    private NormGrammar normalizedGrammarFromSDF3(String sdf3Resource, boolean permissive) throws Exception {
         final FileObject sdf3File = spoofax.resourceService.resolve(getResourcePath(sdf3Resource));
         final String sdf3Text = spoofax.sourceTextService.text(sdf3File);
 
         ISpoofaxInputUnit inputUnit = spoofax.unitService.inputUnit(sdf3File, sdf3Text, sdf3Impl, null);
 
         final ISpoofaxParseUnit parseResult = spoofax.syntaxService.parse(inputUnit);
-        final IStrategoTerm sdf3Module = parseResult.ast();
+        if(!parseResult.success())
+            throw new RuntimeException("Parsing of " + sdf3Resource + " failed: "
+                + Iterables2.stream(parseResult.messages()).map(IMessage::message).collect(Collectors.joining(", ")));
 
-        final IStrategoTerm sdf3ModuleNormalized = normalizeSDF3(sdf3Module);
+        final IStrategoTerm sdf3Module = parseResult.ast();
+        final IStrategoTerm sdf3ModuleNormalized = normalize(permissive ? makePermissive(sdf3Module) : sdf3Module);
 
         return new NormGrammarReader().readGrammar(sdf3ModuleNormalized);
     }
 
-    private IStrategoTerm normalizeSDF3(IStrategoTerm sdf3Module) throws MetaborgException {
-        try(IClosableLock lock = context.read()) {
+    private IStrategoTerm normalize(IStrategoTerm sdf3Module) throws MetaborgException {
+        return executeStratego(sdf3Module, "module-to-normal-form");
+    }
+
+    private IStrategoTerm makePermissive(IStrategoTerm sdf3Module) throws MetaborgException {
+        return executeStratego(sdf3Module, "module-to-permissive");
+    }
+
+    private IStrategoTerm executeStratego(IStrategoTerm input, String strategy) throws MetaborgException {
+        try(IClosableLock ignored = context.read()) {
             final HybridInterpreter runtime = spoofax.strategoRuntimeService.runtime(sdf3Component, context, false);
 
-            return spoofax.strategoCommon.invoke(runtime, sdf3Module, "module-to-normal-form");
+            return spoofax.strategoCommon.invoke(runtime, input, strategy);
         }
     }
 

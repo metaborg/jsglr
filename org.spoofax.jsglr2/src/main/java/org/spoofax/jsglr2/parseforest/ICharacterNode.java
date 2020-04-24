@@ -1,13 +1,13 @@
 package org.spoofax.jsglr2.parseforest;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 
 public interface ICharacterNode extends IParseForest {
 
     int character();
 
     default int width() {
-        return 1;
+        return Character.charCount(character());
     }
 
     default String descriptor() {

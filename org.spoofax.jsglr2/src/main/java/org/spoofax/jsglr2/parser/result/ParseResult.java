@@ -1,16 +1,21 @@
 package org.spoofax.jsglr2.parser.result;
 
+import java.util.Collection;
+
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.AbstractParse;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 
 public abstract class ParseResult<ParseForest extends IParseForest> {
 
-    public final AbstractParse<ParseForest, ?> parse;
-    public final boolean isSuccess;
+    public final AbstractParseState<?, ?> parseState;
+    public final Collection<Message> messages;
 
-    protected ParseResult(AbstractParse<ParseForest, ?> parse, boolean isSuccess) {
-        this.parse = parse;
-        this.isSuccess = isSuccess;
+    ParseResult(AbstractParseState<?, ?> parseState, Collection<Message> messages) {
+        this.parseState = parseState;
+        this.messages = messages;
     }
+
+    public abstract boolean isSuccess();
 
 }

@@ -1,7 +1,12 @@
 package org.spoofax.jsglr2.integration;
 
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import java.util.Objects;
+
+import org.metaborg.parsetable.ParseTableReader;
+import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.parsetable.states.IStateFactory;
+import org.metaborg.parsetable.states.StateFactory;
 
 // TODO move to SDF and use in StateFactory?
 public class ParseTableVariant {
@@ -14,9 +19,31 @@ public class ParseTableVariant {
         this.productionToGotoRepresentation = productionToGotoRepresentation;
     }
 
+    /** Uses the standard ActionsForCharacterRepresentation and ProductionToGotoRepresentation. */
+    public ParseTableVariant() {
+        this(ActionsForCharacterRepresentation.standard(), ProductionToGotoRepresentation.standard());
+    }
+
+    public static ParseTableVariant standard() {
+        return new ParseTableVariant();
+    }
+
     public String name() {
-        return "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation
-            + "/ProductionToGotoRepresentation:" + productionToGotoRepresentation;
+        return (actionsForCharacterRepresentation == ActionsForCharacterRepresentation.standard() ? "_"
+            : "ActionsForCharacterRepresentation:" + actionsForCharacterRepresentation) + "/"
+            + (productionToGotoRepresentation == ProductionToGotoRepresentation.standard() ? "_"
+                : "ProductionToGotoRepresentation:" + productionToGotoRepresentation);
+    }
+
+    public ParseTableReader parseTableReader() {
+        IStateFactory stateFactory =
+            new StateFactory(actionsForCharacterRepresentation, productionToGotoRepresentation);
+
+        return new ParseTableReader(stateFactory);
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(actionsForCharacterRepresentation, productionToGotoRepresentation);
     }
 
     @Override public boolean equals(Object o) {

@@ -1,28 +1,63 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import org.junit.BeforeClass;
+import java.util.Arrays;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.sdf2table.io.ParseTableIO;
+import org.metaborg.sdf2table.parsetable.ParseTable;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+
 public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
-    private String sdf3Resource;
+    protected String sdf3Resource;
+    protected static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
+    protected static Table<String, ParseTableVariant, Iterable<ParseTableWithOrigin>> parseTablesCache =
+        HashBasedTable.create();
 
     protected BaseTestWithSdf3ParseTables(String sdf3Resource) {
         this.sdf3Resource = sdf3Resource;
     }
 
-    private static Sdf3ToParseTable sdf3ToParseTable;
+    protected static Sdf3ToParseTable sdf3ToParseTable;
 
-    @BeforeClass public static void setup() throws MetaborgException {
+    @BeforeAll public static void setup() throws MetaborgException {
         sdf3ToParseTable = new Sdf3ToParseTable(
             resource -> BaseTestWithSdf3ParseTables.class.getClassLoader().getResource(resource).getPath());
     }
 
-    public IParseTable getParseTable(ParseTableVariant variant) throws Exception {
+    public ParseTableWithOrigin getParseTable(ParseTableVariant variant) throws Exception {
+        if(!parseTableTable.contains(sdf3Resource, variant)) {
+            parseTableTable.put(sdf3Resource, variant, getParseTable(variant, sdf3Resource));
+        }
+        return new ParseTableWithOrigin(parseTableTable.get(sdf3Resource, variant), ParseTableOrigin.Sdf3Generation);
+    }
+
+    public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
         return sdf3ToParseTable.getParseTable(variant, sdf3Resource);
+    }
+
+    @Override public Iterable<ParseTableWithOrigin> getParseTables(ParseTableVariant variant) throws Exception {
+        if(!parseTablesCache.contains(sdf3Resource, variant)) {
+            ParseTableWithOrigin parseTableWithOrigin = getParseTable(variant);
+
+            IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTableWithOrigin.parseTable);
+
+            ParseTableWithOrigin parseTableWithOriginSerializedDeserialized =
+                new ParseTableWithOrigin(variant.parseTableReader().read(parseTableTerm), ParseTableOrigin.ATerm);
+
+            // Ensure that the parse table that directly comes from the generation behaves the same after
+            // serialization/deserialization to/from term format
+            parseTablesCache.put(sdf3Resource, variant,
+                Arrays.asList(parseTableWithOrigin, parseTableWithOriginSerializedDeserialized));
+        }
+        return parseTablesCache.get(sdf3Resource, variant);
     }
 
 }

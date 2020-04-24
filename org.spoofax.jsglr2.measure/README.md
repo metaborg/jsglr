@@ -1,14 +1,32 @@
 # JSGLR2 Measurements
 
-Execute measurements:
+## Build
 
 ```
-mvn clean install exec:java
+mvn clean install
 ```
 
-Reports are written to CSV files at the default location `~/Desktop/jsglr2reports/`.
-An alternative location can be configured by setting the system property `org.spoofax.jsglr2.measure.JSGLR2Measurements.reportPath`, e.g. with:
+## Execute
 
 ```
-mvn clean install exec:java -Dorg.spoofax.jsglr2.measure.JSGLR2Measurements.reportPath=/some/other/path/
+mvn exec:java
+```
+
+## Output
+
+By default, measurements are written to CSV files at the default location `~/jsglr2measurements`.
+Alternatively, a different location can be configured by setting the system property `reportPath`, e.g. with:
+
+```
+mvn exec:java -DreportPath=/some/other/path
+```
+
+## Languages
+
+By default, measurements for interal languages and test sets will be performed.
+
+Alternatively, a custom language and sources can be configured by passing argument `exec.args`, e.g. with:
+
+```
+mvn exec:java -Dexec.args="name extensions /path/to/parsetable /path/to/sources"
 ```

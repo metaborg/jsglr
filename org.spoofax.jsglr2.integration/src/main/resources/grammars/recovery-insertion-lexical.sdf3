@@ -1,0 +1,23 @@
+module recovery
+
+lexical syntax
+	LAYOUT  = [\ \n\r]
+
+context-free restrictions
+	LAYOUT? -/- [\ \n\r]
+
+context-free start-symbols
+
+  Start
+
+context-free syntax
+
+  Start.Start = X Y Z
+
+  X.X = "x"
+  Y.Y = "y"
+  Z.Z = "z"
+
+lexical syntax
+
+  "y".INSERTION = {recover}

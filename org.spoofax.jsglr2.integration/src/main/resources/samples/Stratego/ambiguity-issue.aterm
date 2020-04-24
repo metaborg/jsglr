@@ -1,0 +1,23 @@
+Module(
+  "stratego/aterm/Explode"
+, [ Rules(
+      [ RDefNoArgs(
+          "aterm-explode-annotated"
+        , RuleNoCond(
+            Anno(
+              Var("t")
+            , As(Var("as"), ListTail([Wld()], Wld()))
+            )
+          , NoAnnoList(
+              Tuple(
+                [ NoAnnoList(Tuple([]))
+                , App(CallNoArgs(SVar("explode-aterm")), AnnoList(Var("t"), []))
+                ]
+              )
+            )
+          )
+        )
+      ]
+    )
+  ]
+)

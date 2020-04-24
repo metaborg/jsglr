@@ -2,13 +2,14 @@ package org.spoofax.jsglr2.testset;
 
 public class TestSetParseTableFromATerm extends TestSetParseTable {
 
-    public final String name; // Path of file (without .tbl extension) in
-                              // org.spoofax.jsglr2/src/test/resources/parsetable
+    public final String file;
+    public final boolean internal;
 
-    protected TestSetParseTableFromATerm(String name) {
+    public TestSetParseTableFromATerm(String file, boolean internal) {
         super(Source.ATERM);
 
-        this.name = name;
+        this.file = file;
+        this.internal = internal;
     }
 
 }

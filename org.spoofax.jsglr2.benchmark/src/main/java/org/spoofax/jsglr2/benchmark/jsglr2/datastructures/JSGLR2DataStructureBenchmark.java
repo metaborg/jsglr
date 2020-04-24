@@ -1,69 +1,57 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.datastructures;
 
-import org.metaborg.characterclasses.CharacterClassFactory;
-import org.metaborg.characterclasses.ICharacterClassFactory;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableReader;
 import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.JSGLR2Variants;
-import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
-import org.spoofax.jsglr2.actions.ActionsFactory;
-import org.spoofax.jsglr2.actions.IActionsFactory;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
-import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
-import org.spoofax.jsglr2.parseforest.basic.BasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.IBasicDerivation;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseForest;
+import org.spoofax.jsglr2.parseforest.basic.IBasicParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parsetable.ParseTableReadException;
-import org.spoofax.jsglr2.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.basic.BasicStackNode;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.states.IStateFactory;
-import org.spoofax.jsglr2.states.StateFactory;
-import org.spoofax.jsglr2.testset.StringInput;
-import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetWithParseTableReader;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<StringInput> {
+public abstract class JSGLR2DataStructureBenchmark extends BaseBenchmark<String, StringInput> {
 
-    protected IObservableParser<BasicParseForest, BasicStackNode<BasicParseForest>> parser;
+    protected TestSetWithParseTableReader<String, StringInput> testSetReader;
 
-    protected JSGLR2DataStructureBenchmark(TestSet testSet) {
-        super(new BenchmarkStringInputTestSetReader(testSet));
-    }
+    protected IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>> parser;
 
     @SuppressWarnings("unchecked") @Setup public void parserSetup() throws ParseError, ParseTableReadException {
         IParseTable parseTable = readParseTable(testSetReader.getParseTableTerm());
 
         parser =
-            (IObservableParser<BasicParseForest, BasicStackNode<BasicParseForest>>) JSGLR2Variants.getParser(parseTable,
-                new ParserVariant(ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
-                    ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
-                    Reducing.Basic));
+            (IObservableParser<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, BasicStackNode<IBasicParseForest>, AbstractParseState<IInputStack, BasicStackNode<IBasicParseForest>>>) new ParserVariant(
+                ActiveStacksRepresentation.ArrayList, ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Basic, ParseForestConstruction.Full, StackRepresentation.Basic,
+                Reducing.Basic, false).getParser(parseTable);
 
         postParserSetup();
 
         try {
             for(StringInput input : inputs)
-                parser.parseUnsafe(input.content, input.filename, null);
+                parser.parseUnsafe(input.content, null);
         } catch(ParseException e) {
             throw new IllegalStateException("setup of benchmark should not fail");
         }
     }
 
     protected IParseTable readParseTable(IStrategoTerm parseTableTerm) throws ParseTableReadException {
-        IStateFactory stateFactory = new StateFactory(StateFactory.defaultActionsForCharacterRepresentation,
-            StateFactory.defaultProductionToGotoRepresentation);
-        IActionsFactory actionsFactory = new ActionsFactory(true);
-        ICharacterClassFactory characterClassFactory = new CharacterClassFactory(true, true);
-
-        return new ParseTableReader(characterClassFactory, actionsFactory, stateFactory)
-            .read(testSetReader.getParseTableTerm());
+        return new ParseTableReader().read(testSetReader.getParseTableTerm());
     }
 
     abstract protected void postParserSetup();

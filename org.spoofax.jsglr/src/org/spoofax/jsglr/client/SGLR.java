@@ -7,20 +7,14 @@
  */
 package org.spoofax.jsglr.client;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
+import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.indentation.LayoutFilter;
+import org.spoofax.jsglr.shared.*;
 import org.spoofax.jsglr.shared.ArrayDeque;
-import org.spoofax.jsglr.shared.BadTokenException;
-import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.jsglr.shared.TokenExpectedException;
-import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.util.PushbackStringIterator;
 
 public class SGLR {
@@ -38,7 +32,7 @@ public class SGLR {
 
     private final Set<BadTokenException> collectedErrors = new LinkedHashSet<BadTokenException>();
 
-    public static final int EOF = ParseTable.NUM_CHARS;
+    public static final int EOF = ICharacterClass.EOF_INT;
 
     static final int TAB_SIZE = 8;
 
@@ -376,9 +370,8 @@ public class SGLR {
             if(!(getTreeBuilder() instanceof NullTreeBuilder)) {
                 try {
                     getTreeBuilder().reset(startReductionOffset);
-                    IStrategoTerm candidate =
-                        ((IStrategoTerm) disambiguator.applyFilters(this, node, null, startReductionOffset,
-                            tokensSeen));
+                    IStrategoTerm candidate = ((IStrategoTerm) disambiguator.applyFilters(this, node, null,
+                        startReductionOffset, tokensSeen));
                     if(candidate != null)
                         result.add(candidate);
                 } catch(FilterException e) {
@@ -443,7 +436,7 @@ public class SGLR {
             do {
                 assert getHistory().getTokenIndex() == this.currentInputStream.getOffset();
                 assert this.currentInputStream.getOffset() <= endParseOffset;
-                // System.out.print(((char)this.currentToken));
+                // System.out.print(logCharify(this.currentToken));
                 readNextToken();
                 history.keepTokenAndState(this);
                 doParseStep();
@@ -617,27 +610,23 @@ public class SGLR {
     }
 
     void readNextToken() {
-        // System.out.print("(" + (currentToken.getOffset()) + ")=" + (char) currentToken.getToken());
+        // System.out.print("(" + (currentToken.getOffset()) + ")=" + logCharify(currentToken.getToken()));
         logCurrentToken();
         setCurrentToken(getNextToken());
     }
 
     protected void setCurrentToken(TokenOffset tok) {
-        if(currentToken.getToken() == -1)
-            currentIndentation = 0;
-        else
-            switch(currentToken.getToken()) {
-                case '\n':
-                    currentIndentation = 0;
-                    break;
-                case '\t':
-                    currentIndentation = (currentIndentation / TAB_SIZE + 1) * TAB_SIZE;
-                    break;
-                case -1:
-                    break;
-                default:
-                    currentIndentation++;
-            }
+        switch(currentToken.getToken()) {
+            case TokenOffset.NONE:
+            case '\n':
+                currentIndentation = 0;
+                break;
+            case '\t':
+                currentIndentation = (currentIndentation / TAB_SIZE + 1) * TAB_SIZE;
+                break;
+            default:
+                currentIndentation++;
+        }
 
         this.currentToken.setToken(tok.getToken());
         this.currentToken.setOffset(tok.getOffset());
@@ -697,10 +686,13 @@ public class SGLR {
 
                 do {
                     final int token = action.getSingularRange();
-                    if(token == -1) {
+                    if(token == RangeList.NONE) {
                         break;
                     }
-                    expected.append((char) token);
+                    if(token == EOF)
+                        expected.append("EOF");
+                    else
+                        expected.appendCodePoint(token);
 
                     final ActionItem[] items = action.getActionItems();
 
@@ -731,7 +723,7 @@ public class SGLR {
             new ParseProductionNode(currentToken.getToken(), lastLineNumber, lastColumnNumber);
 
         // System.out.println("current token offset " + currentTokenOffset);
-        // System.out.println("shifted token " + (char)currentToken + " or (int) " + currentToken);
+        // System.out.println("shifted token " + logCharify(currentToken) + " or (int) " + currentToken);
 
         while(forShifter.size() > 0) {
             final ActionState as = forShifter.remove();
@@ -1351,12 +1343,7 @@ public class SGLR {
     }
 
     boolean isLayout(int token) {
-        char tokenChar = (char) token;
-
-        if(tokenChar == ' ' || tokenChar == '\n' || tokenChar == '\t')
-            return true;
-
-        return false;
+        return token == ' ' || token == '\n' || token == '\t';
     }
 
     /*
@@ -1798,7 +1785,7 @@ public class SGLR {
         tokensSeen++;
 
         if(Tools.debugging) {
-            Tools.debug("getNextToken() - ", ch, "(", (char) ch, ")");
+            Tools.debug("getNextToken() - ", ch, "(", ch, ",", logCharify(ch), ")");
         }
 
         lastLineNumber = lineNumber;
@@ -1835,8 +1822,8 @@ public class SGLR {
     AmbiguityManager getAmbiguityManager() {
         return ambiguityManager;
     }
-    
-    public long getAmbiguitiesCount(){
+
+    public long getAmbiguitiesCount() {
         return disambiguator.getAmbiguityCount();
     }
 
@@ -2019,7 +2006,7 @@ public class SGLR {
             case 0:
                 return "\\0";
             default:
-                return "" + (char) currentToken;
+                return new String(Character.toChars(currentToken));
         }
     }
 
@@ -2170,7 +2157,7 @@ public class SGLR {
             ArrayDeque<Frame> tmpActiveStacks = new ArrayDeque<Frame>(activeStacks);
             ArrayDeque<Frame> tmpForActor = new ArrayDeque<Frame>(forActor);
 
-            currentToken.setToken(256);
+            currentToken.setToken(EOF);
             currentToken.setOffset(Integer.MAX_VALUE);
             ; // EOF
 

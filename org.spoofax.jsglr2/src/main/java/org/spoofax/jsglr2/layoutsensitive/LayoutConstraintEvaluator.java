@@ -1,146 +1,147 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
+import java.util.Optional;
+
 import org.metaborg.sdf2table.grammar.layoutconstraints.*;
 
-public class LayoutConstraintEvaluator<ParseForest extends LayoutSensitiveParseForest> {
+public class LayoutConstraintEvaluator {
 
-    public boolean evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
+    public static <ParseForest extends ILayoutSensitiveParseForest> Optional<Boolean>
+        evaluate(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
+        if(layoutConstraint instanceof BooleanLayoutConstraint) {
+            BooleanLayoutConstraint booleanLayoutConstraint = (BooleanLayoutConstraint) layoutConstraint;
 
-        boolean noValue = false;
+            Optional<Boolean> c1ResultOpt = evaluate(booleanLayoutConstraint.getC1(), parseNodes);
 
-        try {
-            if(layoutConstraint instanceof BooleanLayoutConstraint) {
-                switch(((BooleanLayoutConstraint) layoutConstraint).getOp()) {
+            if(!c1ResultOpt.isPresent())
+                return Optional.empty();
+            else {
+                boolean c1Result = c1ResultOpt.get();
+
+                switch(booleanLayoutConstraint.getOp()) {
                     case AND:
-                        return evaluate(((BooleanLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                            && evaluate(((BooleanLayoutConstraint) layoutConstraint).getC2(), parseNodes);
                     case OR:
-                        return evaluate(((BooleanLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                            || evaluate(((BooleanLayoutConstraint) layoutConstraint).getC2(), parseNodes);
+                        Optional<Boolean> c2ResultOpt = evaluate(booleanLayoutConstraint.getC2(), parseNodes);
+
+                        if(!c2ResultOpt.isPresent())
+                            return Optional.empty();
+                        else {
+                            boolean c2Result = c2ResultOpt.get();
+
+                            switch(booleanLayoutConstraint.getOp()) {
+                                case AND:
+                                    return Optional.of(c1Result && c2Result);
+                                case OR:
+                                    return Optional.of(c1Result || c2Result);
+                            }
+                        }
                     case NOT:
-                        return !evaluate(((BooleanLayoutConstraint) layoutConstraint).getC1(), parseNodes);
+                        return Optional.of(!c1Result);
                 }
             }
+        }
 
-            if(layoutConstraint instanceof ComparisonLayoutConstraint) {
-                int c1Result = evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC1(), parseNodes);
-                int c2Result = evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-                switch(((ComparisonLayoutConstraint) layoutConstraint).getOp()) {
+        if(layoutConstraint instanceof ComparisonLayoutConstraint) {
+            ComparisonLayoutConstraint comparisonLayoutConstraint = (ComparisonLayoutConstraint) layoutConstraint;
+
+            Optional<Integer> c1ResultOpt = evaluateNumeric(comparisonLayoutConstraint.getC1(), parseNodes);
+            Optional<Integer> c2ResultOpt = evaluateNumeric(comparisonLayoutConstraint.getC2(), parseNodes);
+
+            if(!c1ResultOpt.isPresent() || !c2ResultOpt.isPresent())
+                return Optional.empty();
+            else {
+                int c1Result = c1ResultOpt.get();
+                int c2Result = c2ResultOpt.get();
+
+                switch(comparisonLayoutConstraint.getOp()) {
                     case EQ:
-                        return c1Result == c2Result;
+                        return Optional.of(c1Result == c2Result);
                     case GE:
-                        return evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC1(),
-                            parseNodes) >= evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC2(),
-                                parseNodes);
+                        return Optional.of(c1Result >= c2Result);
                     case GT:
-                        return evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC1(),
-                            parseNodes) > evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC2(),
-                                parseNodes);
+                        return Optional.of(c1Result > c2Result);
                     case LE:
-                        return evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC1(),
-                            parseNodes) <= evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC2(),
-                                parseNodes);
+                        return Optional.of(c1Result <= c2Result);
                     case LT:
-                        return evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC1(),
-                            parseNodes) < evaluateNumeric(((ComparisonLayoutConstraint) layoutConstraint).getC2(),
-                                parseNodes);
+                        return Optional.of(c1Result < c2Result);
                 }
             }
-        } catch(NoValueLayoutException e) {
-            noValue = true;
         }
 
-        if(noValue) {
-            return true;
-        } else {
-            throw new Exception("Could not evaluate constraint: " + layoutConstraint);
-        }
+        throw new IllegalStateException("Could not evaluate constraint: " + layoutConstraint);
     }
 
-    private int evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) throws Exception {
-
+    private static <ParseForest extends ILayoutSensitiveParseForest> Optional<Integer>
+        evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
         if(layoutConstraint instanceof NumericLayoutConstraint) {
-            ParseForest tree = parseNodes[((NumericLayoutConstraint) layoutConstraint).getTree()]; // selectCorrectTree(((NumericLayoutConstraint)
-                                                                                                   // layoutConstraint).getTree(),
-                                                                                                   // parseNodes);
+            NumericLayoutConstraint numericLayoutConstraint = (NumericLayoutConstraint) layoutConstraint;
+
+            ParseForest tree = parseNodes[numericLayoutConstraint.getTree()];
 
             if(tree instanceof LayoutSensitiveParseNode
-                && ((LayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
-                throw new NoValueLayoutException();
+                && ((ILayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
+                return Optional.empty();
             }
 
-            switch(((NumericLayoutConstraint) layoutConstraint).getToken()) {
+            switch(numericLayoutConstraint.getToken()) {
                 case FIRST:
-                    if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                        return tree.getStartPosition().column;
+                    if(numericLayoutConstraint.getElem() == ConstraintElement.COL) {
+                        return Optional.of(tree.getStartPosition().column);
                     } else {
-                        return tree.getStartPosition().line;
+                        return Optional.of(tree.getStartPosition().line);
                     }
                 case LAST:
-                    if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                        return tree.getEndPosition().column;
+                    if(numericLayoutConstraint.getElem() == ConstraintElement.COL) {
+                        return Optional.of(tree.getEndPosition().column);
                     } else {
-                        return tree.getEndPosition().line;
+                        return Optional.of(tree.getEndPosition().line);
                     }
                 case LEFT:
-                    if(tree instanceof LayoutSensitiveParseNode) {
-                        if(((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition == null) {
-                            throw new NoValueLayoutException();
-                        } else if(((NumericLayoutConstraint) layoutConstraint).getElem() == ConstraintElement.COL) {
-                            return ((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition.column;
+                    if(tree instanceof ILayoutSensitiveParseNode) {
+                        ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> layoutSensitiveParseNode =
+                            (ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>) tree;
+
+                        if(layoutSensitiveParseNode.getLeftPosition() == null) {
+                            return Optional.empty();
+                        } else if(numericLayoutConstraint.getElem() == ConstraintElement.COL) {
+                            return Optional.of(layoutSensitiveParseNode.getLeftPosition().column);
                         } else {
-                            return ((LayoutSensitiveParseNode) tree).getFirstDerivation().leftPosition.line;
+                            return Optional.of(layoutSensitiveParseNode.getLeftPosition().line);
                         }
                     }
-                    throw new NoValueLayoutException();
+                    return Optional.empty();
                 case RIGHT:
                     // TODO implement this
-                    throw new NoValueLayoutException();
+                    return Optional.empty();
             }
         }
 
         if(layoutConstraint instanceof ArithmeticLayoutConstraint) {
-            switch(((ArithmeticLayoutConstraint) layoutConstraint).getOp()) {
-                case ADD:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        + evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-                case DIV:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        / evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-                case MUL:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        * evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-                case SUB:
-                    return evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC1(), parseNodes)
-                        - evaluateNumeric(((ArithmeticLayoutConstraint) layoutConstraint).getC2(), parseNodes);
-            }
-        }
+            ArithmeticLayoutConstraint arithmeticLayoutConstraint = (ArithmeticLayoutConstraint) layoutConstraint;
 
-        throw new Exception("Could not evaluate constraint: " + layoutConstraint);
-    }
+            Optional<Integer> c1ResultOpt = evaluateNumeric(arithmeticLayoutConstraint.getC1(), parseNodes);
+            Optional<Integer> c2ResultOpt = evaluateNumeric(arithmeticLayoutConstraint.getC2(), parseNodes);
 
-    // skip LAYOUT?-CF nodes
-    private ParseForest selectCorrectTree(int tree, ParseForest[] parseNodes) throws Exception {
+            if(!c1ResultOpt.isPresent() || !c2ResultOpt.isPresent())
+                return Optional.empty();
+            else {
+                int c1Result = c1ResultOpt.get();
+                int c2Result = c2ResultOpt.get();
 
-        int treeCount = tree;
-
-        for(int i = 0; i < parseNodes.length; i++) {
-            ParseForest current = parseNodes[i];
-            if(current == null || current instanceof LayoutSensitiveParseNode) {
-                if(current == null || ((LayoutSensitiveParseNode) current).production().isLayout()) {
-                    continue;
-                } else {
-                    treeCount--;
+                switch(arithmeticLayoutConstraint.getOp()) {
+                    case ADD:
+                        return Optional.of(c1Result + c2Result);
+                    case DIV:
+                        return Optional.of(c1Result / c2Result);
+                    case MUL:
+                        return Optional.of(c1Result * c2Result);
+                    case SUB:
+                        return Optional.of(c1Result - c2Result);
                 }
-            } else {
-                throw new Exception("Could not select correct tree at index " + tree);
-            }
-            if(treeCount == 0) {
-                return current;
             }
         }
 
-        throw new Exception("Could not select correct tree at index " + tree);
+        throw new IllegalStateException("Could not evaluate constraint: " + layoutConstraint);
     }
 
 }

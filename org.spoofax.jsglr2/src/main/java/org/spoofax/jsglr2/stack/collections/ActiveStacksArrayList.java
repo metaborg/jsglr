@@ -5,18 +5,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ActiveStacksArrayList<ParseForest extends IParseForest, StackNode extends IStackNode>
+public class ActiveStacksArrayList
+//@formatter:off
+   <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
+    StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<?, StackNode>>
+//@formatter:on
     implements IActiveStacks<StackNode> {
 
-    protected ParserObserving<ParseForest, StackNode> observing;
+    protected ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
     protected List<StackNode> activeStacks;
 
-    public ActiveStacksArrayList(ParserObserving<ParseForest, StackNode> observing) {
+    public ActiveStacksArrayList(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         this.observing = observing;
         this.activeStacks = new ArrayList<>();
     }
@@ -37,6 +47,10 @@ public class ActiveStacksArrayList<ParseForest extends IParseForest, StackNode e
 
     @Override public boolean isEmpty() {
         return activeStacks.isEmpty();
+    }
+
+    @Override public boolean isMultiple() {
+        return activeStacks.size() > 1;
     }
 
     @Override public StackNode findWithState(IState state) {

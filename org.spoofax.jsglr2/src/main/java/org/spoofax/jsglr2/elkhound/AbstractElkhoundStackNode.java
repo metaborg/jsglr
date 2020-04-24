@@ -1,23 +1,20 @@
 package org.spoofax.jsglr2.elkhound;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
 public abstract class AbstractElkhoundStackNode<ParseForest extends IParseForest> implements IStackNode {
 
     public final IState state;
-    public final Position position;
 
     public boolean isRoot;
     public int deterministicDepth;
     public int referenceCount;
 
-    protected AbstractElkhoundStackNode(IState state, Position position, boolean isRoot) {
+    protected AbstractElkhoundStackNode(IState state, boolean isRoot) {
         this.state = state;
-        this.position = position;
 
         this.isRoot = isRoot;
         this.deterministicDepth = isRoot ? 1 : 0;
@@ -26,10 +23,6 @@ public abstract class AbstractElkhoundStackNode<ParseForest extends IParseForest
 
     public IState state() {
         return state;
-    }
-
-    public Position position() {
-        return position;
     }
 
     public abstract AbstractElkhoundStackNode<ParseForest> getOnlyLinkTo();

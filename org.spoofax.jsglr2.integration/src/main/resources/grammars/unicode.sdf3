@@ -1,0 +1,10 @@
+module unicode
+
+context-free start-symbols
+	Start
+
+context-free syntax
+	Start.Id = ID
+
+lexical syntax
+    ID = ~[]+

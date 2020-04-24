@@ -13,12 +13,12 @@ public class MemoryRecordingTreeBuilder implements ITreeBuilder {
 	private long minTotalMemory = Long.MAX_VALUE;
 	private long minUsedMemory = Long.MAX_VALUE;
 	private int measureCount = 0;
-	
+
 	public MemoryRecordingTreeBuilder(ITreeBuilder actualBuilder) {
 		measure();
 		this.actualBuilder = actualBuilder;
 	}
-	
+
 	private void measure() {
 		long total = Runtime.getRuntime().totalMemory();
 		long free = Runtime.getRuntime().freeMemory();
@@ -29,11 +29,10 @@ public class MemoryRecordingTreeBuilder implements ITreeBuilder {
 		minUsedMemory = Math.min(minUsedMemory, used);
 		measureCount++;
 	}
-	
-	public void initializeTable(ParseTable table, int productionCount,
-			int labelStart, int labelCount) {
+
+	public void initializeTable(ParseTable table, int labelStart, int labelCount) {
 		measure();
-		actualBuilder.initializeTable(table, productionCount, labelStart, labelCount);
+		actualBuilder.initializeTable(table, labelStart, labelCount);
 	}
 
 	public void initializeLabel(int labelNumber,
@@ -61,7 +60,7 @@ public class MemoryRecordingTreeBuilder implements ITreeBuilder {
 		measure();
 		actualBuilder.reset();
 	}
-	
+
 	public void reset(int startOffset) {
 		// TODO Auto-generated method stub
 	}

@@ -1,0 +1,1 @@
+Module("org/webdsl/dsl/java-transformations/java-transformations",[Imports([Import("libstratego-lib"),Import("libjava-front"),Import("org/webdsl/dsl/syntax/webdsl-front")]),Imports([ImportWildcard("org/webdsl/dsl/java-transformations")]),Rules([SDefNoArgs("create-java-artifacts",Seq(CallNoArgs(SVar("java-concat-ids'")),CallNoArgs(SVar("merge-classes"))))])])

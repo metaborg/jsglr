@@ -1,19 +1,31 @@
 package org.spoofax.jsglr2.stack.collections;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ForActorStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends IStackNode>
-    extends ForActorStacks<ParseForest, StackNode> {
+public class ForActorStacksLinkedHashMap
+//@formatter:off
+   <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
+    StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<?, StackNode>>
+//@formatter:on
+    extends ForActorStacks<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     protected Map<Integer, Linked<StackNode>> forActor;
     private Linked<StackNode> last;
 
-    public ForActorStacksLinkedHashMap(ParserObserving<ParseForest, StackNode> observing) {
+    public ForActorStacksLinkedHashMap(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         super(observing);
 
         this.forActor = new HashMap<>();
@@ -54,6 +66,24 @@ public class ForActorStacksLinkedHashMap<ParseForest extends IParseForest, Stack
         forActor.remove(stack.state().id());
 
         return stack;
+    }
+
+    @Override protected Iterable<StackNode> forActorIterable() {
+        return () -> new Iterator<StackNode>() {
+            Linked<StackNode> current = last;
+
+            @Override public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override public StackNode next() {
+                StackNode stackNode = current.stack;
+
+                current = current.prev;
+
+                return stackNode;
+            }
+        };
     }
 
 }

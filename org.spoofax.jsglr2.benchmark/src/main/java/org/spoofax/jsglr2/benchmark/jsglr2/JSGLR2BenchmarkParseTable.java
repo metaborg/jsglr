@@ -1,27 +1,22 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
-import org.metaborg.sdf2table.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.sdf2table.parsetable.query.ProductionToGotoRepresentation;
+import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
+import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
-import org.spoofax.jsglr2.JSGLR2Variants.ParserVariant;
-import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
+import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.ParseException;
+import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.testset.StringInput;
-import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 
-public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<StringInput> {
-
-    protected JSGLR2BenchmarkParseTable(TestSet testSet) {
-        super(new BenchmarkStringInputTestSetReader(testSet));
-    }
+public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<String, StringInput> {
 
     @Param({ "false" }) public boolean implode;
 
@@ -45,7 +40,7 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<StringIn
         IntegrationVariant variant = new IntegrationVariant(
             new ParseTableVariant(actionsForCharacterRepresentation, productionToGotoRepresentation),
             new ParserVariant(activeStacksRepresentation, forActorStacksRepresentation, parseForestRepresentation,
-                parseForestConstruction, stackRepresentation, reducing),
+                parseForestConstruction, stackRepresentation, reducing, false),
             imploderVariant, tokenizerVariant);
         System.out.println("JSGLR2 PT Var: " + variant.name());
         if(variant.equals(new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
@@ -59,8 +54,8 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<StringIn
         return implode;
     }
 
-    @Override protected Object action(StringInput input) throws ParseException {
-        return jsglr2.parser.parseUnsafe(input.content, input.filename, null);
+    @Override protected Object action(Blackhole bh, StringInput input) throws ParseException {
+        return jsglr2.parser.parseUnsafe(input.content, null);
     }
 
 }

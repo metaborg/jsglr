@@ -10,31 +10,19 @@ package org.spoofax.jsglr.client;
 import static java.util.Arrays.asList;
 import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
 import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.terms.Term.intAt;
-import static org.spoofax.terms.Term.isTermInt;
-import static org.spoofax.terms.Term.javaInt;
-import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.Term.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.sdf2table.grammar.CharacterClass;
-import org.metaborg.sdf2table.io.IncrementalParseTableGenerator;
-import org.metaborg.sdf2table.io.ParseTableIO;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoNamed;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.IParseTableGenerator;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
@@ -44,8 +32,8 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 /**
  * A parse table.
@@ -54,22 +42,19 @@ import com.google.common.collect.Maps;
  */
 public class ParseTable implements Serializable {
 
-    /**
-     * Number of possible characters to expect (0x10FFFF would be all chars of UTF-8, but is not yet supported by the
-     * parse table format.)
-     */
-    public static final int NUM_CHARS = 256;
-    public static final int LABEL_BASE = NUM_CHARS + 1;
+    public static final int LABEL_BASE = 257;
+
+    private static final ILogger logger = LoggerUtils.logger(ParseTable.class);
 
     private static final long serialVersionUID = -3372429249660900093L;
 
-    private final ParseTableIO pt_generator;
+    private final IParseTableGenerator ptGenerator;
 
     private static SGLR layoutParser;
 
-    private State[] states;
+    private int version;
 
-    private Map<org.metaborg.sdf2table.parsetable.State, State> states_cache = Maps.newHashMap();
+    private State[] states;
 
     private int startState;
 
@@ -78,6 +63,9 @@ public class ParseTable implements Serializable {
     private Priority[] priorities;
 
     private Associativity[] associativities;
+
+    private final SetMultimap<String, String> nonAssocPriorities = HashMultimap.create();
+    private final SetMultimap<String, String> nonNestedPriorities = HashMultimap.create();
 
     private boolean hasRejects;
 
@@ -116,7 +104,7 @@ public class ParseTable implements Serializable {
     public ParseTable(IStrategoTerm pt, ITermFactory factory) throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
-        pt_generator = null;
+        ptGenerator = null;
 
         if(states.length == 0) {
             throw new InvalidParseTableException(
@@ -124,21 +112,28 @@ public class ParseTable implements Serializable {
         }
     }
 
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable) throws Exception {
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable,
+        IParseTableGenerator ptGenerator) throws Exception {
         initTransientData(factory);
         parse(pt);
         if(states.length == 0) {
             dynamicPTgeneration = true;
         }
 
+        if(ptGenerator != null) {
+            nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
+        }
+
         if(dynamicPTgeneration && persistedTable != null) {
-            pt_generator = new ParseTableIO(persistedTable);
+            this.ptGenerator = ptGenerator;
             gotoCache = new HashMap<Goto, Goto>();
             shiftCache = new HashMap<Shift, Shift>();
             reduceCache = new HashMap<Reduce, Reduce>();
             rangesCache = new HashMap<RangeList, RangeList>();
+
         } else {
-            pt_generator = null;
+            this.ptGenerator = null;
         }
 
         if(dynamicPTgeneration && persistedTable == null) {
@@ -147,20 +142,23 @@ public class ParseTable implements Serializable {
         }
     }
 
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable,
-        org.metaborg.sdf2table.parsetable.ParseTable referencePt) throws Exception {
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable, IParseTable referencePt,
+        IParseTableGenerator ptGenerator, IStrategoTerm parseTableAterm) throws Exception {
         initTransientData(factory);
-
         dynamicPTgeneration = checkDynamicGeneration(pt);
 
-
         if(dynamicPTgeneration && persistedTable != null) {
-            pt_generator = new IncrementalParseTableGenerator(persistedTable, referencePt);
+            this.ptGenerator = ptGenerator;
         } else {
-            pt_generator = null;
+            this.ptGenerator = null;
         }
 
-        parse(pt_generator.generateATerm(pt_generator.getParseTable()));
+        if(ptGenerator != null) {
+            nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
+        }
+
+        parse(parseTableAterm);
         gotoCache = new HashMap<Goto, Goto>();
         shiftCache = new HashMap<Shift, Shift>();
         reduceCache = new HashMap<Reduce, Reduce>();
@@ -193,7 +191,7 @@ public class ParseTable implements Serializable {
     }
 
     private boolean parse(IStrategoTerm pt) throws InvalidParseTableException {
-        int version = intAt(pt, 0);
+        version = intAt(pt, 0);
         if(pt.getSubtermCount() == 1) // Seen with ParseTable(0)
             throw new InvalidParseTableException("Invalid parse table (possibly wrong start symbol specified)\n" + pt);
         startState = intAt(pt, 1);
@@ -201,8 +199,8 @@ public class ParseTable implements Serializable {
         IStrategoNamed statesTerm = termAt(pt, 3);
         IStrategoNamed prioritiesTerm = termAt(pt, 4);
 
-        if(version != 4 && version != 6) {
-            throw new InvalidParseTableException("Only supports version 4 and 6 tables.");
+        if(version != 4 && version != 6 && version != 7) {
+            throw new InvalidParseTableException("Only supports version 4, 6 and 7 tables.");
         }
 
         labels = parseLabels(labelsTerm);
@@ -608,49 +606,58 @@ public class ParseTable implements Serializable {
         return ret;
     }
 
-    // private int[] parseProductionLabels(IStrategoList ranges) throws InvalidParseTableException {
-    //
-    // int[] ret = new int[ranges.getChildCount()];
-    //
-    // for (int i = 0; i < ranges.getChildCount(); i++) {
-    // IStrategoTerm t = Term.termAt(ranges, i);
-    // if (isTermInt(t)) {
-    // ret[i] = javaInt(t);
-    // } else {
-    //// else if(Term.isAppl(t) && ((IStrategoNamed)t).getName().equals("range")) {
-    //// int s = intAt(t, 0);
-    //// int e = intAt(t, 1);
-    // Tools.debug(t);
-    // throw new InvalidParseTableException("");
-    // }
-    // }
-    // return ret;
-    // }
-
     private RangeList parseRanges(IStrategoList ranges) throws InvalidParseTableException {
         int size = ranges.getSubtermCount();
-        int[] ret = new int[size * 2];
+        int[] ret;
+        boolean containsEOF = false;
 
         int idx = 0;
-
-        for(int i = 0; i < size; i++) {
-            IStrategoTerm t = ranges.head();
-            ranges = ranges.tail();
-            if(isTermInt(t)) {
-                int value = javaInt(t);
-                ret[idx++] = value;
-                ret[idx++] = value;
-            } else {
-                ret[idx++] = intAt(t, 0);
-                ret[idx++] = intAt(t, 1);
+        IStrategoTerm[] allSubterms = ranges.getAllSubterms();
+        // Assuming "eof" (or 256, in parse table version <= 6) is always the last item
+        IStrategoTerm lastSubterm = allSubterms[allSubterms.length - 1];
+        if(version >= 7) {
+            if(isTermAppl(lastSubterm) && "eof".equals(((IStrategoAppl) lastSubterm).getName())) {
+                containsEOF = true;
+            }
+            ret = new int[size * 2 - (containsEOF ? 2 : 0)]; // If an "eof" is in the ranges list, it can be smaller
+            for(IStrategoTerm t : allSubterms) {
+                if(isTermInt(t)) {
+                    int value = javaInt(t);
+                    ret[idx++] = value;
+                    ret[idx++] = value;
+                } else if("range".equals(((IStrategoAppl) t).getName())) {
+                    ret[idx++] = intAt(t, 0);
+                    ret[idx++] = intAt(t, 1);
+                }
+            }
+        } else { // version <= 6
+            containsEOF = isTermInt(lastSubterm) && javaInt(lastSubterm) == 256;
+            ret = new int[size * 2 - (containsEOF ? 2 : 0)]; // If an "eof" is in the ranges list, it can be smaller
+            for(IStrategoTerm t : allSubterms) {
+                if(isTermInt(t)) {
+                    int value = javaInt(t);
+                    if(value != 256) { // The legacy way of representing EOF (parse table version 6 and below)
+                        ret[idx++] = value;
+                        ret[idx++] = value;
+                    }
+                } else {
+                    ret[idx++] = intAt(t, 0);
+                    int to = intAt(t, 1);
+                    if(to == 256) { // The legacy way of representing EOF (parse table version 6 and below)
+                        containsEOF = true;
+                        ret[idx++] = 255;
+                    } else {
+                        ret[idx++] = to;
+                    }
+                }
             }
         }
 
-        return makeRangeList(ret);
+        return makeRangeList(ret, containsEOF);
     }
 
-    private RangeList makeRangeList(int[] ranges) throws InvalidParseTableException {
-        RangeList r = new RangeList(ranges);
+    private RangeList makeRangeList(int[] ranges, boolean containsEOF) {
+        RangeList r = new RangeList(ranges, containsEOF);
         RangeList cached = rangesCache.get(r);
         if(cached == null) {
             rangesCache.put(r, r);
@@ -660,62 +667,27 @@ public class ParseTable implements Serializable {
         }
     }
 
-    private Goto parseGoto(IStrategoTerm term) {
-        IStrategoNamed go = (IStrategoNamed) term;
 
-        IStrategoList rangeList = termAt(go, 0);
-        int newStateNumber = intAt(go, 1);
-        RangeList ranges = null;
+    private State parseDynamicState(IStrategoTerm s) {
+
+        IStrategoNamed stateRec = (IStrategoNamed) s;
+
+        int stateNumber = intAt(stateRec, 0);
+        Goto[] gotos = new Goto[] {};
+        Action[] actions = new Action[] {};
         try {
-            ranges = parseRanges(rangeList);
-        } catch(InvalidParseTableException e) {
-            System.err.println("Could not generate Goto.");
-            e.printStackTrace();
+            gotos = parseGotos((IStrategoList) termAt(stateRec, 1));
+            actions = parseActions((IStrategoList) termAt(stateRec, 2));
+        } catch(Exception e) {
+            logger.error("Could not dynamically generate the parse table.");
         }
 
-        return makeGoto(newStateNumber, ranges);
-    }
-
-    private State parseDynamicState(org.metaborg.sdf2table.parsetable.State s_orig) {
-        if(states_cache.containsKey(s_orig)) {
-            return states_cache.get(s_orig);
-        }
-        List<Goto> gotos = Lists.newArrayList();
-
-        for(org.metaborg.sdf2table.parsetable.Goto g : s_orig.gotos()) {
-            // TODO create the structure directly without generating an ATerm
-            gotos.add(parseGoto(g.toAterm(factory)));
-        }
-
-        List<IStrategoTerm> action_terms = Lists.newArrayList();
-
-        for(CharacterClass cc : s_orig.actionsMapping().keySet()) {
-
-            List<IStrategoTerm> actions = Lists.newArrayList();
-            for(org.metaborg.sdf2table.parsetable.Action a : s_orig.actionsMapping().get(cc)) {
-                actions.add(a.toAterm(factory, pt_generator.getParseTable()));
-            }
-            action_terms.add(factory.makeAppl(factory.makeConstructor("action", 2), cc.toStateAterm(factory),
-                factory.makeList(actions)));
-            // action_terms.add(action.toAterm(termFactory, this));
-        }
-        Action[] new_actions = null;
-
-        try {
-            new_actions = parseActions(factory.makeList(action_terms));
-        } catch(InvalidParseTableException e) {
-            System.err.println("Could not generate Actions.");
-            e.printStackTrace();
-        }
-
-        State s_new = new State(s_orig.getLabel(), gotos.toArray(new Goto[gotos.size()]), new_actions);
-        states_cache.put(s_orig, s_new);
-        return s_new;
+        return new State(stateNumber, gotos, actions);
     }
 
     public State getInitialState() {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = (org.metaborg.sdf2table.parsetable.State) pt_generator.getParseTable().startState();
+            IStrategoTerm s0 = ptGenerator.getStateAterm(ptGenerator.getParseTable().getStartState());
 
             State s = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
@@ -726,7 +698,7 @@ public class ParseTable implements Serializable {
 
     public State go(State s, int label) {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = (org.metaborg.sdf2table.parsetable.State) pt_generator.getParseTable().getState(s.go(label));
+            IStrategoTerm s0 = ptGenerator.getStateAterm(ptGenerator.getParseTable().getState(s.go(label)));
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;
@@ -740,7 +712,7 @@ public class ParseTable implements Serializable {
 
     public State getState(int s) {
         if(dynamicPTgeneration) {
-            org.metaborg.sdf2table.parsetable.State s0 = (org.metaborg.sdf2table.parsetable.State) pt_generator.getParseTable().getState(s);
+            IStrategoTerm s0 = ptGenerator.getStateAterm(ptGenerator.getParseTable().getState(s));
             State s_new = parseDynamicState(s0);
             // System.out.println(s0.getLabel() + "->");
             return s_new;
@@ -753,7 +725,7 @@ public class ParseTable implements Serializable {
     }
 
     public int getProductionCount() {
-        return labels.length - NUM_CHARS;
+        return labels.length - LABEL_BASE - 1;
     }
 
     public int getActionEntryCount() {
@@ -780,8 +752,8 @@ public class ParseTable implements Serializable {
         return total;
     }
 
-    public ParseTableIO getPTgenerator() {
-        return pt_generator;
+    public IParseTableGenerator getPTgenerator() {
+        return ptGenerator;
     }
 
     public boolean hasPriorities() {
@@ -809,7 +781,7 @@ public class ParseTable implements Serializable {
     }
 
     public IStrategoTerm getProduction(int prod) {
-        if(prod < NUM_CHARS) {
+        if(prod < LABEL_BASE - 1) {
             return factory.makeInt(prod);
         }
         return labels[prod].prod;
@@ -847,7 +819,7 @@ public class ParseTable implements Serializable {
     }
 
     public void initializeTreeBuilder(ITreeBuilder treeBuilder) {
-        treeBuilder.initializeTable(this, NUM_CHARS, LABEL_BASE, labels.length);
+        treeBuilder.initializeTable(this, LABEL_BASE, labels.length);
         for(int i = 0; i < labels.length; i++) {
             if(labels[i] == null)
                 continue;
@@ -859,5 +831,13 @@ public class ParseTable implements Serializable {
         if(keywords == null)
             keywords = new KeywordRecognizer(this);
         return keywords;
+    }
+
+    public SetMultimap<String, String> getNonAssocPriorities() {
+        return nonAssocPriorities;
+    }
+
+    public SetMultimap<String, String> getNonNestedPriorities() {
+        return nonNestedPriorities;
     }
 }

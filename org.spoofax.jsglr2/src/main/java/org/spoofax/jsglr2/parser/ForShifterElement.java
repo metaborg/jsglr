@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public final class ForShifterElement<StackNode extends IStackNode> {

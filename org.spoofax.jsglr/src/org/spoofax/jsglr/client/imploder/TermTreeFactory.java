@@ -44,8 +44,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     /**
-     * Creates a new TermTreeFactory. Must be done using an ITermFactory that supports creating mutable terms; this
-     * constructor calls setDefaultStorageType(MUTABLE).
+     * Creates a new TermTreeFactory.
      */
     public TermTreeFactory(ITermFactory factory) {
         originalFactory = factory;
@@ -54,14 +53,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
 
     public void setEnableTokens(boolean enableTokens) {
         this.enableTokens = enableTokens;
-        if(enableTokens) {
-            factory = originalFactory.getFactoryWithStorageType(MUTABLE);
-            if(!TermFactory.checkStorageType(factory, MUTABLE))
-                throw new IllegalStateException(
-                    "Term factory does not support MUTABLE terms, required for creating terms with (token) attachments");
-        } else {
-            factory = originalFactory;
-        }
+        factory = originalFactory;
     }
 
     /**
@@ -223,8 +215,8 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     public IStrategoTerm createInjection(String sort, IToken leftToken, IToken rightToken, IStrategoTerm injected,
         boolean isCompletion, boolean isNestedCompletion, boolean isSinglePlaceholderCompletion, boolean isBracket) {
         // tagging bracket nodes as completed and adding the brackets as part of the origin
+        IStrategoTerm result = injected;
         if(isBracket) {
-            IStrategoTerm result = injected;
             if(result instanceof IStrategoAppl) {
                 if(((IStrategoAppl) result).getConstructor().getName().equals("amb")) {
                     IStrategoTerm ambList = result.getSubterm(0);
@@ -242,16 +234,13 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
                 configure(result, result.getAttachment(ImploderAttachment.TYPE).getSort(), left, right, false,
                     isBracket, isCompletion, isNestedCompletion, isSinglePlaceholderCompletion);
             }
-            return result;
-        } else {
-            IStrategoTerm result = injected;
-            // Prevent bogus injections from empty sorts, or lexical sorts into themselves
-            String injectedSort = ImploderAttachment.get(injected).getSort();
-            if(sort != null && !Objects.equals(sort, injectedSort)) {
-                ImploderAttachment.get(result).pushInjection(sort);
-            }
-            return result;
         }
+        // Prevent bogus injections from empty sorts, or lexical sorts into themselves
+        String injectedSort = ImploderAttachment.get(injected).getSort();
+        if(sort != null && !Objects.equals(sort, injectedSort)) {
+            ImploderAttachment.get(result).pushInjection(sort);
+        }
+        return result;
     }
 
     private void configureAmbNodes(IStrategoTerm result, boolean isBracket, boolean isCompletion,

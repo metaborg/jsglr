@@ -14,6 +14,6 @@ public interface LCSCommand<T> {
 	 * @param t2 element in input list 2
 	 * @return True in case t1 and t2 can be matched
 	 */
-	abstract boolean isMatch(T t1, T t2);
+	boolean isMatch(T t1, T t2);
 
 }

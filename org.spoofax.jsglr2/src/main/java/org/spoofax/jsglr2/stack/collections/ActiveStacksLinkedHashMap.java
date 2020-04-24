@@ -4,19 +4,30 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.metaborg.parsetable.IState;
+import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
+import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
-public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNode extends IStackNode>
+public class ActiveStacksLinkedHashMap
+//@formatter:off
+   <ParseForest extends IParseForest,
+    Derivation  extends IDerivation<ParseForest>,
+    ParseNode   extends IParseNode<ParseForest, Derivation>,
+    StackNode   extends IStackNode,
+    ParseState  extends AbstractParseState<?, StackNode>>
+//@formatter:on
     implements IActiveStacks<StackNode> {
 
-    private ParserObserving<ParseForest, StackNode> observing;
+    private ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
     protected Map<Integer, Linked<StackNode>> activeStacks;
     private Linked<StackNode> last;
 
-    public ActiveStacksLinkedHashMap(ParserObserving<ParseForest, StackNode> observing) {
+    public ActiveStacksLinkedHashMap(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         this.observing = observing;
         this.activeStacks = new HashMap<>();
         this.last = null;
@@ -52,6 +63,10 @@ public class ActiveStacksLinkedHashMap<ParseForest extends IParseForest, StackNo
 
     @Override public boolean isEmpty() {
         return last == null;
+    }
+
+    @Override public boolean isMultiple() {
+        return activeStacks.size() > 1;
     }
 
     @Override public StackNode findWithState(IState state) {

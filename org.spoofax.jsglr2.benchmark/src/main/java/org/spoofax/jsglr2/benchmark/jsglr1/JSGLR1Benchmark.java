@@ -7,28 +7,28 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.client.NullTreeBuilder;
-import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.SGLR;
-import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
-import org.spoofax.jsglr2.benchmark.BenchmarkStringInputTestSetReader;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
-import org.spoofax.jsglr2.testset.StringInput;
-import org.spoofax.jsglr2.testset.TestSet;
+import org.spoofax.jsglr2.testset.TestSetReader;
+import org.spoofax.jsglr2.testset.TestSetWithParseTableReader;
+import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.terms.ParseError;
 
-public abstract class JSGLR1Benchmark extends BaseBenchmark<StringInput> implements WithJSGLR1 {
+public abstract class JSGLR1Benchmark extends BaseBenchmark<String, StringInput> implements WithJSGLR1 {
+
+    protected TestSetWithParseTableReader<String, StringInput> testSetReader;
 
     protected SGLR jsglr1parse;
     protected SGLR jsglr1parseAndImplode;
 
-    protected JSGLR1Benchmark(TestSet testSet) {
-        super(new BenchmarkStringInputTestSetReader(testSet));
-    }
-
     @Param({ "false", "true" }) public boolean implode;
+
+    protected void setTestSetReader(TestSetWithParseTableReader<String, StringInput> testSetReader) {
+        super.setTestSetReader(testSetReader);
+        this.testSetReader = testSetReader;
+    }
 
     @Setup public void prepare() throws ParseError, InvalidParseTableException {
         jsglr1parseAndImplode = getJSGLR1();
@@ -41,8 +41,7 @@ public abstract class JSGLR1Benchmark extends BaseBenchmark<StringInput> impleme
         return testSetReader.getParseTableTerm();
     }
 
-    @Benchmark public void jsglr1default(Blackhole bh)
-        throws TokenExpectedException, BadTokenException, ParseException, SGLRException, InterruptedException {
+    @Benchmark public void jsglr1default(Blackhole bh) throws SGLRException, InterruptedException {
         if(implode) {
             for(StringInput input : inputs)
                 bh.consume(jsglr1parseAndImplode.parse(input.content, null, null));

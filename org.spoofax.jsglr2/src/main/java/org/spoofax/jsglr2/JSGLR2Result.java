@@ -1,33 +1,17 @@
 package org.spoofax.jsglr2;
 
-import org.spoofax.jsglr2.imploder.TokenizeResult;
-import org.spoofax.jsglr2.tokens.Tokens;
+import java.util.Collection;
 
-public final class JSGLR2Result<AbstractSyntaxTree> {
+import org.spoofax.jsglr2.messages.Message;
 
-    public final boolean isSuccess;
-    public final Tokens tokens;
-    public final AbstractSyntaxTree ast;
+public abstract class JSGLR2Result<AbstractSyntaxTree> {
 
-    /**
-     * Constructs a result in the case that the parse failed. The fields `tokens` and `ast` are set to `null`.
-     */
-    JSGLR2Result() {
-        this.isSuccess = false;
-        this.tokens = null;
-        this.ast = null;
+    public final Collection<Message> messages;
+
+    JSGLR2Result(Collection<Message> messages) {
+        this.messages = messages;
     }
 
-    /**
-     * Constructs a result in the case that the parse succeeded.
-     * 
-     * @param tokenizeResult
-     *            The result from the tokenizer.
-     */
-    JSGLR2Result(TokenizeResult<AbstractSyntaxTree> tokenizeResult) {
-        this.isSuccess = true;
-        this.tokens = tokenizeResult.tokens;
-        this.ast = tokenizeResult.ast;
-    }
+    public abstract boolean isSuccess();
 
 }

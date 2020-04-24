@@ -1,0 +1,46 @@
+module expressions-disambiguation
+
+context-free start-symbols
+  Start
+
+context-free syntax
+  Start = Exp
+  Start = Exp2
+  
+  Exp.Term  = "x"
+  Exp2.Term = "y"
+  
+  Exp.Inf1 = <<Exp> + <Exp>> {left}
+  Exp.Inf2 = <<Exp> - <Exp>> {right}
+  Exp.Inf3 = <<Exp> * <Exp>> {non-assoc}
+  
+  Exp.Pre1 = <@ <Exp>>
+  Exp.Pre2 = <$ <Exp>>
+  
+  Exp.Pos1 = <<Exp> !>
+  Exp.Pos2 = <<Exp> %>
+  
+  Exp.DisInPre1 = <& <Exp> ^ <Exp>>
+  Exp.DisPre1   = <& <Exp>>
+  
+  Exp.DisInPos1 = <<Exp> . <Exp> '> 
+  Exp.DisPos1   = <<Exp> '>
+
+  Exp.ListBack  = <; <Exp+>> {longest-match}
+  Exp.ListFront = <<Exp+> ]> {longest-match}
+  
+
+context-free priorities
+  
+  Exp.Pre1 >
+  Exp.Pos1 >
+  
+  Exp.DisInPre1 > Exp.DisPre1 >
+  Exp.DisInPos1 > Exp.DisPos1 >
+  
+  Exp.Inf1 >
+  Exp.Inf2 >
+  Exp.Inf3 >
+  
+  Exp.Pre2 >
+  Exp.Pos2

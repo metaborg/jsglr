@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.incremental.actions;
 
-import org.spoofax.jsglr2.actions.Shift;
+import org.metaborg.parsetable.actions.Shift;
 
 public class GotoShift extends Shift {
     public GotoShift(int shiftStateId) {

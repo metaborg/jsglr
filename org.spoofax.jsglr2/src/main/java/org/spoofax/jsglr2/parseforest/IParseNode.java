@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.metaborg.parsetable.IProduction;
+import org.metaborg.parsetable.productions.IProduction;
 
 public interface IParseNode
 //@formatter:off
@@ -60,12 +60,8 @@ public interface IParseNode
 
     boolean isAmbiguous();
 
-    default int width() {
-        return getFirstDerivation().width();
-    }
-
     default String descriptor() {
-        return production().descriptor();
+        return production().lhs().toString();
     }
 
 }

@@ -8,6 +8,5 @@ context-free syntax
 
   Start = S
 
-  S.SS = S S
-  S.X = "x"
+  S.S = S
   S.E =

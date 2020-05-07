@@ -17,8 +17,4 @@ public class CyclesTest extends BaseTestWithRecoverySdf3ParseTables {
         return testSuccessByAstString("", "E()");
     }
 
-    @TestFactory public Stream<DynamicTest> testSingle() throws ParseError {
-        return testSuccessByAstString("x", "X()");
-    }
-
 }

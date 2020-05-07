@@ -128,6 +128,8 @@ public abstract class TokenizedTreeImploder
             if(production.isRecovery())
                 messages.add(RecoveryMessages.get(production, startPosition, endPosition));
 
+            nonContextFreeRecoveryMessages(parseNode, startPosition, messages);
+
             IToken token = width > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
 
             Tree tree;
@@ -141,6 +143,24 @@ public abstract class TokenizedTreeImploder
             }
 
             return new SubTree<>(tree, endPosition, token, token);
+        }
+    }
+
+    protected void nonContextFreeRecoveryMessages(ParseNode parseNode, Position position, Collection<Message> messages) {
+        for(Derivation derivation : parseNode.getDerivations()) {
+            Position derivationPosition = position;
+            for (ParseForest child : derivation.parseForests()) {
+                if (child instanceof IParseNode) {
+                    ParseNode childParseNode = (ParseNode) child;
+
+                    if (childParseNode.production().isRecovery())
+                        messages.add(RecoveryMessages.get(childParseNode.production(), derivationPosition, position));
+
+                    nonContextFreeRecoveryMessages(childParseNode, derivationPosition, messages);
+                }
+
+                derivationPosition = derivationPosition.next(parseNode.width());
+            }
         }
     }
 

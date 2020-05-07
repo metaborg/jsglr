@@ -30,7 +30,7 @@ public class Parser
     InputStack    extends IInputStack,
     ParseState    extends AbstractParseState<InputStack, StackNode>,
     StackManager  extends AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState>,
-    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, Derivation, ParseNode, StackNode, ParseState>>
+    ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState>>
 //@formatter:on
     implements IObservableParser<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
@@ -48,7 +48,7 @@ public class Parser
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManagerFactory,
-        ReduceManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager, ReduceManager> reduceManagerFactory,
+        ReduceManagerFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         ParseFailureHandlerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> failureHandlerFactory) {
         this.inputStackFactory = inputStackFactory;
         this.observing = new ParserObserving<>();

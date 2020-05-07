@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.elkhound;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -21,16 +22,17 @@ public class ElkhoundReduceManager
     Derivation        extends IDerivation<ParseForest>,
     ParseNode         extends IParseNode<ParseForest, Derivation>,
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
-    ParseState        extends AbstractParseState<?, ElkhoundStackNode>>
+    InputStack        extends IInputStack,
+    ParseState        extends AbstractParseState<InputStack, ElkhoundStackNode>>
 //@formatter:on
-    extends ReduceManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> {
+    extends ReduceManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState> {
 
     protected final ElkhoundStackManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> stackManager;
 
     public ElkhoundReduceManager(IParseTable parseTable,
         ElkhoundStackManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> stackManager,
         ParseForestManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> parseForestManager,
-        ReducerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> reducerFactory) {
+        ReducerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState> reducerFactory) {
         super(parseTable, stackManager, parseForestManager, reducerFactory);
 
         this.stackManager = stackManager;
@@ -42,11 +44,13 @@ public class ElkhoundReduceManager
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends AbstractElkhoundStackNode<ParseForest_>,
-        ParseState_   extends AbstractParseState<?, StackNode_>,
+        InputStack_   extends IInputStack,
+        ParseState_   extends AbstractParseState<InputStack_, StackNode_>,
         StackManager_ extends ElkhoundStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, ElkhoundReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
-        factoryElkhound(ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> reducerFactory) {
+    ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_, StackManager_, ElkhoundReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_>>
+        factoryElkhound(
+            ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_> reducerFactory) {
         return (parseTable, stackManager, parseForestManager) -> new ElkhoundReduceManager<>(parseTable, stackManager,
             parseForestManager, reducerFactory);
     }

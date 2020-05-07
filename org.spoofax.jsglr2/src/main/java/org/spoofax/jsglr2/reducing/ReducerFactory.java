@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.reducing;
 
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -14,11 +15,13 @@ public interface ReducerFactory
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<?, StackNode>>
+    InputStack  extends IInputStack,
+    ParseState  extends AbstractParseState<InputStack, StackNode>>
 //@formatter:on
 {
 
-    Reducer<ParseForest, Derivation, ParseNode, StackNode, ParseState> get(AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
+    Reducer<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> get(
+        AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
         ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager);
 
 }

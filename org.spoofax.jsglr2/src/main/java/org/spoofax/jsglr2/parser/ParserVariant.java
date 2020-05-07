@@ -134,13 +134,15 @@ public class ParserVariant {
     private static
 //@formatter:off
    <ParseForest          extends IParseForest,
+    Derivation           extends IDerivation<ParseForest>,
+    ParseNode            extends IParseNode<ParseForest, Derivation>,
     StackNode            extends IStackNode,
     InputStack           extends IInputStack,
     BacktrackChoicePoint extends IBacktrackChoicePoint<InputStack, StackNode>,
     ParseState           extends AbstractParseState<InputStack, StackNode> & IRecoveryParseState<InputStack, StackNode, BacktrackChoicePoint>>
 //@formatter:on
     IParser<? extends IParseForest>
-        withRecovery(Parser<ParseForest, ?, ?, StackNode, InputStack, ParseState, ?, ?> parser) {
+        withRecovery(Parser<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState, ?, ?> parser) {
         parser.reduceManager.addFilter(new RecoveryReduceActionFilter<>());
         parser.observing.attachObserver(new RecoveryObserver<>());
 
@@ -170,9 +172,10 @@ public class ParserVariant {
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<?, StackNode>>
+    InputStack  extends IInputStack,
+    ParseState  extends AbstractParseState<InputStack, StackNode>>
 //@formatter:on
-    ReducerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> reducerFactory() {
+    ReducerFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reducerFactory() {
         if(parseForestConstruction == ParseForestConstruction.Optimized)
             return ReducerOptimized.factoryOptimized();
         else

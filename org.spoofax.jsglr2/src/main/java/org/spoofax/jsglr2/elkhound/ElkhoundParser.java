@@ -30,7 +30,7 @@ public class ElkhoundParser
     ElkhoundStackNode extends AbstractElkhoundStackNode<ParseForest>,
     ParseState        extends AbstractParseState<InputStack, ElkhoundStackNode>,
     StackManager      extends AbstractStackManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState>,
-    ReduceManager     extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState>>
+    ReduceManager     extends org.spoofax.jsglr2.reducing.ReduceManager<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState>>
 //@formatter:on
     extends
     Parser<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState, StackManager, ReduceManager> {
@@ -40,7 +40,7 @@ public class ElkhoundParser
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> parseForestManagerFactory,
-        ReduceManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
+        ReduceManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
         ParseFailureHandlerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> failureHandlerFactory) {
         super(inputStackFactory, parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory,
             elkhoundReduceManagerFactory, failureHandlerFactory);
@@ -81,7 +81,8 @@ public class ElkhoundParser
 
                                     parseState.activeStacks.add(newStack);
 
-                                    observing.notify(observer -> observer.shift(parseState, singleActiveStack, newStack));
+                                    observing
+                                        .notify(observer -> observer.shift(parseState, singleActiveStack, newStack));
 
                                     parseState.inputStack.next();
 

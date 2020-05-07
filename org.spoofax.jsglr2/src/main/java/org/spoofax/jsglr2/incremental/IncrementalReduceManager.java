@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
@@ -25,14 +26,15 @@ public class IncrementalReduceManager
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<?, StackNode> & IIncrementalParseState>
+    InputStack  extends IInputStack,
+    ParseState  extends AbstractParseState<InputStack, StackNode> & IIncrementalParseState>
 //@formatter:on
-    extends ReduceManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
+    extends ReduceManager<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> {
 
     public IncrementalReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
         ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager,
-        ReducerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> reducerFactory) {
+        ReducerFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reducerFactory) {
         super(parseTable, stackManager, parseForestManager, reducerFactory);
     }
 
@@ -42,12 +44,13 @@ public class IncrementalReduceManager
         Derivation_   extends IDerivation<ParseForest_>,
         ParseNode_    extends IParseNode<ParseForest_, Derivation_>,
         StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<?, StackNode_> & IIncrementalParseState,
+        InputStack_   extends IInputStack,
+        ParseState_   extends AbstractParseState<InputStack_, StackNode_> & IIncrementalParseState,
         StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
-    ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, IncrementalReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
+    ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_, StackManager_, IncrementalReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_>>
         factoryIncremental(
-            ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> reducerFactory) {
+            ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_> reducerFactory) {
         return (parseTable, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable,
             stackManager, parseForestManager, reducerFactory);
     }

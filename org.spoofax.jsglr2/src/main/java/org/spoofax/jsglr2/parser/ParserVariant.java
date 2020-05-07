@@ -174,7 +174,7 @@ public class ParserVariant {
 //@formatter:on
     ReducerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> reducerFactory() {
         if(parseForestConstruction == ParseForestConstruction.Optimized)
-            return ReducerSkipLayoutAndLexicalAndRejects.factorySkipLayoutAndLexicalAndRejects();
+            return ReducerOptimized.factoryOptimized();
         else
             return Reducer.factory();
    }

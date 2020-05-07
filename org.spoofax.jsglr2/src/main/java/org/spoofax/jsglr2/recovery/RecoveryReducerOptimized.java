@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.recovery;
 
+import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -42,6 +43,10 @@ public class RecoveryReducerOptimized
     ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_>
         factoryRecoveryOptimized() {
         return RecoveryReducerOptimized::new;
+    }
+
+    protected boolean skipParseNodeCreation(ParseState parseState, IReduce reduce) {
+        return reduce.production().isSkippableInParseForest() && !parseState.isRecovering();
     }
 
 }

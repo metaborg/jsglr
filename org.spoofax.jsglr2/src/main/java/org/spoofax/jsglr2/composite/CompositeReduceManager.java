@@ -5,12 +5,11 @@ import static org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveReduceManager.ig
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
+import org.spoofax.jsglr2.reducing.ReducerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -25,8 +24,8 @@ public class CompositeReduceManager
     private CompositeReduceManager(IParseTable parseTable,
         AbstractStackManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> stackManager,
         ParseForestManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> parseForestManager,
-        ParseForestConstruction parseForestConstruction) {
-        super(parseTable, stackManager, parseForestManager, parseForestConstruction);
+        ReducerFactory<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> reducerFactory) {
+        super(parseTable, stackManager, parseForestManager, reducerFactory);
     }
 
     public static
@@ -36,9 +35,10 @@ public class CompositeReduceManager
         StackManager_ extends AbstractStackManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode_, ParseState_, StackManager_, CompositeReduceManager<StackNode_, ParseState_>>
-        factoryComposite(ParserVariant parserVariant) {
+        factoryComposite(
+            ReducerFactory<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode_, ParseState_> reducerFactory) {
         return (parseTable, stackManager, parseForestManager) -> new CompositeReduceManager<>(parseTable, stackManager,
-            parseForestManager, parserVariant.parseForestConstruction);
+            parseForestManager, reducerFactory);
     }
 
     @Override protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce,

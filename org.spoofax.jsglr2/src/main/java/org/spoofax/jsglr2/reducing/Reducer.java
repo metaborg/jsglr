@@ -31,6 +31,18 @@ public class Reducer
         this.parseForestManager = parseForestManager;
     }
 
+    public static
+    //@formatter:off
+       <ParseForest_ extends IParseForest,
+        Derivation_  extends IDerivation<ParseForest_>,
+        ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
+        StackNode_   extends IStackNode,
+        ParseState_  extends AbstractParseState<?, StackNode_>>
+    //@formatter:on
+    ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
+        return Reducer::new;
+    }
+
     /**
      * Performs a reduction when an existing active stack is found with the required goto state and when there is a
      * direct link found between this active stack and the stack from where the reduction started. This means the

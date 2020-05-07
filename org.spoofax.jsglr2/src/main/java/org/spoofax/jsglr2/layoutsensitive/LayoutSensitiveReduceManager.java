@@ -4,12 +4,11 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.sdf2table.grammar.LayoutConstraintAttribute;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
+import org.spoofax.jsglr2.reducing.ReducerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -24,8 +23,8 @@ public class LayoutSensitiveReduceManager
     private LayoutSensitiveReduceManager(IParseTable parseTable,
         AbstractStackManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> stackManager,
         ParseForestManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> parseForestManager,
-        ParseForestConstruction parseForestConstruction) {
-        super(parseTable, stackManager, parseForestManager, parseForestConstruction);
+        ReducerFactory<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode, ParseState> reducerFactory) {
+        super(parseTable, stackManager, parseForestManager, reducerFactory);
     }
 
     public static
@@ -35,9 +34,10 @@ public class LayoutSensitiveReduceManager
         StackManager_ extends AbstractStackManager<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_, StackManager_, LayoutSensitiveReduceManager<StackNode_, ParseState_>>
-        factoryLayoutSensitive(ParserVariant parserVariant) {
+        factoryLayoutSensitive(
+            ReducerFactory<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>, ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>, StackNode_, ParseState_> reducerFactory) {
         return (parseTable, stackManager, parseForestManager) -> new LayoutSensitiveReduceManager<>(parseTable,
-            stackManager, parseForestManager, parserVariant.parseForestConstruction);
+            stackManager, parseForestManager, reducerFactory);
     }
 
     @Override protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce,

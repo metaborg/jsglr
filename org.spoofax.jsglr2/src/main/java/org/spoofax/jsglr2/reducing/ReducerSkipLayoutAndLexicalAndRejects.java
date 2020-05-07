@@ -28,6 +28,18 @@ public class ReducerSkipLayoutAndLexicalAndRejects
         super(stackManager, parseForestManager);
     }
 
+    public static
+//@formatter:off
+   <ParseForest_ extends IParseForest,
+    Derivation_  extends IDerivation<ParseForest_>,
+    ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
+    StackNode_   extends IStackNode,
+    ParseState_  extends AbstractParseState<?, StackNode_>>
+//@formatter:on
+    ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factorySkipLayoutAndLexicalAndRejects() {
+        return ReducerSkipLayoutAndLexicalAndRejects::new;
+    }
+
     @Override public void reducerExistingStackWithDirectLink(
         ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
         IReduce reduce, StackLink<ParseForest, StackNode> existingDirectLinkToActiveStateWithGoto,

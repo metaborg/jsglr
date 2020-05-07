@@ -6,9 +6,11 @@ import java.util.List;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.parseforest.*;
+import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
+import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -34,16 +36,12 @@ public class ReduceManager
     public ReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
         ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager,
-        ParseForestConstruction parseForestConstruction) {
+        ReducerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> reducerFactory) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
         this.reduceActionFilters = new ArrayList<>();
-
-        if(parseForestConstruction == ParseForestConstruction.Optimized)
-            this.reducer = new ReducerSkipLayoutAndLexicalAndRejects<>(stackManager, parseForestManager);
-        else
-            this.reducer = new Reducer<>(stackManager, parseForestManager);
+        this.reducer = reducerFactory.get(stackManager, parseForestManager);
     }
 
     public static
@@ -56,9 +54,9 @@ public class ReduceManager
         StackManager_ extends AbstractStackManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
     //@formatter:on
     ReduceManagerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_, StackManager_, ReduceManager<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_>>
-        factory(ParserVariant parserVariant) {
+        factory(ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> reducerFactory) {
         return (parseTable, stackManager, parseForestManager) -> new ReduceManager<>(parseTable, stackManager,
-            parseForestManager, parserVariant.parseForestConstruction);
+            parseForestManager, reducerFactory);
     }
 
     public void addFilter(ReduceActionFilter<ParseForest, StackNode, ParseState> reduceActionFilter) {

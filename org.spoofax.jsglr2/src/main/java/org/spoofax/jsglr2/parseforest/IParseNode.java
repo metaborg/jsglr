@@ -17,6 +17,8 @@ public interface IParseNode
 
     void addDerivation(Derivation derivation);
 
+    boolean hasDerivations();
+
     Iterable<Derivation> getDerivations();
 
     default List<Derivation> getPreferredAvoidedDerivations() {

@@ -2,10 +2,13 @@ package org.spoofax.jsglr2.parseforest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -66,5 +69,83 @@ public abstract class ParseForestManager
     }
 
     abstract protected ParseNode filteredTopParseNode(ParseNode parseNode, List<Derivation> derivations);
+
+    public void visit(JSGLR2Request request, ParseForest root,
+        ParseForestVisitor<ParseForest, Derivation, ParseNode> visitor) {
+
+        Stack<Position> positionStack = new Stack<>();
+
+        Stack<Object> inputStack = new Stack<>();
+
+        Stack<ParseNode> outputParseNodes = new Stack<>();
+        Stack<VisitDerivation<Derivation>> outputDerivations = new Stack<>();
+
+        Position pivotPosition = Position.START_POSITION;
+        inputStack.push(root);
+        outputDerivations.push(new VisitDerivation<>());
+
+        while(!inputStack.isEmpty() || !outputParseNodes.isEmpty()) {
+            if(!outputDerivations.isEmpty() && outputDerivations.peek().visitable()) { // Visit derivation
+                VisitDerivation<Derivation> derivation = outputDerivations.pop();
+
+                visitor.visitDerivation(derivation.derivation, positionStack.peek(), pivotPosition);
+            } else if(!outputParseNodes.isEmpty()
+                && !(!inputStack.isEmpty() && (inputStack.peek() instanceof IDerivation))) { // Visit parse node
+                ParseNode parseNode = outputParseNodes.pop();
+
+                visitor.visitParseNode(parseNode, positionStack.peek(), pivotPosition);
+
+                outputDerivations.peek().remainingChildren--;
+            } else if(inputStack.peek() instanceof IDerivation) { // Consume derivation
+                Derivation derivation = (Derivation) inputStack.pop();
+                outputDerivations.push(new VisitDerivation<>(derivation));
+
+                ParseForest[] children = derivation.parseForests();
+
+                for(int i = children.length - 1; i >= 0; i--)
+                    inputStack.push(children[i]);
+
+                pivotPosition = positionStack.peek();
+            } else if(inputStack.peek() instanceof ICharacterNode) { // Consume character node
+                pivotPosition = pivotPosition.step(request.input, ((ICharacterNode) inputStack.pop()).width());
+                outputDerivations.peek().remainingChildren--;
+            } else if(inputStack.peek() instanceof IParseNode) { // Consume (skipped) parse node
+                ParseNode parseNode = (ParseNode) inputStack.pop();
+
+                if(parseNode.hasDerivations()) { // Parse node with derivation
+                    outputParseNodes.push(parseNode);
+                    positionStack.push(pivotPosition);
+
+                    for(Derivation derivation : parseNode.getDerivations())
+                        inputStack.push(derivation);
+                } else { // Skipped parse node
+                    pivotPosition = pivotPosition.step(request.input, parseNode.width());
+
+                    visitor.visitParseNode(parseNode, positionStack.peek(), pivotPosition);
+
+                    outputDerivations.peek().remainingChildren--;
+                }
+            } else {
+                throw new RuntimeException("invalid parse node");
+            }
+        }
+    }
+
+    static class VisitDerivation<Derivation extends IDerivation<?>> {
+        int remainingChildren = 0;
+        Derivation derivation;
+
+        VisitDerivation() {
+            this.remainingChildren = 1;
+        }
+
+        VisitDerivation(Derivation derivation) {
+            this.remainingChildren = derivation.parseForests().length;
+        }
+
+        boolean visitable() {
+            return remainingChildren == 0;
+        }
+    }
 
 }

@@ -76,6 +76,10 @@ public class IncrementalParseNode extends IncrementalParseForest
         state = NO_STATE; // Parse nodes with multiple derivations are by definition not reusable
     }
 
+    @Override public boolean hasDerivations() {
+        return firstDerivation != null;
+    }
+
     @Override public Iterable<IncrementalDerivation> getDerivations() {
         if(firstDerivation == null)
             return Collections.emptyList();

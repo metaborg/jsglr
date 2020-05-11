@@ -22,6 +22,7 @@ public abstract class AbstractRecoveryParseState
 
     Stack<BacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private RecoveryJob<StackNode> recoveryJob = null;
+    private boolean appliedRecovery = false;
 
     public AbstractRecoveryParseState(JSGLR2Request request, InputStack inputStack,
         IActiveStacks<StackNode> activeStacks, IForActorStacks<StackNode> forActorStacks) {
@@ -95,4 +96,11 @@ public abstract class AbstractRecoveryParseState
             this.activeStacks.add(activeStack);
     }
 
+    @Override public boolean appliedRecovery() {
+        return appliedRecovery;
+    }
+
+    @Override public void setAppliedRecovery() {
+        appliedRecovery = true;
+    }
 }

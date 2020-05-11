@@ -42,4 +42,8 @@ public interface IRecoveryParseState
         return isRecovering() && currentOffset >= recoveryJob().offset + request.succeedingRecoveryOffset();
     }
 
+    boolean appliedRecovery();
+
+    void setAppliedRecovery();
+
 }

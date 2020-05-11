@@ -16,6 +16,7 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureType;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.recovery.RecoveryMessagesParseForestVisitor;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -101,7 +102,12 @@ public class Parser
     }
 
     protected ParseSuccess<ParseForest> success(ParseState parseState, ParseForest parseForest) {
-        ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest);
+        RecoveryMessagesParseForestVisitor<ParseForest, Derivation, ParseNode> parseForestVisitor =
+            new RecoveryMessagesParseForestVisitor<>();
+
+        parseForestManager.visit(parseState.request, parseForest, parseForestVisitor);
+
+        ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, parseForestVisitor.messages);
 
         observing.notify(observer -> observer.success(success));
 

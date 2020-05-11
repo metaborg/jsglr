@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.imploder.incremental;
 
-import java.util.Collections;
 import java.util.WeakHashMap;
 
 import org.spoofax.jsglr2.JSGLR2Request;
@@ -39,13 +38,13 @@ public abstract class IncrementalTreeImploder
 
         if(resultCache == null) {
             ImplodeResult<SubTree<Tree>, Void, Tree> result = regularImplode.implode(request, parseForest);
-            return new ImplodeResult<>(result.intermediateResult, null, result.ast, result.messages);
+            return new ImplodeResult<>(result.intermediateResult, null, result.ast);
         }
 
         SubTree<Tree> result =
             implodeParseNode(incrementalInputFactory.get(request.input, resultCache), parseForest, 0);
 
-        return new ImplodeResult<>(result, resultCache, result.tree, Collections.emptyList());
+        return new ImplodeResult<>(result, resultCache, result.tree);
     }
 
     @Override protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseNode, int startOffset) {

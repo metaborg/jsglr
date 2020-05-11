@@ -1,15 +1,16 @@
 package org.spoofax.jsglr2.imploder;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Stack;
 
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 
-    @Override public SubTree tokenize(Tokens tokens, TreeImploder.SubTree<Tree> rootTree) {
+    @Override public void tokenize(Tokens tokens, TreeImploder.SubTree<Tree> rootTree) {
         tokens.makeStartToken();
         tokenTreeBinding(tokens.startToken(), rootTree.tree);
 
@@ -47,7 +48,6 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                 IToken leftToken = null;
                 IToken pivotToken = currentParentLeftToken;
                 Position pivotPosition = currentPos;
-                Collection<Message> messages = null;
                 for(SubTree subTree : currentOut) {
                     // If child tree had tokens that were not yet bound, bind them
                     if(subTree.tree == null) {
@@ -69,24 +69,15 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                     // If tree production == null, that means it's an "amb" node; in that case, position is not advanced
                     if(tree.production != null)
                         pivotPosition = subTree.endPosition;
-
-                    if(subTree.messages != null) {
-                        if(messages == null)
-                            messages = new ArrayList<>();
-
-                        messages.addAll(subTree.messages);
-                    }
                 }
 
                 if(leftToken == null)
                     leftToken = currentParentLeftToken;
 
-                messages = recoveryMessages(tree.production, currentStart, pivotPosition, messages);
-
                 // Add processed output to the list that is on top of the stack
                 pivotPositionStack.pop();
                 pivotPositionStack.push(pivotPosition);
-                outputStack.peek().add(new SubTree(tree, leftToken, pivotToken, pivotPosition, messages));
+                outputStack.peek().add(new SubTree(tree, leftToken, pivotToken, pivotPosition));
             } else {
                 TreeImploder.SubTree<Tree> tree = currentIn.getFirst(); // Process the next input
                 if(tree.production != null && !tree.production.isContextFree()) {
@@ -95,17 +86,11 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                         lastToken = tokens.makeToken(currentPos, endPosition, tree.production);
                         tokenTreeBinding(lastToken, tree.tree);
 
-                        Collection<Message> messages = recoveryMessages(tree.production, currentPos, endPosition);
-
-                        currentOut.add(new SubTree(tree, lastToken, lastToken, endPosition, messages));
+                        currentOut.add(new SubTree(tree, lastToken, lastToken, endPosition));
                         pivotPositionStack.pop();
                         pivotPositionStack.push(endPosition);
-                    } else {
-                        Collection<Message> messages =
-                            recoveryMessages(tree.production, currentPos, currentPos.step(tokens.getInput(), 1));
-
-                        currentOut.add(new SubTree(tree, null, null, currentPos, messages));
-                    }
+                    } else
+                        currentOut.add(new SubTree(tree, null, null, currentPos));
                     currentIn.removeFirst();
                 } else {
                     inputStack.add(new LinkedList<>(tree.children));
@@ -121,8 +106,6 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 
         tokens.makeEndToken(res.endPosition);
         tokenTreeBinding(tokens.endToken(), res.tree);
-
-        return res;
     }
 
 }

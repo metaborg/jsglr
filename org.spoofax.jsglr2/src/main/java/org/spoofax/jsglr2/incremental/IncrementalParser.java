@@ -25,6 +25,7 @@ import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.ParseReporterFactory;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
@@ -53,10 +54,11 @@ public class IncrementalParser
         StackManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
         ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
-        ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory) {
+        ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory,
+        ParseReporterFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporterFactory) {
 
         super(null, parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, reduceManagerFactory,
-            failureHandlerFactory);
+            failureHandlerFactory, reporterFactory);
 
         this.incrementalInputStackFactory = incrementalInputStackFactory;
         // TODO parametrize parser on diff algorithm for benchmarking

@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.imploder.treefactory.TokenizedTermTreeFactory;
 
 public class IterativeStrategoTermTokenizer extends IterativeTreeTokenizer<IStrategoTerm> {
     @Override protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {
-        TokenizedTermTreeFactory.configure(term, sort, leftToken, rightToken);
+        StrategoTermTokenizer.configureStatic(term, sort, leftToken, rightToken);
     }
 
     @Override protected void configureInjection(ISymbol lhs, IStrategoTerm term, boolean isBracket) {

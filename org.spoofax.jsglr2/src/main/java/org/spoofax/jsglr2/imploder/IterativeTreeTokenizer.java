@@ -66,21 +66,23 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
                     if(subTree.rightToken != null)
                         pivotToken = subTree.rightToken;
 
-                    // If tree production == null, that means it's an "amb" node; in that case, position is not advanced
-                    if(tree.production != null)
-                        pivotPosition = subTree.endPosition;
+                    pivotPosition = subTree.endPosition;
                 }
 
                 if(leftToken == null)
                     leftToken = currentParentLeftToken;
 
+                // In the case when we're dealing with an ambiguous tree node, position is not advanced
+                //noinspection ConstantConditions (peek can never return `null`, as we check size > 1)
+                if(inputStack.size() > 1 && !inputStack.get(inputStack.size() - 2).peek().isAmbiguous) {
+                    pivotPositionStack.pop();
+                    pivotPositionStack.push(pivotPosition);
+                }
                 // Add processed output to the list that is on top of the stack
-                pivotPositionStack.pop();
-                pivotPositionStack.push(pivotPosition);
                 outputStack.peek().add(new SubTree(tree, leftToken, pivotToken, pivotPosition));
             } else {
                 TreeImploder.SubTree<Tree> tree = currentIn.getFirst(); // Process the next input
-                if(tree.production != null && !tree.production.isContextFree()) {
+                if(tree.production != null && !tree.production.isContextFree() || tree.isCharacterTerminal) {
                     if(tree.width > 0) {
                         Position endPosition = currentPos.step(tokens.getInput(), tree.width);
                         lastToken = tokens.makeToken(currentPos, endPosition, tree.production);

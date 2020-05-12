@@ -113,7 +113,7 @@ public class IterativeTreeImploder
                 if(parseForest instanceof ICharacterNode) {
                     SubTree<Tree> characterSubTree =
                         new SubTree<>(treeFactory.createCharacterTerminal(((ICharacterNode) parseForest).character()),
-                            null, parseForest.width());
+                            null, parseForest.width(), true);
                     currentOut.getLast().add(characterSubTree);
                     pseudoNode.pivotOffset += characterSubTree.width;
                 } else {
@@ -174,7 +174,7 @@ public class IterativeTreeImploder
 
     private SubTree<Tree> createAmbiguousSubTree(ParseNode parseNode, List<SubTree<Tree>> subTrees) {
         return new SubTree<>(treeFactory.createAmb(subTrees.stream().map(t -> t.tree)::iterator), subTrees, null,
-            subTrees.get(0).width, false);
+            subTrees.get(0).width, false, true, false);
     }
 
     private SubTree<Tree> createNonTerminalSubTree(IProduction production, List<SubTree<Tree>> subTrees) {
@@ -189,7 +189,7 @@ public class IterativeTreeImploder
         IProduction production) {
         int width = parseNode.width();
 
-        return new SubTree<>(createLexicalTerm(production, inputString, startOffset, width), production, width);
+        return new SubTree<>(createLexicalTerm(production, inputString, startOffset, width), production, width, false);
     }
 
     @SafeVarargs private static <E> LinkedList<LinkedList<E>> newNestedList(E... elements) {

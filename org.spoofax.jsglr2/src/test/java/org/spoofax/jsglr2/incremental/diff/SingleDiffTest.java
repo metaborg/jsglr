@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.incremental.diff;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 
 public class SingleDiffTest {

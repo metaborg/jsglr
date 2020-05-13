@@ -1,17 +1,20 @@
 package org.spoofax.jsglr2.parser;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.spoofax.jsglr2.parser.Position.START_POSITION;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PositionTest {
 
     public static final String SMILEY_STRING = "😀";
     public static final int SMILEY_CODEPOINT = SMILEY_STRING.codePointAt(0);
 
-    @Test(expected = StringIndexOutOfBoundsException.class) public void outOfBounds() {
-        test("", 1, 1, 2);
+    @Test public void outOfBounds() {
+        assertThrows(StringIndexOutOfBoundsException.class, () -> {
+            test("", 1, 1, 2);
+        });
     }
 
     @Test public void empty() {

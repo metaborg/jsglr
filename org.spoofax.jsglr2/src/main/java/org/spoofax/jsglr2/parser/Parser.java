@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
@@ -98,7 +98,7 @@ public class Parser
             if(parseForest != null && parseForestWithStartSymbol == null)
                 return failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
             else
-                return success(parseState, parseForestWithStartSymbol);
+                return complete(parseState, parseForestWithStartSymbol);
         } else
             return failure(parseState, failureHandler.failureType(parseState));
     }
@@ -107,24 +107,31 @@ public class Parser
         return parseStateFactory.get(request, inputStackFactory.get(request.input), observing);
     }
 
-    protected ParseSuccess<ParseForest> success(ParseState parseState, ParseForest parseForest) {
-        Collection<Message> messages = new ArrayList<>();
+    protected ParseResult<ParseForest> complete(ParseState parseState, ParseForest parseForest) {
+        List<Message> messages = new ArrayList<>();
         CycleDetector<ParseForest, Derivation, ParseNode> cycleDetector = new CycleDetector<>(messages);
 
         parseForestManager.visit(parseState.request, parseForest, cycleDetector);
 
-        reporter.report(parseState, parseForest, messages);
+        if(cycleDetector.cycleDetected) {
+            return failure(new ParseFailure<>(parseState,
+                new ParseFailureCause(ParseFailureCause.Type.Cycle, messages.get(0).region.position())));
+        } else {
+            reporter.report(parseState, parseForest, messages);
 
-        ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
+            ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
 
-        observing.notify(observer -> observer.success(success));
+            observing.notify(observer -> observer.success(success));
 
-        return success;
+            return success;
+        }
     }
 
     protected ParseFailure<ParseForest> failure(ParseState parseState, ParseFailureCause failureCause) {
-        ParseFailure<ParseForest> failure = new ParseFailure<>(parseState, failureCause);
+        return failure(new ParseFailure<>(parseState, failureCause));
+    }
 
+    protected ParseFailure<ParseForest> failure(ParseFailure<ParseForest> failure) {
         observing.notify(observer -> observer.failure(failure));
 
         return failure;

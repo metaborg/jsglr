@@ -10,6 +10,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseNodeVisitor;
+import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
 public class CycleDetector
 //@formatter:off
@@ -30,7 +31,7 @@ public class CycleDetector
     @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
         if(spine.contains(parseNode)) {
             cycleDetected = true;
-            messages.add(Message.error("Cycle in parse forest", new SourceRegion(startPosition)));
+            messages.add(Message.error(ParseFailureCause.Type.Cycle.message, new SourceRegion(startPosition)));
 
             return false;
         } else {

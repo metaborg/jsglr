@@ -9,7 +9,7 @@ public class ParseFailureCause {
     public enum Type {
 
         UnexpectedEOF("Unexpected end of input"), UnexpectedInput("Unexpected input"),
-        InvalidStartSymbol("Invalid start symbol");
+        InvalidStartSymbol("Invalid start symbol"), Cycle("Cycle in parse forest");
 
         public final String message;
 

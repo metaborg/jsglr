@@ -34,6 +34,10 @@ public class SourceRegion {
         this(position, position);
     }
 
+    public Position position() {
+        return new Position(startOffset, startRow, startColumn);
+    }
+
     public static SourceRegion fromToken(IToken token) {
         return new SourceRegion(token.getStartOffset(), token.getLine(), token.getColumn(), token.getEndOffset(),
             token.getEndLine(), token.getEndColumn());

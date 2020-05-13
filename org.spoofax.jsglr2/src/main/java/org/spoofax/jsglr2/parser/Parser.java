@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
-import org.spoofax.jsglr2.parser.result.ParseFailureType;
+import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
@@ -96,7 +96,7 @@ public class Parser
                 ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState) : parseForest;
 
             if(parseForest != null && parseForestWithStartSymbol == null)
-                return failure(parseState, ParseFailureType.InvalidStartSymbol);
+                return failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
             else
                 return success(parseState, parseForestWithStartSymbol);
         } else
@@ -122,8 +122,8 @@ public class Parser
         return success;
     }
 
-    protected ParseFailure<ParseForest> failure(ParseState parseState, ParseFailureType failureType) {
-        ParseFailure<ParseForest> failure = new ParseFailure<>(parseState, failureType);
+    protected ParseFailure<ParseForest> failure(ParseState parseState, ParseFailureCause failureCause) {
+        ParseFailure<ParseForest> failure = new ParseFailure<>(parseState, failureCause);
 
         observing.notify(observer -> observer.failure(failure));
 

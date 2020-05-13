@@ -8,12 +8,12 @@ import org.spoofax.jsglr2.parser.ParseException;
 
 public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<ParseForest> {
 
-    public final ParseFailureType failureType;
+    public final ParseFailureCause failureCause;
 
-    public ParseFailure(AbstractParseState<?, ?> parseState, ParseFailureType failureType) {
-        super(parseState, Collections.singletonList(failureType.toMessage(parseState)));
+    public ParseFailure(AbstractParseState<?, ?> parseState, ParseFailureCause failureCause) {
+        super(parseState, Collections.singletonList(failureCause.toMessage()));
 
-        this.failureType = failureType;
+        this.failureCause = failureCause;
     }
 
     public boolean isSuccess() {
@@ -21,8 +21,8 @@ public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<
     }
 
     public ParseException exception() {
-        int offset = parseState.inputStack.offset();
-        return new ParseException(failureType, offset, parseState.inputStack.inputString().codePointAt(offset));
+        int offset = failureCause.position != null ? failureCause.position.offset : parseState.inputStack.offset();
+        return new ParseException(failureCause, offset, parseState.inputStack.inputString().codePointAt(offset));
     }
 
 }

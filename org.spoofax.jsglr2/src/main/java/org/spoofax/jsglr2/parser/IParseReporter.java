@@ -20,6 +20,6 @@ public interface IParseReporter
 //@formatter:on
 {
 
-    Collection<Message> getMessages(ParseState parseState, ParseForest parseForest);
+    void report(ParseState parseState, ParseForest parseForest, Collection<Message> messages);
 
 }

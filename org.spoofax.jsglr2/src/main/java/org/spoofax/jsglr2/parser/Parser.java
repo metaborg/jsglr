@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.metaborg.parsetable.IParseTable;
@@ -107,7 +108,12 @@ public class Parser
     }
 
     protected ParseSuccess<ParseForest> success(ParseState parseState, ParseForest parseForest) {
-        Collection<Message> messages = reporter.getMessages(parseState, parseForest);
+        Collection<Message> messages = new ArrayList<>();
+        CycleDetector<ParseForest, Derivation, ParseNode> cycleDetector = new CycleDetector<>(messages);
+
+        parseForestManager.visit(parseState.request, parseForest, cycleDetector);
+
+        reporter.report(parseState, parseForest, messages);
 
         ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
 

@@ -1,7 +1,5 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.Collections;
-
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -20,7 +18,8 @@ public class EmptyParseReporter {
     ParseState_  extends AbstractParseState<InputStack_, StackNode_>>
 //@formatter:on
     ParseReporterFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_> factory() {
-        return parseForestManager -> (parseState, parseForest) -> Collections.emptyList();
+        return parseForestManager -> (parseState, parseForest, messages) -> {
+        };
     }
 
 }

@@ -10,6 +10,10 @@ public interface ParseNodeVisitor
 //@formatter:on
 {
 
-    void visit(ParseNode parseNode, Position startPosition, Position endPosition);
+    default boolean preVisit(ParseNode parseNode, Position startPosition) {
+        return true;
+    }
+
+    void postVisit(ParseNode parseNode, Position startPosition, Position endPosition);
 
 }

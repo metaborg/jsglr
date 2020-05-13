@@ -29,25 +29,64 @@ public class ParseNodeVisitorTest {
     private Iterable<Visit> trace(MockParseForest parseForest, String yield) {
         List<Visit> visits = new ArrayList<>();
 
-        visit(parseForest, yield, (parseNode, startPosition, endPosition) -> {
-            visits.add(new Visit(parseNode.label, startPosition, endPosition));
+        visit(parseForest, yield, new ParseNodeVisitor<MockParseForest, MockDerivation, MockParseNode>() {
+            @Override public boolean preVisit(MockParseNode parseNode, Position startPosition) {
+                visits.add(new PreVisit(parseNode.label, startPosition));
+
+                return true;
+            }
+
+            @Override public void postVisit(MockParseNode parseNode, Position startPosition, Position endPosition) {
+                visits.add(new PostVisit(parseNode.label, startPosition, endPosition));
+            }
         });
 
         return visits;
     }
 
-    static class Visit {
+    static abstract class Visit {
         String label;
         Position startPosition;
-        Position endPosition;
 
-        Visit(String label, Position startPosition, Position endPosition) {
+        Visit(String label, Position startPosition) {
             this.label = label;
             this.startPosition = startPosition;
+        }
+    }
+
+    static class PreVisit extends Visit {
+
+        PreVisit(String label, Position startPosition) {
+            super(label, startPosition);
+        }
+
+        PreVisit(String label, int startOffset, int startLine, int startColumn) {
+            this(label, new Position(startOffset, startLine, startColumn));
+        }
+
+        @Override public boolean equals(Object o) {
+            if(this == o)
+                return true;
+            if(o == null || getClass() != o.getClass())
+                return false;
+            PreVisit visit = (PreVisit) o;
+            return label.equals(visit.label) && startPosition.equals(visit.startPosition);
+        }
+
+        @Override public String toString() {
+            return label + ": " + startPosition;
+        }
+    }
+
+    static class PostVisit extends Visit {
+        Position endPosition;
+
+        PostVisit(String label, Position startPosition, Position endPosition) {
+            super(label, startPosition);
             this.endPosition = endPosition;
         }
 
-        Visit(String label, int startOffset, int startLine, int startColumn, int endOffset, int endLine,
+        PostVisit(String label, int startOffset, int startLine, int startColumn, int endOffset, int endLine,
             int endColumn) {
             this(label, new Position(startOffset, startLine, startColumn), new Position(endOffset, endLine, endColumn));
         }
@@ -57,7 +96,7 @@ public class ParseNodeVisitorTest {
                 return true;
             if(o == null || getClass() != o.getClass())
                 return false;
-            Visit visit = (Visit) o;
+            PostVisit visit = (PostVisit) o;
             return label.equals(visit.label) && startPosition.equals(visit.startPosition)
                 && endPosition.equals(visit.endPosition);
         }
@@ -76,7 +115,8 @@ public class ParseNodeVisitorTest {
 
         testByTrace(parseForest, "x", Arrays.asList(
         //@formatter:off
-            new Visit("x", 0, 1, 1, 1, 1, 2)
+            new  PreVisit("x", 0, 1, 1),
+            new PostVisit("x", 0, 1, 1, 1, 1, 2)
         //@formatter:on
         ));
     }
@@ -86,7 +126,8 @@ public class ParseNodeVisitorTest {
 
         testByTrace(parseForest, "x+y", Arrays.asList(
         //@formatter:off
-            new Visit("+", 0, 1, 1, 3, 1, 4)
+            new  PreVisit("+", 0, 1, 1),
+            new PostVisit("+", 0, 1, 1, 3, 1, 4)
         //@formatter:on
         ));
     }
@@ -96,8 +137,10 @@ public class ParseNodeVisitorTest {
 
         testByTrace(parseForest, "x", Arrays.asList(
         //@formatter:off
-            new Visit("y", 0, 1, 1, 1, 1, 2),
-            new Visit("z", 0, 1, 1, 1, 1, 2)
+            new  PreVisit("z", 0, 1, 1),
+            new  PreVisit("y", 0, 1, 1),
+            new PostVisit("y", 0, 1, 1, 1, 1, 2),
+            new PostVisit("z", 0, 1, 1, 1, 1, 2)
         //@formatter:on
         ));
     }
@@ -107,9 +150,12 @@ public class ParseNodeVisitorTest {
 
         testByTrace(parseForest, "x+y", Arrays.asList(
         //@formatter:off
-            new Visit("x", 0, 1, 1, 1, 1, 2),
-            new Visit("y", 2, 1, 3, 3, 1, 4),
-            new Visit("+", 0, 1, 1, 3, 1, 4)
+            new  PreVisit("+", 0, 1, 1),
+            new  PreVisit("x", 0, 1, 1),
+            new PostVisit("x", 0, 1, 1, 1, 1, 2),
+            new  PreVisit("y", 2, 1, 3),
+            new PostVisit("y", 2, 1, 3, 3, 1, 4),
+            new PostVisit("+", 0, 1, 1, 3, 1, 4)
         //@formatter:on
         ));
     }
@@ -119,9 +165,13 @@ public class ParseNodeVisitorTest {
 
         testByTrace(parseForest, "x", Arrays.asList(
         //@formatter:off
-            new Visit("x1", 0, 1, 1, 1, 1, 2),
-            new Visit("x2", 0, 1, 1, 1, 1, 2),
-            new Visit("+", 0, 1, 1, 1, 1, 2)
+            new  PreVisit("+", 0, 1, 1),
+            // TODO: is the order of x1 and x2 visits correct?
+            new  PreVisit("x2", 0, 1, 1),
+            new  PreVisit("x1", 0, 1, 1),
+            new PostVisit("x1", 0, 1, 1, 1, 1, 2),
+            new PostVisit("x2", 0, 1, 1, 1, 1, 2),
+            new PostVisit("+", 0, 1, 1, 1, 1, 2)
         //@formatter:on
         ));
     }
@@ -131,7 +181,8 @@ public class ParseNodeVisitorTest {
 
         testByTrace(parseForest, "xxx", Arrays.asList(
         //@formatter:off
-            new Visit("x", 0, 1, 1, 3, 1, 4)
+            new  PreVisit("x", 0, 1, 1),
+            new PostVisit("x", 0, 1, 1, 3, 1, 4)
         //@formatter:on
         ));
     }
@@ -141,9 +192,12 @@ public class ParseNodeVisitorTest {
 
         testByTrace(parseForest, "yyyzzz", Arrays.asList(
         //@formatter:off
-            new Visit("y", 0, 1, 1, 3, 1, 4),
-            new Visit("z", 3, 1, 4, 6, 1, 7),
-            new Visit("x", 0, 1, 1, 6, 1, 7)
+            new  PreVisit("x", 0, 1, 1),
+            new  PreVisit("y", 0, 1, 1),
+            new PostVisit("y", 0, 1, 1, 3, 1, 4),
+            new  PreVisit("z", 3, 1, 4),
+            new PostVisit("z", 3, 1, 4, 6, 1, 7),
+            new PostVisit("x", 0, 1, 1, 6, 1, 7)
         //@formatter:on
         ));
     }

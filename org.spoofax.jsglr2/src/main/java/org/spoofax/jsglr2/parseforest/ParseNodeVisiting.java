@@ -32,7 +32,7 @@ public interface ParseNodeVisiting
                 if(inputStack.isEmpty() || !(inputStack.peek() instanceof IDerivation)) { // Visit parse node
                     ParseNode parseNode = outputParseNodes.pop();
 
-                    visitor.visit(parseNode, positionStack.pop(), pivotPosition);
+                    visitor.postVisit(parseNode, positionStack.pop(), pivotPosition);
 
                     outputDerivations.peek().remainingChildren--;
                 }
@@ -54,7 +54,9 @@ public interface ParseNodeVisiting
                 ParseNode parseNode = (ParseNode) inputStack.pop();
                 positionStack.push(pivotPosition);
 
-                if(parseNode.hasDerivations()) { // Parse node with derivation(s)
+                boolean visitChildren = visitor.preVisit(parseNode, pivotPosition);
+
+                if(visitChildren && parseNode.hasDerivations()) { // Parse node with derivation(s)
                     outputParseNodes.push(parseNode);
 
                     for(Derivation derivation : parseNode.getDerivations())
@@ -62,7 +64,7 @@ public interface ParseNodeVisiting
                 } else { // Skipped parse node (without derivations)
                     pivotPosition = pivotPosition.step(request.input, parseNode.width());
 
-                    visitor.visit(parseNode, positionStack.pop(), pivotPosition);
+                    visitor.postVisit(parseNode, positionStack.pop(), pivotPosition);
 
                     outputDerivations.peek().remainingChildren--;
                 }

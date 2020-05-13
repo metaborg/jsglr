@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.recovery;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -49,12 +50,14 @@ public class RecoveryParseReporter
 
     @Override public Collection<Message> getMessages(ParseState parseState, ParseForest parseForest) {
         if(parseState.appliedRecovery()) {
-            RecoveryMessagesParseForestVisitor<ParseForest, Derivation, ParseNode> parseForestVisitor =
-                new RecoveryMessagesParseForestVisitor<>();
+            Collection<Message> messages = new ArrayList<>();
 
-            parseForestManager.visit(parseState.request, parseForest, parseForestVisitor);
+            parseForestManager.visit(parseState.request, parseForest, (parseNode, startPosition, endPosition) -> {
+                if(parseNode.production().isRecovery())
+                    messages.add(RecoveryMessages.get(parseNode.production(), startPosition, endPosition));
+            });
 
-            return parseForestVisitor.messages;
+            return messages;
         } else
             return Collections.emptyList();
     }

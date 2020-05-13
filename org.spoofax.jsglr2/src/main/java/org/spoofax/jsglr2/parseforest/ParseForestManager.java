@@ -71,34 +71,29 @@ public abstract class ParseForestManager
     abstract protected ParseNode filteredTopParseNode(ParseNode parseNode, List<Derivation> derivations);
 
     public void visit(JSGLR2Request request, ParseForest root,
-        ParseForestVisitor<ParseForest, Derivation, ParseNode> visitor) {
-
-        Stack<Position> positionStack = new Stack<>();
-
-        Stack<Object> inputStack = new Stack<>();
-
-        Stack<ParseNode> outputParseNodes = new Stack<>();
-        Stack<VisitDerivation<Derivation>> outputDerivations = new Stack<>();
+        ParseNodeVisitor<ParseForest, Derivation, ParseNode> visitor) {
+        Stack<Position> positionStack = new Stack<>(); // Start positions of parse nodes
+        Stack<Object> inputStack = new Stack<>(); // Pending parse nodes and derivations
+        Stack<ParseNode> outputParseNodes = new Stack<>(); // Parse nodes that are being processed
+        Stack<VisitDerivation> outputDerivations = new Stack<>(); // Maintains remaining children for derivations
 
         Position pivotPosition = Position.START_POSITION;
         inputStack.push(root);
-        outputDerivations.push(new VisitDerivation<>());
+        outputDerivations.push(new VisitDerivation());
 
         while(!inputStack.isEmpty() || !outputParseNodes.isEmpty()) {
-            if(!outputDerivations.isEmpty() && outputDerivations.peek().visitable()) { // Visit derivation
-                VisitDerivation<Derivation> derivation = outputDerivations.pop();
-
-                visitor.visitDerivation(derivation.derivation, positionStack.peek(), pivotPosition);
+            if(!outputDerivations.isEmpty() && outputDerivations.peek().done()) { // Finish derivation
+                outputDerivations.pop();
             } else if(!outputParseNodes.isEmpty()
                 && !(!inputStack.isEmpty() && (inputStack.peek() instanceof IDerivation))) { // Visit parse node
                 ParseNode parseNode = outputParseNodes.pop();
 
-                visitor.visitParseNode(parseNode, positionStack.peek(), pivotPosition);
+                visitor.visit(parseNode, positionStack.peek(), pivotPosition);
 
                 outputDerivations.peek().remainingChildren--;
             } else if(inputStack.peek() instanceof IDerivation) { // Consume derivation
                 Derivation derivation = (Derivation) inputStack.pop();
-                outputDerivations.push(new VisitDerivation<>(derivation));
+                outputDerivations.push(new VisitDerivation(derivation));
 
                 ParseForest[] children = derivation.parseForests();
 
@@ -112,38 +107,35 @@ public abstract class ParseForestManager
             } else if(inputStack.peek() instanceof IParseNode) { // Consume (skipped) parse node
                 ParseNode parseNode = (ParseNode) inputStack.pop();
 
-                if(parseNode.hasDerivations()) { // Parse node with derivation
+                if(parseNode.hasDerivations()) { // Parse node with derivation(s)
                     outputParseNodes.push(parseNode);
                     positionStack.push(pivotPosition);
 
                     for(Derivation derivation : parseNode.getDerivations())
                         inputStack.push(derivation);
-                } else { // Skipped parse node
+                } else { // Skipped parse node (without derivations)
                     pivotPosition = pivotPosition.step(request.input, parseNode.width());
 
-                    visitor.visitParseNode(parseNode, positionStack.peek(), pivotPosition);
+                    visitor.visit(parseNode, positionStack.peek(), pivotPosition);
 
                     outputDerivations.peek().remainingChildren--;
                 }
-            } else {
-                throw new RuntimeException("invalid parse node");
             }
         }
     }
 
-    static class VisitDerivation<Derivation extends IDerivation<?>> {
-        int remainingChildren = 0;
-        Derivation derivation;
+    static class VisitDerivation {
+        int remainingChildren;
 
         VisitDerivation() {
             this.remainingChildren = 1;
         }
 
-        VisitDerivation(Derivation derivation) {
+        VisitDerivation(IDerivation<?> derivation) {
             this.remainingChildren = derivation.parseForests().length;
         }
 
-        boolean visitable() {
+        boolean done() {
             return remainingChildren == 0;
         }
     }

@@ -51,7 +51,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
     private SubTree tokenizeInternal(Tokens tokens, TreeImploder.SubTree<Tree> tree, Position startPosition,
         IToken parentLeftToken) {
-        if(tree.production != null && !tree.production.isContextFree()) {
+        if(tree.production != null && !tree.production.isContextFree() || tree.isCharacterTerminal) {
             if(tree.width > 0) {
                 Position endPosition = startPosition.step(tokens.getInput(), tree.width);
                 IToken token = tokens.makeToken(startPosition, endPosition, tree.production);
@@ -65,6 +65,10 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
             IToken pivotToken = parentLeftToken;
             Position pivotPosition = startPosition;
             for(TreeImploder.SubTree<Tree> child : tree.children) {
+                // In the case when we're dealing with an ambiguous tree node, position is not advanced
+                if(tree.isAmbiguous)
+                    pivotPosition = startPosition;
+
                 SubTree subTree = tokenizeInternal(tokens, child, pivotPosition, pivotToken);
 
                 // If child tree had tokens that were not yet bound, bind them
@@ -84,9 +88,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
                 if(subTree.rightToken != null)
                     pivotToken = subTree.rightToken;
 
-                // If tree production == null, that means it's an "amb" node; in that case, position is not advanced
-                if(tree.production != null)
-                    pivotPosition = subTree.endPosition;
+                pivotPosition = subTree.endPosition;
             }
 
             if(leftToken == null)

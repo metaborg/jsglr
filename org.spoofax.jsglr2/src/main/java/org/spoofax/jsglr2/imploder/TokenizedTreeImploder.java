@@ -219,7 +219,9 @@ public abstract class TokenizedTreeImploder
             }
 
             // Set the parent tree left and right token from the outermost non-layout left and right child tokens
-            if(childProduction != null && !childProduction.isLayout()) {
+            if(childProduction != null && !childProduction.isLayout()
+                // Also do this for character nodes
+                || childParseNode == null) {
                 if(result.leftToken == null)
                     result.leftToken = subTree.leftToken;
 

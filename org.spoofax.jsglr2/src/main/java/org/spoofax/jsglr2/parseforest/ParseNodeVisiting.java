@@ -52,10 +52,10 @@ public interface ParseNodeVisiting
                 outputDerivations.peek().remainingChildren--;
             } else if(inputStack.peek() instanceof IParseNode) { // Consume (skipped) parse node
                 ParseNode parseNode = (ParseNode) inputStack.pop();
+                positionStack.push(pivotPosition);
 
                 if(parseNode.hasDerivations()) { // Parse node with derivation(s)
                     outputParseNodes.push(parseNode);
-                    positionStack.push(pivotPosition);
 
                     for(Derivation derivation : parseNode.getDerivations())
                         inputStack.push(derivation);

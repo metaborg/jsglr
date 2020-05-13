@@ -26,4 +26,8 @@ public abstract class MockParseForest implements IParseForest {
         return new MockParseNode(label, IParseForest.sumWidth(parseForests), Collections.singletonList(derivation));
     }
 
+    public static MockParseNode n(String label, int width) {
+        return new MockParseNode(label, width, Collections.emptyList());
+    }
+
 }

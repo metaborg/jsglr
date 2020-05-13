@@ -126,4 +126,26 @@ public class ParseNodeVisitorTest {
         ));
     }
 
+    @Test void testSkipped() {
+        MockParseForest parseForest = n("x", 3);
+
+        testByTrace(parseForest, "xxx", Arrays.asList(
+        //@formatter:off
+            new Visit("x", 0, 1, 1, 3, 1, 4)
+        //@formatter:on
+        ));
+    }
+
+    @Test void testMultipleSkipped() {
+        MockParseForest parseForest = n("x", n("y", 3), n("z", 3));
+
+        testByTrace(parseForest, "yyyzzz", Arrays.asList(
+        //@formatter:off
+            new Visit("y", 0, 1, 1, 3, 1, 4),
+            new Visit("z", 3, 1, 4, 6, 1, 7),
+            new Visit("x", 0, 1, 1, 6, 1, 7)
+        //@formatter:on
+        ));
+    }
+
 }

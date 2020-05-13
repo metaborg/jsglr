@@ -1,10 +1,11 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import static org.spoofax.terms.util.TermUtils.*;
+
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
@@ -37,8 +38,8 @@ public final class TokenDescriptor {
 
         IStrategoTerm astNode = (IStrategoTerm) token.getAstNode();
         String sort = astNode == null ? null : ImploderAttachment.get(astNode).getSort();
-        String cons = astNode == null ? null
-            : astNode.getTermType() == IStrategoTerm.APPL ? ((IStrategoAppl) astNode).getConstructor().getName() : null;
+        String cons =
+            astNode == null ? null : isAppl(astNode) ? toAppl(astNode).getName() : isList(astNode) ? "[]" : null;
         return new TokenDescriptor(inputPart, token.getKind(), token.getStartOffset(), token.getLine(),
             token.getColumn(), sort, cons);
     }

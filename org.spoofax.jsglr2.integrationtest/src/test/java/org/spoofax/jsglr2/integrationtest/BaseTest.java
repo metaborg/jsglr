@@ -2,12 +2,11 @@ package org.spoofax.jsglr2.integrationtest;
 
 import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.spoofax.terms.util.TermUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -15,7 +14,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import com.google.common.io.Resources;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -36,6 +34,8 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
+
+import com.google.common.io.Resources;
 
 public abstract class BaseTest implements WithParseTable {
 
@@ -258,19 +258,21 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
         Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
-            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
+            JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
             assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
 
-            JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
+            JSGLR2Success<IStrategoTerm> jsglr2Success = (JSGLR2Success<IStrategoTerm>) jsglr2Result;
 
             List<TokenDescriptor> actualTokens = new ArrayList<>();
 
             for(IToken token : jsglr2Success.tokens) {
                 actualTokens.add(TokenDescriptor.from(inputString, token));
             }
+            IStrategoTerm rootAst = jsglr2Success.ast;
+            String rootCons = isAppl(rootAst) ? toAppl(rootAst).getName() : isList(rootAst) ? "[]" : null;
 
-            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, null);
+            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, rootCons);
             TokenDescriptor actualStartToken = actualTokens.get(0);
 
             assertEquals(expectedStartToken, actualStartToken, "Start token incorrect");
@@ -281,7 +283,7 @@ public abstract class BaseTest implements WithParseTable {
             int endColumn = endPosition.column;
 
             TokenDescriptor expectedEndToken =
-                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1, null, null);
+                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1, null, rootCons);
             TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
 
             List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);

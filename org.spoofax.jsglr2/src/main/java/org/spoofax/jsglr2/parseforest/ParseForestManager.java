@@ -78,21 +78,24 @@ public abstract class ParseForestManager
         Stack<VisitDerivation> outputDerivations = new Stack<>(); // Maintains remaining children for derivations
 
         Position pivotPosition = Position.START_POSITION;
+        positionStack.push(Position.START_POSITION);
         inputStack.push(root);
         outputDerivations.push(new VisitDerivation());
 
         while(!inputStack.isEmpty() || !outputParseNodes.isEmpty()) {
             if(!outputDerivations.isEmpty() && outputDerivations.peek().done()) { // Finish derivation
                 outputDerivations.pop();
-            } else if(!outputParseNodes.isEmpty()
-                && !(!inputStack.isEmpty() && (inputStack.peek() instanceof IDerivation))) { // Visit parse node
-                ParseNode parseNode = outputParseNodes.pop();
 
-                visitor.visit(parseNode, positionStack.peek(), pivotPosition);
+                if(inputStack.isEmpty() || !(inputStack.peek() instanceof IDerivation)) { // Visit parse node
+                    ParseNode parseNode = outputParseNodes.pop();
 
-                outputDerivations.peek().remainingChildren--;
+                    visitor.visit(parseNode, positionStack.pop(), pivotPosition);
+
+                    outputDerivations.peek().remainingChildren--;
+                }
             } else if(inputStack.peek() instanceof IDerivation) { // Consume derivation
                 Derivation derivation = (Derivation) inputStack.pop();
+
                 outputDerivations.push(new VisitDerivation(derivation));
 
                 ParseForest[] children = derivation.parseForests();
@@ -116,7 +119,7 @@ public abstract class ParseForestManager
                 } else { // Skipped parse node (without derivations)
                     pivotPosition = pivotPosition.step(request.input, parseNode.width());
 
-                    visitor.visit(parseNode, positionStack.peek(), pivotPosition);
+                    visitor.visit(parseNode, positionStack.pop(), pivotPosition);
 
                     outputDerivations.peek().remainingChildren--;
                 }

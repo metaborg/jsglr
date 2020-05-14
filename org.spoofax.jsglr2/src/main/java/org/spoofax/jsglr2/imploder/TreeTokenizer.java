@@ -92,7 +92,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
                 pivotPosition = subTree.endPosition;
             }
 
-            // If is no token, this means that this AST has no characters in the input.
+            // If there is no token, this means that this AST has no characters in the input.
             // In this case, create an empty token to associate with this AST node.
             if(leftToken == null) {
                 assert rightToken == null;

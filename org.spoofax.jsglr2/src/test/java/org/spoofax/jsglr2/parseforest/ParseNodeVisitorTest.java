@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr2.JSGLR2Request;
+import org.spoofax.jsglr2.parseforest.mock.MockCharacterNode;
 import org.spoofax.jsglr2.parseforest.mock.MockDerivation;
 import org.spoofax.jsglr2.parseforest.mock.MockParseForest;
 import org.spoofax.jsglr2.parseforest.mock.MockParseNode;
@@ -166,12 +167,55 @@ public class ParseNodeVisitorTest {
         testByTrace(parseForest, "x", Arrays.asList(
         //@formatter:off
             new  PreVisit("+", 0, 1, 1),
-            // TODO: is the order of x1 and x2 visits correct?
             new  PreVisit("x2", 0, 1, 1),
+            new PostVisit("x2", 0, 1, 1, 1, 1, 2),
             new  PreVisit("x1", 0, 1, 1),
             new PostVisit("x1", 0, 1, 1, 1, 1, 2),
-            new PostVisit("x2", 0, 1, 1, 1, 1, 2),
             new PostVisit("+", 0, 1, 1, 1, 1, 2)
+        //@formatter:on
+        ));
+    }
+
+    @Test void testAmbiguousExpression() {
+        MockParseForest x = n("x", c('x'));
+        MockCharacterNode plus = c('+');
+        MockParseForest y = n("y", c('y'));
+        MockCharacterNode times = c('*');
+        MockParseForest z = n("z", c('z'));
+
+        MockParseNode x_plus_y = n("x+y", x, plus, y);
+        MockParseNode y_times_z = n("y*z", y, times, z);
+
+        MockDerivation x_plus__y_times_z = d(x, plus, y_times_z); // x + (y * z)
+        MockDerivation x_plus_y__times_z = d(x_plus_y, times, z); // (x + y) * z
+
+        MockParseForest parseForest = n("amb", x_plus_y__times_z, x_plus__y_times_z);
+
+        testByTrace(parseForest, "x+y*z", Arrays.asList(
+        //@formatter:off
+            new  PreVisit("amb", 0, 1, 1),
+
+            // x + (y * z)
+            new  PreVisit("x",   0, 1, 1),
+            new PostVisit("x",   0, 1, 1, 1, 1, 2),
+            new  PreVisit("y*z", 2, 1, 3),
+            new  PreVisit("y",   2, 1, 3),
+            new PostVisit("y",   2, 1, 3, 3, 1, 4),
+            new  PreVisit("z",   4, 1, 5),
+            new PostVisit("z",   4, 1, 5, 5, 1, 6),
+            new PostVisit("y*z", 2, 1, 3, 5, 1, 6),
+
+            // (x + y) * z
+            new  PreVisit("x+y", 0, 1, 1),
+            new  PreVisit("x",   0, 1, 1),
+            new PostVisit("x",   0, 1, 1, 1, 1, 2),
+            new  PreVisit("y",   2, 1, 3),
+            new PostVisit("y",   2, 1, 3, 3, 1, 4),
+            new PostVisit("x+y", 0, 1, 1, 3, 1, 4),
+            new  PreVisit("z",   4, 1, 5),
+            new PostVisit("z",   4, 1, 5, 5, 1, 6),
+
+            new PostVisit("amb", 0, 1, 1, 5, 1, 6)
         //@formatter:on
         ));
     }

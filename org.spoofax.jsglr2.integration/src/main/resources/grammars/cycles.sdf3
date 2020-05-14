@@ -6,7 +6,8 @@ context-free start-symbols
 
 context-free syntax
 
-  Start = S
+  Start = X* S
+  X = "x"
 
   S.S = S
   S.E =

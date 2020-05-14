@@ -37,7 +37,7 @@ public class CycleDetector
         } else {
             spine.add(parseNode);
 
-            return true;
+            return parseNode.production().isContextFree();
         }
     }
 

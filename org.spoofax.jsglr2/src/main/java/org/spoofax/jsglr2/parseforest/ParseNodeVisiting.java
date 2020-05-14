@@ -17,29 +17,33 @@ public interface ParseNodeVisiting
         ParseNodeVisitor<ParseForest, Derivation, ParseNode> visitor) {
         Stack<Position> positionStack = new Stack<>(); // Start positions of parse nodes
         Stack<Object> inputStack = new Stack<>(); // Pending parse nodes and derivations
-        Stack<ParseNode> outputParseNodes = new Stack<>(); // Parse nodes that are being processed
-        Stack<VisitDerivation> outputDerivations = new Stack<>(); // Maintains remaining children for derivations
+        Stack<Visit<ParseNode>> outputStack = new Stack<>(); // Parse node and derivations with remaining children
 
         Position pivotPosition = Position.START_POSITION;
         positionStack.push(Position.START_POSITION);
         inputStack.push(root);
-        outputDerivations.push(new VisitDerivation());
+        outputStack.push(new Visit<>());
 
-        while(!inputStack.isEmpty() || !outputParseNodes.isEmpty()) {
-            if(!outputDerivations.isEmpty() && outputDerivations.peek().done()) { // Finish derivation
-                outputDerivations.pop();
+        while(!inputStack.isEmpty() || !outputStack.isEmpty()) {
+            if(!outputStack.isEmpty() && outputStack.peek().done()) { // Finish derivation
+                outputStack.pop();
 
-                if(inputStack.isEmpty() || !(inputStack.peek() instanceof IDerivation)) { // Visit parse node
-                    ParseNode parseNode = outputParseNodes.pop();
+                if(outputStack.isEmpty())
+                    break;
+
+                outputStack.peek().remainingChildren--;
+
+                if(!outputStack.isEmpty() && outputStack.peek().done()) { // Visit parse node
+                    ParseNode parseNode = outputStack.pop().parseNode;
 
                     visitor.postVisit(parseNode, positionStack.pop(), pivotPosition);
 
-                    outputDerivations.peek().remainingChildren--;
+                    outputStack.peek().remainingChildren--;
                 }
             } else if(inputStack.peek() instanceof IDerivation) { // Consume derivation
                 Derivation derivation = (Derivation) inputStack.pop();
 
-                outputDerivations.push(new VisitDerivation(derivation));
+                outputStack.push(new Visit<>(derivation));
 
                 ParseForest[] children = derivation.parseForests();
 
@@ -49,7 +53,8 @@ public interface ParseNodeVisiting
                 pivotPosition = positionStack.peek();
             } else if(inputStack.peek() instanceof ICharacterNode) { // Consume character node
                 pivotPosition = pivotPosition.step(request.input, ((ICharacterNode) inputStack.pop()).width());
-                outputDerivations.peek().remainingChildren--;
+
+                outputStack.peek().remainingChildren--;
             } else if(inputStack.peek() instanceof IParseNode) { // Consume (skipped) parse node
                 ParseNode parseNode = (ParseNode) inputStack.pop();
                 positionStack.push(pivotPosition);
@@ -57,30 +62,42 @@ public interface ParseNodeVisiting
                 boolean visitChildren = visitor.preVisit(parseNode, pivotPosition);
 
                 if(visitChildren && parseNode.hasDerivations()) { // Parse node with derivation(s)
-                    outputParseNodes.push(parseNode);
+                    int derivations = 0;
 
-                    for(Derivation derivation : parseNode.getDerivations())
+                    for(Derivation derivation : parseNode.getDerivations()) {
                         inputStack.push(derivation);
+                        derivations++;
+                    }
+
+                    outputStack.push(new Visit<>(derivations, parseNode));
                 } else { // Skipped parse node (without derivations)
                     pivotPosition = pivotPosition.step(request.input, parseNode.width());
 
                     visitor.postVisit(parseNode, positionStack.pop(), pivotPosition);
 
-                    outputDerivations.peek().remainingChildren--;
+                    outputStack.peek().remainingChildren--;
                 }
             }
         }
     }
 
-    class VisitDerivation {
+    class Visit<ParseNode> {
         int remainingChildren;
+        ParseNode parseNode;
 
-        VisitDerivation() {
+        Visit() {
             this.remainingChildren = 1;
+            this.parseNode = null;
         }
 
-        VisitDerivation(IDerivation<?> derivation) {
+        Visit(IDerivation<?> derivation) {
             this.remainingChildren = derivation.parseForests().length;
+            this.parseNode = null;
+        }
+
+        Visit(int remainingChildren, ParseNode parseNode) {
+            this.remainingChildren = remainingChildren;
+            this.parseNode = parseNode;
         }
 
         boolean done() {

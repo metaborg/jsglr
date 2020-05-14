@@ -105,7 +105,10 @@ public class Token implements IToken, Cloneable {
     }
 
     public int getEndColumn() {
-        return column - 1 + tokens.getInput().codePointCount(getStartOffset(), getEndOffset() + 1);
+        return column - 1
+            + (tokens != null && tokens.getInput() != null && getStartOffset() >= 0
+                && getEndOffset() < tokens.getInput().length() && getStartOffset() <= getEndOffset()
+                    ? tokens.getInput().codePointCount(getStartOffset(), getEndOffset() + 1) : getLength());
     }
 
     public int getLength() {

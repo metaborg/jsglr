@@ -51,9 +51,20 @@ public class EmojiTest extends BaseTestWithSdf3ParseTables {
                 new TokenDescriptor("😄", IToken.TK_IDENTIFIER, 5, 1, 5, "ID", null)));
     }
 
+    @TestFactory public Stream<DynamicTest> tokenizationTestMultilineWithEmpty() throws ParseError {
+        return testTokens("😇 \n\n 😄",
+            Arrays.asList(new TokenDescriptor("😇", IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
+                new TokenDescriptor(" ", IToken.TK_LAYOUT, 2, 1, 2, null, "[]"),
+                new TokenDescriptor("\n", IToken.TK_KEYWORD, 3, 1, 3, null, "[]"),
+                new TokenDescriptor("", IToken.TK_NO_TOKEN_KIND, 4, 2, 1, "Exp", "Empty"),
+                new TokenDescriptor("\n", IToken.TK_KEYWORD, 4, 2, 1, null, "[]"),
+                new TokenDescriptor(" ", IToken.TK_LAYOUT, 5, 3, 1, null, "[]"),
+                new TokenDescriptor("😄", IToken.TK_IDENTIFIER, 6, 3, 2, "ID", null)));
+    }
+
     @TestFactory public Stream<DynamicTest> testEmojiIncremental() throws ParseError {
         return testIncrementalSuccessByExpansions(new String[] { "😇 ➕ 😄😄", "😇😇  ➕ 😄" },
-                new String[] { "[Add(Var(\"😇\"),\"➕\",Var(\"😄😄\"))]", "[Add(Var(\"😇😇\"),\"➕\",Var(\"😄\"))]" });
+            new String[] { "[Add(Var(\"😇\"),\"➕\",Var(\"😄😄\"))]", "[Add(Var(\"😇😇\"),\"➕\",Var(\"😄\"))]" });
     }
 
 }

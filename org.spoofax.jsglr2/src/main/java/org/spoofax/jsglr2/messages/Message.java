@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.messages;
 
+import org.spoofax.jsglr2.parser.Position;
+
 public class Message {
 
     public final String message;
@@ -14,6 +16,16 @@ public class Message {
 
     public Message atRegion(SourceRegion otherRegion) {
         return new Message(message, severity, otherRegion);
+    }
+
+    public static Message error(String message, Position position) {
+        if (position == null)
+            return errorAtTop(message);
+        else {
+            SourceRegion region = new SourceRegion(position);
+
+            return new Message(message, Severity.ERROR, region);
+        }
     }
 
     public static Message error(String message, SourceRegion region) {

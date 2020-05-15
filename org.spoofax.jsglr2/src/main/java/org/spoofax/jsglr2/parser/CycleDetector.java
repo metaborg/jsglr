@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -31,7 +30,7 @@ public class CycleDetector
     @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
         if(spine.contains(parseNode)) {
             cycleDetected = true;
-            messages.add(Message.error(ParseFailureCause.Type.Cycle.message, new SourceRegion(startPosition)));
+            messages.add(Message.error(ParseFailureCause.Type.Cycle.message, startPosition));
 
             return false;
         } else {

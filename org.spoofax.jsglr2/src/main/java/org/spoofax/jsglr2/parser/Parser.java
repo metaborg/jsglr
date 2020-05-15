@@ -100,7 +100,7 @@ public class Parser
             else
                 return complete(parseState, parseForestWithStartSymbol);
         } else
-            return failure(parseState, failureHandler.failureType(parseState));
+            return failure(parseState, failureHandler.failureCause(parseState));
     }
 
     protected ParseState getParseState(JSGLR2Request request, String previousInput, ParseForest previousResult) {

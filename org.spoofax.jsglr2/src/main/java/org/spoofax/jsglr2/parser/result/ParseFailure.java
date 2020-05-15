@@ -7,6 +7,7 @@ import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseException;
+import org.spoofax.jsglr2.parser.Position;
 
 public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<ParseForest> {
 
@@ -30,10 +31,11 @@ public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<
     }
 
     public ParseException exception() {
-        int offset = failureCause.position != null ? failureCause.position.offset : parseState.inputStack.offset();
-        return new ParseException(failureCause.type, offset,
-            (offset <= parseState.inputStack.inputString().length() - 1)
-                ? parseState.inputStack.inputString().codePointAt(offset) : null);
+        Position position = failureCause.position;
+
+        return new ParseException(failureCause.type, failureCause.position,
+            position.offset <= parseState.inputStack.inputString().length() - 1
+                ? parseState.inputStack.inputString().codePointAt(position.offset) : null);
     }
 
 }

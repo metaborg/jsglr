@@ -6,7 +6,6 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
-import org.spoofax.jsglr2.reducing.ReduceActionFilter;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public class RecoveryObserver

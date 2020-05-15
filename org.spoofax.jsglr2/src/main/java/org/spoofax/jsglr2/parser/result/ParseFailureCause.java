@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.parser.result;
 
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parser.Position;
 
 public class ParseFailureCause {
@@ -32,14 +31,7 @@ public class ParseFailureCause {
     }
 
     public Message toMessage() {
-        if(position == null)
-            return Message.errorAtTop(type.message);
-        else {
-            SourceRegion region = new SourceRegion(position.offset, position.line, position.column, position.offset,
-                position.line, position.column);
-
-            return Message.error(type.message, region);
-        }
+        return Message.error(type.message, position);
     }
 
 }

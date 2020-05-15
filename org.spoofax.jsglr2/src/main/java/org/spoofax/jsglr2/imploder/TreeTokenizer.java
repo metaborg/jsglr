@@ -18,7 +18,9 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
             this.leftToken = leftToken;
             this.rightToken = rightToken;
             this.endPosition = endPosition;
-            if(tree.tree != null && leftToken != null && rightToken != null) {
+            assert leftToken != null ^ rightToken == null : "Both tokens should be either null, or not null";
+            if(tree.tree != null) {
+                assert leftToken != null && rightToken != null : "All AST nodes should have tokens, even if it's empty";
                 if(tree.isInjection) {
                     configureInjection(tree.production.lhs(), tree.tree, tree.production.isBracket());
                 } else {
@@ -43,14 +45,13 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
         tokens.makeStartToken();
         tokenTreeBinding(tokens.startToken(), tree.tree);
 
-        SubTree res = tokenizeInternal(tokens, tree, Position.START_POSITION, tokens.startToken());
+        SubTree res = tokenizeInternal(tokens, tree, Position.START_POSITION);
 
         tokens.makeEndToken(res.endPosition);
         tokenTreeBinding(tokens.endToken(), res.tree);
     }
 
-    private SubTree tokenizeInternal(Tokens tokens, TreeImploder.SubTree<Tree> tree, Position startPosition,
-        IToken parentLeftToken) {
+    private SubTree tokenizeInternal(Tokens tokens, TreeImploder.SubTree<Tree> tree, Position startPosition) {
         if(tree.production != null && !tree.production.isContextFree() || tree.isCharacterTerminal) {
             if(tree.width > 0) {
                 Position endPosition = startPosition.step(tokens.getInput(), tree.width);
@@ -62,14 +63,14 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
                 return new SubTree(tree, null, null, startPosition);
         } else {
             IToken leftToken = null;
-            IToken pivotToken = parentLeftToken;
+            IToken rightToken = null;
             Position pivotPosition = startPosition;
             for(TreeImploder.SubTree<Tree> child : tree.children) {
                 // In the case when we're dealing with an ambiguous tree node, position is not advanced
                 if(tree.isAmbiguous)
                     pivotPosition = startPosition;
 
-                SubTree subTree = tokenizeInternal(tokens, child, pivotPosition, pivotToken);
+                SubTree subTree = tokenizeInternal(tokens, child, pivotPosition);
 
                 // If child tree had tokens that were not yet bound, bind them
                 if(subTree.tree == null) {
@@ -86,15 +87,20 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
                 // The right-most token of this tree is the last non-null rightToken of a subTree
                 if(subTree.rightToken != null)
-                    pivotToken = subTree.rightToken;
+                    rightToken = subTree.rightToken;
 
                 pivotPosition = subTree.endPosition;
             }
 
-            if(leftToken == null)
-                leftToken = parentLeftToken;
+            // If there is no token, this means that this AST has no characters in the input.
+            // In this case, create an empty token to associate with this AST node.
+            if(leftToken == null) {
+                assert rightToken == null;
+                leftToken = rightToken = tokens.makeToken(startPosition, pivotPosition, tree.production);
+                tokenTreeBinding(leftToken, tree.tree);
+            }
 
-            return new SubTree(tree, leftToken, pivotToken, pivotPosition);
+            return new SubTree(tree, leftToken, rightToken, pivotPosition);
         }
     }
 

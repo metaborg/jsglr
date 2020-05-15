@@ -8,6 +8,7 @@ context-free syntax
 
     Exp.Add = Exp PLUS Exp
     Exp.Var = ID
+    Exp.Empty =
 
 lexical syntax
 

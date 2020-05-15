@@ -1,0 +1,9 @@
+module empty-list-ambiguous
+
+context-free start-symbols
+    Exp
+
+context-free syntax
+    Exp.List = "[" {Exp ","}* "]"
+    Exp.Term = "x"
+    Exp.Empty =

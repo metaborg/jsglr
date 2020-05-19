@@ -48,7 +48,7 @@ public class Tokens implements IParseTokens {
     }
 
     public void makeEndToken(Position endPosition) {
-        endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column - 1,
+        endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column,
             endPosition.offset, -1, TK_EOF);
 
         addToken(endToken);

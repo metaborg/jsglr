@@ -411,7 +411,7 @@ public abstract class BaseTest implements WithParseTable {
         int endColumn = endPosition.column;
 
         TokenDescriptor expectedEndToken =
-            new TokenDescriptor("", IToken.Kind.TK_EOF, inputString.length(), endLine, endColumn - 1, null, rootCons);
+            new TokenDescriptor("", IToken.Kind.TK_EOF, inputString.length(), endLine, endColumn, null, rootCons);
         TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
 
         List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);

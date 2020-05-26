@@ -140,7 +140,7 @@ public class Sdf3ToParseTable {
 
     private IStrategoTerm executeStratego(IStrategoTerm input, String strategy) throws MetaborgException {
         try(IClosableLock ignored = context.read()) {
-            final HybridInterpreter runtime = spoofax.strategoRuntimeService.runtime(sdf3Component, context, false);
+            final HybridInterpreter runtime = spoofax.strategoRuntimeService.runtime(sdf3Component, context);
 
             return spoofax.strategoCommon.invoke(runtime, input, strategy);
         }

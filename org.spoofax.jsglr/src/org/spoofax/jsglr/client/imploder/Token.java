@@ -146,7 +146,7 @@ public class Token implements IToken, Cloneable {
         List<IToken> tokens = (List<IToken>) this.getTokenizer().ambiguousTokens();
         for(int i = this.getIndex() - 1; i >= 0; i--) {
             IToken result = tokens.get(i);
-            if(result.getEndOffset() <= prevOffset)
+            if(result.getEndOffset() < prevOffset)
                 return result;
         }
         return null;
@@ -157,17 +157,19 @@ public class Token implements IToken, Cloneable {
         List<IToken> tokens = (List<IToken>) this.getTokenizer().ambiguousTokens();
         for(int i = this.getIndex() + 1, max = tokens.size(); i < max; i++) {
             IToken result = tokens.get(i);
-            if(result.getStartOffset() >= nextOffset)
+            if(result.getStartOffset() > nextOffset)
                 return result;
         }
         return null;
     }
 
+    // TODO broken
     @Override public Collection<IToken> getTokensBefore() {
         IToken tokenBefore = getTokenBefore();
         return tokenBefore == null ? Collections.emptyList() : Collections.singleton(tokenBefore);
     }
 
+    // TODO broken
     @Override public Collection<IToken> getTokensAfter() {
         IToken tokenAfter = getTokenAfter();
         return tokenAfter == null ? Collections.emptyList() : Collections.singleton(tokenAfter);

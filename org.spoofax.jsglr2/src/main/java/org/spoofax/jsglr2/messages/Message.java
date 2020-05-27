@@ -18,8 +18,12 @@ public class Message {
         return new Message(message, severity, otherRegion);
     }
 
+    @Override public String toString() {
+        return "\"" + message + "\" " + severity + " @ " + region;
+    }
+
     public static Message error(String message, Position position) {
-        if (position == null)
+        if(position == null)
             return errorAtTop(message);
         else {
             SourceRegion region = new SourceRegion(position);

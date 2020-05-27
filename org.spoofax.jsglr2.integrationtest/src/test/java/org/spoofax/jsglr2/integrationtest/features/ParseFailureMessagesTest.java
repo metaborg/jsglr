@@ -57,10 +57,13 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
         ));
     }
 
+    // EOF messages are initially reported on the character after the last character, but since that is out of the range
+    // of the original input they are reported on the last character.
+
     @TestFactory public Stream<DynamicTest> unexpectedEOFempty() throws ParseError {
         return testMessages("", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 0, 1, 1)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR)
         //@formatter:on
         ));
     }
@@ -68,7 +71,7 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> unexpectedEOFx() throws ParseError {
         return testMessages("x", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 0, 1, 1)
         //@formatter:on
         ));
     }
@@ -76,7 +79,7 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> unexpectedEOFxx() throws ParseError {
         return testMessages("xx", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 2, 1, 3)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 1, 1, 2)
         //@formatter:on
         ));
     }

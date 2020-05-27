@@ -69,11 +69,11 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
                 imploderCacheCache.put(request.cachingKey(), implodeResult.resultCache());
             }
 
-            return new JSGLR2Success<>(implodeResult.ast(), tokenizeResult.tokens, messages);
+            return new JSGLR2Success<>(request, implodeResult.ast(), tokenizeResult.tokens, messages);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 
-            return new JSGLR2Failure<>(failure, parseResult.messages);
+            return new JSGLR2Failure<>(request, failure, parseResult.messages);
         }
     }
 

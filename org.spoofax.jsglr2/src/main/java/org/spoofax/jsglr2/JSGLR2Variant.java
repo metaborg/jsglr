@@ -34,8 +34,8 @@ public class JSGLR2Variant {
         this.tokenizer = tokenizerVariant;
     }
 
-    private <ImploderCache extends IncrementalTreeImploder.ResultCache<IParseForest, IStrategoTerm>>
-        IImploder<IParseForest, TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm>>
+    private
+        IImploder<IParseForest, TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IParseForest, IStrategoTerm>, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IParseForest, IStrategoTerm>, IStrategoTerm>>
         getImploder() {
         switch(this.imploder) {
             default:

@@ -38,7 +38,7 @@ public class JSGLR2Request {
         this.completionCursorOffset = completionCursorOffset;
     }
 
-    public boolean hasFileName() {
+    public boolean isCacheable() {
         return !"".equals(fileName);
     }
 
@@ -51,6 +51,8 @@ public class JSGLR2Request {
     }
 
     public CachingKey cachingKey() {
+        if(!isCacheable())
+            throw new IllegalStateException("This JSGLR2Request is not cacheable");
         return new CachingKey(fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset);
     }
 

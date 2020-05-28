@@ -52,13 +52,11 @@ public class JSGLR2Implementation
     }
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
-        String previousInput = request.hasFileName() ? inputCache.getOrDefault(request.cachingKey(), null) : null;
-        ParseForest previousParseForest =
-            request.hasFileName() ? parseForestCache.getOrDefault(request.cachingKey(), null) : null;
+        String previousInput = request.isCacheable() ? inputCache.get(request.cachingKey()) : null;
+        ParseForest previousParseForest = request.isCacheable() ? parseForestCache.get(request.cachingKey()) : null;
         ImploderCache previousImploderCache =
-            request.hasFileName() ? imploderCacheCache.getOrDefault(request.cachingKey(), null) : null;
-        TokensResult previousTokens =
-            request.hasFileName() ? tokensCache.getOrDefault(request.cachingKey(), null) : null;
+            request.isCacheable() ? imploderCacheCache.get(request.cachingKey()) : null;
+        TokensResult previousTokens = request.isCacheable() ? tokensCache.get(request.cachingKey()) : null;
 
         ParseResult<ParseForest> parseResult = parser.parse(request, previousInput, previousParseForest);
 
@@ -72,7 +70,7 @@ public class JSGLR2Implementation
 
             List<Message> messages = postProcessMessages(parseResult.messages, tokens);
 
-            if(request.hasFileName()) {
+            if(request.isCacheable()) {
                 inputCache.put(request.cachingKey(), request.input);
                 parseForestCache.put(request.cachingKey(), parseForest);
                 imploderCacheCache.put(request.cachingKey(), implodeResult.resultCache());

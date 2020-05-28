@@ -16,13 +16,11 @@ public class TreeToken implements IToken, Cloneable {
 
     private static final long serialVersionUID = -7306530908136122951L;
 
-    private transient TreeTokens tokens;
+    private final transient TreeTokens tokens;
 
-    private Position positionRange;
+    private final Position positionRange;
 
-    private Kind kind;
-
-    private String errorMessage;
+    private final Kind kind;
 
     private ISimpleTerm astNode;
 

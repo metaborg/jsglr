@@ -137,7 +137,6 @@ public class TreeTokens implements ITokens {
 
             return new TokenizeResult<>(tokens);
         }
-
     }
 
     public static abstract class AbstractTokenizer<TokensResult extends TreeTokens>
@@ -162,7 +161,7 @@ public class TreeTokens implements ITokens {
             tokens.bind(res.children[1]);
         }
 
-        protected TreeTokens.TokenTree tokenizeInternal(TreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
+        public TreeTokens.TokenTree tokenizeInternal(TreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
             Position pivotPosition) {
             if(tree.production != null && !tree.production.isContextFree() || tree.isCharacterTerminal) {
                 if(tree.width > 0) {

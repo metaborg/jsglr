@@ -1,12 +1,12 @@
 package org.spoofax.jsglr2.tokens;
 
 import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
+import static org.spoofax.jsglr2.imploder.StrategoTermTokenizer.configureStatic;
+import static org.spoofax.jsglr2.imploder.treefactory.TokenizedTermTreeFactory.configureInjection;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
@@ -15,7 +15,6 @@ import org.spoofax.jsglr2.imploder.ITokenizer;
 import org.spoofax.jsglr2.imploder.TokenizeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.terms.util.TermUtils;
 
 public class TreeTokens implements ITokens {
 
@@ -30,7 +29,7 @@ public class TreeTokens implements ITokens {
     public static class TokenTree {
         private static final TokenTree[] EMPTY_CHILDREN = new TokenTree[0];
 
-        final TreeImploder.SubTree<IStrategoTerm> tree; // TODO no longer needed when `bind` is in-lined
+        final IStrategoTerm tree;
         final TreeToken token; // null for internal nodes
         TokenTree parent;
         final TokenTree[] children;
@@ -45,7 +44,7 @@ public class TreeTokens implements ITokens {
         IStrategoTerm enclosingAst;
 
         protected TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, TreeToken token, Position positionRange) {
-            this.tree = tree;
+            this.tree = tree == null ? null : tree.tree;
             this.leftToken = this.rightToken = this.token = token;
             if(token == null)
                 this.leftTokens = this.rightTokens = null;
@@ -55,11 +54,13 @@ public class TreeTokens implements ITokens {
             this.positionRange = positionRange;
             this.size = token == null ? 0 : 1;
             this.isAmbiguous = false;
+
+            configure(tree);
         }
 
         protected TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, TokenTree[] children, TreeToken leftToken,
             TreeToken rightToken, Position positionRange) {
-            this.tree = tree;
+            this.tree = tree == null ? null : tree.tree;
             this.token = null;
             this.children = children;
             this.nonNullChildren = Arrays.stream(children).filter(c -> c.leftToken != null).toArray(TokenTree[]::new);
@@ -73,11 +74,6 @@ public class TreeTokens implements ITokens {
                 size += child.size;
             }
             this.size = size;
-
-            assert leftToken != null ^ rightToken == null : "Both tokens should be either null, or not null";
-            if(tree != null && tree.tree != null) {
-                assert leftToken != null && rightToken != null : "All AST nodes should have tokens, even if it's empty";
-            }
 
             if(this.isAmbiguous) {
                 this.leftTokens =
@@ -98,6 +94,21 @@ public class TreeTokens implements ITokens {
                 }
                 this.leftTokens = leftTokens;
                 this.rightTokens = rightTokens;
+            }
+
+            configure(tree);
+        }
+
+        private void configure(TreeImploder.SubTree<IStrategoTerm> tree) {
+            assert leftToken != null ^ rightToken == null : "Both tokens should be either null, or not null";
+            if(tree != null && tree.tree != null) {
+                assert leftToken != null && rightToken != null : "All AST nodes should have tokens, even if it's empty";
+                if(tree.isInjection) {
+                    configureInjection(tree.production.lhs(), tree.tree, tree.production.isBracket());
+                } else {
+                    String sort = tree.production == null ? null : tree.production.sort();
+                    configureStatic(tree.tree, sort, leftToken, rightToken);
+                }
             }
         }
 
@@ -157,8 +168,6 @@ public class TreeTokens implements ITokens {
             tokens.startToken.tree = res.children[0];
             tokens.endToken.tree = res.children[2];
             tokens.tree = res;
-
-            tokens.bind(res.children[1]);
         }
 
         public TreeTokens.TokenTree tokenizeInternal(TreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
@@ -182,7 +191,7 @@ public class TreeTokens implements ITokens {
 
                     // If tree ast == null, that means it's layout or literal lexical;
                     // that means it needs to be bound to the current tree
-                    if(subTree.tree.tree == null) {
+                    if(subTree.tree == null) {
                         subTree.setEnclosingAst(tree.tree);
                         if(subTree.token != null)
                             subTree.token.setAstNode(tree.tree);
@@ -226,38 +235,6 @@ public class TreeTokens implements ITokens {
         TokenTree tokenTree = new TokenTree(tree, token, positionRange);
         token.tree = tokenTree;
         return tokenTree;
-    }
-
-    // TODO possibly not needed
-    protected void bind(TokenTree res) {
-        Stack<TokenTree> stack = new Stack<>();
-        stack.push(res);
-        while(!stack.isEmpty()) {
-            TokenTree tokenTree = stack.pop();
-            IStrategoTerm term = tokenTree.tree.tree;
-            if(term != null) {
-                IProduction production = tokenTree.tree.production;
-                String sort = production == null ? null : production.sort();
-                IToken leftToken = tokenTree.leftToken;
-                IToken rightToken = tokenTree.rightToken;
-                putImploderAttachment(term, false, sort, leftToken, rightToken, false, false, false, false);
-                if(TermUtils.isAppl(term)) {
-                    String name = TermUtils.toAppl(term).getName();
-                    if("amb".equals(name)) {
-                        putImploderAttachment(term.getSubterm(0), false, null, leftToken, rightToken, false, false,
-                            false, false);
-                    }
-                    if("meta-var".equals(name) || "meta-listvar".equals(name)) {
-                        putImploderAttachment(term.getSubterm(0), false, sort, leftToken, rightToken, false, false,
-                            false, false);
-                    }
-                }
-            }
-
-            for(int i = tokenTree.children.length - 1; i >= 0; i--) {
-                stack.push(tokenTree.children[i]);
-            }
-        }
     }
 
     class TokenIterator implements Iterator<IToken> {

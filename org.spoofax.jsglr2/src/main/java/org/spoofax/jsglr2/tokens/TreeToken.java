@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.tokens;
 import static org.spoofax.jsglr2.tokens.TreeTokens.EMPTY_RANGE;
 import static org.spoofax.jsglr2.tokens.TreeTokens.addPosition;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -143,21 +142,21 @@ public class TreeToken implements IToken, Cloneable {
     private TreeTokens.TokenTree getLeftSibling() {
         TreeTokens.TokenTree current = this.tree;
         TreeTokens.TokenTree parent = current.parent;
-        while(parent.isAmbiguous || current == parent.nonNullChildren[0]) {
+        while(parent.isAmbiguous || current == parent.nonNullChildren.get(0)) {
             current = parent;
             parent = current.parent;
         }
-        return parent.nonNullChildren[Arrays.asList(parent.nonNullChildren).indexOf(current) - 1];
+        return parent.nonNullChildren.get(parent.nonNullChildren.indexOf(current) - 1);
     }
 
     private TreeTokens.TokenTree getRightSibling() {
         TreeTokens.TokenTree current = this.tree;
         TreeTokens.TokenTree parent = current.parent;
-        while(parent.isAmbiguous || current == parent.nonNullChildren[parent.nonNullChildren.length - 1]) {
+        while(parent.isAmbiguous || current == parent.nonNullChildren.get(parent.nonNullChildren.size() - 1)) {
             current = parent;
             parent = current.parent;
         }
-        return parent.nonNullChildren[Arrays.asList(parent.nonNullChildren).indexOf(current) + 1];
+        return parent.nonNullChildren.get(parent.nonNullChildren.indexOf(current) + 1);
     }
 
     @Override public String toString() {

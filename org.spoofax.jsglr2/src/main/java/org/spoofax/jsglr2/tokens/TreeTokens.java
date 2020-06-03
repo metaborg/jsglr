@@ -27,13 +27,12 @@ public class TreeTokens implements ITokens {
     TokenTree tree;
 
     public static class TokenTree {
-        private static final TokenTree[] EMPTY_CHILDREN = new TokenTree[0];
 
         final IStrategoTerm tree;
         final TreeToken token; // null for internal nodes
         TokenTree parent;
-        final TokenTree[] children;
-        final TokenTree[] nonNullChildren;
+        final List<TokenTree> children;
+        final List<TokenTree> nonNullChildren;
         final Position positionRange;
         final int size;
         final TreeToken leftToken;
@@ -50,7 +49,7 @@ public class TreeTokens implements ITokens {
                 this.leftTokens = this.rightTokens = null;
             else
                 this.leftTokens = this.rightTokens = Collections.singleton(token);
-            this.children = this.nonNullChildren = EMPTY_CHILDREN;
+            this.children = this.nonNullChildren = Collections.emptyList();
             this.positionRange = positionRange;
             this.size = token == null ? 0 : 1;
             this.isAmbiguous = false;
@@ -58,12 +57,12 @@ public class TreeTokens implements ITokens {
             configure(tree);
         }
 
-        protected TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, TokenTree[] children, TreeToken leftToken,
+        protected TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, List<TokenTree> children, TreeToken leftToken,
             TreeToken rightToken, Position positionRange) {
             this.tree = tree == null ? null : tree.tree;
             this.token = null;
             this.children = children;
-            this.nonNullChildren = Arrays.stream(children).filter(c -> c.leftToken != null).toArray(TokenTree[]::new);
+            this.nonNullChildren = children.stream().filter(c -> c.leftToken != null).collect(Collectors.toList());
             this.leftToken = leftToken;
             this.rightToken = rightToken;
             this.positionRange = positionRange;
@@ -77,9 +76,9 @@ public class TreeTokens implements ITokens {
 
             if(this.isAmbiguous) {
                 this.leftTokens =
-                    Arrays.stream(nonNullChildren).flatMap(c -> c.leftTokens.stream()).collect(Collectors.toList());
+                    nonNullChildren.stream().flatMap(c -> c.leftTokens.stream()).collect(Collectors.toList());
                 this.rightTokens =
-                    Arrays.stream(nonNullChildren).flatMap(c -> c.rightTokens.stream()).collect(Collectors.toList());
+                    nonNullChildren.stream().flatMap(c -> c.rightTokens.stream()).collect(Collectors.toList());
             } else {
                 Collection<IToken> leftTokens = null;
                 Collection<IToken> rightTokens = null;
@@ -156,8 +155,8 @@ public class TreeTokens implements ITokens {
         protected final void finalize(TreeImploder.SubTree<IStrategoTerm> tree, TreeTokens tokens,
             TokenTree tokenTree) {
             TokenTree res = new TokenTree(null,
-                new TokenTree[] { new TokenTree(null, tokens.startToken, EMPTY_RANGE), tokenTree,
-                    new TokenTree(null, tokens.endToken, EMPTY_RANGE) },
+                Arrays.asList(new TokenTree(null, tokens.startToken, EMPTY_RANGE), tokenTree,
+                    new TokenTree(null, tokens.endToken, EMPTY_RANGE)),
                 tokens.startToken, tokens.endToken, tokenTree.positionRange);
             for(TokenTree child : res.children) {
                 child.parent = res;
@@ -165,8 +164,8 @@ public class TreeTokens implements ITokens {
             tokens.startToken.setAstNode(tree.tree);
             tokens.endToken.setAstNode(tree.tree);
 
-            tokens.startToken.tree = res.children[0];
-            tokens.endToken.tree = res.children[2];
+            tokens.startToken.tree = res.children.get(0);
+            tokens.endToken.tree = res.children.get(2);
             tokens.tree = res;
         }
 
@@ -181,13 +180,13 @@ public class TreeTokens implements ITokens {
                 } else
                     return new TokenTree(tree, null, EMPTY_RANGE);
             } else {
-                TreeTokens.TokenTree[] children = new TreeTokens.TokenTree[tree.children.size()];
+                List<TreeTokens.TokenTree> children = new ArrayList<>(tree.children.size());
                 TreeToken leftToken = null;
                 TreeToken rightToken = null;
                 List<TreeImploder.SubTree<IStrategoTerm>> subTrees = tree.children;
-                for(int i = 0; i < subTrees.size(); i++) {
-                    TreeTokens.TokenTree subTree = tokenizeInternal(tokens, subTrees.get(i), pivotPosition);
-                    children[i] = subTree;
+                for(TreeImploder.SubTree<IStrategoTerm> imploderSubTree : subTrees) {
+                    TokenTree subTree = tokenizeInternal(tokens, imploderSubTree, pivotPosition);
+                    children.add(subTree);
 
                     // If tree ast == null, that means it's layout or literal lexical;
                     // that means it needs to be bound to the current tree
@@ -218,8 +217,8 @@ public class TreeTokens implements ITokens {
                     return singleTokenTree(tokens, tree, EMPTY_RANGE, TK_NO_TOKEN_KIND, tree.tree);
                 }
 
-                Position positionRange = tree.isAmbiguous ? children[0].positionRange : Arrays.stream(children)
-                    .map(child -> child.positionRange).reduce(EMPTY_RANGE, TreeTokens::addPosition);
+                Position positionRange = tree.isAmbiguous ? children.get(0).positionRange
+                    : children.stream().map(child -> child.positionRange).reduce(EMPTY_RANGE, TreeTokens::addPosition);
                 TokenTree res = new TokenTree(tree, children, leftToken, rightToken, positionRange);
                 for(TokenTree child : children) {
                     child.parent = res;
@@ -244,7 +243,7 @@ public class TreeTokens implements ITokens {
         TokenIterator(boolean includeStartEnd, boolean includeAmbiguous) {
             if(includeStartEnd)
                 stack.push(new TokenTree(null, endToken, EMPTY_RANGE));
-            stack.push(tree.children[1]);
+            stack.push(tree.children.get(1));
             if(includeStartEnd)
                 stack.push(new TokenTree(null, startToken, EMPTY_RANGE));
             this.includeAmbiguous = includeAmbiguous;
@@ -253,17 +252,17 @@ public class TreeTokens implements ITokens {
         @Override public boolean hasNext() {
             while(!stack.isEmpty()) {
                 boolean updated = false;
-                while(!stack.isEmpty() && stack.peek().children.length > 0) {
+                while(!stack.isEmpty() && !stack.peek().children.isEmpty()) {
                     TokenTree pop = stack.pop();
                     if(pop.isAmbiguous && !includeAmbiguous)
-                        stack.push(pop.children[0]);
+                        stack.push(pop.children.get(0));
                     else
-                        for(int i = pop.children.length - 1; i >= 0; i--) {
-                            stack.push(pop.children[i]);
+                        for(int i = pop.children.size() - 1; i >= 0; i--) {
+                            stack.push(pop.children.get(i));
                         }
                     updated = true;
                 }
-                while(!stack.isEmpty() && stack.peek().children.length == 0 && stack.peek().token == null) {
+                while(!stack.isEmpty() && stack.peek().children.isEmpty() && stack.peek().token == null) {
                     stack.pop();
                     updated = true;
                 }

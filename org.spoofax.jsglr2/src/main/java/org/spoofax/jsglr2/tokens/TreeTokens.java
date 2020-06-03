@@ -40,7 +40,6 @@ public class TreeTokens implements ITokens {
         final Collection<IToken> leftTokens;
         final Collection<IToken> rightTokens;
         final boolean isAmbiguous;
-        IStrategoTerm enclosingAst;
 
         protected TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, TreeToken token, Position positionRange) {
             this.tree = tree == null ? null : tree.tree;
@@ -111,9 +110,6 @@ public class TreeTokens implements ITokens {
             }
         }
 
-        protected void setEnclosingAst(IStrategoTerm tree) {
-            this.enclosingAst = tree;
-        }
     }
 
     /** <b>Note:</b> this operation is not associative. */
@@ -191,7 +187,6 @@ public class TreeTokens implements ITokens {
                     // If tree ast == null, that means it's layout or literal lexical;
                     // that means it needs to be bound to the current tree
                     if(subTree.tree == null) {
-                        subTree.setEnclosingAst(tree.tree);
                         if(subTree.token != null)
                             subTree.token.setAstNode(tree.tree);
                     }

@@ -57,13 +57,13 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> operatorWithLayout2() throws ParseError {
         return testTokens(" x + x ", Arrays.asList(
         //@formatter:off
-            new TokenDescriptor(" ", IToken.TK_LAYOUT,     0, 1, 1, null, null),
+            new TokenDescriptor(" ", IToken.TK_LAYOUT,     0, 1, 1, null, "[]"),
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 1, 1, 2, "ID", null),
             new TokenDescriptor(" ", IToken.TK_LAYOUT,     2, 1, 3, "Exp", "AddOperator"),
             new TokenDescriptor("+", IToken.TK_OPERATOR,   3, 1, 4, "Exp", "AddOperator"),
             new TokenDescriptor(" ", IToken.TK_LAYOUT,     4, 1, 5, "Exp", "AddOperator"),
             new TokenDescriptor("x", IToken.TK_IDENTIFIER, 5, 1, 6, "ID", null),
-            new TokenDescriptor(" ", IToken.TK_LAYOUT,     6, 1, 7, null, null)
+            new TokenDescriptor(" ", IToken.TK_LAYOUT,     6, 1, 7, null, "[]")
         //@formatter:on
         ));
     }
@@ -93,10 +93,11 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
     }
 
     @TestFactory public Stream<DynamicTest> emptyList() throws ParseError {
-        return testTokens("[]", Arrays.asList(
+        return testTokens("[]", Arrays.asList( // The AST of this input is "[List([])]"
         //@formatter:off
-            new TokenDescriptor("[", IToken.TK_OPERATOR, 0, 1, 1, "List", "List"),
-            new TokenDescriptor("]", IToken.TK_OPERATOR, 1, 1, 2, "List", "List")
+            new TokenDescriptor("[", IToken.TK_OPERATOR,      0, 1, 1, "List", "List"),
+            new TokenDescriptor("",  IToken.TK_NO_TOKEN_KIND, 1, 1, 2, null, "[]"), // belonging to AST "[]"
+            new TokenDescriptor("]", IToken.TK_OPERATOR,      1, 1, 2, "List", "List")
         //@formatter:on
         ));
     }
@@ -116,9 +117,9 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         //@formatter:off
             new TokenDescriptor("[", IToken.TK_OPERATOR,    0, 1, 1, "List", "List"),
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 1, 1, 2, "ID", null),
-            new TokenDescriptor(",", IToken.TK_OPERATOR,    2, 1, 3, null, null),
+            new TokenDescriptor(",", IToken.TK_OPERATOR,    2, 1, 3, null, "[]"),
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 3, 1, 4, "ID", null),
-            new TokenDescriptor(",", IToken.TK_OPERATOR,    4, 1, 5, null, null),
+            new TokenDescriptor(",", IToken.TK_OPERATOR,    4, 1, 5, null, "[]"),
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 5, 1, 6, "ID", null),
             new TokenDescriptor("]", IToken.TK_OPERATOR,    6, 1, 7, "List", "List")
         //@formatter:on
@@ -129,8 +130,8 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         return testTokens("x;\nx", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
-            new TokenDescriptor(";",  IToken.TK_OPERATOR,   1, 1, 2, null, null),
-            new TokenDescriptor("\n", IToken.TK_LAYOUT,     2, 1, 3, null, null),
+            new TokenDescriptor(";",  IToken.TK_OPERATOR,   1, 1, 2, null, "[]"),
+            new TokenDescriptor("\n", IToken.TK_LAYOUT,     2, 1, 3, null, "[]"),
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 3, 2, 1, "ID", null)
         //@formatter:on
         ));
@@ -140,10 +141,10 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
         return testTokens("x;\nx\n", Arrays.asList(
         //@formatter:off
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 0, 1, 1, "ID", null),
-            new TokenDescriptor(";",  IToken.TK_OPERATOR,   1, 1, 2, null, null),
-            new TokenDescriptor("\n", IToken.TK_LAYOUT,     2, 1, 3, null, null),
+            new TokenDescriptor(";",  IToken.TK_OPERATOR,   1, 1, 2, null, "[]"),
+            new TokenDescriptor("\n", IToken.TK_LAYOUT,     2, 1, 3, null, "[]"),
             new TokenDescriptor("x",  IToken.TK_IDENTIFIER, 3, 2, 1, "ID", null),
-            new TokenDescriptor("\n", IToken.TK_LAYOUT,     4, 2, 2, null, null)
+            new TokenDescriptor("\n", IToken.TK_LAYOUT,     4, 2, 2, null, "[]")
         //@formatter:on
         ));
     }

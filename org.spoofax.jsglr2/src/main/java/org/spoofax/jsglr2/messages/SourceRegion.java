@@ -30,6 +30,19 @@ public class SourceRegion {
         this.endColumn = end.column;
     }
 
+    public SourceRegion(Position position) {
+        this(position, position);
+    }
+
+    public Position position() {
+        return new Position(startOffset, startRow, startColumn);
+    }
+
+    @Override public String toString() {
+        return "[" + startOffset + "," + startRow + "," + startColumn + "," + endOffset + "," + endRow + "," + endColumn
+            + ']';
+    }
+
     public static SourceRegion fromToken(IToken token) {
         return new SourceRegion(token.getStartOffset(), token.getLine(), token.getColumn(), token.getEndOffset(),
             token.getEndLine(), token.getEndColumn());

@@ -17,7 +17,7 @@ public abstract class ParseForestManager
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-{
+    implements ParseNodeVisiting<ParseForest, Derivation, ParseNode> {
 
     protected final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
 

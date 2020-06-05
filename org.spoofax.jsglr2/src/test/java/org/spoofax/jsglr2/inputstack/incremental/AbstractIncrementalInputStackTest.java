@@ -1,13 +1,13 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
 import static org.spoofax.jsglr2.parser.PositionTest.SMILEY_CODEPOINT;
 import static org.spoofax.jsglr2.parser.PositionTest.SMILEY_STRING;
 
 import java.util.function.BiConsumer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;

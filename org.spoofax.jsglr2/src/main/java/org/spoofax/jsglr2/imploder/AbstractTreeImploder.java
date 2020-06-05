@@ -27,12 +27,15 @@ public abstract class AbstractTreeImploder
         List<List<ParseForest>> alternatives = new ArrayList<>();
 
         for(Derivation derivation : derivations) {
-            if(derivation.parseForests().length == 1) {
-                alternatives.add(Arrays.asList(derivation.parseForests()[0]));
+            ParseForest[] children = derivation.parseForests();
+            if(children.length == 0) {
+                alternatives.add(Collections.emptyList());
+            } else if(children.length == 1) {
+                alternatives.add(Collections.singletonList(children[0]));
             } else {
-                List<ParseForest> subTrees = Arrays.asList(derivation.parseForests());
+                List<ParseForest> subTrees = Arrays.asList(children);
 
-                ParseNode head = (ParseNode) subTrees.get(0);
+                ParseNode head = (ParseNode) children[0];
 
                 if(head.production().isList() && head.getPreferredAvoidedDerivations().size() > 1) {
                     List<ParseForest> tail = subTrees.subList(1, subTrees.size());

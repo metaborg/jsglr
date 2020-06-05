@@ -10,8 +10,8 @@ public class JSGLR2Success<AbstractSyntaxTree> extends JSGLR2Result<AbstractSynt
     public final Tokens tokens;
     public final AbstractSyntaxTree ast;
 
-    JSGLR2Success(AbstractSyntaxTree ast, Tokens tokens, Collection<Message> messages) {
-        super(messages);
+    JSGLR2Success(JSGLR2Request request, AbstractSyntaxTree ast, Tokens tokens, Collection<Message> messages) {
+        super(request, messages);
         this.tokens = tokens;
         this.ast = ast;
     }

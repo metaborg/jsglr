@@ -37,13 +37,13 @@ public class TreeImploder
         ParseForest parseForest, Cache resultCache) {
         SubTree<Tree> result = implodeParseNode(inputFactory.get(request.input), parseForest, 0);
 
-        return new ImplodeResult<>(result, null, result.tree, Collections.emptyList());
+        return new ImplodeResult<>(result, null, result.tree);
     }
 
     protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseForest, int startOffset) {
         if(parseForest instanceof ICharacterNode) {
             return new SubTree<>(treeFactory.createCharacterTerminal(((ICharacterNode) parseForest).character()), null,
-                parseForest.width());
+                parseForest.width(), true);
         }
 
         @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
@@ -74,14 +74,15 @@ public class TreeImploder
                     }
                 }
 
-                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false);
+                return new SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false, true,
+                    false);
             } else
                 return implodeDerivation(input, filteredDerivations.get(0), startOffset);
         } else {
             int width = parseNode.width();
 
             return new SubTree<>(createLexicalTerm(production, input.inputString, startOffset, width), production,
-                width);
+                width, false);
         }
     }
 
@@ -201,24 +202,28 @@ public class TreeImploder
          * </code>
          */
         public final boolean isInjection;
+        public final boolean isAmbiguous;
+        public final boolean isCharacterTerminal;
 
-        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, int width,
-            boolean isInjection) {
+        public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, int width, boolean isInjection,
+            boolean isAmbiguous, boolean isCharacterTerminal) {
             this.tree = tree;
             this.children = children;
             this.production = production;
             this.width = width;
             this.isInjection = isInjection;
+            this.isAmbiguous = isAmbiguous;
+            this.isCharacterTerminal = isCharacterTerminal;
         }
 
         /** This constructor infers the width from the sum of widths of its children. */
         public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, boolean isInjection) {
-            this(tree, children, production, sumWidth(children), isInjection);
+            this(tree, children, production, sumWidth(children), isInjection, false, false);
         }
 
         /** This constructor corresponds to a terminal/lexical node without children. */
-        public SubTree(Tree tree, IProduction production, int width) {
-            this(tree, Collections.emptyList(), production, width, false);
+        public SubTree(Tree tree, IProduction production, int width, boolean isCharacterTerminal) {
+            this(tree, Collections.emptyList(), production, width, false, false, isCharacterTerminal);
         }
 
         private static <Tree> int sumWidth(List<SubTree<Tree>> children) {

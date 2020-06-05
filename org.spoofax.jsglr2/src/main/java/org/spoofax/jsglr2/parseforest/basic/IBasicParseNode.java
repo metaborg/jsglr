@@ -19,6 +19,10 @@ public interface IBasicParseNode
 
     @Override List<Derivation> getDerivations();
 
+    @Override default boolean hasDerivations() {
+        return !getDerivations().isEmpty();
+    }
+
     @Override default Derivation getFirstDerivation() {
         if(getDerivations().size() < 1)
             throw new UnsupportedOperationException("Cannot get derivation of skipped parse node");

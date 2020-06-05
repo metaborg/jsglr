@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,12 +61,7 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
 
             TokenizeResult tokenizeResult = tokenizer.tokenize(request, implodeResult.intermediateResult());
 
-            List<Message> messages = new ArrayList<>();
-            messages.addAll(parseResult.messages);
-            messages.addAll(implodeResult.messages());
-            messages.addAll(tokenizeResult.messages);
-
-            messages = postProcessMessages(messages, tokenizeResult.tokens);
+            List<Message> messages = postProcessMessages(parseResult.messages, tokenizeResult.tokens);
 
             if(request.hasFileName()) {
                 inputCache.put(request.cachingKey(), request.input);
@@ -73,15 +69,15 @@ public class JSGLR2Implementation<ParseForest extends IParseForest, Intermediate
                 imploderCacheCache.put(request.cachingKey(), implodeResult.resultCache());
             }
 
-            return new JSGLR2Success<>(implodeResult.ast(), tokenizeResult.tokens, messages);
+            return new JSGLR2Success<>(request, implodeResult.ast(), tokenizeResult.tokens, messages);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 
-            return new JSGLR2Failure<>(failure, parseResult.messages);
+            return new JSGLR2Failure<>(request, failure, parseResult.messages);
         }
     }
 
-    private List<Message> postProcessMessages(List<Message> originalMessages, Tokens tokens) {
+    private List<Message> postProcessMessages(Collection<Message> originalMessages, Tokens tokens) {
         List<Message> messages = new ArrayList<>();
 
         for(Message originalMessage : originalMessages) {

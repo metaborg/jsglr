@@ -641,8 +641,8 @@ public class TreeBuilder extends TopdownTreeBuilder {
 
 			if (tokenizer.getTokenCount() - index <= 1) {
 				// Create new empty token
-				// HACK: Assume TK_LAYOUT kind for empty tokens in AST nodes
-				return tokenizer.makeToken(offset - 1, IToken.TK_LAYOUT, true);
+				// HACK: Assume TK_NO_TOKEN_KIND kind for empty tokens in AST nodes
+				return tokenizer.makeToken(offset - 1, IToken.TK_NO_TOKEN_KIND, true);
 			} else {
 				return tokenizer.getTokenAt(index + 1);
 			}

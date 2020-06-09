@@ -44,14 +44,14 @@ public class Tokens implements IParseTokens {
     public void makeStartToken() {
         startToken = new Token(this, fileName, 0, 1, 1, 0, -1, TK_RESERVED);
 
-        addToken(startToken);
+        tokens.add(startToken);
     }
 
     public void makeEndToken(Position endPosition) {
         endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column,
             endPosition.offset, -1, TK_EOF);
 
-        addToken(endToken);
+        tokens.add(endToken);
     }
 
     public IToken makeToken(Position startPosition, Position endPosition, IProduction production) {
@@ -82,13 +82,9 @@ public class Tokens implements IParseTokens {
         IToken token = new Token(this, fileName, tokens.size(), startPosition.line, startPosition.column,
             startPosition.offset, endPosition.offset - 1, tokenKind);
 
-        addToken(token);
+        tokens.add(token);
 
         return token;
-    }
-
-    private void addToken(IToken token) {
-        tokens.add(token);
     }
 
     @Override @Nonnull public Iterator<IToken> iterator() {

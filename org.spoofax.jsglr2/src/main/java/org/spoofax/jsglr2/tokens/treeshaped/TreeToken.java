@@ -1,7 +1,7 @@
-package org.spoofax.jsglr2.tokens;
+package org.spoofax.jsglr2.tokens.treeshaped;
 
-import static org.spoofax.jsglr2.tokens.TreeTokens.EMPTY_RANGE;
-import static org.spoofax.jsglr2.tokens.TreeTokens.addPosition;
+import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.EMPTY_RANGE;
+import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.addPosition;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -17,22 +17,23 @@ public class TreeToken implements IToken, Cloneable {
 
     private final transient TreeTokens tokens;
 
-    private final Position positionRange;
+    final Position positionRange;
 
     private final Kind kind;
 
     private ISimpleTerm astNode;
 
-    // TODO IEL
-    public TreeTokens.TokenTree tree;
+    /**
+     * A reference to a leaf of the token tree. Should be set right after attaching this token to this TokenTree. This
+     * currently happens in the constructor of TokenTree.
+     */
+    public TokenTree tree;
 
-    public TreeToken(TreeTokens tokens, Position positionRange, Kind kind, ISimpleTerm astNode,
-        TreeTokens.TokenTree tree) {
+    public TreeToken(TreeTokens tokens, Position positionRange, Kind kind, ISimpleTerm astNode) {
         this.tokens = tokens;
         this.positionRange = positionRange;
         this.kind = kind;
         this.astNode = astNode;
-        this.tree = tree;
     }
 
     @Override public ITokens getTokenizer() {
@@ -49,12 +50,12 @@ public class TreeToken implements IToken, Cloneable {
 
     private Position getStartPosition() {
         Position positionRange = EMPTY_RANGE;
-        TreeTokens.TokenTree tree = this.tree;
+        TokenTree tree = this.tree;
         while(tree.parent != null) {
-            TreeTokens.TokenTree parent = tree.parent;
+            TokenTree parent = tree.parent;
             if(!parent.isAmbiguous) {
                 Position siblingsRange = EMPTY_RANGE;
-                for(TreeTokens.TokenTree sibling : parent.children) {
+                for(TokenTree sibling : parent.children) {
                     if(sibling == tree) {
                         positionRange = TreeTokens.addPosition(siblingsRange, positionRange);
                         break;
@@ -139,9 +140,9 @@ public class TreeToken implements IToken, Cloneable {
         return getRightSibling().leftTokens;
     }
 
-    private TreeTokens.TokenTree getLeftSibling() {
-        TreeTokens.TokenTree current = this.tree;
-        TreeTokens.TokenTree parent = current.parent;
+    private TokenTree getLeftSibling() {
+        TokenTree current = this.tree;
+        TokenTree parent = current.parent;
         while(parent.isAmbiguous || current == parent.nonNullChildren.get(0)) {
             current = parent;
             parent = current.parent;
@@ -149,9 +150,9 @@ public class TreeToken implements IToken, Cloneable {
         return parent.nonNullChildren.get(parent.nonNullChildren.indexOf(current) - 1);
     }
 
-    private TreeTokens.TokenTree getRightSibling() {
-        TreeTokens.TokenTree current = this.tree;
-        TreeTokens.TokenTree parent = current.parent;
+    private TokenTree getRightSibling() {
+        TokenTree current = this.tree;
+        TokenTree parent = current.parent;
         while(parent.isAmbiguous || current == parent.nonNullChildren.get(parent.nonNullChildren.size() - 1)) {
             current = parent;
             parent = current.parent;

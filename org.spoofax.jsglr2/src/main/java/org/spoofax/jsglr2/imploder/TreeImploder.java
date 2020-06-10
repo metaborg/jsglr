@@ -37,7 +37,7 @@ public class TreeImploder
         ParseForest parseForest, Cache resultCache) {
         SubTree<Tree> result = implodeParseNode(inputFactory.get(request.input), parseForest, 0);
 
-        return new ImplodeResult<>(result, null, result.tree);
+        return new ImplodeResult<>(result, null, result.tree, result.isAmbiguous);
     }
 
     protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseForest, int startOffset) {

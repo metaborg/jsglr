@@ -46,7 +46,7 @@ public abstract class TokenizedTreeImploder
         tokenTreeBinding(tokens.startToken(), tree.tree);
         tokenTreeBinding(tokens.endToken(), tree.tree);
 
-        return new ImplodeResult<>(tokens, null, tree.tree);
+        return new ImplodeResult<>(tokens, null, tree.tree, tree.isAmbiguous);
     }
 
     static class SubTree<Tree> {
@@ -54,12 +54,14 @@ public abstract class TokenizedTreeImploder
         Tree tree;
         Position endPosition;
         IToken leftToken, rightToken;
+        boolean isAmbiguous;
 
-        SubTree(Tree tree, Position endPosition, IToken leftToken, IToken rightToken) {
+        SubTree(Tree tree, Position endPosition, IToken leftToken, IToken rightToken, boolean isAmbiguous) {
             this.tree = tree;
             this.endPosition = endPosition;
             this.leftToken = leftToken;
             this.rightToken = rightToken;
+            this.isAmbiguous = isAmbiguous;
         }
 
     }
@@ -70,7 +72,7 @@ public abstract class TokenizedTreeImploder
             Position endPosition = startPosition.step(tokens.getInput(), width);
             IToken token = tokens.makeToken(startPosition, endPosition, null);
             Tree tree = createCharacterTerm(((ICharacterNode) parseForest).character(), token);
-            return new SubTree<>(tree, endPosition, token, token);
+            return new SubTree<>(tree, endPosition, token, token, false);
         }
 
         @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
@@ -108,6 +110,7 @@ public abstract class TokenizedTreeImploder
                 }
 
                 result.tree = treeFactory.createAmb(trees, result.leftToken, result.rightToken);
+                result.isAmbiguous = true;
 
                 return result;
             } else
@@ -129,7 +132,7 @@ public abstract class TokenizedTreeImploder
                 throw new RuntimeException("invalid term type");
             }
 
-            return new SubTree<>(tree, endPosition, token, token);
+            return new SubTree<>(tree, endPosition, token, token, false);
         }
     }
 
@@ -172,7 +175,7 @@ public abstract class TokenizedTreeImploder
     protected SubTree<Tree> implodeChildParseNodes(Tokens tokens, List<Tree> childASTs,
         Iterable<ParseForest> childParseForests, IProduction production, List<IToken> unboundTokens,
         Position startPosition) {
-        SubTree<Tree> result = new SubTree<>(null, startPosition, null, null);
+        SubTree<Tree> result = new SubTree<>(null, startPosition, null, null, false);
 
         Position pivotPosition = startPosition;
 

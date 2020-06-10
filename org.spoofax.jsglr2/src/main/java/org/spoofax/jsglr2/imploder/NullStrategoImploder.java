@@ -9,7 +9,7 @@ public class NullStrategoImploder<ParseForest extends IParseForest>
 
     @Override public IImplodeResult<Void, Void, IStrategoTerm> implode(JSGLR2Request request, ParseForest forest,
         Void resultCache) {
-        return new ImplodeResult<>(null, null, null);
+        return new ImplodeResult<>(null, null, null, false);
     }
 
 }

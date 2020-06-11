@@ -212,7 +212,7 @@ public class TreeImploder
             this.production = production;
             this.width = width;
             this.isInjection = isInjection;
-            this.isAmbiguous = isAmbiguous;
+            this.isAmbiguous = isAmbiguous || hasAmbiguousChild(children);
             this.isCharacterTerminal = isCharacterTerminal;
         }
 
@@ -232,6 +232,14 @@ public class TreeImploder
                 result += child.width;
             }
             return result;
+        }
+
+        private static <Tree> boolean hasAmbiguousChild(List<SubTree<Tree>> children) {
+            for(SubTree<Tree> child : children) {
+                if(child.isAmbiguous)
+                    return true;
+            }
+            return false;
         }
 
     }

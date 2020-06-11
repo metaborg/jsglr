@@ -230,6 +230,7 @@ public abstract class TokenizedTreeImploder
             }
 
             pivotPosition = subTree.endPosition;
+            result.isAmbiguous |= subTree.isAmbiguous;
         }
 
         // If is no token, this means that this AST has no characters in the input.

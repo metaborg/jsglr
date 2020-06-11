@@ -46,7 +46,7 @@ public abstract class TokenizedTreeImploder
         tokenTreeBinding(tokens.startToken(), tree.tree);
         tokenTreeBinding(tokens.endToken(), tree.tree);
 
-        return new ImplodeResult<>(tokens, null, tree.tree, tree.isAmbiguous);
+        return new ImplodeResult<>(tokens, null, tree.tree, tree.containsAmbiguity);
     }
 
     static class SubTree<Tree> {
@@ -54,14 +54,14 @@ public abstract class TokenizedTreeImploder
         Tree tree;
         Position endPosition;
         IToken leftToken, rightToken;
-        boolean isAmbiguous;
+        boolean containsAmbiguity;
 
-        SubTree(Tree tree, Position endPosition, IToken leftToken, IToken rightToken, boolean isAmbiguous) {
+        SubTree(Tree tree, Position endPosition, IToken leftToken, IToken rightToken, boolean containsAmbiguity) {
             this.tree = tree;
             this.endPosition = endPosition;
             this.leftToken = leftToken;
             this.rightToken = rightToken;
-            this.isAmbiguous = isAmbiguous;
+            this.containsAmbiguity = containsAmbiguity;
         }
 
     }
@@ -110,7 +110,7 @@ public abstract class TokenizedTreeImploder
                 }
 
                 result.tree = treeFactory.createAmb(trees, result.leftToken, result.rightToken);
-                result.isAmbiguous = true;
+                result.containsAmbiguity = true;
 
                 return result;
             } else
@@ -230,7 +230,7 @@ public abstract class TokenizedTreeImploder
             }
 
             pivotPosition = subTree.endPosition;
-            result.isAmbiguous |= subTree.isAmbiguous;
+            result.containsAmbiguity |= subTree.containsAmbiguity;
         }
 
         // If is no token, this means that this AST has no characters in the input.

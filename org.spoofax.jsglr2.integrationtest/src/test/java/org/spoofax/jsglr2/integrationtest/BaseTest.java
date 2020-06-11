@@ -178,6 +178,21 @@ public abstract class BaseTest implements WithParseTable {
         });
     }
 
+    protected Stream<DynamicTest> testAmbiguous(String inputString, boolean expectAmbiguous) {
+        return testPerVariant(getTestVariants(), variant -> () -> {
+            JSGLR2Result<IStrategoTerm> result = variant.jsglr2().parseResult(inputString);
+
+            assertTrue(result.isSuccess(), "Succeeding parse expected");
+
+            JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
+
+            if(expectAmbiguous)
+                assertTrue(success.isAmbiguous(), "Result is not ambiguous");
+            else
+                assertFalse(success.isAmbiguous(), "Result is ambiguous");
+        });
+    }
+
     protected IStrategoTerm testSuccess(TestVariant variant, String startSymbol, String inputString) {
         return testSuccess("Parsing failed", "Imploding failed", variant.jsglr2(), "", startSymbol, inputString);
     }

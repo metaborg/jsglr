@@ -37,7 +37,7 @@ public class TreeImploder
         ParseForest parseForest, Cache resultCache) {
         SubTree<Tree> result = implodeParseNode(inputFactory.get(request.input), parseForest, 0);
 
-        return new ImplodeResult<>(result, null, result.tree, result.isAmbiguous);
+        return new ImplodeResult<>(result, null, result.tree, result.containsAmbiguity);
     }
 
     protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseForest, int startOffset) {
@@ -203,6 +203,7 @@ public class TreeImploder
          */
         public final boolean isInjection;
         public final boolean isAmbiguous;
+        public final boolean containsAmbiguity;
         public final boolean isCharacterTerminal;
 
         public SubTree(Tree tree, List<SubTree<Tree>> children, IProduction production, int width, boolean isInjection,
@@ -212,7 +213,8 @@ public class TreeImploder
             this.production = production;
             this.width = width;
             this.isInjection = isInjection;
-            this.isAmbiguous = isAmbiguous || hasAmbiguousChild(children);
+            this.isAmbiguous = isAmbiguous;
+            this.containsAmbiguity = isAmbiguous || childrenContainAmbiguity(children);
             this.isCharacterTerminal = isCharacterTerminal;
         }
 
@@ -234,9 +236,9 @@ public class TreeImploder
             return result;
         }
 
-        private static <Tree> boolean hasAmbiguousChild(List<SubTree<Tree>> children) {
+        private static <Tree> boolean childrenContainAmbiguity(List<SubTree<Tree>> children) {
             for(SubTree<Tree> child : children) {
-                if(child.isAmbiguous)
+                if(child.containsAmbiguity)
                     return true;
             }
             return false;

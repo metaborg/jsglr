@@ -44,7 +44,7 @@ public abstract class IncrementalTreeImploder
         SubTree<Tree> result =
             implodeParseNode(incrementalInputFactory.get(request.input, resultCache), parseForest, 0);
 
-        return new ImplodeResult<>(result, resultCache, result.tree, result.isAmbiguous);
+        return new ImplodeResult<>(result, resultCache, result.tree, result.containsAmbiguity);
     }
 
     @Override protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseNode, int startOffset) {

@@ -8,4 +8,6 @@ public interface IImplodeResult<IntermediateResult, Cache, AbstractSyntaxTree> {
 
     AbstractSyntaxTree ast();
 
+    boolean isAmbiguous();
+
 }

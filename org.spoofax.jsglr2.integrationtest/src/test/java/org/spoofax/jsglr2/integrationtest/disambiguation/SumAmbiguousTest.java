@@ -21,8 +21,16 @@ public class SumAmbiguousTest extends BaseTestWithSdf3ParseTables {
         return testSuccessByExpansions("x+x", "Add(Term(),Term())");
     }
 
+    @TestFactory public Stream<DynamicTest> twoNonAmbiguous() throws ParseError {
+        return testAmbiguous("x+x", false);
+    }
+
     @TestFactory public Stream<DynamicTest> three() throws ParseError {
         return testSuccessByExpansions("x+x+x", "amb([Add(Add(Term,Term),Term), Add(Term,Add(Term,Term))])");
+    }
+
+    @TestFactory public Stream<DynamicTest> threeAmbiguous() throws ParseError {
+        return testAmbiguous("x+x+x", true);
     }
 
 }

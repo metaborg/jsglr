@@ -38,13 +38,13 @@ public abstract class IncrementalTreeImploder
 
         if(resultCache == null) {
             ImplodeResult<SubTree<Tree>, Void, Tree> result = regularImplode.implode(request, parseForest);
-            return new ImplodeResult<>(result.intermediateResult, null, result.ast);
+            return new ImplodeResult<>(result.intermediateResult(), null, result.ast(), result.isAmbiguous());
         }
 
         SubTree<Tree> result =
             implodeParseNode(incrementalInputFactory.get(request.input, resultCache), parseForest, 0);
 
-        return new ImplodeResult<>(result, resultCache, result.tree);
+        return new ImplodeResult<>(result, resultCache, result.tree, result.containsAmbiguity);
     }
 
     @Override protected SubTree<Tree> implodeParseNode(Input input, ParseForest parseNode, int startOffset) {

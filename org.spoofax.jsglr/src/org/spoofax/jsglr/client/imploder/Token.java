@@ -163,18 +163,6 @@ public class Token implements IToken, Cloneable {
         return null;
     }
 
-    // TODO This does not actually return all ambiguous tokens yet, but only one of them
-    @Override public Collection<IToken> getTokensBefore() {
-        IToken tokenBefore = getTokenBefore();
-        return tokenBefore == null ? Collections.emptyList() : Collections.singleton(tokenBefore);
-    }
-
-    // TODO This does not actually return all ambiguous tokens yet, but only one of them
-    @Override public Collection<IToken> getTokensAfter() {
-        IToken tokenAfter = getTokenAfter();
-        return tokenAfter == null ? Collections.emptyList() : Collections.singleton(tokenAfter);
-    }
-
     @Override public String toString() {
         return tokens.toString(this, this);
     }

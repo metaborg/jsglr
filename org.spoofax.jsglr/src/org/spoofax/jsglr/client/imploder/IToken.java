@@ -90,9 +90,5 @@ public interface IToken extends Comparable<IToken>, Serializable {
      */
     IToken getTokenAfter();
 
-    Collection<IToken> getTokensBefore();
-
-    Collection<IToken> getTokensAfter();
-
     IToken clone();
 }

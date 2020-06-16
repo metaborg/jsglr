@@ -1,7 +1,5 @@
 package org.spoofax.jsglr.client.imploder;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
@@ -143,7 +141,7 @@ public class Token implements IToken, Cloneable {
 
     @Override public IToken getTokenBefore() {
         int prevOffset = this.getStartOffset();
-        List<IToken> tokens = (List<IToken>) this.getTokenizer().ambiguousTokens();
+        List<IToken> tokens = (List<IToken>) this.getTokenizer().allTokens();
         for(int i = this.getIndex() - 1; i >= 0; i--) {
             IToken result = tokens.get(i);
             if(result.getEndOffset() < prevOffset)
@@ -154,7 +152,7 @@ public class Token implements IToken, Cloneable {
 
     @Override public IToken getTokenAfter() {
         int nextOffset = this.getEndOffset();
-        List<IToken> tokens = (List<IToken>) this.getTokenizer().ambiguousTokens();
+        List<IToken> tokens = (List<IToken>) this.getTokenizer().allTokens();
         for(int i = this.getIndex() + 1, max = tokens.size(); i < max; i++) {
             IToken result = tokens.get(i);
             if(result.getStartOffset() > nextOffset)

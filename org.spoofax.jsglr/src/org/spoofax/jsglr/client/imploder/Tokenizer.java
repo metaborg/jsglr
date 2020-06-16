@@ -269,7 +269,7 @@ public class Tokenizer extends AbstractTokenizer {
     }
 
     @Override public Iterator<IToken> iterator() {
-        return new AmbiguousToNonAmbiguousIterator(ambiguousTokens());
+        return new AmbiguousToNonAmbiguousIterator(allTokens());
     }
 
     public static class AmbiguousToNonAmbiguousIterator implements Iterator<IToken> {
@@ -304,7 +304,7 @@ public class Tokenizer extends AbstractTokenizer {
         }
     }
 
-    @Override public Iterable<IToken> ambiguousTokens() {
+    @Override public Iterable<IToken> allTokens() {
         @SuppressWarnings("unchecked") // covariance
         Iterable<IToken> result = (Iterable<IToken>) (Iterable<?>) Collections.unmodifiableList(tokens);
         return result;

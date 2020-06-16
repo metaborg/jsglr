@@ -48,8 +48,8 @@ public class Tokens implements IParseTokens {
     }
 
     public void makeEndToken(Position endPosition) {
-        endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column,
-            endPosition.offset, -1, TK_EOF);
+        endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column, endPosition.offset,
+            -1, TK_EOF);
 
         tokens.add(endToken);
     }
@@ -88,10 +88,10 @@ public class Tokens implements IParseTokens {
     }
 
     @Override @Nonnull public Iterator<IToken> iterator() {
-        return new Tokenizer.AmbiguousToNonAmbiguousIterator(ambiguousTokens());
+        return new Tokenizer.AmbiguousToNonAmbiguousIterator(allTokens());
     }
 
-    @Override @Nonnull public Iterable<IToken> ambiguousTokens() {
+    @Override @Nonnull public Iterable<IToken> allTokens() {
         return Collections.unmodifiableList(tokens);
     }
 

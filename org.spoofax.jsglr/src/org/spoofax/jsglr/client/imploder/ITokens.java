@@ -18,13 +18,15 @@ public interface ITokens extends Iterable<IToken>, Serializable {
     String toString(int startOffset, int endOffset);
 
     /**
-     * @return An iterator that skips ambiguous tokens.
+     * @return An iterator that ensures that the returned tokens are in-order. For every ambiguous subtree, only one
+     *         derivation is chosen to get the tokens from.
      */
     @Override Iterator<IToken> iterator();
 
     /**
-     * @return An iterator that includes ambiguous tokens. No order is guaranteed on the offsets of the returned tokens.
+     * @return An iterator that includes all tokens, including all tokens from all ambiguous subtrees. No order is
+     *         guaranteed on the offsets of the returned tokens.
      */
-    Iterable<IToken> ambiguousTokens();
+    Iterable<IToken> allTokens();
 
 }

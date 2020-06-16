@@ -387,7 +387,8 @@ public abstract class BaseTest implements WithParseTable {
             testTokens(inputString, expectedTokens, jsglr2Success.tokens, "regular", rootCons);
 
             if(expectedTokens != expectedAmbiguousTokens)
-                testTokens(inputString, expectedAmbiguousTokens, jsglr2Success.tokens.ambiguousTokens(), "ambiguous", rootCons);
+                testTokens(inputString, expectedAmbiguousTokens, jsglr2Success.tokens.allTokens(), "ambiguous",
+                    rootCons);
         });
     }
 

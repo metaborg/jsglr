@@ -12,18 +12,18 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
 public class NullTokenizer extends AbstractTokenizer {
-	
+
 	private static final long serialVersionUID = -6653567639280036480L;
-	
+
     private final Token onlyToken;
-	
+
 	public NullTokenizer(String input, String filename, Token onlyToken) {
 		super(input, filename);
 		this.onlyToken = onlyToken;
 		assert onlyToken.getTokenizer() == null || onlyToken.getTokenizer() == this;
 		onlyToken.setTokenizer(this);
 	}
-		
+
 	public NullTokenizer(String input, String filename) {
 		super(input, filename);
 		onlyToken = new Token(this, filename, 0, 0, 0, 0,
@@ -35,7 +35,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	}
 
 	public void setStartOffset(int startOffset) {
-		// Do nothing		
+		// Do nothing
 	}
 
 	public IToken currentToken() {
@@ -49,7 +49,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	public Token getTokenAt(int i) {
 		return onlyToken;
 	}
-	
+
 	public IToken getTokenAtOffset(int o) {
 		return onlyToken;
 	}
@@ -62,7 +62,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	public IToken makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken) {
 		return onlyToken;
 	}
-	
+
 	@Override
 	protected void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
 		if (leftToken != onlyToken || rightToken != onlyToken)
@@ -77,21 +77,21 @@ public class NullTokenizer extends AbstractTokenizer {
 	public void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
 		// Do nothing
 	}
-	
+
 	@Override
 	public void markPossibleSyntaxError(LabelInfo label, IToken firstToken,
 			int endOffset, ProductionAttributeReader prodReader) {
-		
+
 		if (label.isRecover() || label.isReject() || label.isCompletion()) {
 			setSyntaxCorrect(false);
 		}
 	}
 
 	@Override public Iterator<IToken> iterator() {
-		return ambiguousTokens().iterator();
+		return allTokens().iterator();
 	}
 
-	@Override public Iterable<IToken> ambiguousTokens() {
+	@Override public Iterable<IToken> allTokens() {
 		return Iterables2.from(onlyToken);
 	}
 

@@ -175,7 +175,8 @@ public class TreeToken implements IToken, Cloneable {
             return false;
         TreeToken token = (TreeToken) o;
         return kind == token.kind && Objects.equals(positionRange, token.positionRange)
-            && Objects.equals(astNode, token.astNode);
+        // Using reference equality for the astNode, else tokens at different positions are considered equal
+            && astNode == token.astNode;
     }
 
     @Override public int compareTo(IToken other) {

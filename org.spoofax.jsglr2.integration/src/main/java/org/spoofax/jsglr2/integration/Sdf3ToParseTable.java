@@ -90,14 +90,14 @@ public class Sdf3ToParseTable {
         NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, permissive);
 
         // TODO: use the parse table variant in the parse table generator
-        return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false));
+        return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false, false));
     }
 
     public IParseTable getLayoutSensitiveParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
         NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, false);
 
         // TODO: use the parse table variant in the parse table generator
-        return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, false, false, false));
+        return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, false, false, false, true));
     }
 
     public IStrategoTerm getParseTableTerm(String sdf3Resource) throws Exception {
@@ -108,7 +108,7 @@ public class Sdf3ToParseTable {
         NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, permissive);
 
         ParseTable parseTable =
-            new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false));
+            new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false, false));
 
         return ParseTableIO.generateATerm(parseTable);
     }

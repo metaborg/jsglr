@@ -1,14 +1,21 @@
 package org.spoofax.jsglr.client.imploder;
 
-import java.io.Serializable;
-
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.IKeywordRecognizer;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface ITokenizer extends Serializable {
+public interface ITokenizer extends ITokens {
+
+	String ERROR_SKIPPED_REGION = "Syntax error, unexpected construct(s)";
+	String ERROR_UNEXPECTED_EOF = "Syntax error, unexpected end of input";
+	String ERROR_WATER_PREFIX = "Syntax error, not expected here";
+	String ERROR_INSERT_PREFIX = "Syntax error, expected";
+	String ERROR_INSERT_END_PREFIX = "Syntax error, unterminated construct";
+	String ERROR_INCOMPLETE_PREFIX = "Syntax error, incomplete construct";
+	String ERROR_GENERIC_PREFIX = "Syntax error";
+	String ERROR_WARNING_PREFIX = "Warning";
 
 	int getStartOffset();
 
@@ -24,7 +31,9 @@ public interface ITokenizer extends Serializable {
 
 	IToken makeToken(int endOffset, LabelInfo label, boolean allowEmptyToken);
 
-	IToken makeToken(int endOffset, int kind, boolean allowEmptyToken);
+	IToken makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken);
+
+	Token getTokenAt(int index);
 
 	/**
 	 * Gets a token at the given offset, or creates an adjunct

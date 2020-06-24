@@ -1,8 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
@@ -12,22 +12,22 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
  * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
 public class NullTokenizer extends AbstractTokenizer {
-	
+
 	private static final long serialVersionUID = -6653567639280036480L;
-	
-    private final IToken onlyToken;
-	
+
+    private final Token onlyToken;
+
 	public NullTokenizer(String input, String filename, Token onlyToken) {
 		super(input, filename);
 		this.onlyToken = onlyToken;
 		assert onlyToken.getTokenizer() == null || onlyToken.getTokenizer() == this;
 		onlyToken.setTokenizer(this);
 	}
-		
+
 	public NullTokenizer(String input, String filename) {
 		super(input, filename);
 		onlyToken = new Token(this, filename, 0, 0, 0, 0,
-				input == null ? 0 : input.length() - 1, IToken.TK_UNKNOWN);
+				input == null ? 0 : input.length() - 1, IToken.Kind.TK_UNKNOWN);
 	}
 
 	public int getStartOffset() {
@@ -35,7 +35,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	}
 
 	public void setStartOffset(int startOffset) {
-		// Do nothing		
+		// Do nothing
 	}
 
 	public IToken currentToken() {
@@ -46,10 +46,10 @@ public class NullTokenizer extends AbstractTokenizer {
 		return 1;
 	}
 
-	public IToken getTokenAt(int i) {
+	public Token getTokenAt(int i) {
 		return onlyToken;
 	}
-	
+
 	public IToken getTokenAtOffset(int o) {
 		return onlyToken;
 	}
@@ -59,10 +59,10 @@ public class NullTokenizer extends AbstractTokenizer {
 		return onlyToken;
 	}
 
-	public IToken makeToken(int endOffset, int kind, boolean allowEmptyToken) {
+	public IToken makeToken(int endOffset, IToken.Kind kind, boolean allowEmptyToken) {
 		return onlyToken;
 	}
-	
+
 	@Override
 	protected void setErrorMessage(IToken leftToken, IToken rightToken, String message) {
 		if (leftToken != onlyToken || rightToken != onlyToken)
@@ -77,20 +77,22 @@ public class NullTokenizer extends AbstractTokenizer {
 	public void tryMakeLayoutToken(int endOffset, int lastOffset, LabelInfo label) {
 		// Do nothing
 	}
-	
+
 	@Override
 	public void markPossibleSyntaxError(LabelInfo label, IToken firstToken,
 			int endOffset, ProductionAttributeReader prodReader) {
-		
+
 		if (label.isRecover() || label.isReject() || label.isCompletion()) {
 			setSyntaxCorrect(false);
 		}
 	}
 
-	public Iterator<IToken> iterator() {
-		ArrayList<IToken> result = new ArrayList<IToken>(1);
-		result.add(onlyToken);
-		return result.iterator();
+	@Override public Iterator<IToken> iterator() {
+		return allTokens().iterator();
+	}
+
+	@Override public Iterable<IToken> allTokens() {
+		return Iterables2.from(onlyToken);
 	}
 
 	public void setAst(ISimpleTerm ast) {

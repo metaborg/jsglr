@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 
@@ -26,7 +27,7 @@ public class TestTokenize extends ParseTestCase {
 
     public void testJava5() throws FileNotFoundException, IOException {
     	IStrategoTerm parsed = doParseTest("java5");
-    	ITokens tokenizer = getLeftToken(parsed).getTokenizer();
+    	ITokenizer tokenizer = (ITokenizer) getLeftToken(parsed).getTokenizer();
     	Iterator<IToken> tokens = tokenizer.iterator();
     	System.out.println(tokenizer);
     	
@@ -46,7 +47,7 @@ public class TestTokenize extends ParseTestCase {
     	IToken classToken2 = getNonEmptyToken(tokens);
     	System.out.println(classToken2.getLine());
     	assertEquals("class", classToken.toString());
-    	assertEquals(IToken.TK_KEYWORD, classToken.getKind());
+    	assertEquals(IToken.Kind.TK_KEYWORD, classToken.getKind());
     	assertEquals(3, classToken.getLine());
     	assertEquals(8, tokenizer.getTokenAt(tokenizer.getTokenCount() - 1).getLine());
     }
@@ -71,16 +72,16 @@ public class TestTokenize extends ParseTestCase {
     	
     	IToken token = getNonEmptyToken(tokens);
     	assertEquals(" ", token.toString());
-    	assertEquals(IToken.TK_ERROR, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR, token.getKind());
     	token = getNonEmptyToken(tokens);
     	assertEquals("int", token.toString());
-    	assertEquals(IToken.TK_ERROR_KEYWORD, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR_KEYWORD, token.getKind());
     	token = getNonEmptyToken(tokens);
     	assertEquals(" ", token.toString());
-    	assertEquals(IToken.TK_ERROR, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR, token.getKind());
     	token = getNonEmptyToken(tokens);
     	assertEquals("bar", token.toString());
-    	assertEquals(IToken.TK_ERROR, token.getKind());
+    	assertEquals(IToken.Kind.TK_ERROR, token.getKind());
     }
 
 }

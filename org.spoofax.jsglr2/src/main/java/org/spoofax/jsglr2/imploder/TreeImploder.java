@@ -46,9 +46,7 @@ public class TreeImploder
                 parseForest.width(), true);
         }
 
-        @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
-
-        parseNode = implodeInjection(parseNode);
+        @SuppressWarnings("unchecked") ParseNode parseNode = implodeInjection((ParseNode) parseForest);
 
         IProduction production = parseNode.production();
 

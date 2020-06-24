@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.Token;
 
 /**
  * Adds to the deletion offsets the (start)offset of non-layout tokens that are damaged by an insertion only 
@@ -43,7 +42,7 @@ public class TerminalEditsAnalyzer {
 	
 	private void analyze() {
 		for (IToken tokenWithInsertions : tokenEdits.getTokensDamagedByInsertion()) {
-			if(tokenWithInsertions.getKind() != Token.TK_LAYOUT && !tokenEdits.isDamagedByDeletion(tokenWithInsertions)){ //non layout, insertions only, damaged token
+			if(tokenWithInsertions.getKind() != IToken.Kind.TK_LAYOUT && !tokenEdits.isDamagedByDeletion(tokenWithInsertions)){ //non layout, insertions only, damaged token
 				this.startOffsetsTokensDamagedByInsertions.add(tokenWithInsertions.getStartOffset());
 			}
 		}

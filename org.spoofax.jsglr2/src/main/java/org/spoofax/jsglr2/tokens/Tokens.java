@@ -1,14 +1,18 @@
 package org.spoofax.jsglr2.tokens;
 
-import static org.spoofax.jsglr.client.imploder.IToken.TK_EOF;
-import static org.spoofax.jsglr.client.imploder.IToken.TK_RESERVED;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_EOF;
+import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_RESERVED;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+
+import javax.annotation.Nonnull;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.Token;
+import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.jsglr2.parser.Position;
 
 public class Tokens implements IParseTokens {
@@ -40,37 +44,37 @@ public class Tokens implements IParseTokens {
     public void makeStartToken() {
         startToken = new Token(this, fileName, 0, 1, 1, 0, -1, TK_RESERVED);
 
-        addToken(startToken);
+        tokens.add(startToken);
     }
 
     public void makeEndToken(Position endPosition) {
-        endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column - 1,
-            endPosition.offset, -1, TK_EOF);
+        endToken = new Token(this, fileName, tokens.size(), endPosition.line, endPosition.column, endPosition.offset,
+            -1, TK_EOF);
 
-        addToken(endToken);
+        tokens.add(endToken);
     }
 
     public IToken makeToken(Position startPosition, Position endPosition, IProduction production) {
-        int tokenKind;
+        IToken.Kind tokenKind;
 
         if(startPosition.equals(endPosition)) {
-            tokenKind = IToken.TK_NO_TOKEN_KIND;
+            tokenKind = IToken.Kind.TK_NO_TOKEN_KIND;
         } else if(production == null) {
-            tokenKind = IToken.TK_STRING; // indicates a character/int terminal, e.g. 'x'
+            tokenKind = IToken.Kind.TK_STRING; // indicates a character/int terminal, e.g. 'x'
         } else if(production.isLayout()) {
-            tokenKind = IToken.TK_LAYOUT;
+            tokenKind = IToken.Kind.TK_LAYOUT;
         } else if(production.isLiteral()) {
             if(production.isOperator())
-                tokenKind = IToken.TK_OPERATOR;
+                tokenKind = IToken.Kind.TK_OPERATOR;
             else
-                tokenKind = IToken.TK_KEYWORD;
+                tokenKind = IToken.Kind.TK_KEYWORD;
         } else if(production.isLexical()) {
             if(production.isStringLiteral())
-                tokenKind = IToken.TK_STRING;
+                tokenKind = IToken.Kind.TK_STRING;
             else if(production.isNumberLiteral())
-                tokenKind = IToken.TK_NUMBER;
+                tokenKind = IToken.Kind.TK_NUMBER;
             else
-                tokenKind = IToken.TK_IDENTIFIER;
+                tokenKind = IToken.Kind.TK_IDENTIFIER;
         } else {
             throw new IllegalStateException("invalid production/token type");
         }
@@ -78,21 +82,17 @@ public class Tokens implements IParseTokens {
         IToken token = new Token(this, fileName, tokens.size(), startPosition.line, startPosition.column,
             startPosition.offset, endPosition.offset - 1, tokenKind);
 
-        addToken(token);
+        tokens.add(token);
 
         return token;
     }
 
-    public int addToken(IToken token) {
-        int index = tokens.size();
-
-        tokens.add(token);
-
-        return index;
+    @Override @Nonnull public Iterator<IToken> iterator() {
+        return new Tokenizer.AmbiguousToNonAmbiguousIterator(allTokens());
     }
 
-    @Override public Iterator<IToken> iterator() {
-        return tokens.iterator();
+    @Override @Nonnull public Iterable<IToken> allTokens() {
+        return Collections.unmodifiableList(tokens);
     }
 
     @Override public String getInput() {
@@ -101,10 +101,6 @@ public class Tokens implements IParseTokens {
 
     @Override public int getTokenCount() {
         return tokens.size();
-    }
-
-    @Override public IToken getTokenAt(int index) {
-        return tokens.get(index);
     }
 
     @Override public IToken getTokenAtOffset(int offset) {
@@ -132,10 +128,6 @@ public class Tokens implements IParseTokens {
 
     @Override public String toString(int startOffset, int endOffset) {
         return input.substring(startOffset, endOffset);
-    }
-
-    @Override public boolean isAmbiguous() {
-        return false; // TODO: implement
     }
 
     @Override public String toString() {

@@ -1,7 +1,6 @@
 package org.spoofax.jsglr.client.imploder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
@@ -12,8 +11,6 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 public class Token implements IToken, Cloneable {
 
     private static final long serialVersionUID = -6972938219235720902L;
-
-    private transient static Map<String, Integer> asyncAllTokenKinds;
 
     private transient ITokens tokens;
 
@@ -29,19 +26,14 @@ public class Token implements IToken, Cloneable {
 
     private int index;
 
-    private int kind;
+    private Kind kind;
 
     private String errorMessage;
 
     private ISimpleTerm astNode;
 
-    public Token(ITokens tokenizer, String filename, int index, int line, int column, int startOffset, int endOffset,
-        int kind) {
-        this(tokenizer, filename, index, line, column, startOffset, endOffset, kind, null, null);
-    }
-
     public Token(ITokens tokens, String filename, int index, int line, int column, int startOffset, int endOffset,
-        int kind, String errorMessage, ISimpleTerm astNode) {
+        Kind kind) {
         this.tokens = tokens;
         this.filename = filename;
         this.index = index;
@@ -60,15 +52,11 @@ public class Token implements IToken, Cloneable {
         this.tokens = tokenizer;
     }
 
-    public int getKind() {
+    public Kind getKind() {
         return kind;
     }
 
-    public void setKind(int kind) {
-        this.kind = kind;
-    }
-
-    public int getIndex() {
+    @SuppressWarnings("DeprecatedIsStillUsed") @Deprecated public int getIndex() {
         return index;
     }
 
@@ -151,16 +139,30 @@ public class Token implements IToken, Cloneable {
         return astNode;
     }
 
+    @Override public IToken getTokenBefore() {
+        int prevOffset = this.getStartOffset();
+        List<IToken> tokens = (List<IToken>) this.getTokenizer().allTokens();
+        for(int i = this.getIndex() - 1; i >= 0; i--) {
+            IToken result = tokens.get(i);
+            if(result.getEndOffset() < prevOffset)
+                return result;
+        }
+        return null;
+    }
+
+    @Override public IToken getTokenAfter() {
+        int nextOffset = this.getEndOffset();
+        List<IToken> tokens = (List<IToken>) this.getTokenizer().allTokens();
+        for(int i = this.getIndex() + 1, max = tokens.size(); i < max; i++) {
+            IToken result = tokens.get(i);
+            if(result.getStartOffset() > nextOffset)
+                return result;
+        }
+        return null;
+    }
+
     @Override public String toString() {
         return tokens.toString(this, this);
-    }
-
-    @Override public char charAt(int index) {
-        return tokens.getInput().charAt(index + startOffset);
-    }
-
-    @Override public int codePointAt(int index) {
-        return tokens.getInput().codePointAt(index + startOffset);
     }
 
     @Override public int hashCode() {
@@ -169,7 +171,7 @@ public class Token implements IToken, Cloneable {
         result = prime * result + column;
         result = prime * result + endOffset;
         result = prime * result + index;
-        result = prime * result + kind;
+        result = prime * result + kind.ordinal();
         result = prime * result + line;
         result = prime * result + startOffset;
         return result;
@@ -234,39 +236,6 @@ public class Token implements IToken, Cloneable {
             }
         }
         return true;
-    }
-
-    public static String tokenKindToString(int kind) {
-        return "tokenKind#" + kind;
-    }
-
-    public static int valueOf(String tokenKind) {
-        Integer result = getTokenKindMap().get(tokenKind);
-        return result == null ? TK_NO_TOKEN_KIND : result;
-    }
-
-    private static Map<String, Integer> getTokenKindMap() {
-        synchronized(Token.class) {
-            if(asyncAllTokenKinds != null)
-                return asyncAllTokenKinds;
-            asyncAllTokenKinds = new HashMap<String, Integer>();
-            asyncAllTokenKinds.put("TK_UNKNOWN", TK_UNKNOWN);
-            asyncAllTokenKinds.put("TK_IDENTIFIER", TK_IDENTIFIER);
-            asyncAllTokenKinds.put("TK_NUMBER", TK_NUMBER);
-            asyncAllTokenKinds.put("TK_STRING", TK_STRING);
-            asyncAllTokenKinds.put("TK_KEYWORD", TK_KEYWORD);
-            asyncAllTokenKinds.put("TK_OPERATOR", TK_OPERATOR);
-            asyncAllTokenKinds.put("TK_VAR", TK_VAR);
-            asyncAllTokenKinds.put("TK_LAYOUT", TK_LAYOUT);
-            asyncAllTokenKinds.put("TK_EOF", TK_EOF);
-            asyncAllTokenKinds.put("TK_ERROR", TK_ERROR);
-            asyncAllTokenKinds.put("TK_ERROR_KEYWORD", TK_ERROR_KEYWORD);
-            asyncAllTokenKinds.put("TK_ERROR_EOF_UNEXPECTED", TK_ERROR_EOF_UNEXPECTED);
-            asyncAllTokenKinds.put("TK_ERROR_LAYOUT", TK_ERROR_LAYOUT);
-            asyncAllTokenKinds.put("TK_RESERVED", TK_RESERVED);
-            asyncAllTokenKinds.put("TK_NO_TOKEN_KIND", TK_NO_TOKEN_KIND);
-            return asyncAllTokenKinds;
-        }
     }
 
     @Override public Token clone() {

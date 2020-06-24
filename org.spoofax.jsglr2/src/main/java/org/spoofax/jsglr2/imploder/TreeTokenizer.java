@@ -8,10 +8,10 @@ import org.spoofax.jsglr2.tokens.Tokens;
 
 public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.SubTree<Tree>> {
     class SubTree {
-        Tree tree;
-        IToken leftToken;
-        IToken rightToken;
-        Position endPosition;
+        public final Tree tree;
+        public final IToken leftToken;
+        public final IToken rightToken;
+        public final Position endPosition;
 
         SubTree(TreeImploder.SubTree<Tree> tree, IToken leftToken, IToken rightToken, Position endPosition) {
             this.tree = tree.tree;

@@ -1,8 +1,6 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 
 import java.util.ArrayList;
 
@@ -10,7 +8,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.terms.attachments.OriginAttachment;
 
 /**
@@ -24,14 +22,14 @@ public class OriginTokenStreamPrimitive extends AbstractOriginPrimitive {
 
 	@Override
 	public IStrategoTerm call(IContext env, IStrategoTerm origin) {
-		ITokens tokenizer=getTokenizer(origin);
+		ITokenizer tokenizer = (ITokenizer) getTokenizer(origin);
 		int startIndex=getLeftToken(origin).getIndex();
 		int endIndex = getRightToken(origin).getIndex();
 		ArrayList<IStrategoTerm> tokenTuples=new ArrayList<IStrategoTerm>();
 		for (int i = startIndex; i <= endIndex; i++) {
-			if(tokenizer.getTokenAt(i).getKind() != IToken.TK_EOF){
+			if(tokenizer.getTokenAt(i).getKind() != IToken.Kind.TK_EOF){
 				IStrategoTerm tokenText = env.getFactory().makeString(tokenizer.getTokenAt(i).toString());
-				IStrategoTerm tokenSort = env.getFactory().makeInt(tokenizer.getTokenAt(i).getKind());
+				IStrategoTerm tokenSort = env.getFactory().makeInt(tokenizer.getTokenAt(i).getKind().ordinal());
 				IStrategoTerm tokenIndex = env.getFactory().makeInt(i);
 				IStrategoTuple tokenInfo = env.getFactory().makeTuple(tokenIndex, tokenText, tokenSort);
 				IStrategoTerm nodeOfToken = OriginAttachment.getOrigin(tokenizer.getTokenAt(i).getAstNode());

@@ -52,7 +52,7 @@ public class LayoutEditsAnalyzer {
 	private void analyze() {
 		String input = tokenEdits.getTokens().getInput();
 		for (IToken tokenWithDeletions : tokenEdits.getTokensDamagedByDeletion()) {
-			if(tokenWithDeletions.getKind() == Token.TK_LAYOUT){
+			if(tokenWithDeletions.getKind() == IToken.Kind.TK_LAYOUT){
 				if(!tokenEdits.isDamagingLayoutDeletion(tokenWithDeletions)){
 					this.offsetsDeletedLayoutChars.addAll(tokenEdits.getOffsetsDeletions(tokenWithDeletions));						
 				}
@@ -64,7 +64,7 @@ public class LayoutEditsAnalyzer {
 			}
 		}
 		for (IToken tokenWithInsertions : tokenEdits.getTokensDamagedByInsertion()) {
-			if(tokenWithInsertions.getKind() == Token.TK_LAYOUT && !Token.isWhiteSpace(tokenWithInsertions)){
+			if(tokenWithInsertions.getKind() == IToken.Kind.TK_LAYOUT && !Token.isWhiteSpace(tokenWithInsertions)){
 				DiscardableRegion commentRegion = new DiscardableRegion(tokenWithInsertions.getStartOffset(), tokenWithInsertions.getEndOffset(), input);
 				if(!HelperFunctions.contains(damagedCommentRegions, commentRegion))
 					damagedCommentRegions.add(commentRegion);

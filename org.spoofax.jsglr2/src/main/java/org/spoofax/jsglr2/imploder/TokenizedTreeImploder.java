@@ -75,9 +75,7 @@ public abstract class TokenizedTreeImploder
             return new SubTree<>(tree, endPosition, token, token, false);
         }
 
-        @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
-
-        parseNode = implodeInjection(parseNode);
+        @SuppressWarnings("unchecked") ParseNode parseNode = implodeInjection((ParseNode) parseForest);
 
         IProduction production = parseNode.production();
 

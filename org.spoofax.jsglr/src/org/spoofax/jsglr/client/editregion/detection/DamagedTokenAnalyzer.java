@@ -1,11 +1,10 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
 import java.util.ArrayList;
-import org.spoofax.jsglr.client.editregion.detection.LCS;
+
 import org.spoofax.jsglr.client.imploder.AbstractTokenizer;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
-import org.spoofax.jsglr.client.imploder.Token;
 
 /**
  * Determines the tokens in the correct term that are (possible) damaged
@@ -152,7 +151,7 @@ public class DamagedTokenAnalyzer {
 	}
 
 	private boolean isOffsetOfLayoutChar(AbstractTokenizer tokens, int offset) {
-		boolean precedingLayout = tokens.getTokenAtOffset(offset).getKind() == Token.TK_LAYOUT;
+		boolean precedingLayout = tokens.getTokenAtOffset(offset).getKind() == IToken.Kind.TK_LAYOUT;
 		return precedingLayout;
 	}
 	

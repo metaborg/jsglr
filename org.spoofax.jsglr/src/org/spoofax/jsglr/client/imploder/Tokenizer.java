@@ -269,18 +269,24 @@ public class Tokenizer extends AbstractTokenizer {
     }
 
     @Override public Iterator<IToken> iterator() {
-        return new AmbiguousToNonAmbiguousIterator(allTokens());
+        return new FilteredTokenIterator(allTokens());
     }
 
-    public static class AmbiguousToNonAmbiguousIterator implements Iterator<IToken> {
-        final Iterator<IToken> ambiguousIterator;
-        IToken next;
-        int offset;
+    /**
+     * This iterator filters out:
+     * <ul>
+     * <li>Tokens coming from ambiguous regions in the AST (only the first derivation is kept)
+     * <li>Empty tokens
+     * </ul>
+     */
+    public static class FilteredTokenIterator implements Iterator<IToken> {
+        final Iterator<IToken> allTokensIterator;
+        IToken next = null;
+        int offset = -1;
 
-        public AmbiguousToNonAmbiguousIterator(Iterable<IToken> ambiguousTokens) {
-            ambiguousIterator = ambiguousTokens.iterator();
-            next = ambiguousIterator.next();
-            offset = next.getEndOffset();
+        public FilteredTokenIterator(Iterable<IToken> allTokens) {
+            allTokensIterator = allTokens.iterator();
+            calculateNext();
         }
 
         @Override public boolean hasNext() {
@@ -292,15 +298,22 @@ public class Tokenizer extends AbstractTokenizer {
                 throw new NoSuchElementException();
 
             IToken res = next;
-            while(ambiguousIterator.hasNext()) {
-                next = ambiguousIterator.next();
+            calculateNext();
+            return res;
+        }
+
+        private void calculateNext() {
+            while(allTokensIterator.hasNext()) {
+                next = allTokensIterator.next();
+                if(next.getKind() != TK_RESERVED && next.getKind() != TK_EOF
+                    && next.getStartOffset() == next.getEndOffset() + 1)
+                    continue; // Skip empty tokens (that are not the start or end token)
                 if(next.getStartOffset() > offset) {
                     offset = next.getEndOffset();
-                    return res;
+                    return;
                 }
             }
             next = null;
-            return res;
         }
     }
 

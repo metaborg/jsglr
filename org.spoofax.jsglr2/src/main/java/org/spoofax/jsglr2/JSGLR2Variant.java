@@ -19,6 +19,8 @@ import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.tokens.StubTokenizer;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
+import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer;
+import org.spoofax.jsglr2.tokens.treeshaped.TreeShapedTokenizer;
 
 public class JSGLR2Variant {
     public final ParserVariant parser;
@@ -32,8 +34,8 @@ public class JSGLR2Variant {
         this.tokenizer = tokenizerVariant;
     }
 
-    private <ImploderCache extends IncrementalTreeImploder.ResultCache<IParseForest, IStrategoTerm>>
-        IImploder<IParseForest, TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ImploderCache, IStrategoTerm>>
+    private
+        IImploder<IParseForest, TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IParseForest, IStrategoTerm>, IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IParseForest, IStrategoTerm>, IStrategoTerm>>
         getImploder() {
         switch(this.imploder) {
             default:
@@ -46,12 +48,16 @@ public class JSGLR2Variant {
         }
     }
 
-    private ITokenizer<TreeImploder.SubTree<IStrategoTerm>> getTokenizer() {
+    private ITokenizer<TreeImploder.SubTree<IStrategoTerm>, ?> getTokenizer() {
         switch(this.tokenizer) {
             case Recursive:
                 return new StrategoTermTokenizer();
             case Iterative:
                 return new IterativeStrategoTermTokenizer();
+            case TreeShaped:
+                return new TreeShapedTokenizer();
+            case IncrementalTreeShaped:
+                return new IncrementalTreeShapedTokenizer();
             default:
             case Null:
                 throw new IllegalStateException();
@@ -70,7 +76,8 @@ public class JSGLR2Variant {
             (IObservableParser<IParseForest, ?, ?, ?, ?>) this.parser.getParser(parseTable);
 
         if(this.parser.parseForestRepresentation == ParseForestRepresentation.Null)
-            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(), (request, tree) -> null);
+            return new JSGLR2Implementation<>(parser, new NullStrategoImploder<>(),
+                (request, tree, previousResult) -> null);
         else if(this.imploder == ImploderVariant.TokenizedRecursive)
             return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new StubTokenizer());
         else
@@ -202,7 +209,7 @@ public class JSGLR2Variant {
                     Reducing.Incremental,
                     false),
                 ImploderVariant.RecursiveIncremental,
-                TokenizerVariant.Recursive)),
+                TokenizerVariant.IncrementalTreeShaped)),
 
         recoveryIncremental(
             new JSGLR2Variant(

@@ -19,13 +19,14 @@ public interface ITokens extends Iterable<IToken>, Serializable {
 
     /**
      * @return An iterator that ensures that the returned tokens are in-order. For every ambiguous subtree, only one
-     *         derivation is chosen to get the tokens from.
+     *         derivation is chosen to get the tokens from. Empty tokens are skipped so that all tokens in this iterator
+     *         have a width of at least one character.
      */
     @Override Iterator<IToken> iterator();
 
     /**
-     * @return An iterator that includes all tokens, including all tokens from all ambiguous subtrees. No order is
-     *         guaranteed on the offsets of the returned tokens.
+     * @return An iterator that includes all tokens, including all tokens from all ambiguous subtrees and empty tokens.
+     *         No order is guaranteed on the offsets of the returned tokens.
      */
     Iterable<IToken> allTokens();
 

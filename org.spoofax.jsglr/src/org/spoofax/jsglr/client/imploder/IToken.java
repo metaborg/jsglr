@@ -1,8 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
 import java.io.Serializable;
-import java.util.Collection;
 
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
@@ -80,15 +80,41 @@ public interface IToken extends Comparable<IToken>, Serializable {
 
     /**
      * @return A token immediately preceding the current token, or null if the current token is the start token. <br>
-     *         If the preceding AST node is ambiguous, any of the possible tokens will be returned.
+     *         If the preceding AST node is ambiguous, any of the possible tokens will be returned. <br>
+     *         This method will skip empty tokens, but calling this method on an empty token will still work. <br>
+     *         The start token does <i>not</i> count as an empty token.
      */
     IToken getTokenBefore();
 
     /**
      * @return A token immediately following the current token, or null if the current token is the end token. <br>
-     *         If the following AST node is ambiguous, any of the possible tokens will be returned.
+     *         If the following AST node is ambiguous, any of the possible tokens will be returned. <br>
+     *         This method will skip empty tokens, but calling this method on an empty token will still work. <br>
+     *         The EOF token does <i>not</i> count as an empty token.
      */
     IToken getTokenAfter();
 
     IToken clone();
+
+    static Kind getTokenKind(IProduction production) {
+        if(production == null) {
+            return IToken.Kind.TK_STRING; // indicates a character/int terminal, e.g. 'x'
+        } else if(production.isLayout()) {
+            return IToken.Kind.TK_LAYOUT;
+        } else if(production.isLiteral()) {
+            if(production.isOperator())
+                return IToken.Kind.TK_OPERATOR;
+            else
+                return IToken.Kind.TK_KEYWORD;
+        } else if(production.isLexical()) {
+            if(production.isStringLiteral())
+                return IToken.Kind.TK_STRING;
+            else if(production.isNumberLiteral())
+                return IToken.Kind.TK_NUMBER;
+            else
+                return IToken.Kind.TK_IDENTIFIER;
+        } else {
+            throw new IllegalStateException("invalid production/token type");
+        }
+    }
 }

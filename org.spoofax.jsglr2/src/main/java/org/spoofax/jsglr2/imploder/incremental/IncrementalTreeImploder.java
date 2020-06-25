@@ -16,30 +16,32 @@ public abstract class IncrementalTreeImploder
    <ParseForest extends IParseForest,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     Derivation  extends IDerivation<ParseForest>,
-    Cache       extends IncrementalTreeImploder.ResultCache<ParseForest, Tree>,
     Tree,
-    Input       extends IncrementalImplodeInput<ParseNode, Cache, Tree>>
+    Input       extends IncrementalImplodeInput<ParseNode, IncrementalTreeImploder.ResultCache<ParseForest, Tree>, Tree>>
 //@formatter:on
-    extends TreeImploder<ParseForest, ParseNode, Derivation, Cache, Tree, Input> {
+    extends
+    TreeImploder<ParseForest, ParseNode, Derivation, IncrementalTreeImploder.ResultCache<ParseForest, Tree>, Tree, Input> {
 
-    private final IIncrementalImplodeInputFactory<ParseNode, Cache, Tree, Input> incrementalInputFactory;
+    private final IIncrementalImplodeInputFactory<ParseNode, ResultCache<ParseForest, Tree>, Tree, Input> incrementalInputFactory;
     private final TreeImploder<ParseForest, ParseNode, Derivation, Void, Tree, Input> regularImplode;
 
     public IncrementalTreeImploder(IImplodeInputFactory<Input> inputFactory,
-        IIncrementalImplodeInputFactory<ParseNode, Cache, Tree, Input> incrementalInputFactory,
+        IIncrementalImplodeInputFactory<ParseNode, ResultCache<ParseForest, Tree>, Tree, Input> incrementalInputFactory,
         ITreeFactory<Tree> treeFactory) {
         super(inputFactory, treeFactory);
         this.regularImplode = new TreeImploder<>(inputFactory, treeFactory);
         this.incrementalInputFactory = incrementalInputFactory;
     }
 
-    @Override public ImplodeResult<SubTree<Tree>, Cache, Tree> implode(JSGLR2Request request, ParseForest parseForest,
-        Cache resultCache) {
+    @Override public ImplodeResult<SubTree<Tree>, ResultCache<ParseForest, Tree>, Tree> implode(JSGLR2Request request,
+        ParseForest parseForest, ResultCache<ParseForest, Tree> previousResult) {
 
-        if(resultCache == null) {
+        if(!request.isCacheable()) {
             ImplodeResult<SubTree<Tree>, Void, Tree> result = regularImplode.implode(request, parseForest);
             return new ImplodeResult<>(result.intermediateResult(), null, result.ast(), result.isAmbiguous());
         }
+
+        ResultCache<ParseForest, Tree> resultCache = previousResult == null ? new ResultCache<>() : previousResult;
 
         SubTree<Tree> result =
             implodeParseNode(incrementalInputFactory.get(request.input, resultCache), parseForest, 0);

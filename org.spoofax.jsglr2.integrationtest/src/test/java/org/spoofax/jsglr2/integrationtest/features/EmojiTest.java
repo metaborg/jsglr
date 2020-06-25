@@ -4,6 +4,8 @@ import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
@@ -53,14 +55,17 @@ public class EmojiTest extends BaseTestWithSdf3ParseTables {
     }
 
     @TestFactory public Stream<DynamicTest> tokenizationTestMultilineWithEmpty() throws ParseError {
-        return testTokens("😇 \n\n 😄",
+        List<TokenDescriptor> expectedAllTokens =
             Arrays.asList(new TokenDescriptor("😇", TK_IDENTIFIER, 0, 1, 1, "ID", null),
                 new TokenDescriptor(" ", TK_LAYOUT, 2, 1, 2, null, "[]"),
                 new TokenDescriptor("\n", TK_KEYWORD, 3, 1, 3, null, "[]"),
                 new TokenDescriptor("", TK_NO_TOKEN_KIND, 4, 2, 1, "Exp", "Empty"),
                 new TokenDescriptor("\n", TK_KEYWORD, 4, 2, 1, null, "[]"),
                 new TokenDescriptor(" ", TK_LAYOUT, 5, 3, 1, null, "[]"),
-                new TokenDescriptor("😄", TK_IDENTIFIER, 6, 3, 2, "ID", null)));
+                new TokenDescriptor("😄", TK_IDENTIFIER, 6, 3, 2, "ID", null));
+        List<TokenDescriptor> expectedTokens =
+            expectedAllTokens.stream().filter(t -> t.kind != TK_NO_TOKEN_KIND).collect(Collectors.toList());
+        return testTokens("😇 \n\n 😄", expectedTokens, expectedAllTokens);
     }
 
     @TestFactory public Stream<DynamicTest> testEmojiIncremental() throws ParseError {

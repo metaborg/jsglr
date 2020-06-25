@@ -80,9 +80,9 @@ public class JSGLR2CLI implements Runnable {
 
             outputProcessor.checkAllowed(this);
 
-            JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?> jsglr2 =
-                (JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?>) parserBuilder.getJSGLR2();
-            IObservableParser<?, ?, ?, ?, ?> observableParser = (IObservableParser<?, ?, ?, ?, ?>) jsglr2.parser;
+            JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?, ?> jsglr2 =
+                (JSGLR2Implementation<IParseForest, ?, ?, IStrategoTerm, ?, ?>) parserBuilder.getJSGLR2();
+            IObservableParser<?, ?, ?, ?, ?> observableParser = jsglr2.parser;
 
             outputStream = outputStream();
 
@@ -130,7 +130,7 @@ public class JSGLR2CLI implements Runnable {
         }
     }
 
-    private void parseAndImplode(JSGLR2Implementation<?, ?, ?, IStrategoTerm, ?> jsglr2,
+    private void parseAndImplode(JSGLR2Implementation<?, ?, ?, IStrategoTerm, ?, ?> jsglr2,
         IOutputProcessor outputProcessor) throws WrappedException {
         for(String in : input) {
             // Explicit filename to enable caching in incremental parser

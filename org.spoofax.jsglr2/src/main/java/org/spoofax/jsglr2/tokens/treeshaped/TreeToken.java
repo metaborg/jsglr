@@ -113,15 +113,25 @@ public class TreeToken implements IToken, Cloneable {
     }
 
     @Override public IToken getTokenBefore() {
-        if(kind == Kind.TK_RESERVED && tree.parent == tokens.tree)
-            return null;
-        return getLeftSibling().rightToken;
+        TreeToken previousToken = this;
+        while(true) {
+            if(kind == Kind.TK_RESERVED && tree.parent == tokens.tree)
+                return null;
+            previousToken = previousToken.getLeftSibling().rightToken;
+            if(previousToken.positionRange.offset > 0 || previousToken.getKind() == Kind.TK_RESERVED)
+                return previousToken;
+        }
     }
 
     @Override public IToken getTokenAfter() {
-        if(kind == Kind.TK_EOF && tree.parent == tokens.tree)
-            return null;
-        return getRightSibling().leftToken;
+        TreeToken nextToken = this;
+        while(true) {
+            if(kind == Kind.TK_EOF && tree.parent == tokens.tree)
+                return null;
+            nextToken = nextToken.getRightSibling().leftToken;
+            if(nextToken.positionRange.offset > 0 || nextToken.getKind() == Kind.TK_EOF)
+                return nextToken;
+        }
     }
 
     // These two methods might come in handy in the future, but currently have no use yet.

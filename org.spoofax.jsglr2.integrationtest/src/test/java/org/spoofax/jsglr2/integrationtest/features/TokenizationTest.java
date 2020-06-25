@@ -119,7 +119,12 @@ public class TokenizationTest extends BaseTestWithSdf3ParseTables {
     }
 
     @TestFactory public Stream<DynamicTest> emptyList() throws ParseError {
-        return testTokens("[]", Arrays.asList( // The AST of this input is "[List([])]"
+        return testTokens("[]", Arrays.asList(
+        //@formatter:off
+            new TokenDescriptor("[", TK_OPERATOR,      0, 1, 1, "List", "List"),
+            new TokenDescriptor("]", TK_OPERATOR,      1, 1, 2, "List", "List")
+        //@formatter:on
+        ), Arrays.asList( // The AST of this input is "[List([])]"
         //@formatter:off
             new TokenDescriptor("[", TK_OPERATOR,      0, 1, 1, "List", "List"),
             new TokenDescriptor("",  TK_NO_TOKEN_KIND, 1, 1, 2, null, "[]"), // belonging to AST "[]"

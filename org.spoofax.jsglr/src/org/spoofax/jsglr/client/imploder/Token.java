@@ -144,7 +144,9 @@ public class Token implements IToken, Cloneable {
         List<IToken> tokens = (List<IToken>) this.getTokenizer().allTokens();
         for(int i = this.getIndex() - 1; i >= 0; i--) {
             IToken result = tokens.get(i);
-            if(result.getEndOffset() < prevOffset)
+            if(result.getEndOffset() < prevOffset &&
+            // Skips empty tokens, but will still return the start token.
+                (result.getStartOffset() <= result.getEndOffset() || result.getKind() == Kind.TK_RESERVED))
                 return result;
         }
         return null;
@@ -155,7 +157,9 @@ public class Token implements IToken, Cloneable {
         List<IToken> tokens = (List<IToken>) this.getTokenizer().allTokens();
         for(int i = this.getIndex() + 1, max = tokens.size(); i < max; i++) {
             IToken result = tokens.get(i);
-            if(result.getStartOffset() > nextOffset)
+            if(result.getStartOffset() > nextOffset &&
+            // Skips empty tokens, but will still return the EOF token.
+                (result.getStartOffset() <= result.getEndOffset() || result.getKind() == Kind.TK_EOF))
                 return result;
         }
         return null;

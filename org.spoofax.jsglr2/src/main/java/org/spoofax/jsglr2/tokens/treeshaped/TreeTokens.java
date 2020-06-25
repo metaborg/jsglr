@@ -87,23 +87,25 @@ public class TreeTokens implements ITokens {
     }
 
     @Override public Iterator<IToken> iterator() {
-        return new TokenIterator(true, false);
+        return new TokenIterator(true, false, false);
     }
 
     @Override public Iterable<IToken> allTokens() {
-        return () -> new TokenIterator(true, true);
+        return () -> new TokenIterator(true, true, true);
     }
 
     class TokenIterator implements Iterator<IToken> {
         private final Stack<TokenTree> stack = new Stack<>();
         private final boolean includeAmbiguous;
+        private final boolean includeEmpty;
 
-        TokenIterator(boolean includeStartEnd, boolean includeAmbiguous) {
+        TokenIterator(boolean includeStartEnd, boolean includeAmbiguous, boolean includeEmpty) {
             if(includeStartEnd)
                 stack.push(tree);
             else
                 stack.push(tree.children.get(1));
             this.includeAmbiguous = includeAmbiguous;
+            this.includeEmpty = includeEmpty;
         }
 
         @Override public boolean hasNext() {
@@ -119,7 +121,7 @@ public class TreeTokens implements ITokens {
                         }
                     updated = true;
                 }
-                while(!stack.isEmpty() && stack.peek().children.isEmpty() && stack.peek().token == null) {
+                while(!stack.isEmpty() && stack.peek().children.isEmpty() && shouldSkipToken(stack.peek().token)) {
                     stack.pop();
                     updated = true;
                 }
@@ -127,6 +129,11 @@ public class TreeTokens implements ITokens {
                     return true;
             }
             return false;
+        }
+
+        private boolean shouldSkipToken(TreeToken token) {
+            return token == null || !includeEmpty && token.getKind() != TK_EOF && token.getKind() != TK_RESERVED
+                && token.positionRange.offset == 0;
         }
 
         @Override public IToken next() {

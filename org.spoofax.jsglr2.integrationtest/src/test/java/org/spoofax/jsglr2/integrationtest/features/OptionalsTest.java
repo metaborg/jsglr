@@ -21,7 +21,7 @@ public class OptionalsTest extends BaseTestWithSdf3ParseTables {
     }
 
     @TestFactory public Stream<DynamicTest> testEmptyToken() throws ParseError {
-        return testTokens("",
+        return testTokens("", Collections.emptyList(),
             Collections.singletonList(new TokenDescriptor("", IToken.Kind.TK_NO_TOKEN_KIND, 0, 1, 1, null, "None")));
     }
 

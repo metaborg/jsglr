@@ -374,7 +374,7 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
-        List<TokenDescriptor> expectedAmbiguousTokens, Stream<TestVariant> variants) {
+        List<TokenDescriptor> expectedAllTokens, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
             JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
@@ -388,21 +388,22 @@ public abstract class BaseTest implements WithParseTable {
             ITokens actualTokens = jsglr2Success.tokens;
             testTokens(inputString, expectedTokens, actualTokens, "regular", rootCons);
 
-            if(expectedTokens != expectedAmbiguousTokens)
-                testTokens(inputString, expectedAmbiguousTokens, actualTokens.allTokens(), "ambiguous", rootCons);
+            if(expectedTokens != expectedAllTokens)
+                testTokens(inputString, expectedAllTokens, actualTokens.allTokens(), "all (incl. ambiguous/empty)",
+                    rootCons);
 
-            testTokenAtOffset(inputString, expectedAmbiguousTokens, actualTokens);
+            testTokenAtOffset(inputString, expectedAllTokens, actualTokens);
 
             testTokenAfterBefore(inputString, expectedTokens, actualTokens);
         });
     }
 
-    private void testTokenAtOffset(String inputString, List<TokenDescriptor> expectedAmbiguousTokens,
+    private void testTokenAtOffset(String inputString, List<TokenDescriptor> expectedAllTokens,
         ITokens actualTokens) {
         assertEquals(IToken.Kind.TK_RESERVED, actualTokens.getTokenAtOffset(0).getKind());
         for(int i = 1; i < inputString.length(); i++) {
             TokenDescriptor expectedToken = null;
-            for(TokenDescriptor t : expectedAmbiguousTokens) {
+            for(TokenDescriptor t : expectedAllTokens) {
                 if(t.offset == i)
                     expectedToken = t;
                 if(t.offset >= i)

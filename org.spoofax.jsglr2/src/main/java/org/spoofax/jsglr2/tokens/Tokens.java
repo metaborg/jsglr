@@ -64,7 +64,7 @@ public class Tokens implements IParseTokens {
     }
 
     @Override @Nonnull public Iterator<IToken> iterator() {
-        return new Tokenizer.AmbiguousToNonAmbiguousIterator(allTokens());
+        return new Tokenizer.FilteredTokenIterator(allTokens());
     }
 
     @Override @Nonnull public Iterable<IToken> allTokens() {

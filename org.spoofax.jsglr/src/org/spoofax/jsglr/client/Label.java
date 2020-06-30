@@ -11,6 +11,7 @@ import java.io.Serializable;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.Term;
 
 public class Label implements Serializable {
@@ -85,7 +86,7 @@ public class Label implements Serializable {
       IStrategoTerm t = prod.getSubterm(1);
       
       while (true) {
-        if (t.getTermType() != IStrategoTerm.APPL) {
+        if (t.getType() != TermType.APPL) {
           isLayout = false;
           break;
         }

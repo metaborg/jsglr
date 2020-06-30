@@ -8,8 +8,6 @@
 package org.spoofax.jsglr.client;
 
 import static java.util.Arrays.asList;
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
 import static org.spoofax.terms.Term.*;
 
 import java.io.IOException;
@@ -316,7 +314,7 @@ public class ParseTable implements Serializable {
             return false;
 
 
-        if(prod.getSubterm(1).getTermType() != APPL)
+        if(prod.getSubterm(1).getType() != TermType.APPL)
             return false;
 
         final String nm = ((IStrategoNamed) prod.getSubterm(1)).getName();
@@ -324,7 +322,7 @@ public class ParseTable implements Serializable {
         if(!(nm.equals("cf") || nm.equals("lex")))
             return false;
 
-        if(prod.getSubterm(0).getTermType() != LIST)
+        if(prod.getSubterm(0).getType() != TermType.LIST)
             return false;
 
         IStrategoList ls = ((IStrategoList) prod.getSubterm(0));
@@ -332,7 +330,7 @@ public class ParseTable implements Serializable {
         if(ls.getSubtermCount() != 1)
             return false;
 
-        if(ls.head().getTermType() != APPL)
+        if(ls.head().getType() != TermType.APPL)
             return false;
 
         final IStrategoConstructor fun = ((IStrategoAppl) ls.head()).getConstructor();

@@ -9,10 +9,7 @@ import java.util.Objects;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.metaborg.parsetable.symbols.ISymbol;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.TermFactory;
@@ -116,7 +113,7 @@ public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStratego
         // rightToken can be null, e.g. for an empty string lexical
         rightToken = rightToken != null ? rightToken : leftToken;
         putImploderAttachment(term, false, sort, leftToken, rightToken, false, false, false, false);
-        if(term.getTermType() == IStrategoTerm.LIST) {
+        if(term.getType() == TermType.LIST) {
             IStrategoList sublist = (IStrategoList) term;
             IToken lastRightToken;
             while(!sublist.isEmpty()) {

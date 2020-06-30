@@ -1,11 +1,5 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.interpreter.terms.IStrategoTerm.PLACEHOLDER;
-import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
 import static org.spoofax.terms.Term.isTermInt;
 import static org.spoofax.terms.Term.isTermNamed;
 import static org.spoofax.terms.Term.javaInt;
@@ -14,15 +8,10 @@ import static org.spoofax.terms.Term.termAt;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.interpreter.terms.IStrategoInt;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoNamed;
-import org.spoofax.interpreter.terms.IStrategoPlaceholder;
-import org.spoofax.interpreter.terms.IStrategoReal;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.util.NotImplementedException;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * Implodes {ast} annotations in asfix trees.
@@ -63,7 +52,7 @@ public class AstAnnoImploder<TNode> {
 	}
 	
 	private TNode toNode(IStrategoTerm term, String sort) {
-		switch (term.getTermType()) {
+		switch (term.getType()) {
 			case PLACEHOLDER:
 				return placeholderToNode(term, sort);
 				
@@ -118,7 +107,7 @@ public class AstAnnoImploder<TNode> {
 		for (int i = 0; i < appl.getSubtermCount(); i++) {
 			children.add(toNode(termAt(appl, i), null));
 		}
-		if (appl.getTermType() == STRING) {
+		if (appl.getType() == TermType.STRING) {
 			return factory.createStringTerminal(sort, leftToken, rightToken, appl.getName(), false);
 		} else {
 			return factory.createNonTerminal(sort, appl.getName(), leftToken, rightToken, children, false, false, false);

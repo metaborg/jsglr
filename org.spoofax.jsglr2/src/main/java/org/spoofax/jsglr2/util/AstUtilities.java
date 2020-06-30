@@ -4,10 +4,7 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.*;
 
 import java.util.*;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.TermFactory;
 
 public class AstUtilities {
@@ -21,7 +18,7 @@ public class AstUtilities {
     public List<IStrategoTerm> expand(IStrategoTerm ast) {
         List<IStrategoTerm> result = new ArrayList<>();
 
-        switch(ast.getTermType()) {
+        switch(ast.getType()) {
             case APPL:
                 IStrategoAppl appl = ((IStrategoAppl) ast);
                 IStrategoConstructor constructor = appl.getConstructor();
@@ -97,7 +94,7 @@ public class AstUtilities {
     public int ambCount(IStrategoTerm ast) {
         int result = 0;
 
-        switch(ast.getTermType()) {
+        switch(ast.getType()) {
             case APPL:
                 IStrategoAppl appl = ((IStrategoAppl) ast);
                 IStrategoConstructor constructor = appl.getConstructor();
@@ -135,7 +132,7 @@ public class AstUtilities {
     }
 
     private void ambCountShared(IStrategoTerm ast, Set<IStrategoAppl> ambs) {
-        switch(ast.getTermType()) {
+        switch(ast.getType()) {
             case APPL:
                 IStrategoAppl appl = ((IStrategoAppl) ast);
                 IStrategoConstructor constructor = appl.getConstructor();
@@ -163,7 +160,7 @@ public class AstUtilities {
     }
 
     public IStrategoTerm ambFlatten(IStrategoTerm ast) {
-        switch(ast.getTermType()) {
+        switch(ast.getType()) {
             case APPL:
                 IStrategoAppl appl = ((IStrategoAppl) ast);
                 IStrategoConstructor constructor = appl.getConstructor();
@@ -174,7 +171,7 @@ public class AstUtilities {
                     for(IStrategoTerm subAst : appl.getSubterm(0).getAllSubterms()) {
                         IStrategoTerm flattenSubAst = ambFlatten(subAst);
 
-                        if(APPL == subAst.getTermType()) {
+                        if(TermType.APPL == subAst.getType()) {
                             IStrategoAppl flattenSubAppl = ((IStrategoAppl) subAst);
                             IStrategoConstructor flattenSubConstructor = flattenSubAppl.getConstructor();
 

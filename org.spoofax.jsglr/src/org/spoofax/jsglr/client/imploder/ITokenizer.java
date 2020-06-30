@@ -70,6 +70,7 @@ public interface ITokenizer extends ITokens {
 
 	void setSyntaxCorrect(boolean syntaxCorrect);
 
+	boolean isAmbiguous();
 	void setAmbiguous(boolean isAmbiguous);
 
 	void setAst(ISimpleTerm ast);

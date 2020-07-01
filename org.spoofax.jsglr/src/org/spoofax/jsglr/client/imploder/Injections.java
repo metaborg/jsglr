@@ -26,8 +26,8 @@ public class Injections {
         IStrategoTerm result;
         String sort;
 
-        switch(term.getTermType()) {
-            case IStrategoTerm.APPL: {
+        switch(term.getType()) {
+            case APPL: {
                 final IStrategoAppl appl = (IStrategoAppl) term;
                 final IStrategoTerm[] subterms =
                         Arrays.stream(appl.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))
@@ -36,7 +36,7 @@ public class Injections {
                 sort = ImploderAttachment.get(term).getSort();
                 break;
             }
-            case IStrategoTerm.TUPLE: {
+            case TUPLE: {
                 final IStrategoTuple tuple = (IStrategoTuple) term;
                 final IStrategoTerm[] subterms =
                         Arrays.stream(tuple.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))
@@ -47,7 +47,7 @@ public class Injections {
                 sort = "Tuple_" + String.join("_", componentSorts) + "_";
                 break;
             }
-            case IStrategoTerm.LIST: {
+            case LIST: {
                 final IStrategoList list = (IStrategoList) term;
                 final IStrategoTerm[] subterms =
                         Arrays.stream(list.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))

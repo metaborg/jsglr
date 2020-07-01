@@ -8,8 +8,6 @@
 package org.spoofax.jsglr.client;
 
 import static java.util.Arrays.asList;
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
 import static org.spoofax.terms.Term.*;
 
 import java.io.IOException;
@@ -22,7 +20,13 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IParseTableGenerator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
@@ -316,7 +320,7 @@ public class ParseTable implements Serializable {
             return false;
 
 
-        if(prod.getSubterm(1).getTermType() != APPL)
+        if(prod.getSubterm(1).getType() != TermType.APPL)
             return false;
 
         final String nm = ((IStrategoNamed) prod.getSubterm(1)).getName();
@@ -324,7 +328,7 @@ public class ParseTable implements Serializable {
         if(!(nm.equals("cf") || nm.equals("lex")))
             return false;
 
-        if(prod.getSubterm(0).getTermType() != LIST)
+        if(prod.getSubterm(0).getType() != TermType.LIST)
             return false;
 
         IStrategoList ls = ((IStrategoList) prod.getSubterm(0));
@@ -332,7 +336,7 @@ public class ParseTable implements Serializable {
         if(ls.getSubtermCount() != 1)
             return false;
 
-        if(ls.head().getTermType() != APPL)
+        if(ls.head().getType() != TermType.APPL)
             return false;
 
         final IStrategoConstructor fun = ((IStrategoAppl) ls.head()).getConstructor();

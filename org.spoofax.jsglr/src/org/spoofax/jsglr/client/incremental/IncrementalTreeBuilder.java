@@ -4,9 +4,6 @@ import static java.lang.Math.min;
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findLeftMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_EOF;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR_EOF_UNEXPECTED;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_ERROR_KEYWORD;
 import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_UNKNOWN;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
@@ -18,7 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.jsglr.client.imploder.*;
+import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ITreeFactory;
+import org.spoofax.jsglr.client.imploder.Tokenizer;
 
 /**
  * Constructs the output tree based on the old tree and the list of repaired tree nodes.

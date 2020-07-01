@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.TermType;
 
 /**
  * Helper functions
@@ -61,7 +62,7 @@ public class HelperFunctions {
 	 * @return
 	 */
 	public static boolean isSomeNode(IStrategoTerm trm) {
-		if(trm.getTermType() == IStrategoTerm.APPL){
+		if(trm.getType() == TermType.APPL){
 			return trm.getSubtermCount() == 1 && ((IStrategoAppl)trm).getConstructor().getName().equals("Some");
 		}
 		return false;

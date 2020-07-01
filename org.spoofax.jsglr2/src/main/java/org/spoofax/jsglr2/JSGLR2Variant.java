@@ -5,7 +5,17 @@ import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.imploder.*;
+import org.spoofax.jsglr2.imploder.IImploder;
+import org.spoofax.jsglr2.imploder.ITokenizer;
+import org.spoofax.jsglr2.imploder.ImplodeResult;
+import org.spoofax.jsglr2.imploder.ImploderVariant;
+import org.spoofax.jsglr2.imploder.IterativeStrategoTermImploder;
+import org.spoofax.jsglr2.imploder.IterativeStrategoTermTokenizer;
+import org.spoofax.jsglr2.imploder.NullStrategoImploder;
+import org.spoofax.jsglr2.imploder.StrategoTermImploder;
+import org.spoofax.jsglr2.imploder.StrategoTermTokenizer;
+import org.spoofax.jsglr2.imploder.TokenizedStrategoTermImploder;
+import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
 import org.spoofax.jsglr2.parseforest.IParseForest;

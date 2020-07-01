@@ -79,20 +79,20 @@ public class LayoutFilter {
   }
   
   private Object evalConstraint(IStrategoTerm constraint, AbstractParseNode[] kids, Map<String, Object> env) {
-    switch (constraint.getTermType()) {
-    case IStrategoTerm.INT: {
+    switch (constraint.getType()) {
+    case INT: {
       int i = Term.asJavaInt(constraint);
       return getSubtree(i, kids);
     }
       
-    case IStrategoTerm.STRING:
+    case STRING:
       String v = Term.asJavaString(constraint);
       Object o = env.get(v);
       if (o == null)
         throw new IllegalStateException("undefined variable " + v);
       return o;
       
-    case IStrategoTerm.APPL:
+    case APPL:
       IStrategoConstructor cons = Term.tryGetConstructor(constraint);
       String consName = cons.getName();
       

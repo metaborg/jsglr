@@ -1,6 +1,5 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.*;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
@@ -22,6 +21,7 @@ import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
@@ -177,7 +177,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
         ImploderAttachment it = oldNode.getAttachment(ImploderAttachment.TYPE);
 
 
-        switch(oldNode.getTermType()) {
+        switch(oldNode.getType()) {
             case INT:
                 return createIntTerminal(getSort(oldNode), leftToken, ((IStrategoInt) oldNode).intValue());
             case APPL:
@@ -204,7 +204,7 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
                 return createRealTerminal(getElementSort(oldNode), leftToken, ((IStrategoReal) oldNode).realValue());
             default:
                 throw new NotImplementedException(
-                    "Recreating term of type " + oldNode.getTermType() + " (" + oldNode + ") not supported");
+                    "Recreating term of type " + oldNode.getType() + " (" + oldNode + ") not supported");
         }
     }
 
@@ -310,12 +310,12 @@ public class TermTreeFactory implements ITreeFactory<IStrategoTerm> {
     protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken,
         boolean isListOrTuple, boolean isBracket, boolean isCompletion, boolean isNestedCompletion,
         boolean isSinglePlaceholderCompletion) {
-        assert isListOrTuple == (term.getTermType() == TUPLE || term.getTermType() == LIST);
+        assert isListOrTuple == (term.getType() == TermType.TUPLE || term.getType() == TermType.LIST);
         if(enableTokens)
             rightToken = rightToken != null ? rightToken : leftToken;
             putImploderAttachment(term, isListOrTuple, sort, leftToken, rightToken, isBracket, isCompletion,
                 isNestedCompletion, isSinglePlaceholderCompletion);
-            if(term.getTermType() == LIST) {
+            if(term.getType() == TermType.LIST) {
                 IStrategoList sublist = (IStrategoList) term;
                 IToken lastRightToken;
                 while(!sublist.isEmpty()) {

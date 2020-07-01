@@ -2,7 +2,12 @@ package org.spoofax.jsglr2.layoutsensitive;
 
 import java.util.Optional;
 
-import org.metaborg.sdf2table.grammar.layoutconstraints.*;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ArithmeticLayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.BooleanLayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ComparisonLayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintElement;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ILayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.NumericLayoutConstraint;
 
 public class LayoutConstraintEvaluator {
 

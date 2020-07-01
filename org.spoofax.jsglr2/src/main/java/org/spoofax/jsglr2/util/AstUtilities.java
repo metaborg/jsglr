@@ -1,10 +1,12 @@
 package org.spoofax.jsglr2.util;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.*;
-
 import java.util.*;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.TermFactory;
 
 public class AstUtilities {

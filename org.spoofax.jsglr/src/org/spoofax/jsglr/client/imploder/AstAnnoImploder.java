@@ -8,10 +8,16 @@ import static org.spoofax.terms.Term.termAt;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoInt;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
+import org.spoofax.interpreter.terms.IStrategoReal;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.util.NotImplementedException;
-import org.spoofax.terms.util.TermUtils;
 
 /**
  * Implodes {ast} annotations in asfix trees.

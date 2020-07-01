@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.spoofax.jsglr2.incremental.EditorUpdate;
-import org.spoofax.jsglr2.incremental.diff.jgit.*;
+import org.spoofax.jsglr2.incremental.diff.jgit.Edit;
+import org.spoofax.jsglr2.incremental.diff.jgit.EditList;
+import org.spoofax.jsglr2.incremental.diff.jgit.HistogramDiff;
+import org.spoofax.jsglr2.incremental.diff.jgit.IntList;
+import org.spoofax.jsglr2.incremental.diff.jgit.RawText;
+import org.spoofax.jsglr2.incremental.diff.jgit.RawTextComparator;
 
 // TODO the JGit HistogramDiff algorithm can be simplified because we are only using it in one very specific way
 public class JGitHistogramDiff implements IStringDiff {

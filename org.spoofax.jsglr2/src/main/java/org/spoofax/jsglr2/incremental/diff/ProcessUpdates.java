@@ -10,7 +10,11 @@ import java.util.Objects;
 
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.IIncrementalParseState;
-import org.spoofax.jsglr2.incremental.parseforest.*;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;

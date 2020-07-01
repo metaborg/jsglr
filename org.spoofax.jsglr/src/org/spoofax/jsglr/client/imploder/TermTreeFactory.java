@@ -1,6 +1,5 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.*;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
@@ -14,7 +13,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoInt;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoReal;
+import org.spoofax.interpreter.terms.IStrategoString;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;

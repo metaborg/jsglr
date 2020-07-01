@@ -9,7 +9,11 @@ import java.util.Objects;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.metaborg.parsetable.symbols.ISymbol;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.TermFactory;

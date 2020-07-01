@@ -4,7 +4,11 @@ import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNod
 
 import java.util.Stack;
 
-import org.spoofax.jsglr2.incremental.parseforest.*;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 
 public class LazyIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
     /**

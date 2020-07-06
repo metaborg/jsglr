@@ -41,6 +41,10 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
         otherDerivations.add(derivation);
     }
 
+    @Override public boolean hasDerivations() {
+        return firstDerivation != null;
+    }
+
     public Iterable<HybridDerivation> getDerivations() {
         if(firstDerivation == null)
             return Collections.emptyList();

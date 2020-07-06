@@ -3,7 +3,6 @@ package org.spoofax.jsglr.client;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 

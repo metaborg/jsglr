@@ -1,0 +1,13 @@
+module cycle
+
+context-free start-symbols
+
+  Start
+
+context-free syntax
+
+  Start = X* S
+  X = "x"
+
+  S.S = S
+  S.E =

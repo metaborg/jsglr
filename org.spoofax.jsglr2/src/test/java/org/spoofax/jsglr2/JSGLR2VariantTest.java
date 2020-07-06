@@ -1,9 +1,9 @@
 package org.spoofax.jsglr2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;

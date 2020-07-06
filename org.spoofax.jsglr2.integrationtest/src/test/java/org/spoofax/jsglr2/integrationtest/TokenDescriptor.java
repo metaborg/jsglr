@@ -1,10 +1,11 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import static org.spoofax.terms.util.TermUtils.*;
+
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
@@ -12,11 +13,11 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 public final class TokenDescriptor {
 
     public final String token;
-    public final int kind;
+    public final IToken.Kind kind;
     public final int offset, line, column;
     @Nullable public String sort, cons;
 
-    public TokenDescriptor(String token, int kind, int offset, int line, int column, @Nullable String sort,
+    public TokenDescriptor(String token, IToken.Kind kind, int offset, int line, int column, @Nullable String sort,
         @Nullable String cons) {
         this.token = token;
         this.kind = kind;
@@ -37,8 +38,8 @@ public final class TokenDescriptor {
 
         IStrategoTerm astNode = (IStrategoTerm) token.getAstNode();
         String sort = astNode == null ? null : ImploderAttachment.get(astNode).getSort();
-        String cons = astNode == null ? null
-            : astNode.getTermType() == IStrategoTerm.APPL ? ((IStrategoAppl) astNode).getConstructor().getName() : null;
+        String cons =
+            astNode == null ? null : isAppl(astNode) ? toAppl(astNode).getName() : isList(astNode) ? "[]" : null;
         return new TokenDescriptor(inputPart, token.getKind(), token.getStartOffset(), token.getLine(),
             token.getColumn(), sort, cons);
     }

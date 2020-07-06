@@ -2,25 +2,23 @@ package org.spoofax.jsglr2.integrationtest;
 
 import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.spoofax.terms.util.TermUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import com.google.common.io.Resources;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokens;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Success;
@@ -36,6 +34,8 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
+
+import com.google.common.io.Resources;
 
 public abstract class BaseTest implements WithParseTable {
 
@@ -165,10 +165,32 @@ public abstract class BaseTest implements WithParseTable {
 
     private Stream<DynamicTest> testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
         boolean equalityByExpansions) {
+        List<IStrategoTerm> previous = new ArrayList<>(1); // Variable used in lambda should be effectively final
         return testPerVariant(getTestVariants(), variant -> () -> {
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
+            if(previous.isEmpty())
+                previous.add(actualOutputAst);
+            else
+                assertEqualAST("Variant '" + variant.name() + "' does not have the same AST as the first variant",
+                    previous.get(0), actualOutputAst);
+
             assertEqualAST("Incorrect AST", expectedOutputAstString, actualOutputAst, equalityByExpansions);
+        });
+    }
+
+    protected Stream<DynamicTest> testAmbiguous(String inputString, boolean expectAmbiguous) {
+        return testPerVariant(getTestVariants(), variant -> () -> {
+            JSGLR2Result<IStrategoTerm> result = variant.jsglr2().parseResult(inputString);
+
+            assertTrue(result.isSuccess(), "Succeeding parse expected");
+
+            JSGLR2Success<IStrategoTerm> success = (JSGLR2Success<IStrategoTerm>) result;
+
+            if(expectAmbiguous)
+                assertTrue(success.isAmbiguous(), "Result is not ambiguous");
+            else
+                assertFalse(success.isAmbiguous(), "Result is ambiguous");
         });
     }
 
@@ -217,6 +239,92 @@ public abstract class BaseTest implements WithParseTable {
         });
     }
 
+    protected void assertEqualAST(String message, IStrategoTerm expected, IStrategoTerm actual) {
+        assertEqualAST(message, expected, actual, expected, actual);
+    }
+
+    private void assertEqualAST(String message, IStrategoTerm expected, IStrategoTerm actual, IStrategoTerm e,
+        IStrategoTerm a) {
+        compareAttachments(message, e, a);
+
+        IStrategoTerm[] subTermsE = e.getAllSubterms();
+        IStrategoTerm[] subTermsA = a.getAllSubterms();
+        if(isAppl(e) && toAppl(e).getName().equals("amb") && isAppl(a) && toAppl(a).getName().equals("amb")) {
+            // Check the list term that is the first argument of the amb()
+            compareAttachments(message, subTermsE[0], subTermsA[0]);
+
+            IStrategoTerm[] ambTermsE = subTermsE[0].getAllSubterms();
+            IStrategoTerm[] ambTermsA = subTermsA[0].getAllSubterms();
+            // Sort the sub terms of the list term
+            Arrays.sort(ambTermsE, Comparator.comparing(Object::toString));
+            Arrays.sort(ambTermsA, Comparator.comparing(Object::toString));
+
+            compareSubTerms(message, expected, actual, ambTermsE, ambTermsA);
+        } else {
+            compareSubTerms(message, expected, actual, subTermsE, subTermsA);
+        }
+    }
+
+    private void compareSubTerms(String message, IStrategoTerm expected, IStrategoTerm actual,
+        IStrategoTerm[] subTermsE, IStrategoTerm[] subTermsA) {
+        if(subTermsA.length != subTermsE.length)
+            fail(message + "\nExpected: " + expected + "\n  Actual: " + actual);
+        for(int i = 0; i < subTermsA.length; i++) {
+            assertEqualAST(message, expected, actual, subTermsE[i], subTermsA[i]);
+        }
+    }
+
+    private void compareAttachments(String message, IStrategoTerm e, IStrategoTerm a) {
+        if(!Objects.equals(e.getAnnotations(), a.getAnnotations()))
+            fail(message + "\nExpected annotations: " + e.getAnnotations() + "\n  Actual annotations: "
+                + a.getAnnotations() + "\n On tree: " + a);
+
+        ImploderAttachment expectedAttachment = e.getAttachment(ImploderAttachment.TYPE);
+        ImploderAttachment actualAttachment = a.getAttachment(ImploderAttachment.TYPE);
+        if(!equalAttachment(expectedAttachment, actualAttachment)) {
+            fail(message + "\nExpected attachment: " + expectedAttachment + " "
+                + (expectedAttachment == null ? "null"
+                    : printToken(expectedAttachment.getLeftToken()) + " - "
+                        + printToken(expectedAttachment.getRightToken()))
+                + "\n  Actual attachment: " + actualAttachment + " "
+                + (actualAttachment == null ? "null" : printToken(actualAttachment.getLeftToken()) + " - "
+                    + printToken(actualAttachment.getRightToken()))
+                + "\nOn tree: " + a);
+        }
+    }
+
+    private String printToken(IToken token) {
+        if(token == null)
+            return "null";
+        return "<" + token.toString() + ";" + token.getKind() + ";o:" + token.getStartOffset() + " l:" + token.getLine()
+            + " c:" + token.getColumn() + ";o:" + token.getEndOffset() + " l:" + token.getEndLine() + " c:"
+            + token.getEndColumn() + ">";
+    }
+
+    private boolean equalAttachment(ImploderAttachment expectedAttachment, ImploderAttachment actualAttachment) {
+        if(expectedAttachment == null)
+            return actualAttachment == null;
+        if(actualAttachment == null)
+            return false;
+        IToken expectedLeft = expectedAttachment.getLeftToken();
+        IToken expectedRight = expectedAttachment.getRightToken();
+        IToken actualLeft = actualAttachment.getLeftToken();
+        IToken actualRight = actualAttachment.getRightToken();
+        return Objects.equals(expectedAttachment.getSort(), actualAttachment.getSort())
+            && expectedLeft.getKind() == actualLeft.getKind() && expectedRight.getKind() == actualRight.getKind()
+            && expectedLeft.getStartOffset() == actualLeft.getStartOffset()
+            && expectedRight.getStartOffset() == actualRight.getStartOffset()
+            && expectedLeft.getEndOffset() == actualLeft.getEndOffset()
+            && expectedRight.getEndOffset() == actualRight.getEndOffset()
+            && expectedLeft.getLine() == actualLeft.getLine() && expectedRight.getLine() == actualRight.getLine()
+            && expectedLeft.getEndLine() == actualLeft.getEndLine()
+            && expectedRight.getEndLine() == actualRight.getEndLine()
+            && expectedLeft.getColumn() == actualLeft.getColumn()
+            && expectedRight.getColumn() == actualRight.getColumn()
+            && expectedLeft.getEndColumn() == actualLeft.getEndColumn()
+            && expectedRight.getEndColumn() == actualRight.getEndColumn();
+    }
+
     protected void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,
         boolean equalityByExpansions) {
         if(equalityByExpansions) {
@@ -256,40 +364,109 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
-        Stream<TestVariant> variants) {
+        List<TokenDescriptor> expectedAmbiguousTokens) {
+        return testTokens(inputString, expectedTokens, expectedAmbiguousTokens, getTestVariants());
+    }
+
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
+        Stream<TestVariant> testVariants) {
+        return testTokens(inputString, expectedTokens, expectedTokens, testVariants);
+    }
+
+    protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
+        List<TokenDescriptor> expectedAllTokens, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
-            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
+            JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
 
             assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
 
-            JSGLR2Success<?> jsglr2Success = (JSGLR2Success<?>) jsglr2Result;
+            JSGLR2Success<IStrategoTerm> jsglr2Success = (JSGLR2Success<IStrategoTerm>) jsglr2Result;
 
-            List<TokenDescriptor> actualTokens = new ArrayList<>();
+            IStrategoTerm rootAst = jsglr2Success.ast;
+            String rootCons = isAppl(rootAst) ? toAppl(rootAst).getName() : isList(rootAst) ? "[]" : null;
 
-            for(IToken token : jsglr2Success.tokens) {
-                actualTokens.add(TokenDescriptor.from(inputString, token));
-            }
+            ITokens actualTokens = jsglr2Success.tokens;
+            testTokens(inputString, expectedTokens, actualTokens, "regular", rootCons);
 
-            TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.TK_RESERVED, 0, 1, 1, null, null);
-            TokenDescriptor actualStartToken = actualTokens.get(0);
+            if(expectedTokens != expectedAllTokens)
+                testTokens(inputString, expectedAllTokens, actualTokens.allTokens(), "all (incl. ambiguous/empty)",
+                    rootCons);
 
-            assertEquals(expectedStartToken, actualStartToken, "Start token incorrect");
+            testTokenAtOffset(inputString, expectedAllTokens, actualTokens);
 
-            Position endPosition = Position.atEnd(inputString);
-
-            int endLine = endPosition.line;
-            int endColumn = endPosition.column;
-
-            TokenDescriptor expectedEndToken =
-                new TokenDescriptor("", IToken.TK_EOF, inputString.length(), endLine, endColumn - 1, null, null);
-            TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
-
-            List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
-
-            assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match");
-
-            assertEquals(expectedEndToken, actualEndToken, "End token incorrect");
+            testTokenAfterBefore(inputString, expectedTokens, actualTokens);
         });
+    }
+
+    private void testTokenAtOffset(String inputString, List<TokenDescriptor> expectedAllTokens,
+        ITokens actualTokens) {
+        assertEquals(IToken.Kind.TK_RESERVED, actualTokens.getTokenAtOffset(0).getKind());
+        for(int i = 1; i < inputString.length(); i++) {
+            TokenDescriptor expectedToken = null;
+            for(TokenDescriptor t : expectedAllTokens) {
+                if(t.offset == i)
+                    expectedToken = t;
+                if(t.offset >= i)
+                    break;
+            }
+            if(expectedToken == null)
+                continue;
+            assertEquals(expectedToken, TokenDescriptor.from(inputString, actualTokens.getTokenAtOffset(i)),
+                "Token at offset " + i);
+        }
+        if(inputString.length() > 0)
+            assertEquals(IToken.Kind.TK_EOF, actualTokens.getTokenAtOffset(inputString.length()).getKind());
+    }
+
+    private void testTokenAfterBefore(String inputString, List<TokenDescriptor> expectedTokens, ITokens actualTokens) {
+        IToken actualToken = actualTokens.getTokenAtOffset(0); // start token
+        for(TokenDescriptor expectedToken : expectedTokens) {
+            actualToken = actualToken.getTokenAfter();
+            assertNotNull(actualToken, "Token " + expectedToken + " is null");
+            assertEquals(expectedToken, TokenDescriptor.from(inputString, actualToken), "TokenAfter");
+        }
+        actualToken = actualToken.getTokenAfter();
+        assertEquals(IToken.Kind.TK_EOF, actualToken.getKind());
+        assertNull(actualToken.getTokenAfter());
+        for(int i = expectedTokens.size() - 1; i >= 0; i--) {
+            TokenDescriptor expectedToken = expectedTokens.get(i);
+            actualToken = actualToken.getTokenBefore();
+            assertNotNull(actualToken, "Token " + expectedToken + " is null");
+            assertEquals(expectedToken, TokenDescriptor.from(inputString, actualToken), "TokenBefore");
+        }
+        actualToken = actualToken.getTokenBefore();
+        assertEquals(IToken.Kind.TK_RESERVED, actualToken.getKind());
+        assertNull(actualToken.getTokenBefore());
+    }
+
+    protected void testTokens(String inputString, List<TokenDescriptor> expectedTokens, Iterable<IToken> tokens,
+        String type, String rootCons) {
+        String messageSuffix = " for " + type + " tokens";
+
+        List<TokenDescriptor> actualTokens = new ArrayList<>();
+        for(IToken token : tokens) {
+            actualTokens.add(TokenDescriptor.from(inputString, token));
+        }
+
+        TokenDescriptor expectedStartToken = new TokenDescriptor("", IToken.Kind.TK_RESERVED, 0, 1, 1, null, rootCons);
+        TokenDescriptor actualStartToken = actualTokens.get(0);
+
+        assertEquals(expectedStartToken, actualStartToken, "Start token incorrect" + messageSuffix);
+
+        Position endPosition = Position.atEnd(inputString);
+
+        int endLine = endPosition.line;
+        int endColumn = endPosition.column;
+
+        TokenDescriptor expectedEndToken =
+            new TokenDescriptor("", IToken.Kind.TK_EOF, inputString.length(), endLine, endColumn, null, rootCons);
+        TokenDescriptor actualEndToken = actualTokens.get(actualTokens.size() - 1);
+
+        List<TokenDescriptor> actualTokensWithoutStartAndEnd = actualTokens.subList(1, actualTokens.size() - 1);
+
+        assertIterableEquals(expectedTokens, actualTokensWithoutStartAndEnd, "Token lists don't match" + messageSuffix);
+
+        assertEquals(expectedEndToken, actualEndToken, "End token incorrect" + messageSuffix);
     }
 
     protected Stream<DynamicTest> testOrigins(String inputString, List<OriginDescriptor> expectedOrigins) {

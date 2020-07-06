@@ -6,7 +6,12 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.collections.*;
+import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
 
 public class ParseState<InputStack extends IInputStack, StackNode extends IStackNode>
     extends AbstractParseState<InputStack, StackNode> {

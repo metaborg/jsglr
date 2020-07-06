@@ -1,18 +1,28 @@
 package org.spoofax.jsglr2.parser;
 
-import org.spoofax.jsglr2.parser.result.ParseFailureType;
+import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
 public class ParseException extends Exception {
 
     private static final long serialVersionUID = 5070826083429554841L;
 
-    public ParseFailureType failureType;
+    public ParseException(ParseFailureCause.Type failureType, Position position, Integer character) {
+        super(message(failureType, position, character));
+    }
 
-    public ParseException(ParseFailureType failureType, int offset, int character) {
-        super(failureType.message + (failureType == ParseFailureType.UnexpectedInput
-            ? " at offset " + offset + ": " + new String(Character.toChars(character)) : ""));
+    private static String message(ParseFailureCause.Type failureType, Position position, Integer character) {
+        StringBuilder message = new StringBuilder();
 
-        this.failureType = failureType;
+        message.append(failureType.message);
+
+        if(position != null)
+            message.append(
+                " at offset " + position.offset + "(line " + position.line + ", column " + position.column + ")");
+
+        if(character != null)
+            message.append(" at character " + new String(Character.toChars(character)));
+
+        return message.toString();
     }
 
 }

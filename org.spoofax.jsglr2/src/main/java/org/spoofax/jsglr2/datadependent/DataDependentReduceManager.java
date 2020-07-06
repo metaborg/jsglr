@@ -9,25 +9,27 @@ import org.metaborg.sdf2table.deepconflicts.ContextualSymbol;
 import org.metaborg.sdf2table.grammar.IProduction;
 import org.metaborg.sdf2table.grammar.ISymbol;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
+import org.spoofax.jsglr2.reducing.ReducerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public class DataDependentReduceManager
 //@formatter:off
    <StackNode  extends IStackNode,
-    ParseState extends AbstractParseState<?, StackNode>>
+    InputStack extends IInputStack,
+    ParseState extends AbstractParseState<InputStack, StackNode>>
     extends
     ReduceManager
        <IDataDependentParseForest,
         IDataDependentDerivation<IDataDependentParseForest>,
         IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>,
         StackNode,
+        InputStack,
         ParseState>
 //@formatter:on
 {
@@ -35,25 +37,27 @@ public class DataDependentReduceManager
     private DataDependentReduceManager(IParseTable parseTable,
         AbstractStackManager<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> stackManager,
         ParseForestManager<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> parseForestManager,
-        ParseForestConstruction parseForestConstruction) {
-        super(parseTable, stackManager, parseForestManager, parseForestConstruction);
+        ReducerFactory<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, InputStack, ParseState> reducerFactory) {
+        super(parseTable, stackManager, parseForestManager, reducerFactory);
     }
 
     public static
-    //@formatter:off
-       <StackNode_    extends IStackNode,
-        ParseState_   extends AbstractParseState<?, StackNode_>,
-        StackManager_ extends AbstractStackManager
-           <IDataDependentParseForest,
-            IDataDependentDerivation<IDataDependentParseForest>,
-            IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>,
-            StackNode_,
-            ParseState_>>
-    //@formatter:on
-    ReduceManagerFactory<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode_, ParseState_, StackManager_, DataDependentReduceManager<StackNode_, ParseState_>>
-        factoryDataDependent(ParserVariant parserVariant) {
+//@formatter:off
+   <StackNode_    extends IStackNode,
+    InputStack_   extends IInputStack,
+    ParseState_   extends AbstractParseState<InputStack_, StackNode_>,
+    StackManager_ extends AbstractStackManager
+       <IDataDependentParseForest,
+        IDataDependentDerivation<IDataDependentParseForest>,
+        IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>,
+        StackNode_,
+        ParseState_>>
+//@formatter:on
+    ReduceManagerFactory<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode_, InputStack_, ParseState_, StackManager_, DataDependentReduceManager<StackNode_, InputStack_, ParseState_>>
+        factoryDataDependent(
+            ReducerFactory<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode_, InputStack_, ParseState_> reducerFactory) {
         return (parseTable, stackManager, parseForestManager) -> new DataDependentReduceManager<>(parseTable,
-            stackManager, parseForestManager, parserVariant.parseForestConstruction);
+            stackManager, parseForestManager, reducerFactory);
     }
 
     @Override protected boolean ignoreReducePath(StackNode pathBegin, IReduce reduce,

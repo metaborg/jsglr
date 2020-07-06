@@ -15,6 +15,7 @@ import java.util.Set;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.ParseException;
 import org.spoofax.jsglr.client.SGLR;
+import org.spoofax.jsglr.client.imploder.AbstractTokenizer;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
@@ -252,7 +253,7 @@ public class IncrementalSGLR<TNode extends ISimpleTerm> {
 	}
 	
 	private static boolean isAmbiguous(ISimpleTerm tree) {
-		return getLeftToken(tree).getTokenizer().isAmbiguous();
+		return ((AbstractTokenizer) getLeftToken(tree).getTokenizer()).isAmbiguous();
 	}
 
 	protected static boolean isRangeOverlap(int start1, int end1, int start2, int end2) {

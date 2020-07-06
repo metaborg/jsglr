@@ -8,7 +8,6 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.terms.StrategoSubList;
@@ -23,7 +22,7 @@ public class LayoutStructure {
 	
 	private final ISimpleTerm node;
 	private final ISimpleTerm listParent;
-	private final ITokens tokens;
+	private final ITokenizer tokens;
 	
 	//suffix data
 	private int suffixStartIndex; //possible invalid index (if node contains rightmost token)
@@ -39,7 +38,7 @@ public class LayoutStructure {
 		this.node = ImploderAttachment.getImploderOrigin(node);
 		listParent = getParentList(); //could be null
 		assertImploderInfo();
-		tokens = (ITokens) getLeftToken(node).getTokenizer();
+		tokens = (ITokenizer) getLeftToken(node).getTokenizer();
 		analyzeSuffix();
 		analyzePrefix();
 		//logAnalysisResults();
@@ -426,7 +425,7 @@ public class LayoutStructure {
 	private boolean isLayout(int tokenIndex) {
 		return
 			isValidTokenIndex(tokenIndex) &&
-			getTokenAt(tokenIndex).getKind() == IToken.TK_LAYOUT;
+			getTokenAt(tokenIndex).getKind() == IToken.Kind.TK_LAYOUT;
 	}
 
 	private boolean isAssociatedToListParent(int tokenIndex) {

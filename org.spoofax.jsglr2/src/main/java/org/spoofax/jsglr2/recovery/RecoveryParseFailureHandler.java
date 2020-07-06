@@ -45,6 +45,7 @@ public class RecoveryParseFailureHandler
     @Override public boolean onFailure(ParseState parseState) {
         if(!parseState.isRecovering()) {
             parseState.startRecovery(parseState.request, parseState.inputStack.offset());
+            parseState.setAppliedRecovery();
 
             observing.notify(observer -> observer.startRecovery(parseState));
         }

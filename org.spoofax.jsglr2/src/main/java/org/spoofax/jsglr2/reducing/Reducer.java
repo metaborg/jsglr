@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.reducing;
 
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -18,7 +19,8 @@ public class Reducer
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<?, StackNode>>
+    InputStack  extends IInputStack,
+    ParseState  extends AbstractParseState<InputStack, StackNode>>
 //@formatter:on
 {
 
@@ -29,6 +31,19 @@ public class Reducer
         ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager) {
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
+    }
+
+    public static
+    //@formatter:off
+       <ParseForest_ extends IParseForest,
+        Derivation_  extends IDerivation<ParseForest_>,
+        ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
+        StackNode_   extends IStackNode,
+        InputStack_  extends IInputStack,
+        ParseState_  extends AbstractParseState<InputStack_, StackNode_>>
+    //@formatter:on
+    ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_> factory() {
+        return Reducer::new;
     }
 
     /**

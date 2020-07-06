@@ -2,7 +2,12 @@ package org.spoofax.jsglr2.layoutsensitive;
 
 import java.util.Optional;
 
-import org.metaborg.sdf2table.grammar.layoutconstraints.*;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ArithmeticLayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.BooleanLayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ComparisonLayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ConstraintElement;
+import org.metaborg.sdf2table.grammar.layoutconstraints.ILayoutConstraint;
+import org.metaborg.sdf2table.grammar.layoutconstraints.NumericLayoutConstraint;
 
 public class LayoutConstraintEvaluator {
 
@@ -13,32 +18,36 @@ public class LayoutConstraintEvaluator {
 
             Optional<Boolean> c1ResultOpt = evaluate(booleanLayoutConstraint.getC1(), parseNodes);
 
-            if(!c1ResultOpt.isPresent())
-                return Optional.empty();
-            else {
-                boolean c1Result = c1ResultOpt.get();
+            boolean c1Result, c2Result;
 
-                switch(booleanLayoutConstraint.getOp()) {
-                    case AND:
-                    case OR:
-                        Optional<Boolean> c2ResultOpt = evaluate(booleanLayoutConstraint.getC2(), parseNodes);
-
-                        if(!c2ResultOpt.isPresent())
-                            return Optional.empty();
-                        else {
-                            boolean c2Result = c2ResultOpt.get();
-
-                            switch(booleanLayoutConstraint.getOp()) {
-                                case AND:
-                                    return Optional.of(c1Result && c2Result);
-                                case OR:
-                                    return Optional.of(c1Result || c2Result);
-                            }
-                        }
-                    case NOT:
-                        return Optional.of(!c1Result);
-                }
+            if(!c1ResultOpt.isPresent()) {
+                c1Result = true;
+            } else {
+                c1Result = c1ResultOpt.get();
             }
+
+            switch(booleanLayoutConstraint.getOp()) {
+                case AND:
+                case OR:
+                    Optional<Boolean> c2ResultOpt = evaluate(booleanLayoutConstraint.getC2(), parseNodes);
+
+                    if(!c2ResultOpt.isPresent()) {
+                        c2Result = true;
+                    } else {
+                        c2Result = c2ResultOpt.get();
+                    }
+
+                    switch(booleanLayoutConstraint.getOp()) {
+                        case AND:
+                            return Optional.of(c1Result && c2Result);
+                        case OR:
+                            return Optional.of(c1Result || c2Result);
+                    }
+
+                case NOT:
+                    return Optional.of(!c1Result);
+            }
+
         }
 
         if(layoutConstraint instanceof ComparisonLayoutConstraint) {

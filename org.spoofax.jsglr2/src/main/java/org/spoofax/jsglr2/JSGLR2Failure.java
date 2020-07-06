@@ -9,8 +9,8 @@ public class JSGLR2Failure<AbstractSyntaxTree> extends JSGLR2Result<AbstractSynt
 
     public final ParseFailure<?> parseFailure;
 
-    JSGLR2Failure(ParseFailure<?> parseFailure, Collection<Message> messages) {
-        super(messages);
+    JSGLR2Failure(JSGLR2Request request, ParseFailure<?> parseFailure, Collection<Message> messages) {
+        super(request, messages);
         this.parseFailure = parseFailure;
     }
 

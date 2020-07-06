@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.reducing;
 
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -12,20 +13,34 @@ import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
 
-public class ReducerSkipLayoutAndLexicalAndRejects
+public class ReducerOptimized
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
     ParseNode   extends IParseNode<ParseForest, Derivation>,
     StackNode   extends IStackNode,
-    ParseState  extends AbstractParseState<?, StackNode>>
+    InputStack  extends IInputStack,
+    ParseState  extends AbstractParseState<InputStack, StackNode>>
 //@formatter:on
-    extends Reducer<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
+    extends Reducer<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> {
 
-    public ReducerSkipLayoutAndLexicalAndRejects(
+    public ReducerOptimized(
         AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
         ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager) {
         super(stackManager, parseForestManager);
+    }
+
+    public static
+//@formatter:off
+   <ParseForest_ extends IParseForest,
+    Derivation_  extends IDerivation<ParseForest_>,
+    ParseNode_   extends IParseNode<ParseForest_, Derivation_>,
+    StackNode_   extends IStackNode,
+    InputStack_  extends IInputStack,
+    ParseState_  extends AbstractParseState<InputStack_, StackNode_>>
+//@formatter:on
+    ReducerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, InputStack_, ParseState_> factoryOptimized() {
+        return ReducerOptimized::new;
     }
 
     @Override public void reducerExistingStackWithDirectLink(
@@ -81,7 +96,7 @@ public class ReducerSkipLayoutAndLexicalAndRejects
         } else {
             ParseForest parseNode = getParseNode(parseState, reduce, stack, parseForests);
 
-            link = stackManager.createStackLink(parseState, newStackWithGotoState, stack, parseNode);
+            stackManager.createStackLink(parseState, newStackWithGotoState, stack, parseNode);
         }
 
         return newStackWithGotoState;
@@ -91,7 +106,7 @@ public class ReducerSkipLayoutAndLexicalAndRejects
         ParseForest[] parseForests) {
         ParseNode parseNode;
 
-        if(reduce.production().isSkippableInParseForest())
+        if(skipParseNodeCreation(parseState, reduce))
             parseNode = parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests);
         else {
             Derivation derivation = parseForestManager.createDerivation(parseState, stack, reduce.production(),
@@ -100,6 +115,10 @@ public class ReducerSkipLayoutAndLexicalAndRejects
         }
 
         return (ParseForest) parseNode;
+    }
+
+    protected boolean skipParseNodeCreation(ParseState parseState, IReduce reduce) {
+        return reduce.production().isSkippableInParseForest();
     }
 
 }

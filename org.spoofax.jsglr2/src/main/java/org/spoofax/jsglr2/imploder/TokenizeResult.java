@@ -1,19 +1,13 @@
 package org.spoofax.jsglr2.imploder;
 
-import java.util.Collection;
-import java.util.Collections;
+import org.spoofax.jsglr.client.imploder.ITokens;
 
-import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.tokens.Tokens;
+public class TokenizeResult<Tokens extends ITokens> {
 
-public class TokenizeResult {
+    public final Tokens tokens;
 
-    public Tokens tokens;
-    public Collection<Message> messages;
-
-    public TokenizeResult(Tokens tokens, Collection<Message> messages) {
+    public TokenizeResult(Tokens tokens) {
         this.tokens = tokens;
-        this.messages = messages != null ? messages : Collections.emptyList();
     }
 
 }

@@ -2,7 +2,6 @@ package org.spoofax.jsglr2.imploder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
@@ -10,13 +9,11 @@ import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.treefactory.ITokenizedTreeFactory;
-import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.recovery.RecoveryMessages;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public abstract class TokenizedTreeImploder
@@ -37,21 +34,19 @@ public abstract class TokenizedTreeImploder
 
     @Override public ImplodeResult<Tokens, Void, Tree> implode(JSGLR2Request request, ParseForest parseForest,
         Void resultCache) {
-        Collection<Message> messages = new ArrayList<>();
-
         Tokens tokens = new Tokens(request.input, request.fileName);
         tokens.makeStartToken();
 
         Position position = Position.START_POSITION;
 
-        SubTree<Tree> tree = implodeParseNode(parseForest, messages, tokens, position, tokens.startToken());
+        SubTree<Tree> tree = implodeParseNode(parseForest, tokens, position);
 
         tokens.makeEndToken(tree.endPosition);
 
         tokenTreeBinding(tokens.startToken(), tree.tree);
         tokenTreeBinding(tokens.endToken(), tree.tree);
 
-        return new ImplodeResult<>(tokens, null, tree.tree, messages);
+        return new ImplodeResult<>(tokens, null, tree.tree, tree.containsAmbiguity);
     }
 
     static class SubTree<Tree> {
@@ -59,29 +54,28 @@ public abstract class TokenizedTreeImploder
         Tree tree;
         Position endPosition;
         IToken leftToken, rightToken;
+        boolean containsAmbiguity;
 
-        SubTree(Tree tree, Position endPosition, IToken leftToken, IToken rightToken) {
+        SubTree(Tree tree, Position endPosition, IToken leftToken, IToken rightToken, boolean containsAmbiguity) {
             this.tree = tree;
             this.endPosition = endPosition;
             this.leftToken = leftToken;
             this.rightToken = rightToken;
+            this.containsAmbiguity = containsAmbiguity;
         }
 
     }
 
-    protected SubTree<Tree> implodeParseNode(ParseForest parseForest, Collection<Message> messages, Tokens tokens,
-        Position startPosition, IToken parentLeftToken) {
+    protected SubTree<Tree> implodeParseNode(ParseForest parseForest, Tokens tokens, Position startPosition) {
         if(parseForest instanceof ICharacterNode) {
             int width = parseForest.width();
             Position endPosition = startPosition.step(tokens.getInput(), width);
             IToken token = tokens.makeToken(startPosition, endPosition, null);
             Tree tree = createCharacterTerm(((ICharacterNode) parseForest).character(), token);
-            return new SubTree<>(tree, endPosition, token, token);
+            return new SubTree<>(tree, endPosition, token, token, false);
         }
 
-        @SuppressWarnings("unchecked") ParseNode parseNode = (ParseNode) parseForest;
-
-        parseNode = implodeInjection(parseNode);
+        @SuppressWarnings("unchecked") ParseNode parseNode = implodeInjection((ParseNode) parseForest);
 
         IProduction production = parseNode.production();
 
@@ -95,38 +89,34 @@ public abstract class TokenizedTreeImploder
                 if(production.isList()) {
                     for(List<ParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
                         if(result == null) {
-                            result = implodeListDerivation(messages, tokens, production, derivationParseForests,
-                                startPosition, parentLeftToken);
-
-                            trees.add(result.tree);
-                        } else
-                            trees.add(implodeListDerivation(messages, tokens, production, derivationParseForests,
-                                startPosition, parentLeftToken).tree);
-                    }
-                } else {
-                    for(Derivation derivation : filteredDerivations) {
-                        if(result == null) {
-                            result = implodeDerivation(messages, tokens, derivation, startPosition, parentLeftToken);
+                            result = implodeListDerivation(tokens, production, derivationParseForests, startPosition);
 
                             trees.add(result.tree);
                         } else
                             trees.add(
-                                implodeDerivation(messages, tokens, derivation, startPosition, parentLeftToken).tree);
+                                implodeListDerivation(tokens, production, derivationParseForests, startPosition).tree);
+                    }
+                } else {
+                    for(Derivation derivation : filteredDerivations) {
+                        if(result == null) {
+                            result = implodeDerivation(tokens, derivation, startPosition);
+
+                            trees.add(result.tree);
+                        } else
+                            trees.add(implodeDerivation(tokens, derivation, startPosition).tree);
                     }
                 }
 
                 result.tree = treeFactory.createAmb(trees, result.leftToken, result.rightToken);
+                result.containsAmbiguity = true;
 
                 return result;
             } else
-                return implodeDerivation(messages, tokens, filteredDerivations.get(0), startPosition, parentLeftToken);
+                return implodeDerivation(tokens, filteredDerivations.get(0), startPosition);
         } else {
             int width = parseNode.width();
 
             Position endPosition = startPosition.step(tokens.getInput(), width);
-
-            if(production.isRecovery())
-                messages.add(RecoveryMessages.get(production, startPosition, endPosition));
 
             IToken token = width > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
 
@@ -140,12 +130,11 @@ public abstract class TokenizedTreeImploder
                 throw new RuntimeException("invalid term type");
             }
 
-            return new SubTree<>(tree, endPosition, token, token);
+            return new SubTree<>(tree, endPosition, token, token, false);
         }
     }
 
-    protected SubTree<Tree> implodeDerivation(Collection<Message> messages, Tokens tokens, Derivation derivation,
-        Position startPosition, IToken parentLeftToken) {
+    protected SubTree<Tree> implodeDerivation(Tokens tokens, Derivation derivation, Position startPosition) {
         IProduction production = derivation.production();
 
         if(!production.isContextFree())
@@ -154,14 +143,10 @@ public abstract class TokenizedTreeImploder
         List<Tree> childASTs = new ArrayList<>();
         List<IToken> unboundTokens = new ArrayList<>();
 
-        SubTree<Tree> subTree =
-            implodeChildParseNodes(messages, tokens, childASTs, Arrays.asList(derivation.parseForests()),
-                derivation.production(), unboundTokens, startPosition, parentLeftToken);
+        SubTree<Tree> subTree = implodeChildParseNodes(tokens, childASTs, Arrays.asList(derivation.parseForests()),
+            derivation.production(), unboundTokens, startPosition);
 
         subTree.tree = createContextFreeTerm(derivation.production(), childASTs, subTree.leftToken, subTree.rightToken);
-
-        if(production.isRecovery())
-            messages.add(RecoveryMessages.get(production, startPosition, subTree.endPosition));
 
         for(IToken token : unboundTokens)
             tokenTreeBinding(token, subTree.tree);
@@ -169,13 +154,13 @@ public abstract class TokenizedTreeImploder
         return subTree;
     }
 
-    protected SubTree<Tree> implodeListDerivation(Collection<Message> messages, Tokens tokens, IProduction production,
-        List<ParseForest> childParseForests, Position startPosition, IToken parentLeftToken) {
+    protected SubTree<Tree> implodeListDerivation(Tokens tokens, IProduction production,
+        List<ParseForest> childParseForests, Position startPosition) {
         List<Tree> childASTs = new ArrayList<>();
         List<IToken> unboundTokens = new ArrayList<>();
 
-        SubTree<Tree> subTree = implodeChildParseNodes(messages, tokens, childASTs, childParseForests, production,
-            unboundTokens, startPosition, parentLeftToken);
+        SubTree<Tree> subTree =
+            implodeChildParseNodes(tokens, childASTs, childParseForests, production, unboundTokens, startPosition);
 
         subTree.tree = createContextFreeTerm(production, childASTs, subTree.leftToken, subTree.rightToken);
 
@@ -185,13 +170,12 @@ public abstract class TokenizedTreeImploder
         return subTree;
     }
 
-    protected SubTree<Tree> implodeChildParseNodes(Collection<Message> messages, Tokens tokens, List<Tree> childASTs,
+    protected SubTree<Tree> implodeChildParseNodes(Tokens tokens, List<Tree> childASTs,
         Iterable<ParseForest> childParseForests, IProduction production, List<IToken> unboundTokens,
-        Position startPosition, IToken parentLeftToken) {
-        SubTree<Tree> result = new SubTree<>(null, startPosition, null, null);
+        Position startPosition) {
+        SubTree<Tree> result = new SubTree<>(null, startPosition, null, null, false);
 
         Position pivotPosition = startPosition;
-        IToken pivotToken = parentLeftToken;
 
         for(ParseForest childParseForest : childParseForests) {
             @SuppressWarnings("unchecked") ParseNode childParseNode =
@@ -210,11 +194,11 @@ public abstract class TokenizedTreeImploder
             //@formatter:on
             )) {
                 // Make sure lists are flattened
-                subTree = implodeChildParseNodes(messages, tokens, childASTs,
+                subTree = implodeChildParseNodes(tokens, childASTs,
                     Arrays.asList(childParseNode.getFirstDerivation().parseForests()), childProduction, unboundTokens,
-                    pivotPosition, pivotToken);
+                    pivotPosition);
             } else {
-                subTree = implodeParseNode(childParseForest, messages, tokens, pivotPosition, pivotToken);
+                subTree = implodeParseNode(childParseForest, tokens, pivotPosition);
 
                 if(subTree.tree != null)
                     childASTs.add(subTree.tree);
@@ -232,21 +216,28 @@ public abstract class TokenizedTreeImploder
             }
 
             // Set the parent tree left and right token from the outermost non-layout left and right child tokens
-            if(childProduction != null && !childProduction.isLayout()) {
+            if(childProduction != null && !childProduction.isLayout()
+                // Also do this for character nodes
+                || childParseNode == null) {
                 if(result.leftToken == null)
                     result.leftToken = subTree.leftToken;
 
                 if(subTree.rightToken != null) {
                     result.rightToken = subTree.rightToken;
-                    pivotToken = subTree.rightToken;
                 }
             }
 
             pivotPosition = subTree.endPosition;
+            result.containsAmbiguity |= subTree.containsAmbiguity;
         }
 
-        if(result.leftToken == null)
-            result.leftToken = parentLeftToken;
+        // If is no token, this means that this AST has no characters in the input.
+        // In this case, create an empty token to associate with this AST node.
+        if(result.leftToken == null) {
+            assert result.rightToken == null;
+            result.leftToken = result.rightToken = tokens.makeToken(startPosition, pivotPosition, production);
+            unboundTokens.add(result.leftToken);
+        }
 
         result.endPosition = pivotPosition;
 

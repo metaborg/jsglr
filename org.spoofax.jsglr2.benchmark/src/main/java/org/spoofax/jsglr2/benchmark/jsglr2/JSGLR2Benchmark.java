@@ -36,7 +36,7 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
     private TestSetWithParseTableReader<ContentType, Input> testSetReader;
 
     protected IParser<?> parser; // Just parsing
-    protected JSGLR2Implementation<IParseForest, ?, Object, ?, ?> jsglr2; // Parsing, imploding, and tokenization
+    protected JSGLR2Implementation<IParseForest, ?, Object, ?, ?, ?> jsglr2; // Parsing, imploding, and tokenization
 
     protected void setTestSetReader(TestSetWithParseTableReader<ContentType, Input> testSetReader) {
         super.setTestSetReader(testSetReader);
@@ -56,7 +56,7 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
 
         IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
-        jsglr2 = (JSGLR2Implementation<IParseForest, ?, Object, ?, ?>) variant.jsglr2.getJSGLR2(parseTable);
+        jsglr2 = (JSGLR2Implementation<IParseForest, ?, Object, ?, ?, ?>) variant.jsglr2.getJSGLR2(parseTable);
         parser = jsglr2.parser;
     }
 

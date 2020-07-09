@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.cli.parserbuilder;
 
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -7,7 +8,6 @@ import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.cli.WrappedException;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.ParserVariant;

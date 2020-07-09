@@ -5,10 +5,10 @@ import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 
 import com.google.common.collect.HashBasedTable;

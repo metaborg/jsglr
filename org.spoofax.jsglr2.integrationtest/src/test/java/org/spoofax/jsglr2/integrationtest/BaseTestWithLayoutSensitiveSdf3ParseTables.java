@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 

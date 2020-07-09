@@ -1,8 +1,8 @@
 package org.spoofax.jsglr2.testset;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
 import org.spoofax.jsglr2.integration.WithParseTableFromTerm;
 import org.spoofax.jsglr2.testset.testinput.TestInput;

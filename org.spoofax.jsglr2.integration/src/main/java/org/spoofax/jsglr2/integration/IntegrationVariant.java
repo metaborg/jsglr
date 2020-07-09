@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.integration;
 import java.util.Arrays;
 import java.util.List;
 
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.spoofax.jsglr2.JSGLR2Variant;

@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -14,7 +15,6 @@ import org.spoofax.jsglr2.JSGLR2Implementation;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;

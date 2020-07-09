@@ -1,11 +1,11 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.ParseException;

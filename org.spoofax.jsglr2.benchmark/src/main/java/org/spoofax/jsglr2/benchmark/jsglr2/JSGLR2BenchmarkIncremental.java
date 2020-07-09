@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
@@ -12,7 +13,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;

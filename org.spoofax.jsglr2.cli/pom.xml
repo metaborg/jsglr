@@ -21,11 +21,6 @@
             <version>${metaborg-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.metaborg</groupId>
-            <artifactId>org.spoofax.jsglr2.integration</artifactId>
-            <version>${metaborg-version}</version>
-        </dependency>
-        <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>4.0.4</version>

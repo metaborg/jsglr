@@ -18,6 +18,7 @@ import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.meta.core.project.ILanguageSpec;
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.sdf2table.grammar.NormGrammar;
 import org.metaborg.sdf2table.io.NormGrammarReader;
 import org.metaborg.sdf2table.io.ParseTableIO;

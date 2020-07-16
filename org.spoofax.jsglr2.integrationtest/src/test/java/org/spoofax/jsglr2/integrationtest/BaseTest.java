@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
@@ -23,7 +24,6 @@ import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
@@ -398,8 +398,7 @@ public abstract class BaseTest implements WithParseTable {
         });
     }
 
-    private void testTokenAtOffset(String inputString, List<TokenDescriptor> expectedAllTokens,
-        ITokens actualTokens) {
+    private void testTokenAtOffset(String inputString, List<TokenDescriptor> expectedAllTokens, ITokens actualTokens) {
         assertEquals(IToken.Kind.TK_RESERVED, actualTokens.getTokenAtOffset(0).getKind());
         for(int i = 1; i < inputString.length(); i++) {
             TokenDescriptor expectedToken = null;

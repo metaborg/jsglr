@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.integration;
 import java.util.Collections;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableVariant;
 
 public interface WithParseTable {
 

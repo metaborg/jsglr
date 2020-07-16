@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.io.binary.TermReader;
 

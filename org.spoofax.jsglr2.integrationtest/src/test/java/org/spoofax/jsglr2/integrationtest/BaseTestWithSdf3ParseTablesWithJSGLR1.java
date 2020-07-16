@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
+import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;
 import org.spoofax.jsglr.shared.SGLRException;
-import org.spoofax.jsglr2.integration.ParseTableVariant;
 import org.spoofax.jsglr2.integration.WithJSGLR1;
 
 public abstract class BaseTestWithSdf3ParseTablesWithJSGLR1 extends BaseTestWithSdf3ParseTables implements WithJSGLR1 {

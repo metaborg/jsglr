@@ -41,6 +41,10 @@ public class IntegrationVariant {
         this.tokenizer = jsglr2Variant.tokenizer;
     }
 
+    public IntegrationVariant(JSGLR2Variant jsglr2Variant) {
+        this(new ParseTableVariant(), jsglr2Variant);
+    }
+
     public String name() {
         return (parseTable.equals(ParseTableVariant.standard()) ? "_" : parseTable.name()) + "//" + jsglr2.name();
     }

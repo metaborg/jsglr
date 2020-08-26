@@ -5,7 +5,7 @@ import $file.common, common._, Args._
 import $file.spoofax, spoofax._
 import org.spoofax.jsglr2.JSGLR2Variant
 import org.spoofax.jsglr2.integration.IntegrationVariant
-import org.spoofax.jsglr2.integration.ParseTableVariant
+import org.metaborg.parsetable.ParseTableVariant
 
 def execBenchmarks(implicit args: Args) = {
     println("Executing benchmarks...")

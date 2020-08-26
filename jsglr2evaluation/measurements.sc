@@ -5,7 +5,7 @@ import $file.common, common._
 import $file.spoofax, spoofax._
 import org.spoofax.jsglr2.JSGLR2Variant
 import org.spoofax.jsglr2.integration.IntegrationVariant
-import org.spoofax.jsglr2.integration.ParseTableVariant
+import org.metaborg.parsetable.ParseTableVariant
 
 def execMeasurements(implicit args: Args) = {
     println("Executing measurements...")

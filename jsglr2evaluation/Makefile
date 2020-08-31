@@ -80,11 +80,11 @@ cleanPostProcessing:
 
 
 # Reporting in Latex tables
-reportLatex: reportLatex.sc
+reportLatex: reportLatex.sc $(DIR)/results
 	amm reportLatex.sc dir=$(DIR) iterations=$(ITERATIONS) reportDir=$(REPORTDIR)
 
 # Reporting in plots
-reportR: report.R
+reportR: report.R $(DIR)/results
 	Rscript report.R $(DIR) $(REPORTDIR)
 
 cleanReports:

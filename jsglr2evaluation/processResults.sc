@@ -3,9 +3,6 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $file.common, common._, Args._
 
 import $file.spoofax, spoofax._
-import org.spoofax.jsglr2.JSGLR2Variant
-import org.spoofax.jsglr2.integration.IntegrationVariant
-import org.metaborg.parsetable.ParseTableVariant
 
 def processResults(implicit args: Args) = {
     println("Processing results...")

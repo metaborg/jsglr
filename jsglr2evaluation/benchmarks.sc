@@ -3,9 +3,6 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $file.common, common._, Args._
 
 import $file.spoofax, spoofax._
-import org.spoofax.jsglr2.JSGLR2Variant
-import org.spoofax.jsglr2.integration.IntegrationVariant
-import org.metaborg.parsetable.ParseTableVariant
 
 def execBenchmarks(implicit args: Args) = {
     println("Executing benchmarks...")
@@ -20,7 +17,7 @@ def execBenchmarks(implicit args: Args) = {
 
         mkdir! language.benchmarksDir
 
-        def benchmark(name: String, resultsPath: Path, sourcePath: Path, cardinality: String, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
+        def benchmark(name: String, resultsPath: Path, sourcePath: Path, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
             println(%%(
                 Seq(
                     "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
@@ -40,7 +37,6 @@ def execBenchmarks(implicit args: Args) = {
                 name,
                 resultsPath,
                 sourcePath,
-                cardinality,
                 Seq(
                     s"language=${language.id}",
                     s"extension=${language.extension}",
@@ -56,7 +52,6 @@ def execBenchmarks(implicit args: Args) = {
                 name,
                 resultsPath,
                 sourcePath,
-                cardinality,
                 Seq(
                     s"language=${language.id}",
                     s"extension=${language.extension}",

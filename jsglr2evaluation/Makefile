@@ -6,9 +6,9 @@ REPORTDIR=~/jsglr2evaluation/reports
 MEASUREMENTS_JAR=../org.spoofax.jsglr2.measure/target/org.spoofax.jsglr2.measure-2.6.0-SNAPSHOT.jar
 BENCHMARKS_JAR=../org.spoofax.jsglr2.benchmark/target/org.spoofax.jsglr2.benchmark-2.6.0-SNAPSHOT.jar
 
-all: languages sources validation measurements benchmarks processResults reportLatex reportR
+all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR
 
-clean: cleanLanguages cleanSources cleanValidation cleanMeasurements cleanBenchmarks cleanResults cleanReports
+clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBenchmarks cleanPostProcessing cleanReports
 
 
 # Pull Spoofax languages from GitHub and build them
@@ -32,12 +32,12 @@ cleanSources:
 
 
 # Validate absence of invalid programs and aggregate files
-validation: $(DIR)/sources/validated
+preProcessing: $(DIR)/sources/validated
 
-$(DIR)/sources/validated: $(DIR)/languages $(DIR)/sources validate.sc
-	JAVA_OPTS="-Xmx8G" amm validate.sc dir=$(DIR) && touch $(DIR)/sources/validated
+$(DIR)/sources/validated: $(DIR)/languages $(DIR)/sources preProcess.sc
+	JAVA_OPTS="-Xmx8G" amm preProcess.sc dir=$(DIR) && touch $(DIR)/sources/validated
 
-cleanValidation:
+cleanPreProcessing:
 	-rm $(DIR)/sources/validated
 
 
@@ -70,12 +70,12 @@ cleanBenchmarks:
 
 
 # Post process results from measurements and benchmarks
-processResults: $(DIR)/results
+postProcessing: $(DIR)/results
 
-$(DIR)/results: $(DIR)/benchmarks $(DIR)/measurements processResults.sc
-	amm processResults.sc dir=$(DIR) samples=$(SAMPLES)
+$(DIR)/results: $(DIR)/benchmarks $(DIR)/measurements postProcess.sc
+	amm postProcess.sc dir=$(DIR) samples=$(SAMPLES)
 
-cleanResults:
+cleanPostProcessing:
 	-rm -r $(DIR)/results
 
 

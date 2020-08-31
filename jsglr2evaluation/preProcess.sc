@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.JSGLR2Variant
 import org.spoofax.jsglr2.integration.IntegrationVariant
 import org.metaborg.parsetable.ParseTableVariant
 
-def validate(implicit args: Args) = {
+def preProcess(implicit args: Args) = {
     println("Validate sources...")
 
     config.languages.foreach { language =>
@@ -44,4 +44,4 @@ def validate(implicit args: Args) = {
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(validate(_))
+def ini(args: String*) = withArgs(args :_ *)(preProcess(_))

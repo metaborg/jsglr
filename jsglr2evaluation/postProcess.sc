@@ -4,7 +4,7 @@ import $file.common, common._, Args._
 
 import $file.spoofax, spoofax._
 
-def processResults(implicit args: Args) = {
+def postProcess(implicit args: Args) = {
     println("Processing results...")
     
     mkdir! resultsDir
@@ -80,4 +80,4 @@ def processResults(implicit args: Args) = {
 }
 
 @main
-def ini(args: String*) = withArgs(args :_ *)(processResults(_))
+def ini(args: String*) = withArgs(args :_ *)(postProcess(_))

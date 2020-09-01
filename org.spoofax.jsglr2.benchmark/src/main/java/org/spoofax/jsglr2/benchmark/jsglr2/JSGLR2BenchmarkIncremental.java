@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import static org.spoofax.jsglr2.JSGLR2Variant.Preset.incremental;
+import static org.spoofax.jsglr2.JSGLR2Variant.Preset.standard;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +10,6 @@ import java.util.Map;
 
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
-import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2MultiParser;
 import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2PersistentCache;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
@@ -18,9 +20,9 @@ import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[], IncrementalStringInput> {
 
     public enum ParserType {
-        Batch(false, new IntegrationVariant(JSGLR2Variant.Preset.standard.variant)),
-        Incremental(true, new IntegrationVariant(JSGLR2Variant.Preset.incremental.variant)),
-        IncrementalNoCache(false, new IntegrationVariant(JSGLR2Variant.Preset.incremental.variant));
+        Batch(false, new IntegrationVariant(standard.variant)),
+        Incremental(true, new IntegrationVariant(incremental.variant)),
+        IncrementalNoCache(false, new IntegrationVariant(incremental.variant));
 
         boolean setupCache;
         IntegrationVariant integrationVariant;

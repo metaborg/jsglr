@@ -17,7 +17,7 @@ def execBenchmarks(implicit args: Args) = {
 
         mkdir! language.benchmarksDir
 
-        def benchmark(name: String, resultsPath: Path, sourcePath: Path, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
+        def benchmark(name: String, resultsPath: Path, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
             println(%%(
                 Seq(
                     "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
@@ -36,7 +36,6 @@ def execBenchmarks(implicit args: Args) = {
             benchmark(
                 name,
                 resultsPath,
-                sourcePath,
                 Seq(
                     s"language=${language.id}",
                     s"extension=${language.extension}",
@@ -51,7 +50,6 @@ def execBenchmarks(implicit args: Args) = {
             benchmark(
                 name,
                 resultsPath,
-                sourcePath,
                 Seq(
                     s"language=${language.id}",
                     s"extension=${language.extension}",

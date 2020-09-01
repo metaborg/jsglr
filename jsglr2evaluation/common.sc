@@ -1,17 +1,21 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`
-import $ivy.`io.circe::circe-generic:0.12.3`
+import $ivy.`io.circe::circe-generic-extras:0.13.0`
 import $ivy.`io.circe::circe-yaml:0.11.0-M1`
 
 import ammonite.ops._
 import cats.syntax.either._
 import io.circe._
-import io.circe.generic.auto._
+import io.circe.generic.extras.auto._
+import io.circe.generic.extras.Configuration
 import io.circe.yaml._
 import java.time.LocalDateTime
 
+// This allows default arguments in ADTs: https://stackoverflow.com/a/47644276
+implicit val customConfig: Configuration = Configuration.default.withDefaults
+
 case class Config(languages: Seq[Language])
 
-case class Language(id: String, name: String, extension: String, parseTable: ParseTable, antlrBenchmarks: Seq[ANTLRBenchmark], sources: Seq[Source]) {
+case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Seq[Source], antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
     def parseTablePath(implicit args: Args) = parseTable.path(this)
 
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
@@ -53,11 +57,11 @@ object ParseTable {
         Decoder[LocalParseTable].map[ParseTable](identity)
 }
 
-case class ANTLRBenchmark(id: String, benchmark: String)
-
 case class Source(id: String, repo: String)
 
-val configJson = parser.parse(read! pwd/"config.yml")
+case class ANTLRBenchmark(id: String, benchmark: String)
+
+val configJson = parser.parse(read! pwd / "config.yml")
 val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
 case class Args(dir: Path, iterations: Int, samples: Int, reportDir: Path)

@@ -93,7 +93,8 @@ def withArgs(args: String*)(body: Args => Unit) = {
         else
             root / RelPath(path)
 
-    val dir        = argsMapped.get("dir").map(getPath).get
+    val dir        = argsMapped.get("dir").map(getPath)
+                                          .getOrElse(throw new IllegalArgumentException("Missing 'dir=...' argument"))
     val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
     val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
     val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")

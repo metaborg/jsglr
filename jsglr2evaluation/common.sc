@@ -92,8 +92,10 @@ def withArgs(args: String*)(body: Args => Unit) = {
     }.toMap
 
     def getPath(path: String) =
-        if (path.startsWith("~"))
+        if (path.startsWith("~/"))
             Path(System.getProperty("user.home") + path.substring(1))
+        else if (path.startsWith("./"))
+            pwd / RelPath(path.substring(2))
         else
             root / RelPath(path)
 

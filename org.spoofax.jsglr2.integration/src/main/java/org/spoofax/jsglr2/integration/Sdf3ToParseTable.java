@@ -63,7 +63,7 @@ public class Sdf3ToParseTable {
     public Sdf3ToParseTable(Function<String, String> getResourcePath) throws MetaborgException {
         this.getResourcePath = getResourcePath;
 
-        spoofax = new Spoofax(new SpoofaxSimpleProjectModule(), new SpoofaxExtensionModule());
+        spoofax = new Spoofax(new SpoofaxSimpleProjectModule());
         SpoofaxMeta spoofaxMeta = new SpoofaxMeta(spoofax);
 
         final FileObject sdf3Location = spoofax.resolve("zip:" + getResourcePath("sdf3.spoofax-language"));

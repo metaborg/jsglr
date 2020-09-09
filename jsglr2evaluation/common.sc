@@ -15,17 +15,18 @@ implicit val customConfig: Configuration = Configuration.default.withDefaults
 
 case class Config(languages: Seq[Language])
 
-case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Seq[Source], antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
+case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Sources, antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
     def parseTablePath(implicit args: Args) = parseTable.path(this)
 
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
     
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
     def benchmarksDir(implicit args: Args) = Args.benchmarksDir / id
-    
-    def sourceFiles(implicit args: Args) = ls! sourcesDir |? (_.ext == extension)
+
+    def sourceFilesBatch(implicit args: Args) = ls.rec! sourcesDir / "batch" |? (_.ext == extension)
+    def sourceFilesIncremental(implicit args: Args) = ls.rec! sourcesDir / "incremental" |? (_.ext == extension)
     def sourceFilesPerFileBenchmark(implicit args: Args): Seq[Path] = {
-        val files = sourceFiles sortBy(-_.size)
+        val files = sourceFilesBatch sortBy(-_.size)
         val trimPercentage: Float = 10F
         val filesTrimmed = files.slice(
             ((trimPercentage / 100F) * files.size).toInt,
@@ -57,7 +58,12 @@ object ParseTable {
         Decoder[LocalParseTable].map[ParseTable](identity)
 }
 
-case class Source(id: String, repo: String)
+case class Sources(batch: Seq[BatchSource] = Seq.empty, incremental: Seq[IncrementalSource] = Seq.empty)
+
+sealed abstract class Source(val id: String, val repo: String)
+case class BatchSource(override val id: String, override val repo: String) extends Source(id, repo)
+case class IncrementalSource(override val id: String, override val repo: String,
+        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty) extends Source(id, repo)
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 

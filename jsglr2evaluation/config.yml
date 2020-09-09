@@ -6,8 +6,18 @@ languages:
       repo: git@github.com:metaborg/java-front.git
       subDir: lang.java
     sources:
-      - id: apache-commons-lang
-        repo: https://github.com/apache/commons-lang.git
+      batch:
+        - id: apache-commons-lang
+          repo: https://github.com/apache/commons-lang.git
+      incremental:
+        - id: apache-commons-lang-incremental
+          repo: https://github.com/apache/commons-lang.git
+          fetchOptions:
+            - '--depth=200'
+        - id: apache-commons-lang-stringutils
+          repo: https://github.com/apache/commons-lang.git
+          files:
+            - src/main/java/org/apache/commons/lang3/StringUtils.java
     antlrBenchmarks:
       - id: antlr
         benchmark: ANTLRJava8Benchmark
@@ -19,8 +29,20 @@ languages:
     parseTable:
       file: parsetables/WebDSL.tbl
     sources:
-      - id: webdsl-yellowgrass
-        repo: https://github.com/webdsl/yellowgrass
+      batch:
+        - id: webdsl-yellowgrass
+          repo: https://github.com/webdsl/yellowgrass
+      incremental:
+        - id: webdsl-yellowgrass-incremental
+          repo: https://github.com/webdsl/yellowgrass
+          fetchOptions:
+            - '--depth=200'
+        - id: webdsl-builtin
+          repo: https://github.com/webdsl/webdsl
+          fetchOptions:
+            - '--shallow-since="2011-02-16 14:00:00 +0000"' # From this point in time on, the file parses without errors
+          files:
+            - src/org/webdsl/dsl/project/template-webdsl/built-in.app
   # - id: ocaml
   #   name: OCaml
   #   extension: ml
@@ -28,5 +50,6 @@ languages:
   #     repo: git@github.com:metaborgcube/metaborg-ocaml
   #     subDir: org.metaborg.lang.ocaml
   #   sources:
-  #     - id: facebook-flow
-  #       repo: https://github.com/facebook/flow.git
+  #     batch:
+  #       - id: facebook-flow
+  #         repo: https://github.com/facebook/flow.git

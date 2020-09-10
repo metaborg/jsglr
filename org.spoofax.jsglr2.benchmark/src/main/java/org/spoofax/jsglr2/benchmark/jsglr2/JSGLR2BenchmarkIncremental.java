@@ -41,9 +41,13 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         return parserType.integrationVariant;
     }
 
+    // Only used for parsing-only benchmarks
     Map<IncrementalStringInput, String> prevString = new HashMap<>();
+    // Only used for parsing-only benchmarks
     Map<IncrementalStringInput, IParseForest> prevParse = new HashMap<>();
+    // Only used for parsing-and-imploding benchmarks
     Map<IncrementalStringInput, JSGLR2PersistentCache<?, ?, ?, ?, ?, ?>> prevCacheImpl = new HashMap<>();
+    // Only used for parsing-and-imploding benchmarks
     JSGLR2MultiParser<?, ?, ?, ?, ?, ?> jsglr2MultiParser;
 
     Map<IncrementalStringInput, String[]> uniqueInputs = new HashMap<>();
@@ -53,7 +57,8 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
     }
 
     @Setup public void setupCache() throws ParseException {
-        jsglr2MultiParser = new JSGLR2MultiParser<>(jsglr2);
+        if(implode())
+            jsglr2MultiParser = new JSGLR2MultiParser<>(jsglr2);
         if(i == -2) {
             for(IncrementalStringInput input : inputs) {
                 List<String> res = new ArrayList<>();
@@ -72,9 +77,10 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         if(shouldSetupCache()) {
             for(IncrementalStringInput input : inputs) {
                 String content = input.content[i - 1];
-                prevString.put(input, content);
-                prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
-                if(implode()) {
+                if(!implode()) {
+                    prevString.put(input, content);
+                    prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
+                } else {
                     prevCacheImpl.put(input, new JSGLR2PersistentCache<>(jsglr2, content));
                 }
             }

@@ -15,8 +15,8 @@ public class TestSetIncrementalMultipleInput extends TestSetMultipleInputs<Strin
     public static TestSetIncrementalMultipleInput fromArgsIncremental(Map<String, String> args) {
         String sourcePath = args.get("sourcePath");
         String extension = args.get("extension");
-        int[] versions = args.containsKey("iterations")
-            ? versionsFromIteration(Integer.parseInt(args.get("iterations"))) : args.containsKey("versions")
+        int[] versions = args.containsKey("iteration")
+            ? versionsFromIteration(Integer.parseInt(args.get("iteration"))) : args.containsKey("versions")
                 ? Arrays.stream(args.get("versions").split(",")).mapToInt(Integer::parseInt).toArray() : null;
         return new TestSetIncrementalMultipleInput(sourcePath, extension, versions);
     }
@@ -26,13 +26,16 @@ public class TestSetIncrementalMultipleInput extends TestSetMultipleInputs<Strin
             return new int[] { 0 };
         if(iteration > 0)
             return new int[] { iteration - 1, iteration };
+        // If value for `iteration` is negative, use all versions.
         return null;
     }
 
     public TestSetIncrementalMultipleInput(String path, String extension, int[] versions) {
         super(path, extension);
-        this.versions = versions == null ? Arrays.stream(new File(path).listFiles(File::isDirectory))
-            .mapToInt(f -> Integer.parseInt(f.getName())).sorted().toArray() : versions;
+        this.versions = versions != null ? versions
+            // If it is not specified which versions should be used, use all versions.
+            : Arrays.stream(new File(path).listFiles(File::isDirectory)).mapToInt(f -> Integer.parseInt(f.getName()))
+                .sorted().toArray();
     }
 
     public TestSetIncrementalMultipleInput(String path, String extension) {

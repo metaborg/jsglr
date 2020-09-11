@@ -62,6 +62,22 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
         throw new IllegalStateException("invalid arguments");
     }
 
+    public static TestSetWithParseTable<String[], IncrementalStringInput>
+        fromArgsWithParseTableIncremental(Map<String, String> args) {
+        String language = args.get("language");
+        String parseTablePath = args.get("parseTablePath");
+
+        if(language != null & parseTablePath != null) {
+            TestSetParseTableFromATerm parseTable = new TestSetParseTableFromATerm(parseTablePath, false);
+
+            TestSetInput<String[], IncrementalStringInput> input = TestSetIncrementalMultipleInput.fromArgsIncremental(args);
+
+            return new TestSetWithParseTable<>(language, parseTable, input);
+        }
+
+        throw new IllegalStateException("invalid arguments");
+    }
+
     // --- ARTIFICIAL BENCHMARKS ---
 
     public static TestSetWithParseTable<String, StringInput> lexical = new TestSetWithParseTable<>("lexical",

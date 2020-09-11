@@ -14,7 +14,7 @@ clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBen
 # Pull Spoofax languages from GitHub and build them
 languages: $(DIR)/languages
 
-$(DIR)/languages: config.yml setupLanguages.sc
+$(DIR)/languages: config.yml setupLanguages.sc common.sc
 	amm setupLanguages.sc dir=$(DIR)
 
 cleanLanguages:
@@ -24,7 +24,7 @@ cleanLanguages:
 # Setup evaluation corpus by pulling projects from GitHub
 sources: $(DIR)/sources
 
-$(DIR)/sources: config.yml setupSources.sc
+$(DIR)/sources: config.yml setupSources.sc common.sc
 	amm setupSources.sc dir=$(DIR)
 
 cleanSources:
@@ -34,7 +34,7 @@ cleanSources:
 # Validate absence of invalid programs and aggregate files
 preProcessing: $(DIR)/sources/validated
 
-$(DIR)/sources/validated: $(DIR)/languages $(DIR)/sources preProcess.sc
+$(DIR)/sources/validated: $(DIR)/languages $(DIR)/sources preProcess.sc common.sc
 	JAVA_OPTS="-Xmx8G" amm preProcess.sc dir=$(DIR) && touch $(DIR)/sources/validated
 
 cleanPreProcessing:
@@ -44,7 +44,7 @@ cleanPreProcessing:
 # Perform measurements
 measurements: $(DIR)/measurements
 
-$(DIR)/measurements: $(DIR)/sources/validated $(MEASUREMENTS_JAR) measurements.sc
+$(DIR)/measurements: $(DIR)/sources/validated $(MEASUREMENTS_JAR) measurements.sc spoofax.sc spoofaxDeps.sc common.sc
 	amm measurements.sc dir=$(DIR)
 
 $(MEASUREMENTS_JAR): ../org.spoofax.jsglr2.measure/src
@@ -58,7 +58,7 @@ cleanMeasurements:
 # Performs benchmarks
 benchmarks: $(DIR)/benchmarks
 
-$(DIR)/benchmarks: $(BENCHMARKS_JAR) benchmarks.sc
+$(DIR)/benchmarks: $(BENCHMARKS_JAR) benchmarks.sc spoofax.sc spoofaxDeps.sc common.sc
 	amm benchmarks.sc dir=$(DIR) iterations=$(ITERATIONS) samples=$(SAMPLES)
 
 $(BENCHMARKS_JAR): ../org.spoofax.jsglr2.benchmark/src
@@ -72,7 +72,7 @@ cleanBenchmarks:
 # Post process results from measurements and benchmarks
 postProcessing: $(DIR)/results
 
-$(DIR)/results: $(DIR)/benchmarks $(DIR)/measurements postProcess.sc
+$(DIR)/results: $(DIR)/benchmarks $(DIR)/measurements postProcess.sc common.sc
 	amm postProcess.sc dir=$(DIR) samples=$(SAMPLES)
 
 cleanPostProcessing:
@@ -80,7 +80,7 @@ cleanPostProcessing:
 
 
 # Reporting in Latex tables
-reportLatex: reportLatex.sc $(DIR)/results
+reportLatex: $(DIR)/results reportLatex.sc spoofax.sc spoofaxDeps.sc common.sc
 	amm reportLatex.sc dir=$(DIR) iterations=$(ITERATIONS) reportDir=$(REPORTDIR)
 
 # Reporting in plots

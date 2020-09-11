@@ -16,7 +16,7 @@ def latexTableTestSets(implicit args: Args) = {
         s.append("\\multirow{" + language.sources.size + "}{*}{" + language.name + "}\n")
 
         language.sources.zipWithIndex.foreach { case (source, index) =>
-            val files = language.sourceFiles
+            val files = language.sourceFilesBatch // TODO this gets all source files of the language, not of the source
             val lines = files | read.lines | (_.size) sum
             val size = files | stat | (_.size) sum
 

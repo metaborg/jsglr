@@ -1,17 +1,17 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
+import static org.spoofax.jsglr2.JSGLR2Variant.Preset.incremental;
+import static org.spoofax.jsglr2.JSGLR2Variant.Preset.standard;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.metaborg.parsetable.ParseTableVariant;
-import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
-import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
-import org.spoofax.jsglr2.JSGLR2Variant;
-import org.spoofax.jsglr2.imploder.IImplodeResult;
+import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2MultiParser;
+import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2PersistentCache;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -20,15 +20,9 @@ import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[], IncrementalStringInput> {
 
     public enum ParserType {
-        Batch(false,
-            new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
-                ProductionToGotoRepresentation.JavaHashMap), JSGLR2Variant.Preset.standard.variant)),
-        Incremental(true,
-            new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
-                ProductionToGotoRepresentation.JavaHashMap), JSGLR2Variant.Preset.incremental.variant)),
-        IncrementalNoCache(false,
-            new IntegrationVariant(new ParseTableVariant(ActionsForCharacterRepresentation.DisjointSorted,
-                ProductionToGotoRepresentation.JavaHashMap), JSGLR2Variant.Preset.incremental.variant));
+        Batch(false, new IntegrationVariant(standard.variant)),
+        Incremental(true, new IntegrationVariant(incremental.variant)),
+        IncrementalNoCache(false, new IntegrationVariant(incremental.variant));
 
         boolean setupCache;
         IntegrationVariant integrationVariant;
@@ -47,17 +41,24 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         return parserType.integrationVariant;
     }
 
+    // Only used for parsing-only benchmarks
     Map<IncrementalStringInput, String> prevString = new HashMap<>();
+    // Only used for parsing-only benchmarks
     Map<IncrementalStringInput, IParseForest> prevParse = new HashMap<>();
-    Map<IncrementalStringInput, Object> prevImplodeCache = new HashMap<>();
+    // Only used for parsing-and-imploding benchmarks
+    Map<IncrementalStringInput, JSGLR2PersistentCache<?, ?, ?, ?, ?, ?>> prevCacheImpl = new HashMap<>();
+    // Only used for parsing-and-imploding benchmarks
+    JSGLR2MultiParser<?, ?, ?, ?, ?, ?> jsglr2MultiParser;
 
-    Map<IncrementalStringInput, List<String>> uniqueInputs = new HashMap<>();
+    Map<IncrementalStringInput, String[]> uniqueInputs = new HashMap<>();
 
     protected boolean shouldSetupCache() {
         return parserType.setupCache && i > 0;
     }
 
     @Setup public void setupCache() throws ParseException {
+        if(implode())
+            jsglr2MultiParser = new JSGLR2MultiParser<>(jsglr2);
         if(i == -2) {
             for(IncrementalStringInput input : inputs) {
                 List<String> res = new ArrayList<>();
@@ -70,18 +71,17 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                         prev = s;
                     }
                 }
-                uniqueInputs.put(input, res);
+                uniqueInputs.put(input, res.toArray(new String[0]));
             }
         }
         if(shouldSetupCache()) {
             for(IncrementalStringInput input : inputs) {
                 String content = input.content[i - 1];
-                prevString.put(input, content);
-                prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
-                if(implode()) {
-                    IImplodeResult<?, Object, ?> implodeResult =
-                        jsglr2.imploder.implode(prevString.get(input), input.fileName, prevParse.get(input));
-                    prevImplodeCache.put(input, implodeResult.resultCache());
+                if(!implode()) {
+                    prevString.put(input, content);
+                    prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
+                } else {
+                    prevCacheImpl.put(input, new JSGLR2PersistentCache<>(jsglr2, content));
                 }
             }
         }

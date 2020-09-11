@@ -10,8 +10,8 @@ shortname=$(basename "$1")
 mkdir "$shortname"
 i=0
 
-# Take all revisions in which this file can be found, use cut to get the commit hash, reverse order to get oldest first
-for revision in $(git log --format=oneline -- "$1" | cut -d' ' -f1 | tac) ;
+# Take all revisions in which this file can be found (show only commit hash using %H), reverse order to get oldest first
+for revision in $(git log --format=%H --reverse -- "$1") ;
 do
     # For every revision $i, show the file at this revision and save it in file $i.in
     git show ${revision}:"$1" > "$shortname/$i.in"

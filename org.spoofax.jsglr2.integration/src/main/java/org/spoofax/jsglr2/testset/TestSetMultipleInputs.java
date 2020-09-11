@@ -11,7 +11,8 @@ import java.util.Set;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-public abstract class TestSetMultipleInputs<Input extends TestInput<String>> extends TestSetInput<String, Input> {
+public abstract class TestSetMultipleInputs<ContentType, Input extends TestInput<ContentType>>
+    extends TestSetInput<ContentType, Input> {
 
     public final String path; // Absolute path to search in
     public final String extension; // Extension for files to find in path
@@ -23,22 +24,7 @@ public abstract class TestSetMultipleInputs<Input extends TestInput<String>> ext
         this.extension = extension;
     }
 
-    @Override public List<Input> getInputs() throws IOException {
-        List<Input> inputs = new ArrayList<>();
-
-        for(File file : filesInPath(new File(path))) {
-            String filename = file.getName();
-            if(filename.endsWith("." + extension)) {
-                String input = inputStreamAsString(new FileInputStream(file));
-
-                inputs.add(getInput(filename, input));
-            }
-        }
-
-        return inputs;
-    }
-
-    private Set<File> filesInPath(File path) {
+    protected Set<File> filesInPath(File path) {
         Set<File> acc = new HashSet<>();
 
         filesInPath(path, acc);
@@ -58,9 +44,24 @@ public abstract class TestSetMultipleInputs<Input extends TestInput<String>> ext
         }
     }
 
-    public static class StringInputSet extends TestSetMultipleInputs<StringInput> {
+    public static class StringInputSet extends TestSetMultipleInputs<String, StringInput> {
         public StringInputSet(String path, String extension) {
             super(path, extension);
+        }
+
+        @Override public List<StringInput> getInputs() throws IOException {
+            List<StringInput> inputs = new ArrayList<>();
+
+            for(File file : filesInPath(new File(path))) {
+                String filename = file.getName();
+                if(filename.endsWith("." + extension)) {
+                    String input = inputStreamAsString(new FileInputStream(file));
+
+                    inputs.add(getInput(filename, input));
+                }
+            }
+
+            return inputs;
         }
 
         @Override protected StringInput getInput(String filename, String input) {

@@ -17,7 +17,7 @@ def execBenchmarks(implicit args: Args) = {
 
         mkdir! language.benchmarksDir
 
-        def benchmark(name: String, resultsPath: Path, sourcePath: Path, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
+        def benchmark(name: String, resultsPath: Path, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
             println(%%(
                 Seq(
                     "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",
@@ -36,7 +36,6 @@ def execBenchmarks(implicit args: Args) = {
             benchmark(
                 name,
                 resultsPath,
-                sourcePath,
                 Seq(
                     s"language=${language.id}",
                     s"extension=${language.extension}",
@@ -51,7 +50,6 @@ def execBenchmarks(implicit args: Args) = {
             benchmark(
                 name,
                 resultsPath,
-                sourcePath,
                 Seq(
                     s"language=${language.id}",
                     s"extension=${language.extension}",
@@ -61,17 +59,35 @@ def execBenchmarks(implicit args: Args) = {
                 Map.empty
             )
 
+        def benchmarkJSGLRIncremental(name: String, resultsPath: Path, sourcePath: Path, params: Map[String, String] = Map.empty) = {
+            for (i <- -1 to (ls! sourcePath).length) {
+                println(f"    iteration $i%3d: start @ ${java.time.LocalDateTime.now}")
+                benchmark(
+                    name,
+                    resultsPath / s"$i.csv",
+                    Seq(
+                        s"language=${language.id}",
+                        s"extension=${language.extension}",
+                        s"parseTablePath=${language.parseTablePath}",
+                        s"sourcePath=${sourcePath}",
+                        s"iteration=${i}",
+                    ),
+                    params + ("i" -> s"$i")
+                )
+            }
+        }
+
         timed(s"benchmark [JSGLR2/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "jsglr2.csv", language.sourcesDir, "multiple", Map("implode" -> "true"))
+            benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "jsglr2.csv", language.sourcesDir / "batch", "multiple", Map("implode" -> "true"))
         }
 
         timed(s"benchmark [JSGLR1/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            benchmarkJSGLR("JSGLR1BenchmarkExternal", language.benchmarksDir / "jsglr1.csv", language.sourcesDir, "multiple", Map("implode" -> "true"))
+            benchmarkJSGLR("JSGLR1BenchmarkExternal", language.benchmarksDir / "jsglr1.csv", language.sourcesDir / "batch", "multiple", Map("implode" -> "true"))
         }
 
         language.antlrBenchmarks.foreach { antlrBenchmark =>
             timed(s"benchmark [${antlrBenchmark.id}/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-                benchmarkANTLR(antlrBenchmark.benchmark, language.benchmarksDir / s"${antlrBenchmark.id}.csv", language.sourcesDir, "multiple")
+                benchmarkANTLR(antlrBenchmark.benchmark, language.benchmarksDir / s"${antlrBenchmark.id}.csv", language.sourcesDir / "batch", "multiple")
             }
         }
 
@@ -82,6 +98,13 @@ def execBenchmarks(implicit args: Args) = {
                 benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("implode" -> "true", "variant" -> "standard"))
             }
         }
+
+        language.sources.incremental.foreach { source => {
+            mkdir! language.benchmarksDir / "jsglr2incremental" / source.id
+            timed(s"benchmark [JSGLR2/incremental] (w: $warmupIterations, i: $benchmarkIterations) ${language.id} ${source.id}") {
+                benchmarkJSGLRIncremental("JSGLR2BenchmarkIncrementalExternal", language.benchmarksDir / "jsglr2incremental" / source.id, language.sourcesDir / "incremental" / source.id)
+            }
+        }}
     }
 }
 

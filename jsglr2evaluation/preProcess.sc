@@ -22,7 +22,7 @@ def preProcess(implicit args: Args) = {
         val jsglr1 = getJSGLR1(language.parseTablePath)
 
         timed("validate " + language.id) {
-            language.sourceFiles.foreach { file =>
+            language.sourceFilesBatch.foreach { file =>
                 val input = read! file
 
                 val jsglr2AST = jsglr2.parse(input)

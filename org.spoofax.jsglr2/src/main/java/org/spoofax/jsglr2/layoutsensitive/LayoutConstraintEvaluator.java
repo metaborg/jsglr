@@ -91,7 +91,11 @@ public class LayoutConstraintEvaluator {
                 && ((ILayoutSensitiveParseNode) tree).production().isIgnoreLayoutConstraint()) {
                 return Optional.empty();
             }
-
+            
+            if(tree.getStartPosition() == tree.getEndPosition()) {
+                return Optional.empty();
+            }
+            
             switch(numericLayoutConstraint.getToken()) {
                 case FIRST:
                     if(numericLayoutConstraint.getElem() == ConstraintElement.COL) {

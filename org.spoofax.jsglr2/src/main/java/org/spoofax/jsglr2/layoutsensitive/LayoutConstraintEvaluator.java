@@ -84,6 +84,10 @@ public class LayoutConstraintEvaluator {
         evaluateNumeric(ILayoutConstraint layoutConstraint, ParseForest[] parseNodes) {
         if(layoutConstraint instanceof NumericLayoutConstraint) {
             NumericLayoutConstraint numericLayoutConstraint = (NumericLayoutConstraint) layoutConstraint;
+            
+            if (numericLayoutConstraint.getElem() == null && numericLayoutConstraint.getToken() == null) {
+                return Optional.of(numericLayoutConstraint.getTree());
+            }
 
             ParseForest tree = parseNodes[numericLayoutConstraint.getTree()];
 

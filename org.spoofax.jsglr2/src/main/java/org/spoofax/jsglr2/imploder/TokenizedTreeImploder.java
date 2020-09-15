@@ -118,7 +118,8 @@ public abstract class TokenizedTreeImploder
 
             Position endPosition = startPosition.step(tokens.getInput(), width);
 
-            IToken token = width > 0 ? tokens.makeToken(startPosition, endPosition, production) : null;
+            IToken token =
+                width > 0 || production.isLexical() ? tokens.makeToken(startPosition, endPosition, production) : null;
 
             Tree tree;
 

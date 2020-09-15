@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.tokens.treeshaped;
 
 import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_NO_TOKEN_KIND;
+import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.EMPTY_RANGE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,8 @@ public abstract class AbstractTreeShapedTokenizer<TokensResult extends TreeToken
                 return new TokenTree(tree,
                     new TreeToken(tokens, positionRange, IToken.getTokenKind(tree.production), tree.tree));
             } else
-                return new TokenTree(tree, null);
+                return new TokenTree(tree,
+                    tree.tree == null ? null : new TreeToken(tokens, EMPTY_RANGE, TK_NO_TOKEN_KIND, tree.tree));
         } else {
             List<TokenTree> children = new ArrayList<>(tree.children.size());
             TreeToken leftToken = null;
@@ -79,11 +81,11 @@ public abstract class AbstractTreeShapedTokenizer<TokensResult extends TreeToken
             // In this case, create an empty token to associate with this AST node.
             if(leftToken == null) {
                 assert rightToken == null;
-                return new TokenTree(tree, new TreeToken(tokens, TreeTokens.EMPTY_RANGE, TK_NO_TOKEN_KIND, tree.tree));
+                return new TokenTree(tree, new TreeToken(tokens, EMPTY_RANGE, TK_NO_TOKEN_KIND, tree.tree));
             }
 
-            Position positionRange = tree.isAmbiguous ? children.get(0).positionRange : children.stream()
-                .map(child -> child.positionRange).reduce(TreeTokens.EMPTY_RANGE, TreeTokens::addPosition);
+            Position positionRange = tree.isAmbiguous ? children.get(0).positionRange
+                : children.stream().map(child -> child.positionRange).reduce(EMPTY_RANGE, TreeTokens::addPosition);
             TokenTree res = new TokenTree(tree, children, leftToken, rightToken, positionRange);
             for(TokenTree child : children) {
                 child.parent = res;

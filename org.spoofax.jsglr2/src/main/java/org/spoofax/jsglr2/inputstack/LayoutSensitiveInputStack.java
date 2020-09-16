@@ -28,6 +28,8 @@ public class LayoutSensitiveInputStack extends InputStack {
             if(CharacterClassFactory.isNewLine(currentChar)) {
                 currentLine++;
                 currentColumn = 0;
+            } else if(CharacterClassFactory.isCarriageReturn(currentChar)) {
+            
             } else if(CharacterClassFactory.isTab(currentChar)) {
                 currentColumn = (currentColumn / TAB_SIZE + 1) * TAB_SIZE;
             } else {

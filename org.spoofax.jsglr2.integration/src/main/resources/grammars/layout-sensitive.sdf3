@@ -25,6 +25,10 @@ context-free syntax
   Exp.DoIndent = "doIndent" stm:Stm {longest-match, layout(indent "doIndent" stm)}
   
   Exp.DoNLIndent = "doNLIndent" stm:Stm {longest-match, layout(newline-indent "doNLIndent" stm)}
+
+  Exp.SingleLine = "foo" "bar" {layout(
+    1.first.line == 2.last.line
+  )}
   
 lexical syntax
   LAYOUT = [\ \t\n\r] 

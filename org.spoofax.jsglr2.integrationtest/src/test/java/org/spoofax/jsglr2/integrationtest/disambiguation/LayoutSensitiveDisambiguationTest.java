@@ -173,4 +173,55 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> singleLine() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "foo bar",
+            "SingleLine()"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> singleLineMultiline() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "foo\nbar"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> singleLinePrePostUnix() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "\n\nfoo bar\n\n",
+            "SingleLine()"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> singleLinePrePostWindows() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "\n\r\n\rfoo bar\n\r\n\r",
+            "SingleLine()"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> singleLineMultilinePrePostUnix() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "\n\nfoo\nbar\n\n"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> singleLineMultilinePrePostWindows() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "\n\r\n\rfoo\n\rbar\n\r\n\r"
+        );
+        //@formatter:on
+    }
+
 }

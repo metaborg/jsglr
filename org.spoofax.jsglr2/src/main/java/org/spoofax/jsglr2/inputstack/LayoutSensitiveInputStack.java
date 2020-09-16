@@ -9,6 +9,7 @@ public class LayoutSensitiveInputStack extends InputStack {
 
     private int currentLine = 1;
     private int currentColumn = 1;
+    public Position previousPosition = new Position(-1, 1, 0);
 
     public LayoutSensitiveInputStack(String inputString) {
         super(inputString);
@@ -20,6 +21,8 @@ public class LayoutSensitiveInputStack extends InputStack {
 
     @Override public void next() {
         super.next();
+        
+        previousPosition = currentPosition();
 
         if(currentOffset < inputLength) {
             if(CharacterClassFactory.isNewLine(currentChar)) {

@@ -43,7 +43,7 @@ public class CompositeParseForestManager
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ICompositeDerivation<ICompositeParseForest> firstDerivation) {
         Shape shape = LayoutSensitiveParseForestManager.shape(firstDerivation.parseForests(),
-            parseState.inputStack.currentPosition());
+            parseState.inputStack.previousPosition);
 
         ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> parseNode =
             new CompositeParseNode<>(sumWidth(firstDerivation.parseForests()), production, shape.start, shape.end,

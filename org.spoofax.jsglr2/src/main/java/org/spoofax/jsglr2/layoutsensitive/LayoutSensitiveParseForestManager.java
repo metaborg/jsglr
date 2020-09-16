@@ -41,7 +41,7 @@ public class LayoutSensitiveParseForestManager
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> firstDerivation) {
-        Shape shape = shape(firstDerivation.parseForests(), parseState.inputStack.currentPosition());
+        Shape shape = shape(firstDerivation.parseForests(), parseState.inputStack.previousPosition);
 
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> parseNode =
             new LayoutSensitiveParseNode<>(sumWidth(firstDerivation.parseForests()), production, shape.start, shape.end,

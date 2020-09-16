@@ -1,0 +1,11 @@
+module kernel-string
+
+context-free start-symbols
+	Start
+
+context-free syntax
+    Start = {String "\n"}+
+
+syntax
+    String-CF.String = "\"" InnerString-LEX "\""
+    InnerString-LEX = ~[\"]*

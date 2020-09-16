@@ -3,9 +3,6 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $file.common, common._, Args._
 
 import $file.spoofax, spoofax._
-import org.spoofax.jsglr2.JSGLR2Variant
-import org.spoofax.jsglr2.integration.IntegrationVariant
-import org.spoofax.jsglr2.integration.ParseTableVariant
 
 def latexTableTestSets(implicit args: Args) = {
     val s = new StringBuilder()
@@ -19,7 +16,7 @@ def latexTableTestSets(implicit args: Args) = {
         s.append("\\multirow{" + language.sources.size + "}{*}{" + language.name + "}\n")
 
         language.sources.zipWithIndex.foreach { case (source, index) =>
-            val files = language.sourceFiles
+            val files = language.sourceFilesBatch // TODO this gets all source files of the language, not of the source
             val lines = files | read.lines | (_.size) sum
             val size = files | stat | (_.size) sum
 

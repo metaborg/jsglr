@@ -82,7 +82,7 @@ public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
             } else {
                 TreeImploder.SubTree<Tree> tree = currentIn.getFirst(); // Process the next input
                 if(tree.production != null && !tree.production.isContextFree() || tree.isCharacterTerminal) {
-                    if(tree.width > 0) {
+                    if(tree.width > 0 || tree.tree != null) {
                         Position endPosition = currentPos.step(tokens.getInput(), tree.width);
                         IToken token = tokens.makeToken(currentPos, endPosition, tree.production);
                         tokenTreeBinding(token, tree.tree);

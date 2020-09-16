@@ -1,27 +1,32 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`
-import $ivy.`io.circe::circe-generic:0.12.3`
+import $ivy.`io.circe::circe-generic-extras:0.13.0`
 import $ivy.`io.circe::circe-yaml:0.11.0-M1`
 
 import ammonite.ops._
 import cats.syntax.either._
 import io.circe._
-import io.circe.generic.auto._
+import io.circe.generic.extras.auto._
+import io.circe.generic.extras.Configuration
 import io.circe.yaml._
 import java.time.LocalDateTime
 
+// This allows default arguments in ADTs: https://stackoverflow.com/a/47644276
+implicit val customConfig: Configuration = Configuration.default.withDefaults
+
 case class Config(languages: Seq[Language])
 
-case class Language(id: String, name: String, extension: String, parseTable: ParseTable, antlrBenchmarks: Seq[ANTLRBenchmark], sources: Seq[Source]) {
+case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Sources, antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
     def parseTablePath(implicit args: Args) = parseTable.path(this)
 
     def sourcesDir(implicit args: Args) = Args.sourcesDir / id
     
     def measurementsDir(implicit args: Args) = Args.measurementsDir / id
     def benchmarksDir(implicit args: Args) = Args.benchmarksDir / id
-    
-    def sourceFiles(implicit args: Args) = ls! sourcesDir |? (_.ext == extension)
+
+    def sourceFilesBatch(implicit args: Args) = ls.rec! sourcesDir / "batch" |? (_.ext == extension)
+    def sourceFilesIncremental(implicit args: Args) = ls.rec! sourcesDir / "incremental" |? (_.ext == extension)
     def sourceFilesPerFileBenchmark(implicit args: Args): Seq[Path] = {
-        val files = sourceFiles sortBy(-_.size)
+        val files = sourceFilesBatch sortBy(-_.size)
         val trimPercentage: Float = 10F
         val filesTrimmed = files.slice(
             ((trimPercentage / 100F) * files.size).toInt,
@@ -53,11 +58,16 @@ object ParseTable {
         Decoder[LocalParseTable].map[ParseTable](identity)
 }
 
+case class Sources(batch: Seq[BatchSource] = Seq.empty, incremental: Seq[IncrementalSource] = Seq.empty)
+
+sealed abstract class Source(val id: String, val repo: String)
+case class BatchSource(override val id: String, override val repo: String) extends Source(id, repo)
+case class IncrementalSource(override val id: String, override val repo: String,
+        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty) extends Source(id, repo)
+
 case class ANTLRBenchmark(id: String, benchmark: String)
 
-case class Source(id: String, repo: String)
-
-val configJson = parser.parse(read! pwd/"config.yml")
+val configJson = parser.parse(read! pwd / "config.yml")
 val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
 case class Args(dir: Path, iterations: Int, samples: Int, reportDir: Path)
@@ -88,12 +98,15 @@ def withArgs(args: String*)(body: Args => Unit) = {
     }.toMap
 
     def getPath(path: String) =
-        if (path.startsWith("~"))
+        if (path.startsWith("~/"))
             Path(System.getProperty("user.home") + path.substring(1))
+        else if (path.startsWith("./"))
+            pwd / RelPath(path.substring(2))
         else
             root / RelPath(path)
 
-    val dir        = argsMapped.get("dir").map(getPath).get
+    val dir        = argsMapped.get("dir").map(getPath)
+                                          .getOrElse(throw new IllegalArgumentException("Missing 'dir=...' argument"))
     val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
     val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
     val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")

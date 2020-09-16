@@ -16,26 +16,45 @@ def setupSources(implicit args: Args) = {
         
         rm! language.sourcesDir
         mkdir! language.sourcesDir / "repos"
+        mkdir! language.sourcesDir / "batch"
+        mkdir! language.sourcesDir / "incremental"
 
-        language.sources.foreach { source =>
+        // Inspiration: https://briancoyner.github.io/articles/2013-06-05-git-sparse-checkout/
+        def clone(source: Source, languageSourceRepoDir: Path) = {
+            %%("git", "init")(languageSourceRepoDir)
+
+            // Config sparse checkout
+            %%("git", "config", "core.sparseCheckout", "true")(languageSourceRepoDir)
+            write(languageSourceRepoDir / ".git" / "info" / "sparse-checkout", source match {
+                // If a list of files is given: only checkout these files
+                case IncrementalSource(_, _, _, files) if files.nonEmpty => files.mkString("\n")
+                // Else: filter files based on extension
+                case _ => "*." + language.extension
+            })
+
+            %%("git", "remote", "add", "origin", source.repo)(languageSourceRepoDir)
+
+            source match {
+                case BatchSource(_, repo) =>
+                    // Clone without all history
+                    %%("git", "fetch", "origin", "master", "--depth=1")(languageSourceRepoDir)
+                case IncrementalSource(_, repo, fetchOptions, _) =>
+                    // Clone with full history, possibly limited by the pullOptions
+                    %%("git", "fetch", "origin", "master", fetchOptions)(languageSourceRepoDir)
+            }
+
+            %%("git", "checkout", "master")(languageSourceRepoDir)
+        }
+
+        language.sources.batch.foreach { source =>
             println("  " + source.id)
-            
+
             val languageSourceRepoDir = language.sourcesDir / "repos" / source.id
-        
+
             rm! languageSourceRepoDir
             mkdir! languageSourceRepoDir
 
-            timed("clone " + source.id) {
-                // Initially clone without checking out and without all history
-                %%("git", "clone", "--no-checkout", "--depth=1", source.repo, ".")(languageSourceRepoDir)
-
-                // Config sparse checkout: filter files based on extension
-                %%("git", "config", "core.sparseCheckout", "true")(languageSourceRepoDir)
-                write(languageSourceRepoDir / ".git" / "info" / "sparse-checkout", "*." + language.extension)
-
-                // Pull with the filter, skip history
-                %%("git", "checkout", "master")(languageSourceRepoDir)
-            }
+            timed("clone " + source.id)(clone(source, languageSourceRepoDir))
 
             timed("preprocess " + source.id) {
                 val files = ls.rec! languageSourceRepoDir |? (_.ext == language.extension)
@@ -47,8 +66,48 @@ def setupSources(implicit args: Args) = {
 
                     val preProcessed = preProcess(read! file)
 
-                    write(language.sourcesDir / filename, preProcessed)
+                    write(language.sourcesDir / "batch" / filename, preProcessed)
                     rm! file
+                }
+            }
+        }
+
+        language.sources.incremental.foreach { source =>
+            println("  " + source.id)
+
+            val languageSourceRepoDir = language.sourcesDir / "repos" / source.id
+
+            rm! languageSourceRepoDir
+            mkdir! languageSourceRepoDir
+
+            timed("clone " + source.id)(clone(source, languageSourceRepoDir))
+
+            timed("preprocess " + source.id) {
+                val files = if (source.files.nonEmpty) source.files.map(f => languageSourceRepoDir / RelPath(f))
+                            else ls.rec! languageSourceRepoDir |? (_.ext == language.extension)
+
+                val revisions = (
+                    if (source.files.nonEmpty)
+                        %%("git", "log", "--format=%H", "--reverse", "--", files.map(_.toString).toSeq)(languageSourceRepoDir)
+                    else
+                        %%("git", "log", "--format=%H", "--reverse", "--", "*." + language.extension)(languageSourceRepoDir)
+                ).out.string.split("\n")
+
+                revisions.zipWithIndex.foreach { case (revision, i) =>
+                    %%("git", "checkout", "-f", revision)(languageSourceRepoDir)
+
+                    val revisionPath = language.sourcesDir / "incremental" / source.id / i.toString
+                    mkdir! revisionPath
+
+                    // Copy all files to the aggregated directory
+                    files.filter(_.toIO.exists).foreach { file =>
+                        val pathInRepo = file relativeTo languageSourceRepoDir
+                        val filename = pathInRepo.toString.replace("/", "_")
+
+                        val preProcessed = preProcess(read! file)
+
+                        write(revisionPath / filename, preProcessed)
+                    }
                 }
             }
         }

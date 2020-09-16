@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
 public class ParseException extends Exception {
@@ -20,7 +21,7 @@ public class ParseException extends Exception {
                 " at offset " + position.offset + "(line " + position.line + ", column " + position.column + ")");
 
         if(character != null)
-            message.append(" at character " + new String(Character.toChars(character)));
+            message.append(" at character " + CharacterClassFactory.intToString(character));
 
         return message.toString();
     }

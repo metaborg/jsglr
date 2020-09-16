@@ -30,7 +30,6 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
                 }
             }
         }
-
     }
 
     @Override public TokenizeResult<ITokens> tokenize(JSGLR2Request request,
@@ -54,7 +53,7 @@ public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.Sub
 
     private SubTree tokenizeInternal(Tokens tokens, TreeImploder.SubTree<Tree> tree, Position startPosition) {
         if(tree.production != null && !tree.production.isContextFree() || tree.isCharacterTerminal) {
-            if(tree.width > 0) {
+            if(tree.width > 0 || tree.tree != null) {
                 Position endPosition = startPosition.step(tokens.getInput(), tree.width);
                 IToken token = tokens.makeToken(startPosition, endPosition, tree.production);
                 tokenTreeBinding(token, tree.tree);

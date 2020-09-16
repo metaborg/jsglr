@@ -43,7 +43,7 @@ public class CompositeParseForestManager
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ICompositeDerivation<ICompositeParseForest> firstDerivation) {
         Shape shape = LayoutSensitiveParseForestManager.shape(firstDerivation.parseForests(),
-            parseState.inputStack.currentPosition());
+            parseState.inputStack.previousPosition);
 
         ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>> parseNode =
             new CompositeParseNode<>(sumWidth(firstDerivation.parseForests()), production, shape.start, shape.end,
@@ -76,10 +76,7 @@ public class CompositeParseForestManager
 
     @Override public ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>
         createSkippedNode(ParseState parseState, IProduction production, ICompositeParseForest[] parseForests) {
-        Position endPosition = parseState.inputStack.currentPosition();
-        return new CompositeParseNode<>(sumWidth(parseForests), production,
-            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // Same as in the shape method
-            endPosition, null, null);
+        throw new IllegalStateException();
     }
 
     @Override public ICompositeParseForest createCharacterNode(ParseState parseState) {

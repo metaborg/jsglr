@@ -121,6 +121,14 @@ public class ParserVariant {
         constraints.put("recovery and composite parsing not simultaneously supported",
             !(parseForestRepresentation == ParseForestRepresentation.Composite && recovery));
 
+        constraints.put("optimized parse forest construction and layout-sensitive parsing not simultaneously supported",
+            !(parseForestRepresentation == ParseForestRepresentation.LayoutSensitive
+                && parseForestConstruction == ParseForestConstruction.Optimized));
+
+        constraints.put("optimized parse forest construction and composite parsing not simultaneously supported",
+            !(parseForestRepresentation == ParseForestRepresentation.Composite
+                && parseForestConstruction == ParseForestConstruction.Optimized));
+
         return constraints.entrySet().stream().filter(constraint -> !constraint.getValue()).map(Map.Entry::getKey);
     }
 

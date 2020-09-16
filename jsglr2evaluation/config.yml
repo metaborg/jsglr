@@ -5,30 +5,51 @@ languages:
     parseTable:
       repo: git@github.com:metaborg/java-front.git
       subDir: lang.java
+    sources:
+      batch:
+        - id: apache-commons-lang
+          repo: https://github.com/apache/commons-lang.git
+      incremental:
+        - id: apache-commons-lang-incremental
+          repo: https://github.com/apache/commons-lang.git
+          fetchOptions:
+            - '--depth=200'
+        - id: apache-commons-lang-stringutils
+          repo: https://github.com/apache/commons-lang.git
+          files:
+            - src/main/java/org/apache/commons/lang3/StringUtils.java
     antlrBenchmarks:
       - id: antlr
         benchmark: ANTLRJava8Benchmark
       - id: antlr-optimized
         benchmark: ANTLRJavaBenchmark
-    sources:
-      - id: apache-commons-lang
-        repo: https://github.com/apache/commons-lang.git
   - id: webdsl
     name: WebDSL
     extension: app
     parseTable:
       file: parsetables/WebDSL.tbl
-    antlrBenchmarks: []
     sources:
-      - id: webdsl-yellowgrass
-        repo: https://github.com/webdsl/yellowgrass
+      batch:
+        - id: webdsl-yellowgrass
+          repo: https://github.com/webdsl/yellowgrass
+      incremental:
+        - id: webdsl-yellowgrass-incremental
+          repo: https://github.com/webdsl/yellowgrass
+          fetchOptions:
+            - '--depth=200'
+        - id: webdsl-builtin
+          repo: https://github.com/webdsl/webdsl
+          fetchOptions:
+            - '--shallow-since="2011-02-16 14:00:00 +0000"' # From this point in time on, the file parses without errors
+          files:
+            - src/org/webdsl/dsl/project/template-webdsl/built-in.app
   # - id: ocaml
   #   name: OCaml
   #   extension: ml
   #   parseTable:
   #     repo: git@github.com:metaborgcube/metaborg-ocaml
   #     subDir: org.metaborg.lang.ocaml
-  #   antlrBenchmarks: []
   #   sources:
-  #     - id: facebook-flow
-  #       repo: https://github.com/facebook/flow.git
+  #     batch:
+  #       - id: facebook-flow
+  #         repo: https://github.com/facebook/flow.git

@@ -41,7 +41,7 @@ public class LayoutSensitiveParseForestManager
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
         createParseNode(ParseState parseState, IStackNode stack, IProduction production,
             ILayoutSensitiveDerivation<ILayoutSensitiveParseForest> firstDerivation) {
-        Shape shape = shape(firstDerivation.parseForests(), parseState.inputStack.currentPosition());
+        Shape shape = shape(firstDerivation.parseForests(), parseState.inputStack.previousPosition);
 
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> parseNode =
             new LayoutSensitiveParseNode<>(sumWidth(firstDerivation.parseForests()), production, shape.start, shape.end,
@@ -72,7 +72,6 @@ public class LayoutSensitiveParseForestManager
             // Else, just use the start position of the first child node
             : parseForests[0].getStartPosition();
 
-        // FIXME since EndPosition is wrong, right is also wrong
         Position leftPosition = null;
         Position rightPosition = null;
 
@@ -104,6 +103,8 @@ public class LayoutSensitiveParseForestManager
                     if(currentEndPosition.line < endPosition.line && !currentStartPosition.equals(currentEndPosition)) {
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
+                    
+                    endPosition = currentEndPosition;
                 }
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
                 if(pf.getStartPosition().line > startPosition.line
@@ -156,10 +157,7 @@ public class LayoutSensitiveParseForestManager
     @Override public
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
         createSkippedNode(ParseState parseState, IProduction production, ILayoutSensitiveParseForest[] parseForests) {
-        Position endPosition = parseState.inputStack.currentPosition();
-        return new LayoutSensitiveParseNode<>(sumWidth(parseForests), production,
-            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // Same as in the shape method
-            endPosition, null, null);
+        throw new IllegalStateException();
     }
 
     @Override public ILayoutSensitiveParseForest createCharacterNode(ParseState parseState) {

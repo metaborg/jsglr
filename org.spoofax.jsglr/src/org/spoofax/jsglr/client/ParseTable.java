@@ -125,8 +125,8 @@ public class ParseTable implements Serializable {
         }
 
         if(ptGenerator != null) {
-            nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
-            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
+            nonAssocPriorities.putAll(ptGenerator.getNonAssocProductions());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedProductions());
         }
 
         if(dynamicPTgeneration && persistedTable != null) {
@@ -158,8 +158,8 @@ public class ParseTable implements Serializable {
         }
 
         if(ptGenerator != null) {
-            nonAssocPriorities.putAll(ptGenerator.getNonAssocPriorities());
-            nonNestedPriorities.putAll(ptGenerator.getNonNestedPriorities());
+            nonAssocPriorities.putAll(ptGenerator.getNonAssocProductions());
+            nonNestedPriorities.putAll(ptGenerator.getNonNestedProductions());
         }
 
         parse(parseTableAterm);

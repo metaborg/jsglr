@@ -72,7 +72,6 @@ public class LayoutSensitiveParseForestManager
             // Else, just use the start position of the first child node
             : parseForests[0].getStartPosition();
 
-        // FIXME since EndPosition is wrong, right is also wrong
         Position leftPosition = null;
         Position rightPosition = null;
 
@@ -104,6 +103,8 @@ public class LayoutSensitiveParseForestManager
                     if(currentEndPosition.line < endPosition.line && !currentStartPosition.equals(currentEndPosition)) {
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
+                    
+                    endPosition = currentEndPosition;
                 }
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
                 if(pf.getStartPosition().line > startPosition.line

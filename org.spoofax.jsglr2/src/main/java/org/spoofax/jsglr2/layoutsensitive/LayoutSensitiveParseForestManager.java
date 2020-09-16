@@ -156,10 +156,7 @@ public class LayoutSensitiveParseForestManager
     @Override public
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
         createSkippedNode(ParseState parseState, IProduction production, ILayoutSensitiveParseForest[] parseForests) {
-        Position endPosition = parseState.inputStack.currentPosition();
-        return new LayoutSensitiveParseNode<>(sumWidth(parseForests), production,
-            parseForests.length == 0 ? endPosition : parseForests[0].getStartPosition(), // Same as in the shape method
-            endPosition, null, null);
+        throw new IllegalStateException();
     }
 
     @Override public ILayoutSensitiveParseForest createCharacterNode(ParseState parseState) {

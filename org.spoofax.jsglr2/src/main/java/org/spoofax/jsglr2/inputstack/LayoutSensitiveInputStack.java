@@ -7,12 +7,16 @@ public class LayoutSensitiveInputStack extends InputStack {
 
     private static final int TAB_SIZE = 8;
 
-    private int currentLine = 1;
-    private int currentColumn = 1;
-    public Position previousPosition = new Position(-1, 1, 0);
+    private int currentLine;
+    private int currentColumn;
+    public Position previousPosition;
 
     public LayoutSensitiveInputStack(String inputString) {
         super(inputString);
+        
+        this.currentLine = 1;
+        this.currentColumn = CharacterClassFactory.isNewLine(currentChar) ? 0 : 1;
+        this.previousPosition = new Position(-1, currentLine, currentColumn - 1);
     }
 
     public Position currentPosition() {

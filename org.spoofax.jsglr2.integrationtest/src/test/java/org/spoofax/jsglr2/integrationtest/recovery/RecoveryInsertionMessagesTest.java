@@ -19,7 +19,7 @@ public class RecoveryInsertionMessagesTest extends BaseTestWithRecoverySdf3Parse
     @TestFactory public Stream<DynamicTest> testSingleLineYRecovering() throws ParseError {
         return testMessages("xz", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("Token expected", Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor("Token expected", Severity.ERROR, 1, 1, 2, 1)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }

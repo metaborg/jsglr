@@ -21,13 +21,13 @@ public class NonAssocMessagesTest extends BaseTestWithSdf3ParseTables {
     }
 
     @TestFactory public Stream<DynamicTest> testEqNonAssoc() throws ParseError {
-        return testMessages("x == x == x",
-            Collections.singletonList(new MessageDescriptor("Operator is non-associative", Severity.ERROR, 0, 1, 1)));
+        return testMessages("x == x == x", Collections
+            .singletonList(new MessageDescriptor("Operator is non-associative", Severity.ERROR, 0, 1, 1, 11)));
     }
 
     @TestFactory public Stream<DynamicTest> testGtNonNested() throws ParseError {
         return testMessages("x > x > x",
-            Collections.singletonList(new MessageDescriptor("Operator is non-nested", Severity.ERROR, 0, 1, 1)));
+            Collections.singletonList(new MessageDescriptor("Operator is non-nested", Severity.ERROR, 0, 1, 1, 9)));
     }
 
 }

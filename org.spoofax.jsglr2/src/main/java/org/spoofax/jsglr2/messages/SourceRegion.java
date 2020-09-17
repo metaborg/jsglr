@@ -5,12 +5,9 @@ import org.spoofax.jsglr2.parser.Position;
 
 public class SourceRegion {
 
-    public final int startOffset;
-    public final int startRow;
-    public final int startColumn;
-    public final int endOffset;
-    public final int endRow;
-    public final int endColumn;
+    public final int startOffset, startRow, startColumn;
+    /** Inclusive. */
+    public final int endOffset, endRow, endColumn;
 
     public SourceRegion(int startOffset, int startRow, int startColumn, int endOffset, int endRow, int endColumn) {
         this.startOffset = startOffset;

@@ -29,7 +29,7 @@ public class RecoveryPermissiveLiteralTest extends BaseTestWithRecoverySdf3Parse
     @TestFactory public Stream<DynamicTest> testClosingLiteralExpected() throws ParseError {
         return testMessages("{", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("} expected", Severity.ERROR, 0, 1, 1)
+            new MessageDescriptor("} expected", Severity.ERROR, 0, 1, 1, 1)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }

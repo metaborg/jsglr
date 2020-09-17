@@ -30,7 +30,7 @@ public class CyclesTest extends BaseTestWithRecoverySdf3ParseTables {
         // The cycle is _after_ the x, but the input ends after the x and thus the message is reported _on_ the x
         return testMessages("x", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.Cycle.message, Severity.ERROR, 0, 1, 1)
+            new MessageDescriptor(ParseFailureCause.Type.Cycle.message, Severity.ERROR, 0, 1, 1, 1)
         //@formatter:on
         ));
     }

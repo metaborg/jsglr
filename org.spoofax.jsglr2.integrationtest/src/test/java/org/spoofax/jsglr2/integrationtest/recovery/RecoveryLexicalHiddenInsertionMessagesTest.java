@@ -19,7 +19,7 @@ public class RecoveryLexicalHiddenInsertionMessagesTest extends BaseTestWithReco
     @TestFactory public Stream<DynamicTest> testHiddenYRecovering() throws ParseError {
         return testMessages("xz", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("Invalid syntax", Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor("Invalid syntax", Severity.ERROR, 1, 1, 2, 1)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }

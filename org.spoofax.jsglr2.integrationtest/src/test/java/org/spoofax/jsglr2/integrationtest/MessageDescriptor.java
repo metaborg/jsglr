@@ -9,28 +9,37 @@ public final class MessageDescriptor {
     public final String message;
     public final Severity severity;
     public final int offset, line, column;
+    /** Inclusive. */
+    public final int endOffset, endLine, endColumn;
 
-    public MessageDescriptor(String message, Severity severity, int offset, int line, int column) {
+    public MessageDescriptor(String message, Severity severity, int offset, int line, int column, int endOffset,
+        int endLine, int endColumn) {
         this.message = message;
         this.severity = severity;
         this.offset = offset;
         this.line = line;
         this.column = column;
+        this.endOffset = endOffset;
+        this.endLine = endLine;
+        this.endColumn = endColumn;
+    }
+
+    public MessageDescriptor(String message, Severity severity, int offset, int line, int column, int width) {
+        // We need to subtract 1 from the end offset/column because they represent an inclusive bound.
+        // Now, the `width` represents the exact number of characters that will be underlined for the error in the IDE.
+        this(message, severity, offset, line, column, offset + width - 1, line, column + width - 1);
     }
 
     public MessageDescriptor(String message, Severity severity) {
-        this.message = message;
-        this.severity = severity;
-        this.offset = -1;
-        this.line = -1;
-        this.column = -1;
+        this(message, severity, -1, -1, -1, -1, -1, -1);
     }
 
     public static MessageDescriptor from(Message message) {
         SourceRegion region = message.region;
 
-        return new MessageDescriptor(message.message, message.severity, region != null ? region.startOffset : -1,
-            region != null ? region.startRow : -1, region != null ? region.startColumn : -1);
+        return region == null ? new MessageDescriptor(message.message, message.severity)
+            : new MessageDescriptor(message.message, message.severity, region.startOffset, region.startRow,
+                region.startColumn, region.endOffset, region.endRow, region.endColumn);
     }
 
     @Override public boolean equals(Object obj) {
@@ -40,11 +49,13 @@ public final class MessageDescriptor {
         MessageDescriptor other = (MessageDescriptor) obj;
 
         return message.equals(other.message) && severity == other.severity && offset == other.offset
-            && line == other.line && column == other.column;
+            && line == other.line && column == other.column && endOffset == other.endOffset && endLine == other.endLine
+            && endColumn == other.endColumn;
     }
 
     @Override public String toString() {
-        return "<'" + message + "';" + severity + ";" + offset + ";" + line + "," + column + ">";
+        return "<'" + message + "';" + severity + ";" + offset + ":" + line + "," + column + ";" + endOffset + ":"
+            + endLine + "," + endColumn + ">";
     }
 
 }

@@ -19,7 +19,7 @@ public class RecoveryWaterMessagesTest extends BaseTestWithRecoverySdf3ParseTabl
     @TestFactory public Stream<DynamicTest> testSingleLineYRecovering() throws ParseError {
         return testMessages("xwz", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("Not expected", Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor("Not expected", Severity.ERROR, 1, 1, 2, 2)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }

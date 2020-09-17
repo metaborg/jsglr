@@ -30,4 +30,13 @@ public class NonAssocMessagesTest extends BaseTestWithSdf3ParseTables {
             Collections.singletonList(new MessageDescriptor("Operator is non-nested", Severity.ERROR, 0, 1, 1, 9)));
     }
 
+    @TestFactory public Stream<DynamicTest> testEqGtMixedNoMessage() throws ParseError {
+        return testMessages("x == x > x", Collections.emptyList());
+    }
+
+    @TestFactory public Stream<DynamicTest> testEqGtMixedAST() throws ParseError {
+        return testSuccessByExpansions("x == x > x",
+            "amb([Eq(Var(\"x\"),Gt(Var(\"x\"),Var(\"x\"))),Gt(Eq(Var(\"x\"),Var(\"x\")),Var(\"x\"))])");
+    }
+
 }

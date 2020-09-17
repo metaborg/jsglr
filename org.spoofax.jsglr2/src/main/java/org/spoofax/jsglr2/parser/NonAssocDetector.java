@@ -49,7 +49,7 @@ public class NonAssocDetector
                 continue;
             ParseForest firstChild = children[0];
             if(firstChild instanceof IParseNode
-                && parseNode.production().isNonAssocWith(((IParseNode<?, ?>) firstChild).production()))
+                && derivation.production().isNonAssocWith(((IParseNode<?, ?>) firstChild).production()))
                 return true;
         }
         return false;
@@ -62,7 +62,7 @@ public class NonAssocDetector
                 continue;
             ParseForest lastChild = children[children.length - 1];
             if(lastChild instanceof IParseNode
-                && parseNode.production().isNonNestedWith(((IParseNode<?, ?>) lastChild).production()))
+                && derivation.production().isNonNestedWith(((IParseNode<?, ?>) lastChild).production()))
                 return true;
         }
         return false;

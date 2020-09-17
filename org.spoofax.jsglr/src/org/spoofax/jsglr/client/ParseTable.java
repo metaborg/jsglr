@@ -9,6 +9,7 @@ package org.spoofax.jsglr.client;
 
 import static java.util.Arrays.asList;
 import static org.spoofax.terms.Term.*;
+import static org.spoofax.terms.util.TermUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,13 +21,8 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IParseTableGenerator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoNamed;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.TermType;
+import org.spoofax.interpreter.terms.*;
+import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
@@ -37,6 +33,7 @@ import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 
 /**
@@ -68,8 +65,10 @@ public class ParseTable implements Serializable {
 
     private Associativity[] associativities;
 
-    private final SetMultimap<String, String> nonAssocPriorities = HashMultimap.create();
-    private final SetMultimap<String, String> nonNestedPriorities = HashMultimap.create();
+    private final SetMultimap<Integer, Integer> nonAssocProductionLabels = HashMultimap.create();
+    private final SetMultimap<Integer, Integer> nonNestedProductionLabels = HashMultimap.create();
+    private final SetMultimap<String, String> nonAssocProductions = HashMultimap.create();
+    private final SetMultimap<String, String> nonNestedProductions = HashMultimap.create();
 
     private boolean hasRejects;
 
@@ -124,11 +123,6 @@ public class ParseTable implements Serializable {
             dynamicPTgeneration = true;
         }
 
-        if(ptGenerator != null) {
-            nonAssocPriorities.putAll(ptGenerator.getNonAssocProductions());
-            nonNestedPriorities.putAll(ptGenerator.getNonNestedProductions());
-        }
-
         if(dynamicPTgeneration && persistedTable != null) {
             this.ptGenerator = ptGenerator;
             gotoCache = new HashMap<Goto, Goto>();
@@ -155,11 +149,6 @@ public class ParseTable implements Serializable {
             this.ptGenerator = ptGenerator;
         } else {
             this.ptGenerator = null;
-        }
-
-        if(ptGenerator != null) {
-            nonAssocPriorities.putAll(ptGenerator.getNonAssocProductions());
-            nonNestedPriorities.putAll(ptGenerator.getNonNestedProductions());
         }
 
         parse(parseTableAterm);
@@ -297,14 +286,31 @@ public class ParseTable implements Serializable {
             final int labelNumber = intAt(a, 1);
             final boolean injection = isInjection(prod);
             IStrategoAppl attrs = termAt(prod, 2);
-            final ProductionAttributes pa = parseProductionAttributes(attrs);
+            final ProductionAttributes pa = parseProductionAttributes(labelNumber, attrs);
 
             ret[labelNumber] = new Label(labelNumber, prod, pa, injection);
 
             labelsTerm = labelsTerm.tail();
         }
 
+        updateNonAssocProductions(ret, nonAssocProductionLabels, nonAssocProductions);
+        updateNonAssocProductions(ret, nonNestedProductionLabels, nonNestedProductions);
+
         return ret;
+    }
+
+    private void updateNonAssocProductions(Label[] labels, SetMultimap<Integer, Integer> productionLabels,
+        SetMultimap<String, String> productions) {
+        ProductionAttributeReader par = new ProductionAttributeReader(getFactory());
+        productionLabels.forEach((higher, lower) -> {
+            Label highLabel = labels[higher];
+            Label lowLabel = labels[lower];
+            String highSort = par.getSort((IStrategoAppl) highLabel.prod.getSubterm(1));
+            String highCons = par.getConsAttribute((IStrategoAppl) highLabel.prod.getSubterm(2));
+            String lowSort = par.getSort((IStrategoAppl) lowLabel.prod.getSubterm(1));
+            String lowCons = par.getConsAttribute((IStrategoAppl) lowLabel.prod.getSubterm(2));
+            productions.put(highSort + "." + highCons, lowSort + "." + lowCons);
+        });
     }
 
     private boolean isInjection(IStrategoNamed prod) {
@@ -344,7 +350,8 @@ public class ParseTable implements Serializable {
     }
 
 
-    private ProductionAttributes parseProductionAttributes(IStrategoAppl attr) throws InvalidParseTableException {
+    private ProductionAttributes parseProductionAttributes(int labelNumber, IStrategoAppl attr)
+        throws InvalidParseTableException {
         if(attr.getName().equals("attrs")) {
             int type = 0;
             boolean isRecover = false;
@@ -386,8 +393,32 @@ public class ParseTable implements Serializable {
                             // (it currently already seems to work at least for direct cases)
                             // the current SDF manual and some tests seem to indicate that non-assoc
                             // has the same effects the same as having a priority P > P
+                            // NOTE: non-assoc and non-nested are currently implemented as post-parse message generation
+                            // in org.metaborg.spoofax.core.syntax.JSGLR1I using ParseTable.getNonAssocProductions().
+                            // In the `assoc-with` branch below, we save which production labels are non-associative
+                            // with which other labels, and later transform this relation to "Sort.Cons" -> "Sort.Cons"
+                            // in updateNonAssocProductions.
                         } else {
                             throw new InvalidParseTableException("Unknown assocativity: " + a.getName());
+                        }
+                    } else if(ctor.equals("assoc-with")) {
+                        for(IStrategoTerm assocInfo : t.getAllSubterms()) {
+                            IStrategoAppl assocInfoAppl = toAppl(assocInfo);
+                            String assocName = assocInfoAppl.getConstructor().getName();
+                            Set<Integer> assocWithSet =
+                                    Arrays.stream(toList(assocInfoAppl.getSubterm(0)).getAllSubterms())
+                                            .map(s -> toInt(s).intValue()).collect(ImmutableSet.toImmutableSet());
+                            switch(assocName) {
+                                case "non-assoc":
+                                    nonAssocProductionLabels.putAll(labelNumber, assocWithSet);
+                                    break;
+                                case "non-nested":
+                                    nonNestedProductionLabels.putAll(labelNumber, assocWithSet);
+                                    break;
+                                default:
+                                    throw new InvalidParseTableException(
+                                            "Unknown associativity info within assoc-with attribute: " + assocName);
+                            }
                         }
                     } else if(ctor.equals("term") && t.getSubtermCount() == 1) {
                         // Term needs to be shaped as term(cons(Constructor)) to be a constructor
@@ -837,11 +868,11 @@ public class ParseTable implements Serializable {
         return keywords;
     }
 
-    public SetMultimap<String, String> getNonAssocPriorities() {
-        return nonAssocPriorities;
+    public SetMultimap<String, String> getNonAssocProductions() {
+        return nonAssocProductions;
     }
 
-    public SetMultimap<String, String> getNonNestedPriorities() {
-        return nonNestedPriorities;
+    public SetMultimap<String, String> getNonNestedProductions() {
+        return nonNestedProductions;
     }
 }

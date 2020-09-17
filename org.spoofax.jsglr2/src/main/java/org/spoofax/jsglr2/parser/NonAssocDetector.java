@@ -17,7 +17,9 @@ public class NonAssocDetector
 //@formatter:on
     implements ParseNodeVisitor<ParseForest, Derivation, ParseNode> {
 
-    Collection<Message> messages;
+    private final Collection<Message> messages;
+
+    private ParseFailureCause.Type failure = null;
 
     NonAssocDetector(Collection<Message> messages) {
         this.messages = messages;
@@ -25,8 +27,14 @@ public class NonAssocDetector
 
     @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
         if(hasNonAssoc(parseNode)) {
+            // Because we return false here, the children of this parseNode are not visited,
+            // and the postVisit method will be called on the same parseNode directly after this method returns.
+            // Therefore, we can temporarily store the failure type in a local field
+            // to avoid having to call the hasNonAssoc method twice. Ugly, but works! /shrug
+            failure = ParseFailureCause.Type.NonAssoc;
             return false;
         } else if(hasNonNested(parseNode)) {
+            failure = ParseFailureCause.Type.NonNested;
             return false;
         } else {
             return parseNode.production().isContextFree();
@@ -35,10 +43,9 @@ public class NonAssocDetector
 
 
     @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {
-        if(hasNonAssoc(parseNode)) {
-            messages.add(Message.error(ParseFailureCause.Type.NonAssoc.message, startPosition, endPosition));
-        } else if(hasNonNested(parseNode)) {
-            messages.add(Message.error(ParseFailureCause.Type.NonNested.message, startPosition, endPosition));
+        if(failure != null) {
+            messages.add(Message.error(failure.message, startPosition, endPosition));
+            failure = null;
         }
     }
 

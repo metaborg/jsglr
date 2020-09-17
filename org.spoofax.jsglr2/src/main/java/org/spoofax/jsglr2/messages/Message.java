@@ -32,6 +32,10 @@ public class Message {
         }
     }
 
+    public static Message error(String message, Position startPosition, Position endPosition) {
+        return new Message(message, Severity.ERROR, new SourceRegion(startPosition, endPosition));
+    }
+
     public static Message error(String message, SourceRegion region) {
         return new Message(message, Severity.ERROR, region);
     }

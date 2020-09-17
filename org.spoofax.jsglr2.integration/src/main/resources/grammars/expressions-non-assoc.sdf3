@@ -1,0 +1,20 @@
+module expressions
+
+context-free start-symbols
+	Exp
+
+context-free syntax
+	Exp.Var = ID
+	Exp.Add = <<Exp> + <Exp>> {left}
+	Exp.Eq = <<Exp> == <Exp>> {non-assoc}
+	Exp.Gt = [[Exp] > [Exp]] {non-nested}
+
+lexical syntax
+	ID      = [a-zA-Z]+
+	LAYOUT  = [\ \n]
+
+lexical restrictions
+	ID      -/- [a-zA-Z]
+
+context-free restrictions
+	LAYOUT? -/- [\ \n]

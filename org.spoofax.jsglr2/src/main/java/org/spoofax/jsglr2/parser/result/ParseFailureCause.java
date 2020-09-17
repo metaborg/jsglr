@@ -8,7 +8,8 @@ public class ParseFailureCause {
     public enum Type {
 
         UnexpectedEOF("Unexpected end of input"), UnexpectedInput("Unexpected input"),
-        InvalidStartSymbol("Invalid start symbol"), Cycle("Cycle in parse forest");
+        InvalidStartSymbol("Invalid start symbol"), Cycle("Cycle in parse forest"),
+        NonAssoc("Operator is non-associative"), NonNested("Operator is non-nested");
 
         public final String message;
 

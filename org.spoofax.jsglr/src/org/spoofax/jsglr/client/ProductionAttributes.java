@@ -30,6 +30,7 @@ public class ProductionAttributes implements Serializable {
     private final IStrategoTerm layoutConstraint;
     private final boolean isNewlineEnforced;
     private final boolean isLongestMatch;
+    // TODO add nonAssocWith here somewhere
 
 
     private final transient IStrategoTerm abstractCtor;

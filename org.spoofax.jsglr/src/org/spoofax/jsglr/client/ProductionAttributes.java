@@ -60,15 +60,15 @@ public class ProductionAttributes implements Serializable {
     public boolean isRecoverProduction() {
         return isRecover;
     }
-    
+
     public boolean isIgnoreLayout() {
       return isIgnoreLayout;
     }
-    
+
     public IStrategoTerm getLayoutConstraint() {
       return layoutConstraint;
     }
-    
+
     public boolean isNewlineEnforced() {
       return isNewlineEnforced;
     }
@@ -76,11 +76,11 @@ public class ProductionAttributes implements Serializable {
     public boolean isCompletionProduction() {
         return isCompletion;
     }
-    
+
     public boolean isPlaceholderInsertionProduction() {
         return isPlaceholderInsertion;
     }
-    
+
 
     public boolean isMoreEager(ProductionAttributes other) {
         return type != other.type && (type == PREFER || other.type == AVOID);

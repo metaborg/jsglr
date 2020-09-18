@@ -123,6 +123,9 @@ public class Parser
         } else {
             reporter.report(parseState, parseForest, messages);
 
+            // Generate errors for non-assoc or non-nested productions that are used associatively
+            parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector(messages));
+
             ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
 
             observing.notify(observer -> observer.success(success));

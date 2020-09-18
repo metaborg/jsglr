@@ -36,7 +36,7 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> unexpectedInputoffset0() throws ParseError {
         return testMessages("c", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedInput.message, Severity.ERROR, 0, 1, 1)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedInput.message, Severity.ERROR, 0, 1, 1, 1)
         //@formatter:on
         ));
     }
@@ -44,7 +44,7 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> unexpectedInputoffset1() throws ParseError {
         return testMessages("xc", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedInput.message, Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedInput.message, Severity.ERROR, 1, 1, 2, 1)
         //@formatter:on
         ));
     }
@@ -52,7 +52,7 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> unexpectedInputoffset2() throws ParseError {
         return testMessages("xxc", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedInput.message, Severity.ERROR, 2, 1, 3)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedInput.message, Severity.ERROR, 2, 1, 3, 1)
         //@formatter:on
         ));
     }
@@ -71,7 +71,7 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> unexpectedEOFx() throws ParseError {
         return testMessages("x", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 0, 1, 1)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 0, 1, 1, 1)
         //@formatter:on
         ));
     }
@@ -79,7 +79,7 @@ public class ParseFailureMessagesTest extends BaseTestWithSdf3ParseTables {
     @TestFactory public Stream<DynamicTest> unexpectedEOFxx() throws ParseError {
         return testMessages("xx", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor(ParseFailureCause.Type.UnexpectedEOF.message, Severity.ERROR, 1, 1, 2, 1)
         //@formatter:on
         ));
     }

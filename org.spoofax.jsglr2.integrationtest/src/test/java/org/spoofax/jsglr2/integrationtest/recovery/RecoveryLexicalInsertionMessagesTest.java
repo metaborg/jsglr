@@ -19,7 +19,7 @@ public class RecoveryLexicalInsertionMessagesTest extends BaseTestWithRecoverySd
     @TestFactory public Stream<DynamicTest> testSingleLineYRecovering() throws ParseError {
         return testMessages("xz", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2, 1)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }
@@ -30,7 +30,7 @@ public class RecoveryLexicalInsertionMessagesTest extends BaseTestWithRecoverySd
     @TestFactory public Stream<DynamicTest> testSingleLineWithWhiteSpaceYRecovering() throws ParseError {
         return testMessages("x   z", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2, 3)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }
@@ -38,7 +38,7 @@ public class RecoveryLexicalInsertionMessagesTest extends BaseTestWithRecoverySd
     @TestFactory public Stream<DynamicTest> testMultiLineWithWhiteSpaceYRecovering() throws ParseError {
         return testMessages("x \n z", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2)
+            new MessageDescriptor("y expected", Severity.ERROR, 1, 1, 2, 3)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }

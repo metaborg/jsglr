@@ -103,7 +103,7 @@ public interface ILayoutSensitiveParseNode
     List<PositionInterval> longestMatchPositions();
 
     default List<PositionInterval> getLongestMatchPositions() {
-        if(longestMatchPositions() == null && !filteredLongestMatch())
+    	if(!filteredLongestMatch())
             filterLongestMatchDerivations();
 
         return longestMatchPositions();

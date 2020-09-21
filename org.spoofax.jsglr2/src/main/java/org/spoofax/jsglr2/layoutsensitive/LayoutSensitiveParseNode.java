@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.layoutsensitive;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
@@ -54,7 +55,7 @@ class LayoutSensitiveParseNode
     }
 
     @Override public List<PositionInterval> longestMatchPositions() {
-        return longestMatchPositions;
+        return longestMatchPositions != null ? longestMatchPositions : Collections.emptyList();
     }
 
     @Override public void setLongestMatchPositions(List<PositionInterval> longestMatchPositions) {

@@ -73,4 +73,64 @@ public class LayoutSensitivePositionsTest extends BaseTestWithLayoutSensitiveSdf
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> lexicalFirstLine1Col1() throws ParseError {
+        //@formatter:off
+        return concat(
+            testLayoutSensitiveSuccessByExpansions("x", "LexicalFirstLine1Col1(\"x\")", "LexicalFirstLine1Col1"),
+            testLayoutSensitiveParseFiltered(" x", "LexicalFirstLine1Col1"),
+            testLayoutSensitiveParseFiltered("\nx", "LexicalFirstLine1Col1"),
+            testLayoutSensitiveParseFiltered("\n\rx", "LexicalFirstLine1Col1"),
+            testLayoutSensitiveParseFiltered(" \nx", "LexicalFirstLine1Col1"),
+            testLayoutSensitiveParseFiltered(" \n\rx", "LexicalFirstLine1Col1"),
+            testLayoutSensitiveParseFiltered("\n x", "LexicalFirstLine1Col1"),
+            testLayoutSensitiveParseFiltered("\n\r x", "LexicalFirstLine1Col1")
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> lexicalFirstLine1Col2() throws ParseError {
+        //@formatter:off
+        return concat(
+            testLayoutSensitiveParseFiltered("x", "LexicalFirstLine1Col2"),
+            testLayoutSensitiveSuccessByExpansions(" x", "LexicalFirstLine1Col2(\"x\")", "LexicalFirstLine1Col2"),
+            testLayoutSensitiveParseFiltered("\nx", "LexicalFirstLine1Col2"),
+            testLayoutSensitiveParseFiltered("\n\rx", "LexicalFirstLine1Col2"),
+            testLayoutSensitiveParseFiltered(" \nx", "LexicalFirstLine1Col2"),
+            testLayoutSensitiveParseFiltered(" \n\rx", "LexicalFirstLine1Col2"),
+            testLayoutSensitiveParseFiltered("\n x", "LexicalFirstLine1Col2"),
+            testLayoutSensitiveParseFiltered("\n\r x", "LexicalFirstLine1Col2")
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> lexicalFirstLine2Col1() throws ParseError {
+        //@formatter:off
+        return concat(
+            testLayoutSensitiveParseFiltered("x", "LexicalFirstLine2Col1"),
+            testLayoutSensitiveParseFiltered(" x", "LexicalFirstLine2Col1"),
+            testLayoutSensitiveSuccessByExpansions("\nx", "LexicalFirstLine2Col1(\"x\")", "LexicalFirstLine2Col1"),
+            testLayoutSensitiveSuccessByExpansions("\n\rx", "LexicalFirstLine2Col1(\"x\")", "LexicalFirstLine2Col1"),
+            testLayoutSensitiveSuccessByExpansions(" \nx", "LexicalFirstLine2Col1(\"x\")", "LexicalFirstLine2Col1"),
+            testLayoutSensitiveSuccessByExpansions(" \n\rx", "LexicalFirstLine2Col1(\"x\")", "LexicalFirstLine2Col1"),
+            testLayoutSensitiveParseFiltered("\n x", "LexicalFirstLine2Col1"),
+            testLayoutSensitiveParseFiltered("\n\r x", "LexicalFirstLine2Col1")
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> lexicalFirstLine2Col2() throws ParseError {
+        //@formatter:off
+        return concat(
+            testLayoutSensitiveParseFiltered("x", "LexicalFirstLine2Col2"),
+            testLayoutSensitiveParseFiltered(" x", "LexicalFirstLine2Col2"),
+            testLayoutSensitiveParseFiltered("\nx", "LexicalFirstLine2Col2"),
+            testLayoutSensitiveParseFiltered("\n\rx", "LexicalFirstLine2Col2"),
+            testLayoutSensitiveParseFiltered(" \nx", "LexicalFirstLine2Col2"),
+            testLayoutSensitiveParseFiltered(" \n\rx", "LexicalFirstLine2Col2"),
+            testLayoutSensitiveSuccessByExpansions("\n x", "LexicalFirstLine2Col2(\"x\")", "LexicalFirstLine2Col2"),
+            testLayoutSensitiveSuccessByExpansions("\n\r x", "LexicalFirstLine2Col2(\"x\")", "LexicalFirstLine2Col2")
+        );
+        //@formatter:on
+    }
+
 }

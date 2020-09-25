@@ -90,10 +90,9 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
 
     @TestFactory public Stream<DynamicTest> offsideExpression2() throws ParseError {
         //@formatter:off
-        return testLayoutSensitiveSuccessByExpansions(
+        return testLayoutSensitiveParseFiltered(
             "offside e1 +\n" +
             "        e2",
-            "Offside(Add(\"e1\", \"e2\"))",
             "Offside"
         );
         //@formatter:on
@@ -112,6 +111,16 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
 
     @TestFactory public Stream<DynamicTest> offsideMultipleElements1() throws ParseError {
         //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "offside2 e1 + e2",
+            "Offside2(Add(\"e1\", \"e2\"))",
+            "Offside2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> offsideMultipleElements2() throws ParseError {
+        //@formatter:off
         return testLayoutSensitiveParseFiltered(
             "offside2 e1\n" +
             "+ e2",
@@ -120,7 +129,7 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
-    @TestFactory public Stream<DynamicTest> offsideMultipleElements2() throws ParseError {
+    @TestFactory public Stream<DynamicTest> offsideMultipleElements3() throws ParseError {
         //@formatter:off
         return testLayoutSensitiveSuccessByExpansions(
             "offside2 e1\n" +

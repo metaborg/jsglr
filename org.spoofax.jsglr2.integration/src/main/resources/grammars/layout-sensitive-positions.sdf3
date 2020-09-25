@@ -17,10 +17,8 @@ context-free start-symbols
   LiteralLeftLine2Col1
   LiteralLeftLine2Col2
 
-  LexicalLeftLine1Col1
-  LexicalLeftLine1Col2
-  LexicalLeftLine2Col1
-  LexicalLeftLine2Col2
+  LeftCol1
+  LeftCol2
 
 context-free syntax
   
@@ -34,15 +32,10 @@ context-free syntax
   LexicalFirstLine2Col1.LexicalFirstLine2Col1 = LEX {layout(1.first.line == 2 && 1.first.col == 1)}
   LexicalFirstLine2Col2.LexicalFirstLine2Col2 = LEX {layout(1.first.line == 2 && 1.first.col == 2)}
   
-  LiteralLeftLine1Col1.LiteralLeftLine1Col1 = "l" {layout(1.left.line == 1 && 1.left.col == 1)}
-  LiteralLeftLine1Col2.LiteralLeftLine1Col2 = "l" {layout(1.left.line == 1 && 1.left.col == 2)}
-  LiteralLeftLine2Col1.LiteralLeftLine2Col1 = "l" {layout(1.left.line == 2 && 1.left.col == 1)}
-  LiteralLeftLine2Col2.LiteralLeftLine2Col2 = "l" {layout(1.left.line == 2 && 1.left.col == 2)}
+  LeftCol1.LeftCol1 = X+ {layout(1.left.col == 1)}
+  LeftCol2.LeftCol2 = X+ {layout(1.left.col == 2)}
 
-  LexicalLeftLine1Col1.LexicalLeftLine1Col1 = LEX {layout(1.left.line == 1 && 1.left.col == 1)}
-  LexicalLeftLine1Col2.LexicalLeftLine1Col2 = LEX {layout(1.left.line == 1 && 1.left.col == 2)}
-  LexicalLeftLine2Col1.LexicalLeftLine2Col1 = LEX {layout(1.left.line == 2 && 1.left.col == 1)}
-  LexicalLeftLine2Col2.LexicalLeftLine2Col2 = LEX {layout(1.left.line == 2 && 1.left.col == 2)}
+  X.X = "x"
 
 lexical syntax
   LAYOUT = [\ \t\n\r]

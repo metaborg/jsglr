@@ -133,122 +133,26 @@ public class LayoutSensitivePositionsTest extends BaseTestWithLayoutSensitiveSdf
         //@formatter:on
     }
 
-    @TestFactory public Stream<DynamicTest> literalLeftLine1Col1() throws ParseError {
+    @TestFactory public Stream<DynamicTest> leftCol1() throws ParseError {
         //@formatter:off
         return concat(
-            testLayoutSensitiveSuccessByExpansions("l", "LiteralLeftLine1Col1()", "LiteralLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered(" l", "LiteralLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\nl", "LiteralLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\n\rl", "LiteralLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered(" \nl", "LiteralLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered(" \n\rl", "LiteralLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\n l", "LiteralLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\n\r l", "LiteralLeftLine1Col1")
+            testLayoutSensitiveSuccessByExpansions("x x", "LeftCol1([X(), X()])", "LeftCol1"),
+            testLayoutSensitiveSuccessByExpansions("x\nx", "LeftCol1([X(), X()])", "LeftCol1"),
+            testLayoutSensitiveParseFiltered("x\n x", "LeftCol1"),
+            testLayoutSensitiveSuccessByExpansions("x\nx\n x", "LeftCol1([X(), X(), X()])", "LeftCol1"),
+            testLayoutSensitiveSuccessByExpansions("x\n x\nx", "LeftCol1([X(), X(), X()])", "LeftCol1")
         );
         //@formatter:on
     }
 
-    @TestFactory public Stream<DynamicTest> literalLeftLine1Col2() throws ParseError {
+    @TestFactory public Stream<DynamicTest> leftCol2() throws ParseError {
         //@formatter:off
         return concat(
-            testLayoutSensitiveParseFiltered("l", "LiteralLeftLine1Col2"),
-            testLayoutSensitiveSuccessByExpansions(" l", "LiteralLeftLine1Col2()", "LiteralLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\nl", "LiteralLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\n\rl", "LiteralLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered(" \nl", "LiteralLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered(" \n\rl", "LiteralLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\n l", "LiteralLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\n\r l", "LiteralLeftLine1Col2")
-        );
-        //@formatter:on
-    }
-
-    @TestFactory public Stream<DynamicTest> literalLeftLine2Col1() throws ParseError {
-        //@formatter:off
-        return concat(
-            testLayoutSensitiveParseFiltered("l", "LiteralLeftLine2Col1"),
-            testLayoutSensitiveParseFiltered(" l", "LiteralLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions("\nl", "LiteralLeftLine2Col1()", "LiteralLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions("\n\rl", "LiteralLeftLine2Col1()", "LiteralLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions(" \nl", "LiteralLeftLine2Col1()", "LiteralLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions(" \n\rl", "LiteralLeftLine2Col1()", "LiteralLeftLine2Col1"),
-            testLayoutSensitiveParseFiltered("\n l", "LiteralLeftLine2Col1"),
-            testLayoutSensitiveParseFiltered("\n\r l", "LiteralLeftLine2Col1")
-        );
-        //@formatter:on
-    }
-
-    @TestFactory public Stream<DynamicTest> literalLeftLine2Col2() throws ParseError {
-        //@formatter:off
-        return concat(
-            testLayoutSensitiveParseFiltered("l", "LiteralLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered(" l", "LiteralLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered("\nl", "LiteralLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered("\n\rl", "LiteralLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered(" \nl", "LiteralLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered(" \n\rl", "LiteralLeftLine2Col2"),
-            testLayoutSensitiveSuccessByExpansions("\n l", "LiteralLeftLine2Col2()", "LiteralLeftLine2Col2"),
-            testLayoutSensitiveSuccessByExpansions("\n\r l", "LiteralLeftLine2Col2()", "LiteralLeftLine2Col2")
-        );
-        //@formatter:on
-    }
-
-    @TestFactory public Stream<DynamicTest> lexicalLeftLine1Col1() throws ParseError {
-        //@formatter:off
-        return concat(
-            testLayoutSensitiveSuccessByExpansions("x", "LexicalLeftLine1Col1(\"x\")", "LexicalLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered(" x", "LexicalLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\nx", "LexicalLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\n\rx", "LexicalLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered(" \nx", "LexicalLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered(" \n\rx", "LexicalLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\n x", "LexicalLeftLine1Col1"),
-            testLayoutSensitiveParseFiltered("\n\r x", "LexicalLeftLine1Col1")
-        );
-        //@formatter:on
-    }
-
-    @TestFactory public Stream<DynamicTest> lexicalLeftLine1Col2() throws ParseError {
-        //@formatter:off
-        return concat(
-            testLayoutSensitiveParseFiltered("x", "LexicalLeftLine1Col2"),
-            testLayoutSensitiveSuccessByExpansions(" x", "LexicalLeftLine1Col2(\"x\")", "LexicalLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\nx", "LexicalLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\n\rx", "LexicalLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered(" \nx", "LexicalLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered(" \n\rx", "LexicalLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\n x", "LexicalLeftLine1Col2"),
-            testLayoutSensitiveParseFiltered("\n\r x", "LexicalLeftLine1Col2")
-        );
-        //@formatter:on
-    }
-
-    @TestFactory public Stream<DynamicTest> lexicalLeftLine2Col1() throws ParseError {
-        //@formatter:off
-        return concat(
-            testLayoutSensitiveParseFiltered("x", "LexicalLeftLine2Col1"),
-            testLayoutSensitiveParseFiltered(" x", "LexicalLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions("\nx", "LexicalLeftLine2Col1(\"x\")", "LexicalLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions("\n\rx", "LexicalLeftLine2Col1(\"x\")", "LexicalLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions(" \nx", "LexicalLeftLine2Col1(\"x\")", "LexicalLeftLine2Col1"),
-            testLayoutSensitiveSuccessByExpansions(" \n\rx", "LexicalLeftLine2Col1(\"x\")", "LexicalLeftLine2Col1"),
-            testLayoutSensitiveParseFiltered("\n x", "LexicalLeftLine2Col1"),
-            testLayoutSensitiveParseFiltered("\n\r x", "LexicalLeftLine2Col1")
-        );
-        //@formatter:on
-    }
-
-    @TestFactory public Stream<DynamicTest> lexicalLeftLine2Col2() throws ParseError {
-        //@formatter:off
-        return concat(
-            testLayoutSensitiveParseFiltered("x", "LexicalLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered(" x", "LexicalLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered("\nx", "LexicalLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered("\n\rx", "LexicalLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered(" \nx", "LexicalLeftLine2Col2"),
-            testLayoutSensitiveParseFiltered(" \n\rx", "LexicalLeftLine2Col2"),
-            testLayoutSensitiveSuccessByExpansions("\n x", "LexicalLeftLine2Col2(\"x\")", "LexicalLeftLine2Col2"),
-            testLayoutSensitiveSuccessByExpansions("\n\r x", "LexicalLeftLine2Col2(\"x\")", "LexicalLeftLine2Col2")
+            testLayoutSensitiveSuccessByExpansions("x x", "LeftCol2([X(), X()])", "LeftCol2"),
+            testLayoutSensitiveParseFiltered("x\nx", "LeftCol2"),
+            testLayoutSensitiveSuccessByExpansions("x\n x", "LeftCol2([X(), X()])", "LeftCol2"),
+            testLayoutSensitiveSuccessByExpansions("x\n  x\n x", "LeftCol2([X(), X(), X()])", "LeftCol2"),
+            testLayoutSensitiveSuccessByExpansions("x\n x\n  x", "LeftCol2([X(), X(), X()])", "LeftCol2")
         );
         //@formatter:on
     }

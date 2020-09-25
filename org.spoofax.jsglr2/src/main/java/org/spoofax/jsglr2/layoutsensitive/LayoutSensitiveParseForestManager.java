@@ -97,8 +97,7 @@ public class LayoutSensitiveParseForestManager
                         leftPosition = leftMost(leftPosition, currentLeftPosition);
                     }
 
-                    if(currentStartPosition.line > startPosition.line
-                        && !currentStartPosition.equals(currentEndPosition)) {
+                    if(currentStartPosition.line > startPosition.line) {
                         leftPosition = leftMost(leftPosition, currentStartPosition);
                     }
 
@@ -106,7 +105,7 @@ public class LayoutSensitiveParseForestManager
                         rightPosition = rightMost(rightPosition, currentRightPosition);
                     }
 
-                    if(currentEndPosition.line < endPosition.line && !currentStartPosition.equals(currentEndPosition)) {
+                    if(currentEndPosition.line < endPosition.line) {
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
 

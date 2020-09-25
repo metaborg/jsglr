@@ -13,4 +13,8 @@ public class Shape {
         this.right = right;
     }
 
+    @Override public String toString() {
+        return "[" + start + ", " + end + ", " + left + ", " + right + "]";
+    }
+
 }

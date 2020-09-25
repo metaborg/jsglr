@@ -20,6 +20,9 @@ context-free start-symbols
   LeftCol1
   LeftCol2
 
+  RightCol1
+  RightCol2
+
 context-free syntax
   
   LiteralFirstLine1Col1.LiteralFirstLine1Col1 = "l" {layout(1.first.line == 1 && 1.first.col == 1)}
@@ -32,10 +35,16 @@ context-free syntax
   LexicalFirstLine2Col1.LexicalFirstLine2Col1 = LEX {layout(1.first.line == 2 && 1.first.col == 1)}
   LexicalFirstLine2Col2.LexicalFirstLine2Col2 = LEX {layout(1.first.line == 2 && 1.first.col == 2)}
   
-  LeftCol1.LeftCol1 = X+ {layout(1.left.col == 1)}
-  LeftCol2.LeftCol2 = X+ {layout(1.left.col == 2)}
+  LeftCol1.LeftCol1 = P+ {layout(1.left.col == 1)}
+  LeftCol2.LeftCol2 = Q+ {layout(1.left.col == 2)}
 
-  X.X = "x"
+  RightCol1.RightCol1 = R+ {layout(1.right.col == 1)}
+  RightCol2.RightCol2 = S+ {layout(1.right.col == 2)}
+
+  P.P = "p"
+  Q.Q = "q"
+  R.R = "r"
+  S.S = "s"
 
 lexical syntax
   LAYOUT = [\ \t\n\r]

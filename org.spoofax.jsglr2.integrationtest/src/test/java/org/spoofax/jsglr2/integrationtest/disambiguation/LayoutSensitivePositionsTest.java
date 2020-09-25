@@ -136,11 +136,11 @@ public class LayoutSensitivePositionsTest extends BaseTestWithLayoutSensitiveSdf
     @TestFactory public Stream<DynamicTest> leftCol1() throws ParseError {
         //@formatter:off
         return concat(
-            testLayoutSensitiveSuccessByExpansions("x x", "LeftCol1([X(), X()])", "LeftCol1"),
-            testLayoutSensitiveSuccessByExpansions("x\nx", "LeftCol1([X(), X()])", "LeftCol1"),
-            testLayoutSensitiveParseFiltered("x\n x", "LeftCol1"),
-            testLayoutSensitiveSuccessByExpansions("x\nx\n x", "LeftCol1([X(), X(), X()])", "LeftCol1"),
-            testLayoutSensitiveSuccessByExpansions("x\n x\nx", "LeftCol1([X(), X(), X()])", "LeftCol1")
+            testLayoutSensitiveSuccessByExpansions("p p", "LeftCol1([P(), P()])", "LeftCol1"),
+            testLayoutSensitiveSuccessByExpansions("p\np", "LeftCol1([P(), P()])", "LeftCol1"),
+            testLayoutSensitiveParseFiltered("p\n p", "LeftCol1"),
+            testLayoutSensitiveSuccessByExpansions("p\np\n p", "LeftCol1([P(), P(), P()])", "LeftCol1"),
+            testLayoutSensitiveSuccessByExpansions("p\n p\np", "LeftCol1([P(), P(), P()])", "LeftCol1")
         );
         //@formatter:on
     }
@@ -148,11 +148,35 @@ public class LayoutSensitivePositionsTest extends BaseTestWithLayoutSensitiveSdf
     @TestFactory public Stream<DynamicTest> leftCol2() throws ParseError {
         //@formatter:off
         return concat(
-            testLayoutSensitiveSuccessByExpansions("x x", "LeftCol2([X(), X()])", "LeftCol2"),
-            testLayoutSensitiveParseFiltered("x\nx", "LeftCol2"),
-            testLayoutSensitiveSuccessByExpansions("x\n x", "LeftCol2([X(), X()])", "LeftCol2"),
-            testLayoutSensitiveSuccessByExpansions("x\n  x\n x", "LeftCol2([X(), X(), X()])", "LeftCol2"),
-            testLayoutSensitiveSuccessByExpansions("x\n x\n  x", "LeftCol2([X(), X(), X()])", "LeftCol2")
+            testLayoutSensitiveSuccessByExpansions("q q", "LeftCol2([Q(), Q()])", "LeftCol2"),
+            testLayoutSensitiveParseFiltered("q\nq", "LeftCol2"),
+            testLayoutSensitiveSuccessByExpansions("q\n q", "LeftCol2([Q(), Q()])", "LeftCol2"),
+            testLayoutSensitiveSuccessByExpansions("q\n  q\n q", "LeftCol2([Q(), Q(), Q()])", "LeftCol2"),
+            testLayoutSensitiveSuccessByExpansions("q\n q\n  q", "LeftCol2([Q(), Q(), Q()])", "LeftCol2")
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> rightCol1() throws ParseError {
+        //@formatter:off
+        return concat(
+            testLayoutSensitiveSuccessByExpansions("r r", "RightCol1([R(), R()])", "RightCol1"),
+            testLayoutSensitiveSuccessByExpansions("r\nr", "RightCol1([R(), R()])", "RightCol1"),
+            testLayoutSensitiveParseFiltered(" r\nr", "RightCol1"),
+            testLayoutSensitiveSuccessByExpansions("r\nr\nr", "RightCol1([R(), R(), R()])", "RightCol1"),
+            testLayoutSensitiveParseFiltered("r\n r\nr", "RightCol1")
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> rightCol2() throws ParseError {
+        //@formatter:off
+        return concat(
+            testLayoutSensitiveSuccessByExpansions("s s", "RightCol2([S(), S()])", "RightCol2"),
+            testLayoutSensitiveParseFiltered("s\ns", "RightCol2"),
+            testLayoutSensitiveSuccessByExpansions(" s\ns", "RightCol2([S(), S()])", "RightCol2"),
+            testLayoutSensitiveSuccessByExpansions(" s\ns\ns", "RightCol2([S(), S(), S()])", "RightCol2"),
+            testLayoutSensitiveParseFiltered("s\n  s\ns", "RightCol2")
         );
         //@formatter:on
     }

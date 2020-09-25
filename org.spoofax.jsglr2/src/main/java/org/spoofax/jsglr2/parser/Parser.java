@@ -147,6 +147,7 @@ public class Parser
     protected void parseLoop(ParseState parseState) {
         while(parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {
             parseCharacter(parseState);
+            parseState.inputStack.consumed();
 
             if(!parseState.activeStacks.isEmpty())
                 parseState.inputStack.next();

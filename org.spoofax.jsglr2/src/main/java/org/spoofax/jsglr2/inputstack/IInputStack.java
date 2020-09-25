@@ -9,6 +9,8 @@ public interface IInputStack extends IActionQuery {
 
     void next();
 
+    default void consumed() {};
+
     int getChar();
 
     int getChar(int offset);

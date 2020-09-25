@@ -7,35 +7,34 @@ context-free start-symbols
 context-free syntax
   
   Start = Exp
+  
   Exp.DoAlign = "doAlign" StmList
   StmList.Stmt  = Stm
-  StmList.StmtSeq = head:StmList tail:Stm {longest-match, layout(align head tail)}
+  StmList.StmtSeq = head:StmList tail:Stm {layout(align head tail)}
   
-  Exp.DoAlignList  = "doAlignList" stmts:Stm+ {longest-match, layout(align-list stmts)}
+  Exp.DoAlignList  = "doAlignList" stmts:Stm+ {layout(align-list stmts)}
   
   Exp.Do = "do" Stm {longest-match}
   Stm.OffsideExp = exp:Exp {layout(offside exp)}
   
   Exp.Add = Exp "+" Exp {left}
   
-  Exp.DoOffside = "doOffside" stm:StmNoOffside {longest-match, layout(offside "doOffside" stm)}
+  Exp.DoOffside = "doOffside" stm:StmNoOffside {layout(offside "doOffside" stm)}
   
   StmNoOffside.Exp = Exp
   
-  Exp.DoIndent = "doIndent" stm:Stm {longest-match, layout(indent "doIndent" stm)}
+  Exp.DoIndent = "doIndent" stm:Stm {layout(indent "doIndent" stm)}
   
-  Exp.DoNLIndent = "doNLIndent" stm:Stm {longest-match, layout(newline-indent "doNLIndent" stm)}
+  Exp.DoNLIndent = "doNLIndent" stm:Stm {layout(newline-indent "doNLIndent" stm)}
 
   Exp.SingleLine = "foo" "bar" {layout(
     1.first.line == 2.last.line
   )}
   
 lexical syntax
-  LAYOUT = [\ \t\n\r] 
-  EOF    =
+  LAYOUT = [\ \t\n\r]
   Exp    = "e" [0-9]+
   Stm    = "s" [0-9]+
 
 context-free restrictions
   LAYOUT? -/- [\ \t\n\r] 
-  

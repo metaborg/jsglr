@@ -72,6 +72,12 @@ public class LayoutSensitiveParseForestManager
             // Else, just use the start position of the first child node
             : parseForests[0].getStartPosition();
 
+        /*
+         * From Erdweg et al. (2012):
+         * `left` selects the leftmost non-whitespace token that is not on the same line as the first token
+         * `right` right selects the rightmost non-whitespace token that is not on the same line as the last token
+         */
+        // 
         Position leftPosition = null;
         Position rightPosition = null;
 
@@ -107,12 +113,13 @@ public class LayoutSensitiveParseForestManager
                     endPosition = currentEndPosition;
                 }
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
-                if(leftPosition == null || (pf.getStartPosition().line > startPosition.line
-                    && pf.getStartPosition().column < leftPosition.column)) {
+                if(pf.getLeftPosition().line > startPosition.line
+                    && pf.getLeftPosition().column < leftPosition.column) {
                     leftPosition = pf.getStartPosition();
                 }
-                if(rightPosition == null || (pf.getEndPosition().line < endPosition.line
-                    && pf.getEndPosition().column > rightPosition.column)) {
+                
+                if(pf.getRightPosition().line < endPosition.line
+                    && pf.getRightPosition().column > rightPosition.column) {
                     rightPosition = pf.getEndPosition();
                 }
             } else if(pf != null) {

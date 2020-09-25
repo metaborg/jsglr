@@ -103,15 +103,16 @@ public class LayoutSensitiveParseForestManager
                     if(currentEndPosition.line < endPosition.line && !currentStartPosition.equals(currentEndPosition)) {
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
-                    
+
                     endPosition = currentEndPosition;
                 }
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
-                if(pf.getStartPosition().line > startPosition.line
-                    && pf.getStartPosition().column < startPosition.column) {
+                if(leftPosition == null || (pf.getStartPosition().line > startPosition.line
+                    && pf.getStartPosition().column < leftPosition.column)) {
                     leftPosition = pf.getStartPosition();
                 }
-                if(pf.getEndPosition().line < endPosition.line && pf.getEndPosition().column > endPosition.column) {
+                if(rightPosition == null || (pf.getEndPosition().line < endPosition.line
+                    && pf.getEndPosition().column > rightPosition.column)) {
                     rightPosition = pf.getEndPosition();
                 }
             } else if(pf != null) {

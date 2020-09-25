@@ -541,4 +541,8 @@ public abstract class BaseTest implements WithParseTable {
         return termReader.parseFromStream(inputStream);
     }
 
+    protected Stream<DynamicTest> concat(Stream<DynamicTest>... testStreams) {
+        return Stream.of(testStreams).flatMap(Function.identity());
+    }
+
 }

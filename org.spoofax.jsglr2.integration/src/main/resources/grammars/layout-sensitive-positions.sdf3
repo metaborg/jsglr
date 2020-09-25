@@ -1,0 +1,35 @@
+module layout-sensitive
+
+context-free start-symbols
+  
+  LiteralFirstLine1Col1
+  LiteralFirstLine1Col2
+  LiteralFirstLine2Col1
+  LiteralFirstLine2Col2
+
+  LexicalFirstLine1Col1
+  LexicalFirstLine1Col2
+  LexicalFirstLine2Col1
+  LexicalFirstLine2Col2
+
+context-free syntax
+  
+  LiteralFirstLine1Col1.LiteralFirstLine1Col1 = "l" {layout(1.first.line == 1 && 1.first.col == 1)}
+  LiteralFirstLine1Col2.LiteralFirstLine1Col2 = "l" {layout(1.first.line == 1 && 1.first.col == 2)}
+  LiteralFirstLine2Col1.LiteralFirstLine2Col1 = "l" {layout(1.first.line == 2 && 1.first.col == 1)}
+  LiteralFirstLine2Col2.LiteralFirstLine2Col2 = "l" {layout(1.first.line == 2 && 1.first.col == 2)}
+
+  LexicalFirstLine1Col1.LexicalFirstLine1Col1 = LEX {layout(1.first.line == 1 && 1.first.col == 1)}
+  LexicalFirstLine1Col2.LexicalFirstLine1Col2 = LEX {layout(1.first.line == 1 && 1.first.col == 2)}
+  LexicalFirstLine2Col1.LexicalFirstLine2Col1 = LEX {layout(1.first.line == 2 && 1.first.col == 1)}
+  LexicalFirstLine2Col2.LexicalFirstLine2Col2 = LEX {layout(1.first.line == 2 && 1.first.col == 2)}
+
+lexical syntax
+  LAYOUT = [\ \t\n\r]
+  LEX    = [a-z]
+
+lexical restrictions
+  LEX     -/- [a-z]
+
+context-free restrictions
+  LAYOUT? -/- [\ \t\n\r]

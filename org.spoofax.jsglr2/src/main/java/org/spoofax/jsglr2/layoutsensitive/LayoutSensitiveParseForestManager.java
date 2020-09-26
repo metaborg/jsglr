@@ -118,6 +118,11 @@ public class LayoutSensitiveParseForestManager
                     endPosition = currentEndPosition;
                 }
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
+            	if(shiftStartPosition) {
+                    startPosition = pf.getStartPosition();
+                    shiftStartPosition = false;
+                }
+
                 if(pf.getLeftPosition().line > startPosition.line
                     && pf.getLeftPosition().column < leftPosition.column) {
                     leftPosition = pf.getStartPosition();

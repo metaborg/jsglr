@@ -181,4 +181,17 @@ public class LayoutSensitivePositionsTest extends BaseTestWithLayoutSensitiveSdf
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> leadingEmptyNonLayout() throws ParseError {
+        //@formatter:off
+        return concat(
+            testLayoutSensitiveSuccessByExpansions("foo\n bar baz", "LeadingEmptyNonLayout(BarBaz(Some(Bar()), Baz()))", "LeadingEmptyNonLayout"),
+            testLayoutSensitiveParseFiltered("foo bar\nbaz", "LeadingEmptyNonLayout"),
+            testLayoutSensitiveParseFiltered("foo bar\n  baz", "LeadingEmptyNonLayout"),
+            testLayoutSensitiveSuccessByExpansions("foo\n baz", "LeadingEmptyNonLayout(BarBaz(None(), Baz()))", "LeadingEmptyNonLayout"),
+            testLayoutSensitiveParseFiltered("foo\nbaz", "LeadingEmptyNonLayout"),
+            testLayoutSensitiveParseFiltered("foo\n  baz", "LeadingEmptyNonLayout")
+        );
+        //@formatter:on
+    }
+
 }

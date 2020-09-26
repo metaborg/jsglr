@@ -73,25 +73,31 @@ public class LayoutSensitiveParseForestManager
             : parseForests[0].getStartPosition();
 
         /*
-         * From Erdweg et al. (2012):
-         * `left` selects the leftmost non-whitespace token that is not on the same line as the first token
-         * `right` right selects the rightmost non-whitespace token that is not on the same line as the last token
+         * From Erdweg et al. (2012): `left` selects the leftmost non-whitespace token that is not on the same line as
+         * the first token. `right` right selects the rightmost non-whitespace token that is not on the same line as the
+         * last token
          */
-        // 
         Position leftPosition = null;
         Position rightPosition = null;
+
+        boolean shiftStartPosition = true;
 
         for(ILayoutSensitiveParseForest pf : parseForests) {
             if(pf instanceof ILayoutSensitiveParseNode) {
                 ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> layoutSensitiveParseNode =
                     (ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>) pf;
 
-                if(!layoutSensitiveParseNode.production().isLayout()
+                if(layoutSensitiveParseNode.width() > 0 && !layoutSensitiveParseNode.production().isLayout()
                     && !layoutSensitiveParseNode.production().isIgnoreLayoutConstraint()) {
                     Position currentStartPosition = layoutSensitiveParseNode.getStartPosition();
                     Position currentEndPosition = layoutSensitiveParseNode.getEndPosition();
                     Position currentLeftPosition = layoutSensitiveParseNode.getLeftPosition();
                     Position currentRightPosition = layoutSensitiveParseNode.getRightPosition();
+
+                    if(shiftStartPosition) {
+                        startPosition = currentStartPosition;
+                        shiftStartPosition = false;
+                    }
 
                     if(currentLeftPosition != null) {
                         leftPosition = leftMost(leftPosition, currentLeftPosition);
@@ -116,7 +122,7 @@ public class LayoutSensitiveParseForestManager
                     && pf.getLeftPosition().column < leftPosition.column) {
                     leftPosition = pf.getStartPosition();
                 }
-                
+
                 if(pf.getRightPosition().line < endPosition.line
                     && pf.getRightPosition().column > rightPosition.column) {
                     rightPosition = pf.getEndPosition();

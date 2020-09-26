@@ -23,6 +23,8 @@ context-free start-symbols
   RightCol1
   RightCol2
 
+  LeadingEmptyNonLayout
+
 context-free syntax
   
   LiteralFirstLine1Col1.LiteralFirstLine1Col1 = "l" {layout(1.first.line == 1 && 1.first.col == 1)}
@@ -45,6 +47,12 @@ context-free syntax
   Q.Q = "q"
   R.R = "r"
   S.S = "s"
+
+  LeadingEmptyNonLayout.LeadingEmptyNonLayout = <foo <BarBaz>> {layout(2.first.col == 2 && 2.first.line == 2)}
+
+  BarBaz.BarBaz = <<Bar?> <Baz>>
+  Bar.Bar = "bar"
+  Baz.Baz = "baz"
 
 lexical syntax
   LAYOUT = [\ \t\n\r]

@@ -1,9 +1,6 @@
 package org.spoofax.jsglr2.composite;
 
-import java.util.List;
-
 import org.metaborg.parsetable.productions.IProduction;
-import org.spoofax.jsglr2.layoutsensitive.PositionInterval;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseNode;
 import org.spoofax.jsglr2.parser.Position;
 
@@ -16,9 +13,6 @@ class CompositeParseNode
 
     private final Position startPosition, endPosition;
     private final Position leftPosition, rightPosition;
-
-    private List<PositionInterval> longestMatchPositions = null;
-    private boolean filteredLongestMatch = false;
 
     CompositeParseNode(int width, IProduction production, Position startPosition, Position endPosition,
         Position leftPosition, Position rightPosition) {
@@ -44,22 +38,6 @@ class CompositeParseNode
 
     @Override public Position getRightPosition() {
         return rightPosition;
-    }
-
-    @Override public boolean filteredLongestMatch() {
-        return filteredLongestMatch;
-    }
-
-    @Override public void setFilteredLongestMatch() {
-        filteredLongestMatch = true;
-    }
-
-    @Override public List<PositionInterval> longestMatchPositions() {
-        return longestMatchPositions;
-    }
-
-    @Override public void setLongestMatchPositions(List<PositionInterval> longestMatchPositions) {
-        this.longestMatchPositions = longestMatchPositions;
     }
 
 }

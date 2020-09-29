@@ -9,11 +9,11 @@ public interface ILayoutSensitiveCharacterNode extends ILayoutSensitiveParseFore
     }
 
     default Position getLeftPosition() {
-        return getStartPosition();
+        return null;
     }
 
     default Position getRightPosition() {
-        return getEndPosition();
+        return null;
     }
 
 }

@@ -118,18 +118,18 @@ public class LayoutSensitiveParseForestManager
                     endPosition = currentEndPosition;
                 }
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
-            	if(shiftStartPosition) {
+                if(shiftStartPosition) {
                     startPosition = pf.getStartPosition();
                     shiftStartPosition = false;
                 }
 
-                if(pf.getLeftPosition().line > startPosition.line
-                    && pf.getLeftPosition().column < leftPosition.column) {
+                if(pf.getStartPosition().line > startPosition.line
+                    && (leftPosition == null || pf.getStartPosition().column < leftPosition.column)) {
                     leftPosition = pf.getStartPosition();
                 }
 
-                if(pf.getRightPosition().line < endPosition.line
-                    && pf.getRightPosition().column > rightPosition.column) {
+                if(pf.getEndPosition().line < endPosition.line
+                    && (rightPosition == null || pf.getEndPosition().column > rightPosition.column)) {
                     rightPosition = pf.getEndPosition();
                 }
             } else if(pf != null) {

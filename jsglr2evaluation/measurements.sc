@@ -20,7 +20,7 @@ def execMeasurements(implicit args: Args) = {
                     s"language=${language.id} " +
                     s"extension=${language.extension} " +
                     s"parseTablePath=${language.parseTablePath} " +
-                    s"sourcePath=${language.sourcesDir} " +
+                    s"sourcePath=${language.sourcesDir}/batch " +
                     s"type=multiple" +
                 "\"",
                 "-DreportPath=" + language.measurementsDir,

@@ -9,27 +9,18 @@ def postProcess(implicit args: Args) = {
     
     mkdir! resultsDir
 
-    write.over(parseTableMeasurementsPath,      "")
-    write.over(parsingMeasurementsPath,         "")
-    write.over(batchBenchmarksPath,             "")
-    write.over(batchBenchmarksNormalizedPath,   "")
-    write.over(perFileBenchmarksPath,           "")
-    write.over(perFileBenchmarksNormalizedPath, "")
+    // Copy header from measurements CSV
+    write.over(parseTableMeasurementsPath, "language," + read.lines(args.languages(0).measurementsDir / "parsetable.csv")(0))
+    write.over(parsingMeasurementsPath,    "language," + read.lines(args.languages(0).measurementsDir / "parsing.csv")(0))
 
-    args.languages.zipWithIndex.foreach { case(language, index) =>
+    // Add header to benchmarks CSV
+    write.over(batchBenchmarksPath,             "language,variant,score,error,low,high")
+    write.over(batchBenchmarksNormalizedPath,   "language,variant,score,low,high")
+    write.over(perFileBenchmarksPath,           "language,variant,score,error,low,high,size")
+    write.over(perFileBenchmarksNormalizedPath, "language,variant,score,low,high,size")
+
+    args.languages.foreach { language =>
         println(" " + language.name)
-
-        if (index == 0) {
-            // Copy header from measurements CSV
-            write.append(parseTableMeasurementsPath, "language," + read.lines(language.measurementsDir / "parsetable.csv")(0))
-            write.append(parsingMeasurementsPath,    "language," + read.lines(language.measurementsDir / "parsing.csv")(0))
-
-            // Add header to benchmarks CSV
-            write.append(batchBenchmarksPath,             "language,variant,score,error,low,high")
-            write.append(batchBenchmarksNormalizedPath,   "language,variant,score,low,high")
-            write.append(perFileBenchmarksPath,           "language,variant,score,error,low,high,size")
-            write.append(perFileBenchmarksNormalizedPath, "language,variant,score,low,high,size")
-        }
 
         // Measurements
 

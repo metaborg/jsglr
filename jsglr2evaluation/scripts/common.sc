@@ -173,14 +173,22 @@ case class CSVRow(values: Map[String, String]) {
 }
 
 object CSV {
+    // Source: https://stackoverflow.com/a/13336039
+    private val commaRegex = """,(?=([^\"]*\"[^\"]*\")*[^\"]*$)"""
+
+    private def stripQuotes(s: String) =
+        if (s.startsWith("\"") && s.endsWith("\"")) s.substring(1, s.length - 1) else s
+
+    private def parseLine(line: String) =
+        line.split(commaRegex).map(stripQuotes)
 
     def parse(file: Path): CSV = {
         read.lines(file) match {
             case headerLine +: rowLines =>
-                val columns = headerLine.split(",").toSeq
+                val columns = parseLine(headerLine).toSeq
 
-                val rows = rowLines.map { row =>
-                    CSVRow((columns zip row.split(",")).toMap)
+                val rows = rowLines.map { rowLine =>
+                    CSVRow((columns zip parseLine(rowLine)).toMap)
                 }
 
                 CSV(columns, rows)

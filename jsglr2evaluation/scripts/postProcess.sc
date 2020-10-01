@@ -33,8 +33,8 @@ def postProcess(implicit args: Args) = {
 
         def processBenchmarkCSV(benchmarkCSV: CSV, variant: CSVRow => String, destinationPath: Path, destinationPathNormalized: Path, normalize: BigDecimal => BigDecimal, append: String = "") = {
             benchmarkCSV.rows.foreach { row =>
-                val rawScore = row("\"Score\"")
-                val rawError = row("\"Score Error (99.9%)\"")
+                val rawScore = row("Score")
+                val rawError = row("Score Error (99.9%)")
 
                 val score = BigDecimal(rawScore)
                 val error = if (rawError != "NaN") BigDecimal(rawError) else BigDecimal(0)
@@ -44,7 +44,7 @@ def postProcess(implicit args: Args) = {
             }
         }
 
-        processBenchmarkCSV(CSV.parse(language.benchmarksDir / "jsglr2.csv"), row => row("\"Param: variant\""), batchBenchmarksPath, batchBenchmarksNormalizedPath, normalizeBatch)
+        processBenchmarkCSV(CSV.parse(language.benchmarksDir / "jsglr2.csv"), row => row("Param: variant"), batchBenchmarksPath, batchBenchmarksNormalizedPath, normalizeBatch)
         processBenchmarkCSV(CSV.parse(language.benchmarksDir / "jsglr1.csv"), _   => "jsglr1"                 , batchBenchmarksPath, batchBenchmarksNormalizedPath, normalizeBatch)
 
         language.antlrBenchmarks.foreach { antlrBenchmark =>
@@ -57,7 +57,7 @@ def postProcess(implicit args: Args) = {
             val characters = (read! file).length
             val normalizePerFile: BigDecimal => BigDecimal = score => characters / score
 
-            processBenchmarkCSV(CSV.parse(language.benchmarksDir / "perFile" / s"${file.last.toString}.csv"), row => row("\"Param: variant\""), perFileBenchmarksPath, perFileBenchmarksNormalizedPath, normalizePerFile, "," + characters)
+            processBenchmarkCSV(CSV.parse(language.benchmarksDir / "perFile" / s"${file.last.toString}.csv"), row => row("Param: variant"), perFileBenchmarksPath, perFileBenchmarksNormalizedPath, normalizePerFile, "," + characters)
         }
     }
 }

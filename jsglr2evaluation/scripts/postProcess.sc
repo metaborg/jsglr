@@ -12,10 +12,10 @@ def postProcess(implicit args: Args) = {
     write.over(parsingMeasurementsPath,    "language," + read.lines(args.languages(0).measurementsDir / "parsing.csv")(0))
 
     // Add header to benchmarks CSV
-    write.over(batchBenchmarksPath,             "language,variant,score,error,low,high")
-    write.over(batchBenchmarksNormalizedPath,   "language,variant,score,low,high")
-    write.over(perFileBenchmarksPath,           "language,variant,score,error,low,high,size")
-    write.over(perFileBenchmarksNormalizedPath, "language,variant,score,low,high,size")
+    write.over(batchBenchmarksPath,             "language,variant,score,error,low,high\n")
+    write.over(batchBenchmarksNormalizedPath,   "language,variant,score,low,high\n")
+    write.over(perFileBenchmarksPath,           "language,variant,score,error,low,high,size\n")
+    write.over(perFileBenchmarksNormalizedPath, "language,variant,score,low,high,size\n")
 
     args.languages.foreach { language =>
         println(" " + language.name)
@@ -39,8 +39,8 @@ def postProcess(implicit args: Args) = {
                 val score = BigDecimal(rawScore)
                 val error = if (rawError != "NaN") BigDecimal(rawError) else BigDecimal(0)
 
-                write.append(destinationPath, "\n" + language.id + "," + variant(row) + "," + round(score) + "," + round(error) + "," + round(score - error) + "," + round(score + error) + append)
-                write.append(destinationPathNormalized, "\n" + language.id + "," + variant(row) + "," + round(normalize(score)) + "," + round(normalize(score + error)) + "," + round(normalize(score - error)) + append)
+                write.append(destinationPath, language.id + "," + variant(row) + "," + round(score) + "," + round(error) + "," + round(score - error) + "," + round(score + error) + append + "\n")
+                write.append(destinationPathNormalized, language.id + "," + variant(row) + "," + round(normalize(score)) + "," + round(normalize(score + error)) + "," + round(normalize(score - error)) + append + "\n")
             }
         }
 
@@ -60,12 +60,6 @@ def postProcess(implicit args: Args) = {
             processBenchmarkCSV(CSV.parse(language.benchmarksDir / "perFile" / s"${file.last.toString}.csv"), row => row("\"Param: variant\""), perFileBenchmarksPath, perFileBenchmarksNormalizedPath, normalizePerFile, "," + characters)
         }
     }
-
-    // Add proper file ending
-    write.append(batchBenchmarksPath,             "\n")
-    write.append(batchBenchmarksNormalizedPath,   "\n")
-    write.append(perFileBenchmarksPath,           "\n")
-    write.append(perFileBenchmarksNormalizedPath, "\n")
 }
 
 @main

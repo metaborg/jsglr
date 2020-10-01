@@ -60,7 +60,7 @@ def execBenchmarks(implicit args: Args) = {
             )
 
         def benchmarkJSGLRIncremental(name: String, resultsPath: Path, sourcePath: Path, params: Map[String, String] = Map.empty) = {
-            for (i <- -1 to (ls! sourcePath).length) {
+            for (i <- -1 until (ls! sourcePath).length) {
                 println(f"    iteration $i%3d: start @ ${java.time.LocalDateTime.now}")
                 benchmark(
                     name,

@@ -26,6 +26,14 @@ public class EditorUpdate {
         return Type.REPLACEMENT;
     }
 
+    public int deletedLength() {
+        return deletedEnd - deletedStart;
+    }
+
+    public int insertedLength() {
+        return inserted.length();
+    }
+
     @Override public boolean equals(Object o) {
         if(this == o)
             return true;

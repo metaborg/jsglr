@@ -3,7 +3,7 @@ languages:
     name: Java
     extension: java
     parseTable:
-      repo: git@github.com:metaborg/java-front.git
+      repo: https://github.com/metaborg/java-front.git
       subDir: lang.java
     sources:
       batch:

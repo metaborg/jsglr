@@ -103,7 +103,7 @@ def withArgs(args: String*)(body: Args => Unit) = {
         else if (path.startsWith("./"))
             pwd / RelPath(path.substring(2))
         else
-            root / RelPath(path)
+            Path(path)
 
     val dir        = argsMapped.get("dir").map(getPath)
                                           .getOrElse(throw new IllegalArgumentException("Missing 'dir=...' argument"))

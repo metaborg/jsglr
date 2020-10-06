@@ -1,6 +1,6 @@
 #!/bin/bash
 
-all: spoofax
+all: spoofax evaluation
 
 spoofax: pull-spoofax-releng build-spoofax
 
@@ -16,3 +16,10 @@ pull-spoofax-releng:
 
 build-spoofax:
 	cd /jsglr2evaluation/data/spoofax && ./b build java
+
+evaluation:
+	cd build && \
+	make \
+		DIR=/jsglr2evaluation/data \
+		SPOOFAX_DIR=/jsglr2evaluation/data/spoofax \
+		all

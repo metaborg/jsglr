@@ -1,35 +1,30 @@
 # JSGLR2 Evaluation
 
-## Prerequisites
+## Docker
 
- - Java 8
- - Ammonite for Scala scripting: https://ammonite.io/
- - R: https://www.r-project.org/ (in particular, `Rscript`)
-
-## Run
-
-Execute everything with defaults:
+Checkout the jsglr project, including the evaluation suite, on a server where you want to run the evaluation:
 
 ```
-make all
+git clone https://github.com/metaborg/jsglr.git
 ```
 
-## Config
-
-Specify directory for languages, sources, measurements, etc., with `DIR` (defaults to `~/jsglr2evaluation`):
+Optionally, during development, checkout the `develop/jsglr2` branch:
 
 ```
-make DIR=~/jsglr2evaluation all
+git checkout develop/jsglr2
 ```
 
-Specify number of warmup and benchmark iterations with `ITERATIONS` (defaults to `1`):
+Go to the evaluation directory.
 
 ```
-make ITERATIONS=10 benchmarks
+cd jsglr/jsglr2evaluation
 ```
 
-Specify path to generate reports (LaTeX tables and plots with R) to with `REPORTDIR` (defaults to `~/jsglr2evaluation/reports`):
+Build and run the Docker image:
 
 ```
-make REPORTDIR=~/path/to/paper/generated all
+docker build -f docker/Dockerfile -t jsglr2evaluation .
+docker run -d --rm -v ~/jsglr2evaluation:/jsglr2evaluation/data -e "target=all" jsglr2evaluation
 ```
+
+This will use `~/jsglr2evaluation` on the host for persistence.

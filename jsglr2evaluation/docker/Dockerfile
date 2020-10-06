@@ -10,7 +10,7 @@ RUN apt-get update
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
-RUN apt-get install -y openjdk-8-jdk wget git make python3 python3-pip
+RUN apt-get install -y openjdk-8-jdk wget curl git make python3 python3-pip
 
 # Install Maven 3
 RUN cd bin &&\
@@ -25,7 +25,7 @@ RUN mkdir /root/.m2
 COPY docker/settings.xml /root/.m2/settings.xml
 
 # Install Ammonite (Scala scripting)
-RUN cd bin && sh -c '(echo "#!/usr/bin/env sh" && wget https://github.com/lihaoyi/Ammonite/releases/download/2.2.0/2.13-2.2.0) > /usr/local/bin/amm && chmod +x /usr/local/bin/amm' && amm
+RUN sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/lihaoyi/Ammonite/releases/download/2.2.0/2.13-2.2.0) > /usr/local/bin/amm && chmod +x /usr/local/bin/amm'
 
 # Upgrade PIP
 RUN python3 -m pip install --upgrade pip

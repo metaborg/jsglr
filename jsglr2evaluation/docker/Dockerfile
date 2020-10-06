@@ -22,7 +22,7 @@ RUN cd bin &&\
 
 # Local Maven settings (http://metaborg.org/dev/maven/#local-settings-file)
 RUN mkdir /root/.m2
-COPY settings.xml /root/.m2/settings.xml
+COPY docker/settings.xml /root/.m2/settings.xml
 
 # Install Ammonite (Scala scripting)
 RUN cd bin && sh -c '(echo "#!/usr/bin/env sh" && wget https://github.com/lihaoyi/Ammonite/releases/download/2.2.0/2.13-2.2.0) > /usr/local/bin/amm && chmod +x /usr/local/bin/amm' && amm
@@ -30,9 +30,10 @@ RUN cd bin && sh -c '(echo "#!/usr/bin/env sh" && wget https://github.com/lihaoy
 # Upgrade PIP
 RUN python3 -m pip install --upgrade pip
 
-# Add script
-COPY ./Makefile ./
+# Add scripts
+COPY build build
+COPY docker/Makefile .
 
-ARG target=all
+ENV target=all
 
-ENTRYPOINT make $(target)
+ENTRYPOINT make $target

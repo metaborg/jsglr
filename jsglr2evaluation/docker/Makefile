@@ -5,7 +5,13 @@ all: spoofax
 spoofax: pull-spoofax-releng build-spoofax
 
 pull-spoofax-releng:
-	if [ ! -d /jsglr2evaluation/data/spoofax/.git ]; then git clone --recursive https://github.com/metaborg/spoofax-releng.git /jsglr2evaluation/data/spoofax; fi;
+	if [ ! -d data/spoofax/.git ]; then git clone --recursive https://github.com/metaborg/spoofax-releng.git data/spoofax; fi;
+	cd data/spoofax && \
+		git checkout master && \
+		git pull --rebase && \
+		git submodule update --init --remote --recursive && \
+		./b checkout -y && \
+		./b update
 	# TODO: checkout specific commit
 
 build-spoofax:

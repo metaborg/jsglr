@@ -27,6 +27,9 @@ COPY settings.xml /root/.m2/settings.xml
 # Install Ammonite (Scala scripting)
 RUN cd bin && sh -c '(echo "#!/usr/bin/env sh" && wget https://github.com/lihaoyi/Ammonite/releases/download/2.2.0/2.13-2.2.0) > /usr/local/bin/amm && chmod +x /usr/local/bin/amm' && amm
 
+# Upgrade PIP
+RUN /jsglr2evaluation/data/spoofax/releng/releng/.virtualenv/bin/python3 -m pip install --upgrade pip
+
 # Add script
 COPY ./Makefile ./
 

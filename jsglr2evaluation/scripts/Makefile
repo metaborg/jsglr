@@ -1,3 +1,5 @@
+.PHONY: all clean languages cleanLanguages sources cleanSources preProcessing cleanPreProcessing measurements cleanMeasurements benchmarks cleanBenchmarks postProcessing cleanPostProcessing reportLatex reportR cleanReports
+
 CONFIG=config.yml
 DIR=~/jsglr2evaluation
 ITERATIONS=1 # warmup and benchmark iterations
@@ -61,7 +63,7 @@ cleanMeasurements:
 # Performs benchmarks
 benchmarks: $(DIR)/benchmarks
 
-$(DIR)/benchmarks: $(BENCHMARKS_JAR) benchmarks.sc spoofax.sc spoofaxDeps.sc common.sc
+$(DIR)/benchmarks: $(DIR)/sources/validated $(BENCHMARKS_JAR) benchmarks.sc spoofax.sc spoofaxDeps.sc common.sc
 	amm benchmarks.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) iterations=$(ITERATIONS) samples=$(SAMPLES)
 
 $(BENCHMARKS_JAR): $(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/src
@@ -75,7 +77,7 @@ cleanBenchmarks:
 # Post process results from measurements and benchmarks
 postProcessing: $(DIR)/results
 
-$(DIR)/results: #$(DIR)/benchmarks $(DIR)/measurements postProcess.sc common.sc
+$(DIR)/results: $(DIR)/benchmarks $(DIR)/measurements postProcess.sc common.sc
 	amm postProcess.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) samples=$(SAMPLES)
 
 cleanPostProcessing:
@@ -87,7 +89,7 @@ reportLatex: $(DIR)/results reportLatex.sc spoofax.sc spoofaxDeps.sc common.sc
 	amm reportLatex.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) iterations=$(ITERATIONS) reportDir=$(REPORTDIR)
 
 # Reporting in plots
-reportR: report.R $(DIR)/results
+reportR: $(DIR)/results report.R
 	Rscript report.R $(DIR) $(REPORTDIR)
 
 cleanReports:

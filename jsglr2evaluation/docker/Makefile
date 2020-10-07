@@ -1,5 +1,7 @@
 #!/bin/bash
 
+EVALUATION_TARGET=all
+
 all: spoofax evaluation
 
 spoofax: pull-spoofax-releng build-spoofax
@@ -22,4 +24,4 @@ evaluation:
 	make \
 		DIR=/jsglr2evaluation/data \
 		SPOOFAX_DIR=/jsglr2evaluation/data/spoofax \
-		all
+		$(EVALUATION_TARGET)

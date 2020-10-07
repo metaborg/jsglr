@@ -35,5 +35,6 @@ COPY build build
 COPY docker/Makefile .
 
 ENV target=all
+ENV evaluation_target=all
 
-ENTRYPOINT make $target
+ENTRYPOINT make EVALUATION_TARGET=$evaluation_target $target

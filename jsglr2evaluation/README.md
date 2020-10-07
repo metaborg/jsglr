@@ -23,8 +23,7 @@ cd jsglr/jsglr2evaluation
 Build and run the Docker image:
 
 ```
-docker build -f docker/Dockerfile -t jsglr2evaluation .
-docker run -d --rm -v ~/jsglr2evaluation:/jsglr2evaluation/data -e "target=all" jsglr2evaluation
+docker build -f docker/Dockerfile -t jsglr2evaluation . && docker run --rm -v ~/jsglr2evaluation:/jsglr2evaluation/data -e "target=all" -e "evaluation_target=all" jsglr2evaluation
 ```
 
 This will use `~/jsglr2evaluation` on the host for persistence.

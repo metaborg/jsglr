@@ -1,6 +1,17 @@
+import $file.spoofaxDeps
+
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
+import $ivy.`org.metaborg:org.spoofax.jsglr2:2.6.0-SNAPSHOT`
+
+import org.spoofax.jsglr2.incremental.EditorUpdate
+import org.spoofax.jsglr2.incremental.diff.IStringDiff
+import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff
+
+import scala.collection.JavaConverters._
 
 import $file.common, common._, Args._
+
+val diff: IStringDiff = new JGitHistogramDiff();
 
 def postProcess(implicit args: Args) = {
     println("Processing results...")
@@ -59,6 +70,54 @@ def postProcess(implicit args: Args) = {
 
             processBenchmarkCSV(CSV.parse(language.benchmarksDir / "perFile" / s"${file.last.toString}.csv"), row => row("Param: variant"), perFileBenchmarksPath, perFileBenchmarksNormalizedPath, normalizePerFile, "," + characters)
         }
+
+        // Benchmarks (incremental)
+
+        val parserTypes = Seq("Batch", "Incremental", "IncrementalNoCache")
+        language.sources.incremental.foreach { source => {
+            Map(false -> "parse", true -> "parse+implode").foreach { case (implode, parseImplodeStr) =>
+                mkdir! incrementalResultsDir / language.id
+                val resultPath = incrementalResultsDir / language.id / s"${source.id}-${parseImplodeStr}.csv"
+
+                // CSV header
+                write.over(resultPath, """"i"""")
+                parserTypes.foreach { parserType =>
+                    write.append(resultPath, s""","$parserType","$parserType Error (99.9%)"""")
+                }
+                write.append(resultPath, ""","Size (bytes)","Removed","Added","Changes"""" + "\n")
+
+                val sourceDir = language.sourcesDir / "incremental" / source.id
+                for (i <- 0 until (ls! sourceDir).length) {
+                    val csv = CSV.parse(language.benchmarksDir / "jsglr2incremental" / source.id / s"$i.csv")
+                    val rows = csv.rows.filter(_("Param: implode") == implode.toString)
+
+                    write.append(resultPath, i.toString)
+
+                    parserTypes.foreach { parserType => {
+                        write.append(resultPath, rows.find(_("Param: parserType") == parserType) match {
+                            case Some(row) => "," + row("Score") + "," + row("Score Error (99.9%)").replace("NaN", "")
+                            case None => ",,"
+                        })
+                    }}
+
+                    val totalSize = ((ls! sourceDir / s"$i") | stat | (_.size)).sum
+                    write.append(resultPath, "," + totalSize)
+
+                    val diffs: Seq[java.util.List[EditorUpdate]] = (ls! sourceDir / s"$i").map(file => diff.diff(
+                        try {
+                            read! file / up / up / s"${i-1}" / file.last
+                        } catch {
+                            case _ => "" // This case is reached when i == 0 or when a file is new in this iteration
+                        },
+                        read! file)
+                    )
+                    val deleted = diffs.map(diff => diff.asScala.map(_.deletedLength).sum).sum
+                    val inserted = diffs.map(diff => diff.asScala.map(_.insertedLength).sum).sum
+                    val numChanges = diffs.map(diff => diff.size).sum
+                    write.append(resultPath, "," + deleted + "," + inserted + "," + numChanges + "\n")
+                }
+            }
+        }}
     }
 }
 

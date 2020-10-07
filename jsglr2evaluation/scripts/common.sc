@@ -103,6 +103,8 @@ object Args {
     implicit def perFileBenchmarksPath(implicit args: Args)           = resultsDir / "benchmarks-perFile-time.csv"
     implicit def perFileBenchmarksNormalizedPath(implicit args: Args) = resultsDir / "benchmarks-perFile-throughput.csv"
 
+    implicit def incrementalResultsDir(implicit args: Args) = resultsDir / "incremental"
+
 }
 
 def getPath(path: String) =

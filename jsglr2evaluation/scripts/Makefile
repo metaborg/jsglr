@@ -17,7 +17,7 @@ clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBen
 languages: $(DIR)/languages
 
 $(DIR)/languages: config.yml setupLanguages.sc common.sc
-	amm setupLanguages.sc dir=$(DIR)
+	amm setupLanguages.sc dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
 
 cleanLanguages:
 	-rm -rf $(DIR)/languages
@@ -27,7 +27,7 @@ cleanLanguages:
 sources: $(DIR)/sources
 
 $(DIR)/sources: config.yml setupSources.sc common.sc
-	amm setupSources.sc dir=$(DIR)
+	amm setupSources.sc dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
 
 cleanSources:
 	-rm -rf $(DIR)/sources
@@ -37,7 +37,7 @@ cleanSources:
 preProcessing: $(DIR)/sources/validated
 
 $(DIR)/sources/validated: $(DIR)/languages $(DIR)/sources preProcess.sc common.sc
-	JAVA_OPTS="-Xmx8G" amm preProcess.sc dir=$(DIR) && touch $(DIR)/sources/validated
+	JAVA_OPTS="-Xmx8G" amm preProcess.sc dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) && touch $(DIR)/sources/validated
 
 cleanPreProcessing:
 	-rm $(DIR)/sources/validated
@@ -75,7 +75,7 @@ cleanBenchmarks:
 postProcessing: $(DIR)/results
 
 $(DIR)/results: $(DIR)/benchmarks $(DIR)/measurements postProcess.sc common.sc
-	amm postProcess.sc dir=$(DIR) samples=$(SAMPLES)
+	amm postProcess.sc dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) samples=$(SAMPLES)
 
 cleanPostProcessing:
 	-rm -r $(DIR)/results
@@ -83,7 +83,7 @@ cleanPostProcessing:
 
 # Reporting in Latex tables
 reportLatex: $(DIR)/results reportLatex.sc spoofax.sc spoofaxDeps.sc common.sc
-	amm reportLatex.sc dir=$(DIR) iterations=$(ITERATIONS) reportDir=$(REPORTDIR)
+	amm reportLatex.sc dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) iterations=$(ITERATIONS) reportDir=$(REPORTDIR)
 
 # Reporting in plots
 reportR: report.R $(DIR)/results

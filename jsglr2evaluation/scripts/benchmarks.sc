@@ -10,7 +10,7 @@ def execBenchmarks(implicit args: Args) = {
     config.languages.foreach { language =>
         println(" " + language.name)
 
-        val benchmarksMvnDir = (pwd / up / "org.spoofax.jsglr2.benchmark")
+        val benchmarksMvnDir = (args.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.benchmark")
 
         val warmupIterations = args.iterations
         val benchmarkIterations = args.iterations

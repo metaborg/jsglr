@@ -47,7 +47,7 @@ cleanPreProcessing:
 measurements: $(DIR)/measurements
 
 $(DIR)/measurements: $(DIR)/sources/validated $(MEASUREMENTS_JAR) measurements.sc spoofax.sc spoofaxDeps.sc common.sc
-	amm measurements.sc dir=$(DIR)
+	amm measurements.sc dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
 
 $(MEASUREMENTS_JAR): $(JSGLR_DIR)/org.spoofax.jsglr2.measure/src
 	mvn -f $(JSGLR_DIR)/org.spoofax.jsglr2.measure -q install
@@ -61,7 +61,7 @@ cleanMeasurements:
 benchmarks: $(DIR)/benchmarks
 
 $(DIR)/benchmarks: $(BENCHMARKS_JAR) benchmarks.sc spoofax.sc spoofaxDeps.sc common.sc
-	amm benchmarks.sc dir=$(DIR) iterations=$(ITERATIONS) samples=$(SAMPLES)
+	amm benchmarks.sc dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) iterations=$(ITERATIONS) samples=$(SAMPLES)
 
 $(BENCHMARKS_JAR): $(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/src
 	mvn -f $(JSGLR_DIR)/org.spoofax.jsglr2.benchmark -q install

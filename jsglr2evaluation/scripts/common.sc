@@ -70,7 +70,7 @@ case class ANTLRBenchmark(id: String, benchmark: String)
 val configJson = parser.parse(read! pwd / "config.yml")
 val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
-case class Args(dir: Path, iterations: Int, samples: Int, reportDir: Path)
+case class Args(dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path)
 
 object Args {
 
@@ -109,9 +109,10 @@ def withArgs(args: String*)(body: Args => Unit) = {
                                           .getOrElse(throw new IllegalArgumentException("Missing 'dir=...' argument"))
     val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
     val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
+    val spoofaxDir = argsMapped.get("spoofaxDir").map(getPath).getOrElse(pwd / up / up / up)
     val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")
 
-    body(Args(dir, iterations, samples, reportDir))
+    body(Args(dir, iterations, samples, spoofaxDir, reportDir))
 }
 
 def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {

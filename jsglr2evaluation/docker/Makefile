@@ -1,5 +1,3 @@
-#!/bin/bash
-
 EVALUATION_CONFIG=config.yml
 EVALUATION_TARGET=all
 

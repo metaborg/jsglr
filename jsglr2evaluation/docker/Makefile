@@ -20,7 +20,7 @@ build-spoofax:
 	cd /jsglr2evaluation/data/spoofax && ./b build java
 
 evaluation:
-	cd build && \
+	cd scripts && \
 	make \
 		DIR=/jsglr2evaluation/data \
 		SPOOFAX_DIR=/jsglr2evaluation/data/spoofax \

@@ -27,7 +27,7 @@ languages:
     name: WebDSL
     extension: app
     parseTable:
-      file: parsetables/WebDSL.tbl
+      file: ../parsetables/WebDSL.tbl
     sources:
       batch:
         - id: webdsl-yellowgrass

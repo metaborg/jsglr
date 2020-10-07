@@ -31,7 +31,8 @@ RUN sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/lihaoyi/Ammon
 RUN python3 -m pip install --upgrade pip
 
 # Add scripts
-COPY build build
+COPY scripts scripts
+COPY parsetables parsetables
 COPY docker/Makefile .
 
 ENV target=all

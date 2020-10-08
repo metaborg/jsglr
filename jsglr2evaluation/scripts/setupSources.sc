@@ -70,7 +70,7 @@ def setupSources(implicit args: Args) = {
                 // Copy all files to the aggregated directory
                 files.foreach { file =>
                     val pathInSource = file relativeTo languageSourceDir
-                    val filename = source.id + "_" + pathInSource.toString.replace("/", "_")
+                    val filename = source.id + "_" + pathInSource.toString.replace("/", "_").replace(".", "_")
 
                     val preProcessed = preProcess(read! file)
 

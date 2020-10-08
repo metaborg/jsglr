@@ -102,6 +102,8 @@ def withArgs(args: String*)(body: Args => Unit) = {
             Path(System.getProperty("user.home") + path.substring(1))
         else if (path.startsWith("./"))
             pwd / RelPath(path.substring(2))
+        else if (path.startsWith(".."))
+            pwd / RelPath(path)
         else
             Path(path)
 

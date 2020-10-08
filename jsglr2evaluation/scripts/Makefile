@@ -17,7 +17,7 @@ clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBen
 # Pull Spoofax languages from GitHub and build them
 languages: $(DIR)/languages
 
-$(DIR)/languages: $(CONFIG) setupLanguages.sc common.sc
+$(DIR)/languages: setupLanguages.sc common.sc
 	amm setupLanguages.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
 
 cleanLanguages:
@@ -27,7 +27,7 @@ cleanLanguages:
 # Setup evaluation corpus by pulling projects from GitHub
 sources: $(DIR)/sources
 
-$(DIR)/sources: $(CONFIG) setupSources.sc common.sc
+$(DIR)/sources: setupSources.sc common.sc
 	amm setupSources.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
 
 cleanSources:

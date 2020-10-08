@@ -77,25 +77,28 @@ def execBenchmarks(implicit args: Args) = {
             }
         }
 
-        timed(s"benchmark [JSGLR2/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "jsglr2.csv", language.sourcesDir / "batch", "multiple", Map("implode" -> "true"))
-        }
+        if (language.sources.batch.nonEmpty) {
 
-        timed(s"benchmark [JSGLR1/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            benchmarkJSGLR("JSGLR1BenchmarkExternal", language.benchmarksDir / "jsglr1.csv", language.sourcesDir / "batch", "multiple", Map("implode" -> "true"))
-        }
-
-        language.antlrBenchmarks.foreach { antlrBenchmark =>
-            timed(s"benchmark [${antlrBenchmark.id}/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-                benchmarkANTLR(antlrBenchmark.benchmark, language.benchmarksDir / s"${antlrBenchmark.id}.csv", language.sourcesDir / "batch", "multiple")
+            timed(s"benchmark [JSGLR2/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "jsglr2.csv", language.sourcesDir / "batch", "multiple", Map("implode" -> "true"))
             }
-        }
 
-        timed(s"benchmark [JSGLR2/perFile] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
-            mkdir! (language.benchmarksDir / "perFile")
+            timed(s"benchmark [JSGLR1/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                benchmarkJSGLR("JSGLR1BenchmarkExternal", language.benchmarksDir / "jsglr1.csv", language.sourcesDir / "batch", "multiple", Map("implode" -> "true"))
+            }
 
-            language.sourceFilesPerFileBenchmark.map { file =>
-                benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("implode" -> "true", "variant" -> "standard"))
+            language.antlrBenchmarks.foreach { antlrBenchmark =>
+                timed(s"benchmark [${antlrBenchmark.id}/batch] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                    benchmarkANTLR(antlrBenchmark.benchmark, language.benchmarksDir / s"${antlrBenchmark.id}.csv", language.sourcesDir / "batch", "multiple")
+                }
+            }
+
+            timed(s"benchmark [JSGLR2/perFile] (w: $warmupIterations, i: $benchmarkIterations) " + language.id) {
+                mkdir ! (language.benchmarksDir / "perFile")
+
+                language.sourceFilesPerFileBenchmark.map { file =>
+                    benchmarkJSGLR("JSGLR2BenchmarkExternal", language.benchmarksDir / "perFile" / s"${file.last.toString}.csv", file, "single", Map("implode" -> "true", "variant" -> "standard"))
+                }
             }
         }
 

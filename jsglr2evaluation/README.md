@@ -27,3 +27,6 @@ docker build -f docker/Dockerfile -t jsglr2evaluation . && docker run --rm -v ~/
 ```
 
 This will use `~/jsglr2evaluation` on the host for persistence.
+
+Optionally, you could overwrite the default config by placing a `config.yml` in your working directory (e.g. `~/jsglr2evaluation/config.yml`).
+If you choose a different filename, e.g. `config_artifact.yml`, you can instruct the Docker run to use it by passing `-e "evaluation_config=config_artifact.yml"`.

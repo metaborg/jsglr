@@ -8,13 +8,16 @@ docker build -f docker/Dockerfile -t jsglr2evaluation .
 Run the evaluation in a container:
 
 ```
-docker run -d --rm -v ~/jsglr2evaluation:/jsglr2evaluation/data -e "target=evaluation" jsglr2evaluation
+docker run -d --rm -v ~/jsglr2evaluation:/jsglr2evaluation/data -e "target=evaluation" -e "evaluation_target=all" jsglr2evaluation
 ```
 
 `-d`: run container in the background
 `--rm`: removes the container when it exits
-`-v ~/jsglr2evaluation:/jsglr2evaluation/data`: use the `~/jsglr2evaluation` directory on the host to persist data (Spoofax sources, evaluation corpus, results)
-`-e "target=evaluation"`: via the `target` environment variable, specify the target of the Make build (e.g. `all`, `spoofax`, `evaluation`)
+`-v ~/jsglr2evaluation:/jsglr2evaluation/data`: use `~/jsglr2evaluation` as working directory on the host to persist data (Spoofax sources, evaluation corpus, results)
+`-e "target=evaluation"`: specify the target of the Make build (e.g. `all`, `spoofax`, `evaluation`)
+`-e "evaluation_config=config.yml"`: specify the configuration file to use (in the working directory)
+`-e "evaluation_target=all"`: specify the target of the evaluation
+
 
 ## Docker documentattion
 

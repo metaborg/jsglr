@@ -6,6 +6,7 @@ import $file.spoofax, spoofax._
 import org.spoofax.jsglr2.JSGLR2Variant
 import org.spoofax.jsglr2.integration.IntegrationVariant
 import org.metaborg.parsetable.ParseTableVariant
+import scala.util.Try
 
 def preProcess(implicit args: Args) = {
     println("Validate sources...")
@@ -25,10 +26,10 @@ def preProcess(implicit args: Args) = {
             language.sourceFilesBatch.foreach { file =>
                 val input = read! file
 
-                val jsglr2AST = jsglr2.parse(input)
-                val jsglr1AST = jsglr1.parse(input, null, null)
+                val jsglr2AST = Try(jsglr2.parse(input)).toOption
+                val jsglr1AST = Try(jsglr1.parse(input, null, null)).toOption
 
-                if (jsglr2AST == null || jsglr1AST == null) {
+                if (jsglr2AST.isEmpty || jsglr1AST.isEmpty) {
                     val filename = file relativeTo language.sourcesDir
 
                     println("   Invalid: " + filename)

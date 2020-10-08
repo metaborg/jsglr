@@ -10,23 +10,24 @@ def execMeasurements(implicit args: Args) = {
     args.languages.foreach { language =>
         println(" " + language.name)
 
-        val measurementsMvnDir = (args.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.measure")
-
-        timed("measure " + language.id) {
-            %%(
-                "mvn",
-                "exec:java",
-                "-Dexec.args=\""+
-                    s"language=${language.id} " +
-                    s"extension=${language.extension} " +
-                    s"parseTablePath=${language.parseTablePath} " +
-                    s"sourcePath=${language.sourcesDir / "batch"} " +
-                    s"type=multiple" +
-                "\"",
-                "-DreportPath=" + language.measurementsDir,
-                MAVEN_OPTS="-Xmx8G -Xss64M"
-            )(measurementsMvnDir)
-        }
+        if (language.sources.batch.isEmpty)
+            println("  Skipped, because there are no batch sources")
+        else
+            timed("measure " + language.id) {
+                %%(
+                    "mvn",
+                    "exec:java",
+                    "-Dexec.args=\""+
+                        s"language=${language.id} " +
+                        s"extension=${language.extension} " +
+                        s"parseTablePath=${language.parseTablePath} " +
+                        s"sourcePath=${language.sourcesDir / "batch"} " +
+                        s"type=multiple" +
+                    "\"",
+                    "-DreportPath=" + language.measurementsDir,
+                    MAVEN_OPTS="-Xmx8G -Xss64M"
+                )(args.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.measure")
+            }
     }
 }
 

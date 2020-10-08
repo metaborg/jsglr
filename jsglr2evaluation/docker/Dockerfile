@@ -37,6 +37,7 @@ COPY parsetables parsetables
 COPY docker/Makefile .
 
 ENV target=all
+ENV evaluation_config=config.yml
 ENV evaluation_target=all
 
-ENTRYPOINT make EVALUATION_TARGET=$evaluation_target $target
+ENTRYPOINT make EVALUATION_CONFIG=$evaluation_config EVALUATION_TARGET=$evaluation_target $target

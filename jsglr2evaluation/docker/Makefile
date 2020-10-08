@@ -1,5 +1,6 @@
 #!/bin/bash
 
+EVALUATION_CONFIG=config.yml
 EVALUATION_TARGET=all
 
 all: spoofax evaluation
@@ -24,4 +25,5 @@ evaluation:
 	make \
 		DIR=/jsglr2evaluation/data \
 		SPOOFAX_DIR=/jsglr2evaluation/data/spoofax \
+		CONFIG=$(EVALUATION_CONFIG) \
 		$(EVALUATION_TARGET)

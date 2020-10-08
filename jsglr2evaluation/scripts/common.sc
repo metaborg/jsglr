@@ -122,15 +122,24 @@ def withArgs(args: String*)(body: Args => Unit) = {
         }
     }.toMap
 
-    val configJson = parser.parse(read! pwd / "config.yml")
-    val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
-
     val dir        = argsMapped.get("dir").map(getPath)
                                           .getOrElse(throw new IllegalArgumentException("Missing 'dir=...' argument"))
-    val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
-    val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
     val spoofaxDir = argsMapped.get("spoofaxDir").map(getPath).getOrElse(pwd / up / up / up)
     val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")
+
+    val configPath = {
+        val filename = argsMapped.get("config").getOrElse("config.yml")
+
+        if (exists! (dir / filename))
+            dir / filename
+        else
+            pwd / filename
+    }
+    val configJson = parser.parse(read! configPath)
+    val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
+
+    val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
+    val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
 
     body(Args(config.languages, dir, iterations, samples, spoofaxDir, reportDir))
 }

@@ -1,4 +1,4 @@
-CONFIG=$(CONFIG)
+CONFIG=config.yml
 DIR=~/jsglr2evaluation
 ITERATIONS=1 # warmup and benchmark iterations
 SAMPLES=1 # number of sampled files for per file benchmarking

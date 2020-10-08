@@ -60,10 +60,28 @@ object ParseTable {
 
 case class Sources(batch: Seq[BatchSource] = Seq.empty, incremental: Seq[IncrementalSource] = Seq.empty)
 
-sealed abstract class Source(val id: String, val repo: String)
-case class BatchSource(override val id: String, override val repo: String) extends Source(id, repo)
-case class IncrementalSource(override val id: String, override val repo: String,
-        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty) extends Source(id, repo)
+sealed trait Source {
+    def id: String
+}
+sealed trait RepoSource extends Source {
+    def repo: String
+}
+sealed trait LocalSource extends Source {
+    def path: String
+}
+
+sealed trait BatchSource extends Source
+case class BatchRepoSource(id: String, repo: String) extends BatchSource with RepoSource
+case class BatchLocalSource(id: String, path: String) extends BatchSource with LocalSource
+
+object BatchSource {
+    implicit val decodeBatchSource: Decoder[BatchSource] =
+        Decoder[BatchRepoSource] .map[BatchSource](identity) or
+        Decoder[BatchLocalSource].map[BatchSource](identity)
+}
+
+case class IncrementalSource(id: String, repo: String,
+        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty) extends RepoSource
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 
@@ -90,22 +108,22 @@ object Args {
 
 }
 
+def getPath(path: String) =
+    if (path.startsWith("~/"))
+        Path(System.getProperty("user.home") + path.substring(1))
+    else if (path.startsWith("./"))
+        pwd / RelPath(path.substring(2))
+    else if (path.startsWith(".."))
+        pwd / RelPath(path)
+    else
+        Path(path)
+
 def withArgs(args: String*)(body: Args => Unit) = {
     val argsMapped = args.toSeq.map { arg =>
         arg.split("=") match {
             case Array(key, value) => key -> value
         }
     }.toMap
-
-    def getPath(path: String) =
-        if (path.startsWith("~/"))
-            Path(System.getProperty("user.home") + path.substring(1))
-        else if (path.startsWith("./"))
-            pwd / RelPath(path.substring(2))
-        else if (path.startsWith(".."))
-            pwd / RelPath(path)
-        else
-            Path(path)
 
     val dir        = argsMapped.get("dir").map(getPath)
                                           .getOrElse(throw new IllegalArgumentException("Missing 'dir=...' argument"))

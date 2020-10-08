@@ -7,7 +7,7 @@ def setupLanguages(implicit args: Args) = {
     
     mkdir! languagesDir
 
-    config.languages.foreach { language =>
+    args.languages.foreach { language =>
         println(" " + language.name)
 
         language.parseTable match {

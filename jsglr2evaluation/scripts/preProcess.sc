@@ -10,7 +10,7 @@ import org.metaborg.parsetable.ParseTableVariant
 def preProcess(implicit args: Args) = {
     println("Validate sources...")
 
-    config.languages.foreach { language =>
+    args.languages.foreach { language =>
         println(" " + language.name)
 
         val variant = new IntegrationVariant(

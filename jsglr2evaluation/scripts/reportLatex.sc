@@ -12,7 +12,7 @@ def latexTableTestSets(implicit args: Args) = {
     s.append("Language & Source & Files & Lines & Size (bytes) \\\\\n")
     s.append("\\hline\n")
 
-    config.languages.foreach { language =>
+    args.languages.foreach { language =>
         s.append("\\multirow{" + language.sources.size + "}{*}{" + language.name + "}\n")
 
         language.sources.zipWithIndex.foreach { case (source, index) =>
@@ -37,15 +37,15 @@ def latexTableTestSets(implicit args: Args) = {
 def latexTableMeasurements(csv: CSV) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{tabular}{|l|" + ("r|" * config.languages.size) + "}\n")
+    s.append("\\begin{tabular}{|l|" + ("r|" * args.languages.size) + "}\n")
     s.append("\\hline\n")
-    s.append("Measure" + config.languages.map(" & " + _.name).mkString("") + " \\\\\n")
+    s.append("Measure" + args.languages.map(" & " + _.name).mkString("") + " \\\\\n")
     s.append("\\hline\n")
 
     csv.columns.filter(_ != "language").foreach { column =>
         s.append(column)
 
-        config.languages.foreach { language =>
+        args.languages.foreach { language =>
             val row = csv.rows.find(_("language") == language.id).get
             val value = row(column)
 
@@ -63,11 +63,11 @@ def latexTableMeasurements(csv: CSV) = {
 def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(implicit args: Args) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{tabular}{|l|" + ("r|" * (config.languages.size * (1 + benchmarkType.errorColumns.size))) + "}\n")
+    s.append("\\begin{tabular}{|l|" + ("r|" * (args.languages.size * (1 + benchmarkType.errorColumns.size))) + "}\n")
     s.append("\\hline\n")
-    s.append("\\multirow{2}{*}{Variant}" + config.languages.map(language => s" & \\multicolumn{${1 + benchmarkType.errorColumns.size}}{c|}{${language.name}}").mkString("") + " \\\\\n")
-    s.append(s"\\cline{2-${1 + config.languages.size * (1 + benchmarkType.errorColumns.size)}}\n")
-    s.append(config.languages.map(_ => " & Score" + benchmarkType.errorColumns.map(" & " + _._2).mkString).mkString + " \\\\\n")
+    s.append("\\multirow{2}{*}{Variant}" + args.languages.map(language => s" & \\multicolumn{${1 + benchmarkType.errorColumns.size}}{c|}{${language.name}}").mkString("") + " \\\\\n")
+    s.append(s"\\cline{2-${1 + args.languages.size * (1 + benchmarkType.errorColumns.size)}}\n")
+    s.append(args.languages.map(_ => " & Score" + benchmarkType.errorColumns.map(" & " + _._2).mkString).mkString + " \\\\\n")
     s.append("\\hline\n")
 
     val variants = benchmarksCSV.rows.map(_("variant")).distinct
@@ -75,7 +75,7 @@ def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(impli
     variants.foreach { variant =>
         s.append(variant)
 
-        config.languages.foreach { language =>
+        args.languages.foreach { language =>
             def get(column: String) = benchmarksCSV.rows.find { row =>
                 row("language") == language.id &&
                 row("variant") == variant

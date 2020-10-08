@@ -7,7 +7,7 @@ import $file.spoofax, spoofax._
 def execBenchmarks(implicit args: Args) = {
     println("Executing benchmarks...")
 
-    config.languages.foreach { language =>
+    args.languages.foreach { language =>
         println(" " + language.name)
 
         val benchmarksMvnDir = (args.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.benchmark")

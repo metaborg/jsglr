@@ -7,7 +7,7 @@ import $file.spoofax, spoofax._
 def execMeasurements(implicit args: Args) = {
     println("Executing measurements...")
 
-    config.languages.foreach { language =>
+    args.languages.foreach { language =>
         println(" " + language.name)
 
         val measurementsMvnDir = (args.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.measure")

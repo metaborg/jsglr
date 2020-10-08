@@ -16,7 +16,7 @@ def postProcess(implicit args: Args) = {
     write.over(perFileBenchmarksPath,           "")
     write.over(perFileBenchmarksNormalizedPath, "")
 
-    config.languages.zipWithIndex.foreach { case(language, index) =>
+    args.languages.zipWithIndex.foreach { case(language, index) =>
         println(" " + language.name)
 
         if (index == 0) {

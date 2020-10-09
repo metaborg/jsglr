@@ -27,7 +27,7 @@ def setupSources(implicit args: Args) = {
             %%("git", "config", "core.sparseCheckout", "true")(languageSourceRepoDir)
             write(languageSourceRepoDir / ".git" / "info" / "sparse-checkout", source match {
                 // If a list of files is given: only checkout these files
-                case IncrementalSource(_, _, _, files) if files.nonEmpty => files.mkString("\n")
+                case IncrementalSource(_, _, _, files, _) if files.nonEmpty => files.mkString("\n")
                 // Else: filter files based on extension
                 case _ => "*." + language.extension
             })
@@ -38,7 +38,7 @@ def setupSources(implicit args: Args) = {
                 case BatchRepoSource(_, repo) =>
                     // Clone without all history
                     %%("git", "fetch", "origin", "master", "--depth=1")(languageSourceRepoDir)
-                case IncrementalSource(_, repo, fetchOptions, _) =>
+                case IncrementalSource(_, repo, fetchOptions, _, _) =>
                     // Clone with full history, possibly limited by the fetchOptions
                     %%("git", "fetch", "origin", "master", fetchOptions)(languageSourceRepoDir)
             }
@@ -100,7 +100,8 @@ def setupSources(implicit args: Args) = {
                         %%("git", "log", "--format=%H", "--reverse", "--", "*." + language.extension)(languageSourceRepoDir)
                 ).out.string.split("\n")
 
-                revisions.zipWithIndex.foreach { case (revision, i) =>
+                (if (source.versions >= 0) revisions.takeRight(source.versions) else revisions)
+                        .zipWithIndex.foreach { case (revision, i) =>
                     %%("git", "checkout", "-f", revision)(languageSourceRepoDir)
 
                     val revisionPath = language.sourcesDir / "incremental" / source.id / i.toString

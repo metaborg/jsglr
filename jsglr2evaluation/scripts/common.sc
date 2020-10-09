@@ -81,7 +81,7 @@ object BatchSource {
 }
 
 case class IncrementalSource(id: String, repo: String,
-        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty) extends RepoSource
+        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty, versions: Int = -1) extends RepoSource
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 

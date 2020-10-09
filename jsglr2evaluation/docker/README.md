@@ -19,6 +19,15 @@ docker run -d --rm -v ~/jsglr2evaluation:/jsglr2evaluation/data -e "target=evalu
 `-e "evaluation_target=all"`: specify the target of the evaluation
 
 
+To start a shell inside the container:
+
+```
+docker run --rm -v ~/jsglr2evaluation:/jsglr2evaluation/data -it --entrypoint /bin/bash jsglr2evaluation
+```
+
+`-it`: Run the container interactively
+`--entrypoint /bin/bash`: Start a shell instead of directly running the evaluation scripts
+
 ## Docker documentattion
 
 - https://docs.docker.com/get-started/part2/

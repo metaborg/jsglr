@@ -39,7 +39,7 @@ def setupSources(implicit args: Args) = {
                     // Clone without all history
                     %%("git", "fetch", "origin", "master", "--depth=1")(languageSourceRepoDir)
                 case IncrementalSource(_, repo, fetchOptions, _) =>
-                    // Clone with full history, possibly limited by the pullOptions
+                    // Clone with full history, possibly limited by the fetchOptions
                     %%("git", "fetch", "origin", "master", fetchOptions)(languageSourceRepoDir)
             }
 

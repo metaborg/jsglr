@@ -81,7 +81,7 @@ object BatchSource {
 }
 
 case class IncrementalSource(id: String, repo: String,
-        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty) extends RepoSource
+        fetchOptions: Seq[String] = Seq.empty, files: Seq[String] = Seq.empty, versions: Int = -1) extends RepoSource
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 
@@ -102,6 +102,8 @@ object Args {
     implicit def batchBenchmarksNormalizedPath(implicit args: Args)   = resultsDir / "benchmarks-batch-throughput.csv"
     implicit def perFileBenchmarksPath(implicit args: Args)           = resultsDir / "benchmarks-perFile-time.csv"
     implicit def perFileBenchmarksNormalizedPath(implicit args: Args) = resultsDir / "benchmarks-perFile-throughput.csv"
+
+    implicit def incrementalResultsDir(implicit args: Args) = resultsDir / "incremental"
 
 }
 
@@ -173,14 +175,22 @@ case class CSVRow(values: Map[String, String]) {
 }
 
 object CSV {
+    // Source: https://stackoverflow.com/a/13336039
+    private val commaRegex = """,(?=([^\"]*\"[^\"]*\")*[^\"]*$)"""
+
+    private def stripQuotes(s: String) =
+        if (s.startsWith("\"") && s.endsWith("\"")) s.substring(1, s.length - 1) else s
+
+    private def parseLine(line: String) =
+        line.split(commaRegex).map(stripQuotes)
 
     def parse(file: Path): CSV = {
         read.lines(file) match {
             case headerLine +: rowLines =>
-                val columns = headerLine.split(",").toSeq
+                val columns = parseLine(headerLine).toSeq
 
-                val rows = rowLines.map { row =>
-                    CSVRow((columns zip row.split(",")).toMap)
+                val rows = rowLines.map { rowLine =>
+                    CSVRow((columns zip parseLine(rowLine)).toMap)
                 }
 
                 CSV(columns, rows)

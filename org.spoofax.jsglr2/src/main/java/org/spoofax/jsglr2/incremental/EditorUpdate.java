@@ -11,18 +11,27 @@ public class EditorUpdate {
     public final int deletedStart;
     public final int deletedEnd;
     public final String inserted;
-    public final Type type; // Redundant information that is calculated based on other fields, just for convenience
 
     public EditorUpdate(int deletedStart, int deletedEnd, String inserted) {
         this.deletedStart = deletedStart;
         this.deletedEnd = deletedEnd;
         this.inserted = inserted;
+    }
+
+    public Type getType() {
         if(deletedStart == deletedEnd)
-            type = Type.INSERTION;
-        else if(inserted.length() == 0)
-            type = Type.DELETION;
-        else
-            type = Type.REPLACEMENT;
+            return Type.INSERTION;
+        if(inserted.length() == 0)
+            return Type.DELETION;
+        return Type.REPLACEMENT;
+    }
+
+    public int deletedLength() {
+        return deletedEnd - deletedStart;
+    }
+
+    public int insertedLength() {
+        return inserted.length();
     }
 
     @Override public boolean equals(Object o) {

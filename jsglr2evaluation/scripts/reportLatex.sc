@@ -13,16 +13,16 @@ def latexTableTestSets(implicit args: Args) = {
     s.append("\\hline\n")
 
     args.languages.foreach { language =>
-        s.append("\\multirow{" + language.sources.size + "}{*}{" + language.name + "}\n")
+        s.append("\\multirow{" + language.sources.batch.size + "}{*}{" + language.name + "}\n")
 
-        language.sources.zipWithIndex.foreach { case (source, index) =>
+        language.sources.batch.zipWithIndex.foreach { case (source, index) =>
             val files = language.sourceFilesBatch // TODO this gets all source files of the language, not of the source
             val lines = files | read.lines | (_.size) sum
             val size = files | stat | (_.size) sum
 
             s.append("  & " + source.id + " & " + files.size + " & " + lines + " & " + size + " \\\\ ")
 
-            if (index == language.sources.size - 1)
+            if (index == language.sources.batch.size - 1)
                 s.append("\\hline\n");
             else
                 s.append("\\cline{2-5}\n")
@@ -34,7 +34,7 @@ def latexTableTestSets(implicit args: Args) = {
     s.toString
 }
 
-def latexTableMeasurements(csv: CSV) = {
+def latexTableMeasurements(csv: CSV)(implicit args: Args) = {
     val s = new StringBuilder()
 
     s.append("\\begin{tabular}{|l|" + ("r|" * args.languages.size) + "}\n")

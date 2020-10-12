@@ -35,7 +35,7 @@ def preProcess(implicit args: Args) = {
                     println("   Invalid: " + filename)
 
                     mkdir! sourcesDir / "invalid"
-                    mv.over(file, sourcesDir / "invalid" / filename)
+                    mv.over(file, sourcesDir / "invalid" / filename.last)
                 }
 
                 // TODO: if language has ANTLR grammar, also validate with ANTLR

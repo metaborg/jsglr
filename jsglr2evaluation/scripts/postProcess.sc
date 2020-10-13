@@ -97,7 +97,11 @@ def postProcess(implicit args: Args) = {
 
                 val sourceDir = language.sourcesDir / "incremental" / source.id
                 for (i <- 0 until (ls! sourceDir).length) {
-                    val csv = CSV.parse(language.benchmarksDir / "jsglr2incremental" / source.id / s"$i.csv")
+                    val csv = try {
+                        CSV.parse(language.benchmarksDir / "jsglr2incremental" / source.id / s"$i.csv")
+                    } catch {
+                        case _ => CSV(Seq.empty, Seq.empty)
+                    }
                     val rows = csv.rows.filter(_("Param: implode") == implode.toString)
 
                     write.append(resultPath, i.toString)

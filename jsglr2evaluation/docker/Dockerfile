@@ -1,5 +1,6 @@
 FROM ubuntu:20.04
 
+# Setup directories
 WORKDIR /jsglr2evaluation
 RUN mkdir /jsglr2evaluation/bin
 RUN mkdir /jsglr2evaluation/data
@@ -10,7 +11,7 @@ RUN apt-get update
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
-RUN apt-get install -y openjdk-8-jdk wget curl git make python3 python3-pip
+RUN apt-get install -y software-properties-common openjdk-8-jdk wget curl git make python3 python3-pip
 
 # Install Maven 3
 RUN cd bin &&\
@@ -30,6 +31,12 @@ ENV COURSIER_CACHE /jsglr2evaluation/data/coursier-cache
 
 # Upgrade PIP
 RUN python3 -m pip install --upgrade pip
+
+# Install R
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+RUN add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'
+RUN apt-get update
+RUN apt-get -y install r-base
 
 # Add scripts
 COPY scripts scripts

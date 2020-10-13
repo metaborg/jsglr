@@ -15,6 +15,8 @@ all: languages sources preProcessing measurements benchmarks postProcessing repo
 
 clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBenchmarks cleanPostProcessing cleanReports
 
+cleanAll: clean all
+
 
 # Pull Spoofax languages from GitHub and build them
 languages: $(DIR)/languages

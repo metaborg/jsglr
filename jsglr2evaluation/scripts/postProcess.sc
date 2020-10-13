@@ -19,15 +19,20 @@ def postProcess(implicit args: Args) = {
     
     mkdir! resultsDir
 
-    // Copy header from measurements CSV
-    write.over(parseTableMeasurementsPath, "language," + read.lines(args.languages(0).measurementsDir / "parsetable.csv")(0))
-    write.over(parsingMeasurementsPath,    "language," + read.lines(args.languages(0).measurementsDir / "parsing.csv")(0))
+    val languagesWithBatchSources = args.languages.filter(_.sources.batch.nonEmpty)
+    if (languagesWithBatchSources.nonEmpty) {
+        val dir = languagesWithBatchSources(0).measurementsDir
 
-    // Add header to benchmarks CSV
-    write.over(batchBenchmarksPath,             "language,variant,score,error,low,high\n")
-    write.over(batchBenchmarksNormalizedPath,   "language,variant,score,low,high\n")
-    write.over(perFileBenchmarksPath,           "language,variant,score,error,low,high,size\n")
-    write.over(perFileBenchmarksNormalizedPath, "language,variant,score,low,high,size\n")
+        // Copy header from measurements CSV
+        write.over(parseTableMeasurementsPath, "language," + read.lines(dir / "parsetable.csv")(0))
+        write.over(parsingMeasurementsPath,    "language," + read.lines(dir / "parsing.csv")(0))
+
+        // Add header to benchmarks CSV
+        write.over(batchBenchmarksPath,             "language,variant,score,error,low,high\n")
+        write.over(batchBenchmarksNormalizedPath,   "language,variant,score,low,high\n")
+        write.over(perFileBenchmarksPath,           "language,variant,score,error,low,high,size\n")
+        write.over(perFileBenchmarksNormalizedPath, "language,variant,score,low,high,size\n")
+    }
 
     args.languages.foreach { language =>
         println(" " + language.name)

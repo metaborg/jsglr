@@ -13,7 +13,7 @@ JSGLR_DIR=$(SPOOFAX_DIR)/jsglr
 MEASUREMENTS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.measure/target/org.spoofax.jsglr2.measure-2.6.0-SNAPSHOT.jar
 BENCHMARKS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/target/org.spoofax.jsglr2.benchmark-2.6.0-SNAPSHOT.jar
 
-all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR publish
+all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR Pipfile.lock reportPy publish
 
 clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBenchmarks cleanPostProcessing cleanReports
 
@@ -95,6 +95,12 @@ reportLatex: $(DIR)/results reportLatex.sc spoofax.sc spoofaxDeps.sc common.sc
 # Reporting in plots
 reportR: $(DIR)/results report.R
 	Rscript report.R $(DIR) $(REPORTDIR)
+
+Pipfile.lock:
+	pipenv install
+
+reportPy: $(DIR)/results report.py Pipfile.lock
+	pipenv run report $(DIR) $(REPORTDIR)
 
 cleanReports:
 	-rm -r $(REPORTDIR)

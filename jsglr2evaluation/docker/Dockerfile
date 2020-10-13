@@ -30,7 +30,7 @@ RUN sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/lihaoyi/Ammon
 ENV COURSIER_CACHE /jsglr2evaluation/data/coursier-cache
 
 # Upgrade PIP
-RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install --upgrade pip pipenv
 
 # Install R
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
@@ -48,6 +48,10 @@ RUN git config --global core.excludesfile ~/.gitignore_global
 COPY scripts scripts
 COPY parsetables parsetables
 COPY docker/Makefile .
+
+# Install required Python packages for scripts
+ENV PIPENV_VENV_IN_PROJECT=1
+RUN cd scripts && pipenv install
 
 ENV target=all
 ENV evaluation_config=config.yml

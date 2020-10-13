@@ -1,10 +1,6 @@
-import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
-
 import coursierapi.MavenRepository
 
-
-interp.repositories.update(
-  interp.repositories() ::: List(MavenRepository.of(
-    "file://" + %%("mvn", "help:evaluate", "-Dexpression=settings.localRepository", "-q", "-DforceStdout")(pwd).out.string
-  ))
-)
+interp.repositories.update(List(
+    MavenRepository.of("file:/jsglr2evaluation/data/m2-repo"),
+    MavenRepository.of("https://repo1.maven.org/maven2")
+))

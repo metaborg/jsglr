@@ -10,7 +10,7 @@ matplotlib = "*"
 pdftools = "*"
 
 [scripts]
-report = "python3 build/report.py"
+report = "python3 report.py"
 
 [requires]
 python_version = "3.8"

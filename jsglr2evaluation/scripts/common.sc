@@ -85,7 +85,7 @@ case class IncrementalSource(id: String, repo: String,
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 
-case class Args(languages: Seq[Language], dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path)
+case class Args(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path)
 
 object Args {
 
@@ -94,6 +94,7 @@ object Args {
     implicit def measurementsDir(implicit args: Args) = args.dir / 'measurements
     implicit def benchmarksDir(implicit args: Args)   = args.dir / 'benchmarks
     implicit def resultsDir(implicit args: Args)      = args.dir / 'results
+    implicit def websiteDir(implicit args: Args)      = args.dir / 'website
     
     implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"
     implicit def parsingMeasurementsPath(implicit args: Args)    = resultsDir / "measurements-parsing.csv"
@@ -143,7 +144,7 @@ def withArgs(args: String*)(body: Args => Unit) = {
     val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
     val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
 
-    body(Args(config.languages, dir, iterations, samples, spoofaxDir, reportDir))
+    body(Args(configPath, config.languages, dir, iterations, samples, spoofaxDir, reportDir))
 }
 
 def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {

@@ -1,10 +1,12 @@
-.PHONY: all clean languages cleanLanguages sources cleanSources preProcessing cleanPreProcessing measurements cleanMeasurements benchmarks cleanBenchmarks postProcessing cleanPostProcessing reportLatex reportR cleanReports
+.PHONY: all clean languages cleanLanguages sources cleanSources preProcessing cleanPreProcessing measurements cleanMeasurements benchmarks cleanBenchmarks postProcessing cleanPostProcessing reportLatex reportR cleanReports publish websiteRepo addToWebsite websitePush
 
 CONFIG=config.yml
 DIR=~/jsglr2evaluation
 ITERATIONS=1 # warmup and benchmark iterations
 SAMPLES=1 # number of sampled files for per file benchmarking
 REPORTDIR=$(DIR)/reports
+
+GITHUB_TOKEN=?
 
 SPOOFAX_DIR=../../..
 JSGLR_DIR=$(SPOOFAX_DIR)/jsglr
@@ -96,3 +98,24 @@ reportR: $(DIR)/results report.R
 
 cleanReports:
 	-rm -r $(REPORTDIR)
+
+archive: $(DIR)/archive.tar.gz
+
+$(DIR)/archive.tar.gz: $(DIR)/measurements $(DIR)/benchmarks $(DIR)/results $(DIR)/reports
+	cd $(DIR) && tar -czf archive.tar.gz measurements benchmarks results -C $(REPORTDIR)/.. reports
+
+# Publish on website
+publish: websiteRepo addToWebsite websitePush
+
+websiteRepo:
+	if [ ! -d $(DIR)/website/.git ]; then git clone https://$(GITHUB_TOKEN)@github.com/metaborg/jsglr2evaluation-site.git $(DIR)/website; fi;
+	cd $(DIR)/website && git pull
+
+addToWebsite: $(DIR)/archive.tar.gz
+	amm addToWebsite.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) reportDir=$(REPORTDIR)
+
+websitePush:
+	cd $(DIR)/website && \
+		git add -A && \
+		git commit -m "Evaluation results" && \
+		git push https://$(GITHUB_TOKEN)@github.com/metaborg/jsglr2evaluation-site.git

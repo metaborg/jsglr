@@ -27,6 +27,7 @@ def addToWebsite(implicit args: Args) = {
         dir / "index.html",
         s"""<html>
            |<body>
+           |<p><a href="../index.html">&larr; Back to index</a></p>
            |<h1>$id</h1>
            |<p><a href="./archive.tar.gz">Archive</a></p>
            |<pre>$config</pre>

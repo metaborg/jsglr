@@ -56,8 +56,9 @@ def plot_times(rows, parser_types):
     ax2.plot(x, y, "yo", label="Change size", markersize=3)
 
     for column in parser_types:
-        x, y = zip(*((int(row["i"]), float(row[column])) for row in rows if row[column]))
-        ax1.plot(x, y, COLORS[column], label=column)
+        x, y, yerr = zip(*((int(row["i"]), float(row[column]), float(row[column + " Error (99.9%)"] or 0))
+                           for row in rows if row[column]))
+        ax1.errorbar(x, y, yerr, fmt=COLORS[column], label=column)
 
     # Combine legends for both axes (https://stackoverflow.com/a/10129461)
     lines1, labels1 = ax1.get_legend_handles_labels()

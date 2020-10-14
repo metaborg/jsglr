@@ -46,5 +46,8 @@ COPY docker/Makefile .
 ENV target=all
 ENV evaluation_config=config.yml
 ENV evaluation_target=all
+ENV spoofax_version=master
+ENV jsglr_version=develop/jsglr2
+ENV github_token=?
 
-ENTRYPOINT make EVALUATION_CONFIG=$evaluation_config EVALUATION_TARGET=$evaluation_target $target
+ENTRYPOINT make EVALUATION_CONFIG=$evaluation_config EVALUATION_TARGET=$evaluation_target SPOOFAX_VERSION=$spoofax_version JSGLR_VERSION=$jsglr_version GITHUB_TOKEN=$github_token $target

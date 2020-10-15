@@ -5,6 +5,7 @@ DIR=~/jsglr2evaluation
 ITERATIONS=1 # warmup and benchmark iterations
 SAMPLES=1 # number of sampled files for per file benchmarking
 REPORTDIR=$(DIR)/reports
+USER=root
 
 GITHUB_TOKEN=?
 
@@ -127,3 +128,7 @@ websitePush:
 		git add -A && \
 		git commit -m "Evaluation results" && \
 		git push https://$(GITHUB_TOKEN)@github.com/metaborg/jsglr2evaluation-site.git
+
+chown:
+	useradd -M $(USER)
+	chown -R $(USER) $(DIR)

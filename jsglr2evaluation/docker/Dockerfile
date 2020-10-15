@@ -38,6 +38,10 @@ RUN add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-c
 RUN apt-get update
 RUN apt-get -y install r-base
 
+# Specify Git credentials
+RUN git config --global user.name "JSGLR2 Evaluation"
+RUN git config --global user.email "j.denkers@tudelft.nl"
+
 # Add scripts
 COPY scripts scripts
 COPY parsetables parsetables

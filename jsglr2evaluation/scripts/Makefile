@@ -105,6 +105,8 @@ reportPy: $(DIR)/results report.py Pipfile.lock
 cleanReports:
 	-rm -r $(REPORTDIR)
 
+
+# Archive and publish reports to website
 archive: $(DIR)/archive.tar.gz
 
 $(DIR)/archive.tar.gz: $(DIR)/measurements $(DIR)/benchmarks $(DIR)/results $(DIR)/reports

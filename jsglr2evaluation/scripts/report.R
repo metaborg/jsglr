@@ -15,6 +15,16 @@ setwd(dir)
 colors <- c("#8c510a", "#d8b365", "#f6e8c3", "#f5f5f5", "#c7eae5", "#5ab4ac", "#01665e") # Color per parser variant, colorblind safe: http://colorbrewer2.org/#type=diverging&scheme=BrBG&n=6
 symbols <- c(0,2,5) # Color per language
 
+savePlot <- function(plot, filename) {
+  png(file=paste(filename, ".png", sep=""))
+  plot()
+  dev.off()
+
+  pdf(file=paste(filename, ".pdf", sep=""))
+  plot()
+  dev.off()
+}
+
 batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, getHighs) {
   data     <- read.csv(file=inputFile, header=TRUE, sep=",")
   variants <- unique(data$variant)
@@ -29,23 +39,21 @@ batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, 
   highs  <-  highs[variants,]
   
   dir.create(reportDir, showWarnings = FALSE)
-
-  pdf(file=paste(reportDir, outputFile, sep=""))
   
-  # https://datascienceplus.com/building-barplots-with-error-bars/
-  barCenters <- barplot(height=scores,
-                        main=paste("Parsing", quantity),
-                        xlab="Language",
-                        ylab=unit,
-                        ylim=c(0, 1.01 * max(getHighs(data))),
-                        col=colors[1:length(variants)],
-                        legend=variants,
-                        beside=TRUE)
-  
-  segments(barCenters, lows, barCenters, highs, lwd = 1)
-  arrows(barCenters, lows, barCenters, highs, lwd = 1, angle = 90, code = 3, length = 0.05)
-  
-  dev.off()
+  savePlot(function() {
+    # https://datascienceplus.com/building-barplots-with-error-bars/
+    barCenters <- barplot(height=scores,
+                          main=paste("Parsing", quantity),
+                          xlab="Language",
+                          ylab=unit,
+                          ylim=c(0, 1.01 * max(getHighs(data))),
+                          col=colors[1:length(variants)],
+                          legend=variants,
+                          beside=TRUE)
+    
+    segments(barCenters, lows, barCenters, highs, lwd = 1)
+    arrows(barCenters, lows, barCenters, highs, lwd = 1, angle = 90, code = 3, length = 0.05)
+  }, file=paste(reportDir, outputFile, sep=""))
 }
 
 batchTimeBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
@@ -62,23 +70,21 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   languages <- unique(data$language)
   
   dir.create(reportDir, showWarnings = FALSE)
-  
-  pdf(file=paste(reportDir, outputFile, sep=""))
-  
-  plot(data$size / 1000,
-       data$score,
-       main=paste("Parsing", quantity, "vs. file size"),
-       xlab="File size (1000 characters)",
-       ylab=unit,
-       pch=symbols[data$language])
-  
-  legend("top", inset=0.05, legend=languages, pch=symbols[languages])
-  
-  dev.off()
+
+  savePlot(function() {
+    plot(data$size / 1000,
+        data$score,
+        main=paste("Parsing", quantity, "vs. file size"),
+        xlab="File size (1000 characters)",
+        ylab=unit,
+        pch=symbols[data$language])
+    
+    legend("top", inset=0.05, legend=languages, pch=symbols[languages])
+  }, file=paste(reportDir, outputFile, sep=""))
 }
 
-batchTimeBenchmarksPlot("results/benchmarks-batch-time.csv", "/benchmarks-batch-time.pdf")
-batchThroughputBenchmarksPlot("results/benchmarks-batch-throughput.csv", "/benchmarks-batch-throughput.pdf")
+batchTimeBenchmarksPlot("results/benchmarks-batch-time.csv",             "/benchmarks-batch-time")
+batchThroughputBenchmarksPlot("results/benchmarks-batch-throughput.csv", "/benchmarks-batch-throughput")
 
-perFileBenchmarksPlot("results/benchmarks-perFile-time.csv",       "/benchmarks-perFile-time.pdf",       "time",       "ms")
-perFileBenchmarksPlot("results/benchmarks-perFile-throughput.csv", "/benchmarks-perFile-throughput.pdf", "throughput", "1000 chars/s")
+perFileBenchmarksPlot("results/benchmarks-perFile-time.csv",       "/benchmarks-perFile-time",       "time",       "ms")
+perFileBenchmarksPlot("results/benchmarks-perFile-throughput.csv", "/benchmarks-perFile-throughput", "throughput", "1000 chars/s")

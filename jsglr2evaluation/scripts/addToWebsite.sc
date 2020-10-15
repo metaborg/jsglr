@@ -13,7 +13,7 @@ def addToWebsite(implicit args: Args) = {
     val index = Jsoup.parse(new File("" + indexFile), "UTF-8")
     val ul = index.select("#runs").first
 
-    ul.append("<li><a href=\"./" + id + "/index.html\">" + id + "</a></li>")
+    ul.prepend("<li><a href=\"./" + id + "/index.html\">" + id + "</a></li>")
 
     write.over(indexFile, index.toString)
 

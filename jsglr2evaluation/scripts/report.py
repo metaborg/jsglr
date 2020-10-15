@@ -108,19 +108,20 @@ for language in scandir(path.join(DIR, "results", "incremental")):
         makedirs(report_path, exist_ok=True)
 
         reports = [
-            (plot_times(result_data, ["Batch", "Incremental", "IncrementalNoCache"]), "report.pdf"),
-            (plot_times(result_data_except_first, ["Incremental"]), "report-except-first.pdf"),
-            (plot_times_vs_changes(result_data_except_first, "bytes", "Added", "Removed"), "report-time-vs-bytes.pdf"),
-            (plot_times_vs_changes(result_data_except_first, "chunks", "Changes"), "report-time-vs-changes.pdf"),
-            (plot_times_vs_changes_3D(result_data_except_first), "report-time-vs-changes-3D.pdf"),
+            (plot_times(result_data, ["Batch", "Incremental", "IncrementalNoCache"]), "report"),
+            (plot_times(result_data_except_first, ["Incremental"]), "report-except-first"),
+            (plot_times_vs_changes(result_data_except_first, "bytes", "Added", "Removed"), "report-time-vs-bytes"),
+            (plot_times_vs_changes(result_data_except_first, "chunks", "Changes"), "report-time-vs-changes"),
+            (plot_times_vs_changes_3D(result_data_except_first), "report-time-vs-changes-3D"),
         ]
 
         for fig, name in reports:
-            fig.savefig(path.join(report_path, name))
+            fig.savefig(path.join(report_path, name + ".pdf"))
+            fig.savefig(path.join(report_path, name + ".svg"))
 
         plt.close("all")
 
         merged_path = path.join(report_path, "merged.pdf")
         if path.exists(merged_path):
             remove(merged_path)
-        pdftools.pdf_merge([path.join(report_path, n) for _, n in reports], merged_path)
+        pdftools.pdf_merge([path.join(report_path, name + ".pdf") for _, name in reports], merged_path)

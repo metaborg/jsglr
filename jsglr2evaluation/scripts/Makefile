@@ -13,7 +13,7 @@ JSGLR_DIR=$(SPOOFAX_DIR)/jsglr
 MEASUREMENTS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.measure/target/org.spoofax.jsglr2.measure-2.6.0-SNAPSHOT.jar
 BENCHMARKS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/target/org.spoofax.jsglr2.benchmark-2.6.0-SNAPSHOT.jar
 
-all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR
+all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR publish
 
 clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBenchmarks cleanPostProcessing cleanReports
 

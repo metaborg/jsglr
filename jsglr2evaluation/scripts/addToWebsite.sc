@@ -24,11 +24,13 @@ def addToWebsite(implicit args: Args) = {
 
     val config = removeCommentedLines(read! args.configPath)
 
+    val batchPlots = Seq("benchmarks-batch-throughput.png", "benchmarks-perFile-throughput.png")
+
     val batchContent =
-    s"""
-       |<p><img src="./reports/benchmarks-batch-throughput.png" /></p>
-       |<p><img src="./reports/benchmarks-perFile-throughput.png" /></p>
-       |""".stripMargin
+        if (batchPlots.forall(plot => exists! dir / "reports" / plot))
+            batchPlots.map(plot => s"""<p><img src="./reports/$plot" /></p>""").mkString("\n")
+        else
+            ""
 
     val tabs = Seq(
         ("batch", "Batch", batchContent),
@@ -45,30 +47,32 @@ def addToWebsite(implicit args: Args) = {
            |    <h1>$id</h1>
            |    <p><a href="./archive.tar.gz" class="btn btn-primary">Download Archive</a></p>
            |    <pre>$config</pre>
-           |    ${withNav(tabs, "batch")}
+           |    ${withNav(tabs)}
            |  </div>
            |</div>""".stripMargin
         )
     )
 }
 
-def withNav(tabs: Seq[(String, String, String)], active: String) =
+def withNav(tabs: Seq[(String, String, String)]) = {
+    val active = tabs.filter(_._3 != "").headOption.map(_._1).getOrElse("")
     s"""
     |<ul class="nav nav-tabs" role="tablist">
-    |${tabs.map { case (id, name, _) =>
+    |${tabs.map { case (id, name, content) =>
 s"""|  <li class="nav-item" role="presentation">
-    |    <a class="nav-link${if(id == active) " active" else ""}" id="$id-tab" data-toggle="tab" href="#$id" role="tab" aria-controls="$id" aria-selected="${if(id == active) "true" else "false"}">$name</a>
+    |    <a class="nav-link${if (id == active) " active" else ""}${if (content == "") " disabled" else ""}" id="$id-tab" data-toggle="tab" href="#$id" role="tab" aria-controls="$id" aria-selected="${if(id == active) "true" else "false"}">$name</a>
     |  </li>"""
      }.mkString("\n")}
     |</ul>
     |<div class="tab-content">
     |  ${tabs.map { case (id, _, content) =>
-s"""|  <div class="tab-pane fade${if(id == active) " show active" else ""}" id="$id" role="tabpanel" aria-labelledby="$id-tab">
+s"""|  <div class="tab-pane fade${if (id == active) " show active" else ""}" id="$id" role="tabpanel" aria-labelledby="$id-tab">
     |    $content
     |  </div>""".stripMargin
        }.mkString("\n")}
     |</div>
     |""".stripMargin
+}
 
 def withTemplate(title: String, content: String) =
     s"""<!doctype html>

@@ -24,6 +24,18 @@ def addToWebsite(implicit args: Args) = {
 
     val config = removeCommentedLines(read! args.configPath)
 
+    val batchContent =
+    s"""
+       |<p><img src="./reports/benchmarks-batch-throughput.png" /></p>
+       |<p><img src="./reports/benchmarks-perFile-throughput.png" /></p>
+       |""".stripMargin
+
+    val tabs = Seq(
+        ("batch", "Batch", batchContent),
+        ("recovery", "Recovery", ""),
+        ("incremental", "Incremental", "")
+    )
+
     write(
         dir / "index.html",
         withTemplate(id, s"""
@@ -33,13 +45,30 @@ def addToWebsite(implicit args: Args) = {
            |    <h1>$id</h1>
            |    <p><a href="./archive.tar.gz" class="btn btn-primary">Download Archive</a></p>
            |    <pre>$config</pre>
-           |    <p><img src="./reports/benchmarks-batch-throughput.png" /></p>
-           |    <p><img src="./reports/benchmarks-perFile-throughput.png" /></p>
+           |    ${withNav(tabs, "batch")}
            |  </div>
            |</div>""".stripMargin
         )
     )
 }
+
+def withNav(tabs: Seq[(String, String, String)], active: String) =
+    s"""
+    |<ul class="nav nav-tabs" role="tablist">
+    |${tabs.map { case (id, name, _) =>
+s"""|  <li class="nav-item" role="presentation">
+    |    <a class="nav-link${if(id == active) " active" else ""}" id="$id-tab" data-toggle="tab" href="#$id" role="tab" aria-controls="$id" aria-selected="${if(id == active) "true" else "false"}">$name</a>
+    |  </li>"""
+     }.mkString("\n")}
+    |</ul>
+    |<div class="tab-content">
+    |  ${tabs.map { case (id, _, content) =>
+s"""|  <div class="tab-pane fade${if(id == active) " show active" else ""}" id="$id" role="tabpanel" aria-labelledby="$id-tab">
+    |    $content
+    |  </div>""".stripMargin
+       }.mkString("\n")}
+    |</div>
+    |""".stripMargin
 
 def withTemplate(title: String, content: String) =
     s"""<!doctype html>
@@ -54,6 +83,8 @@ def withTemplate(title: String, content: String) =
     |<div class="container">
     |$content
     |</div>
+    |<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    |<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
     |</body>
     |</html>""".stripMargin
 

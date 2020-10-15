@@ -21,8 +21,6 @@ def setupLanguages(implicit args: Args) = {
                 }
 
                 val configPath = gitSpoofax.spoofaxProjectDir(language) / "metaborg.yaml"
-
-                write.over(configPath, read! configPath replaceFirst("sdf2table:\\s*[a-z]+", "sdf2table: java"))
         
                 timed("build " + language.id) {
                     println(s"  Building ${gitSpoofax.spoofaxProjectDir(language)}...")

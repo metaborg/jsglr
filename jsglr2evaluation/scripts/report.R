@@ -25,7 +25,7 @@ savePlot <- function(plot, filename) {
   dev.off()
 }
 
-batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, getHighs) {
+batchBenchmarksPlot <- function(inputFile, outputFile, dimension, unit, getLows, getHighs) {
   data     <- read.csv(file=inputFile, header=TRUE, sep=",")
   variants <- unique(data$variant)
   
@@ -43,7 +43,7 @@ batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, 
   savePlot(function() {
     # https://datascienceplus.com/building-barplots-with-error-bars/
     barCenters <- barplot(height=scores,
-                          main=paste("Parsing", quantity),
+                          main=paste("Batch parsing", dimension),
                           xlab="Language",
                           ylab=unit,
                           ylim=c(0, 1.01 * max(getHighs(data))),
@@ -56,15 +56,15 @@ batchBenchmarksPlot <- function(inputFile, outputFile, quantity, unit, getLows, 
   }, file=paste(reportDir, outputFile, sep=""))
 }
 
-batchTimeBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
+batchTimeBenchmarksPlot <- function(inputFile, outputFile, dimension, unit) {
   batchBenchmarksPlot(inputFile, outputFile, "time", "ms", function(data) data$score - data$error, function(data) data$score + data$error)
 }
 
-batchThroughputBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
+batchThroughputBenchmarksPlot <- function(inputFile, outputFile, dimension, unit) {
   batchBenchmarksPlot(inputFile, outputFile, "throughput", "1000 chars/s", function(data) data$low, function(data) data$high)
 }
 
-perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
+perFileBenchmarksPlot <- function(inputFile, outputFile, dimension, unit) {
   data <- read.csv(file=inputFile, header=TRUE, sep=",")
   data <- data[data$variant == "standard",]
   languages <- unique(data$language)
@@ -74,7 +74,7 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, quantity, unit) {
   savePlot(function() {
     plot(data$size / 1000,
         data$score,
-        main=paste("Parsing", quantity, "vs. file size"),
+        main=paste("Batch parsing", dimension, "vs. file size"),
         xlab="File size (1000 characters)",
         ylab=unit,
         pch=symbols[data$language])

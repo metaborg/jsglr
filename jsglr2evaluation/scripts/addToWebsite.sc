@@ -32,10 +32,20 @@ def addToWebsite(implicit args: Args) = {
         else
             ""
 
+    val incrementalContent = args.languages.filter(_.sources.incremental.nonEmpty).map { language =>
+        (language.id, language.name, withNav(language.sources.incremental.map { source => {
+            val plots = Seq("report", "report-except-first", "report-time-vs-bytes", "report-time-vs-changes", "report-time-vs-changes-3D")
+            // TODO add field source.name?
+            (source.id, source.id, plots.map { plot =>
+                s"""<p><img src="./reports/incremental/${language.id}/${source.id}-parse/$plot.svg" /></p>"""
+            } mkString "\n")
+        }}))
+    }
+
     val tabs = Seq(
         ("batch", "Batch", batchContent),
         ("recovery", "Recovery", ""),
-        ("incremental", "Incremental", "")
+        ("incremental", "Incremental", if (incrementalContent.nonEmpty) withNav(incrementalContent) else "")
     )
 
     write(

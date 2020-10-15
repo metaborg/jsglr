@@ -7,6 +7,8 @@ import $file.spoofax, spoofax._
 def execMeasurements(implicit args: Args) = {
     println("Executing measurements...")
 
+    mkdir! Args.measurementsDir
+
     args.languages.foreach { language =>
         println(" " + language.name)
 

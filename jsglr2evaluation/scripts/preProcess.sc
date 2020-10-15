@@ -9,7 +9,6 @@ def preProcess(implicit args: Args) = {
     args.languages.foreach { language =>
         println(" " + language.name)
         
-        // TODO: validate with all variants
         // TODO: if language has ANTLR grammar, also validate with ANTLR
 
         val parsers = Parser.variants(language)

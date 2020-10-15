@@ -48,6 +48,9 @@ case class ParseFailure(error: Option[String]) extends ParseResult {
 object Parser {
     def variants(language: Language)(implicit args: Args) = Seq(
         JSGLR1Parser(language.parseTablePath),
-        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.standard)
+        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.standard),
+        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recovery),
+        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.incremental),
+        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recoveryIncremental)
     )
 }

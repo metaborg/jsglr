@@ -94,6 +94,7 @@ object Args {
     implicit def measurementsDir(implicit args: Args) = args.dir / 'measurements
     implicit def benchmarksDir(implicit args: Args)   = args.dir / 'benchmarks
     implicit def resultsDir(implicit args: Args)      = args.dir / 'results
+    implicit def reportsDir(implicit args: Args)      = args.dir / 'reports
     implicit def websiteDir(implicit args: Args)      = args.dir / 'website
     
     implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"

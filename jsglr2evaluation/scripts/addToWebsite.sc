@@ -20,6 +20,7 @@ def addToWebsite(implicit args: Args) = {
     mkdir! dir
 
     cp(args.dir / "archive.tar.gz", dir / "archive.tar.gz")
+    cp.into(reportsDir, dir)
 
     val config = removeCommentedLines(read! args.configPath)
 
@@ -32,6 +33,8 @@ def addToWebsite(implicit args: Args) = {
            |<p><a href="./archive.tar.gz">Archive</a></p>
            |<pre>$config</pre>
            |</body>
+           |<p><img src="./reports/benchmarks-batch-throughput.png" /></p>
+           |<p><img src="./reports/benchmarks-perFile-throughput.png" /></p>
            |</html>""".stripMargin
     )
 }

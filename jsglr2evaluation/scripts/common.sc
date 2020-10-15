@@ -132,7 +132,7 @@ def withArgs(args: String*)(body: Args => Unit) = {
     val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")
 
     val configPath = {
-        val filename = argsMapped.get("config").getOrElse("config.yml")
+        val filename = RelPath(argsMapped.get("config").getOrElse("config.yml"))
 
         if (exists! (dir / filename))
             dir / filename

@@ -1,7 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $ivy.`org.jsoup:jsoup:1.7.2`, org.jsoup._
 import $file.common, common._, Args._
-import collection.JavaConverters._
 import java.io.File
 
 def addToWebsite(implicit args: Args) = {

@@ -38,9 +38,11 @@ RUN add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-c
 RUN apt-get update
 RUN apt-get -y install r-base
 
-# Specify Git credentials
+# Git config
 RUN git config --global user.name "JSGLR2 Evaluation"
 RUN git config --global user.email "j.denkers@tudelft.nl"
+RUN echo ".DS_Store" >> ~/.gitignore_global
+RUN git config --global core.excludesfile ~/.gitignore_global
 
 # Add scripts
 COPY scripts scripts

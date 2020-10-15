@@ -3,7 +3,6 @@ EVALUATION_TARGET=all
 SPOOFAX_VERSION=master
 JSGLR_VERSION=develop/jsglr2
 GITHUB_TOKEN=?
-USER=root
 
 all: spoofax build-jsglr2 evaluation
 
@@ -32,5 +31,4 @@ evaluation:
 		SPOOFAX_DIR=/jsglr2evaluation/data/spoofax \
 		CONFIG=$(EVALUATION_CONFIG) \
 		GITHUB_TOKEN=$(GITHUB_TOKEN) \
-		USER=$(USER) \
 		$(EVALUATION_TARGET)

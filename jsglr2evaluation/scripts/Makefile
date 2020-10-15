@@ -129,6 +129,5 @@ websitePush:
 		git commit -m "Evaluation results" && \
 		git push https://$(GITHUB_TOKEN)@github.com/metaborg/jsglr2evaluation-site.git
 
-chown:
-	useradd -M $(USER)
-	chown -R $(USER) $(DIR)
+cleanM2:
+	-rm -r $(DIR)/m2-repo

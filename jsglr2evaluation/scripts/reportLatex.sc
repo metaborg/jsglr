@@ -4,6 +4,18 @@ import $file.common, common._, Args._
 
 import $file.spoofax, spoofax._
 
+println("LateX reporting...")
+
+trait BenchmarkType {
+    def errorColumns: Seq[(String, String)]
+}
+case object Time extends BenchmarkType {
+    def errorColumns = Seq("error" -> "Error")
+}
+case object Throughput extends BenchmarkType {
+    def errorColumns = Seq("low" -> "Low", "high" -> "High")
+}
+
 def latexTableTestSets(implicit args: Args) = {
     val s = new StringBuilder()
 
@@ -99,24 +111,10 @@ def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(impli
     s.toString
 }
 
-trait BenchmarkType {
-    def errorColumns: Seq[(String, String)]
-}
-case object Time extends BenchmarkType {
-    def errorColumns = Seq("error" -> "Error")
-}
-case object Throughput extends BenchmarkType {
-    def errorColumns = Seq("low" -> "Low", "high" -> "High")
-}
+mkdir! args.reportDir
 
-withArgs { implicit args =>
-    println("LateX reporting...")
-    
-    mkdir! args.reportDir
-
-    write.over(args.reportDir / "testsets.tex", latexTableTestSets)
-    write.over(args.reportDir / "measurements-parsetables.tex", latexTableMeasurements(CSV.parse(parseTableMeasurementsPath)))
-    write.over(args.reportDir / "measurements-parsing.tex",     latexTableMeasurements(CSV.parse(parsingMeasurementsPath)))
-    write.over(args.reportDir / "benchmarks-time.tex",          latexTableBenchmarks(CSV.parse(batchBenchmarksPath), Time))
-    write.over(args.reportDir / "benchmarks-throughput.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath), Throughput))
-}
+write.over(args.reportDir / "testsets.tex", latexTableTestSets)
+write.over(args.reportDir / "measurements-parsetables.tex", latexTableMeasurements(CSV.parse(parseTableMeasurementsPath)))
+write.over(args.reportDir / "measurements-parsing.tex",     latexTableMeasurements(CSV.parse(parsingMeasurementsPath)))
+write.over(args.reportDir / "benchmarks-time.tex",          latexTableBenchmarks(CSV.parse(batchBenchmarksPath), Time))
+write.over(args.reportDir / "benchmarks-throughput.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath), Throughput))

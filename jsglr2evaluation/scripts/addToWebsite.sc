@@ -3,66 +3,7 @@ import $ivy.`org.jsoup:jsoup:1.7.2`, org.jsoup._
 import $file.common, common._, Args._
 import java.io.File
 
-withArgs { implicit args =>
-    val id = java.time.LocalDateTime.now.toString
-    
-    val dir = websiteDir / id
-    val indexFile = websiteDir / "index.html"
-    
-    val index = Jsoup.parse(new File("" + indexFile), "UTF-8")
-    val ul = index.select("#runs").first
-
-    ul.prepend("<li><a href=\"./" + id + "/index.html\">" + id + "</a></li>")
-
-    write.over(indexFile, index.toString)
-
-    mkdir! dir
-
-    cp(pwd / "website-style.css", dir / "style.css")
-    cp(args.dir / "archive.tar.gz", dir / "archive.tar.gz")
-    cp.into(reportsDir, dir)
-
-    val config = removeCommentedLines(read! args.configPath)
-
-    val batchPlots = Seq("benchmarks-batch-throughput.png", "benchmarks-perFile-throughput.png")
-
-    val batchContent =
-        if (batchPlots.forall(plot => exists! dir / "reports" / plot))
-            batchPlots.map(plot => s"""<p><img src="./reports/$plot" /></p>""").mkString("\n")
-        else
-            ""
-
-    val incrementalContent = args.languages.filter(_.sources.incremental.nonEmpty).map { language =>
-        (language.id, language.name, withNav(language.sources.incremental.map { source => {
-            val plots = Seq("report", "report-except-first", "report-time-vs-bytes", "report-time-vs-changes", "report-time-vs-changes-3D")
-            // TODO add field source.name?
-            (source.id, source.id, plots.map { plot =>
-                s"""<p><img src="./reports/incremental/${language.id}/${source.id}-parse/$plot.svg" /></p>"""
-            } mkString "\n")
-        }}))
-    }
-
-    val tabs = Seq(
-        ("batch", "Batch", batchContent),
-        ("recovery", "Recovery", ""),
-        ("incremental", "Incremental", if (incrementalContent.nonEmpty) withNav(incrementalContent) else "")
-    )
-
-    write(
-        dir / "index.html",
-        withTemplate(id, s"""
-           |<div class="row">
-           |  <div class="col">
-           |    <p><a href="../index.html">&larr; Back to index</a></p>
-           |    <h1>$id</h1>
-           |    <p><a href="./archive.tar.gz" class="btn btn-primary">Download Archive</a></p>
-           |    <pre>$config</pre>
-           |    ${withNav(tabs)}
-           |  </div>
-           |</div>""".stripMargin
-        )
-    )
-}
+println("Adding to website...")
 
 def withNav(tabs: Seq[(String, String, String)]) = {
     val active = tabs.filter(_._3 != "").headOption.map(_._1).getOrElse("")
@@ -104,3 +45,62 @@ def withTemplate(title: String, content: String) =
     |</html>""".stripMargin
 
 def removeCommentedLines(text: String) = text.replaceAll("[ \t\r]*\n[ \t]*#[^\n]+", "")
+
+val id = java.time.LocalDateTime.now.toString
+
+val dir = websiteDir / id
+val indexFile = websiteDir / "index.html"
+
+val index = Jsoup.parse(new File("" + indexFile), "UTF-8")
+val ul = index.select("#runs").first
+
+ul.prepend("<li><a href=\"./" + id + "/index.html\">" + id + "</a></li>")
+
+write.over(indexFile, index.toString)
+
+mkdir! dir
+
+cp(pwd / "website-style.css", dir / "style.css")
+cp(args.dir / "archive.tar.gz", dir / "archive.tar.gz")
+cp.into(reportsDir, dir)
+
+val config = removeCommentedLines(read! args.configPath)
+
+val batchPlots = Seq("benchmarks-batch-throughput.png", "benchmarks-perFile-throughput.png")
+
+val batchContent =
+    if (batchPlots.forall(plot => exists! dir / "reports" / plot))
+        batchPlots.map(plot => s"""<p><img src="./reports/$plot" /></p>""").mkString("\n")
+    else
+        ""
+
+val incrementalContent = args.languages.filter(_.sources.incremental.nonEmpty).map { language =>
+    (language.id, language.name, withNav(language.sources.incremental.map { source => {
+        val plots = Seq("report", "report-except-first", "report-time-vs-bytes", "report-time-vs-changes", "report-time-vs-changes-3D")
+        // TODO add field source.name?
+        (source.id, source.id, plots.map { plot =>
+            s"""<p><img src="./reports/incremental/${language.id}/${source.id}-parse/$plot.svg" /></p>"""
+        } mkString "\n")
+    }}))
+}
+
+val tabs = Seq(
+    ("batch", "Batch", batchContent),
+    ("recovery", "Recovery", ""),
+    ("incremental", "Incremental", if (incrementalContent.nonEmpty) withNav(incrementalContent) else "")
+)
+
+write(
+    dir / "index.html",
+    withTemplate(id, s"""
+        |<div class="row">
+        |  <div class="col">
+        |    <p><a href="../index.html">&larr; Back to index</a></p>
+        |    <h1>$id</h1>
+        |    <p><a href="./archive.tar.gz" class="btn btn-primary">Download Archive</a></p>
+        |    <pre>$config</pre>
+        |    ${withNav(tabs)}
+        |  </div>
+        |</div>""".stripMargin
+    )
+)

@@ -18,10 +18,10 @@ case class Config(languages: Seq[Language])
 case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Sources, antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
     def parseTablePath(implicit args: Args) = parseTable.path(this)
 
-    def sourcesDir(implicit args: Args) = Args.sourcesDir / id
+    def sourcesDir(implicit args: Args) = args.sourcesDir / id
     
-    def measurementsDir(implicit args: Args) = Args.measurementsDir / id
-    def benchmarksDir(implicit args: Args) = Args.benchmarksDir / id
+    def measurementsDir(implicit args: Args) = args.measurementsDir / id
+    def benchmarksDir(implicit args: Args) = args.benchmarksDir / id
 
     def sourceFilesBatch(implicit args: Args) = ls.rec! sourcesDir / "batch" |? (_.ext == extension)
     def sourceFilesIncremental(implicit args: Args) = ls.rec! sourcesDir / "incremental" |? (_.ext == extension)
@@ -85,27 +85,57 @@ case class IncrementalSource(id: String, repo: String,
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 
-case class Args(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path)
+case class Args(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path) {
+    def languagesDir    = dir / 'languages
+    def sourcesDir      = dir / 'sources
+    def measurementsDir = dir / 'measurements
+    def benchmarksDir   = dir / 'benchmarks
+    def resultsDir      = dir / 'results
+    def reportsDir      = dir / 'reports
+    def websiteDir      = dir / 'website
+}
 
 object Args {
 
-    implicit def languagesDir(implicit args: Args)    = args.dir / 'languages
-    implicit def sourcesDir(implicit args: Args)      = args.dir / 'sources
-    implicit def measurementsDir(implicit args: Args) = args.dir / 'measurements
-    implicit def benchmarksDir(implicit args: Args)   = args.dir / 'benchmarks
-    implicit def resultsDir(implicit args: Args)      = args.dir / 'results
-    implicit def reportsDir(implicit args: Args)      = args.dir / 'reports
-    implicit def websiteDir(implicit args: Args)      = args.dir / 'website
+    implicit val args = {
+        val dir        = sys.env.get("DIR").map(getPath).getOrElse(throw new IllegalArgumentException("'DIR' environment variable"))
+        val spoofaxDir = sys.env.get("SPOOFAX_DIR").map(getPath).getOrElse(pwd / up / up / up)
+        val reportDir  = sys.env.get("REPORT_DIR").map(getPath).getOrElse(dir / "reports")
+
+        val configPath = {
+            val filename = RelPath(sys.env.get("CONFIG").getOrElse("config.yml"))
+
+            if (exists! (dir / filename))
+                dir / filename
+            else
+                pwd / filename
+        }
+        val configJson = parser.parse(read! configPath)
+        val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
+
+        val iterations = sys.env.get("ITERATIONS").map(_.toInt).getOrElse(1)
+        val samples    = sys.env.get("SAMPLES").map(_.toInt).getOrElse(1)
+
+        Args(configPath, config.languages, dir, iterations, samples, spoofaxDir, reportDir)
+    }
+
+    implicit def languagesDir    = args.languagesDir
+    implicit def sourcesDir      = args.sourcesDir
+    implicit def measurementsDir = args.measurementsDir
+    implicit def benchmarksDir   = args.benchmarksDir
+    implicit def resultsDir      = args.resultsDir
+    implicit def reportsDir      = args.reportsDir
+    implicit def websiteDir      = args.websiteDir
     
-    implicit def parseTableMeasurementsPath(implicit args: Args) = resultsDir / "measurements-parsetable.csv"
-    implicit def parsingMeasurementsPath(implicit args: Args)    = resultsDir / "measurements-parsing.csv"
+    implicit def parseTableMeasurementsPath = resultsDir / "measurements-parsetable.csv"
+    implicit def parsingMeasurementsPath    = resultsDir / "measurements-parsing.csv"
 
-    implicit def batchBenchmarksPath(implicit args: Args)             = resultsDir / "benchmarks-batch-time.csv"
-    implicit def batchBenchmarksNormalizedPath(implicit args: Args)   = resultsDir / "benchmarks-batch-throughput.csv"
-    implicit def perFileBenchmarksPath(implicit args: Args)           = resultsDir / "benchmarks-perFile-time.csv"
-    implicit def perFileBenchmarksNormalizedPath(implicit args: Args) = resultsDir / "benchmarks-perFile-throughput.csv"
+    implicit def batchBenchmarksPath             = resultsDir / "benchmarks-batch-time.csv"
+    implicit def batchBenchmarksNormalizedPath   = resultsDir / "benchmarks-batch-throughput.csv"
+    implicit def perFileBenchmarksPath           = resultsDir / "benchmarks-perFile-time.csv"
+    implicit def perFileBenchmarksNormalizedPath = resultsDir / "benchmarks-perFile-throughput.csv"
 
-    implicit def incrementalResultsDir(implicit args: Args) = resultsDir / "incremental"
+    implicit def incrementalResultsDir = resultsDir / "incremental"
 
 }
 
@@ -118,28 +148,6 @@ def getPath(path: String) =
         pwd / RelPath(path)
     else
         Path(path)
-
-def withArgs(body: Args => Unit) = {
-    val dir        = sys.env.get("DIR").map(getPath).getOrElse(throw new IllegalArgumentException("'DIR' environment variable"))
-    val spoofaxDir = sys.env.get("SPOOFAX_DIR").map(getPath).getOrElse(pwd / up / up / up)
-    val reportDir  = sys.env.get("REPORT_DIR").map(getPath).getOrElse(dir / "reports")
-
-    val configPath = {
-        val filename = RelPath(sys.env.get("CONFIG").getOrElse("config.yml"))
-
-        if (exists! (dir / filename))
-            dir / filename
-        else
-            pwd / filename
-    }
-    val configJson = parser.parse(read! configPath)
-    val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
-
-    val iterations = sys.env.get("ITERATIONS").map(_.toInt).getOrElse(1)
-    val samples    = sys.env.get("SAMPLES").map(_.toInt).getOrElse(1)
-
-    body(Args(configPath, config.languages, dir, iterations, samples, spoofaxDir, reportDir))
-}
 
 def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
     println(s"$name: start @ ${LocalDateTime.now}")

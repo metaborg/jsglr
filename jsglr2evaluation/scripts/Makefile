@@ -1,18 +1,13 @@
 .PHONY: all clean languages cleanLanguages sources cleanSources preProcessing cleanPreProcessing measurements cleanMeasurements benchmarks cleanBenchmarks postProcessing cleanPostProcessing reportLatex reportR cleanReports publish websiteRepo addToWebsite websitePush
 
-CONFIG=config.yml
 DIR=~/jsglr2evaluation
-ITERATIONS=1 # warmup and benchmark iterations
-SAMPLES=1 # number of sampled files for per file benchmarking
-REPORTDIR=$(DIR)/reports
-USER=root
-
-GITHUB_TOKEN=?
-
 SPOOFAX_DIR=../../..
+
 JSGLR_DIR=$(SPOOFAX_DIR)/jsglr
 MEASUREMENTS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.measure/target/org.spoofax.jsglr2.measure-2.6.0-SNAPSHOT.jar
 BENCHMARKS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/target/org.spoofax.jsglr2.benchmark-2.6.0-SNAPSHOT.jar
+
+REPORTDIR=$(DIR)/reports
 
 all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR Pipfile.lock reportPy publish
 
@@ -25,7 +20,7 @@ cleanAll: clean all
 languages: $(DIR)/languages
 
 $(DIR)/languages: setupLanguages.sc common.sc
-	amm setupLanguages.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
+	amm setupLanguages.sc
 
 cleanLanguages:
 	-rm -rf $(DIR)/languages
@@ -35,7 +30,7 @@ cleanLanguages:
 sources: $(DIR)/sources
 
 $(DIR)/sources: setupSources.sc common.sc
-	amm setupSources.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
+	amm setupSources.sc
 
 cleanSources:
 	-rm -rf $(DIR)/sources
@@ -45,7 +40,7 @@ cleanSources:
 preProcessing: $(DIR)/sources/validated
 
 $(DIR)/sources/validated: $(DIR)/languages $(DIR)/sources preProcess.sc common.sc
-	JAVA_OPTS="-Xmx8G" amm preProcess.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) && touch $(DIR)/sources/validated
+	JAVA_OPTS="-Xmx8G" amm preProcess.sc && touch $(DIR)/sources/validated
 
 cleanPreProcessing:
 	-rm $(DIR)/sources/validated
@@ -55,7 +50,7 @@ cleanPreProcessing:
 measurements: $(DIR)/measurements
 
 $(DIR)/measurements: $(DIR)/sources/validated $(MEASUREMENTS_JAR) measurements.sc spoofax.sc spoofaxDeps.sc common.sc
-	amm measurements.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR)
+	amm measurements.sc
 
 $(MEASUREMENTS_JAR): $(JSGLR_DIR)/org.spoofax.jsglr2.measure/src
 	mvn -f $(JSGLR_DIR)/org.spoofax.jsglr2.measure -q install
@@ -69,7 +64,7 @@ cleanMeasurements:
 benchmarks: $(DIR)/benchmarks
 
 $(DIR)/benchmarks: $(DIR)/sources/validated $(BENCHMARKS_JAR) benchmarks.sc spoofax.sc spoofaxDeps.sc common.sc
-	amm benchmarks.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) iterations=$(ITERATIONS) samples=$(SAMPLES)
+	amm benchmarks.sc
 
 $(BENCHMARKS_JAR): $(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/src
 	mvn -f $(JSGLR_DIR)/org.spoofax.jsglr2.benchmark -q install
@@ -83,7 +78,7 @@ cleanBenchmarks:
 postProcessing: $(DIR)/results
 
 $(DIR)/results: $(DIR)/benchmarks $(DIR)/measurements postProcess.sc common.sc
-	amm postProcess.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) samples=$(SAMPLES)
+	amm postProcess.sc
 
 cleanPostProcessing:
 	-rm -r $(DIR)/results
@@ -91,7 +86,7 @@ cleanPostProcessing:
 
 # Reporting in Latex tables
 reportLatex: $(DIR)/results reportLatex.sc spoofax.sc spoofaxDeps.sc common.sc
-	amm reportLatex.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) iterations=$(ITERATIONS) reportDir=$(REPORTDIR)
+	amm reportLatex.sc
 
 # Reporting in plots
 reportR: $(DIR)/results report.R
@@ -121,7 +116,7 @@ websiteRepo:
 	cd $(DIR)/website && git pull
 
 addToWebsite: $(DIR)/archive.tar.gz
-	amm addToWebsite.sc config=$(CONFIG) dir=$(DIR) spoofaxDir=$(SPOOFAX_DIR) reportDir=$(REPORTDIR)
+	amm addToWebsite.sc
 
 websitePush:
 	cd $(DIR)/website && \

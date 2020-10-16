@@ -109,7 +109,7 @@ case object Throughput extends BenchmarkType {
     def errorColumns = Seq("low" -> "Low", "high" -> "High")
 }
 
-def reportLatex(implicit args: Args) = {
+withArgs { implicit args =>
     println("LateX reporting...")
     
     mkdir! args.reportDir
@@ -120,6 +120,3 @@ def reportLatex(implicit args: Args) = {
     write.over(args.reportDir / "benchmarks-time.tex",          latexTableBenchmarks(CSV.parse(batchBenchmarksPath), Time))
     write.over(args.reportDir / "benchmarks-throughput.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath), Throughput))
 }
-
-@main
-def ini(args: String*) = withArgs(args :_ *)(reportLatex(_))

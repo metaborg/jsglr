@@ -6,7 +6,7 @@ def preProcess(file: String) =
     // Replace Unicode
     file.replaceAll("[^\\x00-\\xFF]", "?")
 
-def setupSources(implicit args: Args) = {
+withArgs { implicit args =>
     println("Setting up sources...")
     
     mkdir! sourcesDir
@@ -125,6 +125,3 @@ def setupSources(implicit args: Args) = {
         rm! language.sourcesDir / "repos"
     }
 }
-
-@main
-def ini(args: String*) = withArgs(args :_ *)(setupSources(_))

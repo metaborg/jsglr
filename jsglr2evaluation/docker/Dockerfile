@@ -53,11 +53,10 @@ COPY docker/Makefile .
 ENV PIPENV_VENV_IN_PROJECT=1
 RUN cd scripts && pipenv install
 
-ENV target=all
-ENV evaluation_config=config.yml
-ENV evaluation_target=all
-ENV spoofax_version=master
-ENV jsglr_version=develop/jsglr2
-ENV github_token=?
+ENV SPOOFAX_VERSION=master
+ENV JSGLR_VERSION=develop/jsglr2
 
-ENTRYPOINT make EVALUATION_CONFIG=$evaluation_config EVALUATION_TARGET=$evaluation_target SPOOFAX_VERSION=$spoofax_version JSGLR_VERSION=$jsglr_version GITHUB_TOKEN=$github_token $target
+ENV TARGET=all
+ENV EVALUATION_TARGET=all
+
+ENTRYPOINT make $TARGET

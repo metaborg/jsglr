@@ -4,7 +4,7 @@ import $file.common, common._, Args._
 
 import $file.spoofax, spoofax._
 
-def execBenchmarks(implicit args: Args) = {
+withArgs { implicit args =>
     println("Executing benchmarks...")
 
     args.languages.foreach { language =>
@@ -110,6 +110,3 @@ def execBenchmarks(implicit args: Args) = {
         }}
     }
 }
-
-@main
-def ini(args: String*) = withArgs(args :_ *)(execBenchmarks(_))

@@ -14,7 +14,7 @@ import $file.common, common._, Args._
 
 val diff: IStringDiff = new JGitHistogramDiff();
 
-def postProcess(implicit args: Args) = {
+withArgs { implicit args =>
     println("Processing results...")
     
     mkdir! resultsDir
@@ -133,6 +133,3 @@ def postProcess(implicit args: Args) = {
         }}
     }
 }
-
-@main
-def ini(args: String*) = withArgs(args :_ *)(postProcess(_))

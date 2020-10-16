@@ -3,7 +3,7 @@ import $ivy.`org.jsoup:jsoup:1.7.2`, org.jsoup._
 import $file.common, common._, Args._
 import java.io.File
 
-def addToWebsite(implicit args: Args) = {
+withArgs { implicit args =>
     val id = java.time.LocalDateTime.now.toString
     
     val dir = websiteDir / id
@@ -104,6 +104,3 @@ def withTemplate(title: String, content: String) =
     |</html>""".stripMargin
 
 def removeCommentedLines(text: String) = text.replaceAll("[ \t\r]*\n[ \t]*#[^\n]+", "")
-
-@main
-def ini(args: String*) = withArgs(args :_ *)(addToWebsite(_))

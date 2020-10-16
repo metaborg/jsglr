@@ -4,7 +4,7 @@ import $file.common, common._
 
 import $file.spoofax, spoofax._
 
-def execMeasurements(implicit args: Args) = {
+withArgs { implicit args =>
     println("Executing measurements...")
 
     mkdir! Args.measurementsDir
@@ -32,6 +32,3 @@ def execMeasurements(implicit args: Args) = {
             }
     }
 }
-
-@main
-def ini(args: String*) = withArgs(args :_ *)(execMeasurements(_))

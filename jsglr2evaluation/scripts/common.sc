@@ -119,20 +119,13 @@ def getPath(path: String) =
     else
         Path(path)
 
-def withArgs(args: String*)(body: Args => Unit) = {
-    val argsMapped = args.toSeq.map { arg =>
-        arg.split("=") match {
-            case Array(key, value) => key -> value
-        }
-    }.toMap
-
-    val dir        = argsMapped.get("dir").map(getPath)
-                                          .getOrElse(throw new IllegalArgumentException("Missing 'dir=...' argument"))
-    val spoofaxDir = argsMapped.get("spoofaxDir").map(getPath).getOrElse(pwd / up / up / up)
-    val reportDir  = argsMapped.get("reportDir").map(getPath).getOrElse(dir / "reports")
+def withArgs(body: Args => Unit) = {
+    val dir        = sys.env.get("DIR").map(getPath).getOrElse(throw new IllegalArgumentException("'DIR' environment variable"))
+    val spoofaxDir = sys.env.get("SPOOFAX_DIR").map(getPath).getOrElse(pwd / up / up / up)
+    val reportDir  = sys.env.get("REPORT_DIR").map(getPath).getOrElse(dir / "reports")
 
     val configPath = {
-        val filename = RelPath(argsMapped.get("config").getOrElse("config.yml"))
+        val filename = RelPath(sys.env.get("CONFIG").getOrElse("config.yml"))
 
         if (exists! (dir / filename))
             dir / filename
@@ -142,8 +135,8 @@ def withArgs(args: String*)(body: Args => Unit) = {
     val configJson = parser.parse(read! configPath)
     val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
-    val iterations = argsMapped.get("iterations").map(_.toInt).getOrElse(1)
-    val samples    = argsMapped.get("samples").map(_.toInt).getOrElse(1)
+    val iterations = sys.env.get("ITERATIONS").map(_.toInt).getOrElse(1)
+    val samples    = sys.env.get("SAMPLES").map(_.toInt).getOrElse(1)
 
     body(Args(configPath, config.languages, dir, iterations, samples, spoofaxDir, reportDir))
 }

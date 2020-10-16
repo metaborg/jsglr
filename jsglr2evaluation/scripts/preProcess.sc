@@ -3,7 +3,7 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $file.common, common._, Args._
 import $file.parsers, parsers._
 
-def preProcess(implicit args: Args) = {
+withArgs { implicit args =>
     println("Validate sources...")
 
     args.languages.foreach { language =>
@@ -39,6 +39,3 @@ def preProcess(implicit args: Args) = {
         }
     }
 }
-
-@main
-def ini(args: String*) = withArgs(args :_ *)(preProcess(_))

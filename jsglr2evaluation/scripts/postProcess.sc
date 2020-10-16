@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff
 
 import scala.collection.JavaConverters._
 
-import $file.common, common._, Args._
+import $file.common, common._, Suite._
 
 val diff: IStringDiff = new JGitHistogramDiff();
 
@@ -18,7 +18,7 @@ println("Processing results...")
 
 mkdir! resultsDir
 
-val languagesWithBatchSources = args.languages.filter(_.sources.batch.nonEmpty)
+val languagesWithBatchSources = suite.languages.filter(_.sources.batch.nonEmpty)
 if (languagesWithBatchSources.nonEmpty) {
     val dir = languagesWithBatchSources(0).measurementsDir
 
@@ -33,7 +33,7 @@ if (languagesWithBatchSources.nonEmpty) {
     write.over(perFileBenchmarksNormalizedPath, "language,variant,score,low,high,size\n")
 }
 
-args.languages.foreach { language =>
+suite.languages.foreach { language =>
     println(" " + language.name)
 
     if (language.sources.batch.nonEmpty) {

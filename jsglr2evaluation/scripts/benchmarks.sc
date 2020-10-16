@@ -1,22 +1,22 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.common, common._, Args._
+import $file.common, common._, Suite._
 
 import $file.spoofax, spoofax._
 
 println("Executing benchmarks...")
 
-args.languages.foreach { language =>
+suite.languages.foreach { language =>
     println(" " + language.name)
 
-    val benchmarksMvnDir = (args.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.benchmark")
+    val benchmarksMvnDir = (suite.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.benchmark")
 
-    val warmupIterations = args.iterations
-    val benchmarkIterations = args.iterations
+    val warmupIterations = suite.iterations
+    val benchmarkIterations = suite.iterations
 
     mkdir! language.benchmarksDir
 
-    def benchmark(name: String, resultsPath: Path, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
+    def benchmark(name: String, resultsPath: Path, testSetSuite: Seq[String], params: Map[String, String] = Map.empty) =
         println(%%(
             Seq(
                 "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",

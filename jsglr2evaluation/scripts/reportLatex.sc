@@ -1,6 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.common, common._, Args._
+import $file.common, common._, Suite._
 
 import $file.spoofax, spoofax._
 
@@ -16,7 +16,7 @@ case object Throughput extends BenchmarkType {
     def errorColumns = Seq("low" -> "Low", "high" -> "High")
 }
 
-def latexTableTestSets(implicit args: Args) = {
+def latexTableTestSets(implicit suite: Suite) = {
     val s = new StringBuilder()
 
     s.append("\\begin{tabular}{|l|l|r|r|r|}\n")
@@ -24,7 +24,7 @@ def latexTableTestSets(implicit args: Args) = {
     s.append("Language & Source & Files & Lines & Size (bytes) \\\\\n")
     s.append("\\hline\n")
 
-    args.languages.foreach { language =>
+    suite.languages.foreach { language =>
         s.append("\\multirow{" + language.sources.batch.size + "}{*}{" + language.name + "}\n")
 
         language.sources.batch.zipWithIndex.foreach { case (source, index) =>
@@ -46,18 +46,18 @@ def latexTableTestSets(implicit args: Args) = {
     s.toString
 }
 
-def latexTableMeasurements(csv: CSV)(implicit args: Args) = {
+def latexTableMeasurements(csv: CSV)(implicit suite: Suite) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{tabular}{|l|" + ("r|" * args.languages.size) + "}\n")
+    s.append("\\begin{tabular}{|l|" + ("r|" * suite.languages.size) + "}\n")
     s.append("\\hline\n")
-    s.append("Measure" + args.languages.map(" & " + _.name).mkString("") + " \\\\\n")
+    s.append("Measure" + suite.languages.map(" & " + _.name).mkString("") + " \\\\\n")
     s.append("\\hline\n")
 
     csv.columns.filter(_ != "language").foreach { column =>
         s.append(column)
 
-        args.languages.foreach { language =>
+        suite.languages.foreach { language =>
             val row = csv.rows.find(_("language") == language.id).get
             val value = row(column)
 
@@ -72,14 +72,14 @@ def latexTableMeasurements(csv: CSV)(implicit args: Args) = {
     s.toString
 }
 
-def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(implicit args: Args) = {
+def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(implicit suite: Suite) = {
     val s = new StringBuilder()
 
-    s.append("\\begin{tabular}{|l|" + ("r|" * (args.languages.size * (1 + benchmarkType.errorColumns.size))) + "}\n")
+    s.append("\\begin{tabular}{|l|" + ("r|" * (suite.languages.size * (1 + benchmarkType.errorColumns.size))) + "}\n")
     s.append("\\hline\n")
-    s.append("\\multirow{2}{*}{Variant}" + args.languages.map(language => s" & \\multicolumn{${1 + benchmarkType.errorColumns.size}}{c|}{${language.name}}").mkString("") + " \\\\\n")
-    s.append(s"\\cline{2-${1 + args.languages.size * (1 + benchmarkType.errorColumns.size)}}\n")
-    s.append(args.languages.map(_ => " & Score" + benchmarkType.errorColumns.map(" & " + _._2).mkString).mkString + " \\\\\n")
+    s.append("\\multirow{2}{*}{Variant}" + suite.languages.map(language => s" & \\multicolumn{${1 + benchmarkType.errorColumns.size}}{c|}{${language.name}}").mkString("") + " \\\\\n")
+    s.append(s"\\cline{2-${1 + suite.languages.size * (1 + benchmarkType.errorColumns.size)}}\n")
+    s.append(suite.languages.map(_ => " & Score" + benchmarkType.errorColumns.map(" & " + _._2).mkString).mkString + " \\\\\n")
     s.append("\\hline\n")
 
     val variants = benchmarksCSV.rows.map(_("variant")).distinct
@@ -87,7 +87,7 @@ def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(impli
     variants.foreach { variant =>
         s.append(variant)
 
-        args.languages.foreach { language =>
+        suite.languages.foreach { language =>
             def get(column: String) = benchmarksCSV.rows.find { row =>
                 row("language") == language.id &&
                 row("variant") == variant
@@ -111,10 +111,10 @@ def latexTableBenchmarks(benchmarksCSV: CSV, benchmarkType: BenchmarkType)(impli
     s.toString
 }
 
-mkdir! args.reportDir
+mkdir! suite.reportDir
 
-write.over(args.reportDir / "testsets.tex", latexTableTestSets)
-write.over(args.reportDir / "measurements-parsetables.tex", latexTableMeasurements(CSV.parse(parseTableMeasurementsPath)))
-write.over(args.reportDir / "measurements-parsing.tex",     latexTableMeasurements(CSV.parse(parsingMeasurementsPath)))
-write.over(args.reportDir / "benchmarks-time.tex",          latexTableBenchmarks(CSV.parse(batchBenchmarksPath), Time))
-write.over(args.reportDir / "benchmarks-throughput.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath), Throughput))
+write.over(suite.reportDir / "testsets.tex", latexTableTestSets)
+write.over(suite.reportDir / "measurements-parsetables.tex", latexTableMeasurements(CSV.parse(parseTableMeasurementsPath)))
+write.over(suite.reportDir / "measurements-parsing.tex",     latexTableMeasurements(CSV.parse(parsingMeasurementsPath)))
+write.over(suite.reportDir / "benchmarks-time.tex",          latexTableBenchmarks(CSV.parse(batchBenchmarksPath), Time))
+write.over(suite.reportDir / "benchmarks-throughput.tex",    latexTableBenchmarks(CSV.parse(batchBenchmarksNormalizedPath), Throughput))

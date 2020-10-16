@@ -1,11 +1,11 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.common, common._, Args._
+import $file.common, common._, Suite._
 import $file.parsers, parsers._
 
 println("Validate sources...")
 
-args.languages.foreach { language =>
+suite.languages.foreach { language =>
     println(" " + language.name)
     
     // TODO: if language has ANTLR grammar, also validate with ANTLR

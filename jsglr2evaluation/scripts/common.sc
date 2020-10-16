@@ -16,16 +16,16 @@ implicit val customConfig: Configuration = Configuration.default.withDefaults
 case class Config(languages: Seq[Language])
 
 case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Sources, antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
-    def parseTablePath(implicit args: Args) = parseTable.path(this)
+    def parseTablePath(implicit suite: Suite) = parseTable.path(this)
 
-    def sourcesDir(implicit args: Args) = args.sourcesDir / id
+    def sourcesDir(implicit suite: Suite) = suite.sourcesDir / id
     
-    def measurementsDir(implicit args: Args) = args.measurementsDir / id
-    def benchmarksDir(implicit args: Args) = args.benchmarksDir / id
+    def measurementsDir(implicit suite: Suite) = suite.measurementsDir / id
+    def benchmarksDir(implicit suite: Suite) = suite.benchmarksDir / id
 
-    def sourceFilesBatch(implicit args: Args) = ls.rec! sourcesDir / "batch" |? (_.ext == extension)
-    def sourceFilesIncremental(implicit args: Args) = ls.rec! sourcesDir / "incremental" |? (_.ext == extension)
-    def sourceFilesPerFileBenchmark(implicit args: Args): Seq[Path] = {
+    def sourceFilesBatch(implicit suite: Suite) = ls.rec! sourcesDir / "batch" |? (_.ext == extension)
+    def sourceFilesIncremental(implicit suite: Suite) = ls.rec! sourcesDir / "incremental" |? (_.ext == extension)
+    def sourceFilesPerFileBenchmark(implicit suite: Suite): Seq[Path] = {
         val files = sourceFilesBatch sortBy(-_.size)
         val trimPercentage: Float = 10F
         val filesTrimmed = files.slice(
@@ -34,22 +34,22 @@ case class Language(id: String, name: String, extension: String, parseTable: Par
         )
 
         val fileCount = filesTrimmed.size
-        val step = fileCount / args.samples
+        val step = fileCount / suite.samples
 
-        for (i <- 0 until args.samples) yield filesTrimmed(i * step)
+        for (i <- 0 until suite.samples) yield filesTrimmed(i * step)
     }
 }
 
 sealed trait ParseTable {
-    def path(language: Language)(implicit args: Args): Path
+    def path(language: Language)(implicit suite: Suite): Path
 }
 case class GitSpoofax(repo: String, subDir: String) extends ParseTable {
-    def repoDir(language: Language)(implicit args: Args) = Args.languagesDir / language.id
-    def spoofaxProjectDir(language: Language)(implicit args: Args) = repoDir(language) / RelPath(subDir)
-    def path(language: Language)(implicit args: Args) = spoofaxProjectDir(language) / "target" / "metaborg" / "sdf.tbl"
+    def repoDir(language: Language)(implicit suite: Suite) = Suite.languagesDir / language.id
+    def spoofaxProjectDir(language: Language)(implicit suite: Suite) = repoDir(language) / RelPath(subDir)
+    def path(language: Language)(implicit suite: Suite) = spoofaxProjectDir(language) / "target" / "metaborg" / "sdf.tbl"
 }
 case class LocalParseTable(file: String) extends ParseTable {
-    def path(language: Language)(implicit args: Args) = pwd / RelPath(file)
+    def path(language: Language)(implicit suite: Suite) = pwd / RelPath(file)
 }
 
 object ParseTable {
@@ -85,7 +85,7 @@ case class IncrementalSource(id: String, repo: String,
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 
-case class Args(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path) {
+case class Suite(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path) {
     def languagesDir    = dir / 'languages
     def sourcesDir      = dir / 'sources
     def measurementsDir = dir / 'measurements
@@ -95,9 +95,9 @@ case class Args(configPath: Path, languages: Seq[Language], dir: Path, iteration
     def websiteDir      = dir / 'website
 }
 
-object Args {
+object Suite {
 
-    implicit val args = {
+    implicit val suite = {
         val dir        = sys.env.get("DIR").map(getPath).getOrElse(throw new IllegalArgumentException("'DIR' environment variable"))
         val spoofaxDir = sys.env.get("SPOOFAX_DIR").map(getPath).getOrElse(pwd / up / up / up)
         val reportDir  = sys.env.get("REPORT_DIR").map(getPath).getOrElse(dir / "reports")
@@ -116,16 +116,16 @@ object Args {
         val iterations = sys.env.get("ITERATIONS").map(_.toInt).getOrElse(1)
         val samples    = sys.env.get("SAMPLES").map(_.toInt).getOrElse(1)
 
-        Args(configPath, config.languages, dir, iterations, samples, spoofaxDir, reportDir)
+        Suite(configPath, config.languages, dir, iterations, samples, spoofaxDir, reportDir)
     }
 
-    implicit def languagesDir    = args.languagesDir
-    implicit def sourcesDir      = args.sourcesDir
-    implicit def measurementsDir = args.measurementsDir
-    implicit def benchmarksDir   = args.benchmarksDir
-    implicit def resultsDir      = args.resultsDir
-    implicit def reportsDir      = args.reportsDir
-    implicit def websiteDir      = args.websiteDir
+    implicit def languagesDir    = suite.languagesDir
+    implicit def sourcesDir      = suite.sourcesDir
+    implicit def measurementsDir = suite.measurementsDir
+    implicit def benchmarksDir   = suite.benchmarksDir
+    implicit def resultsDir      = suite.resultsDir
+    implicit def reportsDir      = suite.reportsDir
+    implicit def websiteDir      = suite.websiteDir
     
     implicit def parseTableMeasurementsPath = resultsDir / "measurements-parsetable.csv"
     implicit def parsingMeasurementsPath    = resultsDir / "measurements-parsing.csv"
@@ -149,7 +149,7 @@ def getPath(path: String) =
     else
         Path(path)
 
-def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
+def timed(name: String)(block: => Unit)(implicit suite: Suite): Unit = {
     println(s"$name: start @ ${LocalDateTime.now}")
     val t0 = System.currentTimeMillis()
     
@@ -169,7 +169,7 @@ def timed(name: String)(block: => Unit)(implicit args: Args): Unit = {
 
     println(report)
 
-    write.append(args.dir / "timing.txt", s"${LocalDateTime.now} $report\n")
+    write.append(suite.dir / "timing.txt", s"${LocalDateTime.now} $report\n")
 }
 
 case class CSV(columns: Seq[String], rows: Seq[CSVRow])

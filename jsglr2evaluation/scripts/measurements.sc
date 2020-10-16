@@ -6,9 +6,9 @@ import $file.spoofax, spoofax._
 
 println("Executing measurements...")
 
-mkdir! Args.measurementsDir
+mkdir! Suite.measurementsDir
 
-args.languages.foreach { language =>
+suite.languages.foreach { language =>
     println(" " + language.name)
 
     if (language.sources.batch.isEmpty)
@@ -18,7 +18,7 @@ args.languages.foreach { language =>
             %%(
                 "mvn",
                 "exec:java",
-                "-Dexec.args=\""+
+                "-Dexec.suite=\""+
                     s"language=${language.id} " +
                     s"extension=${language.extension} " +
                     s"parseTablePath=${language.parseTablePath} " +
@@ -27,6 +27,6 @@ args.languages.foreach { language =>
                 "\"",
                 "-DreportPath=" + language.measurementsDir,
                 MAVEN_OPTS="-Xmx8G -Xss64M"
-            )(args.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.measure")
+            )(suite.spoofaxDir / "jsglr" / "org.spoofax.jsglr2.measure")
         }
 }

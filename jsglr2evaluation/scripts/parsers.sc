@@ -1,6 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.common, common._, Args._
+import $file.common, common._, Suite._
 import $file.spoofax, spoofax._
 import org.spoofax.jsglr2.{JSGLR2Variant, JSGLR2Success, JSGLR2Failure}
 import org.spoofax.jsglr2.integration.IntegrationVariant
@@ -46,7 +46,7 @@ case class ParseFailure(error: Option[String]) extends ParseResult {
 }
 
 object Parser {
-    def variants(language: Language)(implicit args: Args) = Seq(
+    def variants(language: Language)(implicit suite: Suite) = Seq(
         JSGLR1Parser(language.parseTablePath),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.standard),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recovery),

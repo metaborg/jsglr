@@ -1,6 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.common, common._, Args._
+import $file.common, common._, Suite._
 
 def preProcess(file: String) =
     // Replace Unicode
@@ -10,7 +10,7 @@ println("Setting up sources...")
 
 mkdir! sourcesDir
 
-args.languages.foreach { language =>
+suite.languages.foreach { language =>
     println(" " + language.name)
     
     rm! language.sourcesDir

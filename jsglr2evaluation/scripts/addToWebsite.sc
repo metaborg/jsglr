@@ -1,6 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $ivy.`org.jsoup:jsoup:1.7.2`, org.jsoup._
-import $file.common, common._, Args._
+import $file.common, common._, Suite._
 import java.io.File
 
 println("Adding to website...")
@@ -61,10 +61,10 @@ write.over(indexFile, index.toString)
 mkdir! dir
 
 cp(pwd / "website-style.css", dir / "style.css")
-cp(args.dir / "archive.tar.gz", dir / "archive.tar.gz")
+cp(suite.dir / "archive.tar.gz", dir / "archive.tar.gz")
 cp.into(reportsDir, dir)
 
-val config = removeCommentedLines(read! args.configPath)
+val config = removeCommentedLines(read! suite.configPath)
 
 val batchPlots = Seq("benchmarks-batch-throughput.png", "benchmarks-perFile-throughput.png")
 
@@ -74,7 +74,7 @@ val batchContent =
     else
         ""
 
-val incrementalContent = args.languages.filter(_.sources.incremental.nonEmpty).map { language =>
+val incrementalContent = suite.languages.filter(_.sources.incremental.nonEmpty).map { language =>
     (language.id, language.name, withNav(language.sources.incremental.map { source => {
         val plots = Seq("report", "report-except-first", "report-time-vs-bytes", "report-time-vs-changes", "report-time-vs-changes-3D")
         // TODO add field source.name?

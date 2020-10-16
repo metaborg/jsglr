@@ -90,6 +90,8 @@ public class JSGLR2Variant {
                 (request, tree, previousResult) -> null);
         else if(this.imploder == ImploderVariant.TokenizedRecursive)
             return new JSGLR2Implementation<>(parser, new TokenizedStrategoTermImploder<>(), new StubTokenizer());
+        else if(this.parser.parseForestRepresentation == ParseForestRepresentation.Incremental)
+            return new JSGLR2ImplementationWithCache<>(parser, getImploder(), getTokenizer());
         else
             return new JSGLR2Implementation<>(parser, getImploder(), getTokenizer());
     }

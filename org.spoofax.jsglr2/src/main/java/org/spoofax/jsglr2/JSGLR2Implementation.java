@@ -34,11 +34,6 @@ public class JSGLR2Implementation
     public final IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
     public final ITokenizer<IntermediateResult, TokensResult> tokenizer;
 
-    public final HashMap<JSGLR2Request.CachingKey, String> inputCache = new HashMap<>();
-    public final HashMap<JSGLR2Request.CachingKey, ParseForest> parseForestCache = new HashMap<>();
-    public final HashMap<JSGLR2Request.CachingKey, ImploderCache> imploderCacheCache = new HashMap<>();
-    public final HashMap<JSGLR2Request.CachingKey, TokensResult> tokensCache = new HashMap<>();
-
     JSGLR2Implementation(IObservableParser<ParseForest, ?, ?, ?, ?> parser,
         IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder,
         ITokenizer<IntermediateResult, TokensResult> tokenizer) {
@@ -52,30 +47,17 @@ public class JSGLR2Implementation
     }
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
-        String previousInput = request.isCacheable() ? inputCache.get(request.cachingKey()) : null;
-        ParseForest previousParseForest = request.isCacheable() ? parseForestCache.get(request.cachingKey()) : null;
-        ImploderCache previousImploderCache =
-            request.isCacheable() ? imploderCacheCache.get(request.cachingKey()) : null;
-        TokensResult previousTokens = request.isCacheable() ? tokensCache.get(request.cachingKey()) : null;
 
-        ParseResult<ParseForest> parseResult = parser.parse(request, previousInput, previousParseForest);
+        ParseResult<ParseForest> parseResult = parser.parse(request);
 
         if(parseResult.isSuccess()) {
             ParseForest parseForest = ((ParseSuccess<ParseForest>) parseResult).parseResult;
 
-            ImplodeResult implodeResult = imploder.implode(request, parseForest, previousImploderCache);
+            ImplodeResult implodeResult = imploder.implode(request, parseForest);
 
-            TokensResult tokens =
-                tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
+            TokensResult tokens = tokenizer.tokenize(request, implodeResult.intermediateResult()).tokens;
 
             List<Message> messages = postProcessMessages(parseResult.messages, tokens);
-
-            if(request.isCacheable()) {
-                inputCache.put(request.cachingKey(), request.input);
-                parseForestCache.put(request.cachingKey(), parseForest);
-                imploderCacheCache.put(request.cachingKey(), implodeResult.resultCache());
-                tokensCache.put(request.cachingKey(), tokens);
-            }
 
             return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(), messages);
         } else {
@@ -85,7 +67,7 @@ public class JSGLR2Implementation
         }
     }
 
-    private List<Message> postProcessMessages(Collection<Message> originalMessages, ITokens tokens) {
+    protected List<Message> postProcessMessages(Collection<Message> originalMessages, ITokens tokens) {
         List<Message> messages = new ArrayList<>();
 
         for(Message originalMessage : originalMessages) {

@@ -8,4 +8,8 @@ public interface ITokenizer<ImplodeIntermediateResult, TokensResult extends ITok
     TokenizeResult<TokensResult> tokenize(JSGLR2Request request, ImplodeIntermediateResult tree,
         TokensResult previousResult);
 
+    default TokenizeResult<TokensResult> tokenize(JSGLR2Request request, ImplodeIntermediateResult tree) {
+        return tokenize(request, tree, null);
+    }
+
 }

@@ -29,8 +29,9 @@ COPY docker/maven-settings.xml /root/.m2/settings.xml
 RUN sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/lihaoyi/Ammonite/releases/download/2.2.0/2.13-2.2.0) > /usr/local/bin/amm && chmod +x /usr/local/bin/amm'
 ENV COURSIER_CACHE /jsglr2evaluation/data/coursier-cache
 
-# Upgrade PIP
-RUN python3 -m pip install --upgrade pip pipenv
+# Upgrade PIP and install dependencies in /root/.local (because the ./b script requires virtualenv==20.0.15 installed with --user)
+ENV PATH=/root/.local/bin:$PATH
+RUN python3 -m pip install --user --upgrade pip virtualenv==20.0.15 pipenv
 
 # Install R
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9

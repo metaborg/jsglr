@@ -24,24 +24,16 @@ public class JSGLR2MultiParser
     public final JSGLR2Implementation<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult, TokensResult> jsglr2Implementation;
 
     public JSGLR2MultiParser(
-        JSGLR2Implementation<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult, TokensResult> jsglr2Implementation)
-        throws ParseException {
+        JSGLR2Implementation<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult, TokensResult> jsglr2Implementation) {
         this.jsglr2Implementation = jsglr2Implementation;
     }
 
     public AbstractSyntaxTree parse(String... inputs) throws ParseException {
-        String fileName = "" + System.nanoTime();
-
         AbstractSyntaxTree res = null;
 
         for(String input : inputs) {
-            res = jsglr2Implementation.parseUnsafe(new JSGLR2Request(input, fileName));
+            res = jsglr2Implementation.parseUnsafe(new JSGLR2Request(input, ""));
         }
-
-        jsglr2Implementation.inputCache.clear();
-        jsglr2Implementation.parseForestCache.clear();
-        jsglr2Implementation.imploderCacheCache.clear();
-        jsglr2Implementation.tokensCache.clear();
 
         return res;
     }

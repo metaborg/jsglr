@@ -1,7 +1,6 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
-import $file.common, common._
-
+import $file.common, common._, Suite._
 import $file.spoofax, spoofax._
 
 println("Executing measurements...")

@@ -15,6 +15,9 @@ clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBen
 
 cleanAll: clean all
 
+export JSGLR2EVALUATION_WORKING_DIR=$(DIR)
+export JSGLR2EVALUATION_SPOOFAX_DIR=$(SPOOFAX_DIR)
+export JSGLR2EVALUATION_REPORT_DIR=$(REPORTDIR)
 
 # Pull Spoofax languages from GitHub and build them
 languages: $(DIR)/languages

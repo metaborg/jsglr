@@ -98,9 +98,9 @@ case class Suite(configPath: Path, languages: Seq[Language], dir: Path, iteratio
 object Suite {
 
     implicit val suite = {
-        val dir        = sys.env.get("DIR").map(getPath).getOrElse(throw new IllegalArgumentException("'DIR' environment variable"))
-        val spoofaxDir = sys.env.get("SPOOFAX_DIR").map(getPath).getOrElse(pwd / up / up / up)
-        val reportDir  = sys.env.get("REPORT_DIR").map(getPath).getOrElse(dir / "reports")
+        val dir        = sys.env.get("JSGLR2EVALUATION_WORKING_DIR").map(getPath).getOrElse(throw new IllegalArgumentException("missing 'JSGLR2EVALUATION_WORKING_DIR' environment variable"))
+        val spoofaxDir = sys.env.get("JSGLR2EVALUATION_SPOOFAX_DIR").map(getPath).getOrElse(pwd / up / up / up)
+        val reportDir  = sys.env.get("JSGLR2EVALUATION_REPORT_DIR").map(getPath).getOrElse(dir / "reports")
 
         val configPath = {
             val filename = RelPath(sys.env.get("CONFIG").getOrElse("config.yml"))

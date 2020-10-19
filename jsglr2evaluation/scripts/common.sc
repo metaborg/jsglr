@@ -23,10 +23,13 @@ case class Language(id: String, name: String, extension: String, parseTable: Par
     def measurementsDir(implicit suite: Suite) = suite.measurementsDir / id
     def benchmarksDir(implicit suite: Suite) = suite.benchmarksDir / id
 
-    def sourceFilesBatch(implicit suite: Suite) = ls.rec! sourcesDir / "batch" |? (_.ext == extension)
+    def sourceFilesBatch(source: Option[String] = None)(implicit suite: Suite) = ls.rec! (source match {
+        case Some(id) => sourcesDir / "batch" / id
+        case None => sourcesDir / "batch"
+    }) |? (_.ext == extension)
     def sourceFilesIncremental(implicit suite: Suite) = ls.rec! sourcesDir / "incremental" |? (_.ext == extension)
     def sourceFilesPerFileBenchmark(implicit suite: Suite): Seq[Path] = {
-        val files = sourceFilesBatch sortBy(-_.size)
+        val files = sourceFilesBatch() sortBy(-_.size)
         val trimPercentage: Float = 10F
         val filesTrimmed = files.slice(
             ((trimPercentage / 100F) * files.size).toInt,

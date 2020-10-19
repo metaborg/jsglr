@@ -13,7 +13,7 @@ suite.languages.foreach { language =>
     val parsers = Parser.variants(language)
 
     timed("validate " + language.id) {
-        language.sourceFilesBatch.foreach { file =>
+        language.sourceFilesBatch().foreach { file =>
             val input = read! file
 
             val parseFailures: Seq[(String, Option[String])] = parsers.flatMap { parser =>

@@ -66,6 +66,8 @@ suite.languages.foreach { language =>
         timed("collect " + source.id) {
             val files = ls.rec! languageSourceDir |? (_.ext == language.extension)
 
+            mkdir! language.sourcesDir / "batch" / source.id
+
             // Copy all files to the aggregated directory
             files.foreach { file =>
                 val pathInSource = file relativeTo languageSourceDir
@@ -74,7 +76,7 @@ suite.languages.foreach { language =>
 
                 val preProcessed = preProcess(read! file)
 
-                write(language.sourcesDir / "batch" / filename, preProcessed)
+                write(language.sourcesDir / "batch" / source.id / filename, preProcessed)
             }
         }
     }

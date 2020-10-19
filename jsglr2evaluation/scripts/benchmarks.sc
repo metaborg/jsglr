@@ -15,7 +15,7 @@ suite.languages.foreach { language =>
 
     mkdir! language.benchmarksDir
 
-    def benchmark(name: String, resultsPath: Path, testSetSuite: Seq[String], params: Map[String, String] = Map.empty) =
+    def benchmark(name: String, resultsPath: Path, testSetArgs: Seq[String], params: Map[String, String] = Map.empty) =
         println(%%(
             Seq(
                 "java", "-jar", "target/org.spoofax.jsglr2.benchmark.jar",

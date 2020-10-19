@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 // This allows default arguments in ADTs: https://stackoverflow.com/a/47644276
 implicit val customConfig: Configuration = Configuration.default.withDefaults
 
-case class Config(languages: Seq[Language])
+case class Config(iterations: Int = 1, samples: Int = 1, languages: Seq[Language])
 
 case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Sources, antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
     def parseTablePath(implicit suite: Suite) = parseTable.path(this)
@@ -116,10 +116,7 @@ object Suite {
         val configJson = parser.parse(read! configPath)
         val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
-        val iterations = sys.env.get("ITERATIONS").map(_.toInt).getOrElse(1)
-        val samples    = sys.env.get("SAMPLES").map(_.toInt).getOrElse(1)
-
-        Suite(configPath, config.languages, dir, iterations, samples, spoofaxDir, reportDir)
+        Suite(configPath, config.languages, dir, config.iterations, config.samples, spoofaxDir, reportDir)
     }
 
     implicit def languagesDir    = suite.languagesDir

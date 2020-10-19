@@ -17,7 +17,7 @@ suite.languages.foreach { language =>
             %%(
                 "mvn",
                 "exec:java",
-                "-Dexec.suite=\""+
+                "-Dexec.args=\""+
                     s"language=${language.id} " +
                     s"extension=${language.extension} " +
                     s"parseTablePath=${language.parseTablePath} " +

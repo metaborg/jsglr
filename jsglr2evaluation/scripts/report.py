@@ -92,36 +92,39 @@ def plot_times_vs_changes_3D(rows):
     return fig
 
 
-print("Creating plots for incremental...")
-for language in scandir(path.join(DIR, "results", "incremental")):
-    print(f" {language.name}")
-    for result_file in scandir(language.path):
-        csv_basename = ".".join(result_file.name.split(".")[:-1])
-        print(f"  {csv_basename}")
+incremental_results_dir = path.join(DIR, "results", "incremental")
 
-        result_data = read_csv(result_file.path)
-        initial_size = int(result_data[0]["Added"])
-        result_data = [row for row in result_data if int(row["Removed"]) + int(row["Added"]) < initial_size]
-        result_data_except_first = result_data[1:]
+if (path.isdir(incremental_results_dir)):
+    print("Creating plots for incremental...")
+    for language in scandir(incremental_results_dir):
+        print(f" {language.name}")
+        for result_file in scandir(language.path):
+            csv_basename = ".".join(result_file.name.split(".")[:-1])
+            print(f"  {csv_basename}")
 
-        report_path = path.join(REPORTS_DIR, "incremental", language.name, csv_basename)
-        makedirs(report_path, exist_ok=True)
+            result_data = read_csv(result_file.path)
+            initial_size = int(result_data[0]["Added"])
+            result_data = [row for row in result_data if int(row["Removed"]) + int(row["Added"]) < initial_size]
+            result_data_except_first = result_data[1:]
 
-        reports = [
-            (plot_times(result_data, ["Batch", "Incremental", "IncrementalNoCache"]), "report"),
-            (plot_times(result_data_except_first, ["Incremental"]), "report-except-first"),
-            (plot_times_vs_changes(result_data_except_first, "bytes", "Added", "Removed"), "report-time-vs-bytes"),
-            (plot_times_vs_changes(result_data_except_first, "chunks", "Changes"), "report-time-vs-changes"),
-            (plot_times_vs_changes_3D(result_data_except_first), "report-time-vs-changes-3D"),
-        ]
+            report_path = path.join(REPORTS_DIR, "incremental", language.name, csv_basename)
+            makedirs(report_path, exist_ok=True)
 
-        for fig, name in reports:
-            fig.savefig(path.join(report_path, name + ".pdf"))
-            fig.savefig(path.join(report_path, name + ".svg"))
+            reports = [
+                (plot_times(result_data, ["Batch", "Incremental", "IncrementalNoCache"]), "report"),
+                (plot_times(result_data_except_first, ["Incremental"]), "report-except-first"),
+                (plot_times_vs_changes(result_data_except_first, "bytes", "Added", "Removed"), "report-time-vs-bytes"),
+                (plot_times_vs_changes(result_data_except_first, "chunks", "Changes"), "report-time-vs-changes"),
+                (plot_times_vs_changes_3D(result_data_except_first), "report-time-vs-changes-3D"),
+            ]
 
-        plt.close("all")
+            for fig, name in reports:
+                fig.savefig(path.join(report_path, name + ".pdf"))
+                fig.savefig(path.join(report_path, name + ".svg"))
 
-        merged_path = path.join(report_path, "merged.pdf")
-        if path.exists(merged_path):
-            remove(merged_path)
-        pdftools.pdf_merge([path.join(report_path, name + ".pdf") for _, name in reports], merged_path)
+            plt.close("all")
+
+            merged_path = path.join(report_path, "merged.pdf")
+            if path.exists(merged_path):
+                remove(merged_path)
+            pdftools.pdf_merge([path.join(report_path, name + ".pdf") for _, name in reports], merged_path)

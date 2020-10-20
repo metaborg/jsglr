@@ -9,7 +9,7 @@ BENCHMARKS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/target/org.spoofax.jsgl
 
 REPORTSDIR=$(DIR)/reports
 
-all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR Pipfile.lock reportPy publish
+all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR .venv reportPy publish
 
 clean: cleanLanguages cleanSources cleanPreProcessing cleanMeasurements cleanBenchmarks cleanPostProcessing cleanReports
 
@@ -96,10 +96,11 @@ reportR: $(DIR)/results report.R
 	Rscript report.R $(DIR) $(REPORTSDIR)
 
 .venv:
-	pipenv install
+	./setup-venv.sh
 
 reportPy: $(DIR)/results report.py .venv
-	pipenv run report
+	# Cannot activate venv using `source` in Makefile: https://stackoverflow.com/a/57257640
+	.venv/bin/python report.py
 
 cleanReports:
 	-rm -r $(REPORTSDIR)

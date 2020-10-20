@@ -2,6 +2,7 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 import $ivy.`org.jsoup:jsoup:1.7.2`, org.jsoup._
 import $file.common, common._, Suite._
 import java.io.File
+import java.time._, java.time.format._
 
 println("Adding to website...")
 
@@ -46,7 +47,7 @@ def withTemplate(title: String, content: String) =
 
 def removeCommentedLines(text: String) = text.replaceAll("[ \t\r]*\n[ \t]*#[^\n]+", "")
 
-val id = java.time.LocalDateTime.now.toString
+val id = ZonedDateTime.now(ZoneId.of("Europe/Amsterdam")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 
 val dir = websiteDir / id
 val indexFile = websiteDir / "index.html"

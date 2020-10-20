@@ -7,8 +7,6 @@ println("Validate sources...")
 
 suite.languages.foreach { language =>
     println(" " + language.name)
-    
-    // TODO: if language has ANTLR grammar, also validate with ANTLR
 
     val parsers = Parser.variants(language)
 

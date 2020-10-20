@@ -34,6 +34,35 @@ case class JSGLR1Parser(parseTablePath: Path) extends Parser {
     }
 }
 
+import $ivy.`org.metaborg:org.spoofax.jsglr2.benchmark:2.6.0-SNAPSHOT`
+import $ivy.`org.antlr:antlr4-runtime:4.7.2`
+
+import org.antlr.v4.runtime.{Lexer => ANTLR_Lexer, Parser => ANTLR_Parser, _}
+import org.antlr.v4.runtime.tree.Tree
+import org.antlr.v4.runtime.misc.ParseCancellationException
+import org.spoofax.jsglr2.benchmark.antlr4.{Java8Lexer => ANTLR_Java8Lexer, Java8Parser => ANTLR_Java8Parser}
+import org.spoofax.jsglr2.benchmark.antlr4.{JavaLexer => ANTLR_JavaLexer, JavaParser => ANTLR_JavaParser}
+
+case class ANTLRParser[ANTLR__Lexer <: ANTLR_Lexer, ANTLR__Parser <: ANTLR_Parser](id: String, getLexer: CharStream => ANTLR__Lexer, getParser: TokenStream => ANTLR__Parser, doParse: ANTLR__Parser => Tree) extends Parser {
+    def parse(input: String) = {
+        try {
+            val charStream = CharStreams.fromString(input)
+            val lexer = getLexer(charStream)
+
+            val tokens = new CommonTokenStream(lexer)
+            val parser = getParser(tokens)
+
+            parser.setErrorHandler(new BailErrorStrategy())
+            
+            doParse(parser)
+
+            ParseSuccess
+        } catch {
+            case e: ParseCancellationException => ParseFailure(None)
+        }
+    }
+}
+
 trait ParseResult {
     def isValid: Boolean
     def isInvalid = !isValid
@@ -46,11 +75,18 @@ case class ParseFailure(error: Option[String]) extends ParseResult {
 }
 
 object Parser {
-    def variants(language: Language)(implicit suite: Suite) = Seq(
+    def variants(language: Language)(implicit suite: Suite): Seq[Parser] = Seq(
         JSGLR1Parser(language.parseTablePath),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.standard),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recovery),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.incremental),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recoveryIncremental)
-    )
+    ) ++ language.antlrBenchmarks.map { benchmark =>
+        benchmark.id match {
+            case "antlr" =>
+                ANTLRParser[ANTLR_Java8Lexer, ANTLR_Java8Parser](benchmark.id, new ANTLR_Java8Lexer(_), new ANTLR_Java8Parser(_), _.compilationUnit)
+            case "antlr-optimized" =>
+                ANTLRParser[ANTLR_JavaLexer, ANTLR_JavaParser](benchmark.id, new ANTLR_JavaLexer(_), new ANTLR_JavaParser(_), _.compilationUnit)
+        }
+    }
 }

@@ -78,9 +78,9 @@ object Parser {
     def variants(language: Language)(implicit suite: Suite): Seq[Parser] = Seq(
         JSGLR1Parser(language.parseTablePath),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.standard),
-        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recovery),
-        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.incremental),
-        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recoveryIncremental)
+        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.incremental)
+        /*JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recovery),
+        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recoveryIncremental)*/
     ) ++ language.antlrBenchmarks.map { benchmark =>
         benchmark.id match {
             case "antlr" =>

@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 // This allows default arguments in ADTs: https://stackoverflow.com/a/47644276
 implicit val customConfig: Configuration = Configuration.default.withDefaults
 
-case class Config(iterations: Int = 1, samples: Int = 1, languages: Seq[Language])
+case class Config(iterations: Int = 1, samples: Int = 1, shrinkBatchSources: Option[Int] = None, languages: Seq[Language])
 
 case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Sources, antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
     def parseTablePath(implicit suite: Suite) = parseTable.path(this)
@@ -88,7 +88,7 @@ case class IncrementalSource(id: String, repo: String,
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 
-case class Suite(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, spoofaxDir: Path, reportDir: Path) {
+case class Suite(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, shrinkBatchSources: Option[Int], spoofaxDir: Path, reportDir: Path) {
     def languagesDir    = dir / 'languages
     def sourcesDir      = dir / 'sources
     def measurementsDir = dir / 'measurements
@@ -121,7 +121,7 @@ object Suite {
         val configJson = parser.parse(read! configPath)
         val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
-        Suite(configPath, config.languages, dir, config.iterations, config.samples, spoofaxDir, reportDir)
+        Suite(configPath, config.languages, dir, config.iterations, config.samples, config.shrinkBatchSources, spoofaxDir, reportDir)
     }
 
     implicit def languagesDir    = suite.languagesDir

@@ -68,8 +68,14 @@ suite.languages.foreach { language =>
 
             mkdir! language.sourcesDir / "batch" / source.id
 
+            val selectedFiles =
+                suite.shrinkBatchSources match {
+                    case Some(size) if files.size > size => scala.util.Random.shuffle(files).take(size)
+                    case None => files
+                }
+
             // Copy all files to the aggregated directory
-            files.foreach { file =>
+            selectedFiles.foreach { file =>
                 val pathInSource = file relativeTo languageSourceDir
                 val filenameFlat = source.id + "_" + pathInSource.toString.replace("/", "_").replace(".", "_")
                 val filename = filenameFlat.dropRight(1 + language.extension.size) + "." + language.extension

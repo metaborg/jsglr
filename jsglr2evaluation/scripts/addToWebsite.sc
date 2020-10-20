@@ -69,10 +69,11 @@ val config = removeCommentedLines(read! suite.configPath)
 val batchPlots = Seq("benchmarks-batch-throughput.png", "benchmarks-perFile-throughput.png")
 
 val batchContent =
-    if (batchPlots.forall(plot => exists! dir / "reports" / plot))
+    s"<br /><p><strong>Iterations:</strong> ${suite.iterations}</p>" +
+    (if (batchPlots.forall(plot => exists! dir / "reports" / plot))
         batchPlots.map(plot => s"""<p><img src="./reports/$plot" /></p>""").mkString("\n")
     else
-        ""
+        "")
 
 val incrementalContent = suite.languages.filter(_.sources.incremental.nonEmpty).map { language =>
     (language.id, language.name, withNav(language.sources.incremental.map { source => {

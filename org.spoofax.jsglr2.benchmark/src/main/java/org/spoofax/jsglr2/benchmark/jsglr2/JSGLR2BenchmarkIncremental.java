@@ -82,16 +82,12 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                     prevString.put(input, content);
                     prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
                 } else {
-                    //noinspection rawtypes,unchecked
-                    prevCacheImpl.put(input, new JSGLR2PersistentCache<>(((JSGLR2ImplementationWithCache) jsglr2), content));
+                    @SuppressWarnings({ "rawtypes", "unchecked" }) JSGLR2PersistentCache impl =
+                        new JSGLR2PersistentCache<>(((JSGLR2ImplementationWithCache) jsglr2), content);
+                    prevCacheImpl.put(input, impl);
                 }
             }
         }
-    }
-
-    // Only used in ManualBenchmark
-    Iterable<IncrementalStringInput> getInputs() {
-        return inputs;
     }
 
 }

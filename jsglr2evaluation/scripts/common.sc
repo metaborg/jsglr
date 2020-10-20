@@ -96,6 +96,11 @@ case class Suite(configPath: Path, languages: Seq[Language], dir: Path, iteratio
     def resultsDir      = dir / 'results
     def reportsDir      = dir / 'reports
     def websiteDir      = dir / 'website
+
+    def scopes = Seq(
+        if (languages.exists(_.sources.batch.nonEmpty)) Some("batch") else None,
+        if (languages.exists(_.sources.incremental.nonEmpty)) Some("incremental") else None
+    ).flatten
 }
 
 object Suite {

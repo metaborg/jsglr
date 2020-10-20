@@ -55,7 +55,16 @@ val indexFile = websiteDir / "index.html"
 val index = Jsoup.parse(new File("" + indexFile), "UTF-8")
 val ul = index.select("#runs").first
 
-ul.prepend("<a href=\"./" + id + "/index.html\" class=\"list-group-item list-group-item-action d-flex justify-content-between align-items-center\">" + id + "</a>")
+ul.prepend(s"""
+  |<a href="./$id/index.html" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+  | $id
+  | <span>
+  |  ${suite.scopes.map { scope =>
+    s"""<span class="badge badge-primary badge-pill">$scope</span>"""
+   }.mkString}
+  | </span>
+  |</a>
+  |""".stripMargin)
 
 write.over(indexFile, index.toString)
 

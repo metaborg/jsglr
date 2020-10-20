@@ -20,7 +20,11 @@ case class JSGLR2Parser(parseTablePath: Path, jsglr2Preset: JSGLR2Variant.Preset
     )
     val jsglr2 = getJSGLR2(variant, parseTablePath)
     def parse(input: String) = jsglr2.parseResult(input, null, null) match {
-        case _: JSGLR2Success[_] => ParseSuccess
+        case success: JSGLR2Success[_] =>
+            if (success.isAmbiguous)
+                ParseFailure(Some("ambiguous"))
+            else
+                ParseSuccess
         case failure: JSGLR2Failure[_] => ParseFailure(Some(failure.parseFailure.failureCause.toMessage.toString))
     }
 }

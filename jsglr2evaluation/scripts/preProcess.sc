@@ -2,6 +2,7 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
 import $file.common, common._, Suite._
 import $file.parsers, parsers._
+import org.spoofax.interpreter.terms.IStrategoTerm
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -16,30 +17,46 @@ suite.languages.foreach { language =>
     timed("validate " + language.id) {
         language.sourceFilesBatch().foreach { file =>
             val input = read! file
+            val filename = file relativeTo language.sourcesDir
 
-            val parseFailures: Seq[(String, Option[String])] = parsers.flatMap { parser =>
+            val results: Seq[(String, ParseResult)] = parsers.map { parser =>
                 try {
-                    Await.result(Future.successful(
-                        parser.parse(input) match {
-                            case ParseFailure(error) => Some((parser.id, error))
-                            case _ => None
-                        }
-                    ), 10 seconds)
+                    Await.result(Future.successful {
+                        (parser.id, parser.parse(input))
+                    }, 10 seconds)
                 } catch {
-                    case _: TimeoutException => Some((parser.id, Some("timeout")))
+                    case _: TimeoutException => (parser.id, ParseFailure(Some("timeout")))
                 }
             }
 
-            // TODO: verify that JSGLR2 variants produce the same AST
+            val failures: Seq[(String, Option[String])] = results.flatMap {
+                case (parser, ParseFailure(error)) => Some((parser, error))
+                case _ => None
+            }
 
-            if (parseFailures.nonEmpty) {
-                val filename = file relativeTo language.sourcesDir
+            val successASTs: Seq[IStrategoTerm] = results.flatMap {
+                case (parser, ParseSuccess(ast)) => ast
+                case _ => None
+            }
 
-                println("   Invalid: " + filename)
-                parseFailures.foreach { case (parser, error) =>
-                    println("     " + parser + error.fold("")(" (" + _ + ")"))
-                }
+            def consistentASTs(asts: Seq[IStrategoTerm]) = true // TODO: check consistency
 
+            val valid =
+                if (failures.nonEmpty) {
+                    println("   Invalid: " + filename)
+                    failures.foreach { case (parser, error) =>
+                        println("     " + parser + error.fold("")(" (" + _ + ")"))
+                    }
+
+                    false
+                } else if (!consistentASTs(successASTs)) {
+                    println("   Inconsistent: " + filename)
+
+                    false
+                } else
+                    true
+
+            if (!valid) {
                 mkdir! sourcesDir / "invalid"
                 mv.over(file, sourcesDir / "invalid" / filename.last)
             }

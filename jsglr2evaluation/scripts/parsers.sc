@@ -2,6 +2,7 @@ import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
 import $file.common, common._, Suite._
 import $file.spoofax, spoofax._
+import org.spoofax.interpreter.terms.IStrategoTerm
 import org.spoofax.jsglr2.{JSGLR2Variant, JSGLR2Success, JSGLR2Failure}
 import org.spoofax.jsglr2.integration.IntegrationVariant
 import org.metaborg.parsetable.ParseTableVariant
@@ -20,11 +21,11 @@ case class JSGLR2Parser(parseTablePath: Path, jsglr2Preset: JSGLR2Variant.Preset
     )
     val jsglr2 = getJSGLR2(variant, parseTablePath)
     def parse(input: String) = jsglr2.parseResult(input, null, null) match {
-        case success: JSGLR2Success[_] =>
+        case success: JSGLR2Success[IStrategoTerm] =>
             if (success.isAmbiguous)
                 ParseFailure(Some("ambiguous"))
             else
-                ParseSuccess
+                ParseSuccess(Some(success.ast))
         case failure: JSGLR2Failure[_] => ParseFailure(Some(failure.parseFailure.failureCause.toMessage.toString))
     }
 }
@@ -33,7 +34,7 @@ case class JSGLR1Parser(parseTablePath: Path) extends Parser {
     val id = "jsglr1"
     val jsglr1 = getJSGLR1(parseTablePath)
     def parse(input: String) = Try(jsglr1.parse(input, null, null)) match {
-        case Success(_) => ParseSuccess
+        case Success(_) => ParseSuccess(None)
         case Failure(_) => ParseFailure(None)
     }
 }
@@ -60,7 +61,7 @@ case class ANTLRParser[ANTLR__Lexer <: ANTLR_Lexer, ANTLR__Parser <: ANTLR_Parse
             
             doParse(parser)
 
-            ParseSuccess
+            ParseSuccess(None)
         } catch {
             case e: ParseCancellationException => ParseFailure(None)
         }
@@ -71,7 +72,7 @@ trait ParseResult {
     def isValid: Boolean
     def isInvalid = !isValid
 }
-object ParseSuccess extends ParseResult {
+case class ParseSuccess(ast: Option[IStrategoTerm]) extends ParseResult {
     def isValid = true
 }
 case class ParseFailure(error: Option[String]) extends ParseResult {

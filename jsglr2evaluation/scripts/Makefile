@@ -95,10 +95,10 @@ reportLatex: $(DIR)/results reportLatex.sc spoofax.sc spoofaxDeps.sc common.sc
 reportR: $(DIR)/results report.R
 	Rscript report.R $(DIR) $(REPORTDIR)
 
-Pipfile.lock:
+.venv:
 	pipenv install
 
-reportPy: $(DIR)/results report.py Pipfile.lock
+reportPy: $(DIR)/results report.py .venv
 	pipenv run report $(DIR) $(REPORTDIR)
 
 cleanReports:

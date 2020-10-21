@@ -28,8 +28,8 @@ Specify number of warmup and benchmark iterations with `ITERATIONS` (defaults to
 make ITERATIONS=10 benchmarks
 ```
 
-Specify path to generate reports (LaTeX tables and plots with R) to with `REPORTDIR` (defaults to `~/jsglr2evaluation/reports`):
+Specify path to generate reports (LaTeX tables and plots with R) to with `REPORTSDIR` (defaults to `~/jsglr2evaluation/reports`):
 
 ```
-make REPORTDIR=~/path/to/paper/generated all
+make REPORTSDIR=~/path/to/paper/generated all
 ```

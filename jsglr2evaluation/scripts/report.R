@@ -3,11 +3,11 @@ options(warn=1)
 args = commandArgs(trailingOnly=TRUE)
 
 if (length(args) != 2) {
-  dir       <- "~/jsglr2evaluation"
-  reportDir <- "~/jsglr2evaluation/reports"
+  dir        <- "~/jsglr2evaluation"
+  reportsDir <- "~/jsglr2evaluation/reports"
 } else {
-  dir       <- args[1]
-  reportDir <- args[2]
+  dir        <- args[1]
+  reportsDir <- args[2]
 }
 
 setwd(dir)
@@ -38,7 +38,7 @@ batchBenchmarksPlot <- function(inputFile, outputFile, dimension, unit, getLows,
   lows   <-   lows[variants,]
   highs  <-  highs[variants,]
   
-  dir.create(reportDir, showWarnings = FALSE)
+  dir.create(reportsDir, showWarnings = FALSE)
   
   savePlot(function() {
     # https://datascienceplus.com/building-barplots-with-error-bars/
@@ -53,7 +53,7 @@ batchBenchmarksPlot <- function(inputFile, outputFile, dimension, unit, getLows,
     
     segments(barCenters, lows, barCenters, highs, lwd = 1)
     arrows(barCenters, lows, barCenters, highs, lwd = 1, angle = 90, code = 3, length = 0.05)
-  }, file=paste(reportDir, outputFile, sep=""))
+  }, file=paste(reportsDir, outputFile, sep=""))
 }
 
 batchTimeBenchmarksPlot <- function(inputFile, outputFile, dimension, unit) {
@@ -69,7 +69,7 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, dimension, unit) {
   data <- data[data$variant == "standard",]
   languages <- unique(data$language)
   
-  dir.create(reportDir, showWarnings = FALSE)
+  dir.create(reportsDir, showWarnings = FALSE)
 
   savePlot(function() {
     plot(data$size / 1000,
@@ -80,7 +80,7 @@ perFileBenchmarksPlot <- function(inputFile, outputFile, dimension, unit) {
         pch=symbols[data$language])
     
     legend("top", inset=0.05, legend=languages, pch=symbols[languages])
-  }, file=paste(reportDir, outputFile, sep=""))
+  }, file=paste(reportsDir, outputFile, sep=""))
 }
 
 batchTimeBenchmarksPlot("results/benchmarks-batch-time.csv",             "/benchmarks-batch-time")

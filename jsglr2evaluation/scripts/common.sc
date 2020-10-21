@@ -101,13 +101,12 @@ case class IncrementalSource(id: String, repo: String,
 
 case class ANTLRBenchmark(id: String, benchmark: String)
 
-case class Suite(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, shrinkBatchSources: Option[Int], spoofaxDir: Path, reportDir: Path) {
+case class Suite(configPath: Path, languages: Seq[Language], dir: Path, iterations: Int, samples: Int, shrinkBatchSources: Option[Int], spoofaxDir: Path, reportsDir: Path) {
     def languagesDir    = dir / 'languages
     def sourcesDir      = dir / 'sources
     def measurementsDir = dir / 'measurements
     def benchmarksDir   = dir / 'benchmarks
     def resultsDir      = dir / 'results
-    def reportsDir      = dir / 'reports
     def websiteDir      = dir / 'website
 
     def scopes = Seq(
@@ -121,7 +120,7 @@ object Suite {
     implicit val suite = {
         val dir        = sys.env.get("JSGLR2EVALUATION_WORKING_DIR").map(getPath).getOrElse(throw new IllegalArgumentException("missing 'JSGLR2EVALUATION_WORKING_DIR' environment variable"))
         val spoofaxDir = sys.env.get("JSGLR2EVALUATION_SPOOFAX_DIR").map(getPath).getOrElse(pwd / up / up / up)
-        val reportDir  = sys.env.get("JSGLR2EVALUATION_REPORT_DIR").map(getPath).getOrElse(dir / "reports")
+        val reportsDir = sys.env.get("JSGLR2EVALUATION_REPORTS_DIR").map(getPath).getOrElse(dir / "reports")
 
         val configPath = {
             val filename = RelPath(sys.env.get("CONFIG").getOrElse("config.yml"))
@@ -134,7 +133,7 @@ object Suite {
         val configJson = parser.parse(read! configPath)
         val config = configJson.flatMap(_.as[Config]).valueOr(throw _)
 
-        Suite(configPath, config.languages, dir, config.iterations, config.samples, config.shrinkBatchSources, spoofaxDir, reportDir)
+        Suite(configPath, config.languages, dir, config.iterations, config.samples, config.shrinkBatchSources, spoofaxDir, reportsDir)
     }
 
     implicit def languagesDir    = suite.languagesDir

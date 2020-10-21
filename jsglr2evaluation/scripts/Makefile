@@ -7,7 +7,7 @@ JSGLR_DIR=$(SPOOFAX_DIR)/jsglr
 MEASUREMENTS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.measure/target/org.spoofax.jsglr2.measure-2.6.0-SNAPSHOT.jar
 BENCHMARKS_JAR=$(JSGLR_DIR)/org.spoofax.jsglr2.benchmark/target/org.spoofax.jsglr2.benchmark-2.6.0-SNAPSHOT.jar
 
-REPORTDIR=$(DIR)/reports
+REPORTSDIR=$(DIR)/reports
 
 all: languages sources preProcessing measurements benchmarks postProcessing reportLatex reportR Pipfile.lock reportPy publish
 
@@ -17,7 +17,7 @@ cleanAll: clean all
 
 export JSGLR2EVALUATION_WORKING_DIR=$(DIR)
 export JSGLR2EVALUATION_SPOOFAX_DIR=$(SPOOFAX_DIR)
-export JSGLR2EVALUATION_REPORT_DIR=$(REPORTDIR)
+export JSGLR2EVALUATION_REPORTS_DIR=$(REPORTSDIR)
 
 # Pull Spoofax languages from GitHub and build them
 languages: $(DIR)/languages
@@ -93,23 +93,23 @@ reportLatex: $(DIR)/results reportLatex.sc spoofax.sc spoofaxDeps.sc common.sc
 
 # Reporting in plots
 reportR: $(DIR)/results report.R
-	Rscript report.R $(DIR) $(REPORTDIR)
+	Rscript report.R $(DIR) $(REPORTSDIR)
 
 .venv:
 	pipenv install
 
 reportPy: $(DIR)/results report.py .venv
-	pipenv run report $(DIR) $(REPORTDIR)
+	pipenv run report $(DIR) $(REPORTSDIR)
 
 cleanReports:
-	-rm -r $(REPORTDIR)
+	-rm -r $(REPORTSDIR)
 
 
 # Archive and publish reports to website
 archive: $(DIR)/archive.tar.gz
 
-$(DIR)/archive.tar.gz: $(DIR)/measurements $(DIR)/benchmarks $(DIR)/results $(DIR)/reports
-	cd $(DIR) && tar -czf archive.tar.gz measurements benchmarks results -C $(REPORTDIR)/.. reports
+$(DIR)/archive.tar.gz: $(DIR)/measurements $(DIR)/benchmarks $(DIR)/results $(REPORTSDIR)
+	cd $(DIR) && tar -czf archive.tar.gz measurements benchmarks results -C $(REPORTSDIR)/.. reports
 
 # Publish on website
 publish: websiteRepo addToWebsite websitePush

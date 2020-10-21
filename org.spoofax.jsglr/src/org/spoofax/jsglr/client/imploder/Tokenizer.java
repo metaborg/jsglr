@@ -50,7 +50,7 @@ public class Tokenizer extends AbstractTokenizer {
         this.keywords = keywords;
         this.tokens = new ArrayList<Token>(); // capacity set in internalMakeToken()
         startOffset = 0;
-        line = 1; // same as SGLR
+        line = 0; // same as SGLR
         offsetAtLineStart = 0;
         // Ensure there's at least one token
         if(startWithReserved) {

@@ -33,6 +33,24 @@ languages:
       batch:
         - id: webdsl-yellowgrass
           repo: https://github.com/webdsl/yellowgrass
+        - id: webdsl-elib-example
+          repo: https://github.com/webdsl/elib-example
+        - id: webdsl-elib-ace
+          repo: https://github.com/webdsl/elib-ace
+        - id: webdsl-elib-tablesorter
+          repo: https://github.com/webdsl/elib-tablesorter
+        - id: webdsl-elib-utils
+          repo: https://github.com/webdsl/elib-utils
+        - id: webdsl-elib-bootstrap
+          repo: https://github.com/webdsl/elib-bootstrap
+        - id: webdsl-elib-unsavedchanges
+          repo: https://github.com/webdsl/elib-unsavedchanges
+        - id: webdsl-elib-timeline
+          repo: https://github.com/webdsl/elib-timeline
+        - id: webdsl-elib-timezones
+          repo: https://github.com/webdsl/elib-timezones
+        - id: webdsl-elib-holder
+          repo: https://github.com/webdsl/elib-holder
       incremental:
         - id: webdsl-yellowgrass-incremental
           repo: https://github.com/webdsl/yellowgrass

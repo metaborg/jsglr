@@ -9,6 +9,7 @@ import io.circe.generic.extras.auto._
 import io.circe.generic.extras.Configuration
 import io.circe.yaml._
 import java.time.LocalDateTime
+import java.io.{InputStream, FileInputStream}
 
 // This allows default arguments in ADTs: https://stackoverflow.com/a/47644276
 implicit val customConfig: Configuration = Configuration.default.withDefaults
@@ -16,7 +17,14 @@ implicit val customConfig: Configuration = Configuration.default.withDefaults
 case class Config(iterations: Int = 1, samples: Int = 1, shrinkBatchSources: Option[Int] = None, languages: Seq[Language])
 
 case class Language(id: String, name: String, extension: String, parseTable: ParseTable, sources: Sources, antlrBenchmarks: Seq[ANTLRBenchmark] = Seq.empty) {
-    def parseTablePath(implicit suite: Suite) = parseTable.path(this)
+    def parseTableStream(implicit suite: Suite) = parseTable match {
+        case parseTable @ GitSpoofax(_, _, dynamic) if dynamic => parseTable.bin(this)
+        case _ => parseTable.term(this)
+    }
+    def dynamicParseTableGeneration = parseTable match {
+        case GitSpoofax(_, _, dynamic) => dynamic
+        case _ => false
+    }
 
     def sourcesDir(implicit suite: Suite) = suite.sourcesDir / id
     
@@ -44,15 +52,16 @@ case class Language(id: String, name: String, extension: String, parseTable: Par
 }
 
 sealed trait ParseTable {
-    def path(language: Language)(implicit suite: Suite): Path
+    def term(language: Language)(implicit suite: Suite): InputStream
 }
-case class GitSpoofax(repo: String, subDir: String) extends ParseTable {
+case class GitSpoofax(repo: String, subDir: String, dynamic: Boolean = false) extends ParseTable {
     def repoDir(language: Language)(implicit suite: Suite) = Suite.languagesDir / language.id
     def spoofaxProjectDir(language: Language)(implicit suite: Suite) = repoDir(language) / RelPath(subDir)
-    def path(language: Language)(implicit suite: Suite) = spoofaxProjectDir(language) / "target" / "metaborg" / "sdf.tbl"
+    def term(language: Language)(implicit suite: Suite) = new FileInputStream((spoofaxProjectDir(language) / "target" / "metaborg" / "sdf.tbl").toString)
+    def bin(language: Language)(implicit suite: Suite) = new FileInputStream((spoofaxProjectDir(language) / "target" / "metaborg" / "table.bin").toString)
 }
 case class LocalParseTable(file: String) extends ParseTable {
-    def path(language: Language)(implicit suite: Suite) = pwd / RelPath(file)
+    def term(language: Language)(implicit suite: Suite) = new FileInputStream((pwd / RelPath(file)).toString)
 }
 
 object ParseTable {

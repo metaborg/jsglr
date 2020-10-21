@@ -117,6 +117,11 @@ public class ParseTable implements Serializable {
 
     public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable,
         IParseTableGenerator ptGenerator) throws Exception {
+        this(pt, factory, persistedTable.getContent().getInputStream(), ptGenerator);
+    }
+
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, InputStream persistedTable,
+        IParseTableGenerator ptGenerator) throws Exception {
         initTransientData(factory);
         parse(pt);
         if(states.length == 0) {

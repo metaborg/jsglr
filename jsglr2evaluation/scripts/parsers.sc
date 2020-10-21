@@ -13,13 +13,13 @@ trait Parser {
     def parse(input: String): ParseResult
 }
 
-case class JSGLR2Parser(parseTablePath: Path, jsglr2Preset: JSGLR2Variant.Preset) extends Parser {
+case class JSGLR2Parser(language: Language, jsglr2Preset: JSGLR2Variant.Preset) extends Parser {
     val id = "jsglr2-" + jsglr2Preset.name
     val variant = new IntegrationVariant(
         new ParseTableVariant(),
         jsglr2Preset.variant
     )
-    val jsglr2 = getJSGLR2(variant, parseTablePath)
+    val jsglr2 = getJSGLR2(variant, language)
     def parse(input: String) = jsglr2.parseResult(input, null, null) match {
         case success: JSGLR2Success[IStrategoTerm] =>
             if (success.isAmbiguous)
@@ -30,9 +30,9 @@ case class JSGLR2Parser(parseTablePath: Path, jsglr2Preset: JSGLR2Variant.Preset
     }
 }
 
-case class JSGLR1Parser(parseTablePath: Path) extends Parser {
+case class JSGLR1Parser(language: Language) extends Parser {
     val id = "jsglr1"
-    val jsglr1 = getJSGLR1(parseTablePath)
+    val jsglr1 = getJSGLR1(language)
     def parse(input: String) = Try(jsglr1.parse(input, null, null)) match {
         case Success(_) => ParseSuccess(None)
         case Failure(_) => ParseFailure(None)
@@ -81,9 +81,9 @@ case class ParseFailure(error: Option[String]) extends ParseResult {
 
 object Parser {
     def variants(language: Language)(implicit suite: Suite): Seq[Parser] = Seq(
-        JSGLR1Parser(language.parseTablePath),
-        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.standard),
-        JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.incremental)
+        JSGLR1Parser(language),
+        JSGLR2Parser(language, JSGLR2Variant.Preset.standard),
+        JSGLR2Parser(language, JSGLR2Variant.Preset.incremental)
         /*JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recovery),
         JSGLR2Parser(language.parseTablePath, JSGLR2Variant.Preset.recoveryIncremental)*/
     ) ++ language.antlrBenchmarks.map { benchmark =>

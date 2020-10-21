@@ -10,7 +10,7 @@ suite.languages.foreach { language =>
     println(" " + language.name)
 
     language.parseTable match {
-        case gitSpoofax @ GitSpoofax(repo: String, _) =>
+        case gitSpoofax @ GitSpoofax(repo: String, _, _) =>
             rm!    gitSpoofax.repoDir(language)
             mkdir! gitSpoofax.repoDir(language)
     

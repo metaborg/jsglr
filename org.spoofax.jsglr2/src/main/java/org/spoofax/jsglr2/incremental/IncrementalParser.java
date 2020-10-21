@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.incremental;
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.size;
 import static org.metaborg.util.iterators.Iterables2.stream;
+import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -107,7 +108,13 @@ public class IncrementalParser
         // that would mean that this node was created when the parser was in multiple states.
         while(!parseState.inputStack.getNode().isReusable()
             || !parseState.inputStack.getNode().isTerminal() && isEmpty(actions) && parseState.forShifter.isEmpty()) {
+            observing.notify(observer -> {
+                IncrementalParseForest node = parseState.inputStack.getNode();
+                observer.breakDown(parseState.inputStack,
+                    node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : NON_DETERMINISTIC);
+            });
             parseState.inputStack.breakDown();
+            observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
             actions = getActions(stack, parseState);
         }
 

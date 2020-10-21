@@ -7,6 +7,7 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -66,6 +67,27 @@ public interface IParserObserver
     }
 
     default void skipRejectedStack(StackNode stack) {
+    }
+
+    enum BreakdownReason {
+        /** The parse node is broken down because no actions are available for the grammar production of this node. */
+        NO_ACTIONS("no actions for this parse node"),
+        /**
+         * The parse node is broken down because it stores no state, i.e. it was created during a non-deterministic
+         * phase of parsing.
+         */
+        NON_DETERMINISTIC("parse node was created while parse was non-deterministic"),
+        /** The parse node is broken down because it stores a different state than the current top of the stack. */
+        WRONG_STATE("parse node was created in a different parse state");
+
+        public final String message;
+
+        BreakdownReason(String message) {
+            this.message = message;
+        }
+    }
+
+    default void breakDown(IIncrementalInputStack inputStack, BreakdownReason reason) {
     }
 
     default void addForShifter(ForShifterElement<StackNode> forShifterElement) {

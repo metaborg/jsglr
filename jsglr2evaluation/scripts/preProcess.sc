@@ -53,8 +53,11 @@ suite.languages.foreach { language =>
                     println("   Inconsistent: " + filename)
 
                     false
-                } else
+                } else {
+                    println("   Valid: " + filename)
+
                     true
+                }
 
             if (!valid) {
                 mkdir! sourcesDir / "invalid"

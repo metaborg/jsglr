@@ -39,13 +39,7 @@ suite.languages.foreach { language =>
                 case _ => None
             }
 
-            def consistentASTs(asts: Seq[IStrategoTerm]) = {
-                val astStrings = asts.map(_.toString())
-                
-                println("size " + asts.size)
-
-                astStrings.distinct.size == 1
-            }
+            def consistentASTs(asts: Seq[IStrategoTerm]) = asts.map(_.toString()).distinct.size == 1
 
             val valid =
                 if (failures.nonEmpty) {

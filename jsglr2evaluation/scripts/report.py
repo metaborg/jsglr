@@ -1,15 +1,15 @@
 import csv
-import sys
-from os import makedirs, path, scandir, remove
+from os import makedirs, path, scandir, remove, environ
 
 import matplotlib.pyplot as plt
 import pdftools
 
-if len(sys.argv) < 3:
-    print(f"Usage: {sys.argv[0]} DIR REPORTS_DIR", file=sys.stderr)
-    sys.exit(2)
-
-[_, DIR, REPORTS_DIR] = sys.argv
+try:
+    DIR = environ["JSGLR2EVALUATION_WORKING_DIR"]
+    REPORTS_DIR = environ["JSGLR2EVALUATION_REPORTS_DIR"]
+except KeyError:
+    print("Both environment variables JSGLR2EVALUATION_WORKING_DIR and JSGLR2EVALUATION_REPORTS_DIR should be defined!")
+    exit(1)
 
 COLORS = {
     "Batch": "rs",

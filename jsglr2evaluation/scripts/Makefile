@@ -99,7 +99,7 @@ reportR: $(DIR)/results report.R
 	pipenv install
 
 reportPy: $(DIR)/results report.py .venv
-	pipenv run report $(DIR) $(REPORTSDIR)
+	pipenv run report
 
 cleanReports:
 	-rm -r $(REPORTSDIR)

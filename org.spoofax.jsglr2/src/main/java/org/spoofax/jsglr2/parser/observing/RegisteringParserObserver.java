@@ -40,11 +40,13 @@ public abstract class RegisteringParserObserver
 
     private void registerDerivationNode(IDerivation<ParseForest> derivation) {
         // use same count as parse nodes as they're in the same tree in the visualisation
-        derivationId.put(derivation, parseNodeCount++);
+        if(!derivationId.containsKey(derivation))
+            derivationId.put(derivation, parseNodeCount++);
     }
 
     private void registerParseNode(ParseForest parseNode) {
-        parseNodeId.put(parseNode, parseNodeCount++);
+        if(!parseNodeId.containsKey(parseNode))
+            parseNodeId.put(parseNode, parseNodeCount++);
     }
 
     private void registerStackNode(StackNode stackNode) {

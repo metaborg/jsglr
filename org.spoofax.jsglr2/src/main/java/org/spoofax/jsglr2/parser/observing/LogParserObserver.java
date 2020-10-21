@@ -11,6 +11,8 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.JSGLR2Logging;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.elkhound.AbstractElkhoundStackNode;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -63,8 +65,17 @@ public class LogParserObserver
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
-        log("Parse character '" + characterToString(parseState.inputStack.getChar()) + "' (active stacks: "
-            + stackQueueToString(activeStacks) + ")", JSGLR2Logging.Parsing);
+        if(parseState.inputStack instanceof IIncrementalInputStack) {
+            IncrementalParseForest node = ((IIncrementalInputStack) parseState.inputStack).getNode();
+            @SuppressWarnings("unchecked") int id = id((ParseForest) node);
+            String activeStacksText = " (active stacks: " + stackQueueToString(activeStacks) + ")";
+            String message = node.isTerminal()
+                ? "Process character node " + id + " " + node.toString() + activeStacksText
+                : "Process parse node " + id + activeStacksText + ":\n  " + node.toString().replaceAll("\n", "\n  ");
+            log(message, JSGLR2Logging.Parsing);
+        } else
+            log("Parse character '" + characterToString(parseState.inputStack.getChar()) + "' (active stacks: "
+                + stackQueueToString(activeStacks) + ")", JSGLR2Logging.Parsing);
     }
 
     @Override public void createStackNode(StackNode stack) {
@@ -100,6 +111,17 @@ public class LogParserObserver
     @Override public void skipRejectedStack(StackNode stack) {
         log("    Skipping stack " + stackNodeString(stack) + " since all links to it are rejected",
             JSGLR2Logging.Parsing);
+    }
+
+    @Override public void breakDown(IIncrementalInputStack inputStack, BreakdownReason reason) {
+        @SuppressWarnings("unchecked") ParseForest forest = (ParseForest) inputStack.getNode();
+        log("  Breaking down parse node " + id(forest) + ", reason: " + reason.message, JSGLR2Logging.Parsing);
+        @SuppressWarnings("unchecked") ParseNode node = (ParseNode) forest;
+        for(Derivation derivation : node.getDerivations()) {
+            for(ParseForest parseForest : derivation.parseForests()) {
+                id(parseForest); // Register the children of the broken-down parse node
+            }
+        }
     }
 
     @Override public void addForShifter(ForShifterElement<StackNode> forShifterElement) {

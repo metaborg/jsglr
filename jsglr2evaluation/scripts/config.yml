@@ -62,6 +62,20 @@ languages:
             - '--shallow-since="2011-02-16 14:00:00 +0000"' # From this point in time on, the file parses without errors
           files:
             - src/org/webdsl/dsl/project/template-webdsl/built-in.app
+  - id: sdf3
+    name: SDF3
+    extension: sdf3
+    parseTable:
+      repo: https://github.com/metaborg/sdf.git
+      subDir: org.metaborg.meta.lang.template
+    sources:
+      batch:
+        - id: nabl
+          repo: https://github.com/metaborg/nabl
+        - id: dynsem
+          repo: https://github.com/metaborg/dynsem
+        - id: flowspec
+          repo: https://github.com/metaborg/flowspec
   # - id: ocaml
   #   name: OCaml
   #   extension: ml

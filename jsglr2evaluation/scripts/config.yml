@@ -27,7 +27,8 @@ languages:
     name: WebDSL
     extension: app
     parseTable:
-      file: ../parsetables/WebDSL.tbl
+      repo: https://github.com/webdsl/webdsl-statix.git
+      subDir: webdslstatix
     sources:
       batch:
         - id: webdsl-yellowgrass

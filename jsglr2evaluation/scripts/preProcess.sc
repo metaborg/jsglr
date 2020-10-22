@@ -1,6 +1,7 @@
 import $ivy.`com.lihaoyi::ammonite-ops:1.8.1`, ammonite.ops._
 
 import $file.common, common._, Suite._
+import $file.spoofax, spoofax._
 import $file.parsers, parsers._
 import org.spoofax.interpreter.terms.IStrategoTerm
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -64,5 +65,9 @@ suite.languages.foreach { language =>
                 mv.over(file, sourcesDir / "invalid" / filename.last)
             }
         }
+    }
+
+    timed("persist dynamic parse tables") {
+        persistDynamicParseTables
     }
 }

@@ -13,12 +13,13 @@ import org.metaborg.parsetable.ParseTableReadException
 
 import org.spoofax.jsglr2.integration.IntegrationVariant
 
-import java.io.InputStream
+import java.io.{File, InputStream}
 import org.spoofax.jsglr.client.{SGLR => JSGLR1};
 import org.spoofax.jsglr.client.imploder.{TermTreeFactory => JSGLR1TermTreeFactory};
 import org.spoofax.jsglr.client.imploder.{TreeBuilder => JSGLR1TreeBuilder};
 import org.spoofax.jsglr.client.{ParseTable => JSGLR1ParseTable};
 
+import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.metaborg.sdf2table.io.ParseTableIO;
 
 val termFactory = new TermFactory()
@@ -72,3 +73,13 @@ def getJSGLR1(language: Language) = {
 
     new JSGLR1(treeBuilder, parseTable)
 }
+
+
+def persistDynamicParseTables =
+    jsglr2ParseTables.filter { case (language, _) =>
+        language.dynamicParseTableGeneration
+    }.foreach { case (language, parseTable) =>
+        val gitSpoofaxParseTable = language.parseTable.asInstanceOf[GitSpoofax]
+
+        ParseTableIO.persistObjectToFile(parseTable.asInstanceOf[ParseTable], new File(gitSpoofaxParseTable.binPath(language).toString))
+    }

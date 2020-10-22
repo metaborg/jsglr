@@ -57,8 +57,12 @@ sealed trait ParseTable {
 case class GitSpoofax(repo: String, subDir: String, dynamic: Boolean = false) extends ParseTable {
     def repoDir(language: Language)(implicit suite: Suite) = Suite.languagesDir / language.id
     def spoofaxProjectDir(language: Language)(implicit suite: Suite) = repoDir(language) / RelPath(subDir)
-    def term(language: Language)(implicit suite: Suite) = new FileInputStream((spoofaxProjectDir(language) / "target" / "metaborg" / "sdf.tbl").toString)
-    def bin(language: Language)(implicit suite: Suite) = new FileInputStream((spoofaxProjectDir(language) / "target" / "metaborg" / "table.bin").toString)
+    
+    def termPath(language: Language)(implicit suite: Suite) = spoofaxProjectDir(language) / "target" / "metaborg" / "sdf.tbl"
+    def term(language: Language)(implicit suite: Suite) = new FileInputStream(termPath(language).toString)
+    
+    def binPath(language: Language)(implicit suite: Suite) = spoofaxProjectDir(language) / "target" / "metaborg" / "table.bin"
+    def bin(language: Language)(implicit suite: Suite) = new FileInputStream(binPath(language).toString)
 }
 case class LocalParseTable(file: String) extends ParseTable {
     def term(language: Language)(implicit suite: Suite) = new FileInputStream((pwd / RelPath(file)).toString)

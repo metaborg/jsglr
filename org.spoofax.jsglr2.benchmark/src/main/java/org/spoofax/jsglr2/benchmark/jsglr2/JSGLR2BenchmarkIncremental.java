@@ -49,7 +49,7 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
     // Only used for parsing-and-imploding benchmarks
     Map<IncrementalStringInput, JSGLR2PersistentCache<?, ?, ?, ?, ?, ?>> prevCacheImpl = new HashMap<>();
     // Only used for parsing-and-imploding benchmarks
-    JSGLR2MultiParser<?, ?, ?, ?, ?, ?> jsglr2MultiParser;
+    JSGLR2MultiParser<?> jsglr2MultiParser;
 
     Map<IncrementalStringInput, String[]> uniqueInputs = new HashMap<>();
 

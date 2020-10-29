@@ -2,7 +2,6 @@ package org.spoofax.jsglr2;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import org.spoofax.jsglr.client.imploder.IToken;

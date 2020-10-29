@@ -61,7 +61,8 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
             return jsglr2MultiParser.parse(input.content);
         } else {
             if(i >= 0)
-                return jsglr2.parser.parseUnsafe(input.content[i > 0 ? 1 : 0], null, prevString.get(input), prevParse.get(input));
+                return jsglr2.parser.parseUnsafe(input.content[i > 0 ? 1 : 0], null, prevString.get(input),
+                    prevParse.get(input));
 
             String previousInput = null;
             IParseForest previousResult = null;

@@ -21,6 +21,7 @@ import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr2.JSGLR2;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.JSGLR2Result;
 import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
@@ -120,9 +121,21 @@ public abstract class BaseTest implements WithParseTable {
         return testParseSuccess(inputString, getTestVariants());
     }
 
+    protected JSGLR2Request getRequest(String inputString) {
+        return configureRequest(new JSGLR2Request(inputString, "", null));
+    }
+
+    protected JSGLR2Request getRequest(String inputString, String filename, String startSymbol) {
+        return configureRequest(new JSGLR2Request(inputString, filename, startSymbol));
+    }
+
+    protected JSGLR2Request configureRequest(JSGLR2Request request) {
+        return request;
+    }
+
     protected Stream<DynamicTest> testParseSuccess(String inputString, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
-            ParseResult<?> parseResult = variant.parser().parse(inputString);
+            ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString));
 
             assertEquals(true, parseResult.isSuccess(), "Parsing failed");
         });
@@ -134,7 +147,7 @@ public abstract class BaseTest implements WithParseTable {
 
     protected Stream<DynamicTest> testParseFailure(String inputString, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
-            ParseResult<?> parseResult = variant.parser().parse(inputString);
+            ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString));
 
             assertEquals(false, parseResult.isSuccess(), "Parsing should fail");
         });
@@ -181,7 +194,7 @@ public abstract class BaseTest implements WithParseTable {
 
     protected Stream<DynamicTest> testAmbiguous(String inputString, boolean expectAmbiguous) {
         return testPerVariant(getTestVariants(), variant -> () -> {
-            JSGLR2Result<IStrategoTerm> result = variant.jsglr2().parseResult(inputString);
+            JSGLR2Result<IStrategoTerm> result = variant.jsglr2().parseResult(getRequest(inputString));
 
             assertTrue(result.isSuccess(), "Succeeding parse expected");
 
@@ -201,7 +214,7 @@ public abstract class BaseTest implements WithParseTable {
     private IStrategoTerm testSuccess(String parseFailMessage, String implodeFailMessage, JSGLR2<IStrategoTerm> jsglr2,
         String fileName, String startSymbol, String inputString) {
         try {
-            IStrategoTerm result = jsglr2.parseUnsafe(inputString, fileName, startSymbol);
+            IStrategoTerm result = jsglr2.parseUnsafe(getRequest(inputString, fileName, startSymbol));
 
             // Fail here if imploding or tokenization failed
             assertNotNull(result, implodeFailMessage);
@@ -376,7 +389,7 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<DynamicTest> testTokens(String inputString, List<TokenDescriptor> expectedTokens,
         List<TokenDescriptor> expectedAllTokens, Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
-            JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
+            JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(getRequest(inputString));
 
             assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
 
@@ -475,7 +488,7 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<DynamicTest> testOrigins(String inputString, List<OriginDescriptor> expectedOrigins,
         Stream<TestVariant> variants) {
         return testPerVariant(variants, variant -> () -> {
-            JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(inputString, "", null);
+            JSGLR2Result<IStrategoTerm> jsglr2Result = variant.jsglr2().parseResult(getRequest(inputString));
 
             assertTrue(jsglr2Result.isSuccess(), "Parsing failed");
 
@@ -519,7 +532,7 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<DynamicTest> testMessages(String inputString, List<MessageDescriptor> expectedMessages,
         Stream<TestVariant> variants, String startSymbol) {
         return testPerVariant(variants, variant -> () -> {
-            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(inputString, "", startSymbol);
+            JSGLR2Result<?> jsglr2Result = variant.jsglr2().parseResult(getRequest(inputString, "", startSymbol));
 
             List<MessageDescriptor> actualMessages = new ArrayList<>();
 

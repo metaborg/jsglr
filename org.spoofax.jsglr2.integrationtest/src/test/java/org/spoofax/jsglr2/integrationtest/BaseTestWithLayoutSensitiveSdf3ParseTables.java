@@ -34,7 +34,7 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
     protected Stream<DynamicTest> testLayoutSensitiveParseFiltered(String inputString, String startSymbol) {
         Stream<DynamicTest> notLayoutSensitiveTests =
             testPerVariant(getTestVariants(isNotLayoutSensitiveVariant), variant -> () -> {
-                ParseResult<?> parseResult = variant.parser().parse(inputString, startSymbol, null, null);
+                ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString, "", startSymbol), null, null);
 
                 assertEquals(true, parseResult.isSuccess(),
                     "Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ");
@@ -42,7 +42,7 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
 
         Stream<DynamicTest> layoutSensitiveTests =
             testPerVariant(getTestVariants(isLayoutSensitiveVariant), variant -> () -> {
-                ParseResult<?> parseResult = variant.parser().parse(inputString, startSymbol, null, null);
+                ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString, "", startSymbol), null, null);
 
                 assertEquals(false, parseResult.isSuccess(),
                     "Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ");

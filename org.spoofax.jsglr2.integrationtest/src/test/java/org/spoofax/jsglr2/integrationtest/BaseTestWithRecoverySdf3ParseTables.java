@@ -101,7 +101,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
     }
 
     protected JSGLR2Request getRequestForRecovery(String inputString) {
-        return new JSGLR2Request(inputString, "", null, 3, 5, Optional.empty());
+        return configureRequest(new JSGLR2Request(inputString, "", null, 3, 5, Optional.empty(), false));
     }
 
     public interface WithRecoveryTrace {

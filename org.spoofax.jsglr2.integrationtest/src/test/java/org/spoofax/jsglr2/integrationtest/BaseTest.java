@@ -61,10 +61,10 @@ public abstract class BaseTest implements WithParseTable {
         }
     }
 
-    static class TestVariant {
+    protected static class TestVariant {
 
-        IntegrationVariant variant;
-        ParseTableWithOrigin parseTableWithOrigin;
+        public IntegrationVariant variant;
+        public ParseTableWithOrigin parseTableWithOrigin;
 
         TestVariant(IntegrationVariant variant, ParseTableWithOrigin parseTableWithOrigin) {
             this.variant = variant;

@@ -48,4 +48,8 @@ public class Message {
         return atTop(message, Severity.ERROR);
     }
 
+    public static Message warning(String message, Position startPosition, Position endPosition) {
+        return new Message(message, Severity.WARNING, new SourceRegion(startPosition, endPosition));
+    }
+
 }

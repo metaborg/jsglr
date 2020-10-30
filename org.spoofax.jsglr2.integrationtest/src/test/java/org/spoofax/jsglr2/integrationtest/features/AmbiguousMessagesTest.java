@@ -50,4 +50,8 @@ public class AmbiguousMessagesTest extends BaseTestWithSdf3ParseTables {
             nonOptimizedParseForestVariants, "Layout");
     }
 
+    @TestFactory public Stream<DynamicTest> preferAvoid() throws ParseError {
+        return testMessages("paxxx", Collections.emptyList(), "PreferAvoid");
+    }
+
 }

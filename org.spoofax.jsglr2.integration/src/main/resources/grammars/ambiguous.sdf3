@@ -4,6 +4,7 @@ context-free start-symbols
     ContextFree
     Lexical
     Layout
+    PreferAvoid
 
 context-free syntax
     ContextFree.A = "f" "oo"
@@ -12,6 +13,10 @@ context-free syntax
     Lexical.Foo = FOO
 
     Layout.Bar = "bar"
+
+    PreferAvoid.PreferAvoid = "pa" X1orX2
+    X1orX2.X1 = "xx" "x" {prefer}
+    X1orX2.X2 = "x" "xx" {avoid}
 
 lexical syntax
     FOO = FOO1
@@ -22,6 +27,6 @@ lexical syntax
     LAYOUT = "/" "//"
     LAYOUT = "//" "/"
 
-	LAYOUT = "/*" InsideComment "*/"
-	InsideComment = "_" "__"
-	InsideComment = "__" "_"
+    LAYOUT = "/*" InsideComment "*/"
+    InsideComment = "_" "__"
+    InsideComment = "__" "_"

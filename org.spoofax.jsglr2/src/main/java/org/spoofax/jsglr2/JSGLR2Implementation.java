@@ -71,11 +71,14 @@ public class JSGLR2Implementation
 
         for(Message originalMessage : originalMessages) {
             Message message = originalMessage;
-            IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
-            IToken precedingToken = token != null ? token.getTokenBefore() : null;
 
-            if(precedingToken != null && precedingToken.getKind() == IToken.Kind.TK_LAYOUT) {
-                message = message.atRegion(SourceRegion.fromToken(precedingToken));
+            if (originalMessage.region != null) {
+                IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
+                IToken precedingToken = token != null ? token.getTokenBefore() : null;
+
+                if(precedingToken != null && precedingToken.getKind() == IToken.Kind.TK_LAYOUT) {
+                    message = message.atRegion(SourceRegion.fromToken(precedingToken));
+                }
             }
 
             // TODO: prevent multiple/overlapping recovery messages on the same region

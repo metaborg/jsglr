@@ -1,0 +1,27 @@
+module expressions
+
+context-free start-symbols
+    ContextFree
+    Lexical
+    Layout
+
+context-free syntax
+    ContextFree.A = "f" "oo"
+    ContextFree.B = "fo" "o"
+
+    Lexical.Foo = FOO
+
+    Layout.Bar = "bar"
+
+lexical syntax
+    FOO = FOO1
+    FOO = FOO2
+    FOO1 = "f" "oo"
+    FOO2 = "fo" "o"
+
+    LAYOUT = "/" "//"
+    LAYOUT = "//" "/"
+
+	LAYOUT = "/*" InsideComment "*/"
+	InsideComment = "_" "__"
+	InsideComment = "__" "_"

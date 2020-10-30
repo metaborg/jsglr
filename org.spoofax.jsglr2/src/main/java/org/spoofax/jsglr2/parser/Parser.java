@@ -126,8 +126,10 @@ public class Parser
             // Generate errors for non-assoc or non-nested productions that are used associatively
             parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector<>(messages));
 
-            // Generate warnings for ambiguous parse nodes
-            parseForestManager.visit(parseState.request, parseForest, new AmbiguityDetector<>(messages));
+            if(parseState.request.reportAmbiguities) {
+                // Generate warnings for ambiguous parse nodes
+                parseForestManager.visit(parseState.request, parseForest, new AmbiguityDetector<>(messages));
+            }
 
             ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
 

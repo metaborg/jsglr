@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.MessageDescriptor;
 import org.spoofax.jsglr2.messages.Severity;
@@ -16,6 +17,10 @@ public class AmbiguousMessagesTest extends BaseTestWithSdf3ParseTables {
 
     public AmbiguousMessagesTest() {
         super("ambiguous.sdf3");
+    }
+
+    @Override protected JSGLR2Request configureRequest(JSGLR2Request request) {
+        return request.withAmbiguitiesReporting(true);
     }
 
     @TestFactory public Stream<DynamicTest> contextFree() throws ParseError {

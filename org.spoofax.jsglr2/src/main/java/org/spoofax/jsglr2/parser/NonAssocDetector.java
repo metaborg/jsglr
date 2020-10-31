@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.parser;
 
 import java.util.Collection;
 
+import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -44,7 +45,7 @@ public class NonAssocDetector
 
     @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {
         if(failure != null) {
-            messages.add(Message.error(failure.message, startPosition, endPosition));
+            messages.add(Message.error(failure.message, Category.NONASSOC, startPosition, endPosition));
             failure = null;
         }
     }

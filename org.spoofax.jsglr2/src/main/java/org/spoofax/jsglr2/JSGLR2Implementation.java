@@ -9,6 +9,7 @@ import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
+import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -72,7 +73,8 @@ public class JSGLR2Implementation
         for(Message originalMessage : originalMessages) {
             Message message = originalMessage;
 
-            if (originalMessage.region != null) {
+            // Move recovery messages in layout at start of layout
+            if (originalMessage.category == Category.RECOVERY && originalMessage.region != null) {
                 IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
                 IToken precedingToken = token != null ? token.getTokenBefore() : null;
 

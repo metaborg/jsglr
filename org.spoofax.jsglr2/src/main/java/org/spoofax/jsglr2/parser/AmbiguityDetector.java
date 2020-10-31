@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.parser;
 
 import java.util.Collection;
 
+import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -43,7 +44,7 @@ public class AmbiguityDetector
                     break;
             }
 
-            messages.add(Message.warning(message, startPosition, endPosition));
+            messages.add(Message.warning(message, Category.AMBIGUITY, startPosition, endPosition));
         }
     }
 

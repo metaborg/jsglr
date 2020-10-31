@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.recovery;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.ILiteralSymbol;
+import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parser.Position;
@@ -27,7 +28,7 @@ public class RecoveryMessages {
         } else
             message = "Invalid syntax";
 
-        return Message.error(message, region);
+        return Message.error(message, Category.RECOVERY, region);
     }
 
 }

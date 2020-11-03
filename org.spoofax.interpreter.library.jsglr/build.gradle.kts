@@ -9,8 +9,8 @@ dependencies {
   api(project(":org.spoofax.jsglr"))
   api(project(":org.spoofax.jsglr2"))
   api("org.metaborg:org.spoofax.interpreter.core:$version")
-  testCompileOnly("junit:junit:4.12")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.1.0")
+  testCompileOnly("junit:junit:4.13.1")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
 }
 
 // Copy test resources into classes directory, to make them accessible as classloader resources at runtime.

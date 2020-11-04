@@ -28,7 +28,7 @@ public class RecoveryMessages {
         } else
             message = "Invalid syntax";
 
-        return Message.error(message, Category.RECOVERY, region);
+        return new Message(message, Category.RECOVERY, region);
     }
 
 }

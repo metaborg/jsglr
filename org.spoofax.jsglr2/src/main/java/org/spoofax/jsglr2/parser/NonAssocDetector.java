@@ -45,7 +45,7 @@ public class NonAssocDetector
 
     @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {
         if(failure != null) {
-            messages.add(Message.error(failure.message, Category.NONASSOC, startPosition, endPosition));
+            messages.add(new Message(failure.message, Category.NON_ASSOC, startPosition, endPosition));
             failure = null;
         }
     }

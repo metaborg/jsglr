@@ -27,7 +27,7 @@ public class AmbiguityDetector
         if(parseNode.isAmbiguous()) {
             String message;
 
-            if (parseNode.production().isContextFree() && parseNode.getPreferredAvoidedDerivations().size() == 1)
+            if(parseNode.production().isContextFree() && parseNode.getPreferredAvoidedDerivations().size() == 1)
                 return;
 
             switch(parseNode.production().concreteSyntaxContext()) {
@@ -44,7 +44,7 @@ public class AmbiguityDetector
                     break;
             }
 
-            messages.add(Message.warning(message, Category.AMBIGUITY, startPosition, endPosition));
+            messages.add(new Message(message, Category.AMBIGUITY, startPosition, endPosition));
         }
     }
 

@@ -31,7 +31,7 @@ public class CycleDetector
     @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
         if(spine.contains(parseNode)) {
             cycleDetected = true;
-            messages.add(Message.error(ParseFailureCause.Type.Cycle.message, Category.CYCLE, startPosition));
+            messages.add(new Message(ParseFailureCause.Type.Cycle.message, Category.CYCLE, startPosition));
 
             return false;
         } else {

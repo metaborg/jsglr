@@ -10,7 +10,8 @@ public class ParseFailureCause {
 
         UnexpectedEOF("Unexpected end of input", Category.PARSING),
         UnexpectedInput("Unexpected input", Category.PARSING),
-        InvalidStartSymbol("Invalid start symbol", Category.PARSING), Cycle("Cycle in parse forest", Category.CYCLE),
+        InvalidStartSymbol("Invalid start symbol", Category.PARSING),
+        Cycle("Parse forest contains a cycle", Category.CYCLE),
         NonAssoc("Operator is non-associative", Category.NON_ASSOC),
         NonNested("Operator is non-nested", Category.NON_ASSOC);
 
@@ -37,7 +38,7 @@ public class ParseFailureCause {
     }
 
     public Message toMessage() {
-        return Message.error(type.message, type.category, position);
+        return new Message(type.message, type.category, position);
     }
 
 }

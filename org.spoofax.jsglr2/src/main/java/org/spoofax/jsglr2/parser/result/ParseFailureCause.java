@@ -11,8 +11,8 @@ public class ParseFailureCause {
         UnexpectedEOF("Unexpected end of input", Category.PARSING),
         UnexpectedInput("Unexpected input", Category.PARSING),
         InvalidStartSymbol("Invalid start symbol", Category.PARSING), Cycle("Cycle in parse forest", Category.CYCLE),
-        NonAssoc("Operator is non-associative", Category.NONASSOC),
-        NonNested("Operator is non-nested", Category.NONASSOC);
+        NonAssoc("Operator is non-associative", Category.NON_ASSOC),
+        NonNested("Operator is non-nested", Category.NON_ASSOC);
 
         public final String message;
         public final Category category;

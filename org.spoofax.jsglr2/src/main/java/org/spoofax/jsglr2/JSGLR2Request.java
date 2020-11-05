@@ -40,6 +40,12 @@ public class JSGLR2Request {
         this.reportAmbiguities = reportAmbiguities;
     }
 
+    public JSGLR2Request(String input, String fileName, String startSymbol, int recoveryIterationsQuota,
+        int succeedingRecoveryOffset, Optional<Integer> completionCursorOffset) {
+        this(input, fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset,
+                completionCursorOffset, false);
+    }
+
     public boolean isCacheable() {
         return !"".equals(fileName);
     }

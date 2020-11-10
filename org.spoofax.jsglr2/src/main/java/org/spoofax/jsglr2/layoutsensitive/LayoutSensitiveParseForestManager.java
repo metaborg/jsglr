@@ -72,27 +72,38 @@ public class LayoutSensitiveParseForestManager
             // Else, just use the start position of the first child node
             : parseForests[0].getStartPosition();
 
+        /*
+         * From Erdweg et al. (2012): `left` selects the leftmost non-whitespace token that is not on the same line as
+         * the first token. `right` right selects the rightmost non-whitespace token that is not on the same line as the
+         * last token
+         */
         Position leftPosition = null;
         Position rightPosition = null;
+
+        boolean shiftStartPosition = true;
 
         for(ILayoutSensitiveParseForest pf : parseForests) {
             if(pf instanceof ILayoutSensitiveParseNode) {
                 ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> layoutSensitiveParseNode =
                     (ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>) pf;
 
-                if(!layoutSensitiveParseNode.production().isLayout()
+                if(layoutSensitiveParseNode.width() > 0 && !layoutSensitiveParseNode.production().isLayout()
                     && !layoutSensitiveParseNode.production().isIgnoreLayoutConstraint()) {
                     Position currentStartPosition = layoutSensitiveParseNode.getStartPosition();
                     Position currentEndPosition = layoutSensitiveParseNode.getEndPosition();
                     Position currentLeftPosition = layoutSensitiveParseNode.getLeftPosition();
                     Position currentRightPosition = layoutSensitiveParseNode.getRightPosition();
 
+                    if(shiftStartPosition) {
+                        startPosition = currentStartPosition;
+                        shiftStartPosition = false;
+                    }
+
                     if(currentLeftPosition != null) {
                         leftPosition = leftMost(leftPosition, currentLeftPosition);
                     }
 
-                    if(currentStartPosition.line > startPosition.line
-                        && !currentStartPosition.equals(currentEndPosition)) {
+                    if(currentStartPosition.line > startPosition.line) {
                         leftPosition = leftMost(leftPosition, currentStartPosition);
                     }
 
@@ -100,18 +111,25 @@ public class LayoutSensitiveParseForestManager
                         rightPosition = rightMost(rightPosition, currentRightPosition);
                     }
 
-                    if(currentEndPosition.line < endPosition.line && !currentStartPosition.equals(currentEndPosition)) {
+                    if(currentEndPosition.line < endPosition.line) {
                         rightPosition = rightMost(rightPosition, currentEndPosition);
                     }
-                    
+
                     endPosition = currentEndPosition;
                 }
             } else if(pf instanceof ILayoutSensitiveCharacterNode) {
+                if(shiftStartPosition) {
+                    startPosition = pf.getStartPosition();
+                    shiftStartPosition = false;
+                }
+
                 if(pf.getStartPosition().line > startPosition.line
-                    && pf.getStartPosition().column < startPosition.column) {
+                    && (leftPosition == null || pf.getStartPosition().column < leftPosition.column)) {
                     leftPosition = pf.getStartPosition();
                 }
-                if(pf.getEndPosition().line < endPosition.line && pf.getEndPosition().column > endPosition.column) {
+
+                if(pf.getEndPosition().line < endPosition.line
+                    && (rightPosition == null || pf.getEndPosition().column > rightPosition.column)) {
                     rightPosition = pf.getEndPosition();
                 }
             } else if(pf != null) {

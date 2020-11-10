@@ -90,7 +90,7 @@ public class ProcessUpdates
             int deletedStartOffset = update.deletedStart;
             int deletedEndOffset = update.deletedEnd;
             String inserted = update.inserted;
-            EditorUpdate.Type type = update.type;
+            EditorUpdate.Type type = update.getType();
 
             // If it is an insertion (there is nothing to delete, deletedStart == deletedEnd)
             if(type == INSERTION) {
@@ -138,7 +138,7 @@ public class ProcessUpdates
             int deletedStartOffset = update.deletedStart;
             int deletedEndOffset = update.deletedEnd;
             String inserted = update.inserted;
-            EditorUpdate.Type type = update.type;
+            EditorUpdate.Type type = update.getType();
 
             IncrementalParseForest parseForest = parseForests[i];
             int nextOffset = currentOffset + parseForest.width(); // == start offset of right sibling subtree

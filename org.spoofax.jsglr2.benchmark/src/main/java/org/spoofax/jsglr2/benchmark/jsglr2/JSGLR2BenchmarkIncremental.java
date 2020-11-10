@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
+import org.spoofax.jsglr2.JSGLR2ImplementationWithCache;
 import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2MultiParser;
 import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2PersistentCache;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
@@ -48,7 +49,7 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
     // Only used for parsing-and-imploding benchmarks
     Map<IncrementalStringInput, JSGLR2PersistentCache<?, ?, ?, ?, ?, ?>> prevCacheImpl = new HashMap<>();
     // Only used for parsing-and-imploding benchmarks
-    JSGLR2MultiParser<?, ?, ?, ?, ?, ?> jsglr2MultiParser;
+    JSGLR2MultiParser<?> jsglr2MultiParser;
 
     Map<IncrementalStringInput, String[]> uniqueInputs = new HashMap<>();
 
@@ -81,15 +82,12 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                     prevString.put(input, content);
                     prevParse.put(input, jsglr2.parser.parseUnsafe(content, null));
                 } else {
-                    prevCacheImpl.put(input, new JSGLR2PersistentCache<>(jsglr2, content));
+                    @SuppressWarnings({ "rawtypes", "unchecked" }) JSGLR2PersistentCache impl =
+                        new JSGLR2PersistentCache<>(((JSGLR2ImplementationWithCache) jsglr2), content);
+                    prevCacheImpl.put(input, impl);
                 }
             }
         }
-    }
-
-    // Only used in ManualBenchmark
-    Iterable<IncrementalStringInput> getInputs() {
-        return inputs;
     }
 
 }

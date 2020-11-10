@@ -1,0 +1,65 @@
+module layout-sensitive
+
+context-free start-symbols
+  
+  LiteralFirstLine1Col1
+  LiteralFirstLine1Col2
+  LiteralFirstLine2Col1
+  LiteralFirstLine2Col2
+
+  LexicalFirstLine1Col1
+  LexicalFirstLine1Col2
+  LexicalFirstLine2Col1
+  LexicalFirstLine2Col2
+  
+  LiteralLeftLine1Col1
+  LiteralLeftLine1Col2
+  LiteralLeftLine2Col1
+  LiteralLeftLine2Col2
+
+  LeftCol1
+  LeftCol2
+
+  RightCol1
+  RightCol2
+
+  LeadingEmptyNonLayout
+
+context-free syntax
+  
+  LiteralFirstLine1Col1.LiteralFirstLine1Col1 = "l" {layout(1.first.line == 1 && 1.first.col == 1)}
+  LiteralFirstLine1Col2.LiteralFirstLine1Col2 = "l" {layout(1.first.line == 1 && 1.first.col == 2)}
+  LiteralFirstLine2Col1.LiteralFirstLine2Col1 = "l" {layout(1.first.line == 2 && 1.first.col == 1)}
+  LiteralFirstLine2Col2.LiteralFirstLine2Col2 = "l" {layout(1.first.line == 2 && 1.first.col == 2)}
+
+  LexicalFirstLine1Col1.LexicalFirstLine1Col1 = LEX {layout(1.first.line == 1 && 1.first.col == 1)}
+  LexicalFirstLine1Col2.LexicalFirstLine1Col2 = LEX {layout(1.first.line == 1 && 1.first.col == 2)}
+  LexicalFirstLine2Col1.LexicalFirstLine2Col1 = LEX {layout(1.first.line == 2 && 1.first.col == 1)}
+  LexicalFirstLine2Col2.LexicalFirstLine2Col2 = LEX {layout(1.first.line == 2 && 1.first.col == 2)}
+  
+  LeftCol1.LeftCol1 = P+ {layout(1.left.col == 1)}
+  LeftCol2.LeftCol2 = Q+ {layout(1.left.col == 2)}
+
+  RightCol1.RightCol1 = R+ {layout(1.right.col == 1)}
+  RightCol2.RightCol2 = S+ {layout(1.right.col == 2)}
+
+  P.P = "p"
+  Q.Q = "q"
+  R.R = "r"
+  S.S = "s"
+
+  LeadingEmptyNonLayout.LeadingEmptyNonLayout = <foo <BarBaz>> {layout(2.first.col == 2 && 2.first.line == 2)}
+
+  BarBaz.BarBaz = <<Bar?> <Baz>>
+  Bar.Bar = "bar"
+  Baz.Baz = "baz"
+
+lexical syntax
+  LAYOUT = [\ \t\n\r]
+  LEX    = [a-z]
+
+lexical restrictions
+  LEX     -/- [a-z]
+
+context-free restrictions
+  LAYOUT? -/- [\ \t\n\r]

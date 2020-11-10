@@ -21,6 +21,7 @@ public class TokenTree {
     final List<TokenTree> children;
     final List<TokenTree> nonNullChildren;
     final Position positionRange;
+    /** The number of tokens in this tree */
     final int size;
     final TreeToken leftToken;
     final TreeToken rightToken;

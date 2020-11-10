@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.benchmark.jsglr2.util;
 
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Implementation;
+import org.spoofax.jsglr2.JSGLR2ImplementationWithCache;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -21,7 +22,7 @@ public class JSGLR2PersistentCache
     TokensResult extends ITokens>
 // @formatter:on
 {
-    public final JSGLR2Implementation<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult, TokensResult> jsglr2Implementation;
+    public final JSGLR2ImplementationWithCache<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult, TokensResult> jsglr2Implementation;
 
     public final String previousInput;
     public final ParseForest previousParseForest;
@@ -31,7 +32,7 @@ public class JSGLR2PersistentCache
     private final JSGLR2Request.CachingKey cachingKey;
 
     public JSGLR2PersistentCache(
-        JSGLR2Implementation<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult, TokensResult> jsglr2Implementation,
+        JSGLR2ImplementationWithCache<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult, TokensResult> jsglr2Implementation,
         String input) throws ParseException {
         this.jsglr2Implementation = jsglr2Implementation;
 

@@ -77,15 +77,7 @@ public abstract class AbstractTreeImploder
         if(!parseNode.isAmbiguous())
             return Collections.singletonList(parseNode.getFirstDerivation());
 
-        List<Derivation> result;
-        // TODO always filter longest-match?
-        if(parseNode instanceof ILayoutSensitiveParseNode) {
-            ((ILayoutSensitiveParseNode) parseNode).filterLongestMatchDerivations();
-        }
-        // TODO always filter prefer/avoid?
-        result = parseNode.getPreferredAvoidedDerivations();
-
-        return result;
+        return parseNode.getPreferredAvoidedDerivations();
     }
 
 }

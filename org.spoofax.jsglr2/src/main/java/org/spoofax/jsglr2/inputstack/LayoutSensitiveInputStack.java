@@ -23,15 +23,13 @@ public class LayoutSensitiveInputStack extends InputStack {
         return new Position(currentOffset, currentLine, currentColumn);
     }
 
-    @Override public void next() {
-        super.next();
-        
+    @Override public void consumed() {
         previousPosition = currentPosition();
 
         if(currentOffset < inputLength) {
             if(CharacterClassFactory.isNewLine(currentChar)) {
                 currentLine++;
-                currentColumn = 0;
+                currentColumn = 1;
             } else if(CharacterClassFactory.isCarriageReturn(currentChar)) {
             
             } else if(CharacterClassFactory.isTab(currentChar)) {
@@ -40,6 +38,7 @@ public class LayoutSensitiveInputStack extends InputStack {
                 currentColumn++;
             }
         }
+        
         if(currentOffset == inputLength)
             currentColumn++;
     }

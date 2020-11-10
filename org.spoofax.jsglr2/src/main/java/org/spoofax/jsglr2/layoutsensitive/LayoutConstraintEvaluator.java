@@ -128,7 +128,18 @@ public class LayoutConstraintEvaluator {
                     }
                     return Optional.empty();
                 case RIGHT:
-                    // TODO implement this
+                    if(tree instanceof ILayoutSensitiveParseNode) {
+                        ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>> layoutSensitiveParseNode =
+                            (ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>) tree;
+
+                        if(layoutSensitiveParseNode.getRightPosition() == null) {
+                            return Optional.empty();
+                        } else if(numericLayoutConstraint.getElem() == ConstraintElement.COL) {
+                            return Optional.of(layoutSensitiveParseNode.getRightPosition().column);
+                        } else {
+                            return Optional.of(layoutSensitiveParseNode.getRightPosition().line);
+                        }
+                    }
                     return Optional.empty();
             }
         }

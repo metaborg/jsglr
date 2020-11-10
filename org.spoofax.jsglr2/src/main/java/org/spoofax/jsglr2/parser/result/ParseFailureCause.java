@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.parser.result;
 
+import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.Position;
 
@@ -7,14 +8,19 @@ public class ParseFailureCause {
 
     public enum Type {
 
-        UnexpectedEOF("Unexpected end of input"), UnexpectedInput("Unexpected input"),
-        InvalidStartSymbol("Invalid start symbol"), Cycle("Cycle in parse forest"),
-        NonAssoc("Operator is non-associative"), NonNested("Operator is non-nested");
+        UnexpectedEOF("Unexpected end of input", Category.PARSING),
+        UnexpectedInput("Unexpected input", Category.PARSING),
+        InvalidStartSymbol("Invalid start symbol", Category.PARSING),
+        Cycle("Parse forest contains a cycle", Category.CYCLE),
+        NonAssoc("Operator is non-associative", Category.NON_ASSOC),
+        NonNested("Operator is non-nested", Category.NON_ASSOC);
 
         public final String message;
+        public final Category category;
 
-        Type(String message) {
+        Type(String message, Category category) {
             this.message = message;
+            this.category = category;
         }
 
     }
@@ -32,7 +38,7 @@ public class ParseFailureCause {
     }
 
     public Message toMessage() {
-        return Message.error(type.message, position);
+        return new Message(type.message, type.category, position);
     }
 
 }

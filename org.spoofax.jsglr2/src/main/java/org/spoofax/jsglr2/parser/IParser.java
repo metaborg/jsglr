@@ -46,6 +46,10 @@ public interface IParser<ParseForest extends IParseForest> {
         }
     }
 
+    default ParseForest parseUnsafe(String input) throws ParseException {
+        return parseUnsafe(input, null, null, null);
+    }
+
     default ParseForest parseUnsafe(String input, String startSymbol) throws ParseException {
         return parseUnsafe(input, startSymbol, null, null);
     }

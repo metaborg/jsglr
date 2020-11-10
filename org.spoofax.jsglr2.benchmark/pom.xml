@@ -13,7 +13,7 @@
 
     <properties>
         <java-version>1.8</java-version>
-        <jmh-version>1.21</jmh-version>
+        <jmh-version>1.25.2</jmh-version>
         <main-class>org.openjdk.jmh.Main</main-class>
         <metaborg-version>2.6.0-SNAPSHOT</metaborg-version>
     </properties>
@@ -232,7 +232,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
             </plugin>
         </plugins>

@@ -2,40 +2,41 @@ module layout-sensitive
 
 context-free start-symbols
   
-  Start
+  Align
+  AlignList
+  Offside
+  Offside2
+  Indent
+  NLIndent
+  SingleLine
 
 context-free syntax
-  
-  Start = Exp
-  Exp.DoAlign = "doAlign" StmList
-  StmList.Stmt  = Stm
-  StmList.StmtSeq = head:StmList tail:Stm {longest-match, layout(align head tail)}
-  
-  Exp.DoAlignList  = "doAlignList" stmts:Stm+ {longest-match, layout(align-list stmts)}
-  
-  Exp.Do = "do" Stm {longest-match}
-  Stm.OffsideExp = exp:Exp {layout(offside exp)}
-  
-  Exp.Add = Exp "+" Exp {left}
-  
-  Exp.DoOffside = "doOffside" stm:StmNoOffside {longest-match, layout(offside "doOffside" stm)}
-  
-  StmNoOffside.Exp = Exp
-  
-  Exp.DoIndent = "doIndent" stm:Stm {longest-match, layout(indent "doIndent" stm)}
-  
-  Exp.DoNLIndent = "doNLIndent" stm:Stm {longest-match, layout(newline-indent "doNLIndent" stm)}
 
-  Exp.SingleLine = "foo" "bar" {layout(
+  Align.Align = "align" StmList
+
+  StmList.Stmt  = Stm
+  StmList.StmtSeq = head:StmList tail:Stm {layout(align head tail)}
+  
+  AlignList.AlignList  = "alignList" stmts:Stm+ {layout(align-list stmts)}
+
+  Offside.Offside = "offside" exp:Exp {layout(offside exp)}
+  
+  Offside2.Offside2 = "offside2" exp:Exp {layout(offside "offside2" exp)}
+  
+  Indent.Indent = "indent" exp:Exp {layout(indent "indent" exp)}
+  
+  NLIndent.NLIndent = "NLindent" exp:Exp {layout(newline-indent "NLindent" exp)}
+
+  SingleLine.SingleLine = "foo" "bar" {layout(
     1.first.line == 2.last.line
   )}
+
+  Exp.Add = Exp "+" Exp {left}
   
 lexical syntax
-  LAYOUT = [\ \t\n\r] 
-  EOF    =
+  LAYOUT = [\ \t\n\r]
   Exp    = "e" [0-9]+
   Stm    = "s" [0-9]+
 
 context-free restrictions
   LAYOUT? -/- [\ \t\n\r] 
-  

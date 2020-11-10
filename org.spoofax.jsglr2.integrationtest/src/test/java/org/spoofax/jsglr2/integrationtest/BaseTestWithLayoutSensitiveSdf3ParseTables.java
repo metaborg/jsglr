@@ -31,10 +31,10 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
 
     private Predicate<TestVariant> isNotLayoutSensitiveVariant = isLayoutSensitiveVariant.negate();
 
-    protected Stream<DynamicTest> testLayoutSensitiveParseFiltered(String inputString) {
+    protected Stream<DynamicTest> testLayoutSensitiveParseFiltered(String inputString, String startSymbol) {
         Stream<DynamicTest> notLayoutSensitiveTests =
             testPerVariant(getTestVariants(isNotLayoutSensitiveVariant), variant -> () -> {
-                ParseResult<?> parseResult = variant.parser().parse(inputString);
+                ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString, "", startSymbol), null, null);
 
                 assertEquals(true, parseResult.isSuccess(),
                     "Variant '" + variant.name() + "' should succeed for non-layout-sensitive parsing: ");
@@ -42,7 +42,7 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
 
         Stream<DynamicTest> layoutSensitiveTests =
             testPerVariant(getTestVariants(isLayoutSensitiveVariant), variant -> () -> {
-                ParseResult<?> parseResult = variant.parser().parse(inputString);
+                ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString, "", startSymbol), null, null);
 
                 assertEquals(false, parseResult.isSuccess(),
                     "Variant '" + variant.name() + "' should fail for layout-sensitive parsing: ");
@@ -51,9 +51,18 @@ public abstract class BaseTestWithLayoutSensitiveSdf3ParseTables extends BaseTes
         return Stream.concat(notLayoutSensitiveTests, layoutSensitiveTests);
     }
 
+    protected Stream<DynamicTest> testLayoutSensitiveParseFiltered(String inputString) {
+        return testLayoutSensitiveParseFiltered(inputString, null);
+    }
+
     protected Stream<DynamicTest> testLayoutSensitiveSuccessByExpansions(String inputString,
         String expectedOutputAstString) {
         return testLayoutSensitiveSuccess(inputString, expectedOutputAstString, null, true);
+    }
+
+    protected Stream<DynamicTest> testLayoutSensitiveSuccessByExpansions(String inputString,
+        String expectedOutputAstString, String startSymbol) {
+        return testLayoutSensitiveSuccess(inputString, expectedOutputAstString, startSymbol, true);
     }
 
     private Stream<DynamicTest> testLayoutSensitiveSuccess(String inputString, String expectedOutputAstString,

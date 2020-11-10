@@ -119,35 +119,50 @@ public class ParsingMeasurements extends Measurements {
                 case characters:
                     return "" + measureObserver.length;
                 case activeStacksAdds:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.adds;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.adds : 0);
                 case activeStacksMaxSize:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.maxSize;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.maxSize : 0);
                 case activeStacksIsSingleChecks:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.iSingleChecks;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.iSingleChecks : 0);
                 case activeStacksIsEmptyChecks:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.isEmptyChecks;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.isEmptyChecks : 0);
                 case activeStacksFindsWithState:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.findsWithState;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.findsWithState : 0);
                 case activeStacksForLimitedReductions:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.forLimitedReductions;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.forLimitedReductions : 0);
                 case activeStacksAddAllTo:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.addAllTo;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.addAllTo : 0);
                 case activeStacksClears:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.clears;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.clears : 0);
                 case activeStacksIterators:
-                    return "" + measureActiveStacksFactory.measureActiveStacks.iterators;
+                    return "" + (measureActiveStacksFactory.measureActiveStacks != null
+                        ? measureActiveStacksFactory.measureActiveStacks.iterators : 0);
                 case forActorAdds:
-                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorAdds;
+                    return "" + (measureForActorStacksFactory.measureForActorStacks != null
+                        ? measureForActorStacksFactory.measureForActorStacks.forActorAdds : 0);
                 case forActorDelayedAdds:
-                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedAdds;
+                    return "" + (measureForActorStacksFactory.measureForActorStacks != null
+                        ? measureForActorStacksFactory.measureForActorStacks.forActorDelayedAdds : 0);
                 case forActorMaxSize:
-                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorMaxSize;
+                    return "" + (measureForActorStacksFactory.measureForActorStacks != null
+                        ? measureForActorStacksFactory.measureForActorStacks.forActorMaxSize : 0);
                 case forActorDelayedMaxSize:
-                    return "" + measureForActorStacksFactory.measureForActorStacks.forActorDelayedMaxSize;
+                    return "" + (measureForActorStacksFactory.measureForActorStacks != null
+                        ? measureForActorStacksFactory.measureForActorStacks.forActorDelayedMaxSize : 0);
                 case forActorContainsChecks:
-                    return "" + measureForActorStacksFactory.measureForActorStacks.containsChecks;
+                    return "" + (measureForActorStacksFactory.measureForActorStacks != null
+                        ? measureForActorStacksFactory.measureForActorStacks.containsChecks : 0);
                 case forActorNonEmptyChecks:
-                    return "" + measureForActorStacksFactory.measureForActorStacks.nonEmptyChecks;
+                    return "" + (measureForActorStacksFactory.measureForActorStacks != null
+                        ? measureForActorStacksFactory.measureForActorStacks.nonEmptyChecks : 0);
                 case stackNodes:
                     return "" + measureObserver.stackNodes;
                 case stackNodesSingleLink:

@@ -30,7 +30,7 @@ public class IncrementalTreeShapedTokenizer extends AbstractTreeShapedTokenizer<
 
     @Override public TokenTree tokenizeInternal(TreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
         Position pivotPosition) {
-        IncrementalTreeTokens incrementalTreeTokens = ((IncrementalTreeTokens) tokens);
+        IncrementalTreeTokens incrementalTreeTokens = (IncrementalTreeTokens) tokens;
         if(incrementalTreeTokens.resultCache.containsKey(tree))
             return incrementalTreeTokens.resultCache.get(tree);
 

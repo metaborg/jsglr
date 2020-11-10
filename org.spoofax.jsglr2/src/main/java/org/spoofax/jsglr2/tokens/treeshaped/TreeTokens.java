@@ -22,7 +22,15 @@ public class TreeTokens implements ITokens {
     final TreeToken startToken, endToken;
     TokenTree tree;
 
-    /** <b>Note:</b> this operation is not associative. */
+    /**
+     * <b>Note:</b> this operation is not commutative.
+     *
+     * @param pos
+     *            The position to add to.
+     * @param add
+     *            The range to add to this position.
+     * @return A new position, representing the addition of `add` to `pos`.
+     */
     public static Position addPosition(Position pos, Position add) {
         return new Position(pos.offset + add.offset, pos.line + add.line - 1,
             add.line == 1 ? pos.column + add.column : add.column);

@@ -169,7 +169,7 @@ public class RecoveryBacktrackingTest extends BaseTestWithRecoverySdf3ParseTable
     }
 
     @TestFactory public Stream<DynamicTest> testMultiLineYYYYRecovering() throws ParseError {
-        return testRecovery("" + newlines(3) + "yyyy", false);
+        return testRecovery("" + newlines(3) + "yyyy", false, null);
     }
 
     @TestFactory public Stream<DynamicTest> testMultiLineYYYYTraced() throws ParseError {

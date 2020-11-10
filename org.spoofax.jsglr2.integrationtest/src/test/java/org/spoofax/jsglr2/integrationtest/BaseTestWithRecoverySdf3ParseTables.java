@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableVariant;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -42,7 +43,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
     protected Predicate<TestVariant> isNotRecoveryVariant = isRecoveryVariant.negate();
 
-    protected Stream<DynamicTest> testRecovery(String inputString, boolean recovers) {
+    protected Stream<DynamicTest> testRecovery(String inputString, boolean recovers, String expectedAst) {
         JSGLR2Request request = getRequestForRecovery(inputString);
 
         Stream<DynamicTest> notRecoveryTests = testPerVariant(getTestVariants(isNotRecoveryVariant), variant -> () -> {
@@ -56,13 +57,23 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
             assertEquals(recovers, parseResult.isSuccess(),
                 "Parsing should " + (recovers ? "succeed" : "fail") + " with recovering parsing");
+
+            if(recovers && expectedAst != null) {
+                IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
+
+                assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
+            }
         });
 
         return Stream.concat(notRecoveryTests, recoveryTests);
     }
 
     protected Stream<DynamicTest> testRecovery(String inputString) {
-        return testRecovery(inputString, true);
+        return testRecovery(inputString, true, null);
+    }
+
+    protected Stream<DynamicTest> testRecovery(String inputString, String expectedAst) {
+        return testRecovery(inputString, true, expectedAst);
     }
 
     protected Stream<DynamicTest> testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace,
@@ -90,7 +101,7 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
     }
 
     protected JSGLR2Request getRequestForRecovery(String inputString) {
-        return new JSGLR2Request(inputString, "", null, 3, 5, Optional.empty());
+        return configureRequest(new JSGLR2Request(inputString, "", null, 3, 5, Optional.empty(), false));
     }
 
     public interface WithRecoveryTrace {

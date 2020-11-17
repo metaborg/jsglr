@@ -24,7 +24,7 @@ public class JSGLR2MultiParser<AbstractSyntaxTree> {
         String fileName = "" + System.currentTimeMillis();
 
         for(String input : inputs) {
-            res.add(jsglr2.parseUnsafe(input, fileName, null));
+            res.add(input == null ? null : jsglr2.parseUnsafe(input, fileName, null));
         }
 
         if(jsglr2 instanceof JSGLR2ImplementationWithCache) {

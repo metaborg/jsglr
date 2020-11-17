@@ -60,15 +60,20 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
             // if (i == -1)
             return jsglr2MultiParser.parse(input.content);
         } else {
-            if(i >= 0)
-                return jsglr2.parser.parseUnsafe(input.content[i > 0 ? 1 : 0], null, prevString.get(input),
-                    prevParse.get(input));
+            if(i >= 0) {
+                String s = input.content[i > 0 ? 1 : 0];
+                if(s == null)
+                    return null;
+                return jsglr2.parser.parseUnsafe(s, null, prevString.get(input), prevParse.get(input));
+            }
 
             String previousInput = null;
             IParseForest previousResult = null;
 
             if(i == -2) {
                 for(String content : uniqueInputs.get(input)) {
+                    if(content == null)
+                        continue;
                     bh.consume(
                         previousResult = jsglr2.parser.parseUnsafe(content, null, previousInput, previousResult));
                     previousInput = content;
@@ -78,6 +83,8 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
 
             // if (i == -1)
             for(String content : input.content) {
+                if(content == null)
+                    continue;
                 bh.consume(previousResult = jsglr2.parser.parseUnsafe(content, null, previousInput, previousResult));
                 previousInput = content;
             }

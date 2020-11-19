@@ -21,7 +21,7 @@ public class JSGLR2BenchmarkExternal extends JSGLR2Benchmark<String, StringInput
         setTestSetReader(new BenchmarkTestSetWithParseTableReader<>(testSet));
     }
 
-    @Param({ "standard", "recovery", "incremental", "recoveryIncremental" }) JSGLR2Variant.Preset variant;
+    @Param({ "standard", "elkhound", "recovery", "incremental", "recoveryIncremental" }) JSGLR2Variant.Preset variant;
 
     @Param({ "false", "true" }) public boolean implode;
 

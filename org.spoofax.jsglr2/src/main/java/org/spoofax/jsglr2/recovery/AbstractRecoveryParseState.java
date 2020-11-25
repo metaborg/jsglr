@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.recovery;
 import java.util.Stack;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.metaborg.parsetable.query.ParsingMode;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -56,10 +57,12 @@ public abstract class AbstractRecoveryParseState
 
     @Override public void startRecovery(JSGLR2Request request, int offset) {
         recoveryJob = new RecoveryJob<>(offset, request.recoveryIterationsQuota);
+        mode = ParsingMode.Recovery;
     }
 
     @Override public void endRecovery() {
         recoveryJob = null;
+        mode = ParsingMode.Standard;
     }
 
     @Override public RecoveryJob<StackNode> recoveryJob() {

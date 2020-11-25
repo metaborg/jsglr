@@ -48,7 +48,7 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
                 return jsglr2MultiParser.parse(input.content[i]);
 
             if(i > 0) {
-                if(parserType.setupCache)
+                if(parserType.setupCache && prevCacheImpl.containsKey(input))
                     return prevCacheImpl.get(input).parse(input.content[1]);
                 else
                     return jsglr2MultiParser.parse(input.content[1]);

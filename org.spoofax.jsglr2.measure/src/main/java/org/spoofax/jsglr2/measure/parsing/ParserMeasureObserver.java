@@ -185,7 +185,7 @@ abstract class ParserMeasureObserver
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {
-        throw new IllegalStateException("Failing parses not allowed during measurements");
+        throw new IllegalStateException("Parsing failed on " + failure.parseState.request.fileName);
     }
 
 }

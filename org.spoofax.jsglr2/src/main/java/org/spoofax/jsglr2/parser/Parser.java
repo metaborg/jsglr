@@ -7,6 +7,7 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
+import org.metaborg.parsetable.query.ParsingMode;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
@@ -185,10 +186,10 @@ public class Parser
     }
 
     protected void actor(StackNode stack, ParseState parseState) {
-        observing.notify(
-            observer -> observer.actor(stack, parseState, stack.state().getApplicableActions(parseState.inputStack)));
+        observing.notify(observer -> observer.actor(stack, parseState,
+            stack.state().getApplicableActions(parseState.inputStack, parseState.mode)));
 
-        for(IAction action : stack.state().getApplicableActions(parseState.inputStack))
+        for(IAction action : stack.state().getApplicableActions(parseState.inputStack, parseState.mode))
             actor(stack, parseState, action);
     }
 

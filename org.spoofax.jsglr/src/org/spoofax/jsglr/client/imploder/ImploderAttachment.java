@@ -113,6 +113,12 @@ public class ImploderAttachment extends AbstractTermAttachment {
         return getSort();
     }
 
+    public boolean contains(ImploderAttachment inner) {
+        return this.leftToken.getFilename().equals(inner.leftToken.getFilename())
+            && this.leftToken.getStartOffset() <= inner.leftToken.getStartOffset()
+            && this.rightToken.getEndOffset() >= inner.rightToken.getEndOffset();
+    }
+
     public static IToken getLeftToken(ISimpleTerm term) {
         ImploderAttachment attachment = term.getAttachment(TYPE);
         if(attachment == null) {

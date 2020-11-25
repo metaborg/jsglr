@@ -20,8 +20,9 @@ import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 public class IncrementalParseNode extends IncrementalParseForest
     implements IParseNode<IncrementalParseForest, IncrementalDerivation> {
 
-    public static final State NO_STATE = new State(-1,
-        new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0]), new ProductionToGotoForLoop(new IGoto[0]));
+    public static final State NO_STATE =
+        new State(-1, new ActionsForCharacterSeparated(new ActionsPerCharacterClass[0], Collections.emptySet()),
+            new ProductionToGotoForLoop(new IGoto[0]));
 
     protected final IProduction production;
     private final IncrementalDerivation firstDerivation;

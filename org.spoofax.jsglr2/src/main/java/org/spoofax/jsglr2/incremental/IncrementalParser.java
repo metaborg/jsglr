@@ -132,7 +132,7 @@ public class IncrementalParser
     // Else, the loop in `actor` will have broken it down
     private Iterable<IAction> getActions(StackNode stack, ParseState parseState) {
         // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
-        Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack);
+        Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
         IncrementalParseForest lookahead = parseState.inputStack.getNode();
         if(lookahead.isTerminal()) {

@@ -60,7 +60,7 @@ public class ElkhoundParser
 
                 if(!singleActiveStack.allLinksRejected()) {
                     Iterator<IAction> actionsIterator =
-                        singleActiveStack.state.getApplicableActions(parseState.inputStack).iterator();
+                        singleActiveStack.state.getApplicableActions(parseState.inputStack, parseState.mode).iterator();
 
                     if(actionsIterator.hasNext()) {
                         IAction firstAction = actionsIterator.next();

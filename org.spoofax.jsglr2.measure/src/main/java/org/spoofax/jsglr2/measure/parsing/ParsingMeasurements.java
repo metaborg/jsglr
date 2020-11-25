@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.JSGLR2Measurements;
 import org.spoofax.jsglr2.measure.MeasureTestSetWithParseTableReader;
@@ -90,8 +91,13 @@ public class ParsingMeasurements extends Measurements {
 
             parser.observing().attachObserver(measureObserver);
 
-            for(StringInput input : inputBatch.inputs)
-                parser.parse(input.content);
+            try {
+                for(StringInput input : inputBatch.inputs)
+                    parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
+            } catch(Exception e) {
+                throw new IllegalStateException(
+                    "Parsing failed with variant " + variant.name() + ": " + e.getMessage());
+            }
 
             return toOutput(name, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory,
                 measureObserver);

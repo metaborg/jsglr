@@ -115,18 +115,15 @@ public class ParseTable implements Serializable {
         }
     }
 
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable,
-        IParseTableGenerator ptGenerator) throws Exception {
-        // N.B. This is _not_ code duplication with the InputStream variant constructor, because that
-        //      variant doesn't _close_ the stream. So opening it here and calling the other constructor
-        //      will lead to a dangling open stream!
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, IParseTableGenerator ptGenerator)
+        throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
         if(states.length == 0) {
             dynamicPTgeneration = true;
         }
 
-        if(dynamicPTgeneration && persistedTable != null) {
+        if(dynamicPTgeneration) {
             this.ptGenerator = ptGenerator;
             gotoCache = new HashMap<Goto, Goto>();
             shiftCache = new HashMap<Shift, Shift>();
@@ -134,36 +131,6 @@ public class ParseTable implements Serializable {
             rangesCache = new HashMap<RangeList, RangeList>();
         } else {
             this.ptGenerator = null;
-        }
-
-        if(dynamicPTgeneration && persistedTable == null) {
-            throw new InvalidParseTableException(
-                "Parse table does not contain any state and normalized grammar is null");
-        }
-    }
-
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, InputStream persistedTable,
-        IParseTableGenerator ptGenerator) throws Exception {
-        initTransientData(factory);
-        parse(pt);
-        if(states.length == 0) {
-            dynamicPTgeneration = true;
-        }
-
-        if(dynamicPTgeneration && persistedTable != null) {
-            this.ptGenerator = ptGenerator;
-            gotoCache = new HashMap<Goto, Goto>();
-            shiftCache = new HashMap<Shift, Shift>();
-            reduceCache = new HashMap<Reduce, Reduce>();
-            rangesCache = new HashMap<RangeList, RangeList>();
-
-        } else {
-            this.ptGenerator = null;
-        }
-
-        if(dynamicPTgeneration && persistedTable == null) {
-            throw new InvalidParseTableException(
-                "Parse table does not contain any state and normalized grammar is null");
         }
     }
 

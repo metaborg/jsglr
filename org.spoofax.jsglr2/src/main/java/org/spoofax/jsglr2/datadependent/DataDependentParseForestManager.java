@@ -4,6 +4,7 @@ import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
+import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parseforest.basic.AbstractBasicParseForestManager;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -25,8 +26,9 @@ public class DataDependentParseForestManager
 {
 
     private DataDependentParseForestManager(
-        ParserObserving<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> observing) {
-        super(observing);
+        ParserObserving<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> observing,
+        Disambiguator<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>, IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>, StackNode, ParseState> disambiguator) {
+        super(observing, disambiguator);
     }
 
     public static

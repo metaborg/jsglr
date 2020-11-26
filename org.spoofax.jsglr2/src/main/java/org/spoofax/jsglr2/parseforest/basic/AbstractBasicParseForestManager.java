@@ -6,10 +6,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -25,8 +22,9 @@ public abstract class AbstractBasicParseForestManager
     extends ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
     public AbstractBasicParseForestManager(
-        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
-        super(observing);
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
+        Disambiguator<ParseForest, Derivation, ParseNode, StackNode, ParseState> disambiguator) {
+        super(observing, disambiguator);
     }
 
     protected abstract ParseNode constructParseNode(int width, IProduction production);
@@ -60,6 +58,9 @@ public abstract class AbstractBasicParseForestManager
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
+
+        if(disambiguator != null)
+            disambiguator.disambiguate(parseState, parseNode);
     }
 
     @Override public ParseForest createCharacterNode(ParseState parseState) {

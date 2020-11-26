@@ -25,7 +25,7 @@ public class IncrementalParseNode extends IncrementalParseForest
             new ProductionToGotoForLoop(new IGoto[0]));
 
     protected final IProduction production;
-    private final IncrementalDerivation firstDerivation;
+    private IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
     private IState state;
 
@@ -96,6 +96,11 @@ public class IncrementalParseNode extends IncrementalParseForest
 
     @Override public boolean isAmbiguous() {
         return otherDerivations != null;
+    }
+
+    @Override public void disambiguate(IncrementalDerivation derivation) {
+        firstDerivation = derivation;
+        otherDerivations = null;
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {

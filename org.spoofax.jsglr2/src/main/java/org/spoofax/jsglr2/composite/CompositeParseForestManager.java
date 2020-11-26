@@ -9,6 +9,7 @@ import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.inputstack.LayoutSensitiveInputStack;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
 import org.spoofax.jsglr2.layoutsensitive.Shape;
+import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -25,8 +26,8 @@ public class CompositeParseForestManager
     ParseForestManager<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> {
 
     private CompositeParseForestManager(
-        ParserObserving<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> observing) {
-        super(observing);
+        ParserObserving<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> observing, Disambiguator<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>, ICompositeParseNode<ICompositeParseForest, ICompositeDerivation<ICompositeParseForest>>, StackNode, ParseState> disambiguator) {
+        super(observing, disambiguator);
     }
 
     public static

@@ -20,9 +20,12 @@ public abstract class ParseForestManager
     implements ParseNodeVisiting<ParseForest, Derivation, ParseNode> {
 
     protected final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
+    protected final Disambiguator<ParseForest, Derivation, ParseNode, StackNode, ParseState> disambiguator;
 
-    protected ParseForestManager(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
+    protected ParseForestManager(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
+        Disambiguator<ParseForest, Derivation, ParseNode, StackNode, ParseState> disambiguator) {
         this.observing = observing;
+        this.disambiguator = disambiguator;
     }
 
     /**

@@ -34,4 +34,8 @@ public interface IBasicParseNode
         return getDerivations().size() > 1;
     }
 
+    @Override default void disambiguate(Derivation derivation) {
+        getDerivations().removeIf(alternative -> alternative != derivation);
+    }
+
 }

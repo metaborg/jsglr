@@ -8,6 +8,7 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.incremental.IIncrementalParseState;
+import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -23,8 +24,9 @@ public class IncrementalParseForestManager
     ParseForestManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> {
 
     public IncrementalParseForestManager(
-        ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing) {
-        super(observing);
+        ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing,
+        Disambiguator<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> disambiguator) {
+        super(observing, disambiguator);
     }
 
     public static
@@ -75,6 +77,9 @@ public class IncrementalParseForestManager
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
 
         parseNode.addDerivation(derivation);
+
+        if(disambiguator != null)
+            disambiguator.disambiguate(parseState, parseNode);
     }
 
     @Override public IncrementalSkippedNode createSkippedNode(ParseState parseState, IProduction production,

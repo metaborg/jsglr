@@ -7,17 +7,12 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
-import org.metaborg.parsetable.query.ParsingMode;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -58,6 +53,7 @@ public class Parser
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManagerFactory,
+        Disambiguator<ParseForest, Derivation, ParseNode, StackNode, ParseState> disambiguator,
         ReduceManagerFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         ParseFailureHandlerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> failureHandlerFactory,
         ParseReporterFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reporterFactory) {
@@ -66,7 +62,7 @@ public class Parser
         this.parseStateFactory = parseStateFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManagerFactory.get(observing);
-        this.parseForestManager = parseForestManagerFactory.get(observing);
+        this.parseForestManager = parseForestManagerFactory.get(observing, disambiguator);
         this.reduceManager = reduceManagerFactory.get(parseTable, stackManager, parseForestManager);
         this.failureHandler = failureHandlerFactory.get(observing);
         this.reporter = reporterFactory.get(parseForestManager);

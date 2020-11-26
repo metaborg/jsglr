@@ -12,7 +12,7 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
 
     private final int width;
     private final IProduction production;
-    private final HybridDerivation firstDerivation;
+    private HybridDerivation firstDerivation;
     private List<HybridDerivation> otherDerivations;
 
     public HybridParseNode(int width, IProduction production, HybridDerivation firstDerivation) {
@@ -63,6 +63,11 @@ public class HybridParseNode extends HybridParseForest implements IParseNode<Hyb
 
     public boolean isAmbiguous() {
         return otherDerivations != null;
+    }
+
+    public void disambiguate(HybridDerivation derivation) {
+        firstDerivation = derivation;
+        otherDerivations = null;
     }
 
 }

@@ -16,7 +16,7 @@ public class ProcessUpdatesTest {
 
     public ProcessUpdatesTest() {
         ParserObserving<?, ?, ?, ?, ?> observing = new ParserObserving<>();
-        processUpdates = new ProcessUpdates(new IncrementalParseForestManager(observing));
+        processUpdates = new ProcessUpdates(new IncrementalParseForestManager(observing, null));
     }
 
     @Test public void testDeleteSubtree() {

@@ -62,6 +62,8 @@ public interface IParseNode
 
     boolean isAmbiguous();
 
+    void disambiguate(Derivation derivation);
+
     default String descriptor() {
         return production().lhs().toString();
     }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
+import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridCharacterNode;
@@ -22,8 +23,9 @@ public class NullParseForestManager
     extends ParseForestManager<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> {
 
     public NullParseForestManager(
-        ParserObserving<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> observing) {
-        super(observing);
+        ParserObserving<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> observing,
+        Disambiguator<HybridParseForest, HybridDerivation, HybridParseNode, StackNode, ParseState> disambiguator) {
+        super(observing, disambiguator);
     }
 
     public static

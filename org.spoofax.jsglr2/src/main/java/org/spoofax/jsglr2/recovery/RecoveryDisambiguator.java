@@ -36,18 +36,16 @@ public class RecoveryDisambiguator
     }
 
     private int recoveryCost(Derivation derivation) {
-        int cost = 0;
+        String constructor = derivation.production().constructor();
 
-        if(derivation.production().isRecovery()) {
-            String constructor = derivation.production().constructor();
-
-            if(constructor != null && constructor.equals("INSERTION"))
-                cost += 1; // Insertion
-            else if(constructor == null)
-                cost += 2; // Water
-            else
-                throw new IllegalStateException("invalid recovery");
+        if(constructor != null) {
+            if(constructor.equals("INSERTION"))
+                return 1;
+            else if(constructor.equals("WATER"))
+                return 2;
         }
+
+        int cost = 0;
 
         for(ParseForest child : derivation.parseForests()) {
             if(child instanceof IParseNode)

@@ -30,7 +30,7 @@ public class RecoveryDisambiguator
             spine.add(parseNode);
 
             for(Derivation derivation : parseNode.getPreferredAvoidedDerivations()) {
-                int cost = recoveryCost(derivation, spine);
+                int cost = recoveryCost(derivation, parseNode.width(), spine);
 
                 if(minRecoveryCost == -1 || cost < minRecoveryCost) {
                     minRecoveryCost = cost;
@@ -42,14 +42,14 @@ public class RecoveryDisambiguator
         }
     }
 
-    private int recoveryCost(Derivation derivation, Set<ParseNode> spine) {
+    private int recoveryCost(Derivation derivation, int width, Set<ParseNode> spine) {
         String constructor = derivation.production().constructor();
 
         if(constructor != null) {
             if(constructor.equals("INSERTION"))
                 return 1;
             else if(constructor.equals("WATER"))
-                return 2;
+                return 1 + width;
         }
 
         int cost = 0;
@@ -60,7 +60,7 @@ public class RecoveryDisambiguator
 
                 if(!spine.contains(parseNode)) {
                     spine.add(parseNode);
-                    cost += recoveryCost(parseNode, spine);
+                    cost += recoveryCost(parseNode, parseNode.width(), spine);
                     spine.remove(parseNode);
                 }
             }
@@ -69,11 +69,11 @@ public class RecoveryDisambiguator
         return cost;
     }
 
-    private int recoveryCost(ParseNode parseNode, Set<ParseNode> spine) {
+    private int recoveryCost(ParseNode parseNode, int width, Set<ParseNode> spine) {
         int cost = 0;
 
         for(Derivation derivation : parseNode.getDerivations())
-            cost += recoveryCost(derivation, spine);
+            cost += recoveryCost(derivation, width, spine);
 
         return cost;
     }

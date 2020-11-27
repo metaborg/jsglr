@@ -41,10 +41,12 @@ public class RecoveryDisambiguator
         if(derivation.production().isRecovery()) {
             String constructor = derivation.production().constructor();
 
-            if(constructor != null && derivation.production().constructor().equals("WATER"))
-                cost += 2;
+            if(constructor != null && constructor.equals("INSERTION"))
+                cost += 1; // Insertion
+            else if(constructor == null)
+                cost += 2; // Water
             else
-                cost += 1;
+                throw new IllegalStateException("invalid recovery");
         }
 
         for(ParseForest child : derivation.parseForests()) {

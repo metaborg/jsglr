@@ -1,5 +1,8 @@
 package org.spoofax.jsglr2.recovery;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -22,8 +25,12 @@ public class RecoveryDisambiguator
             int minRecoveryCost = -1;
             Derivation bestRecovery = null;
 
+            Set<ParseNode> spine = new HashSet<>();
+
+            spine.add(parseNode);
+
             for(Derivation derivation : parseNode.getPreferredAvoidedDerivations()) {
-                int cost = recoveryCost(derivation);
+                int cost = recoveryCost(derivation, spine);
 
                 if(minRecoveryCost == -1 || cost < minRecoveryCost) {
                     minRecoveryCost = cost;
@@ -35,7 +42,7 @@ public class RecoveryDisambiguator
         }
     }
 
-    private int recoveryCost(Derivation derivation) {
+    private int recoveryCost(Derivation derivation, Set<ParseNode> spine) {
         String constructor = derivation.production().constructor();
 
         if(constructor != null) {
@@ -48,18 +55,25 @@ public class RecoveryDisambiguator
         int cost = 0;
 
         for(ParseForest child : derivation.parseForests()) {
-            if(child instanceof IParseNode)
-                cost += recoveryCost((ParseNode) child);
+            if(child instanceof IParseNode) {
+                ParseNode parseNode = (ParseNode) child;
+
+                if(!spine.contains(parseNode)) {
+                    spine.add(parseNode);
+                    cost += recoveryCost(parseNode, spine);
+                    spine.remove(parseNode);
+                }
+            }
         }
 
         return cost;
     }
 
-    private int recoveryCost(ParseNode parseNode) {
+    private int recoveryCost(ParseNode parseNode, Set<ParseNode> spine) {
         int cost = 0;
 
         for(Derivation derivation : parseNode.getDerivations())
-            cost += recoveryCost(derivation);
+            cost += recoveryCost(derivation, spine);
 
         return cost;
     }

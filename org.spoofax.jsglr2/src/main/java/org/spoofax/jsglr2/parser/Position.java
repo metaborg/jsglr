@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.spoofax.jsglr.client.imploder.IToken;
 
 public class Position {
 
@@ -152,5 +153,8 @@ public class Position {
         return column == other.column && line == other.line && offset == other.offset;
     }
 
+    public static Position atStartOfToken(IToken token) {
+        return new Position(token.getStartOffset(), token.getLine(), token.getColumn());
+    }
 
 }

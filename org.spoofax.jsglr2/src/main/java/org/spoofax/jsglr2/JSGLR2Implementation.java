@@ -11,9 +11,9 @@ import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IObservableParser;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
@@ -79,7 +79,7 @@ public class JSGLR2Implementation
                 IToken precedingToken = token != null ? token.getTokenBefore() : null;
 
                 if(precedingToken != null && precedingToken.getKind() == IToken.Kind.TK_LAYOUT) {
-                    message = message.atRegion(SourceRegion.fromToken(precedingToken));
+                    message = message.atPosition(Position.atStartOfToken(precedingToken));
                 }
             }
 

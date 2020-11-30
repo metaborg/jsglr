@@ -33,6 +33,10 @@ public class Message {
         return new Message(message, category, otherRegion);
     }
 
+    public Message atPosition(Position position) {
+        return new Message(message, category, position);
+    }
+
     @Override public String toString() {
         return "\"" + message + "\" " + severity + " @ " + region;
     }

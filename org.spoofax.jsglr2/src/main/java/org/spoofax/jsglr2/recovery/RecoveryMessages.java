@@ -11,7 +11,7 @@ public class RecoveryMessages {
         String message;
         RecoveryType recoveryType = null;
 
-        if("WATER".equals(production.constructor()) || production.sort().contains("WATER")) {
+        if(production.isWater()) {
             message = "Not expected";
             recoveryType = RecoveryType.WATER;
         } else if("INSERTION".equals(production.constructor())) {

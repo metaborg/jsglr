@@ -5,16 +5,16 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.spoofax.jsglr2.integrationtest.BaseTestWithRecoverySdf3ParseTables;
+import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.MessageDescriptor;
 import org.spoofax.jsglr2.messages.Severity;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.terms.ParseError;
 
-public class CyclesTest extends BaseTestWithRecoverySdf3ParseTables {
+public class CyclesTest extends BaseTestWithSdf3ParseTables {
 
     public CyclesTest() {
-        super("cycles.sdf3", false);
+        super("cycles.sdf3");
     }
 
     @TestFactory public Stream<DynamicTest> testCycle() throws ParseError {

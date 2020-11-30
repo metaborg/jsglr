@@ -28,15 +28,17 @@ import org.spoofax.jsglr2.stack.IStackNode;
 public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
     private final boolean makePermissive;
+    private final boolean withWater;
 
-    protected BaseTestWithRecoverySdf3ParseTables(String sdf3Resource, boolean makePermissive) {
+    protected BaseTestWithRecoverySdf3ParseTables(String sdf3Resource, boolean makePermissive, boolean withWater) {
         super(sdf3Resource);
 
         this.makePermissive = makePermissive;
+        this.withWater = withWater;
     }
 
     @Override public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
-        return sdf3ToParseTable.getParseTable(variant, sdf3Resource, makePermissive);
+        return sdf3ToParseTable.getParseTable(variant, sdf3Resource, makePermissive, withWater);
     }
 
     protected Predicate<TestVariant> isRecoveryVariant = testVariant -> testVariant.variant.parser.recovery;

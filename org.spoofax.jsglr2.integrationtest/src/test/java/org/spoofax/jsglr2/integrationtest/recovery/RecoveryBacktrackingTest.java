@@ -14,7 +14,7 @@ import org.spoofax.terms.ParseError;
 public class RecoveryBacktrackingTest extends BaseTestWithRecoverySdf3ParseTables {
 
     public RecoveryBacktrackingTest() {
-        super("recovery.sdf3", false);
+        super("recovery.sdf3", false, false);
     }
 
     @TestFactory public Stream<DynamicTest> testSingleLineX() throws ParseError {

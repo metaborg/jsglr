@@ -13,7 +13,7 @@ import org.spoofax.terms.ParseError;
 public class RecoveryPermissiveLiteralTest extends BaseTestWithRecoverySdf3ParseTables {
 
     public RecoveryPermissiveLiteralTest() {
-        super("recovery-permissive-literal.sdf3", true);
+        super("recovery-permissive-literal.sdf3", true, false);
     }
 
     @TestFactory public Stream<DynamicTest> testOpeningLiteralExpected() throws ParseError {

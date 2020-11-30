@@ -77,8 +77,7 @@ public class RecoveryParseReporter
         }
 
         private boolean isRecovery(ParseNode parseNode) {
-            return parseNode.production().isRecovery()
-                || (parseNode.production().sort() != null && parseNode.production().sort().contains("WATER"));
+            return parseNode.production().isRecovery() || parseNode.production().isWater();
         }
 
     }

@@ -11,7 +11,7 @@ public class RecoveryMessages {
     public static Message get(IProduction production, SourceRegion region) {
         String message;
 
-        if("WATER".equals(production.constructor()))
+        if("WATER".equals(production.constructor()) || production.sort().contains("WATER")) {
             message = "Not expected";
         else if("INSERTION".equals(production.constructor())) {
             String insertion;

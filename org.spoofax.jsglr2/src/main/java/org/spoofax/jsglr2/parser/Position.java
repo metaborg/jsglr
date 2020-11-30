@@ -82,6 +82,15 @@ public class Position {
     }
 
     /**
+     * @return A new position that represents the position left of the current position.
+     */
+    public Position previous(String inputString) {
+        int previousCharWidth = Character.charCount(inputString.codePointBefore(offset));
+
+        return Position.atOffset(inputString, offset - previousCharWidth);
+    }
+
+    /**
      * Should only be called when the character at the current position is a newline character.
      *
      * @return A new position that represents the first column on the line after the current position.

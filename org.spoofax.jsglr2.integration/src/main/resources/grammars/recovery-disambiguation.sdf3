@@ -1,4 +1,4 @@
-module recovery
+module recovery-disambiguation
 
 context-free start-symbols
   Start

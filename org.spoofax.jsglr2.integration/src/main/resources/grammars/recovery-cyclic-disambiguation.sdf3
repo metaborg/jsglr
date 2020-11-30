@@ -1,0 +1,21 @@
+module recovery-cyclic-disambiguation
+
+context-free start-symbols
+  Start
+
+context-free syntax
+
+  Start = A
+
+  A.A = "a"
+
+  A = B {recover}
+
+  B.A = A
+  B.B = "b"
+
+lexical syntax
+  LAYOUT = [\ ]
+
+context-free restrictions
+  LAYOUT? -/- [\ ]

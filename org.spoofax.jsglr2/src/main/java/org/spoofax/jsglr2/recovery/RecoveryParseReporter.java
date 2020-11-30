@@ -4,10 +4,8 @@ import java.util.Collection;
 
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.messages.SourceRegion;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IParseReporter;
 import org.spoofax.jsglr2.parser.ParseReporterFactory;
@@ -50,10 +48,10 @@ public class RecoveryParseReporter
         if(parseState.appliedRecovery()) {
             parseForestManager.visit(parseState.request, parseForest, (parseNode, startPosition, endPosition) -> {
                 if(parseNode.production().isRecovery()) {
-                    if(endPosition.offset > startPosition.offset)
-                        endPosition = endPosition.previous(parseState.inputStack.inputString());
+                    SourceRegion region =
+                        ParseNodeVisiting.visitRegion(parseState.inputStack.inputString(), startPosition, endPosition);
 
-                    messages.add(RecoveryMessages.get(parseNode.production(), startPosition, endPosition));
+                    messages.add(RecoveryMessages.get(parseNode.production(), region));
                 }
             });
         }

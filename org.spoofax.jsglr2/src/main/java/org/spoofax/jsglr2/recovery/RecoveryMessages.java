@@ -5,13 +5,10 @@ import org.metaborg.parsetable.symbols.ILiteralSymbol;
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
-import org.spoofax.jsglr2.parser.Position;
 
 public class RecoveryMessages {
 
-    public static Message get(IProduction production, Position start, Position end) {
-        SourceRegion region = new SourceRegion(start, end);
-
+    public static Message get(IProduction production, SourceRegion region) {
         String message;
 
         if("WATER".equals(production.constructor()))

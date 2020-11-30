@@ -125,7 +125,8 @@ public class Parser
 
             if(parseState.request.reportAmbiguities) {
                 // Generate warnings for ambiguous parse nodes
-                parseForestManager.visit(parseState.request, parseForest, new AmbiguityDetector<>(messages));
+                parseForestManager.visit(parseState.request, parseForest,
+                    new AmbiguityDetector<>(parseState.inputStack.inputString(), messages));
             }
 
             ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);

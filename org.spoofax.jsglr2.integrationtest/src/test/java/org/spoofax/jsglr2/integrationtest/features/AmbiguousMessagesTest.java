@@ -40,13 +40,13 @@ public class AmbiguousMessagesTest extends BaseTestWithSdf3ParseTables {
 
     @TestFactory public Stream<DynamicTest> layout() throws ParseError {
         return testMessages("///bar",
-            Collections.singletonList(new MessageDescriptor("Layout ambiguity", Severity.WARNING, 0, 1, 1, 4)),
+            Collections.singletonList(new MessageDescriptor("Layout ambiguity", Severity.WARNING, 0, 1, 1, 3)),
             nonOptimizedParseForestVariants, "Layout");
     }
 
     @TestFactory public Stream<DynamicTest> lexicalInLayout() throws ParseError {
         return testMessages("/*___*/bar",
-            Collections.singletonList(new MessageDescriptor("Lexical ambiguity", Severity.WARNING, 2, 1, 3, 4)),
+            Collections.singletonList(new MessageDescriptor("Lexical ambiguity", Severity.WARNING, 2, 1, 3, 3)),
             nonOptimizedParseForestVariants, "Layout");
     }
 

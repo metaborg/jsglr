@@ -13,7 +13,7 @@ import org.spoofax.terms.ParseError;
 public class RecoveryLexicalHiddenInsertionMessagesTest extends BaseTestWithRecoverySdf3ParseTables {
 
     public RecoveryLexicalHiddenInsertionMessagesTest() {
-        super("recovery-insertion-lexical-hidden.sdf3", false);
+        super("recovery-insertion-lexical-hidden.sdf3", false, false);
     }
 
     @TestFactory public Stream<DynamicTest> testHiddenYRecovering() throws ParseError {

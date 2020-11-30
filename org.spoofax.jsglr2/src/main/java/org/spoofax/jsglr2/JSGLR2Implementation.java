@@ -74,7 +74,7 @@ public class JSGLR2Implementation
             Message message = originalMessage;
 
             // Move recovery messages in layout at start of layout
-            if (originalMessage.category == Category.RECOVERY && originalMessage.region != null) {
+            if(originalMessage.category == Category.RECOVERY && originalMessage.region != null) {
                 IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
                 IToken precedingToken = token != null ? token.getTokenBefore() : null;
 

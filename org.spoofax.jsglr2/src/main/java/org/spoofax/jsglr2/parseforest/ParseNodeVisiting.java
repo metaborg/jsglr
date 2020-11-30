@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.parseforest;
 import java.util.Stack;
 
 import org.spoofax.jsglr2.JSGLR2Request;
+import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parser.Position;
 
 public interface ParseNodeVisiting
@@ -103,6 +104,13 @@ public interface ParseNodeVisiting
         boolean done() {
             return remainingChildren == 0;
         }
+    }
+
+    public static SourceRegion visitRegion(String inputString, Position startPosition, Position endPosition) {
+        if(endPosition.offset > startPosition.offset)
+            endPosition = endPosition.previous(inputString);
+
+        return new SourceRegion(startPosition, endPosition);
     }
 
 }

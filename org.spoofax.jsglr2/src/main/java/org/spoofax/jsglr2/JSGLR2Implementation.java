@@ -18,6 +18,8 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.recovery.RecoveryMessage;
+import org.spoofax.jsglr2.recovery.RecoveryType;
 
 public class JSGLR2Implementation
 // @formatter:off
@@ -73,8 +75,10 @@ public class JSGLR2Implementation
         for(Message originalMessage : originalMessages) {
             Message message = originalMessage;
 
-            // Move recovery messages in layout at start of layout
-            if(originalMessage.category == Category.RECOVERY && originalMessage.region != null) {
+            // Move recovery insertion messages in layout to start of layout
+            if(originalMessage.category == Category.RECOVERY
+                && ((RecoveryMessage) message).recoveryType == RecoveryType.INSERTION
+                && originalMessage.region != null) {
                 IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
                 IToken precedingToken = token != null ? token.getTokenBefore() : null;
 

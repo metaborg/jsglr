@@ -49,8 +49,12 @@ public class RecoveryParseReporter
     @Override public void report(ParseState parseState, ParseForest parseForest, Collection<Message> messages) {
         if(parseState.appliedRecovery()) {
             parseForestManager.visit(parseState.request, parseForest, (parseNode, startPosition, endPosition) -> {
-                if(parseNode.production().isRecovery())
+                if(parseNode.production().isRecovery()) {
+                    if(endPosition.offset > startPosition.offset)
+                        endPosition = endPosition.previous(parseState.inputStack.inputString());
+
                     messages.add(RecoveryMessages.get(parseNode.production(), startPosition, endPosition));
+                }
             });
         }
     }

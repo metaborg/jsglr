@@ -20,7 +20,7 @@ public class RecoveryMessages {
             if(production.isLiteral())
                 insertion = ((ILiteralSymbol) production.lhs()).literal();
             else
-                insertion = "Token";
+                insertion = production.sort();
 
             message = insertion + " expected";
             recoveryType = RecoveryType.INSERTION;

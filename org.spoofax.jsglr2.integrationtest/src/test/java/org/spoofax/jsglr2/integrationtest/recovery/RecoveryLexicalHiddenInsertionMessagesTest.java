@@ -16,7 +16,7 @@ public class RecoveryLexicalHiddenInsertionMessagesTest extends BaseTestWithReco
         super("recovery-insertion-lexical-hidden.sdf3", false, false);
     }
 
-    @TestFactory public Stream<DynamicTest> testHiddenYRecovering() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testHiddenRecovery() throws ParseError {
         return testMessages("xz", Arrays.asList(
         //@formatter:off
             new MessageDescriptor("Invalid syntax", Severity.ERROR, 1, 1, 2, 1)

@@ -4,7 +4,6 @@ context-free start-symbols
   Start
 
 context-free syntax
-
   Start = A
 
   A.A = "a"

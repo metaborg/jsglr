@@ -16,7 +16,7 @@ public class RecoveryGeneratedWaterTest extends BaseTestWithRecoverySdf3ParseTab
         super("recovery-generated-water.sdf3", true, true);
     }
 
-    @TestFactory public Stream<DynamicTest> testBar() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testWater() throws ParseError {
         return testMessages("bar", Arrays.asList(
         //@formatter:off
             new MessageDescriptor("Not expected", Severity.ERROR, 0, 1, 1, 3)
@@ -24,7 +24,7 @@ public class RecoveryGeneratedWaterTest extends BaseTestWithRecoverySdf3ParseTab
         ), getTestVariants(isRecoveryVariant));
     }
 
-    @TestFactory public Stream<DynamicTest> testBarAfterLayout() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testWaterAfterLayout() throws ParseError {
         // If insertions are preceded by layout, the corresponding message is moved to the start of that layout. Here we
         // test that the message for water is not moved if it is preceded by layout.
         return testMessages(" bar", Arrays.asList(

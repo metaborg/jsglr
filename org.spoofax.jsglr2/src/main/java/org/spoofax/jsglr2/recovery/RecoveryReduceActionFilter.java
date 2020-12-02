@@ -25,6 +25,8 @@ public class RecoveryReduceActionFilter
             return true; // Ignore recovery productions outside recovery mode
         if(parseState.recoveryJob().getQuota(stack) <= 0)
             return true; // Ignore recovery productions after quota exceeded
+        if(!(parseState.inputStack.offset() > parseState.recoveryJob().lastRecoveredOffset(stack)))
+            return true; // Prevent multiple recover reductions at the same location
 
         return false;
     }

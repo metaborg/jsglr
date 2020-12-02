@@ -4,13 +4,12 @@ import java.util.Collection;
 
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.messages.SourceRegion;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IParseReporter;
 import org.spoofax.jsglr2.parser.ParseReporterFactory;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public class RecoveryParseReporter
@@ -48,10 +47,38 @@ public class RecoveryParseReporter
 
     @Override public void report(ParseState parseState, ParseForest parseForest, Collection<Message> messages) {
         if(parseState.appliedRecovery()) {
-            parseForestManager.visit(parseState.request, parseForest, (parseNode, startPosition, endPosition) -> {
-                if(parseNode.production().isRecovery())
-                    messages.add(RecoveryMessages.get(parseNode.production(), startPosition, endPosition));
-            });
+            RecoveryMessagesVisitor visitor =
+                new RecoveryMessagesVisitor(messages, parseState.inputStack.inputString());
+
+            parseForestManager.visit(parseState.request, parseForest, visitor);
         }
+    }
+
+    class RecoveryMessagesVisitor implements ParseNodeVisitor<ParseForest, Derivation, ParseNode> {
+
+        private final Collection<Message> messages;
+        private final String inputString;
+
+        RecoveryMessagesVisitor(Collection<Message> messages, String inputString) {
+            this.messages = messages;
+            this.inputString = inputString;
+        }
+
+        @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
+            return !isRecovery(parseNode);
+        }
+
+        @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {
+            if(isRecovery(parseNode)) {
+                SourceRegion region = ParseNodeVisiting.visitRegion(inputString, startPosition, endPosition);
+
+                messages.add(RecoveryMessages.get(parseNode.production(), region));
+            }
+        }
+
+        private boolean isRecovery(ParseNode parseNode) {
+            return parseNode.production().isRecovery() || parseNode.production().isWater();
+        }
+
     }
 }

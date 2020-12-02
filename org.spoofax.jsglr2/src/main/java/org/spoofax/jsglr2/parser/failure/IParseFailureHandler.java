@@ -17,7 +17,8 @@ public interface IParseFailureHandler
     boolean onFailure(ParseState parseState);
 
     default ParseFailureCause failureCause(ParseState parseState) {
-        Position position = Position.atOffset(parseState.inputStack.inputString(), parseState.inputStack.offset());
+        Position position = Position.atOffset(parseState.inputStack.inputString(),
+            Math.max(Math.min(parseState.inputStack.offset(), parseState.inputStack.length() - 1), 0));
 
         if(parseState.inputStack.offset() < parseState.inputStack.length())
             return new ParseFailureCause(ParseFailureCause.Type.UnexpectedInput, position);

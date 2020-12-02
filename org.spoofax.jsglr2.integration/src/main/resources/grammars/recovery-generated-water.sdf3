@@ -1,0 +1,15 @@
+module recovery-cyclic-disambiguation
+
+context-free start-symbols
+  Start
+
+context-free syntax
+
+  Start = Foo?
+  Foo = "foo"
+
+lexical syntax
+  LAYOUT = [\ ]
+
+context-free restrictions
+  LAYOUT? -/- [\ ]

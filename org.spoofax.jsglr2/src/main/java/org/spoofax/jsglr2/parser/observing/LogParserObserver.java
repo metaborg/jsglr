@@ -75,7 +75,7 @@ public class LogParserObserver
             log(message, JSGLR2Logging.Parsing);
         } else
             log("Parse character '" + characterToString(parseState.inputStack.getChar()) + "' (active stacks: "
-                + stackQueueToString(activeStacks) + ")", JSGLR2Logging.Parsing);
+                + stackQueueToString(activeStacks) + ")", JSGLR2Logging.Parsing, JSGLR2Logging.Recovery);
     }
 
     @Override public void createStackNode(StackNode stack) {

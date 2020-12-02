@@ -78,6 +78,20 @@ public class PositionTest {
         assertEquals(new Position(1, 2, 1), START_POSITION.nextLine());
     }
 
+    @Test public void testPrevious() {
+        String foobar = "foobar";
+        assertEquals(new Position(2, 1, 3), new Position(3, 1, 4).previous(foobar));
+        assertEquals(new Position(1, 1, 2), new Position(3, 1, 4).previous(foobar).previous(foobar));
+
+        String fooNewLineBar = "foo\nbar";
+        assertEquals(new Position(3, 1, 4), new Position(4, 2, 1).previous(fooNewLineBar));
+        assertEquals(new Position(2, 1, 3), new Position(4, 2, 1).previous(fooNewLineBar).previous(fooNewLineBar));
+
+        String fooSmileyBar = "foo😀bar";
+        assertEquals(new Position(3, 1, 4), new Position(5, 1, 5).previous(fooSmileyBar));
+        assertEquals(new Position(2, 1, 3), new Position(5, 1, 5).previous(fooSmileyBar).previous(fooSmileyBar));
+    }
+
     @Test public void testStep() {
         assertEquals(new Position(1, 1, 2), START_POSITION.step("a", 1));
         assertEquals(new Position(1, 2, 1), START_POSITION.step("\n", 1));

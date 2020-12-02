@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
+import org.spoofax.jsglr.client.imploder.IToken;
 
 public class Position {
 
@@ -82,6 +83,18 @@ public class Position {
     }
 
     /**
+     * @return A new position that represents the position left of the current position.
+     */
+    public Position previous(String inputString) {
+        int previousChar = inputString.codePointBefore(offset);
+        int previousCharWidth = Character.charCount(previousChar);
+
+        return CharacterClassFactory.isNewLine(previousChar)
+            ? Position.atOffset(inputString, offset - previousCharWidth)
+            : new Position(offset - previousCharWidth, line, column - 1);
+    }
+
+    /**
      * Should only be called when the character at the current position is a newline character.
      *
      * @return A new position that represents the first column on the line after the current position.
@@ -143,5 +156,8 @@ public class Position {
         return column == other.column && line == other.line && offset == other.offset;
     }
 
+    public static Position atStartOfToken(IToken token) {
+        return new Position(token.getStartOffset(), token.getLine(), token.getColumn());
+    }
 
 }

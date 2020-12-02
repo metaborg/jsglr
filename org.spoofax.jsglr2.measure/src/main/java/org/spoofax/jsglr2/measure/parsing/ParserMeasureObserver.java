@@ -68,7 +68,7 @@ abstract class ParserMeasureObserver
     long parseNodesSingleDerivation = 0;
     long characterNodes = 0;
 
-    abstract int stackNodeLinkCount(StackNode stackNode);
+    abstract long stackNodeLinkCount(StackNode stackNode);
 
     @Override public void parseStart(ParseState parseState) {
         length += parseState.inputStack.inputString().length();
@@ -185,7 +185,7 @@ abstract class ParserMeasureObserver
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {
-        throw new IllegalStateException("Failing parses not allowed during measurements");
+        throw new IllegalStateException("Parsing failed on " + failure.parseState.request.fileName);
     }
 
 }

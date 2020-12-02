@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.measure.parsetable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.metaborg.parsetable.actions.IGoto;
 import org.metaborg.parsetable.characterclasses.ICharacterClass;
@@ -28,8 +29,8 @@ public class MeasureStateFactory extends StateFactory {
     long actionsPerGroupMax = 0;
     long actionsPerDisjointSortedRangeMax = 0;
 
-    @Override public IState from(int stateNumber, IGoto[] gotos,
-        ActionsPerCharacterClass[] actionsPerCharacterClasses) {
+    @Override public IState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClasses,
+        Set<Integer> recoveryStateIds) {
         statesCount++;
 
         gotosCount += gotos.length;
@@ -67,7 +68,7 @@ public class MeasureStateFactory extends StateFactory {
             Math.max(actionDisjointSortedRangesPerStateMax, actionsForSortedDisjointRanges.length);
         actionsPerStateMax = Math.max(actionsPerStateMax, actionsCount);
 
-        return super.from(stateNumber, gotos, actionsPerCharacterClasses);
+        return super.from(stateNumber, gotos, actionsPerCharacterClasses, recoveryStateIds);
     }
 
 }

@@ -4,6 +4,7 @@ import static org.spoofax.jsglr2.parseforest.IParseForest.sumWidth;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
+import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -18,8 +19,9 @@ public class BasicParseForestManager
     AbstractBasicParseForestManager<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> {
 
     public BasicParseForestManager(
-        ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> observing) {
-        super(observing);
+        ParserObserving<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> observing,
+        Disambiguator<IBasicParseForest, IBasicDerivation<IBasicParseForest>, IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>, StackNode, ParseState> disambiguator) {
+        super(observing, disambiguator);
     }
 
     public static

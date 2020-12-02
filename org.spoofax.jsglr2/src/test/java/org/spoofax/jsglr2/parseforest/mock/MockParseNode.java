@@ -29,6 +29,10 @@ public class MockParseNode extends MockParseForest implements IBasicParseNode<Mo
         return derivations;
     }
 
+    @Override public void disambiguate(MockDerivation derivation) {
+        derivations.removeIf(alternative -> alternative != derivation);
+    }
+
     @Override public String toString() {
         return label;
     }

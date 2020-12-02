@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
@@ -59,7 +60,7 @@ public class JSGLR2Implementation
 
             TokensResult tokens = tokenizer.tokenize(request, implodeResult.intermediateResult()).tokens;
 
-            List<Message> messages = postProcessMessages(parseResult.messages, tokens);
+            List<Message> messages = postProcessMessages(request.input, parseResult.messages, tokens);
 
             return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(), messages);
         } else {
@@ -69,7 +70,7 @@ public class JSGLR2Implementation
         }
     }
 
-    protected List<Message> postProcessMessages(Collection<Message> originalMessages, ITokens tokens) {
+    protected List<Message> postProcessMessages(String input, Collection<Message> originalMessages, ITokens tokens) {
         List<Message> messages = new ArrayList<>();
 
         for(Message originalMessage : originalMessages) {
@@ -83,7 +84,21 @@ public class JSGLR2Implementation
                 IToken precedingToken = token != null ? token.getTokenBefore() : null;
 
                 if(precedingToken != null && precedingToken.getKind() == IToken.Kind.TK_LAYOUT) {
-                    message = message.atPosition(Position.atStartOfToken(precedingToken));
+                    Position position = Position.atStartOfToken(precedingToken);
+
+                    boolean positionAtNewLine = CharacterClassFactory.isNewLine(input.codePointAt(position.offset));
+
+                    if(positionAtNewLine && position.offset > 0) {
+                        Position previousPosition = position.previous(input);
+
+                        boolean previousPositionAtNewLine =
+                            CharacterClassFactory.isNewLine(input.codePointAt(previousPosition.offset));
+
+                        if(!previousPositionAtNewLine)
+                            position = previousPosition;
+                    }
+
+                    message = message.atPosition(position);
                 }
             }
 

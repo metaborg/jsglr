@@ -43,4 +43,15 @@ public class RecoveryLexicalInsertionMessagesTest extends BaseTestWithRecoverySd
         ), getTestVariants(isRecoveryVariant));
     }
 
+    @TestFactory public Stream<DynamicTest> testMultiLineWithWhiteSpaceStartingWithNewLineYRecovering()
+        throws ParseError {
+        // If the whitespace starts with a newline, report on the character before that
+
+        return testMessages("x\n z", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor("y expected", Severity.ERROR, 0, 1, 1, 1)
+        //@formatter:on
+        ), getTestVariants(isRecoveryVariant));
+    }
+
 }

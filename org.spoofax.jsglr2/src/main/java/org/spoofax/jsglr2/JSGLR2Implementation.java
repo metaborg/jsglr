@@ -1,26 +1,15 @@
 package org.spoofax.jsglr2;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
-import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
-import org.spoofax.jsglr2.messages.Category;
-import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IObservableParser;
-import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.recovery.RecoveryMessage;
-import org.spoofax.jsglr2.recovery.RecoveryType;
 
 public class JSGLR2Implementation
 // @formatter:off
@@ -60,54 +49,15 @@ public class JSGLR2Implementation
 
             TokensResult tokens = tokenizer.tokenize(request, implodeResult.intermediateResult()).tokens;
 
-            List<Message> messages = postProcessMessages(request.input, parseResult.messages, tokens);
+            parseResult.postProcessMessages(tokens);
 
-            return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(), messages);
+            return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(),
+                parseResult.messages);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 
             return new JSGLR2Failure<>(request, failure, parseResult.messages);
         }
-    }
-
-    protected List<Message> postProcessMessages(String input, Collection<Message> originalMessages, ITokens tokens) {
-        List<Message> messages = new ArrayList<>();
-
-        for(Message originalMessage : originalMessages) {
-            Message message = originalMessage;
-
-            // Move recovery insertion messages in layout to start of layout
-            if(originalMessage.category == Category.RECOVERY
-                && ((RecoveryMessage) message).recoveryType == RecoveryType.INSERTION
-                && originalMessage.region != null) {
-                IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
-                IToken precedingToken = token != null ? token.getTokenBefore() : null;
-
-                if(precedingToken != null && precedingToken.getKind() == IToken.Kind.TK_LAYOUT) {
-                    Position position = Position.atStartOfToken(precedingToken);
-
-                    boolean positionAtNewLine = CharacterClassFactory.isNewLine(input.codePointAt(position.offset));
-
-                    if(positionAtNewLine && position.offset > 0) {
-                        Position previousPosition = position.previous(input);
-
-                        boolean previousPositionAtNewLine =
-                            CharacterClassFactory.isNewLine(input.codePointAt(previousPosition.offset));
-
-                        if(!previousPositionAtNewLine)
-                            position = previousPosition;
-                    }
-
-                    message = message.atPosition(position);
-                }
-            }
-
-            // TODO: prevent multiple/overlapping recovery messages on the same region
-
-            messages.add(message);
-        }
-
-        return messages;
     }
 
 }

@@ -22,7 +22,7 @@ public class RecoveryDisambiguator
 
     @Override public void disambiguate(ParseState parseState, ParseNode parseNode) {
         if(parseNode.isAmbiguous() && parseState.isRecovering()) {
-            int minRecoveryCost = -1;
+            RecoverCost minRecoveryCost = null;
             Derivation bestRecovery = null;
 
             Set<ParseNode> spine = new HashSet<>();
@@ -30,9 +30,9 @@ public class RecoveryDisambiguator
             spine.add(parseNode);
 
             for(Derivation derivation : parseNode.getPreferredAvoidedDerivations()) {
-                int cost = recoveryCost(derivation, parseNode.width(), spine);
+                RecoverCost cost = recoveryCost(0, derivation, parseNode.width(), spine);
 
-                if(minRecoveryCost == -1 || cost < minRecoveryCost) {
+                if(bestRecovery == null || RecoverCost.lowerThan(cost, minRecoveryCost)) {
                     minRecoveryCost = cost;
                     bestRecovery = derivation;
                 }
@@ -42,17 +42,17 @@ public class RecoveryDisambiguator
         }
     }
 
-    private int recoveryCost(Derivation derivation, int width, Set<ParseNode> spine) {
+    private RecoverCost recoveryCost(int offset, Derivation derivation, int width, Set<ParseNode> spine) {
         String constructor = derivation.production().constructor();
 
         if(constructor != null) {
             if(constructor.equals("INSERTION"))
-                return 1;
+                return new RecoverCost(1, offset);
             else if(constructor.equals("WATER"))
-                return 1 + width;
+                return new RecoverCost(1 + width, offset);
         }
 
-        int cost = 0;
+        RecoverCost cost = null;
 
         for(ParseForest child : derivation.parseForests()) {
             if(child instanceof IParseNode) {
@@ -60,22 +60,64 @@ public class RecoveryDisambiguator
 
                 if(!spine.contains(parseNode)) {
                     spine.add(parseNode);
-                    cost += recoveryCost(parseNode, parseNode.width(), spine);
+                    cost = RecoverCost.merge(cost, recoveryCost(offset, parseNode, parseNode.width(), spine));
                     spine.remove(parseNode);
                 }
             }
+
+            offset += child.width();
         }
 
         return cost;
     }
 
-    private int recoveryCost(ParseNode parseNode, int width, Set<ParseNode> spine) {
-        int cost = 0;
+    private RecoverCost recoveryCost(int offset, ParseNode parseNode, int width, Set<ParseNode> spine) {
+        RecoverCost cost = null;
 
-        for(Derivation derivation : parseNode.getDerivations())
-            cost += recoveryCost(derivation, width, spine);
+        for(Derivation derivation : parseNode.getDerivations()) {
+            RecoverCost derivationCost = recoveryCost(offset, derivation, width, spine);
+
+            cost = RecoverCost.merge(cost, derivationCost);
+        }
 
         return cost;
+    }
+
+    static class RecoverCost {
+        int cost, firstRecoveryOffset;
+
+        RecoverCost() {
+            this(0, Integer.MAX_VALUE);
+        }
+
+        RecoverCost(int cost, int firstRecoveryOffset) {
+            this.cost = cost;
+            this.firstRecoveryOffset = firstRecoveryOffset;
+        }
+
+        RecoverCost(RecoverCost first, RecoverCost second) {
+            this(first.cost + second.cost, Math.min(first.firstRecoveryOffset, second.firstRecoveryOffset));
+        }
+
+        static RecoverCost merge(RecoverCost first, RecoverCost second) {
+            if(first == null)
+                return second;
+            else if(second == null)
+                return first;
+            else
+                return new RecoverCost(first, second);
+        }
+
+        static boolean lowerThan(RecoverCost first, RecoverCost second) {
+            if(second == null)
+                return false;
+            else if(first == null)
+                return true;
+            else
+                // Prefer later recoveries over earlier recoveries
+                return first.cost < second.cost
+                    || (first.cost == second.cost && first.firstRecoveryOffset > second.firstRecoveryOffset);
+        }
     }
 
 }

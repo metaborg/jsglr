@@ -1,10 +1,13 @@
 package org.spoofax.jsglr2.integrationtest.recovery;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithRecoverySdf3ParseTables;
+import org.spoofax.jsglr2.integrationtest.MessageDescriptor;
+import org.spoofax.jsglr2.messages.Severity;
 import org.spoofax.terms.ParseError;
 
 public class RecoveryDisambiguationTest extends BaseTestWithRecoverySdf3ParseTables {
@@ -27,6 +30,15 @@ public class RecoveryDisambiguationTest extends BaseTestWithRecoverySdf3ParseTab
 
     @TestFactory public Stream<DynamicTest> testWater() throws ParseError {
         return testRecovery("c", "None()");
+    }
+
+    @TestFactory public Stream<DynamicTest> testWaterLater() throws ParseError {
+        // If there are two equal-cost recoveries, choose the one with recovery later. In this test, on the second a.
+        return testMessages("a a b", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor("Not expected", Severity.ERROR, 2, 1, 3, 1)
+        //@formatter:on
+        ), getTestVariants(isRecoveryVariant));
     }
 
 }

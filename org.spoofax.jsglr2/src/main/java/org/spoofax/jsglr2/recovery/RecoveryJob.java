@@ -9,12 +9,14 @@ public class RecoveryJob<StackNode> {
     public int iteration;
     final int iterationsQuota;
     public Map<StackNode, Integer> quota;
+    public Map<StackNode, Integer> lastRecoveredOffset;
 
     public RecoveryJob(int offset, int iterationsQuota) {
         this.offset = offset;
         this.iteration = -1;
         this.iterationsQuota = iterationsQuota;
         this.quota = new HashMap<>();
+        this.lastRecoveredOffset = new HashMap<>();
     }
 
     boolean hasNextIteration() {
@@ -36,8 +38,17 @@ public class RecoveryJob<StackNode> {
         return quota.getOrDefault(stack, 0);
     }
 
+    int lastRecoveredOffset(StackNode stack) {
+        return lastRecoveredOffset.getOrDefault(stack, -1);
+    }
+
     void updateQuota(StackNode stack, int newQuota) {
         quota.merge(stack, newQuota, Math::max);
+    }
+
+    void updateLastRecoveredOffset(StackNode stack, int offset) {
+        if(offset != -1)
+            lastRecoveredOffset.merge(stack, offset, Math::max);
     }
 
 }

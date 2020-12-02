@@ -17,11 +17,9 @@ public class RecoveryPermissiveLiteralTest extends BaseTestWithRecoverySdf3Parse
     }
 
     @TestFactory public Stream<DynamicTest> testOpeningLiteralExpected() throws ParseError {
-        return testMessages("", Arrays.asList(
+        return testMessages("}", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor("{ expected", Severity.ERROR),
-            new MessageDescriptor("} expected", Severity.ERROR)
-            // TODO: prevent multiple recoveries on the same offset
+            new MessageDescriptor("{ expected", Severity.ERROR, 0, 1, 1, 1)
         //@formatter:on
         ), getTestVariants(isRecoveryVariant));
     }

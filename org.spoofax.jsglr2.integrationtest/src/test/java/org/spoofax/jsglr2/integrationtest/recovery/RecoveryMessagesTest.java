@@ -16,7 +16,7 @@ public class RecoveryMessagesTest extends BaseTestWithRecoverySdf3ParseTables {
         super("recovery.sdf3", false, false);
     }
 
-    @TestFactory public Stream<DynamicTest> testSingleLineYRecovering() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testRecovery() throws ParseError {
         return testMessages("y", Arrays.asList(
         //@formatter:off
             new MessageDescriptor("Invalid syntax", Severity.ERROR, 0, 1, 1, 1)

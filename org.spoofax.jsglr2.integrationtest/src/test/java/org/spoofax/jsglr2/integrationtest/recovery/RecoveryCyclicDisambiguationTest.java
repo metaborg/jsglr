@@ -17,7 +17,7 @@ public class RecoveryCyclicDisambiguationTest extends BaseTestWithRecoverySdf3Pa
         return testSuccessByAstString("a", "A");
     }
 
-    @TestFactory public Stream<DynamicTest> testCycle() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testRecoveryCycle() throws ParseError {
         return testRecovery("b", "B");
     }
 

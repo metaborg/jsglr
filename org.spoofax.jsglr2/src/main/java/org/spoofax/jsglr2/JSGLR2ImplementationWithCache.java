@@ -54,7 +54,7 @@ public class JSGLR2ImplementationWithCache
             TokensResult tokens =
                 tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
 
-            List<Message> messages = postProcessMessages(parseResult.messages, tokens);
+            List<Message> messages = postProcessMessages(request.input, parseResult.messages, tokens);
 
             if(cachingKey != null) {
                 inputCache.put(cachingKey, request.input);

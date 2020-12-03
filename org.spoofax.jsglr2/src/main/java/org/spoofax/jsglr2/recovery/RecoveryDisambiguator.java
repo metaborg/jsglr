@@ -47,9 +47,9 @@ public class RecoveryDisambiguator
 
         if(constructor != null) {
             if(constructor.equals("INSERTION"))
-                return new RecoverCost(1, offset);
+                return new RecoverCost(1, offset, false);
             else if(constructor.equals("WATER"))
-                return new RecoverCost(1 + width, offset);
+                return new RecoverCost(1 + width, offset, false);
         }
 
         RecoverCost cost = null;
@@ -62,7 +62,8 @@ public class RecoveryDisambiguator
                     spine.add(parseNode);
                     cost = RecoverCost.merge(cost, recoveryCost(offset, parseNode, parseNode.width(), spine));
                     spine.remove(parseNode);
-                }
+                } else
+                    cost = RecoverCost.cycle();
             }
 
             offset += child.width();
@@ -85,18 +86,21 @@ public class RecoveryDisambiguator
 
     static class RecoverCost {
         int cost, firstRecoveryOffset;
+        boolean containsCycle;
 
-        RecoverCost() {
-            this(0, Integer.MAX_VALUE);
-        }
-
-        RecoverCost(int cost, int firstRecoveryOffset) {
+        RecoverCost(int cost, int firstRecoveryOffset, boolean containsCycle) {
             this.cost = cost;
             this.firstRecoveryOffset = firstRecoveryOffset;
+            this.containsCycle = containsCycle;
         }
 
         RecoverCost(RecoverCost first, RecoverCost second) {
-            this(first.cost + second.cost, Math.min(first.firstRecoveryOffset, second.firstRecoveryOffset));
+            this(first.cost + second.cost, Math.min(first.firstRecoveryOffset, second.firstRecoveryOffset),
+                first.containsCycle || second.containsCycle);
+        }
+
+        static RecoverCost cycle() {
+            return new RecoverCost(0, -1, true);
         }
 
         static RecoverCost merge(RecoverCost first, RecoverCost second) {
@@ -113,6 +117,9 @@ public class RecoveryDisambiguator
                 return false;
             else if(first == null)
                 return true;
+            else if(first.containsCycle != second.containsCycle)
+                // Avoid recoveries that contain cycles
+                return second.containsCycle;
             else
                 // Prefer later recoveries over earlier recoveries
                 return first.cost < second.cost

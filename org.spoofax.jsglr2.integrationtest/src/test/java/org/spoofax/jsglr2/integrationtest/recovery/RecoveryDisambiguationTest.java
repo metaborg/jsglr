@@ -41,4 +41,13 @@ public class RecoveryDisambiguationTest extends BaseTestWithRecoverySdf3ParseTab
         ), getTestVariants(isRecoveryVariant));
     }
 
+    @TestFactory public Stream<DynamicTest> test2WaterLater() throws ParseError {
+        return testMessages("a a a b", Arrays.asList(
+        //@formatter:off
+            new MessageDescriptor("Not expected", Severity.ERROR, 2, 1, 3, 1),
+            new MessageDescriptor("Not expected", Severity.ERROR, 4, 1, 5, 1)
+        //@formatter:on
+        ), getTestVariants(isRecoveryVariant));
+    }
+
 }

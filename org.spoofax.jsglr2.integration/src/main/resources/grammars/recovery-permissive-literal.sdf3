@@ -1,9 +1,7 @@
-module recovery
+module recovery-permissive-literal
 
 context-free start-symbols
-
   Start
 
 context-free syntax
-
   Start.Start = "{" "}"

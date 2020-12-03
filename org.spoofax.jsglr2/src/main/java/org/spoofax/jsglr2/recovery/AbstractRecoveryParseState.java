@@ -1,12 +1,20 @@
 package org.spoofax.jsglr2.recovery;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Stack;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.query.ParsingMode;
+import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.messages.Category;
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
@@ -105,5 +113,44 @@ public abstract class AbstractRecoveryParseState
 
     @Override public void setAppliedRecovery() {
         appliedRecovery = true;
+    }
+
+    @Override public List<Message> postProcessMessages(Collection<Message> originalMessages, ITokens tokens) {
+        List<Message> messages = new ArrayList<>();
+
+        for(Message originalMessage : originalMessages) {
+            Message message = originalMessage;
+
+            // Move recovery insertion messages in layout to start of layout
+            if(originalMessage.category == Category.RECOVERY
+                && ((RecoveryMessage) message).recoveryType == RecoveryType.INSERTION
+                && originalMessage.region != null) {
+                IToken token = tokens.getTokenAtOffset(originalMessage.region.startOffset);
+                IToken precedingToken = token != null ? token.getTokenBefore() : null;
+
+                if(precedingToken != null && precedingToken.getKind() == IToken.Kind.TK_LAYOUT) {
+                    Position position = Position.atStartOfToken(precedingToken);
+
+                    boolean positionAtNewLine =
+                        CharacterClassFactory.isNewLine(inputStack.inputString().codePointAt(position.offset));
+
+                    if(positionAtNewLine && position.offset > 0) {
+                        Position previousPosition = position.previous(inputStack.inputString());
+
+                        boolean previousPositionAtNewLine = CharacterClassFactory
+                            .isNewLine(inputStack.inputString().codePointAt(previousPosition.offset));
+
+                        if(!previousPositionAtNewLine)
+                            position = previousPosition;
+                    }
+
+                    message = message.atPosition(position);
+                }
+            }
+
+            messages.add(message);
+        }
+
+        return messages;
     }
 }

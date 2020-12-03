@@ -1,10 +1,9 @@
-module recovery-cyclic-disambiguation
+module recovery-generated-water
 
 context-free start-symbols
   Start
 
 context-free syntax
-
   Start = Foo?
   Foo = "foo"
 

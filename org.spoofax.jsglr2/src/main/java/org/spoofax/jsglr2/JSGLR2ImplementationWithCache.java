@@ -1,13 +1,11 @@
 package org.spoofax.jsglr2;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
-import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -54,7 +52,7 @@ public class JSGLR2ImplementationWithCache
             TokensResult tokens =
                 tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
 
-            List<Message> messages = postProcessMessages(parseResult.messages, tokens);
+            parseResult.postProcessMessages(tokens);
 
             if(cachingKey != null) {
                 inputCache.put(cachingKey, request.input);
@@ -63,7 +61,8 @@ public class JSGLR2ImplementationWithCache
                 tokensCache.put(cachingKey, tokens);
             }
 
-            return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(), messages);
+            return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(),
+                parseResult.messages);
         } else {
             ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
 

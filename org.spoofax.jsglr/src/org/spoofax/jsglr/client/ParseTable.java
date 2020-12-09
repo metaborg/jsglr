@@ -115,33 +115,22 @@ public class ParseTable implements Serializable {
         }
     }
 
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, FileObject persistedTable,
-        IParseTableGenerator ptGenerator) throws Exception {
-        this(pt, factory, persistedTable.getContent().getInputStream(), ptGenerator);
-    }
-
-    public ParseTable(IStrategoTerm pt, ITermFactory factory, InputStream persistedTable,
-        IParseTableGenerator ptGenerator) throws Exception {
+    public ParseTable(IStrategoTerm pt, ITermFactory factory, IParseTableGenerator ptGenerator)
+        throws InvalidParseTableException {
         initTransientData(factory);
         parse(pt);
         if(states.length == 0) {
             dynamicPTgeneration = true;
         }
 
-        if(dynamicPTgeneration && persistedTable != null) {
+        if(dynamicPTgeneration) {
             this.ptGenerator = ptGenerator;
             gotoCache = new HashMap<Goto, Goto>();
             shiftCache = new HashMap<Shift, Shift>();
             reduceCache = new HashMap<Reduce, Reduce>();
             rangesCache = new HashMap<RangeList, RangeList>();
-
         } else {
             this.ptGenerator = null;
-        }
-
-        if(dynamicPTgeneration && persistedTable == null) {
-            throw new InvalidParseTableException(
-                "Parse table does not contain any state and normalized grammar is null");
         }
     }
 

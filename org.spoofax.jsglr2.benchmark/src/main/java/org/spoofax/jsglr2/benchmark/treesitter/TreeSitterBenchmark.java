@@ -32,7 +32,7 @@ public class TreeSitterBenchmark extends BaseBenchmark<String, StringInput> {
     }
 
     @Setup public void setup() {
-        parser = new TreeSitterParser(TreeSitterJavaLibrary.tree_sitter_java());
+        parser = new TreeSitterParser(TreeSitterParser.SupportedLanguage.JAVA);
     }
 
     @Benchmark public void benchmark(Blackhole bh) {

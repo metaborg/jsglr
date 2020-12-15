@@ -55,7 +55,7 @@ public class TreeSitterBenchmarkIncremental extends BaseBenchmark<String[], Incr
     }
 
     @Setup public void setup() {
-        parser = new TreeSitterParser(TreeSitterJavaLibrary.tree_sitter_java());
+        parser = new TreeSitterParser(TreeSitterParser.SupportedLanguage.JAVA);
 
         if(shouldSetupCache()) {
             // Hack: the original intent of the IncrementalBenchmark was to read in all files upon setup.

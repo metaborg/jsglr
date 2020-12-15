@@ -2,6 +2,8 @@ package org.spoofax.jsglr2.benchmark.treesitter;
 
 import static com.github.mpsijm.javatreesitter.JavaTreeSitterLibrary.*;
 
+import java.util.function.Supplier;
+
 import org.bridj.Pointer;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
@@ -10,8 +12,19 @@ import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
 import com.github.mpsijm.javatreesitter.JavaTreeSitterLibrary;
 import com.github.mpsijm.javatreesitter.TSInputEdit;
 import com.github.mpsijm.javatreesitter.TSLanguage;
+import com.github.mpsijm.javatreesitter.java.TreeSitterJavaLibrary;
 
 public class TreeSitterParser {
+    public enum SupportedLanguage {
+        JAVA(TreeSitterJavaLibrary::tree_sitter_java);
+
+        private final Supplier<Pointer<TSLanguage>> languageSupplier;
+
+        SupportedLanguage(Supplier<Pointer<TSLanguage>> languageSupplier) {
+            this.languageSupplier = languageSupplier;
+        }
+    }
+
     private final Pointer<JavaTreeSitterLibrary.TSParser> parser;
     private final IStringDiff diff;
 
@@ -19,6 +32,10 @@ public class TreeSitterParser {
         parser = ts_parser_new();
         ts_parser_set_language(parser, language);
         diff = new JGitHistogramDiff();
+    }
+
+    public TreeSitterParser(SupportedLanguage language) {
+        this(language.languageSupplier.get());
     }
 
     public Pointer<TSTree> parse(String input) {

@@ -3,7 +3,6 @@ package org.spoofax.jsglr2.benchmark.jsglr2;
 import java.util.Map;
 
 import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkTestSetWithParseTableReader;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -31,7 +30,7 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
         return implode;
     }
 
-    @Override @Setup public void setupCache() throws ParseException {
+    @Override public void setupCache() throws ParseException {
         // Hack: the original intent of the JSGLR2IncrementalBenchmark was to read in all files upon setup.
         // However, for the external benchmark, only two versions of these files are read.
         // Therefore, we have to overwrite the `setupCache` function, but copy/pasting is bad,

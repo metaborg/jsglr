@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2ImplementationWithCache;
+import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parser.ParseException;
 
 /**
@@ -28,7 +29,13 @@ public class JSGLR2MultiParser<AbstractSyntaxTree> {
         }
 
         if(jsglr2 instanceof JSGLR2ImplementationWithCache) {
-            ((JSGLR2ImplementationWithCache<?, ?, ?, AbstractSyntaxTree, ?, ?>) this.jsglr2).clearCache();
+            JSGLR2ImplementationWithCache<?, ?, ?, AbstractSyntaxTree, ?, ?> jsglr2 =
+                (JSGLR2ImplementationWithCache<?, ?, ?, AbstractSyntaxTree, ?, ?>) this.jsglr2;
+            JSGLR2Request.CachingKey key = new JSGLR2Request(null, fileName).cachingKey();
+            jsglr2.inputCache.remove(key);
+            jsglr2.parseForestCache.remove(key);
+            jsglr2.imploderCacheCache.remove(key);
+            jsglr2.tokensCache.remove(key);
         }
 
         return res;

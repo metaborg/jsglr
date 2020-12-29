@@ -14,7 +14,7 @@ public class RecoveryMessages {
         if(production.isWater()) {
             message = "Not expected";
             recoveryType = RecoveryType.WATER;
-        } else if("INSERTION".equals(production.constructor())) {
+        } else if(production.isInsertion()) {
             String insertion;
 
             if(production.isLiteral())

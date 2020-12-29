@@ -33,12 +33,15 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
     private final boolean makePermissive;
     private final boolean withWater;
+    private final boolean testReconstruction;
 
-    protected BaseTestWithRecoverySdf3ParseTables(String sdf3Resource, boolean makePermissive, boolean withWater) {
+    protected BaseTestWithRecoverySdf3ParseTables(String sdf3Resource, boolean makePermissive, boolean withWater,
+        boolean testReconstruction) {
         super(sdf3Resource);
 
         this.makePermissive = makePermissive;
         this.withWater = withWater;
+        this.testReconstruction = testReconstruction;
     }
 
     @Override public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
@@ -66,6 +69,17 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
                 "Parsing should " + (recovers ? "succeed" : "fail") + " with recovering parsing");
 
             body.apply(variant, request).execute();
+
+            if(testReconstruction) {
+                String reconstructedInputString =
+                    Reconstruction.reconstruct(variant.parser(), (ParseSuccess<?>) parseResult);
+
+                JSGLR2Request reconstructedRequest = getRequestForRecovery(reconstructedInputString);
+
+                ParseResult<?> reconstructedParseResult = variant.parser().parse(reconstructedRequest);
+
+                assertEquals(true, reconstructedParseResult.isSuccess(), "Parsing reconstructed input should succeed");
+            }
         });
 
         return Stream.concat(notRecoveryTests, recoveryTests);

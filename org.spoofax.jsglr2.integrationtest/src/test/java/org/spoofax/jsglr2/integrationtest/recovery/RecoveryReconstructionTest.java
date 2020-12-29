@@ -10,7 +10,7 @@ import org.spoofax.terms.ParseError;
 public class RecoveryReconstructionTest extends BaseTestWithRecoverySdf3ParseTables {
 
     public RecoveryReconstructionTest() {
-        super("recovery-disambiguation.sdf3", false, false);
+        super("recovery-disambiguation.sdf3", false, false, true);
     }
 
     @TestFactory public Stream<DynamicTest> testBInsertion() throws ParseError {

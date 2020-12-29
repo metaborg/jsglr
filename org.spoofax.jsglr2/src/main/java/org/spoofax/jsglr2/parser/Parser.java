@@ -104,6 +104,11 @@ public class Parser
             return failure(parseState, failureHandler.failureCause(parseState));
     }
 
+    @Override public void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor) {
+        parseForestManager.visit(success.parseState.request, (ParseForest) success.parseResult,
+            (ParseNodeVisitor<ParseForest, Derivation, ParseNode>) visitor);
+    }
+
     protected ParseState getParseState(JSGLR2Request request, String previousInput, ParseForest previousResult) {
         return parseStateFactory.get(request, inputStackFactory.get(request.input), observing);
     }

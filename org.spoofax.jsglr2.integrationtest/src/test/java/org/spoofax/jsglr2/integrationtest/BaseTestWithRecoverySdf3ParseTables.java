@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.function.Executable;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableVariant;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -20,8 +22,10 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.recovery.IRecoveryParseState;
+import org.spoofax.jsglr2.recovery.Reconstruction;
 import org.spoofax.jsglr2.recovery.RecoveryJob;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -45,7 +49,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
 
     protected Predicate<TestVariant> isNotRecoveryVariant = isRecoveryVariant.negate();
 
-    protected Stream<DynamicTest> testRecovery(String inputString, boolean recovers, String expectedAst) {
+    protected Stream<DynamicTest> testRecoveryHelper(String inputString, boolean recovers,
+        BiFunction<TestVariant, JSGLR2Request, Executable> body) {
         JSGLR2Request request = getRequestForRecovery(inputString);
 
         Stream<DynamicTest> notRecoveryTests = testPerVariant(getTestVariants(isNotRecoveryVariant), variant -> () -> {
@@ -60,14 +65,30 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             assertEquals(recovers, parseResult.isSuccess(),
                 "Parsing should " + (recovers ? "succeed" : "fail") + " with recovering parsing");
 
+            body.apply(variant, request).execute();
+        });
+
+        return Stream.concat(notRecoveryTests, recoveryTests);
+    }
+
+    protected Stream<DynamicTest> testRecovery(String inputString, boolean recovers, String expectedAst) {
+        return testRecoveryHelper(inputString, recovers, (variant, request) -> () -> {
             if(recovers && expectedAst != null) {
                 IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
 
                 assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
             }
         });
+    }
 
-        return Stream.concat(notRecoveryTests, recoveryTests);
+    protected Stream<DynamicTest> testRecoveryReconstruction(String inputString, String expectedReconstruction) {
+        return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
+            ParseSuccess<?> parseSuccess = (ParseSuccess<?>) variant.parser().parse(request);
+
+            String reconstruction = Reconstruction.reconstruct(variant.parser(), parseSuccess);
+
+            assertEquals(expectedReconstruction, reconstruction);
+        });
     }
 
     protected Stream<DynamicTest> testRecovery(String inputString) {

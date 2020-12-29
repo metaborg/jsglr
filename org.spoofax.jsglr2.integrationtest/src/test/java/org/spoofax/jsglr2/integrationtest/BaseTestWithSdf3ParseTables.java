@@ -69,6 +69,10 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
         return parseTablesCache.get(sdf3Resource, variant);
     }
 
+    /**
+     * Note the @TestFactory annotation, which makes sure that parse table consistency is checked for all test classes
+     * that extend this class.
+     */
     @TestFactory public Stream<DynamicTest> testParseTableConsistency() throws Exception {
         Iterator<ParseTableWithOrigin> parseTables = getParseTables(ParseTableVariant.standard()).iterator();
 

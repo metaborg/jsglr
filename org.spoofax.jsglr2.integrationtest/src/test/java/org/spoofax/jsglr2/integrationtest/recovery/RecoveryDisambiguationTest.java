@@ -21,11 +21,11 @@ public class RecoveryDisambiguationTest extends BaseTestWithRecoverySdf3ParseTab
     }
 
     @TestFactory public Stream<DynamicTest> testBInsertion() throws ParseError {
-        return testRecovery("a", "Some(AB(A,INSERTION))");
+        return testRecovery("a", "Some(AB(A,B))");
     }
 
     @TestFactory public Stream<DynamicTest> testAInsertion() throws ParseError {
-        return testRecovery("b", "Some(AB(INSERTION,B))");
+        return testRecovery("b", "Some(AB(A,B))");
     }
 
     @TestFactory public Stream<DynamicTest> testWater() throws ParseError {

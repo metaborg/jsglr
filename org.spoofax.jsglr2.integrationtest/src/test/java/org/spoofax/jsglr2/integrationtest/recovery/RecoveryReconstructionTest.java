@@ -14,15 +14,15 @@ public class RecoveryReconstructionTest extends BaseTestWithRecoverySdf3ParseTab
     }
 
     @TestFactory public Stream<DynamicTest> testBInsertion() throws ParseError {
-        return testRecoveryReconstruction("a", "ab");
+        return testRecoveryReconstruction("a", "ab", 1, 0);
     }
 
     @TestFactory public Stream<DynamicTest> testAInsertion() throws ParseError {
-        return testRecoveryReconstruction("b", "ab");
+        return testRecoveryReconstruction("b", "ab", 1, 0);
     }
 
     @TestFactory public Stream<DynamicTest> testWater() throws ParseError {
-        return testRecoveryReconstruction("c", " ");
+        return testRecoveryReconstruction("c", " ", 0, 1);
     }
 
 }

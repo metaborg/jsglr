@@ -71,10 +71,10 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             body.apply(variant, request).execute();
 
             if(testReconstruction) {
-                String reconstructedInputString =
+                Reconstruction.Reconstructed reconstructed =
                     Reconstruction.reconstruct(variant.parser(), (ParseSuccess<?>) parseResult);
 
-                JSGLR2Request reconstructedRequest = getRequestForRecovery(reconstructedInputString);
+                JSGLR2Request reconstructedRequest = getRequestForRecovery(reconstructed.inputString);
 
                 ParseResult<?> reconstructedParseResult = variant.parser().parse(reconstructedRequest);
 
@@ -95,13 +95,16 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         });
     }
 
-    protected Stream<DynamicTest> testRecoveryReconstruction(String inputString, String expectedReconstruction) {
+    protected Stream<DynamicTest> testRecoveryReconstruction(String inputString, String expectedReconstruction,
+        int expectedInsertions, int expectedDeletions) {
         return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
             ParseSuccess<?> parseSuccess = (ParseSuccess<?>) variant.parser().parse(request);
 
-            String reconstruction = Reconstruction.reconstruct(variant.parser(), parseSuccess);
+            Reconstruction.Reconstructed reconstruction = Reconstruction.reconstruct(variant.parser(), parseSuccess);
 
-            assertEquals(expectedReconstruction, reconstruction);
+            assertEquals(expectedReconstruction, reconstruction.inputString, "Incorrect reconstruction");
+            assertEquals(expectedInsertions, reconstruction.insertions, "Incorrect #insertions");
+            assertEquals(expectedDeletions, reconstruction.deletions, "Incorrect #deletions");
         });
     }
 

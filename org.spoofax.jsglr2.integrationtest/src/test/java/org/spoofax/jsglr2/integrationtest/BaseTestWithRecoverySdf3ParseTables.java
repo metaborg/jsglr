@@ -21,6 +21,8 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
@@ -85,13 +87,11 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         return Stream.concat(notRecoveryTests, recoveryTests);
     }
 
-    protected Stream<DynamicTest> testRecovery(String inputString, boolean recovers, String expectedAst) {
-        return testRecoveryHelper(inputString, recovers, (variant, request) -> () -> {
-            if(recovers && expectedAst != null) {
-                IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
+    protected Stream<DynamicTest> testRecoveryFails(String inputString, ParseFailureCause.Type expectedFailureCause) {
+        return testRecoveryHelper(inputString, false, (variant, request) -> () -> {
+            ParseFailure<?> parseFailure = (ParseFailure<?>) variant.parser().parse(request);
 
-                assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
-            }
+            assertEquals(expectedFailureCause, parseFailure.failureCause.type, "Incorrect reconstruction");
         });
     }
 
@@ -109,11 +109,17 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
     }
 
     protected Stream<DynamicTest> testRecovery(String inputString) {
-        return testRecovery(inputString, true, null);
+        return testRecovery(inputString, null);
     }
 
     protected Stream<DynamicTest> testRecovery(String inputString, String expectedAst) {
-        return testRecovery(inputString, true, expectedAst);
+        return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
+            if(expectedAst != null) {
+                IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
+
+                assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
+            }
+        });
     }
 
     protected Stream<DynamicTest> testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace,

@@ -50,10 +50,6 @@ public class JSGLR2Request {
         return !"".equals(fileName);
     }
 
-    public int succeedingRecoveryOffset() {
-        return succeedingRecoveryOffset;
-    }
-
     public boolean isCompletion() {
         return completionCursorOffset.isPresent();
     }

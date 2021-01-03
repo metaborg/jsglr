@@ -170,7 +170,7 @@ public class RecoveryBacktrackingTest extends BaseTestWithRecoverySdf3ParseTable
     }
 
     @TestFactory public Stream<DynamicTest> test4Recovery3MultiLines() throws ParseError {
-        return testRecoveryFails("" + newlines(3) + "yyyy", ParseFailureCause.Type.UnexpectedInput);
+        return testRecoveryFails("" + newlines(3) + "yyyy", ParseFailureCause.Type.UnexpectedEOF);
     }
 
     @TestFactory public Stream<DynamicTest> test4Recovery3MultiLinesTraced() throws ParseError {

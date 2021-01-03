@@ -87,6 +87,20 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         return Stream.concat(notRecoveryTests, recoveryTests);
     }
 
+    protected Stream<DynamicTest> testRecovery(String inputString) {
+        return testRecovery(inputString, null);
+    }
+
+    protected Stream<DynamicTest> testRecovery(String inputString, String expectedAst) {
+        return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
+            if(expectedAst != null) {
+                IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
+
+                assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
+            }
+        });
+    }
+
     protected Stream<DynamicTest> testRecoveryFails(String inputString, ParseFailureCause.Type expectedFailureCause) {
         return testRecoveryHelper(inputString, false, (variant, request) -> () -> {
             ParseFailure<?> parseFailure = (ParseFailure<?>) variant.parser().parse(request);
@@ -105,20 +119,6 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             assertEquals(expectedReconstruction, reconstruction.inputString, "Incorrect reconstruction");
             assertEquals(expectedInsertions, reconstruction.insertions, "Incorrect #insertions");
             assertEquals(expectedDeletions, reconstruction.deletions, "Incorrect #deletions");
-        });
-    }
-
-    protected Stream<DynamicTest> testRecovery(String inputString) {
-        return testRecovery(inputString, null);
-    }
-
-    protected Stream<DynamicTest> testRecovery(String inputString, String expectedAst) {
-        return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
-            if(expectedAst != null) {
-                IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
-
-                assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
-            }
         });
     }
 

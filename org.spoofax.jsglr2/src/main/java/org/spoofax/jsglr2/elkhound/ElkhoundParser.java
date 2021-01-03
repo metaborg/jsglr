@@ -10,10 +10,7 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.parseforest.*;
-import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ParseReporterFactory;
-import org.spoofax.jsglr2.parser.ParseStateFactory;
-import org.spoofax.jsglr2.parser.Parser;
+import org.spoofax.jsglr2.parser.*;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
@@ -46,7 +43,7 @@ public class ElkhoundParser
             disambiguator, elkhoundReduceManagerFactory, failureHandlerFactory, reporterFactory);
     }
 
-    @Override protected void parseLoop(ParseState parseState) {
+    @Override protected void parseLoop(ParseState parseState) throws ParseException {
         boolean nextRound = true;
 
         while(parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {

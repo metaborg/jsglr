@@ -25,4 +25,8 @@ public class RecoveryReconstructionTest extends BaseTestWithRecoverySdf3ParseTab
         return testRecoveryReconstruction("c", " ", 0, 1);
     }
 
+    @TestFactory public Stream<DynamicTest> testAInsertionWithLayout() throws ParseError {
+        return testRecoveryReconstruction("b ", "ab ", 1, 0);
+    }
+
 }

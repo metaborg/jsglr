@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.recovery;
 import java.util.Collections;
 
 import org.metaborg.parsetable.symbols.ILiteralSymbol;
+import org.metaborg.parsetable.symbols.SyntaxContext;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -57,7 +58,9 @@ public class Reconstruction {
 
         private boolean isBoundary(ParseNode parseNode) {
             return parseNode.production().isRecovery() || parseNode.production().isLexical()
-                || parseNode.production().isLiteral();
+                || parseNode.production().isLiteral()
+                || (parseNode.production().lhs().syntaxContext() == SyntaxContext.Lexical
+                    && parseNode.production().isLayout());
         }
 
         @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {

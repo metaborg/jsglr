@@ -6,6 +6,7 @@ import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IObservableParser;
+import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
@@ -32,6 +33,10 @@ public class JSGLR2Implementation
         this.parser = parser;
         this.imploder = imploder;
         this.tokenizer = tokenizer;
+    }
+
+    @Override public IParser<ParseForest> parser() {
+        return parser;
     }
 
     @Override public void attachObserver(IParserObserver observer) {

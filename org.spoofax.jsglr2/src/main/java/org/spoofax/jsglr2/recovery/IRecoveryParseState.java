@@ -39,7 +39,7 @@ public interface IRecoveryParseState
     boolean nextRecoveryIteration();
 
     default boolean successfulRecovery(JSGLR2Request request, int currentOffset) {
-        return isRecovering() && currentOffset >= recoveryJob().offset + request.succeedingRecoveryOffset();
+        return isRecovering() && currentOffset >= recoveryJob().offset + request.succeedingRecoveryOffset;
     }
 
     boolean appliedRecovery();

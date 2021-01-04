@@ -1,9 +1,12 @@
 package org.spoofax.jsglr2;
 
+import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 
 public interface JSGLR2<AbstractSyntaxTree> {
+
+    IParser<?> parser();
 
     void attachObserver(IParserObserver<?, ?, ?, ?, ?> parserObserver);
 

@@ -13,7 +13,7 @@ import org.spoofax.terms.ParseError;
 public class RecoveryGeneratedWaterTest extends BaseTestWithRecoverySdf3ParseTables {
 
     public RecoveryGeneratedWaterTest() {
-        super("recovery-generated-water.sdf3", true, true);
+        super("recovery-generated-water.sdf3", true, true, true);
     }
 
     @TestFactory public Stream<DynamicTest> testWater() throws ParseError {

@@ -15,8 +15,8 @@ public class TestSetIncrementalMultipleInput extends TestSetMultipleInputs<Strin
     public static TestSetIncrementalMultipleInput fromArgsIncremental(Map<String, String> args) {
         String sourcePath = args.get("sourcePath");
         String extension = args.get("extension");
-        int[] versions = args.containsKey("iteration")
-            ? versionsFromIteration(Integer.parseInt(args.get("iteration"))) : args.containsKey("versions")
+        int[] versions = args.containsKey("iteration") ? versionsFromIteration(Integer.parseInt(args.get("iteration")))
+            : args.containsKey("versions")
                 ? Arrays.stream(args.get("versions").split(",")).mapToInt(Integer::parseInt).toArray() : null;
         return new TestSetIncrementalMultipleInput(sourcePath, extension, versions);
     }
@@ -56,7 +56,7 @@ public class TestSetIncrementalMultipleInput extends TestSetMultipleInputs<Strin
                         path + (path.endsWith(File.separator) ? "" : File.separator) + i + File.separator + filename));
                     versionInputs[k++] = input;
                 } catch(NullPointerException | IOException ignored) {
-                    versionInputs[k] = k > 0 ? versionInputs[k - 1] : "";
+                    versionInputs[k] = k > 0 ? versionInputs[k - 1] : null;
                     k++;
                 }
             }

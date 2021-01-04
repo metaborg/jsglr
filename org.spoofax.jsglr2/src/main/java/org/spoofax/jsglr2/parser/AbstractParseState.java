@@ -38,7 +38,7 @@ public abstract class AbstractParseState<InputStack extends IInputStack, StackNo
         this.forActorStacks = forActorStacks;
     }
 
-    public void nextParseRound(ParserObserving observing) {
+    public void nextParseRound(ParserObserving observing) throws ParseException {
         observing.notify(observer -> observer.parseRound(this, activeStacks));
     }
 

@@ -8,13 +8,15 @@ public class RecoveryJob<StackNode> {
     public int offset;
     public int iteration;
     final int iterationsQuota;
+    final long timeoutAt;
     public Map<StackNode, Integer> quota;
     public Map<StackNode, Integer> lastRecoveredOffset;
 
-    public RecoveryJob(int offset, int iterationsQuota) {
+    public RecoveryJob(int offset, int iterationsQuota, int timeout) {
         this.offset = offset;
         this.iteration = -1;
         this.iterationsQuota = iterationsQuota;
+        this.timeoutAt = System.currentTimeMillis() + timeout;
         this.quota = new HashMap<>();
         this.lastRecoveredOffset = new HashMap<>();
     }
@@ -49,6 +51,10 @@ public class RecoveryJob<StackNode> {
     void updateLastRecoveredOffset(StackNode stack, int offset) {
         if(offset != -1)
             lastRecoveredOffset.merge(stack, offset, Math::max);
+    }
+
+    boolean timeout() {
+        return System.currentTimeMillis() >= timeoutAt;
     }
 
 }

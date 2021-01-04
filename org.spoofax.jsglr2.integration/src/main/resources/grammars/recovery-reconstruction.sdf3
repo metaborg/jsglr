@@ -1,10 +1,13 @@
-module recovery-disambiguation
+module recovery-reconstruction
 
 context-free start-symbols
   Start
 
 context-free syntax
-  Start = AB?
+  Start = AB? Foo?
+
+  Foo.Foo1 = "f" "oo"
+  Foo.Foo2 = "fo" "o"
 
   AB.AB = A B
 

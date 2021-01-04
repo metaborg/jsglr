@@ -52,6 +52,10 @@ public class Reconstruction {
             this.inputString = inputString;
         }
 
+        @Override public boolean visitAmbiguousDerivations() {
+            return false;
+        }
+
         @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
             return !isBoundary(parseNode);
         }

@@ -13,6 +13,14 @@ public class RecoveryReconstructionTest extends BaseTestWithRecoverySdf3ParseTab
         super("recovery-disambiguation.sdf3", false, false, true);
     }
 
+    @TestFactory public Stream<DynamicTest> testValid() throws ParseError {
+        return testReconstruction("ab", "ab", 0, 0);
+    }
+
+    @TestFactory public Stream<DynamicTest> testValidWithlayout() throws ParseError {
+        return testReconstruction(" a b ", " a b ", 0, 0);
+    }
+
     @TestFactory public Stream<DynamicTest> testBInsertion() throws ParseError {
         return testRecoveryReconstruction("a", "ab", 1, 0);
     }

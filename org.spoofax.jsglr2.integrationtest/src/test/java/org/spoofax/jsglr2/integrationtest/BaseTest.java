@@ -33,6 +33,8 @@ import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.recovery.Reconstruction;
 import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
@@ -230,6 +232,29 @@ public abstract class BaseTest implements WithParseTable {
             fail(parseFailMessage + ": " + e.getMessage());
         }
         return null;
+    }
+
+    protected Stream<DynamicTest> testReconstruction(String inputString, String expectedReconstruction,
+        int expectedInsertions, int expectedDeletions) {
+        return testPerVariant(getTestVariants(isNonOptimizedParseForestVariant), variant -> () -> {
+            ParseResult<?> result = variant.jsglr2().parser().parse(getRequest(inputString));
+
+            assertTrue(result.isSuccess(), "Succeeding parse expected");
+
+            ParseSuccess<?> success = (ParseSuccess<?>) result;
+
+            assertReconstruction(variant.parser(), success, expectedReconstruction, expectedInsertions,
+                expectedDeletions);
+        });
+    }
+
+    protected void assertReconstruction(IParser<?> parser, ParseSuccess<?> parseSuccess, String expectedReconstruction,
+        int expectedInsertions, int expectedDeletions) {
+        Reconstruction.Reconstructed reconstruction = Reconstruction.reconstruct(parser, parseSuccess);
+
+        assertEquals(expectedReconstruction, reconstruction.inputString, "Incorrect reconstruction");
+        assertEquals(expectedInsertions, reconstruction.insertions, "Incorrect #insertions");
+        assertEquals(expectedDeletions, reconstruction.deletions, "Incorrect #deletions");
     }
 
     protected Predicate<TestVariant> isIncrementalVariant =

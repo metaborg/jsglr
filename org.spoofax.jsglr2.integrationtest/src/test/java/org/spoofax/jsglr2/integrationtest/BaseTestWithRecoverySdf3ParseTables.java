@@ -20,6 +20,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
+import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
@@ -114,11 +115,8 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
         return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
             ParseSuccess<?> parseSuccess = (ParseSuccess<?>) variant.parser().parse(request);
 
-            Reconstruction.Reconstructed reconstruction = Reconstruction.reconstruct(variant.parser(), parseSuccess);
-
-            assertEquals(expectedReconstruction, reconstruction.inputString, "Incorrect reconstruction");
-            assertEquals(expectedInsertions, reconstruction.insertions, "Incorrect #insertions");
-            assertEquals(expectedDeletions, reconstruction.deletions, "Incorrect #deletions");
+            assertReconstruction(variant.parser(), parseSuccess, expectedReconstruction, expectedInsertions,
+                expectedDeletions);
         });
     }
 

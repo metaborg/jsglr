@@ -68,6 +68,9 @@ public interface ParseNodeVisiting
                     for(Derivation derivation : parseNode.getDerivations()) {
                         inputStack.push(derivation);
                         derivations++;
+
+                        if (derivations >= 1 && !visitor.visitAmbiguousDerivations())
+                            break;
                     }
 
                     outputStack.push(new Visit<>(derivations, parseNode));

@@ -10,6 +10,10 @@ public interface ParseNodeVisitor
 //@formatter:on
 {
 
+    default boolean visitAmbiguousDerivations() {
+        return true;
+    }
+
     default boolean preVisit(ParseNode parseNode, Position startPosition) {
         return true;
     }

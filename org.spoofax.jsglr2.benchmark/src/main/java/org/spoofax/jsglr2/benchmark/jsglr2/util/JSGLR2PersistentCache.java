@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.util;
 
 import org.spoofax.jsglr.client.imploder.ITokens;
-import org.spoofax.jsglr2.JSGLR2Implementation;
 import org.spoofax.jsglr2.JSGLR2ImplementationWithCache;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
@@ -48,6 +47,9 @@ public class JSGLR2PersistentCache
     }
 
     public AbstractSyntaxTree parse(String input) throws ParseException {
+        if(input == null)
+            return null;
+
         JSGLR2Request request = new JSGLR2Request(input, fileName);
         AbstractSyntaxTree res = jsglr2Implementation.parseUnsafe(request);
 

@@ -28,13 +28,19 @@ public abstract class TestSetInput<ContentType, Input extends TestInput<ContentT
         String sourcePath = args.get("sourcePath");
         String extension = args.get("extension");
 
-        if("multiple".equals(type) && sourcePath != null && extension != null) {
-            return new TestSetMultipleInputs.StringInputSet(sourcePath, extension);
-        } else if("single".equals(type) && sourcePath != null) {
-            return new TestSetSingleInput.StringInputSet(sourcePath, false);
-        }
+        if(sourcePath == null)
+            throw new IllegalStateException("invalid arguments: missing sourcePath (" + args + ")");
 
-        throw new IllegalStateException("invalid arguments");
+        switch(type) {
+            case "multiple":
+                if(extension == null)
+                    throw new IllegalStateException("invalid arguments: missing extension (" + args + ")");
+                return new TestSetMultipleInputs.StringInputSet(sourcePath, extension);
+            case "single":
+                return new TestSetSingleInput.StringInputSet(sourcePath, false);
+            default:
+                throw new IllegalStateException("invalid arguments: missing type=(singular|multiple) (" + args + ")");
+        }
     }
 
     protected abstract Input getInput(String filename, ContentType input);

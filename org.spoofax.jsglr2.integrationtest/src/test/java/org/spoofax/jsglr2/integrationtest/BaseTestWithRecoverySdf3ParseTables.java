@@ -113,10 +113,12 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
     protected Stream<DynamicTest> testRecoveryReconstruction(String inputString, String expectedReconstruction,
         int expectedInsertions, int expectedDeletions) {
         return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
-            ParseSuccess<?> parseSuccess = (ParseSuccess<?>) variant.parser().parse(request);
+            if (isNonOptimizedParseForestVariant.test(variant)) {
+                ParseSuccess<?> parseSuccess = (ParseSuccess<?>) variant.parser().parse(request);
 
-            assertReconstruction(variant.parser(), parseSuccess, expectedReconstruction, expectedInsertions,
-                expectedDeletions);
+                assertReconstruction(variant.parser(), parseSuccess, expectedReconstruction, expectedInsertions,
+                        expectedDeletions);
+            }
         });
     }
 

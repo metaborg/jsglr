@@ -115,10 +115,9 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<TestVariant> getTestVariants() {
         return getTestVariants(testVariant -> true);
     }
-    
+
     protected Predicate<TestVariant> isNonOptimizedParseForestVariant =
-        variant -> variant.variant.parser.parseForestConstruction == ParseForestConstruction.Full
-            && variant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Basic;
+        variant -> variant.variant.parser.parseForestConstruction == ParseForestConstruction.Full;
 
     protected Stream<DynamicTest> testPerVariant(Stream<TestVariant> variants, Function<TestVariant, Executable> body) {
         return variants.map(variant -> DynamicTest.dynamicTest(variant.name(), body.apply(variant)));

@@ -27,6 +27,7 @@ import org.spoofax.jsglr2.JSGLR2Success;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -112,6 +113,10 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<TestVariant> getTestVariants() {
         return getTestVariants(testVariant -> true);
     }
+    
+    protected Predicate<TestVariant> isNonOptimizedParseForestVariant =
+        variant -> variant.variant.parser.parseForestConstruction == ParseForestConstruction.Full
+            && variant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Basic;
 
     protected Stream<DynamicTest> testPerVariant(Stream<TestVariant> variants, Function<TestVariant, Executable> body) {
         return variants.map(variant -> DynamicTest.dynamicTest(variant.name(), body.apply(variant)));

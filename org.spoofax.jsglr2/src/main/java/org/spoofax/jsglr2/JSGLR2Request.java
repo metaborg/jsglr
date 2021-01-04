@@ -58,6 +58,11 @@ public class JSGLR2Request {
         return completionCursorOffset.isPresent();
     }
 
+    public JSGLR2Request withCompletion(Optional<Integer> completionCursorOffset) {
+        return new JSGLR2Request(input, fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset,
+            recoveryTimeout, completionCursorOffset, reportAmbiguities);
+    }
+
     public JSGLR2Request withAmbiguitiesReporting(boolean reportAmbiguities) {
         return new JSGLR2Request(input, fileName, startSymbol, recoveryIterationsQuota, succeedingRecoveryOffset,
             recoveryTimeout, Optional.empty(), reportAmbiguities);

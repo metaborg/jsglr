@@ -1,0 +1,12 @@
+module regression-20210104-optimized-parse-forest
+
+context-free start-symbols
+  Start
+
+context-free syntax
+  Start.Start = A+
+
+  A.A  = B
+  B.X  = <x>
+  A    = <y> {reject}
+  B.XY = <xy>

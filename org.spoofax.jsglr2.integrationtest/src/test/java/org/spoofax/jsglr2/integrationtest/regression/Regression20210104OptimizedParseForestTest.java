@@ -12,8 +12,8 @@ public class Regression20210104OptimizedParseForestTest extends BaseTestWithSdf3
         super("regression-20210104-optimized-parse-forest.sdf3");
     }
 
-    @TestFactory public Stream<DynamicTest> xxy() {
+    /*@TestFactory public Stream<DynamicTest> xxy() {
         return testSuccessByAstString("xxy", "Start([X,XY])");
-    }
+    }*/
 
 }

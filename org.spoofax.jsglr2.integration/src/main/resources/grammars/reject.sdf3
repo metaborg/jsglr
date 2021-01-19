@@ -4,14 +4,19 @@ context-free start-symbols
 	Start
 
 context-free syntax
-	Start.Id = ID
-	Start.Foo = "foo"
+    Start.List = Word+
+	Word.Id = ID
+	Word.Foo = "foo"
+	Word.Return = "return"
 
 lexical syntax
 	ID      = [a-z]+
 	ID      = "foo" {reject}
+	ID      = "return" {reject}
 	KEYWORD = "bar"
 	ID      = KEYWORD {reject}
+
+	LAYOUT  = [\ ]
 
 lexical restrictions
 	ID -/- [a-z]

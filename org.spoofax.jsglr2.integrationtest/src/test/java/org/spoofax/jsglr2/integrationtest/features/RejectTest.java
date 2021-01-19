@@ -16,7 +16,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
 
     // This test only fails when running `./b build all`, not when running the tests separately.
     @Disabled @TestFactory public Stream<DynamicTest> testReject() throws ParseError {
-        return testSuccessByAstString("foo", "Foo");
+        return testSuccessByAstString("foo", "List([Foo])");
     }
 
     /**
@@ -29,7 +29,11 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
     }
 
     @TestFactory public Stream<DynamicTest> testNonReject() throws ParseError {
-        return testSuccessByAstString("baz", "Id(\"baz\")");
+        return testSuccessByAstString("baz", "List([Id(\"baz\")])");
+    }
+
+    @TestFactory public Stream<DynamicTest> testBoth() throws ParseError {
+        return testSuccessByAstString("foo baz", "List([Foo,Id(\"baz\")])");
     }
 
 }

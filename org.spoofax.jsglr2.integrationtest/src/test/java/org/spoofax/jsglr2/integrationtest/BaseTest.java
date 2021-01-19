@@ -24,10 +24,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr2.JSGLR2;
-import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.JSGLR2Result;
-import org.spoofax.jsglr2.JSGLR2Success;
+import org.spoofax.jsglr2.*;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.messages.Message;
@@ -42,6 +39,7 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.Reconstruction;
 import org.spoofax.jsglr2.util.AstUtilities;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -285,6 +283,21 @@ public abstract class BaseTest implements WithParseTable {
                     equalityByExpansions);
             }
         });
+    }
+
+    protected Stream<DynamicTest> testIncrementalSuccessByBatch(String... inputs) throws ParseError {
+        IntegrationVariant batchVariant =
+            new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.standard.variant);
+        JSGLR2<IStrategoTerm> batchJSGLR2 =
+            new TestVariant(batchVariant, getParseTablesOrFailOnException(batchVariant.parseTable).iterator().next())
+                .jsglr2();
+
+        String[] expectedOutputAstStrings = new String[inputs.length];
+        for(int i = 0; i < inputs.length; i++) {
+            expectedOutputAstStrings[i] = batchJSGLR2.parse(inputs[i]).toString();
+        }
+
+        return testIncrementalSuccessByExpansions(inputs, expectedOutputAstStrings);
     }
 
     protected void assertEqualAST(String message, IStrategoTerm expected, IStrategoTerm actual) {

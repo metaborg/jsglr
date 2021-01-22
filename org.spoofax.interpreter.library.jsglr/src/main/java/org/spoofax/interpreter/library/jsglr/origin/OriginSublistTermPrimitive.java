@@ -57,6 +57,9 @@ public class OriginSublistTermPrimitive extends AbstractPrimitive {
 				break;
 			}
 		}
+		if (startIndex < 0) {
+			return false;
+		}
 		for (int i = 0; i < list.size(); i++) {
 			if(childNodes.size()<=i+startIndex)
 				return false;

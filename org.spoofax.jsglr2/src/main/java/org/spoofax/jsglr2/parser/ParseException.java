@@ -28,10 +28,11 @@ public class ParseException extends Exception {
 
         if(position != null)
             message.append(
-                " at offset " + position.offset + "(line " + position.line + ", column " + position.column + ")");
+                " at offset " + position.offset + " (line " + position.line + ", column " + position.column + ")");
 
         if(character != null)
-            message.append(" at character " + CharacterClassFactory.intToString(character));
+            message.append(
+                String.format(" at character %s (U+%04X)", CharacterClassFactory.intToString(character), character));
 
         return message.toString();
     }

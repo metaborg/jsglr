@@ -3,6 +3,7 @@ package org.spoofax.jsglr2.cli.output.dot;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -91,9 +92,26 @@ class StackDotVisualisationParserObserver
             dotStatement(idNode(stackNodeId(stack), id(stack), "" + stack.state().id()) + ";");
 
         for(StackLink<ParseForest, StackNode> link : stackLinks) {
-            dotStatement(stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\""
-                + id(link.parseForest) + ": " + escape(link.parseForest.descriptor()) + "\""
-                + (link.isRejected() ? ",style=dotted" : "") + "];");
+            String derivations = "";
+
+            if(link.parseForest instanceof ICharacterNode)
+                derivations = ((ICharacterNode) link.parseForest).descriptor();
+            else {
+                ParseNode parseNode = (ParseNode) link.parseForest;
+
+                for(Derivation derivation : parseNode.getDerivations()) {
+                    if(!"".equals(derivations))
+                        derivations += ",";
+
+                    derivations +=
+                        derivation.production().lhs().descriptor() + "[" + Arrays.stream(derivation.parseForests())
+                            .map(this::id).map(Objects::toString).collect(Collectors.joining(",")) + "]";
+                }
+            }
+
+            dotStatement(
+                stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\"" + id(link.parseForest)
+                    + ": " + escape(derivations) + "\"" + (link.isRejected() ? ",style=dotted" : "") + "];");
         }
 
         for(int rank = 0; rank <= maxStackNodeRank; rank++) {

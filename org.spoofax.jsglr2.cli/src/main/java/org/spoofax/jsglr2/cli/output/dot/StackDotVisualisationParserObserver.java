@@ -28,6 +28,7 @@ class StackDotVisualisationParserObserver
     private Map<StackNode, Integer> stackNodeOffset;
     private List<StackNode> stackNodes;
     private List<StackLink<ParseForest, StackNode>> stackLinks;
+    private StackNode acceptingStack;
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
@@ -38,6 +39,7 @@ class StackDotVisualisationParserObserver
         stackNodeOffset = new HashMap<>();
         stackNodes = new ArrayList<>();
         stackLinks = new ArrayList<>();
+        acceptingStack = null;
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
@@ -77,6 +79,10 @@ class StackDotVisualisationParserObserver
         stackLinks.add(link);
     }
 
+    @Override public void accept(StackNode acceptingStack) {
+        this.acceptingStack = acceptingStack;
+    }
+
     private String stackNodeId(StackNode stack) {
         return stackNodeId(id(stack));
     }
@@ -89,7 +95,8 @@ class StackDotVisualisationParserObserver
         String prefix = "digraph {\nrankdir = LR;\nedge [dir=\"back\"];\n";
 
         for(StackNode stack : stackNodes)
-            dotStatement(idNode(stackNodeId(stack), id(stack), "" + stack.state().id()) + ";");
+            dotStatement(idNode(stackNodeId(stack), id(stack), "" + stack.state().id(),
+                acceptingStack == stack ? "green" : "gray") + ";");
 
         for(StackLink<ParseForest, StackNode> link : stackLinks) {
             String derivations = "";
@@ -109,9 +116,9 @@ class StackDotVisualisationParserObserver
                 }
             }
 
-            dotStatement(
-                stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\"" + id(link.parseForest)
-                    + ": " + escape(derivations) + "\"" + (link.isRejected() ? ",style=dotted" : "") + "];");
+            dotStatement(stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\""
+                + id(link.parseForest) + ": " + escape(derivations) + "\"" + (link.isRejected() ? ",style=dotted" : "")
+                + (link.from == acceptingStack ? ",color=green" : "") + "];");
         }
 
         for(int rank = 0; rank <= maxStackNodeRank; rank++) {

@@ -1,9 +1,6 @@
 package org.spoofax.jsglr2.cli.output.dot;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.spoofax.jsglr2.parseforest.IDerivation;
@@ -28,6 +25,8 @@ class StackDotVisualisationParserObserver
     private int currentOffset;
     private int[] offsetMaxStackNodeRank;
     private Map<StackNode, Integer> stackNodeOffset;
+    private List<StackNode> stackNodes;
+    private List<StackLink<ParseForest, StackNode>> stackLinks;
 
     @Override public void parseStart(ParseState parseState) {
         super.parseStart(parseState);
@@ -36,6 +35,8 @@ class StackDotVisualisationParserObserver
         maxStackNodeRank = 0;
         offsetMaxStackNodeRank = new int[parseState.inputStack.inputString().length() + 1];
         stackNodeOffset = new HashMap<>();
+        stackNodes = new ArrayList<>();
+        stackLinks = new ArrayList<>();
     }
 
     @Override public void parseRound(ParseState parseState, Iterable<StackNode> activeStacks) {
@@ -63,7 +64,7 @@ class StackDotVisualisationParserObserver
         if(id(stack) == 0)
             rankStackNode(stack, 0);
 
-        dotStatement(idNode(stackNodeId(stack), id(stack), "" + stack.state().id()) + ";");
+        stackNodes.add(stack);
     }
 
     @Override public void createStackLink(StackLink<ParseForest, StackNode> link) {
@@ -72,9 +73,7 @@ class StackDotVisualisationParserObserver
         if(!stackNodeRank.containsKey(link.from))
             rankStackNode(link.from, stackNodeRank.get(link.to) + 1);
 
-        dotStatement(
-            stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\"" + id(link.parseForest) + ": "
-                + escape(link.parseForest.descriptor()) + "\"" + (link.isRejected() ? ",style=dotted" : "") + "];");
+        stackLinks.add(link);
     }
 
     private String stackNodeId(StackNode stack) {
@@ -87,6 +86,15 @@ class StackDotVisualisationParserObserver
 
     public String output() {
         String prefix = "digraph {\nrankdir = LR;\nedge [dir=\"back\"];\n";
+
+        for(StackNode stack : stackNodes)
+            dotStatement(idNode(stackNodeId(stack), id(stack), "" + stack.state().id()) + ";");
+
+        for(StackLink<ParseForest, StackNode> link : stackLinks) {
+            dotStatement(stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\""
+                + id(link.parseForest) + ": " + escape(link.parseForest.descriptor()) + "\""
+                + (link.isRejected() ? ",style=dotted" : "") + "];");
+        }
 
         for(int rank = 0; rank <= maxStackNodeRank; rank++) {
             Collection<StackNode> stackNodesForRank = new ArrayList<>();

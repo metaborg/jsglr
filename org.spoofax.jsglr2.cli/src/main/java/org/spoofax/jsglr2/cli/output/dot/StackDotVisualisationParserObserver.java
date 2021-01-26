@@ -72,8 +72,9 @@ class StackDotVisualisationParserObserver
         if(!stackNodeRank.containsKey(link.from))
             rankStackNode(link.from, stackNodeRank.get(link.to) + 1);
 
-        dotStatement(stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\""
-            + id(link.parseForest) + ": " + escape(link.parseForest.descriptor()) + "\"];");
+        dotStatement(
+            stackNodeId(link.to) + ":p:e -> " + stackNodeId(link.from) + ":p:w [label=\"" + id(link.parseForest) + ": "
+                + escape(link.parseForest.descriptor()) + "\"" + (link.isRejected() ? ",style=dotted" : "") + "];");
     }
 
     private String stackNodeId(StackNode stack) {

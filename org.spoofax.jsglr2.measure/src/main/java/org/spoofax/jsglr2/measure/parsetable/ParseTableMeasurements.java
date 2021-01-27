@@ -11,18 +11,18 @@ import org.metaborg.parsetable.ParseTableReader;
 import org.metaborg.parsetable.actions.ActionsFactory;
 import org.metaborg.parsetable.actions.IActionsFactory;
 import org.spoofax.jsglr2.measure.CSV;
-import org.spoofax.jsglr2.measure.JSGLR2Measurements;
+import org.spoofax.jsglr2.measure.Config;
 import org.spoofax.jsglr2.measure.Measurements;
 import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
-public class ParseTableMeasurements extends Measurements {
+public class ParseTableMeasurements extends Measurements<String, StringInput> {
 
     public ParseTableMeasurements(TestSetWithParseTable<String, StringInput> testSet) {
         super(testSet);
     }
 
-    @Override public void measure(JSGLR2Measurements.Config config)
+    @Override public void measure(Config<String, StringInput> config)
         throws FileNotFoundException, ParseTableReadException {
         CSV<ParseTableMeasurement> output = new CSV<>(ParseTableMeasurement.values());
 

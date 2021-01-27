@@ -11,8 +11,9 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.JSGLR2Request;
+import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.measure.CSV;
-import org.spoofax.jsglr2.measure.JSGLR2Measurements;
+import org.spoofax.jsglr2.measure.Config;
 import org.spoofax.jsglr2.measure.MeasureTestSetWithParseTableReader;
 import org.spoofax.jsglr2.measure.Measurements;
 import org.spoofax.jsglr2.parseforest.*;
@@ -27,13 +28,13 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
-public class ParsingMeasurements extends Measurements {
+public class ParsingMeasurements extends Measurements<String, StringInput> {
 
     public ParsingMeasurements(TestSetWithParseTable<String, StringInput> testSet) {
         super(testSet);
     }
 
-    @Override public void measure(JSGLR2Measurements.Config config) throws ParseTableReadException, IOException {
+    @Override public void measure(Config<String, StringInput> config) throws ParseTableReadException, IOException {
         CSV<ParsingMeasurement> output = new CSV<>(ParsingMeasurement.values());
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
@@ -126,7 +127,8 @@ public class ParsingMeasurements extends Measurements {
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    Map<ParsingMeasurement, String> toOutput(String name, MeasureTestSetWithParseTableReader.InputBatch inputBatch,
+    Map<ParsingMeasurement, String> toOutput(String name,
+        MeasureTestSetWithParseTableReader<String, StringInput>.InputBatch inputBatch,
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver) {

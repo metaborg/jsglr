@@ -14,7 +14,7 @@ public class Regression20210104OptimizedParseForestTest extends BaseTestWithSdf3
     }
 
     @Disabled @TestFactory public Stream<DynamicTest> xxy() {
-        return testSuccessByAstString("xxy", "Start([X,XY])");
+        return testSuccessByAstString("xxy", "S(\"x\",\"xy\")");
     }
 
 }

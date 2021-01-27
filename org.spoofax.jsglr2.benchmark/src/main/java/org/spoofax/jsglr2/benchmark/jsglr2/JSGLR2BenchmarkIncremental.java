@@ -1,8 +1,5 @@
 package org.spoofax.jsglr2.benchmark.jsglr2;
 
-import static org.spoofax.jsglr2.JSGLR2Variant.Preset.incremental;
-import static org.spoofax.jsglr2.JSGLR2Variant.Preset.standard;
-
 import java.util.*;
 
 import org.openjdk.jmh.annotations.Param;
@@ -15,10 +12,13 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.testinput.IncrementalStringInput;
 
+import static org.spoofax.jsglr2.JSGLR2Variant.Preset.*;
+
 public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[], IncrementalStringInput> {
 
     public enum ParserType {
         Batch(false, new IntegrationVariant(standard.variant)),
+        Elkhound(false, new IntegrationVariant(elkhound.variant)),
         Incremental(true, new IntegrationVariant(incremental.variant)),
         IncrementalNoCache(false, new IntegrationVariant(incremental.variant));
 
@@ -31,7 +31,7 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         }
     }
 
-    @Param({ "Batch", "Incremental", "IncrementalNoCache" }) public ParserType parserType;
+    @Param({ "Batch", "Elkhound", "Incremental", "IncrementalNoCache" }) public ParserType parserType;
 
     @Param({ "-1" }) public int i;
 

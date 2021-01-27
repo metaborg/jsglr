@@ -96,11 +96,15 @@ public class LogParserObserver
     }
 
     @Override public void rejectStackLink(StackLink<ParseForest, StackNode> link) {
-        log("Reject link " + id(link), JSGLR2Logging.Parsing);
+        log("    Reject link " + id(link), JSGLR2Logging.Parsing);
     }
 
     @Override public void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
         log("For actor stacks: " + stackQueueToString(forActorStacks), JSGLR2Logging.Parsing);
+    }
+
+    @Override public void handleForActorStack(StackNode stack, IForActorStacks<StackNode> forActorStacks) {
+        log("  Handle for stack " + stackNodeString(stack) + " (rejected: " + stack.allLinksRejected() + ")", JSGLR2Logging.Parsing);
     }
 
     @Override public void actor(StackNode stack, ParseState parseState, Iterable<IAction> applicableActions) {

@@ -44,11 +44,9 @@ abstract class DotVisualisationParserObserver
     }
 
     @Override public void success(ParseSuccess<ParseForest> success) {
-        output();
     }
 
     @Override public void failure(ParseFailure<ParseForest> failure) {
-        output();
     }
 
     public abstract String output();

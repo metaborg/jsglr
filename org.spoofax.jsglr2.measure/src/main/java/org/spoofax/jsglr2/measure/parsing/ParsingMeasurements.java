@@ -51,6 +51,19 @@ public class ParsingMeasurements extends Measurements {
             );
             //@formatter:on
 
+        ParserVariant optimizedParseForest =
+        //@formatter:off
+            new ParserVariant(
+                ActiveStacksRepresentation.ArrayList,
+                ForActorStacksRepresentation.ArrayDeque,
+                ParseForestRepresentation.Hybrid,
+                ParseForestConstruction.Optimized,
+                StackRepresentation.Hybrid,
+                Reducing.Basic,
+                false
+            );
+            //@formatter:on
+
         ParserVariant variantElkhound =
         //@formatter:off
             new ParserVariant(
@@ -64,8 +77,9 @@ public class ParsingMeasurements extends Measurements {
             );
         //@formatter:on
 
-        output.addRows(measure("standard", variantStandard, parseTable, new StandardParserMeasureObserver<>()));
-        output.addRows(measure("elkhound", variantElkhound, parseTable, new ElkhoundParserMeasureObserver<>()));
+        output.addRows(measure("standard",     variantStandard,      parseTable, new StandardParserMeasureObserver<>()));
+        output.addRows(measure("optimized-pf", optimizedParseForest, parseTable, new StandardParserMeasureObserver<>()));
+        output.addRows(measure("elkhound",     variantElkhound,      parseTable, new ElkhoundParserMeasureObserver<>()));
 
         output.write(config.prefix(testSet) + "parsing.csv");
     }

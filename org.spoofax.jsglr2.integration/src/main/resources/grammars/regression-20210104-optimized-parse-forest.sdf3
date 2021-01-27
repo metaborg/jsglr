@@ -1,0 +1,13 @@
+module regression-20210104-optimized-parse-forest
+
+start-symbols
+  Start
+
+syntax
+  Start.S = Start A
+  Start   = A
+
+  A = B
+  B = [x]
+  A = [y] {reject}
+  B = [x] [y]

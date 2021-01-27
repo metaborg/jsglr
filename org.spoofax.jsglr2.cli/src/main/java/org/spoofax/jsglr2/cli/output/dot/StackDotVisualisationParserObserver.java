@@ -102,7 +102,7 @@ class StackDotVisualisationParserObserver
             String derivations = "";
 
             if(link.parseForest instanceof ICharacterNode)
-                derivations = ((ICharacterNode) link.parseForest).descriptor();
+                derivations = link.parseForest.descriptor();
             else {
                 ParseNode parseNode = (ParseNode) link.parseForest;
 
@@ -110,9 +110,12 @@ class StackDotVisualisationParserObserver
                     if(!"".equals(derivations))
                         derivations += ",";
 
-                    derivations +=
-                        derivation.production().lhs().descriptor() + "[" + Arrays.stream(derivation.parseForests())
-                            .map(this::id).map(Objects::toString).collect(Collectors.joining(",")) + "]";
+                    derivations += derivation.production().lhs().descriptor()
+                        + (derivation.production().constructor() != null ? "." + derivation.production().constructor()
+                            : "")
+                        + "[" + Arrays.stream(derivation.parseForests()).map(this::id).map(Objects::toString)
+                            .collect(Collectors.joining(","))
+                        + "]";
                 }
             }
 

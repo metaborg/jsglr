@@ -78,9 +78,14 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
             );
         //@formatter:on
 
+        ParserVariant variantIncremental = JSGLR2Variant.Preset.incremental.variant.parser;
+
+        //@formatter:off
         output.addRows(measure("standard",     variantStandard,      parseTable, new StandardParserMeasureObserver<>()));
         output.addRows(measure("optimized-pf", optimizedParseForest, parseTable, new StandardParserMeasureObserver<>()));
         output.addRows(measure("elkhound",     variantElkhound,      parseTable, new ElkhoundParserMeasureObserver<>()));
+        output.addRows(measure("incremental",  variantIncremental,   parseTable, new StandardParserMeasureObserver<>()));
+        //@formatter:on
 
         output.write(config.prefix(testSet) + "parsing.csv");
     }

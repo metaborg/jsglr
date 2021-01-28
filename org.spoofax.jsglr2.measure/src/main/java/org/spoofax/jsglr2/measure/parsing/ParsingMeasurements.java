@@ -110,8 +110,8 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
                 for(StringInput input : inputBatch.inputs)
                     parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
             } catch(Exception e) {
-                throw new IllegalStateException(
-                    "Parsing failed with variant " + variant.name() + ": " + e.getMessage());
+                throw new IllegalStateException("Parsing failed with variant " + variant.name() + ": "
+                    + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
 
             return toOutput(name, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory,

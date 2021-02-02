@@ -10,7 +10,7 @@ import org.spoofax.terms.ParseError;
 public class IncrementalLexicalTest extends BaseTestWithSdf3ParseTables {
 
     public IncrementalLexicalTest() {
-        super("lexical-id.sdf3");
+        super("lexical-lex-cf-kern.sdf3");
     }
 
     @TestFactory public Stream<DynamicTest> incrementalIdentifiers() throws ParseError {

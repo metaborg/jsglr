@@ -78,6 +78,8 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                 IncrementalParseForest previousResult = null;
                 for(int i = 0; i < input.content.length; i++) {
                     String content = input.content[i];
+                    if(content == null)
+                        continue;
                     IncrementalParseForest result;
                     try {
                         result = ((ParseSuccess<IncrementalParseForest>) parser.parse(
@@ -145,20 +147,22 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
         long nodes = 0, leaves = 0, ambs = 0, nondets = 0, reusedNodes = 0, reusedLeaves = 0, rebuilt = 0;
         Set<IParseForest> nodeSet = new HashSet<>(), leafSet = new HashSet<>();
 
-        Stack<IParseForest> todo1 = new Stack<>();
-        todo1.add(parse1);
-        while(!todo1.isEmpty()) {
-            IParseForest t1 = todo1.pop();
-            if(t1 instanceof IParseNode) {
-                nodeSet.add(t1);
-                if(!(t1 instanceof IncrementalSkippedNode)) {
-                    IParseForest[] sub1 = ((IParseNode<?, ?>) t1).getFirstDerivation().parseForests();
-                    for(int i = sub1.length - 1; i >= 0; i--) {
-                        todo1.add(sub1[i]);
+        if(parse1 != null) {
+            Stack<IParseForest> todo1 = new Stack<>();
+            todo1.add(parse1);
+            while(!todo1.isEmpty()) {
+                IParseForest t1 = todo1.pop();
+                if(t1 instanceof IParseNode) {
+                    nodeSet.add(t1);
+                    if(!(t1 instanceof IncrementalSkippedNode)) {
+                        IParseForest[] sub1 = ((IParseNode<?, ?>) t1).getFirstDerivation().parseForests();
+                        for(int i = sub1.length - 1; i >= 0; i--) {
+                            todo1.add(sub1[i]);
+                        }
                     }
+                } else {
+                    leafSet.add(t1);
                 }
-            } else {
-                leafSet.add(t1);
             }
         }
 

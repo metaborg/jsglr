@@ -12,7 +12,6 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.incremental.IIncrementalParseState;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
@@ -22,6 +21,7 @@ import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.Config;
 import org.spoofax.jsglr2.measure.Measurements;
+import org.spoofax.jsglr2.measure.parsing.ParsingMeasurements;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
@@ -45,9 +45,8 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        ParserVariant variantIncremental = JSGLR2Variant.Preset.incremental.variant.parser;
-
-        output.addRows(measure(variantIncremental, parseTable, new IncrementalParserMeasureObserver<>()));
+        output.addRows(
+            measure(ParsingMeasurements.variantIncremental, parseTable, new IncrementalParserMeasureObserver<>()));
 
         output.write(config.prefix(testSet) + "parsing-incremental.csv");
     }

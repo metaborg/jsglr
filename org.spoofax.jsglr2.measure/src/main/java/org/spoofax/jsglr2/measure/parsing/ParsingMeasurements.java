@@ -11,7 +11,6 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.JSGLR2Variant;
 import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.Config;
 import org.spoofax.jsglr2.measure.MeasureTestSetWithParseTableReader;
@@ -30,6 +29,58 @@ import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class ParsingMeasurements extends Measurements<String, StringInput> {
 
+    public static final ParserVariant variantStandard =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Hybrid,
+            ParseForestConstruction.Full,
+            StackRepresentation.Hybrid,
+            Reducing.Basic,
+            false
+        );
+        //@formatter:on
+
+    public static final ParserVariant optimizedParseForest =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Hybrid,
+            ParseForestConstruction.Optimized,
+            StackRepresentation.Hybrid,
+            Reducing.Basic,
+            false
+        );
+        //@formatter:on
+
+    public static final ParserVariant variantElkhound =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Hybrid,
+            ParseForestConstruction.Full,
+            StackRepresentation.HybridElkhound,
+            Reducing.Elkhound,
+            false
+        );
+    //@formatter:on
+
+    public static final ParserVariant variantIncremental =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Incremental,
+            ParseForestConstruction.Full,
+            StackRepresentation.Hybrid,
+            Reducing.Incremental,
+            false
+        );
+    //@formatter:on
+
     public ParsingMeasurements(TestSetWithParseTable<String, StringInput> testSet) {
         super(testSet);
     }
@@ -38,47 +89,6 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
         CSV<ParsingMeasurement> output = new CSV<>(ParsingMeasurement.values());
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
-
-        ParserVariant variantStandard =
-        //@formatter:off
-            new ParserVariant(
-                ActiveStacksRepresentation.ArrayList,
-                ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid,
-                ParseForestConstruction.Full,
-                StackRepresentation.Hybrid,
-                Reducing.Basic,
-                false
-            );
-            //@formatter:on
-
-        ParserVariant optimizedParseForest =
-        //@formatter:off
-            new ParserVariant(
-                ActiveStacksRepresentation.ArrayList,
-                ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid,
-                ParseForestConstruction.Optimized,
-                StackRepresentation.Hybrid,
-                Reducing.Basic,
-                false
-            );
-            //@formatter:on
-
-        ParserVariant variantElkhound =
-        //@formatter:off
-            new ParserVariant(
-                ActiveStacksRepresentation.ArrayList,
-                ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid,
-                ParseForestConstruction.Full,
-                StackRepresentation.HybridElkhound,
-                Reducing.Elkhound,
-                false
-            );
-        //@formatter:on
-
-        ParserVariant variantIncremental = JSGLR2Variant.Preset.incremental.variant.parser;
 
         //@formatter:off
         output.addRows(measure("standard",     variantStandard,      parseTable, new StandardParserMeasureObserver<>()));

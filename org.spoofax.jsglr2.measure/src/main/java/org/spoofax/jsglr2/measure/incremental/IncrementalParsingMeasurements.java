@@ -125,6 +125,8 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                         return measureObserver.shiftChar;
                     case shiftParseNode:
                         return measureObserver.shiftNode;
+                    case breakDowns:
+                        return measureObserver.breakdown.values().stream().mapToLong(l -> l).sum();
                     case breakDownNoActions:
                         return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.NO_ACTIONS, 0L);
                     case breakDownNonDeterministic:

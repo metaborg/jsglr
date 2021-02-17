@@ -73,10 +73,15 @@ public interface IParserObserver
         /** The parse node is broken down because no actions are available for the grammar production of this node. */
         NO_ACTIONS("no actions for this parse node"),
         /**
-         * The parse node is broken down because it stores no state, i.e. it was created during a non-deterministic
+         * The parse node is broken down because it stores no state, i.e., it was created during a non-deterministic
          * phase of parsing.
          */
         NON_DETERMINISTIC("parse node was created while parse was non-deterministic"),
+        /**
+         * The parse node is broken down because it was temporary, i.e., it was created during ProcessUpdates to store
+         * changed children.
+         */
+        TEMPORARY("parse node was created as temporary node in ProcessUpdates"),
         /** The parse node is broken down because it stores a different state than the current top of the stack. */
         WRONG_STATE("parse node was created in a different parse state");
 

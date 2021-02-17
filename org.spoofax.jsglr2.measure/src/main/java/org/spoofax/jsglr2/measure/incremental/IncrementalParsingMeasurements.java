@@ -132,6 +132,8 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                     case breakDownNonDeterministic:
                         return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.NON_DETERMINISTIC,
                             0L);
+                    case breakDownTemporary:
+                        return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.TEMPORARY, 0L);
                     case breakDownWrongState:
                         return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.WRONG_STATE, 0L);
                     default:

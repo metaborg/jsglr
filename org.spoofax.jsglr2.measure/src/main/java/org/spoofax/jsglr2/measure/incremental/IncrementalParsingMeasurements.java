@@ -148,7 +148,7 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
 
     private static Map<IncrementalParsingMeasurement, Long> calculateReuse(IParseForest parse1, IParseForest parse2) {
         long nodes = 0, leaves = 0, ambs = 0, nondets = 0, reusedNodes = 0, reusedLeaves = 0, rebuilt = 0;
-        Set<IParseForest> nodeSet = new HashSet<>(), leafSet = new HashSet<>();
+        Set<IParseForest> nodeSet = new HashSet<>(), leafSet = new HashSet<>(), rebuiltSet = new HashSet<>();
 
         if(parse1 != null) {
             Stack<IParseForest> todo1 = new Stack<>();
@@ -191,10 +191,13 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                     }
                     IParseNode<?, ?> parent = t2Node;
                     while(!nodeSet.contains(parent) && parent.getFirstDerivation().parseForests().length > 0
-                        && Arrays.stream(parent.getFirstDerivation().parseForests()).allMatch(nodeSet::contains)) {
+                        && Arrays.stream(parent.getFirstDerivation().parseForests()).allMatch(c -> nodeSet.contains(c)
+                            || leafSet.contains(c) || rebuiltSet.contains(c) || c.width() == 0)) {
                         rebuilt++;
-                        nodeSet.add(parent);
+                        rebuiltSet.add(parent);
                         parent = parents.get(parent);
+                        if (parent == null) // At this point, we reached the root node
+                            break;
                     }
                 }
             } else {

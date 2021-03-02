@@ -127,11 +127,10 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                         return measureObserver.shiftNode;
                     case breakDowns:
                         return measureObserver.breakdown.values().stream().mapToLong(l -> l).sum();
+                    case breakDownIrreusable:
+                        return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.IRREUSABLE, 0L);
                     case breakDownNoActions:
                         return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.NO_ACTIONS, 0L);
-                    case breakDownNonDeterministic:
-                        return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.NON_DETERMINISTIC,
-                            0L);
                     case breakDownTemporary:
                         return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.TEMPORARY, 0L);
                     case breakDownWrongState:
@@ -196,7 +195,7 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                         rebuilt++;
                         rebuiltSet.add(parent);
                         parent = parents.get(parent);
-                        if (parent == null) // At this point, we reached the root node
+                        if(parent == null) // At this point, we reached the root node
                             break;
                     }
                 }

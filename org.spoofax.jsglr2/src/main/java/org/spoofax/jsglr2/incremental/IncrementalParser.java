@@ -116,7 +116,7 @@ public class IncrementalParser
                 observer.breakDown(parseState.inputStack,
                     node instanceof IParseNode && ((IParseNode<?, ?>) node).production() == null ? TEMPORARY
                         : node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE
-                            : NON_DETERMINISTIC);
+                            : IRREUSABLE);
             });
             parseState.inputStack.breakDown();
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));

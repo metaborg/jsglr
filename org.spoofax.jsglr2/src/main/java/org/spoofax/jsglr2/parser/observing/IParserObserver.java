@@ -70,13 +70,14 @@ public interface IParserObserver
     }
 
     enum BreakdownReason {
+        /**
+         * The parse node is broken down because it is irreusable.
+         * A parse node is irreusable when it stores no state,
+         * which happens when it is created during a non-deterministic phase of parsing.
+         */
+        IRREUSABLE("parse node was irreusable, i.e., created while parse was non-deterministic"),
         /** The parse node is broken down because no actions are available for the grammar production of this node. */
         NO_ACTIONS("no actions for this parse node"),
-        /**
-         * The parse node is broken down because it stores no state, i.e., it was created during a non-deterministic
-         * phase of parsing.
-         */
-        NON_DETERMINISTIC("parse node was created while parse was non-deterministic"),
         /**
          * The parse node is broken down because it was temporary, i.e., it was created during ProcessUpdates to store
          * changed children.

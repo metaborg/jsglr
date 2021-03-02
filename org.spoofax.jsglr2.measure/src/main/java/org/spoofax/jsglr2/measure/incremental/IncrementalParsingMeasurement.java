@@ -7,5 +7,5 @@ public enum IncrementalParsingMeasurement {
     characterNodes, characterNodesReused,
 
     createCharacterNode, createParseNode, shiftCharacterNode, shiftParseNode, //
-    breakDowns, breakDownNoActions, breakDownNonDeterministic, breakDownTemporary, breakDownWrongState
+    breakDowns, breakDownIrreusable, breakDownNoActions, breakDownTemporary, breakDownWrongState
 }

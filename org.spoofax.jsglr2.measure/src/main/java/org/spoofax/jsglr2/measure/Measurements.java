@@ -4,18 +4,18 @@ import java.io.IOException;
 
 import org.metaborg.parsetable.ParseTableReadException;
 import org.spoofax.jsglr2.testset.TestSetWithParseTable;
-import org.spoofax.jsglr2.testset.testinput.StringInput;
+import org.spoofax.jsglr2.testset.testinput.TestInput;
 
-public abstract class Measurements {
+public abstract class Measurements<ContentType, Input extends TestInput<ContentType>> {
 
-    protected TestSetWithParseTable<String, StringInput> testSet;
-    protected MeasureTestSetWithParseTableReader<String, StringInput> testSetReader;
+    protected TestSetWithParseTable<ContentType, Input> testSet;
+    protected MeasureTestSetWithParseTableReader<ContentType, Input> testSetReader;
 
-    public Measurements(TestSetWithParseTable<String, StringInput> testSet) {
+    public Measurements(TestSetWithParseTable<ContentType, Input> testSet) {
         this.testSet = testSet;
         this.testSetReader = new MeasureTestSetWithParseTableReader<>(testSet);
     }
 
-    protected abstract void measure(JSGLR2Measurements.Config config) throws ParseTableReadException, IOException;
+    protected abstract void measure(Config<ContentType, Input> config) throws ParseTableReadException, IOException;
 
 }

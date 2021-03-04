@@ -1,10 +1,10 @@
 package org.spoofax.jsglr2.parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -20,9 +20,9 @@ public class CycleDetector
 //@formatter:on
     implements ParseNodeVisitor<ParseForest, Derivation, ParseNode> {
 
-    boolean cycleDetected = false;
     Collection<Message> messages;
-    Set<ParseNode> spine = new HashSet<>();
+    List<ParseNode> spine = new ArrayList<>();
+    ParseFailureCause failureCause = null;
 
     CycleDetector(Collection<Message> messages) {
         this.messages = messages;
@@ -30,8 +30,10 @@ public class CycleDetector
 
     @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
         if(spine.contains(parseNode)) {
-            cycleDetected = true;
-            messages.add(new Message(ParseFailureCause.Type.Cycle.message, Category.CYCLE, startPosition));
+            failureCause =
+                new ParseFailureCause(ParseFailureCause.Type.Cycle, startPosition, cycleDescription(parseNode));
+
+            messages.add(failureCause.toMessage());
 
             return false;
         } else {
@@ -39,6 +41,21 @@ public class CycleDetector
 
             return parseNode.production().isContextFree();
         }
+    }
+
+    public boolean cycleDetected() {
+        return failureCause != null;
+    }
+
+    private String cycleDescription(ParseNode parseNode) {
+        int cycleStartIndex = spine.size() - 1;
+
+        while(spine.get(cycleStartIndex) != parseNode)
+            cycleStartIndex--;
+
+        List<ParseNode> cycle = spine.subList(cycleStartIndex, spine.size());
+
+        return cycle.stream().map(ParseNode::descriptor).collect(Collectors.joining(" -> "));
     }
 
     @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {

@@ -43,7 +43,8 @@ public abstract class AbstractRecoveryParseState
     @Override public void nextParseRound(ParserObserving observing) throws ParseException {
         super.nextParseRound(observing);
         if(isRecovering() && recoveryJob.timeout())
-            throw new ParseException(ParseFailureCause.Type.RecoveryTimeout, inputStack.safePosition(),
+            throw new ParseException(
+                new ParseFailureCause(ParseFailureCause.Type.RecoveryTimeout, inputStack.safePosition()),
                 inputStack.safeCharacter());
 
         int currentOffset = inputStack.offset();

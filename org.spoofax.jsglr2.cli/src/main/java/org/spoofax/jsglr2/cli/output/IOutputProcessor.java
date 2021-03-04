@@ -25,13 +25,13 @@ public interface IOutputProcessor {
     void outputParseResult(ParseSuccess<?> parseResult, PrintStream output) throws WrappedException;
 
     default void outputParseFailure(ParseFailure<?> parseResult, PrintStream output) throws WrappedException {
-        output.println(parseResult.failureCause.type.message);
+        output.println(parseResult.failureCause.causeMessage());
     }
 
     void outputResult(JSGLR2Success<IStrategoTerm> result, PrintStream output) throws WrappedException;
 
     default void outputFailure(JSGLR2Failure<IStrategoTerm> result, PrintStream output) throws WrappedException {
-        output.println(result.parseFailure.failureCause.type.message);
+        output.println(result.parseFailure.failureCause.causeMessage());
     }
 
 }

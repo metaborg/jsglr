@@ -103,8 +103,8 @@ public class Parser
                     return complete(parseState, parseForestWithStartSymbol);
             } else
                 return failure(parseState, failureHandler.failureCause(parseState));
-        } catch (ParseException e) {
-            return failure(parseState, e.cause());
+        } catch(ParseException e) {
+            return failure(parseState, e.cause);
         }
     }
 
@@ -123,9 +123,8 @@ public class Parser
 
         parseForestManager.visit(parseState.request, parseForest, cycleDetector);
 
-        if(cycleDetector.cycleDetected) {
-            return failure(new ParseFailure<>(parseState,
-                new ParseFailureCause(ParseFailureCause.Type.Cycle, messages.get(0).region.position())));
+        if(cycleDetector.cycleDetected()) {
+            return failure(new ParseFailure<>(parseState, cycleDetector.failureCause));
         } else {
             reporter.report(parseState, parseForest, messages);
 

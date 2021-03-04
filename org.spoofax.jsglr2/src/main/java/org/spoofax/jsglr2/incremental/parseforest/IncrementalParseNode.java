@@ -64,10 +64,6 @@ public class IncrementalParseNode extends IncrementalParseForest
         return production;
     }
 
-    @Override public String descriptor() {
-        return production.descriptor();
-    }
-
     @Override public void addDerivation(IncrementalDerivation derivation) {
         if(otherDerivations == null)
             otherDerivations = new ArrayList<>();

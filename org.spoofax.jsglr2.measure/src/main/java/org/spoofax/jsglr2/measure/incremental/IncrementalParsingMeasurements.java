@@ -146,7 +146,7 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
     }
 
     private static Map<IncrementalParsingMeasurement, Long> calculateReuse(IParseForest parse1, IParseForest parse2) {
-        long nodes = 0, leaves = 0, ambs = 0, nondets = 0, reusedNodes = 0, reusedLeaves = 0, rebuilt = 0;
+        long nodes = 0, leaves = 0, ambs = 0, irreusables = 0, reusedNodes = 0, reusedLeaves = 0, rebuilt = 0;
         Set<IParseForest> nodeSet = new HashSet<>(), leafSet = new HashSet<>(), rebuiltSet = new HashSet<>();
 
         if(parse1 != null) {
@@ -181,7 +181,7 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                 if(t2Node.isAmbiguous())
                     ambs++;
                 if(!((IncrementalParseForest) t2Node).isReusable())
-                    nondets++;
+                    irreusables++;
                 if(!(t2 instanceof IncrementalSkippedNode)) {
                     IParseForest[] sub2 = t2Node.getFirstDerivation().parseForests();
                     for(int i = sub2.length - 1; i >= 0; i--) {
@@ -208,7 +208,7 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
 
         Map<IncrementalParsingMeasurement, Long> output = new HashMap<>();
         output.put(parseNodesAmbiguous, ambs);
-        output.put(parseNodesNonDeterministic, nondets);
+        output.put(parseNodesIrreusable, irreusables);
         output.put(parseNodes, nodes);
         output.put(parseNodesReused, reusedNodes);
         output.put(parseNodesRebuilt, rebuilt);

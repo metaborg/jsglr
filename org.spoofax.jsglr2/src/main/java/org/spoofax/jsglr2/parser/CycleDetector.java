@@ -55,6 +55,8 @@ public class CycleDetector
 
         List<ParseNode> cycle = spine.subList(cycleStartIndex, spine.size());
 
+        cycle.add(parseNode);
+
         return cycle.stream().map(ParseNode::descriptor).collect(Collectors.joining(" -> "));
     }
 

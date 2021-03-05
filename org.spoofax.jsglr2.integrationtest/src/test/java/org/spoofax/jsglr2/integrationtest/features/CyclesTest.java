@@ -21,7 +21,7 @@ public class CyclesTest extends BaseTestWithSdf3ParseTables {
         // Empty input, so message is not reported on a character
         return testMessages("", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.Cycle.message + " (S-CF)", Severity.ERROR)
+            new MessageDescriptor(ParseFailureCause.Type.Cycle.message + " (S-CF -> S-CF)", Severity.ERROR)
         //@formatter:on
         ));
     }
@@ -30,7 +30,7 @@ public class CyclesTest extends BaseTestWithSdf3ParseTables {
         // The cycle is _after_ the x, but the input ends after the x and thus the message is reported _on_ the x
         return testMessages("x", Arrays.asList(
         //@formatter:off
-            new MessageDescriptor(ParseFailureCause.Type.Cycle.message + " (S-CF)", Severity.ERROR, 0, 1, 1, 1)
+            new MessageDescriptor(ParseFailureCause.Type.Cycle.message + " (S-CF -> S-CF)", Severity.ERROR, 0, 1, 1, 1)
         //@formatter:on
         ));
     }

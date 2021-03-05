@@ -130,7 +130,7 @@ public class Parser
             reporter.report(parseState, parseForest, messages);
 
             // Generate errors for non-assoc or non-nested productions that are used associatively
-            parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector<>(messages));
+            // parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector<>(messages));
 
             if(parseState.request.reportAmbiguities) {
                 // Generate warnings for ambiguous parse nodes

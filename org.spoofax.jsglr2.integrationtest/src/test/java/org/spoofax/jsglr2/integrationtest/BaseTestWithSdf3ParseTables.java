@@ -15,6 +15,8 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.parsetable.productions.IProduction;
+import org.metaborg.parsetable.symbols.ISymbol;
+import org.metaborg.parsetable.symbols.ITerminalSymbol;
 import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.ParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -98,6 +100,7 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
             // @formatter:off
             tests.accept(testProductionConsistency("id", a, b, i, IProduction::id));
             tests.accept(testProductionConsistency("sort", a, b, i, IProduction::sort));
+            tests.accept(testProductionConsistency("lhs", a, b, i, p -> lhsStringExcludingTerminals(p.lhs())));
             tests.accept(testProductionConsistency("start symbol sort", a, b, i, IProduction::startSymbolSort));
             tests.accept(testProductionConsistency("constructor", a, b, i, IProduction::constructor));
             tests.accept(testProductionConsistency("concrete syntax context", a, b, i, IProduction::concreteSyntaxContext));
@@ -142,6 +145,13 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
         return testConsistency("production (" + production.id() + ": " + production.toString() + ") " + property, a, b,
             parseTable -> get.apply(parseTable.productions().get(index)));
+    }
+
+    private String lhsStringExcludingTerminals(ISymbol symbol) {
+        if(symbol instanceof ITerminalSymbol)
+            return null; // We can't properly compare optimized character classes by string
+        else
+            return symbol.toString();
     }
 
 }

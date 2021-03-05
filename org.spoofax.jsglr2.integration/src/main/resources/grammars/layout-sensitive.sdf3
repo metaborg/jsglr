@@ -28,7 +28,7 @@ context-free syntax
   NLIndent.NLIndent = "NLindent" exp:Exp {layout(newline-indent "NLindent" exp)}
 
   SingleLine.SingleLine = "foo" "bar" {layout(
-    1.first.line == 2.last.line
+    0.first.line == 1.last.line
   )}
 
   Exp.Add = Exp "+" Exp {left}

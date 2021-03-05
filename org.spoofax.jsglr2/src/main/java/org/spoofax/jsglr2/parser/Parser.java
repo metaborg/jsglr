@@ -119,31 +119,31 @@ public class Parser
 
     protected ParseResult<ParseForest> complete(ParseState parseState, ParseForest parseForest) {
         List<Message> messages = new ArrayList<>();
-        CycleDetector<ParseForest, Derivation, ParseNode> cycleDetector = new CycleDetector<>(messages);
+        //CycleDetector<ParseForest, Derivation, ParseNode> cycleDetector = new CycleDetector<>(messages);
 
-        parseForestManager.visit(parseState.request, parseForest, cycleDetector);
+        //parseForestManager.visit(parseState.request, parseForest, cycleDetector);
 
-        if(cycleDetector.cycleDetected) {
+        /*if(cycleDetector.cycleDetected) {
             return failure(new ParseFailure<>(parseState,
                 new ParseFailureCause(ParseFailureCause.Type.Cycle, messages.get(0).region.position())));
-        } else {
-            reporter.report(parseState, parseForest, messages);
+        } else {*/
+            //reporter.report(parseState, parseForest, messages);
 
             // Generate errors for non-assoc or non-nested productions that are used associatively
             // parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector<>(messages));
 
-            if(parseState.request.reportAmbiguities) {
+            /*if(parseState.request.reportAmbiguities) {
                 // Generate warnings for ambiguous parse nodes
                 parseForestManager.visit(parseState.request, parseForest,
                     new AmbiguityDetector<>(parseState.inputStack.inputString(), messages));
-            }
+            }*/
 
             ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
 
             observing.notify(observer -> observer.success(success));
 
             return success;
-        }
+        //}
     }
 
     protected ParseFailure<ParseForest> failure(ParseState parseState, ParseFailureCause failureCause) {

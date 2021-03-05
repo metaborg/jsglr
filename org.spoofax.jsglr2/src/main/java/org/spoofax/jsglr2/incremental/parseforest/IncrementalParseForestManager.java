@@ -78,8 +78,8 @@ public class IncrementalParseForestManager
 
         parseNode.addDerivation(derivation);
 
-        if(disambiguator != null)
-            disambiguator.disambiguate(parseState, parseNode);
+        //if(disambiguator != null)
+        //    disambiguator.disambiguate(parseState, parseNode);
     }
 
     @Override public IncrementalSkippedNode createSkippedNode(ParseState parseState, IProduction production,

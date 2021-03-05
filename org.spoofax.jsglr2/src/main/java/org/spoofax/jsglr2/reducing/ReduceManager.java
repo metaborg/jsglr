@@ -89,12 +89,12 @@ public class ReduceManager
     }
 
     private boolean ignoreReduceAction(ParseState parseState, StackNode stack, IReduce reduce) {
-        for(ReduceActionFilter<ParseForest, StackNode, ParseState> reduceActionFilter : reduceActionFilters) {
+        /*for(ReduceActionFilter<ParseForest, StackNode, ParseState> reduceActionFilter : reduceActionFilters) {
             if(reduceActionFilter.ignoreReduce(parseState, stack, reduce))
                 return true;
-        }
+        }*/
 
-        return false;
+        return reduce.production().isRecovery() || reduce.production().isCompletion();
     }
 
     protected void doReductionsHelper(
@@ -105,7 +105,7 @@ public class ReduceManager
                 StackNode originStack = path.head();
                 ParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
-                if(!ignoreReducePath(originStack, reduce, parseNodes))
+                //if(!ignoreReducePath(originStack, reduce, parseNodes))
                     reducer(observing, parseState, activeStack, originStack, reduce, parseNodes);
             }
         }

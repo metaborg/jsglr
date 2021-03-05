@@ -60,8 +60,8 @@ public class HybridParseForestManager
 
         parseNode.addDerivation(derivation);
 
-        if(disambiguator != null)
-            disambiguator.disambiguate(parseState, parseNode);
+        //if(disambiguator != null)
+        //    disambiguator.disambiguate(parseState, parseNode);
     }
 
     @Override public HybridParseNode createSkippedNode(ParseState parseState, IProduction production,

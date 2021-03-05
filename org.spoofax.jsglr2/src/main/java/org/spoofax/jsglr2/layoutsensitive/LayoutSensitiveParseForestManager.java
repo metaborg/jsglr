@@ -173,8 +173,8 @@ public class LayoutSensitiveParseForestManager
 
         parseNode.addDerivation(derivation);
 
-        if(disambiguator != null)
-            disambiguator.disambiguate(parseState, parseNode);
+        //if(disambiguator != null)
+        //    disambiguator.disambiguate(parseState, parseNode);
     }
 
     @Override public

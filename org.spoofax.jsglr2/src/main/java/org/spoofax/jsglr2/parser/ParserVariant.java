@@ -1,15 +1,6 @@
 package org.spoofax.jsglr2.parser;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.metaborg.parsetable.IParseTable;
-import org.spoofax.jsglr2.composite.CompositeParseForestManager;
-import org.spoofax.jsglr2.composite.CompositeReduceManager;
-import org.spoofax.jsglr2.datadependent.DataDependentParseForestManager;
-import org.spoofax.jsglr2.datadependent.DataDependentReduceManager;
 import org.spoofax.jsglr2.elkhound.BasicElkhoundStackManager;
 import org.spoofax.jsglr2.elkhound.ElkhoundParser;
 import org.spoofax.jsglr2.elkhound.ElkhoundReduceManager;
@@ -26,35 +17,24 @@ import org.spoofax.jsglr2.inputstack.incremental.EagerIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.inputstack.incremental.LinkedIncrementalInputStack;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
-import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveReduceManager;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForestManager;
 import org.spoofax.jsglr2.parseforest.empty.NullParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
 import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
 import org.spoofax.jsglr2.recovery.*;
 import org.spoofax.jsglr2.recoveryincremental.RecoveryIncrementalParseState;
-import org.spoofax.jsglr2.reducing.ReduceActionFilter;
-import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.reducing.Reducer;
-import org.spoofax.jsglr2.reducing.ReducerFactory;
-import org.spoofax.jsglr2.reducing.ReducerOptimized;
-import org.spoofax.jsglr2.reducing.Reducing;
+import org.spoofax.jsglr2.reducing.*;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.basic.BasicStackManager;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
+import org.spoofax.jsglr2.stack.collections.*;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ParserVariant {
     public final ActiveStacksRepresentation activeStacksRepresentation;
@@ -327,58 +307,13 @@ public class ParserVariant {
             }
 
             case DataDependent:
-                if(this.reducing != Reducing.DataDependent)
-                    throw new IllegalStateException();
-
-                switch(this.stackRepresentation) {
-                    case Basic:
-                        if (this.recovery)
-                            return    withRecovery(new Parser<>(inputStackFactory, RecoveryParseState.factory(activeStacksFactory, forActorStacksFactory), parseTable, BasicStackManager.factory(),  DataDependentParseForestManager.factory(), new RecoveryDisambiguator<>(), DataDependentReduceManager.factoryDataDependent(recoveryReducerFactory()), RecoveryParseFailureHandler.factory(), RecoveryParseReporter.factory()));
-                        else
-                            return withoutRecovery(new Parser<>(inputStackFactory, ParseState.factory(activeStacksFactory, forActorStacksFactory),         parseTable, BasicStackManager.factory(),  DataDependentParseForestManager.factory(), null,                          DataDependentReduceManager.factoryDataDependent(reducerFactory()),         DefaultParseFailureHandler.factory(),  EmptyParseReporter.factory()));
-                    case Hybrid:
-                        if (this.recovery)
-                            return    withRecovery(new Parser<>(inputStackFactory, RecoveryParseState.factory(activeStacksFactory, forActorStacksFactory), parseTable, HybridStackManager.factory(), DataDependentParseForestManager.factory(), new RecoveryDisambiguator<>(), DataDependentReduceManager.factoryDataDependent(recoveryReducerFactory()), RecoveryParseFailureHandler.factory(), RecoveryParseReporter.factory()));
-                        else
-                            return withoutRecovery(new Parser<>(inputStackFactory, ParseState.factory(activeStacksFactory, forActorStacksFactory),         parseTable, HybridStackManager.factory(), DataDependentParseForestManager.factory(), null,                          DataDependentReduceManager.factoryDataDependent(reducerFactory()),         DefaultParseFailureHandler.factory(),  EmptyParseReporter.factory()));
-                    default: throw new IllegalStateException();
-                }
+                throw new IllegalStateException();
 
             case LayoutSensitive:
-                if(this.reducing != Reducing.LayoutSensitive || this.recovery)
-                    throw new IllegalStateException();
-
-                switch(this.stackRepresentation) {
-                    case Basic:
-                        //if (this.recovery)
-                        //    return    withRecovery(new Parser<>(inputStackFactoryLS, RecoveryParseState.factory(activeStacksFactory, forActorStacksFactory), parseTable, BasicStackManager.factory(),  LayoutSensitiveParseForestManager.factory(), new RecoveryDisambiguator<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(recoveryReducerFactory()), RecoveryParseFailureHandler.factory(), RecoveryParseReporter.factory()));
-                        //else
-                            return withoutRecovery(new Parser<>(inputStackFactoryLS, ParseState.factory(activeStacksFactory, forActorStacksFactory),         parseTable, BasicStackManager.factory(),  LayoutSensitiveParseForestManager.factory(), null,                          LayoutSensitiveReduceManager.factoryLayoutSensitive(reducerFactory()), DefaultParseFailureHandler.factory(),  EmptyParseReporter.factory()));
-                    case Hybrid:
-                        //if (this.recovery)
-                        //    return    withRecovery(new Parser<>(inputStackFactoryLS, RecoveryParseState.factory(activeStacksFactory, forActorStacksFactory), parseTable, HybridStackManager.factory(), LayoutSensitiveParseForestManager.factory(), new RecoveryDisambiguator<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(recoveryReducerFactory()), RecoveryParseFailureHandler.factory(), RecoveryParseReporter.factory()));
-                        //else
-                            return withoutRecovery(new Parser<>(inputStackFactoryLS, ParseState.factory(activeStacksFactory, forActorStacksFactory),         parseTable, HybridStackManager.factory(), LayoutSensitiveParseForestManager.factory(), null,                          LayoutSensitiveReduceManager.factoryLayoutSensitive(reducerFactory()), DefaultParseFailureHandler.factory(),  EmptyParseReporter.factory()));
-                    default: throw new IllegalStateException();
-                }
+                throw new IllegalStateException();
 
             case Composite:
-                if(this.reducing != Reducing.Composite || this.recovery)
-                    throw new IllegalStateException();
-
-                switch(this.stackRepresentation) {
-                    case Basic:
-                        //if (this.recovery)
-                        //    return    withRecovery(new Parser<>(inputStackFactoryLS, RecoveryParseState.factory(activeStacksFactory, forActorStacksFactory), parseTable, BasicStackManager.factory(),  LayoutSensitiveParseForestManager.factory(), new RecoveryDisambiguator<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(recoveryReducerFactory)_), RecoveryParseFailureHandler.factory(), RecoveryParseReporter.factory()));
-                        //else
-                            return withoutRecovery(new Parser<>(inputStackFactoryLS, ParseState.factory(activeStacksFactory, forActorStacksFactory),         parseTable, BasicStackManager.factory(),  CompositeParseForestManager.factory(), null,                          CompositeReduceManager.factoryComposite(reducerFactory()), DefaultParseFailureHandler.factory(),  EmptyParseReporter.factory()));
-                    case Hybrid:
-                        //if (this.recovery)
-                        //    return    withRecovery(new Parser<>(inputStackFactoryLS, RecoveryParseState.factory(activeStacksFactory, forActorStacksFactory), parseTable, HybridStackManager.factory(), LayoutSensitiveParseForestManager.factory(), new RecoveryDisambiguator<>(), LayoutSensitiveReduceManager.factoryLayoutSensitive(recoveryReducerFactory()), RecoveryParseFailureHandler.factory(), RecoveryParseReporter.factory()));
-                        //else
-                            return withoutRecovery(new Parser<>(inputStackFactoryLS, ParseState.factory(activeStacksFactory, forActorStacksFactory),         parseTable, HybridStackManager.factory(), CompositeParseForestManager.factory(), null,                          CompositeReduceManager.factoryComposite(reducerFactory()), DefaultParseFailureHandler.factory(),  EmptyParseReporter.factory()));
-                    default: throw new IllegalStateException();
-                }
+                throw new IllegalStateException();
 
             case Incremental:
                 if(this.reducing != Reducing.Incremental)

@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
-import org.spoofax.jsglr2.layoutsensitive.ILayoutSensitiveParseNode;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;

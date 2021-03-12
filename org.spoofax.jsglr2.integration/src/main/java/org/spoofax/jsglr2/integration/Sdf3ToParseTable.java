@@ -28,7 +28,6 @@ import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.meta.core.SpoofaxExtensionModule;
 import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.iterators.Iterables2;
@@ -83,30 +82,31 @@ public class Sdf3ToParseTable {
     }
 
     public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
-        return getParseTable(variant, sdf3Resource, false);
+        return getParseTable(variant, sdf3Resource, false, false);
     }
 
-    public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource, boolean permissive)
-        throws Exception {
-        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, permissive);
+    public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource, boolean permissive,
+        boolean withWater) throws Exception {
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3(sdf3Resource, permissive, withWater);
 
         // TODO: use the parse table variant in the parse table generator
         return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false, false));
     }
 
     public IParseTable getLayoutSensitiveParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
-        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, false);
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3(sdf3Resource, false, false);
 
         // TODO: use the parse table variant in the parse table generator
         return new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, false, false, false, true));
     }
 
     public IStrategoTerm getParseTableTerm(String sdf3Resource) throws Exception {
-        return getParseTableTerm(sdf3Resource, false);
+        return getParseTableTerm(sdf3Resource, false, false);
     }
 
-    public IStrategoTerm getParseTableTerm(String sdf3Resource, boolean permissive) throws Exception {
-        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3("grammars/" + sdf3Resource, permissive);
+    public IStrategoTerm getParseTableTerm(String sdf3Resource, boolean permissive, boolean withWater)
+        throws Exception {
+        NormGrammar normalizedGrammar = normalizedGrammarFromSDF3(sdf3Resource, permissive, withWater);
 
         ParseTable parseTable =
             new ParseTable(normalizedGrammar, new ParseTableConfiguration(false, false, true, false, false, false));
@@ -114,7 +114,23 @@ public class Sdf3ToParseTable {
         return ParseTableIO.generateATerm(parseTable);
     }
 
-    private NormGrammar normalizedGrammarFromSDF3(String sdf3Resource, boolean permissive) throws Exception {
+    private NormGrammar normalizedGrammarFromSDF3(String sdf3Resource, boolean makePermissive, boolean withWater)
+        throws Exception {
+        NormGrammarReader normGrammarReader = new NormGrammarReader();
+
+        final IStrategoTerm sdf3ModuleNormalized = sdf3ToNormalized("grammars/" + sdf3Resource, makePermissive);
+        normGrammarReader.readModule(sdf3ModuleNormalized);
+
+        if(withWater) {
+            final IStrategoTerm sdf3WaterModuleNormalized =
+                sdf3ToNormalized("grammars/recovery-water-boilerplate.sdf3", false);
+            normGrammarReader.readModule(sdf3WaterModuleNormalized);
+        }
+
+        return normGrammarReader.getGrammar();
+    }
+
+    private IStrategoTerm sdf3ToNormalized(String sdf3Resource, boolean makePermissive) throws Exception {
         final FileObject sdf3File = spoofax.resourceService.resolve(getResourcePath(sdf3Resource));
         final String sdf3Text = spoofax.sourceTextService.text(sdf3File);
 
@@ -126,9 +142,8 @@ public class Sdf3ToParseTable {
                 + Iterables2.stream(parseResult.messages()).map(IMessage::message).collect(Collectors.joining(", ")));
 
         final IStrategoTerm sdf3Module = parseResult.ast();
-        final IStrategoTerm sdf3ModuleNormalized = normalize(permissive ? makePermissive(sdf3Module) : sdf3Module);
 
-        return new NormGrammarReader().readGrammar(sdf3ModuleNormalized);
+        return normalize(makePermissive ? makePermissive(sdf3Module) : sdf3Module);
     }
 
     private IStrategoTerm normalize(IStrategoTerm sdf3Module) throws MetaborgException {

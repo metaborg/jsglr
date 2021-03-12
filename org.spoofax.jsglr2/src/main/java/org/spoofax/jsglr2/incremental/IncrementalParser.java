@@ -24,6 +24,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
+import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseReporterFactory;
@@ -54,12 +55,13 @@ public class IncrementalParser
         IParseTable parseTable,
         StackManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
+        Disambiguator<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> disambiguator,
         ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory,
         ParseReporterFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporterFactory) {
 
-        super(null, parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, reduceManagerFactory,
-            failureHandlerFactory, reporterFactory);
+        super(null, parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory, disambiguator,
+            reduceManagerFactory, failureHandlerFactory, reporterFactory);
 
         this.incrementalInputStackFactory = incrementalInputStackFactory;
         // TODO parametrize parser on diff algorithm for benchmarking
@@ -132,7 +134,7 @@ public class IncrementalParser
     // Else, the loop in `actor` will have broken it down
     private Iterable<IAction> getActions(StackNode stack, ParseState parseState) {
         // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
-        Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack);
+        Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
         IncrementalParseForest lookahead = parseState.inputStack.getNode();
         if(lookahead.isTerminal()) {

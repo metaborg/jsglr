@@ -9,14 +9,8 @@ import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.inputstack.InputStackFactory;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
-import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ParseReporterFactory;
-import org.spoofax.jsglr2.parser.ParseStateFactory;
-import org.spoofax.jsglr2.parser.Parser;
+import org.spoofax.jsglr2.parseforest.*;
+import org.spoofax.jsglr2.parser.*;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
@@ -41,14 +35,15 @@ public class ElkhoundParser
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> parseForestManagerFactory,
+        Disambiguator<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> disambiguator,
         ReduceManagerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState, StackManager, ReduceManager> elkhoundReduceManagerFactory,
         ParseFailureHandlerFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, ParseState> failureHandlerFactory,
         ParseReporterFactory<ParseForest, Derivation, ParseNode, ElkhoundStackNode, InputStack, ParseState> reporterFactory) {
         super(inputStackFactory, parseStateFactory, parseTable, stackManagerFactory, parseForestManagerFactory,
-            elkhoundReduceManagerFactory, failureHandlerFactory, reporterFactory);
+            disambiguator, elkhoundReduceManagerFactory, failureHandlerFactory, reporterFactory);
     }
 
-    @Override protected void parseLoop(ParseState parseState) {
+    @Override protected void parseLoop(ParseState parseState) throws ParseException {
         boolean nextRound = true;
 
         while(parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {
@@ -60,7 +55,7 @@ public class ElkhoundParser
 
                 if(!singleActiveStack.allLinksRejected()) {
                     Iterator<IAction> actionsIterator =
-                        singleActiveStack.state.getApplicableActions(parseState.inputStack).iterator();
+                        singleActiveStack.state.getApplicableActions(parseState.inputStack, parseState.mode).iterator();
 
                     if(actionsIterator.hasNext()) {
                         IAction firstAction = actionsIterator.next();

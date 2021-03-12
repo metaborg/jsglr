@@ -13,7 +13,8 @@ public class ParseFailureCause {
         InvalidStartSymbol("Invalid start symbol", Category.PARSING),
         Cycle("Parse forest contains a cycle", Category.CYCLE),
         NonAssoc("Operator is non-associative", Category.NON_ASSOC),
-        NonNested("Operator is non-nested", Category.NON_ASSOC);
+        NonNested("Operator is non-nested", Category.NON_ASSOC),
+        RecoveryTimeout("Recovery timed out", Category.RECOVERY);
 
         public final String message;
         public final Category category;

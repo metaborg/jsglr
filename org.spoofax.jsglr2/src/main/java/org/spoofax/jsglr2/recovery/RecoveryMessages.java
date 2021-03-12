@@ -2,33 +2,32 @@ package org.spoofax.jsglr2.recovery;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.ILiteralSymbol;
-import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
-import org.spoofax.jsglr2.parser.Position;
 
 public class RecoveryMessages {
 
-    public static Message get(IProduction production, Position start, Position end) {
-        SourceRegion region = new SourceRegion(start, end);
-
+    public static Message get(IProduction production, SourceRegion region) {
         String message;
+        RecoveryType recoveryType = null;
 
-        if("WATER".equals(production.constructor()))
+        if(production.isWater()) {
             message = "Not expected";
-        else if("INSERTION".equals(production.constructor())) {
+            recoveryType = RecoveryType.WATER;
+        } else if(production.isInsertion()) {
             String insertion;
 
             if(production.isLiteral())
                 insertion = ((ILiteralSymbol) production.lhs()).literal();
             else
-                insertion = "Token";
+                insertion = production.sort();
 
             message = insertion + " expected";
+            recoveryType = RecoveryType.INSERTION;
         } else
             message = "Invalid syntax";
 
-        return new Message(message, Category.RECOVERY, region);
+        return new RecoveryMessage(message, recoveryType, region);
     }
 
 }

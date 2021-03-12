@@ -12,11 +12,7 @@ import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -57,6 +53,7 @@ public class Parser
         IParseTable parseTable,
         StackManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
         ParseForestManagerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManagerFactory,
+        Disambiguator<ParseForest, Derivation, ParseNode, StackNode, ParseState> disambiguator,
         ReduceManagerFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
         ParseFailureHandlerFactory<ParseForest, Derivation, ParseNode, StackNode, ParseState> failureHandlerFactory,
         ParseReporterFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reporterFactory) {
@@ -65,7 +62,7 @@ public class Parser
         this.parseStateFactory = parseStateFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManagerFactory.get(observing);
-        this.parseForestManager = parseForestManagerFactory.get(observing);
+        this.parseForestManager = parseForestManagerFactory.get(observing, disambiguator);
         this.reduceManager = reduceManagerFactory.get(parseTable, stackManager, parseForestManager);
         this.failureHandler = failureHandlerFactory.get(observing);
         this.reporter = reporterFactory.get(parseForestManager);
@@ -83,28 +80,37 @@ public class Parser
 
         boolean recover;
 
-        do {
-            parseLoop(parseState);
+        try {
+            do {
+                parseLoop(parseState);
 
-            if(parseState.acceptingStack == null)
-                recover = failureHandler.onFailure(parseState);
-            else
-                recover = false;
-        } while(recover);
+                if(parseState.acceptingStack == null)
+                    recover = failureHandler.onFailure(parseState);
+                else
+                    recover = false;
+            } while(recover);
 
-        if(parseState.acceptingStack != null) {
-            ParseForest parseForest =
-                stackManager.findDirectLink(parseState.acceptingStack, initialStackNode).parseForest;
+            if(parseState.acceptingStack != null) {
+                ParseForest parseForest =
+                    stackManager.findDirectLink(parseState.acceptingStack, initialStackNode).parseForest;
 
-            ParseForest parseForestWithStartSymbol = request.startSymbol != null
-                ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState) : parseForest;
+                ParseForest parseForestWithStartSymbol = request.startSymbol != null
+                    ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState) : parseForest;
 
-            if(parseForest != null && parseForestWithStartSymbol == null)
-                return failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
-            else
-                return complete(parseState, parseForestWithStartSymbol);
-        } else
-            return failure(parseState, failureHandler.failureCause(parseState));
+                if(parseForest != null && parseForestWithStartSymbol == null)
+                    return failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
+                else
+                    return complete(parseState, parseForestWithStartSymbol);
+            } else
+                return failure(parseState, failureHandler.failureCause(parseState));
+        } catch (ParseException e) {
+            return failure(parseState, e.cause());
+        }
+    }
+
+    @Override public void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor) {
+        parseForestManager.visit(success.parseState.request, (ParseForest) success.parseResult,
+            (ParseNodeVisitor<ParseForest, Derivation, ParseNode>) visitor);
     }
 
     protected ParseState getParseState(JSGLR2Request request, String previousInput, ParseForest previousResult) {
@@ -128,7 +134,8 @@ public class Parser
 
             if(parseState.request.reportAmbiguities) {
                 // Generate warnings for ambiguous parse nodes
-                parseForestManager.visit(parseState.request, parseForest, new AmbiguityDetector<>(messages));
+                parseForestManager.visit(parseState.request, parseForest,
+                    new AmbiguityDetector<>(parseState.inputStack.inputString(), messages));
             }
 
             ParseSuccess<ParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
@@ -149,7 +156,7 @@ public class Parser
         return failure;
     }
 
-    protected void parseLoop(ParseState parseState) {
+    protected void parseLoop(ParseState parseState) throws ParseException {
         while(parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {
             parseCharacter(parseState);
             parseState.inputStack.consumed();
@@ -159,7 +166,7 @@ public class Parser
         }
     }
 
-    protected void parseCharacter(ParseState parseState) {
+    protected void parseCharacter(ParseState parseState) throws ParseException {
         parseState.nextParseRound(observing);
 
         parseState.activeStacks.addAllTo(parseState.forActorStacks);
@@ -185,10 +192,10 @@ public class Parser
     }
 
     protected void actor(StackNode stack, ParseState parseState) {
-        observing.notify(
-            observer -> observer.actor(stack, parseState, stack.state().getApplicableActions(parseState.inputStack)));
+        observing.notify(observer -> observer.actor(stack, parseState,
+            stack.state().getApplicableActions(parseState.inputStack, parseState.mode)));
 
-        for(IAction action : stack.state().getApplicableActions(parseState.inputStack))
+        for(IAction action : stack.state().getApplicableActions(parseState.inputStack, parseState.mode))
             actor(stack, parseState, action);
     }
 

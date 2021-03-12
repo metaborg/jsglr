@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.function.Executable;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableVariant;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -18,32 +20,43 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
+import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
+import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.recovery.IRecoveryParseState;
+import org.spoofax.jsglr2.recovery.Reconstruction;
 import org.spoofax.jsglr2.recovery.RecoveryJob;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSdf3ParseTables {
 
     private final boolean makePermissive;
+    private final boolean withWater;
+    private final boolean testReconstruction;
 
-    protected BaseTestWithRecoverySdf3ParseTables(String sdf3Resource, boolean makePermissive) {
+    protected BaseTestWithRecoverySdf3ParseTables(String sdf3Resource, boolean makePermissive, boolean withWater,
+        boolean testReconstruction) {
         super(sdf3Resource);
 
         this.makePermissive = makePermissive;
+        this.withWater = withWater;
+        this.testReconstruction = testReconstruction;
     }
 
     @Override public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
-        return sdf3ToParseTable.getParseTable(variant, sdf3Resource, makePermissive);
+        return sdf3ToParseTable.getParseTable(variant, sdf3Resource, makePermissive, withWater);
     }
 
     protected Predicate<TestVariant> isRecoveryVariant = testVariant -> testVariant.variant.parser.recovery;
 
     protected Predicate<TestVariant> isNotRecoveryVariant = isRecoveryVariant.negate();
 
-    protected Stream<DynamicTest> testRecovery(String inputString, boolean recovers, String expectedAst) {
+    protected Stream<DynamicTest> testRecoveryHelper(String inputString, boolean recovers,
+        BiFunction<TestVariant, JSGLR2Request, Executable> body) {
         JSGLR2Request request = getRequestForRecovery(inputString);
 
         Stream<DynamicTest> notRecoveryTests = testPerVariant(getTestVariants(isNotRecoveryVariant), variant -> () -> {
@@ -58,10 +71,17 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
             assertEquals(recovers, parseResult.isSuccess(),
                 "Parsing should " + (recovers ? "succeed" : "fail") + " with recovering parsing");
 
-            if(recovers && expectedAst != null) {
-                IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
+            body.apply(variant, request).execute();
 
-                assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
+            if(testReconstruction) {
+                Reconstruction.Reconstructed reconstructed =
+                    Reconstruction.reconstruct(variant.parser(), (ParseSuccess<?>) parseResult);
+
+                JSGLR2Request reconstructedRequest = getRequestForRecovery(reconstructed.inputString);
+
+                ParseResult<?> reconstructedParseResult = variant.parser().parse(reconstructedRequest);
+
+                assertEquals(true, reconstructedParseResult.isSuccess(), "Parsing reconstructed input should succeed");
             }
         });
 
@@ -69,11 +89,37 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
     }
 
     protected Stream<DynamicTest> testRecovery(String inputString) {
-        return testRecovery(inputString, true, null);
+        return testRecovery(inputString, null);
     }
 
     protected Stream<DynamicTest> testRecovery(String inputString, String expectedAst) {
-        return testRecovery(inputString, true, expectedAst);
+        return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
+            if(expectedAst != null) {
+                IStrategoTerm actualAst = variant.jsglr2().parseUnsafe(request);
+
+                assertEqualAST("Incorrect recovered AST", expectedAst, actualAst, true);
+            }
+        });
+    }
+
+    protected Stream<DynamicTest> testRecoveryFails(String inputString, ParseFailureCause.Type expectedFailureCause) {
+        return testRecoveryHelper(inputString, false, (variant, request) -> () -> {
+            ParseFailure<?> parseFailure = (ParseFailure<?>) variant.parser().parse(request);
+
+            assertEquals(expectedFailureCause, parseFailure.failureCause.type, "Incorrect reconstruction");
+        });
+    }
+
+    protected Stream<DynamicTest> testRecoveryReconstruction(String inputString, String expectedReconstruction,
+        int expectedInsertions, int expectedDeletions) {
+        return testRecoveryHelper(inputString, true, (variant, request) -> () -> {
+            if (isNonOptimizedParseForestVariant.test(variant)) {
+                ParseSuccess<?> parseSuccess = (ParseSuccess<?>) variant.parser().parse(request);
+
+                assertReconstruction(variant.parser(), parseSuccess, expectedReconstruction, expectedInsertions,
+                        expectedDeletions);
+            }
+        });
     }
 
     protected Stream<DynamicTest> testRecoveryTraced(String inputString, WithRecoveryTrace withRecoveryTrace,
@@ -101,7 +147,11 @@ public abstract class BaseTestWithRecoverySdf3ParseTables extends BaseTestWithSd
     }
 
     protected JSGLR2Request getRequestForRecovery(String inputString) {
-        return configureRequest(new JSGLR2Request(inputString, "", null, 3, 5, Optional.empty(), false));
+        return configureRequest(new JSGLR2Request(inputString, "", null, 3, 5, recoveryTimeout(), Optional.empty(), false));
+    }
+
+    protected int recoveryTimeout() {
+        return 1000;
     }
 
     public interface WithRecoveryTrace {

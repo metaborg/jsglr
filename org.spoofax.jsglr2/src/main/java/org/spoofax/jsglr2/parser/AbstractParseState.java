@@ -1,10 +1,14 @@
 package org.spoofax.jsglr2.parser;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Queue;
 
+import org.metaborg.parsetable.query.ParsingMode;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
@@ -16,6 +20,7 @@ public abstract class AbstractParseState<InputStack extends IInputStack, StackNo
 
     // TODO would be nice if this is final, but resetting a recovery point requires overwriting it...
     public InputStack inputStack;
+    public ParsingMode mode;
 
     public final IActiveStacks<StackNode> activeStacks;
     public final IForActorStacks<StackNode> forActorStacks;
@@ -27,13 +32,18 @@ public abstract class AbstractParseState<InputStack extends IInputStack, StackNo
         IForActorStacks<StackNode> forActorStacks) {
         this.request = request;
         this.inputStack = inputStack;
+        this.mode = ParsingMode.Standard;
 
         this.activeStacks = activeStacks;
         this.forActorStacks = forActorStacks;
     }
 
-    public void nextParseRound(ParserObserving observing) {
+    public void nextParseRound(ParserObserving observing) throws ParseException {
         observing.notify(observer -> observer.parseRound(this, activeStacks));
+    }
+
+    public Collection<Message> postProcessMessages(Collection<Message> messages, ITokens tokens) {
+        return messages;
     }
 
 }

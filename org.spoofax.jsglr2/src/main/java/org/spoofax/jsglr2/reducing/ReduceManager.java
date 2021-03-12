@@ -144,7 +144,7 @@ public class ReduceManager
                 for(StackNode activeStackForLimitedReductions : parseState.activeStacks
                     .forLimitedReductions(parseState.forActorStacks)) {
                     for(IReduce reduceAction : activeStackForLimitedReductions.state()
-                        .getApplicableReduceActions(parseState.inputStack))
+                        .getApplicableReduceActions(parseState.inputStack, parseState.mode))
                         doLimitedReductions(observing, parseState, activeStackForLimitedReductions, reduceAction, link);
                 }
             }

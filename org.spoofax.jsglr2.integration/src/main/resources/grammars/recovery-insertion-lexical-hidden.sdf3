@@ -1,4 +1,4 @@
-module recovery
+module recovery-insertion-lexical-hidden
 
 lexical syntax
 	LAYOUT  = [\ \n\r]
@@ -7,15 +7,12 @@ context-free restrictions
 	LAYOUT? -/- [\ \n\r]
 
 context-free start-symbols
-
   Start
 
 context-free syntax
-
   Start.Start = XYZ
 
 lexical syntax
-
   XYZ = X Y Z
   X = [x]
   Y = [y]

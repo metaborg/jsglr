@@ -9,8 +9,6 @@ import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.MessageDescriptor;
 import org.spoofax.jsglr2.messages.Severity;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.terms.ParseError;
 
 public class AmbiguousMessagesTest extends BaseTestWithSdf3ParseTables {
@@ -28,9 +26,7 @@ public class AmbiguousMessagesTest extends BaseTestWithSdf3ParseTables {
             Collections.singletonList(new MessageDescriptor("Ambiguity", Severity.WARNING, 0, 1, 1, 3)), "ContextFree");
     }
 
-    Stream<TestVariant> nonOptimizedParseForestVariants =
-        getTestVariants(variant -> variant.variant.parser.parseForestConstruction == ParseForestConstruction.Full
-            && variant.variant.parser.parseForestRepresentation == ParseForestRepresentation.Basic);
+    Stream<TestVariant> nonOptimizedParseForestVariants = getTestVariants(isNonOptimizedParseForestVariant);
 
     @TestFactory public Stream<DynamicTest> lexical() throws ParseError {
         return testMessages("foo",
@@ -40,13 +36,13 @@ public class AmbiguousMessagesTest extends BaseTestWithSdf3ParseTables {
 
     @TestFactory public Stream<DynamicTest> layout() throws ParseError {
         return testMessages("///bar",
-            Collections.singletonList(new MessageDescriptor("Layout ambiguity", Severity.WARNING, 0, 1, 1, 4)),
+            Collections.singletonList(new MessageDescriptor("Layout ambiguity", Severity.WARNING, 0, 1, 1, 3)),
             nonOptimizedParseForestVariants, "Layout");
     }
 
     @TestFactory public Stream<DynamicTest> lexicalInLayout() throws ParseError {
         return testMessages("/*___*/bar",
-            Collections.singletonList(new MessageDescriptor("Lexical ambiguity", Severity.WARNING, 2, 1, 3, 4)),
+            Collections.singletonList(new MessageDescriptor("Lexical ambiguity", Severity.WARNING, 2, 1, 3, 3)),
             nonOptimizedParseForestVariants, "Layout");
     }
 

@@ -44,7 +44,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
             return new TestSet<>(language, input);
         }
 
-        throw new IllegalStateException("invalid arguments");
+        throw new IllegalStateException("invalid arguments: missing language (" + args + ")");
     }
 
     public static TestSetWithParseTable<String, StringInput> fromArgsWithParseTable(Map<String, String> args) {

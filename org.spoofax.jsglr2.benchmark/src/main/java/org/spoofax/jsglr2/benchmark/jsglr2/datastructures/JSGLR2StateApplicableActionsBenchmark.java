@@ -13,6 +13,7 @@ import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 import org.metaborg.parsetable.characterclasses.ICharacterClassFactory;
 import org.metaborg.parsetable.query.ActionsForCharacterRepresentation;
 import org.metaborg.parsetable.query.IActionQuery;
+import org.metaborg.parsetable.query.ParsingMode;
 import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.states.IStateFactory;
@@ -76,7 +77,7 @@ public abstract class JSGLR2StateApplicableActionsBenchmark extends JSGLR2DataSt
         }
 
         public void iterateOverApplicableActions(Blackhole bh) {
-            for(IAction action : state.getApplicableActions(actionQuery))
+            for(IAction action : state.getApplicableActions(actionQuery, ParsingMode.Standard))
                 bh.consume(action);
         }
 

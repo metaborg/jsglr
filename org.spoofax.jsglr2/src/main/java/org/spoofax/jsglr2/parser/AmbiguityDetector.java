@@ -4,10 +4,8 @@ import java.util.Collection;
 
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseNodeVisitor;
+import org.spoofax.jsglr2.messages.SourceRegion;
+import org.spoofax.jsglr2.parseforest.*;
 
 public class AmbiguityDetector
 //@formatter:off
@@ -17,9 +15,11 @@ public class AmbiguityDetector
 //@formatter:on
     implements ParseNodeVisitor<ParseForest, Derivation, ParseNode> {
 
+    private final String inputString;
     private final Collection<Message> messages;
 
-    AmbiguityDetector(Collection<Message> messages) {
+    AmbiguityDetector(String inputString, Collection<Message> messages) {
+        this.inputString = inputString;
         this.messages = messages;
     }
 
@@ -44,7 +44,9 @@ public class AmbiguityDetector
                     break;
             }
 
-            messages.add(new Message(message, Category.AMBIGUITY, startPosition, endPosition));
+            SourceRegion region = ParseNodeVisiting.visitRegion(inputString, startPosition, endPosition);
+
+            messages.add(new Message(message, Category.AMBIGUITY, region));
         }
     }
 

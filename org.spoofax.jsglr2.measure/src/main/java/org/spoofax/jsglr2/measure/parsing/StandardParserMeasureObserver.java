@@ -16,8 +16,8 @@ class StandardParserMeasureObserver
     extends
     ParserMeasureObserver<ParseForest, Derivation, ParseNode, HybridStackNode<ParseForest>, AbstractParseState<?, HybridStackNode<ParseForest>>> {
 
-    @Override int stackNodeLinkCount(HybridStackNode<ParseForest> stackNode) {
-        int linksOutCount = 0;
+    @Override long stackNodeLinkCount(HybridStackNode<ParseForest> stackNode) {
+        long linksOutCount = 0;
 
         for(StackLink<?, ?> link : stackNode.getLinks())
             linksOutCount++;

@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.parser;
 
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.ParseNodeVisitor;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -53,5 +54,7 @@ public interface IParser<ParseForest extends IParseForest> {
     default ParseForest parseUnsafe(String input, String startSymbol) throws ParseException {
         return parseUnsafe(input, startSymbol, null, null);
     }
+
+    void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor);
 
 }

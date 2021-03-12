@@ -14,7 +14,8 @@ public interface ParseForestManagerFactory
 //@formatter:on
 {
 
-    ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState>
-        get(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing);
+    ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> get(
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
+        Disambiguator<ParseForest, Derivation, ParseNode, StackNode, ParseState> disambiguator);
 
 }

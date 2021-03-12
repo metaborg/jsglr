@@ -24,8 +24,14 @@ public class RecoveryObserver
         if(parseState.isRecovering()) {
             int quota = parseState.recoveryJob().getQuota(activeStack);
 
-            if(reduce.production().isRecovery())
+            if(reduce.production().isRecovery()) {
                 quota--;
+
+                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack, parseState.inputStack.offset());
+            } else {
+                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack,
+                    parseState.recoveryJob().lastRecoveredOffset(activeStack));
+            }
 
             parseState.recoveryJob().updateQuota(gotoStack, quota);
         }
@@ -34,8 +40,10 @@ public class RecoveryObserver
     @Override public void shift(ParseState parseState, StackNode originStack, StackNode gotoStack) {
         if(parseState.isRecovering()) {
             int quota = parseState.recoveryJob().getQuota(originStack);
+            int lastRecoveredOffset = parseState.recoveryJob().lastRecoveredOffset(originStack);
 
             parseState.recoveryJob().updateQuota(gotoStack, quota);
+            parseState.recoveryJob().updateLastRecoveredOffset(gotoStack, lastRecoveredOffset);
         }
     }
 

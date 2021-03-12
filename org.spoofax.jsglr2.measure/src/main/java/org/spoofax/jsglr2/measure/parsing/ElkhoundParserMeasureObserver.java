@@ -17,8 +17,8 @@ class ElkhoundParserMeasureObserver
     extends
     ParserMeasureObserver<ParseForest, Derivation, ParseNode, AbstractElkhoundStackNode<ParseForest>, AbstractParseState<?, AbstractElkhoundStackNode<ParseForest>>> {
 
-    @Override int stackNodeLinkCount(AbstractElkhoundStackNode<ParseForest> stackNode) {
-        int linksOutCount = 0;
+    @Override long stackNodeLinkCount(AbstractElkhoundStackNode<ParseForest> stackNode) {
+        long linksOutCount = 0;
 
         for(StackLink<?, ?> link : stackNode.getLinks())
             linksOutCount++;

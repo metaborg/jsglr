@@ -82,9 +82,10 @@ public class IncrementalParseForestManager
             disambiguator.disambiguate(parseState, parseNode);
     }
 
-    @Override public IncrementalSkippedNode createSkippedNode(ParseState parseState, IProduction production,
-        IncrementalParseForest[] parseForests) {
-        return new IncrementalSkippedNode(production, parseForests);
+    @Override public IncrementalSkippedNode createSkippedNode(ParseState parseState, IStackNode stack,
+        IProduction production, IncrementalParseForest[] parseForests) {
+        IState state = parseState.newParseNodesAreReusable() ? stack.state() : NO_STATE;
+        return new IncrementalSkippedNode(production, parseForests, state);
     }
 
     @Override public IncrementalParseForest createCharacterNode(ParseState parseState) {

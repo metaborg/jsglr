@@ -52,14 +52,15 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
     @Override public void breakDown() {
         if(stack.isEmpty())
             last = null;
-        if(last == null || last.isTerminal()) {
-            if(last instanceof IncrementalSkippedNode) {
-                // Replace skipped node by one that has all skipped characters explicitly instantiated
-                last = new IncrementalParseNode(inputString.substring(currentOffset, currentOffset + last.width())
-                    .codePoints().mapToObj(IncrementalCharacterNode::new).toArray(IncrementalParseForest[]::new));
-            } else
-                return;
+        if(last == null || last.isTerminal())
+            return;
+
+        if(last instanceof IncrementalSkippedNode) {
+            // Replace skipped node by one that has all skipped characters explicitly instantiated
+            last = new IncrementalParseNode(inputString.substring(currentOffset, currentOffset + last.width())
+                .codePoints().mapToObj(IncrementalCharacterNode::new).toArray(IncrementalParseForest[]::new));
         }
+
         IncrementalParseForest[] children = ((IncrementalParseNode) last).getFirstDerivation().parseForests();
         if(children.length > 0) {
             stack.push(new StackTuple(((IncrementalParseNode) last), 0));

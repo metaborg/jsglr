@@ -43,18 +43,21 @@ public class EagerIncrementalInputStack extends AbstractInputStack implements II
     @Override public void breakDown() {
         if(stack.isEmpty())
             return;
+
         IncrementalParseForest current = stack.peek();
-        if(current.isTerminal()) {
-            if(current instanceof IncrementalSkippedNode) {
-                // Break down a skipped node by explicitly instantiating character nodes for the skipped part
-                stack.pop();
-                for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
-                    c = inputString.codePointBefore(i);
-                    stack.push(new IncrementalCharacterNode(c));
-                }
+        if(current.isTerminal())
+            return;
+
+        if(current instanceof IncrementalSkippedNode) {
+            // Break down a skipped node by explicitly instantiating character nodes for the skipped part
+            stack.pop();
+            for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
+                c = inputString.codePointBefore(i);
+                stack.push(new IncrementalCharacterNode(c));
             }
             return;
         }
+
         stack.pop(); // always pop last lookahead, whether it has children or not
         IncrementalParseForest[] children = ((IncrementalParseNode) current).getFirstDerivation().parseForests();
         // Push all children to stack in reverse order

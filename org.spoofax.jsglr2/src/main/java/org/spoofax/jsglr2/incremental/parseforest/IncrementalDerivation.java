@@ -32,7 +32,7 @@ public class IncrementalDerivation implements IDerivation<IncrementalParseForest
 
     protected void prettyPrint(TreePrettyPrinter printer) {
         if(production == null)
-            printer.println("d null : {");
+            printer.println("d null {");
         else
             printer.println("d" + production.id() + " : " + production.toString() + " {");
         printer.indent(2);

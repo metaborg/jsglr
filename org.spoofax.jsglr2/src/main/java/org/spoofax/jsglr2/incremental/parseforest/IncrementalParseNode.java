@@ -27,7 +27,7 @@ public class IncrementalParseNode extends IncrementalParseForest
     protected final IProduction production;
     private IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
-    private IState state;
+    protected IState state;
 
     public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation, IState state) {
         super(sumWidth(firstDerivation.parseForests()));
@@ -40,11 +40,11 @@ public class IncrementalParseNode extends IncrementalParseForest
         this(null, new IncrementalDerivation(null, null, parseForests), NO_STATE);
     }
 
-    protected IncrementalParseNode(int width, IProduction production) {
+    protected IncrementalParseNode(int width, IProduction production, IState state) {
         super(width);
         this.production = production;
         this.firstDerivation = null;
-        this.state = null;
+        this.state = state;
     }
 
     @Override public boolean isReusable() {
@@ -103,7 +103,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         if(production == null)
             printer.println("p null {");
         else
-            printer.println("p" + production.id() + " : " + production.lhs() + " { (s" + state.id() + ")");
+            printer.println("p" + production.id() + " : " + production.lhs() + " (s" + state.id() + ") {");
         if(isAmbiguous()) {
             printer.indent(1);
             printer.println("amb[");

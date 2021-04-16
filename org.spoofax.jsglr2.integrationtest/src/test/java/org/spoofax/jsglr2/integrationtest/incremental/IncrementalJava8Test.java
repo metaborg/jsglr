@@ -23,8 +23,15 @@ public class IncrementalJava8Test extends BaseTestWithParseTableFromTerm {
 
     @TestFactory public Stream<DynamicTest> testSmall() throws ParseError {
         return testIncrementalSuccessByBatch( //
-            "class Markers { void addMarker(int marker) { getMarkers; } }",
-            "class Markers { void addMarker(int marker) { return; markers; } }");
+            "class M { void addM() { getM; } }", //
+            "class M { void addM() { return; m; } }");
+    }
+
+    public static void main(String[] args) throws Exception {
+        IncrementalJava8Test test = new IncrementalJava8Test();
+        IncrementalSGLRThesisExampleTest.logIncrementalParse(test, //
+            "class M { void addM() { getM; } }", //
+            "class M { void addM() { return; m; } }");
     }
 
 }

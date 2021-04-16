@@ -23,6 +23,7 @@ import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
+import org.spoofax.jsglr2.integrationtest.BaseTest;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.ParseNodeDescriptor;
 import org.spoofax.jsglr2.parseforest.*;
@@ -286,7 +287,7 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
 
     // #### UTIL ####
 
-    static IParser<? extends IParseForest> getParser(BaseTestWithSdf3ParseTables test) throws Exception {
+    static IParser<? extends IParseForest> getParser(BaseTest test) throws Exception {
         return new ParserVariant(ActiveStacksRepresentation.standard(), ForActorStacksRepresentation.standard(),
             ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Hybrid,
             Reducing.Incremental, false).getParser(test.getParseTable(new ParseTableVariant()).parseTable);
@@ -329,23 +330,27 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
             System.out.println(test.getNormalizedGrammar(false));
             System.out.println();
 
-            @SuppressWarnings("unchecked") IParser<IParseForest> parser = (IParser<IParseForest>) getParser(test);
-            // noinspection rawtypes,unchecked
-            ((IObservableParser) parser).observing().attachObserver(new ShiftReduceBreakdownObserver());
-
-            System.out.println("# Batch parse with input `" + input1 + "`:");
-            ParseResult<IParseForest> parse = parser.parse(input1);
-            assert parse.isSuccess();
-            IParseForest parseForest = ((ParseSuccess<?>) parse).parseResult;
-            System.out.println();
-
-            System.out.println("# Incremental parse with input `" + input2 + "`:");
-            parser.parse(input2, input1, parseForest);
-            System.out.println();
-            System.out.println();
+            logIncrementalParse((BaseTest) test, input1, input2);
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void logIncrementalParse(BaseTest test, String input1, String input2) throws Exception {
+        @SuppressWarnings("unchecked") IParser<IParseForest> parser = (IParser<IParseForest>) getParser(test);
+        // noinspection rawtypes,unchecked
+        ((IObservableParser) parser).observing().attachObserver(new ShiftReduceBreakdownObserver());
+
+        System.out.println("# Batch parse with input `" + input1 + "`:");
+        ParseResult<IParseForest> parse = parser.parse(input1);
+        assert parse.isSuccess();
+        IParseForest parseForest = ((ParseSuccess<?>) parse).parseResult;
+        System.out.println();
+
+        System.out.println("# Incremental parse with input `" + input2 + "`:");
+        parser.parse(input2, input1, parseForest);
+        System.out.println();
+        System.out.println();
     }
 
     @SuppressWarnings("rawtypes")
@@ -376,7 +381,10 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
     }
 
     private static String stateToString(IState state) {
-        return state.id() + "("
-            + ((State) state).getKernel().stream().map(LRItem::toString).collect(Collectors.joining(",")) + ")";
+        if(state instanceof State)
+            return state.id() + "("
+                + ((State) state).getKernel().stream().map(LRItem::toString).collect(Collectors.joining(",")) + ")";
+        else
+            return "" + state.id();
     }
 }

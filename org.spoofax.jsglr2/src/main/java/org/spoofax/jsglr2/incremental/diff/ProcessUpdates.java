@@ -27,11 +27,9 @@ public class ProcessUpdates
 //@formatter:on
 {
 
-    private final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing;
     private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager;
 
     public ProcessUpdates(IncrementalParseForestManager<StackNode, ParseState> parseForestManager) {
-        this.observing = new ParserObserving<>();
         this.parseForestManager = parseForestManager;
     }
 

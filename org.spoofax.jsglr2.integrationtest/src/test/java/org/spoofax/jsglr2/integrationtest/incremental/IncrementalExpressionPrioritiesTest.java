@@ -41,11 +41,11 @@ public class IncrementalExpressionPrioritiesTest extends BaseTestWithSdf3ParseTa
     }
 
     @TestFactory public Stream<DynamicTest> nothingChangedTest() {
-        return testIncrementalSuccessByExpansions(new String[] { //
-            "x*x+x*x+x*x", "x*x+x*x+x*x", //
-        }, new String[] { //
+        String[] inputStrings = { "x*x+x*x+x*x", "x*x+x*x+x*x", };
+        return Stream.concat(testIncrementalSuccessByExpansions(inputStrings, new String[] { //
             "Add(Add(Mul(\"x\",\"x\"),Mul(\"x\",\"x\")),Mul(\"x\",\"x\"))",
-            "Add(Add(Mul(\"x\",\"x\"),Mul(\"x\",\"x\")),Mul(\"x\",\"x\"))", });
+            "Add(Add(Mul(\"x\",\"x\"),Mul(\"x\",\"x\")),Mul(\"x\",\"x\"))", }),
+            testParseNodeReuse(inputStrings[0], inputStrings[1], new ParseNodeDescriptor(0, 11, "<START>", null)));
     }
 
     @TestFactory public Stream<DynamicTest> testStateMatchingTest() {

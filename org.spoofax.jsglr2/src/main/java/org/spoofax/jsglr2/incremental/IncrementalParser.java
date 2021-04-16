@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
+import org.metaborg.parsetable.actions.Accept;
 import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
@@ -27,10 +28,7 @@ import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
-import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.ParseReporterFactory;
-import org.spoofax.jsglr2.parser.ParseStateFactory;
-import org.spoofax.jsglr2.parser.Parser;
+import org.spoofax.jsglr2.parser.*;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
@@ -79,25 +77,41 @@ public class IncrementalParser
         return parseStateFactory.get(request, incrementalInputStackFactory.get(updatedTree, request.input), observing);
     }
 
-    // TODO this optimization does not work at the moment, as the `parseLoop` doesn't get passed the previousResult.
-    // Replacing this check with `isReusable` is not reliable enough.
-    // @Override protected void parseLoop(ParseState parse) {
-    // // Optimization: if the first tree on the lookahead stack is exactly the same as the previous tree:
-    // IncrementalParseForest rootNode = parse.inputStack.getNode();
-    // if(rootNode.width() == parse.inputStack.length() && rootNode.isReusable()) {
-    // StackNode stack = parse.activeStacks.getSingle();
-    //
-    // // Shift this previous tree
-    // addForShifter(parse, stack, parseTable.getState(
-    // stack.state().getGotoId(((IncrementalParseNode) rootNode).production().id())));
-    // shifter(parse);
-    // parse.inputStack.next();
-    //
-    // // Accept
-    // actor(parse.activeStacks.getSingle(), parse, Accept.SINGLETON);
-    // } else
-    // super.parseLoop(parse);
-    // }
+    @Override protected void parseLoop(ParseState parseState) throws ParseException {
+        if(!attemptToFullyReuse(parseState))
+            super.parseLoop(parseState);
+    }
+
+    // Optimization: if the first node on the lookahead stack has no changes and can be completely reused, do so
+    private boolean attemptToFullyReuse(ParseState parseState) {
+        // We cannot do this optimization if...
+
+        // ...the parse is not at the start anymore (parseLoop may be called multiple times due to recovery)
+        if(parseState.inputStack.offset() != 0
+            || parseState.activeStacks.getSingle().state().id() != parseTable.getStartState().id())
+            return false;
+
+        IncrementalParseNode rootNode = (IncrementalParseNode) parseState.inputStack.getNode();
+
+        // ...the root node is a temporary node
+        if(rootNode.production() == null)
+            return false;
+
+        // ...the root node does not span the entire input
+        if(rootNode.width() != parseState.inputStack.length())
+            return false;
+
+        StackNode stack = parseState.activeStacks.getSingle();
+
+        // Shift the entire tree
+        addForShifter(parseState, stack, parseTable.getState(stack.state().getGotoId(rootNode.production().id())));
+        shifter(parseState);
+        parseState.inputStack.next();
+
+        // Accept
+        actor(parseState.activeStacks.getSingle(), parseState, Accept.SINGLETON);
+        return true;
+    }
 
     @Override protected void actor(StackNode stack, ParseState parseState) {
         Iterable<IAction> actions = getActions(stack, parseState);
@@ -115,8 +129,7 @@ public class IncrementalParser
                 IncrementalParseForest node = parseState.inputStack.getNode();
                 observer.breakDown(parseState.inputStack,
                     node instanceof IParseNode && ((IParseNode<?, ?>) node).production() == null ? TEMPORARY
-                        : node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE
-                            : IRREUSABLE);
+                        : node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : IRREUSABLE);
             });
             parseState.inputStack.breakDown();
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));

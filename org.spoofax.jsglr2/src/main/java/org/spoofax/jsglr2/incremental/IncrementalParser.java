@@ -5,15 +5,13 @@ import static com.google.common.collect.Iterables.size;
 import static org.metaborg.util.iterators.Iterables2.stream;
 import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
-import org.metaborg.parsetable.actions.Accept;
-import org.metaborg.parsetable.actions.ActionType;
-import org.metaborg.parsetable.actions.IAction;
-import org.metaborg.parsetable.actions.IReduce;
+import org.metaborg.parsetable.actions.*;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
@@ -124,7 +122,10 @@ public class IncrementalParser
         // - if a break-down of this node would cause different actions, it would already have been broken down because
         // that would mean that this node was created when the parser was in multiple states.
         while(!parseState.inputStack.getNode().isReusable()
-            || !parseState.inputStack.getNode().isTerminal() && isEmpty(actions) && parseState.forShifter.isEmpty()) {
+            || !parseState.inputStack.getNode().isTerminal() && isEmpty(actions)) {
+            // boolean redoShifts =
+            // !parseState.inputStack.getNode().isTerminal() && isEmpty(actions) && !parseState.forShifter.isEmpty();
+
             observing.notify(observer -> {
                 IncrementalParseForest node = parseState.inputStack.getNode();
                 observer.breakDown(parseState.inputStack,
@@ -134,6 +135,23 @@ public class IncrementalParser
             parseState.inputStack.breakDown();
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
             actions = getActions(stack, parseState);
+
+            // if(redoShifts) {
+            // List<ForShifterElement<StackNode>> forShifterClone = new ArrayList<>(parseState.forShifter);
+            // parseState.forShifter.clear();
+            // for(ForShifterElement<StackNode> forShifterElement : forShifterClone) {
+            // IAction[] shiftActions = stream(getActions(forShifterElement.stack, parseState))
+            // .filter(a -> a.actionType() == ActionType.SHIFT).toArray(IAction[]::new);
+            // if(shiftActions.length == 0) {
+            // actions = Collections.emptyList();
+            // break;
+            // }
+            // for(Object shiftAction : shiftActions) {
+            // addForShifter(parseState, forShifterElement.stack,
+            // parseTable.getState(((IShift) shiftAction).shiftStateId()));
+            // }
+            // }
+            // }
         }
 
         if(size(actions) > 1)
@@ -181,12 +199,31 @@ public class IncrementalParser
 
             // If lookahead has null yield and the production of lookahead matches the state of the GotoShift,
             // there is a duplicate action that can be removed (this is an optimization to avoid multipleStates == true)
-            if(lookaheadNode.width() == 0 && result.size() == 2 && reusable
-                && nullReduceMatchesGotoShift(stack, (IReduce) result.get(0), (GotoShift) result.get(1))) {
+            if(result.size() == 2 && reusable && nullReduceMatchesGotoShift(result, lookaheadNode)) {
                 result.remove(0); // Removes the unnecessary reduce action
             }
 
             return result;
+        }
+    }
+
+    // If there are two actions, with one reduce of arity 0 and one GotoShift that contains this subtree already,
+    // then the reduce of arity 0 is not necessary.
+    // This method returns whether this is the case.
+    private boolean nullReduceMatchesGotoShift(List<IAction> actions, IncrementalParseNode lookaheadNode) {
+        if(actions.get(0).actionType() != ActionType.REDUCE)
+            return false;
+        IReduce reduceAction = (IReduce) actions.get(0);
+        while(true) {
+            if(lookaheadNode.production().id() == reduceAction.production().id())
+                return true;
+            IncrementalParseForest[] children = lookaheadNode.getFirstDerivation().parseForests;
+            if(children.length == 0)
+                return false;
+            IncrementalParseForest child = children[0];
+            if(child.isTerminal())
+                return false;
+            lookaheadNode = ((IncrementalParseNode) child);
         }
     }
 
@@ -198,6 +235,36 @@ public class IncrementalParser
     }
 
     @Override protected IncrementalParseForest getNodeToShift(ParseState parseState) {
-        return parseState.inputStack.getNode();
+        IncrementalParseForest node = parseState.inputStack.getNode();
+        // for (ForShifterElement<StackNode> forShifterElement : parseState.forShifter) {
+        // int actualState;
+        // if (node instanceof IParseNode) {
+        // actualState = forShifterElement.stack.state().getGotoId(((IParseNode<?, ?>) node).production().id());
+        // } else {
+        // actualState = ((IShift) stream(forShifterElement.stack.state().getApplicableActions(parseState.inputStack,
+        // parseState.mode)).filter(a -> a.actionType() == ActionType.SHIFT).findAny().get()).shiftStateId();
+        // }
+        // if (forShifterElement.)
+        // }
+        List<ForShifterElement<StackNode>> forShifterClone = new ArrayList<>(parseState.forShifter);
+        parseState.forShifter.clear();
+        if(node instanceof IParseNode) {
+            int productionId = ((IParseNode<?, ?>) node).production().id();
+            for(ForShifterElement<StackNode> forShifterElement : forShifterClone) {
+                addForShifter(parseState, forShifterElement.stack,
+                    parseTable.getState(forShifterElement.stack.state().getGotoId(productionId)));
+            }
+        } else {
+            for(ForShifterElement<StackNode> forShifterElement : forShifterClone) {
+                IAction[] shiftActions = stream(getActions(forShifterElement.stack, parseState))
+                    .filter(a -> a.actionType() == ActionType.SHIFT).toArray(IAction[]::new);
+                for(IAction shiftAction : shiftActions) {
+                    addForShifter(parseState, forShifterElement.stack,
+                        parseTable.getState(((IShift) shiftAction).shiftStateId()));
+                }
+            }
+        }
+
+        return node;
     }
 }

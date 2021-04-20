@@ -1,0 +1,22 @@
+module reject-split
+
+context-free start-symbols
+	Start
+
+context-free syntax
+    Start.List = Word+
+	Word.Id = ID
+lexical syntax
+	ID      = [a-z] [a-z0-9]*
+
+context-free syntax
+	Word.Foo = "foo"
+	Word.Return = "return"
+lexical syntax
+	ID      = "foo" {reject}
+	ID      = "return" {reject}
+
+	LAYOUT  = [\ ]
+
+lexical restrictions
+	ID -/- [a-z]

@@ -30,8 +30,10 @@ public class IncrementalJava8Test extends BaseTestWithParseTableFromTerm {
     public static void main(String[] args) throws Exception {
         IncrementalJava8Test test = new IncrementalJava8Test();
         IncrementalSGLRThesisExampleTest.logIncrementalParse(test, //
-            "class M { void addM() { getM; } }", //
-            "class M { void addM() { return; m; } }");
+            // "class M { void addM() { getM; } }", //
+            // "class M { void addM() { return; m; } }"
+            test.getFileAsString("Java/SubstituteLoggingEvent.java/7.in"),
+            test.getFileAsString("Java/SubstituteLoggingEvent.java/8.in"));
     }
 
 }

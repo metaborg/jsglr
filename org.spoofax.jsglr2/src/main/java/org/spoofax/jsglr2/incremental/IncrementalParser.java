@@ -211,6 +211,8 @@ public class IncrementalParser
     // then the reduce of arity 0 is not necessary.
     // This method returns whether this is the case.
     private boolean nullReduceMatchesLookahead(IReduce reduceAction, IncrementalParseNode lookaheadNode) {
+        if (reduceAction.arity() != 0)
+            return false;
         while(true) {
             if(lookaheadNode.production().id() == reduceAction.production().id())
                 return true;

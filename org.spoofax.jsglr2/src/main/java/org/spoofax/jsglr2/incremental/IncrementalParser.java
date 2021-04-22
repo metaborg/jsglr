@@ -188,7 +188,7 @@ public class IncrementalParser
             if(reusable) {
                 // If the (only) reduce action already appears in the to-be-reused lookahead,
                 // the reduce action can be removed (this is an optimization to avoid multipleStates == true)
-                if(result.size() == 1 && nullReduceMatchesLookahead((IReduce) result.get(0), lookaheadNode)) {
+                if(result.size() == 1 && nullReduceMatchesLookahead(stack, (IReduce) result.get(0), lookaheadNode)) {
                     result.clear();
                 }
 
@@ -209,11 +209,13 @@ public class IncrementalParser
     // If there are two actions, with one reduce of arity 0 and one GotoShift that contains this subtree already,
     // then the reduce of arity 0 is not necessary.
     // This method returns whether this is the case.
-    private boolean nullReduceMatchesLookahead(IReduce reduceAction, IncrementalParseNode lookaheadNode) {
+    private boolean nullReduceMatchesLookahead(StackNode stack, IReduce reduceAction,
+        IncrementalParseNode lookaheadNode) {
         if(reduceAction.arity() != 0)
             return false;
+        int reduceGoto = stack.state().getGotoId(reduceAction.production().id());
         while(true) {
-            if(lookaheadNode.production().id() == reduceAction.production().id())
+            if(reduceGoto == stack.state().getGotoId(lookaheadNode.production().id()))
                 return true;
             IncrementalParseForest[] children = lookaheadNode.getFirstDerivation().parseForests;
             if(children.length == 0)

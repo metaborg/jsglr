@@ -211,7 +211,7 @@ public class IncrementalParser
     // then the reduce of arity 0 is not necessary.
     // This method returns whether this is the case.
     private boolean nullReduceMatchesLookahead(IReduce reduceAction, IncrementalParseNode lookaheadNode) {
-        if (reduceAction.arity() != 0)
+        if(reduceAction.arity() != 0)
             return false;
         while(true) {
             if(lookaheadNode.production().id() == reduceAction.production().id())
@@ -226,44 +226,30 @@ public class IncrementalParser
         }
     }
 
-    // If the lookahead has null yield, there are always at least two valid actions:
-    // Either reduce a production with arity 0, or shift the already-existing null-yield subtree.
-    // This method returns whether the Goto state of the Reduce action matches the state of the GotoShift action.
-    private boolean nullReduceMatchesGotoShift(StackNode stack, IReduce reduceAction, GotoShift gotoShiftAction) {
-        return stack.state().getGotoId(reduceAction.production().id()) == gotoShiftAction.shiftStateId();
-    }
-
     @Override protected IncrementalParseForest getNodeToShift(ParseState parseState) {
-        IncrementalParseForest node = parseState.inputStack.getNode();
-        // for (ForShifterElement<StackNode> forShifterElement : parseState.forShifter) {
-        // int actualState;
-        // if (node instanceof IParseNode) {
-        // actualState = forShifterElement.stack.state().getGotoId(((IParseNode<?, ?>) node).production().id());
-        // } else {
-        // actualState = ((IShift) stream(forShifterElement.stack.state().getApplicableActions(parseState.inputStack,
-        // parseState.mode)).filter(a -> a.actionType() == ActionType.SHIFT).findAny().get()).shiftStateId();
-        // }
-        // if (forShifterElement.)
-        // }
-        List<ForShifterElement<StackNode>> forShifterClone = new ArrayList<>(parseState.forShifter);
+        IncrementalParseForest lookaheadNode = parseState.inputStack.getNode();
+
+        // Double-check the forShifter list.
+        // The lookahead might have been broken down further, which means that the goto state needs to change.
+        List<ForShifterElement<StackNode>> oldForShifter = new ArrayList<>(parseState.forShifter);
         parseState.forShifter.clear();
-        if(node instanceof IParseNode) {
-            int productionId = ((IParseNode<?, ?>) node).production().id();
-            for(ForShifterElement<StackNode> forShifterElement : forShifterClone) {
+        if(lookaheadNode instanceof IParseNode) {
+            int productionId = ((IParseNode<?, ?>) lookaheadNode).production().id();
+            for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
                 addForShifter(parseState, forShifterElement.stack,
                     parseTable.getState(forShifterElement.stack.state().getGotoId(productionId)));
             }
         } else {
-            for(ForShifterElement<StackNode> forShifterElement : forShifterClone) {
-                IAction[] shiftActions = stream(getActions(forShifterElement.stack, parseState))
-                    .filter(a -> a.actionType() == ActionType.SHIFT).toArray(IAction[]::new);
-                for(IAction shiftAction : shiftActions) {
+            for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
+                for(IAction action : getActions(forShifterElement.stack, parseState)) {
+                    if(action.actionType() != ActionType.SHIFT)
+                        continue;
                     addForShifter(parseState, forShifterElement.stack,
-                        parseTable.getState(((IShift) shiftAction).shiftStateId()));
+                        parseTable.getState(((IShift) action).shiftStateId()));
                 }
             }
         }
 
-        return node;
+        return lookaheadNode;
     }
 }

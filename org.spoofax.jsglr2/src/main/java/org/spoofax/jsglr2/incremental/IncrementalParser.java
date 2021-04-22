@@ -199,7 +199,7 @@ public class IncrementalParser
 
             // If lookahead has null yield and the production of lookahead matches the state of the GotoShift,
             // there is a duplicate action that can be removed (this is an optimization to avoid multipleStates == true)
-            if(result.size() == 2 && reusable && nullReduceMatchesGotoShift(result, lookaheadNode)) {
+            if(result.size() == 2 && reusable && nullReduceMatchesLookahead((IReduce) result.get(0), lookaheadNode)) {
                 result.remove(0); // Removes the unnecessary reduce action
             }
 
@@ -210,10 +210,7 @@ public class IncrementalParser
     // If there are two actions, with one reduce of arity 0 and one GotoShift that contains this subtree already,
     // then the reduce of arity 0 is not necessary.
     // This method returns whether this is the case.
-    private boolean nullReduceMatchesGotoShift(List<IAction> actions, IncrementalParseNode lookaheadNode) {
-        if(actions.get(0).actionType() != ActionType.REDUCE)
-            return false;
-        IReduce reduceAction = (IReduce) actions.get(0);
+    private boolean nullReduceMatchesLookahead(IReduce reduceAction, IncrementalParseNode lookaheadNode) {
         while(true) {
             if(lookaheadNode.production().id() == reduceAction.production().id())
                 return true;

@@ -5,9 +5,7 @@ import static com.google.common.collect.Iterables.size;
 import static org.metaborg.util.iterators.Iterables2.stream;
 import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
@@ -198,7 +196,8 @@ public class IncrementalParser
                 result.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
             }
 
-            // If we don't have a GotoShift action, but do have regular shift actions, we should break down further
+            // If we don't have a GotoShift action, but do have regular shift actions, we should break down further.
+            // In case we do NOT have regular shift actions, the reduce actions should be executed before breaking down.
             if(!reusable && !shiftActions.isEmpty()) {
                 return Collections.emptyList(); // Return no actions, to trigger breakdown
             }
@@ -239,13 +238,18 @@ public class IncrementalParser
                 addForShifter(parseState, forShifterElement.stack,
                     parseTable.getState(forShifterElement.stack.state().getGotoId(productionId)));
             }
-        } else {
+        } else { // if (lookaheadNode instanceof ICharacterNode)
+            Set<StackNode> seen = new HashSet<>();
             for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
-                for(IAction action : getActions(forShifterElement.stack, parseState)) {
+                StackNode stack = forShifterElement.stack;
+                if(seen.contains(stack))
+                    continue;
+                seen.add(stack);
+
+                for(IAction action : getActions(stack, parseState)) {
                     if(action.actionType() != ActionType.SHIFT)
                         continue;
-                    addForShifter(parseState, forShifterElement.stack,
-                        parseTable.getState(((IShift) action).shiftStateId()));
+                    addForShifter(parseState, stack, parseTable.getState(((IShift) action).shiftStateId()));
                 }
             }
         }

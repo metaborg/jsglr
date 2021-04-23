@@ -13,6 +13,7 @@ import org.metaborg.parsetable.states.IState;
 import org.metaborg.sdf2table.parsetable.LRItem;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.metaborg.sdf2table.parsetable.State;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
@@ -39,6 +40,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 import org.spoofax.terms.util.TermUtils;
 
 public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTables {
@@ -356,6 +358,16 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
 
     @SuppressWarnings("rawtypes")
     static class ShiftReduceBreakdownObserver implements IParserObserver {
+        @Override public void forActorStacks(IForActorStacks forActorStacks) {
+            System.out.println("Starting parse round with stacks\n[" + Iterables2.stream(forActorStacks)
+                .map(e -> stateToString(((IStackNode) e).state())).collect(Collectors.joining(", ")) + "]");
+        }
+
+        @Override public void actor(IStackNode stack, AbstractParseState parseState, Iterable applicableActions) {
+            System.out.println("Actions for stack with state " + stateToString(stack.state()) + "\n["
+                + Iterables2.stream(applicableActions).map(Object::toString).collect(Collectors.joining(", ")) + "]");
+        }
+
         @Override public void shifter(IParseForest termNode, Queue forShifter) {
             System.out.println("Shifting");
             System.out.println(termNode);

@@ -6,10 +6,7 @@ import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr.client.imploder.Token;
+import org.spoofax.jsglr.client.imploder.*;
 import org.spoofax.terms.StrategoSubList;
 
 /**
@@ -22,23 +19,23 @@ public class LayoutStructure {
 	
 	private final ISimpleTerm node;
 	private final ISimpleTerm listParent;
-	private final ITokenizer tokens;
+	private final ITokens tokens;
 	
 	//suffix data
-	private int suffixStartIndex; //possible invalid index (if node contains rightmost token)
-	private int commentsAfterExclEndIndex; //possible invalid index (if node contains rightmost token)
-	private int suffixSeparationExclEndIndex; //possible invalid (if node contains rightmost token)
+	private IToken suffixStart; //possible empty (if node contains rightmost token)
+	private IToken commentsAfterExclEnd; //possible empty (if node contains rightmost token)
+	private IToken suffixSeparationExclEnd; //possible empty (if node contains rightmost token)
 	
 	//prefix data
-	private int prefixEndIndex; //possible invalid index (if node contains leftmost token)
-	private int commentsBeforeStartIndex; //valid index (0 if node contains leftmost token)
-	private int prefixSeparationStartIndex; //valid index (0 if node contains leftmost token)
+	private IToken prefixEnd; //possible empty (if node contains leftmost token)
+	private IToken commentsBeforeStart; //non-empty (first token if node contains leftmost token)
+	private IToken prefixSeparationStart; //non-empty (first token if node contains leftmost token)
 
 	public LayoutStructure(IStrategoTerm node) {
 		this.node = ImploderAttachment.getImploderOrigin(node);
 		listParent = getParentList(); //could be null
 		assertImploderInfo();
-		tokens = (ITokenizer) getLeftToken(node).getTokenizer();
+		tokens = getLeftToken(node).getTokenizer();
 		analyzeSuffix();
 		analyzePrefix();
 		//logAnalysisResults();
@@ -78,7 +75,7 @@ public class LayoutStructure {
 	 * Text fragment preceeding the node that starts from comment(s) before
 	 */
 	public String getLayoutPrefix() {
-		return layoutFragmentWithOutSeparator(this.commentsBeforeStartIndex, this.prefixEndIndex);
+		return layoutFragmentWithOutSeparator(this.commentsBeforeStart, this.prefixEnd);
 		//assert: Separator not in fragment
 	}
 
@@ -87,7 +84,7 @@ public class LayoutStructure {
 	 * whereby the suffix separator (if any) is changed by spaces
 	 */
 	public String getLayoutSuffix() {
-		return layoutFragmentWithOutSeparator(this.suffixStartIndex, this.commentsAfterExclEndIndex-1);
+		return layoutFragmentWithOutSeparator(this.suffixStart, this.commentsAfterExclEnd.getTokenBefore());
 	}
 
 	/**
@@ -95,7 +92,7 @@ public class LayoutStructure {
 	 * whereby the suffix separator (if any) is changed by spaces
 	 */
 	public String getTextWithLayout() {
-		return getTokenString(commentsBeforeStartIndex, getRightToken(node).getIndex())+getLayoutSuffix();
+		return getTokenString(commentsBeforeStart, getRightToken(node))+getLayoutSuffix();
 	}
 
 	/**
@@ -125,8 +122,8 @@ public class LayoutStructure {
 	 */
 	public int getDeletionStartOffset() {
 		if(isLastListElement()){
-			assert(isValidTokenIndex(prefixSeparationStartIndex));
-			return getTokenAt(prefixSeparationStartIndex).getStartOffset();
+			assert(prefixSeparationStart != null);
+			return prefixSeparationStart.getStartOffset();
 		}
 		return getInsertBeforeOffset();
 	}
@@ -144,11 +141,10 @@ public class LayoutStructure {
 			int deletionEndOffset = getInsertAtEndOffset()-1;
 			return keepNewlineOfLineComment(deletionEndOffset);
 		}
-		if(isValidTokenIndex(suffixSeparationExclEndIndex)){
-			int deletionEndOffset = getTokenAt(suffixSeparationExclEndIndex).getStartOffset()-1;
+		if(suffixSeparationExclEnd != null){
+			int deletionEndOffset = suffixSeparationExclEnd.getStartOffset()-1;
 			return deletionEndOffset;
 		}
-		assert(getRightToken(node).getIndex() == tokens.getTokenCount()-1);
 		return getRightToken(node).getEndOffset();
 	}
 
@@ -156,8 +152,7 @@ public class LayoutStructure {
 	 * Start offset of preceding comment (if any) or node
 	 */
 	public int getInsertBeforeOffset() {
-		assert this.commentsBeforeStartIndex <= getLeftToken(node).getStartOffset();
-		int offset = getTokenAt(this.commentsBeforeStartIndex).getStartOffset();
+		int offset = this.commentsBeforeStart.getStartOffset();
 		String input = tokens.getInput();
 		while (offset < input.length() && (input.charAt(offset) == ' ' || input.charAt(offset) == '\t')) {
 			offset++;
@@ -169,37 +164,35 @@ public class LayoutStructure {
 	 * End offset+1 of succeeding comment (if any) or node
 	 */
 	public int getInsertAtEndOffset() {
-		int tokenIndex = this.commentsAfterExclEndIndex;
+		IToken token = this.commentsAfterExclEnd;
 		
-		if(isValidTokenIndex(tokenIndex)) {
+		if(token != null) {
 			if (node.isList() && node.getSubtermCount() == 0) {
 				// insert a first list element at the first rather than the last valid offset
-				while (isLayout(tokenIndex-1)) {
-					tokenIndex--;
+				while (isLayout(token.getTokenBefore())) {
+					token = token.getTokenBefore();
 				}
 			}
 			
-			return getTokenAt(tokenIndex).getStartOffset();
+			return token.getStartOffset();
 		}
-		
-		assert(getRightToken(node).getIndex() == tokens.getTokenCount()-1);
+
 		return getRightToken(node).getEndOffset()+1;
 	}	
 	
 	/**
 	 * Layout fragment with separator replaced by spaces
-	 * @param loIndexStart token index of start layout fragment (inclusive)
-	 * @param loIndexEnd token index of end layout fragment (inclusive)
+	 * @param loStart token start layout fragment (inclusive)
+	 * @param loEnd token end layout fragment (inclusive)
 	 */
-	private String layoutFragmentWithOutSeparator(int loIndexStart, int loIndexEnd){
+	private String layoutFragmentWithOutSeparator(IToken loStart, IToken loEnd){
 		String result = "";
-		for (int i = loIndexStart; i <= loIndexEnd; i++) {
-			if(!isValidTokenIndex(i)){ break;}
-			if(isLayout(i))
-				result += getTokenString(i);
+		for (IToken token = loStart; token != null && token.getStartOffset() <= loEnd.getStartOffset(); token = token.getTokenAfter()) {
+			if(isLayout(token))
+				result += getTokenString(token);
 			else { //separator expected
-				assert(isSeparatorToken(i));
-				result += createSpaces(getTokenAt(i).getLength());
+				assert(isSeparatorToken(token));
+				result += createSpaces(token.getLength());
 			}
 		}
 		return result;
@@ -229,44 +222,44 @@ public class LayoutStructure {
 	 * f) grouping???
 	 */
 	private void analyzePrefix() {
-		prefixEndIndex = getLeftToken(node).getIndex()-1; //possible invalid index
-		final int prefixStartIndex = getPrefixIndexStart(prefixEndIndex); //possible invalid index
-		commentsBeforeStartIndex = getLeftToken(node).getIndex();
-		int tokenIndex = commentsBeforeStartIndex - 1;
+		prefixEnd = getLeftToken(node).getTokenBefore(); //possible empty token
+		final IToken prefixStart = getPrefixIndexStart(prefixEnd); //possible empty token
+		commentsBeforeStart = getLeftToken(node);
+		IToken token = commentsBeforeStart.getTokenBefore();
 		int lastNonEmptyLine = getLeftToken(node).getLine();
 		int preceedingAstLine = -1;
-		if(isValidTokenIndex(prefixStartIndex-1)){
-			preceedingAstLine=getTokenAt(prefixStartIndex-1).getEndLine();
+		if(prefixStart.getTokenBefore() != null){
+			preceedingAstLine=prefixStart.getTokenBefore().getEndLine();
 		}
 		final boolean sameLineSiblings = preceedingSibEndLine()  == getLeftToken(node).getLine();
-		while(isValidTokenIndex(tokenIndex) && tokenIndex >= prefixStartIndex){
-			if(isComment(tokenIndex)){
-				int commentEndLine = getTokenAt(tokenIndex).getEndLine();
-				int commentStartLine = getTokenAt(tokenIndex).getLine();
+		while(token != null && token.getStartOffset() >= prefixStart.getStartOffset()){
+			if(isComment(token)){
+				int commentEndLine = token.getEndLine();
+				int commentStartLine = token.getLine();
 				if(lastNonEmptyLine - commentEndLine > 1)
 					break; //line between (b)
 				else if ((preceedingAstLine == commentStartLine) && !sameLineSiblings) {
 					break; //e comment associated to preceding astnode
 				}
 				else {
-					commentsBeforeStartIndex = tokenIndex;
-					lastNonEmptyLine = getTokenAt(tokenIndex).getLine();
+					commentsBeforeStart = token;
+					lastNonEmptyLine = token.getLine();
 				}
 			}
-			if(isSeparatorToken(tokenIndex-1)){
+			if(isSeparatorToken(token.getTokenBefore())){
 				break; //a) only comments after separator are included
 			}
-			if(tokenIndex == prefixStartIndex && sameLineSiblings){
-				commentsBeforeStartIndex = getLeftToken(node).getIndex(); //(c,d) comments fall between siblings
+			if(token == prefixStart && sameLineSiblings){
+				commentsBeforeStart = getLeftToken(node); //(c,d) comments fall between siblings
 				break;
 			}
-			tokenIndex --;
+			token = token.getTokenBefore();
 		}
-		final int prefixSeparatorIndex = getIndexSeparator(prefixStartIndex, prefixEndIndex);//-1 in case not exists
+		final IToken prefixSeparator = getIndexSeparator(prefixStart, prefixEnd);//-1 in case not exists
 		
-		prefixSeparationStartIndex = prefixSeparatorIndex ==-1? commentsBeforeStartIndex : prefixSeparatorIndex;
-		while (isWhitespace(prefixSeparationStartIndex-1)) {
-			prefixSeparationStartIndex --; //start of next node fragment
+		prefixSeparationStart = prefixSeparator == null ? commentsBeforeStart : prefixSeparator;
+		while (isWhitespace(prefixSeparationStart.getTokenBefore())) {
+			prefixSeparationStart = prefixSeparationStart.getTokenBefore(); //start of next node fragment
 		}
 	}
 
@@ -277,36 +270,36 @@ public class LayoutStructure {
 	 * d) If no succeeding sibling on the same line, then comment attaches to node (even when separator between node and comment) 
 	 */
 	private void analyzeSuffix() {
-		suffixStartIndex = getRightToken(node).getIndex() + 1; //possible invalid index
-		final int suffixEndIndex = getSuffixIndexEnd(suffixStartIndex); //possible invalid index
+		suffixStart = getRightToken(node).getTokenAfter(); //possible invalid index
+		final IToken suffixEnd = getSuffixIndexEnd(suffixStart); //possible invalid index
 		final boolean sameLineSiblings = 
-			tokensOnSameLine(suffixStartIndex -1, suffixEndIndex + 1) &&
+			tokensOnSameLine(suffixStart.getTokenBefore(), suffixEnd.getTokenAfter()) &&
 			!isLastListElement();
-		commentsAfterExclEndIndex = suffixStartIndex;
-		int tokenIndex = commentsAfterExclEndIndex;
+		commentsAfterExclEnd = suffixStart;
+		IToken token = commentsAfterExclEnd;
 		//sets comment after end index
-		while(isValidTokenIndex(tokenIndex) && tokenIndex <= suffixEndIndex + 1){
-			if(getTokenAt(tokenIndex).getLine() != getRightToken(node).getEndLine()){
+		while(token != null && suffixEnd != null && suffixEnd.getTokenAfter() != null && token.getStartOffset() <= suffixEnd.getTokenAfter().getStartOffset()){
+			if(token.getLine() != getRightToken(node).getEndLine()){
 				break; //a) comment not on same line
 			}
-			if(sameLineSiblings && tokenIndex == suffixEndIndex + 1){
+			if(sameLineSiblings && token == suffixEnd.getTokenAfter()){
 				//(c) same line, no separator: 
 				//comments is not associated to preceeding or succeeding sibling
-				commentsAfterExclEndIndex = suffixStartIndex; 
+				commentsAfterExclEnd = suffixStart;
 				break;
 			}
-			if(sameLineSiblings && isSeparatorToken(tokenIndex)){
+			if(sameLineSiblings && isSeparatorToken(token)){
 				break; //b) exclude comments after separator between siblings on same line
 			}
-			if(isComment(tokenIndex)){
-				commentsAfterExclEndIndex = tokenIndex + 1; //d) consume comments
+			if(isComment(token)){
+				commentsAfterExclEnd = token.getTokenAfter(); //d) consume comments
 			}
-			tokenIndex ++;
+			token = token.getTokenAfter();
 		}
-		final int suffixSeparatorIndex = getIndexSeparator(suffixStartIndex, suffixEndIndex);//-1 in case not exists
-		suffixSeparationExclEndIndex = Math.max(commentsAfterExclEndIndex, suffixSeparatorIndex + 1);
-		while (isWhitespace(suffixSeparationExclEndIndex)) {
-			suffixSeparationExclEndIndex ++; //start of next node fragment
+		final IToken suffixSeparatorIndex = getIndexSeparator(suffixStart, suffixEnd);//-1 in case not exists
+		suffixSeparationExclEnd = (suffixSeparatorIndex == null || commentsAfterExclEnd.getStartOffset() > suffixSeparatorIndex.getTokenAfter().getStartOffset()) ? commentsAfterExclEnd : suffixSeparatorIndex.getTokenAfter();
+		while (isWhitespace(suffixSeparationExclEnd)) {
+			suffixSeparationExclEnd = suffixSeparationExclEnd.getTokenAfter(); //start of next node fragment
 		}
 	}
 
@@ -354,16 +347,11 @@ public class LayoutStructure {
 	}
 	
 	
-	private boolean tokensOnSameLine(int i, int j) {
-		if(isValidTokenIndex(i) && isValidTokenIndex(j)){
-			return getTokenAt(i).getLine() == getTokenAt(j).getLine();
+	private boolean tokensOnSameLine(IToken i, IToken j) {
+		if(i != null && j != null){
+			return i.getLine() == j.getLine();
 		}
 		return false;
-	}
-
-	private IToken getTokenAt(int i) {
-		assert(isValidTokenIndex(i));
-		return tokens.getTokenAt(i);
 	}
 
 	private char getCharAt(int offset) {
@@ -371,68 +359,63 @@ public class LayoutStructure {
 		return tokens.getInput().charAt(offset);
 	}
 
-	private boolean isValidTokenIndex(int j){
-		return j>=0 && j < tokens.getTokenCount();
-	}
-
-	private int getSuffixIndexEnd(int suffixStartIndex) {
-		int suffixEndIndex = suffixStartIndex;
-		while (notAssociatedToAstNode(suffixEndIndex + 1)) {
-			assert(isValidTokenIndex(suffixEndIndex));
-			suffixEndIndex ++;
+	private IToken getSuffixIndexEnd(IToken suffixStart) {
+		IToken suffixEnd = suffixStart;
+		while (notAssociatedToAstNode(suffixEnd.getTokenAfter())) {
+			assert(suffixEnd != null);
+			suffixEnd = suffixEnd.getTokenAfter();
 		}
-		return suffixEndIndex;
+		return suffixEnd;
 	}
 
-	private int getPrefixIndexStart(int prefixEndTokenIndex) {
-		int prefixStartIndex = prefixEndTokenIndex;
-		while (notAssociatedToAstNode(prefixStartIndex-1)) {
-			assert(isValidTokenIndex(prefixStartIndex));
-			prefixStartIndex--;
+	private IToken getPrefixIndexStart(IToken prefixEndToken) {
+		IToken prefixStart = prefixEndToken;
+		while (notAssociatedToAstNode(prefixStart.getTokenBefore())) {
+			assert(prefixStart != null);
+			prefixStart = prefixStart.getTokenBefore();
 		}
-		return prefixStartIndex;
+		return prefixStart;
 	}
 
-	private int getIndexSeparator(int suffixStartIndex, int suffixEndIndex) {
-		for (int i = suffixEndIndex; i >= suffixStartIndex; i--) {
-			if(isSeparatorToken(i))
-				return i;
+	private IToken getIndexSeparator(IToken suffixStart, IToken suffixEnd) {
+		for (IToken token = suffixEnd; token != null && token.getStartOffset() >= suffixStart.getStartOffset(); token = token.getTokenBefore()) {
+			if(isSeparatorToken(token))
+				return token;
 		}
-		return -1;
+		return null;
 	}
 
 
-	private boolean isSeparatorToken(int i) {
-		return isAssociatedToListParent(i) && !isLayout(i);
+	private boolean isSeparatorToken(IToken token) {
+		return isAssociatedToListParent(token) && !isLayout(token);
 	}
 
-	private boolean notAssociatedToAstNode(int tokenIndex){
-		return 
-			(isLayout(tokenIndex) || isAssociatedToListParent(tokenIndex));
+	private boolean notAssociatedToAstNode(IToken token){
+		return isLayout(token) || isAssociatedToListParent(token);
 	}
 	
-	private boolean isWhitespace(int tokenIndex) {
-		return isLayout(tokenIndex) && !isComment(tokenIndex);
+	private boolean isWhitespace(IToken token) {
+		return isLayout(token) && !isComment(token);
 	}
 
-	private boolean isComment(int tokenIndex) {
-		return 
-			isValidTokenIndex(tokenIndex) && 
-			isLayout(tokenIndex) && 
-			!Token.isWhiteSpace(getTokenAt(tokenIndex));
-	}
-
-	private boolean isLayout(int tokenIndex) {
+	private boolean isComment(IToken token) {
 		return
-			isValidTokenIndex(tokenIndex) &&
-			getTokenAt(tokenIndex).getKind() == IToken.Kind.TK_LAYOUT;
+			token != null &&
+			isLayout(token) &&
+			!Token.isWhiteSpace(token);
 	}
 
-	private boolean isAssociatedToListParent(int tokenIndex) {
-		return 
-			isValidTokenIndex(tokenIndex) &&
+	private boolean isLayout(IToken token) {
+		return
+			token != null &&
+			token.getKind() == IToken.Kind.TK_LAYOUT;
+	}
+
+	private boolean isAssociatedToListParent(IToken token) {
+		return
+			token != null &&
 			listParent != null && 
-			getTokenAt(tokenIndex).getAstNode() == listParent;
+			token.getAstNode() == listParent;
 	}
 
 
@@ -474,20 +457,20 @@ public class LayoutStructure {
 		if(listParent != null && listParent.getSubtermCount() > 1){
 			IToken startToken = getRightToken(listParent.getSubterm(0));
 			IToken endToken = getLeftToken(listParent.getSubterm(1));
-			return getSeparationString(startToken.getIndex(), endToken.getIndex());
+			return getSeparationString(startToken, endToken);
 		}
 		return null;
 	}
 	
-	private String getSeparationString(int tokenIndexStart, int tokenIndexEnd) {
+	private String getSeparationString(IToken tokenStart, IToken tokenEnd) {
 		String separation="";
 		String layoutText="";
 		boolean commentSeen = false;
 		boolean commentLine = false;
-		for (int i = tokenIndexStart +1; i < tokenIndexEnd; i++) {
-			IToken token = tokens.getTokenAt(i);
-			String tokenText = getTokenString(i);
-			if(!isComment(i)){
+		IToken token;
+		for (token = tokenStart.getTokenAfter(); token != tokenEnd; token = token.getTokenAfter()) {
+			String tokenText = getTokenString(token);
+			if(!isComment(token)){
 				if(!commentSeen)
 					separation += tokenText;
 				else
@@ -498,7 +481,7 @@ public class LayoutStructure {
 				layoutText = ""; //layout between comments is not part of separation
 				if(tokenText.endsWith("\n"))
 					layoutText = "\n";
-				if(token.getLine() != getTokenAt(tokenIndexStart).getEndLine() && token.getEndLine() != getTokenAt(tokenIndexEnd).getLine())
+				if(token.getLine() != tokenStart.getEndLine() && token.getEndLine() != tokenEnd.getLine())
 					commentLine = true;
 			}
 		}
@@ -507,20 +490,16 @@ public class LayoutStructure {
 		}
 		return separation + layoutText;
 	}
-	
-	private String getTokenString(int tokenIndex){
-		assert(isValidTokenIndex(tokenIndex));
-		IToken t = getTokenAt(tokenIndex);
-		int startOffset = t.getStartOffset();
-		int endOffset = t.getEndOffset();
-		return tokens.toString(startOffset, endOffset); 
+
+	private String getTokenString(IToken token){
+		int startOffset = token.getStartOffset();
+		int endOffset = token.getEndOffset();
+		return tokens.toString(startOffset, endOffset);
 	}
 
-	private String getTokenString(int tokenIndexStart, int tokenIndexEnd){
-		assert(isValidTokenIndex(tokenIndexStart));
-		assert(isValidTokenIndex(tokenIndexEnd));
-		int startOffset = getTokenAt(tokenIndexStart).getStartOffset();
-		int endOffset = getTokenAt(tokenIndexEnd).getEndOffset();
+	private String getTokenString(IToken tokenStart, IToken tokenEnd){
+		int startOffset = tokenStart.getStartOffset();
+		int endOffset = tokenEnd.getEndOffset();
 		return tokens.toString(startOffset, endOffset); 
 	}
 	

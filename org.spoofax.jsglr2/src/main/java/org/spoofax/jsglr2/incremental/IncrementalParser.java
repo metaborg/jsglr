@@ -110,13 +110,30 @@ public class IncrementalParser
     }
 
     @Override protected void actor(StackNode stack, ParseState parseState) {
-        Iterable<IAction> actions = getActions(stack, parseState);
-        IncrementalParseForest lookaheadNode = parseState.inputStack.getNode();
+        Iterable<IAction> actions = breakDownUntilValidActions(stack, parseState);
 
-        // Break down the lookahead in either of the following scenarios:
-        // - The lookahead is not reusable (terminal nodes are always reusable).
-        // - The lookahead is a non-terminal parse node AND there are no actions for it.
-        while(!lookaheadNode.isReusable() || !lookaheadNode.isTerminal() && isEmpty(actions)) {
+        if(size(actions) > 1)
+            parseState.setMultipleStates(true);
+
+        observing.notify(observer -> observer.actor(stack, parseState, actions));
+
+        for(IAction action : actions)
+            actor(stack, parseState, action);
+    }
+
+    private Iterable<IAction> breakDownUntilValidActions(StackNode stack, ParseState parseState) {
+        do {
+            Iterable<IAction> actions = getActions(stack, parseState);
+            IncrementalParseForest lookaheadNode = parseState.inputStack.getNode();
+
+            // Break down the lookahead in either of the following scenarios:
+            // - the lookahead is not reusable (terminal nodes are always reusable), or
+            // - the lookahead is a non-terminal parse node AND there are no actions for it.
+            // If neither scenario is the case, directly return the current list of actions.
+            if(lookaheadNode.isReusable() && (lookaheadNode.isTerminal() || !isEmpty(actions))) {
+                return actions;
+            }
+
             IncrementalParseNode brokenDownNode = (IncrementalParseNode) lookaheadNode;
             observing.notify(observer -> observer.breakDown(parseState.inputStack,
                 brokenDownNode.production() == null ? TEMPORARY : brokenDownNode.isReusable()
@@ -124,66 +141,59 @@ public class IncrementalParser
 
             parseState.inputStack.breakDown();
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
-            actions = getActions(stack, parseState);
-            lookaheadNode = parseState.inputStack.getNode();
 
-            // If we already had something to shift, we should update the goto states based on the new lookahead.
+            // If we already had something to shift, update the goto states in forShifter based on the new lookahead.
             // If we wouldn't do this, it would cause different shifts to be desynchronised.
-            if(!parseState.forShifter.isEmpty()) {
-                List<ForShifterElement<StackNode>> oldForShifter = new ArrayList<>(parseState.forShifter);
-                parseState.forShifter.clear();
+            if(!parseState.forShifter.isEmpty())
+                updateForShifterStates(parseState, brokenDownNode);
+        } while(true);
+    }
 
-                // If the broken-down node has no children, it has been removed from the input stack.
-                // Therefore, any GotoShift actions that were in the forShifter list become invalid.
-                // They can be discarded, because they will replaced by 0-arity reductions.
-                if(brokenDownNode.getFirstDerivation().parseForests.length == 0)
+    private void updateForShifterStates(ParseState parseState, IncrementalParseNode brokenDownNode) {
+        List<ForShifterElement<StackNode>> oldForShifter = new ArrayList<>(parseState.forShifter);
+        parseState.forShifter.clear();
+
+        // If the broken-down node has no children, it has been removed from the input stack.
+        // Therefore, any GotoShift actions that were in the forShifter list become invalid.
+        // They can be discarded, because they will replaced by 0-arity reductions.
+        if(brokenDownNode.getFirstDerivation().parseForests.length == 0)
+            return;
+
+        IncrementalParseForest newLookaheadNode = parseState.inputStack.getNode();
+        if(newLookaheadNode instanceof IParseNode) {
+            // If the new lookahead node is a parse node, replace the forShifter states
+            // with new goto states based on the production of the new lookahead node.
+            int productionId = ((IParseNode<?, ?>) newLookaheadNode).production().id();
+            for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
+                StackNode forShifterStack = forShifterElement.stack;
+                addForShifter(parseState, forShifterStack,
+                    parseTable.getState(forShifterStack.state().getGotoId(productionId)));
+            }
+        } else {
+            // If the new lookahead node is a character node, replace the forShifter states
+            // with the shift states from the parse table.
+            Set<StackNode> seen = new HashSet<>();
+            for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
+                StackNode forShifterStack = forShifterElement.stack;
+                if(seen.contains(forShifterStack))
                     continue;
+                seen.add(forShifterStack);
 
-                if(lookaheadNode instanceof IParseNode) {
-                    // If the new lookahead node is a parse node, replace the forShifter states
-                    // with new goto states based on the production of the new lookahead node.
-                    int productionId = ((IParseNode<?, ?>) lookaheadNode).production().id();
-                    for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
-                        StackNode forShifterStack = forShifterElement.stack;
-                        addForShifter(parseState, forShifterStack,
-                            parseTable.getState(forShifterStack.state().getGotoId(productionId)));
-                    }
-                } else {
-                    // If the new lookahead node is a character node, replace the forShifter states
-                    // with the shift states from the parse table.
-                    // Note that there can be multiple shift states per stack due to shift/shift conflicts in the table.
-                    Set<StackNode> seen = new HashSet<>();
-                    for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
-                        StackNode forShifterStack = forShifterElement.stack;
-                        if(seen.contains(forShifterStack))
-                            continue;
-                        seen.add(forShifterStack);
-
-                        for(IAction action : getActions(forShifterStack, parseState)) {
-                            if(action.actionType() != ActionType.SHIFT)
-                                continue;
-                            addForShifter(parseState, forShifterStack,
-                                parseTable.getState(((IShift) action).shiftStateId()));
-                        }
-                    }
+                // Note that there can be multiple shift states per stack,
+                // due to shift/shift conflicts in the parse table.
+                for(IAction action : getActions(forShifterStack, parseState)) {
+                    if(action.actionType() != ActionType.SHIFT)
+                        continue;
+                    addForShifter(parseState, forShifterStack, parseTable.getState(((IShift) action).shiftStateId()));
                 }
             }
         }
-
-        if(size(actions) > 1)
-            parseState.setMultipleStates(true);
-
-        Iterable<IAction> finalActions = actions;
-        observing.notify(observer -> observer.actor(stack, parseState, finalActions));
-
-        for(IAction action : actions)
-            actor(stack, parseState, action);
     }
 
     // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.
-    // Else, the loop in `actor` will have broken it down
+    // Else, the loop in `breakDownUntilValidActions` will have broken it down
     private Iterable<IAction> getActions(StackNode stack, ParseState parseState) {
-        // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
+        // Get actions based on the lookahead terminal from `inputStack.actionQueryCharacter`
         Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
         IncrementalParseForest lookahead = parseState.inputStack.getNode();

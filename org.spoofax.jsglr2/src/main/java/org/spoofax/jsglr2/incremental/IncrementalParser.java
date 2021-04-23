@@ -187,8 +187,11 @@ public class IncrementalParser
             boolean reusable = lookaheadNode.isReusable(stack.state());
             if(reusable) {
                 // If the (only) reduce action already appears in the to-be-reused lookahead,
-                // the reduce action can be removed (this is an optimization to avoid multipleStates == true)
-                if(result.size() == 1 && nullReduceMatchesLookahead(stack, (IReduce) result.get(0), lookaheadNode)) {
+                // the reduce action can be removed.
+                // This is an optimization to avoid multipleStates == true,
+                // and should only happen in case multipleStates == false to avoid messing up other parse branches.
+                if(parseState.newParseNodesAreReusable() && result.size() == 1
+                    && nullReduceMatchesLookahead(stack, (IReduce) result.get(0), lookaheadNode)) {
                     result.clear();
                 }
 

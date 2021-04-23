@@ -21,10 +21,16 @@ public class IncrementalJava8Test extends BaseTestWithParseTableFromTerm {
             getFileAsString("Java/SubstituteLoggingEvent.java/8.in"));
     }
 
-    @TestFactory public Stream<DynamicTest> testSmall() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testSmallIdToKeyword() throws ParseError {
         return testIncrementalSuccessByBatch( //
             "class M { void addM() { getM; } }", //
             "class M { void addM() { return; m; } }");
+    }
+
+    @TestFactory public Stream<DynamicTest> testSmallArrayType() throws ParseError {
+        return testIncrementalSuccessByBatch( //
+            "class M { void setA(Object[] a) { } }", //
+            "class M { void setB(Object[] a) { } }");
     }
 
     public static void main(String[] args) throws Exception {
@@ -32,8 +38,10 @@ public class IncrementalJava8Test extends BaseTestWithParseTableFromTerm {
         IncrementalSGLRThesisExampleTest.logIncrementalParse(test, //
             // "class M { void addM() { getM; } }", //
             // "class M { void addM() { return; m; } }"
-            test.getFileAsString("Java/SubstituteLoggingEvent.java/7.in"),
-            test.getFileAsString("Java/SubstituteLoggingEvent.java/8.in"));
+            "class M { void setA(Object[] a) { } }", //
+            "class M { void setB(Object[] a) { } }");
+        // test.getFileAsString("Java/SubstituteLoggingEvent.java/7.in"),
+        // test.getFileAsString("Java/SubstituteLoggingEvent.java/8.in"));
     }
 
 }

@@ -169,8 +169,9 @@ public class LayoutStructure {
 		if(token != null) {
 			if (node.isList() && node.getSubtermCount() == 0) {
 				// insert a first list element at the first rather than the last valid offset
-				while (isLayout(token.getTokenBefore())) {
-					token = token.getTokenBefore();
+				IToken previousToken = token.getTokenBefore();
+				while (isLayout(previousToken)) {
+					token = previousToken;
 				}
 			}
 			
@@ -223,13 +224,14 @@ public class LayoutStructure {
 	 */
 	private void analyzePrefix() {
 		prefixEnd = getLeftToken(node).getTokenBefore(); //possible empty token
-		final IToken prefixStart = getPrefixIndexStart(prefixEnd); //possible empty token
+		final IToken prefixStart = getPrefixStart(prefixEnd); //possible empty token
 		commentsBeforeStart = getLeftToken(node);
 		IToken token = commentsBeforeStart.getTokenBefore();
 		int lastNonEmptyLine = getLeftToken(node).getLine();
 		int preceedingAstLine = -1;
-		if(prefixStart.getTokenBefore() != null){
-			preceedingAstLine=prefixStart.getTokenBefore().getEndLine();
+		IToken previousToken = prefixStart.getTokenBefore();
+		if(previousToken != null){
+			preceedingAstLine=previousToken.getEndLine();
 		}
 		final boolean sameLineSiblings = preceedingSibEndLine()  == getLeftToken(node).getLine();
 		while(token != null && token.getStartOffset() >= prefixStart.getStartOffset()){
@@ -255,7 +257,7 @@ public class LayoutStructure {
 			}
 			token = token.getTokenBefore();
 		}
-		final IToken prefixSeparator = getIndexSeparator(prefixStart, prefixEnd);//-1 in case not exists
+		final IToken prefixSeparator = getSeparator(prefixStart, prefixEnd);//null in case not exists
 		
 		prefixSeparationStart = prefixSeparator == null ? commentsBeforeStart : prefixSeparator;
 		while (isWhitespace(prefixSeparationStart.getTokenBefore())) {
@@ -270,19 +272,20 @@ public class LayoutStructure {
 	 * d) If no succeeding sibling on the same line, then comment attaches to node (even when separator between node and comment) 
 	 */
 	private void analyzeSuffix() {
-		suffixStart = getRightToken(node).getTokenAfter(); //possible invalid index
-		final IToken suffixEnd = getSuffixIndexEnd(suffixStart); //possible invalid index
+		suffixStart = getRightToken(node).getTokenAfter(); //possible null
+		final IToken suffixEnd = getSuffixEnd(suffixStart); //possible null
+		IToken nextToken = suffixEnd.getTokenAfter();
 		final boolean sameLineSiblings = 
-			tokensOnSameLine(suffixStart.getTokenBefore(), suffixEnd.getTokenAfter()) &&
+			tokensOnSameLine(suffixStart.getTokenBefore(), nextToken) &&
 			!isLastListElement();
 		commentsAfterExclEnd = suffixStart;
 		IToken token = commentsAfterExclEnd;
 		//sets comment after end index
-		while(token != null && suffixEnd != null && suffixEnd.getTokenAfter() != null && token.getStartOffset() <= suffixEnd.getTokenAfter().getStartOffset()){
+		while(token != null && suffixEnd != null && nextToken != null && token.getStartOffset() <= nextToken.getStartOffset()){
 			if(token.getLine() != getRightToken(node).getEndLine()){
 				break; //a) comment not on same line
 			}
-			if(sameLineSiblings && token == suffixEnd.getTokenAfter()){
+			if(sameLineSiblings && token == nextToken){
 				//(c) same line, no separator: 
 				//comments is not associated to preceeding or succeeding sibling
 				commentsAfterExclEnd = suffixStart;
@@ -296,8 +299,8 @@ public class LayoutStructure {
 			}
 			token = token.getTokenAfter();
 		}
-		final IToken suffixSeparatorIndex = getIndexSeparator(suffixStart, suffixEnd);//-1 in case not exists
-		suffixSeparationExclEnd = (suffixSeparatorIndex == null || commentsAfterExclEnd.getStartOffset() > suffixSeparatorIndex.getTokenAfter().getStartOffset()) ? commentsAfterExclEnd : suffixSeparatorIndex.getTokenAfter();
+		final IToken suffixSeparator = getSeparator(suffixStart, suffixEnd);//null in case not exists
+		suffixSeparationExclEnd = (suffixSeparator == null || commentsAfterExclEnd.getStartOffset() > suffixSeparator.getTokenAfter().getStartOffset()) ? commentsAfterExclEnd : suffixSeparator.getTokenAfter();
 		while (isWhitespace(suffixSeparationExclEnd)) {
 			suffixSeparationExclEnd = suffixSeparationExclEnd.getTokenAfter(); //start of next node fragment
 		}
@@ -359,7 +362,7 @@ public class LayoutStructure {
 		return tokens.getInput().charAt(offset);
 	}
 
-	private IToken getSuffixIndexEnd(IToken suffixStart) {
+	private IToken getSuffixEnd(IToken suffixStart) {
 		IToken suffixEnd = suffixStart;
 		while (notAssociatedToAstNode(suffixEnd.getTokenAfter())) {
 			assert(suffixEnd != null);
@@ -368,7 +371,7 @@ public class LayoutStructure {
 		return suffixEnd;
 	}
 
-	private IToken getPrefixIndexStart(IToken prefixEndToken) {
+	private IToken getPrefixStart(IToken prefixEndToken) {
 		IToken prefixStart = prefixEndToken;
 		while (notAssociatedToAstNode(prefixStart.getTokenBefore())) {
 			assert(prefixStart != null);
@@ -377,7 +380,7 @@ public class LayoutStructure {
 		return prefixStart;
 	}
 
-	private IToken getIndexSeparator(IToken suffixStart, IToken suffixEnd) {
+	private IToken getSeparator(IToken suffixStart, IToken suffixEnd) {
 		for (IToken token = suffixEnd; token != null && token.getStartOffset() >= suffixStart.getStartOffset(); token = token.getTokenBefore()) {
 			if(isSeparatorToken(token))
 				return token;
@@ -492,12 +495,15 @@ public class LayoutStructure {
 	}
 
 	private String getTokenString(IToken token){
+		assert(token != null);
 		int startOffset = token.getStartOffset();
 		int endOffset = token.getEndOffset();
 		return tokens.toString(startOffset, endOffset);
 	}
 
 	private String getTokenString(IToken tokenStart, IToken tokenEnd){
+		assert(tokenStart != null);
+		assert(tokenEnd != null);
 		int startOffset = tokenStart.getStartOffset();
 		int endOffset = tokenEnd.getEndOffset();
 		return tokens.toString(startOffset, endOffset); 

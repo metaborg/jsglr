@@ -54,8 +54,9 @@ public class LayoutSensitiveReduceManager
 
             for(LayoutConstraintAttribute lca : sdf2tableProduction.getLayoutConstraints()) {
                 // Skip the reduction if the constraint evaluates to false
-                if(!LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes).orElse(true))
+                if (!lca.ignoreLayout() && !LayoutConstraintEvaluator.evaluate(lca.getLayoutConstraint(), parseNodes)) {
                     return true;
+                }
             }
         }
 

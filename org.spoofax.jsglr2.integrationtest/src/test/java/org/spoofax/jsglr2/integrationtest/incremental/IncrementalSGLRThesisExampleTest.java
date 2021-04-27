@@ -92,7 +92,7 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
             new ParseNodeDescriptor(2, 1, "\"=\"", null), //
             new ParseNodeDescriptor(3, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(4, 1, "Exp", "Var"), //
-//            new ParseNodeDescriptor(6, 1, "\"+\"", null), //
+            new ParseNodeDescriptor(6, 1, "\"+\"", null), //
             new ParseNodeDescriptor(7, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(8, 1, "Exp", "Var"));
     }
@@ -126,9 +126,8 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
 
     @TestFactory public Stream<DynamicTest> testReturnReuse() {
         return testParseNodeReuse(return1, return2, //
-            new ParseNodeDescriptor(0, 0, "LAYOUT", null) //, //
-//            new ParseNodeDescriptor(6, 1, "LAYOUT", null)
-        );
+            new ParseNodeDescriptor(0, 0, "LAYOUT", null), //
+            new ParseNodeDescriptor(6, 1, "LAYOUT", null));
     }
 
     public static void main(String[] args) throws Exception {

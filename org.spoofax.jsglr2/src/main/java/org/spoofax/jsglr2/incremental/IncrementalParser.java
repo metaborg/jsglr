@@ -4,7 +4,10 @@ import static com.google.common.collect.Iterables.size;
 import static org.metaborg.util.iterators.Iterables2.stream;
 import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -131,39 +134,37 @@ public class IncrementalParser
             return originalActions;
         }
 
-        // Split in shift and reduce actions
-        List<IAction> shiftActions =
-            stream(originalActions).filter(a -> a.actionType() == ActionType.SHIFT).collect(Collectors.toList());
-
-        // By default, only the reduce actions are returned
-        List<IAction> reduceActions = stream(originalActions)
-            .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
-            .collect(Collectors.toList());
+        boolean hasShiftActions = stream(originalActions).anyMatch(a -> a.actionType() == ActionType.SHIFT);
 
         do {
             IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
 
             // Only allow shifting the subtree if the saved state matches the current state
             if(lookaheadNode.isReusable(stack.state())) {
+                // Remove shift actions from the original actions list
+                List<IAction> filteredActions = stream(originalActions)
+                    .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
+                    .collect(Collectors.toList());
+
                 // Optimization: if the (only) reduce action already appears in the to-be-reused lookahead,
                 // the reduce action can be removed.
                 // This is to avoid multipleStates = true,
                 // and should only happen in case multipleStates == false to avoid messing up other parse branches.
-                if(parseState.newParseNodesAreReusable() && reduceActions.size() == 1
-                    && nullReduceMatchesLookahead(stack, (IReduce) reduceActions.get(0), lookaheadNode)) {
-                    reduceActions.clear();
+                if(parseState.newParseNodesAreReusable() && filteredActions.size() == 1
+                    && nullReduceMatchesLookahead(stack, (IReduce) filteredActions.get(0), lookaheadNode)) {
+                    filteredActions.clear();
                 }
 
                 // Reusable nodes have only one derivation, by definition, so the production of the node is correct
-                reduceActions.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
-                return reduceActions;
+                filteredActions.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
+                return filteredActions;
             }
 
             // Break down the lookahead in either of the following scenarios:
             // - the lookahead is not reusable, or
             // - the lookahead has applicable shift actions
             // If neither scenario is the case, directly return the current list of actions.
-            if (lookaheadNode.isReusable() && shiftActions.isEmpty()) {
+            if(lookaheadNode.isReusable() && !hasShiftActions) {
                 return originalActions;
             }
 

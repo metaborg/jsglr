@@ -106,16 +106,21 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
     @TestFactory public Stream<DynamicTest> testListLayoutReuse() {
         return testParseNodeReuse(listLayout1, listLayout2, //
             new ParseNodeDescriptor(0, 0, "LAYOUT", null), //
+
             new ParseNodeDescriptor(0, 1, "ID", null), //
             new ParseNodeDescriptor(1, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(2, 1, "\"=\"", null), //
             new ParseNodeDescriptor(3, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(4, 1, "Exp", "Num"), //
+
+            new ParseNodeDescriptor(6, 1, "ID", null), //
             new ParseNodeDescriptor(7, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(8, 1, "\"=\"", null), //
-            new ParseNodeDescriptor(9, 0, "LAYOUT", null), //
+            new ParseNodeDescriptor(9, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(10, 1, "Exp", "Num"), //
-            new ParseNodeDescriptor(13, 0, "LAYOUT", null), //
+
+            new ParseNodeDescriptor(12, 1, "ID", null), //
+            new ParseNodeDescriptor(13, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(14, 1, "\"=\"", null));
     }
 

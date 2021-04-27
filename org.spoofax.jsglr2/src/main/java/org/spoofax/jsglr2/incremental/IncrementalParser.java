@@ -1,13 +1,14 @@
 package org.spoofax.jsglr2.incremental;
 
-import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.size;
 import static org.metaborg.util.iterators.Iterables2.stream;
 import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+import com.google.common.collect.Iterables;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.*;
 import org.spoofax.jsglr2.JSGLR2Request;
@@ -122,22 +123,53 @@ public class IncrementalParser
     }
 
     private Iterable<IAction> breakDownUntilValidActions(StackNode stack, ParseState parseState) {
-        do {
-            Iterable<IAction> actions = getActions(stack, parseState);
-            IncrementalParseForest lookaheadNode = parseState.inputStack.getNode();
+        // Get actions based on the lookahead terminal from `inputStack.actionQueryCharacter`
+        Iterable<IAction> originalActions = stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
-            // Break down the lookahead in either of the following scenarios:
-            // - the lookahead is not reusable (terminal nodes are always reusable), or
-            // - the lookahead is a non-terminal parse node AND there are no actions for it.
-            // If neither scenario is the case, directly return the current list of actions.
-            if(lookaheadNode.isReusable() && (lookaheadNode.isTerminal() || !isEmpty(actions))) {
-                return actions;
+        IncrementalParseForest lookahead = parseState.inputStack.getNode();
+        if(lookahead.isTerminal()) {
+            return originalActions;
+        }
+
+        // Split in shift and reduce actions
+        List<IAction> shiftActions =
+            stream(originalActions).filter(a -> a.actionType() == ActionType.SHIFT).collect(Collectors.toList());
+
+        // By default, only the reduce actions are returned
+        List<IAction> reduceActions = stream(originalActions)
+            .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
+            .collect(Collectors.toList());
+
+        do {
+            IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
+
+            // Only allow shifting the subtree if the saved state matches the current state
+            if(lookaheadNode.isReusable(stack.state())) {
+                // Optimization: if the (only) reduce action already appears in the to-be-reused lookahead,
+                // the reduce action can be removed.
+                // This is to avoid multipleStates = true,
+                // and should only happen in case multipleStates == false to avoid messing up other parse branches.
+                if(parseState.newParseNodesAreReusable() && reduceActions.size() == 1
+                    && nullReduceMatchesLookahead(stack, (IReduce) reduceActions.get(0), lookaheadNode)) {
+                    reduceActions.clear();
+                }
+
+                // Reusable nodes have only one derivation, by definition, so the production of the node is correct
+                reduceActions.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
+                return reduceActions;
             }
 
-            IncrementalParseNode brokenDownNode = (IncrementalParseNode) lookaheadNode;
+            // Break down the lookahead in either of the following scenarios:
+            // - the lookahead is not reusable, or
+            // - the lookahead has applicable shift actions
+            // If neither scenario is the case, directly return the current list of actions.
+            if (lookaheadNode.isReusable() && shiftActions.isEmpty()) {
+                return originalActions;
+            }
+
             observing.notify(observer -> observer.breakDown(parseState.inputStack,
-                brokenDownNode.production() == null ? TEMPORARY : brokenDownNode.isReusable()
-                    ? brokenDownNode.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : IRREUSABLE));
+                lookaheadNode.production() == null ? TEMPORARY : lookaheadNode.isReusable()
+                    ? lookaheadNode.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : IRREUSABLE));
 
             parseState.inputStack.breakDown();
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
@@ -145,7 +177,12 @@ public class IncrementalParser
             // If we already had something to shift, update the goto states in forShifter based on the new lookahead.
             // If we wouldn't do this, it would cause different shifts to be desynchronised.
             if(!parseState.forShifter.isEmpty())
-                updateForShifterStates(parseState, brokenDownNode);
+                updateForShifterStates(parseState, lookaheadNode);
+
+            lookahead = parseState.inputStack.getNode();
+            if(lookahead.isTerminal()) {
+                return originalActions;
+            }
         } while(true);
     }
 
@@ -181,59 +218,13 @@ public class IncrementalParser
 
                 // Note that there can be multiple shift states per stack,
                 // due to shift/shift conflicts in the parse table.
-                for(IAction action : getActions(forShifterStack, parseState)) {
+                for(IAction action : forShifterStack.state().getApplicableActions(parseState.inputStack,
+                    parseState.mode)) {
                     if(action.actionType() != ActionType.SHIFT)
                         continue;
                     addForShifter(parseState, forShifterStack, parseTable.getState(((IShift) action).shiftStateId()));
                 }
             }
-        }
-    }
-
-    // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.
-    // Else, the loop in `breakDownUntilValidActions` will have broken it down
-    private Iterable<IAction> getActions(StackNode stack, ParseState parseState) {
-        // Get actions based on the lookahead terminal from `inputStack.actionQueryCharacter`
-        Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
-
-        IncrementalParseForest lookahead = parseState.inputStack.getNode();
-        if(lookahead.isTerminal()) {
-            return actions;
-        } else {
-            // Split in shift and reduce actions
-            List<IAction> shiftActions =
-                stream(actions).filter(a -> a.actionType() == ActionType.SHIFT).collect(Collectors.toList());
-
-            // By default, only the reduce actions are returned
-            List<IAction> result = stream(actions)
-                .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
-                .collect(Collectors.toList());
-
-            IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
-
-            // Only allow shifting the subtree if the saved state matches the current state
-            boolean reusable = lookaheadNode.isReusable(stack.state());
-            if(reusable) {
-                // If the (only) reduce action already appears in the to-be-reused lookahead,
-                // the reduce action can be removed.
-                // This is an optimization to avoid multipleStates == true,
-                // and should only happen in case multipleStates == false to avoid messing up other parse branches.
-                if(parseState.newParseNodesAreReusable() && result.size() == 1
-                    && nullReduceMatchesLookahead(stack, (IReduce) result.get(0), lookaheadNode)) {
-                    result.clear();
-                }
-
-                // Reusable nodes have only one derivation, by definition, so the production of the node is correct
-                result.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
-            }
-
-            // If we don't have a GotoShift action, but do have regular shift actions, we should break down further.
-            // In case we do NOT have regular shift actions, the reduce actions should be executed before breaking down.
-            if(!reusable && !shiftActions.isEmpty()) {
-                return Collections.emptyList(); // Return no actions, to trigger breakdown
-            }
-
-            return result;
         }
     }
 

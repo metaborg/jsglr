@@ -229,12 +229,12 @@ public class LayoutStructure {
 		IToken token = commentsBeforeStart.getTokenBefore();
 		int lastNonEmptyLine = getLeftToken(node).getLine();
 		int preceedingAstLine = -1;
-		IToken previousToken = prefixStart.getTokenBefore();
+		IToken previousToken = prefixStart != null ? prefixStart.getTokenBefore() : null;
 		if(previousToken != null){
 			preceedingAstLine=previousToken.getEndLine();
 		}
 		final boolean sameLineSiblings = preceedingSibEndLine()  == getLeftToken(node).getLine();
-		while(token != null && token.getStartOffset() >= prefixStart.getStartOffset()){
+		while(token != null && prefixStart != null && token.getStartOffset() >= prefixStart.getStartOffset()){
 			if(isComment(token)){
 				int commentEndLine = token.getEndLine();
 				int commentStartLine = token.getLine();
@@ -281,7 +281,7 @@ public class LayoutStructure {
 		commentsAfterExclEnd = suffixStart;
 		IToken token = commentsAfterExclEnd;
 		//sets comment after end index
-		while(token != null && suffixEnd != null && nextToken != null && token.getStartOffset() <= nextToken.getStartOffset()){
+		while(token != null && nextToken != null && token.getStartOffset() <= nextToken.getStartOffset()){
 			if(token.getLine() != getRightToken(node).getEndLine()){
 				break; //a) comment not on same line
 			}

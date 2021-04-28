@@ -364,8 +364,7 @@ public class LayoutStructure {
 
 	private IToken getSuffixEnd(IToken suffixStart) {
 		IToken suffixEnd = suffixStart;
-		while (notAssociatedToAstNode(suffixEnd.getTokenAfter())) {
-			assert(suffixEnd != null);
+		while (suffixEnd != null && notAssociatedToAstNode(suffixEnd.getTokenAfter())) {
 			suffixEnd = suffixEnd.getTokenAfter();
 		}
 		return suffixEnd;
@@ -373,8 +372,7 @@ public class LayoutStructure {
 
 	private IToken getPrefixStart(IToken prefixEndToken) {
 		IToken prefixStart = prefixEndToken;
-		while (notAssociatedToAstNode(prefixStart.getTokenBefore())) {
-			assert(prefixStart != null);
+		while (prefixStart != null && notAssociatedToAstNode(prefixStart.getTokenBefore())) {
 			prefixStart = prefixStart.getTokenBefore();
 		}
 		return prefixStart;
@@ -403,7 +401,6 @@ public class LayoutStructure {
 
 	private boolean isComment(IToken token) {
 		return
-			token != null &&
 			isLayout(token) &&
 			!Token.isWhiteSpace(token);
 	}

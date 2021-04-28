@@ -5,9 +5,7 @@ import static org.metaborg.util.iterators.Iterables2.stream;
 import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
@@ -185,21 +183,20 @@ public class IncrementalParser
             int productionId = ((IParseNode<?, ?>) newLookaheadNode).production().id();
             for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
                 StackNode forShifterStack = forShifterElement.stack;
+
                 addForShifter(parseState, forShifterStack,
                     parseTable.getState(forShifterStack.state().getGotoId(productionId)));
             }
         } else {
             // If the new lookahead node is a character node, replace the forShifter states
             // with the shift states from the parse table.
-            Set<StackNode> seen = new HashSet<>();
             for(ForShifterElement<StackNode> forShifterElement : oldForShifter) {
                 StackNode forShifterStack = forShifterElement.stack;
-                if(seen.contains(forShifterStack))
-                    continue;
-                seen.add(forShifterStack);
 
                 // Note that there can be multiple shift states per stack,
                 // due to shift/shift conflicts in the parse table.
+                // However, we are certain that `oldForShifter` must contain each stack at most once,
+                // because it can only contain GotoShift actions and the goto table cannot have conflicts.
                 for(IAction action : forShifterStack.state().getApplicableActions(parseState.inputStack,
                     parseState.mode)) {
                     if(action.actionType() != ActionType.SHIFT)

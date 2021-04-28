@@ -112,7 +112,15 @@ public class IncrementalParser
     }
 
     @Override protected void actor(StackNode stack, ParseState parseState) {
+        IncrementalParseForest originalLookahead = parseState.inputStack.getNode();
+
         Iterable<IAction> actions = breakDownUntilValidActions(stack, parseState);
+
+        // If we already had something to shift and the lookahead has been broken down,
+        // update the goto states in forShifter based on the new lookahead.
+        // If we wouldn't do this, it would cause different shifts to be desynchronised.
+        if(!parseState.forShifter.isEmpty() && parseState.inputStack.getNode() != originalLookahead)
+            updateForShifterStates(parseState);
 
         if(size(actions) > 1)
             parseState.setMultipleStates(true);
@@ -173,17 +181,11 @@ public class IncrementalParser
             parseState.inputStack.breakDown();
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
 
-            // If we already had something to shift, update the goto states in forShifter based on the new lookahead.
-            // If we wouldn't do this, it would cause different shifts to be desynchronised.
-            if(!parseState.forShifter.isEmpty()) {
-                // If the broken-down node has no children, it has been removed from the input stack.
-                // Therefore, any GotoShift actions that were in the forShifter list become invalid.
-                // They can be discarded, because they will replaced by 0-arity reductions.
-                if(lookaheadNode.getFirstDerivation().parseForests.length == 0)
-                    parseState.forShifter.clear();
-                else
-                    updateForShifterStates(parseState);
-            }
+            // If the broken-down node has no children, it has been removed from the input stack.
+            // Therefore, any GotoShift actions that were in the forShifter list become invalid.
+            // They can be discarded, because they will replaced by 0-arity reductions.
+            if(!parseState.forShifter.isEmpty() && lookaheadNode.getFirstDerivation().parseForests.length == 0)
+                parseState.forShifter.clear();
 
             lookahead = parseState.inputStack.getNode();
             if(lookahead.isTerminal()) {

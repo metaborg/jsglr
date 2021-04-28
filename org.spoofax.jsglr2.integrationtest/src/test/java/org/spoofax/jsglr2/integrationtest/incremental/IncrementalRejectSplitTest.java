@@ -32,7 +32,6 @@ public class IncrementalRejectSplitTest extends BaseTestWithSdf3ParseTables {
         //@formatter:on
     }
 
-    // TODO maybe disable??
     @TestFactory public Stream<DynamicTest> incrementalRejectSplit() throws ParseError {
         //@formatter:off
         return testIncrementalSuccessByExpansions(

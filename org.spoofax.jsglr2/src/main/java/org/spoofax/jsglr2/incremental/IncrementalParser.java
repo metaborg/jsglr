@@ -216,12 +216,12 @@ public class IncrementalParser
             .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
             .collect(Collectors.toList());
 
-        // Optimization: if the (only) reduce action already appears in the to-be-reused lookahead,
-        // the reduce action can be removed.
+        // Optimization: if the production of the (only) reduce action
+        // is the leftmost descendant of the to-be-reused lookahead, the reduce action can be removed.
         // This is to avoid multipleStates = true,
         // and should only happen in case multipleStates == false to avoid messing up other parse branches.
         if(parseState.newParseNodesAreReusable() && filteredActions.size() == 1
-            && nullReduceMatchesLookahead(stack, (IReduce) filteredActions.get(0), lookaheadNode)) {
+            && nullReduceMatchesLookahead((IReduce) filteredActions.get(0), lookaheadNode)) {
             filteredActions.clear();
         }
 
@@ -230,26 +230,23 @@ public class IncrementalParser
         return filteredActions;
     }
 
-    // If there are two actions, with one reduce of arity 0 and one GotoShift that contains this subtree already,
+    // If there are two actions, with one reduce of arity 0 and one GotoShift
+    // with a lookahead whose leftmost descendant has the same production as the reduce action,
     // then the reduce of arity 0 is not necessary.
     // This method returns whether this is the case.
-    private boolean nullReduceMatchesLookahead(StackNode stack, IReduce reduceAction,
-        IncrementalParseNode lookaheadNode) {
-
+    // Note that "descendant" includes the root, so the parameter `lookaheadNode` may already be the null-yield node.
+    private boolean nullReduceMatchesLookahead(IReduce reduceAction, IncrementalParseNode lookaheadNode) {
         if(reduceAction.arity() != 0)
             return false;
 
-        int reduceGoto = stack.state().getGotoId(reduceAction.production().id());
         while(true) {
-            if(reduceGoto == stack.state().getGotoId(lookaheadNode.production().id()))
-                return true;
             IncrementalParseForest[] children = lookaheadNode.getFirstDerivation().parseForests;
             if(children.length == 0)
-                return false;
+                return reduceAction.production().id() == lookaheadNode.production().id();
             IncrementalParseForest child = children[0];
             if(child.isTerminal())
                 return false;
-            lookaheadNode = ((IncrementalParseNode) child);
+            lookaheadNode = (IncrementalParseNode) child;
         }
     }
 

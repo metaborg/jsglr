@@ -9,9 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import com.google.common.collect.Iterables;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.*;
 import org.spoofax.jsglr2.JSGLR2Request;
@@ -177,8 +175,15 @@ public class IncrementalParser
 
             // If we already had something to shift, update the goto states in forShifter based on the new lookahead.
             // If we wouldn't do this, it would cause different shifts to be desynchronised.
-            if(!parseState.forShifter.isEmpty())
-                updateForShifterStates(parseState, lookaheadNode);
+            if(!parseState.forShifter.isEmpty()) {
+                // If the broken-down node has no children, it has been removed from the input stack.
+                // Therefore, any GotoShift actions that were in the forShifter list become invalid.
+                // They can be discarded, because they will replaced by 0-arity reductions.
+                if(lookaheadNode.getFirstDerivation().parseForests.length == 0)
+                    parseState.forShifter.clear();
+                else
+                    updateForShifterStates(parseState);
+            }
 
             lookahead = parseState.inputStack.getNode();
             if(lookahead.isTerminal()) {
@@ -187,15 +192,9 @@ public class IncrementalParser
         } while(true);
     }
 
-    private void updateForShifterStates(ParseState parseState, IncrementalParseNode brokenDownNode) {
+    private void updateForShifterStates(ParseState parseState) {
         List<ForShifterElement<StackNode>> oldForShifter = new ArrayList<>(parseState.forShifter);
         parseState.forShifter.clear();
-
-        // If the broken-down node has no children, it has been removed from the input stack.
-        // Therefore, any GotoShift actions that were in the forShifter list become invalid.
-        // They can be discarded, because they will replaced by 0-arity reductions.
-        if(brokenDownNode.getFirstDerivation().parseForests.length == 0)
-            return;
 
         IncrementalParseForest newLookaheadNode = parseState.inputStack.getNode();
         if(newLookaheadNode instanceof IParseNode) {

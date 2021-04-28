@@ -146,25 +146,8 @@ public class IncrementalParser
             IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
 
             // Only allow shifting the subtree if the saved state matches the current state
-            if(lookaheadNode.isReusable(stack.state())) {
-                // Remove shift actions from the original actions list
-                List<IAction> filteredActions = stream(originalActions)
-                    .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
-                    .collect(Collectors.toList());
-
-                // Optimization: if the (only) reduce action already appears in the to-be-reused lookahead,
-                // the reduce action can be removed.
-                // This is to avoid multipleStates = true,
-                // and should only happen in case multipleStates == false to avoid messing up other parse branches.
-                if(parseState.newParseNodesAreReusable() && filteredActions.size() == 1
-                    && nullReduceMatchesLookahead(stack, (IReduce) filteredActions.get(0), lookaheadNode)) {
-                    filteredActions.clear();
-                }
-
-                // Reusable nodes have only one derivation, by definition, so the production of the node is correct
-                filteredActions.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
-                return filteredActions;
-            }
+            if(lookaheadNode.isReusable(stack.state()))
+                return reduceActionsAndGotoShift(stack, parseState, lookaheadNode, originalActions);
 
             // Break down the lookahead in either of the following scenarios:
             // - the lookahead is not reusable, or
@@ -228,6 +211,29 @@ public class IncrementalParser
                 }
             }
         }
+    }
+
+    // Returns the list of applicable reduce actions plus a new GotoShift action
+    private List<IAction> reduceActionsAndGotoShift(StackNode stack, ParseState parseState,
+        IncrementalParseNode lookaheadNode, Iterable<IAction> originalActions) {
+
+        // Remove shift actions from the original actions list
+        List<IAction> filteredActions = stream(originalActions)
+            .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
+            .collect(Collectors.toList());
+
+        // Optimization: if the (only) reduce action already appears in the to-be-reused lookahead,
+        // the reduce action can be removed.
+        // This is to avoid multipleStates = true,
+        // and should only happen in case multipleStates == false to avoid messing up other parse branches.
+        if(parseState.newParseNodesAreReusable() && filteredActions.size() == 1
+            && nullReduceMatchesLookahead(stack, (IReduce) filteredActions.get(0), lookaheadNode)) {
+            filteredActions.clear();
+        }
+
+        // Reusable nodes have only one derivation, by definition, so the production of the node is correct
+        filteredActions.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
+        return filteredActions;
     }
 
     // If there are two actions, with one reduce of arity 0 and one GotoShift that contains this subtree already,

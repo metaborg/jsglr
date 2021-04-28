@@ -136,9 +136,8 @@ public class IncrementalParser
         Iterable<IAction> originalActions = stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
         IncrementalParseForest lookahead = parseState.inputStack.getNode();
-        if(lookahead.isTerminal()) {
+        if(lookahead.isTerminal())
             return originalActions;
-        }
 
         boolean hasShiftActions = stream(originalActions).anyMatch(a -> a.actionType() == ActionType.SHIFT);
 
@@ -153,9 +152,8 @@ public class IncrementalParser
             // - the lookahead is not reusable, or
             // - the lookahead has applicable shift actions
             // If neither scenario is the case, directly return the current list of actions.
-            if(lookaheadNode.isReusable() && !hasShiftActions) {
+            if(lookaheadNode.isReusable() && !hasShiftActions)
                 return originalActions;
-            }
 
             observing.notify(observer -> observer.breakDown(parseState.inputStack,
                 lookaheadNode.production() == null ? TEMPORARY : lookaheadNode.isReusable()
@@ -171,9 +169,8 @@ public class IncrementalParser
                 parseState.forShifter.clear();
 
             lookahead = parseState.inputStack.getNode();
-            if(lookahead.isTerminal()) {
+            if(lookahead.isTerminal())
                 return originalActions;
-            }
         } while(true);
     }
 
@@ -241,8 +238,10 @@ public class IncrementalParser
     // This method returns whether this is the case.
     private boolean nullReduceMatchesLookahead(StackNode stack, IReduce reduceAction,
         IncrementalParseNode lookaheadNode) {
+
         if(reduceAction.arity() != 0)
             return false;
+
         int reduceGoto = stack.state().getGotoId(reduceAction.production().id());
         while(true) {
             if(reduceGoto == stack.state().getGotoId(lookaheadNode.production().id()))

@@ -1,12 +1,8 @@
 package org.spoofax.jsglr2.incremental;
 
-import static com.google.common.collect.Iterables.size;
-import static org.metaborg.util.iterators.Iterables2.stream;
 import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.*;
@@ -30,6 +26,8 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
+
+import com.google.common.collect.Iterables;
 
 public class IncrementalParser
 // @formatter:off
@@ -120,13 +118,28 @@ public class IncrementalParser
         if(!parseState.forShifter.isEmpty() && parseState.inputStack.getNode() != originalLookahead)
             updateForShifterStates(parseState);
 
-        if(size(actions) > 1)
+        if(hasMoreThanOne(actions))
             parseState.setMultipleStates(true);
 
         observing.notify(observer -> observer.actor(stack, parseState, actions));
 
         for(IAction action : actions)
             actor(stack, parseState, action);
+    }
+
+    /**
+     * Based on {@link com.google.common.collect.Iterables#size}.
+     *
+     * @return Whether the iterable has more than one element.
+     */
+    public static boolean hasMoreThanOne(Iterable<?> iterable) {
+        if(iterable instanceof Collection)
+            return ((Collection<?>) iterable).size() > 1;
+        Iterator<?> iterator = iterable.iterator();
+        if(!iterator.hasNext())
+            return false;
+        iterator.next();
+        return iterator.hasNext();
     }
 
     private Iterable<IAction> breakDownUntilValidActions(StackNode stack, ParseState parseState) {
@@ -137,7 +150,14 @@ public class IncrementalParser
         if(lookahead.isTerminal())
             return originalActions;
 
-        boolean hasShiftActions = stream(originalActions).anyMatch(a -> a.actionType() == ActionType.SHIFT);
+        // Pre-calculate whether the list of actions contains shift actions, we need this information in the loop
+        boolean hasShiftActions = false;
+        for(IAction action : originalActions) {
+            if(action.actionType() == ActionType.SHIFT) {
+                hasShiftActions = true;
+                break;
+            }
+        }
 
         do {
             IncrementalParseNode lookaheadNode = (IncrementalParseNode) lookahead;
@@ -211,10 +231,13 @@ public class IncrementalParser
     private List<IAction> reduceActionsAndGotoShift(StackNode stack, ParseState parseState,
         IncrementalParseNode lookaheadNode, Iterable<IAction> originalActions) {
 
+        // Reusable nodes have only one derivation, by definition, so the production of the node is correct
+        GotoShift gotoShift = new GotoShift(stack.state().getGotoId(lookaheadNode.production().id()));
+
         // Remove shift actions from the original actions list
-        List<IAction> filteredActions = stream(originalActions)
-            .filter(a -> a.actionType() == ActionType.REDUCE || a.actionType() == ActionType.REDUCE_LOOKAHEAD)
-            .collect(Collectors.toList());
+        List<IAction> filteredActions = new ArrayList<>();
+        // noinspection StaticPseudoFunctionalStyleMethod
+        Iterables.addAll(filteredActions, Iterables.filter(originalActions, a -> a.actionType() != ActionType.SHIFT));
 
         // Optimization: if the production of the (only) reduce action
         // is the leftmost descendant of the to-be-reused lookahead, the reduce action can be removed.
@@ -222,11 +245,10 @@ public class IncrementalParser
         // and should only happen in case multipleStates == false to avoid messing up other parse branches.
         if(parseState.newParseNodesAreReusable() && filteredActions.size() == 1
             && nullReduceMatchesLookahead((IReduce) filteredActions.get(0), lookaheadNode)) {
-            filteredActions.clear();
+            return Collections.singletonList(gotoShift);
         }
 
-        // Reusable nodes have only one derivation, by definition, so the production of the node is correct
-        filteredActions.add(new GotoShift(stack.state().getGotoId(lookaheadNode.production().id())));
+        filteredActions.add(gotoShift);
         return filteredActions;
     }
 

@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.incremental;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
@@ -62,7 +61,7 @@ public class IncrementalReduceManager
         List<StackPath<ParseForest, StackNode>> paths = stackManager.findAllPathsOfLength(activeStack, reduce.arity());
 
         if(throughLink != null)
-            paths = paths.stream().filter(path -> path.contains(throughLink)).collect(Collectors.toList());
+            paths.removeIf(path -> !path.contains(throughLink));
 
         if(reduceResultsInMultipleStates(paths, reduce.production().id()))
             parseState.setMultipleStates(true);

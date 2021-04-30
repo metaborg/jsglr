@@ -92,9 +92,12 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
             new ParseNodeDescriptor(2, 1, "\"=\"", null), //
             new ParseNodeDescriptor(3, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(4, 1, "Exp", "Var"), //
+            new ParseNodeDescriptor(5, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(6, 1, "\"+\"", null), //
             new ParseNodeDescriptor(7, 1, "LAYOUT", null), //
-            new ParseNodeDescriptor(8, 1, "Exp", "Var"));
+            new ParseNodeDescriptor(8, 1, "Exp", "Var"), //
+            new ParseNodeDescriptor(11, 1, "LAYOUT", null), //
+            new ParseNodeDescriptor(12, 1, "ID", null));
     }
 
     @TestFactory public Stream<DynamicTest> testListLayout() {
@@ -112,12 +115,14 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
             new ParseNodeDescriptor(2, 1, "\"=\"", null), //
             new ParseNodeDescriptor(3, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(4, 1, "Exp", "Num"), //
+            new ParseNodeDescriptor(5, 1, "LAYOUT", null), //
 
             new ParseNodeDescriptor(6, 1, "ID", null), //
             new ParseNodeDescriptor(7, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(8, 1, "\"=\"", null), //
             new ParseNodeDescriptor(9, 1, "LAYOUT", null), //
             new ParseNodeDescriptor(10, 1, "Exp", "Num"), //
+            new ParseNodeDescriptor(11, 1, "LAYOUT", null), //
 
             new ParseNodeDescriptor(12, 1, "ID", null), //
             new ParseNodeDescriptor(13, 1, "LAYOUT", null), //

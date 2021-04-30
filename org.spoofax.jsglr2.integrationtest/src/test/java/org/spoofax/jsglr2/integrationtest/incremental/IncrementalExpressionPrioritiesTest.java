@@ -54,6 +54,7 @@ public class IncrementalExpressionPrioritiesTest extends BaseTestWithSdf3ParseTa
             testIncrementalSuccessByExpansions(inputStrings,
                 new String[] { "Add(\"x\",Mul(\"y\",\"z\"))", "Mul(Mul(\"x\",\"y\"),\"z\")" }),
             testParseNodeReuse(inputStrings[0], inputStrings[1], //
+                new ParseNodeDescriptor(3, 1, "\"*\"", null), //
                 new ParseNodeDescriptor(4, 1, "Exp", "Var")));
     }
 

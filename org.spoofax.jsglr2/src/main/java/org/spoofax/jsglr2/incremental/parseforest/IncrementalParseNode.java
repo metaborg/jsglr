@@ -52,8 +52,13 @@ public class IncrementalParseNode extends IncrementalParseForest
     }
 
     @Override public boolean isReusable(IState stackState) {
+        if(production == null)
+            return false;
         // If state == NO_STATE, its ID is -1, and can in that case never equal the ID of stackState
-        return stackState.id() == state.id();
+        if(stackState.id() == state.id())
+            return true;
+        // If state == NO_STATE, it has no gotos, and the goto ID can in that case never equal the goto ID of stackState
+        return stackState.getGotoId(production.id(), -1) == state.getGotoId(production.id(), -2);
     }
 
     @Override public boolean isTerminal() {
